@@ -43,20 +43,20 @@ export class FarmlandManager {
         if (!this._server) {
             this._server = server;
         }
-        let rot = Quaternion2Euler(Vector4.FromXYZW({
+        const rot = Quaternion2Euler(Vector4.FromXYZW({
             Z: client.character.state.rotation[0],
             Y: client.character.state.rotation[1],
             X: client.character.state.rotation[2],
             W: client.character.state.rotation[3]
         }), "XZY");
-        let pos = FarmlandManager.calcLookAtPosition(client);
+        const pos = FarmlandManager.calcLookAtPosition(client);
         // console.log('look at pos:', pos);
         // let rot = this.getBillboardRot(client);
         if (pos) {
             if (!this._charactersFurrows[client.character.characterId]) {
                 this._charactersFurrows[client.character.characterId] = [];
             }
-            let newFurrows = new Furrows(client.character.characterId, pos,
+            const newFurrows = new Furrows(client.character.characterId, pos,
                 new Euler(rot[0], 0, 0), Date.now(), this._setting.DefaultFurrowsDuration, [], server.generateGuid());
             this.placeFurrows(newFurrows, server);
             this.simulateCreateHoles(newFurrows);
@@ -84,21 +84,21 @@ export class FarmlandManager {
                                                    bySightPoint: boolean): Furrows | null => {
         let usePos = new Vector4(client.character.state.position[2], client.character.state.position[1], client.character.state.position[0], client.character.state.position[3]);
         if (bySightPoint) {
-            let sightPos = FarmlandManager.calcLookAtPosition(client);
+            const sightPos = FarmlandManager.calcLookAtPosition(client);
             if (!sightPos) {
                 console.log('cant get sight point, use role pos');
             } else {
                 usePos = sightPos;
             }
         }
-        let fs = this.searchTiledFurrowsListAroundPosition(client.character.characterId, usePos, this._setting.FertilizerActionRadius);
+        const fs = this.searchTiledFurrowsListAroundPosition(client.character.characterId, usePos, this._setting.FertilizerActionRadius);
         if (fs.length > 0) {
-            let bestFurrows: any;
+            let bestFurrows: Furrows;
             //get best hole
             for (const f of fs) {
                 for (const hole of f.Holes) {
                     if (!hole.InsideSeed) {
-                        bestFurrows = <Furrows>f;
+                        bestFurrows = f;
                         return bestFurrows;
                     }
                 }
@@ -108,13 +108,13 @@ export class FarmlandManager {
     }
 
     public GetSurroundingFertilizeAbleHoles = (client: Client, circleRadius: number): Hole[] => {
-        let fs = this.searchTiledFurrowsListAroundPosition(client.character.characterId,
+        const fs = this.searchTiledFurrowsListAroundPosition(client.character.characterId,
             new Vector4(client.character.state.position[2],
                 client.character.state.position[1],
                 client.character.state.position[0],
                 client.character.state.position[3],
             ), circleRadius);
-        let ret = [];
+        const ret = [];
         //It can only be fertilize if there is something in it
         for (const f of fs) {
             for (const hole of f.Holes) {
@@ -134,7 +134,7 @@ export class FarmlandManager {
     }
 
     public BurySeedIntoHole = (hole: Hole, seed: Seed, server: ZoneServer2016) => {
-        let seedQU = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
+        const seedQU = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
         //loot able seed
         const seedInHole = server.generateItem(seed.Type, 1);
         if (!seedInHole || !seedInHole.itemGuid)
@@ -151,7 +151,7 @@ export class FarmlandManager {
     }
 
     public ReFertilizeHole = (hole: Hole): boolean => {
-        let guid = hole.Id;
+        const guid = hole.Id;
         if (!guid) return false;
         if (!this._fertilizerExpirationTimers[guid])
             return false;
@@ -179,10 +179,10 @@ export class FarmlandManager {
 
     //region private
     private static calcLookAtPosition(client: Client): Vector4 | null {
-        let roleHeight = 1.5;
-        let pos = client.character.state.position;
+        const roleHeight = 1.5;
+        const pos = client.character.state.position;
         // let euler = convertDudesQuaternion2Eul(client.character.state.rotation);
-        let euler = Quaternion2Euler(Vector4.FromXYZW({
+        const euler = Quaternion2Euler(Vector4.FromXYZW({
             Z: client.character.state.rotation[0],
             Y: client.character.state.rotation[1],
             X: client.character.state.rotation[2],
@@ -199,7 +199,7 @@ export class FarmlandManager {
 
     private simulateCreateHoles = (destFurrows: Furrows): void => {
         for (let i = 0; i < 4; i++) {
-            let seedPosRot = MoveToByParent(destFurrows.Position, destFurrows.Rotation,
+            const seedPosRot = MoveToByParent(destFurrows.Position, destFurrows.Rotation,
                 new Euler(-Math.PI / 4 + (-Math.PI / 2 * i), 0, 0),
                 0.4);
             // console.warn('播种到:',bestHoleIndexOfFurrows+1);
@@ -215,7 +215,7 @@ export class FarmlandManager {
         if (!furrows.Id) return;
         // console.log('place angle, same as packet.data.orientation:', rot[0] / Math.PI * 180);
         //add to server dataset
-        let rotQU = Euler2Quaternion(furrows.Rotation.Yaw, furrows.Rotation.Pitch, furrows.Rotation.Roll);
+        const rotQU = Euler2Quaternion(furrows.Rotation.Yaw, furrows.Rotation.Pitch, furrows.Rotation.Roll);
         //Use a chair just to check the rotation rules
         // modelId: 10004,
         //9191 9190 9189,59 60 61 is wheat and corn sapling growing grown status model
@@ -231,8 +231,8 @@ export class FarmlandManager {
 
     //use for fertilize furrows or simple seed placement
     private searchTiledFurrowsListAroundPosition(characterId: string, sightPoint: Vector4, circleRadius: number): Furrows[] {
-        let ret: Furrows[] = [];
-        let fs = this._charactersFurrows[characterId];
+        const ret: Furrows[] = [];
+        const fs = this._charactersFurrows[characterId];
         if (fs && fs.length > 0) {
             for (const f of fs) {
                 if (Math.abs(Vector4.Distance(f.Position, sightPoint)) < circleRadius) {

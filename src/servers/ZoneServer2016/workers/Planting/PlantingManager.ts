@@ -26,18 +26,18 @@ export class PlantingManager {
     //endregion
 
     public Reclaim(client: Client, server: ZoneServer2016) {
-        let reclaimRet = this._farmlandManager.Reclaim(client, server);
+        const reclaimRet = this._farmlandManager.Reclaim(client, server);
         server.sendChatText(client, `reclaim the ground has been${reclaimRet ? ' succeeded' : ' failed'}`);
     }
 
     //now it's just simple placement,auto find sight point around furrows and holes
     public SowSeed(client: Client, server: ZoneServer2016, itemDefinitionId: number, itemGuid: string) {
         let sRet = false;
-        let f = this._farmlandManager.SimulateGetSurroundingSowAbleFurrows(client, false);
+        const f = this._farmlandManager.SimulateGetSurroundingSowAbleFurrows(client, false);
         if (f) {
             for (const hole of f.Holes) {
                 if (!hole.InsideSeed && !hole.InsideCropsPile) {
-                    let seed = new Seed(itemDefinitionId, Date.now(), itemGuid);
+                    const seed = new Seed(itemDefinitionId, Date.now(), itemGuid);
                     this._farmlandManager.BurySeedIntoHole(hole, seed, server);
                     sRet = this._growManager.StartCultivating(client, server, hole, seed);
                     if (sRet) {
@@ -51,7 +51,7 @@ export class PlantingManager {
     }
 
     public FertilizeCrops(client: Client, server: ZoneServer2016) {
-        let holes = this._farmlandManager.GetSurroundingFertilizeAbleHoles(client, this._setting.FertilizerActionRadius);
+        const holes = this._farmlandManager.GetSurroundingFertilizeAbleHoles(client, this._setting.FertilizerActionRadius);
         if (!holes.length) {
             console.log('No surrounding holes for fertilization');
             return;
@@ -91,7 +91,7 @@ export class PlantingManager {
     public TriggerPicking = (item: inventoryItem | undefined, client: Client, server: ZoneServer2016): boolean => {
         if (!item || !SeedType[item.itemDefinitionId] || !item.itemGuid)
             return false;
-        let hole = this._farmlandManager.IsSeedOrCropsInHole(item.itemGuid);
+        const hole = this._farmlandManager.IsSeedOrCropsInHole(item.itemGuid);
         if (hole) {
             return this._growManager.PickingMatureCrops(hole, client, server);
         }

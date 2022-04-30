@@ -6,6 +6,7 @@ import {PlantingManager} from "./PlantingManager";
 import {SeedType} from "./Model/DataModels";
 import {TemporaryEntity} from "../../classes/temporaryentity";
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace NormanTest {
 //test euler from client->server->quaternion encode(by other dude,not correct maybe)->decode to euler
     const Test = () => {
@@ -13,10 +14,10 @@ export namespace NormanTest {
         //eul2quat function got : {X:0.02618025 Y:-0.5811435 Z:-0.122121 W:0.80416}
         //order by x y z w mode: let qu = {X:0.02618025, Y:-0.5811435, Z:-0.122121, W:0.80416};(not work)
         //order by z y x w mode, that's right
-        let qu = new Vector4(-0.122121, -0.5811435, 0.02618025, 0.80416);
-        let methods = ["ZYX", "ZYZ", "ZXY", "ZXZ", "YXZ", "YXY", "YZX", "YZY", "XYZ", "XYX", "XZY", "XZX"];
+        const qu = new Vector4(-0.122121, -0.5811435, 0.02618025, 0.80416);
+        const methods = ["ZYX", "ZYZ", "ZXY", "ZXZ", "YXZ", "YXY", "YZX", "YZY", "XYZ", "XYX", "XZY", "XZX"];
         for (let i = 0; i < methods.length; i++) {
-            let currentMethod = methods[i];
+            const currentMethod = methods[i];
             const currentQu = Quaternion2Euler(qu, currentMethod);
             console.log('使用四元数的ZYX:当前方法:', currentMethod, '方法值', currentQu);
         }
@@ -24,13 +25,13 @@ export namespace NormanTest {
         //step 1:
         //in value:h1z1 client->h1emu server(here, as origin euler angle3)->quaternion converted by eul2quat method
         //out value:x z y origin euler angle(server received origin euler)
-        let q = Quaternion2Euler(qu, "XZY");
+        const q = Quaternion2Euler(qu, "XZY");
         console.log('z->y->x->w quaternion 2 euler by XZY result:', q);
         console.warn('q value is not a x y z info struct, it contains yaw pitch row info, yaw=q[0] pitch=q[1] roll=q[2]');
         //step 2:
         //in value:server received origin euler
         //out value:quaternion,same as c# and eul2quat function's result
-        let e = Euler2Quaternion(q[0], q[1], q[2]);
+        const e = Euler2Quaternion(q[0], q[1], q[2]);
         console.log('XZY(origin->eul->q4->eul) euler(yaw pitch roll) 2 quaternion by yaw=x, pitch=y, roll=z calc result:', e);
         //region is not right this:
         // /*
@@ -45,21 +46,21 @@ export namespace NormanTest {
 //region just a test
 //decode encoded euler angle by given values test, values from utils_1.eul2quat
     export const convertDudesQuaternion2Eul = (qu: Float32Array): Float32Array => {
-        let quaternion = Vector4.FromXYZW({Z: qu[0], Y: qu[1], X: qu[2], W: qu[3]});
+        const quaternion = Vector4.FromXYZW({Z: qu[0], Y: qu[1], X: qu[2], W: qu[3]});
         return Quaternion2Euler(quaternion, "XZY");
     };
 //input a role standing position and look down angle(2/PI~-2/PI) and roleHeight to calc some positions around role standing position,default count is 12;
     const standLookAroundPositions = (standPos: Vector4, lookDownAngle: number, roleHeight: number): Array<Vector4> => {
-        let lookAroundPosList = new Array<Vector4>();
+        const lookAroundPosList = new Array<Vector4>();
         // let rolePos = {X:x,Y:world.Y,Z:z,W:1};
-        let cameraPos = Vector4.FromXYZW({X: standPos.X, Y: standPos.Y + roleHeight, Z: standPos.Z, W: 1});
+        const cameraPos = Vector4.FromXYZW({X: standPos.X, Y: standPos.Y + roleHeight, Z: standPos.Z, W: 1});
         console.log('cameraPos:', cameraPos);
         // let cameraDefaultDirect = {X: 1, Y: 0, Z: 0, W: 0};
-        let testYawCount = 12;
+        const testYawCount = 12;
         for (let k = 0; k < testYawCount; k++) {
-            let yaw = (Math.PI * 2) / testYawCount * k - Math.PI;
+            const yaw = (Math.PI * 2) / testYawCount * k - Math.PI;
             // -Math.PI/6;//angle 30;
-            let crossPos = getLookAtPos(standPos, yaw, 0, lookDownAngle, roleHeight)
+            const crossPos = getLookAtPos(standPos, yaw, 0, lookDownAngle, roleHeight)
             if (!crossPos || Math.abs(crossPos.X) > 2000 || Math.abs(crossPos.Z) > 2000) {
                 console.warn('the cross position maybe incorrect:', crossPos);
             } else {
@@ -72,7 +73,7 @@ export namespace NormanTest {
 //endregion
     const Test2 = () => {
         //{0:0.02618025 1:-0.5811435 2:-0.122121 3:0.80416}
-        let ret = convertDudesQuaternion2Eul(new Float32Array([0.02618025, -0.5811435, -0.122121, 0.80416]));
+        const ret = convertDudesQuaternion2Eul(new Float32Array([0.02618025, -0.5811435, -0.122121, 0.80416]));
         //-1.24,-0.1,-0.23
         console.log('convert from the quaternion decoded ret is :', ret);
         console.log(standLookAroundPositions(new Vector4(1, 0, 0, 1), -Math.PI / 4, 0.5));
@@ -80,19 +81,19 @@ export namespace NormanTest {
 
 //simulate role move and get look at pos
     const Test3 = () => {
-        let perGridSize = 100;
-        let world = {X: -1000, Y: 30, Z: -1000, Width: 2000, Height: 0, Depth: 2000};
+        const perGridSize = 100;
+        const world = {X: -1000, Y: 30, Z: -1000, Width: 2000, Height: 0, Depth: 2000};
         for (let i = 0; i < world.Width; i += perGridSize) {
-            let x = i - world.Width / 2;
+            const x = i - world.Width / 2;
             for (let j = 0; j < world.Depth; j += perGridSize) {
-                let z = j - world.Depth / 2;
+                const z = j - world.Depth / 2;
                 //look down 45 deg and role height set 2m;
                 // let crossList = standLookAround(CreateV4(x,world.Y,z,1),Math.PI/4,2);
 
                 // let crossList = standLookAround(CreateV4(x,world.Y,z,1),Math.PI/4,2);
                 // console.log(crossList)
 
-                let cross = getLookAtPos(new Vector4(x, world.Y, z, 1), -1.24, -0.1, 0.23, 1.5);
+                const cross = getLookAtPos(new Vector4(x, world.Y, z, 1), -1.24, -0.1, 0.23, 1.5);
                 console.log('cross pos:', cross);
             }
         }
@@ -115,19 +116,19 @@ export namespace NormanTest {
         //     "3": 0
         // }
         //endregion
-        let stand = {
+        const stand = {
             Z: 1837.5400390625,
             Y: 64.3499984741211,
             X: -427,
             W: 0
         }
-        let ret = getLookAtPos(Vector4.FromXYZW(stand), -2.15, 0, 0.22, 1.5);
+        const ret = getLookAtPos(Vector4.FromXYZW(stand), -2.15, 0, 0.22, 1.5);
         console.log(ret);
     }
 
 //get positions for fly flares like a kite
     export const GetKiteLineDots = (eyePos: Vector4, yaw: number, pitch: number, roll: number, perDotDistance: number, dotCount: number): Array<Vector4> => {
-        let ret = new Array<Vector4>();
+        const ret = new Array<Vector4>();
         let roleDirect = Transform(new Vector4(1, 0, 0, 0), Euler2Quaternion(yaw, pitch, roll));
         roleDirect = Vector4.Normalize(roleDirect);
         for (let i = 0; i < dotCount; i++) {
@@ -143,7 +144,7 @@ export namespace NormanTest {
 
 //rot rot rot
     const RotRotRotByParent = (firstMoved: Vector4, times: number, perTimeAngle: number, distance: number) => {
-        let start = firstMoved;
+        const start = firstMoved;
         let parentDir = Vector4.Normalize(start);
         let currentWorld = start;
         for (let i = 0; i < times; i++) {
@@ -151,7 +152,7 @@ export namespace NormanTest {
             newDir = Transform(newDir, Euler2Quaternion(perTimeAngle, 0, 0));
             parentDir = newDir;
             // console.log(newDir);
-            let newLine = Vector4.Multiply(newDir, distance);
+            const newLine = Vector4.Multiply(newDir, distance);
             // parent = newLine;
             // console.log(newDir)
             currentWorld = Vector4.Add(currentWorld, newLine);
@@ -167,13 +168,13 @@ export namespace NormanTest {
 
 //move by parent test
     const Test7 = () => {
-        let euler1 = {Yaw: -Math.PI / 4, Pitch: 0, Roll: 0};
-        let newPos = MoveToByParent(new Vector4(2, 0, 0, 1),
+        const euler1 = {Yaw: -Math.PI / 4, Pitch: 0, Roll: 0};
+        const newPos = MoveToByParent(new Vector4(2, 0, 0, 1),
             new Euler(0, 0, 0),
             euler1,
             2);
         console.log(Vector4.ForceToFixed(newPos.NewPos, 2));
-        let euler2 = new Euler(Math.PI / 4, 0, 0);
+        const euler2 = new Euler(Math.PI / 4, 0, 0);
         /*
         turn left 45 deg and move 2 distance  then  turn right 45 deg base on it's parent's pose
         like below
@@ -181,7 +182,7 @@ export namespace NormanTest {
         ___/
 
         * */
-        let newPos2 = MoveToByParent(newPos.NewPos,
+        const newPos2 = MoveToByParent(newPos.NewPos,
             euler1,
             euler2,
             2
@@ -198,30 +199,30 @@ export namespace NormanTest {
         ___/   \
 
         * */
-        let newPos3 = MoveToByParent(newPos2.NewPos, newPos2.NewRot, new Euler(Math.PI / 4, 0, 0), 2);
+        const newPos3 = MoveToByParent(newPos2.NewPos, newPos2.NewRot, new Euler(Math.PI / 4, 0, 0), 2);
         console.log(Vector4.ForceToFixed(newPos3.NewPos, 2));
     }
 
 
 //reclaim furrows and auto place 4seeds;
     const Test8 = () => {
-        let server = new ZoneServer2016(
+        const server = new ZoneServer2016(
             1117,
             Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
             process.env.MONGO_URL,
             2
         );
         // server.start();
-        let client = new ZoneClient2016(0, "", "", "norman", 888);
+        const client = new ZoneClient2016(0, "", "", "norman", 888);
         //z y x / N E sky
         client.character.state.position = new Float32Array([0, 0, 2]);
         //quaternion i am not use
-        let qu = Euler2Quaternion(0, 0, -Math.PI / 4);
+        const qu = Euler2Quaternion(0, 0, -Math.PI / 4);
         client.character.state.rotation = new Float32Array([qu.Z, qu.Y, qu.X, qu.W]);
         //euler z y x   but   rot y -> z -> x;
         // client.character.state.rotationRaw = new Float32Array([0,-Math.PI/6,0]);
 
-        let m = new PlantingManager(null);
+        const m = new PlantingManager(null);
         m.Reclaim(client, server);
         for (let i = 0; i < 1; i++) {
             m.SowSeed(client, server, SeedType.Corn, server.generateGuid());
@@ -263,17 +264,17 @@ export namespace NormanTest {
     }
     export const Test10 = (client: ZoneClient2016, server: ZoneServer2016) => {
         //effect params
-        let eyeHeight = 1.5, perDotDistance = 0.5, dotCount = 50, perPlaceDelay = 20,
+        const eyeHeight = 1.5, perDotDistance = 0.5, dotCount = 50, perPlaceDelay = 20,
             duration = 10000 + dotCount * perPlaceDelay;
 
         // let rot = client.character.state.rotationRaw;
-        let rot = Quaternion2Euler(Vector4.FromXYZW({
+        const rot = Quaternion2Euler(Vector4.FromXYZW({
             Z: client.character.state.rotation[0],
             Y: client.character.state.rotation[1],
             X: client.character.state.rotation[2],
             W: client.character.state.rotation[3]
         }), "XZY");
-        let positions = GetKiteLineDots(new Vector4(client.character.state.position[2], client.character.state.position[1] + eyeHeight, client.character.state.position[0], client.character.state.position[0]),
+        const positions = GetKiteLineDots(new Vector4(client.character.state.position[2], client.character.state.position[1] + eyeHeight, client.character.state.position[0], client.character.state.position[0]),
             -rot[0], 0, rot[1],
             perDotDistance, dotCount
         );
@@ -297,8 +298,8 @@ export namespace NormanTest {
         }
     }
     const placeModel = (pos: Vector4, offsetY: number, modelId: number, server: ZoneServer2016) => {
-        let characterId = server.generateGuid();
-        let transientId = server.getTransientId(characterId);
+        const characterId = server.generateGuid();
+        const transientId = server.getTransientId(characterId);
         // let model = {
         //   characterId: characterId,
         //   guid: guid,
@@ -312,8 +313,8 @@ export namespace NormanTest {
         //   attachedObject: {},
         // };
         // I don't know when it changed from using Euler angles to quaternions
-        let realPos = new Vector4(pos.X, pos.Y + offsetY, pos.Z, pos.W);
-        let model = new TemporaryEntity(characterId, transientId, modelId, realPos.ToFloat32ArrayZYXW(), new Float32Array(4));
+        const realPos = new Vector4(pos.X, pos.Y + offsetY, pos.Z, pos.W);
+        const model = new TemporaryEntity(characterId, transientId, modelId, realPos.ToFloat32ArrayZYXW(), new Float32Array(4));
         server._temporaryObjects[characterId] = model;
         server.sendDataToAll("AddLightweightNpc", model);
     }
@@ -367,14 +368,14 @@ export namespace NormanTest {
 
         //region test2 see vector4moveByParent.skp
         // let worldDir = new Vector4(1, 0, 0, 0);
-        let furrowsPosRot = MoveToByParent(new Vector4(0, 0, 0, 1), new Euler(0, 0, 0), new Euler(-Math.PI / 6, 0, 0), 500);
-        let furrowsPos = furrowsPosRot.NewPos;
+        const furrowsPosRot = MoveToByParent(new Vector4(0, 0, 0, 1), new Euler(0, 0, 0), new Euler(-Math.PI / 6, 0, 0), 500);
+        const furrowsPos = furrowsPosRot.NewPos;
         console.log('furrowsPos = ', furrowsPosRot);
-        let furrowsPosDistanceOfWorld = Vector4.Distance(furrowsPos, new Vector4(0, 0, 0, 1));
+        const furrowsPosDistanceOfWorld = Vector4.Distance(furrowsPos, new Vector4(0, 0, 0, 1));
         console.log('furrows distance ', furrowsPosDistanceOfWorld);
-        let furrowsRot = furrowsPosRot.NewRot;
+        const furrowsRot = furrowsPosRot.NewRot;
         for (let i = 0; i < 4; i++) {
-            let seedPosAndRot = MoveToByParent(furrowsPos, furrowsRot, new Euler(-Math.PI / 4 + (-Math.PI / 2 * i), 0, 0), 70.7);
+            const seedPosAndRot = MoveToByParent(furrowsPos, furrowsRot, new Euler(-Math.PI / 4 + (-Math.PI / 2 * i), 0, 0), 70.7);
             console.log(Vector4.ForceToFixed(seedPosAndRot.NewPos, 2));
             // console.log(seedPosAndRot.NewRot);
         }
@@ -384,14 +385,14 @@ export namespace NormanTest {
 // Test8();
 
     const TestEntry = () => {
-        let server = new ZoneServer2016(
+        const server = new ZoneServer2016(
             1117,
             Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
             process.env.MONGO_URL,
             2
         );
         // server.start();
-        let client = new ZoneClient2016(0, "", "", "norman", 888);
+        const client = new ZoneClient2016(0, "", "", "norman", 888);
         Test();
         Test2();
         Test3();

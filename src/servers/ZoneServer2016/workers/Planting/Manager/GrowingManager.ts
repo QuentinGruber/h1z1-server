@@ -118,15 +118,15 @@ export class GrowingManager {
     public StartCultivating = (client: ZoneClient2016, server: ZoneServer2016, hole: Hole, seed: Seed): boolean => {
         if (hole && seed) {
             if (this._setting.GrowthScripts[seed.Name]) {
-                let script = this._setting.GrowthScripts[seed.Name];
+                const script = this._setting.GrowthScripts[seed.Name];
                 if (!script) {
                     console.warn('cant match growth script of ', seed.Name);
                     return false;
                 }
-                let stagesKeys = Object.keys(script.Stages);
+                const stagesKeys = Object.keys(script.Stages);
                 if (stagesKeys.length < 1)
                     return false;
-                let firstStage = script.Stages[stagesKeys[0]];
+                const firstStage = script.Stages[stagesKeys[0]];
                 hole.InsideSeed = seed;
                 return this.grow2Stage(client, server, hole, seed.Name, null, firstStage);
             }
@@ -189,9 +189,9 @@ export class GrowingManager {
         let realTimeToReach = destStage.TimeToReach;
         //calc stage reach time
         if (hole.LastFertilizeTime && hole.FertilizerDuration) {
-            let fertilizerRemaining = Date.now() - hole.LastFertilizeTime;
+            const fertilizerRemaining = Date.now() - hole.LastFertilizeTime;
             //到达下一个状态在有化肥加成的情况下,需要多长时间
-            let timeToReachByAcceleration = destStage.TimeToReach / this._setting.FertilizerAcceleration;
+            const timeToReachByAcceleration = destStage.TimeToReach / this._setting.FertilizerAcceleration;
             //如果本来需要10秒,有化肥加成以后,就用5秒,化肥实际可用的时间是7秒,那就直接定10/2=5秒的定时器
             if (timeToReachByAcceleration <= fertilizerRemaining) {
                 realTimeToReach = destStage.TimeToReach / this._setting.FertilizerAcceleration;
@@ -199,9 +199,9 @@ export class GrowingManager {
             //如果本来需要10秒,有化肥的加成以后,就用5秒,化肥实际可用时间是4秒,前面的8秒时间被化肥加成所用4秒,后面的时间正常.那最后的结果是6秒
             else {
                 // 这剩余的4秒可以产生8秒的效果
-                let quick = fertilizerRemaining * this._setting.FertilizerAcceleration;
+                const quick = fertilizerRemaining * this._setting.FertilizerAcceleration;
                 // 还剩下2秒正常的
-                let normal = destStage.TimeToReach - quick;
+                const normal = destStage.TimeToReach - quick;
                 //2秒正常的加上化肥的4秒,最后就是6秒
                 realTimeToReach = normal + fertilizerRemaining;
                 //equal
@@ -225,7 +225,7 @@ export class GrowingManager {
                 server.deleteEntity(hole.InsideCropsPile.Guid, server._objects);
                 const item = GrowingManager.placeMatureCropModel(hole,destStage.NewModelId, server);
                 if(!item) return;
-                let seed = hole.InsideCropsPile.EmbryoSeed;
+                const seed = hole.InsideCropsPile.EmbryoSeed;
                 hole.InsideCropsPile = null;
                 hole.InsideCropsPile = new CropsPile(seed, CropsPileStatus.Growing, item.itemGuid);
                 console.log('种子已成长', hole.GetInsideObject())
@@ -233,14 +233,14 @@ export class GrowingManager {
             //grown
             else if (destStage.StageName == CropsPileStatus.Grown.toString() && hole.InsideCropsPile) {
                 server.deleteEntity(hole.InsideCropsPile.Guid, server._objects);
-                let item = GrowingManager.placeMatureCropModel(hole,destStage.NewModelId, server);
+                const item = GrowingManager.placeMatureCropModel(hole,destStage.NewModelId, server);
                 if(!item) return;
-                let seed = hole.InsideCropsPile.EmbryoSeed;
+                const seed = hole.InsideCropsPile.EmbryoSeed;
                 hole.InsideCropsPile = null;
                 hole.InsideCropsPile = new CropsPile(seed, CropsPileStatus.Grown, item.itemGuid);
                 if (destStage.Outcome) {
                     for (let i = 0; i < destStage.Outcome.length; i++) {
-                        let current = destStage.Outcome[i];
+                        const current = destStage.Outcome[i];
                         hole.InsideCropsPile.LootAbleProducts.push({
                             Name: current.Name,
                             ItemDefinitionId: current.ItemDefinitionId,
@@ -257,15 +257,15 @@ export class GrowingManager {
                 console.warn('cant match dest stage', destStage);
             }
             //get next stage;
-            let sts = Object.keys(this._setting.GrowthScripts[scriptName].Stages);
-            let currentIndex = sts.indexOf(destStage.StageName);
-            let nextIndex = currentIndex + 1;
+            const sts = Object.keys(this._setting.GrowthScripts[scriptName].Stages);
+            const currentIndex = sts.indexOf(destStage.StageName);
+            const nextIndex = currentIndex + 1;
             if (sts.length < nextIndex + 1) {
                 //no more
                 console.log('没有更多状态了.no more stage,the end, now you can loot crops if correct!!');
                 return;
             } else {
-                let nextStage = this._setting.GrowthScripts[scriptName].Stages[sts[nextIndex]];
+                const nextStage = this._setting.GrowthScripts[scriptName].Stages[sts[nextIndex]];
                 this.grow2Stage(client, server, hole, scriptName, destStage, nextStage);
             }
         }, realTimeToReach);
@@ -280,9 +280,9 @@ export class GrowingManager {
         {
             seedType = hole.InsideCropsPile.EmbryoSeed.Type;
         }
-        let qu = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
+        const qu = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
         //set count=0, just place a loot able model, generate mature crops and seeds when picking
-        let item = server.generateItem(seedType, 0);
+        const item = server.generateItem(seedType, 0);
         if (!item) {
             console.warn('server generate item failed, item definition id :', seedType);
             return null;

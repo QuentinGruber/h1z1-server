@@ -61,17 +61,17 @@ export class Vector4 {
     }
 
     public static Distance = (v1: Vector4, v2: Vector4): number => {
-        let num2 = v1.X - v2.X;
-        let num3 = v1.Y - v2.Y;
-        let num4 = v1.Z - v2.Z;
-        let num5 = v1.W - v2.W;
-        let num6 = (((num2 * num2) + (num3 * num3)) + (num4 * num4)) + (num5 * num5);
+        const num2 = v1.X - v2.X;
+        const num3 = v1.Y - v2.Y;
+        const num4 = v1.Z - v2.Z;
+        const num5 = v1.W - v2.W;
+        const num6 = (((num2 * num2) + (num3 * num3)) + (num4 * num4)) + (num5 * num5);
         return Math.sqrt(num6);
     }
 
     public static Normalize = (vector: Vector4): Vector4 => {
-        let num2 = (((vector.X * vector.X) + (vector.Y * vector.Y)) + (vector.Z * vector.Z)) + (vector.W * vector.W);
-        let num3 = 1 / (Math.sqrt(num2));
+        const num2 = (((vector.X * vector.X) + (vector.Y * vector.Y)) + (vector.Z * vector.Z)) + (vector.W * vector.W);
+        const num3 = 1 / (Math.sqrt(num2));
         return new Vector4(vector.X * num3, vector.Y * num3, vector.Z * num3, vector.W * num3);
     }
 
@@ -98,7 +98,7 @@ export class Euler {
 export class Quaternion extends Vector4
 {
     public static ToFixedAngleString=(qu:Quaternion,floatLen:number):string=> {
-        let ret = Quaternion2Euler(qu, "XZY");
+        const ret = Quaternion2Euler(qu, "XZY");
         return JSON.stringify({Yaw: ret[0].toFixed(floatLen), Pitch: ret[1].toFixed(floatLen), Roll: ret[2].toFixed(floatLen)});
     }
     public ToFloat32ArrayZYXW()
