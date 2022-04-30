@@ -1808,29 +1808,6 @@ export const basePackets: any = [
       fields: [{ name: "url", type: "string", defaultValue: "0" }],
     },
   ],
-  [
-    "ClientPath",
-    0x3e02,
-    {
-      fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-
-        {
-          name: "unknownArray1",
-          type: "array",
-          defaultValue: [],
-          fields: [
-            {
-              name: "unknownfloatVector1",
-              type: "floatvector4",
-              defaultValue: [0, 0, 0, 0],
-            },
-          ],
-        },
-      ],
-    },
-  ],
   ["ClientPendingKickFromServer", 0x3f, {}],
   [
     "MembershipActivation",
