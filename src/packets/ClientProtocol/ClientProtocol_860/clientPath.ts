@@ -13,26 +13,26 @@
 
 export const clientPathPackets: any = [
     [
-        "ClientPathRequest",
+        "ClientPath.Request",
         0x3e01,
         {
           fields: [],
         },
       ],
     [
-        "ClientPathReply",
+        "ClientPath.Reply",
         0x3e02,
         {
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "PathProcessingTech", type: "uint32", defaultValue: 1 }, // 1 = Kynapse, for real using an uint32 for this is dumb as fuck DB
+            { name: "unknownDword2", type: "uint32", defaultValue: 3 },
             {
-              name: "unknownArray1",
+              name: "nodes",
               type: "array",
               defaultValue: [],
               fields: [
                 {
-                  name: "position",
+                  name: "node",
                   type: "floatvector4",
                   defaultValue: [0, 0, 0, 0],
                 },
