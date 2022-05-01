@@ -1,6 +1,6 @@
 import {ZoneClient2016 as Client} from "../../../classes/zoneclient";
 import {Euler, PlantingSetting, Vector4} from "../Model/TypeModels";
-import {getLookAtPos, MoveToByParent, Quaternion2Euler} from "../Utils";
+import {Euler2Quaternion, getLookAtPos, MoveToByParent, Quaternion2Euler} from "../Utils";
 import {ZoneServer2016} from "../../../zoneserver";
 import {Furrows, Hole, Seed} from "../Model/DataModels";
 import {TemporaryEntity} from "../../../classes/temporaryentity";
@@ -135,7 +135,7 @@ export class FarmlandManager {
     }
 
     public BurySeedIntoHole = (hole: Hole, seed: Seed, server: ZoneServer2016):inventoryItem|null => {
-        // const seedQU = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
+        const seedQU = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
         //loot able seed
         const seedInHole = server.generateItem(seed.Type, 1);
         if (!seedInHole || !seedInHole.itemGuid)
@@ -145,8 +145,8 @@ export class FarmlandManager {
             server.getTransientId(seedInHole.itemGuid),
             9163,
             hole.Position.ToFloat32ArrayZYXW(),
-            Euler.ToH1Z1ClientRotFormat(hole.Rotation),
-            // seedQU.ToFloat32ArrayZYXW(),
+            // Euler.ToH1Z1ClientRotFormat(hole.Rotation),
+            seedQU.ToFloat32ArrayZYXW(),
             hole.CreateTime,
             seedInHole
         );
@@ -201,17 +201,36 @@ export class FarmlandManager {
     }
 
     private simulateCreateHoles = (destFurrows: Furrows): void => {
-        for (let i = 0; i < 4; i++) {
-            const seedPosRot = MoveToByParent(destFurrows.Position, destFurrows.Rotation,
-                new Euler(-Math.PI / 4 + (-Math.PI / 2 * i), 0, 0),
-                0.4);
-            // console.warn('播种到:',bestHoleIndexOfFurrows+1);
-            // console.log('best furrows pos:', bestFurrows.Position);
-            // console.log('best furrows rot:', bestFurrows.Rotation);
-            console.log('seed pos:', seedPosRot.NewPos);
-            seedPosRot.NewPos.W = 0;
-            destFurrows.Holes.push(new Hole(null, null, seedPosRot.NewPos, seedPosRot.NewRot, 0, generateRandomGuid()));
-        }
+        const rot = new Euler(-destFurrows.Rotation.Yaw,0,0);
+        const h1posRot = MoveToByParent(
+            destFurrows.Position,
+            rot,
+            new Euler(Math.PI/4*0.8, 0, 0),
+            0.38);
+        h1posRot.NewPos.Y += 0.03;
+        const h2posRot = MoveToByParent(
+            destFurrows.Position,
+            rot,
+            new Euler(Math.PI/4*3, 0, 0),
+            0.45);
+        h2posRot.NewPos.Y += 0.03;
+        const h3posRot = MoveToByParent(
+            destFurrows.Position,
+            rot,
+            new Euler(Math.PI/4*5, 0, 0),
+            0.38);
+        h3posRot.NewPos.Y += 0.04;
+        const h4posRot = MoveToByParent(
+            destFurrows.Position,
+            rot,
+            new Euler(Math.PI/4*7-Math.PI/36, 0, 0),
+            0.47);
+        h4posRot.NewPos.Y += 0.03;
+
+        destFurrows.Holes.push(new Hole(null, null, h1posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, null, h2posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, null, h3posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, null, h4posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
     }
 
     private placeFurrows = (furrows: Furrows, server: ZoneServer2016) => {

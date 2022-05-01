@@ -1,10 +1,11 @@
 import {Euler2Quaternion, getLookAtPos, MoveToByParent, Quaternion2Euler, Transform} from "./Utils";
-import {Euler, Vector4} from "./Model/TypeModels";
+import {Euler, Quaternion, Vector4} from "./Model/TypeModels";
 import {ZoneServer2016} from "../../zoneserver";
-import {ZoneClient2016} from "../../classes/zoneclient";
+import {ZoneClient2016 as Client, ZoneClient2016} from "../../classes/zoneclient";
 import {PlantingManager} from "./PlantingManager";
-import {SeedType} from "./Model/DataModels";
+import {Furrows, Hole, SeedType} from "./Model/DataModels";
 import {TemporaryEntity} from "../../classes/temporaryentity";
+import {generateRandomGuid} from "../../../../utils/utils";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace NormanTest {
@@ -325,22 +326,12 @@ export namespace NormanTest {
     export const placeModel = (pos: Vector4, offsetY: number, modelId: number, server: ZoneServer2016, rot:Euler=new Euler(0,0,0)) => {
         const characterId = server.generateGuid();
         const transientId = server.getTransientId(characterId);
-        // let model = {
-        //   characterId: characterId,
-        //   guid: guid,
-        //   transientId: transientId,
-        //   modelId: modelId,
-        //   position: new Float32Array([pos.Z, pos.Y + offsetY, pos.X]),
-        //   rotation: new Float32Array(3),
-        //   dontSendFullNpcRequest: true,
-        //   positionUpdateType: true,
-        //   color: {},
-        //   attachedObject: {},
-        // };
-        // I don't know when it changed from using Euler angles to quaternions
-        const realPos = new Vector4(pos.X, pos.Y + offsetY, pos.Z, pos.W);
-        server._temporaryObjects[characterId] = new TemporaryEntity(characterId, transientId, modelId, realPos.ToFloat32ArrayZYXW(), Euler.ToH1Z1ClientRotFormat(rot));
-        // server.sendDataToAll("AddLightweightNpc", model);
+        // const realPos = new Vector4(pos.X, pos.Y + offsetY, pos.Z, pos.W);
+        server._temporaryObjects[characterId] = new TemporaryEntity(characterId,
+            transientId,
+            modelId,
+            pos.ToFloat32ArrayZYXW(),
+            Euler.ToH1Z1ClientRotFormat(rot));
     }
 
     const placeModels = (server: ZoneServer2016, startPos: Vector4, offsetY: number, perModelDistance: number, perPlaceDelay: number) => {
@@ -406,30 +397,177 @@ export namespace NormanTest {
         //endregion
     }
 
-// Test8();
-    const TestEntry = () => {
-        const server = new ZoneServer2016(
-            1117,
-            Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
-            process.env.MONGO_URL,
-            2
-        );
+    const simulateCreateHoles = (destFurrows: Furrows): void => {
+        const rot = new Euler(-destFurrows.Rotation.Yaw,0,0);
+        const h1yaw = Math.PI/4*0.8;
+        const h2yaw = Math.PI/4*3;
+        const h3yaw = Math.PI/4*5;
+        const h4yaw = Math.PI/4*7-Math.PI/36;
+
+        const h1far = 0.38;
+        const h2far = 0.45;
+        const h3far = 0.38;
+        const h4far = 0.47;
+
+        const h1posRot = MoveToByParent(
+            destFurrows.Position,
+            rot,
+            new Euler(h1yaw, 0, 0),
+            h1far);
+        h1posRot.NewPos.Y += 0.03;
+        const h2posRot = MoveToByParent(
+            destFurrows.Position,
+            rot,
+            new Euler(h2yaw, 0, 0),
+            h2far);
+        h2posRot.NewPos.Y += 0.03;
+        const h3posRot = MoveToByParent(
+            destFurrows.Position,
+            rot,
+            new Euler(h3yaw, 0, 0),
+            h3far);
+        h3posRot.NewPos.Y += 0.04;
+        const h4posRot = MoveToByParent(
+            destFurrows.Position,
+            rot,
+            new Euler(h4yaw, 0, 0),
+            h4far);
+        h4posRot.NewPos.Y += 0.03;
+
+        destFurrows.Holes.push(new Hole(null, null, h1posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, null, h2posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, null, h3posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, null, h4posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+    }
+    export const TestEntry = (server: ZoneServer2016 | null = null, client: Client | null = null, args : any[] | null = null) => {
+        if (!args) {
+            return;
+        }
+        // if (!server) {
+        //     server = new ZoneServer2016(
+        //         1117,
+        //         Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
+        //         process.env.MONGO_URL,
+        //         2
+        //     );
+        // }
         // server.start();
-        const client = new ZoneClient2016(0, "", "", "norman", 888);
-        Test();
-        Test2();
-        Test3();
-        Test4();
-        Test5();
-        Test6();
-        Test7();
-        Test8();
-        Test9(client, server);
-        Test10(client, server,true);
-        Test11(client, server);
-        Test12();
+        // if (!client) {
+        //     client = new ZoneClient2016(0, "", "", "norman", 888);
+        // }
+        if (!args[1]) {
+            if(server && client)
+            server.sendChatText(client, "missing sub command");
+            return ;
+        }
+        const cmd = args[1].toLowerCase();
+        const pos = client? Vector4.FromH1Z1ClientPosFormat(client.character.state.position):new Vector4(2,0,0,1);
+        const rot = client? Quaternion2Euler(Quaternion.FromXYZW({
+            Z: client.character.state.rotation[0],
+            Y: client.character.state.rotation[1],
+            X: client.character.state.rotation[2],
+            W: client.character.state.rotation[3]
+        }), "XZY"):new Float32Array([Math.PI/4,0,0])
+        switch (cmd) {
+            //show model center
+            case 'mc':
+                if (!args[2]) {
+                    if(server && client)
+                    server.sendChatText(client, "missing model id");
+                    return;
+                }
+                if(server)
+                {
+                NormanTest.placeModel(pos, 0, Number(args[2]), server
+                );
+                //place a flare to finger out model center
+                NormanTest.placeModel(pos, 0, 1, server);}
+                break;
+            //show furrows holes location
+            case 'fh':
+                if(server) {
+                    const f = new Furrows('', pos, new Euler(rot[0], 0, 0), 1, 100000, [], '');
+                    console.log('furrows pos:', Vector4.ForceToFixed(f.Position,2), 'rotation:', Euler.ForceToFixed(f.Rotation));
+                    NormanTest.placeModel(f.Position, 0, 62, server, f.Rotation);
+                    //center
+                    NormanTest.placeModel(f.Position, 0.2, 9163, server, f.Rotation);
+                    simulateCreateHoles(f);
+                    for (let i = 0; i < f.Holes.length; i++) {
+                        // NormanTest.placeModel(f.Holes[i].Position, 0.2, i+1, server, f.Rotation);
+                        NormanTest.placeModel(f.Holes[i].Position, 0.2, 9163, server, f.Rotation);
+                    }
+                }
+                else
+                {
+                    const f = new Furrows('', pos, new Euler(rot[0], 0, 0), 1, 100000, [], '');
+                    simulateCreateHoles(f);
+                    for (let i = 0; i < f.Holes.length; i++) {
+                        console.log(Vector4.ForceToFixed(f.Holes[i].Position,3));
+                    }
+                }
+                break;
+            //show sight line
+            case 'sight':
+                if(!client || !server)return;
+                NormanTest.Test10(client, server, true);
+                break;
+            case 'tp':
+                if(!client || !server)return;
+                if (!args[4]) {
+                    server.sendChatText(client, "missing z,y,x z=EAST grid index,x=NORTH grid index, y=real height");
+                    return;
+                }
+                const z = args[2], y = args[3], x = args[4];
+                const locationPosition = new Float32Array([z * 128 * 6, y, x * 128 * 6, 1]);
+                client.character.state.position = locationPosition;
+                server.sendData(client, "ClientUpdate.UpdateLocation", {
+                    position: locationPosition,
+                    triggerLoadingScreen: true,
+                });
+                server.sendWeatherUpdatePacket(client, server._weather2016);
+                break;
+            case '1':
+                Test();
+                break;
+            case '2':
+                Test2();
+                break;
+            case '3':
+                Test3();
+                break;
+            case '4':
+                Test4();
+                break;
+            case '5':
+                Test5();
+                break;
+            case '6':
+                Test6();
+                break;
+            case '7':
+                Test7();
+                break;
+            case '8':
+                Test8();
+                break;
+            case '9':
+                if(!client || !server)return;
+                Test9(client, server);
+                break;
+            case '10':
+                if(!client || !server)return;
+                Test10(client, server, true);
+                break;
+            case '11':
+                if(!client || !server)return;
+                Test11(client, server);
+                break;
+            case '12':
+                Test12();
+                break;
+        }
     }
     if (process.env.NM) {
-        TestEntry();
+        TestEntry(null,null,['norman','fh']);
     }
 }

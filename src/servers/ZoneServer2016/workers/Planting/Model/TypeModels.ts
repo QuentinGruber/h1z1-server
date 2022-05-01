@@ -101,6 +101,14 @@ export class Euler {
     {
         return new Float32Array([euler.Roll, euler.Yaw, euler.Pitch]);
     }
+    public static ForceToFixed(e:Euler, floatLen : number = 2)
+    {
+        return new Euler(
+            Number(e.Yaw.toFixed(floatLen)),
+            Number(e.Pitch.toFixed(floatLen)),
+            Number(e.Roll.toFixed(floatLen))
+        );
+    }
 }
 
 export class Quaternion extends Vector4
