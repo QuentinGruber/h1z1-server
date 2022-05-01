@@ -316,6 +316,7 @@ export class zonePacketHandlers {
         "serverinfo",
         "spawninfo",
         "help",
+        "netstats",
       ];
 
       commands.forEach((command) => {
@@ -607,6 +608,17 @@ export class zonePacketHandlers {
       switch (packet.data.commandHash) {
         case 3720768430: // /respawn
           server.killCharacter(client);
+          break;
+        case joaat("NETSTATS"):
+        case 265037938: // /netstats
+          const soeClient = server.getSoeClient(client.soeClientId);
+          if (soeClient) {
+            const stats = soeClient.getNetworkStats();
+            for (let index = 0; index < stats.length; index++) {
+              const stat = stats[index];
+              server.sendChatText(client, stat, index == 0);
+            }
+          }
           break;
         case 3357274581: // /clientinfo
           server.sendChatText(
@@ -1009,14 +1021,14 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      // nothing 
+      // nothing
     };
     this.commandClearInWater = function (
       server: ZoneServer2015,
       client: Client,
       packet: any
     ) {
-      // nothing 
+      // nothing
     };
     this.commandInteractionSelect = function (
       server: ZoneServer2015,

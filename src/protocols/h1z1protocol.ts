@@ -309,7 +309,7 @@ export class H1Z1Protocol {
       const result = DataSchema.parse(schema, data, 0, null).result;
       return result;
     } catch (e) {
-      console.error(e)
+      console.error(e);
     }
   }
 
@@ -344,10 +344,9 @@ export class H1Z1Protocol {
 
   pack(packetName: string, object?: any, referenceData?: any): Buffer | null {
     const H1Z1Packets = this.H1Z1Packets;
-    const packetType: number = H1Z1Packets.PacketTypes[packetName]
-    const packet = H1Z1Packets.Packets[packetType]
-     let packetData,
-      data;
+    const packetType: number = H1Z1Packets.PacketTypes[packetName];
+    const packet = H1Z1Packets.Packets[packetType];
+    let packetData, data;
     if (packet) {
       const packetTypeBytes = getPacketTypeBytes(packetType);
       if (packet.schema) {
@@ -417,9 +416,14 @@ export class H1Z1Protocol {
     return [packet, offset];
   }
 
-  parse(data: Buffer, flag: number, fromClient: boolean, referenceData?: any): H1z1ProtocolReadingFormat | null {
+  parse(
+    data: Buffer,
+    flag: number,
+    fromClient: boolean,
+    referenceData?: any
+  ): H1z1ProtocolReadingFormat | null {
     const H1Z1Packets = this.H1Z1Packets;
-    const opCode = data[0]
+    const opCode = data[0];
     let offset = 0,
       packet,
       result;
@@ -513,7 +517,7 @@ export class H1Z1Protocol {
       };
     } else {
       debug("Unhandled zone packet:", data[0], data[1], data[2]);
-      return null
+      return null;
       //fs.writeFileSync("zone_failed_" + Date.now() + "_" + Math.random() + ".dat", data);
     }
     /*

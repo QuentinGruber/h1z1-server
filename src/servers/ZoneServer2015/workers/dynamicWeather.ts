@@ -404,8 +404,7 @@ export default function dynamicWeather(
   };
 
   const data = protocol.pack("SkyChanged", rnd_weather);
-  if(data)
-    parentPort?.postMessage(data);
+  if (data) parentPort?.postMessage(data);
 }
 
 const { startTime, timeMultiplier } = workerData;
