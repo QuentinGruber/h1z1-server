@@ -619,8 +619,6 @@ export class ZoneServer2016 extends EventEmitter {
       containers: containers,
     });
 
-    // testing
-    console.log(weaponDefinitions)
     this.sendData(client, "ReferenceData.WeaponDefinitions", {
       data: {
         definitionsData: weaponDefinitions
