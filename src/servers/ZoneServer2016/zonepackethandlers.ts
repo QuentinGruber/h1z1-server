@@ -190,6 +190,7 @@ export class zonePacketHandlers {
         "serverinfo",
         "spawninfo",
         "help",
+        "netstats"
       ];
 
       commands.forEach((command) => {
@@ -527,6 +528,17 @@ export class zonePacketHandlers {
               server.sendChatText(client, `${command}`);
             });
           break;
+        case joaat("NETSTATS"):
+          case 265037938: // /netstats
+            const soeClient = server.getSoeClient(client.soeClientId)
+            if(soeClient){
+              const stats =  soeClient.getNetworkStats()
+              for (let index = 0; index < stats.length; index++) {
+                const stat = stats[index];
+                server.sendChatText(client,stat,index==0);
+              }
+            }
+            break;
         case joaat("LOCATION"):
         case 3270589520: // /loc
           const { position, rotation } = client.character.state;

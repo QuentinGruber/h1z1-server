@@ -16,6 +16,11 @@ import { soePacket } from "../../types/soeserver";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
 
+interface SOEClientStats {
+  totalPacketSent: number,
+  packetResend: number,
+  packetsOutOfOrder: number,
+}
 export default class SOEClient {
   sessionId: number = 0;
   address: string;
@@ -42,6 +47,7 @@ export default class SOEClient {
   soeClientId: string;
   lastPingTimer!: NodeJS.Timeout;
   isDeleted: boolean = false;
+  stats: SOEClientStats = {totalPacketSent:0,packetsOutOfOrder:0,packetResend:0};
   constructor(
     remote: RemoteInfo,
     crcSeed: number,
@@ -55,5 +61,11 @@ export default class SOEClient {
     this.compression = compression;
     this.inputStream = new SOEInputStream(cryptoKey);
     this.outputStream = new SOEOutputStream(cryptoKey);
+  }
+  getNetworkStats():string[]{
+    const {totalPacketSent,packetResend,packetsOutOfOrder} = this.stats;
+    const packetLossRate = Number((packetResend/totalPacketSent).toFixed(3))*100
+    const packetOutOfOrderRate = Number((packetsOutOfOrder/totalPacketSent).toFixed(3))*100
+    return [`Packet loss rate ${packetLossRate}%`,`Packet outOfOrder rate ${packetOutOfOrderRate}%`]
   }
 }

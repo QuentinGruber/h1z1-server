@@ -316,6 +316,7 @@ export class zonePacketHandlers {
         "serverinfo",
         "spawninfo",
         "help",
+        "netstats"
       ];
 
       commands.forEach((command) => {
@@ -608,6 +609,17 @@ export class zonePacketHandlers {
         case 3720768430: // /respawn
           server.killCharacter(client);
           break;
+        case joaat("NETSTATS"):
+          case 265037938: // /netstats
+            const soeClient = server.getSoeClient(client.soeClientId)
+            if(soeClient){
+              const stats =  soeClient.getNetworkStats()
+              for (let index = 0; index < stats.length; index++) {
+                const stat = stats[index];
+                server.sendChatText(client,stat,index==0);
+              }
+            }
+            break;
         case 3357274581: // /clientinfo
           server.sendChatText(
             client,

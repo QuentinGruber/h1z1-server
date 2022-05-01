@@ -88,6 +88,7 @@ export class SOEServer extends EventEmitter {
 
   private _sendPhysicalPacket(client: Client, packet: Buffer): void {
     client.packetsSentThisSec++;
+    client.stats.totalPacketSent++;
     this._connection.postMessage(
       {
         type: "sendPacket",
@@ -384,6 +385,7 @@ export class SOEServer extends EventEmitter {
               expectedSequence: number,
               outOfOrderSequence: number
             ) => {
+              client.stats.packetsOutOfOrder++;
               client.outOfOrderPackets.push(outOfOrderSequence);
             }
           );
@@ -408,6 +410,7 @@ export class SOEServer extends EventEmitter {
           client.outputStream.on(
             "dataResend",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
+              client.stats.packetResend++;
               const sequenceUint16 = sequence & MAX_SEQUENCE;
               client.unAckData.set(sequence, Date.now());
               this._sendLogicalPacket(
