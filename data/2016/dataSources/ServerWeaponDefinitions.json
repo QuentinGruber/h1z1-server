@@ -6507,3765 +6507,3573 @@
       "ID": 2,
       "DATA": {
         "ID": 2,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 2
+            "FIRE_MODE_ID": 2
           },
           {
-            "unknownDword1": 3
-          },
-          {
-            "unknownDword1": 418
-          },
-          {
-            "unknownDword1": 443
+            "FIRE_MODE_ID": 3
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 3,
       "DATA": {
         "ID": 3,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 4
+            "FIRE_MODE_ID": 4
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 4,
       "DATA": {
         "ID": 4,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 5
+            "FIRE_MODE_ID": 5
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 5,
       "DATA": {
         "ID": 5,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 6
+            "FIRE_MODE_ID": 6
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 6,
       "DATA": {
         "ID": 6,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 8
+            "FIRE_MODE_ID": 8
           },
           {
-            "unknownDword1": 9
-          },
-          {
-            "unknownDword1": 405
-          },
-          {
-            "unknownDword1": 431
+            "FIRE_MODE_ID": 9
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 7,
       "DATA": {
         "ID": 7,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 10
+            "FIRE_MODE_ID": 10
           },
           {
-            "unknownDword1": 297
-          },
-          {
-            "unknownDword1": 424
+            "FIRE_MODE_ID": 297
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 8,
       "DATA": {
         "ID": 8,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 11
+            "FIRE_MODE_ID": 11
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 9,
       "DATA": {
         "ID": 9,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 12
+            "FIRE_MODE_ID": 12
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 10,
       "DATA": {
         "ID": 10,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 13
+            "FIRE_MODE_ID": 13
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 11,
       "DATA": {
         "ID": 11,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 14
+            "FIRE_MODE_ID": 14
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 12,
       "DATA": {
         "ID": 12,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 15
+            "FIRE_MODE_ID": 15
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 13,
       "DATA": {
         "ID": 13,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 16
+            "FIRE_MODE_ID": 16
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 14,
       "DATA": {
         "ID": 14,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 17
+            "FIRE_MODE_ID": 17
           },
           {
-            "unknownDword1": 18
+            "FIRE_MODE_ID": 18
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 1000,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 1000,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 15,
       "DATA": {
         "ID": 15,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 19
+            "FIRE_MODE_ID": 19
           },
           {
-            "unknownDword1": 20
-          },
-          {
-            "unknownDword1": 419
-          },
-          {
-            "unknownDword1": 432
+            "FIRE_MODE_ID": 20
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 16,
       "DATA": {
         "ID": 16,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 21
+            "FIRE_MODE_ID": 21
           },
           {
-            "unknownDword1": 22
-          },
-          {
-            "unknownDword1": 406
-          },
-          {
-            "unknownDword1": 433
+            "FIRE_MODE_ID": 22
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 17,
       "DATA": {
         "ID": 17,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 23
+            "FIRE_MODE_ID": 23
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 18,
       "DATA": {
         "ID": 18,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 24
+            "FIRE_MODE_ID": 24
           },
           {
-            "unknownDword1": 25
+            "FIRE_MODE_ID": 25
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 19,
       "DATA": {
         "ID": 19,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 26
+            "FIRE_MODE_ID": 26
           },
           {
-            "unknownDword1": 27
+            "FIRE_MODE_ID": 27
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 21,
       "DATA": {
         "ID": 21,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 160
+            "FIRE_MODE_ID": 160
           },
           {
-            "unknownDword1": 29
+            "FIRE_MODE_ID": 29
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 22,
       "DATA": {
         "ID": 22,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 23
+            "FIRE_MODE_ID": 23
           },
           {
-            "unknownDword1": 29
+            "FIRE_MODE_ID": 29
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 23,
       "DATA": {
         "ID": 23,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 31
+            "FIRE_MODE_ID": 31
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 24,
       "DATA": {
         "ID": 24,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 32
+            "FIRE_MODE_ID": 32
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 25,
       "DATA": {
         "ID": 25,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 33
+            "FIRE_MODE_ID": 33
           },
           {
-            "unknownDword1": 34
+            "FIRE_MODE_ID": 34
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 26,
       "DATA": {
         "ID": 26,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 118
+            "FIRE_MODE_ID": 118
           },
           {
-            "unknownDword1": 38
+            "FIRE_MODE_ID": 38
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 27,
       "DATA": {
         "ID": 27,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 39
+            "FIRE_MODE_ID": 39
           },
           {
-            "unknownDword1": 40
-          },
-          {
-            "unknownDword1": 407
-          },
-          {
-            "unknownDword1": 434
+            "FIRE_MODE_ID": 40
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 28,
       "DATA": {
         "ID": 28,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 41
+            "FIRE_MODE_ID": 41
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 29,
       "DATA": {
         "ID": 29,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 42
+            "FIRE_MODE_ID": 42
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 30,
       "DATA": {
         "ID": 30,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 23
+            "FIRE_MODE_ID": 23
           },
           {
-            "unknownDword1": 43
+            "FIRE_MODE_ID": 43
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 31,
       "DATA": {
         "ID": 31,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 44
+            "FIRE_MODE_ID": 44
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 32,
       "DATA": {
         "ID": 32,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 45
+            "FIRE_MODE_ID": 45
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 33,
       "DATA": {
         "ID": 33,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 46
+            "FIRE_MODE_ID": 46
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 34,
       "DATA": {
         "ID": 34,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 47
+            "FIRE_MODE_ID": 47
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 35,
       "DATA": {
         "ID": 35,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 48
+            "FIRE_MODE_ID": 48
           },
           {
-            "unknownDword1": 11
+            "FIRE_MODE_ID": 11
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 36,
       "DATA": {
         "ID": 36,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 49
+            "FIRE_MODE_ID": 49
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 37,
       "DATA": {
         "ID": 37,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 113
+            "FIRE_MODE_ID": 113
           },
           {
-            "unknownDword1": 50
+            "FIRE_MODE_ID": 50
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 38,
       "DATA": {
         "ID": 38,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 52
+            "FIRE_MODE_ID": 52
           },
           {
-            "unknownDword1": 51
+            "FIRE_MODE_ID": 51
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 39,
       "DATA": {
         "ID": 39,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 53
+            "FIRE_MODE_ID": 53
           },
           {
-            "unknownDword1": 54
-          },
-          {
-            "unknownDword1": 408
-          },
-          {
-            "unknownDword1": 435
+            "FIRE_MODE_ID": 54
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 40,
       "DATA": {
         "ID": 40,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 56
+            "FIRE_MODE_ID": 56
           },
           {
-            "unknownDword1": 293
-          },
-          {
-            "unknownDword1": 423
-          },
-          {
-            "unknownDword1": 445
+            "FIRE_MODE_ID": 293
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 41,
       "DATA": {
         "ID": 41,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 58
+            "FIRE_MODE_ID": 58
           },
           {
-            "unknownDword1": 9
+            "FIRE_MODE_ID": 9
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 42,
       "DATA": {
         "ID": 42,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 59
+            "FIRE_MODE_ID": 59
           },
           {
-            "unknownDword1": 301
+            "FIRE_MODE_ID": 301
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 43,
       "DATA": {
         "ID": 43,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 125
+            "FIRE_MODE_ID": 125
           },
           {
-            "unknownDword1": 300
+            "FIRE_MODE_ID": 300
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 44,
       "DATA": {
         "ID": 44,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 63
+            "FIRE_MODE_ID": 63
           },
           {
-            "unknownDword1": 299
+            "FIRE_MODE_ID": 299
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 45,
       "DATA": {
         "ID": 45,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 66
+            "FIRE_MODE_ID": 66
           },
           {
-            "unknownDword1": 65
+            "FIRE_MODE_ID": 65
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 46,
       "DATA": {
         "ID": 46,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 67
+            "FIRE_MODE_ID": 67
           },
           {
-            "unknownDword1": 68
-          },
-          {
-            "unknownDword1": 411
-          },
-          {
-            "unknownDword1": 439
+            "FIRE_MODE_ID": 68
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 47,
       "DATA": {
         "ID": 47,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 69
+            "FIRE_MODE_ID": 69
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 48,
       "DATA": {
         "ID": 48,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 71
+            "FIRE_MODE_ID": 71
           },
           {
-            "unknownDword1": 72
+            "FIRE_MODE_ID": 72
           }
         ],
-        "unknownByte1": 16,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 16,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 49,
       "DATA": {
         "ID": 49,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 73
+            "FIRE_MODE_ID": 73
           },
           {
-            "unknownDword1": 77
+            "FIRE_MODE_ID": 77
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 50,
       "DATA": {
         "ID": 50,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 75
+            "FIRE_MODE_ID": 75
           },
           {
-            "unknownDword1": 76
+            "FIRE_MODE_ID": 76
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 51,
       "DATA": {
         "ID": 51,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 78
+            "FIRE_MODE_ID": 78
           },
           {
-            "unknownDword1": 79
-          },
-          {
-            "unknownDword1": 409
-          },
-          {
-            "unknownDword1": 436
+            "FIRE_MODE_ID": 79
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 52,
       "DATA": {
         "ID": 52,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 57
+            "FIRE_MODE_ID": 57
           },
           {
-            "unknownDword1": 56
+            "FIRE_MODE_ID": 56
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 100,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 100,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 54,
       "DATA": {
         "ID": 54,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 81
+            "FIRE_MODE_ID": 81
           },
           {
-            "unknownDword1": 82
+            "FIRE_MODE_ID": 82
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 55,
       "DATA": {
         "ID": 55,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 89
+            "FIRE_MODE_ID": 89
           },
           {
-            "unknownDword1": 90
+            "FIRE_MODE_ID": 90
           }
         ],
-        "unknownByte1": 64,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 3000,
-        "unknownDword7": 1036831949,
-        "unknownDword8": 1036831949,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 64,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 3000,
+        "SPIN_UP_MOVEMENT_MODIFIER": 1036831949,
+        "SPIN_UP_TURN_RATE_MODIFIER": 1036831949,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 56,
       "DATA": {
         "ID": 56,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 90
+            "FIRE_MODE_ID": 90
           }
         ],
-        "unknownByte1": 72,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 72,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 57,
       "DATA": {
         "ID": 57,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 115
+            "FIRE_MODE_ID": 115
           },
           {
-            "unknownDword1": 92
+            "FIRE_MODE_ID": 92
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 1000,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 1000,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 58,
       "DATA": {
         "ID": 58,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 114
+            "FIRE_MODE_ID": 114
           },
           {
-            "unknownDword1": 91
+            "FIRE_MODE_ID": 91
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 1000,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 1000,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 60,
       "DATA": {
         "ID": 60,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 100
+            "FIRE_MODE_ID": 100
           },
           {
-            "unknownDword1": 97
+            "FIRE_MODE_ID": 97
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 61,
       "DATA": {
         "ID": 61,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 101
+            "FIRE_MODE_ID": 101
           },
           {
-            "unknownDword1": 99
+            "FIRE_MODE_ID": 99
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 62,
       "DATA": {
         "ID": 62,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 112
+            "FIRE_MODE_ID": 112
           },
           {
-            "unknownDword1": 95
+            "FIRE_MODE_ID": 95
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 63,
       "DATA": {
         "ID": 63,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 117
+            "FIRE_MODE_ID": 117
           },
           {
-            "unknownDword1": 96
+            "FIRE_MODE_ID": 96
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 64,
       "DATA": {
         "ID": 64,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 110
+            "FIRE_MODE_ID": 110
           },
           {
-            "unknownDword1": 93
-          },
-          {
-            "unknownDword1": 412
-          },
-          {
-            "unknownDword1": 440
+            "FIRE_MODE_ID": 93
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 65,
       "DATA": {
         "ID": 65,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 111
+            "FIRE_MODE_ID": 111
           },
           {
-            "unknownDword1": 94
-          },
-          {
-            "unknownDword1": 413
-          },
-          {
-            "unknownDword1": 437
+            "FIRE_MODE_ID": 94
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 66,
       "DATA": {
         "ID": 66,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 102
+            "FIRE_MODE_ID": 102
           },
           {
-            "unknownDword1": 103
+            "FIRE_MODE_ID": 103
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 67,
       "DATA": {
         "ID": 67,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 103
+            "FIRE_MODE_ID": 103
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 68,
       "DATA": {
         "ID": 68,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 104
+            "FIRE_MODE_ID": 104
           },
           {
-            "unknownDword1": 105
+            "FIRE_MODE_ID": 105
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 69,
       "DATA": {
         "ID": 69,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 105
+            "FIRE_MODE_ID": 105
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 70,
       "DATA": {
         "ID": 70,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 106
+            "FIRE_MODE_ID": 106
           },
           {
-            "unknownDword1": 107
+            "FIRE_MODE_ID": 107
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 71,
       "DATA": {
         "ID": 71,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 107
+            "FIRE_MODE_ID": 107
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 72,
       "DATA": {
         "ID": 72,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 108
+            "FIRE_MODE_ID": 108
           },
           {
-            "unknownDword1": 109
+            "FIRE_MODE_ID": 109
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 73,
       "DATA": {
         "ID": 73,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 109
+            "FIRE_MODE_ID": 109
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 74,
       "DATA": {
         "ID": 74,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 119
+            "FIRE_MODE_ID": 119
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 75,
       "DATA": {
         "ID": 75,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 128
+            "FIRE_MODE_ID": 128
           },
           {
-            "unknownDword1": 129
+            "FIRE_MODE_ID": 129
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 76,
       "DATA": {
         "ID": 76,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 123
+            "FIRE_MODE_ID": 123
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 77,
       "DATA": {
         "ID": 77,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 78
+            "FIRE_MODE_ID": 78
           },
           {
-            "unknownDword1": 79
+            "FIRE_MODE_ID": 79
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 78,
       "DATA": {
         "ID": 78,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 130
+            "FIRE_MODE_ID": 130
           },
           {
-            "unknownDword1": 131
+            "FIRE_MODE_ID": 131
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 79,
       "DATA": {
         "ID": 79,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 132
+            "FIRE_MODE_ID": 132
           },
           {
-            "unknownDword1": 133
+            "FIRE_MODE_ID": 133
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 80,
       "DATA": {
         "ID": 80,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 134
+            "FIRE_MODE_ID": 134
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 81,
       "DATA": {
         "ID": 81,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 58
+            "FIRE_MODE_ID": 58
           },
           {
-            "unknownDword1": 135
+            "FIRE_MODE_ID": 135
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 82,
       "DATA": {
         "ID": 82,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 136
+            "FIRE_MODE_ID": 136
           },
           {
-            "unknownDword1": 137
+            "FIRE_MODE_ID": 137
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 83,
       "DATA": {
         "ID": 83,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 139
+            "FIRE_MODE_ID": 139
           },
           {
-            "unknownDword1": 138
+            "FIRE_MODE_ID": 138
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 84,
       "DATA": {
         "ID": 84,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 140
+            "FIRE_MODE_ID": 140
           },
           {
-            "unknownDword1": 141
+            "FIRE_MODE_ID": 141
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 85,
       "DATA": {
         "ID": 85,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 142
+            "FIRE_MODE_ID": 142
           },
           {
-            "unknownDword1": 143
+            "FIRE_MODE_ID": 143
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 86,
       "DATA": {
         "ID": 86,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 144
+            "FIRE_MODE_ID": 144
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 87,
       "DATA": {
         "ID": 87,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 145
+            "FIRE_MODE_ID": 145
           },
           {
-            "unknownDword1": 146
+            "FIRE_MODE_ID": 146
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 88,
       "DATA": {
         "ID": 88,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 147
+            "FIRE_MODE_ID": 147
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 89,
       "DATA": {
         "ID": 89,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 148
+            "FIRE_MODE_ID": 148
           },
           {
-            "unknownDword1": 149
+            "FIRE_MODE_ID": 149
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 90,
       "DATA": {
         "ID": 90,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 150
+            "FIRE_MODE_ID": 150
           },
           {
-            "unknownDword1": 204
+            "FIRE_MODE_ID": 204
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 91,
       "DATA": {
         "ID": 91,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 151
+            "FIRE_MODE_ID": 151
           },
           {
-            "unknownDword1": 152
+            "FIRE_MODE_ID": 152
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 92,
       "DATA": {
         "ID": 92,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 153
+            "FIRE_MODE_ID": 153
           },
           {
-            "unknownDword1": 154
+            "FIRE_MODE_ID": 154
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 93,
       "DATA": {
         "ID": 93,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 156
+            "FIRE_MODE_ID": 156
           },
           {
-            "unknownDword1": 155
+            "FIRE_MODE_ID": 155
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 94,
       "DATA": {
         "ID": 94,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 113
+            "FIRE_MODE_ID": 113
           },
           {
-            "unknownDword1": 157
+            "FIRE_MODE_ID": 157
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 95,
       "DATA": {
         "ID": 95,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 101
+            "FIRE_MODE_ID": 101
           },
           {
-            "unknownDword1": 159
+            "FIRE_MODE_ID": 159
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 96,
       "DATA": {
         "ID": 96,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 100
+            "FIRE_MODE_ID": 100
           },
           {
-            "unknownDword1": 158
+            "FIRE_MODE_ID": 158
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 97,
       "DATA": {
         "ID": 97,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 161
+            "FIRE_MODE_ID": 161
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 98,
       "DATA": {
         "ID": 98,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 162
+            "FIRE_MODE_ID": 162
           },
           {
-            "unknownDword1": 163
+            "FIRE_MODE_ID": 163
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 99,
       "DATA": {
         "ID": 99,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 153
+            "FIRE_MODE_ID": 153
           },
           {
-            "unknownDword1": 154
+            "FIRE_MODE_ID": 154
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 100,
       "DATA": {
         "ID": 100,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 156
+            "FIRE_MODE_ID": 156
           },
           {
-            "unknownDword1": 155
+            "FIRE_MODE_ID": 155
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 101,
       "DATA": {
         "ID": 101,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 164
+            "FIRE_MODE_ID": 164
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 102,
       "DATA": {
         "ID": 102,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 165
+            "FIRE_MODE_ID": 165
           },
           {
-            "unknownDword1": 166
+            "FIRE_MODE_ID": 166
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 103,
       "DATA": {
         "ID": 103,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 168
+            "FIRE_MODE_ID": 168
           },
           {
-            "unknownDword1": 167
+            "FIRE_MODE_ID": 167
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 104,
       "DATA": {
         "ID": 104,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 169
+            "FIRE_MODE_ID": 169
           },
           {
-            "unknownDword1": 170
+            "FIRE_MODE_ID": 170
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 105,
       "DATA": {
         "ID": 105,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 171
+            "FIRE_MODE_ID": 171
           },
           {
-            "unknownDword1": 172
+            "FIRE_MODE_ID": 172
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 106,
       "DATA": {
         "ID": 106,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 173
+            "FIRE_MODE_ID": 173
           },
           {
-            "unknownDword1": 174
+            "FIRE_MODE_ID": 174
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 107,
       "DATA": {
         "ID": 107,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 176
+            "FIRE_MODE_ID": 176
           },
           {
-            "unknownDword1": 177
-          },
-          {
-            "unknownDword1": 414
-          },
-          {
-            "unknownDword1": 441
+            "FIRE_MODE_ID": 177
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 108,
       "DATA": {
         "ID": 108,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 181
+            "FIRE_MODE_ID": 181
           },
           {
-            "unknownDword1": 182
+            "FIRE_MODE_ID": 182
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 109,
       "DATA": {
         "ID": 109,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 183
+            "FIRE_MODE_ID": 183
           },
           {
-            "unknownDword1": 184
+            "FIRE_MODE_ID": 184
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 500,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 500,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 110,
       "DATA": {
         "ID": 110,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 185
+            "FIRE_MODE_ID": 185
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 111,
       "DATA": {
         "ID": 111,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 187
+            "FIRE_MODE_ID": 187
           },
           {
-            "unknownDword1": 188
-          },
-          {
-            "unknownDword1": 471
-          },
-          {
-            "unknownDword1": 472
+            "FIRE_MODE_ID": 188
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 120,
       "DATA": {
         "ID": 120,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 200
+            "FIRE_MODE_ID": 200
           },
           {
-            "unknownDword1": 201
+            "FIRE_MODE_ID": 201
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 151,
       "DATA": {
         "ID": 151,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 261
+            "FIRE_MODE_ID": 261
           },
           {
-            "unknownDword1": 262
+            "FIRE_MODE_ID": 262
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 152,
       "DATA": {
         "ID": 152,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 263
+            "FIRE_MODE_ID": 263
           },
           {
-            "unknownDword1": 264
+            "FIRE_MODE_ID": 264
           }
         ],
-        "unknownByte1": 8,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 171,
       "DATA": {
         "ID": 171,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 302
+            "FIRE_MODE_ID": 302
           },
           {
-            "unknownDword1": 303
+            "FIRE_MODE_ID": 303
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 172,
       "DATA": {
         "ID": 172,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 304
+            "FIRE_MODE_ID": 304
           },
           {
-            "unknownDword1": 305
+            "FIRE_MODE_ID": 305
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 173,
       "DATA": {
         "ID": 173,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 306
+            "FIRE_MODE_ID": 306
           },
           {
-            "unknownDword1": 307
+            "FIRE_MODE_ID": 307
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 174,
       "DATA": {
         "ID": 174,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 308
+            "FIRE_MODE_ID": 308
           },
           {
-            "unknownDword1": 309
+            "FIRE_MODE_ID": 309
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 175,
       "DATA": {
         "ID": 175,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 310
+            "FIRE_MODE_ID": 310
           },
           {
-            "unknownDword1": 311
+            "FIRE_MODE_ID": 311
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 176,
       "DATA": {
         "ID": 176,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 313
+            "FIRE_MODE_ID": 313
           },
           {
-            "unknownDword1": 314
+            "FIRE_MODE_ID": 314
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 186,
       "DATA": {
         "ID": 186,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 333
+            "FIRE_MODE_ID": 333
           },
           {
-            "unknownDword1": 334
-          },
-          {
-            "unknownDword1": 415
-          },
-          {
-            "unknownDword1": 448
+            "FIRE_MODE_ID": 334
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 187,
       "DATA": {
         "ID": 187,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 349
+            "FIRE_MODE_ID": 349
           },
           {
-            "unknownDword1": 350
+            "FIRE_MODE_ID": 350
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 188,
       "DATA": {
         "ID": 188,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 351
+            "FIRE_MODE_ID": 351
           },
           {
-            "unknownDword1": 352
+            "FIRE_MODE_ID": 352
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 189,
       "DATA": {
         "ID": 189,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 353
+            "FIRE_MODE_ID": 353
           },
           {
-            "unknownDword1": 354
-          },
-          {
-            "unknownDword1": 355
+            "FIRE_MODE_ID": 354
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 190,
       "DATA": {
         "ID": 190,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 356
+            "FIRE_MODE_ID": 356
           },
           {
-            "unknownDword1": 357
-          },
-          {
-            "unknownDword1": 358
+            "FIRE_MODE_ID": 357
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 191,
       "DATA": {
         "ID": 191,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 363
+            "FIRE_MODE_ID": 363
           },
           {
-            "unknownDword1": 364
-          },
-          {
-            "unknownDword1": 416
+            "FIRE_MODE_ID": 364
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 192,
       "DATA": {
         "ID": 192,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 366
+            "FIRE_MODE_ID": 366
           },
           {
-            "unknownDword1": 367
-          },
-          {
-            "unknownDword1": 368
+            "FIRE_MODE_ID": 367
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 193,
       "DATA": {
         "ID": 193,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 369
+            "FIRE_MODE_ID": 369
           },
           {
-            "unknownDword1": 370
-          },
-          {
-            "unknownDword1": 417
-          },
-          {
-            "unknownDword1": 442
+            "FIRE_MODE_ID": 370
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 199,
       "DATA": {
         "ID": 199,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 386
+            "FIRE_MODE_ID": 386
           },
           {
-            "unknownDword1": 387
-          },
-          {
-            "unknownDword1": 388
+            "FIRE_MODE_ID": 387
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 205,
       "DATA": {
         "ID": 205,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 399
+            "FIRE_MODE_ID": 399
           },
           {
-            "unknownDword1": 400
-          },
-          {
-            "unknownDword1": 410
-          },
-          {
-            "unknownDword1": 438
+            "FIRE_MODE_ID": 400
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 5980,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 5980,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 210,
       "DATA": {
         "ID": 210,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 424
+            "FIRE_MODE_ID": 424
           },
           {
-            "unknownDword1": 424
-          },
-          {
-            "unknownDword1": 444
-          },
-          {
-            "unknownDword1": 424
+            "FIRE_MODE_ID": 424
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 211,
       "DATA": {
         "ID": 211,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 445
+            "FIRE_MODE_ID": 445
           },
           {
-            "unknownDword1": 423
-          },
-          {
-            "unknownDword1": 423
-          },
-          {
-            "unknownDword1": 445
+            "FIRE_MODE_ID": 423
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 214,
       "DATA": {
         "ID": 214,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 8
+            "FIRE_MODE_ID": 8
           },
           {
-            "unknownDword1": 9
-          },
-          {
-            "unknownDword1": 450
-          },
-          {
-            "unknownDword1": 451
+            "FIRE_MODE_ID": 9
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 215,
       "DATA": {
         "ID": 215,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 19
+            "FIRE_MODE_ID": 19
           },
           {
-            "unknownDword1": 20
-          },
-          {
-            "unknownDword1": 452
-          },
-          {
-            "unknownDword1": 453
+            "FIRE_MODE_ID": 20
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 216,
       "DATA": {
         "ID": 216,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 21
+            "FIRE_MODE_ID": 21
           },
           {
-            "unknownDword1": 22
-          },
-          {
-            "unknownDword1": 454
-          },
-          {
-            "unknownDword1": 455
+            "FIRE_MODE_ID": 22
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 217,
       "DATA": {
         "ID": 217,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 39
+            "FIRE_MODE_ID": 39
           },
           {
-            "unknownDword1": 40
-          },
-          {
-            "unknownDword1": 456
-          },
-          {
-            "unknownDword1": 457
+            "FIRE_MODE_ID": 40
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 218,
       "DATA": {
         "ID": 218,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 78
+            "FIRE_MODE_ID": 78
           },
           {
-            "unknownDword1": 79
-          },
-          {
-            "unknownDword1": 458
-          },
-          {
-            "unknownDword1": 459
+            "FIRE_MODE_ID": 79
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 5981,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 5981,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 219,
       "DATA": {
         "ID": 219,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 399
+            "FIRE_MODE_ID": 399
           },
           {
-            "unknownDword1": 400
-          },
-          {
-            "unknownDword1": 460
-          },
-          {
-            "unknownDword1": 461
+            "FIRE_MODE_ID": 400
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 5980,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 5980,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 220,
       "DATA": {
         "ID": 220,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 111
+            "FIRE_MODE_ID": 111
           },
           {
-            "unknownDword1": 94
-          },
-          {
-            "unknownDword1": 462
-          },
-          {
-            "unknownDword1": 463
+            "FIRE_MODE_ID": 94
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 221,
       "DATA": {
         "ID": 221,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 176
+            "FIRE_MODE_ID": 176
           },
           {
-            "unknownDword1": 177
-          },
-          {
-            "unknownDword1": 464
-          },
-          {
-            "unknownDword1": 465
+            "FIRE_MODE_ID": 177
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 222,
       "DATA": {
         "ID": 222,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 369
+            "FIRE_MODE_ID": 369
           },
           {
-            "unknownDword1": 370
-          },
-          {
-            "unknownDword1": 466
-          },
-          {
-            "unknownDword1": 467
+            "FIRE_MODE_ID": 370
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 223,
       "DATA": {
         "ID": 223,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 333
+            "FIRE_MODE_ID": 333
           },
           {
-            "unknownDword1": 334
-          },
-          {
-            "unknownDword1": 468
-          },
-          {
-            "unknownDword1": 469
+            "FIRE_MODE_ID": 334
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 225,
       "DATA": {
         "ID": 225,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 187
+            "FIRE_MODE_ID": 187
           },
           {
-            "unknownDword1": 188
-          },
-          {
-            "unknownDword1": 474
-          },
-          {
-            "unknownDword1": 473
+            "FIRE_MODE_ID": 188
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 231,
       "DATA": {
         "ID": 231,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 487
+            "FIRE_MODE_ID": 487
           },
           {
-            "unknownDword1": 488
+            "FIRE_MODE_ID": 488
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 234,
       "DATA": {
         "ID": 234,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 492
+            "FIRE_MODE_ID": 492
           },
           {
-            "unknownDword1": 491
+            "FIRE_MODE_ID": 491
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 235,
       "DATA": {
         "ID": 235,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 494
+            "FIRE_MODE_ID": 494
           },
           {
-            "unknownDword1": 493
+            "FIRE_MODE_ID": 493
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 238,
       "DATA": {
         "ID": 238,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 67
+            "FIRE_MODE_ID": 67
           },
           {
-            "unknownDword1": 68
+            "FIRE_MODE_ID": 68
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 241,
       "DATA": {
         "ID": 241,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 504
+            "FIRE_MODE_ID": 504
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 242,
       "DATA": {
         "ID": 242,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 506
+            "FIRE_MODE_ID": 506
           },
           {
-            "unknownDword1": 507
+            "FIRE_MODE_ID": 507
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 243,
       "DATA": {
         "ID": 243,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 508
+            "FIRE_MODE_ID": 508
           },
           {
-            "unknownDword1": 509
+            "FIRE_MODE_ID": 509
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
     {
       "ID": 247,
       "DATA": {
         "ID": 247,
-        "unknownArray1": [
+        "FIRE_MODES": [
           {
-            "unknownDword1": 539
+            "FIRE_MODE_ID": 539
           },
           {
-            "unknownDword1": 540
+            "FIRE_MODE_ID": 540
           }
         ],
-        "unknownByte1": 0,
-        "unknownDword1": 0,
-        "unknownDword2": 0,
-        "unknownDword3": 0,
-        "unknownDword4": 0,
-        "unknownDword5": 0,
-        "unknownDword6": 0,
-        "unknownDword7": 0,
-        "unknownDword8": 0,
-        "unknownDword9": 0,
-        "unknownDword10": 0
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     }
   ],
