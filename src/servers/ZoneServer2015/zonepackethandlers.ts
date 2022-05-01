@@ -10,7 +10,8 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-
+/* eslint-disable @typescript-eslint/no-unused-vars */
+// TODO enable @typescript-eslint/no-unused-vars
 import { ZoneClient as Client } from "./classes/zoneclient";
 
 import { ZoneServer2015 } from "./zoneserver";
@@ -315,6 +316,7 @@ export class zonePacketHandlers {
         "serverinfo",
         "spawninfo",
         "help",
+        "netstats",
       ];
 
       commands.forEach((command) => {
@@ -606,6 +608,17 @@ export class zonePacketHandlers {
       switch (packet.data.commandHash) {
         case 3720768430: // /respawn
           server.killCharacter(client);
+          break;
+        case joaat("NETSTATS"):
+        case 265037938: // /netstats
+          const soeClient = server.getSoeClient(client.soeClientId);
+          if (soeClient) {
+            const stats = soeClient.getNetworkStats();
+            for (let index = 0; index < stats.length; index++) {
+              const stat = stats[index];
+              server.sendChatText(client, stat, index == 0);
+            }
+          }
           break;
         case 3357274581: // /clientinfo
           server.sendChatText(
@@ -1007,12 +1020,16 @@ export class zonePacketHandlers {
       server: ZoneServer2015,
       client: Client,
       packet: any
-    ) {};
+    ) {
+      // nothing
+    };
     this.commandClearInWater = function (
       server: ZoneServer2015,
       client: Client,
       packet: any
-    ) {};
+    ) {
+      // nothing
+    };
     this.commandInteractionSelect = function (
       server: ZoneServer2015,
       client: Client,

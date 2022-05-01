@@ -1,12 +1,12 @@
 {
   "name": "h1z1-server",
-  "version": "0.20.5",
+  "version": "0.20.6",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "engines": {
-    "node": ">=0.16.0 <18"
+    "node": ">=0.16.0 <19"
   },
   "bin": {
     "if-env": "scripts/if-env.js",
@@ -17,8 +17,8 @@
     "@swc/cli": "0.1.56",
     "@swc/core": "1.2.160",
     "debug": "4.3.4",
-    "h1emu-core": "^0.8.2",
-    "h1z1-dataschema": "1.5.9",
+    "h1emu-core": "^0.8.8",
+    "h1z1-dataschema": "^1.5.11",
     "mongodb": "4.5.0",
     "typescript": "4.6.3",
     "v8-compile-cache": "2.3.0"
@@ -27,6 +27,9 @@
     "src": "./src"
   },
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.20.0",
+    "@typescript-eslint/parser": "^5.20.0",
+    "eslint": "^8.13.0",
     "glob": "8.0.1",
     "prettier": "2.6.2",
     "ts-node": "10.7.0",
@@ -37,6 +40,8 @@
     "gen-packets-handler": "npx ts-node ./scripts/genPacketHandlersFromMap.ts && npx prettier -w ./src/servers/ZoneServer/zonepackethandlers.ts",
     "fix-signatures": "npx ts-node ./scripts/fixSignatures.ts && npm run prettier_sources",
     "gen-doc": "npx typedoc",
+    "lint": "npx eslint src",
+    "lint-quiet": "npx eslint --quiet src",
     "build": "npm run build-all",
     "build-all": "tsc -p ./tsconfig.json",
     "build-login-2015": "tsc -p ./tsconfig-2015-login.json",
@@ -56,7 +61,7 @@
     "test-2015": "node tests_out/2015/testRuntime.js && node tests_out/2015/testIssuesInPacketSchemas.js && npm run test-login-client && npm run test-zone-client",
     "test-2016": "node tests_out/2016/testRuntime.js && node tests_out/2016/testIssuesInPacketSchemas.js",
     "test": "npm run build-swc && npm run build-tests && npm run test-2015 && npm run test-2016",
-    "postinstall": "if-env INSTALL_TYPE=launcher &&  npm run build-swc || npm run build",
+    "postinstall": "npx if-env INSTALL_TYPE=launcher &&  npm run build-swc || npm run build",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
     "publish_release-next": "npm version prerelease && git add * && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",
     "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks"

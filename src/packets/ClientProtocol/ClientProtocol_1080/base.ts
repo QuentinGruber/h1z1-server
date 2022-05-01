@@ -15,17 +15,18 @@ import {
   characterResourceData,
   collectionsSchema,
   containerData,
+  currencySchema,
   effectTagsSchema,
   equipmentSlotSchema,
-  fullNpcDataSchema,
-  fullPcDataSchema,
-  itemDataSchema,
+  fullNpcSchema,
+  fullPcSchema,
+  itemSchema,
   //itemWeaponDetailSubSchema1,
   //itemWeaponDetailSubSchema2,
   lightWeightNpcSchema,
   lightWeightPcSchema,
   loadoutSlotsSchema,
-  objectiveDataSchema,
+  objectiveSchema,
   packPositionUpdateData,
   packUnsignedIntWith2bitLengthValue,
   readPositionUpdateData,
@@ -33,12 +34,12 @@ import {
   recipeData,
 } from "./shared";
 import {
-  achievementDataSchema,
+  achievementSchema,
   identitySchema,
-  profileDataSchema,
-  rewardBundleDataSchema,
+  profileSchema,
+  rewardBundleSchema,
   skyData,
-  statDataSchema,
+  statSchema,
 } from "./shared";
 
 export const basePackets: any = [
@@ -83,10 +84,7 @@ export const basePackets: any = [
               name: "currency",
               type: "array",
               defaultValue: [],
-              fields: [
-                { name: "currencyId", type: "uint32", defaultValue: 0 },
-                { name: "quantity", type: "uint32", defaultValue: 0 },
-              ],
+              fields: currencySchema,
             },
             { name: "creationDate", type: "uint64string", defaultValue: "" },
             { name: "unknownDword15", type: "uint32", defaultValue: 0 },
@@ -110,7 +108,7 @@ export const basePackets: any = [
               name: "profiles",
               type: "array",
               defaultValue: [],
-              fields: profileDataSchema,
+              fields: profileSchema,
             },
             { name: "currentProfile", type: "uint32", defaultValue: 0 },
 
@@ -139,7 +137,7 @@ export const basePackets: any = [
                   type: "array",
                   defaultValue: [],
                   fields: [
-                    ...itemDataSchema,
+                    ...itemSchema,
                     {
                       name: "unknownBoolean2",
                       type: "boolean",
@@ -186,7 +184,7 @@ export const basePackets: any = [
                       name: "reward",
                       type: "schema",
                       defaultValue: {},
-                      fields: rewardBundleDataSchema,
+                      fields: rewardBundleSchema,
                     },
                     {
                       name: "unknownArray1",
@@ -227,7 +225,7 @@ export const basePackets: any = [
                               name: "reward",
                               type: "schema",
                               defaultValue: {},
-                              fields: rewardBundleDataSchema,
+                              fields: rewardBundleSchema,
                             },
                             {
                               name: "unknownDword4",
@@ -323,7 +321,7 @@ export const basePackets: any = [
               name: "characterAchievements",
               type: "array",
               defaultValue: [],
-              fields: achievementDataSchema,
+              fields: achievementSchema,
             },
             {
               name: "acquaintances",
@@ -444,7 +442,7 @@ export const basePackets: any = [
                   name: "statData",
                   type: "schema",
                   defaultValue: {},
-                  fields: statDataSchema,
+                  fields: statSchema,
                 },
               ],
             },
@@ -2184,7 +2182,7 @@ export const basePackets: any = [
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "resourceId", type: "uint32", defaultValue: 0 },
+                { name: "resourceType", type: "uint32", defaultValue: 0 },
                 {
                   name: "resourceData",
                   type: "schema",
@@ -2261,10 +2259,7 @@ export const basePackets: any = [
                   name: "currency",
                   type: "array",
                   defaultValue: [],
-                  fields: [
-                    { name: "currencyId", type: "uint32", defaultValue: 0 },
-                    { name: "quantity", type: "uint32", defaultValue: 0 },
-                  ],
+                  fields: currencySchema,
                 },
               ],
             },
@@ -2655,7 +2650,7 @@ export const basePackets: any = [
         {
           name: "achievementData",
           type: "schema",
-          fields: objectiveDataSchema,
+          fields: objectiveSchema,
         },
       ],
     },
@@ -2669,7 +2664,7 @@ export const basePackets: any = [
           name: "clientAchievements",
           type: "array",
           defaultValue: [{}],
-          fields: achievementDataSchema,
+          fields: achievementSchema,
         },
         {
           name: "achievementData",
@@ -2679,7 +2674,7 @@ export const basePackets: any = [
               name: "achievements",
               type: "array",
               defaultValue: [{}],
-              fields: achievementDataSchema,
+              fields: achievementSchema,
             },
           ],
         },
@@ -2796,7 +2791,7 @@ export const basePackets: any = [
                 type: "array",
                 defaultValue: [],
                 fields: [
-                  { name: "resourceId", type: "uint32", defaultValue: 0 },
+                  { name: "resourceType", type: "uint32", defaultValue: 0 },
                   {
                     name: "resourceData",
                     type: "schema",
@@ -3160,12 +3155,12 @@ export const basePackets: any = [
       ],
     },
   ],
-  ["LightweightToFullPc", 0xda, { fields: fullPcDataSchema }],
+  ["LightweightToFullPc", 0xda, { fields: fullPcSchema }],
   [
     "LightweightToFullNpc",
     0xdb,
     {
-      fields: fullNpcDataSchema,
+      fields: fullNpcSchema,
     },
   ],
   [
@@ -3173,7 +3168,7 @@ export const basePackets: any = [
     0xdc,
     {
       fields: [
-        { name: "npcData", type: "schema", fields: fullNpcDataSchema },
+        { name: "npcData", type: "schema", fields: fullNpcSchema },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         {
@@ -3263,7 +3258,7 @@ export const basePackets: any = [
               name: "statData",
               type: "schema",
               defaultValue: {},
-              fields: statDataSchema,
+              fields: statSchema,
             },
           ],
         },
@@ -3289,7 +3284,7 @@ export const basePackets: any = [
                       name: "statData",
                       type: "schema",
                       defaultValue: {},
-                      fields: statDataSchema,
+                      fields: statSchema,
                     },
                   ],
                 },
@@ -3341,7 +3336,7 @@ export const basePackets: any = [
                   name: "item",
                   type: "schema",
                   defaultValue: {},
-                  fields: itemDataSchema,
+                  fields: itemSchema,
                 },
                 { name: "unknownBool1", type: "boolean", defaultValue: false },
               ],

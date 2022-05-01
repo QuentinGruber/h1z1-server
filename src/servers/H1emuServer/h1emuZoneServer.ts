@@ -28,52 +28,43 @@ export class H1emuZoneServer extends H1emuServer {
       data: Buffer,
       client: H1emuClient
     ): void => {
-      switch (messageType) {
-        case "incomingPacket":
-          const packet = this._protocol.parse(data);
-          debug(packet);
-          if (!packet) return;
-          switch (packet.name) {
-            case "Ping":
-              this.updateClientLastPing(client.clientId);
-              break;
-            case "SessionReply": {
-              debug(
-                `Received session reply from ${client.address}:${client.port}`
-              );
-              if (
-                client.clientId !==
-                `${this._loginServerInfo.address}:${this._loginServerInfo.port}`
-              ) {
-                // blocks unknown sessionreplies
-                debug(`LoginConnection refused: Unknown login address / port`);
-                return;
-              }
-              if (client.session) {
-                // ignores sessionreplies with an already open session
-                debug(
-                  `LoginConnection already had open session, ignoring SessionReply`
-                );
-                return;
-              }
-              if (packet.data.status === 1) {
-                this._hasBeenConnectedToLogin = true;
-                client.session = true;
-                this._loginConnection = client;
-                this.emit("session", null, client, packet.data.status);
-              } else {
-                debug(`LoginConnection refused: Zone not whitelisted`);
-                this.emit("sessionfailed", null, client, packet.data.status);
-              }
-              break;
-            }
-            default:
-              this.emit("data", null, client, packet);
-              break;
+      const packet = this._protocol.parse(data);
+      debug(packet);
+      if (!packet) return;
+      switch (packet.name) {
+        case "Ping":
+          this.updateClientLastPing(client.clientId);
+          break;
+        case "SessionReply": {
+          debug(`Received session reply from ${client.address}:${client.port}`);
+          if (
+            client.clientId !==
+            `${this._loginServerInfo.address}:${this._loginServerInfo.port}`
+          ) {
+            // blocks unknown sessionreplies
+            debug(`LoginConnection refused: Unknown login address / port`);
+            return;
+          }
+          if (client.session) {
+            // ignores sessionreplies with an already open session
+            debug(
+              `LoginConnection already had open session, ignoring SessionReply`
+            );
+            return;
+          }
+          if (packet.data.status === 1) {
+            this._hasBeenConnectedToLogin = true;
+            client.session = true;
+            this._loginConnection = client;
+            this.emit("session", null, client);
+          } else {
+            debug(`LoginConnection refused: Zone not whitelisted`);
+            this.emit("sessionfailed", null, client);
           }
           break;
+        }
         default:
-          debug(`Unknown message type ${messageType}`);
+          this.emit("data", null, client, packet);
           break;
       }
     };

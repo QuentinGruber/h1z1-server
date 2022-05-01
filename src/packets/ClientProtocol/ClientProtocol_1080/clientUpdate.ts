@@ -12,15 +12,15 @@
 // ======================================================================
 
 import {
-  attachmentDataSchema,
+  attachmentSchema,
   packUnsignedIntWith2bitLengthValue,
   readUnsignedIntWith2bitLengthValue,
 } from "./shared";
 import {
-  itemDataSchema,
-  profileDataSchema,
-  respawnLocationDataSchema,
-  statDataSchema,
+  itemSchema,
+  profileSchema,
+  respawnLocationSchema,
+  statSchema,
 } from "./shared";
 
 export const clientUpdatePackets: any = [
@@ -35,7 +35,7 @@ export const clientUpdatePackets: any = [
           name: "data",
           type: "byteswithlength",
           fields: [
-            ...itemDataSchema,
+            ...itemSchema,
             { name: "unknownBoolean2", type: "boolean", defaultValue: false },
           ],
         },
@@ -51,7 +51,7 @@ export const clientUpdatePackets: any = [
         {
           name: "data",
           type: "schema",
-          fields: itemDataSchema,
+          fields: itemSchema,
         },
       ],
     },
@@ -70,7 +70,7 @@ export const clientUpdatePackets: any = [
     "ClientUpdate.UpdateStat",
     0x110500,
     {
-      fields: statDataSchema,
+      fields: statSchema,
     },
   ],
   ["ClientUpdate.CollectionStart", 0x110600, {}],
@@ -106,13 +106,13 @@ export const clientUpdatePackets: any = [
         {
           name: "profileData",
           type: "byteswithlength",
-          fields: profileDataSchema,
+          fields: profileSchema,
         },
         {
           name: "attachmentData",
           type: "array",
           defaultValue: [],
-          fields: attachmentDataSchema,
+          fields: attachmentSchema,
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -186,7 +186,7 @@ export const clientUpdatePackets: any = [
           name: "locations",
           type: "array",
           defaultValue: [{}],
-          fields: respawnLocationDataSchema,
+          fields: respawnLocationSchema,
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -194,7 +194,7 @@ export const clientUpdatePackets: any = [
           name: "locations2",
           type: "array",
           defaultValue: [{}],
-          fields: respawnLocationDataSchema,
+          fields: respawnLocationSchema,
         },
       ],
     },
@@ -297,7 +297,7 @@ export const clientUpdatePackets: any = [
               name: "itemData",
               type: "schema",
               defaultValue: {},
-              fields: itemDataSchema,
+              fields: itemSchema,
             },
             {
               name: "associatedCharacterGuid",

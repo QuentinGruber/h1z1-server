@@ -13,129 +13,122 @@
 
 import { EventEmitter } from "events";
 import { RC4 } from "h1emu-core";
+import {
+  DATA_HEADER_SIZE,
+  MAX_SEQUENCE,
+  MAX_UINT8,
+} from "../../utils/constants";
 
 const debug = require("debug")("SOEInputStream");
-
+type Fragment = { payload: Buffer; isFragment: boolean };
 export class SOEInputStream extends EventEmitter {
-  _sequences: Array<number>;
-  _nextSequence: number;
-  _lastAck: number;
-  _nextFragment: number;
-  _lastProcessedFragment: number;
-  _fragments: Array<any>;
-  _useEncryption: boolean;
+  _nextSequence: number = 0;
+  _lastAck: number = -1;
+  _nextFragment: number = 0;
+  _lastProcessedFragmentSequence: number = -1;
+  _fragments: Array<Fragment> = [];
+  _useEncryption: boolean = false;
   _rc4: RC4;
 
   constructor(cryptoKey: Uint8Array) {
     super();
-    this._sequences = [];
-    this._nextSequence = -1;
-    this._lastAck = -1;
-    this._nextFragment = 0;
-    this._lastProcessedFragment = -1;
-    this._fragments = [];
-    this._useEncryption = false;
     this._rc4 = new RC4(cryptoKey);
   }
 
-  _processDataFragments(): void {
-    const nextFragment = (this._lastProcessedFragment + 1) & 0xffff,
-      fragments = this._fragments,
-      head = fragments[nextFragment];
-    let data,
-      totalSize,
-      dataSize,
-      fragment,
-      appData = [],
-      k;
-    if (head) {
-      if (head.singlePacket) {
-        this._lastProcessedFragment = nextFragment;
-        appData = parseChannelPacketData(head);
-        fragments[nextFragment] = null;
-      } else {
-        totalSize = head.readUInt32BE(0);
-        dataSize = head.length - 4;
+  private processSingleData(
+    dataToProcess: Fragment,
+    sequence: number
+  ): Array<Buffer> {
+    this._lastProcessedFragmentSequence = sequence;
+    return parseChannelPacketData(dataToProcess.payload);
+  }
 
-        data = ZeroBuffer(totalSize);
-        head.copy(data, 0, 4);
+  private processFragmentedData(
+    dataToProcess: Fragment,
+    sequence: number
+  ): Array<Buffer> {
+    // the total size is written has a uint32 at the first packet of a fragmented data
+    const totalSize = dataToProcess.payload.readUInt32BE(0);
+    let dataSize = dataToProcess.payload.length - DATA_HEADER_SIZE;
 
-        const fragmentIndices = [nextFragment];
-        for (let i = 1; i < fragments.length; i++) {
-          const j = (nextFragment + i) % 0xffff;
-          fragment = fragments[j];
-          if (fragment) {
-            fragmentIndices.push(j);
-            fragment.copy(data, dataSize);
-            dataSize += fragment.length;
+    const dataWithoutHeader = Buffer.alloc(totalSize);
 
-            if (dataSize > totalSize) {
-              throw (
-                "processDataFragments: offset > totalSize: " +
-                dataSize +
-                " > " +
-                totalSize +
-                " (sequence " +
-                j +
-                ") (fragment length " +
-                fragment.length +
-                ")"
-              );
-            }
-            if (dataSize === totalSize) {
-              for (k = 0; k < fragmentIndices.length; k++) {
-                fragments[fragmentIndices[k]] = null;
-              }
-              this._lastProcessedFragment = j;
-              appData = parseChannelPacketData(data);
-              break;
-            }
-          } else {
-            break;
-          }
+    const processedFragmentsSequences: Array<number> = [sequence];
+    for (let i = 1; i < this._fragments.length; i++) {
+      const fragmentSequence = (sequence + i) % MAX_SEQUENCE;
+      const fragment = this._fragments[fragmentSequence];
+      if (fragment) {
+        processedFragmentsSequences.push(fragmentSequence);
+        dataToProcess.payload.copy(dataWithoutHeader, 0, DATA_HEADER_SIZE);
+        fragment.payload.copy(dataWithoutHeader, dataSize);
+        dataSize += fragment.payload.length;
+
+        if (dataSize > totalSize) {
+          throw (
+            "processDataFragments: offset > totalSize: " +
+            dataSize +
+            " > " +
+            totalSize +
+            " (sequence " +
+            fragmentSequence +
+            ") (fragment length " +
+            this._fragments.length +
+            ")"
+          );
         }
+        if (dataSize === totalSize) {
+          // Delete all the processed fragments from memory
+          for (let k = 0; k < processedFragmentsSequences.length; k++) {
+            delete this._fragments[processedFragmentsSequences[k]];
+          }
+          this._lastProcessedFragmentSequence = fragmentSequence;
+          // process the full reassembled data
+          return parseChannelPacketData(dataWithoutHeader);
+        }
+      } else {
+        return []; // the full data hasn't been received yet
       }
     }
+    return []; // if somehow there is no fragments in memory
+  }
 
-    if (appData.length) {
-      for (let i = 0; i < appData.length; i++) {
-        data = appData[i];
-        if (this._useEncryption) {
-          // sometimes there's an extra 0x00 byte in the beginning that trips up the RC4 decyption
-          /*
-                      Hey @jseidelin i've found what's this extra byte :P
-                      From the UdpLibrary doc:
-                      - Implementation note:  Internally the UdpLibrary needs a way to distinguish internal packets from application packets.
-                      It does this by having all internal packets start with a zero (0) byte.
-                    */
-          if (data.length > 1 && data.readUInt16LE(0) === 0) {
-            data = Buffer.from(this._rc4.encrypt(data.slice(1)));
-          } else {
-            data = Buffer.from(this._rc4.encrypt(data));
-          }
-        }
-        this.emit("data", null, data);
+  private _processData(): void {
+    const nextFragmentSequence =
+      (this._lastProcessedFragmentSequence + 1) & MAX_SEQUENCE;
+    const dataToProcess = this._fragments[nextFragmentSequence];
+    let appData: Array<Buffer> = [];
+    if (dataToProcess) {
+      if (dataToProcess.isFragment) {
+        appData = this.processFragmentedData(
+          dataToProcess,
+          nextFragmentSequence
+        );
+      } else {
+        appData = this.processSingleData(dataToProcess, nextFragmentSequence);
       }
-      setImmediate(() => {
-        this._processDataFragments();
-      });
+
+      if (appData.length) {
+        this.processAppData(appData);
+      }
     }
   }
 
-  write(data: Buffer, sequence: number, fragment: any): void {
-    if (this._nextSequence === -1) {
-      this._nextSequence = sequence;
+  private processAppData(appData: Array<Buffer>) {
+    for (let i = 0; i < appData.length; i++) {
+      let data = appData[i];
+      if (this._useEncryption) {
+        // sometimes there's an extra 0x00 byte in the beginning that trips up the RC4 decyption
+        if (data.length > 1 && data.readUInt16LE(0) === 0) {
+          data = Buffer.from(this._rc4.encrypt(data.slice(1)));
+        } else {
+          data = Buffer.from(this._rc4.encrypt(data));
+        }
+      }
+      this.emit("appdata", null, data); // sending appdata to application
     }
-    debug(
-      "Writing " + data.length + " bytes, sequence " + sequence,
-      " fragment=" + fragment + ", lastAck: " + this._lastAck
-    );
-    this._fragments[sequence] = data;
-    if (!fragment) {
-      this._fragments[sequence].singlePacket = true;
-    }
+  }
 
-    //debug(sequence, this._nextSequence);
+  private acknowledgeInputData(sequence: number): boolean {
     if (sequence > this._nextSequence) {
       debug(
         "Sequence out of order, expected " +
@@ -143,11 +136,14 @@ export class SOEInputStream extends EventEmitter {
           " but received " +
           sequence
       );
+      // acknowledge that we receive this sequence but do not process it
+      // until we're back in order
       this.emit("outoforder", null, this._nextSequence, sequence);
+      return false;
     } else {
       let ack = sequence;
-      for (let i = 1; i < this._sequences.length; i++) {
-        const j = (this._lastAck + i) & 0xffff;
+      for (let i = 1; i < MAX_SEQUENCE; i++) {
+        const j = (this._lastAck + i) & MAX_SEQUENCE;
         if (this._fragments[j]) {
           ack = j;
         } else {
@@ -156,11 +152,23 @@ export class SOEInputStream extends EventEmitter {
       }
       if (ack > this._lastAck) {
         this._lastAck = ack;
+        // all sequences behind lastAck are acknowledged
         this.emit("ack", null, ack);
       }
-      this._nextSequence = this._lastAck + 1;
+      return true;
+    }
+  }
 
-      this._processDataFragments();
+  write(data: Buffer, sequence: number, isFragment: boolean): void {
+    debug(
+      "Writing " + data.length + " bytes, sequence " + sequence,
+      " fragment=" + isFragment + ", lastAck: " + this._lastAck
+    );
+    this._fragments[sequence] = { payload: data, isFragment };
+    const wasInOrder = this.acknowledgeInputData(sequence);
+    if (wasInOrder) {
+      this._nextSequence = this._lastAck + 1;
+      this._processData();
     }
   }
 
@@ -175,48 +183,44 @@ export class SOEInputStream extends EventEmitter {
   }
 }
 
-function ZeroBuffer(length: number): Buffer {
-  const buffer: Buffer = new (Buffer as any).alloc(length);
-  for (let i = 0; i < length; i++) {
-    buffer[i] = 0;
-  }
-  return buffer;
-}
-
 function readDataLength(
   data: Buffer,
   offset: number
-): { value: number; numBytes: number } {
-  let dataLength = data.readUInt8(offset),
-    n;
-  if (dataLength === 0xff) {
-    if (data[offset + 1] === 0xff && data[offset + 2] === 0xff) {
-      dataLength = data.readUInt32BE(offset + 3);
-      n = 7;
+): { length: number; sizeValueBytes: number } {
+  let length = data.readUInt8(offset),
+    sizeValueBytes;
+  if (length === MAX_UINT8) {
+    // if length is MAX_UINT8 then it's maybe a bigger number
+    if (data[offset + 1] === MAX_UINT8 && data[offset + 2] === MAX_UINT8) {
+      // it's an uint32
+      length = data.readUInt32BE(offset + 3);
+      sizeValueBytes = 7;
     } else {
-      dataLength = data.readUInt16BE(offset + 1);
-      n = 3;
+      // it's an uint16
+      length = data.readUInt16BE(offset + 1);
+      sizeValueBytes = 3;
     }
   } else {
-    n = 1;
+    sizeValueBytes = 1;
   }
   return {
-    value: dataLength,
-    numBytes: n,
+    length,
+    sizeValueBytes,
   };
 }
 
-function parseChannelPacketData(data: Buffer): any {
-  let appData: any = [],
+function parseChannelPacketData(data: Buffer): Array<Buffer> {
+  let appData: Array<Buffer> = [],
     offset,
     dataLength;
   if (data[0] === 0x00 && data[1] === 0x19) {
+    // if it's a DataFragment packet
     offset = 2;
     while (offset < data.length) {
       dataLength = readDataLength(data, offset);
-      offset += dataLength.numBytes;
-      appData.push(data.slice(offset, offset + dataLength.value));
-      offset += dataLength.value;
+      offset += dataLength.sizeValueBytes;
+      appData.push(data.slice(offset, offset + dataLength.length));
+      offset += dataLength.length;
     }
   } else {
     appData = [data];

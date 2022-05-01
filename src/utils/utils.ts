@@ -21,11 +21,13 @@ import {
   setTimeout as setTimeoutPromise,
 } from "timers/promises";
 import { MongoClient } from "mongodb";
+import { MAX_TRANSIENT_ID } from "./constants";
+import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
+import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
+import { positionUpdate } from "types/zoneserver";
 
 export class customLodash {
-  constructor() {}
-
-  cloneDeep(value: any) {
+  cloneDeep(value: unknown) {
     return v8.deserialize(v8.serialize(value));
   }
 
@@ -42,7 +44,7 @@ export class customLodash {
     );
   }
 
-  forEach(object: Object, callback: Function) {
+  forEach(object: Record<string, unknown>, callback: (arg0: any) => void) {
     const objectLength = Object.keys(object).length;
     const objectValues = Object.values(object);
     for (let index = 0; index < objectLength; index++) {
@@ -50,7 +52,7 @@ export class customLodash {
     }
   }
 
-  size(object: Object) {
+  size(object: Record<string, unknown>) {
     return Object.keys(object).length;
   }
 
@@ -92,7 +94,7 @@ export function eul2quat(angle: number[]) {
 }
 
 export async function zoneShutdown(
-  server: any,
+  server: ZoneServer2016 | ZoneServer2015,
   startedTime: number,
   timeLeft: number,
   message: string
@@ -178,18 +180,16 @@ export function getDistance(p1: Float32Array, p2: Float32Array) {
 
 export function createPositionUpdate(
   position: Float32Array,
-  rotation: any,
-  gameTime: any
-): any {
-  const obj: any = {
+  rotation: Float32Array,
+  gameTime: number
+): positionUpdate {
+  const obj: positionUpdate = {
     flags: 4095,
-    unknown2_int32: gameTime,
-    unknown3_int8: 0,
-    unknown4: 1,
-    position: position,
+    sequenceTime: gameTime,
+    position: [...position],
   };
   if (rotation) {
-    obj.unknown13_float = rotation;
+    obj.rotation = rotation;
   }
   return obj;
 }
@@ -201,6 +201,13 @@ export const Int64String = function (value: number): string {
 export const generateRandomGuid = function (): string {
   return "0x" + generate_random_guid();
 };
+
+export function* generateTransientId() {
+  let id = 0;
+  for (let index = 0; index < MAX_TRANSIENT_ID; index++) {
+    yield id++;
+  }
+}
 
 export const removeCacheFullDir = function (directoryPath: string): void {
   const files = readdirSync(directoryPath); // need to be sync
@@ -216,7 +223,7 @@ export const removeCacheFullDir = function (directoryPath: string): void {
 };
 
 export const generateCommandList = (
-  commandObject: any,
+  commandObject: string[],
   commandNamespace: string
 ): string[] => {
   const commandList: string[] = [];
@@ -243,6 +250,7 @@ export const lz4_decompress = function (
   let offsetIn = 0,
     offsetOut = 0;
 
+  // eslint-disable-next-line no-constant-condition
   while (1) {
     const token: any = data[offsetIn];
     let literalLength: any = token >> 4;
@@ -330,10 +338,10 @@ export const clearFolderCache = (
 
 // experimental custom implementation of the scheduler API
 export class Scheduler {
-  constructor() {}
   static async yield() {
     return await setImmediatePromise();
   }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static async wait(delay: number, options?: any) {
     return await setTimeoutPromise(delay, undefined, {
       signal: options?.signal,

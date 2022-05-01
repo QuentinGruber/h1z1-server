@@ -13,7 +13,6 @@
 
 import { H1emuClient } from "./shared/h1emuclient";
 import { H1emuServer } from "./shared/h1emuserver";
-const debug = require("debug")("H1emuServer");
 
 export class H1emuLoginServer extends H1emuServer {
   constructor(serverPort?: number) {
@@ -23,27 +22,20 @@ export class H1emuLoginServer extends H1emuServer {
       data: Buffer,
       client: H1emuClient
     ): void {
-      switch (messageType) {
-        case "incomingPacket":
-          const packet = this._protocol.parse(data);
-          if (!packet) return;
-          switch (packet.name) {
-            case "Ping":
-              this.ping(client);
-              break;
-            case "CharacterCreateReply":
-            case "CharacterExistReply":
-            case "CharacterDeleteReply": {
-              this.emit("processInternalReq", packet);
-              break;
-            }
-            default:
-              this.emit("data", null, client, packet);
-              break;
-          }
+      const packet = this._protocol.parse(data);
+      if (!packet) return;
+      switch (packet.name) {
+        case "Ping":
+          this.ping(client);
           break;
+        case "CharacterCreateReply":
+        case "CharacterExistReply":
+        case "CharacterDeleteReply": {
+          this.emit("processInternalReq", packet);
+          break;
+        }
         default:
-          debug(`Unknown message type ${messageType}`);
+          this.emit("data", null, client, packet);
           break;
       }
     };

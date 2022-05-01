@@ -45,16 +45,9 @@ export class GatewayServer extends EventEmitter {
     ) as any; // as any since SOEServer isn't typed
     this._soeServer._useEncryption = false; // communication is encrypted only after loginRequest
     this._protocol = new GatewayProtocol();
-    this._soeServer.on("connect", (err: string, client: SOEClient) => {
-      debug("Client connected from " + client.address + ":" + client.port);
-      this.emit("connect", err, client);
-    });
     this._soeServer.on("disconnect", (err: string, client: SOEClient) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
       this.emit("disconnect", err, client);
-    });
-    this._soeServer.on("session", (err: string, client: SOEClient) => {
-      debug("Session started for client " + client.address + ":" + client.port);
     });
 
     this._soeServer.on(
@@ -65,13 +58,14 @@ export class GatewayServer extends EventEmitter {
           const result = packet.result;
           switch (packet.name) {
             case "LoginRequest":
-              this._soeServer.toggleEncryption(client);
-              this._soeServer.sendAppData(
-                client,
-                this._protocol.pack("LoginReply", { loggedIn: true })
-              );
-
               if (result && result.characterId) {
+                this._soeServer.toggleEncryption(client);
+                const appData = this._protocol.pack("LoginReply", {
+                  loggedIn: true,
+                });
+                if (appData) {
+                  this._soeServer.sendAppData(client, appData);
+                }
                 this.emit(
                   "login",
                   null,
@@ -109,22 +103,14 @@ export class GatewayServer extends EventEmitter {
     this._soeServer.start(this._crcLength, this._udpLength);
   }
 
-  sendTunnelData(client: SOEClient, tunnelData: any, channel = 0) {
+  sendTunnelData(client: SOEClient, tunnelData: Buffer) {
     debug("Sending tunnel data to client");
-    if (tunnelData && client) {
-      const data = this._protocol.pack("TunnelPacketToExternalConnection", {
-        channel: channel,
-        tunnelData: tunnelData,
-      });
+    const data = this._protocol.pack("TunnelPacketToExternalConnection", {
+      channel: 0,
+      tunnelData: tunnelData,
+    });
+    if (data) {
       this._soeServer.sendAppData(client, data);
-    } else {
-      if (client) {
-        console.error(client);
-        console.error("[ERROR] Above client tries to sent an empty buffer !");
-      } else {
-        console.error(tunnelData);
-        console.error("[ERROR] Empty client !");
-      }
     }
   }
 

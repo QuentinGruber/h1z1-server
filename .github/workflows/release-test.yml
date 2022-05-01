@@ -1,0 +1,30 @@
+name: Release tests
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  build-docker-images:
+    name: Create docker images
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 16.14.2
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16.14.2
+      - uses: docker-practice/actions-setup-docker@master
+      - run: npm i
+      - run: npm run build-docker-images
+
+  check-release-tag:
+    name: Check package version
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      # Use this GitHub Action
+      - name: Check package version
+        uses: QuentinGruber/release-check-package-version-action@v1.0.0
