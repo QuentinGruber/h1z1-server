@@ -282,7 +282,7 @@ export namespace NormanTest {
         }, duration);
         return true;
     }
-    export const Test10 = (client: ZoneClient2016, server: ZoneServer2016, useChair: boolean) => {
+    export const Test10 = (client: ZoneClient2016, server: ZoneServer2016, distance:number, modelId:number) => {
         //effect params
         const eyeHeight = 1.5, perDotDistance = 0.5, dotCount = 50, perPlaceDelay = 20,
             duration = 10000 + dotCount * perPlaceDelay;
@@ -312,13 +312,13 @@ export namespace NormanTest {
         for (let i = 0; i < positions.length; i++) {
             setTimeout(() => {
                     // placeFlare(positions[i], rot, duration, server);
-                if(useChair)
-                {
-                    placeChair(positions[i], new Float32Array([0,rot[0],0]), duration, server);
-                }
-                else {
-                    placeFlare(positions[i], new Float32Array([0, 0, 0, 0]), duration, server);
-                }
+                    if (modelId === 1) {
+                        placeFlare(positions[i], new Float32Array([0, 0, 0, 0]), duration, server);
+                    } else if (modelId === 10004) {
+                        placeChair(positions[i], new Float32Array([0, rot[0], 0]), duration, server);
+                    } else {
+                        placeModel(positions[i], 0, modelId, server);
+                    }
                 },
                 (i + 1) * perPlaceDelay)
         }
@@ -509,22 +509,9 @@ export namespace NormanTest {
             //show sight line
             case 'sight':
                 if(!client || !server)return;
-                NormanTest.Test10(client, server, true);
-                break;
-            case 'tp':
-                if(!client || !server)return;
-                if (!args[4]) {
-                    server.sendChatText(client, "missing z,y,x z=EAST grid index,x=NORTH grid index, y=real height");
-                    return;
-                }
-                const z = args[2], y = args[3], x = args[4];
-                const locationPosition = new Float32Array([z * 128 * 6, y, x * 128 * 6, 1]);
-                client.character.state.position = locationPosition;
-                server.sendData(client, "ClientUpdate.UpdateLocation", {
-                    position: locationPosition,
-                    triggerLoadingScreen: true,
-                });
-                server.sendWeatherUpdatePacket(client, server._weather2016);
+                const distance = args[2]?Number(args[2]):10;
+                const modelId = args[3]?Number(args[3]):10004;
+                NormanTest.Test10(client, server, distance, modelId);
                 break;
             case '1':
                 Test();
@@ -556,7 +543,7 @@ export namespace NormanTest {
                 break;
             case '10':
                 if(!client || !server)return;
-                Test10(client, server, true);
+                Test10(client, server,10,10004);
                 break;
             case '11':
                 if(!client || !server)return;
