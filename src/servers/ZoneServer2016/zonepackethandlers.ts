@@ -190,6 +190,7 @@ export class zonePacketHandlers {
         "serverinfo",
         "spawninfo",
         "help",
+        "netstats",
       ];
 
       commands.forEach((command) => {
@@ -319,7 +320,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      // nothing for now 
+      // nothing for now
     };
     this.ClientLog = function (
       server: ZoneServer2016,
@@ -526,6 +527,17 @@ export class zonePacketHandlers {
             .forEach((command: string) => {
               server.sendChatText(client, `${command}`);
             });
+          break;
+        case joaat("NETSTATS"):
+        case 265037938: // /netstats
+          const soeClient = server.getSoeClient(client.soeClientId);
+          if (soeClient) {
+            const stats = soeClient.getNetworkStats();
+            for (let index = 0; index < stats.length; index++) {
+              const stat = stats[index];
+              server.sendChatText(client, stat, index == 0);
+            }
+          }
           break;
         case joaat("LOCATION"):
         case 3270589520: // /loc
@@ -744,15 +756,14 @@ export class zonePacketHandlers {
           1,
         ]);
         vehicle.getPassengerList().forEach((passenger: string) => {
-          if(server._characters[passenger]){
+          if (server._characters[passenger]) {
             server._characters[passenger].state.position = new Float32Array([
               packet.data.positionUpdate.position[0],
               packet.data.positionUpdate.position[1],
               packet.data.positionUpdate.position[2],
               1,
             ]);
-          }
-          else{
+          } else {
             debug(`passenger ${passenger} not found`);
             vehicle.removePassenger(passenger);
           }
@@ -1361,9 +1372,8 @@ export class zonePacketHandlers {
       ).PLACEMENT_MODEL_ID;
       const characterId = server.generateGuid(),
         transientId = server.getTransientId(characterId);
-      const tempObj: any = {}
-      let trap: TrapEntity,
-        explosive: ExplosiveEntity;
+      const tempObj: any = {};
+      let trap: TrapEntity, explosive: ExplosiveEntity;
       switch (packet.data.itemDefinitionId) {
         case 1804:
         case 4:
@@ -1831,17 +1841,21 @@ export class zonePacketHandlers {
         // from external container
       }
     };
-    this.loadoutSelectSlot = function(server: ZoneServer2016, client: Client, packet: any) {
+    this.loadoutSelectSlot = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
       const slot = client.character._loadout[packet.data.slotId];
-      if(!slot) {
+      if (!slot) {
         server.sendChatText(client, "[ERROR] Target slot is empty!");
         return;
       }
       server.switchLoadoutSlot(client, slot);
-    }
+    };
     //#endregion
   }
-  
+
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
     switch (packet.name) {
       case "ClientIsReady":

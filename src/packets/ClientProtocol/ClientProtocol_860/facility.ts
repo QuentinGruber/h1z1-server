@@ -58,7 +58,7 @@ export const facilityPackets: any = [
       fn: function (data: Buffer, offset: number) {
         const result: any = {},
           startOffset = offset;
-        let n, i, values
+        let n, i, values;
 
         result["facilityId"] = data.readUInt32LE(offset);
         const flags = data.readUInt16LE(offset + 4);

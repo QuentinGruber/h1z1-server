@@ -99,7 +99,7 @@ class SOEClient {
 
     function checkOutOfOrderQueue() {
       if (outOfOrderPackets.length) {
-        return
+        return;
         console.log("outoforder :))))))))))))))))");
         const packets = [];
         for (let i = 0; i < 20; i++) {
@@ -223,7 +223,7 @@ class SOEClient {
           //outputStream.resendData(result.sequence);
           break;
         case "Ack":
-          outputStream.ack(result.sequence,new Map());
+          outputStream.ack(result.sequence, new Map());
           break;
         case "FatalError":
           debug("Received fatal error from server");

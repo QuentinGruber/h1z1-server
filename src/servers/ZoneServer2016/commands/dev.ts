@@ -23,12 +23,8 @@ const debug = require("debug")("zonepacketHandlers");
 const dev: any = {
   spam: function (server: ZoneServer2016, client: Client, args: any[]) {
     for (let index = 0; index < 10000; index++) {
-      server.sendChatText(
-        client,
-        `cc`
-      );
+      server.sendChatText(client, `cc`);
     }
-    
   },
   list: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(
