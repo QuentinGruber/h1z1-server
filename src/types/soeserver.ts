@@ -13,7 +13,9 @@
 
 export type soePacket = any;
 export type crc_length_options = 0 | 2;
-export type dataCache = {[sequence:number] : {data:Buffer,fragment:boolean}}
+export type dataCache = {
+  [sequence: number]: { data: Buffer; fragment: boolean };
+};
 export interface Client {
   sessionId: number;
   address: string;

@@ -40,7 +40,6 @@ const debugName = "LoginServer";
 const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
 
-
 function getCharacterModelData(payload: any): any {
   switch (payload.headType) {
     case 6: // black female
@@ -133,7 +132,7 @@ export class LoginServer extends EventEmitter {
 
     this._protocol = new LoginProtocol();
     this._protocol2016 = new LoginProtocol2016();
-    
+
     this._soeServer.on("disconnect", (err: string, client: Client) => {
       debug(`Client disconnected from ${client.address}:${client.port}`);
       this.Logout(client);
@@ -181,7 +180,7 @@ export class LoginServer extends EventEmitter {
           }
         } catch (error) {
           console.log(error);
-          process.exit(1)
+          process.exit(1);
         }
       }
     );
@@ -307,7 +306,7 @@ export class LoginServer extends EventEmitter {
       default:
         return;
     }
-    if(data){
+    if (data) {
       this._soeServer.sendAppData(client, data);
     }
   }
@@ -360,7 +359,7 @@ export class LoginServer extends EventEmitter {
             )
           ];
         } catch (e) {
-          console.error(e)
+          console.error(e);
         }
         return require(`${this._appDataFolder}/single_player_characters2016.json`);
       } else {
@@ -379,7 +378,8 @@ export class LoginServer extends EventEmitter {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async LoginRequest(client: Client, sessionId: string, fingerprint: string) { // we would use fingerprint at some point, and we are on live server custom implementation
+  async LoginRequest(client: Client, sessionId: string, fingerprint: string) {
+    // we would use fingerprint at some point, and we are on live server custom implementation
     if (client.protocolName == "LoginUdp_11" && this._soloMode) {
       const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       // if character file is old, delete it
@@ -919,7 +919,7 @@ export class LoginServer extends EventEmitter {
         .toArray();
 
       setInterval(async () => {
-        this._zoneWhitelist = await this._db 
+        this._zoneWhitelist = await this._db
           .collection("zone-whitelist")
           .find({})
           .toArray();
