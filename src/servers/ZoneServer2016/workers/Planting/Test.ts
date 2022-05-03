@@ -6,6 +6,7 @@ import {PlantingManager} from "./PlantingManager";
 import {Furrows, Hole, SeedType} from "./Model/DataModels";
 import {TemporaryEntity} from "../../classes/temporaryentity";
 import {generateRandomGuid} from "../../../../utils/utils";
+import {ExplosiveEntity} from "../../classes/explosiveentity";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace NormanTest {
@@ -439,7 +440,10 @@ export namespace NormanTest {
         destFurrows.Holes.push(new Hole(null, null, h3posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
         destFurrows.Holes.push(new Hole(null, null, h4posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
     }
-    export const TestEntry = (server: ZoneServer2016 | null = null, client: Client | null = null, args : any[] | null = null) => {
+    export const TestEntry = (
+        server: ZoneServer2016 | null = null,
+        client: Client | null = null,
+        args : any[] | null = null) => {
         if (!args) {
             return;
         }
@@ -469,6 +473,97 @@ export namespace NormanTest {
             W: client.character.state.rotation[3]
         }), "XZY"):new Float32Array([Math.PI/4,0,0])
         switch (cmd) {
+            //placement test
+            case 'pl':
+                if(!server || !client) return;
+                const placementModelId = args[2]? Number(args[2]):10004;
+                const placementStartInt = args[3]? Number(args[3]):1;
+                const placementTimes = args[4]? Number(args[4]):1;
+                const placementDelay = args[5]?Number(args[5]):100;
+                let placementCurrentIndex = placementStartInt;
+                const placementFunc = ()=>
+                {
+                    server.sendData(client, "Construction.PlacementResponse", {
+                        unknownDword1: placementStartInt,
+                        model: placementModelId,
+                    });
+                    const msg = 'current placement param1:'+ placementCurrentIndex;
+                    // console.log(msg);
+                    server.sendChatText(client, msg);
+                    placementCurrentIndex ++;
+                    if((placementCurrentIndex-placementStartInt)>placementTimes)
+                    {
+                        server.sendChatText(client, "finished " + placementTimes + " times placement test");
+                        return;
+                    }
+                    setTimeout(()=>{
+                        placementFunc();
+                    }, placementDelay);
+                }
+                placementFunc();
+                break;
+            //show effect
+            case 'ef':
+                if(!server || !client) return;
+                const mid = args[2]? Number(args[2]):9176;
+                const eid = args[3]? Number(args[3]):185;
+                const times = args[4]? Number(args[4]):10;
+                const delay = args[5]? Number(args[5]):1000;
+                const cid = server.generateGuid();
+                const tid = server.getTransientId(cid);
+                // const realPos = new Vector4(pos.X, pos.Y + offsetY, pos.Z, pos.W);
+                server._explosives[cid] = new ExplosiveEntity(cid,
+                    tid,
+                    mid,
+                    pos.ToFloat32ArrayZYXW(),
+                    new Float32Array([0,0,0]));
+
+                // setTimeout(()=>
+                // {
+                //     server.sendDataToAllWithSpawnedEntity(
+                //         server._explosives,
+                //         cid,
+                //         "Command.PlayDialogEffect",
+                //         {
+                //             characterId: cid,
+                //             effectId: eid,
+                //         }
+                //     );
+                // },3500)
+
+                let efIndex = eid;
+                const playEffect = () => {
+                    server.sendDataToAllWithSpawnedEntity(
+                        server._explosives,
+                        cid,
+                        "Command.PlayDialogEffect",
+                        {
+                            characterId: cid,
+                            effectId: efIndex,
+                        }
+                    );
+                    const msg = 'current effect id:'+ efIndex;
+                    console.log(msg);
+                    server.sendChatText(client, msg);
+                    efIndex ++;
+                    if (efIndex == 6)
+                    {
+                        efIndex ++;
+                    }
+                    if((efIndex-eid)>times)
+                    {
+                        server.sendChatText(client, "finished " + times + " times effect id test");
+                        return;
+                    }
+                  setTimeout(()=>{
+                      playEffect();
+                  }, delay);
+                }
+                setTimeout(()=>{
+                    playEffect();
+                },3500);
+
+                break;
             //show model center
             case 'mc':
                 if (!args[2]) {
