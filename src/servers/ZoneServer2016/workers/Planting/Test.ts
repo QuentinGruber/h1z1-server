@@ -435,10 +435,10 @@ export namespace NormanTest {
             h4far);
         h4posRot.NewPos.Y += 0.03;
 
-        destFurrows.Holes.push(new Hole(null, null, h1posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
-        destFurrows.Holes.push(new Hole(null, null, h2posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
-        destFurrows.Holes.push(new Hole(null, null, h3posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
-        destFurrows.Holes.push(new Hole(null, null, h4posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, h1posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, h2posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, h3posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, h4posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
     }
     export const TestEntry = (
         server: ZoneServer2016 | null = null,
