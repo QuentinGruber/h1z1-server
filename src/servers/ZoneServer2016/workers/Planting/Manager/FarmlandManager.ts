@@ -288,7 +288,30 @@ export class FarmlandManager {
     }
 
     private triggerBuryFertilizerIntoHoleEffect = (hole: Hole) => {
-        console.log('need to trigger the effect of hole has been fertilize', hole);
+        if(!this._server) {
+            console.log('need to trigger the effect of hole has been fertilize', hole);
+            return;
+        }
+        let cid = null;
+        if(hole.InsideSeed)
+        {
+            cid = hole.InsideSeed.Guid;
+        }
+        else if(hole.InsideCropsPile)
+        {
+            cid = hole.InsideCropsPile.Guid;
+        }
+        if(!cid)
+            return;
+        this._server.sendDataToAllWithSpawnedEntity(
+            this._server._objects,
+            cid,
+            "Command.PlayDialogEffect",
+            {
+                characterId: cid,
+                effectId: 5056,
+            }
+        );
     }
 
     private setFurrowsTimeout = (furrows: Furrows, totalDuration: number) => {
