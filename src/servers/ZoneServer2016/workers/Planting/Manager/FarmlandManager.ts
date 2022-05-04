@@ -69,7 +69,7 @@ export class FarmlandManager {
         return false;
     }
 
-    //If the furrows is reused it's duration is extended beyond the crop maturity time
+    //If the furrows is reused its duration is extended beyond the crop maturity time
     public ReUseFurrows = (furrows: Furrows, cropDuration: number) => {
         const guid = furrows.Id;
         if (guid) {
@@ -98,7 +98,7 @@ export class FarmlandManager {
             //get best hole
             for (const f of fs) {
                 for (const hole of f.Holes) {
-                    if (!hole.InsideSeed) {
+                    if (!hole.InsideCropsPile) {
                         bestFurrows = f;
                         return bestFurrows;
                     }
@@ -119,7 +119,7 @@ export class FarmlandManager {
         //It can only be fertilize if there is something in it
         for (const f of fs) {
             for (const hole of f.Holes) {
-                if (hole.InsideSeed || hole.InsideCropsPile) {
+                if (hole.InsideCropsPile) {
                     ret.push(hole);
                 }
             }
@@ -134,23 +134,36 @@ export class FarmlandManager {
         this.triggerBuryFertilizerIntoHoleEffect(hole);
     }
 
+    public MakeFertilizerUseless = (hole:Hole)=>
+    {
+        const guid = hole.Id;
+        if (!guid) return;
+        hole.LastFertilizeTime = undefined;
+        hole.FertilizerDuration = 0;
+        if(this._fertilizerExpirationTimers[guid])
+        {
+            clearTimeout(this._fertilizerExpirationTimers[guid]);
+        }
+    }
+
     public BurySeedIntoHole = (hole: Hole, seed: Seed, server: ZoneServer2016):inventoryItem|null => {
         const seedQU = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
-        //loot able seed
-        const seedInHole = server.generateItem(seed.Type, 1);
-        if (!seedInHole || !seedInHole.itemGuid)
+        //loot able seed at server side
+        const objInHole = server.generateItem(seed.Type, 1);
+        if (!objInHole || !objInHole.itemGuid)
             return null;
-        server._objects[seedInHole.itemGuid] = new ItemObject(
-            seedInHole.itemGuid,
-            server.getTransientId(seedInHole.itemGuid),
+        //client side
+        server._objects[objInHole.itemGuid] = new ItemObject(
+            objInHole.itemGuid,
+            server.getTransientId(objInHole.itemGuid),
             9163,
             hole.Position.ToFloat32ArrayZYXW(),
             // Euler.ToH1Z1ClientRotFormat(hole.Rotation),
             seedQU.ToFloat32ArrayZYXW(),
             hole.CreateTime,
-            seedInHole
+            objInHole
         );
-        return seedInHole;
+        return objInHole;
     }
 
     public ReFertilizeHole = (hole: Hole): boolean => {
@@ -161,6 +174,7 @@ export class FarmlandManager {
         clearTimeout(this._fertilizerExpirationTimers[guid]);
         delete this._fertilizerExpirationTimers[guid];
         this.setFertilizerInHoleTimeout(hole, this._setting.DefaultFertilizerDuration);
+        this.triggerBuryFertilizerIntoHoleEffect(hole);
         return true;
     }
 
@@ -168,10 +182,7 @@ export class FarmlandManager {
         for (const cid of Object.keys(this._charactersFurrows)) {
             for (const f of this._charactersFurrows[cid]) {
                 for (const hole of f.Holes) {
-                    if (
-                        (hole.InsideSeed && hole.InsideSeed.Guid == itemGuid) ||
-                        (hole.InsideCropsPile && hole.InsideCropsPile.Guid == itemGuid)
-                    ) {
+                    if (hole.InsideCropsPile && hole.InsideCropsPile.Guid == itemGuid) {
                         return hole;
                     }
                 }
@@ -227,10 +238,10 @@ export class FarmlandManager {
             0.47);
         h4posRot.NewPos.Y += 0.03;
 
-        destFurrows.Holes.push(new Hole(null, null, h1posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
-        destFurrows.Holes.push(new Hole(null, null, h2posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
-        destFurrows.Holes.push(new Hole(null, null, h3posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
-        destFurrows.Holes.push(new Hole(null, null, h4posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, h1posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, h2posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, h3posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
+        destFurrows.Holes.push(new Hole(null, h4posRot.NewPos, destFurrows.Rotation, 0, generateRandomGuid()));
     }
 
     private placeFurrows = (furrows: Furrows, server: ZoneServer2016) => {
@@ -270,7 +281,7 @@ export class FarmlandManager {
     private removeFurrows = (furrows: Furrows) => {
         //if furrows contains seed or crops abort
         for (const h of furrows.Holes) {
-            if (h.InsideCropsPile || h.InsideSeed) {
+            if (h.InsideCropsPile) {
                 return false;
             }
         }
@@ -284,7 +295,21 @@ export class FarmlandManager {
     }
 
     private triggerRemoveFertilizerFromHoleEffect = (hole: Hole) => {
-        console.log('need to trigger the effect of fertilizer removal from the hole', hole);
+        if(!this._server) {
+            console.log('need to trigger the effect of fertilizer removal from the hole', hole);
+            return false;
+        }
+        if(!hole || !hole.InsideCropsPile)
+            return false;
+        this._server.sendDataToAllWithSpawnedEntity(
+            this._server._objects,
+            hole.InsideCropsPile.Guid,
+            "Command.PlayDialogEffect",
+            {
+                characterId: hole.InsideCropsPile.Guid,
+                effectId: 2,
+            }
+        );
     }
 
     private triggerBuryFertilizerIntoHoleEffect = (hole: Hole) => {
@@ -293,11 +318,7 @@ export class FarmlandManager {
             return;
         }
         let cid = null;
-        if(hole.InsideSeed)
-        {
-            cid = hole.InsideSeed.Guid;
-        }
-        else if(hole.InsideCropsPile)
+        if(hole.InsideCropsPile)
         {
             cid = hole.InsideCropsPile.Guid;
         }
@@ -326,6 +347,7 @@ export class FarmlandManager {
     private setFertilizerInHoleTimeout = (hole: Hole, duration: number) => {
         const guid = hole.Id;
         if (!guid) return;
+        hole.LastFertilizeTime = Date.now();
         this._fertilizerExpirationTimers[guid] = setTimeout(() => {
             hole.LastFertilizeTime = undefined;
             hole.FertilizerDuration = 0;

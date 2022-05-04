@@ -36,12 +36,12 @@ export class PlantingManager {
         const f = this._farmlandManager.SimulateGetSurroundingSowAbleFurrows(client, false);
         if (f) {
             for (const hole of f.Holes) {
-                if (!hole.InsideSeed && !hole.InsideCropsPile) {
+                if (!hole.InsideCropsPile) {
                     const seed = new Seed(itemDefinitionId, Date.now(), itemGuid);
                     //cost seed and get placed seed guid
-                    const placedSeed = this._farmlandManager.BurySeedIntoHole(hole, seed, server);
-                    if(placedSeed)
-                    seed.Guid = placedSeed.itemGuid;
+                    const objectInHole = this._farmlandManager.BurySeedIntoHole(hole, seed, server);
+                    if(objectInHole)
+                    seed.Guid = objectInHole.itemGuid;
                     else
                         return;
                     sRet = this._growManager.StartCultivating(client, server, hole, seed);
@@ -98,7 +98,12 @@ export class PlantingManager {
             return false;
         const hole = this._farmlandManager.IsSeedOrCropsInHole(item.itemGuid);
         if (hole) {
-            return this._growManager.PickingMatureCrops(hole, client, server);
+            const pickingRet = this._growManager.PickingMatureCrops(hole, client, server);
+            if(pickingRet)
+            {
+                this._farmlandManager.MakeFertilizerUseless(hole);
+            }
+            return pickingRet;
         }
         return false;
     }

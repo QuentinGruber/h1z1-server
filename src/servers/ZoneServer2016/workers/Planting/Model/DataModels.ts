@@ -21,7 +21,7 @@ export class Furrows {
       this.Holes = [];
       for (let i = 0; i < 4; i++) {
         const posRot = this.createHolePosRot(this.Position, this.Rotation, i);
-        const currentHole = new Hole(null, null, posRot.NewPos, posRot.NewRot,0, generateRandomGuid());
+        const currentHole = new Hole( null, posRot.NewPos, posRot.NewRot,0, generateRandomGuid());
         this.Holes.push(currentHole);
       }
     }
@@ -36,15 +36,10 @@ export class Furrows {
 }
 
 export class Hole {
-  public GetInsideObject=():ObjectInHole|null=>
-  {
-    return this.InsideCropsPile? this.InsideCropsPile:this.InsideSeed;
-  }
   public LastFertilizeTime?:number;
   //also as spawnerId
   public CreateTime:number;
-  constructor(public InsideSeed: Seed | null,
-              public InsideCropsPile: CropsPile | null,
+  constructor(public InsideCropsPile: CropsPile | null,
               public Position: Vector4,
               public Rotation: Euler,
               public FertilizerDuration:number,

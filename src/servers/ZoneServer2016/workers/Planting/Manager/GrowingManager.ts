@@ -1,10 +1,8 @@
 import {CropsPile, CropsPileStatus, Hole, Seed} from "../Model/DataModels";
 import {ZoneClient2016} from "../../../classes/zoneclient";
 import {ZoneServer2016} from "../../../zoneserver";
-import {Euler, GrowthScript, PlantingSetting, Stage} from "../Model/TypeModels";
-import {ItemObject} from "../../../classes/itemobject";
+import {GrowthScript, PlantingSetting, Stage} from "../Model/TypeModels";
 import {randomIntFromInterval} from "../../../../../utils/utils";
-import {inventoryItem} from "../../../../../types/zoneserver";
 
 const defaultTestGrowthScripts: GrowthScript =
     {
@@ -14,20 +12,20 @@ const defaultTestGrowthScripts: GrowthScript =
                 Stages: {
                     Sapling:
                         {
-                            StageName: 'Sapling',
-                            TimeToReach: 5000,
+                            StageName: CropsPileStatus.Sapling.toString(),
+                            TimeToReach: 60000,
                             NewModelId: 59,
                         },
                     Growing:
                         {
-                            StageName: 'Growing',
-                            TimeToReach: 5000,
+                            StageName: CropsPileStatus.Growing.toString(),
+                            TimeToReach: 60000,
                             NewModelId: 60,
                         },
                     Grown:
                         {
-                            StageName: 'Grown',
-                            TimeToReach: 5000,
+                            StageName: CropsPileStatus.Grown.toString(),
+                            TimeToReach: 60000,
                             NewModelId: 61,
                             Outcome: [
                                 {
@@ -62,19 +60,19 @@ const defaultTestGrowthScripts: GrowthScript =
                     Sapling:
                         {
                             StageName: 'Sapling',
-                            TimeToReach: 5000,
+                            TimeToReach: 60000,
                             NewModelId: 9191,
                         },
                     Growing:
                         {
                             StageName: 'Growing',
-                            TimeToReach: 5000,
+                            TimeToReach: 60000,
                             NewModelId: 9190,
                         },
                     Grown:
                         {
                             StageName: 'Grown',
-                            TimeToReach: 10000,
+                            TimeToReach: 60000,
                             NewModelId: 9189,
                             Outcome: [
                                 {
@@ -126,7 +124,7 @@ export class GrowingManager {
                 if (stagesKeys.length < 1)
                     return false;
                 const firstStage = script.Stages[stagesKeys[0]];
-                hole.InsideSeed = seed;
+                hole.InsideCropsPile = new CropsPile(seed,CropsPileStatus.Sowed,seed.Guid);
                 return this.grow2Stage(client, server, hole, seed.Name, null, firstStage);
             }
         }
@@ -135,21 +133,22 @@ export class GrowingManager {
 
     //The arrival time of the next stage will only be confirmed according to the energy efficiency of the fertilizer. The timer will be recalculated when this func called each times.
     public AccelerateGrowth = (hole: Hole, client: ZoneClient2016, server: ZoneServer2016) => {
-        if (!hole.InsideSeed && !hole.InsideCropsPile)
+        if (!hole.InsideCropsPile)
             return false;
         const guid = hole.Id;
         if (!guid) return false;
+        if (hole.InsideCropsPile.Status  == CropsPileStatus.Grown)
+        {
+            console.log('crops grown, accelerate invalid');
+            return false;
+        }
         if (this._stageTimers[guid]) {
             this.grow2Stage(client, server, hole, this._stageTimers[guid].scriptName, this._stageTimers[guid].srcStage, this._stageTimers[guid].destStage);
         }
     }
 
     public PickingMatureCrops = (hole: Hole, client: ZoneClient2016, server: ZoneServer2016) :boolean=> {
-        if (hole.InsideSeed) {
-            server.sendChatText(client, 'hole cleared by take out seed');
-            server.deleteEntity(hole.InsideSeed.Guid, server._objects);
-            return true;
-        } else if (hole.InsideCropsPile) {
+        if (hole.InsideCropsPile) {
             if(hole.InsideCropsPile.LootAbleProducts.length)
             {
                 for (const lootAbleProduct of hole.InsideCropsPile.LootAbleProducts) {
@@ -160,23 +159,26 @@ export class GrowingManager {
             }
             else
             {
-                server.sendChatText(client, 'hole cleared by uproot');
+                if(hole.InsideCropsPile.Status == CropsPileStatus.Sowed)
+                {
+                    server.sendChatText(client, 'hole cleared by take out seed');
+                }
+                else {
+                    server.sendChatText(client, 'hole cleared by uproot');
+                }
             }
             //multi outcome items created by single guid, so only run once
             server.deleteEntity(hole.InsideCropsPile.Guid, server._objects);
             //remove from hole;
             hole.InsideCropsPile.LootAbleProducts = [];
             hole.InsideCropsPile = null;
-            hole.InsideSeed = null;
-
             return true;
         }
         return false;
     }
-
     //region private
     private grow2Stage = (client: ZoneClient2016, server: ZoneServer2016, hole: Hole, scriptName: string, srcStage: Stage | null, destStage: Stage): boolean => {
-        if (!hole.GetInsideObject()) {
+        if (!hole.InsideCropsPile) {
             console.log('nothing found in hole');
             return false;
         }
@@ -210,51 +212,33 @@ export class GrowingManager {
             }
         }
         const timer = setTimeout(() => {
-            //sapling
-            if (destStage.StageName == CropsPileStatus.Sapling.toString() && hole.InsideSeed) {
-                server.deleteEntity(hole.InsideSeed.Guid, server._objects);
-                const item = GrowingManager.placeMatureCropModel(hole,destStage.NewModelId, server);
-                if(!item) return;
-                hole.InsideCropsPile = new CropsPile(hole.InsideSeed, CropsPileStatus.Sapling, item.itemGuid);
-                hole.InsideSeed = null;
-                console.log('种子已发芽', hole.GetInsideObject());
+            if (!hole.InsideCropsPile) {
+                console.log('nothing in hole');
+                return;
             }
-            //growing
-            else if (destStage.StageName == CropsPileStatus.Growing.toString() && hole.InsideCropsPile) {
-                server.deleteEntity(hole.InsideCropsPile.Guid, server._objects);
-                const item = GrowingManager.placeMatureCropModel(hole,destStage.NewModelId, server);
-                if(!item) return;
-                const seed = hole.InsideCropsPile.EmbryoSeed;
-                hole.InsideCropsPile = null;
-                hole.InsideCropsPile = new CropsPile(seed, CropsPileStatus.Growing, item.itemGuid);
-                console.log('种子已成长', hole.GetInsideObject())
+            if (!destStage.StageName) {
+                console.log('invalid stage name in script:', destStage);
+                return;
             }
-            //grown
-            else if (destStage.StageName == CropsPileStatus.Grown.toString() && hole.InsideCropsPile) {
-                server.deleteEntity(hole.InsideCropsPile.Guid, server._objects);
-                const item = GrowingManager.placeMatureCropModel(hole,destStage.NewModelId, server);
-                if(!item) return;
-                const seed = hole.InsideCropsPile.EmbryoSeed;
-                hole.InsideCropsPile = null;
-                hole.InsideCropsPile = new CropsPile(seed, CropsPileStatus.Grown, item.itemGuid);
-                if (destStage.Outcome) {
-                    for (let i = 0; i < destStage.Outcome.length; i++) {
-                        const current = destStage.Outcome[i];
-                        hole.InsideCropsPile.LootAbleProducts.push({
-                            Name: current.Name,
-                            ItemDefinitionId: current.ItemDefinitionId,
-                            Count: current.DefiniteCount? current.DefiniteCount :
-                                ((current.MinCount && current.MaxCount)? randomIntFromInterval(current.MinCount,current.MaxCount):1)
-                        });
-                    }
+            const index = destStage.StageName as keyof typeof CropsPileStatus;
+            if (!CropsPileStatus[index]) {
+                console.log('unknown crops status of stage:', index);
+                return;
+            }
+            hole.InsideCropsPile.Status = CropsPileStatus[index];
+            GrowingManager.changeCropsModel(hole, destStage.NewModelId, server);
+            if (destStage.Outcome) {
+                for (let i = 0; i < destStage.Outcome.length; i++) {
+                    const current = destStage.Outcome[i];
+                    hole.InsideCropsPile.LootAbleProducts.push({
+                        Name: current.Name,
+                        ItemDefinitionId: current.ItemDefinitionId,
+                        Count: current.DefiniteCount ? current.DefiniteCount :
+                            ((current.MinCount && current.MaxCount) ? randomIntFromInterval(current.MinCount, current.MaxCount) : 1)
+                    });
                 }
-
-                console.log('种子已成熟', hole.GetInsideObject());
             }
-            //not match
-            else {
-                console.warn('cant match dest stage', destStage);
-            }
+            console.log(destStage.StageName, hole.InsideCropsPile);
             //get next stage;
             const sts = Object.keys(this._setting.GrowthScripts[scriptName].Stages);
             const currentIndex = sts.indexOf(destStage.StageName);
@@ -271,32 +255,31 @@ export class GrowingManager {
         this._stageTimers[guid] = {timer: timer, destStage: destStage, srcStage: srcStage, scriptName: scriptName};
         return true;
     }
-
-    //loot able
-    private static placeMatureCropModel(hole: Hole, modelId: number, server: ZoneServer2016): inventoryItem | null {
-        let seedType =  hole.InsideSeed? hole.InsideSeed.Type:0;
-        if(hole.InsideCropsPile && hole.InsideCropsPile.EmbryoSeed && !seedType)
-        {
-            seedType = hole.InsideCropsPile.EmbryoSeed.Type;
-        }
-        // const qu = Euler2Quaternion(hole.Rotation.Yaw, hole.Rotation.Pitch, hole.Rotation.Roll);
-        //set count=0, just place a loot able model, generate mature crops and seeds when picking
-        const item = server.generateItem(seedType, 0);
-        if (!item) {
-            console.warn('server generate item failed, item definition id :', seedType);
-            return null;
-        }
-        server._objects[item.itemGuid] = new ItemObject(
-            item.itemGuid,
-            server.getTransientId(item.itemGuid),
-            modelId,
-            hole.Position.ToFloat32ArrayZYXW(),
-            Euler.ToH1Z1ClientRotFormat(hole.Rotation),
-            // qu.ToFloat32ArrayZYXW(),
-            hole.CreateTime,
-            item
-        )
-        return item;
+    private static changeCropsModel(hole:Hole, modelId:number,server:ZoneServer2016):boolean{
+        if(!hole || !hole.InsideCropsPile)return false;
+        // server.sendDataToAllWithSpawnedEntity(
+        //     server._objects,
+        //     hole.InsideCropsPile.Guid,
+        //     // tItem.characterId,
+        //     "Character.UpdateScale",
+        //     {
+        //         characterId: hole.InsideCropsPile.Guid,
+        //         scale: [0.5, 0.5, 0.5, 1],
+        //     }
+        // );
+        const eid = (hole.LastFertilizeTime && hole.FertilizerDuration && (Date.now() - hole.LastFertilizeTime)>0)?5056:0;
+        server.sendDataToAllWithSpawnedEntity(
+            server._objects,
+            hole.InsideCropsPile.Guid,
+            // tItem.characterId,
+            "Character.ReplaceBaseModel",
+            {
+                characterId: hole.InsideCropsPile.Guid,
+                modelId: modelId,
+                effectId:eid,
+            }
+        );
+        return true;
     }
     //endregion
 }

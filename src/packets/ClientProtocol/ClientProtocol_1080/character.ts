@@ -177,7 +177,16 @@ export const characterPackets: any = [
   ["Character.SetComboState", 0x0f1a, {}],
   ["Character.SetSurpriseState", 0x0f1b, {}],
   ["Character.RemoveNpcCustomization", 0x0f1c, {}],
-  ["Character.ReplaceBaseModel", 0x0f1d, {}],
+  ["Character.ReplaceBaseModel",
+    0x0f1d,
+    {
+      fields: [
+        {name: "characterId", type: "uint64string", defaultValue: "0x0000000000000000" },
+        {name: "modelId", type: "uint32", defaultValue: 0},
+        {name: "effectId", type: "uint32", defaultValue: 0},
+      ],
+    }
+  ],
   ["Character.SetCollidable", 0x0f1e, {}],
   ["Character.UpdateOwner", 0x0f1f, {}],
   [
