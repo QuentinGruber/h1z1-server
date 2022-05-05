@@ -98,7 +98,7 @@ export class DoorEntity extends BaseLightweightCharacter {
     this.spawnerId = spawnerId;
     this.startRot = rotation;
     (this.state.rotation = new Float32Array(
-      eul2quat([rotation[0], rotation[1], rotation[2], rotation[3]])
+      eul2quat(new Float32Array([rotation[0], rotation[1], rotation[2], rotation[3]]))
     )),
       (this.openAngle = this.startRot[0] + 1.575);
     this.closedAngle = this.startRot[0];
