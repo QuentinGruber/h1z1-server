@@ -7,6 +7,7 @@ import {Furrows, Hole, SeedType} from "./Model/DataModels";
 import {TemporaryEntity} from "../../classes/temporaryentity";
 import {generateRandomGuid} from "../../../../utils/utils";
 import {ExplosiveEntity} from "../../classes/explosiveentity";
+import {ItemObject} from "../../classes/itemobject";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace NormanTest {
@@ -473,6 +474,61 @@ export namespace NormanTest {
             W: client.character.state.rotation[3]
         }), "XZY"):new Float32Array([Math.PI/4,0,0])
         switch (cmd) {
+            //change model
+            case 'cm':
+                if(!server || !client)return;
+                else {
+                    const iItem = server.generateItem(25, 1);
+                    if (!iItem || !iItem.itemGuid) return;
+                    const tItem = new ItemObject(iItem.itemGuid,
+                        server.getTransientId(iItem.itemGuid),
+                        2,
+                        pos.ToFloat32ArrayZYXW(),
+                        new Float32Array([0, 0, 0, 0]),
+                        Date.now(),
+                        iItem);
+                    if (!tItem || !tItem.characterId) return;
+                    tItem.scale = new Float32Array([4, 4, 4, 1]);
+                    server._objects[tItem.characterId] = tItem;
+                    const change = function (newModelId: number) {
+                        server.sendDataToAllWithSpawnedEntity(
+                            server._objects,
+                            tItem.characterId,
+                            // tItem.characterId,
+                            "Character.UpdateScale",
+                            {
+                                characterId: tItem.characterId,
+                                scale: [0.5, 0.5, 0.5, 1],
+                            }
+                        );
+                        server.sendDataToAllWithSpawnedEntity(
+                            server._objects,
+                            tItem.characterId,
+                            // tItem.characterId,
+                            "Character.ReplaceBaseModel",
+                            {
+                                characterId: tItem.characterId,
+                                modelId: 1,
+                            }
+                        );
+                        //region change size success
+                        // server.sendDataToAllWithSpawnedEntity(
+                        //     server._explosives,
+                        //     cid,
+                        //     "Character.UpdateScale",
+                        //     {
+                        //         characterId:cid,
+                        //         scale:[3,5,3,1]
+                        //     }
+                        // );
+                        //endregion
+                        server.sendChatText(client, 'model changed to ' + newModelId);
+                    }
+                    setTimeout(() => {
+                        change(1)
+                    }, 5000);
+                }
+                break;
             //placement test
             case 'pl':
                 if(!server || !client) return;
