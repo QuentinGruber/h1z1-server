@@ -599,6 +599,15 @@ export class ZoneServer2016 extends EventEmitter {
         loadoutSlots: client.character.pGetLoadoutSlots(),
         characterResources: client.character.pGetResources(),
         containers: containers,
+        FIRE_MODES_1: [
+          { FIRE_MODE_ID: 366 },
+          { FIRE_MODE_ID: 367 },
+          { FIRE_MODE_ID: 368 },
+        ],
+        FIRE_MODES_2: [
+          { FIRE_MODE_ID: 539 },
+          { FIRE_MODE_ID: 540 },
+        ]
         //unknownQword1: client.character.characterId,
         //unknownDword38: 1,
         //vehicleLoadoutRelatedQword: client.character.characterId,

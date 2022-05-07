@@ -13,7 +13,7 @@
 
 import DataSchema from "h1z1-dataschema";
 import { LZ4 } from "../../../utils/utils";
-import { packVehicleReferenceData, parseVehicleReferenceData } from "./shared";
+import { firemodesSchema, packVehicleReferenceData, parseVehicleReferenceData } from "./shared";
 import { profileDataSchema } from "./shared";
 
 const weaponDefinitionSchema: any[] = [
@@ -110,9 +110,7 @@ const weaponDefinitionSchema: any[] = [
             name: "FIRE_MODES",
             type: "array",
             defaultValue: [],
-            fields: [
-              { name: "FIRE_MODE_ID", type: "uint32", defaultValue: 0 },
-            ],
+            fields: firemodesSchema,
           },
           { name: "FLAGS", type: "uint8", defaultValue: 0 },
           { name: "CHAMBER_DURATION_MS", type: "uint32", defaultValue: 0 },

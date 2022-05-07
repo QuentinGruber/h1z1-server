@@ -18,6 +18,7 @@ import {
   currencySchema,
   effectTagsSchema,
   equipmentSlotSchema,
+  firemodesSchema,
   fullNpcSchema,
   fullPcSchema,
   itemSchema,
@@ -476,24 +477,18 @@ export const basePackets: any = [
               ],
             },
             { name: "unknownDword33", type: "uint32", defaultValue: 0 },
-
             {
-              name: "unknownArray15",
+              name: "FIRE_MODES_1",
               type: "array",
               defaultValue: [],
-              fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              ],
+              fields: firemodesSchema,
             },
             {
-              name: "unknownArray16",
+              name: "FIRE_MODES_2",
               type: "array",
               defaultValue: [],
-              fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              ],
+              fields: firemodesSchema,
             },
-
             {
               name: "unknownArray17",
               type: "array",

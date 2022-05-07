@@ -2442,3 +2442,7 @@ export const loadoutSlotsSchema = [
   },
   { name: "currentSlotId", type: "uint32", defaultValue: 7 },
 ];
+
+export const firemodesSchema = [
+  { name: "FIRE_MODE_ID", type: "uint32", defaultValue: 0 },
+];
