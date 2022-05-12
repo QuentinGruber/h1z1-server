@@ -733,7 +733,7 @@ export const itemSchema = [
   { name: "currentDurability", type: "uint32", defaultValue: 0 },
   { name: "maxDurabilityFromDefinition", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-  { name: "unknownQword3", type: "uint64string", defaultValue: "" },
+  { name: "ownerCharacterId", type: "uint64string", defaultValue: "" },
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
 ];
 
@@ -1004,6 +1004,124 @@ export function packItemSubData(obj: any) {
     obj["unknownData1"]
   ).data;
   return Buffer.concat([data, unknownData1Obj]);
+}
+
+export function packItemWeaponData(obj: any) {
+  const unknownData1Schema = [
+    {
+      name: "unknownData1",
+      type: "schema",
+      defaultValue: {},
+      fields: [
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ],
+    },
+    {
+      name: "unknownData2",
+      type: "schema",
+      defaultValue: {},
+      fields: [
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          ],
+        },
+        {
+          name: "unknownArray2",
+          type: "array8",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            {
+              name: "unknownArray1",
+              type: "array8",
+              defaultValue: [],
+              fields: [
+                { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+              ],
+            },
+          ],
+        },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte3", type: "uint8", defaultValue: 0 },
+        { name: "unknownByte4", type: "int8", defaultValue: 0 },
+        { name: "unknownByte5", type: "int8", defaultValue: 0 },
+        { name: "unknownFloat1", type: "float", defaultValue: 0 },
+        { name: "unknownByte6", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte7", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword3", type: "int32", defaultValue: 0 },
+      ],
+    },
+    {
+      name: "stats",
+      type: "array",
+      defaultValue: [],
+      fields: [
+        { name: "statId", type: "uint32", defaultValue: 0 },
+        {
+          name: "statData",
+          type: "schema",
+          defaultValue: {},
+          fields: statSchema,
+        },
+      ],
+    },
+    {
+      name: "unknownArray1",
+      type: "array",
+      defaultValue: [],
+      fields: [
+        { name: "unknownDword1", type: "int32", defaultValue: 0 },
+        {
+          name: "unknownArray1",
+          type: "schema",
+          fields: [
+            {
+              name: "unknownArray1",
+              type: "array",
+              fields: [
+                { name: "unknownDword1", type: "int32", defaultValue: 0 },
+                {
+                  name: "stats",
+                  type: "array",
+                  defaultValue: [],
+                  fields: [
+                    { name: "statId", type: "uint32", defaultValue: 0 },
+                    {
+                      name: "statData",
+                      type: "schema",
+                      defaultValue: {},
+                      fields: statSchema,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    },
+  ];
+
+  if(!obj["isWeapon"]) {
+    return DataSchema.pack(
+      [{ name: "unknownBoolean1", type: "boolean", defaultValue: false }],
+      obj
+    ).data
+  }
+  return DataSchema.pack(
+    unknownData1Schema,
+    obj
+  ).data
 }
 
 export const currencySchema = [

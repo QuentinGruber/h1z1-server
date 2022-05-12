@@ -551,8 +551,46 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async sendCharacterData(client: Client) {
+    if (!this.itemDefinitionsCache) {
+      this.packItemDefinitions();
+    }
+    this.sendRawData(client, this.itemDefinitionsCache);
+    this.sendData(client, "ReferenceData.WeaponDefinitions", {
+      data: {
+        definitionsData: weaponDefinitions
+      }
+    });
     await this.loadCharacterData(client);
     const containers = this.initializeContainerList(client, false);
+    console.log(
+      Object.values(client.character._loadout)
+      .filter((slot) => {
+        if (slot.itemDefinitionId) {
+          return true;
+        }
+      })
+      .map((slot) => {
+        return {
+          itemDefinitionId: slot.itemDefinitionId,
+          tintId: 0,
+          guid: slot.itemGuid,
+          count: 1, // also ammoCount
+          itemSubData: {
+            hasSubData: false,
+          },
+          containerGuid: slot.containerGuid,
+          containerDefinitionId: 101, // loadout containerDefinitionId
+          containerSlotId: slot.slotId,
+          baseDurability: 2000,
+          currentDurability: slot.currentDurability,
+          maxDurabilityFromDefinition: 2000,
+          unknownBoolean1: true,
+          ownerCharacterId: client.character.characterId,
+          unknownDword9: 1,
+          unknownData1: this.getItemWeaponData(slot)
+        };
+      })
+    )
     this.sendData(client, "SendSelfToClient", {
       data: {
         ...client.character.pGetLightweight(),
@@ -588,9 +626,9 @@ export class ZoneServer2016 extends EventEmitter {
                 currentDurability: slot.currentDurability,
                 maxDurabilityFromDefinition: 2000,
                 unknownBoolean1: true,
-                unknownQword3: client.character.characterId,
+                ownerCharacterId: client.character.characterId,
                 unknownDword9: 1,
-                unknownBoolean2: false,
+                unknownData1: this.getItemWeaponData(slot)
               };
             }),
         },
@@ -617,23 +655,11 @@ export class ZoneServer2016 extends EventEmitter {
       },
     });
 
-    if (!this.itemDefinitionsCache) {
-      this.packItemDefinitions();
-    }
-    this.sendRawData(client, this.itemDefinitionsCache);
-
     this.sendData(client, "Container.InitEquippedContainers", {
       ignore: client.character.characterId,
       characterId: client.character.characterId,
       containers: containers,
     });
-
-    this.sendData(client, "ReferenceData.WeaponDefinitions", {
-      data: {
-        definitionsData: weaponDefinitions
-      }
-    });
-
 
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
@@ -2351,6 +2377,46 @@ export class ZoneServer2016 extends EventEmitter {
 
   //#region ********************INVENTORY********************
 
+  getItemWeaponData(slot: inventoryItem) {
+    if(this.isWeapon(slot.itemDefinitionId)) {
+      return {
+        isWeapon: true, // not sent to client, only used as a flag for pack function
+        unknownData1: {
+          unknownBoolean1: false,
+        },
+        unknownData2: {
+          unknownArray1: [],
+          unknownArray2: [{
+            unknownDword1: 12,
+            unknownArray1: [{
+              unknownByte1: 0,
+              unknownDword1: 0,
+              unknownDword2: 0,
+              unknownDword3: 0
+            }]
+          }],
+          unknownByte1: 0,
+          unknownByte2: 1,
+          unknownDword1: 0,
+          unknownByte3: 0,
+          unknownByte4: -1,
+          unknownByte5: -1,
+          unknownFloat1: 0,
+          unknownByte6: 0,
+          unknownDword2: 0,
+          unknownByte7: 0,
+          unknownDword3: -1
+        },
+        stats: [],
+        unknownArray1: []
+      }
+    }
+    return {
+      isWeapon: false, // not sent to client, only used as a flag for pack function
+      unknownBoolean1: false,
+    }
+  }
+
   updateLoadout(client: Client, character = client.character) {
     this.sendData(
       client,
@@ -2400,9 +2466,9 @@ export class ZoneServer2016 extends EventEmitter {
         currentDurability: item.currentDurability,
         maxDurabilityFromDefinition: 2000,
         unknownBoolean1: true,
-        unknownQword3: client.character.characterId,
+        ownerCharacterId: client.character.characterId,
         unknownDword9: 1,
-        unknownBoolean2: false,
+        unknownData1: this.getItemWeaponData(item)
       },
     });
   }
@@ -3060,7 +3126,7 @@ export class ZoneServer2016 extends EventEmitter {
                   currentDurability: item.currentDurability,
                   maxDurabilityFromDefinition: 2000,
                   unknownBoolean1: true,
-                  unknownQword3: client.character.characterId,
+                  ownerCharacterId: client.character.characterId,
                   unknownDword9: 1,
                 },
               };
@@ -3116,7 +3182,7 @@ export class ZoneServer2016 extends EventEmitter {
               currentDurability: item.currentDurability,
               maxDurabilityFromDefinition: 2000,
               unknownBoolean1: true,
-              unknownQword3: client.character.characterId,
+              ownerCharacterId: client.character.characterId,
               unknownDword9: 1,
             },
           };
@@ -3184,9 +3250,8 @@ export class ZoneServer2016 extends EventEmitter {
         currentDurability: item.currentDurability,
         maxDurabilityFromDefinition: 2000,
         unknownBoolean1: true,
-        unknownQword3: client.character.characterId,
+        ownerCharacterId: client.character.characterId,
         unknownDword9: 1,
-        unknownBoolean2: false,
       },
     });
     this.updateContainer(client, container);

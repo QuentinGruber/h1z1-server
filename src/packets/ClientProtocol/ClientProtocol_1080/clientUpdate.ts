@@ -13,6 +13,7 @@
 
 import {
   attachmentSchema,
+  packItemWeaponData,
   packUnsignedIntWith2bitLengthValue,
   readUnsignedIntWith2bitLengthValue,
 } from "./shared";
@@ -36,7 +37,12 @@ export const clientUpdatePackets: any = [
           type: "byteswithlength",
           fields: [
             ...itemSchema,
-            { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+            {
+              name: "unknownData1",
+              type: "schema",
+              defaultValue: {},
+              packer: packItemWeaponData,
+            },
           ],
         },
       ],

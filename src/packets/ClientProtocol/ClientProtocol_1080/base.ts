@@ -33,6 +33,7 @@ import {
   readPositionUpdateData,
   readUnsignedIntWith2bitLengthValue,
   recipeData,
+  packItemWeaponData
 } from "./shared";
 import {
   achievementSchema,
@@ -139,11 +140,14 @@ export const basePackets: any = [
                   defaultValue: [],
                   fields: [
                     ...itemSchema,
+                    //{ name: "testadsadasdsad", type: "uint8", defaultValue: false },
+                    
                     {
-                      name: "unknownBoolean2",
-                      type: "boolean",
-                      defaultValue: false,
-                    }, // detail bool?
+                      name: "unknownData1",
+                      type: "custom",
+                      defaultValue: {},
+                      packer: packItemWeaponData,
+                    },
                   ],
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
