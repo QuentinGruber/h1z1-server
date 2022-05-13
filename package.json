@@ -30,7 +30,7 @@
     "@typescript-eslint/eslint-plugin": "^5.20.0",
     "@typescript-eslint/parser": "^5.20.0",
     "eslint": "^8.13.0",
-    "glob": "8.0.1",
+    "glob": "8.0.2",
     "prettier": "2.6.2",
     "ts-node": "10.7.0",
     "typedoc": "0.22.15"
