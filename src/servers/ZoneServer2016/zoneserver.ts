@@ -2385,7 +2385,9 @@ export class ZoneServer2016 extends EventEmitter {
           unknownBoolean1: false,
         },
         unknownData2: {
-          unknownArray1: [],
+          unknownArray1: [{
+            unknownDword1: 0
+          }],
           unknownArray2: [{
             unknownDword1: 12,
             unknownArray1: [{
