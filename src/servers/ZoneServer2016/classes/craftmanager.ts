@@ -155,8 +155,8 @@ export class CraftManager {
     );
     const r = server._recipes[recipeId];
     for (const component of r.components) {
-      const inventory = server.getInventoryAsContainer(client)
-       let remainingItems = component.requiredAmount * count,
+      const inventory = server.getInventoryAsContainer(client);
+      let remainingItems = component.requiredAmount * count,
         stackCount = 0;
       if (!inventory[component.itemDefinitionId]) {
         server.containerError(client, 5); // slot does not contain item

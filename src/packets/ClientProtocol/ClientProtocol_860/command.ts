@@ -309,7 +309,7 @@ export const commandPackets: any = [
     {
       fields: [
         {
-          name: "definitionsData",
+          name: "data",
           type: "byteswithlength",
           fields: [
             {

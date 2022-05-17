@@ -162,7 +162,6 @@ export class ZoneServer2015 extends EventEmitter {
       this.onZoneLoginEvent(err, client);
     });
 
-
     this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
       const client = this._clients[soeClient.sessionId];
       this.deleteClient(client);
@@ -192,7 +191,6 @@ export class ZoneServer2015 extends EventEmitter {
       this.onGatewayDisconnectEvent(err, client);
     });
 
-
     this._gatewayServer.on(
       "tunneldata",
       (err: string, client: Client, data: Buffer, flags: number) => {
@@ -212,7 +210,9 @@ export class ZoneServer2015 extends EventEmitter {
         "session",
         (err: string, client: H1emuClient) => {
           if (err) {
-            debug(`An error occured for LoginConnection with ${client.sessionId}`);
+            debug(
+              `An error occured for LoginConnection with ${client.sessionId}`
+            );
             console.error(err);
           } else {
             debug(`LoginConnection established for ${client.sessionId}`);
@@ -477,10 +477,8 @@ export class ZoneServer2015 extends EventEmitter {
       }
       delete this._clients[client.sessionId];
       const soeClient = this.getSoeClient(client.soeClientId);
-      if(soeClient){
-        this._gatewayServer._soeServer.deleteClient(
-          soeClient
-        );
+      if (soeClient) {
+        this._gatewayServer._soeServer.deleteClient(soeClient);
       }
       if (!this._soloMode) {
         this.sendZonePopulationUpdate();
@@ -1450,14 +1448,11 @@ export class ZoneServer2015 extends EventEmitter {
           vehicle.npcData.characterId
         );
         vehicle.npcData.destroyedState = 4;
-        this.sendDataToAll(
-          "PlayerUpdate.RemovePlayerGracefully",
-          {
-            characterId: vehicle.npcData.characterId,
-            timeToDisappear: 13000,
-            stickyEffectId: 156,
-          }
-        );
+        this.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
+          characterId: vehicle.npcData.characterId,
+          timeToDisappear: 13000,
+          stickyEffectId: 156,
+        });
         if (vehicle.passengers.passenger1) {
           const client = this._clients[vehicle.passengers.passenger1];
           client.vehicle.mountedVehicleType = "0";
@@ -2110,17 +2105,13 @@ export class ZoneServer2015 extends EventEmitter {
         !client.spawnedEntities.includes(characterObj) &&
         !characterObj.isHidden
       ) {
-        this.sendData(
-          client,
-          "PlayerUpdate.AddLightweightPc",
-          {
-            ...characterObj,
-            transientId: characterObj.transientId,
-            characterFirstName: characterObj.name,
-            position: characterObj.state.position,
-            rotation: characterObj.state.lookAt,
-          }
-        );
+        this.sendData(client, "PlayerUpdate.AddLightweightPc", {
+          ...characterObj,
+          transientId: characterObj.transientId,
+          characterFirstName: characterObj.name,
+          position: characterObj.state.position,
+          rotation: characterObj.state.lookAt,
+        });
         client.spawnedEntities.push(this._characters[character]);
       }
     }
@@ -2180,13 +2171,9 @@ export class ZoneServer2015 extends EventEmitter {
           this.dropVehicleManager(client, characterId);
         }
       }
-      this.sendData(
-        client,
-        "PlayerUpdate.RemovePlayerGracefully",
-        {
-          characterId,
-        }
-      );
+      this.sendData(client, "PlayerUpdate.RemovePlayerGracefully", {
+        characterId,
+      });
     });
   }
 
@@ -2293,21 +2280,15 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   despawnEntity(characterId: string) {
-    this.sendDataToAll(
-      "PlayerUpdate.RemovePlayerGracefully",
-      {
-        characterId: characterId,
-      }
-    );
+    this.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
+      characterId: characterId,
+    });
   }
 
   deleteEntity(characterId: string, dictionnary: any) {
-    this.sendDataToAll(
-      "PlayerUpdate.RemovePlayerGracefully",
-      {
-        characterId: characterId,
-      }
-    );
+    this.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
+      characterId: characterId,
+    });
     delete dictionnary[characterId];
   }
 
@@ -2535,29 +2516,22 @@ export class ZoneServer2015 extends EventEmitter {
     }
   }
 
-  sendData(
-    client: Client,
-    packetName: h1z1PacketsType,
-    obj: any
-  ): void {
+  sendData(client: Client, packetName: h1z1PacketsType, obj: any): void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
     const data = this._protocol.pack(packetName, obj);
-    if(data){
-      const soeClient = this.getSoeClient(client.soeClientId)
-      if(soeClient){
-        this._gatewayServer.sendTunnelData(
-          soeClient,
-          data
-        );
+    if (data) {
+      const soeClient = this.getSoeClient(client.soeClientId);
+      if (soeClient) {
+        this._gatewayServer.sendTunnelData(soeClient, data);
       }
     }
   }
 
   sendDataToAll(packetName: h1z1PacketsType, obj: any): void {
     const data = this._protocol.pack(packetName, obj);
-    if(data){
+    if (data) {
       for (const a in this._clients) {
         this.sendRawData(this._clients[a], data);
       }
@@ -2603,11 +2577,8 @@ export class ZoneServer2015 extends EventEmitter {
 
   sendRawData(client: Client, data: Buffer): void {
     const soeClient = this.getSoeClient(client.soeClientId);
-    if(soeClient){
-      this._gatewayServer.sendTunnelData(
-        soeClient,
-        data
-      );
+    if (soeClient) {
+      this._gatewayServer.sendTunnelData(soeClient, data);
     }
   }
 
@@ -2676,7 +2647,8 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   getTransientId(characterId: string): number {
-    const generatedTransient = this._transientIdGenerator.next().value as number;
+    const generatedTransient = this._transientIdGenerator.next()
+      .value as number;
     this._transientIds[generatedTransient] = characterId;
     return generatedTransient;
   }

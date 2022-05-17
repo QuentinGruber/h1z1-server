@@ -225,9 +225,9 @@ export function readPositionUpdateData(data: Buffer, offset: number) {
     offset += v.length;
     v = readSignedIntWith2bitLengthValue(data, offset);
     rotationEul[3] = v.value / 100;
-    obj["rotation"] = eul2quat(rotationEul);
+    obj["rotation"] = eul2quat(new Float32Array(rotationEul));
     obj["rotationRaw"] = rotationEul;
-    obj["lookAt"] = eul2quat([rotationEul[0], 0, 0, 0]);
+    obj["lookAt"] = eul2quat(new Float32Array([rotationEul[0], 0, 0, 0]));
     offset += v.length;
   }
 
@@ -351,6 +351,43 @@ export function packPositionUpdateData(obj: any) {
 
   return data;
 }
+
+export const profileDataSchema = [
+  { name: "profileId", type: "uint32", defaultValue: 0 },
+  { name: "nameId", type: "uint32", defaultValue: 0 },
+  { name: "descriptionId", type: "uint32", defaultValue: 0 },
+  { name: "type", type: "uint32", defaultValue: 0 },
+  { name: "iconId", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+  {
+    name: "unknownArray1",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+    ],
+  },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "uint32", defaultValue: 0 },
+  { name: "unknownBoolean3", type: "boolean", defaultValue: false },
+  { name: "unknownFloat1", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownFloat2", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownFloat3", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownFloat4", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+  { name: "unknownFloat5", type: "uint32", defaultValue: 0.0 },
+  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword15", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword16", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword17", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword18", type: "uint32", defaultValue: 0 },
+];
 
 export function packItemDefinitionData(obj: any) {
   const compressionData = Buffer.allocUnsafe(4);
@@ -2319,7 +2356,7 @@ export const itemDefinitionSchema: any[] = [
   { name: "EQUIP_COUNT_MAX", type: "uint32", defaultValue: 0 },
   { name: "CURRENCY_TYPE", type: "int32", defaultValue: 0 }, // can be -1
   { name: "DATASHEET_ID", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword14", type: "uint32", defaultValue: 0 }, // was ITEM_TYPE
+  { name: "ITEM_TYPE_1", type: "uint32", defaultValue: 0 }, // also ITEM_TYPE?
   { name: "SKILL_SET_ID", type: "uint32", defaultValue: 0 },
   { name: "OVERLAY_TEXTURE", type: "string", defaultValue: "" },
   { name: "DECAL_SLOT", type: "string", defaultValue: "" },
@@ -2343,10 +2380,10 @@ export const itemDefinitionSchema: any[] = [
   { name: "unknownBoolean1", type: "boolean", defaultValue: true },
   { name: "IS_ARMOR", type: "boolean", defaultValue: false },
   { name: "unknownDword52", type: "uint32", defaultValue: 28 },
-  { name: "containerDefinitionId", type: "uint32", defaultValue: 28 },
-  { name: "unknownDword54", type: "uint32", defaultValue: 28 },
-  { name: "unknownDword55", type: "uint32", defaultValue: 28 },
-  { name: "unknownString8", type: "string", defaultValue: "" },
+  { name: "PARAM1", type: "uint32", defaultValue: 0 },
+  { name: "PARAM2", type: "uint32", defaultValue: 0 },
+  { name: "PARAM3", type: "uint32", defaultValue: 0 },
+  { name: "STRING_PARAM1", type: "string", defaultValue: "" },
   { name: "UI_MODEL_CAMERA_ID", type: "uint32", defaultValue: 0 },
   { name: "unknownDword57", type: "uint32", defaultValue: 932 },
   { name: "SCRAP_VALUE_OVERRIDE", type: "int32", defaultValue: 0 }, // can be -1

@@ -35,7 +35,10 @@ export class SOEInputStream extends EventEmitter {
     this._rc4 = new RC4(cryptoKey);
   }
 
-  private processSingleData(dataToProcess: Fragment, sequence: number): Array<Buffer> {
+  private processSingleData(
+    dataToProcess: Fragment,
+    sequence: number
+  ): Array<Buffer> {
     this._lastProcessedFragmentSequence = sequence;
     return parseChannelPacketData(dataToProcess.payload);
   }
