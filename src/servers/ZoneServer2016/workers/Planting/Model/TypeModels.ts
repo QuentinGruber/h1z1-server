@@ -136,6 +136,8 @@ export interface Stage {
             DefiniteCount?: number,
             MinCount?:number,
             MaxCount?:number,
+            //0~100
+            RateOfGetting?:number,
             LootAble: boolean
         }[],
 }

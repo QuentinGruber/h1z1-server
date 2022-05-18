@@ -4,6 +4,8 @@ import {ZoneServer2016} from "../../../zoneserver";
 import {GrowthScript, PlantingSetting, Stage} from "../Model/TypeModels";
 import {randomIntFromInterval} from "../../../../../utils/utils";
 
+const debug = require("debug")("PlantingManager");
+
 const defaultTestGrowthScripts: GrowthScript =
     {
         'Corn Seed':
@@ -13,32 +15,33 @@ const defaultTestGrowthScripts: GrowthScript =
                     Sapling:
                         {
                             StageName: CropsPileStatus.Sapling.toString(),
-                            TimeToReach: 60000,
+                            TimeToReach: 3600000,
                             NewModelId: 59,
                         },
                     Growing:
                         {
                             StageName: CropsPileStatus.Growing.toString(),
-                            TimeToReach: 60000,
+                            TimeToReach: 3600000*2,
                             NewModelId: 60,
                         },
                     Grown:
                         {
                             StageName: CropsPileStatus.Grown.toString(),
-                            TimeToReach: 60000,
+                            TimeToReach: 3600000*3,
                             NewModelId: 61,
                             Outcome: [
                                 {
-                                    Name: 'Corn', LootAble: true, ModelId: 0, MinCount: 2, MaxCount:6, ItemDefinitionId: 107
+                                    Name: 'Corn', LootAble: true, ModelId: 0, MinCount: 1, MaxCount:2, ItemDefinitionId: 107
                                 },
                                 {
-                                    Name: 'Corn Seed', ItemDefinitionId: 1987, DefiniteCount: 2, ModelId: 0, LootAble: true
+                                    Name: 'Corn Seed', ItemDefinitionId: 1987, DefiniteCount: 1, ModelId: 0, LootAble: true
                                 },
                                 {
                                     Name: 'Dried Corn Seeds',
                                     ItemDefinitionId: 106,
                                     MinCount: 1,
                                     MaxCount: 2,
+                                    RateOfGetting:10,
                                     ModelId: 0,
                                     LootAble: true
                                 },
@@ -60,32 +63,33 @@ const defaultTestGrowthScripts: GrowthScript =
                     Sapling:
                         {
                             StageName: 'Sapling',
-                            TimeToReach: 60000,
+                            TimeToReach: 3600000,
                             NewModelId: 9191,
                         },
                     Growing:
                         {
                             StageName: 'Growing',
-                            TimeToReach: 60000,
+                            TimeToReach: 3600000*2,
                             NewModelId: 9190,
                         },
                     Grown:
                         {
                             StageName: 'Grown',
-                            TimeToReach: 60000,
+                            TimeToReach: 3600000*3,
                             NewModelId: 9189,
                             Outcome: [
                                 {
-                                    Name: 'Wheat', LootAble: true, ModelId: 0, MinCount: 3, MaxCount:6, ItemDefinitionId: 1438
+                                    Name: 'Wheat', LootAble: true, ModelId: 0, MinCount: 1, MaxCount:2, ItemDefinitionId: 1438
                                 },
                                 {
-                                    Name: 'Wheat Seed', ItemDefinitionId: 1988, DefiniteCount: 1, ModelId: 0, LootAble: true
+                                    Name: 'Wheat Seed', ItemDefinitionId: 1988, MinCount: 1, MaxCount:2, ModelId: 0, LootAble: true
                                 },
                                 {
                                     Name: 'Dried Wheat Seeds',
                                     ItemDefinitionId: 1437,
                                     MinCount: 1,
-                                    MaxCount: 3,
+                                    MaxCount: 2,
+                                    RateOfGetting:10,
                                     ModelId: 0,
                                     LootAble: true
                                 }
@@ -108,6 +112,17 @@ export class GrowingManager {
         Object.entries(defaultTestGrowthScripts).forEach(([k, v]) => {
             if (!_setting.GrowthScripts[k])
                 _setting.GrowthScripts[k] = v;
+            //region speed up for debugging
+            if (process.env.NM)
+            {
+                Object.entries(_setting.GrowthScripts[k].Stages).forEach(([k,v])=>
+                {
+                    if(k) {
+                        v.TimeToReach /= 1000;
+                    }
+                })
+            }
+            //endregion
         });
         this._stageTimers = {};
     }
@@ -117,7 +132,7 @@ export class GrowingManager {
             if (this._setting.GrowthScripts[seed.Name]) {
                 const script = this._setting.GrowthScripts[seed.Name];
                 if (!script) {
-                    console.warn('cant match growth script of ', seed.Name);
+                    debug('cant match growth script of ', seed.Name);
                     return false;
                 }
                 const stagesKeys = Object.keys(script.Stages);
@@ -139,7 +154,7 @@ export class GrowingManager {
         if (!guid) return false;
         if (hole.InsideCropsPile.Status  == CropsPileStatus.Grown)
         {
-            console.log('crops grown, accelerate invalid');
+            debug('crops grown, accelerate invalid');
             return false;
         }
         if (this._stageTimers[guid]) {
@@ -179,7 +194,7 @@ export class GrowingManager {
     //region private
     private grow2Stage = (client: ZoneClient2016, server: ZoneServer2016, hole: Hole, scriptName: string, srcStage: Stage | null, destStage: Stage): boolean => {
         if (!hole.InsideCropsPile) {
-            console.log('nothing found in hole');
+            debug('nothing found in hole');
             return false;
         }
         const guid = hole.Id;
@@ -213,16 +228,16 @@ export class GrowingManager {
         }
         const timer = setTimeout(() => {
             if (!hole.InsideCropsPile) {
-                console.log('nothing in hole');
+                debug('nothing in hole');
                 return;
             }
             if (!destStage.StageName) {
-                console.log('invalid stage name in script:', destStage);
+                debug('invalid stage name in script:', destStage);
                 return;
             }
             const index = destStage.StageName as keyof typeof CropsPileStatus;
             if (!CropsPileStatus[index]) {
-                console.log('unknown crops status of stage:', index);
+                debug('unknown crops status of stage:', index);
                 return;
             }
             hole.InsideCropsPile.Status = CropsPileStatus[index];
@@ -230,22 +245,25 @@ export class GrowingManager {
             if (destStage.Outcome) {
                 for (let i = 0; i < destStage.Outcome.length; i++) {
                     const current = destStage.Outcome[i];
-                    hole.InsideCropsPile.LootAbleProducts.push({
-                        Name: current.Name,
-                        ItemDefinitionId: current.ItemDefinitionId,
-                        Count: current.DefiniteCount ? current.DefiniteCount :
-                            ((current.MinCount && current.MaxCount) ? randomIntFromInterval(current.MinCount, current.MaxCount) : 1)
-                    });
+                    const count = this.CalcGettingCount(current.DefiniteCount,current.MinCount,current.MaxCount,current.RateOfGetting);
+                    if(count)
+                    {
+                        hole.InsideCropsPile.LootAbleProducts.push({
+                            Name: current.Name,
+                            ItemDefinitionId: current.ItemDefinitionId,
+                            Count: count
+                        });
+                    }
                 }
             }
-            console.log(destStage.StageName, hole.InsideCropsPile);
+            debug(destStage.StageName, hole.InsideCropsPile);
             //get next stage;
             const sts = Object.keys(this._setting.GrowthScripts[scriptName].Stages);
             const currentIndex = sts.indexOf(destStage.StageName);
             const nextIndex = currentIndex + 1;
             if (sts.length < nextIndex + 1) {
                 //no more
-                console.log('没有更多状态了.no more stage,the end, now you can loot crops if correct!!');
+                debug('没有更多状态了.no more stage,the end, now you can loot crops if correct!!');
                 return;
             } else {
                 const nextStage = this._setting.GrowthScripts[scriptName].Stages[sts[nextIndex]];
@@ -254,6 +272,28 @@ export class GrowingManager {
         }, realTimeToReach);
         this._stageTimers[guid] = {timer: timer, destStage: destStage, srcStage: srcStage, scriptName: scriptName};
         return true;
+    }
+    private CalcGettingCount=(definiteCount?:number,minCount?:number,maxCount?:number,rateOfGetting?:number):number=>
+    {
+        if(definiteCount!==undefined)
+        {
+            return definiteCount;
+        }
+        else if(minCount!==undefined && maxCount!== undefined)
+        {
+            if (rateOfGetting!== undefined) {
+                const percent = randomIntFromInterval(0, 100);
+                return percent >= rateOfGetting ? randomIntFromInterval(minCount, maxCount) : 0;
+            }
+            else
+            {
+                return randomIntFromInterval(minCount, maxCount);
+            }
+        }
+        else
+        {
+            return 0;
+        }
     }
     private static changeCropsModel(hole:Hole, modelId:number,server:ZoneServer2016):boolean{
         if(!hole || !hole.InsideCropsPile)return false;

@@ -8,6 +8,8 @@ import {generateRandomGuid} from "../../../../../utils/utils";
 import {ItemObject} from "../../../classes/itemobject";
 import {inventoryItem} from "../../../../../types/zoneserver";
 
+const debug = require("debug")("PlantingManager");
+
 
 export class FarmlandManager {
     //region variables
@@ -27,7 +29,7 @@ export class FarmlandManager {
         //re set timer on server restart
         if (charactersFurrowsData) {
             Object.entries(charactersFurrowsData).forEach(([k, v]) => {
-                console.log('resetting furrows and fertilizers timer, character guid:', k);
+                debug('resetting furrows and fertilizers timer, character guid:' + k);
                 for (const furrows of v) {
                     this.setFurrowsTimeout(furrows, furrows.Duration);
                     for (const hole of furrows.Holes) {
@@ -75,7 +77,7 @@ export class FarmlandManager {
         if (guid) {
             clearTimeout(this._furrowsUsePeriodTimers[guid]);
             this.setFurrowsTimeout(furrows, this._setting.DefaultFurrowsDuration + cropDuration);
-            console.log('reset furrows duration : ', furrows);
+            debug('reset furrows duration : ', furrows);
         }
     }
 
@@ -87,7 +89,7 @@ export class FarmlandManager {
         if (bySightPoint) {
             const sightPos = FarmlandManager.calcLookAtPosition(client);
             if (!sightPos) {
-                console.log('cant get sight point, use role pos');
+                debug('cant get sight point, use role pos');
             } else {
                 usePos = sightPos;
             }
@@ -204,7 +206,7 @@ export class FarmlandManager {
         }), "XZY");
         // console.log(pos,euler);
         if (euler[1] > 0) {
-            console.warn('you cant place in the sky');
+            debug('you cant place in the sky');
             return null;
         }
         // console.log('rol pos:', pos, 'euler:', euler, 'dest pos:',crossPos);
@@ -296,7 +298,7 @@ export class FarmlandManager {
 
     private triggerRemoveFertilizerFromHoleEffect = (hole: Hole) => {
         if(!this._server) {
-            console.log('need to trigger the effect of fertilizer removal from the hole', hole);
+            debug('need to trigger the effect of fertilizer removal from the hole: ' ,hole);
             return false;
         }
         if(!hole || !hole.InsideCropsPile)
@@ -314,7 +316,7 @@ export class FarmlandManager {
 
     private triggerBuryFertilizerIntoHoleEffect = (hole: Hole) => {
         if(!this._server) {
-            console.log('need to trigger the effect of hole has been fertilize', hole);
+            debug('need to trigger the effect of hole has been fertilize', hole);
             return;
         }
         let cid = null;

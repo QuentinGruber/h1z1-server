@@ -1649,7 +1649,10 @@ export class zonePacketHandlers {
           break;
           //Ground Tiller
         case 1383:
-          server.plantingManager.Reclaim(client,server);
+          if(!server.plantingManager.Reclaim(client,server))
+          {
+            return;
+          }
           break;
           //Corn Seed
         case 1987:

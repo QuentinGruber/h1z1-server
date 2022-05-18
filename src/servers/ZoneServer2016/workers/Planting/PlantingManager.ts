@@ -6,12 +6,14 @@ import {Furrows, Seed, SeedType} from "./Model/DataModels";
 import {PlantingSetting} from "./Model/TypeModels";
 import {inventoryItem} from "../../../../types/zoneserver";
 
+const debug = require("debug")("PlantingManager");
+
 const defaultPlantingSetting: PlantingSetting =
     {
         PerFertilizerCanUseForHolesCount: 4,
-        DefaultFurrowsDuration: 3600000,
-        DefaultFertilizerDuration: 10800000,
-        FertilizerAcceleration: 2,
+        DefaultFurrowsDuration: 3600000*24,
+        DefaultFertilizerDuration: 3600000*48,
+        FertilizerAcceleration: 4,
         FertilizerActionRadius: 2,
         GrowthScripts: {}
     }
@@ -25,9 +27,10 @@ export class PlantingManager {
 
     //endregion
 
-    public Reclaim(client: Client, server: ZoneServer2016) {
+    public Reclaim(client: Client, server: ZoneServer2016):boolean {
         const reclaimRet = this._farmlandManager.Reclaim(client, server);
-        server.sendChatText(client, `reclaim the ground has been${reclaimRet ? ' succeeded' : ' failed'}`);
+        server.sendChatText(client, `Placement${reclaimRet ? ' succeeded' : ' failed'}`);
+        return reclaimRet;
     }
 
     //now it's just simple placement,auto find sight point around furrows and holes
@@ -52,13 +55,14 @@ export class PlantingManager {
                 }
             }
         }
-        server.sendChatText(client, `sowing seed has been${sRet ? ' succeeded' : ' failed'}`);
+        server.sendChatText(client, `Sowing${sRet ? ' succeeded' : ' failed'}`);
     }
 
     public FertilizeCrops(client: Client, server: ZoneServer2016) {
         const holes = this._farmlandManager.GetSurroundingFertilizeAbleHoles(client, this._setting.FertilizerActionRadius);
         if (!holes.length) {
-            console.log('No surrounding holes for fertilization');
+            debug('No surrounding holes for fertilization');
+            server.sendChatText(client, `Fertilizer failed,No holes around`);
             return;
         }
         let doneCount = 0;
@@ -90,7 +94,8 @@ export class PlantingManager {
                 }
             }
         }
-        console.log('fertilize hole(seed or crops) success, done count:', doneCount);
+        debug('fertilize hole(seed or crops) success, done count:' + doneCount);
+        server.sendChatText(client, doneCount?`Successfully fertilized ${doneCount} holes`:`Fertilizer failed,No seed or crops around`);
     }
 
     public TriggerPicking = (item: inventoryItem | undefined, client: Client, server: ZoneServer2016): boolean => {
