@@ -62,7 +62,7 @@ export class PlantingManager {
         const holes = this._farmlandManager.GetSurroundingFertilizeAbleHoles(client, this._setting.FertilizerActionRadius);
         if (!holes.length) {
             debug('No surrounding holes for fertilization');
-            server.sendChatText(client, `Fertilizer failed,No holes around`);
+            server.sendChatText(client, `Fertilizer failed`);
             return;
         }
         let doneCount = 0;
@@ -95,7 +95,7 @@ export class PlantingManager {
             }
         }
         debug('fertilize hole(seed or crops) success, done count:' + doneCount);
-        server.sendChatText(client, doneCount?`Successfully fertilized ${doneCount} holes`:`Fertilizer failed,No seed or crops around`);
+        server.sendChatText(client, doneCount?'Fertilizer succeeded':'Fertilizer failed');
     }
 
     public TriggerPicking = (item: inventoryItem | undefined, client: Client, server: ZoneServer2016): boolean => {

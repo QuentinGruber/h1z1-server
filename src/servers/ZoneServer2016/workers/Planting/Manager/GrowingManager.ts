@@ -170,16 +170,16 @@ export class GrowingManager {
                     const randomOutcomeItemByScript = server.generateItem(lootAbleProduct.ItemDefinitionId, lootAbleProduct.Count);
                     server.lootItem(client, randomOutcomeItemByScript, lootAbleProduct.Count);
                 }
-                server.sendChatText(client, 'hole cleared by picking crops');
+                //server.sendChatText(client, 'hole cleared by picking crops');
             }
             else
             {
                 if(hole.InsideCropsPile.Status == CropsPileStatus.Sowed)
                 {
-                    server.sendChatText(client, 'hole cleared by take out seed');
+                    // server.sendChatText(client, 'hole cleared by take out seed');
                 }
                 else {
-                    server.sendChatText(client, 'hole cleared by uproot');
+                    // server.sendChatText(client, 'hole cleared by uproot');
                 }
             }
             //multi outcome items created by single guid, so only run once
@@ -245,7 +245,7 @@ export class GrowingManager {
             if (destStage.Outcome) {
                 for (let i = 0; i < destStage.Outcome.length; i++) {
                     const current = destStage.Outcome[i];
-                    const count = this.CalcGettingCount(current.DefiniteCount,current.MinCount,current.MaxCount,current.RateOfGetting);
+                    const count = this.calcGettingCount(current.DefiniteCount,current.MinCount,current.MaxCount,current.RateOfGetting);
                     if(count)
                     {
                         hole.InsideCropsPile.LootAbleProducts.push({
@@ -273,7 +273,7 @@ export class GrowingManager {
         this._stageTimers[guid] = {timer: timer, destStage: destStage, srcStage: srcStage, scriptName: scriptName};
         return true;
     }
-    private CalcGettingCount=(definiteCount?:number,minCount?:number,maxCount?:number,rateOfGetting?:number):number=>
+    private calcGettingCount=(definiteCount?:number,minCount?:number,maxCount?:number,rateOfGetting?:number):number=>
     {
         if(definiteCount!==undefined)
         {
@@ -283,7 +283,7 @@ export class GrowingManager {
         {
             if (rateOfGetting!== undefined) {
                 const percent = randomIntFromInterval(0, 100);
-                return percent >= rateOfGetting ? randomIntFromInterval(minCount, maxCount) : 0;
+                return rateOfGetting>=percent ? randomIntFromInterval(minCount, maxCount) : 0;
             }
             else
             {
