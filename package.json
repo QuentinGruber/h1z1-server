@@ -19,7 +19,7 @@
     "debug": "4.3.4",
     "h1emu-core": "^0.8.8",
     "h1z1-dataschema": "^1.5.11",
-    "mongodb": "4.5.0",
+    "mongodb": "4.6.0",
     "typescript": "4.6.3",
     "v8-compile-cache": "2.3.0"
   },
