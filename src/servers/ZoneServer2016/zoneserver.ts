@@ -3837,6 +3837,15 @@ export class ZoneServer2016 extends EventEmitter {
       { population: populationNumber }
     );
   }
+  sendChatTextToAllOthers(client: Client,message: string, clearChat = false) {
+    for (const a in this._clients) {
+      if (
+        client != this._clients[a]
+      ) {
+        this.sendChatText(this._clients[a], message, clearChat);
+      }
+    }
+  }
   sendGlobalChatText(message: string, clearChat = false) {
     for (const a in this._clients) {
       this.sendChatText(this._clients[a], message, clearChat);

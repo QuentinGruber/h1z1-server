@@ -218,13 +218,17 @@ export class zonePacketHandlers {
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
       if (client.firstLoading) {
-        server.sendData(client, "POIChangeMessage", {
-          // welcome POI message
-          messageStringId: 20,
-          id: 99,
+        
+       setTimeout(() => {
+          server.sendData(client, "POIChangeMessage", {
+            // welcome POI message
+            messageStringId: 20,
+            id: 99,
         });
         server.sendChatText(client, "Welcome to H1emu ! :D", true);
-        server.sendGlobalChatText(
+        server.sendChatText(client, `server population : ${_.size(server._characters)}`);}
+        , 10000);
+        server.sendChatTextToAllOthers(client,
           `${client.character.name} has joined the server !`
         );
         client.firstLoading = false;
