@@ -1198,7 +1198,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.healingTicks = 0;
     client.character.healingMaxTicks = 0;
     client.character.resourcesUpdater.refresh();
-    delete client.character.characterStates.knockedOut;
+    client.character.characterStates.knockedOut = false;
     this.updateCharacterState(
       client,
       client.character.characterId,
