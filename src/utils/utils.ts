@@ -160,6 +160,10 @@ export const setupAppDataFolder = (): void => {
   }
 };
 
+export const objectIsEmpty = (obj: Record<string, unknown>) => {
+  return Object.keys(obj).length === 0;
+}
+
 export const isPosInRadius = (
   radius: number,
   player_position: Float32Array,

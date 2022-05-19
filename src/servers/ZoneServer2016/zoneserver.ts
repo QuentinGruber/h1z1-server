@@ -49,6 +49,7 @@ import {
   randomIntFromInterval,
   Scheduler,
   generateTransientId,
+  objectIsEmpty,
 } from "../../utils/utils";
 
 import { Db, MongoClient } from "mongodb";
@@ -527,8 +528,9 @@ export class ZoneServer2016 extends EventEmitter {
 
     let isRandomlySpawning = false;
     if (
-      _.isEqual(character.position, [0, 0, 0, 1]) &&
-      _.isEqual(character.rotation, [0, 0, 0, 1])
+      (_.isEqual(character.position, [0, 0, 0, 1]) &&
+      _.isEqual(character.rotation, [0, 0, 0, 1]))
+      || objectIsEmpty(character.position) || objectIsEmpty(character.rotation)
     ) {
       // if position/rotation hasn't changed
       isRandomlySpawning = true;
@@ -546,9 +548,15 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     } else {
-      client.character.state.position = character.position;
-      client.character.state.rotation = character.rotation;
+      const e = Object.values(character.position) as number[];
+      client.character.state.position = new Float32Array(e);
+      client.character.state.rotation = new Float32Array(Object.values(character.rotation));
     }
+
+    // If position or rotation isn't a float32array it will make the server crash
+    client.character.state.position = new Float32Array(client.character.state.position)
+    client.character.state.rotation = new Float32Array(client.character.state.rotation)
+
     this.giveStartingEquipment(client, false, true);
   }
 
@@ -2011,6 +2019,12 @@ export class ZoneServer2016 extends EventEmitter {
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
+    if (
+      client.hudTimer != null 
+    ) {
+      clearTimeout(client.hudTimer);
+      client.hudTimer = null;
+    }
     client.character.isRunning = false; // maybe some async stuff make this useless need to test that
     client.vehicle.mountedVehicle = vehicle.characterId;
     switch (vehicle.vehicleId) {

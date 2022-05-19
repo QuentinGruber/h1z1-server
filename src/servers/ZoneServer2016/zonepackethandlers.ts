@@ -668,6 +668,7 @@ export class zonePacketHandlers {
         server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
         return;
       }
+      server.dismountVehicle(client);
       const timerTime = 10000;
       server.sendData(client, "ClientUpdate.StartTimer", {
         stringId: 0,
