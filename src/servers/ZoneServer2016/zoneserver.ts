@@ -3873,15 +3873,11 @@ export class ZoneServer2016 extends EventEmitter {
     const delta = Date.now() - this._startTime;
     return this._serverTime + delta;
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   dismissVehicle(vehicleGuid: string) {
-    throw new Error("Method not implemented.");
-    /*
-    this.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
+    this.sendDataToAll("Character.RemovePlayer", {
       characterId: vehicleGuid,
     });
     this.deleteEntity(vehicleGuid, this._vehicles);
-    */
   }
   getTransientId(characterId: string): number {
     const generatedTransient = this._transientIdGenerator.next()
