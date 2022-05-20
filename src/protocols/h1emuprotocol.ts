@@ -136,7 +136,7 @@ const H1emuPackets = {
 
 function packH1emuPacket(packetName: string, object: any) {
   const packetType = H1emuPackets.PacketTypes[packetName],
-    packet = H1emuPackets.Packets[packetType]
+    packet = H1emuPackets.Packets[packetType];
   let data;
   if (packet) {
     if (packet.schema) {
@@ -160,7 +160,7 @@ function packH1emuPacket(packetName: string, object: any) {
 
 function parseH1emuPacket(data: any) {
   const packetType = data.readUInt8(0);
-  let result
+  let result;
   const packet = H1emuPackets.Packets[packetType];
   if (packet) {
     if (packet.schema) {

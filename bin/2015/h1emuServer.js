@@ -1,4 +1,4 @@
-require("./loginServer");
+require("../shared/loginServer");
 require("./zoneServer");
 
 if (process.argv[2] === "--test") {

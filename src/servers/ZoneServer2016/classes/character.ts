@@ -17,13 +17,17 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { positionUpdate } from "../../../types/zoneserver";
 
+interface CharacterStates {
+  knockedOut: boolean,
+  inWater: boolean,
+}
 export class Character2016 extends BaseFullCharacter {
   name?: string;
   spawnLocation?: string;
   resourcesUpdater?: any;
   factionId = 2;
   godMode = false;
-  characterStates: any;
+  characterStates: CharacterStates;
   isRunning = false;
   isHidden = false;
   isBleeding = false;

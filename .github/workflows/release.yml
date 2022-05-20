@@ -50,10 +50,9 @@ jobs:
         id: tagName
       - run: npm i --production
       - run: npm i -g pkg@5.6.0
-      - run: pkg --compress GZip -t node16-win-x64 ./bin/2015/loginServer.js --output ./bin/loginServer-${{ steps.tagName.outputs.tag }}.exe
+      - run: pkg --compress GZip -t node16-win-x64 ./bin/shared/loginServer.js --output ./bin/loginServer-${{ steps.tagName.outputs.tag }}.exe
       - run: pkg --compress GZip -t node16-win-x64 ./bin/2015/zoneServer.js --output ./bin/zoneServer-${{ steps.tagName.outputs.tag }}.exe
       - run: pkg --compress GZip -t node16-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-${{ steps.tagName.outputs.tag }}.exe
-      - run: pkg --compress GZip -t node16-win-x64 ./bin/2016/loginServer.js --output ./bin/loginServer-2016-${{ steps.tagName.outputs.tag }}.exe
       - run: pkg --compress GZip -t node16-win-x64 ./bin/2016/zoneServer.js --output ./bin/zoneServer-2016-${{ steps.tagName.outputs.tag }}.exe
       - run: pkg --compress GZip -t node16-win-x64 ./bin/2016/h1emuServer.js --output ./bin/h1emuServer-2016-${{ steps.tagName.outputs.tag }}.exe
       - name: Upload h1emuServer to release
@@ -90,13 +89,6 @@ jobs:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ./bin/zoneServer-2016-${{ steps.tagName.outputs.tag }}.exe
           asset_name: zoneServer-2016-${{ steps.tagName.outputs.tag }}.exe
-          tag: ${{ github.ref }}
-      - name: Upload loginServer-2016 to release
-        uses: svenstaro/upload-release-action@v2
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./bin/loginServer-2016-${{ steps.tagName.outputs.tag }}.exe
-          asset_name: loginServer-2016-${{ steps.tagName.outputs.tag }}.exe
           tag: ${{ github.ref }}
 
   build-docker-images:

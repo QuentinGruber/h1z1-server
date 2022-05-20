@@ -23,7 +23,7 @@ const textures = require("../../../../data/2015/sampleData/textures.json");
 const Z1_destroyablePS = require("../../../../data/2015/zoneData/Z1_destroyablePS.json");
 const Z1_destroyable = require("../../../../data/2015/zoneData/Z1_destroyable.json");
 import { zoneObject, zoneObjectInstance } from "types/zonedata";
-import { _, eul2quat, generateRandomGuid } from "../../../utils/utils";
+import { _, generateRandomGuid, eul2quatLegacy } from "../../../utils/utils";
 import { Vehicle } from "../classes/vehicle";
 import { ZoneServer2015 } from "../zoneserver";
 
@@ -267,7 +267,7 @@ function createDestroyable(server: ZoneServer2015) {
           spawnModel,
           "",
           DTOInstance.position,
-          eul2quat(DTOInstance.rotation),
+          eul2quatLegacy(DTOInstance.rotation),
           DTOInstance.scale,
           DTOInstance.id,
           DTOType.renderDistance,
@@ -1190,7 +1190,7 @@ function createAllDoors(server: ZoneServer2015): void {
         server,
         modelId ? modelId : 9183,
         doorInstance.position,
-        eul2quat(doorInstance.rotation),
+        eul2quatLegacy(doorInstance.rotation),
         doorInstance.rotation,
         doorInstance.scale,
         "",

@@ -42,7 +42,7 @@ export class GatewayServer extends EventEmitter {
       protocolName,
       serverPort,
       gatewayKey
-    ) as any; // as any since SOEServer isn't typed
+    )
     this._soeServer._useEncryption = false; // communication is encrypted only after loginRequest
     this._protocol = new GatewayProtocol();
     this._soeServer.on("disconnect", (err: string, client: SOEClient) => {

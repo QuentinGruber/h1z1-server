@@ -253,7 +253,7 @@ const dev: any = {
     client: Client,
     args: any[]
   ) {
-      server.reloadPackets(client);
+    server.reloadPackets(client);
   },
 };
 
