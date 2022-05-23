@@ -115,7 +115,7 @@ export class ZoneServer2016 extends EventEmitter {
   _timeMultiplier = 72;
   _cycleSpeed = 100;
   _frozeCycle = false;
-  tickRate = 3000;
+  tickRate = 300;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
   _loginServerInfo: { address?: string; port: number } = {
