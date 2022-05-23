@@ -897,14 +897,6 @@ export class ZoneServer2016 extends EventEmitter {
       unknownBoolean7: true,
     });
 
-    this.sendData(client, "ClientUpdate.ZonePopulation", {
-      populations: [0, 0],
-    });
-    this.sendData(client, "ClientUpdate.RespawnLocations", {
-      locations: this._respawnLocations,
-      locations2: this._respawnLocations,
-    });
-
     this.sendData(client, "ClientGameSettings", {
       Unknown2: 0,
       interactGlowAndDist: 3,
@@ -918,11 +910,6 @@ export class ZoneServer2016 extends EventEmitter {
     });
 
     this.sendCharacterData(client);
-
-    this.sendData(client, "Character.SetBattleRank", {
-      characterId: client.character.characterId,
-      battleRank: 100,
-    });
   }
 
   worldRoutine(refresh = false) {
