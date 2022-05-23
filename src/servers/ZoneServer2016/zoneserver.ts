@@ -126,7 +126,7 @@ export class ZoneServer2016 extends EventEmitter {
   _npcRenderDistance = 350;
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
-    : [];
+    :  ["tp","spawnnpc","rat","normalsize","drive","parachute","spawnvehicle","hood"];
   _interactionDistance = 4;
   _pingTimeoutTime = 120000;
   _weather2016: Weather2016;
@@ -211,7 +211,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     this._gatewayServer.on(
       "login",
-      (
+     async (
         err: string,
         client: SOEClient,
         characterId: string,
@@ -234,6 +234,13 @@ export class ZoneServer2016 extends EventEmitter {
           characterId,
           generatedTransient
         );
+        if(!this._soloMode){
+          zoneClient.isAdmin = await this._db?.collection("admins")
+          .findOne({ sessionId: zoneClient.loginSessionId, serverId: this._worldId }) != undefined;
+        }
+        else{
+          zoneClient.isAdmin = true;
+        }
         this._clients[client.sessionId] = zoneClient;
         this._characters[characterId] = zoneClient.character;
         zoneClient.pingTimer = setTimeout(() => {
