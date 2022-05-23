@@ -191,6 +191,7 @@ export class zonePacketHandlers {
         "spawninfo",
         "help",
         "netstats",
+        "me"
       ];
 
       commands.forEach((command) => {
@@ -226,8 +227,13 @@ export class zonePacketHandlers {
             id: 99,
         });
         server.sendChatText(client, "Welcome to H1emu ! :D", true);
-        server.sendChatText(client, `server population : ${_.size(server._characters)}`);}
-        , 10000);
+        server.sendChatText(client, `server population : ${_.size(server._characters)}`);
+        if(client.isAdmin){
+          server.sendChatText(client, "You are an admin !");
+        }
+      
+      }, 10000);
+        
         server.sendChatTextToAllOthers(client,
           `${client.character.name} has joined the server !`
         );
@@ -426,6 +432,9 @@ export class zonePacketHandlers {
       const args: string[] = packet.data.arguments.toLowerCase().split(" ");
       const commandName = args[0];
       switch (packet.data.commandHash) {
+        case 4265452888: // /me
+          server.sendChatText(client, `ZoneClientId :${client.loginSessionId}`);
+          break;
         case 3720768430: // /respawn
           server.killCharacter(client);
           break;
