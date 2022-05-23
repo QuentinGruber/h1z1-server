@@ -87,24 +87,23 @@ export class LoginServer extends EventEmitter {
   _protocol: LoginProtocol;
   _protocol2016: LoginProtocol2016;
   _db: any;
-  _mongoClient?: MongoClient;
   _compression: number;
   _crcSeed: number;
   _crcLength: crc_length_options;
   _udpLength: number;
-  _cryptoKey: Uint8Array;
-  _mongoAddress: string;
-  _soloMode: boolean;
-  _appDataFolder: string;
-  _httpServer!: Worker;
+  private _cryptoKey: Uint8Array;
+  private _mongoAddress: string;
+  private _soloMode: boolean;
+  private _appDataFolder: string;
+  private _httpServer!: Worker;
   _enableHttpServer: boolean;
   _httpServerPort: number = 80;
-  _h1emuLoginServer!: H1emuLoginServer;
-  _zoneConnections: { [h1emuClientId: string]: number } = {};
-  _zoneWhitelist!: any[];
-  _internalReqCount: number = 0;
-  _pendingInternalReq: { [requestId: number]: any } = {};
-  _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } = {};
+  private _h1emuLoginServer!: H1emuLoginServer;
+  private _zoneConnections: { [h1emuClientId: string]: number } = {};
+  private _zoneWhitelist!: any[];
+  private _internalReqCount: number = 0;
+  private _pendingInternalReq: { [requestId: number]: any } = {};
+  private _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } = {};
   private _soloPlayIp: string = process.env.SOLO_PLAY_IP || "127.0.0.1";
 
   constructor(serverPort: number, mongoAddress = "") {
@@ -894,10 +893,10 @@ export class LoginServer extends EventEmitter {
   async start(): Promise<void> {
     debug("Starting server");
     if (this._mongoAddress) {
-      const mongoClient = (this._mongoClient = new MongoClient(
+      const mongoClient = new MongoClient(
         this._mongoAddress,
         { maxPoolSize: 100 }
-      ));
+      );
       try {
         await mongoClient.connect();
       } catch (e) {
@@ -964,12 +963,6 @@ export class LoginServer extends EventEmitter {
             break;
         }
       });
-    }
-  }
-
-  data(collectionName: string): any | undefined {
-    if (this._db) {
-      return this._db.collection(collectionName);
     }
   }
 

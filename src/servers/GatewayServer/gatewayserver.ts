@@ -22,10 +22,10 @@ const debug = require("debug")("GatewayServer");
 export class GatewayServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: GatewayProtocol;
-  _compression: number;
-  _crcSeed: number;
-  _crcLength: crc_length_options;
-  _udpLength: number;
+  private _compression: number;
+  private _crcSeed: number;
+  private _crcLength: crc_length_options;
+  private _udpLength: number;
 
   constructor(
     protocolName: string,

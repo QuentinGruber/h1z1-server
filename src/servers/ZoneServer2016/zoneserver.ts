@@ -86,8 +86,7 @@ export class ZoneServer2016 extends EventEmitter {
   _protocol: H1Z1Protocol;
   _db?: Db;
   _soloMode = false;
-  _mongoClient?: MongoClient;
-  _mongoAddress: string;
+  private _mongoAddress: string;
   _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
   _clientProtocol = "ClientProtocol_1080";
@@ -95,7 +94,7 @@ export class ZoneServer2016 extends EventEmitter {
   _dynamicWeatherEnabled = true;
   _defaultWeatherTemplate = "z1br";
   _spawnLocations = spawnLocations;
-  _h1emuZoneServer!: H1emuZoneServer;
+  private _h1emuZoneServer!: H1emuZoneServer;
   _appDataFolder = getAppDataFolderPath();
   _worldId = 0;
 
@@ -108,7 +107,6 @@ export class ZoneServer2016 extends EventEmitter {
   _props: any = {};
   _speedTrees: any = {};
   _gameTime: any;
-  _time = Date.now();
   _serverTime = this.getCurrentTime();
   _startTime = 0;
   _startGameTime = 0;
@@ -133,7 +131,6 @@ export class ZoneServer2016 extends EventEmitter {
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
   _vehicles: { [characterId: string]: Vehicle } = {};
-  _reloadPacketsInterval: any;
   worldObjectManager: WorldObjectManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
@@ -142,9 +139,8 @@ export class ZoneServer2016 extends EventEmitter {
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
   _containerDefinitionIds: any[] = Object.keys(this._containerDefinitions);
-  _respawnLocations: any;
   _recipes: { [recipeId: number]: any } = recipes;
-  lastItemGuid: bigint = 0x3000000000000000n;
+  private lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
 
   constructor(
@@ -166,33 +162,6 @@ export class ZoneServer2016 extends EventEmitter {
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._weatherTemplates = localWeatherTemplates;
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
-    this._respawnLocations = spawnLocations.map((spawn: any) => {
-      return {
-        guid: this.generateGuid(),
-        respawnType: 4,
-        position: spawn.position,
-        unknownDword1: 1,
-        unknownDword2: 1,
-        iconId1: 1,
-        iconId2: 1,
-        respawnTotalTime: 10,
-        respawnTimeMs: 10000,
-        nameId: 1,
-        distance: 1000,
-        unknownByte1: 1,
-        unknownByte2: 1,
-        unknownData1: {
-          unknownByte1: 1,
-          unknownByte2: 1,
-          unknownByte3: 1,
-          unknownByte4: 1,
-          unknownByte5: 1,
-        },
-        unknownDword4: 1,
-        unknownByte3: 1,
-        unknownByte4: 1,
-      };
-    });
     this.worldObjectManager = new WorldObjectManager();
     if (!this._mongoAddress) {
       this._soloMode = true;
@@ -647,10 +616,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   async fetchZoneData(): Promise<void> {
     if (this._mongoAddress) {
-      const mongoClient = (this._mongoClient = new MongoClient(
+      const mongoClient = new MongoClient(
         this._mongoAddress,
         { maxPoolSize: 50 }
-      ));
+      );
       try {
         await mongoClient.connect();
       } catch (e) {
