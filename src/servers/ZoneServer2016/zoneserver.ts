@@ -120,7 +120,7 @@ export class ZoneServer2016 extends EventEmitter {
     address: process.env.LOGINSERVER_IP,
     port: 1110,
   };
-  worldRoutineTimer: any;
+  worldRoutineTimer!: NodeJS.Timeout;
   _npcRenderDistance = 350;
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
