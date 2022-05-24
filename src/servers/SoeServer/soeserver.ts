@@ -18,7 +18,6 @@ import Client from "./soeclient";
 import SOEClient from "./soeclient";
 import { Worker } from "worker_threads";
 import { crc_length_options } from "../../types/soeserver";
-import { MAX_SEQUENCE } from "../../utils/constants";
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
@@ -158,13 +157,13 @@ export class SOEServer extends EventEmitter {
   // Use the lastAck value to acknowlege multiple packets as a time
   // This function could be called less often but rn it will stick that way
   private checkAck(client: Client) {
-    if (client.lastAck != client.nextAck) {
-      client.lastAck = client.nextAck;
+    if (client.lastAck.get() != client.nextAck.get()) {
+      client.lastAck.set(client.nextAck.get());
       this._sendLogicalPacket(
         client,
         "Ack",
         {
-          sequence: client.nextAck,
+          sequence: client.nextAck.get(),
         },
         false
       );
@@ -375,7 +374,7 @@ export class SOEServer extends EventEmitter {
           });
 
           client.inputStream.on("ack", (err: string, sequence: number) => {
-            client.nextAck = sequence;
+            client.nextAck.set(sequence);
           });
 
           client.inputStream.on(
@@ -393,13 +392,12 @@ export class SOEServer extends EventEmitter {
           client.outputStream.on(
             "data",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
-              const sequenceUint16 = sequence & MAX_SEQUENCE;
               client.unAckData.set(sequence, Date.now());
               this._sendLogicalPacket(
                 client,
                 fragment ? "DataFragment" : "Data",
                 {
-                  sequence: sequenceUint16,
+                  sequence: sequence,
                   data: data,
                 }
               );
@@ -411,13 +409,12 @@ export class SOEServer extends EventEmitter {
             "dataResend",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
               client.stats.packetResend++;
-              const sequenceUint16 = sequence & MAX_SEQUENCE;
               client.unAckData.set(sequence, Date.now());
               this._sendLogicalPacket(
                 client,
                 fragment ? "DataFragment" : "Data",
                 {
-                  sequence: sequenceUint16,
+                  sequence: sequence,
                   data: data,
                 },
                 true

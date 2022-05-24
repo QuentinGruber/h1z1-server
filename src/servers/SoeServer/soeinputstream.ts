@@ -13,6 +13,7 @@
 
 import { EventEmitter } from "events";
 import { RC4 } from "h1emu-core";
+import { wrappedUint16 } from "../../utils/utils";
 import {
   DATA_HEADER_SIZE,
   MAX_SEQUENCE,
@@ -22,10 +23,9 @@ import {
 const debug = require("debug")("SOEInputStream");
 type Fragment = { payload: Buffer; isFragment: boolean };
 export class SOEInputStream extends EventEmitter {
-  _nextSequence: number = 0;
-  _lastAck: number = -1;
-  _nextFragment: number = 0;
-  _lastProcessedFragmentSequence: number = -1;
+  _nextSequence: wrappedUint16 = new wrappedUint16(0);
+  _lastAck: wrappedUint16 = new wrappedUint16(-1);
+  _lastProcessedFragmentSequence: wrappedUint16 = new wrappedUint16(-1);
   _fragments: Array<Fragment> = [];
   _useEncryption: boolean = false;
   _rc4: RC4;
@@ -39,7 +39,7 @@ export class SOEInputStream extends EventEmitter {
     dataToProcess: Fragment,
     sequence: number
   ): Array<Buffer> {
-    this._lastProcessedFragmentSequence = sequence;
+    this._lastProcessedFragmentSequence.set(sequence);
     return parseChannelPacketData(dataToProcess.payload);
   }
 
@@ -81,7 +81,7 @@ export class SOEInputStream extends EventEmitter {
           for (let k = 0; k < processedFragmentsSequences.length; k++) {
             delete this._fragments[processedFragmentsSequences[k]];
           }
-          this._lastProcessedFragmentSequence = fragmentSequence;
+          this._lastProcessedFragmentSequence.set(fragmentSequence);
           // process the full reassembled data
           return parseChannelPacketData(dataWithoutHeader);
         }
@@ -94,7 +94,7 @@ export class SOEInputStream extends EventEmitter {
 
   private _processData(): void {
     const nextFragmentSequence =
-      (this._lastProcessedFragmentSequence + 1) & MAX_SEQUENCE;
+      (this._lastProcessedFragmentSequence.get() +1) & MAX_SEQUENCE;
     const dataToProcess = this._fragments[nextFragmentSequence];
     let appData: Array<Buffer> = [];
     if (dataToProcess) {
@@ -129,7 +129,7 @@ export class SOEInputStream extends EventEmitter {
   }
 
   private acknowledgeInputData(sequence: number): boolean {
-    if (sequence > this._nextSequence) {
+    if (sequence > this._nextSequence.get()) {
       debug(
         "Sequence out of order, expected " +
           this._nextSequence +
@@ -138,20 +138,20 @@ export class SOEInputStream extends EventEmitter {
       );
       // acknowledge that we receive this sequence but do not process it
       // until we're back in order
-      this.emit("outoforder", null, this._nextSequence, sequence);
+      this.emit("outoforder", null, this._nextSequence.get(), sequence);
       return false;
     } else {
       let ack = sequence;
-      for (let i = 1; i < MAX_SEQUENCE; i++) {
-        const j = (this._lastAck + i) & MAX_SEQUENCE;
-        if (this._fragments[j]) {
-          ack = j;
+      for (let i = 1; i < MAX_SEQUENCE; i++) { // TODO: check if MAX_SEQUENCE + 1 is the right value
+        const fragmentIndex = (this._lastAck.get() + i) & MAX_SEQUENCE;
+        if (this._fragments[fragmentIndex]) {
+          ack = fragmentIndex;
         } else {
           break;
         }
       }
-      if (ack > this._lastAck) {
-        this._lastAck = ack;
+      if (ack > this._lastAck.get()) {
+        this._lastAck.set(ack);
         // all sequences behind lastAck are acknowledged
         this.emit("ack", null, ack);
       }
@@ -162,12 +162,12 @@ export class SOEInputStream extends EventEmitter {
   write(data: Buffer, sequence: number, isFragment: boolean): void {
     debug(
       "Writing " + data.length + " bytes, sequence " + sequence,
-      " fragment=" + isFragment + ", lastAck: " + this._lastAck
+      " fragment=" + isFragment + ", lastAck: " + this._lastAck.get()
     );
     this._fragments[sequence] = { payload: data, isFragment };
     const wasInOrder = this.acknowledgeInputData(sequence);
     if (wasInOrder) {
-      this._nextSequence = this._lastAck + 1;
+      this._nextSequence.set(this._lastAck.get() + 1);
       this._processData();
     }
   }

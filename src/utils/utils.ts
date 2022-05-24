@@ -21,7 +21,7 @@ import {
   setTimeout as setTimeoutPromise,
 } from "timers/promises";
 import { MongoClient } from "mongodb";
-import { MAX_TRANSIENT_ID } from "./constants";
+import { MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import { positionUpdate } from "types/zoneserver";
@@ -347,5 +347,35 @@ export class Scheduler {
     return await setTimeoutPromise(delay, undefined, {
       signal: options?.signal,
     });
+  }
+}
+
+
+export class wrappedUint16 {
+  private value: number;
+  constructor(initValue: number) {
+    if(initValue > MAX_UINT16) {
+      throw new Error("wrappedUint16 can only hold values up to 65535");
+    }
+    this.value = initValue;
+  }
+  private wrap(value:number){
+    let uint16 = value
+    if(uint16 > MAX_UINT16) {
+      uint16 -= MAX_UINT16;
+    }
+    return uint16
+  }
+  add(value: number):void {
+    this.value = this.wrap(this.value + value);
+  }
+  set(value:number):void{
+    this.value = this.wrap(value);
+  }
+  get():number {
+    return this.value;
+  }
+  increment():void {
+    this.add(1);
   }
 }
