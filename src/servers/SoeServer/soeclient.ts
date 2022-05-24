@@ -16,6 +16,7 @@ import { wrappedUint16 } from "../../utils/utils";
 import { soePacket } from "../../types/soeserver";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
+import { LogicalPacket } from "./logicalPacket";
 
 interface SOEClientStats {
   totalPacketSent: number;
@@ -34,8 +35,8 @@ export default class SOEClient {
   compression: number;
   useEncryption: boolean = true;
   waitingQueue: soePacket[] = [];
-  outQueue: Buffer[] = [];
-  priorityQueue: Buffer[] = [];
+  outQueue: LogicalPacket[] = [];
+  priorityQueue: LogicalPacket[] = [];
   protocolName: string = "unset";
   unAckData: Map<number, number> = new Map();
   outOfOrderPackets: soePacket[] = [];

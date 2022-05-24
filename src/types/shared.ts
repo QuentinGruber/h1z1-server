@@ -22,3 +22,6 @@ export interface httpServerMessage {
   requestId: number;
   data: any;
 }
+
+
+export type json = any

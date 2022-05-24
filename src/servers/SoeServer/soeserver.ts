@@ -18,6 +18,8 @@ import Client from "./soeclient";
 import SOEClient from "./soeclient";
 import { Worker } from "worker_threads";
 import { crc_length_options } from "../../types/soeserver";
+import { LogicalPacket } from "./logicalPacket";
+import { json } from "types/shared";
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
@@ -104,9 +106,13 @@ export class SOEServer extends EventEmitter {
 
   private sendPriorityQueue(client: Client): void {
     while (client.packetsSentThisSec < this._currentPacketRatePerClient) {
-      const data = client.priorityQueue.shift();
-      if (data) {
-        this._sendPhysicalPacket(client, data);
+      const logicalPacket = client.priorityQueue.shift();
+      if (logicalPacket) {
+        // if is a reliable packet
+        if(logicalPacket.sequence){
+          client.unAckData.set(logicalPacket.sequence, Date.now());
+        }
+        this._sendPhysicalPacket(client, logicalPacket.data);
       } else {
         break;
       }
@@ -115,9 +121,13 @@ export class SOEServer extends EventEmitter {
 
   private sendOutQueue(client: Client): void {
     while (client.packetsSentThisSec < this._currentPacketRatePerClient) {
-      const data = client.outQueue.shift();
-      if (data) {
-        this._sendPhysicalPacket(client, data);
+      const logicalPacket = client.outQueue.shift();
+      if (logicalPacket) {
+        // if is a reliable packet
+        if(logicalPacket.sequence){
+          client.unAckData.set(logicalPacket.sequence, Date.now());
+        }
+        this._sendPhysicalPacket(client, logicalPacket.data);
       } else {
         break;
       }
@@ -184,12 +194,12 @@ export class SOEServer extends EventEmitter {
       } else {
         // if only one packets
         const extractedPacket = client.waitingQueue[0];
-        const data = this.createPacket(
+        const logicalPacket = this.createLogicalPacket(
           client,
           extractedPacket.name,
           extractedPacket
         );
-        client.outQueue.push(data);
+        client.outQueue.push(logicalPacket);
       }
       client.waitingQueueCurrentByteLength = 0;
       client.waitingQueue = [];
@@ -392,7 +402,6 @@ export class SOEServer extends EventEmitter {
           client.outputStream.on(
             "data",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
-              client.unAckData.set(sequence, Date.now());
               this._sendLogicalPacket(
                 client,
                 fragment ? "DataFragment" : "Data",
@@ -409,7 +418,6 @@ export class SOEServer extends EventEmitter {
             "dataResend",
             (err: string, data: Buffer, sequence: number, fragment: any) => {
               client.stats.packetResend++;
-              client.unAckData.set(sequence, Date.now());
               this._sendLogicalPacket(
                 client,
                 fragment ? "DataFragment" : "Data",
@@ -461,18 +469,19 @@ export class SOEServer extends EventEmitter {
     process.exit(0);
   }
   // Build the logical packet via the soeprotocol
-  private createPacket(
+  private createLogicalPacket(
     client: Client,
     packetName: string,
-    packet: any
-  ): Buffer {
+    packet: json
+  ): LogicalPacket {
     if (packet.data) {
       packet.data = [...packet.data];
     }
     try {
-      return Buffer.from(
+      const logicalPacket = new LogicalPacket(Buffer.from(
         this._protocol.pack(packetName, JSON.stringify(packet))
-      );
+      ),packet.sequence)
+      return logicalPacket;
     } catch (e) {
       console.error(
         `Failed to create packet ${packetName} packet data : ${JSON.stringify(
@@ -492,18 +501,18 @@ export class SOEServer extends EventEmitter {
     packet: any,
     prioritize = false
   ): void {
-    const data = this.createPacket(client, packetName, packet);
+    const logicalPacket = this.createLogicalPacket(client, packetName, packet);
     if (prioritize) {
-      client.priorityQueue.push(data);
+      client.priorityQueue.push(logicalPacket);
     } else {
       if (
         packetName !== "MultiPacket" &&
         this._waitQueueTimeMs > 0 &&
-        data.length < 255 &&
-        client.waitingQueueCurrentByteLength + data.length <=
+        logicalPacket.data.length < 255 &&
+        client.waitingQueueCurrentByteLength + logicalPacket.data.length <=
           this._maxMultiBufferSize
       ) {
-        const fullBufferedPacketLen = data.length + 1; // the additionnal byte is the length of the packet written in the buffer when assembling the packet
+        const fullBufferedPacketLen = logicalPacket.data.length + 1; // the additionnal byte is the length of the packet written in the buffer when assembling the packet
         client.waitingQueue.push({
           name: packetName,
           ...packet,
@@ -520,7 +529,7 @@ export class SOEServer extends EventEmitter {
           // that's bad but it's the only way to avoid a bug rn
           this.sendClientWaitQueue(client);
         }
-        client.outQueue.push(data);
+        client.outQueue.push(logicalPacket);
       }
     }
   }
