@@ -27,6 +27,8 @@ let dev = require("./commands/dev").default;
 
 let admin = require("./commands/admin").default;
 
+let commands = require("./commands/commands").default;
+
 import { _, Int64String, isPosInRadius, getDistance } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
@@ -46,6 +48,7 @@ export class zonePacketHandlers {
   hax = hax;
   dev = dev;
   admin = admin;
+  commands = commands;
   ClientIsReady;
   ClientFinishedLoading;
   Security;
@@ -158,6 +161,8 @@ export class zonePacketHandlers {
           () => server.saveCharacterPosition(client),
           30000
         );
+
+        
         const commands = [
           "hax",
           "dev",
@@ -171,6 +176,8 @@ export class zonePacketHandlers {
         ];
   
         commands.forEach((command) => {
+          server.commandHashses[joaat(command.toUpperCase())] = command;
+          console.log(server.commandHashses)
           server.sendData(client, "Command.AddWorldCommand", {
             command: command,
           });
@@ -375,14 +382,15 @@ export class zonePacketHandlers {
       packet: any
     ) {
       const args: string[] = packet.data.arguments.toLowerCase().split(" ");
-      const commandName = args[0];
-      switch (packet.data.commandHash) {
-        case 4265452888: // /me
+      const commandHash = packet.data.commandHash,
+      commandName = args[0];
+      switch (commandHash) {
+        /*case 4265452888: // /me
           server.sendChatText(client, `ZoneClientId :${client.loginSessionId}`);
           break;
         case 3720768430: // /respawn
           server.killCharacter(client);
-          break;
+          break;*/
         case 3357274581: // /clientinfo
           server.sendChatText(
             client,
@@ -569,6 +577,22 @@ export class zonePacketHandlers {
             server.sendChatText(
               client,
               `Unknown command: /admin ${commandName} , display admin all commands by using /admin list`
+            );
+          }
+          break;
+        default:
+          const command = server.commandHashses[commandHash];
+          // TODO: IMPLEMENT PERMISSIONS
+          console.log(commandHash)
+          console.log(command)
+          console.log(this.commands[command])
+          if(command && commands[command]) {
+            this.commands[command].function(server, client, args)
+          }
+          else {
+            server.sendChatText(
+              client,
+              `[ERROR] Command not found.`
             );
           }
           break;
@@ -1956,11 +1980,14 @@ export class zonePacketHandlers {
     delete require.cache[require.resolve("./commands/hax")];
     delete require.cache[require.resolve("./commands/dev")];
     delete require.cache[require.resolve("./commands/admin")];
+    delete require.cache[require.resolve("./commands/commands")];
     hax = require("./commands/hax").default;
     dev = require("./commands/dev").default;
     admin = require("./commands/admin").default;
+    commands = require("./commands/commands").default;
     this.hax = require("./commands/hax").default;
     this.dev = require("./commands/dev").default;
     this.admin = require("./commands/admin").default;
+    this.commands = require("./commands/commands").default;
   }
 }

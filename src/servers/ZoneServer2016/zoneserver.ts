@@ -113,7 +113,7 @@ export class ZoneServer2016 extends EventEmitter {
   _timeMultiplier = 72;
   _cycleSpeed = 100;
   _frozeCycle = false;
-  tickRate = 300;
+  tickRate = 3000;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
   _loginServerInfo: { address?: string; port: number } = {
@@ -140,6 +140,7 @@ export class ZoneServer2016 extends EventEmitter {
     containerDefinitions;
   _containerDefinitionIds: any[] = Object.keys(this._containerDefinitions);
   _recipes: { [recipeId: number]: any } = recipes;
+  commandHashses: {[hash: number]: string} = {};
   private lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
 
