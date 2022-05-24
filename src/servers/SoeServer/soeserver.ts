@@ -191,6 +191,13 @@ export class SOEServer extends EventEmitter {
         this._sendLogicalPacket(client, "MultiPacket", {
           sub_packets: client.waitingQueue,
         });
+        // if a packet in the waiting queue is a reliable packet, then we need to set the timeout
+        for (let index = 0; index < client.waitingQueue.length; index++) {
+          const packet = client.waitingQueue[index];
+          if(packet.sequence){
+            client.unAckData.set(packet.sequence, Date.now());
+          }
+        }
       } else {
         // if only one packets
         const extractedPacket = client.waitingQueue[0];
