@@ -169,6 +169,7 @@ export class zonePacketHandlers {
           "admin",
           "location",
           "serverinfo",
+          "clientinfo",
           "spawninfo",
           "help",
           "netstats",
@@ -385,92 +386,6 @@ export class zonePacketHandlers {
       const commandHash = packet.data.commandHash,
       commandName = args[0];
       switch (commandHash) {
-        /*case 4265452888: // /me
-          server.sendChatText(client, `ZoneClientId :${client.loginSessionId}`);
-          break;
-        case 3720768430: // /respawn
-          server.killCharacter(client);
-          break;*/
-        case 3357274581: // /clientinfo
-          server.sendChatText(
-            client,
-            `Spawned entities count : ${client.spawnedEntities.length}`
-          );
-          break;
-        case 2371122039: // /serverinfo
-          if (commandName === "mem") {
-            const used = process.memoryUsage().rss / 1024 / 1024;
-            server.sendChatText(
-              client,
-              `Used memory ${Math.round(used * 100) / 100} MB`
-            );
-            break;
-          } else {
-            const {
-              _clients: clients,
-              _characters: characters,
-              _npcs: npcs,
-              _objects: objects,
-              _vehicles: vehicles,
-              _doors: doors,
-              _props: props,
-            } = server;
-            const delta = Date.now() - server._startTime;
-            const datakur = new Date(
-              (server._serverTime + delta) * server._timeMultiplier
-            );
-            const monthNames = [
-              "January",
-              "February",
-              "March",
-              "April",
-              "May",
-              "June",
-              "July",
-              "August",
-              "September",
-              "October",
-              "November",
-              "December",
-            ];
-            const serverVersion = require("../../../package.json").version;
-            server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-            server.sendChatText(
-              client,
-              `clients: ${_.size(clients)} characters : ${_.size(characters)}`
-            );
-            server.sendChatText(
-              client,
-              `npcs : ${_.size(npcs)} doors : ${_.size(doors)}`
-            );
-            server.sendChatText(
-              client,
-              `objects : ${_.size(objects)} props : ${_.size(
-                props
-              )} vehicles : ${_.size(vehicles)}`
-            );
-            server.sendChatText(
-              client,
-              "Gametime: " +
-                datakur.getUTCDate() +
-                " " +
-                monthNames[datakur.getUTCMonth()] +
-                " " +
-                (datakur.getUTCFullYear() + 50) +
-                ", " +
-                datakur.getUTCHours() +
-                ":" +
-                datakur.getUTCMinutes()
-            );
-            break;
-          }
-        case 1757604914: // /spawninfo
-          server.sendChatText(
-            client,
-            `You spawned at "${client.character.spawnLocation}"`,
-            true
-          );
-          break;
         case joaat("HELP"):
         case 3575372649: // /help
           const haxCommandList: string[] = [];
@@ -492,34 +407,7 @@ export class zonePacketHandlers {
             .sort((a: string, b: string) => a.localeCompare(b))
             .forEach((command: string) => {
               server.sendChatText(client, `${command}`);
-            });
-          break;
-        case joaat("NETSTATS"):
-        case 265037938: // /netstats
-          const soeClient = server.getSoeClient(client.soeClientId);
-          if (soeClient) {
-            const stats = soeClient.getNetworkStats();
-            for (let index = 0; index < stats.length; index++) {
-              const stat = stats[index];
-              server.sendChatText(client, stat, index == 0);
-            }
-          }
-          break;
-        case joaat("LOCATION"):
-        case 3270589520: // /loc
-          const { position, rotation } = client.character.state;
-          server.sendChatText(
-            client,
-            `position: ${position[0].toFixed(2)},${position[1].toFixed(
-              2
-            )},${position[2].toFixed(2)}`
-          );
-          server.sendChatText(
-            client,
-            `rotation: ${rotation[0].toFixed(2)},${rotation[1].toFixed(
-              2
-            )},${rotation[2].toFixed(2)}`
-          );
+          });
           break;
         case joaat("HAX"):
           if (!!hax[commandName]) {
