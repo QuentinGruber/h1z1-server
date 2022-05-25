@@ -25,8 +25,6 @@ let hax = require("./commands/hax").default;
 
 let dev = require("./commands/dev").default;
 
-let admin = require("./commands/admin").default;
-
 let commands = require("./commands/commands").default;
 
 import { _, Int64String, isPosInRadius, getDistance } from "../../utils/utils";
@@ -47,7 +45,6 @@ import { TemporaryEntity } from "./classes/temporaryentity";
 export class zonePacketHandlers {
   hax = hax;
   dev = dev;
-  admin = admin;
   commands = commands;
   ClientIsReady;
   ClientFinishedLoading;
@@ -162,22 +159,15 @@ export class zonePacketHandlers {
           30000
         );
 
-        
-        const commands = [
-          "hax",
-          "dev",
-          "admin",
-          "location",
-          "serverinfo",
-          "clientinfo",
-          "spawninfo",
-          "help",
-          "netstats",
-          "me"
-        ];
-  
-        commands.forEach((command) => {
-          server.commandHashses[joaat(command.toUpperCase())] = command;
+        server.sendData(client, "Command.AddWorldCommand", {
+          command: "hax",
+        });
+        server.sendData(client, "Command.AddWorldCommand", {
+          command: "dev",
+        });
+        Object.keys(commands).forEach((command) => {
+          const hash = commands[command].hash || joaat(command.toUpperCase());
+          server.commandHashses[hash] = command;
           console.log(server.commandHashses)
           server.sendData(client, "Command.AddWorldCommand", {
             command: command,
@@ -396,14 +386,10 @@ export class zonePacketHandlers {
           Object.keys(this.dev).forEach((key) => {
             devCommandList.push(`/dev ${key}`);
           });
-          const adminCommandList: string[] = [];
-          Object.keys(this.admin).forEach((key) => {
-            adminCommandList.push(`/admin ${key}`);
-          });
           const commandList = ["/help", "/loc", "/spawninfo", "/serverinfo"];
           server.sendChatText(client, `Commands list:`);
           commandList
-            .concat(haxCommandList, devCommandList, adminCommandList)
+            .concat(haxCommandList, devCommandList)
             .sort((a: string, b: string) => a.localeCompare(b))
             .forEach((command: string) => {
               server.sendChatText(client, `${command}`);
@@ -448,39 +434,16 @@ export class zonePacketHandlers {
             );
           }
           break;
-        case joaat("ADMIN"):
-        case 997464845: // admin
-          if (!!admin[commandName]) {
-            if (
-              client.isAdmin ||
-              commandName === "list" ||
-              server._allowedCommands.length === 0 ||
-              server._allowedCommands.includes(commandName)
-            ) {
-              this.admin[commandName](server, client, args);
-            } else {
-              server.sendChatText(client, "You don't have access to that.");
-            }
-          } else {
-            server.sendChatText(
-              client,
-              `Unknown command: /admin ${commandName} , display admin all commands by using /admin list`
-            );
-          }
-          break;
         default:
           const command = server.commandHashses[commandHash];
           // TODO: IMPLEMENT PERMISSIONS
-          console.log(commandHash)
-          console.log(command)
-          console.log(this.commands[command])
           if(command && commands[command]) {
             this.commands[command].function(server, client, args)
           }
           else {
             server.sendChatText(
               client,
-              `[ERROR] Command not found.`
+              `[ERROR] Command not found. Hash: ${commandHash}`
             );
           }
           break;
@@ -1871,11 +1834,9 @@ export class zonePacketHandlers {
     delete require.cache[require.resolve("./commands/commands")];
     hax = require("./commands/hax").default;
     dev = require("./commands/dev").default;
-    admin = require("./commands/admin").default;
     commands = require("./commands/commands").default;
     this.hax = require("./commands/hax").default;
     this.dev = require("./commands/dev").default;
-    this.admin = require("./commands/admin").default;
     this.commands = require("./commands/commands").default;
   }
 }

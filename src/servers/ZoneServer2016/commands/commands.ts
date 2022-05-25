@@ -15,15 +15,20 @@
 // TODO enable @typescript-eslint/no-unused-vars
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
-import { _ } from "../../../utils/utils";
-import { joaat } from "h1emu-core";
+import { zoneShutdown, _ } from "../../../utils/utils";
 
 const debug = require("debug")("zonepacketHandlers");
 
+enum PermissionLevel {
+  DEFAULT = 0,
+  ADMIN = 1
+}
+
+// IMPORTANT: The "hash" field only needs to be filled for commands that are 8 charaters+, hash comes from the game sending Command.ExecuteCommand
 
 const commands: any = {// PERMISSIONLEVEL 0 = ANYONE, 1 = ADMIN FOR NOW
   list: {
-    permissionLevel: 0,
+    permissionLevel: PermissionLevel.DEFAULT,
     function: function (server: ZoneServer2016, client: Client, args: any[]) {
       server.sendChatText(
         client,
@@ -32,19 +37,20 @@ const commands: any = {// PERMISSIONLEVEL 0 = ANYONE, 1 = ADMIN FOR NOW
     }
   },
   me: {
-    permissionLevel: 0,
+    permissionLevel: PermissionLevel.DEFAULT,
     function: function (server: ZoneServer2016, client: Client, args: any[]) {
       server.sendChatText(client, `ZoneClientId :${client.loginSessionId}`);
     }
   },
   respawn: {
-    permissionLevel: 0,
+    permissionLevel: PermissionLevel.DEFAULT,
     function: function (server: ZoneServer2016, client: Client, args: any[]) {
       server.killCharacter(client);
     }
   },
   location: {
-    permissionLevel: 0,
+    hash: 3270589520,
+    permissionLevel: PermissionLevel.DEFAULT,
     function: function (server: ZoneServer2016, client: Client, args: any[]) {
       const { position, rotation } = client.character.state;
           server.sendChatText(
@@ -62,7 +68,8 @@ const commands: any = {// PERMISSIONLEVEL 0 = ANYONE, 1 = ADMIN FOR NOW
     }
   },
   serverinfo: {
-    permissionLevel: 0,
+    hash: 2371122039,
+    permissionLevel: PermissionLevel.DEFAULT,
     function: function (server: ZoneServer2016, client: Client, args: any[]) {
       if (args[0] === "mem") {
         const used = process.memoryUsage().rss / 1024 / 1024;
@@ -98,7 +105,7 @@ const commands: any = {// PERMISSIONLEVEL 0 = ANYONE, 1 = ADMIN FOR NOW
           "November",
           "December",
         ];
-        const serverVersion = require("../../../package.json").version;
+        const serverVersion = require("../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
         server.sendChatText(
           client,
@@ -131,7 +138,8 @@ const commands: any = {// PERMISSIONLEVEL 0 = ANYONE, 1 = ADMIN FOR NOW
     }
   },
   clientinfo: {
-    permissionLevel: 0,
+    hash: 3357274581,
+    permissionLevel: PermissionLevel.DEFAULT,
     function: function (server: ZoneServer2016, client: Client, args: any[]) {
       server.sendChatText(
         client,
@@ -140,7 +148,8 @@ const commands: any = {// PERMISSIONLEVEL 0 = ANYONE, 1 = ADMIN FOR NOW
     }
   },
   spawninfo: {
-    permissionLevel: 0,
+    hash: 1757604914,
+    permissionLevel: PermissionLevel.DEFAULT,
     function: function (server: ZoneServer2016, client: Client, args: any[]) {
       server.sendChatText(
         client,
@@ -150,13 +159,14 @@ const commands: any = {// PERMISSIONLEVEL 0 = ANYONE, 1 = ADMIN FOR NOW
     }
   },
   help: {
-    permissionLevel: 0,
+    permissionLevel: PermissionLevel.DEFAULT,
     function: function (server: ZoneServer2016, client: Client, args: any[]) {
       server.killCharacter(client);
     }
   },
   netstats: {
-    permissionLevel: 0,
+    hash: 265037938,
+    permissionLevel: PermissionLevel.DEFAULT,
     function: function (server: ZoneServer2016, client: Client, args: any[]) {
       const soeClient = server.getSoeClient(client.soeClientId);
       if (soeClient) {
@@ -166,6 +176,88 @@ const commands: any = {// PERMISSIONLEVEL 0 = ANYONE, 1 = ADMIN FOR NOW
           server.sendChatText(client, stat, index == 0);
         }
       }
+    }
+  },
+  shutdown: {
+    hash: 1182168853,
+    permissionLevel: PermissionLevel.ADMIN,
+    function: async function (server: ZoneServer2016, client: Client, args: any[]) {
+      const timeLeft = args[0] ? args[0] : 0;
+    const message = args[1] ? args[1] : " ";
+    const startedTime = Date.now();
+    await zoneShutdown(server, startedTime, timeLeft, message);
+    }
+  },
+  respawnloot: {
+    hash: 2553813871,
+    permissionLevel: PermissionLevel.ADMIN,
+    function: function (server: ZoneServer2016, client: Client, args: any[]) {
+      server.worldObjectManager.createLoot(server);
+      server.sendChatText(client, `Respawned loot`);
+    }
+  },
+  respawnnpcs: {
+    hash: 975396366,
+    permissionLevel: PermissionLevel.ADMIN,
+    function: function (server: ZoneServer2016, client: Client, args: any[]) {
+      server.worldObjectManager.createNpcs(server);
+      server.sendChatText(client, `Respawned npcs`);
+    }
+  },
+  respawnvehicles: {
+    hash: 2985577403,
+    permissionLevel: PermissionLevel.ADMIN,
+    function: function (server: ZoneServer2016, client: Client, args: any[]) {
+      server.worldObjectManager.createVehicles(server);
+      server.sendChatText(client, `Respawned vehicles`);
+    }
+  },
+  loottimer: {
+    hash: 3372845901,
+    permissionLevel: PermissionLevel.ADMIN,
+    function: function (server: ZoneServer2016, client: Client, args: any[]) {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /loottimer <time>`
+        );
+        return;
+      }
+      server.worldObjectManager.lootRespawnTimer = Number(args[0]);
+      server.sendChatText(client, `Loot respawn timer set to ${Number(args[0])}`);
+    }
+  },
+  npctimer: {
+    hash: 2860822019,
+    permissionLevel: PermissionLevel.ADMIN,
+    function: function (server: ZoneServer2016, client: Client, args: any[]) {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /npctimer <time>`
+        );
+        return;
+      }
+      server.worldObjectManager.npcRespawnTimer = Number(args[0]);
+      server.sendChatText(client, `Npc respawn timer set to ${Number(args[0])}`);
+    }
+  },
+  vehicletimer: {
+    hash: 1076483743,
+    permissionLevel: PermissionLevel.ADMIN,
+    function: function (server: ZoneServer2016, client: Client, args: any[]) {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /vehicletimer <time>`
+        );
+        return;
+      }
+      server.worldObjectManager.vehicleRespawnTimer = Number(args[0]);
+      server.sendChatText(
+        client,
+        `Vehicle respawn timer set to ${Number(args[0])}`
+      );
     }
   },
 };
