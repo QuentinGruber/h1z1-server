@@ -49,7 +49,7 @@ async function test() {
     1117,
     Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
     "mongodb://localhost:27017/",
-    1
+    2
   );
   zoneServer._loginServerInfo.address = "127.0.0.1";
   zoneServer._gatewayServer._crcLength = 2;
@@ -65,7 +65,7 @@ async function test() {
       Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64"),
       character.characterId,
       character.ownerId,
-      "ClientProtocol_860",
+      "ClientProtocol_1080",
       "",
       6457
     );
@@ -85,5 +85,4 @@ async function test() {
 
 const loginServer = new LoginServer(1115, "mongodb://localhost:27017/");
 loginServer._enableHttpServer = false; // note: if i want to enable it and test routes , i need to change port 80 to something superior at 1024
-loginServer._crcLength = 2;
 loginServer.start().then(test);
