@@ -655,7 +655,18 @@ export class ZoneServer2016 extends EventEmitter {
         FIRE_MODES_2: [
           { FIRE_MODE_ID: 539 },
           { FIRE_MODE_ID: 540 },
-        ]
+        ],
+        profiles: [
+          {
+            profileId: 1,
+            nameId: 1,
+            descriptionId: 1,
+            type: 1,
+            unknownDword1: 1,
+            unknownArray1: [{}]
+          }
+        ],
+        currentProfile: 1,
         //unknownQword1: client.character.characterId,
         //unknownDword38: 1,
         //vehicleLoadoutRelatedQword: client.character.characterId,
@@ -912,6 +923,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendInitData(client: Client) {
+    // TODO: Fix this schema
     this.sendData(client, "InitializationParameters", {
       environment: "LIVE",
       serverId: this._worldId,
@@ -938,14 +950,14 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.sendData(client, "ClientGameSettings", {
       Unknown2: 0,
-      interactGlowAndDist: 3,
-      unknownBoolean1: false,
+      interactGlowAndDist: 4,// 3
+      unknownBoolean1: true,
       timescale: 1.0,
-      Unknown4: 0,
-      Unknown: 0,
+      Unknown4: 1,
+      Unknown5: 1,
       unknownFloat1: 0.0,
-      unknownFloat2: 0.0,
-      velDamageMulti: 1.0,
+      unknownFloat2: 15,
+      velDamageMulti: 11,
     });
 
     this.sendCharacterData(client);
