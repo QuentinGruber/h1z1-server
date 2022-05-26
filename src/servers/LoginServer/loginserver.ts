@@ -199,15 +199,21 @@ export class LoginServer extends EventEmitter {
               if (connectionEstablished || packet.name === "SessionRequest") {
                 switch (packet.name) {
                   case "SessionRequest": {
-                    const { serverId } = packet.data;
+                    const { serverId,h1emuVersion } = packet.data;
                     debug(
                       `Received session request from ${client.address}:${client.port}`
                     );
-                    const status =
+                    let status =
                       this._zoneWhitelist.find((e) => e.serverId === serverId)
                         ?.address === client.address
                         ? 1
                         : 0;
+                      if(status && process.env.H1Z1_SERVER_VERSION !== h1emuVersion){
+                        console.log(
+                          `serverId : ${serverId} version mismatch ${h1emuVersion} vs ${process.env.H1Z1_SERVER_VERSION}`
+                        );
+                        status = 0;
+                      }
                     if (status === 1) {
                       debug(`ZoneConnection established`);
                       client.session = true;
@@ -979,5 +985,7 @@ export class LoginServer extends EventEmitter {
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
+  const PackageSetting = require("../../../package.json");
+  process.env.H1Z1_SERVER_VERSION = PackageSetting.version;
   new LoginServer(1115, process.env.MONGO_URL).start();
 }

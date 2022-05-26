@@ -2672,6 +2672,8 @@ if (
   process.env.VSCODE_DEBUG === "true" &&
   process.env.CLIENT_SIXTEEN !== "true"
 ) {
+  const PackageSetting = require("../../../package.json");
+  process.env.H1Z1_SERVER_VERSION = PackageSetting.version;
   const zoneServer = new ZoneServer2015(
     1117,
     Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),
