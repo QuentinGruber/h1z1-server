@@ -16,7 +16,6 @@ setTimeout(() => {
   client.connect();
   console.log("connect");
   client.on("login", (err, res) => {
-    console.log(res);
     if (res.loggedIn) {
       client.requestServerList();
     }
@@ -36,12 +35,10 @@ setTimeout(() => {
   });
   client.on("characterinfo", (err, res) => {
     console.log(`Get characterinfo`);
-    console.log(res);
     client.requestCharacterCreate();
   });
   client.on("characterlogin", (err, res) => {
     console.log(`Get characterlogin`);
-    console.log(res);
     process.exit(0);
   });
 }, 2000);

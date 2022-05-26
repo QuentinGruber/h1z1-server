@@ -26,7 +26,6 @@ loginServer.start().then(() => {
       client.connect();
       console.log("connect");
       client.on("login", (err, res) => {
-        console.log(res);
         if (res.loggedIn) {
           client.requestServerList();
         }
@@ -37,7 +36,6 @@ loginServer.start().then(() => {
       });
       client.on("charactercreate", (err, res) => {
         setTimeout(() => {
-          console.log(res);
           client.requestCharacterLogin(res.characterId, 1, {
             locale: "EnUS",
             localeId: 1,
@@ -47,12 +45,10 @@ loginServer.start().then(() => {
       });
       client.on("characterinfo", (err, res) => {
         console.log(`Get characterinfo`);
-        console.log(res);
         client.requestCharacterCreate();
       });
       client.on("characterlogin", (err, res) => {
         console.log(`Get characterlogin`);
-        console.log(res);
         process.exit(0);
       });
     }, 2000);
