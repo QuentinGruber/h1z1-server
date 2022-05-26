@@ -2921,6 +2921,14 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDefId = item.itemDefinitionId,
       availableContainer = this.getAvailableContainer(client, itemDefId, count);
     if (!availableContainer) {
+      if(count > 1){
+        this.sendChatText(client, `DEBUG item count: ${count}`);
+        setImmediate(() => { // to avoid a stack overflow
+          this.lootContainerItem(client, item,  Math.ceil(count/2), true);
+          this.lootContainerItem(client, item, Math.ceil(count/2), true);
+      });
+      }
+      else{
       // container error full
       this.sendData(client, "Character.NoSpaceNotification", {
         characterId: client.character.characterId,
@@ -2932,6 +2940,7 @@ export class ZoneServer2016 extends EventEmitter {
         new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
       );
       this.spawnObjects(client); // manually call this for now
+      }
       return;
     }
     const itemStackGuid = this.getAvailableItemStack(
