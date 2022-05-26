@@ -524,6 +524,7 @@ export class ZoneServer2015 extends EventEmitter {
       }
       this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
         serverId: this._worldId,
+        h1emuVersion: process.env.H1Z1_SERVER_VERSION
       });
       this._h1emuZoneServer.start();
       this.sendZonePopulationUpdate();
@@ -2672,6 +2673,8 @@ if (
   process.env.VSCODE_DEBUG === "true" &&
   process.env.CLIENT_SIXTEEN !== "true"
 ) {
+  const PackageSetting = require("../../../package.json");
+  process.env.H1Z1_SERVER_VERSION = PackageSetting.version;
   const zoneServer = new ZoneServer2015(
     1117,
     Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),

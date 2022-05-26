@@ -807,6 +807,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
         serverId: this._worldId,
+        h1emuVersion: process.env.H1Z1_SERVER_VERSION,
       });
       this._h1emuZoneServer.start();
       await this._db
@@ -3881,6 +3882,8 @@ export class ZoneServer2016 extends EventEmitter {
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
+  const PackageSetting = require("../../../package.json");
+  process.env.H1Z1_SERVER_VERSION = PackageSetting.version;
   new ZoneServer2016(
     1117,
     Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),
