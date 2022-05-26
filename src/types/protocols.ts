@@ -34,3 +34,9 @@ export interface GatewayProtocolReadingFormat {
   name: string;
   result?: any;
 }
+
+export interface H1emuProtocolReadingFormat {
+  type: number;
+  name: string;
+  data: any;
+}
