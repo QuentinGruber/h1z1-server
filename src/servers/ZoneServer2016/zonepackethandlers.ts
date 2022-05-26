@@ -982,6 +982,7 @@ export class zonePacketHandlers {
           server._objects[guid] ||
           server._vehicles[guid] ||
           server._doors[guid] ||
+          server._npcs[guid] ||
           0,
         entityType = server._objects[guid]
           ? 1
@@ -989,6 +990,8 @@ export class zonePacketHandlers {
           ? 2
           : 0 || server._doors[guid]
           ? 3
+          : 0|| server._npcs[guid]
+          ? 4
           : 0;
 
       if (
@@ -1033,6 +1036,12 @@ export class zonePacketHandlers {
             effectId: door.isOpen ? door.closeSound : door.openSound,
           });
           door.isOpen = !door.isOpen;
+          break;
+        case 4: // npc
+          const npc = entityData as Npc;
+          server.sendDataToAllWithSpawnedEntity(server._npcs, npc.characterId, "Character.StartMultiStateDeath", {
+            characterId: npc.characterId
+          })
           break;
         default:
           break;

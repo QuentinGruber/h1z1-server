@@ -25,6 +25,14 @@ const dev: any = {
       server.sendChatText(client, `cc`);
     }
   },
+  zombie: function (server: ZoneServer2016, client: Client, args: any[]) {
+    // spawn a zombie
+    const characterId = server.generateGuid();
+    const transient = server.getTransientId(characterId)
+    const zombie = new Npc(characterId,transient,9510,client.character.state.position,client.character.state.rotation);
+    server._npcs[characterId] = zombie;
+
+  },
   list: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(
       client,
