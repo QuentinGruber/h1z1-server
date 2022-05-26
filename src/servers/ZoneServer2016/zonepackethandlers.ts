@@ -386,9 +386,8 @@ export class zonePacketHandlers {
           Object.keys(this.dev).forEach((key) => {
             devCommandList.push(`/dev ${key}`);
           });
-          const commandList = ["/help", "/loc", "/spawninfo", "/serverinfo"];
           server.sendChatText(client, `Commands list:`);
-          commandList
+          Object.keys(commands)
             .concat(haxCommandList, devCommandList)
             .sort((a: string, b: string) => a.localeCompare(b))
             .forEach((command: string) => {
