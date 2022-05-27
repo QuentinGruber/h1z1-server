@@ -43,7 +43,7 @@
     "lint": "npx eslint src",
     "lint-quiet": "npx eslint --quiet src",
     "build": "npm run build-all",
-    "build-all": "tsc -p ./tsconfig/tsconfig.json",
+    "build-all": "tsc -p ./tsconfig.json",
     "build-login-2015": "tsc -p ./tsconfigs/tsconfig-2015-login.json",
     "build-login-2016": "tsc -p ./tsconfigs/tsconfig-2016-login.json",
     "build-zone-2015": "tsc -p ./tsconfigs/tsconfig-2015-zone.json",
