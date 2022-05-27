@@ -981,11 +981,11 @@ export class ZoneServer2015 extends EventEmitter {
 
     this.characterData(client);
 
-    this.sendData(client, "Command.ItemDefinitions", {
-      definitionsData: {
+    /*this.sendData(client, "Command.ItemDefinitions", {
+      data: {
         itemDefinitions: this._items,
       },
-    });
+    });*/
   }
 
   spawnNpcs(client: Client): void {
