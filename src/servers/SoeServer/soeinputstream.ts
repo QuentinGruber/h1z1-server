@@ -26,7 +26,7 @@ export class SOEInputStream extends EventEmitter {
   _nextSequence: wrappedUint16 = new wrappedUint16(0);
   _lastAck: wrappedUint16 = new wrappedUint16(-1);
   _lastProcessedFragmentSequence: wrappedUint16 = new wrappedUint16(-1);
-  _fragments: Array<Fragment> = [];
+  _fragments: Map<number,Fragment> = new Map();
   _useEncryption: boolean = false;
   _rc4: RC4;
 
@@ -39,6 +39,7 @@ export class SOEInputStream extends EventEmitter {
     dataToProcess: Fragment,
     sequence: number
   ): Array<Buffer> {
+    this._fragments.delete(sequence);
     this._lastProcessedFragmentSequence.set(sequence);
     return parseChannelPacketData(dataToProcess.payload);
   }
@@ -54,9 +55,9 @@ export class SOEInputStream extends EventEmitter {
     const dataWithoutHeader = Buffer.alloc(totalSize);
 
     const processedFragmentsSequences: Array<number> = [sequence];
-    for (let i = 1; i < this._fragments.length; i++) {
+    for (let i = 1; i < this._fragments.size; i++) {
       const fragmentSequence = (sequence + i) % MAX_SEQUENCE;
-      const fragment = this._fragments[fragmentSequence];
+      const fragment = this._fragments.get(fragmentSequence);
       if (fragment) {
         processedFragmentsSequences.push(fragmentSequence);
         dataToProcess.payload.copy(dataWithoutHeader, 0, DATA_HEADER_SIZE);
@@ -72,14 +73,14 @@ export class SOEInputStream extends EventEmitter {
             " (sequence " +
             fragmentSequence +
             ") (fragment length " +
-            this._fragments.length +
+            fragment.payload.length +
             ")"
           );
         }
         if (dataSize === totalSize) {
           // Delete all the processed fragments from memory
           for (let k = 0; k < processedFragmentsSequences.length; k++) {
-            delete this._fragments[processedFragmentsSequences[k]];
+            this._fragments.delete(processedFragmentsSequences[k]);
           }
           this._lastProcessedFragmentSequence.set(fragmentSequence);
           // process the full reassembled data
@@ -95,7 +96,7 @@ export class SOEInputStream extends EventEmitter {
   private _processData(): void {
     const nextFragmentSequence =
       (this._lastProcessedFragmentSequence.get() +1) & MAX_SEQUENCE;
-    const dataToProcess = this._fragments[nextFragmentSequence];
+    const dataToProcess = this._fragments.get(nextFragmentSequence);
     let appData: Array<Buffer> = [];
     if (dataToProcess) {
       if (dataToProcess.isFragment) {
@@ -144,7 +145,7 @@ export class SOEInputStream extends EventEmitter {
       let ack = sequence;
       for (let i = 1; i < MAX_SEQUENCE; i++) { // TODO: check if MAX_SEQUENCE + 1 is the right value
         const fragmentIndex = (this._lastAck.get() + i) & MAX_SEQUENCE;
-        if (this._fragments[fragmentIndex]) {
+        if (this._fragments.has(fragmentIndex)) {
           ack = fragmentIndex;
         } else {
           break;
@@ -164,7 +165,7 @@ export class SOEInputStream extends EventEmitter {
       "Writing " + data.length + " bytes, sequence " + sequence,
       " fragment=" + isFragment + ", lastAck: " + this._lastAck.get()
     );
-    this._fragments[sequence] = { payload: data, isFragment };
+    this._fragments.set(sequence, { payload: data, isFragment: isFragment });
     const wasInOrder = this.acknowledgeInputData(sequence);
     if (wasInOrder) {
       this._nextSequence.set(this._lastAck.get() + 1);

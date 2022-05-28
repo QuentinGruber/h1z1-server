@@ -160,6 +160,7 @@ export class SOEServer extends EventEmitter {
     for (const [sequence, time] of client.unAckData) {
       if (time + this._resendTimeout < currentTime) {
         client.outputStream.resendData(sequence);
+        client.unAckData.delete(sequence);
       }
     }
   }
