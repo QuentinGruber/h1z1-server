@@ -14,7 +14,7 @@
 import DataSchema from "h1z1-dataschema";
 import { LZ4 } from "../../../utils/utils";
 import { firemodesSchema, packVehicleReferenceData, parseVehicleReferenceData } from "./shared";
-import { profileDataSchema } from "./shared";
+import { profileSchema } from "./shared";
 
 const weaponDefinitionSchema: any[] = [
   {
@@ -805,7 +805,7 @@ export const referenceDataPackets: any = [
           name: "profiles",
           type: "array",
           defaultValue: [],
-          fields: profileDataSchema,
+          fields: profileSchema,
         },
       ],
     },

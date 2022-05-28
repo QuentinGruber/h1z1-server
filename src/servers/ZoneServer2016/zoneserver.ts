@@ -645,6 +645,7 @@ export class ZoneServer2016 extends EventEmitter {
         recipes: Object.values(this._recipes),
         stats: stats,
         loadoutSlots: client.character.pGetLoadoutSlots(),
+        equipmentSlots: client.character.pGetEquipment(),
         characterResources: client.character.pGetResources(),
         containers: containers,
         FIRE_MODES_1: [

@@ -1284,7 +1284,7 @@ export const basePackets: any = [
               ],
             },
             {
-              name: "unknownArray24", // equipment probably
+              name: "equipmentSlots", // equipment probably
               type: "array",
               defaultValue: [],
               fields: [

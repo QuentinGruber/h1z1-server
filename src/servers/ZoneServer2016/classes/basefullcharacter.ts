@@ -183,8 +183,12 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   pGetEquipment() {
     return {
       characterData: {
+        profileId: 3,
         characterId: this.characterId,
       },
+      unknownDword1: 0,
+      unknownString1: "#",
+      unknownString2: "",
       equipmentSlots: this.pGetEquipmentSlots(),
       attachmentData: this.pGetAttachmentSlots(),
     };

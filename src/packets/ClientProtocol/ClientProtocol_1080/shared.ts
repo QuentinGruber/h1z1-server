@@ -373,7 +373,7 @@ export const profileSchema = [
       { name: "unknownDword2", type: "uint32", defaultValue: 1 },
       { name: "unknownDword3", type: "uint32", defaultValue: 1 },
     ],
-  },
+  },// note: some of these dwords are actually floats and will crash the client if set to 1
   { name: "unknownDword5", type: "uint32", defaultValue: 0 },
   { name: "unknownDword6", type: "uint32", defaultValue: 0 },
   { name: "unknownByte3", type: "uint8", defaultValue: 0 },
