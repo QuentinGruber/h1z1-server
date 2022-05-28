@@ -25,10 +25,11 @@ type Fragment = { payload: Buffer; isFragment: boolean };
 export class SOEInputStream extends EventEmitter {
   _nextSequence: wrappedUint16 = new wrappedUint16(0);
   _lastAck: wrappedUint16 = new wrappedUint16(-1);
-  _lastProcessedFragmentSequence: wrappedUint16 = new wrappedUint16(-1);
   _fragments: Map<number,Fragment> = new Map();
   _useEncryption: boolean = false;
+  underProcessingFragmentStartingSequence: number = -1;
   _rc4: RC4;
+  allowOutOfOrderProcessing: boolean = false;
 
   constructor(cryptoKey: Uint8Array) {
     super();
@@ -40,7 +41,6 @@ export class SOEInputStream extends EventEmitter {
     sequence: number
   ): Array<Buffer> {
     this._fragments.delete(sequence);
-    this._lastProcessedFragmentSequence.set(sequence);
     return parseChannelPacketData(dataToProcess.payload);
   }
 
@@ -52,10 +52,9 @@ export class SOEInputStream extends EventEmitter {
     const totalSize = dataToProcess.payload.readUInt32BE(0);
     let dataSize = dataToProcess.payload.length - DATA_HEADER_SIZE;
 
-    const dataWithoutHeader = Buffer.alloc(totalSize);
-
+    const dataWithoutHeader = Buffer.alloc(totalSize); // TODO: this is allocated even if the data is not complete, should tune that + unsafeAlloc
     const processedFragmentsSequences: Array<number> = [sequence];
-    for (let i = 1; i < this._fragments.size; i++) {
+    for (let i = 0; i < this._fragments.size; i++) {
       const fragmentSequence = (sequence + i) % MAX_SEQUENCE;
       const fragment = this._fragments.get(fragmentSequence);
       if (fragment) {
@@ -82,7 +81,7 @@ export class SOEInputStream extends EventEmitter {
           for (let k = 0; k < processedFragmentsSequences.length; k++) {
             this._fragments.delete(processedFragmentsSequences[k]);
           }
-          this._lastProcessedFragmentSequence.set(fragmentSequence);
+          this.underProcessingFragmentStartingSequence = -1;
           // process the full reassembled data
           return parseChannelPacketData(dataWithoutHeader);
         }
@@ -93,16 +92,17 @@ export class SOEInputStream extends EventEmitter {
     return []; // if somehow there is no fragments in memory
   }
 
-  private _processData(): void {
-    const nextFragmentSequence =
-      (this._lastProcessedFragmentSequence.get() +1) & MAX_SEQUENCE;
+  private _processData(nextFragmentSequence:number): void {
     const dataToProcess = this._fragments.get(nextFragmentSequence);
     let appData: Array<Buffer> = [];
     if (dataToProcess) {
       if (dataToProcess.isFragment) {
+        if(this.underProcessingFragmentStartingSequence === -1) {
+          this.underProcessingFragmentStartingSequence = nextFragmentSequence;
+        }
         appData = this.processFragmentedData(
           dataToProcess,
-          nextFragmentSequence
+          nextFragmentSequence+1
         );
       } else {
         appData = this.processSingleData(dataToProcess, nextFragmentSequence);
@@ -165,11 +165,19 @@ export class SOEInputStream extends EventEmitter {
       "Writing " + data.length + " bytes, sequence " + sequence,
       " fragment=" + isFragment + ", lastAck: " + this._lastAck.get()
     );
+  /*  if(sequence > this._nextSequence.get() + 20) {
+      console.log("drop packet sequence: " + sequence);
+      return ;
+    }*/
     this._fragments.set(sequence, { payload: data, isFragment: isFragment });
     const wasInOrder = this.acknowledgeInputData(sequence);
     if (wasInOrder) {
-      this._nextSequence.set(this._lastAck.get() + 1);
-      this._processData();
+      this._nextSequence.set(this._lastAck.get()+1);
+      this._processData(this.underProcessingFragmentStartingSequence!==-1?this.underProcessingFragmentStartingSequence:sequence);
+    }
+    else if(!isFragment && this.allowOutOfOrderProcessing){
+      console.log("process out of order packet sequence: " + sequence);
+      this._processData(sequence);
     }
   }
 
