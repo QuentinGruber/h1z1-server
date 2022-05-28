@@ -656,17 +656,17 @@ export class ZoneServer2016 extends EventEmitter {
           { FIRE_MODE_ID: 539 },
           { FIRE_MODE_ID: 540 },
         ],
-        /*profiles: [
+        profiles: [
           {
-            profileId: 1,
+            profileId: 3,
             nameId: 1,
             descriptionId: 1,
             type: 1,
-            unknownDword1: 1,
-            unknownArray1: [{}]
+            unknownDword1: 0,
+            unknownArray1: []
           }
-        ],*/
-        currentProfile: 1,
+        ],
+        currentProfile: 3,
         //unknownQword1: client.character.characterId,
         //unknownDword38: 1,
         //vehicleLoadoutRelatedQword: client.character.characterId,

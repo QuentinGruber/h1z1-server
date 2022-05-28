@@ -38,6 +38,7 @@ import {
 import {
   achievementSchema,
   identitySchema,
+  //profileSchema,
   profileSchema,
   rewardBundleSchema,
   skyData,
