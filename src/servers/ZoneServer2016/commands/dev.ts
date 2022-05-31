@@ -26,7 +26,10 @@ const dev: any = {
     const npc = new BaseLightweightCharacter(characterId,server.getTransientId(characterId),9510,client.character.state.position,client.character.state.rotation)
     server.addLightweightNpc(client,npc)
     setTimeout(()=>{
-      server.sendData(client,"ClientPath.Reply",{})
+      server.sendData(client,"ClientPath.Reply",{
+        unknownDword2: npc.transientId,
+        nodes:[{node:client.character.state.position}]
+      })
     },2000)
   },
   list: function (server: ZoneServer2016, client: Client, args: any[]) {

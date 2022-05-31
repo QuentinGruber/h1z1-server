@@ -24,8 +24,8 @@ export const clientPathPackets: any = [
         0x3e02,
         {
           fields: [
-            { name: "PathProcessingTech", type: "uint32", defaultValue: 1 }, // 1 = Kynapse, for real using an uint32 for this is dumb as fuck DB
-            { name: "unknownDword2", type: "uint32", defaultValue: 3 },
+            { name: "PathProcessingTech", type: "uint32", defaultValue: 0 }, // 1 = Kynapse, for real using an uint32 for this is dumb as fuck DB
+            { name: "unknownDword2", type: "uint32", defaultValue: 6 },
             {
               name: "nodes",
               type: "array",
