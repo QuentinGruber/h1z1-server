@@ -191,9 +191,50 @@ export const characterPackets: any = [
     },
   ],
   ["Character.UpdateTintAlias", 0x0f21, {}],
-  ["Character.MoveOnRail", 0x0f22, {}],
-  ["Character.ClearMovementRail", 0x0f23, {}],
-  ["Character.MoveOnRelativeRail", 0x0f24, {}],
+  ["Character.MoveOnRail", 0x0f22, {
+    fields: [
+      {
+        name: "characterId",
+        type: "uint64string",
+        defaultValue: "0x0000000000000000",
+      },
+      { name: "unknown4", type: "uint32", defaultValue: 50 },
+      { name: "unknown5", type: "uint32", defaultValue: 50 },
+      {
+        name: "position",
+        type: "floatvector4",
+        defaultValue: [10, 0, 0, 1],
+      },
+    ],
+  }],
+  ["Character.ClearMovementRail", 0x0f23, {
+    fields: [
+      {
+        name: "characterId",
+        type: "uint64string",
+        defaultValue: "0x0000000000000000",
+      },
+    ],
+  }],
+  ["Character.MoveOnRelativeRail", 0x0f24, {
+    fields: [
+      {
+        name: "characterId",
+        type: "uint64string",
+        defaultValue: "0x0000000000000000",
+      },
+      { name: "unknown4", type: "uint32", defaultValue: 0 },
+      { name: "unknown5", type: "uint32", defaultValue: 0 },
+      { name: "unknown6", type: "uint32", defaultValue: 0 },
+      { name: "unknown7", type: "uint32", defaultValue: 0 },
+      { name: "unknown8", type: "uint32", defaultValue: 0 },
+      {
+        name: "unknownVector1",
+        type: "floatvector4",
+        defaultValue: [0, 0, 0, 0],
+      },
+    ],
+  }],
   [
     "Character.Destroyed",
     0x0f25,
@@ -209,8 +250,44 @@ export const characterPackets: any = [
       ],
     },
   ],
-  ["Character.SeekTarget", 0x0f26, {}],
-  ["Character.SeekTargetUpdate", 0x0f27, {}],
+  ["Character.SeekTarget", 0x0f26, {
+    fields: [
+      {
+        name: "characterId",
+        type: "uint64string",
+        defaultValue: "0x0000000000000000",
+      },
+      {
+        name: "TargetCharacterId",
+        type: "uint64string",
+        defaultValue: "0x0000000000000000",
+      },
+      { name: "initSpeed", type: "float", defaultValue: 1 },
+      { name: "acceleration", type: "float", defaultValue: 1 },
+      { name: "speed", type: "float", defaultValue: 1 },
+      { name: "unknown8", type: "float", defaultValue: 1 },
+      { name: "yRot", type: "float", defaultValue: 1 },
+      {
+        name: "rotation",
+        type: "floatvector4",
+        defaultValue: [0, 0, 0, 1],
+      },
+    ],
+  }],
+  ["Character.SeekTargetUpdate", 0x0f27, {
+    fields: [
+      {
+        name: "characterId",
+        type: "uint64string",
+        defaultValue: "0x0000000000000000",
+      },
+      {
+        name: "TargetCharacterId",
+        type: "uint64string",
+        defaultValue: "0x0000000000000000",
+      },
+    ],
+  }],
   [
     "Character.UpdateActiveWieldType",
     0x0f28,
