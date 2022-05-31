@@ -27,28 +27,20 @@ export class SOEOutputStream extends EventEmitter {
 
   private _rc4: RC4;
   private _hadCacheError: boolean = false;
-  private _maxCache: number = 50000; // TODO REMOVE THIS SYSTEM
-  private _cacheSize: number = 0;
   constructor(cryptoKey: Uint8Array) {
     super();
     this._rc4 = new RC4(cryptoKey);
   }
 
   addToCache(sequence: number, data: Buffer, isFragment: boolean) {
-    if (this._cacheSize < this._maxCache) {
-      this._cacheSize++;
       this._cache[sequence] = {
         data: data,
         fragment: isFragment,
       };
-    } else {
-      console.error("Cache is full, dropping data sequence: " + sequence);
-    }
   }
 
   removeFromCache(sequence: number): void {
     if (!!this._cache[sequence]) {
-      this._cacheSize--;
       delete this._cache[sequence];
     }
   }
