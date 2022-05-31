@@ -43,7 +43,7 @@ export class Character2016 extends BaseFullCharacter {
   gender!: number;
   creationDate!: string;
   lastLoginDate!: string;
-  currentLoadoutSlot = 7; //fists
+  currentLoadoutSlot = 1; //fists
   loadoutId = 3; // character
   startRessourceUpdater: any;
   healingInterval?: any;

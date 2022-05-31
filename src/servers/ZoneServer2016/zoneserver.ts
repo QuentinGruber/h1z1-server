@@ -657,9 +657,9 @@ export class ZoneServer2016 extends EventEmitter {
           { FIRE_MODE_ID: 539 },
           { FIRE_MODE_ID: 540 },
         ],
-        profiles: [
+        profiles: [ // CORRECT profileId for loadoutId 3
           {
-            profileId: 3,
+            profileId: 5,
             nameId: 1,
             descriptionId: 1,
             type: 1,
@@ -667,7 +667,7 @@ export class ZoneServer2016 extends EventEmitter {
             unknownArray1: []
           }
         ],
-        currentProfile: 3,
+        currentProfile: 5,
         //unknownQword1: client.character.characterId,
         //unknownDword38: 1,
         //vehicleLoadoutRelatedQword: client.character.characterId,
@@ -2446,8 +2446,9 @@ export class ZoneServer2016 extends EventEmitter {
     slotId: number,
     character = client.character
   ) {
-    this.sendDataToAllWithSpawnedEntity(
+    this.sendDataToAllOthersWithSpawnedEntity(
       this._characters,
+      client,
       client.character.characterId,
       "Equipment.SetCharacterEquipmentSlot",
       character.pGetEquipmentSlotFull(slotId)
@@ -2835,8 +2836,9 @@ export class ZoneServer2016 extends EventEmitter {
   removeEquipmentItem(client: Client, equipmentSlotId: number): boolean {
     if (!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
-    this.sendDataToAllWithSpawnedEntity(
+    this.sendDataToAllOthersWithSpawnedEntity(
       this._characters,
+      client,
       client.character.characterId,
       "Equipment.UnsetCharacterEquipmentSlot",
       {
@@ -3273,6 +3275,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.equipItem(client, this.generateItem(2393), sendPacket); // rasta backpack
     }
     this.equipItem(client, this.generateItem(85), sendPacket); // fists weapon
+    this.equipItem(client, this.generateItem(1373), sendPacket); // 308 weapon
     this.equipItem(client, this.generateItem(2377), sendPacket); // DOA Hoodie
     this.equipItem(client, this.generateItem(2079), sendPacket); // golf pants
   }
