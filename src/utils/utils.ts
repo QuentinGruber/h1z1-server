@@ -362,7 +362,7 @@ export class wrappedUint16 {
   private wrap(value:number){
     let uint16 = value
     if(uint16 > MAX_UINT16) {
-      uint16 -= MAX_UINT16;
+      uint16 -= MAX_UINT16 +1 // subtract the overflow value;
     }
     return uint16
   }
