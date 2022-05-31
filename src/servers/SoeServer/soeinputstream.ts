@@ -29,6 +29,11 @@ export class SOEInputStream extends EventEmitter {
   _useEncryption: boolean = false;
   _lastProcessedSequence: number = -1;
   _rc4: RC4;
+  has_cpf: boolean = false;
+  cpf_totalSize: number = -1;
+  cpf_dataSize: number = -1;
+  cpf_dataWithoutHeader!: Buffer;
+  cpf_processedFragmentsSequences: number[] = [];
 
   constructor(cryptoKey: Uint8Array) {
     super();
@@ -48,27 +53,31 @@ export class SOEInputStream extends EventEmitter {
     dataToProcess: Fragment,
     sequence: number
   ): Array<Buffer> {
+    // cpf == current processed fragment
+    if(!this.has_cpf) {
     // the total size is written has a uint32 at the first packet of a fragmented data
-    const totalSize = dataToProcess.payload.readUInt32BE(0);
-    let dataSize = dataToProcess.payload.length - DATA_HEADER_SIZE;
+    this.cpf_totalSize = dataToProcess.payload.readUInt32BE(0);
+    this.cpf_dataSize = dataToProcess.payload.length - DATA_HEADER_SIZE;
 
-    const dataWithoutHeader = Buffer.alloc(totalSize); // TODO: this is allocated even if the data is not complete, should tune that + unsafeAlloc
-    const processedFragmentsSequences: Array<number> = [sequence];
-    for (let i = 0; i < this._fragments.size; i++) {
+    this.cpf_dataWithoutHeader = Buffer.allocUnsafe(this.cpf_totalSize); // TODO: this is allocated even if the data is not complete, should tune that + unsafeAlloc
+    this.cpf_processedFragmentsSequences = [];
+    this.has_cpf = true;
+  }
+    for (let i = this.cpf_processedFragmentsSequences.length; i < this._fragments.size; i++) {
       const fragmentSequence = (sequence + i) % MAX_SEQUENCE;
       const fragment = this._fragments.get(fragmentSequence);
       if (fragment) {
-        processedFragmentsSequences.push(fragmentSequence);
-        dataToProcess.payload.copy(dataWithoutHeader, 0, DATA_HEADER_SIZE);
-        fragment.payload.copy(dataWithoutHeader, dataSize);
-        dataSize += fragment.payload.length;
+        this.cpf_processedFragmentsSequences.push(fragmentSequence);
+        dataToProcess.payload.copy(this.cpf_dataWithoutHeader, 0, DATA_HEADER_SIZE);
+        fragment.payload.copy(this.cpf_dataWithoutHeader, this.cpf_dataSize);
+        this.cpf_dataSize += fragment.payload.length;
 
-        if (dataSize > totalSize) {
+        if (this.cpf_dataSize > this.cpf_totalSize) {
           throw (
             "processDataFragments: offset > totalSize: " +
-            dataSize +
+            this.cpf_dataSize +
             " > " +
-            totalSize +
+            this.cpf_totalSize +
             " (sequence " +
             fragmentSequence +
             ") (fragment length " +
@@ -76,14 +85,15 @@ export class SOEInputStream extends EventEmitter {
             ")"
           );
         }
-        if (dataSize === totalSize) {
+        if (this.cpf_dataSize === this.cpf_totalSize) {
           // Delete all the processed fragments from memory
-          for (let k = 0; k < processedFragmentsSequences.length; k++) {
-            this._fragments.delete(processedFragmentsSequences[k]);
+          for (let k = 0; k < this.cpf_processedFragmentsSequences.length; k++) {
+            this._fragments.delete(this.cpf_processedFragmentsSequences[k]);
           }
           this._lastProcessedSequence = fragmentSequence
+          this.has_cpf = false;
           // process the full reassembled data
-          return parseChannelPacketData(dataWithoutHeader);
+          return parseChannelPacketData(this.cpf_dataWithoutHeader);
         }
       } else {
         return []; // the full data hasn't been received yet
@@ -168,10 +178,6 @@ export class SOEInputStream extends EventEmitter {
       "Writing " + data.length + " bytes, sequence " + sequence,
       " fragment=" + isFragment + ", lastAck: " + this._lastAck.get()
     );
-  /*  if(sequence > this._nextSequence.get() + 20) {
-      console.log("drop packet sequence: " + sequence);
-      return ;
-    }*/
     this._fragments.set(sequence, { payload: data, isFragment: isFragment });
     const wasInOrder = this.acknowledgeInputData(sequence);
     if (wasInOrder) {
