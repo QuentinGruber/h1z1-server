@@ -27,9 +27,8 @@ export class SOEInputStream extends EventEmitter {
   _lastAck: wrappedUint16 = new wrappedUint16(-1);
   _fragments: Map<number,Fragment> = new Map();
   _useEncryption: boolean = false;
-  underProcessingFragmentStartingSequence: number = -1;
+  _lastProcessedSequence: number = -1;
   _rc4: RC4;
-  allowOutOfOrderProcessing: boolean = false;
 
   constructor(cryptoKey: Uint8Array) {
     super();
@@ -41,6 +40,7 @@ export class SOEInputStream extends EventEmitter {
     sequence: number
   ): Array<Buffer> {
     this._fragments.delete(sequence);
+    this._lastProcessedSequence = sequence
     return parseChannelPacketData(dataToProcess.payload);
   }
 
@@ -81,7 +81,7 @@ export class SOEInputStream extends EventEmitter {
           for (let k = 0; k < processedFragmentsSequences.length; k++) {
             this._fragments.delete(processedFragmentsSequences[k]);
           }
-          this.underProcessingFragmentStartingSequence = -1;
+          this._lastProcessedSequence = fragmentSequence
           // process the full reassembled data
           return parseChannelPacketData(dataWithoutHeader);
         }
@@ -92,14 +92,12 @@ export class SOEInputStream extends EventEmitter {
     return []; // if somehow there is no fragments in memory
   }
 
-  private _processData(nextFragmentSequence:number): void {
+  private _processData(): void {
+    const nextFragmentSequence = (this._lastProcessedSequence + 1) & MAX_SEQUENCE;
     const dataToProcess = this._fragments.get(nextFragmentSequence);
     let appData: Array<Buffer> = [];
     if (dataToProcess) {
       if (dataToProcess.isFragment) {
-        if(this.underProcessingFragmentStartingSequence === -1) {
-          this.underProcessingFragmentStartingSequence = nextFragmentSequence;
-        }
         appData = this.processFragmentedData(
           dataToProcess,
           nextFragmentSequence+1
@@ -133,7 +131,7 @@ export class SOEInputStream extends EventEmitter {
     if (sequence > this._nextSequence.get()) {
       debug(
         "Sequence out of order, expected " +
-          this._nextSequence +
+          this._nextSequence.get() +
           " but received " +
           sequence
       );
@@ -173,11 +171,7 @@ export class SOEInputStream extends EventEmitter {
     const wasInOrder = this.acknowledgeInputData(sequence);
     if (wasInOrder) {
       this._nextSequence.set(this._lastAck.get()+1);
-      this._processData(this.underProcessingFragmentStartingSequence!==-1?this.underProcessingFragmentStartingSequence:sequence);
-    }
-    else if(!isFragment && this.allowOutOfOrderProcessing){
-      console.log("process out of order packet sequence: " + sequence);
-      this._processData(sequence);
+      this._processData();
     }
   }
 
