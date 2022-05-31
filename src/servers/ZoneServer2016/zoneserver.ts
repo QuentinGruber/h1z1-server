@@ -30,6 +30,7 @@ import { WorldObjectManager } from "./classes/worldobjectmanager";
 import { Items, ResourceIds, ResourceTypes } from "./enums";
 
 import {
+  AvailableContainer,
   characterEquipment,
   inventoryItem,
   loadoutContainer,
@@ -2636,28 +2637,36 @@ export class ZoneServer2016 extends EventEmitter {
     return bulk;
   }
 
-  getAvailableContainer(
+
+  getAvailableContainers(
     client: Client,
     itemDefinitionId: number,
     count: number
-  ): loadoutContainer | undefined {
-    // returns the first container that has enough space to store count * itemDefinitionId bulk
-
+  ): AvailableContainer[] {
     const itemDef = this.getItemDefinition(itemDefinitionId);
+    const totalNeededSize = itemDef.BULK * count;
+    let availableSize = 0;
+    const containerWithSpace = [];
     for (const container of Object.values(client.character._containers)) {
       const containerItemDef = this.getItemDefinition(
           container?.itemDefinitionId
         ),
         containerDef = this.getContainerDefinition(containerItemDef?.PARAM1);
+      const containerAvailableSize = containerDef?.MAX_BULK - this.getContainerBulk(container);
       if (
         container &&
-        containerDef?.MAX_BULK >=
-          this.getContainerBulk(container) + itemDef.BULK * count
+        containerDef?.MAX_BULK &&
+        containerAvailableSize > itemDef.BULK
       ) {
-        return container;
+        availableSize += containerAvailableSize;
+        containerWithSpace.push({container, containerAvailableSize});
       }
     }
-    return;
+    if(availableSize >= totalNeededSize) {
+      return containerWithSpace;
+    } else {
+      return [];
+    }
   }
 
   getAvailableItemStack(
@@ -2911,38 +2920,14 @@ export class ZoneServer2016 extends EventEmitter {
     delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
   }
 
-  lootContainerItem(
+  private addStackToContainer(
     client: Client,
-    item: inventoryItem | undefined,
+    availableContainer:loadoutContainer,
+    item: inventoryItem,
     count: number,
-    sendUpdate: boolean = true
-  ) {
-    if (!item) return;
-    const itemDefId = item.itemDefinitionId,
-      availableContainer = this.getAvailableContainer(client, itemDefId, count);
-    if (!availableContainer) {
-      if(count > 1){
-        this.sendChatText(client, `DEBUG item count: ${count}`);
-        setImmediate(() => { // to avoid a stack overflow
-          this.lootContainerItem(client, item,  Math.ceil(count/2), true);
-          this.lootContainerItem(client, item, Math.ceil(count/2), true);
-      });
-      }
-      else{
-      // container error full
-      this.sendData(client, "Character.NoSpaceNotification", {
-        characterId: client.character.characterId,
-      });
-      this.worldObjectManager.createLootEntity(
-        this,
-        item,
-        client.character.state.position,
-        new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
-      );
-      this.spawnObjects(client); // manually call this for now
-      }
-      return;
-    }
+    sendUpdate: boolean = true){
+    const itemDefId = item.itemDefinitionId
+
     const itemStackGuid = this.getAvailableItemStack(
       availableContainer,
       itemDefId,
@@ -2970,6 +2955,42 @@ export class ZoneServer2016 extends EventEmitter {
         count,
         sendUpdate
       );
+    }
+  }
+
+  lootContainerItem(
+    client: Client,
+    item: inventoryItem | undefined,
+    count: number,
+    sendUpdate: boolean = true
+  ) {
+    if (!item) return;
+    const itemDefId = item.itemDefinitionId,
+      availableContainers = this.getAvailableContainers(client, itemDefId, count);
+    if (availableContainers.length == 0) {
+      // container error full
+      this.sendData(client, "Character.NoSpaceNotification", {
+        characterId: client.character.characterId,
+      });
+      this.worldObjectManager.createLootEntity(
+        this,
+        item,
+        client.character.state.position,
+        new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
+      );
+      this.spawnObjects(client); // manually call this for now
+      return;
+    }
+    let countToDistribute = count;
+    for (const container of availableContainers) {
+      if(countToDistribute - container.containerAvailableSize >= 0){
+        countToDistribute -= container.containerAvailableSize
+        this.addStackToContainer(client, container.container, item, container.containerAvailableSize, sendUpdate);
+      }
+      else{
+        this.addStackToContainer(client, container.container, item, countToDistribute, sendUpdate);
+        break;
+      }
     }
   }
 
