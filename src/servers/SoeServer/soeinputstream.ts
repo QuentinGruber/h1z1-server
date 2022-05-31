@@ -59,7 +59,7 @@ export class SOEInputStream extends EventEmitter {
     this.cpf_totalSize = dataToProcess.payload.readUInt32BE(0);
     this.cpf_dataSize = dataToProcess.payload.length - DATA_HEADER_SIZE;
 
-    this.cpf_dataWithoutHeader = Buffer.allocUnsafe(this.cpf_totalSize); // TODO: this is allocated even if the data is not complete, should tune that + unsafeAlloc
+    this.cpf_dataWithoutHeader = Buffer.allocUnsafe(this.cpf_totalSize);
     this.cpf_processedFragmentsSequences = [];
     this.has_cpf = true;
   }
@@ -178,11 +178,13 @@ export class SOEInputStream extends EventEmitter {
       "Writing " + data.length + " bytes, sequence " + sequence,
       " fragment=" + isFragment + ", lastAck: " + this._lastAck.get()
     );
-    this._fragments.set(sequence, { payload: data, isFragment: isFragment });
-    const wasInOrder = this.acknowledgeInputData(sequence);
-    if (wasInOrder) {
-      this._nextSequence.set(this._lastAck.get()+1);
-      this._processData();
+    if(sequence >= this._nextSequence.get()){
+      this._fragments.set(sequence, { payload: data, isFragment: isFragment });
+      const wasInOrder = this.acknowledgeInputData(sequence);
+      if (wasInOrder) {
+        this._nextSequence.set(this._lastAck.get()+1);
+        this._processData();
+      }
     }
   }
 
