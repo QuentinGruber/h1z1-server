@@ -24,7 +24,13 @@ export const uiPackets: any = [
   ["Ui.Message", 0x1a0e, {}],
   ["Ui.CinematicStartLookAt", 0x1a0f, {}],
   ["Ui.WeaponHitFeedback", 0x1a10, {}],
-  ["Ui.HeadShotFeedback", 0x1a11, {}],
+  ["Ui.HeadShotFeedback", 0x1a11, {
+   fields: [
+        { name: "Unknown3", type: "boolean", defaultValue: 0 },
+        { name: "Unknown4", type: "boolean", defaultValue: 0 },
+      ],
+    }
+  ],
   ["Ui.WaypointCooldown", 0x1a14, {}],
   ["Ui.ZoneWaypoint", 0x1a15, {}],
   ["Ui.WaypointNotify", 0x1a16, {}],
