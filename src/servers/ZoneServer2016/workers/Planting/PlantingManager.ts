@@ -34,7 +34,7 @@ export class PlantingManager {
     }
 
     //now it's just simple placement,auto find sight point around furrows and holes
-    public SowSeed(client: Client, server: ZoneServer2016, itemDefinitionId: number, itemGuid: string) {
+    public SowSeed(client: Client, server: ZoneServer2016, itemDefinitionId: number, itemGuid: string):boolean {
         let sRet = false;
         const f = this._farmlandManager.SimulateGetSurroundingSowAbleFurrows(client, false);
         if (f) {
@@ -46,7 +46,7 @@ export class PlantingManager {
                     if(objectInHole)
                     seed.Guid = objectInHole.itemGuid;
                     else
-                        return;
+                        return false;
                     sRet = this._growManager.StartCultivating(client, server, hole, seed);
                     if (sRet) {
                         this._farmlandManager.ReUseFurrows(f, seed.TimeToGrown);
@@ -56,6 +56,7 @@ export class PlantingManager {
             }
         }
         server.sendChatText(client, `Sowing${sRet ? ' succeeded' : ' failed'}`);
+        return sRet;
     }
 
     public FertilizeCrops(client: Client, server: ZoneServer2016) {
