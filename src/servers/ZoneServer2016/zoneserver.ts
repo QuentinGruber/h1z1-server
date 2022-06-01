@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import {PlantingManager} from "./workers/Planting/PlantingManager";
+
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
 
@@ -132,6 +134,7 @@ export class ZoneServer2016 extends EventEmitter {
   _weatherTemplates: any;
   _vehicles: { [characterId: string]: Vehicle } = {};
   worldObjectManager: WorldObjectManager;
+  plantingManager:PlantingManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _itemDefinitionIds: any[] = Object.keys(this._itemDefinitions);
@@ -163,6 +166,8 @@ export class ZoneServer2016 extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
+    this.plantingManager = new PlantingManager(null);
+
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -2910,6 +2915,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151,
       position: object.state.position,
     });
+    //region Norman added. if it is a crop product, randomly generated product is processed by the planting manager. else, continue
+    if(this.plantingManager.TriggerPicking(item,client,this)) {
+      return;
+    }
+    //endregion
     this.lootItem(client, item, item.stackCount);
     this.deleteEntity(guid, this._objects);
     delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
@@ -3323,6 +3333,12 @@ export class ZoneServer2016 extends EventEmitter {
         useoption = "sniff";
         timeout = 3000;
         break;
+      case 25://Fertilizer
+        this.utilizeHudTimer(client, nameId, timeout, () => {
+          this.plantingManager.FertilizeCrops(client,this);
+          this.removeInventoryItem(client, item);
+        });
+        return;
       default:
         this.sendChatText(
           client,

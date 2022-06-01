@@ -1332,9 +1332,7 @@ export class zonePacketHandlers {
         server.containerError(client, 5); // slot does not contain item
         return;
       }
-      if (!server.removeInventoryItem(client, item)) {
-        return;
-      }
+      let deleteItemAfterProcessing = true;
       const modelId = server.getItemDefinition(
         packet.data.itemDefinitionId
       ).PLACEMENT_MODEL_ID;
@@ -1615,6 +1613,18 @@ export class zonePacketHandlers {
             }, 200);
           }, 3000);
           break;
+          //Ground Tiller
+        case 1383:
+          deleteItemAfterProcessing = server.plantingManager.Reclaim(client,server)
+          break;
+          //Corn Seed
+        case 1987:
+          deleteItemAfterProcessing = server.plantingManager.SowSeed(client,server,1987, item.itemGuid);
+          break;
+          //Wheat Seed
+        case 1988:
+          deleteItemAfterProcessing = server.plantingManager.SowSeed(client,server,1988, item.itemGuid);
+          break;
         default:
           server.lootItem(client, item, 1);
           server.sendData(client, "Construction.PlacementResponse", {
@@ -1622,6 +1632,9 @@ export class zonePacketHandlers {
             model: modelId,
           });
           break;
+      }
+      if(deleteItemAfterProcessing){
+        server.removeInventoryItem(client, item)
       }
     };
     this.containerMoveItem = function (
