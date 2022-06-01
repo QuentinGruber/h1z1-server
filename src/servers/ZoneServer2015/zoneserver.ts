@@ -982,7 +982,7 @@ export class ZoneServer2015 extends EventEmitter {
     this.characterData(client);
 
     this.sendData(client, "Command.ItemDefinitions", {
-      definitionsData: {
+      data: {
         itemDefinitions: this._items,
       },
     });

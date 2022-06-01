@@ -2497,7 +2497,6 @@ export const basePackets: any = [
     },
   ],
   ["ClientExitLaunchUrl", 0x3d, {}],
-  ["ClientPath", 0x3e, {}],
   ["ClientPendingKickFromServer", 0x3f, {}],
   [
     "MembershipActivation",

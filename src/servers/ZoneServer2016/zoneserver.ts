@@ -376,6 +376,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (err) {
       console.error(err);
     } else {
+      if(!client){
+        return;
+      }
       client.pingTimer?.refresh();
       if (
         packet.name != "KeepAlive" &&
@@ -3153,6 +3156,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.lootContainerItem(client, this.generateItem(1441), 1, sendPacket); // compass
     this.lootContainerItem(client, this.generateItem(1751), 5, sendPacket); // gauze
     this.lootContainerItem(client, this.generateItem(1804), 1, sendPacket); // flare
+    this.lootContainerItem(client, this.generateItem(1436), 1, sendPacket); // lighter
   }
 
   clearInventory(client: Client) {

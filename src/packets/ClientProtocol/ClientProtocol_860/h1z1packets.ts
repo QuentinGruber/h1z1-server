@@ -68,6 +68,7 @@ import { wallOfDataPackets } from "./wallOfData";
 import { warpgatePackets } from "./warpgate";
 import { wordFilterPackets } from "./wordFilter";
 import { zoneSettingPackets } from "./zoneSetting";
+import { clientPathPackets } from "./clientPath";
 
 const packets: any = [
   ...basePackets,
@@ -126,6 +127,7 @@ const packets: any = [
   ...warpgatePackets,
   ...wordFilterPackets,
   ...zoneSettingPackets,
+  ...clientPathPackets,
 ];
 
 const [packetTypes, packetDescriptors] = PacketTableBuild(packets);
