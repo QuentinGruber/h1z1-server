@@ -78,7 +78,8 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
-  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions");
+  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
+  profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
 
 @healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
@@ -565,6 +566,11 @@ export class ZoneServer2016 extends EventEmitter {
       this.packItemDefinitions();
     }
     this.sendRawData(client, this.itemDefinitionsCache);
+    this.sendData(client, "ReferenceData.ProfileDefinitions", {
+      data: {
+        profiles: profileDefinitions
+      }
+    });
     this.sendData(client, "ReferenceData.WeaponDefinitions", {
       data: {
         definitionsData: weaponDefinitions
@@ -660,9 +666,9 @@ export class ZoneServer2016 extends EventEmitter {
         profiles: [ // CORRECT profileId for loadoutId 3
           {
             profileId: 5,
-            nameId: 1,
-            descriptionId: 1,
-            type: 1,
+            nameId: 66,
+            descriptionId: 66,
+            type: 3,
             unknownDword1: 0,
             unknownArray1: []
           }

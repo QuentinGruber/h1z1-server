@@ -2391,7 +2391,7 @@ export type h1z1PacketsType =
   | "Recipe.Discoveries"
   | "ReferenceData.ItemClassDefinitions"
   | "ReferenceData.ItemCategoryDefinitions"
-  | "ReferenceData.ClientProfileData"
+  | "ReferenceData.ProfileDefinitions"
   | "ReferenceData.WeaponDefinitions"
   | "ReferenceData.ProjectileDefinitions"
   | "ReferenceData.VehicleDefinitions"

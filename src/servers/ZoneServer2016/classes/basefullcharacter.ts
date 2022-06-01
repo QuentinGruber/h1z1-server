@@ -135,7 +135,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           equipmentSlotData: {
             equipmentSlotId: slot.slotId,
             guid: slot.guid || "",
-            tintAlias: slot.tintAlias || "",
+            tintAlias: slot.tintAlias || "Default",
             decalAlias: slot.tintAlias || "#",
           },
         }
@@ -154,7 +154,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       ? {
           modelName: slot.modelName,
           textureAlias: slot.textureAlias || "",
-          tintAlias: slot.tintAlias || "",
+          tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.tintAlias || "#",
           slotId: slot.slotId,
         }
@@ -183,7 +183,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   pGetEquipment() {
     return {
       characterData: {
-        profileId: 3,
+        profileId: 5,
         characterId: this.characterId,
       },
       unknownDword1: 0,
