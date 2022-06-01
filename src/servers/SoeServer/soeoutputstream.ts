@@ -13,6 +13,7 @@
 
 import { EventEmitter } from "events";
 import { RC4 } from "h1emu-core";
+import { wrappedUint16 } from "../../utils/utils";
 import { dataCache } from "types/soeserver";
 
 const debug = require("debug")("SOEOutputStream");
@@ -20,34 +21,26 @@ const debug = require("debug")("SOEOutputStream");
 export class SOEOutputStream extends EventEmitter {
   private _useEncryption: boolean = false;
   private _fragmentSize: number = 0;
-  private _sequence: number = -1;
-  private _lastAck: number = -1;
+  private _sequence: wrappedUint16 = new wrappedUint16(-1);
+  private _lastAck: wrappedUint16 = new wrappedUint16(-1);
   private _cache: dataCache = {};
 
   private _rc4: RC4;
   private _hadCacheError: boolean = false;
-  private _maxCache: number = 50000;
-  private _cacheSize: number = 0;
   constructor(cryptoKey: Uint8Array) {
     super();
     this._rc4 = new RC4(cryptoKey);
   }
 
   addToCache(sequence: number, data: Buffer, isFragment: boolean) {
-    if (this._cacheSize < this._maxCache) {
-      this._cacheSize++;
       this._cache[sequence] = {
         data: data,
         fragment: isFragment,
       };
-    } else {
-      console.error("Cache is full, dropping data sequence: " + sequence);
-    }
   }
 
   removeFromCache(sequence: number): void {
     if (!!this._cache[sequence]) {
-      this._cacheSize--;
       delete this._cache[sequence];
     }
   }
@@ -63,31 +56,32 @@ export class SOEOutputStream extends EventEmitter {
       }
     }
     if (data.length <= this._fragmentSize) {
-      this._sequence++;
-      this.addToCache(this._sequence, data, false);
-      this.emit("data", null, data, this._sequence, false);
+      this._sequence.increment();
+      this.addToCache(this._sequence.get(), data, false);
+      this.emit("data", null, data, this._sequence.get(), false);
     } else {
       const header = Buffer.allocUnsafe(4);
       header.writeUInt32BE(data.length, 0);
       data = Buffer.concat([header, data]);
       for (let i = 0; i < data.length; i += this._fragmentSize) {
-        this._sequence++;
+        this._sequence.increment();
         const fragmentData = data.slice(i, i + this._fragmentSize);
-        this.addToCache(this._sequence, fragmentData, true);
+        this.addToCache(this._sequence.get(), fragmentData, true);
 
-        this.emit("data", null, fragmentData, this._sequence, true);
+        this.emit("data", null, fragmentData, this._sequence.get(), true);
       }
     }
   }
 
   ack(sequence: number, unAckData: Map<number, number>): void {
     // delete all data / timers cached for the sequences behind the given ack sequence
-    while (this._lastAck <= sequence) {
-      this.removeFromCache(this._lastAck);
-      if (unAckData.has(this._lastAck)) {
-        unAckData.delete(this._lastAck);
+    while (this._lastAck.get() !== sequence + 1) {
+      const lastAck = this._lastAck.get();
+      this.removeFromCache(lastAck);
+      if (unAckData.has(lastAck)) {
+        unAckData.delete(lastAck);
       }
-      this._lastAck++;
+      this._lastAck.increment();
     }
   }
 
