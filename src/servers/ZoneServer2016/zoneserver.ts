@@ -376,6 +376,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (err) {
       console.error(err);
     } else {
+      if(!client){
+        return;
+      }
       client.pingTimer?.refresh();
       if (
         packet.name != "KeepAlive" &&
