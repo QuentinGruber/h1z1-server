@@ -26,8 +26,8 @@ export const uiPackets: any = [
   ["Ui.WeaponHitFeedback", 0x1a10, {}],
   ["Ui.HeadShotFeedback", 0x1a11, {
    fields: [
-        { name: "Unknown3", type: "boolean", defaultValue: 0 },
-        { name: "Unknown4", type: "boolean", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
+        { name: "unknownBoolean2", type: "boolean", defaultValue: 0 },
       ],
     }
   ],
