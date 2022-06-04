@@ -973,6 +973,7 @@ export class WorldObjectManager {
         });
         authorizedItems.push({ id: Items.WEAPON_HATCHET, count: 1 });
         authorizedItems.push({ id: Items.WATER_EMPTY, count: 1 });
+        authorizedItems.push({ id: Items.GROUND_TILLER, count: 1 });
         break;
       default:
         break;
