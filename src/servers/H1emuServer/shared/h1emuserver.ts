@@ -88,7 +88,7 @@ export abstract class H1emuServer extends EventEmitter {
     // blocks zone from sending packet without open session
     if (!client || (!client.session && packetName !== "SessionRequest")) return;
     const data = this._protocol.pack(packetName, obj);
-    if(data) {
+    if (data) {
       this._connection.postMessage(
         {
           type: "sendPacket",

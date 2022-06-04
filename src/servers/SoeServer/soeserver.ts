@@ -109,7 +109,7 @@ export class SOEServer extends EventEmitter {
       const logicalPacket = client.priorityQueue.shift();
       if (logicalPacket) {
         // if is a reliable packet
-        if(logicalPacket.isReliable && logicalPacket.sequence){
+        if (logicalPacket.isReliable && logicalPacket.sequence) {
           client.unAckData.set(logicalPacket.sequence, Date.now());
         }
         this._sendPhysicalPacket(client, logicalPacket.data);
@@ -124,7 +124,7 @@ export class SOEServer extends EventEmitter {
       const logicalPacket = client.outQueue.shift();
       if (logicalPacket) {
         // if is a reliable packet
-        if(logicalPacket.isReliable && logicalPacket.sequence){
+        if (logicalPacket.isReliable && logicalPacket.sequence) {
           client.unAckData.set(logicalPacket.sequence, Date.now());
         }
         this._sendPhysicalPacket(client, logicalPacket.data);
@@ -195,7 +195,10 @@ export class SOEServer extends EventEmitter {
         // if a packet in the waiting queue is a reliable packet, then we need to set the timeout
         for (let index = 0; index < client.waitingQueue.length; index++) {
           const packet = client.waitingQueue[index];
-          if(packet.sequence && packet.name === "Data" || packet.name === "DataFragment"){ 
+          if (
+            (packet.sequence && packet.name === "Data") ||
+            packet.name === "DataFragment"
+          ) {
             client.unAckData.set(packet.sequence, Date.now());
           }
         }
@@ -486,9 +489,10 @@ export class SOEServer extends EventEmitter {
       packet.data = [...packet.data];
     }
     try {
-      const logicalPacket = new LogicalPacket(Buffer.from(
-        this._protocol.pack(packetName, JSON.stringify(packet))
-      ),packet.sequence)
+      const logicalPacket = new LogicalPacket(
+        Buffer.from(this._protocol.pack(packetName, JSON.stringify(packet))),
+        packet.sequence
+      );
       return logicalPacket;
     } catch (e) {
       console.error(

@@ -524,7 +524,7 @@ export class ZoneServer2015 extends EventEmitter {
       }
       this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
         serverId: this._worldId,
-        h1emuVersion: process.env.H1Z1_SERVER_VERSION
+        h1emuVersion: process.env.H1Z1_SERVER_VERSION,
       });
       this._h1emuZoneServer.start();
       this.sendZonePopulationUpdate();

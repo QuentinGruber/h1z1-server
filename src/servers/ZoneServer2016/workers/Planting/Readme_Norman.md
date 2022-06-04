@@ -1,155 +1,154 @@
-######2022年03月15日22:45:46
+######2022 年 03 月 15 日 22:45:46
 ####Hi i'm norman
 #####I will write on this file what i do and what i think and what help i need etc.
 
 ######2022-03-16 14:35:59
-######There is what about I remembered planting in the game;
-###**User/Character Grow plants TimeLine**
+######There is what about I remembered planting in the game; ###**User/Character Grow plants TimeLine**
 
 - Open up land/Wasteland utilization
 
-	- Right click planting tool(Ground Tiller)
-	- Click 'Dig'
-	- Select target(it will be reclaimed a land for planting with 4 holes)
+  - Right click planting tool(Ground Tiller)
+  - Click 'Dig'
+  - Select target(it will be reclaimed a land for planting with 4 holes)
 
-	  一个工具只能挖一个地方 也就是4个坑
+    一个工具只能挖一个地方 也就是 4 个坑
 
 - Planting
 
-	- Right click seed
-	- Click 'Place'
-	- Select target
+  - Right click seed
+  - Click 'Place'
+  - Select target
 
 - Waiting for crops to grow
 
-	- Fertilize crops
+  - Fertilize crops
 
-		- Move close to target
-		- Right click the  fertilizer
-		- Click 'Use', then the lands for planting will show you a  hill(2~4 hole per time)
+    - Move close to target
+    - Right click the fertilizer
+    - Click 'Use', then the lands for planting will show you a hill(2~4 hole per time)
 
-	- Uproot crops
+  - Uproot crops
 
-		- Move your mouse to point to the un mature crops. it will show you 'Take xxx seeds'
-		- Type 'E' to take the seeds out
+    - Move your mouse to point to the un mature crops. it will show you 'Take xxx seeds'
+    - Type 'E' to take the seeds out
 
 - Picking mature crops
 
-	- Move to target
-	- Move mouse to point to the mature crops
-	- Press 'E' to take the mature crops(it will be 1~5 random count crops you'll got and if your backpack doesn't have enough space, its will fall to the ground)
+  - Move to target
+  - Move mouse to point to the mature crops
+  - Press 'E' to take the mature crops(it will be 1~5 random count crops you'll got and if your backpack doesn't have enough space, its will fall to the ground)
 
 ######I think the client will support some actions like the blow:
+
 ### Actions
 
 - Reclaim
 
   开垦土地或可种植的区域准备种植
 
-	- on ground
+  - on ground
 
-		- InParameters
+    - InParameters
 
-			- Client
-			- Character
-			- WorldCoordinates
-			- SurfacePlane(if client can send me)
+      - Client
+      - Character
+      - WorldCoordinates
+      - SurfacePlane(if client can send me)
 
-		- Return
+    - Return
 
-	- in water
+  - in water
 
-		- InParameters
+    - InParameters
 
-			- Client
-			- Character
-			- WorldCoordinates
-			- SurfacePlane(if client can send me)
+      - Client
+      - Character
+      - WorldCoordinates
+      - SurfacePlane(if client can send me)
 
-		- Return
+    - Return
 
-	- on basement
+  - on basement
 
-		- way1
+    - way1
 
-			- InParameters
+      - InParameters
 
-				- client
-				- Character
-				- WorldCoordinates(if client can send me)
-				- SurfacePlane(if client can send me)
+        - client
+        - Character
+        - WorldCoordinates(if client can send me)
+        - SurfacePlane(if client can send me)
 
-			- Return
+      - Return
 
-		- way2
+    - way2
 
-			- InParameters
+      - InParameters
 
-				- client
-				- Character
-				- WorldCoordinates
-				- SurfacePlane(if client can send me)
+        - client
+        - Character
+        - WorldCoordinates
+        - SurfacePlane(if client can send me)
 
-			- Return
+      - Return
 
 - SowingSeed
 
   播种种子
 
-	- InParameters
+  - InParameters
 
-		- Client
-		- Character
-		- Hole(target)
-		- Seed
+    - Client
+    - Character
+    - Hole(target)
+    - Seed
 
-	- Return
+  - Return
 
 - FertilizeCrops
 
   为农作物施肥
 
-	- InParameters
+  - InParameters
 
-		- Client
-		- Character
-		- (Character)WorldCoordinates
+    - Client
+    - Character
+    - (Character)WorldCoordinates
 
-		  因为施肥是站在农作物右键使用化肥来进行,所以只需要给定人物的世界坐标即可对周围范围内的土地施肥
+      因为施肥是站在农作物右键使用化肥来进行,所以只需要给定人物的世界坐标即可对周围范围内的土地施肥
 
-		- FertilizerObject
+    - FertilizerObject
 
-	- Return
+  - Return
 
 - UprootCrops
 
   连根拔起农作物/铲除他们
 
-	- InParameters
+  - InParameters
 
-		- Client
-		- Character
-		- Hole
+    - Client
+    - Character
+    - Hole
 
-	- Return
+  - Return
 
 - PickingCrops
 
   采摘已经成熟的果实
 
-	- InParameters
+  - InParameters
 
-		- Client
-		- Character
-		- CropsPile(Target)
+    - Client
+    - Character
+    - CropsPile(Target)
 
-	- Return
-	
-	
+  - Return
 
 ######Now I will think about the frame that will include the manager and data object.
 ######The server will include 2 Managers and some ObjectModules right now.
 ######It's like the blow:
+
 ### FarmlandManager
 
 关于种植的一些方面在这里管理.比如
@@ -176,73 +175,73 @@
 
 - Furrow2
 
-  农田,可以播种的一块土地(但在H1Z1中,他是以一个一个的小方块展示的,所以我们其实应该叫他:土堆
-  所以我从Farmland改变为LandForPlanting
-  之前我写了Farmland并且写了Hole/Other target which can plant 
+  农田,可以播种的一块土地(但在 H1Z1 中,他是以一个一个的小方块展示的,所以我们其实应该叫他:土堆
+  所以我从 Farmland 改变为 LandForPlanting
+  之前我写了 Farmland 并且写了 Hole/Other target which can plant 
   但是我想他们实际上可以精简并且本来就是这样.
   在游戏中的土地,本身就是一块一块的,而不是一个农场里面有多块土地
-  后来,我又把LandForPlanting 改为 Furrow为垄沟的意思,原因是我在youtube上查到了关于种植的视频,看到可种植的地方显示为垄沟而不是一个小土包或者一块方形的土地
+  后来,我又把 LandForPlanting 改为 Furrow 为垄沟的意思,原因是我在 youtube 上查到了关于种植的视频,看到可种植的地方显示为垄沟而不是一个小土包或者一块方形的土地
 
-	- ID
-	- Owner
-	- WorldCoordinates
-	- SurfacePlane
-	- CreateTime
-	- ExpirationTime
-	- State
+  - ID
+  - Owner
+  - WorldCoordinates
+  - SurfacePlane
+  - CreateTime
+  - ExpirationTime
+  - State
 
-		- Disposed
+    - Disposed
 
 - Hole
 
-	- ID
-	- Owner
-	- ParentFurrow2
-	- IndexOfFurrow2
-	- FertilizerAreEffective
-	- CreateTime
-	- State
+  - ID
+  - Owner
+  - ParentFurrow2
+  - IndexOfFurrow2
+  - FertilizerAreEffective
+  - CreateTime
+  - State
 
-		- Empty
-		- HasSeed
+    - Empty
+    - HasSeed
 
-			- HasCornSeed
-			- HasWheatSeed
+      - HasCornSeed
+      - HasWheatSeed
 
-		- Disposed
+    - Disposed
 
 - Seed
 
-	- ID
-	- Owner/Character
-	- Name
+  - ID
+  - Owner/Character
+  - Name
 
-		- Corn Seed
-		- Wheat Seed
+    - Corn Seed
+    - Wheat Seed
 
-	- HoleId
+  - HoleId
 
-	  种子用在了哪个小坑里面
+    种子用在了哪个小坑里面
 
 - Fertilizer
 
-	- ID
-	- Owner
-	- UsedForHolesIdList
+  - ID
+  - Owner
+  - UsedForHolesIdList
 
-	  用到了哪些坑上面
+    用到了哪些坑上面
 
 - Planting tool
 
-	- Id
-	- Owner
-	- Name
+  - Id
+  - Owner
+  - Name
 
-		- Ground Tiller
+    - Ground Tiller
 
-		  用于在基地上,土地上,水里,开发可以种植的土地
+      用于在基地上,土地上,水里,开发可以种植的土地
 
-	- Durability
+  - Durability
 
 - CropsPile
 
@@ -251,67 +250,60 @@
   每一次进行采摘,都会对该表中保存的农作物的剩余数量--;
   同时,农作物可以根据本表的状态来判断农作物的显示模型和剩余时间.
 
-	- Id
-	- SeedId
-	- Furrow2Id
-	- State
+  - Id
+  - SeedId
+  - Furrow2Id
+  - State
 
-		- Baby
-		- Toddler
-		- Teenager
-		- Mature
-		- Aging
-		- Corpse
+    - Baby
+    - Toddler
+    - Teenager
+    - Mature
+    - Aging
+    - Corpse
 
-	- CurrentNameAndState
+  - CurrentNameAndState
 
-		- Such lick [Growing Corn]
+    - Such lick [Growing Corn]
 
-	- FertilizerEffectiveRemainingTime
+  - FertilizerEffectiveRemainingTime
 
-	  化肥能效还剩余多少时间
+    化肥能效还剩余多少时间
 
-	- MatureCropsRemainingCount
-	- NextState
-	- NextStateRemainingTime
-	
-	
-	
-	
-	
-
-
+  - MatureCropsRemainingCount
+  - NextState
+  - NextStateRemainingTime
 
 ######If that case, there maybe a PlantingManager to be a bridge between Client side and Server side.
+
 ## PlantingManager
 
 ### Data'sModal
 
 - ClientInformation
 
-	- Character
-	- Client
+  - Character
+  - Client
 
 - StateOfFurrow2
 
-	- Client
-	- Furrow2
+  - Client
+  - Furrow2
 
 - StateOfHoles
 
-	- Client
-	- Furrow2
-	- Holes
+  - Client
+  - Furrow2
+  - Holes
 
 - StateOfGrowingOfCrops
 
-	- Client
-	- Furrow2
-	- Holes
-	- CropsPile
-######The other partner done the UPD server layer and Data translation layer.
-######So I just need to thinking about App layer of the PlantingManager .
-######We have not cooperated yet, and we still need to determine the format and content of the agreement.
-######The contents of the documentation here are just my immature thoughts
+      - Client
+      - Furrow2
+      - Holes
+      - CropsPile
 
-
+  ######The other partner done the UPD server layer and Data translation layer.
+  ######So I just need to thinking about App layer of the PlantingManager .
+  ######We have not cooperated yet, and we still need to determine the format and content of the agreement.
+  ######The contents of the documentation here are just my immature thoughts

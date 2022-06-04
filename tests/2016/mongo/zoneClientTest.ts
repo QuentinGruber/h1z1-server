@@ -1,4 +1,8 @@
-import { ZoneServer2016 as ZoneServer, ZoneClient, LoginServer } from "../../../h1z1-server";
+import {
+  ZoneServer2016 as ZoneServer,
+  ZoneClient,
+  LoginServer,
+} from "../../../h1z1-server";
 
 const character = {
   characterId: "0x3bc1e27032c82ed6",

@@ -33,10 +33,10 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   addToCache(sequence: number, data: Buffer, isFragment: boolean) {
-      this._cache[sequence] = {
-        data: data,
-        fragment: isFragment,
-      };
+    this._cache[sequence] = {
+      data: data,
+      fragment: isFragment,
+    };
   }
 
   removeFromCache(sequence: number): void {

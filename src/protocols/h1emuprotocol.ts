@@ -20,7 +20,10 @@ const packets = [
     "SessionRequest",
     0x01,
     {
-      fields: [{ name: "serverId", type: "uint32", defaultValue: 0 },{ name: "h1emuVersion", type: "string", defaultValue: "" }],
+      fields: [
+        { name: "serverId", type: "uint32", defaultValue: 0 },
+        { name: "h1emuVersion", type: "string", defaultValue: "" },
+      ],
     },
   ],
   [
@@ -136,7 +139,7 @@ const H1emuPackets = {
 };
 
 export class H1emuProtocol {
-  parse(data: Buffer):H1emuProtocolReadingFormat | null {
+  parse(data: Buffer): H1emuProtocolReadingFormat | null {
     const packetType = data.readUInt8(0);
     let result;
     const packet = H1emuPackets.Packets[packetType];
@@ -146,7 +149,7 @@ export class H1emuProtocol {
           result = DataSchema.parse(packet.schema, data, 1).result;
         } catch (e) {
           console.error(`${packet.name} : ${e}`);
-          return null
+          return null;
         }
         return {
           type: packet.type,
@@ -155,11 +158,11 @@ export class H1emuProtocol {
         };
       } else {
         debug("parse()", "No parser for packet " + packet.name);
-        return null
+        return null;
       }
     } else {
       debug("parse()", "Unknown or unhandled H1emu packet type: " + packetType);
-      return null
+      return null;
     }
   }
 
@@ -176,15 +179,15 @@ export class H1emuProtocol {
           packetData.data.copy(data, 1);
         } else {
           debug("Could not pack data schema for " + packet.name);
-          return null
+          return null;
         }
       } else {
         debug("pack()", "No pack function for packet " + packet.name);
-        return null
+        return null;
       }
     } else {
       debug("pack()", "Unknown or unhandled H1emu packet type: " + packetType);
-      return null
+      return null;
     }
     return data;
   }
