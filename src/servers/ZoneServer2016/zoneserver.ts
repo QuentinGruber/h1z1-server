@@ -1538,6 +1538,10 @@ export class ZoneServer2016 extends EventEmitter {
         !client.spawnedEntities.includes(npc)
       ) {
         this.addLightweightNpc(client, npc);
+        this.sendData(client,
+          "Equipment.SetCharacterEquipmentSlot",
+          npc.pGetEquipmentSlotFull(3)
+        );
         client.spawnedEntities.push(npc);
       }
     }

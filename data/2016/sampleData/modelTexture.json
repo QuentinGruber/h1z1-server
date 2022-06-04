@@ -1,0 +1,140 @@
+{
+  "Common_Props_Meat_MeatCooked.adr": [
+    "dyetint"
+  ],
+  "Survivor<gender>_Chest_Shirt_TintTshirt.adr": [
+    "RedWhiteBlue_Tshirt",
+    "ClassicTee_TieDye"
+  ],
+  "Common_Props_AmmoBoxe01.adr": [
+    "dyetint"
+  ],
+  "Hospital_Props_VialEmpty.adr": [
+    "dyetint"
+  ],
+  "Common_Props_BurlapBag_3P.adr": [
+    "dyetint"
+  ],
+  "Survivor<gender>_Back_Backpack_Military.adr": [
+    "Military_CamoBlue",
+    "Military_CamoGreen",
+    "Military_CamoTan"
+  ],
+  "Survivor<gender>_Face_Goggles_Tactical.adr": [
+    "Goggles_Black",
+    "TacticalGoggles_Mittani"
+  ],
+  "Survivor<gender>_Face_Goggles_NightVision.adr": [
+    "DarkGrey"
+  ],
+  "Common_Props_CannedFood_Beets_3P.adr": [
+    "dyetint"
+  ],
+  "Survivor<gender>_Back_Backpack_Makeshift.adr": [
+    "Makeshift_AnimalSkin",
+    "Makeshift_Cloth"
+  ],
+  "Survivor<gender>_Chest_Shirt_FlannelLongSleeve.adr": [
+    "FlannelShirtLong_CamoTan"
+  ],
+  "Survivor<gender>_Chest_Shirt_FlannelVest.adr": [
+    "FlannelVest_Logo",
+    "FlannelVest_Leather"
+  ],
+  "Survivor<gender>_Head_Helmet_TacticalGoggles.adr": [
+    "TacticalGoggles_BlueCamo"
+  ],
+  "Survivor<gender>_Head_Hat_Outback.adr": [
+    "OutbackHat_CamoGreen",
+    "OutbackHat_CanvasTan",
+    "OutbackHat_LeatherBrown",
+    "OutbackHat_LeatherTan",
+    "OutbackHat_CanvasBlack"
+  ],
+  "Survivor<gender>_Head_Hat_Aviator.adr": [
+    "AviatorHat_Brown"
+  ],
+  "Survivor<gender>_Head_Hat_Cowboy.adr": [
+    "CowboyHat_Straw",
+    "CowboyHat_White"
+  ],
+  "Survivor<gender>_Back_Satchel_Makeshift.adr": [
+    "Makeshift_Leather",
+    "Makeshift_Cloth"
+  ],
+  "Survivor<gender>_Legs_Pants_StraightLeg_Sports.adr": [
+    "GolfPants_Sports"
+  ],
+  "Survivor<gender>_Head_Hat_Beanie.adr": [
+    "Beanie_Black",
+    "Beanie_CamoBlue",
+    "Beanie_CamoBrown",
+    "Beanie_CamoGreen",
+    "Beanie_Green",
+    "Beanie_BlackH1Z1"
+  ],
+  "Survivor<gender>_Hair_ShortMessy.adr": [
+    "ShortMessy_Brown"
+  ],
+  "Survivor<gender>_Armor_Makeshift_Wood.adr": [
+    "Makeshift_Wood"
+  ],
+  "Survivor<gender>_Armor_Makeshift_WoodMetal.adr": [
+    "Makeshift_WoodMetal"
+  ],
+  "Survivor<gender>_Feet_CombatBoots_Cheetah.adr": [
+    "default0"
+  ],
+  "Survivor<gender>_Head_Hat_PoliceCap.adr": [
+    "PoliceCap_DarkBlue"
+  ],
+  "Survivor<gender>_Chest_Shirt_UniformPolice.adr": [
+    "Police"
+  ],
+  "Survivor<gender>_Legs_Pants_SlacksPolice.adr": [
+    "Darkblue"
+  ],
+  "Survivor<gender>_Legs_Pants_ShortShorts.adr": [
+    "ShortShorts_Racing"
+  ],
+  "Survivor<gender>_Legs_Pants_LeggingsNoTint.adr": [
+    "Leggings_Plain",
+    "Leggings_Xray",
+    "Leggings_Muscle"
+  ],
+  "Survivor<gender>_Chest_Hoodie_Up.adr": [
+    "Hoodie_Basic",
+    "Hoodie_ESport_OrangeBlack",
+    "Hoodie_Twitch",
+    "Hoodie_BlueBlack",
+    "Hoodie_ESport_BlueWhite"
+  ],
+  "Survivor<gender>_Chest_Hoodie_Down.adr": [
+    "Hoodie_DOA_Navy"
+  ],
+  "Survivor<gender>_Chest_Shirt_Uniform.adr": [
+    "EMT"
+  ],
+  "Survivor<gender>_Armor_Kevlar_Basic.adr": [
+    "Basic_Police"
+  ],
+  "Survivor<gender>_Head_Mask_Scarecrow.adr": [
+    "ScarecrowMask_Tan"
+  ],
+  "Survivor<gender>_Head_Helmet_TacticalSantaHat.adr": [
+    "Default"
+  ],
+  "Survivor<gender>_Head_Helmet_TacticalAntlers.adr": [
+    "Helmet_TacticalAntlers_Red"
+  ],
+  "Survivor<gender>_Chest_Hoodie_Up_Tintable.adr": [
+    "Graffiti_01_TT"
+  ],
+  "Survivor<gender>_Head_Mask_UncleSam.adr": [
+    "Default",
+    "default0"
+  ],
+  "Survivor<gender>_Head_Mask_Pig.adr": [
+    "Default"
+  ]
+}

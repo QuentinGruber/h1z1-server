@@ -17,12 +17,15 @@ const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
+const skinPerModel = require("../../../../data/2016/sampleData/skinsPerModel.json");
 import {
   _,
   eul2quat,
   generateRandomGuid,
   isPosInRadius,
   randomIntFromInterval,
+  bigIntToHexString,
+  getRandomFromArray,
 } from "../../../utils/utils";
 import { Items } from "../enums";
 import { Vehicle2016 } from "./../classes/vehicle";
@@ -103,23 +106,40 @@ export class WorldObjectManager {
       this.lastVehicleRespawnTime = Date.now();
     }
   }
+  equipRandomSkins(server:ZoneServer2016 ,npc: Npc): Npc {
+    switch (npc.actorModelId) {
+      case 9510:{
+        const generatedGuid = bigIntToHexString(server.generateItemGuid())
+        const skins = skinPerModel["SurvivorFemale_Chest_Hoodie_Down.adr"]
+        const skin = skins[Math.floor(Math.random() * skins.length)]
+        npc._equipment[3]={modelName:"SurvivorFemale_Chest_Hoodie_Down.adr",slotId:3,textureAlias:skin,guid:generatedGuid}
+      }
+      case 9634:{
+        const generatedGuid = bigIntToHexString(server.generateItemGuid())
+        const bodyTextures = skinPerModel["SurvivorMale_Chest_Hoodie_Down.adr"]
+        npc._equipment[3]={modelName:"SurvivorMale_Chest_Hoodie_Down.adr",slotId:3,textureAlias:getRandomFromArray(bodyTextures),guid:generatedGuid}
+      }
+    }
+    return npc;
+  }
   createNpc(
     server: ZoneServer2016,
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
     spawnerId: number = 0
-  ) {
+  ) {      
     const characterId = generateRandomGuid();
-
-    server._npcs[characterId] = new Npc(
+    let npc = new Npc(
       characterId,
       server.getTransientId(characterId),
       modelId,
       position,
       rotation,
       spawnerId
-    );
+    ); 
+    npc = this.equipRandomSkins(server,npc);
+    server._npcs[characterId] = npc
     if (spawnerId) this._spawnedNpcs[spawnerId] = characterId;
   }
 
