@@ -80,7 +80,7 @@ const serverItemValues:ServerItemDef[] = Object.values(serverItemDef);
 const modelTexture: Record<string, string[]> = {}
 for (let index = 0; index < serverItemValues.length; index++) {
     const element:ServerItemDef = serverItemValues[index];
-    if(element.TEXTURE_ALIAS && element.MODEL_NAME){
+    if(element.FLAG_CAN_EQUIP){
         if (modelTexture[element.MODEL_NAME] && modelTexture[element.MODEL_NAME].indexOf(element.TEXTURE_ALIAS) === -1) {
             modelTexture[element.MODEL_NAME].push(element.TEXTURE_ALIAS);
         }
@@ -91,3 +91,4 @@ for (let index = 0; index < serverItemValues.length; index++) {
     
 }
 fs.writeFileSync("./data/2016/sampleData/modelTexture.json", JSON.stringify(modelTexture, null, 2));
+console.log(modelTexture)
