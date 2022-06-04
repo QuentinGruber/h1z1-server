@@ -665,9 +665,9 @@ const parseUpdatePositionData = function (data: Buffer, offset: number) {
       offset += v.length;
       v = readSignedIntWith2bitLengthValue(data, offset);
       rotationEul[3] = v.value / 100;
-      obj["rotation"] = eul2quat(rotationEul);
+      obj["rotation"] = eul2quat(new Float32Array(rotationEul));
       obj["rotationRaw"] = rotationEul;
-      obj["lookAt"] = eul2quat([rotationEul[0], 0, 0, 0]);
+      obj["lookAt"] = eul2quat(new Float32Array([rotationEul[0], 0, 0, 0]));
       offset += v.length;
     }
 

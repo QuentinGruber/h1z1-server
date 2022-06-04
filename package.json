@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.20.6",
+  "version": "0.20.7",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -15,25 +15,25 @@
   },
   "dependencies": {
     "@swc/cli": "^0.1.57",
-    "@swc/core": "^1.2.175",
+    "@swc/core": "^1.2.196",
     "debug": "4.3.4",
-    "h1emu-core": "^0.8.8",
+    "h1emu-core": "^0.8.13",
     "h1z1-dataschema": "^1.5.11",
     "mongodb": "4.6.0",
-    "typescript": "4.6.3",
+    "typescript": "^4.7.2",
     "v8-compile-cache": "2.3.0"
   },
   "directories": {
     "src": "./src"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.20.0",
-    "@typescript-eslint/parser": "^5.20.0",
-    "eslint": "^8.13.0",
+    "@typescript-eslint/eslint-plugin": "^5.27.0",
+    "@typescript-eslint/parser": "^5.27.0",
+    "eslint": "^8.16.0",
     "glob": "8.0.3",
     "prettier": "2.6.2",
-    "ts-node": "10.7.0",
-    "typedoc": "0.22.15"
+    "ts-node": "^10.8.0",
+    "typedoc": "^0.22.16"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
@@ -44,10 +44,10 @@
     "lint-quiet": "npx eslint --quiet src",
     "build": "npm run build-all",
     "build-all": "tsc -p ./tsconfig.json",
-    "build-login-2015": "tsc -p ./tsconfig-2015-login.json",
-    "build-login-2016": "tsc -p ./tsconfig-2016-login.json",
-    "build-zone-2015": "tsc -p ./tsconfig-2015-zone.json",
-    "build-zone-2016": "tsc -p ./tsconfig-2016-zone.json",
+    "build-login-2015": "tsc -p ./tsconfigs/tsconfig-2015-login.json",
+    "build-login-2016": "tsc -p ./tsconfigs/tsconfig-2016-login.json",
+    "build-zone-2015": "tsc -p ./tsconfigs/tsconfig-2015-zone.json",
+    "build-zone-2016": "tsc -p ./tsconfigs/tsconfig-2016-zone.json",
     "build-tests": "npx swc tests -d tests_out",
     "build-benchs": "npx swc benchmarks -d benchmarks_out",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
@@ -56,8 +56,9 @@
     "build-swc": "npx swc src -d out",
     "test-zone-client": "node tests_out/2015/zoneClientTest.js",
     "test-login-client": "node tests_out/2015/loginClientTest.js",
+    "test-mongo-2016": "node tests_out/2016/mongo/zoneClientTest.js && node tests_out/2016/mongo/testRuntime.js",
     "test-mongo-2015": "node tests_out/2015/mongo/loginClientTest.js && node tests_out/2015/mongo/zoneClientTest.js && node tests_out/2015/mongo/testRuntime.js",
-    "test-mongo": "npm run test-mongo-2015",
+    "test-mongo": "npm run build-swc && npm run build-tests && npm run test-mongo-2015",
     "test-2015": "node tests_out/2015/testRuntime.js && node tests_out/2015/testIssuesInPacketSchemas.js && npm run test-login-client && npm run test-zone-client",
     "test-2016": "node tests_out/2016/testRuntime.js && node tests_out/2016/testIssuesInPacketSchemas.js",
     "test": "npm run build-swc && npm run build-tests && npm run test-2015 && npm run test-2016",

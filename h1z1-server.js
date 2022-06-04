@@ -15,7 +15,7 @@ process.env.isBin && require('v8-compile-cache');
 require("./out/utils/processErrorHandling")
 
 const PackageSetting = require("./package.json");
-
+process.env.H1Z1_SERVER_VERSION = PackageSetting.version;
 console.log(
   `${PackageSetting.name} V${PackageSetting.version} by H1emu community`
 );

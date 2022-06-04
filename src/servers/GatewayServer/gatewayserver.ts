@@ -22,10 +22,10 @@ const debug = require("debug")("GatewayServer");
 export class GatewayServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: GatewayProtocol;
-  _compression: number;
-  _crcSeed: number;
-  _crcLength: crc_length_options;
-  _udpLength: number;
+  private _compression: number;
+  private _crcSeed: number;
+  private _crcLength: crc_length_options;
+  private _udpLength: number;
 
   constructor(
     protocolName: string,
@@ -38,11 +38,7 @@ export class GatewayServer extends EventEmitter {
     this._crcLength = 0;
     this._udpLength = 512;
 
-    this._soeServer = new SOEServer(
-      protocolName,
-      serverPort,
-      gatewayKey
-    ) as any; // as any since SOEServer isn't typed
+    this._soeServer = new SOEServer(protocolName, serverPort, gatewayKey);
     this._soeServer._useEncryption = false; // communication is encrypted only after loginRequest
     this._protocol = new GatewayProtocol();
     this._soeServer.on("disconnect", (err: string, client: SOEClient) => {

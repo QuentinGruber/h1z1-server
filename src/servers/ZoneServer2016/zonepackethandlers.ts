@@ -105,8 +105,6 @@ export class zonePacketHandlers {
         skyData: server._weather2016,
       }); // Needed for trees
 
-      server.sendData(client, "QuickChat.SendData", { commands: [] });
-
       server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
         done: true,
       }); // Required for WaitForWorldReady
@@ -117,52 +115,6 @@ export class zonePacketHandlers {
 
       server.customizeDTO(client);
 
-      server.sendData(client, "ZoneSetting.Data", {
-        settings: [
-          {
-            hash: joaat("zonesetting.deploy.on.login".toUpperCase()),
-            value: 1,
-            settingType: 2,
-            unknown1: 0,
-            unknown2: 0,
-          },
-          {
-            hash: joaat("zonesetting.no.acquisition.timers".toUpperCase()),
-            value: 1,
-            settingType: 2,
-            unknown1: 0,
-            unknown2: 0,
-          },
-          {
-            hash: joaat("zonesetting.XpMultiplier".toUpperCase()),
-            value: 1,
-            settingType: 1,
-            unknown1: 0,
-            unknown2: 0,
-          },
-          {
-            hash: joaat("zonesetting.disabletrialitems".toUpperCase()),
-            value: 1,
-            settingType: 2,
-            unknown1: 0,
-            unknown2: 0,
-          },
-          {
-            hash: joaat("zonesetting.isvrzone".toUpperCase()),
-            value: 0,
-            settingType: 2,
-            unknown1: 0,
-            unknown2: 0,
-          },
-          {
-            hash: joaat("zonesetting.no.resource.costs".toUpperCase()),
-            value: 1,
-            settingType: 2,
-            unknown1: 0,
-            unknown2: 0,
-          },
-        ],
-      });
       client.character.startRessourceUpdater(client, server);
       server.sendData(client, "Character.CharacterStateDelta", {
         guid1: client.guid,
@@ -172,43 +124,7 @@ export class zonePacketHandlers {
         gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
       });
 
-      // client.character.currentLoadoutId = 3;
-      /*
-        server.sendData(client, "Loadout.SetCurrentLoadout", {
-          guid: client.character.guid,
-          loadoutId: client.character.currentLoadoutId,
-        });
-        */
-
       server.sendData(client, "ZoneDoneSendingInitialData", {}); // Required for WaitForWorldReady
-
-      const commands = [
-        "hax",
-        "dev",
-        "admin",
-        "location",
-        "serverinfo",
-        "spawninfo",
-        "help",
-        "netstats",
-      ];
-
-      commands.forEach((command) => {
-        server.sendData(client, "Command.AddWorldCommand", {
-          command: command,
-        });
-      });
-
-      server.sendData(client, "Synchronization", {
-        serverTime: Int64String(server.getServerTime()),
-        serverTime2: Int64String(server.getServerTime()),
-      });
-
-      server.sendData(client, "Character.WeaponStance", {
-        // activates weaponstance key
-        characterId: client.character.characterId,
-        stance: 1,
-      });
     };
     this.ClientFinishedLoading = function (
       server: ZoneServer2016,
@@ -218,13 +134,24 @@ export class zonePacketHandlers {
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
       if (client.firstLoading) {
-        server.sendData(client, "POIChangeMessage", {
-          // welcome POI message
-          messageStringId: 20,
-          id: 99,
-        });
-        server.sendChatText(client, "Welcome to H1emu ! :D", true);
-        server.sendGlobalChatText(
+        setTimeout(() => {
+          server.sendData(client, "POIChangeMessage", {
+            // welcome POI message
+            messageStringId: 20,
+            id: 99,
+          });
+          server.sendChatText(client, "Welcome to H1emu ! :D", true);
+          server.sendChatText(
+            client,
+            `server population : ${_.size(server._characters)}`
+          );
+          if (client.isAdmin) {
+            server.sendChatText(client, "You are an admin !");
+          }
+        }, 10000);
+
+        server.sendChatTextToAllOthers(
+          client,
           `${client.character.name} has joined the server !`
         );
         client.firstLoading = false;
@@ -233,6 +160,34 @@ export class zonePacketHandlers {
           () => server.saveCharacterPosition(client),
           30000
         );
+        const commands = [
+          "hax",
+          "dev",
+          "admin",
+          "location",
+          "serverinfo",
+          "spawninfo",
+          "help",
+          "netstats",
+          "me",
+        ];
+
+        commands.forEach((command) => {
+          server.sendData(client, "Command.AddWorldCommand", {
+            command: command,
+          });
+        });
+
+        server.sendData(client, "Synchronization", {
+          serverTime: Int64String(server.getServerTime()),
+          serverTime2: Int64String(server.getServerTime()),
+        });
+
+        server.sendData(client, "Character.WeaponStance", {
+          // activates weaponstance key
+          characterId: client.character.characterId,
+          stance: 1,
+        });
         server.giveStartingItems(client, true);
         server.updateEquipment(client); // needed or third person character will be invisible
         server.updateLoadout(client); // needed or all loadout context menu entries aren't shown
@@ -389,7 +344,9 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("ClientLogout");
-      clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
+      if (client.hudTimer) {
+        clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
+      }
       server.deleteClient(client);
     };
     this.GameTimeSync = function (
@@ -422,6 +379,9 @@ export class zonePacketHandlers {
       const args: string[] = packet.data.arguments.toLowerCase().split(" ");
       const commandName = args[0];
       switch (packet.data.commandHash) {
+        case 4265452888: // /me
+          server.sendChatText(client, `ZoneClientId :${client.loginSessionId}`);
+          break;
         case 3720768430: // /respawn
           server.killCharacter(client);
           break;
@@ -664,6 +624,7 @@ export class zonePacketHandlers {
         server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
         return;
       }
+      server.dismountVehicle(client);
       const timerTime = 10000;
       server.sendData(client, "ClientUpdate.StartTimer", {
         stringId: 0,
@@ -1023,6 +984,7 @@ export class zonePacketHandlers {
           server._objects[guid] ||
           server._vehicles[guid] ||
           server._doors[guid] ||
+          server._npcs[guid] ||
           0,
         entityType = server._objects[guid]
           ? 1
@@ -1030,6 +992,8 @@ export class zonePacketHandlers {
           ? 2
           : 0 || server._doors[guid]
           ? 3
+          : 0 || server._npcs[guid]
+          ? 4
           : 0;
 
       if (
@@ -1074,6 +1038,17 @@ export class zonePacketHandlers {
             effectId: door.isOpen ? door.closeSound : door.openSound,
           });
           door.isOpen = !door.isOpen;
+          break;
+        case 4: // npc
+          const npc = entityData as Npc;
+          server.sendDataToAllWithSpawnedEntity(
+            server._npcs,
+            npc.characterId,
+            "Character.StartMultiStateDeath",
+            {
+              characterId: npc.characterId,
+            }
+          );
           break;
         default:
           break;
@@ -1364,9 +1339,7 @@ export class zonePacketHandlers {
         server.containerError(client, 5); // slot does not contain item
         return;
       }
-      if (!server.removeInventoryItem(client, item)) {
-        return;
-      }
+      let deleteItemAfterProcessing = true;
       const modelId = server.getItemDefinition(
         packet.data.itemDefinitionId
       ).PLACEMENT_MODEL_ID;
@@ -1647,6 +1620,31 @@ export class zonePacketHandlers {
             }, 200);
           }, 3000);
           break;
+        //Ground Tiller
+        case 1383:
+          deleteItemAfterProcessing = server.plantingManager.Reclaim(
+            client,
+            server
+          );
+          break;
+        //Corn Seed
+        case 1987:
+          deleteItemAfterProcessing = server.plantingManager.SowSeed(
+            client,
+            server,
+            1987,
+            item.itemGuid
+          );
+          break;
+        //Wheat Seed
+        case 1988:
+          deleteItemAfterProcessing = server.plantingManager.SowSeed(
+            client,
+            server,
+            1988,
+            item.itemGuid
+          );
+          break;
         default:
           server.lootItem(client, item, 1);
           server.sendData(client, "Construction.PlacementResponse", {
@@ -1654,6 +1652,9 @@ export class zonePacketHandlers {
             model: modelId,
           });
           break;
+      }
+      if (deleteItemAfterProcessing) {
+        server.removeInventoryItem(client, item);
       }
     };
     this.containerMoveItem = function (

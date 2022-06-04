@@ -44,6 +44,7 @@ export class GatewayProtocol {
             result = DataSchema.parse(packet.schema, data, 1).result;
           } catch (e) {
             console.error(`${packet.name} : ${e}`);
+            return null;
           }
           return {
             type: packet.type,

@@ -12,9 +12,11 @@
 // ======================================================================
 
 import { RemoteInfo } from "dgram";
+import { wrappedUint16 } from "../../utils/utils";
 import { soePacket } from "../../types/soeserver";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
+import { LogicalPacket } from "./logicalPacket";
 
 interface SOEClientStats {
   totalPacketSent: number;
@@ -33,13 +35,13 @@ export default class SOEClient {
   compression: number;
   useEncryption: boolean = true;
   waitingQueue: soePacket[] = [];
-  outQueue: Buffer[] = [];
-  priorityQueue: Buffer[] = [];
+  outQueue: LogicalPacket[] = [];
+  priorityQueue: LogicalPacket[] = [];
   protocolName: string = "unset";
   unAckData: Map<number, number> = new Map();
   outOfOrderPackets: soePacket[] = [];
-  nextAck: number = -1;
-  lastAck: number = -1;
+  nextAck: wrappedUint16 = new wrappedUint16(-1);
+  lastAck: wrappedUint16 = new wrappedUint16(-1);
   inputStream: SOEInputStream;
   outputStream: SOEOutputStream;
   waitQueueTimer?: NodeJS.Timeout;

@@ -16,7 +16,6 @@ var client = new LoginClient(
 client.connect();
 console.log("connect");
 client.on("login", (err, res) => {
-  console.log(res);
   if (res.loggedIn) {
     client.requestServerList();
   }
@@ -27,7 +26,6 @@ client.on("serverlist", (err, res) => {
 });
 client.on("characterinfo", (err, res) => {
   console.log(`Get characterinfo`);
-  console.log(res);
   setTimeout(() => {
     client.requestCharacterLogin("0x0000000000000001", 1, {
       locale: "EnUS",
@@ -38,7 +36,6 @@ client.on("characterinfo", (err, res) => {
 });
 client.on("characterlogin", (err, res) => {
   console.log(`Get characterlogin`);
-  console.log(res);
   process.exit(0);
 });
 

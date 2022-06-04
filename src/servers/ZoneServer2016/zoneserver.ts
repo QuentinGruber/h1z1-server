@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { PlantingManager } from "./workers/Planting/PlantingManager";
+
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
 
@@ -49,6 +51,7 @@ import {
   randomIntFromInterval,
   Scheduler,
   generateTransientId,
+  objectIsEmpty,
 } from "../../utils/utils";
 
 import { Db, MongoClient } from "mongodb";
@@ -85,8 +88,7 @@ export class ZoneServer2016 extends EventEmitter {
   _protocol: H1Z1Protocol;
   _db?: Db;
   _soloMode = false;
-  _mongoClient?: MongoClient;
-  _mongoAddress: string;
+  private _mongoAddress: string;
   _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
   _clientProtocol = "ClientProtocol_1080";
@@ -94,7 +96,7 @@ export class ZoneServer2016 extends EventEmitter {
   _dynamicWeatherEnabled = true;
   _defaultWeatherTemplate = "z1br";
   _spawnLocations = spawnLocations;
-  _h1emuZoneServer!: H1emuZoneServer;
+  private _h1emuZoneServer!: H1emuZoneServer;
   _appDataFolder = getAppDataFolderPath();
   _worldId = 0;
 
@@ -107,33 +109,41 @@ export class ZoneServer2016 extends EventEmitter {
   _props: any = {};
   _speedTrees: any = {};
   _gameTime: any;
-  _time = Date.now();
   _serverTime = this.getCurrentTime();
   _startTime = 0;
   _startGameTime = 0;
   _timeMultiplier = 72;
   _cycleSpeed = 100;
   _frozeCycle = false;
-  tickRate = 3000;
+  tickRate = 300;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
   _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110,
   };
-  worldRoutineTimer: any;
+  worldRoutineTimer!: NodeJS.Timeout;
   _npcRenderDistance = 350;
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
-    : [];
+    : [
+        "tp",
+        "spawnnpc",
+        "rat",
+        "normalsize",
+        "drive",
+        "parachute",
+        "spawnvehicle",
+        "hood",
+      ];
   _interactionDistance = 4;
   _pingTimeoutTime = 120000;
   _weather2016: Weather2016;
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
   _vehicles: { [characterId: string]: Vehicle } = {};
-  _reloadPacketsInterval: any;
   worldObjectManager: WorldObjectManager;
+  plantingManager: PlantingManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _itemDefinitionIds: any[] = Object.keys(this._itemDefinitions);
@@ -141,9 +151,8 @@ export class ZoneServer2016 extends EventEmitter {
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
   _containerDefinitionIds: any[] = Object.keys(this._containerDefinitions);
-  _respawnLocations: any;
   _recipes: { [recipeId: number]: any } = recipes;
-  lastItemGuid: bigint = 0x3000000000000000n;
+  private lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
 
   constructor(
@@ -165,34 +174,9 @@ export class ZoneServer2016 extends EventEmitter {
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._weatherTemplates = localWeatherTemplates;
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
-    this._respawnLocations = spawnLocations.map((spawn: any) => {
-      return {
-        guid: this.generateGuid(),
-        respawnType: 4,
-        position: spawn.position,
-        unknownDword1: 1,
-        unknownDword2: 1,
-        iconId1: 1,
-        iconId2: 1,
-        respawnTotalTime: 10,
-        respawnTimeMs: 10000,
-        nameId: 1,
-        distance: 1000,
-        unknownByte1: 1,
-        unknownByte2: 1,
-        unknownData1: {
-          unknownByte1: 1,
-          unknownByte2: 1,
-          unknownByte3: 1,
-          unknownByte4: 1,
-          unknownByte5: 1,
-        },
-        unknownDword4: 1,
-        unknownByte3: 1,
-        unknownByte4: 1,
-      };
-    });
     this.worldObjectManager = new WorldObjectManager();
+    this.plantingManager = new PlantingManager(null);
+
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -210,7 +194,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     this._gatewayServer.on(
       "login",
-      (
+      async (
         err: string,
         client: SOEClient,
         characterId: string,
@@ -233,6 +217,17 @@ export class ZoneServer2016 extends EventEmitter {
           characterId,
           generatedTransient
         );
+        if (!this._soloMode) {
+          zoneClient.isAdmin =
+            (await this._db
+              ?.collection("admins")
+              .findOne({
+                sessionId: zoneClient.loginSessionId,
+                serverId: this._worldId,
+              })) != undefined;
+        } else {
+          zoneClient.isAdmin = true;
+        }
         this._clients[client.sessionId] = zoneClient;
         this._characters[characterId] = zoneClient.character;
         zoneClient.pingTimer = setTimeout(() => {
@@ -399,6 +394,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (err) {
       console.error(err);
     } else {
+      if (!client) {
+        return;
+      }
       client.pingTimer?.refresh();
       if (
         packet.name != "KeepAlive" &&
@@ -527,8 +525,10 @@ export class ZoneServer2016 extends EventEmitter {
 
     let isRandomlySpawning = false;
     if (
-      _.isEqual(character.position, [0, 0, 0, 1]) &&
-      _.isEqual(character.rotation, [0, 0, 0, 1])
+      (_.isEqual(character.position, [0, 0, 0, 1]) &&
+        _.isEqual(character.rotation, [0, 0, 0, 1])) ||
+      objectIsEmpty(character.position) ||
+      objectIsEmpty(character.rotation)
     ) {
       // if position/rotation hasn't changed
       isRandomlySpawning = true;
@@ -546,9 +546,21 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     } else {
-      client.character.state.position = character.position;
-      client.character.state.rotation = character.rotation;
+      const e = Object.values(character.position) as number[];
+      client.character.state.position = new Float32Array(e);
+      client.character.state.rotation = new Float32Array(
+        Object.values(character.rotation)
+      );
     }
+
+    // If position or rotation isn't a float32array it will make the server crash
+    client.character.state.position = new Float32Array(
+      client.character.state.position
+    );
+    client.character.state.rotation = new Float32Array(
+      client.character.state.rotation
+    );
+
     this.giveStartingEquipment(client, false, true);
   }
 
@@ -632,10 +644,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   async fetchZoneData(): Promise<void> {
     if (this._mongoAddress) {
-      const mongoClient = (this._mongoClient = new MongoClient(
-        this._mongoAddress,
-        { maxPoolSize: 50 }
-      ));
+      const mongoClient = new MongoClient(this._mongoAddress, {
+        maxPoolSize: 50,
+      });
       try {
         await mongoClient.connect();
       } catch (e) {
@@ -823,6 +834,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
         serverId: this._worldId,
+        h1emuVersion: process.env.H1Z1_SERVER_VERSION,
       });
       this._h1emuZoneServer.start();
       await this._db
@@ -882,14 +894,6 @@ export class ZoneServer2016 extends EventEmitter {
       unknownBoolean7: true,
     });
 
-    this.sendData(client, "ClientUpdate.ZonePopulation", {
-      populations: [0, 0],
-    });
-    this.sendData(client, "ClientUpdate.RespawnLocations", {
-      locations: this._respawnLocations,
-      locations2: this._respawnLocations,
-    });
-
     this.sendData(client, "ClientGameSettings", {
       Unknown2: 0,
       interactGlowAndDist: 3,
@@ -903,11 +907,6 @@ export class ZoneServer2016 extends EventEmitter {
     });
 
     this.sendCharacterData(client);
-
-    this.sendData(client, "Character.SetBattleRank", {
-      characterId: client.character.characterId,
-      battleRank: 100,
-    });
   }
 
   worldRoutine(refresh = false) {
@@ -1198,7 +1197,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.healingTicks = 0;
     client.character.healingMaxTicks = 0;
     client.character.resourcesUpdater.refresh();
-    delete client.character.characterStates.knockedOut;
+    client.character.characterStates.knockedOut = false;
     this.updateCharacterState(
       client,
       client.character.characterId,
@@ -2011,6 +2010,10 @@ export class ZoneServer2016 extends EventEmitter {
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
+    if (client.hudTimer != null) {
+      clearTimeout(client.hudTimer);
+      client.hudTimer = null;
+    }
     client.character.isRunning = false; // maybe some async stuff make this useless need to test that
     client.vehicle.mountedVehicle = vehicle.characterId;
     switch (vehicle.vehicleId) {
@@ -2929,6 +2932,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151,
       position: object.state.position,
     });
+    //region Norman added. if it is a crop product, randomly generated product is processed by the planting manager. else, continue
+    if (this.plantingManager.TriggerPicking(item, client, this)) {
+      return;
+    }
+    //endregion
     this.lootItem(client, item, item.stackCount);
     this.deleteEntity(guid, this._objects);
     delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
@@ -3175,6 +3183,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.lootContainerItem(client, this.generateItem(1441), 1, sendPacket); // compass
     this.lootContainerItem(client, this.generateItem(1751), 5, sendPacket); // gauze
     this.lootContainerItem(client, this.generateItem(1804), 1, sendPacket); // flare
+    this.lootContainerItem(client, this.generateItem(1436), 1, sendPacket); // lighter
   }
 
   clearInventory(client: Client) {
@@ -3341,6 +3350,12 @@ export class ZoneServer2016 extends EventEmitter {
         useoption = "sniff";
         timeout = 3000;
         break;
+      case 25: //Fertilizer
+        this.utilizeHudTimer(client, nameId, timeout, () => {
+          this.plantingManager.FertilizeCrops(client, this);
+          this.removeInventoryItem(client, item);
+        });
+        return;
       default:
         this.sendChatText(
           client,
@@ -3837,6 +3852,13 @@ export class ZoneServer2016 extends EventEmitter {
       { population: populationNumber }
     );
   }
+  sendChatTextToAllOthers(client: Client, message: string, clearChat = false) {
+    for (const a in this._clients) {
+      if (client != this._clients[a]) {
+        this.sendChatText(this._clients[a], message, clearChat);
+      }
+    }
+  }
   sendGlobalChatText(message: string, clearChat = false) {
     for (const a in this._clients) {
       this.sendChatText(this._clients[a], message, clearChat);
@@ -3864,15 +3886,11 @@ export class ZoneServer2016 extends EventEmitter {
     const delta = Date.now() - this._startTime;
     return this._serverTime + delta;
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   dismissVehicle(vehicleGuid: string) {
-    throw new Error("Method not implemented.");
-    /*
-    this.sendDataToAll("PlayerUpdate.RemovePlayerGracefully", {
+    this.sendDataToAll("Character.RemovePlayer", {
       characterId: vehicleGuid,
     });
     this.deleteEntity(vehicleGuid, this._vehicles);
-    */
   }
   getTransientId(characterId: string): number {
     const generatedTransient = this._transientIdGenerator.next()
@@ -3899,6 +3917,8 @@ export class ZoneServer2016 extends EventEmitter {
 }
 
 if (process.env.VSCODE_DEBUG === "true") {
+  const PackageSetting = require("../../../package.json");
+  process.env.H1Z1_SERVER_VERSION = PackageSetting.version;
   new ZoneServer2016(
     1117,
     Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),

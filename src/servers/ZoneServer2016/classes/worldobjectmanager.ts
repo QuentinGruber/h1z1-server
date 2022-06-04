@@ -85,7 +85,7 @@ export class WorldObjectManager {
   chanceHospital: number = 40;
   chanceMilitary: number = 30;
 
-  chanceNpc: number = 50;
+  chanceNpc: number = 100;
   chanceScreamer: number = 5; // 1000 max
 
   run(server: ZoneServer2016) {
@@ -973,6 +973,7 @@ export class WorldObjectManager {
         });
         authorizedItems.push({ id: Items.WEAPON_HATCHET, count: 1 });
         authorizedItems.push({ id: Items.WATER_EMPTY, count: 1 });
+        authorizedItems.push({ id: Items.GROUND_TILLER, count: 1 });
         break;
       default:
         break;

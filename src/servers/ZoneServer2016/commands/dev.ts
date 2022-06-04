@@ -13,17 +13,44 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
+import { BaseLightweightCharacter } from "../classes/baselightweightcharacter";
 import { Npc } from "../classes/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import { NormanTest } from "../workers/Planting/Test";
 
 const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
-  spam: function (server: ZoneServer2016, client: Client, args: any[]) {
-    for (let index = 0; index < 10000; index++) {
-      server.sendChatText(client, `cc`);
-    }
+  path: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const characterId = server.generateGuid();
+    const npc = new BaseLightweightCharacter(
+      characterId,
+      server.getTransientId(characterId),
+      9510,
+      client.character.state.position,
+      client.character.state.rotation
+    );
+    server.addLightweightNpc(client, npc);
+    setTimeout(() => {
+      server.sendData(client, "ClientPath.Reply", {
+        unknownDword2: npc.transientId,
+        nodes: [{ node: client.character.state.position }],
+      });
+    }, 2000);
+  },
+  zombie: function (server: ZoneServer2016, client: Client, args: any[]) {
+    // spawn a zombie
+    const characterId = server.generateGuid();
+    const transient = server.getTransientId(characterId);
+    const zombie = new Npc(
+      characterId,
+      transient,
+      9510,
+      client.character.state.position,
+      client.character.state.rotation
+    );
+    server._npcs[characterId] = zombie;
   },
   list: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(
@@ -596,6 +623,11 @@ const dev: any = {
       });
     }
     */
+  //region norman testing
+  norman: function (server: ZoneServer2016, client: Client, args: any[]) {
+    NormanTest.TestEntry(server, client, args);
+  },
+  //endregion
 };
 
 export default dev;
