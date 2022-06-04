@@ -103,7 +103,8 @@ export class LoginServer extends EventEmitter {
   private _zoneWhitelist!: any[];
   private _internalReqCount: number = 0;
   private _pendingInternalReq: { [requestId: number]: any } = {};
-  private _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } = {};
+  private _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } =
+    {};
   private _soloPlayIp: string = process.env.SOLO_PLAY_IP || "127.0.0.1";
 
   constructor(serverPort: number, mongoAddress = "") {
@@ -199,7 +200,7 @@ export class LoginServer extends EventEmitter {
               if (connectionEstablished || packet.name === "SessionRequest") {
                 switch (packet.name) {
                   case "SessionRequest": {
-                    const { serverId,h1emuVersion } = packet.data;
+                    const { serverId, h1emuVersion } = packet.data;
                     debug(
                       `Received session request from ${client.address}:${client.port}`
                     );
@@ -208,12 +209,15 @@ export class LoginServer extends EventEmitter {
                         ?.address === client.address
                         ? 1
                         : 0;
-                      if(status && process.env.H1Z1_SERVER_VERSION !== h1emuVersion){
-                        console.log(
-                          `serverId : ${serverId} version mismatch ${h1emuVersion} vs ${process.env.H1Z1_SERVER_VERSION}`
-                        );
-                        status = 0;
-                      }
+                    if (
+                      status &&
+                      process.env.H1Z1_SERVER_VERSION !== h1emuVersion
+                    ) {
+                      console.log(
+                        `serverId : ${serverId} version mismatch ${h1emuVersion} vs ${process.env.H1Z1_SERVER_VERSION}`
+                      );
+                      status = 0;
+                    }
                     if (status === 1) {
                       debug(`ZoneConnection established`);
                       client.session = true;
@@ -899,10 +903,9 @@ export class LoginServer extends EventEmitter {
   async start(): Promise<void> {
     debug("Starting server");
     if (this._mongoAddress) {
-      const mongoClient = new MongoClient(
-        this._mongoAddress,
-        { maxPoolSize: 100 }
-      );
+      const mongoClient = new MongoClient(this._mongoAddress, {
+        maxPoolSize: 100,
+      });
       try {
         await mongoClient.connect();
       } catch (e) {

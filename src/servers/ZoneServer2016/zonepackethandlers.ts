@@ -134,22 +134,24 @@ export class zonePacketHandlers {
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
       if (client.firstLoading) {
-        
-       setTimeout(() => {
+        setTimeout(() => {
           server.sendData(client, "POIChangeMessage", {
             // welcome POI message
             messageStringId: 20,
             id: 99,
-        });
-        server.sendChatText(client, "Welcome to H1emu ! :D", true);
-        server.sendChatText(client, `server population : ${_.size(server._characters)}`);
-        if(client.isAdmin){
-          server.sendChatText(client, "You are an admin !");
-        }
-      
-      }, 10000);
-        
-        server.sendChatTextToAllOthers(client,
+          });
+          server.sendChatText(client, "Welcome to H1emu ! :D", true);
+          server.sendChatText(
+            client,
+            `server population : ${_.size(server._characters)}`
+          );
+          if (client.isAdmin) {
+            server.sendChatText(client, "You are an admin !");
+          }
+        }, 10000);
+
+        server.sendChatTextToAllOthers(
+          client,
           `${client.character.name} has joined the server !`
         );
         client.firstLoading = false;
@@ -167,20 +169,20 @@ export class zonePacketHandlers {
           "spawninfo",
           "help",
           "netstats",
-          "me"
+          "me",
         ];
-  
+
         commands.forEach((command) => {
           server.sendData(client, "Command.AddWorldCommand", {
             command: command,
           });
         });
-  
+
         server.sendData(client, "Synchronization", {
           serverTime: Int64String(server.getServerTime()),
           serverTime2: Int64String(server.getServerTime()),
         });
-  
+
         server.sendData(client, "Character.WeaponStance", {
           // activates weaponstance key
           characterId: client.character.characterId,
@@ -342,9 +344,9 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("ClientLogout");
-      if(client.hudTimer){
-      clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
-    }
+      if (client.hudTimer) {
+        clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
+      }
       server.deleteClient(client);
     };
     this.GameTimeSync = function (
@@ -990,7 +992,7 @@ export class zonePacketHandlers {
           ? 2
           : 0 || server._doors[guid]
           ? 3
-          : 0|| server._npcs[guid]
+          : 0 || server._npcs[guid]
           ? 4
           : 0;
 
@@ -1039,9 +1041,14 @@ export class zonePacketHandlers {
           break;
         case 4: // npc
           const npc = entityData as Npc;
-          server.sendDataToAllWithSpawnedEntity(server._npcs, npc.characterId, "Character.StartMultiStateDeath", {
-            characterId: npc.characterId
-          })
+          server.sendDataToAllWithSpawnedEntity(
+            server._npcs,
+            npc.characterId,
+            "Character.StartMultiStateDeath",
+            {
+              characterId: npc.characterId,
+            }
+          );
           break;
         default:
           break;
@@ -1613,17 +1620,30 @@ export class zonePacketHandlers {
             }, 200);
           }, 3000);
           break;
-          //Ground Tiller
+        //Ground Tiller
         case 1383:
-          deleteItemAfterProcessing = server.plantingManager.Reclaim(client,server)
+          deleteItemAfterProcessing = server.plantingManager.Reclaim(
+            client,
+            server
+          );
           break;
-          //Corn Seed
+        //Corn Seed
         case 1987:
-          deleteItemAfterProcessing = server.plantingManager.SowSeed(client,server,1987, item.itemGuid);
+          deleteItemAfterProcessing = server.plantingManager.SowSeed(
+            client,
+            server,
+            1987,
+            item.itemGuid
+          );
           break;
-          //Wheat Seed
+        //Wheat Seed
         case 1988:
-          deleteItemAfterProcessing = server.plantingManager.SowSeed(client,server,1988, item.itemGuid);
+          deleteItemAfterProcessing = server.plantingManager.SowSeed(
+            client,
+            server,
+            1988,
+            item.itemGuid
+          );
           break;
         default:
           server.lootItem(client, item, 1);
@@ -1633,8 +1653,8 @@ export class zonePacketHandlers {
           });
           break;
       }
-      if(deleteItemAfterProcessing){
-        server.removeInventoryItem(client, item)
+      if (deleteItemAfterProcessing) {
+        server.removeInventoryItem(client, item);
       }
     };
     this.containerMoveItem = function (

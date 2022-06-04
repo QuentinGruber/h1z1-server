@@ -67,7 +67,6 @@ import { wordFilterPackets } from "./wordFilter";
 import { zoneSettingPackets } from "./zoneSetting";
 import { clientPathPackets } from "./clientPath";
 
-
 const packets: any = [
   ...basePackets,
   ...abilitiesPackets,

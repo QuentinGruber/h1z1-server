@@ -38,11 +38,7 @@ export class GatewayServer extends EventEmitter {
     this._crcLength = 0;
     this._udpLength = 512;
 
-    this._soeServer = new SOEServer(
-      protocolName,
-      serverPort,
-      gatewayKey
-    )
+    this._soeServer = new SOEServer(protocolName, serverPort, gatewayKey);
     this._soeServer._useEncryption = false; // communication is encrypted only after loginRequest
     this._protocol = new GatewayProtocol();
     this._soeServer.on("disconnect", (err: string, client: SOEClient) => {

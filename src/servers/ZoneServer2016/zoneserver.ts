@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import {PlantingManager} from "./workers/Planting/PlantingManager";
+import { PlantingManager } from "./workers/Planting/PlantingManager";
 
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
@@ -126,7 +126,16 @@ export class ZoneServer2016 extends EventEmitter {
   _npcRenderDistance = 350;
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
-    :  ["tp","spawnnpc","rat","normalsize","drive","parachute","spawnvehicle","hood"];
+    : [
+        "tp",
+        "spawnnpc",
+        "rat",
+        "normalsize",
+        "drive",
+        "parachute",
+        "spawnvehicle",
+        "hood",
+      ];
   _interactionDistance = 4;
   _pingTimeoutTime = 120000;
   _weather2016: Weather2016;
@@ -134,7 +143,7 @@ export class ZoneServer2016 extends EventEmitter {
   _weatherTemplates: any;
   _vehicles: { [characterId: string]: Vehicle } = {};
   worldObjectManager: WorldObjectManager;
-  plantingManager:PlantingManager;
+  plantingManager: PlantingManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _itemDefinitionIds: any[] = Object.keys(this._itemDefinitions);
@@ -185,7 +194,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     this._gatewayServer.on(
       "login",
-     async (
+      async (
         err: string,
         client: SOEClient,
         characterId: string,
@@ -208,11 +217,15 @@ export class ZoneServer2016 extends EventEmitter {
           characterId,
           generatedTransient
         );
-        if(!this._soloMode){
-          zoneClient.isAdmin = await this._db?.collection("admins")
-          .findOne({ sessionId: zoneClient.loginSessionId, serverId: this._worldId }) != undefined;
-        }
-        else{
+        if (!this._soloMode) {
+          zoneClient.isAdmin =
+            (await this._db
+              ?.collection("admins")
+              .findOne({
+                sessionId: zoneClient.loginSessionId,
+                serverId: this._worldId,
+              })) != undefined;
+        } else {
           zoneClient.isAdmin = true;
         }
         this._clients[client.sessionId] = zoneClient;
@@ -381,7 +394,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (err) {
       console.error(err);
     } else {
-      if(!client){
+      if (!client) {
         return;
       }
       client.pingTimer?.refresh();
@@ -513,8 +526,9 @@ export class ZoneServer2016 extends EventEmitter {
     let isRandomlySpawning = false;
     if (
       (_.isEqual(character.position, [0, 0, 0, 1]) &&
-      _.isEqual(character.rotation, [0, 0, 0, 1]))
-      || objectIsEmpty(character.position) || objectIsEmpty(character.rotation)
+        _.isEqual(character.rotation, [0, 0, 0, 1])) ||
+      objectIsEmpty(character.position) ||
+      objectIsEmpty(character.rotation)
     ) {
       // if position/rotation hasn't changed
       isRandomlySpawning = true;
@@ -534,12 +548,18 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       const e = Object.values(character.position) as number[];
       client.character.state.position = new Float32Array(e);
-      client.character.state.rotation = new Float32Array(Object.values(character.rotation));
+      client.character.state.rotation = new Float32Array(
+        Object.values(character.rotation)
+      );
     }
 
     // If position or rotation isn't a float32array it will make the server crash
-    client.character.state.position = new Float32Array(client.character.state.position)
-    client.character.state.rotation = new Float32Array(client.character.state.rotation)
+    client.character.state.position = new Float32Array(
+      client.character.state.position
+    );
+    client.character.state.rotation = new Float32Array(
+      client.character.state.rotation
+    );
 
     this.giveStartingEquipment(client, false, true);
   }
@@ -624,10 +644,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   async fetchZoneData(): Promise<void> {
     if (this._mongoAddress) {
-      const mongoClient = new MongoClient(
-        this._mongoAddress,
-        { maxPoolSize: 50 }
-      );
+      const mongoClient = new MongoClient(this._mongoAddress, {
+        maxPoolSize: 50,
+      });
       try {
         await mongoClient.connect();
       } catch (e) {
@@ -1991,9 +2010,7 @@ export class ZoneServer2016 extends EventEmitter {
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
-    if (
-      client.hudTimer != null 
-    ) {
+    if (client.hudTimer != null) {
       clearTimeout(client.hudTimer);
       client.hudTimer = null;
     }
@@ -2916,7 +2933,7 @@ export class ZoneServer2016 extends EventEmitter {
       position: object.state.position,
     });
     //region Norman added. if it is a crop product, randomly generated product is processed by the planting manager. else, continue
-    if(this.plantingManager.TriggerPicking(item,client,this)) {
+    if (this.plantingManager.TriggerPicking(item, client, this)) {
       return;
     }
     //endregion
@@ -3333,9 +3350,9 @@ export class ZoneServer2016 extends EventEmitter {
         useoption = "sniff";
         timeout = 3000;
         break;
-      case 25://Fertilizer
+      case 25: //Fertilizer
         this.utilizeHudTimer(client, nameId, timeout, () => {
-          this.plantingManager.FertilizeCrops(client,this);
+          this.plantingManager.FertilizeCrops(client, this);
           this.removeInventoryItem(client, item);
         });
         return;
@@ -3835,11 +3852,9 @@ export class ZoneServer2016 extends EventEmitter {
       { population: populationNumber }
     );
   }
-  sendChatTextToAllOthers(client: Client,message: string, clearChat = false) {
+  sendChatTextToAllOthers(client: Client, message: string, clearChat = false) {
     for (const a in this._clients) {
-      if (
-        client != this._clients[a]
-      ) {
+      if (client != this._clients[a]) {
         this.sendChatText(this._clients[a], message, clearChat);
       }
     }

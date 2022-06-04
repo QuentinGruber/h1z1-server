@@ -23,5 +23,4 @@ export interface httpServerMessage {
   data: any;
 }
 
-
-export type json = any
+export type json = any;

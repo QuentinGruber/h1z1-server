@@ -1,12 +1,15 @@
-import {ZoneClient2016 as Client} from "../../../classes/zoneclient";
-import {Furrows} from "./DataModels";
+import { ZoneClient2016 as Client } from "../../../classes/zoneclient";
+import { Furrows } from "./DataModels";
 
-export enum PlantingEventTypeEnum
-{
+export enum PlantingEventTypeEnum {
   Created,
   Modified,
-  Removed
+  Removed,
 }
 export interface OnPlantingEvent {
-  (srcClient:Client,eventType:PlantingEventTypeEnum,furrows:Array<Furrows>):void
+  (
+    srcClient: Client,
+    eventType: PlantingEventTypeEnum,
+    furrows: Array<Furrows>
+  ): void;
 }

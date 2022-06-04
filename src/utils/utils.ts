@@ -11,7 +11,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { generate_random_guid, is_pos_in_radius,eul2quat as eul2quat_rust } from "h1emu-core";
+import {
+  generate_random_guid,
+  is_pos_in_radius,
+  eul2quat as eul2quat_rust,
+} from "h1emu-core";
 import v8 from "v8";
 import { compress, compressBound } from "./lz4/lz4";
 import fs, { readdirSync } from "fs";
@@ -73,7 +77,7 @@ export class customLodash {
 export const _ = new customLodash();
 
 // Original code from GuinnessRules
-export function eul2quat(angle: Float32Array):Float32Array {
+export function eul2quat(angle: Float32Array): Float32Array {
   return eul2quat_rust(angle);
 }
 
@@ -162,14 +166,14 @@ export const setupAppDataFolder = (): void => {
 
 export const objectIsEmpty = (obj: Record<string, unknown>) => {
   return Object.keys(obj).length === 0;
-}
+};
 
 export const isPosInRadius = (
   radius: number,
   player_position: Float32Array,
   enemi_position: Float32Array
 ): boolean => {
-  return is_pos_in_radius(radius,player_position,enemi_position)
+  return is_pos_in_radius(radius, player_position, enemi_position);
 };
 
 export function getDistance(p1: Float32Array, p2: Float32Array) {
@@ -350,32 +354,31 @@ export class Scheduler {
   }
 }
 
-
 export class wrappedUint16 {
   private value: number;
   constructor(initValue: number) {
-    if(initValue > MAX_UINT16) {
+    if (initValue > MAX_UINT16) {
       throw new Error("wrappedUint16 can only hold values up to 65535");
     }
     this.value = initValue;
   }
-  private wrap(value:number){
-    let uint16 = value
-    if(uint16 > MAX_UINT16) {
-      uint16 -= MAX_UINT16 +1 // subtract the overflow value;
+  private wrap(value: number) {
+    let uint16 = value;
+    if (uint16 > MAX_UINT16) {
+      uint16 -= MAX_UINT16 + 1; // subtract the overflow value;
     }
-    return uint16
+    return uint16;
   }
-  add(value: number):void {
+  add(value: number): void {
     this.value = this.wrap(this.value + value);
   }
-  set(value:number):void{
+  set(value: number): void {
     this.value = this.wrap(value);
   }
-  get():number {
+  get(): number {
     return this.value;
   }
-  increment():void {
+  increment(): void {
     this.add(1);
   }
 }
