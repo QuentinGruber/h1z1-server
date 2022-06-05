@@ -143,9 +143,12 @@ export class SOEServer extends EventEmitter {
   // Executed at the same rate for every client
   private soeClientRoutine(client: Client) {
     if (!client.isDeleted) {
-      // Acknowledge received packets
-      this.checkOutOfOrderQueue(client);
-      this.checkAck(client);
+      if(client.lastAckTime + this._waitQueueTimeMs < Date.now()) {
+        // Acknowledge received packets
+        this.checkOutOfOrderQueue(client);
+        this.checkAck(client);
+        client.lastAckTime = Date.now();
+      }
       // Send pending packets
       this.checkResendQueue(client);
       this.checkClientOutQueues(client);
@@ -220,27 +223,16 @@ export class SOEServer extends EventEmitter {
   // But still bundle them inside a multiPacket since a single Ack is a very small packet
   private checkOutOfOrderQueue(client: Client) {
     if (client.outOfOrderPackets.length) {
-      const packets = [];
-      for (let i = 0; i < this._maxOutOfOrderPacketsPerLoop; i++) {
+      for (let i = 0; i < client.outOfOrderPackets.length; i++) {
         const sequence = client.outOfOrderPackets.shift();
-        packets.push({
-          name: "OutOfOrder",
-          sequence: sequence,
-        });
-        if (!client.outOfOrderPackets.length) {
-          break;
-        }
+        this._sendLogicalPacket(
+          client,
+          "OutOfOrder",
+          {
+            sequence: sequence,
+          },
+          false);
       }
-
-      this._sendLogicalPacket(
-        client,
-        "MultiPacket",
-        {
-          name: "MultiPacket",
-          sub_packets: packets,
-        },
-        true
-      );
     }
   }
 
