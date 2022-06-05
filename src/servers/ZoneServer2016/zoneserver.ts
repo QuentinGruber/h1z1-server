@@ -540,26 +540,18 @@ export class ZoneServer2016 extends EventEmitter {
         Math.random() * this._spawnLocations.length
       );
       client.character.state.position =
-        this._spawnLocations[randomSpawnIndex].position;
+      new Float32Array(this._spawnLocations[randomSpawnIndex].position);
       client.character.state.rotation =
-        this._spawnLocations[randomSpawnIndex].rotation;
+      new Float32Array(this._spawnLocations[randomSpawnIndex].rotation);
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     } else {
-      const e = Object.values(character.position) as number[];
-      client.character.state.position = new Float32Array(e);
+      client.character.state.position = new Float32Array(Object.values(character.position));
       client.character.state.rotation = new Float32Array(
         Object.values(character.rotation)
       );
     }
 
-    // If position or rotation isn't a float32array it will make the server crash
-    client.character.state.position = new Float32Array(
-      client.character.state.position
-    );
-    client.character.state.rotation = new Float32Array(
-      client.character.state.rotation
-    );
 
     this.giveStartingEquipment(client, false, true);
   }
