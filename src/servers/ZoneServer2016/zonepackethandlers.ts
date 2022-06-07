@@ -409,24 +409,6 @@ export class zonePacketHandlers {
               _doors: doors,
               _props: props,
             } = server;
-            const delta = Date.now() - server._startTime;
-            const datakur = new Date(
-              (server._serverTime + delta) * server._timeMultiplier
-            );
-            const monthNames = [
-              "January",
-              "February",
-              "March",
-              "April",
-              "May",
-              "June",
-              "July",
-              "August",
-              "September",
-              "October",
-              "November",
-              "December",
-            ];
             const serverVersion = require("../../../package.json").version;
             server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
             server.sendChatText(
@@ -443,19 +425,12 @@ export class zonePacketHandlers {
                 props
               )} vehicles : ${_.size(vehicles)}`
             );
+            const uptime = new Date(
+              Date.now() - server._startTime
+            );
             server.sendChatText(
               client,
-              "Gametime: " +
-                datakur.getUTCDate() +
-                " " +
-                monthNames[datakur.getUTCMonth()] +
-                " " +
-                (datakur.getUTCFullYear() + 50) +
-                ", " +
-                datakur.getUTCHours() +
-                ":" +
-                datakur.getUTCMinutes()
-            );
+              `Uptime: ${uptime.getUTCHours()}h ${uptime.getUTCMinutes()}m`);
             break;
           }
         case 1757604914: // /spawninfo
