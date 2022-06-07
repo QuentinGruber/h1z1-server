@@ -22,7 +22,7 @@ import {
   getAppDataFolderPath,
   initMongo,
   Int64String,
-  isPosInRadiusLegacy,
+  isPosInRadius,
   setupAppDataFolder,
   getDistance,
   removeCacheFullDir,
@@ -991,7 +991,7 @@ export class ZoneServer2015 extends EventEmitter {
   spawnNpcs(client: Client): void {
     for (const npc in this._npcs) {
       if (
-        isPosInRadiusLegacy(
+        isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
           this._npcs[npc].position
@@ -1012,7 +1012,7 @@ export class ZoneServer2015 extends EventEmitter {
     let inPOI = false;
     Z1_POIs.forEach((point: any) => {
       if (
-        isPosInRadiusLegacy(
+        isPosInRadius(
           point.range,
           client.character.state.position,
           point.position
@@ -1339,7 +1339,7 @@ export class ZoneServer2015 extends EventEmitter {
     for (const character in this._clients) {
       const characterObj = this._clients[character];
       if (!characterObj.character.godMode) {
-        if (isPosInRadiusLegacy(5, characterObj.character.state.position, position)) {
+        if (isPosInRadius(5, characterObj.character.state.position, position)) {
           const distance = getDistance(
             position,
             characterObj.character.state.position
@@ -1355,7 +1355,7 @@ export class ZoneServer2015 extends EventEmitter {
         !vehicle.isInvulnerable &&
         vehicle.npcData.characterId != npcTriggered
       ) {
-        if (isPosInRadiusLegacy(5, vehicle.npcData.position, position)) {
+        if (isPosInRadius(5, vehicle.npcData.position, position)) {
           const distance = getDistance(position, vehicle.npcData.position);
           const damage = 20000 / distance;
           this.damageVehicle(damage, vehicle);
@@ -2097,7 +2097,7 @@ export class ZoneServer2015 extends EventEmitter {
     for (const character in this._characters) {
       const characterObj = this._characters[character];
       if (
-        isPosInRadiusLegacy(
+        isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
           characterObj.state.position
@@ -2121,7 +2121,7 @@ export class ZoneServer2015 extends EventEmitter {
   spawnVehicles(client: Client) {
     for (const vehicle in this._vehicles) {
       if (
-        isPosInRadiusLegacy(
+        isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
           this._vehicles[vehicle].npcData.position
@@ -2148,7 +2148,7 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   filterOutOfDistance(element: any, playerPosition: Float32Array): boolean {
-    return !isPosInRadiusLegacy(
+    return !isPosInRadius(
       (element.npcRenderDistance || this._npcRenderDistance) + 5,
       playerPosition,
       element.position || element.state?.position || element.npcData.position
@@ -2186,7 +2186,7 @@ export class ZoneServer2015 extends EventEmitter {
     for (const item in collection) {
       const itemData = collection[item];
       if (
-        isPosInRadiusLegacy(
+        isPosInRadius(
           this._npcRenderDistance,
           client.character.state.position,
           itemData.position
@@ -2244,7 +2244,7 @@ export class ZoneServer2015 extends EventEmitter {
     for (const DTO in this._destroyables) {
       const DTOObject = this._destroyables[DTO];
       if (
-        isPosInRadiusLegacy(
+        isPosInRadius(
           DTOObject.renderDistance,
           client.character.state.position,
           DTOObject.position
@@ -2262,7 +2262,7 @@ export class ZoneServer2015 extends EventEmitter {
     let isColliding = false;
     for (const vehicle in this._vehicles) {
       const vehicleData = this._vehicles[vehicle];
-      if (isPosInRadiusLegacy(5, DTOData.position, vehicleData.npcData.position)) {
+      if (isPosInRadius(5, DTOData.position, vehicleData.npcData.position)) {
         isColliding = true;
       }
     }
@@ -2434,7 +2434,7 @@ export class ZoneServer2015 extends EventEmitter {
     for (const clientKey in this._clients) {
       const targetClient = this._clients[clientKey];
       if (
-        isPosInRadiusLegacy(
+        isPosInRadius(
           350,
           client.character.state.position,
           targetClient.character.state.position
