@@ -172,7 +172,7 @@ export const playerUpdatePackets: any = [
           defaultValue: "0x0000000000000000",
         },
         {
-          name: "modelId?",
+          name: "modelId",
           type: "uint32",
           defaultValue: 9008,
         },

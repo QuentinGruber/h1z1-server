@@ -206,7 +206,7 @@ export const clientUpdatePackets: any = [
     {
       fields: [
         { name: "speed", type: "float", defaultValue: 10 },
-        { name: "version?", type: "uint8", defaultValue: 1 },
+        { name: "movementVersion", type: "uint8", defaultValue: 1 },
       ],
     },
   ],
@@ -216,7 +216,7 @@ export const clientUpdatePackets: any = [
     {
       fields: [
         { name: "speed", type: "float", defaultValue: 10 },
-        { name: "version?", type: "uint8", defaultValue: 1 },
+        { name: "movementVersion", type: "uint8", defaultValue: 1 },
       ],
     },
   ],
@@ -226,7 +226,7 @@ export const clientUpdatePackets: any = [
     {
       fields: [
         { name: "speed", type: "float", defaultValue: 10 },
-        { name: "version?", type: "uint8", defaultValue: 1 },
+        { name: "movementVersion", type: "uint8", defaultValue: 1 },
       ],
     },
   ],

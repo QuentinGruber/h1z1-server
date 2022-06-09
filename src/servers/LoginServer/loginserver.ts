@@ -35,6 +35,7 @@ import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
 import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 import { healthThreadDecorator } from "../../servers/shared/workers/healthWorker";
+import { LoginReply,CharacterSelectInfoReply, ServerListReply, CharacterDeleteReply, CharacterLoginReply, CharacterCreateReply, ServerUpdate, CharacterDeleteRequest, CharacterLoginRequest, CharacterCreateRequest } from "types/LoginUdp_11packets";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -142,13 +143,13 @@ export class LoginServer extends EventEmitter {
       "appdata",
       async (err: string, client: Client, data: Buffer) => {
         try {
-          const packet: any = this.parseData(client.protocolName, data);
+          const packet: {name:string,result:any} | null = this.parseData(client.protocolName, data);
           debug(packet);
           if (packet?.result) {
             // if packet parsing succeed
-            const { sessionId, systemFingerPrint } = packet.result;
             switch (packet.name) {
               case "LoginRequest":
+                const { sessionId, systemFingerPrint } = packet.result;
                 await this.LoginRequest(client, sessionId, systemFingerPrint);
                 /* 2016 client does not send CharacterSelectInfoRequest or ServerListRequest,
                   so all 3 replies need to be sent at the same time */
@@ -160,13 +161,13 @@ export class LoginServer extends EventEmitter {
                 await this.ServerListRequest(client);
                 break;
               case "CharacterDeleteRequest":
-                await this.CharacterDeleteRequest(client, packet);
+                await this.CharacterDeleteRequest(client, packet.result);
                 break;
               case "CharacterLoginRequest":
-                await this.CharacterLoginRequest(client, packet);
+                await this.CharacterLoginRequest(client, packet.result);
                 break;
               case "CharacterCreateRequest":
-                await this.CharacterCreateRequest(client, packet);
+                await this.CharacterCreateRequest(client, packet.result);
                 break;
               case "TunnelAppPacketClientToServer": // only used for nameValidation rn
                 this.TunnelAppPacketClientToServer(client, packet);
@@ -413,14 +414,15 @@ export class LoginServer extends EventEmitter {
         .findOne({ guid: sessionId });
       client.loginSessionId = realSession ? realSession.authKey : sessionId;
     }
-    this.sendData(client, "LoginReply", {
+    const loginReply:LoginReply = {
       loggedIn: true,
       status: 1,
       isMember: true,
       isInternal: true,
       namespace: "soe",
       ApplicationPayload: "",
-    });
+    }
+    this.sendData(client, "LoginReply",loginReply );
     if (!this._soloMode) {
       client.serverUpdateTimer = setTimeout(async () => {
         await this.updateServerList(client);
@@ -503,11 +505,12 @@ export class LoginServer extends EventEmitter {
     } else {
       characters = this.addDummyDataToCharacters(characters);
     }
-    this.sendData(client, "CharacterSelectInfoReply", {
+    const characterSelectInfoReply:CharacterSelectInfoReply = {
       status: 1,
       canBypassServerLock: true,
       characters: characters,
-    });
+    }
+    this.sendData(client, "CharacterSelectInfoReply", characterSelectInfoReply);
     debug("CharacterSelectInfoRequest");
   }
 
@@ -568,16 +571,17 @@ export class LoginServer extends EventEmitter {
         }
       }
     }
-    this.sendData(client, "ServerListReply", { servers: servers });
+    const serverListReply:ServerListReply = { servers: servers }
+    this.sendData(client, "ServerListReply", serverListReply);
   }
 
-  async CharacterDeleteRequest(client: Client, packet: any) {
+  async CharacterDeleteRequest(client: Client, packet: CharacterDeleteRequest) {
     debug("CharacterDeleteRequest");
     let deletionStatus = 1;
     if (this._soloMode) {
       const SinglePlayerCharacters = await this.loadCharacterData(client);
       const characterIndex = SinglePlayerCharacters.findIndex(
-        (character: any) => character.characterId === packet.result.characterId
+        (character: any) => character.characterId === packet.characterId
       );
       SinglePlayerCharacters.splice(characterIndex, 1);
 
@@ -594,7 +598,7 @@ export class LoginServer extends EventEmitter {
         );
       }
     } else {
-      const characterId = (packet.result as any).characterId;
+      const characterId = packet.characterId;
       const characterQuery = { characterId: characterId };
       const charracterToDelete = await this._db
         .collection("characters-light")
@@ -616,20 +620,21 @@ export class LoginServer extends EventEmitter {
                 status: 0,
               },
             });
-          debug(`Character ${(packet.result as any).characterId} deleted !`);
+          debug(`Character ${packet.characterId} deleted !`);
         }
       }
     }
-    this.sendData(client, "CharacterDeleteReply", {
-      characterId: (packet.result as any).characterId,
+    const characterDeleteReply:CharacterDeleteReply = {
+      characterId: packet.characterId,
       status: deletionStatus,
       Payload: "\0",
-    });
+    }
+    this.sendData(client, "CharacterDeleteReply",characterDeleteReply);
   }
 
-  async CharacterLoginRequest(client: Client, packet: any) {
-    let charactersLoginInfo: any;
-    const { serverId, characterId } = packet.result;
+  async CharacterLoginRequest(client: Client, packet: CharacterLoginRequest) {
+    let charactersLoginInfo: CharacterLoginReply;
+    const { serverId, characterId } = packet;
     if (!this._soloMode) {
       const { serverAddress } = await this._db
         .collection("servers")
@@ -661,7 +666,7 @@ export class LoginServer extends EventEmitter {
         unknownQword1: "0x0",
         unknownDword1: 0,
         unknownDword2: 0,
-        status: character ? connectionStatus : false,
+        status: character ? Number(connectionStatus) : 0,
         applicationData: {
           serverAddress: serverAddress,
           serverTicket: hiddenSession?.guid,
@@ -775,12 +780,12 @@ export class LoginServer extends EventEmitter {
     return askZonePromise as number;
   }
 
-  async CharacterCreateRequest(client: Client, packet: any) {
+  async CharacterCreateRequest(client: Client, packet: CharacterCreateRequest) {
     const {
       payload: { characterName },
       serverId,
       payload,
-    } = packet.result;
+    } = packet;
     // create character object
     let sampleCharacter, newCharacter;
     if (client.protocolName == "LoginUdp_9") {
@@ -842,7 +847,7 @@ export class LoginServer extends EventEmitter {
               characterId: newCharacter.characterId,
               serverId: newCharacter.serverId,
               ownerId: sessionObj.guid,
-              payload: packet.result.payload,
+              payload: packet.payload,
               status: 1,
             };
       creationStatus = (await this.askZone(serverId, "CharacterCreateRequest", {
@@ -863,17 +868,18 @@ export class LoginServer extends EventEmitter {
       }
       newCharacter;
     }
-    this.sendData(client, "CharacterCreateReply", {
+    const characterCreateReply:CharacterCreateReply = {
       status: creationStatus,
       characterId: newCharacter.characterId,
-    });
+    }
+    this.sendData(client, "CharacterCreateReply",characterCreateReply );
   }
 
   async updateServerList(client: Client): Promise<void> {
     if (!this._soloMode) {
       await this.updateServersStatus();
       // useless if in solomode ( never get called either)
-      const servers: Array<GameServer> = await this._db
+      const servers: ServerUpdate[] = await this._db
         .collection("servers")
         .find({
           serverVersionTag: this.getServerVersionTag(client.protocolName),
