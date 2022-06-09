@@ -1676,7 +1676,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   spawnObjects(client: Client) {
-    setImmediate(() => {
       for (const characterId in this._objects) {
         const object = this._objects[characterId];
         if (
@@ -1695,11 +1694,9 @@ export class ZoneServer2016 extends EventEmitter {
           client.spawnedEntities.push(object);
         }
       }
-    });
   }
 
   spawnDoors(client: Client) {
-    setImmediate(() => {
       for (const characterId in this._doors) {
         const door = this._doors[characterId];
         if (
@@ -1725,7 +1722,6 @@ export class ZoneServer2016 extends EventEmitter {
           }
         }
       }
-    });
   }
 
   POIManager(client: Client) {
