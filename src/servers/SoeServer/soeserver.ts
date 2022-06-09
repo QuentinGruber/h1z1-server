@@ -46,6 +46,7 @@ export class SOEServer extends EventEmitter {
   protected _maxGlobalPacketRate = 70000;
   protected _minPacketRate: number = 100;
   private _currentPacketRatePerClient: number = 1000;
+  private _ackTiming: number = 50;
   constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
@@ -143,7 +144,7 @@ export class SOEServer extends EventEmitter {
   // Executed at the same rate for every client
   private soeClientRoutine(client: Client) {
     if (!client.isDeleted) {
-      if(client.lastAckTime + this._waitQueueTimeMs < Date.now()) {
+      if(client.lastAckTime + this._ackTiming < Date.now()) {
         // Acknowledge received packets
         this.checkOutOfOrderQueue(client);
         this.checkAck(client);
