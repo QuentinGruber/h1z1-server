@@ -17,7 +17,7 @@ export interface LoginReply {
 export interface Logout {
 }
 export interface ForceDisconnect {
-  reason: number;
+  reason?: number;
 }
 export interface CharacterCreateRequest {
   serverId: number;
