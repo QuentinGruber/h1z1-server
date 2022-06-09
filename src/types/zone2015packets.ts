@@ -14,6 +14,7 @@ export interface ClientBeginZoning {
   zoneType: number;
   position: number[];
   rotation: number[];
+  skyData :{
   unknownDword1: number;
   name: string;
   unknownDword2: number;
@@ -42,6 +43,7 @@ export interface ClientBeginZoning {
   unknownDword24: number;
   unknownDword25: number;
   unknownArray: any[];
+}
   unknownBoolean1: boolean;
   zoneId1: number;
   zoneId2: number;
@@ -54,6 +56,7 @@ export interface SendZoneDetails {
   zoneName: string;
   zoneType: number;
   unknownBoolean1: boolean;
+  skyData :{
   unknownDword1: number;
   name: string;
   unknownDword2: number;
@@ -82,6 +85,7 @@ export interface SendZoneDetails {
   unknownDword24: number;
   unknownDword25: number;
   unknownArray: any[];
+}
   zoneId1: number;
   zoneId2: number;
   nameId: number;
@@ -195,7 +199,7 @@ export interface ClientAreaTimer {
   Unknown3: number;
   Unknown4: string;
 }
-export interface PlayerUpdate.UpdatePosition {
+export interface PlayerUpdateUpdatePosition {
   transientId: any;
   positionUpdate: any;
 }
@@ -233,14 +237,14 @@ export interface ServerPopulationInfo {
 }
 export interface GetServerPopulationInfo {
 }
-export interface PlayerUpdate.VehicleCollision {
+export interface PlayerUpdateVehicleCollision {
   transientId: any;
   damage: number;
 }
-export interface PlayerUpdate.Stop {
+export interface PlayerUpdateStop {
   unknownUint: any;
 }
-export interface PlayerUpdate.AttachObject {
+export interface PlayerUpdateAttachObject {
   objects: any[];
 }
 export interface ClientSettings {
@@ -300,7 +304,7 @@ export interface SkyChanged {
   unknownDword25: number;
   unknownArray: any[];
 }
-export interface Combat.AttackTargetDamage {
+export interface CombatAttackTargetDamage {
   unknown1: boolean;
   unknown2: number;
   characterId: string;
@@ -308,29 +312,29 @@ export interface Combat.AttackTargetDamage {
   unknown5: number;
   unknown6: boolean;
 }
-export interface Combat.AttackAttackerMissed {
+export interface CombatAttackAttackerMissed {
   unknown1: boolean;
   unknown2: number;
   characterId: string;
   targetId: string;
 }
-export interface Combat.AttackTargetDodged {
+export interface CombatAttackTargetDodged {
   unknown1: boolean;
   unknown2: number;
   characterId: string;
   targetId: string;
 }
-export interface Combat.EnableBossDisplay {
+export interface CombatEnableBossDisplay {
   unknown2: number;
   characterId: string;
   unknown6: boolean;
 }
-export interface Combat.AttackTargetBlocked {
+export interface CombatAttackTargetBlocked {
   unknown2: number;
   characterId: string;
   targetId: string;
 }
-export interface Combat.UpdateGrappling {
+export interface CombatUpdateGrappling {
   unknown1: boolean;
   unknown2: number;
   unknown3: string;
@@ -338,36 +342,36 @@ export interface Combat.UpdateGrappling {
   unknown5: string;
   unknown6: number;
 }
-export interface PlayerUpdate.Knockback {
+export interface PlayerUpdateKnockback {
   characterId: string;
   unk: number;
   position: number[];
   rotation: number[];
   unk2: number;
 }
-export interface PlayerUpdate.PlayAnimation {
+export interface PlayerUpdatePlayAnimation {
   characterId: string;
   unk1: number;
   unk2: number;
   unk3: number;
   unk4: number;
 }
-export interface PlayerUpdate.NpcRelevance {
+export interface PlayerUpdateNpcRelevance {
   npcs: any[];
 }
-export interface PlayerUpdate.UpdateScale {
+export interface PlayerUpdateUpdateScale {
   characterId: string;
   scale: number[];
 }
-export interface PlayerUpdate.UpdateTemporaryAppearance {
+export interface PlayerUpdateUpdateTemporaryAppearance {
   modelId: number;
   characterId: string;
 }
-export interface PlayerUpdate.RemoveTemporaryAppearance {
+export interface PlayerUpdateRemoveTemporaryAppearance {
   characterId: string;
   modelId?: number;
 }
-export interface PlayerUpdate.PlayCompositeEffect {
+export interface PlayerUpdatePlayCompositeEffect {
   characterId: string;
   unk1: number;
   unk2: number;
@@ -375,11 +379,11 @@ export interface PlayerUpdate.PlayCompositeEffect {
   unk4: boolean;
   unk5: boolean;
 }
-export interface PlayerUpdate.SetLookAt {
+export interface PlayerUpdateSetLookAt {
   characterId: string;
   targetCharacterId: string;
 }
-export interface PlayerUpdate.UpdateCharacterState {
+export interface PlayerUpdateUpdateCharacterState {
   characterId: string;
   states1: number[];
   states2: number[];
@@ -391,32 +395,32 @@ export interface PlayerUpdate.UpdateCharacterState {
   placeholder: number;
   gameTime: number;
 }
-export interface PlayerUpdate.ExpectedSpeed {
+export interface PlayerUpdateExpectedSpeed {
   characterId: string;
   speed: number;
 }
-export interface PlayerUpdate.ThoughtBubble {
+export interface PlayerUpdateThoughtBubble {
   characterId: string;
   unk1: number;
   unk2: number;
   unk3: boolean;
 }
-export interface PlayerUpdate.SetDisposition {
+export interface PlayerUpdateSetDisposition {
   characterId: string;
   disposition: number;
 }
-export interface PlayerUpdate.LootEvent {
+export interface PlayerUpdateLootEvent {
   characterId: string;
   position: number[];
   rotation: number[];
   modelFileName: string;
 }
-export interface PlayerUpdate.SlotCompositeEffectOverride {
+export interface PlayerUpdateSlotCompositeEffectOverride {
   characterId: string;
   slotId: number;
   effectId: number;
 }
-export interface PlayerUpdate.EffectPackage {
+export interface PlayerUpdateEffectPackage {
   unknownQword1: string;
   characterId: string;
   unknownBoolean1: boolean;
@@ -427,7 +431,7 @@ export interface PlayerUpdate.EffectPackage {
   unknownDword4: number;
   unknownDword5: number;
 }
-export interface PlayerUpdate.AddEffectTagCompositeEffect {
+export interface PlayerUpdateAddEffectTagCompositeEffect {
   characterId: string;
   unk1: number;
   unk2: number;
@@ -435,7 +439,7 @@ export interface PlayerUpdate.AddEffectTagCompositeEffect {
   unk4: string;
   unk5: number;
 }
-export interface PlayerUpdate.CustomizeNpc {
+export interface PlayerUpdateCustomizeNpc {
   characterId: string;
   a: number;
   b: number;
@@ -444,37 +448,37 @@ export interface PlayerUpdate.CustomizeNpc {
   c: number;
   unk3: boolean;
 }
-export interface PlayerUpdate.SetSpawnerActivationEffect {
+export interface PlayerUpdateSetSpawnerActivationEffect {
   characterId: string;
   effectId: number;
 }
-export interface PlayerUpdate.ReplaceBaseModel {
+export interface PlayerUpdateReplaceBaseModel {
   characterId: string;
   modelId: number;
   unknown3: number;
 }
-export interface PlayerUpdate.SetCollidable {
+export interface PlayerUpdateSetCollidable {
   characterId: string;
   collisionEnabled: boolean;
 }
-export interface PlayerUpdate.UpdateOwner {
+export interface PlayerUpdateUpdateOwner {
   characterId: string;
   unk: number;
 }
-export interface PlayerUpdate.WeaponStance {
+export interface PlayerUpdateWeaponStance {
   characterId: string;
   stance: number;
 }
-export interface PlayerUpdate.MoveOnRail {
+export interface PlayerUpdateMoveOnRail {
   characterId: string;
   unknown4: number;
   unknown5: number;
   position: number[];
 }
-export interface PlayerUpdate.ClearMovementRail {
+export interface PlayerUpdateClearMovementRail {
   characterId: string;
 }
-export interface PlayerUpdate.MoveOnRelativeRail {
+export interface PlayerUpdateMoveOnRelativeRail {
   characterId: string;
   unknown4: number;
   unknown5: number;
@@ -483,14 +487,14 @@ export interface PlayerUpdate.MoveOnRelativeRail {
   unknown8: number;
   unknownVector1: number[];
 }
-export interface PlayerUpdate.Destroyed {
+export interface PlayerUpdateDestroyed {
   characterId: string;
   unknown1: number;
   unknown2: number;
   unknown3: number;
   disableWeirdPhysics: boolean;
 }
-export interface PlayerUpdate.SeekTarget {
+export interface PlayerUpdateSeekTarget {
   characterId: string;
   TargetCharacterId: string;
   initSpeed: number;
@@ -500,15 +504,16 @@ export interface PlayerUpdate.SeekTarget {
   yRot: number;
   rotation: number[];
 }
-export interface PlayerUpdate.SeekTargetUpdate {
+export interface PlayerUpdateSeekTargetUpdate {
   characterId: string;
   TargetCharacterId: string;
 }
-export interface PlayerUpdate.UpdateActiveWieldType {
+export interface PlayerUpdateUpdateActiveWieldType {
   characterId: string;
   filterType: number;
 }
-export interface PlayerUpdate.LaunchProjectile {
+export interface PlayerUpdateLaunchProjectile {
+  projectile :{
   unknownQword1: string;
   unknownDword1: number;
   unknownDword2: number;
@@ -575,9 +580,10 @@ export interface PlayerUpdate.LaunchProjectile {
   unknownDword55: number;
   unknownDword56: number;
   unknownDword57: number;
+}
   unknownDword1: number;
 }
-export interface PlayerUpdate.HudMessage {
+export interface PlayerUpdateHudMessage {
   characterId: string;
   unkguid2: string;
   unknownDword1: number;
@@ -587,10 +593,10 @@ export interface PlayerUpdate.HudMessage {
   unknownDword5: number;
   unknownDword6: number;
 }
-export interface PlayerUpdate.CustomizationData {
+export interface PlayerUpdateCustomizationData {
   customizationData: any[];
 }
-export interface PlayerUpdate.StartHarvest {
+export interface PlayerUpdateStartHarvest {
   characterId: string;
   unknown4: number;
   timeMs: number;
@@ -598,8 +604,9 @@ export interface PlayerUpdate.StartHarvest {
   stringId: number;
   unknownGuid: string;
 }
-export interface PlayerUpdate.KnockedOut {
+export interface PlayerUpdateKnockedOut {
   characterId: string;
+  unknownData1 :{
   unknownQword1: string;
   unknownDword1: number;
   unknownDword2: number;
@@ -613,6 +620,8 @@ export interface PlayerUpdate.KnockedOut {
   unknownDword10: number;
   unknownDword11: number;
   unknownDword12: number;
+}
+  unknownData2 :{
   unknownQword1: string;
   unknownDword1: number;
   unknownDword2: number;
@@ -626,6 +635,8 @@ export interface PlayerUpdate.KnockedOut {
   unknownDword10: number;
   unknownDword11: number;
   unknownDword12: number;
+}
+  unknownData3 :{
   unknownArray1: any[];
   unknownDword1: number;
   unknownQword1: string;
@@ -643,74 +654,75 @@ export interface PlayerUpdate.KnockedOut {
   unknownDword10: number;
   unknownDword11: number;
   unknownDword12: number;
+}
   unknownDword1: number;
 }
-export interface PlayerUpdate.Respawn {
+export interface PlayerUpdateRespawn {
   respawnType: number;
   respawnGuid: string;
   profileId: number;
 }
-export interface PlayerUpdate.RespawnReply {
+export interface PlayerUpdateRespawnReply {
   characterId: string;
   unk: number;
 }
-export interface PlayerUpdate.SetSpotted {
+export interface PlayerUpdateSetSpotted {
   unkArray: any[];
   unk1: number;
   unk2: number;
 }
-export interface PlayerUpdate.Jet {
+export interface PlayerUpdateJet {
   characterId: string;
   state: number;
 }
-export interface PlayerUpdate.SetFaction {
+export interface PlayerUpdateSetFaction {
   guid: string;
   factionId: number;
 }
-export interface PlayerUpdate.SetBattleRank {
+export interface PlayerUpdateSetBattleRank {
   characterId: string;
   battleRank: number;
 }
-export interface PlayerUpdate.ManagedObject {
+export interface PlayerUpdateManagedObject {
   guid: string;
   guid2: string;
   characterId: string;
 }
-export interface PlayerUpdate.ManagedObjectResponseControl {
+export interface PlayerUpdateManagedObjectResponseControl {
   control: number;
   objectCharacterId: string;
 }
-export interface PlayerUpdate.MaterialTypeOverride {
+export interface PlayerUpdateMaterialTypeOverride {
   characterId: string;
   materialType: number;
 }
-export interface PlayerUpdate.DebrisLaunch {
+export interface PlayerUpdateDebrisLaunch {
   characterId: string;
   unk1: number;
   unk2: number;
   unk3: string;
 }
-export interface PlayerUpdate.HideCorpse {
+export interface PlayerUpdateHideCorpse {
   characterId: string;
   unknownBoolean: boolean;
 }
-export interface PlayerUpdate.CharacterStateDelta {
+export interface PlayerUpdateCharacterStateDelta {
   guid1: string;
   guid2: string;
   guid3: string;
   guid4: string;
   gameTime: number;
 }
-export interface PlayerUpdate.UpdateStat {
+export interface PlayerUpdateUpdateStat {
   characterId: string;
   stats: any[];
 }
-export interface PlayerUpdate.PlayWorldCompositeEffect {
+export interface PlayerUpdatePlayWorldCompositeEffect {
   soundId: number;
   position: number[];
   unk3: number;
 }
-export interface PlayerUpdate.AddLightweightPc {
+export interface PlayerUpdateAddLightweightPc {
   characterId: string;
   transientId: any;
   unknownDword1: number;
@@ -733,7 +745,7 @@ export interface PlayerUpdate.AddLightweightPc {
   unknownGuid2: string;
   unknownByte5: number;
 }
-export interface PlayerUpdate.AddLightweightNpc {
+export interface PlayerUpdateAddLightweightNpc {
   characterId: string;
   transientId: any;
   string5: string;
@@ -760,11 +772,13 @@ export interface PlayerUpdate.AddLightweightNpc {
   positionUpdateType: number;
   profileId: number;
   dontRequestFullData: boolean;
-  color: Array;
+  color: number[];
   MRversion: number;
   unknown31: number;
   unknown32: string;
+  attachedObject :{
   targetObjectId: string;
+}
   debugMode: number;
   unknown35: number;
   unknown37: number;
@@ -773,7 +787,8 @@ export interface PlayerUpdate.AddLightweightNpc {
   unknown39: number;
   unknown40: number;
 }
-export interface PlayerUpdate.AddLightweightVehicle {
+export interface PlayerUpdateAddLightweightVehicle {
+  npcData :{
   characterId: string;
   transientId: any;
   string5: string;
@@ -800,11 +815,13 @@ export interface PlayerUpdate.AddLightweightVehicle {
   positionUpdateType: number;
   profileId: number;
   dontRequestFullData: boolean;
-  color: Array;
+  color: number[];
   MRversion: number;
   unknown31: number;
   unknown32: string;
+  attachedObject :{
   targetObjectId: string;
+}
   debugMode: number;
   unknown35: number;
   unknown37: number;
@@ -812,13 +829,14 @@ export interface PlayerUpdate.AddLightweightVehicle {
   unknown38: number;
   unknown39: number;
   unknown40: number;
+}
   unknownGuid1: string;
   unknownDword1: number;
   unknownDword2: number;
   positionUpdate: any;
   unknownString1: string;
 }
-export interface PlayerUpdate.AddProxiedObject {
+export interface PlayerUpdateAddProxiedObject {
   characterId: string;
   transientId: any;
   unknown5: number;
@@ -827,7 +845,7 @@ export interface PlayerUpdate.AddProxiedObject {
   unknown6: number;
   NetworkObjectComponent: any[];
 }
-export interface PlayerUpdate.LightweightToFullPc {
+export interface PlayerUpdateLightweightToFullPc {
   transientId: any;
   unknownDword1: number;
   unknownDword2: number;
@@ -867,7 +885,7 @@ export interface PlayerUpdate.LightweightToFullPc {
   unknownboolean7: boolean;
   unknownboolean8: boolean;
 }
-export interface PlayerUpdate.LightweightToFullNpc {
+export interface PlayerUpdateLightweightToFullNpc {
   transientId: any;
   unknownDword1: number;
   unknownDword2: number;
@@ -926,7 +944,8 @@ export interface PlayerUpdate.LightweightToFullNpc {
   unknownDword32: number;
   unk: number;
 }
-export interface PlayerUpdate.LightweightToFullVehicle {
+export interface PlayerUpdateLightweightToFullVehicle {
+  npcData :{
   transientId: any;
   unknownDword1: number;
   unknownDword2: number;
@@ -984,6 +1003,7 @@ export interface PlayerUpdate.LightweightToFullVehicle {
   unknownDword31: number;
   unknownDword32: number;
   unk: number;
+}
   unknownByte1: number;
   unknownDword1: number;
   unknownArray1: any[];
@@ -996,75 +1016,75 @@ export interface PlayerUpdate.LightweightToFullVehicle {
   vehicleStats: any[];
   characterStats: any[];
 }
-export interface PlayerUpdate.FullCharacterDataRequest {
+export interface PlayerUpdateFullCharacterDataRequest {
   characterId: string;
 }
-export interface PlayerUpdate.InitiateNameChange {
+export interface PlayerUpdateInitiateNameChange {
   characterId: string;
 }
-export interface PlayerUpdate.NameChangeResult {
+export interface PlayerUpdateNameChangeResult {
   characterId: string;
   result: number;
   unknown5: number;
   unknown6: number;
 }
-export interface PlayerUpdate.Deploy {
+export interface PlayerUpdateDeploy {
   characterId: string;
   status: number;
 }
-export interface PlayerUpdate.LowAmmoUpdate {
+export interface PlayerUpdateLowAmmoUpdate {
   characterId: string;
   status: boolean;
 }
-export interface PlayerUpdate.KilledBy {
+export interface PlayerUpdateKilledBy {
   characterId: string;
   characterId2: string;
   isCheater: boolean;
 }
-export interface PlayerUpdate.MotorRunning {
+export interface PlayerUpdateMotorRunning {
   characterId: string;
   isRunning: boolean;
 }
-export interface PlayerUpdate.DroppedIemNotification {
+export interface PlayerUpdateDroppedIemNotification {
   itemId: number;
   quantity: number;
 }
-export interface PlayerUpdate.NoSpaceNotification {
+export interface PlayerUpdateNoSpaceNotification {
 }
-export interface PlayerUpdate.StartMultiStateDeath {
+export interface PlayerUpdateStartMultiStateDeath {
   characterId: string;
   unknown4: number;
   unknown5: number;
   unknown6: number;
 }
-export interface PlayerUpdate.AggroLevel {
+export interface PlayerUpdateAggroLevel {
   characterId: string;
   aggroLevel: number;
 }
-export interface PlayerUpdate.DoorState {
+export interface PlayerUpdateDoorState {
   characterId: string;
   doorState: number;
   unknownBoolean: boolean;
 }
-export interface PlayerUpdate.BeginCharacterAccess {
+export interface PlayerUpdateBeginCharacterAccess {
   characterId: string;
   state: boolean;
   unk1: number;
 }
-export interface PlayerUpdate.EndCharacterAccess {
+export interface PlayerUpdateEndCharacterAccess {
 }
-export interface PlayerUpdate.UpdateMutateRights {
+export interface PlayerUpdateUpdateMutateRights {
   unknownQword1: string;
   unknownBoolean1: boolean;
 }
-export interface Ability.ClientMoveAndCast {
+export interface AbilityClientMoveAndCast {
   position: number[];
   unk1: number;
   unk2: number;
 }
-export interface Ability.Failed {
+export interface AbilityFailed {
 }
-export interface Ability.StartCasting {
+export interface AbilityStartCasting {
   characterId: string;
   unkGuid: string;
   unk1: number;
@@ -1075,7 +1095,7 @@ export interface Ability.StartCasting {
   unk5: number;
   unk6: number;
 }
-export interface Ability.Launch {
+export interface AbilityLaunch {
   characterId: string;
   unkGuid: string;
   unk1: number;
@@ -1106,7 +1126,7 @@ export interface Ability.Launch {
   unk21: boolean;
   unk22: boolean;
 }
-export interface Ability.Land {
+export interface AbilityLand {
   unknown3: bigint;
   unknown4: number;
   weirdAskedByte: number;
@@ -1120,7 +1140,7 @@ export interface Ability.Land {
   unknown13: number;
   unknown14: number;
 }
-export interface Ability.StartChanneling {
+export interface AbilityStartChanneling {
   unknown3: bigint;
   unknown4: bigint;
   unknown5: number;
@@ -1130,18 +1150,18 @@ export interface Ability.StartChanneling {
   unknown9: number;
   unknown10: number;
 }
-export interface Ability.StopCasting {
+export interface AbilityStopCasting {
   characterId: string;
   unkGuid: string;
   unk1: number;
   unk2: number;
   unk3: number;
 }
-export interface Ability.StopAura {
+export interface AbilityStopAura {
   unknown1: number;
   unknown2: number;
 }
-export interface Ability.AbilityDetails {
+export interface AbilityAbilityDetails {
   characterId: string;
   unkGuid: string;
   unkGuid2: string;
@@ -1152,7 +1172,7 @@ export interface Ability.AbilityDetails {
   unk5: boolean;
   unk6: number;
 }
-export interface Ability.SetDefinition {
+export interface AbilitySetDefinition {
   unknown1: number;
   unknown2: boolean;
   unknown3: number;
@@ -1166,7 +1186,7 @@ export interface Ability.SetDefinition {
   unknown11: number;
   unknown12: number;
 }
-export interface Ability.AddAbilityDefinition {
+export interface AbilityAddAbilityDefinition {
   unknown1: number;
   array1: any[];
   unknown3: number;
@@ -1228,16 +1248,16 @@ export interface Ability.AddAbilityDefinition {
   array4: any[];
   array7: any[];
 }
-export interface ReferenceData.ClientProfileData {
+export interface ReferenceDataClientProfileData {
   profiles: any[];
 }
-export interface ReferenceData.WeaponDefinitions {
+export interface ReferenceDataWeaponDefinitions {
   data: any;
 }
-export interface ReferenceData.VehicleDefinitions {
+export interface ReferenceDataVehicleDefinitions {
   data: any;
 }
-export interface Ui.TaskAdd {
+export interface UiTaskAdd {
   Unknown1: boolean;
   Unknown2: boolean;
   Unknown3: boolean;
@@ -1250,68 +1270,74 @@ export interface Ui.TaskAdd {
   Unknown10: number;
   Unknown11: number;
 }
-export interface Ui.StartTimer {
+export interface UiStartTimer {
   time: number;
 }
-export interface Ui.ResetTimer {
+export interface UiResetTimer {
 }
-export interface Ui.Message {
+export interface UiMessage {
   stringId: number;
 }
-export interface Ui.WeaponHitFeedback {
+export interface UiWeaponHitFeedback {
   Unknown1: number;
   isEnemy: boolean;
   Unknown2: number;
 }
-export interface Ui.HeadShotFeedback {
+export interface UiHeadShotFeedback {
   Unknown3: boolean;
   Unknown4: boolean;
 }
-export interface Recipe.List {
+export interface RecipeList {
   recipes: any[];
 }
-export interface Acquaintance.Add {
+export interface AcquaintanceAdd {
   characterId: string;
   characterName: string;
   type: number;
   elapsedTime: string;
   isOnline: number;
 }
-export interface Acquaintance.Remove {
+export interface AcquaintanceRemove {
 }
-export interface Acquaintance.Online {
+export interface AcquaintanceOnline {
   characterId: string;
   isOnline: boolean;
 }
-export interface Friend.List {
+export interface FriendList {
   friends: any[];
 }
-export interface Friend.Message {
+export interface FriendMessage {
   messageType: number;
   messageTime: string;
-  unknowndDword1: number;
-  unknowndDword2: number;
-  unknowndDword3: number;
-  characterName: string;
-  unknownString1: string;
+  messageData1 :{
   unknowndDword1: number;
   unknowndDword2: number;
   unknowndDword3: number;
   characterName: string;
   unknownString1: string;
 }
-export interface ClientPath.Request {
+  messageData2 :{
+  unknowndDword1: number;
+  unknowndDword2: number;
+  unknowndDword3: number;
+  characterName: string;
+  unknownString1: string;
 }
-export interface ClientPath.Reply {
+}
+export interface ClientPathRequest {
+}
+export interface ClientPathReply {
   PathProcessingTech: number;
   unknownDword2: number;
   nodes: any[];
 }
-export interface Achievement.Add {
+export interface AchievementAdd {
   achievementId: number;
+  achievementData :{
   objectiveId: number;
   nameId: number;
   descriptionId: number;
+  rewardData :{
   unknownByte1: boolean;
   currency: any[];
   unknownDword1: number;
@@ -1328,108 +1354,116 @@ export interface Achievement.Add {
   imageSetId: number;
   entries: any[];
   unknownDword10: number;
+}
   unknownByte1: number;
   unknownDword3: number;
   unknownDword4: number;
   unknownByte2: number;
   unknownByte3: number;
+  unknownData1 :{
   unknownDword1: number;
   unknownDword2: number;
   unknownDword3: number;
   unknownDword4: number;
+}
   unknownByte4: number;
 }
-export interface Achievement.Initialize {
+}
+export interface AchievementInitialize {
   clientAchievements: any[];
   achievementData: any;
 }
-export interface Loot.Reply {
+export interface LootReply {
   items: any[];
 }
-export interface Mount.MountResponse {
+export interface MountMountResponse {
   characterId: string;
   guid: string;
   unknownDword1: number;
   unknownDword2: number;
   unknownDword3: number;
   unknownDword4: number;
+  characterData :{
   unknownDword1: number;
   unknownDword2: number;
   unknownDword3: number;
   characterName: string;
   unknownString1: string;
+}
   tagString: string;
   unknownDword5: number;
 }
-export interface Mount.DismountRequest {
+export interface MountDismountRequest {
   unknownByte1: number;
 }
-export interface Mount.DismountResponse {
+export interface MountDismountResponse {
   characterId: string;
   guid: string;
   unknownDword1: number;
   unknownBoolean1: boolean;
   unknownByte1: number;
 }
-export interface Mount.List {
+export interface MountList {
   List: any[];
 }
-export interface Mount.SeatChangeRequest {
+export interface MountSeatChangeRequest {
   seatId: number;
 }
-export interface Mount.SeatChangeResponse {
+export interface MountSeatChangeResponse {
   characterId: string;
   vehicleId: string;
   unknownDword1: number;
   unknownDword2: number;
   unknownDword3: number;
 }
-export interface Mount.SeatSwapRequest {
+export interface MountSeatSwapRequest {
   characterId: string;
+  identity :{
   CharacterId: number;
   AccountId: number;
   unknownDword3: number;
   characterFirstName: string;
   characterLastName: string;
+}
   unknownDword3: number;
 }
-export interface Target.CharacterGuid {
+export interface TargetCharacterGuid {
 }
-export interface Target.Location {
+export interface TargetLocation {
 }
-export interface Target.CharacterBone {
+export interface TargetCharacterBone {
 }
-export interface Target.CharacterBoneId {
+export interface TargetCharacterBoneId {
 }
-export interface Target.ActorBone {
+export interface TargetActorBone {
   Unk1: number;
   unk2: string;
 }
-export interface Target.ActorBoneId {
+export interface TargetActorBoneId {
 }
-export interface Target.Facility {
+export interface TargetFacility {
 }
-export interface Voice.Login {
+export interface VoiceLogin {
   clientName: string;
   sessionId: string;
   url: string;
   characterName: string;
 }
-export interface Voice.JoinChannel {
+export interface VoiceJoinChannel {
   roomType: number;
   uri: string;
   unknown1: string;
 }
-export interface Weapon.Weapon {
+export interface WeaponWeapon {
   weaponPacket: any;
 }
-export interface Facility.ReferenceData {
+export interface FacilityReferenceData {
   data: any;
 }
-export interface Facility.FacilityData {
+export interface FacilityFacilityData {
   facilities: any[];
 }
-export interface Facility.ProximitySpawnCaptureUpdate {
+export interface FacilityProximitySpawnCaptureUpdate {
   unknownBoolean1: boolean;
   unknownBoolean2: boolean;
   unknown1: number;
@@ -1438,18 +1472,19 @@ export interface Facility.ProximitySpawnCaptureUpdate {
   unknownBoolean5: boolean;
   unknownBoolean6: boolean;
 }
-export interface Facility.SpawnCollisionChanged {
+export interface FacilitySpawnCollisionChanged {
   unknown1: number;
   unknown2: boolean;
   unknown3: number;
 }
-export interface Skill.SelectSkill {
+export interface SkillSelectSkill {
   unknownDword1: number;
   unknownWord1: number;
   unknownDword2: number;
 }
-export interface Skill.SetSkillPointManager {
+export interface SkillSetSkillPointManager {
   unknownDword1: number;
+  unknownSchema1 :{
   unknownQword1: string;
   unknownQword2: string;
   unknownQword3: string;
@@ -1457,54 +1492,55 @@ export interface Skill.SetSkillPointManager {
   unknownQword5: string;
   unknownDword2: number;
 }
-export interface Skill.SetSkillPointProgress {
+}
+export interface SkillSetSkillPointProgress {
   unknown1: number;
   unknown2: number;
   unknown3: number;
 }
-export interface Loadout.SetCurrentLoadout {
+export interface LoadoutSetCurrentLoadout {
   guid: string;
   loadoutId: number;
 }
-export interface Loadout.SelectSlot {
+export interface LoadoutSelectSlot {
   type: number;
   unknownByte1: number;
   unknownByte2: number;
   loadoutSlotId: number;
   gameTime: number;
 }
-export interface Loadout.SetCurrentSlot {
+export interface LoadoutSetCurrentSlot {
   type: number;
   unknownByte1: number;
   slotId: number;
 }
-export interface Loadout.ActivateVehicleLoadoutTerminal {
+export interface LoadoutActivateVehicleLoadoutTerminal {
   type: number;
   guid: string;
 }
-export interface Loadout.SetLoadouts {
+export interface LoadoutSetLoadouts {
   type: number;
   guid: string;
   unknownDword1: number;
 }
-export interface Experience.SetExperienceRanks {
+export interface ExperienceSetExperienceRanks {
   experienceRanks: any[];
 }
-export interface Experience.SetExperienceRateTier {
+export interface ExperienceSetExperienceRateTier {
   unknownDword1: number;
   unknownDword2: number;
   unknownDword3: number;
   unknownDword4: number;
   unknownDword5: number;
 }
-export interface Vehicle.Owner {
+export interface VehicleOwner {
   guid: string;
   characterId: string;
   unknownDword1: number;
   vehicleId: number;
   passengers: any[];
 }
-export interface Vehicle.Occupy {
+export interface VehicleOccupy {
   guid: string;
   characterId: string;
   vehicleId: number;
@@ -1512,76 +1548,80 @@ export interface Vehicle.Occupy {
   unknownArray1: any[];
   passengers: any[];
   unknownArray2: any[];
+  unknownData1 :{
   unknownDword1: number;
+  unknownData1 :{
   unknownDword1: number;
   unknownByte1: number;
+}
   unknownString1: string;
   unknownDword2: number;
   unknownDword3: number;
   unknownDword4: number;
   unknownDword5: number;
   unknownArray3: any[];
+}
   unknownBytes1: any;
   unknownBytes2: any;
 }
-export interface Vehicle.StateData {
+export interface VehicleStateData {
   guid: string;
   unknown3: number;
   unknown4: any[];
   unknown5: any[];
 }
-export interface Vehicle.StateDamage {
+export interface VehicleStateDamage {
   guid: string;
   unknownVector1: number[];
   unknownVector2: number[];
 }
-export interface Vehicle.Spawn {
+export interface VehicleSpawn {
   vehicleId: number;
   loadoutTab: number;
 }
-export interface Vehicle.UpdateQueuePosition {
+export interface VehicleUpdateQueuePosition {
   queuePosition: number;
 }
-export interface Vehicle.SetAutoDrive {
+export interface VehicleSetAutoDrive {
   guid: string;
 }
-export interface Vehicle.LoadVehicleDefinitionManager {
+export interface VehicleLoadVehicleDefinitionManager {
   vehicleDefinitions: any[];
 }
-export interface Vehicle.Dismiss {
+export interface VehicleDismiss {
 }
-export interface Vehicle.AutoMount {
+export interface VehicleAutoMount {
   guid: string;
   unknownBoolean1: boolean;
   unknownDword1: number;
 }
-export interface Vehicle.Engine {
+export interface VehicleEngine {
   guid1: string;
   guid2: string;
   unknownBoolean: boolean;
 }
-export interface Vehicle.AccessType {
+export interface VehicleAccessType {
   vehicleGuid: string;
   accessType: number;
 }
-export interface Vehicle.HealthUpdateOwner {
+export interface VehicleHealthUpdateOwner {
   vehicleGuid: string;
   health: number;
 }
-export interface Vehicle.Expiration {
+export interface VehicleExpiration {
   expireTime: number;
 }
-export interface Vehicle.CurrentMoveMode {
+export interface VehicleCurrentMoveMode {
   characterId: string;
   moveMode: number;
 }
-export interface Vehicle.ItemDefinitionRequest {
+export interface VehicleItemDefinitionRequest {
 }
 export interface ResourceEvent {
   gameTime: number;
   eventData: any;
 }
-export interface Collision.Damage {
+export interface CollisionDamage {
   unknownByte1: number;
   characterId: string;
   objectCharacterId: string;
@@ -1591,7 +1631,7 @@ export interface Collision.Damage {
   position: number[];
   unknownByte2: number;
 }
-export interface Equipment.SetCharacterEquipment {
+export interface EquipmentSetCharacterEquipment {
   profileId: number;
   characterId: string;
   unknownDword1: number;
@@ -1600,7 +1640,7 @@ export interface Equipment.SetCharacterEquipment {
   equipmentSlots: any[];
   attachmentData: any[];
 }
-export interface Equipment.SetCharacterEquipmentSlots {
+export interface EquipmentSetCharacterEquipmentSlots {
   profileId: number;
   characterId: string;
   gameTime: number;
@@ -1611,107 +1651,142 @@ export interface Equipment.SetCharacterEquipmentSlots {
   textures: any[];
   models: any[];
 }
-export interface DefinitionFilter.SetDefinitionVariable {
+export interface DefinitionFilterSetDefinitionVariable {
   unknownDword1: number;
   unknownQword1: string;
+  unknownData1 :{
   unknownFloat1: number;
   unknownFloat2: number;
 }
-export interface DefinitionFilter.SetDefinitionIntSet {
+}
+export interface DefinitionFilterSetDefinitionIntSet {
   unknownDword1: number;
   unknownQword1: string;
   unknownData1: any[];
 }
-export interface DefinitionFilter.UnknownWithVariable1 {
+export interface DefinitionFilterUnknownWithVariable1 {
   unknownDword1: number;
   unknownQword1: string;
 }
-export interface DefinitionFilter.UnknownWithVariable2 {
+export interface DefinitionFilterUnknownWithVariable2 {
   unknownDword1: number;
   unknownQword1: string;
 }
-export interface WallOfData.UIEvent {
+export interface WallOfDataUIEvent {
   object: string;
   function: string;
   argument: string;
 }
-export interface WallOfData.ClientSystemInfo {
+export interface WallOfDataClientSystemInfo {
   ClientSystemInfo: string;
 }
-export interface WallOfData.LaunchPadFingerprint {
+export interface WallOfDataLaunchPadFingerprint {
   LaunchPadFingerprint: string;
 }
-export interface WallOfData.ClientTransition {
+export interface WallOfDataClientTransition {
   oldState: number;
   newState: number;
   msElapsed: number;
 }
-export interface Effect.AddEffect {
+export interface EffectAddEffect {
+  unknownData1 :{
   unknownDword1: number;
   unknownDword2: number;
   unknownDword3: number;
+}
+  unknownData2 :{
   unknownQword1: string;
   unknownQword2: string;
+}
+  unknownData3 :{
   unknownQword1: string;
   unknownQword2: string;
   unknownVector1: number[];
 }
-export interface Effect.UpdateEffect {
+}
+export interface EffectUpdateEffect {
+  unknownData1 :{
   unknownDword1: number;
   unknownDword2: number;
   unknownDword3: number;
+}
+  unknownData2 :{
   unknownDword1: number;
   unknownQword1: string;
+}
+  unknownData3 :{
   unknownQword1: string;
   unknownQword2: string;
   unknownVector1: number[];
 }
-export interface Effect.RemoveEffect {
+}
+export interface EffectRemoveEffect {
+  unknownData1 :{
   unknownDword1: number;
   unknownDword2: number;
   unknownDword3: number;
+}
+  unknownData2 :{
   unknownQword1: string;
+}
+  unknownData3 :{
   unknownQword1: string;
   unknownQword2: string;
   unknownVector1: number[];
 }
-export interface Effect.AddEffectTag {
+}
+export interface EffectAddEffectTag {
   unknownDword1: number;
   unknownDword2: number;
   unknownDword3: number;
   unknownDword4: number;
   unknownDword5: number;
+  unknownData1 :{
   unknownGuid1: string;
   unknownGuid2: string;
+}
+  unknownData2 :{
   unknownGuid1: string;
   unknownGuid2: string;
   unknownVector1: number[];
+}
+  unknownData3 :{
   unknownDword1: number;
   unknownDword2: number;
   unknownDword3: number;
+}
   unknownDword6: number;
   unknownByte1: number;
 }
-export interface Effect.RemoveEffectTag {
+export interface EffectRemoveEffectTag {
+  unknownData1 :{
   unknownQword1: string;
+}
+  unknownData2 :{
   unknownDword1: number;
   unknownQword1: string;
   unknownQword2: string;
 }
-export interface Effect.TargetBlockedEffect {
+}
+export interface EffectTargetBlockedEffect {
+  unknownData1 :{
   unknownQword1: string;
 }
-export interface Abilities.InitAbility {
+}
+export interface AbilitiesInitAbility {
   unknownDword1: number;
   unknownDword2: number;
   unknownDword3: number;
   unknownDword4: number;
   unknownQword1: string;
   unknownQword2: string;
+  unknownSchema1 :{
   unknownQword3: string;
   unknownQword4: string;
   unknownFloatVector1: number[];
+}
   unknownWord1: number;
+  unknownArray6 :{
   unknownWord2: number;
   unknownArray1: any[];
   unknownArray2: any[];
@@ -1719,72 +1794,73 @@ export interface Abilities.InitAbility {
   unknownArray4: any[];
   unknownArray5: any[];
 }
-export interface Abilities.SetActivatableAbilityManager {
+}
+export interface AbilitiesSetActivatableAbilityManager {
   unknownArray1: any[];
 }
-export interface Abilities.SetLoadoutAbilities {
+export interface AbilitiesSetLoadoutAbilities {
   abilities: any[];
 }
-export interface MapRegion.GlobalData {
+export interface MapRegionGlobalData {
   unknown1: number;
   unknown2: number;
 }
-export interface MapRegion.Data {
+export interface MapRegionData {
   unknown1: number;
   unknown2: number;
   regions: any[];
 }
-export interface MapRegion.MapOutOfBounds {
+export interface MapRegionMapOutOfBounds {
   characterId: string;
   unknownDword1: number;
   unknownByte2: number;
 }
-export interface MapRegion.RequestContinentData {
+export interface MapRegionRequestContinentData {
   zoneId: number;
 }
-export interface ClientPcData.SpeechPackList {
+export interface ClientPcDataSpeechPackList {
   speechPacks: any[];
 }
-export interface Currency.SetCurrencyDiscount {
+export interface CurrencySetCurrencyDiscount {
   currencyId: number;
   discount: number;
 }
-export interface ZoneSetting.Data {
+export interface ZoneSettingData {
   settings: any[];
 }
-export interface Operation.ClientClearMissions {
+export interface OperationClientClearMissions {
 }
-export interface WordFilter.Data {
+export interface WordFilterData {
   wordFilterData: any;
 }
-export interface StaticFacilityInfo.AllZones {
+export interface StaticFacilityInfoAllZones {
   facilities: any[];
 }
-export interface Container.InitEquippedContainers {
+export interface ContainerInitEquippedContainers {
   Unknown2: number;
   EquippedContainers: any[];
 }
-export interface Construction.PlacementRequest {
+export interface ConstructionPlacementRequest {
 }
-export interface Construction.PlacementResponse {
+export interface ConstructionPlacementResponse {
   Unknown2: boolean;
   Unknown3: number;
   model: number;
 }
-export interface Construction.PlacementFinalizeRequest {
+export interface ConstructionPlacementFinalizeRequest {
   position: number[];
   rotation: number[];
 }
-export interface Construction.PlacementFinalizeResponse {
+export interface ConstructionPlacementFinalizeResponse {
   status: boolean;
 }
-export interface Ragdoll.Stop {
+export interface RagdollStop {
   unknown3: number;
   unknown4: string;
   array1: any[];
   array2: any[];
 }
-export interface Chat.Chat {
+export interface ChatChat {
   unknown2: number;
   channel: number;
   characterId1: string;
@@ -1808,26 +1884,26 @@ export interface Chat.Chat {
   unknown15: number;
   unknown16: boolean;
 }
-export interface Chat.ChatText {
+export interface ChatChatText {
   message: string;
   unknownDword1: number;
-  color: Array;
+  color: any[];
   unknownDword2: number;
   unknownByte3: number;
   unknownByte4: number;
 }
-export interface Command.PlaySoundAtLocation {
+export interface CommandPlaySoundAtLocation {
   soundName: string;
   unk1: number;
   unk2: number;
   unk3: number;
 }
-export interface Command.InteractRequest {
+export interface CommandInteractRequest {
   guid: string;
 }
-export interface Command.InteractCancel {
+export interface CommandInteractCancel {
 }
-export interface Command.InteractionList {
+export interface CommandInteractionList {
   guid: string;
   unknownBoolean1: boolean;
   unknownArray1: any[];
@@ -1836,89 +1912,89 @@ export interface Command.InteractionList {
   unknownArray2: any[];
   unknownBoolean3: boolean;
 }
-export interface Command.InteractionSelect {
+export interface CommandInteractionSelect {
   guid: string;
   interactionId: number;
 }
-export interface Command.SetProfile {
+export interface CommandSetProfile {
   profileId: number;
   tab: number;
 }
-export interface Command.PlayerSelect {
+export interface CommandPlayerSelect {
   characterId: string;
   guid: string;
 }
-export interface Command.FreeInteractionNpc {
+export interface CommandFreeInteractionNpc {
 }
-export interface Command.MoveAndInteract {
+export interface CommandMoveAndInteract {
   position: number[];
   guid: string;
 }
-export interface Command.RecipeStart {
+export interface CommandRecipeStart {
   recipeId: number;
 }
-export interface Command.ShowRecipeWindow {
+export interface CommandShowRecipeWindow {
   characterId: number;
 }
-export interface Command.PlayDialogEffect {
+export interface CommandPlayDialogEffect {
   characterId: string;
   effectId: number;
 }
-export interface Command.SetActiveVehicleGuid {
+export interface CommandSetActiveVehicleGuid {
   unknown2: number;
   unknown3: number;
   vehicleId: string;
 }
-export interface Command.PlaySoundIdOnTarget {
+export interface CommandPlaySoundIdOnTarget {
   target: number;
   unk: boolean;
 }
-export interface Command.SpotPlayerReply {
+export interface CommandSpotPlayerReply {
   guid: string;
   unk1: string;
   unk2: string;
 }
-export interface Command.InteractionString {
+export interface CommandInteractionString {
   guid: string;
   stringId: number;
   unknownArray1: any[];
 }
-export interface Command.PlayersInRadius {
+export interface CommandPlayersInRadius {
   radius: number;
   unknown: number;
   numberOfPlayer: number;
 }
-export interface Command.AddWorldCommand {
+export interface CommandAddWorldCommand {
   command: string;
 }
-export interface Command.AddZoneCommand {
+export interface CommandAddZoneCommand {
   command: string;
 }
-export interface Command.ExecuteCommand {
+export interface CommandExecuteCommand {
   commandHash: number;
   arguments: string;
 }
-export interface Command.ZoneExecuteCommand {
+export interface CommandZoneExecuteCommand {
   commandHash: number;
   arguments: string;
 }
-export interface Command.ItemDefinitions {
+export interface CommandItemDefinitions {
   data: any;
 }
-export interface Command.EnableCompositeEffects {
+export interface CommandEnableCompositeEffects {
   enabled: boolean;
 }
-export interface Command.RecipeAction {
+export interface CommandRecipeAction {
 }
-export interface Command.RequestWeaponFireStateUpdate {
+export interface CommandRequestWeaponFireStateUpdate {
   characterId: string;
 }
-export interface Command.DeliveryManagerStatus {
+export interface CommandDeliveryManagerStatus {
   color: number;
   status: number;
   unkString: string;
 }
-export interface Command.SpawnVehicle {
+export interface CommandSpawnVehicle {
   vehicleId: number;
   factionId: number;
   position: number[];
@@ -1926,10 +2002,10 @@ export interface Command.SpawnVehicle {
   unknownDword1: number;
   autoMount: boolean;
 }
-export interface Command.RunSpeed {
+export interface CommandRunSpeed {
   runSpeed: number;
 }
-export interface Command.AddItem {
+export interface CommandAddItem {
   itemId: number;
   stackCount: number;
   imageSetId: number;
@@ -1937,7 +2013,7 @@ export interface Command.AddItem {
   NameId: number;
   DescriptionId: number;
 }
-export interface Combat.AttackProcessed {
+export interface CombatAttackProcessed {
   unknownQword1: string;
   unknownQword2: string;
   unknownQword3: string;
@@ -1949,14 +2025,14 @@ export interface Combat.AttackProcessed {
   unknownDword4: number;
   unknownDword5: number;
 }
-export interface ClientUpdate.ItemAdd {
+export interface ClientUpdateItemAdd {
   guid: string;
   unknown1: number;
 }
-export interface ClientUpdate.UpdateStat {
+export interface ClientUpdateUpdateStat {
   stats: any[];
 }
-export interface ClientUpdate.CollectionAddEntry {
+export interface ClientUpdateCollectionAddEntry {
   unknownDword1: number;
   unknownDword2: number;
   unknownDword3: number;
@@ -1966,29 +2042,29 @@ export interface ClientUpdate.CollectionAddEntry {
   unknownDword7: number;
   unknownBoolean1: boolean;
 }
-export interface ClientUpdate.CollectionRemoveEntry {
+export interface ClientUpdateCollectionRemoveEntry {
   unknownDword1: number;
   unknownDword2: number;
 }
-export interface ClientUpdate.UpdateLocation {
+export interface ClientUpdateUpdateLocation {
   position: number[];
   rotation: number[];
   unknownBool1: boolean;
   movementVersion: number;
 }
-export interface ClientUpdate.Mana {
+export interface ClientUpdateMana {
   mana: number;
 }
-export interface ClientUpdate.AddProfileAbilitySetApl {
+export interface ClientUpdateAddProfileAbilitySetApl {
   unknownDword1: number;
   profiles: any[];
 }
-export interface ClientUpdate.AddEffectTag {
+export interface ClientUpdateAddEffectTag {
   unknownDword1: number;
   unknownDword2: number;
   unknownDword3: number;
 }
-export interface ClientUpdate.ActivateProfile {
+export interface ClientUpdateActivateProfile {
   profiles: any;
   attachmentData: any[];
   unknownDword1: number;
@@ -1997,13 +2073,13 @@ export interface ClientUpdate.ActivateProfile {
   unknownString1: string;
   unknownString2: string;
 }
-export interface ClientUpdate.NotifyPlayer {
+export interface ClientUpdateNotifyPlayer {
   message: string;
 }
-export interface ClientUpdate.DoneSendingPreloadCharacters {
+export interface ClientUpdateDoneSendingPreloadCharacters {
   unknownBoolean1: number;
 }
-export interface ClientUpdate.DamageInfo {
+export interface ClientUpdateDamageInfo {
   unknownDword1: number;
   transientId: any;
   unknownDword2: number;
@@ -2014,33 +2090,33 @@ export interface ClientUpdate.DamageInfo {
   unknownDword5: number;
   unknownDword6: number;
 }
-export interface ClientUpdate.ZonePopulation {
+export interface ClientUpdateZonePopulation {
   populations: any[];
 }
-export interface ClientUpdate.RespawnLocations {
+export interface ClientUpdateRespawnLocations {
   locations: any[];
   locations2: any[];
 }
-export interface ClientUpdate.ModifyMovementSpeed {
+export interface ClientUpdateModifyMovementSpeed {
   speed: number;
-  version?: number;
+  movementVersion: number;
 }
-export interface ClientUpdate.ModifyTurnRate {
+export interface ClientUpdateModifyTurnRate {
   speed: number;
-  version?: number;
+  movementVersion: number;
 }
-export interface ClientUpdate.ModifyStrafeSpeed {
+export interface ClientUpdateModifyStrafeSpeed {
   speed: number;
-  version?: number;
+  movementVersion: number;
 }
-export interface ClientUpdate.UpdateManagedLocation {
+export interface ClientUpdateUpdateManagedLocation {
   characterId: string;
   position: number[];
   rotation: number[];
   unk1: number;
   unk2: number;
 }
-export interface ClientUpdate.ScreenEffect {
+export interface ClientUpdateScreenEffect {
   unknown1: number;
   unknownUint: any;
   unknown2: boolean;
@@ -2052,47 +2128,47 @@ export interface ClientUpdate.ScreenEffect {
   unknown8: number;
   vector1: number[];
 }
-export interface ClientUpdate.MovementVersion {
+export interface ClientUpdateMovementVersion {
   version: number;
 }
-export interface ClientUpdate.ManagedMovementVersion {
+export interface ClientUpdateManagedMovementVersion {
   version: any;
-  version?: number;
+  movementVersion: number;
 }
-export interface ClientUpdate.UpdateWeaponAddClips {
+export interface ClientUpdateUpdateWeaponAddClips {
   unknownDword1: number;
   unknownByte1: number;
   unknownFloat1: number;
 }
-export interface ClientUpdate.DailyRibbonCount {
+export interface ClientUpdateDailyRibbonCount {
   unknownDword1: number;
   unknownDword2: number;
   unknownBoolean1: boolean;
 }
-export interface ClientUpdate.DespawnNpcUpdate {
+export interface ClientUpdateDespawnNpcUpdate {
   characterId: string;
   timeBeforeDespawn: number;
 }
-export interface ClientUpdate.Freeze {
+export interface ClientUpdateFreeze {
   frozen: number;
 }
-export interface ClientUpdate.StartTimer {
+export interface ClientUpdateStartTimer {
   stringId: number;
   time: number;
   message: string;
 }
-export interface ClientUpdate.CompleteLogoutProcess {
+export interface ClientUpdateCompleteLogoutProcess {
 }
-export interface ClientUpdate.ProximateItems {
+export interface ClientUpdateProximateItems {
   items: any[];
 }
-export interface ClientUpdate.TextAlert {
+export interface ClientUpdateTextAlert {
   message: string;
 }
-export interface InGamePurchase.StoreBundleCategories {
+export interface InGamePurchaseStoreBundleCategories {
   categories: any[];
 }
-export interface InGamePurchase.WalletInfoResponse {
+export interface InGamePurchaseWalletInfoResponse {
   unknownDword1: number;
   unknownBoolean1: boolean;
   unknownDword2: number;
@@ -2101,34 +2177,34 @@ export interface InGamePurchase.WalletInfoResponse {
   unknownString2: string;
   unknownBoolean2: boolean;
 }
-export interface InGamePurchase.EnableMarketplace {
+export interface InGamePurchaseEnableMarketplace {
   unknownBoolean1: boolean;
   unknownBoolean2: boolean;
 }
-export interface InGamePurchase.AccountInfoRequest {
+export interface InGamePurchaseAccountInfoRequest {
   locale: string;
 }
-export interface InGamePurchase.ItemOfTheDay {
+export interface InGamePurchaseItemOfTheDay {
   bundleId: number;
 }
-export interface InGamePurchase.ActiveSchedules {
+export interface InGamePurchaseActiveSchedules {
   unknown1: any[];
   unknown2: number;
   unknown3: any[];
 }
-export interface QuickChat.SendData {
+export interface QuickChatSendData {
   commands: any[];
 }
-export interface LobbyGameDefinition.DefinitionsRequest {
+export interface LobbyGameDefinitionDefinitionsRequest {
 }
-export interface LobbyGameDefinition.DefinitionsResponse {
+export interface LobbyGameDefinitionDefinitionsResponse {
   definitionsData: any;
 }
-export interface CoinStore.ItemList {
+export interface CoinStoreItemList {
   items: any[];
   unknown1: number;
 }
-export interface CoinStore.SellToClientRequest {
+export interface CoinStoreSellToClientRequest {
   unknown1: number;
   unknown2: number;
   itemId: number;
@@ -2136,7 +2212,7 @@ export interface CoinStore.SellToClientRequest {
   quantity: number;
   unknown6: number;
 }
-export interface CoinStore.TransactionComplete {
+export interface CoinStoreTransactionComplete {
   unknown1: number;
   unknown2: number;
   unknown3: number;
@@ -2153,28 +2229,30 @@ export interface CoinStore.TransactionComplete {
   unknown11: number;
   unknown12: number;
 }
-export interface Target.AddTarget {
+export interface TargetAddTarget {
   Unk1: string;
   Unk2: string;
   Unk3: boolean;
 }
-export interface Target.SetTarget {
+export interface TargetSetTarget {
   Unk1: string;
   Unk2: string;
   Unk3: boolean;
 }
-export interface Target.RemoveTarget {
+export interface TargetRemoveTarget {
   Unk2: string;
   Unk3: boolean;
 }
-export interface Target.ClearTarget {
+export interface TargetClearTarget {
   Unk2: string;
   Unk3: boolean;
 }
-export interface ProfileStats.GetPlayerProfileStats {
+export interface ProfileStatsGetPlayerProfileStats {
   characterId: string;
 }
-export interface ProfileStats.PlayerProfileStats {
+export interface ProfileStatsPlayerProfileStats {
+  unknownData1 :{
+  unknownData1 :{
   unknownDword1: number;
   unknownArray1: any[];
   unknownDword2: number;
@@ -2184,6 +2262,7 @@ export interface ProfileStats.PlayerProfileStats {
   unknownDword6: number;
   unknownDword7: number;
   unknownDword8: number;
+}
   unknownDword1: number;
   unknownArray1: any[];
   unknownDword2: number;
@@ -2204,6 +2283,7 @@ export interface ProfileStats.PlayerProfileStats {
   unknownDword13: number;
   unknownArray4: any[];
   unknownArray5: any[];
+}
   weaponStats1: any[];
   weaponStats2: any[];
   vehicleStats: any[];
@@ -2229,28 +2309,28 @@ export interface DtoHitSpeedTreeReport {
   treeId: number;
   name: string;
 }
-export interface Ragdoll.Start {
+export interface RagdollStart {
   characterId: string;
 }
-export interface Ragdoll.UpdatePose {
+export interface RagdollUpdatePose {
   characterId: string;
   positionUpdate: any;
 }
-export interface Ragdoll.Unk2 {
+export interface RagdollUnk2 {
   characterId: string;
   unk1: number;
   unkArray1: any[];
   positionUpdate: any;
 }
-export interface Ragdoll.Unk {
+export interface RagdollUnk {
   characterId: string;
   unk1: number;
   unkArray1: any[];
 }
-export interface PlayerUpdate.RemovePlayer {
+export interface PlayerUpdateRemovePlayer {
   characterId: string;
 }
-export interface PlayerUpdate.RemovePlayerGracefully {
+export interface PlayerUpdateRemovePlayerGracefully {
   characterId: string;
   unknown5: boolean;
   unknown6: number;
@@ -2259,13 +2339,15 @@ export interface PlayerUpdate.RemovePlayerGracefully {
   stickyEffectId: number;
   timeToDisappear: number;
 }
-export interface InGamePurchase.StoreBundles {
+export interface InGamePurchaseStoreBundles {
   unknownDword1: number;
   unknownDword2: number;
   storeId: number;
   unknownDword3: number;
   unknownDword4: number;
+  imageData :{
   imageSetId: string;
   imageTintValue: string;
+}
   storeBundles: any[];
 }
