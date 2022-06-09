@@ -1,4 +1,3 @@
-import { H1Z1Protocol } from "../h1z1-server";
 import fs from "fs";
 const h1z1packets2015 = require("../src/packets/ClientProtocol/ClientProtocol_860/h1z1packets");
 const h1z1packets2016 = require("../src/packets/ClientProtocol/ClientProtocol_1080/h1z1packets");
@@ -36,13 +35,16 @@ function getSchemaBody(schema: any) {
   schema.forEach((element: any) => {
     if (element.type === "schema") {
       bodyInterfaceString += "  ";
-      bodyInterfaceString += element.name;
+      bodyInterfaceString += element.name + "?";
       bodyInterfaceString += " :{\n";
       bodyInterfaceString += getSchemaBody(element.fields);
       bodyInterfaceString += "}\n";
     } else {
       const type = typeMap[element.type];
-      bodyInterfaceString += `  ${element.name}: ${type || "any"};\n`;
+      const isOptionnal = element.defaultValue;
+      bodyInterfaceString += `  ${element.name}${isOptionnal ? "?" : ""}: ${
+        type || "any"
+      };\n`;
     }
   });
   return bodyInterfaceString;
