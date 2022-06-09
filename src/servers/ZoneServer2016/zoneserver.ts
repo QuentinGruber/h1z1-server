@@ -1406,6 +1406,37 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  setGodMode(client: Client, godMode: boolean) {
+    client.character.godMode = godMode;
+    client.character.characterStates.invincibility = godMode;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
+  }
+
+  toggleHiddenMode(client: Client) {
+    client.character.isHidden = !client.character.isHidden;
+    client.character.characterStates.gmHidden = client.character.isHidden;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
+  }
+
+  tempGodMode(client: Client, durationMs: number) {
+    if (!client.character.godMode) {
+      this.setGodMode(client, true);
+      setTimeout(() => {
+        this.setGodMode(client, false);
+      }, durationMs);
+    }
+  }
+
   updateCharacterState(
     client: Client,
     characterId: string,

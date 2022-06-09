@@ -18,8 +18,10 @@ import { BaseFullCharacter } from "./basefullcharacter";
 import { positionUpdate } from "../../../types/zoneserver";
 
 interface CharacterStates {
-  knockedOut: boolean;
-  inWater: boolean;
+  invincibility?: boolean;
+  gmHidden?: boolean;
+  knockedOut?: boolean;
+  inWater?: boolean;
 }
 export class Character2016 extends BaseFullCharacter {
   name?: string;

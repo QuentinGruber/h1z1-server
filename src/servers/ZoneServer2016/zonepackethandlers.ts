@@ -99,6 +99,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      server.setGodMode(client, true);
       server.sendData(client, "ClientBeginZoning", {
         position: client.character.state.position,
         rotation: client.character.state.lookAt,
@@ -131,9 +132,11 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      server.tempGodMode(client,3000);
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
       if (client.firstLoading) {
+        server.setGodMode(client, false);
         setTimeout(() => {
           server.sendData(client, "POIChangeMessage", {
             // welcome POI message
