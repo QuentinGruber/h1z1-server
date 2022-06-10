@@ -403,3 +403,18 @@ export class wrappedUint16 {
     this.add(1);
   }
 }
+
+export function validateVersion(loginVersion: string,zoneVersion:string): boolean {
+    const [loginMajor, loginMinor, loginPatch] = loginVersion.split(".");
+    const [zoneMajor, zoneMinor, zonePatch] = zoneVersion.split(".");
+    if (loginMajor > zoneMajor) {
+      return false;
+    }
+    if (loginMinor > zoneMinor) {
+      return false;
+    }
+    if (loginPatch > zonePatch) {
+      return false;
+    }
+    return true;
+}

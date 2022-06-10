@@ -24,6 +24,7 @@ import {
   getAppDataFolderPath,
   initMongo,
   setupAppDataFolder,
+  validateVersion,
 } from "../../utils/utils";
 import { GameServer } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
@@ -212,7 +213,8 @@ export class LoginServer extends EventEmitter {
                         : 0;
                     if (
                       status &&
-                      process.env.H1Z1_SERVER_VERSION !== h1emuVersion
+                      process.env.H1Z1_SERVER_VERSION &&
+                      !validateVersion(process.env.H1Z1_SERVER_VERSION,h1emuVersion)
                     ) {
                       console.log(
                         `serverId : ${serverId} version mismatch ${h1emuVersion} vs ${process.env.H1Z1_SERVER_VERSION}`
