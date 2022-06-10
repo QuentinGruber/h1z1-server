@@ -18,6 +18,7 @@ process.on("unhandledRejection", (reason, promise) => {
 
 process.on("uncaughtException", (err) => {
   console.log(`Uncaught Exception: ${err.message} time : ${new Date()}`);
+  console.error(err.stack);
   process.exit(1);
 });
 
