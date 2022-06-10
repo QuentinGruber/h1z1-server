@@ -1528,6 +1528,7 @@ export class ZoneServer2016 extends EventEmitter {
     // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
+        !e && // in case if entity is undefined somehow
         !e.vehicleId &&
         this.filterOutOfDistance(e, client.character.state.position)
     );
