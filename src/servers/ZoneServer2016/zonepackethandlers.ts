@@ -99,17 +99,16 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      
       /*
       server.sendData(client, "ClientUpdate.ActivateProfile", {
         profileData: {
-          data: {
             profileId: 5,
             nameId: 66,
             descriptionId: 66,
             type: 3,
             unknownDword1: 0,
             unknownArray1: []
-          }
         },
         attachmentData: client.character.pGetAttachmentSlots(),
         unknownDword1: 5,
@@ -117,7 +116,9 @@ export class zonePacketHandlers {
         actorModelId: client.character.actorModelId,
         tintAlias: "Default",
         decalAlias: "#"
-      });*/
+      });
+      */
+      console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
       server.sendData(client, "ClientBeginZoning", {
         position: client.character.state.position,
         rotation: client.character.state.lookAt,

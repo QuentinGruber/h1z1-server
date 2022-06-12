@@ -136,7 +136,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
             equipmentSlotId: slot.slotId,
             guid: slot.guid || "",
             tintAlias: slot.tintAlias || "Default",
-            decalAlias: slot.tintAlias || "#",
+            decalAlias: slot.decalAlias || "#",
           },
         }
       : undefined;
@@ -155,7 +155,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           modelName: slot.modelName,
           textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
-          decalAlias: slot.tintAlias || "#",
+          decalAlias: slot.decalAlias || "#",
           slotId: slot.slotId,
         }
       : undefined;
@@ -180,6 +180,25 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       : undefined;
   }
 
+  /*
+  pGetAttachmentSlotsMod() {
+    return Object.keys(this._equipment).map((slotId: any) => {
+      if(this.pGetAttachmentSlot(slotId)?.modelName == "Weapon_Empty.adr") {
+        return this.pGetAttachmentSlot(slotId);
+      }
+      return {
+          modelName: "",
+          textureAlias: "",
+          tintAlias: "Default",
+          decalAlias: "#",
+          slotId: slotId,
+          unknownArray1: [], // todo: test
+          unknownBool1: true
+      }
+    });
+  }
+  */
+ 
   pGetEquipment() {
     return {
       characterData: {
@@ -187,10 +206,11 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         characterId: this.characterId,
       },
       unknownDword1: 0,
-      unknownString1: "#",
-      unknownString2: "",
+      unknownString1: "Default",
+      unknownString2: "#",
       equipmentSlots: this.pGetEquipmentSlots(),
       attachmentData: this.pGetAttachmentSlots(),
+      unknownBoolean1: true,
     };
   }
 
