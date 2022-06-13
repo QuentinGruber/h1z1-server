@@ -2336,9 +2336,9 @@ export const basePackets: any = [
         { name: "zoneId2", type: "uint32", defaultValue: 5 },
         { name: "nameId", type: "uint32", defaultValue: 1 },
         { name: "unknownDword10", type: "uint32", defaultValue: 21205 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: true },
-        { name: "unknownBoolean2", type: "boolean", defaultValue: true },
-        { name: "unknownBoolean3", type: "boolean", defaultValue: true },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "waitForZoneReady", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: false },
       ],
     },
   ],
@@ -2709,7 +2709,37 @@ export const basePackets: any = [
     {
       fields: [
         { name: "environment", type: "string", defaultValue: "" },
-        { name: "serverId", type: "uint32", defaultValue: 0 },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "ruleset", type: "string", defaultValue: "" },
+            { name: "unknownString2", type: "string", defaultValue: "" },
+            {
+              name: "unknownArray1",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                {
+                  name: "unknownData1",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: [
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                    { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
       ],
     },
   ],

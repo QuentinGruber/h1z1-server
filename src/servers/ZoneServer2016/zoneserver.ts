@@ -930,10 +930,122 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendInitData(client: Client) {
-    // TODO: Fix this schema
+    //const fs = require("fs");
+    //this.sendRawData(client, fs.readFileSync("C:\\Users\\csm45\\Desktop\\initparams.bin"));
     this.sendData(client, "InitializationParameters", {
       environment: "LIVE",
-      serverId: this._worldId,
+      unknownString1: "",
+      unknownArray1: [
+        {
+          unknownDword1: 1,
+          unknownDword2: 1,
+          ruleset: "Permadeath",
+          unknownString2: "",
+          unknownArray1: [
+            {
+              unknownDword1: 1,
+              unknownData1: {
+                unknownDword1: 1,
+                unknownDword2: 1,
+                unknownDword3: 112,
+                unknownDword4: 1,
+              }
+            }
+          ]
+        },
+        {
+          unknownDword1: 3,
+          unknownDword2: 3,
+          ruleset: "Headshots",
+          unknownString2: "",
+          unknownArray1: []
+        },
+        {
+          unknownDword1: 4,
+          unknownDword2: 4,
+          ruleset: "FirstPersonOnly",
+          unknownString2: "",
+          unknownArray1: []
+        },
+        {
+          unknownDword1: 5,
+          unknownDword2: 5,
+          ruleset: "PvE",
+          unknownString2: "",
+          unknownArray1: []
+        },
+        {
+          unknownDword1: 6,
+          unknownDword2: 6,
+          ruleset: "BattleRoyale",
+          unknownString2: "",
+          unknownArray1: [
+            {
+              unknownDword1: 3,
+              unknownData1: {
+                unknownDword1: 3,
+                unknownDword2: 6,
+                unknownDword3: 114,
+                unknownDword4: 2,
+              }
+            },
+            {
+              unknownDword1: 16,
+              unknownData1: {
+                unknownDword1: 16,
+                unknownDword2: 6,
+                unknownDword3: 133,
+                unknownDword4: 2,
+              }
+            },
+            {
+              unknownDword1: 17,
+              unknownData1: {
+                unknownDword1: 17,
+                unknownDword2: 6,
+                unknownDword3: 134,
+                unknownDword4: 1,
+              }
+            },
+            {
+              unknownDword1: 25,
+              unknownData1: {
+                unknownDword1: 25,
+                unknownDword2: 6,
+                unknownDword3: 135,
+                unknownDword4: 2,
+              }
+            },
+            {
+              unknownDword1: 33,
+              unknownData1: {
+                unknownDword1: 33,
+                unknownDword2: 6,
+                unknownDword3: 140,
+                unknownDword4: 2,
+              }
+            },
+            {
+              unknownDword1: 48,
+              unknownData1: {
+                unknownDword1: 48,
+                unknownDword2: 6,
+                unknownDword3: 143,
+                unknownDword4: 2,
+              }
+            },
+            {
+              unknownDword1: 74,
+              unknownData1: {
+                unknownDword1: 74,
+                unknownDword2: 6,
+                unknownDword3: 150,
+                unknownDword4: 2,
+              }
+            },
+          ]
+        },
+      ]
     });
 
     this.sendData(client, "SendZoneDetails", {

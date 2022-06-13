@@ -131,6 +131,15 @@ export class zonePacketHandlers {
         done: true,
       }); // Required for WaitForWorldReady
 
+      /*
+      server.sendData(client, "ClientUpdate.UpdateStat", {
+        
+      });
+      */
+     /*
+      const fs = require("fs");
+      server.sendRawData(client, fs.readFileSync("C:\\Users\\csm45\\Desktop\\496-cPacketIdClientUpdateBase.bin"));*/
+      
       server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {
         done: true,
       }); // Required for WaitForWorldReady
