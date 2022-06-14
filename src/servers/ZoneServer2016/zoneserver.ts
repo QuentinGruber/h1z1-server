@@ -649,16 +649,30 @@ export class ZoneServer2016 extends EventEmitter {
           { FIRE_MODE_ID: 540 },
         ],
         profiles: [ // CORRECT profileId for loadoutId 3
-          {
+          /*{
             profileId: 5,
             nameId: 66,
             descriptionId: 66,
             type: 3,
             unknownDword1: 0,
             unknownArray1: []
-          }
+          }*/
+          {profileId: 0},
+          {profileId: 0},
+          {profileId: 0},
+          {profileId: 0},
+          {profileId: 0},
+          {profileId: 0},
+          {profileId: 0},
+          {profileId: 0},
+          {profileId: 0},
+          {profileId: 0},
+          {profileId: 0},
+          {profileId: 0},
+          {profileId: 0},
+          {profileId: 0},
         ],
-        currentProfile: 5,
+        currentProfile: 0,
         //unknownQword1: client.character.characterId,
         //unknownDword38: 1,
         //vehicleLoadoutRelatedQword: client.character.characterId,
@@ -1077,10 +1091,10 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "ClientGameSettings", {
       Unknown2: 0,
       interactGlowAndDist: 4,// 3
-      unknownBoolean1: false,
+      unknownBoolean1: true,
       timescale: 1.0,
-      Unknown4: 0,
-      Unknown5: 0,
+      Unknown4: 1,
+      Unknown5: 1,
       unknownFloat1: 0.0,
       unknownFloat2: 15,
       velDamageMulti: 11,

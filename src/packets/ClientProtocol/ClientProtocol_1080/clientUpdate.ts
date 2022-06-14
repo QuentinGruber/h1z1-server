@@ -328,7 +328,7 @@ export const clientUpdatePackets: any = [
     "ClientUpdate.NetworkProximityUpdatesComplete",
     0x113500,
     {
-      fields: [{ name: "done", type: "boolean", defaultValue: false }],
+      fields: [],
     },
   ],
   ["ClientUpdate.FileValidationRequest", 0x113600, {}],

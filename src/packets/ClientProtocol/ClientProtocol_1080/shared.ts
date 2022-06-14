@@ -352,6 +352,7 @@ export function packPositionUpdateData(obj: any) {
   return data;
 }
 
+/*
 export const profileSchema = [
   { name: "profileId", type: "uint32", defaultValue: 5 },
   { name: "nameId", type: "uint32", defaultValue: 66 },
@@ -387,6 +388,43 @@ export const profileSchema = [
   { name: "unknownDword14", type: "uint32", defaultValue: 1 },
   { name: "unknownDword15", type: "uint32", defaultValue: 1 },
   { name: "unknownDword16", type: "uint32", defaultValue: 1 },
+];
+*/
+export const profileSchema = [
+  { name: "profileId", type: "uint32", defaultValue: 0 },
+  { name: "nameId", type: "uint32", defaultValue: 0 },
+  { name: "descriptionId", type: "uint32", defaultValue: 0 },
+  { name: "type", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "abilityBgImageSet", type: "uint32", defaultValue: 0 },
+  { name: "badgeImageSet", type: "uint32", defaultValue: 0 },
+  { name: "buttonImageSet", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  {
+    name: "unknownArray1",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+    ],
+  },
+  { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte3", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword7", type: "float", defaultValue: 0 },
+  { name: "unknownDword8", type: "float", defaultValue: 0 },
+  { name: "unknownDword9", type: "float", defaultValue: 0 },
+  { name: "unknownDword10", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword11", type: "float", defaultValue: 0 },
+  { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword13", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword15", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword16", type: "uint32", defaultValue: 0 },
 ];
 
 export function packItemDefinitionData(obj: any) {
