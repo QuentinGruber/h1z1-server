@@ -42,6 +42,8 @@ import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { Npc } from "./classes/npc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 
+const profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
+
 export class zonePacketHandlers {
   hax = hax;
   dev = dev;
@@ -118,12 +120,6 @@ export class zonePacketHandlers {
         decalAlias: "#"
       });
       */
-      console.log("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
-      server.sendData(client, "ClientBeginZoning", {
-        position: client.character.state.position,
-        rotation: client.character.state.lookAt,
-        skyData: server._weather2016,
-      }); // Needed for trees
 
       server.sendData(client, "QuickChat.SendData", { commands: [] });
 
@@ -201,7 +197,12 @@ export class zonePacketHandlers {
         gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
       });
 
-      // client.character.currentLoadoutId = 3;
+      server.sendData(client, "ReferenceData.ProfileDefinitions", {
+        data: {
+          profiles: profileDefinitions
+        }
+      });
+
       /*
         server.sendData(client, "Loadout.SetCurrentLoadout", {
           guid: client.character.guid,

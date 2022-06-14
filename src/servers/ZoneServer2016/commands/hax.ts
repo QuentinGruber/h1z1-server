@@ -614,6 +614,25 @@ const hax: any = {
       server.updateEquipmentSlot(client, 3);
     }
   },
+  lighting: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if(!args[1]) {
+      server.sendChatText(client, "[ERROR] Missing lighting file.");
+      return
+    }
+
+    server.sendData(client, "SendZoneDetails", {
+      zoneName: "Z1",
+      zoneType: 4,
+      unknownBoolean1: false,
+      skyData: server._weather2016,
+      zoneId1: 5,
+      zoneId2: 5,
+      nameId: 7699,
+      unknownBoolean2: true,
+      lighting: args[1],
+      unknownBoolean3: false
+    });
+  }
   /*
   addallitems: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(client, "Adding 1x of all items to inventory.");

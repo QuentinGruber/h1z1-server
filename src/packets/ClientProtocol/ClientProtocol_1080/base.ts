@@ -2319,7 +2319,6 @@ export const basePackets: any = [
   ],
   ["ClientLogout", 0x07, {}],
   ["TargetClientNotOnline", 0x08, {}],
-
   [
     "ClientBeginZoning",
     0x0b,
@@ -2331,20 +2330,18 @@ export const basePackets: any = [
         { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
         { name: "skyData", type: "schema", fields: skyData },
         // this byte breaks it for some reason (TODO)
-        //{ name: "unknownByte1", type: "uint8", defaultValue: 5 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 5 },
         { name: "zoneId1", type: "uint32", defaultValue: 5 },
-        { name: "zoneId2", type: "uint32", defaultValue: 5 },
-        { name: "nameId", type: "uint32", defaultValue: 1 },
-        { name: "unknownDword10", type: "uint32", defaultValue: 21205 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "zoneId2", type: "uint32", defaultValue: 0 },
+        { name: "nameId", type: "uint32", defaultValue: 7699 },
+        { name: "unknownDword10", type: "uint32", defaultValue: 674234378 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: true },
         { name: "waitForZoneReady", type: "boolean", defaultValue: false },
-        { name: "unknownBoolean3", type: "boolean", defaultValue: false },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: true },
       ],
     },
   ],
-
   ["Mail", 0x0e, {}],
-
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
   ["Ability.ClientRequestStopAbility", 0x1002, {}],
   ["Ability.ClientMoveAndCast", 0x1003, {}],
@@ -2386,12 +2383,11 @@ export const basePackets: any = [
         { name: "zoneId2", type: "uint32", defaultValue: 0 },
         { name: "nameId", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean2", type: "boolean", defaultValue: false },
-        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "lighting", type: "string", defaultValue: "" },
         { name: "unknownBoolean3", type: "boolean", defaultValue: false },
       ],
     },
   ],
-
   ["Objective", 0x18, {}],
   ["Debug", 0x19, {}],
 

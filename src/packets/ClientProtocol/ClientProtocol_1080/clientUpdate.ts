@@ -39,7 +39,7 @@ export const clientUpdatePackets: any = [
             ...itemSchema,
             {
               name: "unknownData1",
-              type: "schema",
+              type: "custom",
               defaultValue: {},
               packer: packItemWeaponData,
             },

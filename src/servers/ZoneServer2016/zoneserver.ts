@@ -78,8 +78,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
-  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
-  profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
+  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions");
 
 @healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
@@ -562,20 +561,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async sendCharacterData(client: Client) {
-    if (!this.itemDefinitionsCache) {
-      this.packItemDefinitions();
-    }
-    this.sendRawData(client, this.itemDefinitionsCache);
-    this.sendData(client, "ReferenceData.ProfileDefinitions", {
-      data: {
-        profiles: profileDefinitions
-      }
-    });
-    this.sendData(client, "ReferenceData.WeaponDefinitions", {
-      data: {
-        definitionsData: weaponDefinitions
-      }
-    });
     await this.loadCharacterData(client);
     const containers = this.initializeContainerList(client, false);
     console.log(
@@ -1047,21 +1032,43 @@ export class ZoneServer2016 extends EventEmitter {
         },
       ]
     });
-
+    
     this.sendData(client, "SendZoneDetails", {
       zoneName: "Z1",
-      unknownBoolean1: true,
       zoneType: 4,
+      unknownBoolean1: false,
       skyData: this._weather2016,
-      zoneId1: 3905829720,
-      zoneId2: 3905829720,
+      zoneId1: 5,
+      zoneId2: 5,
       nameId: 7699,
-      unknownBoolean7: true,
+      unknownBoolean2: true,
+      lighting: "Lighting.txt",
+      unknownBoolean3: false
     });
+    
+    if (!this.itemDefinitionsCache) {
+      this.packItemDefinitions();
+    }
+    this.sendRawData(client, this.itemDefinitionsCache);
 
+    this.sendData(client, "ReferenceData.WeaponDefinitions", {
+      data: {
+        definitionsData: weaponDefinitions
+      }
+    });
+    
+    // packet is just broken, idk why
+    /*
+    this.sendData(client, "ClientBeginZoning", {
+      //position: Array.from(client.character.state.position),
+      //rotation: Array.from(client.character.state.rotation),
+      skyData: this._weather2016,
+    });
+    */
     this.sendData(client, "ClientUpdate.ZonePopulation", {
       populations: [0, 0],
     });
+
     this.sendData(client, "ClientUpdate.RespawnLocations", {
       locations: this._respawnLocations,
       locations2: this._respawnLocations,
@@ -1070,10 +1077,10 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "ClientGameSettings", {
       Unknown2: 0,
       interactGlowAndDist: 4,// 3
-      unknownBoolean1: true,
+      unknownBoolean1: false,
       timescale: 1.0,
-      Unknown4: 1,
-      Unknown5: 1,
+      Unknown4: 0,
+      Unknown5: 0,
       unknownFloat1: 0.0,
       unknownFloat2: 15,
       velDamageMulti: 11,
@@ -2564,9 +2571,8 @@ export class ZoneServer2016 extends EventEmitter {
     slotId: number,
     character = client.character
   ) {
-    this.sendDataToAllOthersWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity(
       this._characters,
-      client,
       client.character.characterId,
       "Equipment.SetCharacterEquipmentSlot",
       character.pGetEquipmentSlotFull(slotId)
@@ -2954,9 +2960,8 @@ export class ZoneServer2016 extends EventEmitter {
   removeEquipmentItem(client: Client, equipmentSlotId: number): boolean {
     if (!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
-    this.sendDataToAllOthersWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity(
       this._characters,
-      client,
       client.character.characterId,
       "Equipment.UnsetCharacterEquipmentSlot",
       {
