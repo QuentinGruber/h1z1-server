@@ -11,7 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Scheduler } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 as Client } from "./zoneclient";
 const debug = require("debug")("ZoneServer");
@@ -41,6 +40,9 @@ function getCraftComponentsDataSource(client: Client): {
 }
 
 export class CraftManager {
+  private originalRecipeId: number;
+  private craftLoopCount: number = 0;
+  private maxCraftLoopCount: number = 500;
   componentsDataSource: { [itemDefinitionId: number]: craftComponentDSEntry } =
     {};
   constructor(
@@ -50,6 +52,7 @@ export class CraftManager {
     count: number
   ) {
     this.componentsDataSource = getCraftComponentsDataSource(client);
+    this.originalRecipeId = recipeId;
     this.start(client, server, recipeId, count);
   }
 
@@ -77,6 +80,14 @@ export class CraftManager {
     // if craftItem gets stuck in an infinite loop somehow, setImmediate will prevent the server from crashing
    // Scheduler.yield(); well this is not a good idea, it will make the server being overloaded, while an infinite loop will be detected and the server will be restarted
     if (!count) return true;
+    this.craftLoopCount++;
+    if (this.craftLoopCount > this.maxCraftLoopCount) {
+      console.log(
+        `CraftManager: craftItem: craftLoopCount > maxCraftLoopCount: ${this.craftLoopCount}`
+      );
+      console.log("originalRecipeId: " + this.originalRecipeId);
+      return false;
+    }
     debug(`[CraftManager] Crafting ${count} of itemDefinitionId ${recipeId}`);
     const recipe = server._recipes[recipeId];
     if (!recipe) return false;
