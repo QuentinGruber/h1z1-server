@@ -1882,18 +1882,24 @@ export class ZoneServer2016 extends EventEmitter {
             },
             unknownGuid1: this.generateGuid(),
           });
+          const passengers:any[] = []
+          vehicle.getPassengerList().forEach((passengerCharacterId: string) => {
+            if(this._characters[passengerCharacterId]) {
+              passengers.push({
+                characterId: passengerCharacterId,
+                identity: {
+                  characterName: this._characters[passengerCharacterId].name,
+                },
+                unknownString1: this._characters[passengerCharacterId].name,
+                unknownByte1: 1,
+              }
+              );
+            }
+          })
+
           this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
-            passengers: vehicle.getPassengerList().map((characterId) => {
-              return {
-                characterId: characterId,
-                identity: {
-                  characterName: this._characters[characterId].name,
-                },
-                unknownString1: this._characters[characterId].name,
-                unknownByte1: 1,
-              };
-            }),
+            passengers: passengers
           });
           client.spawnedEntities.push(vehicle);
         }
