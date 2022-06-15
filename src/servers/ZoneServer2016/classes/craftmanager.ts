@@ -75,7 +75,7 @@ export class CraftManager {
     count: number
   ): Promise<boolean> {
     // if craftItem gets stuck in an infinite loop somehow, setImmediate will prevent the server from crashing
-    Scheduler.yield();
+   // Scheduler.yield(); well this is not a good idea, it will make the server being overloaded, while an infinite loop will be detected and the server will be restarted
     if (!count) return true;
     debug(`[CraftManager] Crafting ${count} of itemDefinitionId ${recipeId}`);
     const recipe = server._recipes[recipeId];
