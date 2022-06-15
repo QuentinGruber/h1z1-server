@@ -40,7 +40,6 @@ export class SOEServer extends EventEmitter {
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean = false;
   private _maxMultiBufferSize: number;
-  reduceCpuUsage: boolean = true;
   private _soeClientRoutineLoopMethod!: (arg0: () => void) => void;
   private _resendTimeout: number = 1000;
   protected _maxGlobalPacketRate = 70000;
@@ -366,11 +365,7 @@ export class SOEServer extends EventEmitter {
     if (udpLength !== undefined) {
       this._udpLength = udpLength;
     }
-    if (this.reduceCpuUsage || process.env.FORCE_REDUCE_CPU_USAGE) {
-      this._soeClientRoutineLoopMethod = setTimeout;
-    } else {
-      this._soeClientRoutineLoopMethod = setImmediate;
-    }
+    this._soeClientRoutineLoopMethod = setTimeout;
     this._connection.on("message", (message) => {
       const data = Buffer.from(message.data);
       try {
