@@ -1757,7 +1757,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sendData(client: Client, packetName: h1z1PacketsType, obj: any) {
+  private _sendData(client: Client, packetName: h1z1PacketsType, obj: any,unbuffered: boolean ){
     switch (packetName) {
       case "KeepAlive":
       case "PlayerUpdatePosition":
@@ -1772,10 +1772,24 @@ export class ZoneServer2016 extends EventEmitter {
     if (data) {
       const soeClient = this.getSoeClient(client.soeClientId);
       if (soeClient) {
+        if(unbuffered){
+          this._gatewayServer.sendUnbufferedTunnelData(soeClient, data);
+        }
+        else{
         this._gatewayServer.sendTunnelData(soeClient, data);
+        }
       }
     }
   }
+
+  sendUnbufferedData(client: Client, packetName: h1z1PacketsType, obj: any) {
+    this._sendData(client, packetName, obj, true);
+  }
+
+  sendData(client: Client, packetName: h1z1PacketsType, obj: any) {
+    this._sendData(client, packetName, obj, false);
+  }
+
   sendChat(client: Client, message: string) {
     if (!this._soloMode) {
       this.sendDataToAll("Chat.ChatText", {
@@ -3760,11 +3774,22 @@ export class ZoneServer2016 extends EventEmitter {
   getSoeClient(soeClientId: string): SOEClient | undefined {
     return this._gatewayServer._soeServer.getSoeClient(soeClientId);
   }
-  sendRawData(client: Client, data: Buffer) {
+  private _sendRawData(client: Client, data: Buffer,unbuffered: boolean) {
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
-      this._gatewayServer.sendTunnelData(soeClient, data);
+      if(unbuffered){
+        this._gatewayServer.sendUnbufferedTunnelData(soeClient, data);
+      }
+      else{
+        this._gatewayServer.sendTunnelData(soeClient, data);
+      }
     }
+  }
+  sendRawData(client: Client, data: Buffer) {
+    this._sendRawData(client, data,false);
+  }
+  sendUnbufferedRawData(client: Client, data: Buffer) {
+    this._sendRawData(client, data,true);
   }
   sendChatText(client: Client, message: string, clearChat = false) {
     if (clearChat) {
@@ -3848,13 +3873,25 @@ export class ZoneServer2016 extends EventEmitter {
       refreshTimeout && client.savePositionTimer.refresh();
     }
   }
-  sendDataToAll(packetName: h1z1PacketsType, obj: any) {
+  private _sendDataToAll(packetName: h1z1PacketsType, obj: any,unbuffered:boolean) {
     const data = this._protocol.pack(packetName, obj);
     if (data) {
       for (const a in this._clients) {
-        this.sendRawData(this._clients[a], data);
+        if(unbuffered){
+          this.sendUnbufferedRawData(this._clients[a], data);
+        }
+        else{
+          this.sendRawData(this._clients[a], data);
+        }
       }
     }
+  }
+
+  sendDataToAll(packetName: h1z1PacketsType, obj: any) {
+    this._sendDataToAll(packetName, obj,false);
+  }
+  sendUnbufferedDataToAll(packetName: h1z1PacketsType, obj: any) {
+    this._sendDataToAll(packetName, obj,true);
   }
   dropVehicleManager(client: Client, vehicleGuid: string) {
     this.sendManagedObjectResponseControlPacket(client, {

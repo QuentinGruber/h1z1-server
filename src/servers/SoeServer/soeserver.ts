@@ -407,14 +407,16 @@ export class SOEServer extends EventEmitter {
 
           client.outputStream.on(
             "data",
-            (err: string, data: Buffer, sequence: number, fragment: any) => {
+            (err: string, data: Buffer, sequence: number, fragment: boolean, unbuffered: boolean) => {
               this._sendLogicalPacket(
                 client,
                 fragment ? "DataFragment" : "Data",
                 {
                   sequence: sequence,
                   data: data,
-                }
+                },
+                false,
+                unbuffered
               );
             }
           );
@@ -506,13 +508,15 @@ export class SOEServer extends EventEmitter {
     client: Client,
     packetName: string,
     packet: json,
-    prioritize = false
+    prioritize = false,
+    unbuffered = false,
   ): void {
     const logicalPacket = this.createLogicalPacket(client, packetName, packet);
     if (prioritize) {
       client.priorityQueue.push(logicalPacket);
     } else {
       if (
+        !unbuffered &&
         packetName !== "MultiPacket" &&
         this._waitQueueTimeMs > 0 &&
         logicalPacket.data.length < 255 &&
@@ -549,6 +553,15 @@ export class SOEServer extends EventEmitter {
       debug("Sending app data: " + data.length + " bytes");
     }
     client.outputStream.write(data);
+  }
+
+  sendUnbufferedAppData(client: Client, data: Buffer): void {
+    if (client.outputStream.isUsingEncryption()) {
+      debug("Sending unbuffered app data: " + data.length + " bytes with encryption");
+    } else {
+      debug("Sending unbuffered app data: " + data.length + " bytes");
+    }
+    client.outputStream.write(data,true);
   }
 
   setEncryption(client: Client, value: boolean): void {
