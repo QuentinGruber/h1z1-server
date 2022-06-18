@@ -23,13 +23,13 @@ import { ZoneServer2016 } from "../../zoneserver";
 import {
   ZoneClient2016 as Client,
   ZoneClient2016,
-} from "../../classes/zoneclient";
+} from "../zoneclient";
 import { PlantingManager } from "./PlantingManager";
 import { Furrows, Hole, SeedType } from "./Model/DataModels";
-import { TemporaryEntity } from "../../classes/temporaryentity";
+import { TemporaryEntity } from "../temporaryentity";
 import { generateRandomGuid } from "../../../../utils/utils";
-import { ExplosiveEntity } from "../../classes/explosiveentity";
-import { ItemObject } from "../../classes/itemobject";
+import { ExplosiveEntity } from "../explosiveentity";
+import { ItemObject } from "../itemobject";
 
 // eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace NormanTest {

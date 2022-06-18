@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { CropsPile, CropsPileStatus, Hole, Seed } from "../Model/DataModels";
-import { ZoneClient2016 } from "../../../classes/zoneclient";
+import { ZoneClient2016 } from "../../zoneclient";
 import { ZoneServer2016 } from "../../../zoneserver";
 import { GrowthScript, PlantingSetting, Stage } from "../Model/TypeModels";
 import { randomIntFromInterval } from "../../../../../utils/utils";

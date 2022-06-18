@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ZoneClient2016 as Client } from "../../../classes/zoneclient";
+import { ZoneClient2016 as Client } from "../../zoneclient";
 import { Euler, PlantingSetting, Vector4 } from "../Model/TypeModels";
 import {
   Euler2Quaternion,
@@ -21,9 +21,9 @@ import {
 } from "../Utils";
 import { ZoneServer2016 } from "../../../zoneserver";
 import { Furrows, Hole, Seed } from "../Model/DataModels";
-import { TemporaryEntity } from "../../../classes/temporaryentity";
+import { TemporaryEntity } from "../../temporaryentity";
 import { generateRandomGuid } from "../../../../../utils/utils";
-import { ItemObject } from "../../../classes/itemobject";
+import { ItemObject } from "../../itemobject";
 import { inventoryItem } from "../../../../../types/zoneserver";
 
 const debug = require("debug")("PlantingManager");

@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ZoneClient2016 as Client } from "../../classes/zoneclient";
+import { ZoneClient2016 as Client } from "../zoneclient";
 import { FarmlandManager } from "./Manager/FarmlandManager";
 import { GrowingManager } from "./Manager/GrowingManager";
 import { ZoneServer2016 } from "../../zoneserver";

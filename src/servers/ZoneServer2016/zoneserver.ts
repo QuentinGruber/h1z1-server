@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { PlantingManager } from "./workers/Planting/PlantingManager";
+import { PlantingManager } from "./classes/Planting/PlantingManager";
 
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);

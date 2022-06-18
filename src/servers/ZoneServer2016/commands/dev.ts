@@ -17,7 +17,7 @@ import { BaseLightweightCharacter } from "../classes/baselightweightcharacter";
 import { Npc } from "../classes/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
-import { NormanTest } from "../workers/Planting/Test";
+import { NormanTest } from "../classes/Planting/Test";
 
 const debug = require("debug")("zonepacketHandlers");
 

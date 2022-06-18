@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ZoneClient2016 as Client } from "../../../classes/zoneclient";
+import { ZoneClient2016 as Client } from "../../zoneclient";
 import { Furrows } from "./DataModels";
 
 export enum PlantingEventTypeEnum {
