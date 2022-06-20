@@ -17,15 +17,12 @@ const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
-const skinPerModel = require("../../../../data/2016/sampleData/skinsPerModel.json");
 import {
   _,
   eul2quat,
   generateRandomGuid,
   isPosInRadius,
   randomIntFromInterval,
-  bigIntToHexString,
-  getRandomFromArray,
 } from "../../../utils/utils";
 import { Items } from "../enums";
 import { Vehicle2016 } from "./../classes/vehicle";
@@ -109,15 +106,10 @@ export class WorldObjectManager {
   equipRandomSkins(server:ZoneServer2016 ,npc: Npc): Npc {
     switch (npc.actorModelId) {
       case 9510:{
-        const generatedGuid = bigIntToHexString(server.generateItemGuid())
-        const skins = skinPerModel["SurvivorFemale_Chest_Hoodie_Down.adr"]
-        const skin = skins[Math.floor(Math.random() * skins.length)]
-        npc._equipment[3]={modelName:"SurvivorFemale_Chest_Hoodie_Down.adr",slotId:3,textureAlias:skin,guid:generatedGuid}
+        server.generateRandomEquipmentsFromAnEntity(npc,"Female",[3,1,2,4,29,28,27,10,5])
       }
       case 9634:{
-        const generatedGuid = bigIntToHexString(server.generateItemGuid())
-        const bodyTextures = skinPerModel["SurvivorMale_Chest_Hoodie_Down.adr"]
-        npc._equipment[3]={modelName:"SurvivorMale_Chest_Hoodie_Down.adr",slotId:3,textureAlias:getRandomFromArray(bodyTextures),guid:generatedGuid}
+        server.generateRandomEquipmentsFromAnEntity(npc,"Male",[3,1,2,4,29,28,27,10,5])
       }
     }
     return npc;

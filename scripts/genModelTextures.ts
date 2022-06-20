@@ -77,18 +77,22 @@ export interface ServerItemDef {
   }
   
 const serverItemValues:ServerItemDef[] = Object.values(serverItemDef);
-const modelTexture: Record<string, string[]> = {}
+const modelTexture: Record<number, Record<string,string[]>> = {}
 for (let index = 0; index < serverItemValues.length; index++) {
     const element:ServerItemDef = serverItemValues[index];
     if(element.FLAG_CAN_EQUIP){
-        if (modelTexture[element.MODEL_NAME] && modelTexture[element.MODEL_NAME].indexOf(element.TEXTURE_ALIAS) === -1) {
-            modelTexture[element.MODEL_NAME].push(element.TEXTURE_ALIAS);
+        if(!modelTexture[element.PASSIVE_EQUIP_SLOT_ID]){
+            modelTexture[element.PASSIVE_EQUIP_SLOT_ID] = {}
         }
-        else {
-            modelTexture[element.MODEL_NAME] = [element.TEXTURE_ALIAS];
+        if(!modelTexture[element.PASSIVE_EQUIP_SLOT_ID][element.MODEL_NAME]){
+            modelTexture[element.PASSIVE_EQUIP_SLOT_ID][element.MODEL_NAME] = []
         }
+        if (modelTexture[element.PASSIVE_EQUIP_SLOT_ID][element.MODEL_NAME].indexOf(element.TEXTURE_ALIAS) === -1) {
+            modelTexture[element.PASSIVE_EQUIP_SLOT_ID][element.MODEL_NAME].push(element.TEXTURE_ALIAS)
+        }
+
     }
     
 }
-fs.writeFileSync("./data/2016/sampleData/modelTexture.json", JSON.stringify(modelTexture, null, 2));
+fs.writeFileSync("./data/2016/sampleData/equipmentModelTexturesMapping.json", JSON.stringify(modelTexture, null, 2));
 console.log(modelTexture)

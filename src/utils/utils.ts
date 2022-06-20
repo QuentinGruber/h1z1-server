@@ -427,3 +427,8 @@ export function validateVersion(loginVersion: string,zoneVersion:string): boolea
     }
     return true;
 }
+
+export const getRandomKeyFromAnObject = (object: any): string => {
+  const keys = Object.keys(object);
+  return keys[Math.floor(Math.random() * keys.length)];
+}
