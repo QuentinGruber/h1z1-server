@@ -84,7 +84,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs.json"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions.json"),
-  equipmentModelTexturesMapping = require("../../../data/2016/sampleData/EquipmentModelTexturesMapping.json");
+  equipmentModelTexturesMapping = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 @healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
