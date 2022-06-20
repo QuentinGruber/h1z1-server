@@ -872,19 +872,9 @@ export class zonePacketHandlers {
             });
           }
           for (const a in vehicle.seats) {
-            server.sendDataToAllWithSpawnedEntity(
-              server._characters,
-              vehicle.seats[a],
-              "Mount.DismountResponse",
-              {
-                // dismounts character
-                characterId: vehicle.seats[a],
-              }
-            );
             const seatId = vehicle.getCharacterSeat(vehicle.seats[a]);
-            server.sendDataToAllWithSpawnedEntity(
-              server._characters,
-              vehicle.seats[a],
+            server.sendData(
+              client,
               "Mount.MountResponse",
               {
                 // mounts character
