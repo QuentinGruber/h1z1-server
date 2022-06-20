@@ -54,12 +54,6 @@
     "Survivor<gender>_Chest_Shirt_TintTshirt.adr": [
       "RedWhiteBlue_Tshirt"
     ],
-    "": [
-      ""
-    ],
-    "Survivor<gender>001_baseballcap_tan.adr": [
-      ""
-    ],
     "Weapon_Pistol_45Auto_3P.adr": [
       ""
     ],
@@ -188,9 +182,6 @@
     "Survivor<gender>_Head_Hat_BaseballCap.adr": [
       ""
     ],
-    "Survivor<gender>001_baseballcap_tan.adr": [
-      ""
-    ],
     "Survivor<gender>_Head_Helmet_Motorcycle_Tintable.adr": [
       ""
     ],
@@ -216,9 +207,6 @@
     "Survivor<gender>_Head_Hat_Aviator.adr": [
       "AviatorHat_Brown"
     ],
-    "": [
-      ""
-    ],
     "Survivor<gender>_Head_Hat_Beanie.adr": [
       "Beanie_Black",
       "Beanie_CamoBlue",
@@ -233,7 +221,7 @@
     "Survivor<gender>_Head_Hat_PoliceCap.adr": [
       "PoliceCap_DarkBlue"
     ],
-    "Survivor<gender>_Head_Hat_Boonie": [
+    "Survivor<gender>_Head_Hat_Boonie.adr": [
       ""
     ],
     "Survivor<gender>_Head_Hat_Ranger.adr": [
@@ -296,9 +284,6 @@
     "Survivor<gender>_Hands_Gloves_Fingerless_StitchedLeather_USFlag.adr": [
       ""
     ],
-    "": [
-      ""
-    ],
     "Survivor<gender>_Hands_Gloves_Padded.adr": [
       ""
     ]
@@ -323,9 +308,6 @@
     "Survivor<gender>_Chest_Shirt_FlannelVest.adr": [
       "FlannelVest_Logo",
       "FlannelVest_Leather"
-    ],
-    "": [
-      ""
     ],
     "Survivor<gender>_Chest_Jacket_Farmer.adr": [
       ""
@@ -420,9 +402,6 @@
     "Survivor<gender>_Feet_Conveys_Tintable.adr": [
       ""
     ],
-    "": [
-      ""
-    ],
     "Survivor<gender>_Feet_CombatBoots_Cheetah.adr": [
       "default0"
     ],
@@ -434,12 +413,6 @@
     ]
   },
   "10": {
-    "": [
-      ""
-    ],
-    "Survivor<gender>_Ivan_Backpacks_Satchel_Makeshift.adr": [
-      ""
-    ],
     "Survivor<gender>_Back_Backpack_Military.adr": [
       "Military_CamoBlue",
       "Military_CamoGreen",
@@ -463,11 +436,6 @@
       ""
     ]
   },
-  "11": {
-    "": [
-      ""
-    ]
-  },
   "27": {
     "Survivor<gender>_Hair_ShortMessy.adr": [
       "ShortMessy_Brown",
@@ -479,16 +447,13 @@
     "Survivor<gender>_Hair_ShortBun.adr": [
       ""
     ],
-    "SurvivorFe<gender>_Hair_MediumMessy.adr": [
+    "Survivor<gender>_Hair_MediumMessy.adr": [
       ""
     ],
     "Survivor<gender>_Hair_SpikeMohawk.adr": [
       ""
     ],
     "Survivor<gender>_Hair_AfroMohawk.adr": [
-      ""
-    ],
-    "": [
       ""
     ]
   },
@@ -503,9 +468,6 @@
       ""
     ],
     "Survivor<gender>_Face_Mask_SkiMask.adr": [
-      ""
-    ],
-    "": [
       ""
     ],
     "Survivor<gender>_Face_SurgeonMask.adr": [
@@ -529,9 +491,6 @@
       "Goggles_Black",
       ""
     ],
-    "": [
-      ""
-    ],
     "Survivor<gender>_Eyes_EyePatch_Standard.adr": [
       ""
     ]
@@ -547,9 +506,6 @@
       ""
     ],
     "Weapon_AK47_3P.adr": [
-      ""
-    ],
-    "": [
       ""
     ]
   },
@@ -598,14 +554,6 @@
     ],
     "Survivor<gender>_Armor_Kevlar_Basic.adr": [
       "Basic_Police"
-    ],
-    "": [
-      ""
-    ]
-  },
-  "104": {
-    "": [
-      ""
     ]
   },
   "107": {

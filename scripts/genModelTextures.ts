@@ -75,12 +75,14 @@ export interface ServerItemDef {
     PASSIVE_EQUIP_SLOT_GROUP_ID: number;
     SCRAP_VALUE_OVERRIDE: number;
   }
+
+  const ignoredModels = ["Survivor<gender>001_baseballcap_tan.adr","Survivor<gender>_Ivan_Backpacks_Satchel_Makeshift.adr"]
   
 const serverItemValues:ServerItemDef[] = Object.values(serverItemDef);
 const modelTexture: Record<number, Record<string,string[]>> = {}
 for (let index = 0; index < serverItemValues.length; index++) {
     const element:ServerItemDef = serverItemValues[index];
-    if(element.FLAG_CAN_EQUIP){
+    if(element.FLAG_CAN_EQUIP && element.MODEL_NAME && !ignoredModels.includes(element.MODEL_NAME)){
         if(!modelTexture[element.PASSIVE_EQUIP_SLOT_ID]){
             modelTexture[element.PASSIVE_EQUIP_SLOT_ID] = {}
         }
@@ -91,8 +93,6 @@ for (let index = 0; index < serverItemValues.length; index++) {
             modelTexture[element.PASSIVE_EQUIP_SLOT_ID][element.MODEL_NAME].push(element.TEXTURE_ALIAS)
         }
 
-    }
-    
+    }    
 }
 fs.writeFileSync("./data/2016/sampleData/equipmentModelTexturesMapping.json", JSON.stringify(modelTexture, null, 2));
-console.log(modelTexture)
