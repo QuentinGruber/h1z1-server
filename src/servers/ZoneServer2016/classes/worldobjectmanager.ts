@@ -103,7 +103,7 @@ export class WorldObjectManager {
       this.lastVehicleRespawnTime = Date.now();
     }
   }
-  equipRandomSkins(server:ZoneServer2016 ,npc: Npc): Npc {
+  equipRandomSkins(server:ZoneServer2016 ,npc: Npc): void {
     switch (npc.actorModelId) {
       case 9510:{
         server.generateRandomEquipmentsFromAnEntity(npc,"Male",[3,1,2,4,29,28,27,10,5])
@@ -112,7 +112,6 @@ export class WorldObjectManager {
         server.generateRandomEquipmentsFromAnEntity(npc,"Female",[3,1,2,4,29,28,27,10,5])
       }
     }
-    return npc;
   }
   createNpc(
     server: ZoneServer2016,
@@ -122,7 +121,7 @@ export class WorldObjectManager {
     spawnerId: number = 0
   ) {      
     const characterId = generateRandomGuid();
-    let npc = new Npc(
+    const npc = new Npc(
       characterId,
       server.getTransientId(characterId),
       modelId,
@@ -130,7 +129,7 @@ export class WorldObjectManager {
       rotation,
       spawnerId
     ); 
-    npc = this.equipRandomSkins(server,npc);
+    this.equipRandomSkins(server,npc);
     server._npcs[characterId] = npc
     if (spawnerId) this._spawnedNpcs[spawnerId] = characterId;
   }
