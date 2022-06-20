@@ -123,7 +123,7 @@ export class ZoneServer2016 extends EventEmitter {
     port: 1110,
   };
   worldRoutineTimer!: NodeJS.Timeout;
-  _npcRenderDistance = 350;
+  _charactersRenderDistance = 350;
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
     : [
@@ -1596,7 +1596,7 @@ export class ZoneServer2016 extends EventEmitter {
       const explosive = this._explosives[characterId];
       if (
         isPosInRadius(
-          300,
+          explosive.npcRenderDistance as number,
           client.character.state.position,
           explosive.state.position
         ) &&
@@ -1613,7 +1613,7 @@ export class ZoneServer2016 extends EventEmitter {
       const trap = this._traps[characterId];
       if (
         isPosInRadius(
-          75,
+          trap.npcRenderDistance as number,
           client.character.state.position,
           trap.state.position
         ) &&
@@ -1630,7 +1630,7 @@ export class ZoneServer2016 extends EventEmitter {
       const tempObj = this._temporaryObjects[characterId];
       if (
         isPosInRadius(
-          40,
+          tempObj.npcRenderDistance as number,
           client.character.state.position,
           tempObj.state.position
         ) &&
@@ -1648,7 +1648,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         client.character.characterId != characterObj.characterId &&
         isPosInRadius(
-          this._npcRenderDistance,
+          this._charactersRenderDistance,
           client.character.state.position,
           characterObj.state.position
         ) &&
@@ -1881,7 +1881,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
-          this._npcRenderDistance,
+          this._charactersRenderDistance,
           client.character.state.position,
           vehicle.state.position
         )
@@ -3932,7 +3932,7 @@ export class ZoneServer2016 extends EventEmitter {
     playerPosition: Float32Array
   ): boolean {
     return !isPosInRadius(
-      (element.npcRenderDistance || this._npcRenderDistance) + 5,
+      element.npcRenderDistance || this._charactersRenderDistance,
       playerPosition,
       element.state.position
     );

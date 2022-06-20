@@ -713,7 +713,7 @@ export class zonePacketHandlers {
           if (
             !client.posAtLastRoutine ||
             !isPosInRadius(
-              server._npcRenderDistance / 2.5,
+              server._charactersRenderDistance / 2.5,
               client.character.state.position,
               client.posAtLastRoutine
             )
