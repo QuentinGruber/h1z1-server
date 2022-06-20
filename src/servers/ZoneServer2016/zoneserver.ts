@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { PlantingManager } from "./classes/Planting/PlantingManager";
+
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
 
@@ -124,7 +126,16 @@ export class ZoneServer2016 extends EventEmitter {
   _npcRenderDistance = 350;
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
-    :  ["tp","spawnnpc","rat","normalsize","drive","parachute","spawnvehicle","hood"];
+    : [
+        "tp",
+        "spawnnpc",
+        "rat",
+        "normalsize",
+        "drive",
+        "parachute",
+        "spawnvehicle",
+        "hood",
+      ];
   _interactionDistance = 4;
   _pingTimeoutTime = 120000;
   _weather2016: Weather2016;
@@ -132,6 +143,7 @@ export class ZoneServer2016 extends EventEmitter {
   _weatherTemplates: any;
   _vehicles: { [characterId: string]: Vehicle } = {};
   worldObjectManager: WorldObjectManager;
+  plantingManager: PlantingManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _itemDefinitionIds: any[] = Object.keys(this._itemDefinitions);
@@ -163,6 +175,8 @@ export class ZoneServer2016 extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
+    this.plantingManager = new PlantingManager(null);
+
     if (!this._mongoAddress) {
       this._soloMode = true;
       debug("Server in solo mode !");
@@ -180,7 +194,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     this._gatewayServer.on(
       "login",
-     async (
+      async (
         err: string,
         client: SOEClient,
         characterId: string,
@@ -203,11 +217,15 @@ export class ZoneServer2016 extends EventEmitter {
           characterId,
           generatedTransient
         );
-        if(!this._soloMode){
-          zoneClient.isAdmin = await this._db?.collection("admins")
-          .findOne({ sessionId: zoneClient.loginSessionId, serverId: this._worldId }) != undefined;
-        }
-        else{
+        if (!this._soloMode) {
+          zoneClient.isAdmin =
+            (await this._db
+              ?.collection("admins")
+              .findOne({
+                sessionId: zoneClient.loginSessionId,
+                serverId: this._worldId,
+              })) != undefined;
+        } else {
           zoneClient.isAdmin = true;
         }
         this._clients[client.sessionId] = zoneClient;
@@ -376,7 +394,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (err) {
       console.error(err);
     } else {
-      if(!client){
+      if (!client) {
         return;
       }
       client.pingTimer?.refresh();
@@ -508,8 +526,9 @@ export class ZoneServer2016 extends EventEmitter {
     let isRandomlySpawning = false;
     if (
       (_.isEqual(character.position, [0, 0, 0, 1]) &&
-      _.isEqual(character.rotation, [0, 0, 0, 1]))
-      || objectIsEmpty(character.position) || objectIsEmpty(character.rotation)
+        _.isEqual(character.rotation, [0, 0, 0, 1])) ||
+      objectIsEmpty(character.position) ||
+      objectIsEmpty(character.rotation)
     ) {
       // if position/rotation hasn't changed
       isRandomlySpawning = true;
@@ -521,20 +540,18 @@ export class ZoneServer2016 extends EventEmitter {
         Math.random() * this._spawnLocations.length
       );
       client.character.state.position =
-        this._spawnLocations[randomSpawnIndex].position;
+      new Float32Array(this._spawnLocations[randomSpawnIndex].position);
       client.character.state.rotation =
-        this._spawnLocations[randomSpawnIndex].rotation;
+      new Float32Array(this._spawnLocations[randomSpawnIndex].rotation);
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     } else {
-      const e = Object.values(character.position) as number[];
-      client.character.state.position = new Float32Array(e);
-      client.character.state.rotation = new Float32Array(Object.values(character.rotation));
+      client.character.state.position = new Float32Array(Object.values(character.position));
+      client.character.state.rotation = new Float32Array(
+        Object.values(character.rotation)
+      );
     }
 
-    // If position or rotation isn't a float32array it will make the server crash
-    client.character.state.position = new Float32Array(client.character.state.position)
-    client.character.state.rotation = new Float32Array(client.character.state.rotation)
 
     this.giveStartingEquipment(client, false, true);
   }
@@ -619,10 +636,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   async fetchZoneData(): Promise<void> {
     if (this._mongoAddress) {
-      const mongoClient = new MongoClient(
-        this._mongoAddress,
-        { maxPoolSize: 50 }
-      );
+      const mongoClient = new MongoClient(this._mongoAddress, {
+        maxPoolSize: 50,
+      });
       try {
         await mongoClient.connect();
       } catch (e) {
@@ -1390,6 +1406,37 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  setGodMode(client: Client, godMode: boolean) {
+    client.character.godMode = godMode;
+    client.character.characterStates.invincibility = godMode;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
+  }
+
+  toggleHiddenMode(client: Client) {
+    client.character.isHidden = !client.character.isHidden;
+    client.character.characterStates.gmHidden = client.character.isHidden;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
+  }
+
+  tempGodMode(client: Client, durationMs: number) {
+    if (!client.character.godMode) {
+      this.setGodMode(client, true);
+      setTimeout(() => {
+        this.setGodMode(client, false);
+      }, durationMs);
+    }
+  }
+
   updateCharacterState(
     client: Client,
     characterId: string,
@@ -1481,6 +1528,7 @@ export class ZoneServer2016 extends EventEmitter {
     // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
+        e && // in case if entity is undefined somehow
         !e.vehicleId &&
         this.filterOutOfDistance(e, client.character.state.position)
     );
@@ -1633,7 +1681,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   spawnObjects(client: Client) {
-    setImmediate(() => {
       for (const characterId in this._objects) {
         const object = this._objects[characterId];
         if (
@@ -1652,11 +1699,9 @@ export class ZoneServer2016 extends EventEmitter {
           client.spawnedEntities.push(object);
         }
       }
-    });
   }
 
   spawnDoors(client: Client) {
-    setImmediate(() => {
       for (const characterId in this._doors) {
         const door = this._doors[characterId];
         if (
@@ -1682,7 +1727,6 @@ export class ZoneServer2016 extends EventEmitter {
           }
         }
       }
-    });
   }
 
   POIManager(client: Client) {
@@ -1717,7 +1761,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sendData(client: Client, packetName: h1z1PacketsType, obj: any) {
+  private _sendData(client: Client, packetName: h1z1PacketsType, obj: any,unbuffered: boolean ){
     switch (packetName) {
       case "KeepAlive":
       case "PlayerUpdatePosition":
@@ -1732,10 +1776,24 @@ export class ZoneServer2016 extends EventEmitter {
     if (data) {
       const soeClient = this.getSoeClient(client.soeClientId);
       if (soeClient) {
+        if(unbuffered){
+          this._gatewayServer.sendUnbufferedTunnelData(soeClient, data);
+        }
+        else{
         this._gatewayServer.sendTunnelData(soeClient, data);
+        }
       }
     }
   }
+
+  sendUnbufferedData(client: Client, packetName: h1z1PacketsType, obj: any) {
+    this._sendData(client, packetName, obj, true);
+  }
+
+  sendData(client: Client, packetName: h1z1PacketsType, obj: any) {
+    this._sendData(client, packetName, obj, false);
+  }
+
   sendChat(client: Client, message: string) {
     if (!this._soloMode) {
       this.sendDataToAll("Chat.ChatText", {
@@ -1842,18 +1900,24 @@ export class ZoneServer2016 extends EventEmitter {
             },
             unknownGuid1: this.generateGuid(),
           });
+          const passengers:any[] = []
+          vehicle.getPassengerList().forEach((passengerCharacterId: string) => {
+            if(this._characters[passengerCharacterId]) {
+              passengers.push({
+                characterId: passengerCharacterId,
+                identity: {
+                  characterName: this._characters[passengerCharacterId].name,
+                },
+                unknownString1: this._characters[passengerCharacterId].name,
+                unknownByte1: 1,
+              }
+              );
+            }
+          })
+
           this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
-            passengers: vehicle.getPassengerList().map((characterId) => {
-              return {
-                characterId: characterId,
-                identity: {
-                  characterName: this._characters[characterId].name,
-                },
-                unknownString1: this._characters[characterId].name,
-                unknownByte1: 1,
-              };
-            }),
+            passengers: passengers
           });
           client.spawnedEntities.push(vehicle);
         }
@@ -1990,9 +2054,7 @@ export class ZoneServer2016 extends EventEmitter {
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
-    if (
-      client.hudTimer != null 
-    ) {
+    if (client.hudTimer != null) {
       clearTimeout(client.hudTimer);
       client.hudTimer = null;
     }
@@ -2914,6 +2976,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151,
       position: object.state.position,
     });
+    //region Norman added. if it is a crop product, randomly generated product is processed by the planting manager. else, continue
+    if (this.plantingManager.TriggerPicking(item, client, this)) {
+      return;
+    }
+    //endregion
     this.lootItem(client, item, item.stackCount);
     this.deleteEntity(guid, this._objects);
     delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
@@ -3327,6 +3394,12 @@ export class ZoneServer2016 extends EventEmitter {
         useoption = "sniff";
         timeout = 3000;
         break;
+      case 25: //Fertilizer
+        this.utilizeHudTimer(client, nameId, timeout, () => {
+          this.plantingManager.FertilizeCrops(client, this);
+          this.removeInventoryItem(client, item);
+        });
+        return;
       default:
         this.sendChatText(
           client,
@@ -3705,11 +3778,22 @@ export class ZoneServer2016 extends EventEmitter {
   getSoeClient(soeClientId: string): SOEClient | undefined {
     return this._gatewayServer._soeServer.getSoeClient(soeClientId);
   }
-  sendRawData(client: Client, data: Buffer) {
+  private _sendRawData(client: Client, data: Buffer,unbuffered: boolean) {
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
-      this._gatewayServer.sendTunnelData(soeClient, data);
+      if(unbuffered){
+        this._gatewayServer.sendUnbufferedTunnelData(soeClient, data);
+      }
+      else{
+        this._gatewayServer.sendTunnelData(soeClient, data);
+      }
     }
+  }
+  sendRawData(client: Client, data: Buffer) {
+    this._sendRawData(client, data,false);
+  }
+  sendUnbufferedRawData(client: Client, data: Buffer) {
+    this._sendRawData(client, data,true);
   }
   sendChatText(client: Client, message: string, clearChat = false) {
     if (clearChat) {
@@ -3793,13 +3877,25 @@ export class ZoneServer2016 extends EventEmitter {
       refreshTimeout && client.savePositionTimer.refresh();
     }
   }
-  sendDataToAll(packetName: h1z1PacketsType, obj: any) {
+  private _sendDataToAll(packetName: h1z1PacketsType, obj: any,unbuffered:boolean) {
     const data = this._protocol.pack(packetName, obj);
     if (data) {
       for (const a in this._clients) {
-        this.sendRawData(this._clients[a], data);
+        if(unbuffered){
+          this.sendUnbufferedRawData(this._clients[a], data);
+        }
+        else{
+          this.sendRawData(this._clients[a], data);
+        }
       }
     }
+  }
+
+  sendDataToAll(packetName: h1z1PacketsType, obj: any) {
+    this._sendDataToAll(packetName, obj,false);
+  }
+  sendUnbufferedDataToAll(packetName: h1z1PacketsType, obj: any) {
+    this._sendDataToAll(packetName, obj,true);
   }
   dropVehicleManager(client: Client, vehicleGuid: string) {
     this.sendManagedObjectResponseControlPacket(client, {
@@ -3823,11 +3919,9 @@ export class ZoneServer2016 extends EventEmitter {
       { population: populationNumber }
     );
   }
-  sendChatTextToAllOthers(client: Client,message: string, clearChat = false) {
+  sendChatTextToAllOthers(client: Client, message: string, clearChat = false) {
     for (const a in this._clients) {
-      if (
-        client != this._clients[a]
-      ) {
+      if (client != this._clients[a]) {
         this.sendChatText(this._clients[a], message, clearChat);
       }
     }

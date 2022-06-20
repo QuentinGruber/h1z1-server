@@ -40,7 +40,6 @@ export class SOEServer extends EventEmitter {
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean = false;
   private _maxMultiBufferSize: number;
-  reduceCpuUsage: boolean = true;
   private _soeClientRoutineLoopMethod!: (arg0: () => void) => void;
   private _resendTimeout: number = 1000;
   protected _maxGlobalPacketRate = 70000;
@@ -109,7 +108,7 @@ export class SOEServer extends EventEmitter {
       const logicalPacket = client.priorityQueue.shift();
       if (logicalPacket) {
         // if is a reliable packet
-        if(logicalPacket.isReliable && logicalPacket.sequence){
+        if (logicalPacket.isReliable && logicalPacket.sequence) {
           client.unAckData.set(logicalPacket.sequence, Date.now());
         }
         this._sendPhysicalPacket(client, logicalPacket.data);
@@ -124,7 +123,7 @@ export class SOEServer extends EventEmitter {
       const logicalPacket = client.outQueue.shift();
       if (logicalPacket) {
         // if is a reliable packet
-        if(logicalPacket.isReliable && logicalPacket.sequence){
+        if (logicalPacket.isReliable && logicalPacket.sequence) {
           client.unAckData.set(logicalPacket.sequence, Date.now());
         }
         this._sendPhysicalPacket(client, logicalPacket.data);
@@ -195,7 +194,10 @@ export class SOEServer extends EventEmitter {
         // if a packet in the waiting queue is a reliable packet, then we need to set the timeout
         for (let index = 0; index < client.waitingQueue.length; index++) {
           const packet = client.waitingQueue[index];
-          if(packet.sequence && packet.name === "Data" || packet.name === "DataFragment"){ 
+          if (
+            (packet.sequence && packet.name === "Data") ||
+            packet.name === "DataFragment"
+          ) {
             client.unAckData.set(packet.sequence, Date.now());
           }
         }
@@ -363,11 +365,7 @@ export class SOEServer extends EventEmitter {
     if (udpLength !== undefined) {
       this._udpLength = udpLength;
     }
-    if (this.reduceCpuUsage || process.env.FORCE_REDUCE_CPU_USAGE) {
-      this._soeClientRoutineLoopMethod = setTimeout;
-    } else {
-      this._soeClientRoutineLoopMethod = setImmediate;
-    }
+    this._soeClientRoutineLoopMethod = setTimeout;
     this._connection.on("message", (message) => {
       const data = Buffer.from(message.data);
       try {
@@ -409,14 +407,16 @@ export class SOEServer extends EventEmitter {
 
           client.outputStream.on(
             "data",
-            (err: string, data: Buffer, sequence: number, fragment: any) => {
+            (err: string, data: Buffer, sequence: number, fragment: boolean, unbuffered: boolean) => {
               this._sendLogicalPacket(
                 client,
                 fragment ? "DataFragment" : "Data",
                 {
                   sequence: sequence,
                   data: data,
-                }
+                },
+                false,
+                unbuffered
               );
             }
           );
@@ -486,9 +486,10 @@ export class SOEServer extends EventEmitter {
       packet.data = [...packet.data];
     }
     try {
-      const logicalPacket = new LogicalPacket(Buffer.from(
-        this._protocol.pack(packetName, JSON.stringify(packet))
-      ),packet.sequence)
+      const logicalPacket = new LogicalPacket(
+        Buffer.from(this._protocol.pack(packetName, JSON.stringify(packet))),
+        packet.sequence
+      );
       return logicalPacket;
     } catch (e) {
       console.error(
@@ -507,13 +508,15 @@ export class SOEServer extends EventEmitter {
     client: Client,
     packetName: string,
     packet: json,
-    prioritize = false
+    prioritize = false,
+    unbuffered = false,
   ): void {
     const logicalPacket = this.createLogicalPacket(client, packetName, packet);
     if (prioritize) {
       client.priorityQueue.push(logicalPacket);
     } else {
       if (
+        !unbuffered &&
         packetName !== "MultiPacket" &&
         this._waitQueueTimeMs > 0 &&
         logicalPacket.data.length < 255 &&
@@ -550,6 +553,15 @@ export class SOEServer extends EventEmitter {
       debug("Sending app data: " + data.length + " bytes");
     }
     client.outputStream.write(data);
+  }
+
+  sendUnbufferedAppData(client: Client, data: Buffer): void {
+    if (client.outputStream.isUsingEncryption()) {
+      debug("Sending unbuffered app data: " + data.length + " bytes with encryption");
+    } else {
+      debug("Sending unbuffered app data: " + data.length + " bytes");
+    }
+    client.outputStream.write(data,true);
   }
 
   setEncryption(client: Client, value: boolean): void {

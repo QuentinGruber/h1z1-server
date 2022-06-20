@@ -25,7 +25,7 @@ type Fragment = { payload: Buffer; isFragment: boolean };
 export class SOEInputStream extends EventEmitter {
   _nextSequence: wrappedUint16 = new wrappedUint16(0);
   _lastAck: wrappedUint16 = new wrappedUint16(-1);
-  _fragments: Map<number,Fragment> = new Map();
+  _fragments: Map<number, Fragment> = new Map();
   _useEncryption: boolean = false;
   _lastProcessedSequence: number = -1;
   _rc4: RC4;
@@ -45,7 +45,7 @@ export class SOEInputStream extends EventEmitter {
     sequence: number
   ): Array<Buffer> {
     this._fragments.delete(sequence);
-    this._lastProcessedSequence = sequence
+    this._lastProcessedSequence = sequence;
     return parseChannelPacketData(dataToProcess.payload);
   }
 
@@ -54,21 +54,29 @@ export class SOEInputStream extends EventEmitter {
     sequence: number
   ): Array<Buffer> {
     // cpf == current processed fragment
-    if(!this.has_cpf) {
-    // the total size is written has a uint32 at the first packet of a fragmented data
-    this.cpf_totalSize = dataToProcess.payload.readUInt32BE(0);
-    this.cpf_dataSize = dataToProcess.payload.length - DATA_HEADER_SIZE;
+    if (!this.has_cpf) {
+      // the total size is written has a uint32 at the first packet of a fragmented data
+      this.cpf_totalSize = dataToProcess.payload.readUInt32BE(0);
+      this.cpf_dataSize = dataToProcess.payload.length - DATA_HEADER_SIZE;
 
-    this.cpf_dataWithoutHeader = Buffer.allocUnsafe(this.cpf_totalSize);
-    this.cpf_processedFragmentsSequences = [];
-    this.has_cpf = true;
-  }
-    for (let i = this.cpf_processedFragmentsSequences.length; i < this._fragments.size; i++) {
+      this.cpf_dataWithoutHeader = Buffer.allocUnsafe(this.cpf_totalSize);
+      this.cpf_processedFragmentsSequences = [];
+      this.has_cpf = true;
+    }
+    for (
+      let i = this.cpf_processedFragmentsSequences.length;
+      i < this._fragments.size;
+      i++
+    ) {
       const fragmentSequence = (sequence + i) % MAX_SEQUENCE;
       const fragment = this._fragments.get(fragmentSequence);
       if (fragment) {
         this.cpf_processedFragmentsSequences.push(fragmentSequence);
-        dataToProcess.payload.copy(this.cpf_dataWithoutHeader, 0, DATA_HEADER_SIZE);
+        dataToProcess.payload.copy(
+          this.cpf_dataWithoutHeader,
+          0,
+          DATA_HEADER_SIZE
+        );
         fragment.payload.copy(this.cpf_dataWithoutHeader, this.cpf_dataSize);
         this.cpf_dataSize += fragment.payload.length;
 
@@ -87,10 +95,14 @@ export class SOEInputStream extends EventEmitter {
         }
         if (this.cpf_dataSize === this.cpf_totalSize) {
           // Delete all the processed fragments from memory
-          for (let k = 0; k < this.cpf_processedFragmentsSequences.length; k++) {
+          for (
+            let k = 0;
+            k < this.cpf_processedFragmentsSequences.length;
+            k++
+          ) {
             this._fragments.delete(this.cpf_processedFragmentsSequences[k]);
           }
-          this._lastProcessedSequence = fragmentSequence
+          this._lastProcessedSequence = fragmentSequence;
           this.has_cpf = false;
           // process the full reassembled data
           return parseChannelPacketData(this.cpf_dataWithoutHeader);
@@ -103,25 +115,26 @@ export class SOEInputStream extends EventEmitter {
   }
 
   private _processData(): void {
-    const nextFragmentSequence = (this._lastProcessedSequence + 1) & MAX_SEQUENCE;
+    const nextFragmentSequence =
+      (this._lastProcessedSequence + 1) & MAX_SEQUENCE;
     const dataToProcess = this._fragments.get(nextFragmentSequence);
     let appData: Array<Buffer> = [];
     if (dataToProcess) {
       if (dataToProcess.isFragment) {
         appData = this.processFragmentedData(
           dataToProcess,
-          nextFragmentSequence+1
+          nextFragmentSequence + 1
         );
       } else {
         appData = this.processSingleData(dataToProcess, nextFragmentSequence);
       }
 
       if (appData.length) {
-        if(this._fragments.has(this._lastProcessedSequence+1)) {
-        queueMicrotask(() => {
-          this._processData();
-        })
-      }
+        if (this._fragments.has(this._lastProcessedSequence + 1)) {
+          queueMicrotask(() => {
+            this._processData();
+          });
+        }
         this.processAppData(appData);
       }
     }
@@ -156,7 +169,8 @@ export class SOEInputStream extends EventEmitter {
       return false;
     } else {
       let ack = sequence;
-      for (let i = 1; i < MAX_SEQUENCE; i++) { // TODO: check if MAX_SEQUENCE + 1 is the right value
+      for (let i = 1; i < MAX_SEQUENCE; i++) {
+        // TODO: check if MAX_SEQUENCE + 1 is the right value
         const fragmentIndex = (this._lastAck.get() + i) & MAX_SEQUENCE;
         if (this._fragments.has(fragmentIndex)) {
           ack = fragmentIndex;
@@ -178,11 +192,11 @@ export class SOEInputStream extends EventEmitter {
       "Writing " + data.length + " bytes, sequence " + sequence,
       " fragment=" + isFragment + ", lastAck: " + this._lastAck.get()
     );
-    if(sequence >= this._nextSequence.get()){
+    if (sequence >= this._nextSequence.get()) {
       this._fragments.set(sequence, { payload: data, isFragment: isFragment });
       const wasInOrder = this.acknowledgeInputData(sequence);
       if (wasInOrder) {
-        this._nextSequence.set(this._lastAck.get()+1);
+        this._nextSequence.set(this._lastAck.get() + 1);
         this._processData();
       }
     }

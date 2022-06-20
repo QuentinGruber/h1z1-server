@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.20.7-0",
+  "version": "0.20.8-1",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -19,9 +19,8 @@
     "debug": "4.3.4",
     "h1emu-core": "^0.8.13",
     "h1z1-dataschema": "^1.5.11",
-    "mongodb": "4.6.0",
-    "typescript": "^4.7.2",
-    "v8-compile-cache": "2.3.0"
+    "mongodb": "^4.7.0",
+    "typescript": "^4.7.2"
   },
   "directories": {
     "src": "./src"
@@ -31,14 +30,14 @@
     "@typescript-eslint/parser": "^5.27.0",
     "eslint": "^8.16.0",
     "glob": "8.0.3",
-    "prettier": "2.6.2",
+    "prettier": "^2.7.1",
     "ts-node": "^10.8.0",
     "typedoc": "^0.22.16"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
     "gen-model-textures": "npx ts-node ./scripts/genModelTextures.ts",
-    "gen-packets-handler": "npx ts-node ./scripts/genPacketHandlersFromMap.ts && npx prettier -w ./src/servers/ZoneServer/zonepackethandlers.ts",
+    "gen-packets-interfaces": "npx ts-node ./scripts/genPacketsInterfaces.ts",
     "fix-signatures": "npx ts-node ./scripts/fixSignatures.ts && npm run prettier_sources",
     "gen-doc": "npx typedoc",
     "lint": "npx eslint src",

@@ -1297,7 +1297,6 @@ export type h1z1PacketsType =
   | "AdminMiniGame"
   | "KeepAlive"
   | "ClientExitLaunchUrl"
-  | "ClientPath"
   | "ClientPendingKickFromServer"
   | "MembershipActivation"
   | "ShowSystemMessage"
@@ -2482,7 +2481,9 @@ export type h1z1PacketsType =
   | "WallOfData.LaunchPadFingerprint"
   | "WallOfData.VideoCapture"
   | "WallOfData.ClientTransition"
-  | "ZoneSetting.Data";
+  | "ZoneSetting.Data"
+  | "ClientPath.Request"
+  | "ClientPath.Reply";
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"

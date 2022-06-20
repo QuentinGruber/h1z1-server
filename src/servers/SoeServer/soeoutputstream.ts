@@ -33,10 +33,10 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   addToCache(sequence: number, data: Buffer, isFragment: boolean) {
-      this._cache[sequence] = {
-        data: data,
-        fragment: isFragment,
-      };
+    this._cache[sequence] = {
+      data: data,
+      fragment: isFragment,
+    };
   }
 
   removeFromCache(sequence: number): void {
@@ -45,7 +45,7 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
-  write(data: Buffer): void {
+  write(data: Buffer,unbuffered:boolean = false): void {
     if (this._useEncryption) {
       data = Buffer.from(this._rc4.encrypt(data));
 
@@ -58,7 +58,7 @@ export class SOEOutputStream extends EventEmitter {
     if (data.length <= this._fragmentSize) {
       this._sequence.increment();
       this.addToCache(this._sequence.get(), data, false);
-      this.emit("data", null, data, this._sequence.get(), false);
+      this.emit("data", null, data, this._sequence.get(), false,unbuffered);
     } else {
       const header = Buffer.allocUnsafe(4);
       header.writeUInt32BE(data.length, 0);
@@ -68,7 +68,7 @@ export class SOEOutputStream extends EventEmitter {
         const fragmentData = data.slice(i, i + this._fragmentSize);
         this.addToCache(this._sequence.get(), fragmentData, true);
 
-        this.emit("data", null, fragmentData, this._sequence.get(), true);
+        this.emit("data", null, fragmentData, this._sequence.get(), true,unbuffered);
       }
     }
   }

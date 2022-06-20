@@ -99,6 +99,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      server.setGodMode(client, true);
       server.sendData(client, "ClientBeginZoning", {
         position: client.character.state.position,
         rotation: client.character.state.lookAt,
@@ -131,25 +132,29 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      server.tempGodMode(client,3000);
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
       if (client.firstLoading) {
-        
-       setTimeout(() => {
+        server.setGodMode(client, false);
+        setTimeout(() => {
           server.sendData(client, "POIChangeMessage", {
             // welcome POI message
             messageStringId: 20,
             id: 99,
-        });
-        server.sendChatText(client, "Welcome to H1emu ! :D", true);
-        server.sendChatText(client, `server population : ${_.size(server._characters)}`);
-        if(client.isAdmin){
-          server.sendChatText(client, "You are an admin !");
-        }
-      
-      }, 10000);
-        
-        server.sendChatTextToAllOthers(client,
+          });
+          server.sendChatText(client, "Welcome to H1emu ! :D", true);
+          server.sendChatText(
+            client,
+            `server population : ${_.size(server._characters)}`
+          );
+          if (client.isAdmin) {
+            server.sendChatText(client, "You are an admin !");
+          }
+        }, 10000);
+
+        server.sendChatTextToAllOthers(
+          client,
           `${client.character.name} has joined the server !`
         );
         client.firstLoading = false;
@@ -167,20 +172,20 @@ export class zonePacketHandlers {
           "spawninfo",
           "help",
           "netstats",
-          "me"
+          "me",
         ];
-  
+
         commands.forEach((command) => {
           server.sendData(client, "Command.AddWorldCommand", {
             command: command,
           });
         });
-  
+
         server.sendData(client, "Synchronization", {
           serverTime: Int64String(server.getServerTime()),
           serverTime2: Int64String(server.getServerTime()),
         });
-  
+
         server.sendData(client, "Character.WeaponStance", {
           // activates weaponstance key
           characterId: client.character.characterId,
@@ -244,7 +249,9 @@ export class zonePacketHandlers {
         damage = packet.data.damage,
         vehicle = server._vehicles[characterId];
       if (characterId === client.character.characterId) {
-        server.playerDamage(client, damage * 5);
+        if(!client.vehicle.mountedVehicle){ // if not mounted
+          server.playerDamage(client, damage * 5);
+        }
       } else if (vehicle) {
         server.damageVehicle(damage / 50, vehicle);
         //server.DTOhit(client, packet);
@@ -342,9 +349,9 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("ClientLogout");
-      if(client.hudTimer){
-      clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
-    }
+      if (client.hudTimer) {
+        clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
+      }
       server.deleteClient(client);
     };
     this.GameTimeSync = function (
@@ -407,24 +414,6 @@ export class zonePacketHandlers {
               _doors: doors,
               _props: props,
             } = server;
-            const delta = Date.now() - server._startTime;
-            const datakur = new Date(
-              (server._serverTime + delta) * server._timeMultiplier
-            );
-            const monthNames = [
-              "January",
-              "February",
-              "March",
-              "April",
-              "May",
-              "June",
-              "July",
-              "August",
-              "September",
-              "October",
-              "November",
-              "December",
-            ];
             const serverVersion = require("../../../package.json").version;
             server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
             server.sendChatText(
@@ -441,19 +430,12 @@ export class zonePacketHandlers {
                 props
               )} vehicles : ${_.size(vehicles)}`
             );
+            const uptime = new Date(
+              Date.now() - server._startTime
+            );
             server.sendChatText(
               client,
-              "Gametime: " +
-                datakur.getUTCDate() +
-                " " +
-                monthNames[datakur.getUTCMonth()] +
-                " " +
-                (datakur.getUTCFullYear() + 50) +
-                ", " +
-                datakur.getUTCHours() +
-                ":" +
-                datakur.getUTCMinutes()
-            );
+              `Uptime: ${uptime.getUTCHours()}h ${uptime.getUTCMinutes()}m`);
             break;
           }
         case 1757604914: // /spawninfo
@@ -990,7 +972,7 @@ export class zonePacketHandlers {
           ? 2
           : 0 || server._doors[guid]
           ? 3
-          : 0|| server._npcs[guid]
+          : 0 || server._npcs[guid]
           ? 4
           : 0;
 
@@ -1039,9 +1021,14 @@ export class zonePacketHandlers {
           break;
         case 4: // npc
           const npc = entityData as Npc;
-          server.sendDataToAllWithSpawnedEntity(server._npcs, npc.characterId, "Character.StartMultiStateDeath", {
-            characterId: npc.characterId
-          })
+          server.sendDataToAllWithSpawnedEntity(
+            server._npcs,
+            npc.characterId,
+            "Character.StartMultiStateDeath",
+            {
+              characterId: npc.characterId,
+            }
+          );
           break;
         default:
           break;
@@ -1332,9 +1319,7 @@ export class zonePacketHandlers {
         server.containerError(client, 5); // slot does not contain item
         return;
       }
-      if (!server.removeInventoryItem(client, item)) {
-        return;
-      }
+      let deleteItemAfterProcessing = true;
       const modelId = server.getItemDefinition(
         packet.data.itemDefinitionId
       ).PLACEMENT_MODEL_ID;
@@ -1615,6 +1600,31 @@ export class zonePacketHandlers {
             }, 200);
           }, 3000);
           break;
+        //Ground Tiller
+        case 1383:
+          deleteItemAfterProcessing = server.plantingManager.Reclaim(
+            client,
+            server
+          );
+          break;
+        //Corn Seed
+        case 1987:
+          deleteItemAfterProcessing = server.plantingManager.SowSeed(
+            client,
+            server,
+            1987,
+            item.itemGuid
+          );
+          break;
+        //Wheat Seed
+        case 1988:
+          deleteItemAfterProcessing = server.plantingManager.SowSeed(
+            client,
+            server,
+            1988,
+            item.itemGuid
+          );
+          break;
         default:
           server.lootItem(client, item, 1);
           server.sendData(client, "Construction.PlacementResponse", {
@@ -1622,6 +1632,9 @@ export class zonePacketHandlers {
             model: modelId,
           });
           break;
+      }
+      if (deleteItemAfterProcessing) {
+        server.removeInventoryItem(client, item);
       }
     };
     this.containerMoveItem = function (

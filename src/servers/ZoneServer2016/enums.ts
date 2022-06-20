@@ -90,6 +90,7 @@ export enum Items {
   METAL_SCRAP = 48,
   TARP = 155,
   WOOD_LOG = 16,
+  GROUND_TILLER = 1383,
   FERTILIZER = 25,
   SEED_CORN = 1987,
   SEED_WHEAT = 1988,

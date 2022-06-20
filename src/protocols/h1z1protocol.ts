@@ -14,7 +14,7 @@
 const debug = require("debug")("H1Z1Protocol");
 import DataSchema from "h1z1-dataschema";
 import { H1z1ProtocolReadingFormat } from "../types/protocols";
-import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_860/shared";
+import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_1080/shared";
 import {
   clearFolderCache,
   eul2quat,
