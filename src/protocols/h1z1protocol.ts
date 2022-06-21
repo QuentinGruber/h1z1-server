@@ -133,7 +133,7 @@ export class H1Z1Protocol {
         },
       ],
     };
-    const result = DataSchema.parse(schema, data, 0, null).result;
+    const result = DataSchema.parse(schema, data, 0).result;
     return result;
   }
 
@@ -306,7 +306,7 @@ export class H1Z1Protocol {
       },
     ];
     try {
-      const result = DataSchema.parse(schema, data, 0, null).result;
+      const result = DataSchema.parse(schema, data, 0).result;
       return result;
     } catch (e) {
       console.error(e);

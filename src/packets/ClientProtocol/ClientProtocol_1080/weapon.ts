@@ -242,8 +242,7 @@ export function parseWeaponPacket(data: Buffer, offset: number) {
       obj.packet = DataSchema.parse(
         weaponPacket.packet.schema,
         weaponPacketData,
-        weaponPacket.length,
-        null
+        weaponPacket.length
       ).result;
     }
   } else {
