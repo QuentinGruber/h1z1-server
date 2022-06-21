@@ -16,6 +16,7 @@ import { BaseLightweightCharacter } from "./baselightweightcharacter";
 export class ExplosiveEntity extends BaseLightweightCharacter {
   isIED = false;
   mineTimer?: NodeJS.Timeout;
+  npcRenderDistance = 300;
   constructor(
     characterId: string,
     transientId: number,
