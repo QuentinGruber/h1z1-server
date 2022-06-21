@@ -247,7 +247,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._gatewayServer.on(
       "tunneldata",
       (err: string, client: SOEClient, data: Buffer, flags: number) => {
-        const packet = this._protocol.parse(data, flags, true);
+        const packet = this._protocol.parse(data, flags);
         if (packet) {
           this.emit("data", null, this._clients[client.sessionId], packet);
         } else {

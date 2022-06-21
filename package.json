@@ -18,7 +18,7 @@
     "@swc/core": "^1.2.196",
     "debug": "4.3.4",
     "h1emu-core": "^0.8.13",
-    "h1z1-dataschema": "^1.5.11",
+    "h1z1-dataschema": "^1.5.12",
     "mongodb": "^4.7.0",
     "typescript": "^4.7.2"
   },
