@@ -52,6 +52,9 @@ import {
   Scheduler,
   generateTransientId,
   objectIsEmpty,
+  getRandomFromArray,
+  getRandomKeyFromAnObject,
+  bigIntToHexString,
 } from "../../utils/utils";
 
 import { Db, MongoClient } from "mongodb";
@@ -79,8 +82,9 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
-  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
-  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions");
+  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs.json"),
+  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions.json"),
+  equipmentModelTexturesMapping = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 @healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
@@ -1586,6 +1590,7 @@ export class ZoneServer2016 extends EventEmitter {
         !client.spawnedEntities.includes(npc)
       ) {
         this.addLightweightNpc(client, npc);
+        this.updateEquipment(client, npc); // TODO: maybe we can already add the equipment to the npc?
         client.spawnedEntities.push(npc);
       }
     }
@@ -2369,7 +2374,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.checkConveys(client);
   }
 
-  updateEquipment(client: Client, character = client.character) {
+  updateEquipment(client: Client, character:BaseFullCharacter = client.character) {
     this.sendData(
       client,
       "Equipment.SetCharacterEquipment",
@@ -2542,6 +2547,26 @@ export class ZoneServer2016 extends EventEmitter {
     this.addItem(client, loadoutData, 101);
     this.updateLoadout(client);
     if (equipmentSlotId) this.updateEquipmentSlot(client, equipmentSlotId);
+  }
+
+  generateRandomEquipmentsFromAnEntity(entity: BaseFullCharacter,gender:string,slots:number[]) {
+    slots.forEach(slot => {
+      entity._equipment[slot]=this.generateRandomEquipmentForSlot(gender,slot)
+    });
+  }
+
+  generateRandomEquipmentForSlot(gender: string, slotId:number){
+    const models = equipmentModelTexturesMapping[slotId]
+    const model = getRandomKeyFromAnObject(models)
+    const skins = equipmentModelTexturesMapping[slotId][model]
+    let skin;
+    if(skins){
+      skin = getRandomFromArray(skins)
+    }
+    else{
+      skin = ""
+    }
+    return {modelName:model.replace("<gender>",gender),slotId,textureAlias:skin,guid:bigIntToHexString(this.generateItemGuid())}
   }
 
   getItemDefinition(itemDefinitionId: number) {

@@ -1,0 +1,564 @@
+{
+  "0": {
+    "Weapon_Hatchet01_3P.adr": [
+      ""
+    ],
+    "RoadFlare_Base_3P.adr": [
+      ""
+    ],
+    "Weapon_Torch_3P.adr": [
+      ""
+    ],
+    "Weapons_MolotovCocktail_3P.adr": [
+      ""
+    ],
+    "Survivor<gender>001_jacket_red.adr": [
+      ""
+    ],
+    "Survivor<gender>001_pants_red.adr": [
+      ""
+    ],
+    "Survivor<gender>001_hikerboot_red.adr": [
+      ""
+    ],
+    "Weapon_Hatchet01.adr": [
+      ""
+    ],
+    "Weapon_WoodAxe01_3P.adr": [
+      ""
+    ],
+    "Weapons_Grenades_HEGrenade_3P.adr": [
+      ""
+    ],
+    "Weapons_PumpShotgun01.adr": [
+      ""
+    ],
+    "Weapon_M16A4.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Hat_BaseballCap.adr": [
+      ""
+    ],
+    "Weapons_Crowbar01_3P.adr": [
+      ""
+    ],
+    "Weapons_Machete01_3P.adr": [
+      ""
+    ],
+    "Weapons_CombatKnife01_3P.adr": [
+      ""
+    ],
+    "Weapon_Empty.adr": [
+      ""
+    ],
+    "Survivor<gender>_Chest_Shirt_TintTshirt.adr": [
+      "RedWhiteBlue_Tshirt"
+    ],
+    "Weapon_Pistol_45Auto_3P.adr": [
+      ""
+    ],
+    "Weapon_Torch.adr": [
+      ""
+    ],
+    "Weapon_Flashlight_Military_3P.adr": [
+      ""
+    ],
+    "Weapon_Spear01_3P.adr": [
+      ""
+    ],
+    "Weapon_Torch_Blue_3P.adr": [
+      ""
+    ],
+    "Weapons_Bat02_Nails_3P.adr": [
+      ""
+    ],
+    "Weapons_Pipe01_Bolts_3P.adr": [
+      ""
+    ],
+    "Weapon_ClawHammer01_3P.adr": [
+      ""
+    ],
+    "Weapons_Wrench_3P.adr": [
+      ""
+    ],
+    "Weapon_Binoculars_3P.adr": [
+      ""
+    ],
+    "Weapon_Binoculars.adr": [
+      ""
+    ],
+    "Weapon_Pistol_45Auto.adr": [
+      ""
+    ],
+    "Weapons_CraftedHatchet_3P.adr": [
+      ""
+    ],
+    "Weapons_RedBrick01_3P.adr": [
+      ""
+    ],
+    "Weapons_Bat01_3P.adr": [
+      ""
+    ],
+    "Weapons_Bat02_3P.adr": [
+      ""
+    ],
+    "Weapons_Branch_3P.adr": [
+      ""
+    ],
+    "Weapons_Pipe01_3P.adr": [
+      ""
+    ],
+    "Weapons_Guitar_3P.adr": [
+      ""
+    ],
+    "HandCuffs_3P.adr": [
+      ""
+    ],
+    "HandCuffs_Key_3P.adr": [
+      ""
+    ],
+    "Weapons_FireAxe_3P.adr": [
+      ""
+    ],
+    "Weapons_CraftedHatchet02_3P.adr": [
+      ""
+    ],
+    "Common_Props_Bandages_BandageRoll_3P.adr": [
+      ""
+    ],
+    "Survivor<gender>_Chest_Shirt_PoloLongSleeve.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Hat_Outback.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Hat_Beanie.adr": [
+      ""
+    ],
+    "Common_Props_CarParts_Battery.adr": [
+      ""
+    ],
+    "Weapon_M24_3P.adr": [
+      ""
+    ],
+    "Weapons_LongBowA_3P.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Hat_Cowboy.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Helmet_TacticalGoggles.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Helmet_Motorcycle_Tintable.adr": [
+      ""
+    ],
+    "Survivor<gender>_Face_Goggles_Tactical.adr": [
+      ""
+    ],
+    "Weapons_Machete02_3P.adr": [
+      ""
+    ],
+    "Weapons_Grenades_FlashBang_3P.adr": [
+      ""
+    ],
+    "Weapons_Grenades_SmokeGrenade_3P.adr": [
+      ""
+    ],
+    "Weapons_Grenades_GasGrenade_3P.adr": [
+      ""
+    ],
+    "Common_Props_BurlapBag.adr": [
+      ""
+    ],
+    "Survivor<gender>_Back_Backpack_Military.adr": [
+      ""
+    ],
+    "Weapon_Katana01_3P.adr": [
+      ""
+    ]
+  },
+  "1": {
+    "Survivor<gender>_Head_Hat_BaseballCap.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Helmet_Motorcycle_Tintable.adr": [
+      ""
+    ],
+    "Survivor<gender>_Face_Goggles_Tactical.adr": [
+      "Goggles_Black",
+      "TacticalGoggles_Mittani"
+    ],
+    "Survivor<gender>_Head_Hat_Cowboy.adr": [
+      "",
+      "CowboyHat_Straw",
+      "CowboyHat_White"
+    ],
+    "Survivor<gender>_Head_Helmet_TacticalGoggles.adr": [
+      "TacticalGoggles_BlueCamo"
+    ],
+    "Survivor<gender>_Head_Hat_Outback.adr": [
+      "OutbackHat_CamoGreen",
+      "OutbackHat_CanvasTan",
+      "OutbackHat_LeatherBrown",
+      "OutbackHat_LeatherTan",
+      "OutbackHat_CanvasBlack"
+    ],
+    "Survivor<gender>_Head_Hat_Aviator.adr": [
+      "AviatorHat_Brown"
+    ],
+    "Survivor<gender>_Head_Hat_Beanie.adr": [
+      "Beanie_Black",
+      "Beanie_CamoBlue",
+      "Beanie_CamoBrown",
+      "Beanie_CamoGreen",
+      "Beanie_Green",
+      "Beanie_BlackH1Z1"
+    ],
+    "Survivor<gender>_Head_Helmet_Tactical_ChipsScratches.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Hat_PoliceCap.adr": [
+      "PoliceCap_DarkBlue"
+    ],
+    "Survivor<gender>_Head_Hat_Boonie.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Hat_Ranger.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Hat_ScrubsCap.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Mask_Scarecrow.adr": [
+      "ScarecrowMask_Tan"
+    ],
+    "Survivor<gender>_Head_Helmet_TacticalSantaHat.adr": [
+      "Default"
+    ],
+    "Survivor<gender>_Head_Helmet_TacticalAntlers.adr": [
+      "Helmet_TacticalAntlers_Red"
+    ],
+    "Survivor<gender>_Head_HelmetSpikes_Motorcycle_Tintable.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Helmet_Wrestling.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Mask_BunnyBlue.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Mask_BunnyPink.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Helmet_ParaMilitary.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Hat_BackwardsBaseballCap.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Helmet_ParaMilitaryFull.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Hat_Crown.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Helmet_Shogun.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Mask_UncleSam.adr": [
+      "Default",
+      "default0"
+    ],
+    "Survivor<gender>_Head_Mask_Ape.adr": [
+      ""
+    ],
+    "Survivor<gender>_Head_Mask_Pig.adr": [
+      "Default"
+    ]
+  },
+  "2": {
+    "Survivor<gender>_Hands_Gloves_Fingerless.adr": [
+      ""
+    ],
+    "Survivor<gender>_Hands_Gloves_Fingerless_StitchedLeather_USFlag.adr": [
+      ""
+    ],
+    "Survivor<gender>_Hands_Gloves_Padded.adr": [
+      ""
+    ]
+  },
+  "3": {
+    "Survivor<gender>_Chest_Shirt_TintTshirt.adr": [
+      "",
+      "ClassicTee_TieDye"
+    ],
+    "Survivor<gender>_Chest_Shirt_PoloLongSleeve.adr": [
+      ""
+    ],
+    "Survivor<gender>_Chest_Shirt_FlannelLongSleeve.adr": [
+      "FlannelShirtLong_CamoTan",
+      "FlannelShirtLong_Blue",
+      "FlannelShirtLong_Brown",
+      "FlannelShirtLong_Green",
+      "FlannelShirtLong_Red",
+      "FlannelShirtLong_Paisley",
+      "FlannelShirtLong_CamoGreen"
+    ],
+    "Survivor<gender>_Chest_Shirt_FlannelVest.adr": [
+      "FlannelVest_Logo",
+      "FlannelVest_Leather"
+    ],
+    "Survivor<gender>_Chest_Jacket_Farmer.adr": [
+      ""
+    ],
+    "Survivor<gender>_Chest_Shirt_UniformPolice.adr": [
+      "Police"
+    ],
+    "Survivor<gender>_Chest_Shirt_TankTop.adr": [
+      ""
+    ],
+    "Survivor<gender>_Chest_Hoodie_Up.adr": [
+      "Hoodie_Basic",
+      "Hoodie_ESport_OrangeBlack",
+      "Hoodie_Twitch",
+      "Hoodie_BlueBlack",
+      "Hoodie_ESport_BlueWhite",
+      ""
+    ],
+    "Survivor<gender>_Chest_Hoodie_Down.adr": [
+      "Hoodie_DOA_Navy"
+    ],
+    "Survivor<gender>_Chest_Shirt_Henley.adr": [
+      ""
+    ],
+    "Survivor<gender>_Chest_Shirt_Uniform.adr": [
+      "EMT"
+    ],
+    "Survivor<gender>_Chest_GhillieSuit.adr": [
+      ""
+    ],
+    "Survivor<gender>_Chest_Jacket_Suit.adr": [
+      ""
+    ],
+    "Survivor<gender>_Chest_Hoodie_Up_Tintable.adr": [
+      "Graffiti_01_TT"
+    ],
+    "Survivor<gender>_Chest_Jacket_Puffy.adr": [
+      ""
+    ],
+    "Survivor<gender>_Chest_Parka_M65.adr": [
+      ""
+    ],
+    "Survivor<gender>_Chest_Shirt_HalfTop.adr": [
+      ""
+    ]
+  },
+  "4": {
+    "Survivor<gender>_Legs_Pants_Leggings.adr": [
+      ""
+    ],
+    "Survivor<gender>_Legs_Pants_StraightLeg_Sports.adr": [
+      "GolfPants_Sports"
+    ],
+    "Survivor<gender>_Legs_Pants_CargoInBoots.adr": [
+      ""
+    ],
+    "Survivor<gender>_Legs_Pants_Slacks_Floral.adr": [
+      ""
+    ],
+    "Survivor<gender>_Legs_Pants_SlacksPolice.adr": [
+      "Darkblue"
+    ],
+    "Survivor<gender>_Legs_Pants_ShortShorts.adr": [
+      "ShortShorts_Racing",
+      ""
+    ],
+    "Survivor<gender>_Legs_Pants_LeggingsNoTint.adr": [
+      "Leggings_Plain",
+      "Leggings_Xray",
+      "Leggings_Muscle"
+    ],
+    "Survivor<gender>_Legs_Pants_SkinnyLeg.adr": [
+      ""
+    ],
+    "Survivor<gender>_Legs_Pants_Slacks.adr": [
+      ""
+    ],
+    "Survivor<gender>_Legs_Pants_Slacks_EMT.adr": [
+      ""
+    ],
+    "Survivor<gender>_Legs_Pants_Scrubs.adr": [
+      ""
+    ],
+    "Survivor<gender>_Legs_Pants_KneePads.adr": [
+      ""
+    ]
+  },
+  "5": {
+    "Survivor<gender>_Feet_Workboots.adr": [
+      ""
+    ],
+    "Survivor<gender>_Feet_Conveys_Tintable.adr": [
+      ""
+    ],
+    "Survivor<gender>_Feet_CombatBoots_Cheetah.adr": [
+      "default0"
+    ],
+    "Survivor<gender>_Feet_Gators.adr": [
+      ""
+    ],
+    "Survivor<gender>_Feet_CombatBoots.adr": [
+      ""
+    ]
+  },
+  "10": {
+    "Survivor<gender>_Back_Backpack_Military.adr": [
+      "Military_CamoBlue",
+      "Military_CamoGreen",
+      "",
+      "Military_CamoTan",
+      "Military_Black",
+      "Military_Blue"
+    ],
+    "Survivor<gender>_Back_Backpack_Makeshift.adr": [
+      "Makeshift_AnimalSkin",
+      "Makeshift_Cloth"
+    ],
+    "Survivor<gender>_Back_Satchel_Makeshift.adr": [
+      "Makeshift_Leather",
+      "Makeshift_Cloth"
+    ],
+    "Survivor<gender>_Back_Backpack_Military_RedBlack.adr": [
+      ""
+    ],
+    "Survivor<gender>_Back_Backpack_Military_Rasta.adr": [
+      ""
+    ]
+  },
+  "27": {
+    "Survivor<gender>_Hair_ShortMessy.adr": [
+      "ShortMessy_Brown",
+      ""
+    ],
+    "Survivor<gender>_Hair_Afro.adr": [
+      ""
+    ],
+    "Survivor<gender>_Hair_ShortBun.adr": [
+      ""
+    ],
+    "Survivor<gender>_Hair_MediumMessy.adr": [
+      ""
+    ],
+    "Survivor<gender>_Hair_SpikeMohawk.adr": [
+      ""
+    ],
+    "Survivor<gender>_Hair_AfroMohawk.adr": [
+      ""
+    ]
+  },
+  "28": {
+    "Survivor<gender>_Face_Respirator_FullFace.adr": [
+      ""
+    ],
+    "Survivor<gender>_Face_Bandana.adr": [
+      ""
+    ],
+    "Survivor<gender>_Face_Respirator_FFSteamPunk.adr": [
+      ""
+    ],
+    "Survivor<gender>_Face_Mask_SkiMask.adr": [
+      ""
+    ],
+    "Survivor<gender>_Face_SurgeonMask.adr": [
+      ""
+    ],
+    "Survivor<gender>_Face_Shemaug.adr": [
+      ""
+    ],
+    "Survivor<gender>_Face_Mask_HockeyMask.adr": [
+      ""
+    ],
+    "Survivor<gender>_Face_Mask_Luchador.adr": [
+      ""
+    ]
+  },
+  "29": {
+    "Survivor<gender>_Face_Goggles_NightVision.adr": [
+      "DarkGrey"
+    ],
+    "Survivor<gender>_Face_Goggles_Tactical.adr": [
+      "Goggles_Black",
+      ""
+    ],
+    "Survivor<gender>_Eyes_EyePatch_Standard.adr": [
+      ""
+    ]
+  },
+  "76": {
+    "Weapon_M16A4_3P.adr": [
+      ""
+    ],
+    "Weapon_M24_3P.adr": [
+      ""
+    ],
+    "Weapons_PumpShotgun01_3P.adr": [
+      ""
+    ],
+    "Weapon_AK47_3P.adr": [
+      ""
+    ]
+  },
+  "77": {
+    "Weapon_Crossbow01_3P.adr": [
+      ""
+    ]
+  },
+  "78": {
+    "Weapon_Pistol_45Auto_3P.adr": [
+      ""
+    ],
+    "Weapon_Pistol_380Auto_3P.adr": [
+      ""
+    ],
+    "Weapons_Pistol_44Magnum01_3P.adr": [
+      ""
+    ],
+    "Weapons_M9Auto_3P.adr": [
+      ""
+    ]
+  },
+  "82": {
+    "Weapons_Bow01_3P.adr": [
+      ""
+    ],
+    "Weapons_LongBowA_3P.adr": [
+      ""
+    ],
+    "Weapons_LongBowA.adr": [
+      ""
+    ],
+    "Weapons_LongBowB_3P.adr": [
+      ""
+    ]
+  },
+  "100": {
+    "Survivor<gender>_Armor_Makeshift_Wood.adr": [
+      "Makeshift_Wood"
+    ],
+    "Survivor<gender>_Armor_Makeshift_WoodMetal.adr": [
+      "Makeshift_WoodMetal"
+    ],
+    "Survivor<gender>_Armor_Kevlar_Military.adr": [
+      ""
+    ],
+    "Survivor<gender>_Armor_Kevlar_Basic.adr": [
+      "Basic_Police"
+    ]
+  },
+  "107": {
+    "Weapon_Katana01_3P.adr": [
+      ""
+    ]
+  }
+}

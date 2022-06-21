@@ -404,6 +404,15 @@ export class wrappedUint16 {
   }
 }
 
+
+export const bigIntToHexString = (bigInt: bigint): string => {
+  return `0x${bigInt.toString(16)}`;
+}
+
+export const getRandomFromArray = (array: any[]): any => {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
 export function validateVersion(loginVersion: string,zoneVersion:string): boolean {
     const [loginMajor, loginMinor, loginPatch] = loginVersion.split(".");
     const [zoneMajor, zoneMinor, zonePatch] = zoneVersion.split(".");
@@ -417,4 +426,9 @@ export function validateVersion(loginVersion: string,zoneVersion:string): boolea
       return false;
     }
     return true;
+}
+
+export const getRandomKeyFromAnObject = (object: any): string => {
+  const keys = Object.keys(object);
+  return keys[Math.floor(Math.random() * keys.length)];
 }
