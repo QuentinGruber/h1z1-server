@@ -146,8 +146,8 @@ export class SOEServer extends EventEmitter {
     if (!client.isDeleted) {
       if(client.lastAckTime + this._ackTiming < Date.now()) {
         // Acknowledge received packets
-        this.checkOutOfOrderQueue(client);
         this.checkAck(client);
+        this.checkOutOfOrderQueue(client);
         client.lastAckTime = Date.now();
       }
       // Send pending packets
@@ -221,18 +221,19 @@ export class SOEServer extends EventEmitter {
     }
   }
   // If some packets are received out of order then we Acknowledge then one by one
-  // But still bundle them inside a multiPacket since a single Ack is a very small packet
   private checkOutOfOrderQueue(client: Client) {
     if (client.outOfOrderPackets.length) {
       for (let i = 0; i < client.outOfOrderPackets.length; i++) {
         const sequence = client.outOfOrderPackets.shift();
-        this._sendLogicalPacket(
-          client,
-          "OutOfOrder",
-          {
-            sequence: sequence,
-          },
-          false);
+        if(sequence > client.lastAck.get()) {
+          this._sendLogicalPacket(
+            client,
+            "OutOfOrder",
+            {
+              sequence: sequence,
+            },
+            false);
+        }
       }
     }
   }
