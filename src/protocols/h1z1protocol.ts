@@ -359,6 +359,7 @@ export class H1Z1Protocol {
           );
         } catch (error) {
           console.error(`${packetName} : ${error}`);
+          console.error(`${packetName} : ${JSON.stringify(object)}`);
         }
         if (packetData) {
           data = Buffer.allocUnsafe(
