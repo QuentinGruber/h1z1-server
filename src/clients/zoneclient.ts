@@ -68,7 +68,7 @@ export class ZoneClient extends EventEmitter {
         let packet;
 
         try {
-          packet = this._protocol.parse(data, flags, false, me._referenceData);
+          packet = this._protocol.parse(data, flags);
         } catch (e) {
           //fs.writeFileSync("tunneldata_" + n + ".dat", data);
           debug("Failed parsing tunnel data: tunneldata_" + n + ".dat");
