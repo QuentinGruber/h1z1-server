@@ -571,25 +571,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       })
       .map((slot) => {
-        return {
-          itemDefinitionId: slot.itemDefinitionId,
-          tintId: 0,
-          guid: slot.itemGuid,
-          count: 1, // also ammoCount
-          itemSubData: {
-            hasSubData: false,
-          },
-          containerGuid: slot.containerGuid,
-          containerDefinitionId: 101, // loadout containerDefinitionId
-          containerSlotId: slot.slotId,
-          baseDurability: 2000,
-          currentDurability: slot.currentDurability,
-          maxDurabilityFromDefinition: 2000,
-          unknownBoolean1: true,
-          ownerCharacterId: client.character.characterId,
-          unknownDword9: 1,
-          unknownData1: this.getItemWeaponData(slot)
-        };
+        return this.pGetItemData(client, slot, 101);
       })
     )
     this.sendData(client, "SendSelfToClient", {
@@ -612,25 +594,7 @@ export class ZoneServer2016 extends EventEmitter {
               }
             })
             .map((slot) => {
-              return {
-                itemDefinitionId: slot.itemDefinitionId,
-                tintId: 0,
-                guid: slot.itemGuid,
-                count: 1, // also ammoCount
-                itemSubData: {
-                  hasSubData: false,
-                },
-                containerGuid: slot.containerGuid,
-                containerDefinitionId: 101, // loadout containerDefinitionId
-                containerSlotId: slot.slotId,
-                baseDurability: 2000,
-                currentDurability: slot.currentDurability,
-                maxDurabilityFromDefinition: 2000,
-                unknownBoolean1: true,
-                ownerCharacterId: client.character.characterId,
-                unknownDword9: 1,
-                unknownData1: this.getItemWeaponData(slot)
-              };
+              return this.pGetItemData(client, slot, 101);
             }),
           //unknownDword1: 2355
         },
@@ -2521,8 +2485,40 @@ export class ZoneServer2016 extends EventEmitter {
 
   //#region ********************INVENTORY********************
 
+  pGetItemData(client: Client, item: inventoryItem, containerDefId: number): {} {
+    const isWeapon = this.isWeapon(item.itemDefinitionId);
+    return {
+      itemDefinitionId: item.itemDefinitionId,
+      tintId: 0,
+      guid: item.itemGuid,
+      count: item.stackCount,
+      itemSubData: {
+        hasSubData: false,
+      },
+      containerGuid: item.containerGuid,
+      containerDefinitionId: containerDefId,
+      containerSlotId: item.slotId,
+      baseDurability: isWeapon?2000:0,
+      currentDurability: isWeapon?item.currentDurability:0,
+      maxDurabilityFromDefinition: isWeapon?2000:0,
+      unknownBoolean1: true,
+      ownerCharacterId: isWeapon && item.itemDefinitionId !== 85?"":client.character.characterId,
+      unknownDword9: 1,
+      unknownData1: this.getItemWeaponData(item)
+    }
+  }
+
+  getWeaponAmmoSlot(itemDefId: number): Array<{}> {
+    switch(itemDefId) {
+      case 10:
+        return [{ ammoSlot: 29 }];
+      default:
+        return [{}];
+    }
+    
+  };
+
   getItemWeaponData(slot: inventoryItem) {
-    const itemDef = this.getItemDefinition(slot.itemDefinitionId);
     if(this.isWeapon(slot.itemDefinitionId)) {
       return {
         isWeapon: true, // not sent to client, only used as a flag for pack function
@@ -2530,9 +2526,7 @@ export class ZoneServer2016 extends EventEmitter {
           unknownBoolean1: false,
         },
         unknownData2: {
-          ammoSlots: [{
-            ammoSlot: 30
-          }],
+          ammoSlots: this.getWeaponAmmoSlot(slot.itemDefinitionId),
           unknownArray2: [{ // setting weaponDefId correctly crashes client when you send equipment packets
             weaponDefinitionId: 6,
             unknownArray1: [
@@ -2606,37 +2600,19 @@ export class ZoneServer2016 extends EventEmitter {
     slotId: number,
     character = client.character
   ) {
-    /*this.sendDataToAllWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity(
       this._characters,
       client.character.characterId,
       "Equipment.SetCharacterEquipmentSlot",
       character.pGetEquipmentSlotFull(slotId)
-    );*/
+    );
   }
 
   addItem(client: Client, item: inventoryItem, containerDefinitionId: number) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
-      data: {
-        itemDefinitionId: itemDef.ID,
-        tintId: 0,
-        guid: item.itemGuid,
-        count: item.stackCount, // also ammoCount
-        itemSubData: {
-          hasSubData: false,
-        },
-        containerGuid: item.containerGuid,
-        containerDefinitionId: containerDefinitionId,
-        containerSlotId: item.slotId,
-        baseDurability: 2000,
-        currentDurability: item.currentDurability,
-        maxDurabilityFromDefinition: 2000,
-        unknownBoolean1: true,
-        ownerCharacterId: client.character.characterId,
-        unknownDword9: 1,
-        unknownData1: this.getItemWeaponData(item)
-      },
+      data: this.pGetItemData(client, item, containerDefinitionId),
     });
   }
 
@@ -2995,7 +2971,7 @@ export class ZoneServer2016 extends EventEmitter {
   removeEquipmentItem(client: Client, equipmentSlotId: number): boolean {
     if (!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
-    /*this.sendDataToAllWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity(
       this._characters,
       client.character.characterId,
       "Equipment.UnsetCharacterEquipmentSlot",
@@ -3005,7 +2981,7 @@ export class ZoneServer2016 extends EventEmitter {
         },
         slotId: equipmentSlotId,
       }
-    );*/
+    );
     if (equipmentSlotId === 7) {
       // primary slot
       client.character.currentLoadoutSlot = 7;
@@ -3278,24 +3254,7 @@ export class ZoneServer2016 extends EventEmitter {
               container.items[item.itemGuid].slotId = idx + 1;
               return {
                 itemDefinitionId: item.itemDefinitionId,
-                itemData: {
-                  itemDefinitionId: item.itemDefinitionId,
-                  tintId: 0,
-                  guid: item.itemGuid,
-                  count: item.stackCount,
-                  itemSubData: {
-                    hasSubData: false,
-                  },
-                  containerGuid: container.itemGuid,
-                  containerDefinitionId: container.containerDefinitionId,
-                  containerSlotId: item.slotId,
-                  baseDurability: 2000,
-                  currentDurability: item.currentDurability,
-                  maxDurabilityFromDefinition: 2000,
-                  unknownBoolean1: true,
-                  ownerCharacterId: client.character.characterId,
-                  unknownDword9: 1,
-                },
+                itemData: this.pGetItemData(client, item, container.containerDefinitionId),
               };
             }),
             unknownBoolean1: true, // needs to be true or bulk doesn't show up
@@ -3334,24 +3293,7 @@ export class ZoneServer2016 extends EventEmitter {
           container.items[item.itemGuid].slotId = idx + 1;
           return {
             itemDefinitionId: item.itemDefinitionId,
-            itemData: {
-              itemDefinitionId: item.itemDefinitionId,
-              tintId: 0,
-              guid: item.itemGuid,
-              count: item.stackCount,
-              itemSubData: {
-                hasSubData: false,
-              },
-              containerGuid: container.itemGuid,
-              containerDefinitionId: container.containerDefinitionId,
-              containerSlotId: item.slotId,
-              baseDurability: 2000,
-              currentDurability: item.currentDurability,
-              maxDurabilityFromDefinition: 2000,
-              unknownBoolean1: true,
-              ownerCharacterId: client.character.characterId,
-              unknownDword9: 1,
-            },
+            itemData: this.pGetItemData(client, item, container.containerDefinitionId),
           };
         }),
         unknownBoolean1: true, // needs to be true or bulk doesn't show up
@@ -3402,24 +3344,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!container) return;
     this.sendData(client, "ClientUpdate.ItemUpdate", {
       characterId: client.character.characterId,
-      data: {
-        itemDefinitionId: item.itemDefinitionId,
-        tintId: 0,
-        guid: item.itemGuid,
-        count: item.stackCount, // also ammoCount
-        itemSubData: {
-          hasSubData: false,
-        },
-        containerGuid: item.containerGuid,
-        containerDefinitionId: container.containerDefinitionId,
-        containerSlotId: item.slotId,
-        baseDurability: 2000,
-        currentDurability: item.currentDurability,
-        maxDurabilityFromDefinition: 2000,
-        unknownBoolean1: true,
-        ownerCharacterId: client.character.characterId,
-        unknownDword9: 1,
-      },
+      data: this.pGetItemData(client, item, container.containerDefinitionId),
     });
     this.updateContainer(client, container);
   }
