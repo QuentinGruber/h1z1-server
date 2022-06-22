@@ -141,8 +141,6 @@ export const basePackets: any = [
                   defaultValue: [],
                   fields: [
                     ...itemSchema,
-                    //{ name: "testadsadasdsad", type: "uint8", defaultValue: false },
-                    
                     {
                       name: "unknownData1",
                       type: "custom",

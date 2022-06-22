@@ -632,11 +632,12 @@ export class ZoneServer2016 extends EventEmitter {
                 unknownData1: this.getItemWeaponData(slot)
               };
             }),
+          //unknownDword1: 2355
         },
         recipes: Object.values(this._recipes),
         stats: stats,
         loadoutSlots: client.character.pGetLoadoutSlots(),
-        equipmentSlots: client.character.pGetEquipment(),
+        //equipmentSlots: client.character.pGetEquipment(),
         characterResources: client.character.pGetResources(),
         containers: containers,
         FIRE_MODES_1: [
@@ -687,7 +688,6 @@ export class ZoneServer2016 extends EventEmitter {
       characterId: client.character.characterId,
       containers: containers,
     });
-
 
 
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
@@ -2522,6 +2522,7 @@ export class ZoneServer2016 extends EventEmitter {
   //#region ********************INVENTORY********************
 
   getItemWeaponData(slot: inventoryItem) {
+    const itemDef = this.getItemDefinition(slot.itemDefinitionId);
     if(this.isWeapon(slot.itemDefinitionId)) {
       return {
         isWeapon: true, // not sent to client, only used as a flag for pack function
@@ -2529,17 +2530,37 @@ export class ZoneServer2016 extends EventEmitter {
           unknownBoolean1: false,
         },
         unknownData2: {
-          unknownArray1: [{
-            unknownDword1: 0
+          ammoSlots: [{
+            ammoSlot: 30
           }],
-          unknownArray2: [{
-            unknownDword1: 12,
-            unknownArray1: [{
-              unknownByte1: 0,
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0
-            }]
+          unknownArray2: [{ // setting weaponDefId correctly crashes client when you send equipment packets
+            weaponDefinitionId: 6,
+            unknownArray1: [
+              {
+                unknownByte1: 0,
+                unknownDword1: 0,
+                unknownDword2: 0,
+                unknownDword3: 0
+              },
+              {
+                unknownByte1: 0,
+                unknownDword1: 0,
+                unknownDword2: 0,
+                unknownDword3: 0
+              },
+              {
+                unknownByte1: 0,
+                unknownDword1: 0,
+                unknownDword2: 0,
+                unknownDword3: 0
+              },
+              {
+                unknownByte1: 0,
+                unknownDword1: 0,
+                unknownDword2: 0,
+                unknownDword3: 0
+              },
+            ]
           }],
           unknownByte1: 0,
           unknownByte2: 1,
@@ -2553,7 +2574,7 @@ export class ZoneServer2016 extends EventEmitter {
           unknownByte7: 0,
           unknownDword3: -1
         },
-        stats: [],
+        characterStats: [],
         unknownArray1: []
       }
     }
@@ -2585,12 +2606,12 @@ export class ZoneServer2016 extends EventEmitter {
     slotId: number,
     character = client.character
   ) {
-    this.sendDataToAllWithSpawnedEntity(
+    /*this.sendDataToAllWithSpawnedEntity(
       this._characters,
       client.character.characterId,
       "Equipment.SetCharacterEquipmentSlot",
       character.pGetEquipmentSlotFull(slotId)
-    );
+    );*/
   }
 
   addItem(client: Client, item: inventoryItem, containerDefinitionId: number) {
@@ -2974,7 +2995,7 @@ export class ZoneServer2016 extends EventEmitter {
   removeEquipmentItem(client: Client, equipmentSlotId: number): boolean {
     if (!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
-    this.sendDataToAllWithSpawnedEntity(
+    /*this.sendDataToAllWithSpawnedEntity(
       this._characters,
       client.character.characterId,
       "Equipment.UnsetCharacterEquipmentSlot",
@@ -2984,7 +3005,7 @@ export class ZoneServer2016 extends EventEmitter {
         },
         slotId: equipmentSlotId,
       }
-    );
+    );*/
     if (equipmentSlotId === 7) {
       // primary slot
       client.character.currentLoadoutSlot = 7;
@@ -3412,7 +3433,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.equipItem(client, this.generateItem(2393), sendPacket); // rasta backpack
     }
     this.equipItem(client, this.generateItem(85), sendPacket); // fists weapon
-    this.equipItem(client, this.generateItem(1373), sendPacket); // 308 weapon
+    this.equipItem(client, this.generateItem(10), sendPacket); // AR weapon
     this.equipItem(client, this.generateItem(2377), sendPacket); // DOA Hoodie
     this.equipItem(client, this.generateItem(2079), sendPacket); // golf pants
   }

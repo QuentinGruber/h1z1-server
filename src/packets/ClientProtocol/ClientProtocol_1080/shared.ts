@@ -1025,11 +1025,11 @@ export function packItemWeaponData(obj: any) {
       defaultValue: {},
       fields: [
         {
-          name: "unknownArray1",
+          name: "ammoSlots",
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "ammoSlot", type: "uint32", defaultValue: 0 },
           ],
         },
         {
@@ -1037,7 +1037,7 @@ export function packItemWeaponData(obj: any) {
           type: "array8",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "weaponDefinitionId", type: "uint32", defaultValue: 0 },
             {
               name: "unknownArray1",
               type: "array8",
@@ -1065,7 +1065,7 @@ export function packItemWeaponData(obj: any) {
       ],
     },
     {
-      name: "stats",
+      name: "characterStats",
       type: "array",
       defaultValue: [],
       fields: [
