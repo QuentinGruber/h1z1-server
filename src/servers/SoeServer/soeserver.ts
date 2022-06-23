@@ -203,7 +203,7 @@ export class SOEServer extends EventEmitter {
             (packet.sequence && packet.name === "Data") ||
             packet.name === "DataFragment"
           ) {
-            client.unAckData.set(packet.sequence, Date.now());
+            client.unAckData.set(packet.sequence, Date.now() + this._waitQueueTimeMs);
           }
         }
       } else {
