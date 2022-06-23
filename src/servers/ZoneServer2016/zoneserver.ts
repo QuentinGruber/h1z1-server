@@ -603,7 +603,7 @@ export class ZoneServer2016 extends EventEmitter {
         loadoutSlots: client.character.pGetLoadoutSlots(),
         //equipmentSlots: client.character.pGetEquipment(),
         characterResources: client.character.pGetResources(),
-        containers: containers,
+        containers: containers,/*
         FIRE_MODES_1: [
           { FIRE_MODE_ID: 366 },
           { FIRE_MODE_ID: 367 },
@@ -612,7 +612,7 @@ export class ZoneServer2016 extends EventEmitter {
         FIRE_MODES_2: [
           { FIRE_MODE_ID: 539 },
           { FIRE_MODE_ID: 540 },
-        ],
+        ],*/
         profiles: [ // CORRECT profileId for loadoutId 3
           /*{
             profileId: 5,
@@ -1027,7 +1027,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.itemDefinitionsCache) {
       this.packItemDefinitions();
     }
-    this.sendRawData(client, this.itemDefinitionsCache);
+    //this.sendRawData(client, this.itemDefinitionsCache);
 
     this.sendData(client, "ReferenceData.WeaponDefinitions", {
       data: {
@@ -2511,7 +2511,7 @@ export class ZoneServer2016 extends EventEmitter {
   getWeaponAmmoSlot(itemDefId: number): Array<{}> {
     switch(itemDefId) {
       case 10:
-        return [{ ammoSlot: 29 }];
+        return [{ ammoSlot: 31 }];
       default:
         return [{}];
     }
@@ -2527,8 +2527,8 @@ export class ZoneServer2016 extends EventEmitter {
         },
         unknownData2: {
           ammoSlots: this.getWeaponAmmoSlot(slot.itemDefinitionId),
-          unknownArray2: [{ // setting weaponDefId correctly crashes client when you send equipment packets
-            weaponDefinitionId: 6,
+          unknownArray2: [{ // certain weaponDefinitionIds crash the client
+            weaponDefinitionId: this.getItemDefinition(slot.itemDefinitionId).PARAM1,
             unknownArray1: [
               {
                 unknownByte1: 0,
@@ -2541,7 +2541,7 @@ export class ZoneServer2016 extends EventEmitter {
                 unknownDword1: 0,
                 unknownDword2: 0,
                 unknownDword3: 0
-              },
+              },/*
               {
                 unknownByte1: 0,
                 unknownDword1: 0,
@@ -2553,7 +2553,7 @@ export class ZoneServer2016 extends EventEmitter {
                 unknownDword1: 0,
                 unknownDword2: 0,
                 unknownDword3: 0
-              },
+              },*/
             ]
           }],
           unknownByte1: 0,

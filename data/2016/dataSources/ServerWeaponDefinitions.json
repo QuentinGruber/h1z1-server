@@ -956,7 +956,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 15
+            "FIRE_GROUP_ID": 1373
           }
         ]
       }
@@ -6802,9 +6802,9 @@
       }
     },
     {
-      "ID": 15,
+      "ID": 1373,
       "DATA": {
-        "ID": 15,
+        "ID": 1373,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 19
