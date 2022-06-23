@@ -42,11 +42,11 @@ export class SOEServer extends EventEmitter {
   private _maxMultiBufferSize: number;
   reduceCpuUsage: boolean = true;
   private _soeClientRoutineLoopMethod!: (arg0: () => void) => void;
-  private _resendTimeout: number = 1000;
+  private _resendTimeout: number = 800;
   protected _maxGlobalPacketRate = 70000;
   protected _minPacketRate: number = 100;
   private _currentPacketRatePerClient: number = 1000;
-  private _ackTiming: number = 50;
+  private _ackTiming: number = 80;
   constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
