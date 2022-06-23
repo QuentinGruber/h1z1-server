@@ -78,9 +78,7 @@ export class SOEOutputStream extends EventEmitter {
     while (this._lastAck.get() !== sequence + 1) {
       const lastAck = this._lastAck.get();
       this.removeFromCache(lastAck);
-      if (unAckData.has(lastAck)) {
-        unAckData.delete(lastAck);
-      }
+      unAckData.delete(lastAck);
       this._lastAck.increment();
     }
   }
