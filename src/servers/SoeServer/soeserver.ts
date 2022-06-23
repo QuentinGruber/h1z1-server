@@ -35,7 +35,6 @@ export class SOEServer extends EventEmitter {
   private _connection: Worker;
   _crcSeed: number = 0;
   _crcLength: crc_length_options = 2;
-  _maxOutOfOrderPacketsPerLoop: number = 20; // TODO change this number, it need to be the max size of multipackets / the size of an outOfOrderPacket without crc + 2
   _waitQueueTimeMs: number = 50;
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean = false;
