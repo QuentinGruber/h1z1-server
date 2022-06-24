@@ -793,6 +793,96 @@ function packWeaponDefinitionData(obj: any) {
   return Buffer.concat([compressionData, output]);
 }
 
+const projectileDefinitionSchema: any[] = [
+  {
+    name: "PROJECTILE_DEFINITIONS",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "ID", type: "uint32", defaultValue: 0 },
+      {
+        name: "DATA",
+        type: "schema",
+        defaultValue: {},
+        fields: [
+          { name: "ID", type: "uint32", defaultValue: 0 },
+          {
+            name: "FLAGS",
+            type: "schema",
+            defaultValue: {},
+            fields: [
+              { name: "FLAGS1", type: "uint8", defaultValue: 0 },
+              { name: "FLAGS2", type: "uint8", defaultValue: 0 },
+            ],
+          },
+          { name: "MODEL_FILE_NAME", type: "string", defaultValue: "" },
+          { name: "FP_MODEL_FILE_NAME", type: "string", defaultValue: "" },
+          { name: "AUDIO_GAME_OBJECT", type: "uint32", defaultValue: 0 },
+          { name: "SPEED", type: "float", defaultValue: 0 },
+          { name: "VELOCITY_INHERIT_SCALER", type: "float", defaultValue: 0 },
+          { name: "ACCELERATION", type: "float", defaultValue: 0 },
+          { name: "FLIGHT_TYPE", type: "uint8", defaultValue: 0 },
+          { name: "PROJECTILE_EFFECT_ID", type: "uint32", defaultValue: 0 },
+          { name: "LAND_EFFECT_ID", type: "uint32", defaultValue: 0 },
+          { name: "INDIRECT_DAMAGE_EFFECT_ID", type: "uint32", defaultValue: 0 },
+          { name: "LIFESPAN", type: "float", defaultValue: 0 },
+          { name: "MAX_SPEED", type: "float", defaultValue: 0 },
+          { name: "TURN_RATE", type: "float", defaultValue: 0 },
+          { name: "BONE_ATTACHMENT_OVERRIDE", type: "string", defaultValue: "" },
+          { name: "DRAG", type: "float", defaultValue: 0 },
+          { name: "GRAVITY", type: "float", defaultValue: 0 },
+          { name: "DAMAGE", type: "float", defaultValue: 0 },
+          { name: "TRACER_FREQUENCY", type: "uint32", defaultValue: 0 },
+          { name: "TRACER_EFFECT_ID", type: "uint32", defaultValue: 0 },
+          { name: "FP_TRACER_FREQUENCY", type: "uint32", defaultValue: 0 },
+          { name: "FP_TRACER_EFFECT_ID", type: "uint32", defaultValue: 0 },
+          { name: "FP_TRACER_HIDE_RANGE", type: "float", defaultValue: 0 },
+          { name: "NPC_DEFINITION_ID", type: "uint32", defaultValue: 0 },
+          { name: "MAX_COUNT", type: "uint32", defaultValue: 0 },
+          { name: "DAMAGE_RADIUS", type: "float", defaultValue: 0 },
+          { name: "DROP_OFF_RADIUS", type: "float", defaultValue: 0 },
+          { name: "DROP_OFF_MODIFIER", type: "float", defaultValue: 0 },
+          { name: "TRIGGER_DETONATE_REQUIREMENT", type: "uint8", defaultValue: 0 },
+          { name: "ARM_DISTANCE", type: "uint32", defaultValue: 0 },
+          { name: "DETONATE_DISTANCE", type: "uint32", defaultValue: 0 },
+          { name: "TETHER_DISTANCE", type: "float", defaultValue: 0 },
+          { name: "LOCKON_ACCELERATION", type: "float", defaultValue: 0 },
+          { name: "LOCKON_LIFESPAN", type: "float", defaultValue: 0 },
+          { name: "SCALE", type: "float", defaultValue: 0 },
+          { name: "LOSE_LOCKON_ANGLE", type: "uint32", defaultValue: 0 },
+          {
+            name: "PLAYER_BULLET_RADIUS_LIST",
+            type: "array",
+            defaultValue: [],
+            fields: [
+              { name: "PLAYER_BULLET_RADIUS", type: "uint32", defaultValue: 0 }
+            ],
+          },
+          { name: "ITEM_PICKUP_ID", type: "uint32", defaultValue: 0 },
+          { name: "BOUNCE_MODEL_ID", type: "uint32", defaultValue: 0 },
+          { name: "ANGULAR_VELOCITY_X_MIN", type: "float", defaultValue: 0 },
+          { name: "ANGULAR_VELOCITY_X_MAX", type: "float", defaultValue: 0 },
+          { name: "ANGULAR_VELOCITY_Y_MIN", type: "float", defaultValue: 0 },
+          { name: "ANGULAR_VELOCITY_Y_MAX", type: "float", defaultValue: 0 },
+          { name: "ANGULAR_VELOCITY_Z_MIN", type: "float", defaultValue: 0 },
+          { name: "ANGULAR_VELOCITY_Z_MAX", type: "float", defaultValue: 0 },
+        ],
+      },
+    ]
+  },
+]
+
+function packProjectileDefinitionData(obj: any) {
+  const compressionData = Buffer.allocUnsafe(8),
+    data = DataSchema.pack(projectileDefinitionSchema, obj).data,
+    input = data;
+  let output = Buffer.alloc(LZ4.encodeBound(input.length));
+  output = output.slice(0, LZ4.encodeBlock(input, output));
+  compressionData.writeUInt32LE(output.length, 0);
+  compressionData.writeUInt32LE(data.length, 4);
+  return Buffer.concat([compressionData, output]);
+}
+
 export const referenceDataPackets: any = [
   ["ReferenceData.ItemClassDefinitions", 0x1701, {}],
   ["ReferenceData.ItemCategoryDefinitions", 0x1702, {}],
@@ -882,7 +972,25 @@ export const referenceDataPackets: any = [
       ],
     },
   ],
-  ["ReferenceData.ProjectileDefinitions", 0x1705, {}],
+  [
+    "ReferenceData.ProjectileDefinitions", 
+    0x1705, 
+    {
+      fields: [
+        {
+          name: "data",
+          type: "byteswithlength",
+          fields: [
+            {
+              name: "definitionsData",
+              type: "custom",
+              packer: packProjectileDefinitionData,
+            },
+          ],
+        },
+      ],
+    }
+  ],
   [
     "ReferenceData.VehicleDefinitions",
     0x1706,

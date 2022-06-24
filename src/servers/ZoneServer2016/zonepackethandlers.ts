@@ -43,6 +43,7 @@ import { Npc } from "./classes/npc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 
 const profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
+//const projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
 
 export class zonePacketHandlers {
   hax = hax;
@@ -195,7 +196,14 @@ export class zonePacketHandlers {
         guid4: "0x0000000000000000",
         gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
       });
-
+      
+      /*
+      server.sendData(client, "ReferenceData.ProjectileDefinitions", {
+        data: {
+          definitionsData: projectileDefinitons
+        }
+      });
+      */
       server.sendData(client, "ReferenceData.ProfileDefinitions", {
         data: {
           profiles: profileDefinitions

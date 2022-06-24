@@ -78,8 +78,8 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
-  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions");
-
+  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
+  projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
 @healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
   _gatewayServer: GatewayServer;
@@ -599,9 +599,28 @@ export class ZoneServer2016 extends EventEmitter {
           //unknownDword1: 2355
         },
         recipes: Object.values(this._recipes),
-        stats: stats,
+        stats: stats
+        /*()=>{
+          const stats = [];
+          for(let i =0; i >= 89; i++) {
+            stats.push({
+              "statId": i,
+              "statData": {
+                  "statId": i,
+                  "statValue": {
+                      "type": 1,
+                      "value": {
+                          "base": randomIntFromInterval(0, 2),
+                          "modifier": 0
+                      }
+                  }
+              }
+            });
+          }
+          return stats;
+        }*/,
         loadoutSlots: client.character.pGetLoadoutSlots(),
-        //equipmentSlots: client.character.pGetEquipment(),
+        equipmentSlots: client.character.pGetEquipment(),
         characterResources: client.character.pGetResources(),
         containers: containers,/*
         FIRE_MODES_1: [
@@ -622,6 +641,7 @@ export class ZoneServer2016 extends EventEmitter {
             unknownDword1: 0,
             unknownArray1: []
           }*/
+          /*{profileId: 0},
           {profileId: 0},
           {profileId: 0},
           {profileId: 0},
@@ -634,8 +654,7 @@ export class ZoneServer2016 extends EventEmitter {
           {profileId: 0},
           {profileId: 0},
           {profileId: 0},
-          {profileId: 0},
-          {profileId: 0},
+          {profileId: 0},*/
         ],
         currentProfile: 0,
         //unknownQword1: client.character.characterId,
@@ -1028,6 +1047,12 @@ export class ZoneServer2016 extends EventEmitter {
       this.packItemDefinitions();
     }
     //this.sendRawData(client, this.itemDefinitionsCache);
+    
+    this.sendData(client, "ReferenceData.ProjectileDefinitions", {
+      data: {
+        definitionsData: projectileDefinitons
+      }
+    });
 
     this.sendData(client, "ReferenceData.WeaponDefinitions", {
       data: {
