@@ -20,7 +20,7 @@ export class BaseEntity {
     rotation: Float32Array;
   };
   scale = new Float32Array([1, 1, 1, 1]);
-  npcRenderDistance? :number; // when undefined, use the zoneserver._charactersRenderDistance value
+  npcRenderDistance?: number; // when undefined, use the zoneserver._charactersRenderDistance value
   constructor(
     characterId: string,
     transientId: number,

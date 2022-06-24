@@ -20,10 +20,7 @@ import {
 } from "./Utils";
 import { Euler, Quaternion, Vector4 } from "./Model/TypeModels";
 import { ZoneServer2016 } from "../../zoneserver";
-import {
-  ZoneClient2016 as Client,
-  ZoneClient2016,
-} from "../zoneclient";
+import { ZoneClient2016 as Client, ZoneClient2016 } from "../zoneclient";
 import { PlantingManager } from "./PlantingManager";
 import { Furrows, Hole, SeedType } from "./Model/DataModels";
 import { TemporaryEntity } from "../temporaryentity";
