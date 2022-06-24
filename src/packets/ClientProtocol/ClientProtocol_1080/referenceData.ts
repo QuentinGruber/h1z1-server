@@ -978,15 +978,9 @@ export const referenceDataPackets: any = [
     {
       fields: [
         {
-          name: "data",
-          type: "byteswithlength",
-          fields: [
-            {
-              name: "definitionsData",
-              type: "custom",
-              packer: packProjectileDefinitionData,
-            },
-          ],
+          name: "definitionsData",
+          type: "custom",
+          packer: packProjectileDefinitionData,
         },
       ],
     }

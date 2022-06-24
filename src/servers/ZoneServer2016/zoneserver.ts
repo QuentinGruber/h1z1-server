@@ -1047,13 +1047,11 @@ export class ZoneServer2016 extends EventEmitter {
       this.packItemDefinitions();
     }
     //this.sendRawData(client, this.itemDefinitionsCache);
-    
+    /*
     this.sendData(client, "ReferenceData.ProjectileDefinitions", {
-      data: {
         definitionsData: projectileDefinitons
-      }
     });
-
+    */
     this.sendData(client, "ReferenceData.WeaponDefinitions", {
       data: {
         definitionsData: weaponDefinitions
