@@ -84,7 +84,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
-  projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
+  projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json"),
   equipmentModelTexturesMapping = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 @healthThreadDecorator
