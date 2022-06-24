@@ -2535,8 +2535,10 @@ export class ZoneServer2016 extends EventEmitter {
     switch(itemDefId) {
       case 10:
         return [{ ammoSlot: 31 }];
+      case 1373:
+        return [{ ammoSlot: 5 }];
       default:
-        return [{}];
+        return [{ ammoSlot: 5 }];
     }
     
   };
