@@ -79,7 +79,6 @@ export function readUnsignedIntWith2bitLengthValue(
 }
 
 export function packUnsignedIntWith2bitLengthValue(value: number) {
-  value = Math.round(value);
   value = value << 2;
   let n = 0;
   if (value > 0xffffff) {

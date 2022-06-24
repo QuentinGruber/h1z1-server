@@ -190,6 +190,9 @@ const hax: any = {
     client.isLoading = true;
     let locationPosition;
     switch (args[1]) {
+      case "farm":
+        locationPosition = new Float32Array([-696.48,13.86,-1847.15, 1]);
+        break
       case "zimms":
         locationPosition = new Float32Array([2209.17, 47.42, -1011.48, 1]);
         break;
@@ -241,7 +244,7 @@ const hax: any = {
           );
           server.sendChatText(
             client,
-            "Set location list: zimms, pv, br, ranchito, drylake, dam, cranberry, church, desoto, toxic, radiotower, villas, military, hospital",
+            "Set location list: farm, zimms, pv, br, ranchito, drylake, dam, cranberry, church, desoto, toxic, radiotower, villas, military, hospital",
             false
           );
           return;

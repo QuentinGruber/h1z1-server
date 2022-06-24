@@ -36,7 +36,7 @@ export class LoginProtocol2016 {
           this.tunnelLoginPackets.Packets[data.readUInt8(14)];
         const tunnelData = data.slice(15);
         try {
-          result = DataSchema.parse(schema, tunnelData, 0, undefined).result;
+          result = DataSchema.parse(schema, tunnelData, 0).result;
         } catch (error) {
           console.error(`${packet.name} : ${error}`);
         }
@@ -51,7 +51,7 @@ export class LoginProtocol2016 {
       } else if (packet.schema) {
         debug(packet.name);
         try {
-          result = DataSchema.parse(packet.schema, data, 1, undefined).result;
+          result = DataSchema.parse(packet.schema, data, 1).result;
         } catch (error) {
           console.error(`${packet.name} : ${error}`);
         }
@@ -90,7 +90,6 @@ export class LoginProtocol2016 {
             schema,
             object,
             undefined,
-            undefined,
             undefined
           );
         } catch (error) {
@@ -115,7 +114,6 @@ export class LoginProtocol2016 {
           payload = DataSchema.pack(
             packet.schema,
             object,
-            undefined,
             undefined,
             undefined
           );

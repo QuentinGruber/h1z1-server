@@ -492,7 +492,7 @@ export class ZoneServer2015 extends EventEmitter {
     data: Buffer,
     flags: number
   ) {
-    const packet = this._protocol.parse(data, flags, true);
+    const packet = this._protocol.parse(data, flags);
     if (packet) {
       this.emit("data", null, client, packet);
     } else {
@@ -524,6 +524,7 @@ export class ZoneServer2015 extends EventEmitter {
       }
       this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
         serverId: this._worldId,
+        h1emuVersion: process.env.H1Z1_SERVER_VERSION,
       });
       this._h1emuZoneServer.start();
       this.sendZonePopulationUpdate();
@@ -981,7 +982,7 @@ export class ZoneServer2015 extends EventEmitter {
     this.characterData(client);
 
     this.sendData(client, "Command.ItemDefinitions", {
-      definitionsData: {
+      data: {
         itemDefinitions: this._items,
       },
     });
@@ -2672,6 +2673,8 @@ if (
   process.env.VSCODE_DEBUG === "true" &&
   process.env.CLIENT_SIXTEEN !== "true"
 ) {
+  const PackageSetting = require("../../../package.json");
+  process.env.H1Z1_SERVER_VERSION = PackageSetting.version;
   const zoneServer = new ZoneServer2015(
     1117,
     Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),

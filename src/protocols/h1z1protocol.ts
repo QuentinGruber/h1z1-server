@@ -14,7 +14,7 @@
 const debug = require("debug")("H1Z1Protocol");
 import DataSchema from "h1z1-dataschema";
 import { H1z1ProtocolReadingFormat } from "../types/protocols";
-import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_860/shared";
+import { packUnsignedIntWith2bitLengthValue } from "../packets/ClientProtocol/ClientProtocol_1080/shared";
 import {
   clearFolderCache,
   eul2quat,
@@ -133,7 +133,7 @@ export class H1Z1Protocol {
         },
       ],
     };
-    const result = DataSchema.parse(schema, data, 0, null).result;
+    const result = DataSchema.parse(schema, data, 0).result;
     return result;
   }
 
@@ -306,7 +306,7 @@ export class H1Z1Protocol {
       },
     ];
     try {
-      const result = DataSchema.parse(schema, data, 0, null).result;
+      const result = DataSchema.parse(schema, data, 0).result;
       return result;
     } catch (e) {
       console.error(e);
@@ -342,7 +342,7 @@ export class H1Z1Protocol {
     };
   }
 
-  pack(packetName: string, object?: any, referenceData?: any): Buffer | null {
+  pack(packetName: string, object: any = {}): Buffer | null {
     const H1Z1Packets = this.H1Z1Packets;
     const packetType: number = H1Z1Packets.PacketTypes[packetName];
     const packet = H1Z1Packets.Packets[packetType];
@@ -355,14 +355,14 @@ export class H1Z1Protocol {
             packet.schema,
             object,
             null,
-            null,
-            referenceData
+            null
           );
         } catch (error) {
           console.error(`${packetName} : ${error}`);
+          console.error(`${packetName} : ${JSON.stringify(object)}`);
         }
         if (packetData) {
-          data = new (Buffer as any).alloc(
+          data = Buffer.allocUnsafe(
             packetTypeBytes.length + packetData.length
           );
           for (let i = 0; i < packetTypeBytes.length; i++) {
@@ -418,9 +418,7 @@ export class H1Z1Protocol {
 
   parse(
     data: Buffer,
-    flag: number,
-    fromClient: boolean,
-    referenceData?: any
+    flag: number
   ): H1z1ProtocolReadingFormat | null {
     const H1Z1Packets = this.H1Z1Packets;
     const opCode = data[0];
@@ -485,8 +483,7 @@ export class H1Z1Protocol {
           result = DataSchema.parse(
             packet.schema,
             data,
-            offset,
-            referenceData
+            offset
           ).result;
         } catch (e) {
           console.error(`${packet.name} : ${e}`);

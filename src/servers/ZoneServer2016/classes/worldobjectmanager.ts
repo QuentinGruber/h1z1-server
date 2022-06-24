@@ -85,7 +85,7 @@ export class WorldObjectManager {
   chanceHospital: number = 40;
   chanceMilitary: number = 30;
 
-  chanceNpc: number = 50;
+  chanceNpc: number = 100;
   chanceScreamer: number = 5; // 1000 max
 
   run(server: ZoneServer2016) {
@@ -103,23 +103,34 @@ export class WorldObjectManager {
       this.lastVehicleRespawnTime = Date.now();
     }
   }
+  equipRandomSkins(server:ZoneServer2016 ,npc: Npc): void {
+    switch (npc.actorModelId) {
+      case 9510:{
+        server.generateRandomEquipmentsFromAnEntity(npc,"Male",[3,1,2,4,29,28,27,10,5])
+      }
+      case 9634:{
+        server.generateRandomEquipmentsFromAnEntity(npc,"Female",[3,1,2,4,29,28,27,10,5])
+      }
+    }
+  }
   createNpc(
     server: ZoneServer2016,
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
     spawnerId: number = 0
-  ) {
+  ) {      
     const characterId = generateRandomGuid();
-
-    server._npcs[characterId] = new Npc(
+    const npc = new Npc(
       characterId,
       server.getTransientId(characterId),
       modelId,
       position,
       rotation,
       spawnerId
-    );
+    ); 
+    this.equipRandomSkins(server,npc);
+    server._npcs[characterId] = npc
     if (spawnerId) this._spawnedNpcs[spawnerId] = characterId;
   }
 
@@ -973,6 +984,7 @@ export class WorldObjectManager {
         });
         authorizedItems.push({ id: Items.WEAPON_HATCHET, count: 1 });
         authorizedItems.push({ id: Items.WATER_EMPTY, count: 1 });
+        authorizedItems.push({ id: Items.GROUND_TILLER, count: 1 });
         break;
       default:
         break;

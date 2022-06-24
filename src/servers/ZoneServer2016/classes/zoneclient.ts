@@ -23,7 +23,7 @@ export class ZoneClient2016 {
   isAdmin: boolean = false;
   posAtLastRoutine: Float32Array = new Float32Array();
   posAtLogoutStart: Float32Array = new Float32Array();
-  hudTimer!: any;
+  hudTimer?: NodeJS.Timeout | null;
   spawnedDTOs: any[] = [];
   spawnedEntities: any[] = [];
   managedObjects: string[] = [];
@@ -35,7 +35,6 @@ export class ZoneClient2016 {
     vehicleState: number;
     vehicleSeat: number;
   };
-  npcsToSpawn: any[] = [];
   npcsToSpawnTimer!: NodeJS.Timeout;
   loginSessionId: string;
   pingTimer: NodeJS.Timeout | undefined;
@@ -68,7 +67,9 @@ export class ZoneClient2016 {
       clearTimeout(this.npcsToSpawnTimer);
     };
     this.clearHudTimer = () => {
-      clearTimeout(this.hudTimer);
+      if (this.hudTimer) {
+        clearTimeout(this.hudTimer);
+      }
       this.hudTimer = null;
       this.isInteracting = false;
     };

@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { generate_random_guid, is_pos_in_radius,eul2quat as eul2quat_rust } from "h1emu-core";
+import {
+  generate_random_guid,
+} from "h1emu-core";
 import v8 from "v8";
 import { compress, compressBound } from "./lz4/lz4";
 import fs, { readdirSync } from "fs";
@@ -21,7 +23,7 @@ import {
   setTimeout as setTimeoutPromise,
 } from "timers/promises";
 import { MongoClient } from "mongodb";
-import { MAX_TRANSIENT_ID } from "./constants";
+import { MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import { positionUpdate } from "types/zoneserver";
@@ -73,8 +75,24 @@ export class customLodash {
 export const _ = new customLodash();
 
 // Original code from GuinnessRules
-export function eul2quat(angle: Float32Array):Float32Array {
-  return eul2quat_rust(angle);
+export function eul2quat(angle: Float32Array): Float32Array {
+  // Assuming the angles are in radians.
+  const heading = angle[0],
+    attitude = angle[1],
+    bank = -angle[2];
+  const c1 = Math.cos(heading / 2);
+  const s1 = Math.sin(heading / 2);
+  const c2 = Math.cos(attitude / 2);
+  const s2 = Math.sin(attitude / 2);
+  const c3 = Math.cos(bank / 2);
+  const s3 = Math.sin(bank / 2);
+  const c1c2 = c1 * c2;
+  const s1s2 = s1 * s2;
+  const qw = c1c2 * c3 - s1s2 * s3;
+  const qy = s1 * c2 * c3 + c1 * s2 * s3;
+  const qz = c1c2 * s3 + s1s2 * c3;
+  const qx = c1 * s2 * c3 - s1 * c2 * s3;
+  return new Float32Array([qx, qy, -qz, qw]);
 }
 
 export function eul2quatLegacy(angle: number[]) {
@@ -162,14 +180,21 @@ export const setupAppDataFolder = (): void => {
 
 export const objectIsEmpty = (obj: Record<string, unknown>) => {
   return Object.keys(obj).length === 0;
-}
+};
+
+const isBetween = (radius: number, value1: number, value2: number): boolean => {
+  return value1 <= value2 + radius && value1 >= value2 - radius;
+};
 
 export const isPosInRadius = (
   radius: number,
   player_position: Float32Array,
   enemi_position: Float32Array
 ): boolean => {
-  return is_pos_in_radius(radius,player_position,enemi_position)
+  return (
+    isBetween(radius, player_position[0], enemi_position[0]) &&
+    isBetween(radius, player_position[2], enemi_position[2])
+  );
 };
 
 export function getDistance(p1: Float32Array, p2: Float32Array) {
@@ -348,4 +373,62 @@ export class Scheduler {
       signal: options?.signal,
     });
   }
+}
+
+export class wrappedUint16 {
+  private value: number;
+  constructor(initValue: number) {
+    if (initValue > MAX_UINT16) {
+      throw new Error("wrappedUint16 can only hold values up to 65535");
+    }
+    this.value = initValue;
+  }
+  private wrap(value: number) {
+    let uint16 = value;
+    if (uint16 > MAX_UINT16) {
+      uint16 -= MAX_UINT16 + 1; // subtract the overflow value;
+    }
+    return uint16;
+  }
+  add(value: number): void {
+    this.value = this.wrap(this.value + value);
+  }
+  set(value: number): void {
+    this.value = this.wrap(value);
+  }
+  get(): number {
+    return this.value;
+  }
+  increment(): void {
+    this.add(1);
+  }
+}
+
+
+export const bigIntToHexString = (bigInt: bigint): string => {
+  return `0x${bigInt.toString(16)}`;
+}
+
+export const getRandomFromArray = (array: any[]): any => {
+  return array[Math.floor(Math.random() * array.length)];
+}
+
+export function validateVersion(loginVersion: string,zoneVersion:string): boolean {
+    const [loginMajor, loginMinor, loginPatch] = loginVersion.split(".");
+    const [zoneMajor, zoneMinor, zonePatch] = zoneVersion.split(".");
+    if (loginMajor > zoneMajor) {
+      return false;
+    }
+    if (loginMinor > zoneMinor) {
+      return false;
+    }
+    if (loginPatch > zonePatch) {
+      return false;
+    }
+    return true;
+}
+
+export const getRandomKeyFromAnObject = (object: any): string => {
+  const keys = Object.keys(object);
+  return keys[Math.floor(Math.random() * keys.length)];
 }

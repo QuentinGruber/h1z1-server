@@ -16,6 +16,7 @@ import { BaseSimpleNpc } from "./basesimplenpc";
 export class TrapEntity extends BaseSimpleNpc {
   trapTimer?: NodeJS.Timeout;
   isTriggered = false;
+  npcRenderDistance = 75;
   constructor(
     characterId: string,
     transientId: number,

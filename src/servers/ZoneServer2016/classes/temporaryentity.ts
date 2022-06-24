@@ -14,6 +14,7 @@
 import { BaseSimpleNpc } from "./basesimplenpc";
 
 export class TemporaryEntity extends BaseSimpleNpc {
+  npcRenderDistance = 40;
   constructor(
     characterId: string,
     transientId: number,

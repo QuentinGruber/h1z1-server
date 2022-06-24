@@ -22,7 +22,7 @@ process.env.isBin && require("../../shared/workers/udpServerWorker.js");
 
 export abstract class H1emuServer extends EventEmitter {
   _serverPort?: number;
-  _protocol: any;
+  _protocol: H1emuProtocol;
   _udpLength: number = 512;
   _clients: { [clientId: string]: H1emuClient } = {};
   _connection: Worker;
@@ -88,17 +88,19 @@ export abstract class H1emuServer extends EventEmitter {
     // blocks zone from sending packet without open session
     if (!client || (!client.session && packetName !== "SessionRequest")) return;
     const data = this._protocol.pack(packetName, obj);
-    this._connection.postMessage(
-      {
-        type: "sendPacket",
-        data: {
-          packetData: data,
-          port: client.port,
-          address: client.address,
+    if (data) {
+      this._connection.postMessage(
+        {
+          type: "sendPacket",
+          data: {
+            packetData: data,
+            port: client.port,
+            address: client.address,
+          },
         },
-      },
-      [data.buffer]
-    );
+        [data.buffer]
+      );
+    }
   }
 
   ping(client: H1emuClient) {
