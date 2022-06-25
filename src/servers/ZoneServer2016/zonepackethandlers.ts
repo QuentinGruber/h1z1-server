@@ -216,11 +216,6 @@ export class zonePacketHandlers {
           "help",
           "netstats",
           "me",
-          "WPN_Pistol_M9",//3486306879
-          "WPN_Pistol_R51",//2194849040
-          "WPN_Crossbow",//2567614275
-          "WPN_44_Magnum",//2711705013
-          "WPN_AK47",//2430399441
         ];
 
         commands.forEach((command) => {

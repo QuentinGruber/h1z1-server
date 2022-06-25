@@ -1409,7 +1409,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 27
+            "FIRE_GROUP_ID": 1388
           }
         ]
       }
@@ -7068,9 +7068,9 @@
       }
     },
     {
-      "ID": 27,
+      "ID": 1388,
       "DATA": {
-        "ID": 27,
+        "ID": 1388,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 39
