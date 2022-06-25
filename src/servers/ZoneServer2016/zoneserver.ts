@@ -3443,7 +3443,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.equipItem(client, this.generateItem(2393), sendPacket); // rasta backpack
     }
     this.equipItem(client, this.generateItem(85), sendPacket); // fists weapon
-    this.equipItem(client, this.generateItem(10), sendPacket); // AR weapon
     this.equipItem(client, this.generateItem(2377), sendPacket); // DOA Hoodie
     this.equipItem(client, this.generateItem(2079), sendPacket); // golf pants
   }
