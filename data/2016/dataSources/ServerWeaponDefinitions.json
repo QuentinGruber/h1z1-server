@@ -1921,7 +1921,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 38
+            "FIRE_GROUP_ID": 1400
           }
         ]
       }
@@ -2613,7 +2613,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 46
+            "FIRE_GROUP_ID": 1414
           },
           {
             "FIRE_GROUP_ID": 64
@@ -7322,9 +7322,9 @@
       }
     },
     {
-      "ID": 38,
+      "ID": 1400,
       "DATA": {
-        "ID": 38,
+        "ID": 1400,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 52
@@ -7522,9 +7522,9 @@
       }
     },
     {
-      "ID": 46,
+      "ID": 1414,
       "DATA": {
-        "ID": 46,
+        "ID": 1414,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 67
