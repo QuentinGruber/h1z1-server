@@ -32,7 +32,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 4082551186,
+        "AUDIO_GAME_OBJECT": 1795232537,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -248,7 +248,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 2918591023,
+        "AUDIO_GAME_OBJECT": 4158717999,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -939,7 +939,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 4245511188,
+        "AUDIO_GAME_OBJECT": 239422887,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -993,7 +993,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 1038629556,
+        "AUDIO_GAME_OBJECT": 3335203436,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -1392,7 +1392,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 4093171902,
+        "AUDIO_GAME_OBJECT": 2711705013,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -1958,7 +1958,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 1692889558,
+        "AUDIO_GAME_OBJECT": 3486306879,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -1975,7 +1975,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 39
+            "FIRE_GROUP_ID": 1401
           }
         ]
       }
@@ -2161,7 +2161,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 964277156,
+        "AUDIO_GAME_OBJECT": 2430399441,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -3029,7 +3029,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 4109597905,
+        "AUDIO_GAME_OBJECT": 2430399441,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -3046,7 +3046,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 77
+            "FIRE_GROUP_ID": 1424
           },
           {
             "FIRE_GROUP_ID": 78
@@ -4053,7 +4053,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 4109597905,
+        "AUDIO_GAME_OBJECT": 2430399441,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -4323,7 +4323,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 2918591023,
+        "AUDIO_GAME_OBJECT": 4158717999,
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
@@ -4526,7 +4526,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 2918591023,
+        "AUDIO_GAME_OBJECT": 4158717999,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -4691,7 +4691,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 4093171902,
+        "AUDIO_GAME_OBJECT": 2711705013,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -5231,7 +5231,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 4245511188,
+        "AUDIO_GAME_OBJECT": 239422887,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -5555,7 +5555,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 2918591023,
+        "AUDIO_GAME_OBJECT": 4158717999,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -5609,7 +5609,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 4245511188,
+        "AUDIO_GAME_OBJECT": 239422887,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -5717,7 +5717,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 4093171902,
+        "AUDIO_GAME_OBJECT": 2711705013,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -5771,7 +5771,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 4109597905,
+        "AUDIO_GAME_OBJECT": 2430399441,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -6047,7 +6047,7 @@
         "OVERHEAT_EFFECT_ID": 0,
         "MIN_PITCH": -85,
         "MAX_PITCH": 85,
-        "AUDIO_GAME_OBJECT": 2918591023,
+        "AUDIO_GAME_OBJECT": 4158717999,
         "AMMO_SLOTS": [
           {
             "AMMO_ID": 1,
@@ -7347,9 +7347,9 @@
       }
     },
     {
-      "ID": 39,
+      "ID": 1401,
       "DATA": {
-        "ID": 39,
+        "ID": 1401,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 53
@@ -8223,9 +8223,9 @@
       }
     },
     {
-      "ID": 77,
+      "ID": 1424,
       "DATA": {
-        "ID": 77,
+        "ID": 1424,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 78
