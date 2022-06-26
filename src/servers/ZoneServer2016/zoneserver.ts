@@ -112,6 +112,7 @@ export class ZoneServer2016 extends EventEmitter {
   _temporaryObjects: { [characterId: string]: TemporaryEntity } = {};
   _props: any = {};
   _speedTrees: any = {};
+  _speedTreesCounter: any = {};
   _gameTime: any;
   _serverTime = this.getCurrentTime();
   _startTime = 0;
@@ -1363,61 +1364,80 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   speedTreeDestroy(packet: any) {
-    this.sendDataToAll("DtoStateChange", {
-      objectId: packet.data.id,
-      modelName: packet.data.name.concat(".Stump"),
-      effectId: 0,
-      unk3: 0,
-      unk4: true,
-    });
-    const { id: objectId, name } = packet.data;
-    this._speedTrees[packet.data.id] = {
-      objectId: objectId,
-      modelName: name,
-    };
-    setTimeout(() => {
-      this.sendDataToAll("DtoStateChange", {
-        objectId: objectId,
-        modelName: this._speedTrees[objectId].modelName,
-        effectId: 0,
-        unk3: 0,
-        unk4: true,
-      });
-      delete this._speedTrees[objectId];
-    }, 1800000);
-  }
-
-  speedTreeUse(client: Client, packet: any) {
-    const elo = this._speedTrees[packet.data.id];
-    if (elo) {
-      debug(
-        "\x1b[32m",
-        client.character.name + "\x1b[0m",
-        "tried to use destroyed speedTree id:" + "\x1b[32m",
-        packet.data.id
-      );
-    } else {
-      let itemDefId = 0;
-      switch (packet.data.name) {
-        case "SpeedTree.Blackberry":
-          itemDefId = 105;
-          if (randomIntFromInterval(1, 10) == 1) {
-            this.lootItem(client, this.generateItem(Items.WEAPON_BRANCH), 1);
-          }
-          break;
-        case "SpeedTree.DevilClub":
-        case "SpeedTree.VineMaple":
-          itemDefId = 111;
-          break;
-        default:
-          break;
-      }
-      if (itemDefId) {
-        this.lootContainerItem(client, this.generateItem(itemDefId), 1);
-      }
-      this.speedTreeDestroy(packet);
+        this.sendDataToAll("DtoStateChange", {
+            objectId: packet.data.id,
+            modelName: packet.data.name.concat(".Stump"),
+            effectId: 0,
+            unk3: 0,
+            unk4: true,
+        });
+        const { id: objectId, name } = packet.data;
+        this._speedTrees[packet.data.id] = {
+            objectId: objectId,
+            modelName: name,
+        };
+        setTimeout(() => {
+            this.sendDataToAll("DtoStateChange", {
+                objectId: objectId,
+                modelName: this._speedTrees[objectId].modelName,
+                effectId: 0,
+                unk3: 0,
+                unk4: true,
+            });
+            delete this._speedTrees[objectId];
+        }, 1800000);
     }
-  }
+
+    speedTreeUse(client: Client, packet: any) {
+        const elo = this._speedTrees[packet.data.id];
+        let allowDes = false;
+        let count = 1;
+        console.log(packet);
+        if (elo) {
+            debug(
+                "\x1b[32m",
+                client.character.name + "\x1b[0m",
+                "tried to use destroyed speedTree id:" + "\x1b[32m",
+                packet.data.id
+            );
+        } else {
+            let itemDefId = 0;
+            switch (packet.data.name) {
+                case "SpeedTree.Blackberry":
+                    itemDefId = 105;
+                    if (randomIntFromInterval(1, 10) == 1) {
+                        this.lootItem(client, this.generateItem(Items.WEAPON_BRANCH), 1);
+                    }
+                    allowDes = true;
+                    count = randomIntFromInterval(1, 2);
+                    break;
+                case "SpeedTree.DevilClub":
+                case "SpeedTree.VineMaple":
+                    itemDefId = 111;
+                    allowDes = true;
+                    count = randomIntFromInterval(1, 2);
+                    break;
+                default: // default case for cutting trees
+                    if (!this._speedTreesCounter[packet.data.id]) {
+                        this._speedTreesCounter[packet.data.id] = { hitPoints: randomIntFromInterval(12, 19) }; // add a new tree key with random level of hitpoints
+                    } else {
+                        if (this._speedTreesCounter[packet.data.id].hitPoints-- == 0) {
+                            allowDes = true;
+                            delete this._speedTreesCounter[packet.data.id] // If out of health destroy tree and delete its key
+                            itemDefId = 16;
+                            count = randomIntFromInterval(2, 6)
+                        }
+                    }
+                    break;
+            }
+            if (itemDefId) {
+                this.lootContainerItem(client, this.generateItem(itemDefId), count);
+            }
+            if (allowDes) {
+                this.speedTreeDestroy(packet);
+            }
+        }
+    }
 
   updateResource(
     client: Client,
