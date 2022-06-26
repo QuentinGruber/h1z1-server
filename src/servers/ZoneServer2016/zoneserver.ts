@@ -249,6 +249,9 @@ export class ZoneServer2016 extends EventEmitter {
       "tunneldata",
       (err: string, client: SOEClient, data: Buffer, flags: number) => {
         const packet = this._protocol.parse(data, flags);
+        if(data[0] == 0x83) {
+          console.log(data.toString('hex').match(/../g)?.join(' '));
+        }
         if (packet) {
           this.emit("data", null, this._clients[client.sessionId], packet);
         } else {
@@ -916,116 +919,64 @@ export class ZoneServer2016 extends EventEmitter {
     //const fs = require("fs");
     //this.sendRawData(client, fs.readFileSync("C:\\Users\\csm45\\Desktop\\initparams.bin"));
     this.sendData(client, "InitializationParameters", {
-      environment: "LIVE",
+      ENVIRONMENT: "LIVE",
       unknownString1: "",
-      unknownArray1: [
+      rulesetDefinitions: [
         {
           unknownDword1: 1,
           unknownDword2: 1,
           ruleset: "Permadeath",
           unknownString2: "",
-          unknownArray1: [
+          rulesets: [
             {
-              unknownDword1: 1,
-              unknownData1: {
-                unknownDword1: 1,
-                unknownDword2: 1,
-                unknownDword3: 112,
-                unknownDword4: 1,
+              ID: 1,
+              DATA: {
+                ID: 1,
+                RULESET_ID: 1,
+                CONTENT_PACK_ID: 112,
+                CONTENT_PACK_ACTION_ID: 1,
               }
             }
           ]
         },
-        {
+        /*{
           unknownDword1: 3,
           unknownDword2: 3,
           ruleset: "Headshots",
           unknownString2: "",
-          unknownArray1: []
-        },
+          rulesets: []
+        },*/
         {
           unknownDword1: 4,
           unknownDword2: 4,
           ruleset: "FirstPersonOnly",
           unknownString2: "",
-          unknownArray1: []
+          rulesets: []
         },
         {
           unknownDword1: 5,
           unknownDword2: 5,
-          ruleset: "PvE",
+          ruleset: "PvE", //  could be "Normal"
           unknownString2: "",
-          unknownArray1: []
+          rulesets: [
+            {
+              ID: 3,
+              DATA: {
+                ID: 3,
+                RULESET_ID: 5,
+                CONTENT_PACK_ID: 119,
+                CONTENT_PACK_ACTION_ID: 2,
+              }
+            },
+          ]
         },
         {
           unknownDword1: 6,
           unknownDword2: 6,
           ruleset: "BattleRoyale",
           unknownString2: "",
-          unknownArray1: [
-            {
-              unknownDword1: 3,
-              unknownData1: {
-                unknownDword1: 3,
-                unknownDword2: 6,
-                unknownDword3: 114,
-                unknownDword4: 2,
-              }
-            },
-            {
-              unknownDword1: 16,
-              unknownData1: {
-                unknownDword1: 16,
-                unknownDword2: 6,
-                unknownDword3: 133,
-                unknownDword4: 2,
-              }
-            },
-            {
-              unknownDword1: 17,
-              unknownData1: {
-                unknownDword1: 17,
-                unknownDword2: 6,
-                unknownDword3: 134,
-                unknownDword4: 1,
-              }
-            },
-            {
-              unknownDword1: 25,
-              unknownData1: {
-                unknownDword1: 25,
-                unknownDword2: 6,
-                unknownDword3: 135,
-                unknownDword4: 2,
-              }
-            },
-            {
-              unknownDword1: 33,
-              unknownData1: {
-                unknownDword1: 33,
-                unknownDword2: 6,
-                unknownDword3: 140,
-                unknownDword4: 2,
-              }
-            },
-            {
-              unknownDword1: 48,
-              unknownData1: {
-                unknownDword1: 48,
-                unknownDword2: 6,
-                unknownDword3: 143,
-                unknownDword4: 2,
-              }
-            },
-            {
-              unknownDword1: 74,
-              unknownData1: {
-                unknownDword1: 74,
-                unknownDword2: 6,
-                unknownDword3: 150,
-                unknownDword4: 2,
-              }
-            },
+          rulesets: [
+            
           ]
         },
       ]

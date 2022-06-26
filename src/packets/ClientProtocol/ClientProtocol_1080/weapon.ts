@@ -23,6 +23,20 @@ import { itemWeaponDetailSubSchema1 } from "./shared";
 
 const weaponPackets: any = [
   [
+    "Weapon.MultiWeapon",
+    0x8300,
+    {
+      fields: [
+        {
+          name: "packets",
+          type: "custom",
+          parser: parseMultiWeaponPacket,
+          packer: packMultiWeaponPacket,
+        },
+      ],
+    },
+  ],
+  [
     "Weapon.FireStateUpdate",
     0x8301,
     {
@@ -171,7 +185,7 @@ const weaponPackets: any = [
     },
   ],
   ["Weapon.ProjectileSpawnNpc", 0x831c, {}],
-  ["Weapon.FireRejected", 0x831d, {}],
+  ["Weapon.FireRejected", 0x831d, {}],/*
   [
     "Weapon.MultiWeapon",
     0x831e,
@@ -185,7 +199,7 @@ const weaponPackets: any = [
         },
       ],
     },
-  ],
+  ],*/
   ["Weapon.WeaponFireHint", 0x831f, {}],
   ["Weapon.ProjectileContactReport", 0x8320, {}],
   ["Weapon.MeleeHitMaterial", 0x8321, {}],

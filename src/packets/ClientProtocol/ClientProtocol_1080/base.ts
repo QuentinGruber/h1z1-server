@@ -2701,10 +2701,10 @@ export const basePackets: any = [
     0x6f,
     {
       fields: [
-        { name: "environment", type: "string", defaultValue: "" },
+        { name: "ENVIRONMENT", type: "string", defaultValue: "" },
         { name: "unknownString1", type: "string", defaultValue: "" },
         {
-          name: "unknownArray1",
+          name: "rulesetDefinitions",
           type: "array",
           defaultValue: [],
           fields: [
@@ -2713,20 +2713,20 @@ export const basePackets: any = [
             { name: "ruleset", type: "string", defaultValue: "" },
             { name: "unknownString2", type: "string", defaultValue: "" },
             {
-              name: "unknownArray1",
+              name: "rulesets",
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "ID", type: "uint32", defaultValue: 0 },
                 {
-                  name: "unknownData1",
+                  name: "DATA",
                   type: "schema",
                   defaultValue: {},
                   fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+                    { name: "ID", type: "uint32", defaultValue: 0 },
+                    { name: "RULESET_ID", type: "uint32", defaultValue: 0 },
+                    { name: "CONTENT_PACK_ID", type: "uint32", defaultValue: 0 },
+                    { name: "CONTENT_PACK_ACTION_ID", type: "uint32", defaultValue: 0 },
                   ],
                 },
               ],
