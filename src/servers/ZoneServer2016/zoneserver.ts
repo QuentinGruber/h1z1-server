@@ -84,7 +84,6 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
-  projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json"),
   equipmentModelTexturesMapping = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 @healthThreadDecorator
@@ -916,8 +915,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendInitData(client: Client) {
-    //const fs = require("fs");
-    //this.sendRawData(client, fs.readFileSync("C:\\Users\\csm45\\Desktop\\initparams.bin"));
     this.sendData(client, "InitializationParameters", {
       ENVIRONMENT: "LIVE",
       unknownString1: "",
@@ -999,11 +996,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.packItemDefinitions();
     }
     //this.sendRawData(client, this.itemDefinitionsCache);
-    /*
-    this.sendData(client, "ReferenceData.ProjectileDefinitions", {
-        definitionsData: projectileDefinitons
-    });
-    */
     this.sendData(client, "ReferenceData.WeaponDefinitions", {
       data: {
         definitionsData: weaponDefinitions

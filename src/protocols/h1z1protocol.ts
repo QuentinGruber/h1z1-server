@@ -53,7 +53,8 @@ export class H1Z1Protocol {
   protocolName: string;
   PlayerUpdateManagedPositionOpcode: number;
   VehicleCollisionOpcode: number;
-  VehicleDimissOpcode: any;
+  VehicleDimissOpcode: number;
+  weaponOpcode: number;
 
   constructor(protocolName = "ClientProtocol_860") {
     this.protocolName = protocolName;
@@ -64,12 +65,14 @@ export class H1Z1Protocol {
         this.PlayerUpdateManagedPositionOpcode = 0x90;
         this.VehicleCollisionOpcode = 0xac;
         this.VehicleDimissOpcode = 0x8818;
+        this.weaponOpcode = 0x82;
         break;
       case "ClientProtocol_1080": // normal client from 22 december 2016
         this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_1080/h1z1packets");
         this.PlayerUpdateManagedPositionOpcode = 0x91;
         this.VehicleCollisionOpcode = 0xaa;
         this.VehicleDimissOpcode = 0x8918;
+        this.weaponOpcode = 0x83;
         break;
       default:
         debug(`Protocol ${this.protocolName} unsupported !`);
@@ -456,6 +459,10 @@ export class H1Z1Protocol {
             packet = H1Z1Packets.Packets[this.VehicleCollisionOpcode];
             offset = 1;
             break;
+          }
+          case this.weaponOpcode: {
+            packet = H1Z1Packets.Packets[this.weaponOpcode];
+            offset = 1;
           }
           default: {
             console.error(`unknown packet use flag 3 : ${opCode}`);

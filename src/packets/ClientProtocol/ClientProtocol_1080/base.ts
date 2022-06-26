@@ -44,6 +44,7 @@ import {
   skyData,
   statSchema,
 } from "./shared";
+import { packWeaponPacket, parseWeaponPacket } from "./weapon";
 
 export const basePackets: any = [
   ["Server", 0x01, {}],
@@ -2777,8 +2778,21 @@ export const basePackets: any = [
   ["Target", 0x7e, {}],
   ["GuideStone", 0x80, {}],
   ["Raid", 0x81, {}],
+  [
+    "Weapon.Weapon",
+    0x8300,
+    {
+      fields: [
+        {
+          name: "weaponPacket",
+          type: "custom",
+          parser: parseWeaponPacket,
+          packer: packWeaponPacket,
+        },
+      ],
+    },
+  ],
   ["MatchSchedule", 0x84, {}],
-
   ["Grief", 0x8a, {}],
   ["SpotPlayer", 0x8b, {}],
   ["Faction", 0x8c, {}],
