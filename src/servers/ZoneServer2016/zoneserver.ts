@@ -2829,7 +2829,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     const generatedGuid = `0x${this.generateItemGuid().toString(16)}`;
-    let itemData = {
+    const itemData = {
       itemDefinitionId: itemDefinitionId,
       slotId: 0,
       itemGuid: generatedGuid,
@@ -2843,6 +2843,7 @@ export class ZoneServer2016 extends EventEmitter {
         ...itemData,
         weapon: {ammoCount: 5} // default ammo count until we have a method to get max ammo count from definition
       }
+      return item;
     }
     return itemData;
   }
