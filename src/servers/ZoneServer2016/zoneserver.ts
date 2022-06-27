@@ -223,12 +223,10 @@ export class ZoneServer2016 extends EventEmitter {
         );
         if (!this._soloMode) {
           zoneClient.isAdmin =
-            (await this._db
-              ?.collection("admins")
-              .findOne({
-                sessionId: zoneClient.loginSessionId,
-                serverId: this._worldId,
-              })) != undefined;
+            (await this._db?.collection("admins").findOne({
+              sessionId: zoneClient.loginSessionId,
+              serverId: this._worldId,
+            })) != undefined;
         } else {
           zoneClient.isAdmin = true;
         }
@@ -543,19 +541,22 @@ export class ZoneServer2016 extends EventEmitter {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      client.character.state.position =
-      new Float32Array(this._spawnLocations[randomSpawnIndex].position);
-      client.character.state.rotation =
-      new Float32Array(this._spawnLocations[randomSpawnIndex].rotation);
+      client.character.state.position = new Float32Array(
+        this._spawnLocations[randomSpawnIndex].position
+      );
+      client.character.state.rotation = new Float32Array(
+        this._spawnLocations[randomSpawnIndex].rotation
+      );
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     } else {
-      client.character.state.position = new Float32Array(Object.values(character.position));
+      client.character.state.position = new Float32Array(
+        Object.values(character.position)
+      );
       client.character.state.rotation = new Float32Array(
         Object.values(character.rotation)
       );
     }
-
 
     this.giveStartingEquipment(client, false, true);
   }
@@ -1682,52 +1683,51 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   spawnObjects(client: Client) {
-      for (const characterId in this._objects) {
-        const object = this._objects[characterId];
-        if (
-          isPosInRadius(
-            object.npcRenderDistance,
-            client.character.state.position,
-            object.state.position
-          ) &&
-          !client.spawnedEntities.includes(object)
-        ) {
-          this.sendData(client, "AddLightweightNpc", {
-            ...object.pGetLightweight(),
-            nameId: this.getItemDefinition(object.item.itemDefinitionId)
-              .NAME_ID,
-          });
-          client.spawnedEntities.push(object);
-        }
+    for (const characterId in this._objects) {
+      const object = this._objects[characterId];
+      if (
+        isPosInRadius(
+          object.npcRenderDistance,
+          client.character.state.position,
+          object.state.position
+        ) &&
+        !client.spawnedEntities.includes(object)
+      ) {
+        this.sendData(client, "AddLightweightNpc", {
+          ...object.pGetLightweight(),
+          nameId: this.getItemDefinition(object.item.itemDefinitionId).NAME_ID,
+        });
+        client.spawnedEntities.push(object);
       }
+    }
   }
 
   spawnDoors(client: Client) {
-      for (const characterId in this._doors) {
-        const door = this._doors[characterId];
-        if (
-          isPosInRadius(
-            door.npcRenderDistance,
-            client.character.state.position,
-            door.state.position
-          ) &&
-          !client.spawnedEntities.includes(door)
-        ) {
-          this.addLightweightNpc(client, door);
-          client.spawnedEntities.push(door);
-          if (door.isOpen) {
-            this.sendDataToAll("PlayerUpdatePosition", {
-              transientId: door.transientId,
-              positionUpdate: {
-                sequenceTime: 0,
-                unknown3_int8: 0,
-                position: door.state.position,
-                orientation: door.openAngle,
-              },
-            });
-          }
+    for (const characterId in this._doors) {
+      const door = this._doors[characterId];
+      if (
+        isPosInRadius(
+          door.npcRenderDistance,
+          client.character.state.position,
+          door.state.position
+        ) &&
+        !client.spawnedEntities.includes(door)
+      ) {
+        this.addLightweightNpc(client, door);
+        client.spawnedEntities.push(door);
+        if (door.isOpen) {
+          this.sendDataToAll("PlayerUpdatePosition", {
+            transientId: door.transientId,
+            positionUpdate: {
+              sequenceTime: 0,
+              unknown3_int8: 0,
+              position: door.state.position,
+              orientation: door.openAngle,
+            },
+          });
         }
       }
+    }
   }
 
   POIManager(client: Client) {
@@ -1762,7 +1762,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private _sendData(client: Client, packetName: h1z1PacketsType, obj: any,unbuffered: boolean ){
+  private _sendData(
+    client: Client,
+    packetName: h1z1PacketsType,
+    obj: any,
+    unbuffered: boolean
+  ) {
     switch (packetName) {
       case "KeepAlive":
       case "PlayerUpdatePosition":
@@ -1777,11 +1782,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (data) {
       const soeClient = this.getSoeClient(client.soeClientId);
       if (soeClient) {
-        if(unbuffered){
+        if (unbuffered) {
           this._gatewayServer.sendUnbufferedTunnelData(soeClient, data);
-        }
-        else{
-        this._gatewayServer.sendTunnelData(soeClient, data);
+        } else {
+          this._gatewayServer.sendTunnelData(soeClient, data);
         }
       }
     }
@@ -1901,9 +1905,9 @@ export class ZoneServer2016 extends EventEmitter {
             },
             unknownGuid1: this.generateGuid(),
           });
-          const passengers:any[] = []
+          const passengers: any[] = [];
           vehicle.getPassengerList().forEach((passengerCharacterId: string) => {
-            if(this._characters[passengerCharacterId]) {
+            if (this._characters[passengerCharacterId]) {
               passengers.push({
                 characterId: passengerCharacterId,
                 identity: {
@@ -1911,14 +1915,13 @@ export class ZoneServer2016 extends EventEmitter {
                 },
                 unknownString1: this._characters[passengerCharacterId].name,
                 unknownByte1: 1,
-              }
-              );
+              });
             }
-          })
+          });
 
           this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
-            passengers: passengers
+            passengers: passengers,
           });
           client.spawnedEntities.push(vehicle);
         }
@@ -2374,7 +2377,10 @@ export class ZoneServer2016 extends EventEmitter {
     this.checkConveys(client);
   }
 
-  updateEquipment(client: Client, character:BaseFullCharacter = client.character) {
+  updateEquipment(
+    client: Client,
+    character: BaseFullCharacter = client.character
+  ) {
     this.sendData(
       client,
       "Equipment.SetCharacterEquipment",
@@ -2549,24 +2555,35 @@ export class ZoneServer2016 extends EventEmitter {
     if (equipmentSlotId) this.updateEquipmentSlot(client, equipmentSlotId);
   }
 
-  generateRandomEquipmentsFromAnEntity(entity: BaseFullCharacter,gender:string,slots:number[]) {
-    slots.forEach(slot => {
-      entity._equipment[slot]=this.generateRandomEquipmentForSlot(gender,slot)
+  generateRandomEquipmentsFromAnEntity(
+    entity: BaseFullCharacter,
+    gender: string,
+    slots: number[]
+  ) {
+    slots.forEach((slot) => {
+      entity._equipment[slot] = this.generateRandomEquipmentForSlot(
+        gender,
+        slot
+      );
     });
   }
 
-  generateRandomEquipmentForSlot(gender: string, slotId:number){
-    const models = equipmentModelTexturesMapping[slotId]
-    const model = getRandomKeyFromAnObject(models)
-    const skins = equipmentModelTexturesMapping[slotId][model]
+  generateRandomEquipmentForSlot(gender: string, slotId: number) {
+    const models = equipmentModelTexturesMapping[slotId];
+    const model = getRandomKeyFromAnObject(models);
+    const skins = equipmentModelTexturesMapping[slotId][model];
     let skin;
-    if(skins){
-      skin = getRandomFromArray(skins)
+    if (skins) {
+      skin = getRandomFromArray(skins);
+    } else {
+      skin = "";
     }
-    else{
-      skin = ""
-    }
-    return {modelName:model.replace("<gender>",gender),slotId,textureAlias:skin,guid:bigIntToHexString(this.generateItemGuid())}
+    return {
+      modelName: model.replace("<gender>", gender),
+      slotId,
+      textureAlias: skin,
+      guid: bigIntToHexString(this.generateItemGuid()),
+    };
   }
 
   getItemDefinition(itemDefinitionId: number) {
@@ -3799,22 +3816,21 @@ export class ZoneServer2016 extends EventEmitter {
   getSoeClient(soeClientId: string): SOEClient | undefined {
     return this._gatewayServer._soeServer.getSoeClient(soeClientId);
   }
-  private _sendRawData(client: Client, data: Buffer,unbuffered: boolean) {
+  private _sendRawData(client: Client, data: Buffer, unbuffered: boolean) {
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
-      if(unbuffered){
+      if (unbuffered) {
         this._gatewayServer.sendUnbufferedTunnelData(soeClient, data);
-      }
-      else{
+      } else {
         this._gatewayServer.sendTunnelData(soeClient, data);
       }
     }
   }
   sendRawData(client: Client, data: Buffer) {
-    this._sendRawData(client, data,false);
+    this._sendRawData(client, data, false);
   }
   sendUnbufferedRawData(client: Client, data: Buffer) {
-    this._sendRawData(client, data,true);
+    this._sendRawData(client, data, true);
   }
   sendChatText(client: Client, message: string, clearChat = false) {
     if (clearChat) {
@@ -3898,14 +3914,17 @@ export class ZoneServer2016 extends EventEmitter {
       refreshTimeout && client.savePositionTimer.refresh();
     }
   }
-  private _sendDataToAll(packetName: h1z1PacketsType, obj: any,unbuffered:boolean) {
+  private _sendDataToAll(
+    packetName: h1z1PacketsType,
+    obj: any,
+    unbuffered: boolean
+  ) {
     const data = this._protocol.pack(packetName, obj);
     if (data) {
       for (const a in this._clients) {
-        if(unbuffered){
+        if (unbuffered) {
           this.sendUnbufferedRawData(this._clients[a], data);
-        }
-        else{
+        } else {
           this.sendRawData(this._clients[a], data);
         }
       }
@@ -3913,10 +3932,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendDataToAll(packetName: h1z1PacketsType, obj: any) {
-    this._sendDataToAll(packetName, obj,false);
+    this._sendDataToAll(packetName, obj, false);
   }
   sendUnbufferedDataToAll(packetName: h1z1PacketsType, obj: any) {
-    this._sendDataToAll(packetName, obj,true);
+    this._sendDataToAll(packetName, obj, true);
   }
   dropVehicleManager(client: Client, vehicleGuid: string) {
     this.sendManagedObjectResponseControlPacket(client, {

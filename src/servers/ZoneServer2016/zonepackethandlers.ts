@@ -132,7 +132,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server.tempGodMode(client,3000);
+      server.tempGodMode(client, 3000);
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
       if (client.firstLoading) {
@@ -249,7 +249,8 @@ export class zonePacketHandlers {
         damage = packet.data.damage,
         vehicle = server._vehicles[characterId];
       if (characterId === client.character.characterId) {
-        if(!client.vehicle.mountedVehicle){ // if not mounted
+        if (!client.vehicle.mountedVehicle) {
+          // if not mounted
           server.playerDamage(client, damage * 5);
         }
       } else if (vehicle) {
@@ -430,12 +431,11 @@ export class zonePacketHandlers {
                 props
               )} vehicles : ${_.size(vehicles)}`
             );
-            const uptime = new Date(
-              Date.now() - server._startTime
-            );
+            const uptime = new Date(Date.now() - server._startTime);
             server.sendChatText(
               client,
-              `Uptime: ${uptime.getUTCHours()}h ${uptime.getUTCMinutes()}m`);
+              `Uptime: ${uptime.getUTCHours()}h ${uptime.getUTCMinutes()}m`
+            );
             break;
           }
         case 1757604914: // /spawninfo
@@ -873,18 +873,14 @@ export class zonePacketHandlers {
           }
           for (const a in vehicle.seats) {
             const seatId = vehicle.getCharacterSeat(vehicle.seats[a]);
-            server.sendData(
-              client,
-              "Mount.MountResponse",
-              {
-                // mounts character
-                characterId: vehicle.seats[a],
-                vehicleGuid: vehicle.characterId, // vehicle guid
-                seatId: seatId,
-                unknownDword3: seatId === "0" ? 1 : 0, //isDriver
-                identity: {},
-              }
-            );
+            server.sendData(client, "Mount.MountResponse", {
+              // mounts character
+              characterId: vehicle.seats[a],
+              vehicleGuid: vehicle.characterId, // vehicle guid
+              seatId: seatId,
+              unknownDword3: seatId === "0" ? 1 : 0, //isDriver
+              identity: {},
+            });
           }
 
           if (vehicle.destroyedEffect != 0) {

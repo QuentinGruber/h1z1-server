@@ -351,20 +351,13 @@ export class H1Z1Protocol {
       const packetTypeBytes = getPacketTypeBytes(packetType);
       if (packet.schema) {
         try {
-          packetData = DataSchema.pack(
-            packet.schema,
-            object,
-            null,
-            null
-          );
+          packetData = DataSchema.pack(packet.schema, object, null, null);
         } catch (error) {
           console.error(`${packetName} : ${error}`);
           console.error(`${packetName} : ${JSON.stringify(object)}`);
         }
         if (packetData) {
-          data = Buffer.allocUnsafe(
-            packetTypeBytes.length + packetData.length
-          );
+          data = Buffer.allocUnsafe(packetTypeBytes.length + packetData.length);
           for (let i = 0; i < packetTypeBytes.length; i++) {
             data.writeUInt8(packetTypeBytes[i], i);
           }
@@ -416,10 +409,7 @@ export class H1Z1Protocol {
     return [packet, offset];
   }
 
-  parse(
-    data: Buffer,
-    flag: number
-  ): H1z1ProtocolReadingFormat | null {
+  parse(data: Buffer, flag: number): H1z1ProtocolReadingFormat | null {
     const H1Z1Packets = this.H1Z1Packets;
     const opCode = data[0];
     let offset = 0,
@@ -480,11 +470,7 @@ export class H1Z1Protocol {
           debug(packet.name);
         }
         try {
-          result = DataSchema.parse(
-            packet.schema,
-            data,
-            offset
-          ).result;
+          result = DataSchema.parse(packet.schema, data, offset).result;
         } catch (e) {
           console.error(`${packet.name} : ${e}`);
         }

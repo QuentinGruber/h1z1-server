@@ -86,12 +86,7 @@ export class LoginProtocol2016 {
         const { schema } = this.tunnelLoginPackets.Packets[subPacketOpcode];
         let tunnelData;
         try {
-          tunnelData = DataSchema.pack(
-            schema,
-            object,
-            undefined,
-            undefined
-          );
+          tunnelData = DataSchema.pack(schema, object, undefined, undefined);
         } catch (error) {
           console.error(`${subPacketOpcode} : ${error}`);
           return Buffer.from("0");

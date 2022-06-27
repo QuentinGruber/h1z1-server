@@ -11,9 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import {
-  generate_random_guid,
-} from "h1emu-core";
+import { generate_random_guid } from "h1emu-core";
 import v8 from "v8";
 import { compress, compressBound } from "./lz4/lz4";
 import fs, { readdirSync } from "fs";
@@ -404,31 +402,33 @@ export class wrappedUint16 {
   }
 }
 
-
 export const bigIntToHexString = (bigInt: bigint): string => {
   return `0x${bigInt.toString(16)}`;
-}
+};
 
 export const getRandomFromArray = (array: any[]): any => {
   return array[Math.floor(Math.random() * array.length)];
-}
+};
 
-export function validateVersion(loginVersion: string,zoneVersion:string): boolean {
-    const [loginMajor, loginMinor, loginPatch] = loginVersion.split(".");
-    const [zoneMajor, zoneMinor, zonePatch] = zoneVersion.split(".");
-    if (loginMajor > zoneMajor) {
-      return false;
-    }
-    if (loginMinor > zoneMinor) {
-      return false;
-    }
-    if (loginPatch > zonePatch) {
-      return false;
-    }
-    return true;
+export function validateVersion(
+  loginVersion: string,
+  zoneVersion: string
+): boolean {
+  const [loginMajor, loginMinor, loginPatch] = loginVersion.split(".");
+  const [zoneMajor, zoneMinor, zonePatch] = zoneVersion.split(".");
+  if (loginMajor > zoneMajor) {
+    return false;
+  }
+  if (loginMinor > zoneMinor) {
+    return false;
+  }
+  if (loginPatch > zonePatch) {
+    return false;
+  }
+  return true;
 }
 
 export const getRandomKeyFromAnObject = (object: any): string => {
   const keys = Object.keys(object);
   return keys[Math.floor(Math.random() * keys.length)];
-}
+};

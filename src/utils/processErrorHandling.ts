@@ -12,7 +12,11 @@
 // ======================================================================
 
 process.on("unhandledRejection", (reason, promise) => {
-  console.log("Unhandled rejection at ", promise, `reason: ${reason} at ${new Date()}`);
+  console.log(
+    "Unhandled rejection at ",
+    promise,
+    `reason: ${reason} at ${new Date()}`
+  );
   process.exit(1);
 });
 
@@ -23,12 +27,16 @@ process.on("uncaughtException", (err) => {
 });
 
 process.on("SIGTERM", () => {
-  console.log(`Process ${process.pid} received a SIGTERM signal time : ${new Date()}`);
+  console.log(
+    `Process ${process.pid} received a SIGTERM signal time : ${new Date()}`
+  );
   process.exit(0);
 });
 
 process.on("SIGINT", () => {
-  console.log(`Process ${process.pid} has been interrupted time : ${new Date()}`);
+  console.log(
+    `Process ${process.pid} has been interrupted time : ${new Date()}`
+  );
   process.exit(0);
 });
 

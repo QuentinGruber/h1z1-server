@@ -51,17 +51,22 @@ const dev: any = {
       client.character.state.rotation
     );
     server._npcs[characterId] = zombie;
-    setTimeout(()=>{
+    setTimeout(() => {
       const generatedGuid = `0x${server.generateItemGuid().toString(16)}`;
 
-      zombie._equipment[3]={modelName:"SurvivorFemale_Chest_Hoodie_Down.adr",slotId:3,textureAlias:"Hoodie_DOA_Navy",guid:generatedGuid}
-      console.log(zombie.pGetEquipmentSlotFull(3))
+      zombie._equipment[3] = {
+        modelName: "SurvivorFemale_Chest_Hoodie_Down.adr",
+        slotId: 3,
+        textureAlias: "Hoodie_DOA_Navy",
+        guid: generatedGuid,
+      };
+      console.log(zombie.pGetEquipmentSlotFull(3));
 
-    server.sendDataToAll(
-      "Equipment.SetCharacterEquipmentSlot",
-      zombie.pGetEquipmentSlotFull(3)
-    );
-    },2000)
+      server.sendDataToAll(
+        "Equipment.SetCharacterEquipmentSlot",
+        zombie.pGetEquipmentSlotFull(3)
+      );
+    }, 2000);
   },
   list: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(
