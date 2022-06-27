@@ -2844,7 +2844,6 @@ export class ZoneServer2016 extends EventEmitter {
         ...itemData,
         weapon: {ammoCount: 5} // default ammo count until we have a method to get max ammo count from definition
       }
-      return item;
     }
     else {
       item = itemData;
