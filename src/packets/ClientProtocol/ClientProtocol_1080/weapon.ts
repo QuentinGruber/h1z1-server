@@ -230,10 +230,11 @@ export function parseWeaponPacket(data: Buffer, offset: number) {
   const obj: any = {};
 
   obj.gameTime = data.readUInt32LE(offset);
+  
   const tmpData = data.slice(offset + 4);
 
   const weaponPacketData = Buffer.allocUnsafe(tmpData.length + 1);
-  weaponPacketData.writeUInt8(0x85, 0);
+  weaponPacketData.writeUInt8(0x83, 0);
   tmpData.copy(weaponPacketData, 1);
 
   const weaponPacket = readPacketType(
@@ -258,6 +259,7 @@ export function parseWeaponPacket(data: Buffer, offset: number) {
     value: obj,
     length: data.length - offset,
   };
+  
 }
 
 export function packWeaponPacket(obj: any) {

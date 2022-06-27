@@ -96,6 +96,7 @@ export class zonePacketHandlers {
   commandSuicide;
   vehicleDismiss;
   loadoutSelectSlot;
+  weapon;
   constructor() {
     this.ClientIsReady = function (
       server: ZoneServer2016,
@@ -1849,6 +1850,16 @@ export class zonePacketHandlers {
       }
       server.switchLoadoutSlot(client, slot);
     };
+
+    this.weapon = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      debug("Weapon.Weapon");
+      console.log(packet);
+      console.log(packet.data.weaponPacket.packet);
+    };
     //#endregion
   }
 
@@ -1995,6 +2006,8 @@ export class zonePacketHandlers {
       case "Loadout.SelectSlot":
         this.loadoutSelectSlot(server, client, packet);
         break;
+      case "Weapon.Weapon":
+        this.weapon(server, client, packet);
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");
