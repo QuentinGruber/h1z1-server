@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { PlantingManager } from "./workers/Planting/PlantingManager";
+import { PlantingManager } from "./classes/Planting/PlantingManager";
 
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
@@ -52,6 +52,9 @@ import {
   Scheduler,
   generateTransientId,
   objectIsEmpty,
+  getRandomFromArray,
+  getRandomKeyFromAnObject,
+  bigIntToHexString,
 } from "../../utils/utils";
 
 import { Db, MongoClient } from "mongodb";
@@ -79,8 +82,9 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
-  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
-  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions");
+  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs.json"),
+  weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions.json"),
+  equipmentModelTexturesMapping = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 @healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
@@ -123,7 +127,7 @@ export class ZoneServer2016 extends EventEmitter {
     port: 1110,
   };
   worldRoutineTimer!: NodeJS.Timeout;
-  _npcRenderDistance = 350;
+  _charactersRenderDistance = 350;
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
     : [
@@ -219,12 +223,10 @@ export class ZoneServer2016 extends EventEmitter {
         );
         if (!this._soloMode) {
           zoneClient.isAdmin =
-            (await this._db
-              ?.collection("admins")
-              .findOne({
-                sessionId: zoneClient.loginSessionId,
-                serverId: this._worldId,
-              })) != undefined;
+            (await this._db?.collection("admins").findOne({
+              sessionId: zoneClient.loginSessionId,
+              serverId: this._worldId,
+            })) != undefined;
         } else {
           zoneClient.isAdmin = true;
         }
@@ -243,7 +245,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._gatewayServer.on(
       "tunneldata",
       (err: string, client: SOEClient, data: Buffer, flags: number) => {
-        const packet = this._protocol.parse(data, flags, true);
+        const packet = this._protocol.parse(data, flags);
         if (packet) {
           this.emit("data", null, this._clients[client.sessionId], packet);
         } else {
@@ -539,27 +541,22 @@ export class ZoneServer2016 extends EventEmitter {
       const randomSpawnIndex = Math.floor(
         Math.random() * this._spawnLocations.length
       );
-      client.character.state.position =
-        this._spawnLocations[randomSpawnIndex].position;
-      client.character.state.rotation =
-        this._spawnLocations[randomSpawnIndex].rotation;
+      client.character.state.position = new Float32Array(
+        this._spawnLocations[randomSpawnIndex].position
+      );
+      client.character.state.rotation = new Float32Array(
+        this._spawnLocations[randomSpawnIndex].rotation
+      );
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
     } else {
-      const e = Object.values(character.position) as number[];
-      client.character.state.position = new Float32Array(e);
+      client.character.state.position = new Float32Array(
+        Object.values(character.position)
+      );
       client.character.state.rotation = new Float32Array(
         Object.values(character.rotation)
       );
     }
-
-    // If position or rotation isn't a float32array it will make the server crash
-    client.character.state.position = new Float32Array(
-      client.character.state.position
-    );
-    client.character.state.rotation = new Float32Array(
-      client.character.state.rotation
-    );
 
     this.giveStartingEquipment(client, false, true);
   }
@@ -1414,6 +1411,37 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  setGodMode(client: Client, godMode: boolean) {
+    client.character.godMode = godMode;
+    client.character.characterStates.invincibility = godMode;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
+  }
+
+  toggleHiddenMode(client: Client) {
+    client.character.isHidden = !client.character.isHidden;
+    client.character.characterStates.gmHidden = client.character.isHidden;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
+  }
+
+  tempGodMode(client: Client, durationMs: number) {
+    if (!client.character.godMode) {
+      this.setGodMode(client, true);
+      setTimeout(() => {
+        this.setGodMode(client, false);
+      }, durationMs);
+    }
+  }
+
   updateCharacterState(
     client: Client,
     characterId: string,
@@ -1505,6 +1533,7 @@ export class ZoneServer2016 extends EventEmitter {
     // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
+        e && // in case if entity is undefined somehow
         !e.vehicleId &&
         this.filterOutOfDistance(e, client.character.state.position)
     );
@@ -1562,6 +1591,7 @@ export class ZoneServer2016 extends EventEmitter {
         !client.spawnedEntities.includes(npc)
       ) {
         this.addLightweightNpc(client, npc);
+        this.updateEquipment(client, npc); // TODO: maybe we can already add the equipment to the npc?
         client.spawnedEntities.push(npc);
       }
     }
@@ -1572,7 +1602,7 @@ export class ZoneServer2016 extends EventEmitter {
       const explosive = this._explosives[characterId];
       if (
         isPosInRadius(
-          300,
+          explosive.npcRenderDistance as number,
           client.character.state.position,
           explosive.state.position
         ) &&
@@ -1589,7 +1619,7 @@ export class ZoneServer2016 extends EventEmitter {
       const trap = this._traps[characterId];
       if (
         isPosInRadius(
-          75,
+          trap.npcRenderDistance as number,
           client.character.state.position,
           trap.state.position
         ) &&
@@ -1606,7 +1636,7 @@ export class ZoneServer2016 extends EventEmitter {
       const tempObj = this._temporaryObjects[characterId];
       if (
         isPosInRadius(
-          40,
+          tempObj.npcRenderDistance as number,
           client.character.state.position,
           tempObj.state.position
         ) &&
@@ -1624,7 +1654,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         client.character.characterId != characterObj.characterId &&
         isPosInRadius(
-          this._npcRenderDistance,
+          this._charactersRenderDistance,
           client.character.state.position,
           characterObj.state.position
         ) &&
@@ -1653,56 +1683,51 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   spawnObjects(client: Client) {
-    setImmediate(() => {
-      for (const characterId in this._objects) {
-        const object = this._objects[characterId];
-        if (
-          isPosInRadius(
-            object.npcRenderDistance,
-            client.character.state.position,
-            object.state.position
-          ) &&
-          !client.spawnedEntities.includes(object)
-        ) {
-          this.sendData(client, "AddLightweightNpc", {
-            ...object.pGetLightweight(),
-            nameId: this.getItemDefinition(object.item.itemDefinitionId)
-              .NAME_ID,
-          });
-          client.spawnedEntities.push(object);
-        }
+    for (const characterId in this._objects) {
+      const object = this._objects[characterId];
+      if (
+        isPosInRadius(
+          object.npcRenderDistance,
+          client.character.state.position,
+          object.state.position
+        ) &&
+        !client.spawnedEntities.includes(object)
+      ) {
+        this.sendData(client, "AddLightweightNpc", {
+          ...object.pGetLightweight(),
+          nameId: this.getItemDefinition(object.item.itemDefinitionId).NAME_ID,
+        });
+        client.spawnedEntities.push(object);
       }
-    });
+    }
   }
 
   spawnDoors(client: Client) {
-    setImmediate(() => {
-      for (const characterId in this._doors) {
-        const door = this._doors[characterId];
-        if (
-          isPosInRadius(
-            door.npcRenderDistance,
-            client.character.state.position,
-            door.state.position
-          ) &&
-          !client.spawnedEntities.includes(door)
-        ) {
-          this.addLightweightNpc(client, door);
-          client.spawnedEntities.push(door);
-          if (door.isOpen) {
-            this.sendDataToAll("PlayerUpdatePosition", {
-              transientId: door.transientId,
-              positionUpdate: {
-                sequenceTime: 0,
-                unknown3_int8: 0,
-                position: door.state.position,
-                orientation: door.openAngle,
-              },
-            });
-          }
+    for (const characterId in this._doors) {
+      const door = this._doors[characterId];
+      if (
+        isPosInRadius(
+          door.npcRenderDistance,
+          client.character.state.position,
+          door.state.position
+        ) &&
+        !client.spawnedEntities.includes(door)
+      ) {
+        this.addLightweightNpc(client, door);
+        client.spawnedEntities.push(door);
+        if (door.isOpen) {
+          this.sendDataToAll("PlayerUpdatePosition", {
+            transientId: door.transientId,
+            positionUpdate: {
+              sequenceTime: 0,
+              unknown3_int8: 0,
+              position: door.state.position,
+              orientation: door.openAngle,
+            },
+          });
         }
       }
-    });
+    }
   }
 
   POIManager(client: Client) {
@@ -1737,7 +1762,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sendData(client: Client, packetName: h1z1PacketsType, obj: any) {
+  private _sendData(
+    client: Client,
+    packetName: h1z1PacketsType,
+    obj: any,
+    unbuffered: boolean
+  ) {
     switch (packetName) {
       case "KeepAlive":
       case "PlayerUpdatePosition":
@@ -1752,10 +1782,23 @@ export class ZoneServer2016 extends EventEmitter {
     if (data) {
       const soeClient = this.getSoeClient(client.soeClientId);
       if (soeClient) {
-        this._gatewayServer.sendTunnelData(soeClient, data);
+        if (unbuffered) {
+          this._gatewayServer.sendUnbufferedTunnelData(soeClient, data);
+        } else {
+          this._gatewayServer.sendTunnelData(soeClient, data);
+        }
       }
     }
   }
+
+  sendUnbufferedData(client: Client, packetName: h1z1PacketsType, obj: any) {
+    this._sendData(client, packetName, obj, true);
+  }
+
+  sendData(client: Client, packetName: h1z1PacketsType, obj: any) {
+    this._sendData(client, packetName, obj, false);
+  }
+
   sendChat(client: Client, message: string) {
     if (!this._soloMode) {
       this.sendDataToAll("Chat.ChatText", {
@@ -1847,7 +1890,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
-          this._npcRenderDistance,
+          this._charactersRenderDistance,
           client.character.state.position,
           vehicle.state.position
         )
@@ -1862,18 +1905,23 @@ export class ZoneServer2016 extends EventEmitter {
             },
             unknownGuid1: this.generateGuid(),
           });
+          const passengers: any[] = [];
+          vehicle.getPassengerList().forEach((passengerCharacterId: string) => {
+            if (this._characters[passengerCharacterId]) {
+              passengers.push({
+                characterId: passengerCharacterId,
+                identity: {
+                  characterName: this._characters[passengerCharacterId].name,
+                },
+                unknownString1: this._characters[passengerCharacterId].name,
+                unknownByte1: 1,
+              });
+            }
+          });
+
           this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
-            passengers: vehicle.getPassengerList().map((characterId) => {
-              return {
-                characterId: characterId,
-                identity: {
-                  characterName: this._characters[characterId].name,
-                },
-                unknownString1: this._characters[characterId].name,
-                unknownByte1: 1,
-              };
-            }),
+            passengers: passengers,
           });
           client.spawnedEntities.push(vehicle);
         }
@@ -2329,7 +2377,10 @@ export class ZoneServer2016 extends EventEmitter {
     this.checkConveys(client);
   }
 
-  updateEquipment(client: Client, character = client.character) {
+  updateEquipment(
+    client: Client,
+    character: BaseFullCharacter = client.character
+  ) {
     this.sendData(
       client,
       "Equipment.SetCharacterEquipment",
@@ -2502,6 +2553,37 @@ export class ZoneServer2016 extends EventEmitter {
     this.addItem(client, loadoutData, 101);
     this.updateLoadout(client);
     if (equipmentSlotId) this.updateEquipmentSlot(client, equipmentSlotId);
+  }
+
+  generateRandomEquipmentsFromAnEntity(
+    entity: BaseFullCharacter,
+    gender: string,
+    slots: number[]
+  ) {
+    slots.forEach((slot) => {
+      entity._equipment[slot] = this.generateRandomEquipmentForSlot(
+        gender,
+        slot
+      );
+    });
+  }
+
+  generateRandomEquipmentForSlot(gender: string, slotId: number) {
+    const models = equipmentModelTexturesMapping[slotId];
+    const model = getRandomKeyFromAnObject(models);
+    const skins = equipmentModelTexturesMapping[slotId][model];
+    let skin;
+    if (skins) {
+      skin = getRandomFromArray(skins);
+    } else {
+      skin = "";
+    }
+    return {
+      modelName: model.replace("<gender>", gender),
+      slotId,
+      textureAlias: skin,
+      guid: bigIntToHexString(this.generateItemGuid()),
+    };
   }
 
   getItemDefinition(itemDefinitionId: number) {
@@ -3734,11 +3816,21 @@ export class ZoneServer2016 extends EventEmitter {
   getSoeClient(soeClientId: string): SOEClient | undefined {
     return this._gatewayServer._soeServer.getSoeClient(soeClientId);
   }
-  sendRawData(client: Client, data: Buffer) {
+  private _sendRawData(client: Client, data: Buffer, unbuffered: boolean) {
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
-      this._gatewayServer.sendTunnelData(soeClient, data);
+      if (unbuffered) {
+        this._gatewayServer.sendUnbufferedTunnelData(soeClient, data);
+      } else {
+        this._gatewayServer.sendTunnelData(soeClient, data);
+      }
     }
+  }
+  sendRawData(client: Client, data: Buffer) {
+    this._sendRawData(client, data, false);
+  }
+  sendUnbufferedRawData(client: Client, data: Buffer) {
+    this._sendRawData(client, data, true);
   }
   sendChatText(client: Client, message: string, clearChat = false) {
     if (clearChat) {
@@ -3822,13 +3914,28 @@ export class ZoneServer2016 extends EventEmitter {
       refreshTimeout && client.savePositionTimer.refresh();
     }
   }
-  sendDataToAll(packetName: h1z1PacketsType, obj: any) {
+  private _sendDataToAll(
+    packetName: h1z1PacketsType,
+    obj: any,
+    unbuffered: boolean
+  ) {
     const data = this._protocol.pack(packetName, obj);
     if (data) {
       for (const a in this._clients) {
-        this.sendRawData(this._clients[a], data);
+        if (unbuffered) {
+          this.sendUnbufferedRawData(this._clients[a], data);
+        } else {
+          this.sendRawData(this._clients[a], data);
+        }
       }
     }
+  }
+
+  sendDataToAll(packetName: h1z1PacketsType, obj: any) {
+    this._sendDataToAll(packetName, obj, false);
+  }
+  sendUnbufferedDataToAll(packetName: h1z1PacketsType, obj: any) {
+    this._sendDataToAll(packetName, obj, true);
   }
   dropVehicleManager(client: Client, vehicleGuid: string) {
     this.sendManagedObjectResponseControlPacket(client, {
@@ -3869,7 +3976,7 @@ export class ZoneServer2016 extends EventEmitter {
     playerPosition: Float32Array
   ): boolean {
     return !isPosInRadius(
-      (element.npcRenderDistance || this._npcRenderDistance) + 5,
+      element.npcRenderDistance || this._charactersRenderDistance,
       playerPosition,
       element.state.position
     );

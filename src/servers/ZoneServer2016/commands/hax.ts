@@ -191,8 +191,8 @@ const hax: any = {
     let locationPosition;
     switch (args[1]) {
       case "farm":
-        locationPosition = new Float32Array([-696.48,13.86,-1847.15, 1]);
-        break
+        locationPosition = new Float32Array([-696.48, 13.86, -1847.15, 1]);
+        break;
       case "zimms":
         locationPosition = new Float32Array([2209.17, 47.42, -1011.48, 1]);
         break;

@@ -492,7 +492,7 @@ export class ZoneServer2015 extends EventEmitter {
     data: Buffer,
     flags: number
   ) {
-    const packet = this._protocol.parse(data, flags, true);
+    const packet = this._protocol.parse(data, flags);
     if (packet) {
       this.emit("data", null, client, packet);
     } else {

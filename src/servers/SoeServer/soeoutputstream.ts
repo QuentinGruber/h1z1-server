@@ -45,7 +45,7 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
-  write(data: Buffer): void {
+  write(data: Buffer, unbuffered: boolean = false): void {
     if (this._useEncryption) {
       data = Buffer.from(this._rc4.encrypt(data));
 
@@ -58,7 +58,7 @@ export class SOEOutputStream extends EventEmitter {
     if (data.length <= this._fragmentSize) {
       this._sequence.increment();
       this.addToCache(this._sequence.get(), data, false);
-      this.emit("data", null, data, this._sequence.get(), false);
+      this.emit("data", null, data, this._sequence.get(), false, unbuffered);
     } else {
       const header = Buffer.allocUnsafe(4);
       header.writeUInt32BE(data.length, 0);
@@ -68,7 +68,14 @@ export class SOEOutputStream extends EventEmitter {
         const fragmentData = data.slice(i, i + this._fragmentSize);
         this.addToCache(this._sequence.get(), fragmentData, true);
 
-        this.emit("data", null, fragmentData, this._sequence.get(), true);
+        this.emit(
+          "data",
+          null,
+          fragmentData,
+          this._sequence.get(),
+          true,
+          unbuffered
+        );
       }
     }
   }
@@ -78,9 +85,7 @@ export class SOEOutputStream extends EventEmitter {
     while (this._lastAck.get() !== sequence + 1) {
       const lastAck = this._lastAck.get();
       this.removeFromCache(lastAck);
-      if (unAckData.has(lastAck)) {
-        unAckData.delete(lastAck);
-      }
+      unAckData.delete(lastAck);
       this._lastAck.increment();
     }
   }

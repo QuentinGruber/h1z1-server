@@ -99,6 +99,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      server.setGodMode(client, true);
       server.sendData(client, "ClientBeginZoning", {
         position: client.character.state.position,
         rotation: client.character.state.lookAt,
@@ -131,9 +132,11 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      server.tempGodMode(client, 3000);
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
       if (client.firstLoading) {
+        server.setGodMode(client, false);
         setTimeout(() => {
           server.sendData(client, "POIChangeMessage", {
             // welcome POI message
@@ -246,7 +249,10 @@ export class zonePacketHandlers {
         damage = packet.data.damage,
         vehicle = server._vehicles[characterId];
       if (characterId === client.character.characterId) {
-        server.playerDamage(client, damage * 5);
+        if (!client.vehicle.mountedVehicle) {
+          // if not mounted
+          server.playerDamage(client, damage * 5);
+        }
       } else if (vehicle) {
         server.damageVehicle(damage / 50, vehicle);
         //server.DTOhit(client, packet);
@@ -409,24 +415,6 @@ export class zonePacketHandlers {
               _doors: doors,
               _props: props,
             } = server;
-            const delta = Date.now() - server._startTime;
-            const datakur = new Date(
-              (server._serverTime + delta) * server._timeMultiplier
-            );
-            const monthNames = [
-              "January",
-              "February",
-              "March",
-              "April",
-              "May",
-              "June",
-              "July",
-              "August",
-              "September",
-              "October",
-              "November",
-              "December",
-            ];
             const serverVersion = require("../../../package.json").version;
             server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
             server.sendChatText(
@@ -443,18 +431,10 @@ export class zonePacketHandlers {
                 props
               )} vehicles : ${_.size(vehicles)}`
             );
+            const uptime = new Date(Date.now() - server._startTime);
             server.sendChatText(
               client,
-              "Gametime: " +
-                datakur.getUTCDate() +
-                " " +
-                monthNames[datakur.getUTCMonth()] +
-                " " +
-                (datakur.getUTCFullYear() + 50) +
-                ", " +
-                datakur.getUTCHours() +
-                ":" +
-                datakur.getUTCMinutes()
+              `Uptime: ${uptime.getUTCHours()}h ${uptime.getUTCMinutes()}m`
             );
             break;
           }
@@ -733,7 +713,7 @@ export class zonePacketHandlers {
           if (
             !client.posAtLastRoutine ||
             !isPosInRadius(
-              server._npcRenderDistance / 2.5,
+              server._charactersRenderDistance / 2.5,
               client.character.state.position,
               client.posAtLastRoutine
             )
@@ -892,29 +872,15 @@ export class zonePacketHandlers {
             });
           }
           for (const a in vehicle.seats) {
-            server.sendDataToAllWithSpawnedEntity(
-              server._characters,
-              vehicle.seats[a],
-              "Mount.DismountResponse",
-              {
-                // dismounts character
-                characterId: vehicle.seats[a],
-              }
-            );
             const seatId = vehicle.getCharacterSeat(vehicle.seats[a]);
-            server.sendDataToAllWithSpawnedEntity(
-              server._characters,
-              vehicle.seats[a],
-              "Mount.MountResponse",
-              {
-                // mounts character
-                characterId: vehicle.seats[a],
-                vehicleGuid: vehicle.characterId, // vehicle guid
-                seatId: seatId,
-                unknownDword3: seatId === "0" ? 1 : 0, //isDriver
-                identity: {},
-              }
-            );
+            server.sendData(client, "Mount.MountResponse", {
+              // mounts character
+              characterId: vehicle.seats[a],
+              vehicleGuid: vehicle.characterId, // vehicle guid
+              seatId: seatId,
+              unknownDword3: seatId === "0" ? 1 : 0, //isDriver
+              identity: {},
+            });
           }
 
           if (vehicle.destroyedEffect != 0) {

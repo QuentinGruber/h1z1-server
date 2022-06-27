@@ -20,7 +20,7 @@ export class BaseEntity {
     rotation: Float32Array;
   };
   scale = new Float32Array([1, 1, 1, 1]);
-  npcRenderDistance = 100; // default in case it doesn't get set in extending class
+  npcRenderDistance?: number; // when undefined, use the zoneserver._charactersRenderDistance value
   constructor(
     characterId: string,
     transientId: number,
