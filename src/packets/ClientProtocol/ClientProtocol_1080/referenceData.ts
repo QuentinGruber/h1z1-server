@@ -14,7 +14,6 @@
 import DataSchema from "h1z1-dataschema";
 import { LZ4 } from "../../../utils/utils";
 import { firemodesSchema, packVehicleReferenceData, parseVehicleReferenceData } from "./shared";
-import { profileSchema } from "./shared";
 
 const weaponDefinitionSchema: any[] = [
   {

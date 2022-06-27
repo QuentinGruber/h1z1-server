@@ -456,6 +456,10 @@ export interface characterEquipment {
   decalAlias?: string;
 }
 
+export interface weaponItem {
+  ammoCount: number;
+}
+
 export interface inventoryItem {
   itemDefinitionId: number;
   slotId: number;
@@ -463,6 +467,8 @@ export interface inventoryItem {
   containerGuid: string;
   currentDurability: number;
   stackCount: number;
+  durability: number;
+  weapon?: weaponItem;
 }
 
 export interface loadoutItem extends inventoryItem {

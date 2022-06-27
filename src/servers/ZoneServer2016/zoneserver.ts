@@ -2539,10 +2539,10 @@ export class ZoneServer2016 extends EventEmitter {
         return [{ ammoSlot: 5 }];
     }
     
-  };
+  }
 
   getItemWeaponData(slot: inventoryItem) {
-    if(this.isWeapon(slot.itemDefinitionId)) {
+    if(slot.weapon) {
       return {
         isWeapon: true, // not sent to client, only used as a flag for pack function
         unknownData1: {
@@ -2550,7 +2550,7 @@ export class ZoneServer2016 extends EventEmitter {
         },
         unknownData2: {
           ammoSlots: this.getWeaponAmmoSlot(slot.itemDefinitionId),
-          unknownArray2: [{ // certain weaponDefinitionIds crash the client
+          unknownArray2: [{
             weaponDefinitionId: this.getItemDefinition(slot.itemDefinitionId).PARAM1,
             unknownArray1: [
               {
@@ -2632,7 +2632,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   addItem(client: Client, item: inventoryItem, containerDefinitionId: number) {
-    const itemDef = this.getItemDefinition(item.itemDefinitionId);
     this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
       data: this.pGetItemData(client, item, containerDefinitionId),
@@ -2830,14 +2829,22 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     const generatedGuid = `0x${this.generateItemGuid().toString(16)}`;
-    return {
+    let itemData = {
       itemDefinitionId: itemDefinitionId,
       slotId: 0,
       itemGuid: generatedGuid,
       containerGuid: "0x0",
       currentDurability: 2000,
       stackCount: count,
+      durability: 0,
     };
+    if(this.isWeapon(itemDefinitionId)) {
+      const item = {
+        ...itemData,
+        weapon: {ammoCount: 5} // default ammo count until we have a method to get max ammo count from definition
+      }
+    }
+    return itemData;
   }
 
   isWeapon(itemDefinitionId: number): boolean {
