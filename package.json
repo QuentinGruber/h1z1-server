@@ -14,8 +14,6 @@
     "h1z1-server-demo-2016": "scripts/h1z1-server-demo-2016.js"
   },
   "dependencies": {
-    "@swc/cli": "^0.1.57",
-    "@swc/core": "^1.2.206",
     "debug": "4.3.4",
     "h1emu-core": "^0.8.13",
     "h1z1-dataschema": "^1.5.12",
