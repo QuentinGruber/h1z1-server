@@ -2911,27 +2911,30 @@ export class ZoneServer2016 extends EventEmitter {
           loadoutId === slot.LOADOUT_ID
       );
     let slot = loadoutSlotItemClass?.SLOT;
-    if (!slot) return 0;
-    if (itemDef.ITEM_CLASS == 25036) {
-      // weapon
-      if (character._loadout[slot]?.itemDefinitionId) {
-        // primary
-        slot = 3; // secondary
-      }
-      if (slot == 3 && character._loadout[slot]?.itemDefinitionId) {
-        // secondary
-        slot = 4; // tertiary
-      }
-    } else if (itemDef.ITEM_CLASS == 25054) {
-      // item 1 / item 2
-      if (character._loadout[slot]?.itemDefinitionId) {
-        // item 1
-        slot = 41; // item 2
-      }
+    if (!slot || character._loadout[slot]?.itemDefinitionId) {
+      return 0;
     }
-
-    if (character._loadout[slot]?.itemDefinitionId) {
-      slot = 0;
+    switch(itemDef.ITEM_CLASS) {
+      case 25036: // long weapons
+      case 4096: // pistols
+      case 4098: // melees
+      case 25037: // melees
+        if (character._loadout[slot]?.itemDefinitionId) {
+          // primary
+          slot = 3; // secondary
+        }
+        if (slot == 3 && character._loadout[slot]?.itemDefinitionId) {
+          // secondary
+          slot = 4; // tertiary
+        }
+        break;
+      case 25054: // item1/item2 slots
+      case 25054:
+        if (character._loadout[slot]?.itemDefinitionId) {
+          // item 1
+          slot = 41; // item 2
+        }
+        break;
     }
     return slot;
   }
