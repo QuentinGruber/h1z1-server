@@ -268,7 +268,7 @@ const weaponPackets: any = [
     0x8322, 
     {
       fields: [
-        { name: "bytes", type: "bytes", length: 99 },
+        { name: "materialType", type: "uint32", defaultValue: 0 },
       ]
     },
   ],

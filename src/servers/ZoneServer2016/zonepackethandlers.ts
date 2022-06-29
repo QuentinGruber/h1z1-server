@@ -1912,6 +1912,7 @@ export class zonePacketHandlers {
             debug("ProjectileContactReport");
             break;
           case "Weapon.MeleeHitMaterial":
+            server.sendAlert(client, `MaterialType: ${p.packet.materialType}`);
             debug("MeleeHitMaterial");
             break;
           case "Weapon.AimBlockedNotify":
