@@ -16,6 +16,7 @@ const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
+const Z1_props = require("../../../../data/2016/zoneData/Z1_props.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 import {
   _,
@@ -29,6 +30,7 @@ import { Vehicle2016 } from "./../classes/vehicle";
 import { inventoryItem } from "types/zoneserver";
 import { ItemObject } from "./itemobject";
 import { DoorEntity } from "./doorentity";
+import { propEntity } from "./propEntity";
 import { Npc } from "./npc";
 const debug = require("debug")("ZoneServer");
 
@@ -181,6 +183,25 @@ export class WorldObjectManager {
     );
     if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;
   }
+  
+  createProps(server: ZoneServer2016) {
+        Z1_props.forEach((propType: any) => {
+            propType.instances.forEach((propInstance: any) => {
+                const characterId = generateRandomGuid();
+                server._props[characterId] = new propEntity(
+                    characterId,
+                    0, // is transient even used for anything else than pos upd packets?
+                    propInstance.modelId,
+                    propInstance.position,
+                    propInstance.rotation,
+                    propInstance.scale,
+                    propInstance.id,
+                    propType.renderDistance,
+                );
+            });
+        });
+        debug("All props created");
+    }
 
   createDoor(
     server: ZoneServer2016,
