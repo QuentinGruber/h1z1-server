@@ -249,9 +249,11 @@ export class ZoneServer2016 extends EventEmitter {
       "tunneldata",
       (err: string, client: SOEClient, data: Buffer, flags: number) => {
         const packet = this._protocol.parse(data, flags);
+        /*
         if(data[0] == 0x83) {
           console.log(data.toString('hex').match(/../g)?.join(' '));
         }
+        */
         if (packet) {
           this.emit("data", null, this._clients[client.sessionId], packet);
         } else {
@@ -3393,6 +3395,18 @@ export class ZoneServer2016 extends EventEmitter {
         count: count,
       });
     }
+  }
+
+
+  updateLoadoutItem(
+    client: Client,
+    item: loadoutItem
+  ) {
+    this.sendData(client, "ClientUpdate.ItemUpdate", {
+      characterId: client.character.characterId,
+      data: this.pGetItemData(client, item, 101),
+    });
+    //this.updateLoadout(client);
   }
 
   updateContainerItem(

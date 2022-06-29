@@ -1857,8 +1857,66 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("Weapon.Weapon");
-      console.log(packet);
-      console.log(packet.data.weaponPacket.packet);
+      switch(packet.data.weaponPacket.packetName) {
+        case "Weapon.MultiWeapon":
+          packet.data.weaponPacket.packet.packets.forEach((p: any) => {
+            handleWeaponPacket(p);
+          });
+          break;
+        default:
+          handleWeaponPacket(packet.data.weaponPacket);
+          break;
+      }
+      function handleWeaponPacket(p: any) {
+        switch(p.packetName) {
+          case "Weapon.FireStateUpdate":
+            debug("Weapon.FireStateUpdate");
+            break;
+          case "Weapon.Fire":
+            debug("Weapon.Fire");
+            break;
+          case "Weapon.ProjectileHitReport":
+            debug("Weapon.ProjectileHitReport");
+            break;
+          case "Weapon.ReloadRequest":
+            server.sendData(client, "Weapon.Weapon", {
+              weaponPacket: {
+                packetName: "Weapon.Reload",
+                gameTime: packet.data.weaponPacket.gameTime,
+                packet: {
+                  guid: p.packet.characterId,
+                  unknownDword1: 100,
+                  ammoCount: 5,
+                  unknownDword3: 100,
+                  characterId: "0x2",
+                }
+              }
+            })
+            server.updateLoadoutItem(client, client.character.getEquippedWeapon())
+            debug("Weapon.ReloadRequest");
+            break;
+          case "Weapon.SwitchFireModeRequest":
+            debug("SwitchFireModeRequest");
+            break;
+          case "Weapon.WeaponFireHint":
+            debug("WeaponFireHint");
+            break;
+          case "ProjectileContactReport":
+            debug("ProjectileContactReport");
+            break;
+          case "Weapon.MeleeHitMaterial":
+            debug("MeleeHitMaterial");
+            break;
+          case "Weapon.AimBlockedNotify":
+            debug("AimBlockedNotify");
+            break;
+          default:
+            debug(`Unhandled weapon packet type: ${p.packetName}`);
+            break;
+        }
+        console.log(p)
+      }
+      
     };
     //#endregion
   }
@@ -2008,6 +2066,7 @@ export class zonePacketHandlers {
         break;
       case "Weapon.Weapon":
         this.weapon(server, client, packet);
+        break;
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");

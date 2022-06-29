@@ -460,12 +460,13 @@ export class H1Z1Protocol {
             offset = 1;
             break;
           }
-          case this.weaponOpcode: {
+         /* case this.weaponOpcode: {
             packet = H1Z1Packets.Packets[this.weaponOpcode];
             offset = 1;
-          }
-          default: {
-            console.error(`unknown packet use flag 3 : ${opCode}`);
+            break;
+          }*/
+          default: {// temp logic so zonepackethandlers still works the same for now
+            opCode!=0x83?console.error(`unknown packet use flag 3 : ${opCode}`):0;
             [packet, offset] = this.resolveOpcode(opCode, data);
             break;
           }

@@ -23,19 +23,19 @@ import { itemWeaponDetailSubSchema1 } from "./shared";
 
 const weaponPackets: any = [
   [
-    "Weapon.FireStateUpdate",
+    "Weapon.FireStateUpdate", // correct length
     0x8301,
     {
       fields: [
-        { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-      ],
+        { name: "guid", type: "uint64string", length: "" },
+        { name: "unknownByte1", type: "uint8", length: 0 },
+        { name: "unknownByte2", type: "uint8", length: 0 },
+      ]
     },
   ],
   ["Weapon.FireStateTargetedUpdate", 0x8302, {}],
   [
-    "Weapon.Fire",
+    "Weapon.Fire", // done
     0x8303,
     {
       fields: [
@@ -49,17 +49,43 @@ const weaponPackets: any = [
   ],
   ["Weapon.FireWithDefinitionMapping", 0x8304, {}],
   ["Weapon.FireNoProjectile", 0x8305, {}],
-  ["Weapon.ProjectileHitReport", 0x8306, {}],
+  [
+    "Weapon.ProjectileHitReport", 
+    0x8306, 
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+      ]
+    },
+  ],
   [
     "Weapon.ReloadRequest",
     0x8307,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+      ]
     },
   ],
-  ["Weapon.Reload", 0x8308, {}],
+  [
+    "Weapon.Reload", 
+    0x8308, 
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "ammoCount", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+      ]
+    }
+  ],
   ["Weapon.ReloadInterrupt", 0x8309, {}],
-  ["Weapon.ReloadComplete", 0x830a, {}],
   ["Weapon.ReloadRejected", 0x830b, {}],
   [
     "Weapon.SwitchFireModeRequest",
@@ -70,7 +96,7 @@ const weaponPackets: any = [
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "unknownByte2", type: "uint8", defaultValue: 0 },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
-      ],
+      ]
     },
   ],
   ["Weapon.LockOnGuidUpdate", 0x830d, {}],
@@ -154,12 +180,22 @@ const weaponPackets: any = [
   ["Weapon.RemoteWeapon.ProjectileLaunchHint", 0x831505, {}],
   ["Weapon.RemoteWeapon.ProjectileDetonateHint", 0x831506, {}],
   ["Weapon.RemoteWeapon.ProjectileRemoteContactReport", 0x831507, {}],
-
   ["Weapon.ChamberRound", 0x8316, {}],
   ["Weapon.GuidedSetNonSeeking", 0x8317, {}],
   ["Weapon.ChamberInterrupt", 0x8318, {}],
   ["Weapon.GuidedExplode", 0x8319, {}],
-  ["Weapon.DestroyNpcProjectile", 0x831a, {}],
+  [
+    "Weapon.DestroyNpcProjectile", 
+    0x831a, 
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+      ]
+    }
+  ],
   ["Weapon.WeaponToggleEffects", 0x831b, {}],
   [
     "Weapon.Reset",
@@ -172,7 +208,15 @@ const weaponPackets: any = [
       ],
     },
   ],
-  ["Weapon.ProjectileSpawnNpc", 0x831d, {}],
+  [
+    "Weapon.ProjectileSpawnNpc", 
+    0x831d, 
+    {
+      fields: [
+        { name: "bytes", type: "bytes", length: 5 },
+      ]
+    }
+  ],
   ["Weapon.FireRejected", 0x831e, {}],
   [
     "Weapon.MultiWeapon",
@@ -188,14 +232,65 @@ const weaponPackets: any = [
       ],
     },
   ],
-  ["Weapon.WeaponFireHint", 0x8320, {}],
-  ["Weapon.ProjectileContactReport", 0x8321, {}],
-  ["Weapon.MeleeHitMaterial", 0x8322, {}],
+  [
+    "Weapon.WeaponFireHint", 
+    0x8320, 
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+      ]
+    }
+  ],
+  [
+    "Weapon.ProjectileContactReport", 
+    0x8321, 
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+        { name: "unknownFloat1", type: "float", defaultValue: 0 },
+        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+        { name: "unknownFloatVector1", type: "floatvector3", defaultValue: [0, 0, 0] },
+        { name: "unknownDword7", type: "int32", defaultValue: 0 },
+        { name: "unknownWord1", type: "uint16", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+      ]
+    },
+  ],
+  [
+    "Weapon.MeleeHitMaterial", 
+    0x8322, 
+    {
+      fields: [
+        { name: "bytes", type: "bytes", length: 99 },
+      ]
+    },
+  ],
   ["Weapon.ProjectileSpawnAttachedNp", 0x8323, {}],
   ["Weapon.AddDebugLogEntry", 0x8324, {}],
   ["Weapon.DebugZoneState", 0x8325, {}],
-  ["Weapon.AimBlockedNotify", 0x8326, {}],
-  ["Weapon.GrenadeBounceReport", 0x8327, {}],
+  ["Weapon.GrenadeBounceReport", 0x8326, {}],
+  [
+    "Weapon.AimBlockedNotify", 
+    0x8327, 
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "0" },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+      ]
+    },
+  ],
 ];
 
 const [weaponPacketTypes, weaponPacketDescriptors] =

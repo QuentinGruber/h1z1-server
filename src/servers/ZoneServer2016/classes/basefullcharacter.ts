@@ -128,6 +128,10 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return 0;
   }
 
+  getEquippedWeapon(): loadoutItem {
+    return this._loadout[this.currentLoadoutSlot];
+  }
+
   pGetEquipmentSlot(slotId: number) {
     const slot = this._equipment[slotId];
     return slot

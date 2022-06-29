@@ -2484,6 +2484,7 @@ export type h1z1PacketsType =
   | "ZoneSetting.Data"
   | "ClientPath.Request"
   | "ClientPath.Reply";
+  
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"
