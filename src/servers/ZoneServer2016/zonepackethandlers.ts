@@ -1876,6 +1876,12 @@ export class zonePacketHandlers {
             debug("Weapon.Fire");
             break;
           case "Weapon.ProjectileHitReport":
+            server.sendAlert(client, `HIT: ${p.packet.hitReport.hitLocation}`);
+            switch(p.packet.hitReport.hitLocation) {
+              case "HEAD":
+                server.sendAlert(client, "HEADSHOT");
+                break;
+            }
             debug("Weapon.ProjectileHitReport");
             break;
           case "Weapon.ReloadRequest":
@@ -1892,7 +1898,8 @@ export class zonePacketHandlers {
                 }
               }
             })
-            server.updateLoadoutItem(client, client.character.getEquippedWeapon())
+            server.updateLoadoutItem(client, client.character._loadout[1])
+            server.updateLoadout(client)
             debug("Weapon.ReloadRequest");
             break;
           case "Weapon.SwitchFireModeRequest":

@@ -1938,6 +1938,12 @@ export class ZoneServer2016 extends EventEmitter {
     this._sendData(client, packetName, obj, false);
   }
 
+  sendAlert(client: Client, message: string) {
+    this._sendData(client, "ClientUpdate.TextAlert", {
+      message: message
+    }, false);
+  }
+
   sendChat(client: Client, message: string) {
     if (!this._soloMode) {
       this.sendDataToAll("Chat.ChatText", {
@@ -3582,9 +3588,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.removeInventoryItem(client, item, 1);
       this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
     } else {
-      this.sendData(client, "ClientUpdate.TextAlert", {
-        message: "There is no water source nearby",
-      });
+      this.sendAlert(client, "There is no water source nearby");
     }
   }
 
