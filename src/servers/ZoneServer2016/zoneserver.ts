@@ -1480,6 +1480,14 @@ export class ZoneServer2016 extends EventEmitter {
 
   customizeDTO(client: Client) {
     const DTOArray: any = [];
+    for (const object in this._props) {
+            const prop = this._props[object];
+            const propInstance = {
+                objectId: prop.spawnerId,
+                unknownString1: "Hospital_Door01_Placer.adr",
+            };
+            DTOArray.push(propInstance);
+        }
     for (const object in this._speedTrees) {
       const DTO = this._speedTrees[object];
       const DTOinstance = {
