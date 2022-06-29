@@ -54,12 +54,7 @@ const weaponPackets: any = [
     0x8306, 
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "hitReport", type: "custom", parser: parseHitReportPacket },
       ]
     },
   ],
@@ -287,7 +282,7 @@ const weaponPackets: any = [
     {
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "aimBlocked", type: "boolean", defaultValue: false },
       ]
     },
   ],
@@ -374,4 +369,35 @@ export function packWeaponPacket(obj: any) {
     throw "Unknown weapon packet type: " + subType;
   }
   return data;
+}
+
+const hitReportSchema = [
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "characterId", type: "uint64string", defaultValue: "0" },
+  { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
+  { name: "hitLocationLen", type: "uint8", defaultValue: 0 },
+  { name: "unknownFlag1", type: "uint8", defaultValue: 0 },
+  { name: "hitLocation", type: "nullstring", defaultValue: "" },
+];
+
+function parseHitReportPacket(data: Buffer, offset: number) {
+  const obj: any = DataSchema.parse(hitReportSchema, data, offset).result;
+  offset += 26 + obj.hitLocationLen
+  let byteLen = 8;
+  if(obj.hitLocationLen) {
+    byteLen = 9;
+  }
+  obj.unknownBytes = DataSchema.parse([
+    { name: "unknownBytes", type: "bytes", length: byteLen },
+    
+  ], data, 0).result;
+  offset += byteLen;
+  
+  obj.totalShotCount = data.readUint8(offset)
+  offset += 1;
+  obj.unknownByte2 = data.readUint8(offset)
+  return {
+    value: obj,
+    length: data.length - offset,
+  };
 }

@@ -16,8 +16,6 @@ import {
   packItemWeaponData,
   packUnsignedIntWith2bitLengthValue,
   readUnsignedIntWith2bitLengthValue,
-} from "./shared";
-import {
   itemSchema,
   profileSchema,
   respawnLocationSchema,
