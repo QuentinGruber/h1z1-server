@@ -16,6 +16,7 @@ import { BaseFullCharacter } from "./basefullcharacter";
 export class Npc extends BaseFullCharacter {
   npcRenderDistance = 80;
   spawnerId: number;
+  flags = { a: 0, b: 127, c: 0 };
   constructor(
     characterId: string,
     transientId: number,

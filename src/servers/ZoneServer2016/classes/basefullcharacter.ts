@@ -32,6 +32,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   loadoutId = 0;
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
+  flags = { a: 0, b: 0, c: 0 };
   constructor(
     characterId: string,
     transientId: number,
