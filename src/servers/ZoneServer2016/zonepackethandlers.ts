@@ -1908,7 +1908,7 @@ export class zonePacketHandlers {
           case "Weapon.WeaponFireHint":
             debug("WeaponFireHint");
             break;
-          case "ProjectileContactReport":
+          case "Weapon.ProjectileContactReport":
             debug("ProjectileContactReport");
             break;
           case "Weapon.MeleeHitMaterial":
