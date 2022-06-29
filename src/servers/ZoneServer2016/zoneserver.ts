@@ -823,6 +823,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     // other entities are handled by worldRoutine
     this.worldObjectManager.createDoors(this);
+      this.worldObjectManager.createProps(this);
 
     if (!this._soloMode) {
       debug("Starting H1emuZoneServer");
@@ -914,6 +915,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.spawnCharacters(client);
       this.spawnObjects(client);
       this.spawnDoors(client);
+      this.spawnProps(client)
       this.spawnNpcs(client);
       this.spawnExplosives(client);
       this.spawnTraps(client);
@@ -1701,6 +1703,23 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
+  
+  spawnProps(client: Client) {
+        for (const characterId in this._props) {
+            const prop = this._props[characterId];
+            if (
+                isPosInRadius(
+                    prop.npcRenderDistance as number,
+                    client.character.state.position,
+                    prop.state.position
+                ) &&
+                !client.spawnedEntities.includes(prop)
+            ) {
+                this.addLightweightNpc(client, prop);
+                client.spawnedEntities.push(prop);
+            }
+        }
+    }
 
   spawnDoors(client: Client) {
     for (const characterId in this._doors) {
