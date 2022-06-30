@@ -1511,6 +1511,102 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
   }
+  
+  getEntityType(entityKey: string): number {
+        if (!!this._npcs[entityKey]) {
+            return 1;
+        } else if (!!this._vehicles[entityKey]) {
+            return 2;
+        } else if (!!this._characters[entityKey]) {
+            return 3;
+        } else {
+            return 0;
+        }
+    }
+
+    npcDamage(characterId: string, damage: number) {
+        if ((this._npcs[characterId].health -= damage) <= 0) {
+            this._npcs[characterId].flags.c = 127;
+            this.sendDataToAllWithSpawnedEntity(
+                this._npcs,
+                characterId,
+                "Character.StartMultiStateDeath",
+                {
+                    characterId: characterId,
+                }
+            );
+        }
+    }
+
+    registerHit(client: Client, packet: any) {
+        let damage = 2500;
+        switch (packet.hitReport.hitLocation.toLowerCase()) {
+            case 'head':
+                damage *= 4;
+                break;
+            case 'neck':
+                damage *= 2;
+                break;
+            case 'spineupper':
+            case 'spinemiddle':
+            case 'spinelower':
+                break;
+            case 'r_shoulder':
+            case 'l_shoulder':
+                damage *= 0.8;
+                break;
+            case 'l_elbow':
+            case 'r_elbow':
+                damage *= 0.6
+                break;
+            case 'l_wrist':
+            case 'r_wrist':
+                damage *= 0.6
+                break;
+            case 'l_hip':
+            case 'r_hip':
+                damage *= 0.8
+                break;
+            case 'l_knee':
+            case 'r_knee':
+                damage *= 0.6
+                break;
+            case 'l_ankle':
+            case 'r_ankle':
+                damage *= 0.6
+                break;
+            default:
+                break;
+        }
+        switch (this.getEntityType(packet.hitReport.characterId)) {
+            case 1:
+                this.npcDamage(packet.hitReport.characterId, damage);
+                break;
+            case 2:
+                this.damageVehicle(damage, this._vehicles[packet.hitReport.characterId])
+                break;
+            case 3:
+                for (const a in this._clients) {
+                    const c = this._clients[a];
+                    if (c.character.characterId === packet.hitReport.characterId) {
+                        if (c.character._equipment["1"].guid) {
+                            const item = c.character.getInventoryItem(
+                                c.character._equipment["1"].guid!
+                            );
+                            if (!item) return;
+                            const itemDef = this.getItemDefinition(item.itemDefinitionId);
+                            if (itemDef.DESCRIPTION_ID == 9114 || itemDef.DESCRIPTION_ID == 9945) {
+                                damage *= 0.7;
+                                this.removeInventoryItem(client, item, 1)
+                            }
+                        }
+                        this.playerDamage(c, damage);
+                    }
+                }
+                break;
+        }
+    }
+  
   playerDamage(client: Client, damage: number) {
     const character = client.character;
     if (
