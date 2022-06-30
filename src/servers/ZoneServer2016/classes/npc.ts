@@ -25,6 +25,7 @@ function getFlags(field: any) {
 }
 
 export class Npc extends BaseFullCharacter {
+    health: number;
     npcRenderDistance = 80;
     spawnerId: number;
     constructor(
@@ -40,5 +41,6 @@ export class Npc extends BaseFullCharacter {
         this.flags.a = getFlags([false, false, false, false, false, false, false, false]);
         this.flags.b = getFlags([false, false, false, false, true, false, false, false]);
         this.flags.c = getFlags([false, false, false, false, false, false, false, false]);
+        this.health = 10000;
     }
 }
