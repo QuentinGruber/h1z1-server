@@ -1876,7 +1876,7 @@ export class zonePacketHandlers {
             debug("Weapon.Fire");
             break;
           case "Weapon.ProjectileHitReport":
-            
+            server.registerHit(client, p.packet);
             switch(p.packet.hitReport.hitLocation) {
               case "":
                 server.sendAlert(client, "HIT: Vehicle");
