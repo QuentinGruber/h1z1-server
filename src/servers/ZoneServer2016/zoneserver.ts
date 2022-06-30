@@ -39,7 +39,7 @@ import {
   Weather2016,
 } from "../../types/zoneserver";
 import { h1z1PacketsType } from "../../types/packets";
-import { Character2016 as Character } from "./classes/character";
+import { Character2016 as Character, Character2016 } from "./classes/character";
 import {
   _,
   generateRandomGuid,
@@ -1068,10 +1068,13 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  killCharacter(client: Client) {
+  killCharacter(client: Client, killer: Character2016 | undefined = undefined) {
     const character = client.character;
     if (character.isAlive) {
       debug(character.name + " has died");
+      if(killer) {
+        this.sendAlertToAll(`${killer.name} has killed ${client.character.name}!`);
+      }
       client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
       this.updateCharacterState(
@@ -1542,6 +1545,7 @@ export class ZoneServer2016 extends EventEmitter {
         let damage = 2500;
         switch (packet.hitReport.hitLocation.toLowerCase()) {
             case 'head':
+            case 'glasses':
                 damage *= 4;
                 break;
             case 'neck':
@@ -1586,28 +1590,31 @@ export class ZoneServer2016 extends EventEmitter {
                 this.damageVehicle(damage, this._vehicles[packet.hitReport.characterId])
                 break;
             case 3:
-                for (const a in this._clients) {
-                    const c = this._clients[a];
-                    if (c.character.characterId === packet.hitReport.characterId) {
-                        if (c.character._equipment["1"].guid) {
-                            const item = c.character.getInventoryItem(
-                                c.character._equipment["1"].guid!
-                            );
-                            if (!item) return;
+              for (const a in this._clients) {
+                const c = this._clients[a];
+                if (c.character.characterId === packet.hitReport.characterId) {
+                    /*
+                    if (c.character._equipment["1"].guid) {
+                        const item = c.character.getInventoryItem(
+                            c.character._equipment["1"].guid!
+                        );
+                        if (item) {
                             const itemDef = this.getItemDefinition(item.itemDefinitionId);
                             if (itemDef.DESCRIPTION_ID == 9114 || itemDef.DESCRIPTION_ID == 9945) {
                                 damage *= 0.7;
                                 this.removeInventoryItem(client, item, 1)
                             }
                         }
-                        this.playerDamage(c, damage);
                     }
+                    */
+                    this.playerDamage(c, damage, client.character);
                 }
+              }
                 break;
         }
     }
   
-  playerDamage(client: Client, damage: number) {
+  playerDamage(client: Client, damage: number, killer: Character2016 | undefined = undefined) {
     const character = client.character;
     if (
       !client.character.godMode &&
@@ -1634,7 +1641,7 @@ export class ZoneServer2016 extends EventEmitter {
       character._resources[ResourceIds.HEALTH] -= damage;
       if (character._resources[ResourceIds.HEALTH] <= 0) {
         character._resources[ResourceIds.HEALTH] = 0;
-        this.killCharacter(client);
+        this.killCharacter(client, killer);
       }
       this.updateResource(
         client,
@@ -2036,6 +2043,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   sendAlert(client: Client, message: string) {
     this._sendData(client, "ClientUpdate.TextAlert", {
+      message: message
+    }, false);
+  }
+  sendAlertToAll(message: string) {
+    this._sendDataToAll("ClientUpdate.TextAlert", {
       message: message
     }, false);
   }
@@ -2636,9 +2648,13 @@ export class ZoneServer2016 extends EventEmitter {
   getWeaponAmmoSlot(itemDefId: number): Array<{}> {
     switch(itemDefId) {
       case 10:
-        return [{ ammoSlot: 31 }];
+        return [{ ammoSlot: 30 }];
+      case 2229:
+        return [{ ammoSlot: 30 }];
       case 1373:
         return [{ ammoSlot: 5 }];
+      case 2663:
+        return [{ ammoSlot: 6 }];
       default:
         return [{ ammoSlot: 5 }];
     }

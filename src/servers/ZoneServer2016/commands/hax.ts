@@ -635,6 +635,13 @@ const hax: any = {
       lighting: args[1],
       unknownBoolean3: false
     });
+  },
+  kit: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.lootItem(client, server.generateItem(1373), 1); // sniper
+    server.lootItem(client, server.generateItem(2663), 1); // shotgun
+    server.lootItem(client, server.generateItem(10), 1); // ar
+    server.lootItem(client, server.generateItem(2424), 10); // medkit
+    server.lootItem(client, server.generateItem(24), 10); // bandages
   }
   /*
   addallitems: function (server: ZoneServer2016, client: Client, args: any[]) {

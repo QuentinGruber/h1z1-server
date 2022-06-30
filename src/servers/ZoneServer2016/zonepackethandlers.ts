@@ -1882,13 +1882,14 @@ export class zonePacketHandlers {
                 server.sendAlert(client, "HIT: Vehicle");
                 break;
               case "HEAD":
+              case "GLASSES":
                 server.sendAlert(client, "HEADSHOT");
                 server.sendData(client, "Ui.ConfirmHit", {
                   hitType: {
                     isAlly: 0,
                     isHeadshot: 1,
                     damagedArmor: 0,
-                    crackedArmor: 0,
+                    crackedArmor: 1,
                   }
                 })
                 break;
