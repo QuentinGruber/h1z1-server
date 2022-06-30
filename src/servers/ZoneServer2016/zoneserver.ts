@@ -1542,11 +1542,13 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     registerHit(client: Client, packet: any) {
-        let damage = 2500;
+        let damage = 2500,
+        isHeadshot = 0;
         switch (packet.hitReport.hitLocation.toLowerCase()) {
             case 'head':
             case 'glasses':
                 damage *= 4;
+                isHeadshot = 1;
                 break;
             case 'neck':
                 damage *= 2;
@@ -1581,6 +1583,16 @@ export class ZoneServer2016 extends EventEmitter {
                 break;
             default:
                 break;
+        }
+        if(packet.hitReport.hitLocation) {
+          this.sendData(client, "Ui.ConfirmHit", {
+            hitType: {
+              isAlly: 0,
+              isHeadshot: isHeadshot,
+              damagedArmor: 0,
+              crackedArmor: 0,
+            }
+          });
         }
         switch (this.getEntityType(packet.hitReport.characterId)) {
             case 1:
