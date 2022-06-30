@@ -1558,7 +1558,7 @@ export class ZoneServer2016 extends EventEmitter {
             if (c.character._loadout['11']?.itemDefinitionId > 0) {
                 const itemDef = this.getItemDefinition(c.character._loadout['11']?.itemDefinitionId);
                 if (itemDef.DESCRIPTION_ID == 9114 || itemDef.DESCRIPTION_ID == 9945) {
-                    damage *= 0.25;
+                    damage *= 0.75;
                     const item = c.character.getInventoryItem(c.character._loadout['11'].itemGuid);
                     this.removeInventoryItem(c, item!, 1)
                 }
@@ -1574,11 +1574,11 @@ export class ZoneServer2016 extends EventEmitter {
         if (c.character._loadout['38']?.itemDefinitionId > 0) {
             const itemDef = this.getItemDefinition(c.character._loadout['38']?.itemDefinitionId);
             if (itemDef.DESCRIPTION_ID == 12073) {
-                damage *= 0.5;
+                damage *= 0.8;
                 const item = c.character.getInventoryItem(c.character._loadout['38'].itemGuid);
                 //this.removeInventoryItem(c, item!, 1) no durability system yet
             } else if (itemDef.DESCRIPTION_ID == 11151) {
-                damage *= 0.7;
+                damage *= 0.9;
                 const item = c.character.getInventoryItem(c.character._loadout['38'].itemGuid);
                // this.removeInventoryItem(c, item!, 1)
             }
@@ -1588,8 +1588,19 @@ export class ZoneServer2016 extends EventEmitter {
     
 
     registerHit(client: Client, packet: any) {
-        let damage = 2500,
-        isHeadshot = 0;
+        let damage: number,
+            isHeadshot = 0;
+        switch (client.character.getEquippedWeapon().itemDefinitionId) {
+            case Items.WEAPON_AR15:
+                damage = 2500;
+                break;
+            case Items.WEAPON_308:
+                damage = 8000;
+                break;
+            default:
+                damage = 1000;
+                break;
+        }
         switch (packet.hitReport.hitLocation.toLowerCase()) {
             case 'head':
             case 'glasses':
