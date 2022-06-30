@@ -2911,9 +2911,7 @@ export class ZoneServer2016 extends EventEmitter {
           loadoutId === slot.LOADOUT_ID
       );
     let slot = loadoutSlotItemClass?.SLOT;
-    if (!slot || character._loadout[slot]?.itemDefinitionId) {
-      return 0;
-    }
+    if (!slot ) return 0;
     switch(itemDef.ITEM_CLASS) {
       case 25036: // long weapons
       case 4096: // pistols
@@ -2936,6 +2934,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
         break;
     }
+    if(character._loadout[slot]?.itemDefinitionId) return 0;
     return slot;
   }
 

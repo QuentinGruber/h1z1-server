@@ -1876,10 +1876,32 @@ export class zonePacketHandlers {
             debug("Weapon.Fire");
             break;
           case "Weapon.ProjectileHitReport":
-            server.sendAlert(client, `HIT: ${p.packet.hitReport.hitLocation}`);
+            
             switch(p.packet.hitReport.hitLocation) {
+              case "":
+                server.sendAlert(client, "HIT: Vehicle");
+                break;
               case "HEAD":
                 server.sendAlert(client, "HEADSHOT");
+                server.sendData(client, "Ui.ConfirmHit", {
+                  hitType: {
+                    isAlly: 0,
+                    isHeadshot: 1,
+                    damagedArmor: 0,
+                    crackedArmor: 0,
+                  }
+                })
+                break;
+              default:
+                server.sendAlert(client, `HIT: ${p.packet.hitReport.hitLocation}`);
+                server.sendData(client, "Ui.ConfirmHit", {
+                  hitType: {
+                    isAlly: 0,
+                    isHeadshot: 0,
+                    damagedArmor: 0,
+                    crackedArmor: 0,
+                  }
+                })
                 break;
             }
             debug("Weapon.ProjectileHitReport");

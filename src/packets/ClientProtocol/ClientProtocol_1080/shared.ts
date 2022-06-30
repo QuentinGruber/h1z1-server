@@ -2441,3 +2441,20 @@ export const loadoutSlotsSchema = [
 export const firemodesSchema = [
   { name: "FIRE_MODE_ID", type: "uint32", defaultValue: 0 },
 ];
+
+export function packTargetData(obj: any) {
+  let data = Buffer.alloc(1);
+  data.writeUint8(obj["useTargetData"]?1:0, 0);
+  if(obj["useTargetData"]) {
+    let targetData = DataSchema.pack([
+      {
+        name: "position",
+        type: "floatvector4",
+        defaultValue: [0, 0, 0, 0],
+      },
+      { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+    ], data)
+    return Buffer.concat([data, targetData.data]);
+  }
+  return data;
+}
