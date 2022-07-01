@@ -286,7 +286,7 @@ export class zonePacketHandlers {
       if (characterId === client.character.characterId) {
         if (!client.vehicle.mountedVehicle) {
           // if not mounted
-          server.playerDamage(client, damage * 5);
+          server.playerDamage(client, damage);
         }
       } else if (vehicle) {
         server.damageVehicle(damage / 50, vehicle);

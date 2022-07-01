@@ -943,7 +943,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "InitializationParameters", {
       ENVIRONMENT: "LIVE",
       unknownString1: "",
-      rulesetDefinitions: [
+      rulesetDefinitions: [/*
         {
           unknownDword1: 1,
           unknownDword2: 1,
@@ -961,13 +961,13 @@ export class ZoneServer2016 extends EventEmitter {
             }
           ]
         },
-        /*{
+        {
           unknownDword1: 3,
           unknownDword2: 3,
           ruleset: "Headshots",
           unknownString2: "",
           rulesets: []
-        },*/
+        },
         {
           unknownDword1: 4,
           unknownDword2: 4,
@@ -1000,7 +1000,7 @@ export class ZoneServer2016 extends EventEmitter {
           rulesets: [
             
           ]
-        },
+        },*/
       ]
     });
     
@@ -1036,14 +1036,14 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.sendData(client, "ClientGameSettings", {
       Unknown2: 0,
-      interactGlowAndDist: 4,// 3
+      interactGlowAndDist: 3,// 3
       unknownBoolean1: true,
       timescale: 1.0,
-      Unknown4: 1,
+      enableWeapons: 1,
       Unknown5: 1,
       unknownFloat1: 0.0,
       unknownFloat2: 15,
-      velDamageMulti: 11,
+      damageMultiplier: 11,
     });
 
     this.sendCharacterData(client);
