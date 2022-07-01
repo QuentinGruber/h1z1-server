@@ -1905,10 +1905,8 @@ export class zonePacketHandlers {
               weaponItem.weapon.ammoCount = weaponItem.weapon.ammoCount + reloadAmount;
               server.switchLoadoutSlot(client, client.character._loadout[client.character.currentLoadoutSlot]);
               server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
-              //server.updateLoadoutItem(client, client.character._loadout[client.character.currentLoadoutSlot]);
             }, server.getWeaponReloadTime(weaponItem.itemDefinitionId));
             
-            //server.updateLoadout(client)
             debug("Weapon.ReloadRequest");
             break;
           case "Weapon.ReloadInterrupt": 
