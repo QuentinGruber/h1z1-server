@@ -151,8 +151,10 @@ export class ZoneServer2016 extends EventEmitter {
   plantingManager: PlantingManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
+  _weaponDefinitions: { [weaponDefinitionId: number]: any } = weaponDefinitions.WEAPON_DEFINITIONS;
   _itemDefinitionIds: any[] = Object.keys(this._itemDefinitions);
   itemDefinitionsCache: any;
+  weaponDefinitionsCache: any;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
   _containerDefinitionIds: any[] = Object.keys(this._containerDefinitions);
@@ -846,6 +848,23 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  packWeaponDefinitions() {
+    this.weaponDefinitionsCache = this._protocol.pack("ReferenceData.WeaponDefinitions", {
+      // cache weaponDefinitions so server doesn't have to spend time packing for each
+      // character login
+      data: {
+        definitionsData: {
+          WEAPON_DEFINITIONS: Object.values(weaponDefinitions.WEAPON_DEFINITIONS),
+          FIRE_GROUP_DEFINITIONS: Object.values(weaponDefinitions.FIRE_GROUP_DEFINITIONS),
+          FIRE_MODE_DEFINITIONS: Object.values(weaponDefinitions.FIRE_MODE_DEFINITIONS),
+          PLAYER_STATE_GROUP_DEFINITIONS: Object.values(weaponDefinitions.PLAYER_STATE_GROUP_DEFINITIONS),
+          FIRE_MODE_PROJECTILE_MAPPING_DATA: Object.values(weaponDefinitions.FIRE_MODE_PROJECTILE_MAPPING_DATA),
+          AIM_ASSIST_DEFINITIONS: Object.values(weaponDefinitions.AIM_ASSIST_DEFINITIONS),
+        }
+      }
+    });
+  }
+
   async setupServer(): Promise<void> {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
@@ -863,6 +882,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     this.packItemDefinitions();
+    this.packWeaponDefinitions();
 
     // other entities are handled by worldRoutine
     this.worldObjectManager.createDoors(this);
@@ -999,12 +1019,10 @@ export class ZoneServer2016 extends EventEmitter {
       this.packItemDefinitions();
     }
     //this.sendRawData(client, this.itemDefinitionsCache);
-    this.sendData(client, "ReferenceData.WeaponDefinitions", {
-      data: {
-        definitionsData: weaponDefinitions
-      }
-    });
-    
+    if (!this.weaponDefinitionsCache) {
+      this.packWeaponDefinitions();
+    }
+    this.sendRawData(client, this.weaponDefinitionsCache);
     // packet is just broken, idk why
     /*
     this.sendData(client, "ClientBeginZoning", {
@@ -2921,6 +2939,10 @@ export class ZoneServer2016 extends EventEmitter {
   getItemDefinition(itemDefinitionId: number) {
     return this._itemDefinitions[itemDefinitionId];
   }
+  
+  getWeaponDefinition(weaponDefinitionId: number) {
+    return this._weaponDefinitions[weaponDefinitionId];
+  }
 
   getContainerHasSpace(
     container: loadoutContainer,
@@ -3237,7 +3259,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   // not used for now, maybe helpful in the future
-  /*
+  
   removeInventoryItems(
     client: Client,
     itemDefinitionId: number,
@@ -3297,7 +3319,7 @@ export class ZoneServer2016 extends EventEmitter {
       return true;
     }
   }
-  */
+  
 
   dropItem(client: Client, item: inventoryItem, count: number = 1) {
     if (!item) {

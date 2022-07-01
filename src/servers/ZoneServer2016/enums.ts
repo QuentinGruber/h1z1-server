@@ -36,8 +36,8 @@ export enum ResourceTypes {
 }
 
 export enum Items {
-  WEAPON_AR15 = 2425,
-  WEAPON_AK47 = 2661,
+  WEAPON_AR15 = 10,
+  WEAPON_AK47 = 2229,
   AMMO_223 = 1429,
   WEAPON_SHOTGUN = 2663,
   AMMO_12GA = 1511,

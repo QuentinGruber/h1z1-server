@@ -1880,6 +1880,8 @@ export class zonePacketHandlers {
             debug("Weapon.ProjectileHitReport");
             break;
           case "Weapon.ReloadRequest":
+            console.log(server.getWeaponDefinition(2))
+            //server.removeInventoryItems(client, )
             server.sendData(client, "Weapon.Weapon", {
               weaponPacket: {
                 packetName: "Weapon.Reload",
