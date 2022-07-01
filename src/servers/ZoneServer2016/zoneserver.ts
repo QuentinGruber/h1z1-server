@@ -1591,7 +1591,6 @@ export class ZoneServer2016 extends EventEmitter {
             const itemDef = this.getItemDefinition(c.character._loadout['11']?.itemDefinitionId);
             if (itemDef.DESCRIPTION_ID == 9114 || itemDef.DESCRIPTION_ID == 9945) {
                 damage *= 0.75;
-                const item = c.character.getInventoryItem(c.character._loadout['11'].itemGuid);
                 this.damageItem(c, c.character._loadout['11'], damage);
             }
         }
