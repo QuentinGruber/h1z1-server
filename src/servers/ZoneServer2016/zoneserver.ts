@@ -1547,7 +1547,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
     }
     
-    damageItem(client: ZoneClient2016, item: loadoutItem, damage: number) {
+    damageItem(client: Client, item: loadoutItem, damage: number) {
         item.currentDurability -= damage;
         if (item.currentDurability <= 0) {
             this.removeInventoryItem(client, item)
