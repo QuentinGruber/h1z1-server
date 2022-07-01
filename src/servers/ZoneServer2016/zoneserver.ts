@@ -1546,6 +1546,18 @@ export class ZoneServer2016 extends EventEmitter {
             return 0;
         }
     }
+    
+    damageItem(client: Client, item: loadoutItem, damage: number) {
+        item.currentDurability -= damage;
+        if (item.currentDurability <= 0) {
+            this.removeInventoryItem(client, item)
+            if (this.isWeapon(item.itemDefinitionId)) {
+                this.lootContainerItem(client, this.generateItem(1354), 1, true);
+            }
+            return;
+        }
+        this.updateLoadoutItem(client, item)
+    }
 
     npcDamage(characterId: string, damage: number) {
         if ((this._npcs[characterId].health -= damage) <= 0) {
@@ -1575,13 +1587,12 @@ export class ZoneServer2016 extends EventEmitter {
         if (!c) {
             return damage;
         }
-            if (c.character._loadout['11']?.itemDefinitionId > 0) {
-                const itemDef = this.getItemDefinition(c.character._loadout['11']?.itemDefinitionId);
-                if (itemDef.DESCRIPTION_ID == 9114 || itemDef.DESCRIPTION_ID == 9945) {
-                    damage *= 0.75;
-                    const item = c.character.getInventoryItem(c.character._loadout['11'].itemGuid);
-                    this.removeInventoryItem(c, item!, 1)
-                }
+        if (c.character._loadout['11']?.itemDefinitionId > 0) {
+            const itemDef = this.getItemDefinition(c.character._loadout['11']?.itemDefinitionId);
+            if (itemDef.DESCRIPTION_ID == 9114 || itemDef.DESCRIPTION_ID == 9945) {
+                damage *= 0.75;
+                this.damageItem(c, c.character._loadout['11'], damage);
+            }
         }
         return damage;
     }
@@ -1595,12 +1606,11 @@ export class ZoneServer2016 extends EventEmitter {
             const itemDef = this.getItemDefinition(c.character._loadout['38']?.itemDefinitionId);
             if (itemDef.DESCRIPTION_ID == 12073) {
                 damage *= 0.8;
-                const item = c.character.getInventoryItem(c.character._loadout['38'].itemGuid);
-                //this.removeInventoryItem(c, item!, 1) no durability system yet
+
+                this.damageItem(c, c.character._loadout['38'], (damage / 4));
             } else if (itemDef.DESCRIPTION_ID == 11151) {
                 damage *= 0.9;
-                const item = c.character.getInventoryItem(c.character._loadout['38'].itemGuid);
-               // this.removeInventoryItem(c, item!, 1)
+                this.damageItem(c, c.character._loadout['38'], (damage / 4));
             }
         }
         return damage;
@@ -2722,27 +2732,36 @@ export class ZoneServer2016 extends EventEmitter {
   //#region ********************INVENTORY********************
 
   pGetItemData(client: Client, item: inventoryItem, containerDefId: number): {} {
-    const isWeapon = this.isWeapon(item.itemDefinitionId);
-    return {
-      itemDefinitionId: item.itemDefinitionId,
-      tintId: 0,
-      guid: item.itemGuid,
-      count: item.stackCount,
-      itemSubData: {
-        hasSubData: false,
-      },
-      containerGuid: item.containerGuid,
-      containerDefinitionId: containerDefId,
-      containerSlotId: item.slotId,
-      baseDurability: isWeapon?2000:0,
-      currentDurability: isWeapon?item.currentDurability:0,
-      maxDurabilityFromDefinition: isWeapon?2000:0,
-      unknownBoolean1: true,
-      ownerCharacterId: isWeapon && item.itemDefinitionId !== 85?"":client.character.characterId,
-      unknownDword9: 1,
-      unknownData1: this.getItemWeaponData(item)
+        let durability: number = 0;
+        const isWeapon = this.isWeapon(item.itemDefinitionId);
+        switch (true) {
+            case this.isWeapon(item.itemDefinitionId): durability = 2000;
+                break;
+            case this.isArmor(item.itemDefinitionId): durability = 1000;
+                break;
+            case this.isHelmet(item.itemDefinitionId): durability = 100;
+                break;
+        }
+        return {
+            itemDefinitionId: item.itemDefinitionId,
+            tintId: 0,
+            guid: item.itemGuid,
+            count: item.stackCount,
+            itemSubData: {
+                hasSubData: false,
+            },
+            containerGuid: item.containerGuid,
+            containerDefinitionId: containerDefId,
+            containerSlotId: item.slotId,
+            baseDurability: durability,
+            currentDurability: durability ? item.currentDurability : 0,
+            maxDurabilityFromDefinition: durability,
+            unknownBoolean1: true,
+            ownerCharacterId: isWeapon && item.itemDefinitionId !== 85 ? "" : client.character.characterId,
+            unknownDword9: 1,
+            unknownData1: this.getItemWeaponData(item)
+        }
     }
-  }
 
   getItemWeaponData(slot: inventoryItem) {
     if(slot.weapon) {
@@ -3065,41 +3084,58 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   generateItem(
-    itemDefinitionId: number,
-    count: number = 1
-  ): inventoryItem | undefined {
-    if (!this.getItemDefinition(itemDefinitionId)) {
-      debug(
-        `[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`
-      );
-      return;
+        itemDefinitionId: number,
+        count: number = 1
+    ): inventoryItem | undefined {
+        if (!this.getItemDefinition(itemDefinitionId)) {
+            debug(
+                `[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`
+            );
+            return;
+        }
+        const generatedGuid = `0x${this.generateItemGuid().toString(16)}`;
+        let durability: number = 2000;
+        switch (true) {
+            case this.isWeapon(itemDefinitionId): durability = 2000;
+                break;
+            case this.isArmor(itemDefinitionId): durability = 1000;
+                break;
+            case this.isHelmet(itemDefinitionId): durability = 100;
+                break;
+        }
+        const itemData = {
+            itemDefinitionId: itemDefinitionId,
+            slotId: 0,
+            itemGuid: generatedGuid,
+            containerGuid: "0x0",
+            currentDurability: durability,
+            stackCount: count,
+            durability: 0,
+        };
+        let item;
+        if (this.isWeapon(itemDefinitionId)) {
+            item = {
+                ...itemData,
+                weapon: { ammoCount: 5 } // default ammo count until we have a method to get max ammo count from definition
+            }
+        }
+        else {
+            item = itemData;
+        }
+        return item;
     }
-    const generatedGuid = `0x${this.generateItemGuid().toString(16)}`;
-    const itemData: inventoryItem = {
-      itemDefinitionId: itemDefinitionId,
-      slotId: 0,
-      itemGuid: generatedGuid,
-      containerGuid: "0x0",
-      currentDurability: 2000,
-      stackCount: count,
-      durability: 0,
-    };
-    let item: inventoryItem;
-    if(this.isWeapon(itemDefinitionId)) {
-      item = {
-        ...itemData,
-        weapon: {ammoCount: this.getWeaponMaxAmmo(itemDefinitionId)} // default ammo count until we have a method to get max ammo count from definition
-      }
-    }
-    else {
-      item = itemData;
-    }
-    return item;
-  }
 
   isWeapon(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 20;
-  }
+        return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 20;
+    }
+
+    isArmor(itemDefinitionId: number): boolean {
+        return (this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12073 || this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11151);
+    }
+
+    isHelmet(itemDefinitionId: number): boolean {
+        return (this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 || this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12994 || this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9114);
+    }
 
   validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {
     // only for weapons at the moment

@@ -1869,6 +1869,7 @@ export class zonePacketHandlers {
         switch(p.packetName) {
           case "Weapon.FireStateUpdate":
             debug("Weapon.FireStateUpdate");
+            server.damageItem(client, client.character.getEquippedWeapon(), 2);
             break;
           case "Weapon.Fire":
             //weaponItem.weapon.ammoCount -= 1;
