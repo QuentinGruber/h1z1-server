@@ -940,10 +940,10 @@ export class zonePacketHandlers {
           break;
         case 3: // characters
           const character = entityData as Character2016;
-          character._equipment[1] = {
+          character._equipment[28] = {
             // temporary to fix missing heads
             modelName: character.headActor,
-            slotId: 1,
+            slotId: 28,
             guid: "0x0",
           };
           character._equipment[27] = {

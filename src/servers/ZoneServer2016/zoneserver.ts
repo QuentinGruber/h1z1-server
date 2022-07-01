@@ -1612,10 +1612,26 @@ export class ZoneServer2016 extends EventEmitter {
             isHeadshot = 0;
         switch (client.character.getEquippedWeapon().itemDefinitionId) {
             case Items.WEAPON_AR15:
+            case Items.WEAPON_45:
                 damage = 2500;
+                break;
+            case Items.WEAPON_M9:
+                damage = 1800;
+                break;
+            case Items.WEAPON_R380:
+                damage = 1500;
+                break;
+            case Items.WEAPON_SHOTGUN:
+                damage = 1667; // 1 pellet 
+                break;
+            case Items.WEAPON_AK47:
+                damage = 2900;
                 break;
             case Items.WEAPON_308:
                 damage = 8000;
+                break;
+            case Items.WEAPON_MAGNUM:
+                damage = 3000;
                 break;
             default:
                 damage = 1000;
