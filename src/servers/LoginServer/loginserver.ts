@@ -36,7 +36,18 @@ import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
 import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 import { healthThreadDecorator } from "../../servers/shared/workers/healthWorker";
-import { LoginReply,CharacterSelectInfoReply, ServerListReply, CharacterDeleteReply, CharacterLoginReply, CharacterCreateReply, ServerUpdate, CharacterDeleteRequest, CharacterLoginRequest, CharacterCreateRequest } from "types/LoginUdp_11packets";
+import {
+  LoginReply,
+  CharacterSelectInfoReply,
+  ServerListReply,
+  CharacterDeleteReply,
+  CharacterLoginReply,
+  CharacterCreateReply,
+  ServerUpdate,
+  CharacterDeleteRequest,
+  CharacterLoginRequest,
+  CharacterCreateRequest,
+} from "types/LoginUdp_11packets";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -144,7 +155,10 @@ export class LoginServer extends EventEmitter {
       "appdata",
       async (err: string, client: Client, data: Buffer) => {
         try {
-          const packet: {name:string,result:any} | null = this.parseData(client.protocolName, data);
+          const packet: { name: string; result: any } | null = this.parseData(
+            client.protocolName,
+            data
+          );
           debug(packet);
           if (packet?.result) {
             // if packet parsing succeed
@@ -214,7 +228,10 @@ export class LoginServer extends EventEmitter {
                     if (
                       status &&
                       process.env.H1Z1_SERVER_VERSION &&
-                      !validateVersion(process.env.H1Z1_SERVER_VERSION,h1emuVersion)
+                      !validateVersion(
+                        process.env.H1Z1_SERVER_VERSION,
+                        h1emuVersion
+                      )
                     ) {
                       console.log(
                         `serverId : ${serverId} version mismatch ${h1emuVersion} vs ${process.env.H1Z1_SERVER_VERSION}`
@@ -416,15 +433,15 @@ export class LoginServer extends EventEmitter {
         .findOne({ guid: sessionId });
       client.loginSessionId = realSession ? realSession.authKey : sessionId;
     }
-    const loginReply:LoginReply = {
+    const loginReply: LoginReply = {
       loggedIn: true,
       status: 1,
       isMember: true,
       isInternal: true,
       namespace: "soe",
       ApplicationPayload: "",
-    }
-    this.sendData(client, "LoginReply",loginReply );
+    };
+    this.sendData(client, "LoginReply", loginReply);
     if (!this._soloMode) {
       client.serverUpdateTimer = setTimeout(async () => {
         await this.updateServerList(client);
@@ -507,11 +524,11 @@ export class LoginServer extends EventEmitter {
     } else {
       characters = this.addDummyDataToCharacters(characters);
     }
-    const characterSelectInfoReply:CharacterSelectInfoReply = {
+    const characterSelectInfoReply: CharacterSelectInfoReply = {
       status: 1,
       canBypassServerLock: true,
       characters: characters,
-    }
+    };
     this.sendData(client, "CharacterSelectInfoReply", characterSelectInfoReply);
     debug("CharacterSelectInfoRequest");
   }
@@ -573,7 +590,7 @@ export class LoginServer extends EventEmitter {
         }
       }
     }
-    const serverListReply:ServerListReply = { servers: servers }
+    const serverListReply: ServerListReply = { servers: servers };
     this.sendData(client, "ServerListReply", serverListReply);
   }
 
@@ -626,12 +643,12 @@ export class LoginServer extends EventEmitter {
         }
       }
     }
-    const characterDeleteReply:CharacterDeleteReply = {
+    const characterDeleteReply: CharacterDeleteReply = {
       characterId: packet.characterId,
       status: deletionStatus,
       Payload: "\0",
-    }
-    this.sendData(client, "CharacterDeleteReply",characterDeleteReply);
+    };
+    this.sendData(client, "CharacterDeleteReply", characterDeleteReply);
   }
 
   async CharacterLoginRequest(client: Client, packet: CharacterLoginRequest) {
@@ -870,11 +887,11 @@ export class LoginServer extends EventEmitter {
       }
       newCharacter;
     }
-    const characterCreateReply:CharacterCreateReply = {
+    const characterCreateReply: CharacterCreateReply = {
       status: creationStatus,
       characterId: newCharacter.characterId,
-    }
-    this.sendData(client, "CharacterCreateReply",characterCreateReply );
+    };
+    this.sendData(client, "CharacterCreateReply", characterCreateReply);
   }
 
   async updateServerList(client: Client): Promise<void> {

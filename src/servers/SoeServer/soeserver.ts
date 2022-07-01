@@ -142,7 +142,7 @@ export class SOEServer extends EventEmitter {
   // Executed at the same rate for every client
   private soeClientRoutine(client: Client) {
     if (!client.isDeleted) {
-      if(client.lastAckTime + this._ackTiming < Date.now()) {
+      if (client.lastAckTime + this._ackTiming < Date.now()) {
         // Acknowledge received packets
         this.checkAck(client);
         this.checkOutOfOrderQueue(client);
@@ -201,7 +201,10 @@ export class SOEServer extends EventEmitter {
             (packet.sequence && packet.name === "Data") ||
             packet.name === "DataFragment"
           ) {
-            client.unAckData.set(packet.sequence, Date.now() + this._waitQueueTimeMs);
+            client.unAckData.set(
+              packet.sequence,
+              Date.now() + this._waitQueueTimeMs
+            );
           }
         }
       } else {
@@ -223,14 +226,15 @@ export class SOEServer extends EventEmitter {
     if (client.outOfOrderPackets.length) {
       for (let i = 0; i < client.outOfOrderPackets.length; i++) {
         const sequence = client.outOfOrderPackets.shift();
-        if(sequence > client.lastAck.get()) {
+        if (sequence > client.lastAck.get()) {
           this._sendLogicalPacket(
             client,
             "OutOfOrder",
             {
               sequence: sequence,
             },
-            false);
+            false
+          );
         }
       }
     }
@@ -400,7 +404,13 @@ export class SOEServer extends EventEmitter {
 
           client.outputStream.on(
             "data",
-            (err: string, data: Buffer, sequence: number, fragment: boolean, unbuffered: boolean) => {
+            (
+              err: string,
+              data: Buffer,
+              sequence: number,
+              fragment: boolean,
+              unbuffered: boolean
+            ) => {
               this._sendLogicalPacket(
                 client,
                 fragment ? "DataFragment" : "Data",
@@ -502,7 +512,7 @@ export class SOEServer extends EventEmitter {
     packetName: string,
     packet: json,
     prioritize = false,
-    unbuffered = false,
+    unbuffered = false
   ): void {
     const logicalPacket = this.createLogicalPacket(client, packetName, packet);
     if (prioritize) {
@@ -550,11 +560,13 @@ export class SOEServer extends EventEmitter {
 
   sendUnbufferedAppData(client: Client, data: Buffer): void {
     if (client.outputStream.isUsingEncryption()) {
-      debug("Sending unbuffered app data: " + data.length + " bytes with encryption");
+      debug(
+        "Sending unbuffered app data: " + data.length + " bytes with encryption"
+      );
     } else {
       debug("Sending unbuffered app data: " + data.length + " bytes");
     }
-    client.outputStream.write(data,true);
+    client.outputStream.write(data, true);
   }
 
   setEncryption(client: Client, value: boolean): void {

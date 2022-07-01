@@ -99,28 +99,31 @@ export class GatewayServer extends EventEmitter {
     this._soeServer.start(this._crcLength, this._udpLength);
   }
 
-  private _sentTunnelData(client: SOEClient, tunnelData: Buffer,unbuffered: boolean) {
+  private _sentTunnelData(
+    client: SOEClient,
+    tunnelData: Buffer,
+    unbuffered: boolean
+  ) {
     debug("Sending tunnel data to client");
     const data = this._protocol.pack("TunnelPacketToExternalConnection", {
       channel: 0,
       tunnelData: tunnelData,
     });
     if (data) {
-      if(unbuffered) {
+      if (unbuffered) {
         this._soeServer.sendUnbufferedAppData(client, data);
-      }
-      else {
+      } else {
         this._soeServer.sendAppData(client, data);
       }
     }
   }
 
   sendTunnelData(client: SOEClient, tunnelData: Buffer) {
-    this._sentTunnelData(client, tunnelData,false);
+    this._sentTunnelData(client, tunnelData, false);
   }
 
   sendUnbufferedTunnelData(client: SOEClient, tunnelData: Buffer) {
-    this._sentTunnelData(client, tunnelData,true);
+    this._sentTunnelData(client, tunnelData, true);
   }
 
   stop() {
