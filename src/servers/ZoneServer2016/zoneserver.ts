@@ -288,7 +288,7 @@ export class ZoneServer2016 extends EventEmitter {
         (err: string, client: H1emuClient) => {
           console.error(`h1emuServer sessionfailed for ${client.sessionId}`);
           console.error(err);
-          process.exit(1);
+          process.exit(11);
         }
       );
 
