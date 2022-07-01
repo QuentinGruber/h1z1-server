@@ -1559,14 +1559,72 @@ export class ZoneServer2016 extends EventEmitter {
         }
     }
 
+    getClientByCharId(characterId: string) {
+        for (const a in this._clients) {
+            const c: ZoneClient2016 = this._clients[a];
+            if (c.character.characterId === characterId) {
+                return c
+            }
+        }
+    }
+
+    checkHelmet(packet: any, damage: any) {
+        const c = this.getClientByCharId(packet.hitReport.characterId);
+        if (!c) {
+            return damage;
+        }
+            if (c.character._loadout['11']?.itemDefinitionId > 0) {
+                const itemDef = this.getItemDefinition(c.character._loadout['11']?.itemDefinitionId);
+                if (itemDef.DESCRIPTION_ID == 9114 || itemDef.DESCRIPTION_ID == 9945) {
+                    damage *= 0.75;
+                    const item = c.character.getInventoryItem(c.character._loadout['11'].itemGuid);
+                    this.removeInventoryItem(c, item!, 1)
+                }
+        }
+        return damage;
+    }
+
+    checkKevlar(packet: any, damage: any) {
+        const c = this.getClientByCharId(packet.hitReport.characterId);
+        if (!c) {
+            return damage;
+        }
+        if (c.character._loadout['38']?.itemDefinitionId > 0) {
+            const itemDef = this.getItemDefinition(c.character._loadout['38']?.itemDefinitionId);
+            if (itemDef.DESCRIPTION_ID == 12073) {
+                damage *= 0.8;
+                const item = c.character.getInventoryItem(c.character._loadout['38'].itemGuid);
+                //this.removeInventoryItem(c, item!, 1) no durability system yet
+            } else if (itemDef.DESCRIPTION_ID == 11151) {
+                damage *= 0.9;
+                const item = c.character.getInventoryItem(c.character._loadout['38'].itemGuid);
+               // this.removeInventoryItem(c, item!, 1)
+            }
+        }
+        return damage;
+    }
+    
+
     registerHit(client: Client, packet: any) {
-        let damage = 2500,
-        isHeadshot = 0;
+        let damage: number,
+            isHeadshot = 0;
+        switch (client.character.getEquippedWeapon().itemDefinitionId) {
+            case Items.WEAPON_AR15:
+                damage = 2500;
+                break;
+            case Items.WEAPON_308:
+                damage = 8000;
+                break;
+            default:
+                damage = 1000;
+                break;
+        }
         switch (packet.hitReport.hitLocation.toLowerCase()) {
             case 'head':
             case 'glasses':
                 damage *= 4;
                 isHeadshot = 1;
+                damage = this.checkHelmet(packet, damage);
                 break;
             case 'neck':
                 damage *= 2;
@@ -1574,6 +1632,7 @@ export class ZoneServer2016 extends EventEmitter {
             case 'spineupper':
             case 'spinemiddle':
             case 'spinelower':
+                damage = this.checkKevlar(packet, damage)
                 break;
             case 'r_shoulder':
             case 'l_shoulder':
@@ -1602,15 +1661,15 @@ export class ZoneServer2016 extends EventEmitter {
             default:
                 break;
         }
-        if(packet.hitReport.hitLocation) {
-          this.sendData(client, "Ui.ConfirmHit", {
-            hitType: {
-              isAlly: 0,
-              isHeadshot: isHeadshot,
-              damagedArmor: 0,
-              crackedArmor: 0,
-            }
-          });
+        if (packet.hitReport.hitLocation) {
+            this.sendData(client, "Ui.ConfirmHit", {
+                hitType: {
+                    isAlly: 0,
+                    isHeadshot: isHeadshot,
+                    damagedArmor: 0,
+                    crackedArmor: 0,
+                }
+            });
         }
         switch (this.getEntityType(packet.hitReport.characterId)) {
             case 1:
@@ -1620,26 +1679,11 @@ export class ZoneServer2016 extends EventEmitter {
                 this.damageVehicle(damage, this._vehicles[packet.hitReport.characterId])
                 break;
             case 3:
-              for (const a in this._clients) {
-                const c = this._clients[a];
-                if (c.character.characterId === packet.hitReport.characterId) {
-                    /*
-                    if (c.character._equipment["1"].guid) {
-                        const item = c.character.getInventoryItem(
-                            c.character._equipment["1"].guid!
-                        );
-                        if (item) {
-                            const itemDef = this.getItemDefinition(item.itemDefinitionId);
-                            if (itemDef.DESCRIPTION_ID == 9114 || itemDef.DESCRIPTION_ID == 9945) {
-                                damage *= 0.7;
-                                this.removeInventoryItem(client, item, 1)
-                            }
-                        }
-                    }
-                    */
-                    this.playerDamage(c, damage, client.character);
+                const c = this.getClientByCharId(packet.hitReport.characterId);
+                if (!c) {
+                    return;
                 }
-              }
+                this.playerDamage(c, damage);
                 break;
         }
     }
