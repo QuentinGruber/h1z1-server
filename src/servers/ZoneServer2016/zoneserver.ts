@@ -1701,7 +1701,7 @@ export class ZoneServer2016 extends EventEmitter {
                 if (!c) {
                     return;
                 }
-                this.playerDamage(c, damage);
+                this.playerDamage(c, damage, client.character);
                 break;
         }
     }
@@ -1741,10 +1741,15 @@ export class ZoneServer2016 extends EventEmitter {
         character._resources[ResourceIds.HEALTH],
         ResourceIds.HEALTH
       );
-      this.sendData(client, "ClientUpdate.DamageInfo", {
-        transientId: 0,
-        unknownDword2: 100,
-      });
+      if (!killer) {
+                return
+            }
+            const orientation = Math.atan2(client.character.state.position[2] - killer.state.position[2], client.character.state.position[0] - killer.state.position[0]) * -1 - 1.4;
+            this.sendData(client, "ClientUpdate.DamageInfo", {
+                transientId: 0,
+                orientationToSource: orientation,
+                unknownDword2: 100,
+            });
     }
   }
 
