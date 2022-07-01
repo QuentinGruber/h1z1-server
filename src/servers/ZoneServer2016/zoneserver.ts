@@ -2736,22 +2736,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  getWeaponAmmoSlot(itemDefId: number): Array<{}> {
-    switch(itemDefId) {
-      case 10:
-        return [{ ammoSlot: 30 }];
-      case 2229:
-        return [{ ammoSlot: 30 }];
-      case 1373:
-        return [{ ammoSlot: 5 }];
-      case 2663:
-        return [{ ammoSlot: 6 }];
-      default:
-        return [{ ammoSlot: 5 }];
-    }
-    
-  }
-
   getItemWeaponData(slot: inventoryItem) {
     if(slot.weapon) {
       return {
@@ -2760,7 +2744,8 @@ export class ZoneServer2016 extends EventEmitter {
           unknownBoolean1: false,
         },
         unknownData2: {
-          ammoSlots: this.getWeaponAmmoSlot(slot.itemDefinitionId),
+          ammoSlots: this.getWeaponAmmoId(slot.itemDefinitionId)?[{ammoSlot: slot.weapon?.ammoCount}]:[],
+          //this.getWeaponAmmoSlot(slot.itemDefinitionId),
           unknownArray2: [{
             weaponDefinitionId: this.getItemDefinition(slot.itemDefinitionId).PARAM1,
             unknownArray1: [
@@ -3013,7 +2998,7 @@ export class ZoneServer2016 extends EventEmitter {
     return this._firemodeDefinitions[firemodeId].DATA.DATA;
   }
 
-  getWeaponAmmoId(itemDefinitionId: number) {
+  getWeaponAmmoId(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
     weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1),
     firegroupDefinition = this.getFiregroupDefinition(weaponDefinition?.FIRE_GROUPS[0].FIRE_GROUP_ID),
@@ -3022,11 +3007,11 @@ export class ZoneServer2016 extends EventEmitter {
     return firemodeDefinition?.AMMO_ITEM_ID || 0;
   }
 
-  getWeaponMaxAmmo(itemDefinitionId: number) {
+  getWeaponMaxAmmo(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
     weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1);
     
-    return weaponDefinition.AMMO_SLOTS[0].CLIP_SIZE
+    return weaponDefinition.AMMO_SLOTS[0]?.CLIP_SIZE || 0
   }
 
   getContainerHasSpace(
@@ -3068,7 +3053,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     const generatedGuid = `0x${this.generateItemGuid().toString(16)}`;
-    const itemData = {
+    const itemData: inventoryItem = {
       itemDefinitionId: itemDefinitionId,
       slotId: 0,
       itemGuid: generatedGuid,
@@ -3077,11 +3062,11 @@ export class ZoneServer2016 extends EventEmitter {
       stackCount: count,
       durability: 0,
     };
-    let item;
+    let item: inventoryItem;
     if(this.isWeapon(itemDefinitionId)) {
       item = {
         ...itemData,
-        weapon: {ammoCount: 5} // default ammo count until we have a method to get max ammo count from definition
+        weapon: {ammoCount: this.getWeaponMaxAmmo(itemDefinitionId)} // default ammo count until we have a method to get max ammo count from definition
       }
     }
     else {

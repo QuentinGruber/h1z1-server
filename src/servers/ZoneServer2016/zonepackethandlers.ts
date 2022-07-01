@@ -1868,11 +1868,15 @@ export class zonePacketHandlers {
           break;
       }
       function handleWeaponPacket(p: any) {
+        const weaponItem = client.character.getEquippedWeapon();
+        if(!weaponItem.weapon) return;
         switch(p.packetName) {
           case "Weapon.FireStateUpdate":
             debug("Weapon.FireStateUpdate");
             break;
           case "Weapon.Fire":
+            //weaponItem.weapon.ammoCount -= 1;
+            //server.sendAlert(client, `${weaponItem.weapon.ammoCount}`)
             debug("Weapon.Fire");
             break;
           case "Weapon.ProjectileHitReport":
@@ -1880,14 +1884,15 @@ export class zonePacketHandlers {
             debug("Weapon.ProjectileHitReport");
             break;
           case "Weapon.ReloadRequest":
-            const weaponAmmoId = client.character.getEquippedWeapon().itemDefinitionId,
-            maxAmmo = client.character.getEquippedWeapon().itemDefinitionId,
+            const weaponAmmoId = server.getWeaponAmmoId(client.character.getEquippedWeapon().itemDefinitionId),
+            maxAmmo = server.getWeaponMaxAmmo(client.character.getEquippedWeapon().itemDefinitionId),
             reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId)
             console.log(reserveAmmo)
             console.log(weaponAmmoId);
             console.log(maxAmmo);
             //server.switchLoadoutSlot(client, client.character._loadout[1]);
             //server.updateLoadout(client);
+            //const reloadAmount = 
             server.sendData(client, "Weapon.Weapon", {
               weaponPacket: {
                 packetName: "Weapon.Reload",
