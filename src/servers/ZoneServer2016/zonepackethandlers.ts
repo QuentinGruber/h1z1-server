@@ -1880,23 +1880,33 @@ export class zonePacketHandlers {
             debug("Weapon.ProjectileHitReport");
             break;
           case "Weapon.ReloadRequest":
-            console.log(server.getWeaponDefinition(2))
-            //server.removeInventoryItems(client, )
+            const weaponAmmoId = client.character.getEquippedWeapon().itemDefinitionId,
+            maxAmmo = client.character.getEquippedWeapon().itemDefinitionId,
+            reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId)
+            console.log(reserveAmmo)
+            console.log(weaponAmmoId);
+            console.log(maxAmmo);
+            //server.switchLoadoutSlot(client, client.character._loadout[1]);
+            //server.updateLoadout(client);
             server.sendData(client, "Weapon.Weapon", {
               weaponPacket: {
                 packetName: "Weapon.Reload",
                 gameTime: packet.data.weaponPacket.gameTime,
                 packet: {
                   guid: p.packet.characterId,
-                  unknownDword1: 100,
-                  ammoCount: 5,
-                  unknownDword3: 100,
-                  characterId: "0x2",
+                  unknownDword1: 30,
+                  ammoCount: 30,
+                  unknownDword3: 30,
+                  characterId: p.packet.characterId,
                 }
               }
             })
+            
+            //server.switchLoadoutSlot(client, client.character._loadout[1]);
+            //server.updateEquipment(client);
+            server.removeInventoryItems(client, server.getWeaponAmmoId(10), 30)
             server.updateLoadoutItem(client, client.character._loadout[1])
-            server.updateLoadout(client)
+            //server.updateLoadout(client)
             debug("Weapon.ReloadRequest");
             break;
           case "Weapon.SwitchFireModeRequest":

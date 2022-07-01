@@ -152,6 +152,8 @@ export class ZoneServer2016 extends EventEmitter {
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _weaponDefinitions: { [weaponDefinitionId: number]: any } = weaponDefinitions.WEAPON_DEFINITIONS;
+  _firegroupDefinitions: { [firegroupId: number]: any } = weaponDefinitions.FIRE_GROUP_DEFINITIONS;
+  _firemodeDefinitions: { [firemodeId: number]: any } = weaponDefinitions.FIRE_MODE_DEFINITIONS;
   _itemDefinitionIds: any[] = Object.keys(this._itemDefinitions);
   itemDefinitionsCache: any;
   weaponDefinitionsCache: any;
@@ -2985,7 +2987,31 @@ export class ZoneServer2016 extends EventEmitter {
   }
   
   getWeaponDefinition(weaponDefinitionId: number) {
-    return this._weaponDefinitions[weaponDefinitionId];
+    return this._weaponDefinitions[weaponDefinitionId].DATA;
+  }
+
+  getFiregroupDefinition(firegroupId: number) {
+    return this._firegroupDefinitions[firegroupId].DATA;
+  }
+
+  getFiremodeDefinition(firemodeId: number) {
+    return this._firemodeDefinitions[firemodeId].DATA.DATA;
+  }
+
+  getWeaponAmmoId(itemDefinitionId: number) {
+    const itemDefinition = this.getItemDefinition(itemDefinitionId),
+    weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1),
+    firegroupDefinition = this.getFiregroupDefinition(weaponDefinition?.FIRE_GROUPS[0].FIRE_GROUP_ID),
+    firemodeDefinition = this.getFiremodeDefinition(firegroupDefinition?.FIRE_MODES[0].FIRE_MODE_ID);
+
+    return firemodeDefinition?.AMMO_ITEM_ID || 0;
+  }
+
+  getWeaponMaxAmmo(itemDefinitionId: number) {
+    const itemDefinition = this.getItemDefinition(itemDefinitionId),
+    weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1);
+    
+    return weaponDefinition.AMMO_SLOTS[0].CLIP_SIZE
   }
 
   getContainerHasSpace(
@@ -3302,8 +3328,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  // not used for now, maybe helpful in the future
-  
   removeInventoryItems(
     client: Client,
     itemDefinitionId: number,
@@ -3325,18 +3349,18 @@ export class ZoneServer2016 extends EventEmitter {
         count: number;
       }[] = [];
       for (const container of Object.values(client.character._containers)) {
-        console.log(`container: ${container.slotId}`);
+        //console.log(`container: ${container.slotId}`);
         if (!requiredCount) break;
         for (const item of Object.values(container.items)) {
           if (item.itemDefinitionId == itemDefinitionId) {
-            console.log(`item: ${item.itemGuid}`);
+            //console.log(`item: ${item.itemGuid}`);
             if (item.stackCount >= requiredCount) {
-              console.log("stack 1");
+              //console.log("stack 1");
               removeItems.push({ container, item, count: requiredCount });
               requiredCount = 0;
               break;
             } else {
-              console.log("stack 2");
+              //console.log("stack 2");
               removeItems.push({ container, item, count: item.stackCount });
               requiredCount -= item.stackCount;
             }
@@ -3348,7 +3372,7 @@ export class ZoneServer2016 extends EventEmitter {
         return false;
       }
       for (const itemStack of Object.values(removeItems)) {
-        console.log(itemStack);
+        //console.log(itemStack);
         if (
           !this.removeContainerItem(
             client,

@@ -133,6 +133,21 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return this._loadout[this.currentLoadoutSlot];
   }
 
+  // gets the amount of items of a specific itemDefinitionId
+  getInventoryItemAmount(
+    itemDefinitionId: number
+  ): number {
+    let items = 0
+    for (const container of Object.values(this._containers)) {
+      for (const item of Object.values(container.items)) {
+        if (item.itemDefinitionId == itemDefinitionId) {
+          items += item.stackCount;
+        }
+      }
+    }
+    return items;
+  }
+
   pGetEquipmentSlot(slotId: number) {
     const slot = this._equipment[slotId];
     return slot
