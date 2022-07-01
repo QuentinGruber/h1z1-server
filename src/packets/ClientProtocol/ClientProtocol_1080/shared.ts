@@ -1342,6 +1342,84 @@ export const attachmentSchema = [
   { name: "unknownBool1", type: "boolean", defaultValue: false },
 ];
 
+export const remoteWeaponSchema = [
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte1", type: "int8", defaultValue: 0 },
+  {
+    name: "unknownArray1",
+    type: "array8",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      {
+        name: "unknownArray1",
+        type: "array8",
+        defaultValue: [],
+        fields: [
+          {
+            name: "unknownDword1",
+            type: "uint32",
+            defaultValue: 0,
+          },
+          {
+            name: "unknownDword2",
+            type: "uint32",
+            defaultValue: 0,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    name: "weaponStats",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "statId", type: "uint32", defaultValue: 0 },
+      {
+        name: "statData",
+        type: "schema",
+        defaultValue: {},
+        fields: statSchema,
+      },
+    ],
+  },
+  {
+    name: "unknownArray2",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      {
+        name: "unknownArray1",
+        type: "array",
+        defaultValue: [],
+        fields: [
+          {
+            name: "unknownDword1",
+            type: "uint32",
+            defaultValue: 0,
+          },
+          {
+            name: "stats",
+            type: "array",
+            defaultValue: [],
+            fields: [
+              { name: "statId", type: "uint32", defaultValue: 0 },
+              {
+                name: "statData",
+                type: "schema",
+                defaultValue: {},
+                fields: statSchema,
+              },
+            ],
+          },
+        ],
+      },
+    ],
+  },
+]
+
 export const fullNpcSchema = [
   {
     name: "transientId",
@@ -1689,94 +1767,9 @@ export const fullNpcSchema = [
         type: "array",
         defaultValue: [],
         fields: [
-          {
-            name: "unknownQword1",
-            type: "uint64string",
-            defaultValue: "",
-          },
-          {
-            name: "unknownData1",
-            type: "schema",
-            defaultValue: {},
-            fields: [
-              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              { name: "unknownByte1", type: "int8", defaultValue: 0 },
-              {
-                name: "unknownArray1",
-                type: "array8",
-                defaultValue: [],
-                fields: [
-                  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                  {
-                    name: "unknownArray1",
-                    type: "array8",
-                    defaultValue: [],
-                    fields: [
-                      {
-                        name: "unknownDword1",
-                        type: "uint32",
-                        defaultValue: 0,
-                      },
-                      {
-                        name: "unknownDword2",
-                        type: "uint32",
-                        defaultValue: 0,
-                      },
-                    ],
-                  },
-                ],
-              },
-              {
-                name: "weaponStats",
-                type: "array",
-                defaultValue: [],
-                fields: [
-                  { name: "statId", type: "uint32", defaultValue: 0 },
-                  {
-                    name: "statData",
-                    type: "schema",
-                    defaultValue: {},
-                    fields: statSchema,
-                  },
-                ],
-              },
-              {
-                name: "unknownArray2",
-                type: "array",
-                defaultValue: [],
-                fields: [
-                  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                  {
-                    name: "unknownArray1",
-                    type: "array",
-                    defaultValue: [],
-                    fields: [
-                      {
-                        name: "unknownDword1",
-                        type: "uint32",
-                        defaultValue: 0,
-                      },
-                      {
-                        name: "stats",
-                        type: "array",
-                        defaultValue: [],
-                        fields: [
-                          { name: "statId", type: "uint32", defaultValue: 0 },
-                          {
-                            name: "statData",
-                            type: "schema",
-                            defaultValue: {},
-                            fields: statSchema,
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                ],
-              },
-            ],
-          },
-        ],
+          { name: "guid", type: "uint64string", defaultValue: "" },
+          ...remoteWeaponSchema
+        ]
       },
     ],
   },

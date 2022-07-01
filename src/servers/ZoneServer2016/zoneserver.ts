@@ -2160,6 +2160,20 @@ export class ZoneServer2016 extends EventEmitter {
     this._sendData(client, packetName, obj, false);
   }
 
+  sendWeaponData(client: Client, packetName: h1z1PacketsType, obj: any) {
+    if(!packetName.includes("Weapon.")) {
+      console.error("Invalid WeaponData packet name");
+      return;
+    }
+    this.sendData(client, "Weapon.Weapon", {
+      weaponPacket: {
+        packetName: packetName,
+        gameTime: this.getGameTime(),
+        packet: obj
+      }
+    })
+  }
+  
   sendAlert(client: Client, message: string) {
     this._sendData(client, "ClientUpdate.TextAlert", {
       message: message
@@ -3056,6 +3070,14 @@ export class ZoneServer2016 extends EventEmitter {
 
     return firemodeDefinition?.AMMO_ITEM_ID || 0;
   }
+  getWeaponReloadTime(itemDefinitionId: number): number {
+    const itemDefinition = this.getItemDefinition(itemDefinitionId),
+    weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1),
+    firegroupDefinition = this.getFiregroupDefinition(weaponDefinition?.FIRE_GROUPS[0].FIRE_GROUP_ID),
+    firemodeDefinition = this.getFiremodeDefinition(firegroupDefinition?.FIRE_MODES[0].FIRE_MODE_ID);
+
+    return firemodeDefinition?.RELOAD_TIME_MS || 0;
+  }
 
   getWeaponMaxAmmo(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
@@ -3296,6 +3318,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   switchLoadoutSlot(client: Client, loadoutItem: loadoutItem) {
+    client.character.clearReloadTimeout();
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     // remove passive equip
     this.removeEquipmentItem(

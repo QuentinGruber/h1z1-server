@@ -950,7 +950,6 @@ export class zonePacketHandlers {
           };
 
           server.sendData(client, "LightweightToFullNpc", character.pGetFull());
-
           /*
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
@@ -1872,7 +1871,7 @@ export class zonePacketHandlers {
             server.damageItem(client, client.character.getEquippedWeapon(), 2);
             break;
           case "Weapon.Fire":
-            //weaponItem.weapon.ammoCount -= 1;
+            weaponItem.weapon.ammoCount -= 1;
             //server.sendAlert(client, `${weaponItem.weapon.ammoCount}`)
             debug("Weapon.Fire");
             break;
@@ -1881,36 +1880,39 @@ export class zonePacketHandlers {
             debug("Weapon.ProjectileHitReport");
             break;
           case "Weapon.ReloadRequest":
-            const weaponAmmoId = server.getWeaponAmmoId(client.character.getEquippedWeapon().itemDefinitionId),
-            maxAmmo = server.getWeaponMaxAmmo(client.character.getEquippedWeapon().itemDefinitionId), // max clip size
-            reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
-            maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
-            reloadAmount = reserveAmmo >= maxReloadAmount?maxReloadAmount:reserveAmmo
-            console.log(reserveAmmo)
-            console.log(weaponAmmoId);
-            console.log(maxAmmo);
-            //server.switchLoadoutSlot(client, client.character._loadout[1]);
-            //server.updateLoadout(client);
-            server.sendData(client, "Weapon.Weapon", {
-              weaponPacket: {
-                packetName: "Weapon.Reload",
-                gameTime: packet.data.weaponPacket.gameTime,
-                packet: {
-                  guid: p.packet.characterId,
-                  unknownDword1: maxAmmo,
-                  ammoCount: reloadAmount,
-                  unknownDword3: maxAmmo,
-                  characterId: p.packet.characterId,
+            client.character.reloadTimer = setTimeout(() => {
+              const weaponItem = client.character.getEquippedWeapon();
+              if(!weaponItem.weapon || 
+                client.character.getEquippedWeapon().itemGuid != weaponItem.itemGuid) return;
+              const weaponAmmoId = server.getWeaponAmmoId(weaponItem.itemDefinitionId),
+              maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
+              reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
+              maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+              reloadAmount = (reserveAmmo >= maxReloadAmount)?maxReloadAmount:reserveAmmo; // actual amount able to reload
+              server.sendData(client, "Weapon.Weapon", {
+                weaponPacket: {
+                  packetName: "Weapon.Reload",
+                  gameTime: packet.data.weaponPacket.gameTime,
+                  packet: {
+                    guid: p.packet.characterId,
+                    unknownDword1: maxAmmo,
+                    ammoCount: weaponItem.weapon.ammoCount + reloadAmount,
+                    unknownDword3: maxAmmo,
+                    characterId: "0x2",
+                  }
                 }
-              }
-            })
+              })
+              weaponItem.weapon.ammoCount = weaponItem.weapon.ammoCount + reloadAmount;
+              server.switchLoadoutSlot(client, client.character._loadout[client.character.currentLoadoutSlot]);
+              server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
+              //server.updateLoadoutItem(client, client.character._loadout[client.character.currentLoadoutSlot]);
+            }, server.getWeaponReloadTime(weaponItem.itemDefinitionId));
             
-            //server.switchLoadoutSlot(client, client.character._loadout[1]);
-            //server.updateEquipment(client);
-            server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
-            server.updateLoadoutItem(client, client.character._loadout[client.character.currentLoadoutSlot])
             //server.updateLoadout(client)
             debug("Weapon.ReloadRequest");
+            break;
+          case "Weapon.ReloadInterrupt": 
+            client.character.clearReloadTimeout()
             break;
           case "Weapon.SwitchFireModeRequest":
             debug("SwitchFireModeRequest");

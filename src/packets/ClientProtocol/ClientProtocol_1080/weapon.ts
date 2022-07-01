@@ -17,6 +17,7 @@ import {
   packUnsignedIntWith2bitLengthValue,
   readPacketType,
   readUnsignedIntWith2bitLengthValue,
+  remoteWeaponSchema,
   writePacketType,
 } from "./shared";
 import { itemWeaponDetailSubSchema1 } from "./shared";
@@ -131,8 +132,47 @@ const weaponPackets: any = [
   ["Weapon.RemoveFireGroup", 0x8312, {}],
   ["Weapon.ReplaceFireGroup", 0x8313, {}],
   ["Weapon.GuidedUpdate", 0x8314, {}],
-  ["Weapon.RemoteWeapon.Reset", 0x831501, {}],
-  ["Weapon.RemoteWeapon.AddWeapon", 0x831502, {}],
+  [
+    "Weapon.RemoteWeapon.Reset", 
+    0x831501, 
+    {
+      fields: [
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+        {
+          name: "data",
+          type: "byteswithlength",
+          fields: [
+
+          ]
+        },
+      ]
+    }
+  ],
+  [
+    "Weapon.RemoteWeapon.AddWeapon", 
+    0x831502, 
+    {
+      fields: [
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+        { name: "guid", type: "uint64string", defaultValue: "" },
+        {
+          name: "data",
+          type: "byteswithlength",
+          fields: remoteWeaponSchema
+        },
+      ]
+    }
+  ],
   ["Weapon.RemoteWeapon.RemoveWeapon", 0x831503, {}],
   [
     "Weapon.RemoteWeapon.Update",
