@@ -1619,7 +1619,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     registerHit(client: Client, packet: any) {
         let damage: number,
-            isHeadshot = 0;
+            isHeadshot = 0,
+            canStopBleed = false;
         switch (client.character.getEquippedWeapon().itemDefinitionId) {
             case Items.WEAPON_AR15:
             case Items.WEAPON_45:
@@ -1661,6 +1662,7 @@ export class ZoneServer2016 extends EventEmitter {
             case 'spinemiddle':
             case 'spinelower':
                 damage = this.checkKevlar(packet, damage)
+                canStopBleed = true;
                 break;
             case 'r_shoulder':
             case 'l_shoulder':
@@ -1711,47 +1713,54 @@ export class ZoneServer2016 extends EventEmitter {
                 if (!c) {
                     return;
                 }
-                this.playerDamage(c, damage, client.character);
+                let causeBleed: boolean = true;
+                if (canStopBleed && c.character._loadout['38']) {
+                    causeBleed = false;
+                }
+                this.playerDamage(c, damage, client.character, causeBleed);
+
                 break;
         }
     }
   
-  playerDamage(client: Client, damage: number, killer: Character2016 | undefined = undefined) {
-    const character = client.character;
-    if (
-      !client.character.godMode &&
-      client.character.isAlive &&
-      client.character.characterId
-    ) {
-      if (damage < 100) {
-        return;
-      }
-      if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
-        client.character._resources[ResourceIds.BLEEDING] += 41;
-        if (damage > 4000) {
-          client.character._resources[ResourceIds.BLEEDING] += 41;
-        }
-        this.updateResourceToAllWithSpawnedCharacter(
-          client,
-          client.character.characterId,
-          client.character._resources[ResourceIds.BLEEDING] > 0
-            ? client.character._resources[ResourceIds.BLEEDING]
-            : 0,
-          ResourceIds.BLEEDING
-        );
-      }
-      character._resources[ResourceIds.HEALTH] -= damage;
-      if (character._resources[ResourceIds.HEALTH] <= 0) {
-        character._resources[ResourceIds.HEALTH] = 0;
-        this.killCharacter(client, killer);
-      }
-      this.updateResource(
-        client,
-        character.characterId,
-        character._resources[ResourceIds.HEALTH],
-        ResourceIds.HEALTH
-      );
-      if (!killer) {
+  playerDamage(client: Client, damage: number, killer: Character2016 | undefined = undefined, causeBleeding: boolean = false) {
+        const character = client.character;
+        if (
+            !client.character.godMode &&
+            client.character.isAlive &&
+            client.character.characterId
+        ) {
+            if (damage < 100) {
+                return;
+            }
+            if (causeBleeding) {
+                if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
+                    client.character._resources[ResourceIds.BLEEDING] += 41;
+                    if (damage > 4000) {
+                        client.character._resources[ResourceIds.BLEEDING] += 41;
+                    }
+                    this.updateResourceToAllWithSpawnedCharacter(
+                        client,
+                        client.character.characterId,
+                        client.character._resources[ResourceIds.BLEEDING] > 0
+                            ? client.character._resources[ResourceIds.BLEEDING]
+                            : 0,
+                        ResourceIds.BLEEDING
+                    );
+                }
+            }
+            character._resources[ResourceIds.HEALTH] -= damage;
+            if (character._resources[ResourceIds.HEALTH] <= 0) {
+                character._resources[ResourceIds.HEALTH] = 0;
+                this.killCharacter(client, killer);
+            }
+            this.updateResource(
+                client,
+                character.characterId,
+                character._resources[ResourceIds.HEALTH],
+                ResourceIds.HEALTH
+            );
+            if (!killer) {
                 return
             }
             const orientation = Math.atan2(client.character.state.position[2] - killer.state.position[2], client.character.state.position[0] - killer.state.position[0]) * -1 - 1.4;
@@ -1760,8 +1769,8 @@ export class ZoneServer2016 extends EventEmitter {
                 orientationToSource: orientation,
                 unknownDword2: 100,
             });
+        }
     }
-  }
 
   setGodMode(client: Client, godMode: boolean) {
     client.character.godMode = godMode;
