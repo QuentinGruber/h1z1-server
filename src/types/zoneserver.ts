@@ -467,7 +467,6 @@ export interface inventoryItem {
   containerGuid: string;
   currentDurability: number;
   stackCount: number;
-  durability: number;
   weapon?: weaponItem;
 }
 

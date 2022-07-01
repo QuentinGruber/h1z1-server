@@ -644,6 +644,11 @@ const dev: any = {
     NormanTest.TestEntry(server, client, args);
   },
   //endregion
+
+  weapondefs: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.weaponDefinitionsCache = server.packWeaponDefinitions();
+    server.sendRawData(client, server.weaponDefinitionsCache);
+  },
 };
 
 export default dev;

@@ -52,8 +52,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       containerGuid: "0xFFFFFFFFFFFFFFFF",
       currentDurability: 0,
       stackCount: 0,
-      loadoutItemOwnerGuid: "0x0",
-      durability: 0
+      loadoutItemOwnerGuid: "0x0"
     };
   }
   setupLoadoutSlots() {

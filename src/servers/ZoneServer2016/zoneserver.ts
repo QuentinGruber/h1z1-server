@@ -3103,20 +3103,19 @@ export class ZoneServer2016 extends EventEmitter {
             case this.isHelmet(itemDefinitionId): durability = 100;
                 break;
         }
-        const itemData = {
+        const itemData: inventoryItem = {
             itemDefinitionId: itemDefinitionId,
             slotId: 0,
             itemGuid: generatedGuid,
             containerGuid: "0x0",
             currentDurability: durability,
-            stackCount: count,
-            durability: 0,
+            stackCount: count
         };
-        let item;
+        let item: inventoryItem ;
         if (this.isWeapon(itemDefinitionId)) {
-            item = {
+            item= {
                 ...itemData,
-                weapon: { ammoCount: 5 } // default ammo count until we have a method to get max ammo count from definition
+                weapon: { ammoCount: this.getWeaponMaxAmmo(itemDefinitionId) } // default ammo count until we have a method to get max ammo count from definition
             }
         }
         else {
