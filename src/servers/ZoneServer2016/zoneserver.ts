@@ -1561,7 +1561,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     getClientByCharId(characterId: string) {
         for (const a in this._clients) {
-            const c: ZoneClient2016 = this._clients[a];
+            const c: Client = this._clients[a];
             if (c.character.characterId === characterId) {
                 return c
             }
