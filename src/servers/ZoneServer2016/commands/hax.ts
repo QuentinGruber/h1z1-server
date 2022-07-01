@@ -642,6 +642,10 @@ const hax: any = {
     server.lootItem(client, server.generateItem(10), 1); // ar
     server.lootItem(client, server.generateItem(2424), 10); // medkit
     server.lootItem(client, server.generateItem(24), 10); // bandages
+    server.lootItem(client, server.generateItem(1511), 60); // shotgun ammo
+    server.lootItem(client, server.generateItem(1269), 50); // 308 ammo
+    server.lootItem(client, server.generateItem(1249), 120); // ar ammo
+    
   }
   /*
   addallitems: function (server: ZoneServer2016, client: Client, args: any[]) {
