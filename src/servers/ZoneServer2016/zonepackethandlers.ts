@@ -1889,18 +1889,12 @@ export class zonePacketHandlers {
               reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
               maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
               reloadAmount = (reserveAmmo >= maxReloadAmount)?maxReloadAmount:reserveAmmo; // actual amount able to reload
-              server.sendData(client, "Weapon.Weapon", {
-                weaponPacket: {
-                  packetName: "Weapon.Reload",
-                  gameTime: packet.data.weaponPacket.gameTime,
-                  packet: {
-                    guid: p.packet.characterId,
-                    unknownDword1: maxAmmo,
-                    ammoCount: weaponItem.weapon.ammoCount + reloadAmount,
-                    unknownDword3: maxAmmo,
-                    characterId: "0x2",
-                  }
-                }
+              server.sendWeaponData(client, "Weapon.Reload", {
+                guid: p.packet.characterId,
+                unknownDword1: maxAmmo,
+                ammoCount: weaponItem.weapon.ammoCount + reloadAmount,
+                unknownDword3: maxAmmo,
+                characterId: "0x2",
               })
               weaponItem.weapon.ammoCount = weaponItem.weapon.ammoCount + reloadAmount;
               server.switchLoadoutSlot(client, client.character._loadout[client.character.currentLoadoutSlot]);

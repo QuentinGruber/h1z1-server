@@ -2486,6 +2486,27 @@ export type h1z1PacketsType =
   | "ClientPath.Reply"
   | "Ui.ConfirmHit";
 
+export type weaponPacketsType = 
+  | "Weapon.FireStateUpdate"
+  | "Weapon.FireStateTargetedUpdate"
+  | "Weapon.Fire"
+  | "Weapon.FireWithDefinitionMapping"
+  | "Weapon.FireNoProjectile"
+  | "Weapon.ProjectileHitReport"
+  | "Weapon.ReloadRequest"
+  | "Weapon.Reload"
+  | "Weapon.ReloadInterrupt"
+  | "Weapon.ReloadRejected"
+  | "Weapon.SwitchFireModeRequest"
+  | "Weapon.LockOnGuidUpdate"
+  | "Weapon.LockOnLocationUpdate"
+  | "Weapon.StatUpdate"
+  | "Weapon.AddFireGroup"
+  | "Weapon.RemoveFireGroup"
+  | "Weapon.ReplaceFireGroup"
+  | "Weapon.GuidedUpdate";
+
+
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"

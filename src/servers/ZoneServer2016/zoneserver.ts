@@ -38,7 +38,7 @@ import {
   loadoutItem,
   Weather2016,
 } from "../../types/zoneserver";
-import { h1z1PacketsType } from "../../types/packets";
+import { h1z1PacketsType, weaponPacketsType } from "../../types/packets";
 import { Character2016 as Character, Character2016 } from "./classes/character";
 import {
   _,
@@ -2160,7 +2160,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._sendData(client, packetName, obj, false);
   }
 
-  sendWeaponData(client: Client, packetName: h1z1PacketsType, obj: any) {
+  sendWeaponData(client: Client, packetName: weaponPacketsType, obj: any) {
     if(!packetName.includes("Weapon.")) {
       console.error("Invalid WeaponData packet name");
       return;
