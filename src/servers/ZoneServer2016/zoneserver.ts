@@ -70,7 +70,6 @@ import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
-import { healthThreadDecorator } from "../shared/workers/healthWorker";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -86,7 +85,6 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
   equipmentModelTexturesMapping = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
-@healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
   _gatewayServer: GatewayServer;
   _protocol: H1Z1Protocol;
@@ -140,6 +138,7 @@ export class ZoneServer2016 extends EventEmitter {
         "parachute",
         "spawnvehicle",
         "hood",
+        "kit"
       ];
   _interactionDistance = 4;
   _pingTimeoutTime = 120000;
