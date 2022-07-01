@@ -646,7 +646,7 @@ const dev: any = {
   //endregion
 
   weapondefs: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.weaponDefinitionsCache = server.packWeaponDefinitions();
+    server.packWeaponDefinitions();
     server.sendRawData(client, server.weaponDefinitionsCache);
   },
 };
