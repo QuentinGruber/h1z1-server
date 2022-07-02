@@ -1265,7 +1265,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 22
+            "FIRE_GROUP_ID": 1385
           }
         ]
       }
@@ -1798,7 +1798,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 35
+            "FIRE_GROUP_ID": 1397
           }
         ]
       }
@@ -2276,7 +2276,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 174
+            "FIRE_GROUP_ID": 1406
           }
         ]
       }
@@ -3440,7 +3440,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 84
+            "FIRE_GROUP_ID": 1434
           }
         ]
       }
@@ -3744,7 +3744,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 90
+            "FIRE_GROUP_ID": 1440
           }
         ]
       }
@@ -7024,10 +7024,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "22": {
-      "ID": 22,
+    "1385": {
+      "ID": 1385,
       "DATA": {
-        "ID": 22,
+        "ID": 1385,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 23
@@ -7300,10 +7300,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "35": {
-      "ID": 35,
+    "1397": {
+      "ID": 1397,
       "DATA": {
-        "ID": 35,
+        "ID": 1397,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 48
@@ -8320,10 +8320,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "84": {
-      "ID": 84,
+    "1434": {
+      "ID": 1434,
       "DATA": {
-        "ID": 84,
+        "ID": 1434,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 140
@@ -8464,10 +8464,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "90": {
-      "ID": 90,
+    "1440": {
+      "ID": 1440,
       "DATA": {
-        "ID": 90,
+        "ID": 1440,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 150
@@ -9155,10 +9155,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "174": {
-      "ID": 174,
+    "1406": {
+      "ID": 1406,
       "DATA": {
-        "ID": 174,
+        "ID": 1406,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 308
@@ -11351,9 +11351,9 @@
           "LOCK_ON_LOSE_TIME_MS": 0,
           "DEFAULT_ZOOM": 1,
           "FIRST_PERSON_OFFSET": {
-            "FIRST_PERSON_OFFSET_X": 0.019999999552965164,
-            "FIRST_PERSON_OFFSET_Y": -0.009999999776482582,
-            "FIRST_PERSON_OFFSET_Z": -0.009999999776482582
+            "FIRST_PERSON_OFFSET_X": 0.005999999552965164,
+            "FIRST_PERSON_OFFSET_Y": -0.00599999776482582,
+            "FIRST_PERSON_OFFSET_Z": 0.049999999776482582
           },
           "RETICLE_ID": 5,
           "FULL_SCREEN_EFFECT": 0,
@@ -23771,9 +23771,9 @@
           "LOCK_ON_LOSE_TIME_MS": 0,
           "DEFAULT_ZOOM": 1,
           "FIRST_PERSON_OFFSET": {
-            "FIRST_PERSON_OFFSET_X": 0.019999999552965164,
-            "FIRST_PERSON_OFFSET_Y": -0.02500000037252903,
-            "FIRST_PERSON_OFFSET_Z": -0.009999999776482582
+            "FIRST_PERSON_OFFSET_X": 0.003999999552965164,
+            "FIRST_PERSON_OFFSET_Y": -0.00599999776482582,
+            "FIRST_PERSON_OFFSET_Z": 0.059999999776482582
           },
           "RETICLE_ID": 5,
           "FULL_SCREEN_EFFECT": 0,
