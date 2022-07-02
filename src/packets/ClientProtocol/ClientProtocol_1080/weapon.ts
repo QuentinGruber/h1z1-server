@@ -36,7 +36,7 @@ const weaponPackets: any = [
   ],
   ["Weapon.FireStateTargetedUpdate", 0x8302, {}],
   [
-    "Weapon.Fire", // done
+    "Weapon.Fire",
     0x8303,
     {
       fields: [
@@ -237,7 +237,7 @@ const weaponPackets: any = [
     0x831c,
     {
       fields: [
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "unknownBoolean1", type: "boolean", defaultValue: true },
         { name: "unknownByte1", type: "uint8", defaultValue: 1 },
       ],

@@ -55,7 +55,7 @@ export class Character2016 extends BaseFullCharacter {
   timeouts: any;
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
-  reloadTimer!: NodeJS.Timeout;
+  reloadTimer?: NodeJS.Timeout | undefined = undefined;
   constructor(characterId: string, transientId: number) {
     super(
       characterId,
@@ -237,5 +237,6 @@ export class Character2016 extends BaseFullCharacter {
   }
   clearReloadTimeout(){
     if(this.reloadTimer) clearTimeout(this.reloadTimer)
+    this.reloadTimer = undefined;
   }
 }

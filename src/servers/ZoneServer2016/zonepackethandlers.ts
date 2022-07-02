@@ -1500,7 +1500,7 @@ export class zonePacketHandlers {
                   server._clients[a].character.isAlive &&
                   !server._clients[a].vehicle.mountedVehicle
                 ) {
-                  server.playerDamage(server._clients[a], 500);
+                  server.playerDamage(server._clients[a], 501, undefined, true);
                   server.sendDataToAllWithSpawnedEntity(
                     server._traps,
                     characterId,
@@ -1880,6 +1880,7 @@ export class zonePacketHandlers {
             debug("Weapon.ProjectileHitReport");
             break;
           case "Weapon.ReloadRequest":
+            if(client.character.reloadTimer) return;
             client.character.reloadTimer = setTimeout(() => {
               const weaponItem = client.character.getEquippedWeapon();
               if(!weaponItem.weapon || 
@@ -1898,6 +1899,11 @@ export class zonePacketHandlers {
               })
               weaponItem.weapon.ammoCount = weaponItem.weapon.ammoCount + reloadAmount;
               server.switchLoadoutSlot(client, client.character._loadout[client.character.currentLoadoutSlot]);
+              /*server.sendWeaponData(client, "Weapon.Reset", {
+                guid: weaponItem.itemGuid,
+                unknownBoolean1: true,
+                unknownByte1: 0
+              })*/
               server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
             }, server.getWeaponReloadTime(weaponItem.itemDefinitionId));
             

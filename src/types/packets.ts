@@ -2504,7 +2504,8 @@ export type weaponPacketsType =
   | "Weapon.AddFireGroup"
   | "Weapon.RemoveFireGroup"
   | "Weapon.ReplaceFireGroup"
-  | "Weapon.GuidedUpdate";
+  | "Weapon.GuidedUpdate"
+  | "Weapon.Reset";
 
 
 export type loginPacketsType =

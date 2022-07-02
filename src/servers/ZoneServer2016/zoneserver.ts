@@ -1336,7 +1336,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character._resources[ResourceIds.HUNGER] = 10000;
     client.character._resources[ResourceIds.HYDRATION] = 10000;
     client.character._resources[ResourceIds.STAMINA] = 600;
-    client.character._resources[ResourceIds.BLEEDING] = -120;
+    client.character._resources[ResourceIds.BLEEDING] = -40;
     client.character.healingTicks = 0;
     client.character.healingMaxTicks = 0;
     client.character.resourcesUpdater.refresh();
@@ -1385,6 +1385,12 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.characterId,
       client.character._resources[ResourceIds.HYDRATION],
       ResourceIds.HYDRATION
+    );
+    this.updateResource(
+      client,
+      client.character.characterId,
+      client.character._resources[ResourceIds.BLEEDING],
+      ResourceIds.BLEEDING
     );
   }
 
@@ -1478,7 +1484,7 @@ export class ZoneServer2016 extends EventEmitter {
           characterId: entityId,
           resourceId: resourceId,
           resourceType: resourceType,
-          initialValue: value,
+          initialValue: value>=0?value:0,
         },
       },
     });
@@ -1502,7 +1508,7 @@ export class ZoneServer2016 extends EventEmitter {
             characterId: entityId,
             resourceId: resourceId,
             resourceType: resourceType,
-            initialValue: value,
+            initialValue: value>=0?value:0,
           },
         },
       }
@@ -1528,7 +1534,7 @@ export class ZoneServer2016 extends EventEmitter {
             characterId: entityId,
             resourceId: resourceId,
             resourceType: resourceType,
-            initialValue: value,
+            initialValue: value>=0?value:0,
           },
         },
       }
@@ -1742,9 +1748,7 @@ export class ZoneServer2016 extends EventEmitter {
                     this.updateResourceToAllWithSpawnedCharacter(
                         client,
                         client.character.characterId,
-                        client.character._resources[ResourceIds.BLEEDING] > 0
-                            ? client.character._resources[ResourceIds.BLEEDING]
-                            : 0,
+                        client.character._resources[ResourceIds.BLEEDING],
                         ResourceIds.BLEEDING
                     );
                 }
@@ -4065,7 +4069,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.updateResourceToAllWithSpawnedCharacter(
       client,
       client.character.characterId,
-      bleeding > 0 ? bleeding : 0,
+      bleeding,
       ResourceIds.BLEEDING
     );
     this.removeInventoryItem(client, item, 1);
