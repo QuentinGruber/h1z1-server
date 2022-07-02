@@ -2758,7 +2758,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   //#region ********************INVENTORY********************
 
-  pGetItemData(client: Client, item: inventoryItem, containerDefId: number): {} {
+  pGetItemData(client: Client, item: inventoryItem, containerDefId: number) {
         let durability: number = 0;
         const isWeapon = this.isWeapon(item.itemDefinitionId);
         switch (true) {
@@ -3235,7 +3235,6 @@ export class ZoneServer2016 extends EventEmitter {
         }
         break;
       case 25054: // item1/item2 slots
-      case 25054:
         if (character._loadout[slot]?.itemDefinitionId) {
           // item 1
           slot = 41; // item 2
@@ -3436,7 +3435,7 @@ export class ZoneServer2016 extends EventEmitter {
       // todo: check multiple loadout slots for items
       return this.removeLoadoutItem(client, loadoutSlotId);
     } else {
-      let removeItems: {
+      const removeItems: {
         container: loadoutContainer;
         item: inventoryItem;
         count: number;

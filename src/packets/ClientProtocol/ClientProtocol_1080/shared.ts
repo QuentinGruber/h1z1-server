@@ -2436,10 +2436,10 @@ export const firemodesSchema = [
 ];
 
 export function packTargetData(obj: any) {
-  let data = Buffer.alloc(1);
+  const data = Buffer.alloc(1);
   data.writeUint8(obj["useTargetData"]?1:0, 0);
   if(obj["useTargetData"]) {
-    let targetData = DataSchema.pack([
+    const targetData = DataSchema.pack([
       {
         name: "position",
         type: "floatvector4",
