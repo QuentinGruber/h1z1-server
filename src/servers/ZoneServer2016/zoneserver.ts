@@ -3069,16 +3069,16 @@ export class ZoneServer2016 extends EventEmitter {
   getWeaponAmmoId(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
     weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1),
-    firegroupDefinition = this.getFiregroupDefinition(weaponDefinition?.FIRE_GROUPS[0].FIRE_GROUP_ID),
-    firemodeDefinition = this.getFiremodeDefinition(firegroupDefinition?.FIRE_MODES[0].FIRE_MODE_ID);
+    firegroupDefinition = this.getFiregroupDefinition(weaponDefinition?.FIRE_GROUPS[0]?.FIRE_GROUP_ID),
+    firemodeDefinition = this.getFiremodeDefinition(firegroupDefinition?.FIRE_MODES[0]?.FIRE_MODE_ID);
 
     return firemodeDefinition?.AMMO_ITEM_ID || 0;
   }
   getWeaponReloadTime(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
     weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1),
-    firegroupDefinition = this.getFiregroupDefinition(weaponDefinition?.FIRE_GROUPS[0].FIRE_GROUP_ID),
-    firemodeDefinition = this.getFiremodeDefinition(firegroupDefinition?.FIRE_MODES[0].FIRE_MODE_ID);
+    firegroupDefinition = this.getFiregroupDefinition(weaponDefinition?.FIRE_GROUPS[0]?.FIRE_GROUP_ID),
+    firemodeDefinition = this.getFiremodeDefinition(firegroupDefinition?.FIRE_MODES[0]?.FIRE_MODE_ID);
 
     return firemodeDefinition?.RELOAD_TIME_MS || 0;
   }
