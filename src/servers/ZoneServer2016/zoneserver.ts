@@ -1629,7 +1629,7 @@ export class ZoneServer2016 extends EventEmitter {
             canStopBleed = false;
         switch (client.character.getEquippedWeapon().itemDefinitionId) {
             case Items.WEAPON_AR15:
-            case Items.WEAPON_45:
+            case Items.WEAPON_1911:
                 damage = 2500;
                 break;
             case Items.WEAPON_M9:

@@ -752,7 +752,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 14
+            "FIRE_GROUP_ID": 113
           },
           {
             "FIRE_GROUP_ID": 58
@@ -1071,7 +1071,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 17
+            "FIRE_GROUP_ID": 1375
           }
         ]
       }
@@ -1223,7 +1223,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 21
+            "FIRE_GROUP_ID": 1384
           }
         ]
       }
@@ -1375,7 +1375,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 26
+            "FIRE_GROUP_ID": 1387
           },
           {
             "FIRE_GROUP_ID": 62
@@ -1491,7 +1491,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 28
+            "FIRE_GROUP_ID": 1389
           }
         ]
       }
@@ -1617,7 +1617,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 31
+            "FIRE_GROUP_ID": 1393
           }
         ]
       }
@@ -1659,7 +1659,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 32
+            "FIRE_GROUP_ID": 1394
           }
         ]
       }
@@ -1701,7 +1701,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 33
+            "FIRE_GROUP_ID": 1395
           }
         ]
       }
@@ -1743,7 +1743,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 34
+            "FIRE_GROUP_ID": 1396
           }
         ]
       }
@@ -1895,7 +1895,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 37
+            "FIRE_GROUP_ID": 1399
           },
           {
             "FIRE_GROUP_ID": 60
@@ -2713,7 +2713,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 47
+            "FIRE_GROUP_ID": 1415
           }
         ]
       }
@@ -3537,7 +3537,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 86
+            "FIRE_GROUP_ID": 1436
           }
         ]
       }
@@ -6902,10 +6902,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "14": {
-      "ID": 14,
+    "113": {
+      "ID": 113,
       "DATA": {
-        "ID": 14,
+        "ID": 113,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 17
@@ -6927,10 +6927,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "17": {
-      "ID": 17,
+    "1375": {
+      "ID": 1375,
       "DATA": {
-        "ID": 17,
+        "ID": 1375,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 23
@@ -6999,10 +6999,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "21": {
-      "ID": 21,
+    "1384": {
+      "ID": 1384,
       "DATA": {
-        "ID": 21,
+        "ID": 1384,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 160
@@ -7118,10 +7118,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "26": {
-      "ID": 26,
+    "1387": {
+      "ID": 1387,
       "DATA": {
-        "ID": 26,
+        "ID": 1387,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 118
@@ -7143,10 +7143,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "28": {
-      "ID": 28,
+    "1389": {
+      "ID": 1389,
       "DATA": {
-        "ID": 28,
+        "ID": 1389,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 41
@@ -7212,10 +7212,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "31": {
-      "ID": 31,
+    "1393": {
+      "ID": 1393,
       "DATA": {
-        "ID": 31,
+        "ID": 1393,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 44
@@ -7234,10 +7234,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "32": {
-      "ID": 32,
+    "1394": {
+      "ID": 1394,
       "DATA": {
-        "ID": 32,
+        "ID": 1394,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 45
@@ -7256,10 +7256,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "33": {
-      "ID": 33,
+    "1395": {
+      "ID": 1395,
       "DATA": {
-        "ID": 33,
+        "ID": 1395,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 46
@@ -7278,10 +7278,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "34": {
-      "ID": 34,
+    "1396": {
+      "ID": 1396,
       "DATA": {
-        "ID": 34,
+        "ID": 1396,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 47
@@ -7347,10 +7347,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "37": {
-      "ID": 37,
+    "1399": {
+      "ID": 1399,
       "DATA": {
-        "ID": 37,
+        "ID": 1399,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 113
@@ -7522,10 +7522,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "47": {
-      "ID": 47,
+    "1415": {
+      "ID": 1415,
       "DATA": {
-        "ID": 47,
+        "ID": 1415,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 69
@@ -8370,10 +8370,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "86": {
-      "ID": 86,
+    "1436": {
+      "ID": 1436,
       "DATA": {
-        "ID": 86,
+        "ID": 1436,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 144

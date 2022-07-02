@@ -528,14 +528,14 @@ export class WorldObjectManager {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_45Auto.adr":
-        authorizedItems.push({ id: Items.WEAPON_45, count: 1 });
+        authorizedItems.push({ id: Items.WEAPON_1911, count: 1 });
         break;
       case "ItemSpawner_Weapon_M9Auto.adr":
         authorizedItems.push({ id: Items.WEAPON_M9, count: 1 });
         break;
       case "ItemSpawner_AmmoBox02_1911.adr":
         authorizedItems.push({
-          id: Items.AMMO_1911,
+          id: Items.AMMO_45,
           count: randomIntFromInterval(1, 5),
         }); //todo: find item spawner for m9 ammo
         break;
@@ -683,7 +683,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: Items.WATER_EMPTY, count: 1 });
         authorizedItems.push({ id: Items.WATER_PURE, count: 1 });
         authorizedItems.push({
-          id: Items.AMMO_1911,
+          id: Items.AMMO_45,
           count: randomIntFromInterval(1, 5),
         });
         authorizedItems.push({
@@ -748,7 +748,7 @@ export class WorldObjectManager {
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerRare_Tier00.adr":
         authorizedItems.push({
-          id: Items.AMMO_1911,
+          id: Items.AMMO_45,
           count: randomIntFromInterval(1, 8),
         });
         authorizedItems.push({
@@ -781,7 +781,7 @@ export class WorldObjectManager {
           count: randomIntFromInterval(1, 5),
         });
 
-        authorizedItems.push({ id: Items.WEAPON_45, count: 1 });
+        authorizedItems.push({ id: Items.WEAPON_1911, count: 1 });
         authorizedItems.push({ id: Items.WEAPON_M9, count: 1 });
         authorizedItems.push({ id: Items.WEAPON_R380, count: 1 });
         authorizedItems.push({ id: Items.WEAPON_MAGNUM, count: 1 });
@@ -1071,7 +1071,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: Items.FIRST_AID, count: 1 });
         //ammo
         authorizedItems.push({
-          id: Items.AMMO_1911,
+          id: Items.AMMO_45,
           count: randomIntFromInterval(1, 10),
         });
         authorizedItems.push({
