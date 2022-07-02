@@ -101,6 +101,14 @@ const admin: any = {
       `Vehicle respawn timer set to ${Number(args[1])}`
     );
   },
+  god: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    server.setGodMode(client, !client.character.godMode);
+    server.sendAlert(client, `Set godmode to ${client.character.godMode}`)
+  }
 };
 
 export default admin;
