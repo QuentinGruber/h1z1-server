@@ -3055,15 +3055,15 @@ export class ZoneServer2016 extends EventEmitter {
   }
   
   getWeaponDefinition(weaponDefinitionId: number) {
-    return this._weaponDefinitions[weaponDefinitionId].DATA;
+    return this._weaponDefinitions[weaponDefinitionId]?.DATA;
   }
 
   getFiregroupDefinition(firegroupId: number) {
-    return this._firegroupDefinitions[firegroupId].DATA;
+    return this._firegroupDefinitions[firegroupId]?.DATA;
   }
 
   getFiremodeDefinition(firemodeId: number) {
-    return this._firemodeDefinitions[firemodeId].DATA.DATA;
+    return this._firemodeDefinitions[firemodeId]?.DATA.DATA;
   }
 
   getWeaponAmmoId(itemDefinitionId: number): number {
