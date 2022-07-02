@@ -20,6 +20,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
 import { Npc } from "../classes/npc";
 import { ExplosiveEntity } from "../classes/explosiveentity";
+import { Items } from "../enums";
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -637,14 +638,14 @@ const hax: any = {
     });
   },
   kit: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.lootItem(client, server.generateItem(1373), 1); // sniper
-    server.lootItem(client, server.generateItem(2663), 1); // shotgun
-    server.lootItem(client, server.generateItem(10), 1); // ar
-    server.lootItem(client, server.generateItem(2424), 10); // medkit
-    server.lootItem(client, server.generateItem(24), 10); // bandages
-    server.lootItem(client, server.generateItem(1511), 60); // shotgun ammo
-    server.lootItem(client, server.generateItem(1469), 50); // 308 ammo
-    server.lootItem(client, server.generateItem(1449), 120); // ar ammo
+    server.lootItem(client, server.generateItem(Items.WEAPON_308), 1); // sniper
+    server.lootItem(client, server.generateItem(Items.WEAPON_SHOTGUN), 1); // shotgun
+    server.lootItem(client, server.generateItem(Items.WEAPON_AR15), 1); // ar
+    server.lootItem(client, server.generateItem(Items.FIRST_AID), 10); // medkit
+    server.lootItem(client, server.generateItem(Items.BANDAGE), 10); // bandages
+    server.lootItem(client, server.generateItem(Items.AMMO_12GA), 60); // shotgun ammo
+    server.lootItem(client, server.generateItem(Items.AMMO_308), 50); // 308 ammo
+    server.lootItem(client, server.generateItem(Items.AMMO_223), 120); // ar ammo
   }
   /*
   addallitems: function (server: ZoneServer2016, client: Client, args: any[]) {
