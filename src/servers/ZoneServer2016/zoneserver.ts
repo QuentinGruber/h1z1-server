@@ -1685,6 +1685,14 @@ export class ZoneServer2016 extends EventEmitter {
             if (canStopBleed && c.character._loadout['38']) {
                 causeBleed = false;
             }
+            this.sendData(c, "Character.PlayWorldCompositeEffect",
+                    {
+                        characterId: c.character.characterId,
+                        effectId: 1165,
+                        position: [
+                            packet.hitReport.position[0] + 0.1, packet.hitReport.position[1], packet.hitReport.position[2] + 0.1, 1
+                        ],
+                    });
             this.playerDamage(c, damage, client.character, causeBleed);
           }
           break;
