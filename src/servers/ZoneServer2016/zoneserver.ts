@@ -1695,7 +1695,7 @@ export class ZoneServer2016 extends EventEmitter {
             }
             this.sendData(c, "Character.PlayWorldCompositeEffect", {
               characterId: c.character.characterId,
-              effectId: 1165,
+              effectId: hitEffect,
               position: [
                 packet.hitReport.position[0] + 0.1, packet.hitReport.position[1], packet.hitReport.position[2] + 0.1, 1
               ],
@@ -1711,32 +1711,41 @@ export class ZoneServer2016 extends EventEmitter {
     }
         let damage: number,
             isHeadshot = 0,
-            canStopBleed = false;
+            canStopBleed = false,
+            hitEffect = 0;
         switch (client.character.getEquippedWeapon().itemDefinitionId) {
             case Items.WEAPON_AR15:
             case Items.WEAPON_1911:
                 damage = 2500;
+                hitEffect = 1165;
                 break;
             case Items.WEAPON_M9:
                 damage = 1800;
+                hitEffect = 1165;
                 break;
             case Items.WEAPON_R380:
                 damage = 1500;
+                hitEffect = 1165;
                 break;
             case Items.WEAPON_SHOTGUN:
                 damage = 1667; // 1 pellet 
+                hitEffect = 1302;
                 break;
             case Items.WEAPON_AK47:
                 damage = 2900;
+                hitEffect = 1165;
                 break;
             case Items.WEAPON_308:
                 damage = 8000;
+                hitEffect = 5414;
                 break;
             case Items.WEAPON_MAGNUM:
                 damage = 3000;
+                hitEffect = 1165;
                 break;
             default:
                 damage = 1000;
+                hitEffect = 1165;
                 break;
         }
         const hasArmor = this.hasArmor(characterId),
