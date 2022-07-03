@@ -251,11 +251,6 @@ export class ZoneServer2016 extends EventEmitter {
       "tunneldata",
       (err: string, client: SOEClient, data: Buffer, flags: number) => {
         const packet = this._protocol.parse(data, flags);
-        /*
-        if(data[0] == 0x83) {
-          console.log(data.toString('hex').match(/../g)?.join(' '));
-        }
-        */
         if (packet) {
           this.emit("data", null, this._clients[client.sessionId], packet);
         } else {
@@ -574,17 +569,6 @@ export class ZoneServer2016 extends EventEmitter {
   async sendCharacterData(client: Client) {
     await this.loadCharacterData(client);
     const containers = this.initializeContainerList(client, false);
-    console.log(
-      Object.values(client.character._loadout)
-      .filter((slot) => {
-        if (slot.itemDefinitionId) {
-          return true;
-        }
-      })
-      .map((slot) => {
-        return this.pGetItemData(client, slot, 101);
-      })
-    )
     this.sendData(client, "SendSelfToClient", {
       data: {
         ...client.character.pGetLightweight(),
@@ -1450,7 +1434,6 @@ export class ZoneServer2016 extends EventEmitter {
         const elo = this._speedTrees[packet.data.id];
         let allowDes = false;
         let count = 1;
-        console.log(packet);
         if (elo) {
             debug(
                 "\x1b[32m",
@@ -1696,17 +1679,16 @@ export class ZoneServer2016 extends EventEmitter {
                 return;
             }
             let causeBleed: boolean = true;
-            if (canStopBleed && c.character._loadout['38']) {
+            if (canStopBleed && this.hasArmor(c.character.characterId)) {
                 causeBleed = false;
             }
-            this.sendData(c, "Character.PlayWorldCompositeEffect",
-                    {
-                        characterId: c.character.characterId,
-                        effectId: 1165,
-                        position: [
-                            packet.hitReport.position[0] + 0.1, packet.hitReport.position[1], packet.hitReport.position[2] + 0.1, 1
-                        ],
-                    });
+            this.sendData(c, "Character.PlayWorldCompositeEffect", {
+              characterId: c.character.characterId,
+              effectId: 1165,
+              position: [
+                packet.hitReport.position[0] + 0.1, packet.hitReport.position[1], packet.hitReport.position[2] + 0.1, 1
+              ],
+            });
             this.playerDamage(c, damage, client.character, causeBleed);
           }
           break;
@@ -3525,30 +3507,24 @@ export class ZoneServer2016 extends EventEmitter {
         count: number;
       }[] = [];
       for (const container of Object.values(client.character._containers)) {
-        //console.log(`container: ${container.slotId}`);
         if (!requiredCount) break;
         for (const item of Object.values(container.items)) {
           if (item.itemDefinitionId == itemDefinitionId) {
-            //console.log(`item: ${item.itemGuid}`);
             if (item.stackCount >= requiredCount) {
-              //console.log("stack 1");
               removeItems.push({ container, item, count: requiredCount });
               requiredCount = 0;
               break;
             } else {
-              //console.log("stack 2");
               removeItems.push({ container, item, count: item.stackCount });
               requiredCount -= item.stackCount;
             }
           }
         }
       }
-      if (requiredCount) {
-        // missing some items
+      if (requiredCount) { // missing some items
         return false;
       }
       for (const itemStack of Object.values(removeItems)) {
-        //console.log(itemStack);
         if (
           !this.removeContainerItem(
             client,

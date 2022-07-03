@@ -590,7 +590,7 @@ export class zonePacketHandlers {
           }
           break;
         default:
-          console.log(packet.data.commandHash)
+          //console.log(packet.data.commandHash)
           break;
       }
     }),
