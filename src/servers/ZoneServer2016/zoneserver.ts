@@ -1346,7 +1346,7 @@ export class ZoneServer2016 extends EventEmitter {
       client,
       client.character.characterId,
       client.character.characterStates,
-      false
+      true
     );
     this.sendData(client, "Character.RespawnReply", {
       characterId: client.character.characterId,
@@ -1393,18 +1393,32 @@ export class ZoneServer2016 extends EventEmitter {
       client.character._resources[ResourceIds.BLEEDING],
       ResourceIds.BLEEDING
     );
+    
+    // fixes characters showing up as dead if they respawn close to other characters
     this.sendDataToAllOthersWithSpawnedEntity(this._characters, client, client.character.characterId, "Character.RemovePlayer", {
       characterId: client.character.characterId
     })
-    Object.values(this._clients).forEach((c: Client) => {
-      let newSpawnedEntities: any[] = [];
-      c.spawnedEntities.forEach((ent)=> {
-        if(ent.characterId !== client.character.characterId) {
-          newSpawnedEntities.push(ent);
-        }
+    const vehicleId = client.vehicle.mountedVehicle,
+          vehicle = vehicleId ? this._vehicles[vehicleId] : false;
+    setTimeout(()=> {
+      if(!client?.character) return;
+      this.sendDataToAllOthersWithSpawnedEntity(this._characters, client, client.character.characterId, "AddLightweightPc", {
+        ...client.character,
+        actorModelId: client.character.actorModelId,
+        transientId: client.character.transientId,
+        identity: {
+          characterName: client.character.name,
+        },
+        position: client.character.state.position,
+        rotation: client.character.state.lookAt,
+        mountGuid: vehicleId || "",
+        mountSeatId: vehicle
+          ? vehicle.getCharacterSeat(client.character.characterId)
+          : 0,
+        mountRelatedDword1: vehicle ? 1 : 0,
       })
-      c.spawnedEntities = newSpawnedEntities;
-    });
+    }, 2000)
+    
   }
 
   speedTreeDestroy(packet: any) {
@@ -1961,9 +1975,9 @@ export class ZoneServer2016 extends EventEmitter {
     // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
-        e && // in case if entity is undefined somehow
+        (e && // in case if entity is undefined somehow
         !e.vehicleId &&
-        this.filterOutOfDistance(e, client.character.state.position)
+        this.filterOutOfDistance(e, client.character.state.position))
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
@@ -2087,7 +2101,7 @@ export class ZoneServer2016 extends EventEmitter {
           characterObj.state.position
         ) &&
         !client.spawnedEntities.includes(characterObj)
-          //&& !characterObj.characterStates.knockedOut
+          && !characterObj.characterStates.knockedOut
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
           vehicle = vehicleId ? this._vehicles[vehicleId] : false;
