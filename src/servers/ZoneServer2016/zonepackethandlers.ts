@@ -226,7 +226,6 @@ export class zonePacketHandlers {
           characterId: client.character.characterId,
           stance: 1,
         });
-        server.giveStartingItems(client, true);
         server.updateEquipment(client); // needed or third person character will be invisible
         server.updateLoadout(client); // needed or all loadout context menu entries aren't shown
         if (!server._soloMode) {

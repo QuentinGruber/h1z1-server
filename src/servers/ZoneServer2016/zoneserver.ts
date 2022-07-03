@@ -564,6 +564,25 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     this.giveStartingEquipment(client, false, true);
+    this.giveStartingItems(client, false);
+  }
+
+  pGetInventoryItems(client: Client): any[] {
+    const items: any[] = Object.values(client.character._loadout)
+    .filter((slot) => {
+      if (slot.itemDefinitionId) {
+        return true;
+      }
+    })
+    .map((slot) => {
+      return this.pGetItemData(client, slot, 101);
+    });
+    Object.values(client.character._containers).forEach((container) => {
+      Object.values(container.items).forEach((item) => {
+        items.push(this.pGetItemData(client, item, container.containerDefinitionId))
+      })
+    })
+    return items;
   }
 
   async sendCharacterData(client: Client) {
@@ -582,15 +601,7 @@ export class ZoneServer2016 extends EventEmitter {
           characterName: client.character.name,
         },
         inventory: {
-          items: Object.values(client.character._loadout)
-            .filter((slot) => {
-              if (slot.itemDefinitionId) {
-                return true;
-              }
-            })
-            .map((slot) => {
-              return this.pGetItemData(client, slot, 101);
-            }),
+          items: this.pGetInventoryItems(client),
           //unknownDword1: 2355
         },
         recipes: Object.values(this._recipes),
