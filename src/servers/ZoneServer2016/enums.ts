@@ -11,6 +11,13 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum EntityTypes {
+  INVALID = 0,
+  NPC = 1,
+  VEHICLE = 2,
+  PLAYER = 3,
+}
+
 export enum ResourceIds {
   HEALTH = 1,
   HUNGER = 4,

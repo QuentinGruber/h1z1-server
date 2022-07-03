@@ -29,7 +29,7 @@ import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
-import { Items, ResourceIds, ResourceTypes } from "./enums";
+import { EntityTypes, Items, ResourceIds, ResourceTypes } from "./enums";
 
 import {
   characterEquipment,
@@ -1542,14 +1542,15 @@ export class ZoneServer2016 extends EventEmitter {
   }
   
   getEntityType(entityKey: string): number {
-        if (!!this._npcs[entityKey]) {
-            return 1;
-        } else if (!!this._vehicles[entityKey]) {
-            return 2;
-        } else if (!!this._characters[entityKey]) {
-            return 3;
-        } else {
-            return 0;
+        switch (true) {
+          case !!this._npcs[entityKey]:
+            return EntityTypes.NPC;
+          case !!this._vehicles[entityKey]:
+            return EntityTypes.VEHICLE;
+          case !!this._characters[entityKey]:
+            return EntityTypes.PLAYER;
+          default:
+            return EntityTypes.INVALID;
         }
     }
     
@@ -1588,6 +1589,10 @@ export class ZoneServer2016 extends EventEmitter {
         }
     }
 
+    hasHelmet(characterId: string): boolean {
+      return !!(this._characters[characterId]?._loadout['11']?.itemDefinitionId > 0);
+    }
+
     checkHelmet(packet: any, damage: any) {
         const c = this.getClientByCharId(packet.hitReport.characterId);
         if (!c) {
@@ -1601,6 +1606,10 @@ export class ZoneServer2016 extends EventEmitter {
             }
         }
         return damage;
+    }
+
+    hasKevlar(characterId: string): boolean {
+      return !!(this._characters[characterId]?._loadout['38']?.itemDefinitionId > 0);
     }
 
     checkKevlar(packet: any, damage: any) {
@@ -1624,6 +1633,45 @@ export class ZoneServer2016 extends EventEmitter {
     
 
     registerHit(client: Client, packet: any) {
+      const characterId = packet.hitReport.characterId,
+      entityType = this.getEntityType(packet.hitReport.characterId)
+      let damageEntity;
+      switch (entityType) {
+        case EntityTypes.NPC:
+            if(!this._npcs[characterId] || this._npcs[characterId].flags.c == 127 ) {
+              return;
+            }
+            damageEntity = ()=> {
+              this.npcDamage(characterId, damage);
+            }
+            break;
+        case EntityTypes.VEHICLE:
+            if(!this._vehicles[characterId]) {
+              return;
+            }
+            damageEntity = ()=> {
+              this.damageVehicle(damage, this._vehicles[characterId])
+            }
+            break;
+        case EntityTypes.PLAYER:
+          if(!this._characters[characterId] || this._characters[characterId].characterStates.knockedOut) {
+            return;
+          }
+          damageEntity = ()=> {
+            const c = this.getClientByCharId(characterId);
+            if (!c) {
+                return;
+            }
+            let causeBleed: boolean = true;
+            if (canStopBleed && c.character._loadout['38']) {
+                causeBleed = false;
+            }
+            this.playerDamage(c, damage, client.character, causeBleed);
+          }
+          break;
+        default:
+            return;
+    }
         let damage: number,
             isHeadshot = 0,
             canStopBleed = false;
@@ -1654,6 +1702,8 @@ export class ZoneServer2016 extends EventEmitter {
                 damage = 1000;
                 break;
         }
+        const hasKevlar = this.hasKevlar(characterId),
+        hasHelmet = this.hasHelmet(characterId);
         switch (packet.hitReport.hitLocation.toLowerCase()) {
             case 'head':
             case 'glasses':
@@ -1702,31 +1752,14 @@ export class ZoneServer2016 extends EventEmitter {
                 hitType: {
                     isAlly: 0,
                     isHeadshot: isHeadshot,
-                    damagedArmor: 0,
-                    crackedArmor: 0,
+                    damagedArmor: 0, // todo: check if kevlar broke or not
+                    crackedArmor: 
+                      isHeadshot && hasHelmet?1:0 || 
+                      !isHeadshot && hasKevlar?1:0,
                 }
             });
         }
-        switch (this.getEntityType(packet.hitReport.characterId)) {
-            case 1:
-                this.npcDamage(packet.hitReport.characterId, damage);
-                break;
-            case 2:
-                this.damageVehicle(damage, this._vehicles[packet.hitReport.characterId])
-                break;
-            case 3:
-                const c = this.getClientByCharId(packet.hitReport.characterId);
-                if (!c) {
-                    return;
-                }
-                let causeBleed: boolean = true;
-                if (canStopBleed && c.character._loadout['38']) {
-                    causeBleed = false;
-                }
-                this.playerDamage(c, damage, client.character, causeBleed);
-
-                break;
-        }
+        damageEntity();
     }
   
   playerDamage(client: Client, damage: number, killer: Character2016 | undefined = undefined, causeBleeding: boolean = false) {
@@ -3169,7 +3202,11 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     isHelmet(itemDefinitionId: number): boolean {
-        return (this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 || this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12994 || this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9114);
+        return (this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 || 
+        this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12994 || 
+        this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9114 ||
+        this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945
+        );
     }
 
   validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {
