@@ -1549,6 +1549,10 @@ export class ZoneServer2016 extends EventEmitter {
             return EntityTypes.VEHICLE;
           case !!this._characters[entityKey]:
             return EntityTypes.PLAYER;
+          case !!this._objects[entityKey]:
+            return EntityTypes.OBJECT;
+          case !!this._doors[entityKey]:
+            return EntityTypes.DOOR;
           default:
             return EntityTypes.INVALID;
         }

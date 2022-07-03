@@ -33,7 +33,7 @@ import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
-import { ResourceIds } from "./enums";
+import { EntityTypes, ResourceIds } from "./enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
 import { DoorEntity } from "./classes/doorentity";
@@ -877,21 +877,15 @@ export class zonePacketHandlers {
           server._vehicles[characterId] ||
           server._characters[characterId] ||
           0,
-        entityType = server._npcs[characterId]
-          ? 1
-          : 0 || server._vehicles[characterId]
-          ? 2
-          : 0 || server._characters[characterId]
-          ? 3
-          : 0;
+        entityType = server.getEntityType(characterId)
 
       if (!entityType) return;
       switch (entityType) {
-        case 1: // npcs
+        case EntityTypes.NPC: // npcs
           const npc = entityData as Npc;
           server.sendData(client, "LightweightToFullNpc", npc.pGetFull());
           break;
-        case 2: // vehicles
+        case EntityTypes.VEHICLE: // vehicles
           const vehicle = entityData as Vehicle2016;
           if (vehicle.vehicleId != 13) {
             server.sendData(
@@ -934,7 +928,7 @@ export class zonePacketHandlers {
             });
           }
           break;
-        case 3: // characters
+        case EntityTypes.PLAYER: // characters
           const character = entityData as Character2016;
           character._equipment[28] = {
             // temporary to fix missing heads
@@ -989,15 +983,7 @@ export class zonePacketHandlers {
           server._doors[guid] ||
           server._npcs[guid] ||
           0,
-        entityType = server._objects[guid]
-          ? 1
-          : 0 || server._vehicles[guid]
-          ? 2
-          : 0 || server._doors[guid]
-          ? 3
-          : 0 || server._npcs[guid]
-          ? 4
-          : 0;
+        entityType = server.getEntityType(guid)
 
       if (
         !entityData ||
@@ -1010,15 +996,15 @@ export class zonePacketHandlers {
         return;
 
       switch (entityType) {
-        case 1: // object
+        case EntityTypes.OBJECT:
           server.pickupItem(client, guid);
           break;
-        case 2: // vehicle
+        case EntityTypes.VEHICLE:
           !client.vehicle.mountedVehicle
             ? server.mountVehicle(client, packet.data.guid)
             : server.dismountVehicle(client);
           break;
-        case 3: // door
+        case EntityTypes.DOOR:
           const door = entityData as DoorEntity;
           if (door.moving) {
             return;
@@ -1042,7 +1028,7 @@ export class zonePacketHandlers {
           });
           door.isOpen = !door.isOpen;
           break;
-        case 4: // npc
+        case EntityTypes.NPC:
           const npc = entityData as Npc;
           server.sendDataToAllWithSpawnedEntity(
             server._npcs,
@@ -1087,13 +1073,7 @@ export class zonePacketHandlers {
           server._vehicles[guid] ||
           server._doors[guid] ||
           0,
-        entityType = server._objects[guid]
-          ? 1
-          : 0 || server._vehicles[guid]
-          ? 2
-          : 0 || server._doors[guid]
-          ? 3
-          : 0;
+        entityType = server.getEntityType(guid)
 
       if (
         !entityData ||
@@ -1106,13 +1086,13 @@ export class zonePacketHandlers {
         return;
 
       switch (entityType) {
-        case 1: // object
+        case EntityTypes.OBJECT:
           server.sendData(client, "Command.InteractionString", {
             guid: guid,
             stringId: 29,
           });
           break;
-        case 2: // vehicle
+        case EntityTypes.VEHICLE:
           if (!client.vehicle.mountedVehicle) {
             server.sendData(client, "Command.InteractionString", {
               guid: guid,
@@ -1120,7 +1100,7 @@ export class zonePacketHandlers {
             });
           }
           break;
-        case 3: // door
+        case EntityTypes.DOOR:
           server.sendData(client, "Command.InteractionString", {
             guid: guid,
             stringId: 78,
@@ -1348,7 +1328,6 @@ export class zonePacketHandlers {
       ).PLACEMENT_MODEL_ID;
       const characterId = server.generateGuid(),
         transientId = server.getTransientId(characterId);
-      const tempObj: any = {};
       let trap: TrapEntity, explosive: ExplosiveEntity;
       switch (packet.data.itemDefinitionId) {
         case 1804:
