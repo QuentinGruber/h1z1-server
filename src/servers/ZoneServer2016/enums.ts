@@ -11,6 +11,13 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum LoadoutSlots {
+  PRIMARY = 1,
+  FISTS = 7,
+  HEAD = 11,
+  ARMOR = 38
+}
+
 export enum EntityTypes {
   INVALID = 0,
   NPC = 1,
