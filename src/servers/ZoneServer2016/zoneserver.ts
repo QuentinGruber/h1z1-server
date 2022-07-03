@@ -1393,6 +1393,18 @@ export class ZoneServer2016 extends EventEmitter {
       client.character._resources[ResourceIds.BLEEDING],
       ResourceIds.BLEEDING
     );
+    this.sendDataToAllOthersWithSpawnedEntity(this._characters, client, client.character.characterId, "Character.RemovePlayer", {
+      characterId: client.character.characterId
+    })
+    Object.values(this._clients).forEach((c: Client) => {
+      let newSpawnedEntities: any[] = [];
+      c.spawnedEntities.forEach((ent)=> {
+        if(ent.characterId !== client.character.characterId) {
+          newSpawnedEntities.push(ent);
+        }
+      })
+      c.spawnedEntities = newSpawnedEntities;
+    });
   }
 
   speedTreeDestroy(packet: any) {
@@ -2067,7 +2079,7 @@ export class ZoneServer2016 extends EventEmitter {
           characterObj.state.position
         ) &&
         !client.spawnedEntities.includes(characterObj)
-          && !characterObj.characterStates.knockedOut
+          //&& !characterObj.characterStates.knockedOut
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
           vehicle = vehicleId ? this._vehicles[vehicleId] : false;
