@@ -1693,13 +1693,16 @@ export class ZoneServer2016 extends EventEmitter {
             if (canStopBleed && this.hasArmor(c.character.characterId)) {
                 causeBleed = false;
             }
-            this.sendData(c, "Character.PlayWorldCompositeEffect", {
-              characterId: c.character.characterId,
-              effectId: hitEffect,
-              position: [
-                packet.hitReport.position[0] + 0.1, packet.hitReport.position[1], packet.hitReport.position[2] + 0.1, 1
-              ],
-            });
+            this.sendDataToAllWithSpawnedEntity(
+                        this._characters,
+                        c.character.characterId,
+                        "Character.PlayWorldCompositeEffect", {
+                        characterId: c.character.characterId,
+                        effectId: hitEffect,
+                        position: [
+                            packet.hitReport.position[0] + 0.1, packet.hitReport.position[1], packet.hitReport.position[2] + 0.1, 1
+                        ],
+                    });
             this.playerDamage(c, damage, client.character, causeBleed);
           }
           break;
