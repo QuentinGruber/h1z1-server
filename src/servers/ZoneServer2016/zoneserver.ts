@@ -1554,6 +1554,8 @@ export class ZoneServer2016 extends EventEmitter {
             return EntityTypes.OBJECT;
           case !!this._doors[entityKey]:
             return EntityTypes.DOOR;
+          case !!this._explosives[entityKey]:
+            return EntityTypes.EXPLOSIVE;
           default:
             return EntityTypes.INVALID;
         }
@@ -1674,6 +1676,9 @@ export class ZoneServer2016 extends EventEmitter {
             this.playerDamage(c, damage, client.character, causeBleed);
           }
           break;
+        case EntityTypes.EXPLOSIVE:
+          this.explodeExplosive(this._explosives[characterId]);
+          return;
         default:
             return;
     }

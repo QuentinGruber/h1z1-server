@@ -1394,26 +1394,7 @@ export class zonePacketHandlers {
                     explosive.state.position
                   ) < 0.6
                 ) {
-                  server.explosionDamage(explosive.state.position, characterId);
-                  server.sendDataToAllWithSpawnedEntity(
-                    server._explosives,
-                    characterId,
-                    "Character.PlayWorldCompositeEffect",
-                    {
-                      characterId: characterId,
-                      effectId: 1875,
-                      position: server._clients[a].character.state.position,
-                    }
-                  );
-                  server.sendDataToAllWithSpawnedEntity(
-                    server._explosives,
-                    characterId,
-                    "Character.RemovePlayer",
-                    {
-                      characterId: characterId,
-                    }
-                  );
-                  delete server._explosives[characterId];
+                  server.explodeExplosive(explosive);
                   return;
                 }
               }
@@ -1424,26 +1405,7 @@ export class zonePacketHandlers {
                     explosive.state.position
                   ) < 2.2
                 ) {
-                  server.explosionDamage(explosive.state.position, characterId);
-                  server.sendDataToAllWithSpawnedEntity(
-                    server._explosives,
-                    characterId,
-                    "Character.PlayWorldCompositeEffect",
-                    {
-                      characterId: characterId,
-                      effectId: 1875,
-                      position: server._vehicles[a].state.position,
-                    }
-                  );
-                  server.sendDataToAllWithSpawnedEntity(
-                    server._explosives,
-                    characterId,
-                    "Character.RemovePlayer",
-                    {
-                      characterId: characterId,
-                    }
-                  );
-                  delete server._explosives[characterId];
+                  server.explodeExplosive(explosive);
                   return;
                 }
               }

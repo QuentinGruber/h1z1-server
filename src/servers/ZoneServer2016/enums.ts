@@ -17,7 +17,8 @@ export enum EntityTypes {
   VEHICLE = 2,
   PLAYER = 3,
   OBJECT = 4,
-  DOOR = 5
+  DOOR = 5,
+  EXPLOSIVE = 6,
 }
 
 export enum ResourceIds {
