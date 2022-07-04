@@ -3100,18 +3100,17 @@ export class ZoneServer2016 extends EventEmitter {
 
   generateRandomEquipmentsFromAnEntity(
     entity: BaseFullCharacter,
-    gender: string,
     slots: number[]
   ) {
     slots.forEach((slot) => {
       entity._equipment[slot] = this.generateRandomEquipmentForSlot(
-        gender,
-        slot
+        slot,
+        entity.gender
       );
     });
   }
 
-  generateRandomEquipmentForSlot(gender: string, slotId: number) {
+  generateRandomEquipmentForSlot(slotId: number, gender: number) {
     const models = equipmentModelTexturesMapping[slotId];
     const model = getRandomKeyFromAnObject(models);
     const skins = equipmentModelTexturesMapping[slotId][model];
@@ -3122,7 +3121,7 @@ export class ZoneServer2016 extends EventEmitter {
       skin = "";
     }
     return {
-      modelName: model.replace("<gender>", gender),
+      modelName: model.replace("<gender>", gender==1?"Male":"Female"),
       slotId,
       textureAlias: skin,
       guid: bigIntToHexString(this.generateItemGuid()),

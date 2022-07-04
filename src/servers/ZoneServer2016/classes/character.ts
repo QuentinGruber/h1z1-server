@@ -42,7 +42,6 @@ export class Character2016 extends BaseFullCharacter {
   headActor!: string;
   hairModel!: string;
   isRespawning = false;
-  gender!: number;
   creationDate!: string;
   lastLoginDate!: string;
   currentLoadoutSlot = 7; //fists

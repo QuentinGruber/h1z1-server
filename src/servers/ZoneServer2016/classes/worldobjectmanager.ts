@@ -104,22 +104,10 @@ export class WorldObjectManager {
     }
   }
   equipRandomSkins(server: ZoneServer2016, npc: Npc): void {
-    switch (npc.actorModelId) {
-      case 9510: {
-        server.generateRandomEquipmentsFromAnEntity(
-          npc,
-          "Male",
-          [3, 1, 2, 4, 29, 28, 27, 10, 5]
-        );
-      }
-      case 9634: {
-        server.generateRandomEquipmentsFromAnEntity(
-          npc,
-          "Female",
-          [3, 1, 2, 4, 29, 28, 27, 10, 5]
-        );
-      }
-    }
+    server.generateRandomEquipmentsFromAnEntity(
+      npc,
+      [3, 1, 2, 4, 29, 28, 27, 10, 5]
+    );
   }
   createNpc(
     server: ZoneServer2016,

@@ -23,6 +23,19 @@ import { ZoneClient2016 } from "./zoneclient";
 
 const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.json");
 
+function getGender(actorModelId: number): number {
+  switch (actorModelId) {
+      case 9510: // zombiemale
+      case 9240: // male character
+        return 1;
+      case 9634: // zombiefemale
+      case 9474: // female character
+        return 2;
+      default:
+      return 0;
+  }
+}
+
 export class BaseFullCharacter extends BaseLightweightCharacter {
   onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
   _resources: { [resourceId: number]: number } = {};
@@ -33,6 +46,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
   flags = { a: 0, b: 0, c: 0 };
+  gender: number;
   constructor(
     characterId: string,
     transientId: number,
@@ -41,6 +55,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     rotation: Float32Array
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
+    this.gender = getGender(this.actorModelId);
     this.setupLoadoutSlots();
   }
 
