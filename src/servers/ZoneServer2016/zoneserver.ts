@@ -92,8 +92,6 @@ export class ZoneServer2016 extends EventEmitter {
   _db?: Db;
   _soloMode = false;
   private _mongoAddress: string;
-  _clients: { [characterId: string]: Client } = {};
-  _characters: { [characterId: string]: Character } = {};
   _clientProtocol = "ClientProtocol_1080";
   _dynamicWeatherWorker: any;
   _dynamicWeatherEnabled = true;
@@ -102,13 +100,15 @@ export class ZoneServer2016 extends EventEmitter {
   private _h1emuZoneServer!: H1emuZoneServer;
   _appDataFolder = getAppDataFolderPath();
   _worldId = 0;
-
+  _clients: { [characterId: string]: Client } = {};
+  _characters: { [characterId: string]: Character } = {};
   _npcs: { [characterId: string]: Npc } = {};
   _spawnedItems: { [characterId: string]: ItemObject } = {};
   _doors: { [characterId: string]: DoorEntity } = {};
   _explosives: { [characterId: string]: ExplosiveEntity } = {};
   _traps: { [characterId: string]: TrapEntity } = {};
   _temporaryObjects: { [characterId: string]: TemporaryEntity } = {};
+  _vehicles: { [characterId: string]: Vehicle } = {};
   _props: any = {};
   _speedTrees: any = {};
   _speedTreesCounter: any = {};
@@ -146,7 +146,6 @@ export class ZoneServer2016 extends EventEmitter {
   _weather2016: Weather2016;
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
-  _vehicles: { [characterId: string]: Vehicle } = {};
   worldObjectManager: WorldObjectManager;
   plantingManager: PlantingManager;
   _ready: boolean = false;
@@ -154,12 +153,9 @@ export class ZoneServer2016 extends EventEmitter {
   _weaponDefinitions: { [weaponDefinitionId: number]: any } = weaponDefinitions.WEAPON_DEFINITIONS;
   _firegroupDefinitions: { [firegroupId: number]: any } = weaponDefinitions.FIRE_GROUP_DEFINITIONS;
   _firemodeDefinitions: { [firemodeId: number]: any } = weaponDefinitions.FIRE_MODE_DEFINITIONS;
-  _itemDefinitionIds: any[] = Object.keys(this._itemDefinitions);
   itemDefinitionsCache: any;
   weaponDefinitionsCache: any;
-  _containerDefinitions: { [containerDefinitionId: number]: any } =
-    containerDefinitions;
-  _containerDefinitionIds: any[] = Object.keys(this._containerDefinitions);
+  _containerDefinitions: { [containerDefinitionId: number]: any } = containerDefinitions;
   _recipes: { [recipeId: number]: any } = recipes;
   private lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
@@ -281,7 +277,7 @@ export class ZoneServer2016 extends EventEmitter {
         (err: string, client: H1emuClient) => {
           console.error(`h1emuServer sessionfailed for ${client.sessionId}`);
           console.error(err);
-          process.exit(11);
+          //process.exit(11);
         }
       );
 
@@ -824,10 +820,9 @@ export class ZoneServer2016 extends EventEmitter {
       // cache itemDefinitions so server doesn't have to spend time packing for each
       // character login
       data: {
-        itemDefinitions: this._itemDefinitionIds.map((itemDefId: any) => {
-          const itemDef = this.getItemDefinition(itemDefId);
+        itemDefinitions: Object.values(this._itemDefinitions).map((itemDef: any) => {
           return {
-            ID: itemDefId,
+            ID: itemDef.ID,
             definitionData: {
               ...itemDef,
               HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
@@ -1016,6 +1011,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.itemDefinitionsCache) {
       this.packItemDefinitions();
     }
+    // disabled since it breaks weapon inspect
     //this.sendRawData(client, this.itemDefinitionsCache);
     if (!this.weaponDefinitionsCache) {
       this.packWeaponDefinitions();

@@ -28,6 +28,7 @@ export class Npc extends BaseFullCharacter {
     health: number;
     npcRenderDistance = 80;
     spawnerId: number;
+    deathTime: number = 0;
     constructor(
         characterId: string,
         transientId: number,
