@@ -469,7 +469,7 @@ export class SOEServer extends EventEmitter {
         }
       } catch (e) {
         console.log(e);
-        //process.exit(1);
+        process.exitCode = 1;
       }
     });
     this._connection.postMessage({ type: "bind" });
@@ -477,7 +477,7 @@ export class SOEServer extends EventEmitter {
 
   stop(): void {
     this._connection.postMessage({ type: "close" });
-    process.exit(0);
+    process.exitCode = 0;
   }
   // Build the logical packet via the soeprotocol
   private createLogicalPacket(
@@ -503,7 +503,9 @@ export class SOEServer extends EventEmitter {
         )}`
       );
       console.error(e);
-      //process.exit(1);
+      process.exitCode = 1;
+      // @ts-ignore
+      return null
     }
   }
   // The packets is builded from schema and added to one of the queues
