@@ -60,6 +60,9 @@ export class H1Z1Protocol {
     this.protocolName = protocolName;
     // Maybe will remove this switch later
     switch (this.protocolName) {
+      default:
+        debug(`Protocol ${this.protocolName} unsupported !`);
+        process.exitCode = 0;
       case "ClientProtocol_860": // normal client from 15 january 2015
         this.H1Z1Packets = require("../packets/ClientProtocol/ClientProtocol_860/h1z1packets");
         this.PlayerUpdateManagedPositionOpcode = 0x90;
@@ -74,9 +77,7 @@ export class H1Z1Protocol {
         this.VehicleDimissOpcode = 0x8918;
         this.weaponOpcode = 0x83;
         break;
-      default:
-        debug(`Protocol ${this.protocolName} unsupported !`);
-        process.exit();
+      
     }
   }
 
