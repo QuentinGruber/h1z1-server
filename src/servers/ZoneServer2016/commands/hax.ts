@@ -182,7 +182,7 @@ const hax: any = {
     client.spawnedEntities = [];
     server._props = {};
     server._npcs = {};
-    server._objects = {};
+    server._spawnedItems = {};
     server._vehicles = {};
     server._doors = {};
     server.sendChatText(client, "Objects removed from the game.", true);

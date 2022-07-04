@@ -148,7 +148,7 @@ export class WorldObjectManager {
     position: Float32Array,
     rotation: Float32Array,
     itemSpawnerId: number = -1
-  ): void {
+  ): ItemObject | undefined {
     if (!item) {
       debug(`[ERROR] Tried to createLootEntity with invalid item object`);
       return;
@@ -170,7 +170,7 @@ export class WorldObjectManager {
       modelId = itemDef.WORLD_MODEL_ID;
     }
     const characterId = generateRandomGuid();
-    server._objects[characterId] = new ItemObject(
+    server._spawnedItems[characterId] = new ItemObject(
       characterId,
       server.getTransientId(characterId),
       modelId,
@@ -180,6 +180,7 @@ export class WorldObjectManager {
       item
     );
     if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;
+    return server._spawnedItems[characterId];
   }
 
   createDoor(

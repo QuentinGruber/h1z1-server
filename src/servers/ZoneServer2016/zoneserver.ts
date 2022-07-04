@@ -104,7 +104,7 @@ export class ZoneServer2016 extends EventEmitter {
   _worldId = 0;
 
   _npcs: { [characterId: string]: Npc } = {};
-  _objects: { [characterId: string]: ItemObject } = {};
+  _spawnedItems: { [characterId: string]: ItemObject } = {};
   _doors: { [characterId: string]: DoorEntity } = {};
   _explosives: { [characterId: string]: ExplosiveEntity } = {};
   _traps: { [characterId: string]: TrapEntity } = {};
@@ -754,14 +754,14 @@ export class ZoneServer2016 extends EventEmitter {
         const npc = npcsArray[index];
         this._npcs[npc.characterId] = npc;
       }
-      this._objects = {};
+      this._spawnedItems = {};
       const objectsArray: any = await this._db
         ?.collection("objects")
         .find({ worldId: this._worldId })
         .toArray();
       for (let index = 0; index < objectsArray.length; index++) {
         const object = objectsArray[index];
-        this._objects[object.characterId] = object;
+        this._spawnedItems[object.characterId] = object;
       }
       this._transientIds = this.getAllCurrentUsedTransientId();
       debug("World fetched!");
@@ -787,7 +787,7 @@ export class ZoneServer2016 extends EventEmitter {
           .insertMany(Object.values(this._vehicles));
         await this._db
           ?.collection(`objects`)
-          .insertMany(Object.values(this._objects));
+          .insertMany(Object.values(this._spawnedItems));
       } else {
         const numberOfWorld: number =
           (await this._db?.collection("worlds").find({}).count()) || 0;
@@ -813,7 +813,7 @@ export class ZoneServer2016 extends EventEmitter {
           .insertMany(Object.values(this._vehicles));
         await this._db
           ?.collection(`objects`)
-          .insertMany(Object.values(this._objects));
+          .insertMany(Object.values(this._spawnedItems));
         debug("World saved!");
       }
     }
@@ -1570,7 +1570,7 @@ export class ZoneServer2016 extends EventEmitter {
             return EntityTypes.VEHICLE;
           case !!this._characters[entityKey]:
             return EntityTypes.PLAYER;
-          case !!this._objects[entityKey]:
+          case !!this._spawnedItems[entityKey]:
             return EntityTypes.OBJECT;
           case !!this._doors[entityKey]:
             return EntityTypes.DOOR;
@@ -2119,8 +2119,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   spawnObjects(client: Client) {
-    for (const characterId in this._objects) {
-      const object = this._objects[characterId];
+    for (const characterId in this._spawnedItems) {
+      const object = this._spawnedItems[characterId];
       if (
         isPosInRadius(
           object.npcRenderDistance,
@@ -3572,13 +3572,15 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       return;
     }
-    this.worldObjectManager.createLootEntity(
+    const itemObject = this.worldObjectManager.createLootEntity(
       this,
       dropItem,
       client.character.state.position,
       new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
     );
-    this.spawnObjects(client); // manually call this for now
+    if(itemObject) {
+      itemObject.creationTime = Date.now();
+    }
   }
 
   lootItem(client: Client, item: inventoryItem | undefined, count: number) {
@@ -3601,7 +3603,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   pickupItem(client: Client, guid: string) {
-    const object = this._objects[guid],
+    const object = this._spawnedItems[guid],
       item: inventoryItem = object.item;
     if (!item) {
       this.sendChatText(client, `[ERROR] Invalid item`);
@@ -3619,7 +3621,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     //endregion
     this.lootItem(client, item, item.stackCount);
-    this.deleteEntity(guid, this._objects);
+    this.deleteEntity(guid, this._spawnedItems);
     delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
   }
 
@@ -4429,8 +4431,8 @@ export class ZoneServer2016 extends EventEmitter {
       const npc = this._npcs[key];
       allTransient[npc.transientId] = key;
     }
-    for (const key in this._objects) {
-      const object = this._objects[key];
+    for (const key in this._spawnedItems) {
+      const object = this._spawnedItems[key];
       allTransient[object.transientId] = key;
     }
     return allTransient;

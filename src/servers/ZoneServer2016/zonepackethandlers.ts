@@ -444,7 +444,7 @@ export class zonePacketHandlers {
               _clients: clients,
               _characters: characters,
               _npcs: npcs,
-              _objects: objects,
+              _spawnedItems: objects,
               _vehicles: vehicles,
               _doors: doors,
               _props: props,
@@ -977,7 +977,7 @@ export class zonePacketHandlers {
     ) {
       const { guid } = packet.data,
         entityData: BaseLightweightCharacter =
-          server._objects[guid] ||
+          server._spawnedItems[guid] ||
           server._vehicles[guid] ||
           server._doors[guid] ||
           server._npcs[guid] ||
@@ -1068,7 +1068,7 @@ export class zonePacketHandlers {
     ) {
       const { guid } = packet.data,
         entityData: BaseLightweightCharacter =
-          server._objects[guid] ||
+          server._spawnedItems[guid] ||
           server._vehicles[guid] ||
           server._doors[guid] ||
           0,
