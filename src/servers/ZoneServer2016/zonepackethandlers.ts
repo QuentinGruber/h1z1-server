@@ -1855,6 +1855,13 @@ export class zonePacketHandlers {
             break;
           case "Weapon.ReloadInterrupt": 
             server.reloadInterrupt(client);
+            server.sendWeaponData(client, "Weapon.Reload", {
+              guid: weaponItem.itemGuid,
+              unknownDword1: weaponItem.weapon.ammoCount,
+              ammoCount: weaponItem.weapon.ammoCount,
+              unknownDword3: weaponItem.weapon.ammoCount,
+              characterId: "0x2",
+            })
             break;
           case "Weapon.SwitchFireModeRequest":
             debug("SwitchFireModeRequest");
