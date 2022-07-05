@@ -3867,6 +3867,22 @@ export class ZoneServer2016 extends EventEmitter {
     this.lootContainerItem(client, this.generateItem(1751), 5, sendPacket); // gauze
     this.lootContainerItem(client, this.generateItem(1804), 1, sendPacket); // flare
     this.lootContainerItem(client, this.generateItem(1436), 1, sendPacket); // lighter
+    this.giveKitItems(client);
+  }
+
+  giveKitItems(client: Client) {
+    this.lootItem(client, this.generateItem(Items.WEAPON_308), 1); // sniper
+    this.lootItem(client, this.generateItem(Items.WEAPON_SHOTGUN), 1); // shotgun
+    this.lootItem(client, this.generateItem(Items.WEAPON_AR15), 1); // ar
+    this.lootItem(client, this.generateItem(Items.FIRST_AID), 10); // medkit
+    this.lootItem(client, this.generateItem(Items.BANDAGE), 10); // bandages
+    this.lootItem(client, this.generateItem(Items.AMMO_12GA), 60); // shotgun ammo
+    this.lootItem(client, this.generateItem(Items.AMMO_308), 50); // 308 ammo
+    this.lootItem(client, this.generateItem(Items.AMMO_223), 120); // ar ammo
+    this.lootItem(client, this.generateItem(Items.KEVLAR_DEFAULT), 1); // kevlar
+    this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
+    this.lootItem(client, this.generateItem(Items.KEVLAR_DEFAULT), 1); // kevlar
+    this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
   }
 
   clearInventory(client: Client) {
