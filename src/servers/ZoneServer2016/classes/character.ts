@@ -55,6 +55,19 @@ export class Character2016 extends BaseFullCharacter {
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
   reloadTimer?: NodeJS.Timeout | undefined = undefined;
+  combatlog?: {
+    killedBy: {
+      name: string,
+      weapon: string,
+      position: Float32Array,
+      distance: number
+    }
+    hitReport: {
+      hitLocation: string,
+      hitPosition: Float32Array,
+
+    }
+  }
   constructor(characterId: string, transientId: number) {
     super(
       characterId,

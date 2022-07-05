@@ -208,6 +208,7 @@ export class zonePacketHandlers {
           "help",
           "netstats",
           "me",
+          "combatlog"
         ];
 
         commands.forEach((command) => {
@@ -588,8 +589,11 @@ export class zonePacketHandlers {
             );
           }
           break;
+        case 389871706: // combatlog
+          server.combatLog(client);
+          break;
         default:
-          //console.log(packet.data.commandHash)
+          console.log(packet.data.commandHash)
           break;
       }
     }),
@@ -1850,7 +1854,7 @@ export class zonePacketHandlers {
             debug("Weapon.ReloadRequest");
             break;
           case "Weapon.ReloadInterrupt": 
-            client.character.clearReloadTimeout()
+            server.reloadInterrupt(client);
             break;
           case "Weapon.SwitchFireModeRequest":
             debug("SwitchFireModeRequest");

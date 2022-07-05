@@ -29,7 +29,7 @@ const weaponPackets: any = [
     {
       fields: [
         { name: "guid", type: "uint64string", length: "" },
-        { name: "unknownByte1", type: "uint8", length: 0 },
+        { name: "firestate", type: "uint8", length: 0 },
         { name: "unknownByte2", type: "uint8", length: 0 },
       ]
     },
@@ -90,7 +90,7 @@ const weaponPackets: any = [
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+        { name: "firemode", type: "uint8", defaultValue: 0 },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
       ]
     },
@@ -262,7 +262,6 @@ const weaponPackets: any = [
           name: "packets",
           type: "custom",
           parser: parseMultiWeaponPacket,
-          packer: packMultiWeaponPacket,
         },
       ],
     },
@@ -352,10 +351,6 @@ function parseMultiWeaponPacket(data: Buffer, offset: number) {
   };
 }
 
-function packMultiWeaponPacket() {
-  throw new Error("Not implemented");
-}
-
 export function parseWeaponPacket(data: Buffer, offset: number) {
   const obj: any = {};
 
@@ -370,9 +365,10 @@ export function parseWeaponPacket(data: Buffer, offset: number) {
   const weaponPacket = readPacketType(
     weaponPacketData,
     weaponPacketDescriptors
-  );
+  ),
+  packetType = `0x${weaponPacket.packetType.toString(16).slice(2)}`;
   if (weaponPacket.packet) {
-    obj.packetType = weaponPacket.packetType;
+    obj.packetType = packetType;
     obj.packetName = weaponPacket.packet.name;
     if (weaponPacket.packet.schema) {
       obj.packet = DataSchema.parse(
@@ -382,7 +378,7 @@ export function parseWeaponPacket(data: Buffer, offset: number) {
       ).result;
     }
   } else {
-    obj.packetType = weaponPacket.packetType;
+    obj.packetType = packetType;
     obj.packetData = data;
   }
   return {

@@ -1080,12 +1080,25 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  killCharacter(client: Client, killer: Character2016 | undefined = undefined) {
+  killCharacter(client: Client, deathInfo: {character: Character2016, hitReport: any } | undefined = undefined) {
     const character = client.character;
     if (character.isAlive) {
       debug(character.name + " has died");
-      if(killer) {
-        this.sendAlertToAll(`${killer.name} has killed ${client.character.name}!`);
+      if(deathInfo) {
+        client.character.combatlog = {
+          killedBy: {
+            name: deathInfo.character.name || "Unknown",
+            weapon: this.getItemDefinition(deathInfo.character.getEquippedWeapon().itemDefinitionId).MODEL_NAME,
+            position: deathInfo.character.state.position,
+            distance: getDistance(client.character.state.position, deathInfo.character.state.position)
+          },
+          hitReport: {
+            hitLocation: deathInfo.hitReport?.hitLocation || "Unknown",
+            hitPosition: deathInfo.hitReport?.position || new Float32Array([0, 0, 0, 0])
+          }
+        }
+        this.combatLog(client);
+        this.sendAlertToAll(`${deathInfo.character.name} has killed ${client.character.name}!`);
       }
       client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
@@ -1699,7 +1712,7 @@ export class ZoneServer2016 extends EventEmitter {
                             packet.hitReport.position[0] + 0.1, packet.hitReport.position[1], packet.hitReport.position[2] + 0.1, 1
                         ],
                     });
-            this.playerDamage(c, damage, client.character, causeBleed);
+            this.playerDamage(c, damage, {character: client.character, hitReport: packet.hitReport}, causeBleed);
           }
           break;
         case EntityTypes.EXPLOSIVE:
@@ -1807,7 +1820,7 @@ export class ZoneServer2016 extends EventEmitter {
         damageEntity();
     }
   
-  playerDamage(client: Client, damage: number, killer: Character2016 | undefined = undefined, causeBleeding: boolean = false) {
+  playerDamage(client: Client, damage: number, deathInfo: {character: Character2016, hitReport: any} | undefined = undefined, causeBleeding: boolean = false) {
         const character = client.character;
         if (
             !client.character.godMode &&
@@ -1834,7 +1847,7 @@ export class ZoneServer2016 extends EventEmitter {
             character._resources[ResourceIds.HEALTH] -= damage;
             if (character._resources[ResourceIds.HEALTH] <= 0) {
                 character._resources[ResourceIds.HEALTH] = 0;
-                this.killCharacter(client, killer);
+                this.killCharacter(client, deathInfo);
             }
             this.updateResource(
                 client,
@@ -1842,10 +1855,10 @@ export class ZoneServer2016 extends EventEmitter {
                 character._resources[ResourceIds.HEALTH],
                 ResourceIds.HEALTH
             );
-            if (!killer) {
+            if (!deathInfo?.character) {
                 return
             }
-            const orientation = Math.atan2(client.character.state.position[2] - killer.state.position[2], client.character.state.position[0] - killer.state.position[0]) * -1 - 1.4;
+            const orientation = Math.atan2(client.character.state.position[2] - deathInfo?.character.state.position[2], client.character.state.position[0] - deathInfo?.character.state.position[0]) * -1 - 1.4;
             this.sendData(client, "ClientUpdate.DamageInfo", {
                 transientId: 0,
                 orientationToSource: orientation,
@@ -2835,39 +2848,59 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  reloadInterrupt(client: Client) {
+    if(!client.character.reloadTimer) return;
+    client.character.clearReloadTimeout();
+    // send reloadinterrupt to all clients with spawned character
+  }
+
+  combatLog(client: Client) {
+    if(!client.character.combatlog) {
+      this.sendChatText(client, "No combatlog info available");
+      return;
+    }
+    const combatlog = JSON.stringify(client.character.combatlog, null, 2).split(/\r?\n/);
+    this.sendChatText(client, "----------COMBATLOG:----------");
+    combatlog.forEach((log: any) => {
+      this.sendChatText(client, `${log}`);
+    })
+    
+    this.sendChatText(client, "------------------------------");
+  }
+
   //#region ********************INVENTORY********************
 
   pGetItemData(client: Client, item: inventoryItem, containerDefId: number) {
-        let durability: number = 0;
-        const isWeapon = this.isWeapon(item.itemDefinitionId);
-        switch (true) {
-            case this.isWeapon(item.itemDefinitionId): durability = 2000;
-                break;
-            case this.isArmor(item.itemDefinitionId): durability = 1000;
-                break;
-            case this.isHelmet(item.itemDefinitionId): durability = 100;
-                break;
-        }
-        return {
-            itemDefinitionId: item.itemDefinitionId,
-            tintId: 0,
-            guid: item.itemGuid,
-            count: item.stackCount,
-            itemSubData: {
-                hasSubData: false,
-            },
-            containerGuid: item.containerGuid,
-            containerDefinitionId: containerDefId,
-            containerSlotId: item.slotId,
-            baseDurability: durability,
-            currentDurability: durability ? item.currentDurability : 0,
-            maxDurabilityFromDefinition: durability,
-            unknownBoolean1: true,
-            ownerCharacterId: isWeapon && item.itemDefinitionId !== 85 ? "" : client.character.characterId,
-            unknownDword9: 1,
-            unknownData1: this.getItemWeaponData(item)
-        }
+    let durability: number = 0;
+    const isWeapon = this.isWeapon(item.itemDefinitionId);
+    switch (true) {
+      case this.isWeapon(item.itemDefinitionId): durability = 2000;
+        break;
+      case this.isArmor(item.itemDefinitionId): durability = 1000;
+        break;
+      case this.isHelmet(item.itemDefinitionId): durability = 100;
+        break;
     }
+    return {
+      itemDefinitionId: item.itemDefinitionId,
+      tintId: 0,
+      guid: item.itemGuid,
+      count: item.stackCount,
+      itemSubData: {
+        hasSubData: false,
+      },
+      containerGuid: item.containerGuid,
+      containerDefinitionId: containerDefId,
+      containerSlotId: item.slotId,
+      baseDurability: durability,
+      currentDurability: durability ? item.currentDurability : 0,
+      maxDurabilityFromDefinition: durability,
+      unknownBoolean1: true,
+      ownerCharacterId: isWeapon && item.itemDefinitionId !== 85 ? "" : client.character.characterId,
+      unknownDword9: 1,
+      unknownData1: this.getItemWeaponData(item)
+    }
+  }
 
   getItemWeaponData(slot: inventoryItem) {
     if(slot.weapon) {
@@ -3405,7 +3438,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   switchLoadoutSlot(client: Client, loadoutItem: loadoutItem) {
-    client.character.clearReloadTimeout();
+    this.reloadInterrupt(client);
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     // remove passive equip
     this.removeEquipmentItem(
