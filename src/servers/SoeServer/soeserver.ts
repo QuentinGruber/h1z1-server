@@ -503,7 +503,7 @@ export class SOEServer extends EventEmitter {
         )}`
       );
       console.error(e);
-      process.exitCode = 1;
+      process.exitCode = 444;
       // @ts-ignore
       return null
     }
