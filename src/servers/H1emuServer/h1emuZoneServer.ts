@@ -13,11 +13,12 @@
 
 import { H1emuClient } from "./shared/h1emuclient";
 import { H1emuServer } from "./shared/h1emuserver";
+import { LoginServerInfo, ServerInfo } from "./shared/types";
 const debug = require("debug")("H1emuServer");
 
 export class H1emuZoneServer extends H1emuServer {
   _loginServerInfo: any;
-  _sessionData: any;
+  _serverInfo: any;
   _loginConnection?: H1emuClient;
   _maxConnectionRetry: number = 0;
   _hasBeenConnectedToLogin: boolean = false;
@@ -86,7 +87,7 @@ export class H1emuZoneServer extends H1emuServer {
     this.sendData(
       this._loginServerInfo as H1emuClient,
       "SessionRequest",
-      this._sessionData
+      this._serverInfo
     );
     this._maxConnectionRetry++;
     if (!this._hasBeenConnectedToLogin && this._maxConnectionRetry > 10) {
@@ -96,13 +97,13 @@ export class H1emuZoneServer extends H1emuServer {
     }
   }
 
-  setLoginInfo(serverInfo: any, obj: any) {
-    this._loginServerInfo = serverInfo;
-    this._sessionData = obj;
+  setLoginInfo(loginServerInfo: LoginServerInfo, serverInfo: ServerInfo) {
+    this._loginServerInfo = loginServerInfo;
+    this._serverInfo = serverInfo;
   }
 
   start() {
-    if (!this._loginServerInfo && !this._sessionData) {
+    if (!this._loginServerInfo && !this._serverInfo) {
       debug("[ERROR] H1emuZoneServer started without setting login info!");
       return;
     }

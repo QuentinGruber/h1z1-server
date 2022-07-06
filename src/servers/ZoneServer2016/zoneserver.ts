@@ -71,6 +71,7 @@ import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
+import { LoginServerInfo, ServerParameters } from "servers/H1emuServer/shared/types";
 
 // need to get 2016 lists
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -122,7 +123,7 @@ export class ZoneServer2016 extends EventEmitter {
   tickRate = 300;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
-  _loginServerInfo: { address?: string; port: number } = {
+  _loginServerInfo: LoginServerInfo = {
     address: process.env.LOGINSERVER_IP,
     port: 1110,
   };
@@ -158,6 +159,7 @@ export class ZoneServer2016 extends EventEmitter {
   _recipes: { [recipeId: number]: any } = recipes;
   private lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
+  _maxPopulation: number = 50;
 
   constructor(
     serverPort: number,
@@ -829,9 +831,14 @@ export class ZoneServer2016 extends EventEmitter {
       if (!this._loginServerInfo.address) {
         await this.fetchLoginInfo();
       }
+      const parameters: ServerParameters = {
+        maxPopulation: this._maxPopulation,
+      }
       this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
         serverId: this._worldId,
-        h1emuVersion: process.env.H1Z1_SERVER_VERSION,
+        h1emuVersion: process.env.H1Z1_SERVER_VERSION as string,
+        serverParameters: JSON.stringify(parameters)
+    
       });
       this._h1emuZoneServer.start();
       await this._db

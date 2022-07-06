@@ -48,6 +48,7 @@ import {
   CharacterLoginRequest,
   CharacterCreateRequest,
 } from "types/LoginUdp_11packets";
+import { H1emuZoneServerObject, ServerParameters } from "servers/H1emuServer/shared/types";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -112,7 +113,7 @@ export class LoginServer extends EventEmitter {
   _enableHttpServer: boolean;
   _httpServerPort: number = 80;
   private _h1emuLoginServer!: H1emuLoginServer;
-  private _zoneConnections: { [h1emuClientId: string]: number } = {};
+  private _zoneConnections: { [h1emuClientId: string]: H1emuZoneServerObject } = {};
   private _zoneWhitelist!: any[];
   private _internalReqCount: number = 0;
   private _pendingInternalReq: { [requestId: number]: any } = {};
@@ -216,7 +217,8 @@ export class LoginServer extends EventEmitter {
               if (connectionEstablished || packet.name === "SessionRequest") {
                 switch (packet.name) {
                   case "SessionRequest": {
-                    const { serverId, h1emuVersion } = packet.data;
+                    const { serverId, h1emuVersion, serverParameters:serverParametersString } = packet.data;
+                    const serverParameters:ServerParameters = JSON.parse(serverParametersString);
                     debug(
                       `Received session request from ${client.address}:${client.port}`
                     );
@@ -263,12 +265,13 @@ export class LoginServer extends EventEmitter {
                   case "UpdateZonePopulation": {
                     const { population } = packet.data;
                     const serverId = this._zoneConnections[client.clientId];
+                    const serverInfo = await this._db?.collection("servers")?.findOne({serverId: serverId})
                     this._db?.collection("servers").findOneAndUpdate(
                       { serverId: serverId },
                       {
                         $set: {
                           populationNumber: population,
-                          populationLevel: Number((population / 1).toFixed(0)),
+                          populationLevel: Number((population / serverInfo.maxPopulation).toFixed(0)),
                         },
                       }
                     );

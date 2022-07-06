@@ -23,6 +23,7 @@ const packets = [
       fields: [
         { name: "serverId", type: "uint32", defaultValue: 0 },
         { name: "h1emuVersion", type: "string", defaultValue: "" },
+        { name: "serverParameters", type: "string", defaultValue: "{}" },
       ],
     },
   ],

@@ -42,6 +42,7 @@ process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
+import { ServerParameters } from "servers/H1emuServer/shared/types";
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
@@ -108,6 +109,7 @@ export class ZoneServer2015 extends EventEmitter {
     : [];
   _maxAllowedPing: number = 300;
   private _transientIdGenerator = generateTransientId();
+  _maxPopulation: number = 50;
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -522,9 +524,13 @@ export class ZoneServer2015 extends EventEmitter {
       if (!this._loginServerInfo.address) {
         await this.fetchLoginInfo();
       }
+      const parameters: ServerParameters = {
+        maxPopulation: this._maxPopulation,
+      }
       this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
         serverId: this._worldId,
-        h1emuVersion: process.env.H1Z1_SERVER_VERSION,
+        h1emuVersion: process.env.H1Z1_SERVER_VERSION as string,
+        serverParameters: JSON.stringify(parameters)
       });
       this._h1emuZoneServer.start();
       this.sendZonePopulationUpdate();
