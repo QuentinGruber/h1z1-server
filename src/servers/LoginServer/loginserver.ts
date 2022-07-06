@@ -536,6 +536,15 @@ export class LoginServer extends EventEmitter {
     debug("CharacterSelectInfoRequest");
   }
 
+  private _haveAConnectionWith(serverId: number): boolean {
+    Object.values(this._zoneConnections[serverId]).forEach((zoneConnection: H1emuZoneServerObject)=>{
+        if(zoneConnection.serverId === serverId){
+          return true
+        }
+    });
+    return false
+  }
+
   async updateServersStatus(): Promise<void> {
     const servers = await this._db.collection("servers").find().toArray();
 
@@ -543,7 +552,7 @@ export class LoginServer extends EventEmitter {
       const server: GameServer = servers[index];
       if (
         server.allowedAccess &&
-        !Object.values(this._zoneConnections).includes(server.serverId)
+        !this._haveAConnectionWith(server.serverId)
       ) {
         await this._db
           .collection("servers")
