@@ -16,6 +16,7 @@ import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { positionUpdate } from "../../../types/zoneserver";
+import { Vehicle2016 } from "./vehicle";
 
 interface CharacterStates {
   invincibility?: boolean;
@@ -68,6 +69,8 @@ export class Character2016 extends BaseFullCharacter {
 
     }
   }
+  // characterId of vehicle spawned by /hax drive or spawnvehicle
+  ownedVehicle?: string;
   constructor(characterId: string, transientId: number) {
     super(
       characterId,

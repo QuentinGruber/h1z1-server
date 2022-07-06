@@ -1765,43 +1765,29 @@ export class ZoneServer2016 extends EventEmitter {
         switch (packet.hitReport.hitLocation.toLowerCase()) {
             case 'head':
             case 'glasses':
-                damage *= 4;
-                isHeadshot = 1;
-                damage = this.checkHelmet(packet, damage);
-                break;
             case 'neck':
-                damage *= 2;
-                break;
+              damage *= 4;
+              isHeadshot = 1;
+              damage = this.checkHelmet(packet, damage);
+              break;
             case 'spineupper':
             case 'spinemiddle':
             case 'spinelower':
-                damage = this.checkArmor(packet, damage)
-                canStopBleed = true;
-                break;
             case 'r_shoulder':
             case 'l_shoulder':
-                damage *= 0.8;
-                break;
             case 'l_elbow':
             case 'r_elbow':
-                damage *= 0.6
-                break;
             case 'l_wrist':
             case 'r_wrist':
-                damage *= 0.6
-                break;
             case 'l_hip':
             case 'r_hip':
-                damage *= 0.8
-                break;
             case 'l_knee':
             case 'r_knee':
-                damage *= 0.6
-                break;
             case 'l_ankle':
             case 'r_ankle':
-                damage *= 0.6
-                break;
+              damage = this.checkArmor(packet, damage)
+              canStopBleed = true;
+              break;
             default:
                 break;
         }

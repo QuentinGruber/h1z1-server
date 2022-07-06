@@ -102,6 +102,7 @@ const hax: any = {
       }, 1000);
     };
     server.worldObjectManager.createVehicle(server, vehicleData);
+    client.character.ownedVehicle = vehicleData.characterId;
   },
   titan: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendDataToAll("Character.UpdateScale", {
@@ -391,6 +392,7 @@ const hax: any = {
       server.getGameTime()
     );
     server.worldObjectManager.createVehicle(server, vehicle);
+    client.character.ownedVehicle = vehicle.characterId;
   },
   dynamicweather: async function (
     server: ZoneServer2016,
