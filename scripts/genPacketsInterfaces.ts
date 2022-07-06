@@ -4,6 +4,8 @@ const h1z1packets2016 = require("../src/packets/ClientProtocol/ClientProtocol_10
 const LoginUdp_9 = require("../src/packets/LoginUdp/LoginUdp_9/loginpackets");
 const LoginUdp_11 = require("../src/packets/LoginUdp/LoginUdp_11/loginpackets");
 const gatewayPackets = require("../src/packets/gatewaypackets");
+const h1emuPackets = require("../src/protocols/h1emuprotocol");
+
 const typeMap: Record<string, string> = {
   uint8: "number",
   int8: "number",
@@ -75,3 +77,5 @@ writeInterface(h1z1packets2015.Packets, "zone2015packets");
 writeInterface(LoginUdp_9.default.Packets, "LoginUdp_9packets");
 writeInterface(LoginUdp_11.default.Packets, "LoginUdp_11packets");
 writeInterface(gatewayPackets.default.Packets, "gatewaypackets");
+writeInterface(h1emuPackets.H1emuPackets.Packets, "h1emuPackets");
+
