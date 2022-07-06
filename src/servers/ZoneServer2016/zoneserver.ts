@@ -1047,7 +1047,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.vehicleManager(client);
       this.removeOutOfDistanceEntities(client);
       this.spawnCharacters(client);
-      this.spawnObjects(client);
+      this.spawnItemObjects(client);
       this.spawnDoors(client);
       this.spawnNpcs(client);
       this.spawnExplosives(client);
@@ -2125,7 +2125,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnObjects(client: Client) {
+  spawnItemObjects(client: Client) {
     for (const characterId in this._spawnedItems) {
       const object = this._spawnedItems[characterId];
       if (
@@ -3598,15 +3598,12 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       return;
     }
-    const itemObject = this.worldObjectManager.createLootEntity(
+    this.worldObjectManager.createLootEntity(
       this,
       dropItem,
       client.character.state.position,
       new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
     );
-    if(itemObject) {
-      itemObject.creationTime = Date.now();
-    }
   }
 
   lootItem(client: Client, item: inventoryItem | undefined, count: number) {
@@ -3671,7 +3668,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.state.position,
         new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
       );
-      this.spawnObjects(client); // manually call this for now
+      this.spawnItemObjects(client); // manually call this for now
       return;
     }
     const itemStackGuid = this.getAvailableItemStack(
