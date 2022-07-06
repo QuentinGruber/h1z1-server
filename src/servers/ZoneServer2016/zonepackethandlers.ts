@@ -167,7 +167,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server.tempGodMode(client, 3000);
+      server.tempGodMode(client, 15000);
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
       if (client.firstLoading) {
@@ -784,6 +784,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if (client.character.godMode) {
+        server.setGodMode(client, false);
+      }
       client.character.positionUpdate = packet.data;
       if (packet.data.flags === 513) {
         // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
@@ -1796,6 +1799,9 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("Weapon.Weapon");
+      if (client.character.godMode) {
+        server.setGodMode(client, false);
+      }
       switch(packet.data.weaponPacket.packetName) {
         case "Weapon.MultiWeapon":
           packet.data.weaponPacket.packet.packets.forEach((p: any) => {
