@@ -2437,7 +2437,7 @@ export const firemodesSchema = [
 
 export function packTargetData(obj: any) {
   const data = Buffer.alloc(1);
-  data.writeUint8(obj["useTargetData"]?1:0, 0);
+  data.writeUInt8(obj["useTargetData"]?1:0, 0);
   if(obj["useTargetData"]) {
     const targetData = DataSchema.pack([
       {
