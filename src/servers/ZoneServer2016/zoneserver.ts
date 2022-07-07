@@ -1081,7 +1081,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  generateDamageRecord(sourceClient: Client, targetClient: Client, hitReport: any): DamageRecord {
+  generateDamageRecord(targetClient: Client, sourceClient: Client, hitReport: any): DamageRecord {
     const sCharacter = sourceClient.character,
     tCharacter = targetClient.character;
     return {
@@ -1092,8 +1092,8 @@ export class ZoneServer2016 extends EventEmitter {
         name: tCharacter.name || "Unknown"
       },
       hitInfo: {
+        timestamp: Date.now(),
         weapon: this.getItemDefinition(sCharacter.getEquippedWeapon().itemDefinitionId).MODEL_NAME,
-        position: sCharacter.state.position,
         distance: getDistance(sCharacter.state.position, tCharacter.state.position),
         hitLocation: hitReport?.hitLocation || "Unknown",
         hitPosition: hitReport?.position || new Float32Array([0, 0, 0, 0])
@@ -2854,20 +2854,20 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   combatLog(client: Client) {
-    this.sendChatText(client, "TODO: FIX");
-    /*
-    if(!client.character.combatlog) {
+    if(!client.character.getCombatLog().length) {
       this.sendChatText(client, "No combatlog info available");
       return;
     }
-    const combatlog = JSON.stringify(client.character.combatlog, null, 2).split(/\r?\n/);
-    this.sendChatText(client, "----------COMBATLOG:----------");
-    combatlog.forEach((log: any) => {
-      this.sendChatText(client, `${log}`);
+    //const combatlog = JSON.stringify(client.character.combatlog, null, 2).split(/\r?\n/);
+    const combatlog = client.character.getCombatLog();
+    this.sendChatText(client, "---------------------------------COMBATLOG:--------------------------------");
+    this.sendChatText(client, `TIME | SOURCE | TARGET | WEAPON | DISTANCE | HITLOCATION | HITPOSITION`);
+    combatlog.forEach((e) => {
+      const hitPosition = `[${e.hitInfo.hitPosition[0].toFixed(2)}, ${e.hitInfo.hitPosition[1].toFixed(2)}, ${e.hitInfo.hitPosition[2].toFixed(2)}]`
+      this.sendChatText(client, 
+        `${((Date.now() - e.hitInfo.timestamp)/1000).toFixed(1)}s ${e.source.name == client.character.name?"YOU":e.source.name||"undefined"} ${e.target.name == client.character.name?"YOU":e.target.name||"undefined"} ${e.hitInfo.weapon} ${e.hitInfo.distance} ${e.hitInfo.hitLocation} ${hitPosition}`);
     })
-    
-    this.sendChatText(client, "------------------------------");
-    */
+    this.sendChatText(client, "---------------------------------------------------------------------------------");
   }
 
   //#region ********************INVENTORY********************

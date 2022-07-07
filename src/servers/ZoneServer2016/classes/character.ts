@@ -56,22 +56,7 @@ export class Character2016 extends BaseFullCharacter {
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
   reloadTimer?: NodeJS.Timeout | undefined = undefined;
-  /*
-  combatlog?: {
-    killedBy: {
-      name: string,
-      weapon: string,
-      position: Float32Array,
-      distance: number
-    }
-    hitReport: {
-      hitLocation: string,
-      hitPosition: Float32Array,
-
-    }
-  }
-  */
- private combatlog: DamageRecord[] = [];
+  private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
   constructor(characterId: string, transientId: number) {
@@ -258,8 +243,12 @@ export class Character2016 extends BaseFullCharacter {
     this.reloadTimer = undefined;
   }
   addCombatlogEntry(entry: DamageRecord){
-    // push to combatlog array
-    // only allow for x amount of entries (10?)
-    // print cleanly (not just dumping JSON)
+    this.combatlog.push(entry);
+    if(this.combatlog.length > 10) {
+      this.combatlog.shift()
+    }
+  }
+  getCombatLog() {
+    return this.combatlog;
   }
 }
