@@ -664,6 +664,22 @@ export interface Weather2016 {
   unknownDword33: number;
 }
 
+export interface DamageRecord {
+  source: {
+    name: string
+  },
+  target: {
+    name: string
+  },
+  hitInfo: {
+    weapon: string,
+    position: Float32Array,
+    distance: number,
+    hitLocation: string,
+    hitPosition: Float32Array
+  }
+}
+
 export interface SoeServer {
   on: (arg0: string, arg1: any) => void;
   start: (

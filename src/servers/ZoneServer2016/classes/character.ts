@@ -15,7 +15,7 @@ import { ResourceIds } from "../enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
-import { positionUpdate } from "../../../types/zoneserver";
+import { DamageRecord, positionUpdate } from "../../../types/zoneserver";
 import { Vehicle2016 } from "./vehicle";
 
 interface CharacterStates {
@@ -56,6 +56,7 @@ export class Character2016 extends BaseFullCharacter {
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
   reloadTimer?: NodeJS.Timeout | undefined = undefined;
+  /*
   combatlog?: {
     killedBy: {
       name: string,
@@ -69,6 +70,8 @@ export class Character2016 extends BaseFullCharacter {
 
     }
   }
+  */
+ private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
   constructor(characterId: string, transientId: number) {
@@ -253,5 +256,10 @@ export class Character2016 extends BaseFullCharacter {
   clearReloadTimeout(){
     if(this.reloadTimer) clearTimeout(this.reloadTimer)
     this.reloadTimer = undefined;
+  }
+  addCombatlogEntry(entry: DamageRecord){
+    // push to combatlog array
+    // only allow for x amount of entries (10?)
+    // print cleanly (not just dumping JSON)
   }
 }

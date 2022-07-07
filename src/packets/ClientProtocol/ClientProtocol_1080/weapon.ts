@@ -24,7 +24,7 @@ import { itemWeaponDetailSubSchema1 } from "./shared";
 
 const weaponPackets: any = [
   [
-    "Weapon.FireStateUpdate", // correct length
+    "Weapon.FireStateUpdate",
     0x8301,
     {
       fields: [
@@ -207,7 +207,20 @@ const weaponPackets: any = [
   ["Weapon.RemoteWeapon.Update.AddFireGroup", 0x83150408, {}],
   ["Weapon.RemoteWeapon.Update.RemoveFireGroup", 0x83150409, {}],
   ["Weapon.RemoteWeapon.Update.ReplaceFireGroup", 0x8315040a, {}],
-  ["Weapon.RemoteWeapon.Update.ProjectileLaunch", 0x8315040b, {}],
+  [
+    "Weapon.RemoteWeapon.Update.ProjectileLaunch", 
+    0x8315040b, 
+    {
+      fields: [
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+      ]
+    }
+  ],
   ["Weapon.RemoteWeapon.Update.Chamber", 0x8315040c, {}],
   ["Weapon.RemoteWeapon.Update.Throw", 0x8315040d, {}],
   ["Weapon.RemoteWeapon.Update.Trigger", 0x8315040e, {}],

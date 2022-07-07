@@ -33,6 +33,7 @@ import { EntityTypes, Items, LoadoutSlots, ResourceIds, ResourceTypes } from "./
 
 import {
   characterEquipment,
+  DamageRecord,
   inventoryItem,
   loadoutContainer,
   loadoutItem,
@@ -1080,25 +1081,32 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  killCharacter(client: Client, deathInfo: {character: Character2016, hitReport: any } | undefined = undefined) {
+  generateDamageRecord(sourceClient: Client, targetClient: Client, hitReport: any): DamageRecord {
+    const sCharacter = sourceClient.character,
+    tCharacter = targetClient.character;
+    return {
+      source: {
+        name: sCharacter.name || "Unknown"
+      },
+      target: {
+        name: tCharacter.name || "Unknown"
+      },
+      hitInfo: {
+        weapon: this.getItemDefinition(sCharacter.getEquippedWeapon().itemDefinitionId).MODEL_NAME,
+        position: sCharacter.state.position,
+        distance: getDistance(sCharacter.state.position, tCharacter.state.position),
+        hitLocation: hitReport?.hitLocation || "Unknown",
+        hitPosition: hitReport?.position || new Float32Array([0, 0, 0, 0])
+      }
+    }
+  }
+
+  killCharacter(client: Client, deathInfo: {client: Client, hitReport: any} | undefined = undefined) {
     const character = client.character;
     if (character.isAlive) {
       debug(character.name + " has died");
-      if(deathInfo) {
-        client.character.combatlog = {
-          killedBy: {
-            name: deathInfo.character.name || "Unknown",
-            weapon: this.getItemDefinition(deathInfo.character.getEquippedWeapon().itemDefinitionId).MODEL_NAME,
-            position: deathInfo.character.state.position,
-            distance: getDistance(client.character.state.position, deathInfo.character.state.position)
-          },
-          hitReport: {
-            hitLocation: deathInfo.hitReport?.hitLocation || "Unknown",
-            hitPosition: deathInfo.hitReport?.position || new Float32Array([0, 0, 0, 0])
-          }
-        }
-        this.combatLog(client);
-        this.sendAlertToAll(`${deathInfo.character.name} has killed ${client.character.name}!`);
+      if(deathInfo?.client) {
+        this.sendAlertToAll(`${deathInfo.client.character.name} has killed ${client.character.name}!`);
       }
       client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
@@ -1712,7 +1720,7 @@ export class ZoneServer2016 extends EventEmitter {
                             packet.hitReport.position[0] + 0.1, packet.hitReport.position[1], packet.hitReport.position[2] + 0.1, 1
                         ],
                     });
-            this.playerDamage(c, damage, {character: client.character, hitReport: packet.hitReport}, causeBleed);
+            this.playerDamage(c, damage, {client: client, hitReport: packet.hitReport}, causeBleed);
           }
           break;
         case EntityTypes.EXPLOSIVE:
@@ -1806,7 +1814,7 @@ export class ZoneServer2016 extends EventEmitter {
         damageEntity();
     }
   
-  playerDamage(client: Client, damage: number, deathInfo: {character: Character2016, hitReport: any} | undefined = undefined, causeBleeding: boolean = false) {
+  playerDamage(client: Client, damage: number, damageInfo: {client: Client, hitReport: any} | undefined = undefined, causeBleeding: boolean = false) {
         const character = client.character;
         if (
             !client.character.godMode &&
@@ -1833,7 +1841,7 @@ export class ZoneServer2016 extends EventEmitter {
             character._resources[ResourceIds.HEALTH] -= damage;
             if (character._resources[ResourceIds.HEALTH] <= 0) {
                 character._resources[ResourceIds.HEALTH] = 0;
-                this.killCharacter(client, deathInfo);
+                this.killCharacter(client, damageInfo);
             }
             this.updateResource(
                 client,
@@ -1841,10 +1849,15 @@ export class ZoneServer2016 extends EventEmitter {
                 character._resources[ResourceIds.HEALTH],
                 ResourceIds.HEALTH
             );
-            if (!deathInfo?.character) {
+            if (!damageInfo?.client.character) {
                 return
             }
-            const orientation = Math.atan2(client.character.state.position[2] - deathInfo?.character.state.position[2], client.character.state.position[0] - deathInfo?.character.state.position[0]) * -1 - 1.4;
+            const damageRecord = this.generateDamageRecord(client, damageInfo.client, damageInfo.hitReport);
+            client.character.addCombatlogEntry(damageRecord);
+            damageInfo.client.character.addCombatlogEntry(damageRecord);
+            this.combatLog(client);
+            this.combatLog(damageInfo.client);
+            const orientation = Math.atan2(client.character.state.position[2] - damageInfo?.client.character.state.position[2], client.character.state.position[0] - damageInfo?.client.character.state.position[0]) * -1 - 1.4;
             this.sendData(client, "ClientUpdate.DamageInfo", {
                 transientId: 0,
                 orientationToSource: orientation,
@@ -2841,6 +2854,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   combatLog(client: Client) {
+    this.sendChatText(client, "TODO: FIX");
+    /*
     if(!client.character.combatlog) {
       this.sendChatText(client, "No combatlog info available");
       return;
@@ -2852,6 +2867,7 @@ export class ZoneServer2016 extends EventEmitter {
     })
     
     this.sendChatText(client, "------------------------------");
+    */
   }
 
   //#region ********************INVENTORY********************

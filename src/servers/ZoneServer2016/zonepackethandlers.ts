@@ -1822,7 +1822,6 @@ export class zonePacketHandlers {
             break;
           case "Weapon.Fire":
             weaponItem.weapon.ammoCount -= 1;
-            //server.sendAlert(client, `${weaponItem.weapon.ammoCount}`)
             debug("Weapon.Fire");
             break;
           case "Weapon.ProjectileHitReport":
