@@ -442,9 +442,9 @@ function parseHitReportPacket(data: Buffer, offset: number) {
   ], data, 0).result;
   offset += byteLen;
   
-  obj.totalShotCount = data.readUint8(offset)
+  obj.totalShotCount = data.readUInt8(offset)
   offset += 1;
-  obj.unknownByte2 = data.readUint8(offset)
+  obj.unknownByte2 = data.readUInt8(offset)
   return {
     value: obj,
     length: data.length - offset,

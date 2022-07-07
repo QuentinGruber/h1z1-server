@@ -215,7 +215,9 @@ export class SOEServer extends EventEmitter {
           extractedPacket.name,
           extractedPacket
         );
-        client.outQueue.push(logicalPacket);
+        if (logicalPacket){
+          client.outQueue.push(logicalPacket);
+        }
       }
       client.waitingQueueCurrentByteLength = 0;
       client.waitingQueue = [];
@@ -484,7 +486,7 @@ export class SOEServer extends EventEmitter {
     client: Client,
     packetName: string,
     packet: json
-  ): LogicalPacket {
+  ): LogicalPacket | null {
     if (packet.data) {
       packet.data = [...packet.data];
     }
@@ -503,8 +505,6 @@ export class SOEServer extends EventEmitter {
         )}`
       );
       console.error(e);
-      process.exitCode = 1;
-      // @ts-ignore
       return null
     }
   }
@@ -517,6 +517,9 @@ export class SOEServer extends EventEmitter {
     unbuffered = false
   ): void {
     const logicalPacket = this.createLogicalPacket(client, packetName, packet);
+    if(logicalPacket === null) {
+      return;
+    }
     if (prioritize) {
       client.priorityQueue.push(logicalPacket);
     } else {
