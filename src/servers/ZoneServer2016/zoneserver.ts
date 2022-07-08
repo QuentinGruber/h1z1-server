@@ -30,6 +30,8 @@ import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 import { EntityTypes, Items, LoadoutSlots, ResourceIds, ResourceTypes } from "./enums";
+import { healthThreadDecorator } from "../shared/workers/healthWorker";
+
 
 import {
   characterEquipment,
@@ -87,6 +89,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_PVFiesta.json"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
   equipmentModelTexturesMapping = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
+@healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
   _gatewayServer: GatewayServer;
   _protocol: H1Z1Protocol;
