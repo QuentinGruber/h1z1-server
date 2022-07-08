@@ -1831,6 +1831,7 @@ export class zonePacketHandlers {
           case "Weapon.ReloadRequest":
             if(client.character.reloadTimer) return;
             client.character.reloadTimer = setTimeout(() => {
+              if(!client.character.reloadTimer) return;
               const weaponItem = client.character.getEquippedWeapon();
               if(!weaponItem.weapon || 
                 client.character.getEquippedWeapon().itemGuid != weaponItem.itemGuid) return;
@@ -1839,6 +1840,7 @@ export class zonePacketHandlers {
               reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
               maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
               reloadAmount = (reserveAmmo >= maxReloadAmount)?maxReloadAmount:reserveAmmo; // actual amount able to reload
+              
               server.sendWeaponData(client, "Weapon.Reload", {
                 guid: p.packet.characterId,
                 unknownDword1: maxAmmo,
@@ -1859,14 +1861,7 @@ export class zonePacketHandlers {
             debug("Weapon.ReloadRequest");
             break;
           case "Weapon.ReloadInterrupt": 
-            server.reloadInterrupt(client);
-            server.sendWeaponData(client, "Weapon.Reload", {
-              guid: weaponItem.itemGuid,
-              unknownDword1: weaponItem.weapon.ammoCount,
-              ammoCount: weaponItem.weapon.ammoCount,
-              unknownDword3: weaponItem.weapon.ammoCount,
-              characterId: "0x2",
-            })
+            server.reloadInterrupt(client, weaponItem);
             break;
           case "Weapon.SwitchFireModeRequest":
             debug("SwitchFireModeRequest");

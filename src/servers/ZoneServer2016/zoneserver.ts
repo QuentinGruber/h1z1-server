@@ -2847,9 +2847,17 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  reloadInterrupt(client: Client) {
+  reloadInterrupt(client: Client, weaponItem: loadoutItem) {
+    if(!weaponItem.weapon) return;
     if(!client.character.reloadTimer) return;
     client.character.clearReloadTimeout();
+    this.sendWeaponData(client, "Weapon.Reload", {
+      guid: weaponItem.itemGuid,
+      unknownDword1: weaponItem.weapon.ammoCount,
+      ammoCount: weaponItem.weapon.ammoCount,
+      unknownDword3: weaponItem.weapon.ammoCount,
+      characterId: "0x2",
+    })
     // send reloadinterrupt to all clients with spawned character
   }
 
@@ -2858,7 +2866,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(client, "No combatlog info available");
       return;
     }
-    //const combatlog = JSON.stringify(client.character.combatlog, null, 2).split(/\r?\n/);
     const combatlog = client.character.getCombatLog();
     this.sendChatText(client, "---------------------------------COMBATLOG:--------------------------------");
     this.sendChatText(client, `TIME | SOURCE | TARGET | WEAPON | DISTANCE | HITLOCATION | HITPOSITION`);
@@ -3440,8 +3447,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   switchLoadoutSlot(client: Client, loadoutItem: loadoutItem) {
-    this.reloadInterrupt(client);
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
+    this.reloadInterrupt(client, client.character._loadout[oldLoadoutSlot]);
     // remove passive equip
     this.removeEquipmentItem(
       client,
