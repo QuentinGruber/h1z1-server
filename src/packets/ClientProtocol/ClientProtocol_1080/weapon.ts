@@ -218,6 +218,12 @@ const weaponPackets: any = [
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
         },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+
+        // below values may not exist
+        //{ name: "unknownByte2", type: "uint8", defaultValue: 0 },
+        //{ name: "unknownQword2", type: "uint64string", defaultValue: "0" },
       ]
     }
   ],
@@ -324,7 +330,7 @@ const weaponPackets: any = [
       ]
     },
   ],
-  ["Weapon.ProjectileSpawnAttachedNp", 0x8323, {}],
+  ["Weapon.ProjectileSpawnAttachedNpc", 0x8323, {}],
   ["Weapon.AddDebugLogEntry", 0x8324, {}],
   ["Weapon.DebugZoneState", 0x8325, {}],
   ["Weapon.GrenadeBounceReport", 0x8326, {}],
@@ -401,7 +407,7 @@ export function parseWeaponPacket(data: Buffer, offset: number) {
   
 }
 
-export function packWeaponPacket(obj: any) {
+export function packWeaponPacket(obj: any): Buffer {
   const subObj = obj.packet,
     subName = obj.packetName,
     subType = weaponPacketTypes[subName];

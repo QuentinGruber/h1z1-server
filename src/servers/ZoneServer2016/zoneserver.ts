@@ -2256,10 +2256,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendWeaponData(client: Client, packetName: weaponPacketsType, obj: any) {
-    if(!packetName.includes("Weapon.")) {
-      console.error("Invalid WeaponData packet name");
-      return;
-    }
     this.sendData(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: packetName,
@@ -2268,7 +2264,18 @@ export class ZoneServer2016 extends EventEmitter {
       }
     })
   }
-  
+
+  sendRemoteWeaponData(client: Client, packetName: weaponPacketsType, obj: any) {
+    this.sendDataToAllOthersWithSpawnedEntity(
+      this._characters, client, client.character.characterId, "Weapon.Weapon", {
+      weaponPacket: {
+        packetName: packetName,
+        gameTime: this.getGameTime(),
+        packet: obj
+      }
+    })
+  }
+
   sendAlert(client: Client, message: string) {
     this._sendData(client, "ClientUpdate.TextAlert", {
       message: message

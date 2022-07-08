@@ -1818,11 +1818,18 @@ export class zonePacketHandlers {
         switch(p.packetName) {
           case "Weapon.FireStateUpdate":
             debug("Weapon.FireStateUpdate");
-            server.damageItem(client, client.character.getEquippedWeapon(), 2);
+            server.damageItem(client, weaponItem, 2);
             break;
           case "Weapon.Fire":
             weaponItem.weapon.ammoCount -= 1;
             debug("Weapon.Fire");
+            /*
+            server.sendRemoteWeaponData(client, "Weapon.RemoteWeapon.Update.ProjectileLaunch", {
+              transientId: client.character.transientId,
+              unknownByte1: 1,
+              unknownQword1: weaponItem.itemGuid
+            })
+            */
             break;
           case "Weapon.ProjectileHitReport":
             server.registerHit(client, p.packet);
