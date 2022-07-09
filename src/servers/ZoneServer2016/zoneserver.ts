@@ -1418,14 +1418,10 @@ export class ZoneServer2016 extends EventEmitter {
     setTimeout(()=> {
       if(!client?.character) return;
       this.sendDataToAllOthersWithSpawnedEntity(this._characters, client, client.character.characterId, "AddLightweightPc", {
-        ...client.character,
-        actorModelId: client.character.actorModelId,
-        transientId: client.character.transientId,
+        ...client.character.pGetLightweight(),
         identity: {
           characterName: client.character.name,
         },
-        position: client.character.state.position,
-        rotation: client.character.state.lookAt,
         mountGuid: vehicleId || "",
         mountSeatId: vehicle
           ? vehicle.getCharacterSeat(client.character.characterId)
@@ -2122,14 +2118,7 @@ export class ZoneServer2016 extends EventEmitter {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
           vehicle = vehicleId ? this._vehicles[vehicleId] : false;
         this.sendData(client, "AddLightweightPc", {
-          ...characterObj,
-          actorModelId: characterObj.actorModelId,
-          transientId: characterObj.transientId,
-          identity: {
-            characterName: characterObj.name,
-          },
-          position: characterObj.state.position,
-          rotation: characterObj.state.lookAt,
+          ...characterObj.pGetLightweight(),
           mountGuid: vehicleId || "",
           mountSeatId: vehicle
             ? vehicle.getCharacterSeat(characterObj.characterId)
@@ -2748,9 +2737,6 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
       vehicle.engineOn = false;
-    }
-    if (client.vehicle.mountedVehicleType == "spectate") {
-      this.updateEquipment(client);
     }
     client.vehicle.mountedVehicle = "";
     this.sendData(client, "Vehicle.Occupy", {
@@ -3701,7 +3687,6 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.state.position,
         new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
       );
-      this.spawnItemObjects(client); // manually call this for now
       return;
     }
     const itemStackGuid = this.getAvailableItemStack(

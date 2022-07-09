@@ -16,7 +16,6 @@ import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { DamageRecord, positionUpdate } from "../../../types/zoneserver";
-import { Vehicle2016 } from "./vehicle";
 
 interface CharacterStates {
   invincibility?: boolean;
@@ -250,5 +249,14 @@ export class Character2016 extends BaseFullCharacter {
   }
   getCombatLog() {
     return this.combatlog;
+  }
+  pGetLightweight() {
+    return {
+      ...super.pGetLightweight(),
+      rotation: this.state.lookAt,
+      identity: {
+        characterName: this.name
+      }
+    };
   }
 }

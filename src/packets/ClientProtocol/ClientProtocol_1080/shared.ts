@@ -1464,20 +1464,7 @@ export const fullNpcSchema = [
   { name: "unknownVector4", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
   { name: "unknownDword8", type: "uint32", defaultValue: 1 },
   { name: "characterId", type: "uint64string", defaultValue: "1" },
-  {
-    name: "targetData",
-    type: "schema",
-    defaultValue: {},
-    fields: [
-      { name: "unknownByte1", type: "uint8", defaultValue: 0 } /*
-      {
-        name: "unknownVector4",
-        type: "floatvector4",
-        defaultValue: [0, 0, 0, 0],
-      },
-      { name: "unknownQword1", type: "uint64string", defaultValue: "0" },*/,
-    ],
-  },
+  { name: "targetData", type: "custom", packer: packTargetData },
   {
     name: "unknownArray1",
     type: "array",
