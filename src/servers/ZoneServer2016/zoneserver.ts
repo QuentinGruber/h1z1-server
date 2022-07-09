@@ -1097,7 +1097,7 @@ export class ZoneServer2016 extends EventEmitter {
       hitInfo: {
         timestamp: Date.now(),
         weapon: this.getItemDefinition(sCharacter.getEquippedWeapon().itemDefinitionId).MODEL_NAME,
-        distance: getDistance(sCharacter.state.position, tCharacter.state.position),
+        distance: getDistance(sCharacter.state.position, tCharacter.state.position).toFixed(1),
         hitLocation: hitReport?.hitLocation || "Unknown",
         hitPosition: hitReport?.position || new Float32Array([0, 0, 0, 0])
       }
@@ -2868,7 +2868,7 @@ export class ZoneServer2016 extends EventEmitter {
     combatlog.forEach((e) => {
       const hitPosition = `[${e.hitInfo.hitPosition[0].toFixed(2)}, ${e.hitInfo.hitPosition[1].toFixed(2)}, ${e.hitInfo.hitPosition[2].toFixed(2)}]`
       this.sendChatText(client, 
-        `${((Date.now() - e.hitInfo.timestamp)/1000).toFixed(1)}s ${e.source.name == client.character.name?"YOU":e.source.name||"undefined"} ${e.target.name == client.character.name?"YOU":e.target.name||"undefined"} ${e.hitInfo.weapon} ${e.hitInfo.distance} ${e.hitInfo.hitLocation} ${hitPosition}`);
+        `${((Date.now() - e.hitInfo.timestamp)/1000).toFixed(1)}s ${e.source.name == client.character.name?"YOU":e.source.name||"undefined"} ${e.target.name == client.character.name?"YOU":e.target.name||"undefined"} ${e.hitInfo.weapon} ${e.hitInfo.distance}m ${e.hitInfo.hitLocation} ${hitPosition}`);
     })
     this.sendChatText(client, "---------------------------------------------------------------------------------");
   }

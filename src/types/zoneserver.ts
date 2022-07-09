@@ -674,8 +674,7 @@ export interface DamageRecord {
   hitInfo: {
     timestamp: number,
     weapon: string,
-    //position: Float32Array,
-    distance: number,
+    distance: string,
     hitLocation: string,
     hitPosition: Float32Array
   }
