@@ -1240,6 +1240,12 @@ export class ZoneServer2016 extends EventEmitter {
       client.character._resources[ResourceIds.HYDRATION],
       ResourceIds.HYDRATION
     );
+    this.updateResourceToAllWithSpawnedCharacter(
+      client,
+      client.character.characterId,
+      0,
+      ResourceIds.BLEEDING
+    );
   }
 
   speedTreeDestroy(packet: any) {
