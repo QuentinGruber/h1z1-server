@@ -136,14 +136,14 @@ export class ZoneServer2016 extends EventEmitter {
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
     : [
         "tp",
-        "spawnnpc",
-        "rat",
-        "normalsize",
-        "drive",
-        "parachute",
-        "spawnvehicle",
+        //"spawnnpc",
+        //"rat",
+        //"normalsize",
+        //"drive",
+        //"parachute",
+        //"spawnvehicle",
         "hood",
-        "kit"
+        //"kit"
       ];
   _interactionDistance = 4;
   _pingTimeoutTime = 120000;
