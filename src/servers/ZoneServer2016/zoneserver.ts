@@ -31,7 +31,7 @@ import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 import { EntityTypes, Items, LoadoutSlots, ResourceIds, ResourceTypes } from "./enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
-
+import { changeFog } from "./workers/dynamicWeather";
 
 import {
   characterEquipment,
@@ -3880,6 +3880,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
     this.lootItem(client, this.generateItem(Items.KEVLAR_DEFAULT), 1); // kevlar
     this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
+    this.lootItem(client, this.generateItem(Items.CONVEYS_BLUE), 1); // conveys
   }
 
   clearInventory(client: Client) {
@@ -4629,6 +4630,10 @@ export class ZoneServer2016 extends EventEmitter {
       debug(`Client (${client.soeClientId}) disconnected ( ping timeout )`);
       this.deleteClient(client);
     }
+  }
+
+  toggleFog() {
+    return changeFog();
   }
 
   pSetImmediate = promisify(setImmediate);

@@ -20,8 +20,6 @@ import { ZoneServer2016 } from "../zoneserver";
 import { _ } from "../../../utils/utils";
 import { Npc } from "../classes/npc";
 import { ExplosiveEntity } from "../classes/explosiveentity";
-import { Items } from "../enums";
-import { changeFog } from "../workers/dynamicWeather";
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -290,7 +288,7 @@ const hax: any = {
         server.sendChatText(client, "Game time is now based on real time", true);
     },
     fog: function (server: ZoneServer2016, client: Client, args: any[]) {
-        server.sendChatText(client, 'Fog has been toggled '.concat(changeFog() ? 'ON' : 'OFF'), true);
+        server.sendChatText(client, 'Fog has been toggled '.concat(server.toggleFog() ? 'ON' : 'OFF'), true);
 
     },
   spamied: function (server: ZoneServer2016, client: Client, args: any[]) {
