@@ -135,7 +135,7 @@ export class ZoneServer2016 extends EventEmitter {
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
     : [
-        "tp",
+        "tp", // need to disable xyz coords
         //"spawnnpc",
         //"rat",
         //"normalsize",
