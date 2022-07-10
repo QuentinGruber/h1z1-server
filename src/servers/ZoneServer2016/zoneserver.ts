@@ -1789,26 +1789,10 @@ export class ZoneServer2016 extends EventEmitter {
               isHeadshot = 1;
               damage = this.checkHelmet(packet, damage);
               break;
-            case 'spineupper':
-            case 'spinemiddle':
-            case 'spinelower':
-            case 'r_shoulder':
-            case 'l_shoulder':
-            case 'l_elbow':
-            case 'r_elbow':
-            case 'l_wrist':
-            case 'r_wrist':
-            case 'l_hip':
-            case 'r_hip':
-            case 'l_knee':
-            case 'r_knee':
-            case 'l_ankle':
-            case 'r_ankle':
+            default:
               damage = this.checkArmor(packet, damage)
               canStopBleed = true;
               break;
-            default:
-                break;
         }
         if (packet.hitReport.hitLocation) {
             this.sendData(client, "Ui.ConfirmHit", {
