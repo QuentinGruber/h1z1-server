@@ -1119,14 +1119,26 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterStates,
         false
       );
-      this.sendDataToAllWithSpawnedEntity(
-        this._characters,
-        client.character.characterId,
-        "Character.StartMultiStateDeath",
-        {
-          characterId: client.character.characterId,
+      if (!client.isLoading) {
+            this.sendDataToAllWithSpawnedEntity(
+                this._characters,
+                client.character.characterId,
+                "Character.StartMultiStateDeath",
+                {
+                    characterId: client.character.characterId,
+                }
+            );
+        } else {
+            this.sendDataToAllOthersWithSpawnedEntity(
+                this._characters,
+                client,
+                client.character.characterId,
+                "Character.StartMultiStateDeath",
+                {
+                    characterId: client.character.characterId,
+                }
+            );
         }
-      );
     }
     this.clearMovementModifiers(client);
     character.isAlive = false;

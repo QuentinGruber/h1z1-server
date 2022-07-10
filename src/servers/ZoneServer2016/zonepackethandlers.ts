@@ -236,6 +236,11 @@ export class zonePacketHandlers {
       }
 
       client.isLoading = false;
+      if (!client.character.isAlive) { // try to fix stuck on death screen
+                server.sendData(client, "Character.StartMultiStateDeath", {
+                    characterId: client.character.characterId,
+                });
+            }
     };
     this.Security = function (
       server: ZoneServer2016,
