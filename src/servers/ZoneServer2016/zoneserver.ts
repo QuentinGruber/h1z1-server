@@ -3099,7 +3099,7 @@ export class ZoneServer2016 extends EventEmitter {
         ),
         slotId: equipmentSlotId,
         guid: item.itemGuid,
-        textureAlias: def.TEXTURE_ALIAS,
+        textureAlias: def.TEXTURE_ALIAS || "default0",
         tintAlias: "",
       };
       client.character._equipment[equipmentSlotId] = equipmentData;
@@ -3876,7 +3876,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.lootItem(client, this.generateItem(Items.WEAPON_SHOTGUN), 1); // shotgun
     this.lootItem(client, this.generateItem(Items.WEAPON_AR15), 1); // ar
     this.lootItem(client, this.generateItem(Items.FIRST_AID), 10); // medkit
-    this.lootItem(client, this.generateItem(Items.BANDAGE), 10); // bandages
+    this.lootItem(client, this.generateItem(Items.BANDAGE_DRESSED), 10); // dressed bandages
     this.lootItem(client, this.generateItem(Items.AMMO_12GA), 60); // shotgun ammo
     this.lootItem(client, this.generateItem(Items.AMMO_308), 50); // 308 ammo
     this.lootItem(client, this.generateItem(Items.AMMO_223), 120); // ar ammo
