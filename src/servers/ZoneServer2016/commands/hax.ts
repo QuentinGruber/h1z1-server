@@ -288,8 +288,7 @@ const hax: any = {
         server.sendChatText(client, "Game time is now based on real time", true);
     },
     fog: function (server: ZoneServer2016, client: Client, args: any[]) {
-        server.sendChatText(client, 'Fog has been toggled '.concat(server.toggleFog() ? 'ON' : 'OFF'), true);
-
+      server.sendChatText(client, 'Fog has been toggled '.concat(server.toggleFog() ? 'ON' : 'OFF'), true);
     },
   spamied: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[2]) {

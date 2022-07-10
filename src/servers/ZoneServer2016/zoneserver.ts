@@ -135,7 +135,7 @@ export class ZoneServer2016 extends EventEmitter {
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
     : [
-        "tp", // need to disable xyz coords
+        "tp",
         //"spawnnpc",
         //"rat",
         //"normalsize",
@@ -3880,7 +3880,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
     this.lootItem(client, this.generateItem(Items.KEVLAR_DEFAULT), 1); // kevlar
     this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
-    this.lootItem(client, this.generateItem(Items.CONVEYS_BLUE), 1); // conveys
+    // todo: fix this
+    //this.lootItem(client, this.generateItem(Items.CONVEYS_BLUE), 1); // conveys
   }
 
   clearInventory(client: Client) {
