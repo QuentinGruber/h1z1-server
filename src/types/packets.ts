@@ -2506,7 +2506,8 @@ export type weaponPacketsType =
   | "Weapon.ReplaceFireGroup"
   | "Weapon.GuidedUpdate"
   | "Weapon.Reset"
-  | "Weapon.RemoteWeapon.Update.ProjectileLaunch";
+  | "Weapon.RemoteWeapon.Update.ProjectileLaunch"
+  | "Weapon.RemoteWeapon.AddWeapon";
 
 
 export type loginPacketsType =

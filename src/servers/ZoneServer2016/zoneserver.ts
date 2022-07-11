@@ -2121,6 +2121,31 @@ export class ZoneServer2016 extends EventEmitter {
             : 0,
           mountRelatedDword1: vehicle ? 1 : 0,
         });
+        Object.values(characterObj._loadout).forEach((item) => {
+          if(this.isWeapon(item.itemDefinitionId)) {
+            this.sendWeaponData(client, "Weapon.RemoteWeapon.AddWeapon", {
+              transientId: characterObj.transientId,
+              guid: item.itemGuid,
+              data: {
+                unknownDword1: item.itemDefinitionId,
+                unknownByte1: 0,
+                unknownArray1: [{
+                  weaponDefinitionId: this.getItemDefinition(item.itemDefinitionId).PARAM1,
+                  unknownArray1: [
+                    {
+                      unknownDword1: 0,
+                      unknownDword2: 0
+                    },
+                    {
+                      unknownDword1: 0,
+                      unknownDword2: 0
+                    }
+                  ]
+                }]
+              }
+            })
+          }
+        })
         client.spawnedEntities.push(this._characters[characterObj.characterId]);
       }
     }

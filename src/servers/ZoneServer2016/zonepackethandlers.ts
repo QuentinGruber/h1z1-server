@@ -954,19 +954,22 @@ export class zonePacketHandlers {
             guid: "0x0",
           };
 
-          server.sendData(client, "LightweightToFullNpc", character.pGetFull());
-          /*
+          //server.sendData(client, "LightweightToFullNpc", character.pGetFull());
+          
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
             unknownDword1: 0,
-            positionUpdate: character.positionUpdate,
+            positionUpdate: {
+              ...character.positionUpdate,
+              sequenceTime: server.getGameTime()
+            },
             fullPcData: {
               transientId: character.transientId,
               attachmentData: character.pGetAttachmentSlots(),
               resources: character.pGetResources()
             }
           });
-          */
+          
           server.updateEquipment(client, character);
           server.sendData(client, "Character.WeaponStance", {
             // activates weaponstance key
@@ -1828,13 +1831,13 @@ export class zonePacketHandlers {
           case "Weapon.Fire":
             weaponItem.weapon.ammoCount -= 1;
             debug("Weapon.Fire");
-            /*
+            
             server.sendRemoteWeaponData(client, "Weapon.RemoteWeapon.Update.ProjectileLaunch", {
               transientId: client.character.transientId,
               unknownByte1: 1,
               unknownQword1: weaponItem.itemGuid
             })
-            */
+            
             break;
           case "Weapon.ProjectileHitReport":
             server.registerHit(client, p.packet);

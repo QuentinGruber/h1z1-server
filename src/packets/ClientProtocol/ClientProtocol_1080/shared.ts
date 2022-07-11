@@ -800,12 +800,12 @@ export const lightWeightPcSchema = [
     type: "schema",
     fields: identitySchema,
   },
-  { name: "unknownByte1", type: "uint8", defaultValue: /*2*/ 0 },
+  { name: "unknownByte1", type: "uint8", defaultValue: /*2*/ 1 },
   { name: "actorModelId", type: "uint32", defaultValue: 9240 },
-  { name: "unknownDword1", type: "uint32", defaultValue: /*270*/ 0 },
+  { name: "unknownDword1", type: "uint32", defaultValue: /*270*/ 1 },
   { name: "position", type: "floatvector3", defaultValue: [0, 80, 0] },
   { name: "rotation", type: "floatvector4", defaultValue: [0, 80, 0, 1] },
-  { name: "unknownDword2", type: "uint32", defaultValue: /*1083598438*/ 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: /*1083598438*/ 1 },
   {
     name: "mountGuid",
     type: "uint64string",
@@ -813,16 +813,30 @@ export const lightWeightPcSchema = [
   },
   { name: "mountSeatId", type: "uint32", defaultValue: 0xffffffff },
   { name: "mountRelatedDword1", type: "uint32", defaultValue: 0xffffffff },
-  { name: "unknownByte2", type: "uint8", defaultValue: /*7*/ 0 },
-  { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+  { name: "movementVersion", type: "uint8", defaultValue: /*7*/ 0 },
+  { name: "effectId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   {
     name: "unknownQword1",
     type: "uint64string",
     defaultValue: "0x0000000000000000",
   },
-  { name: "unknownDword5", type: "uint32", defaultValue: /*665*/ 0 },
-  { name: "unknownByte3", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword5", type: "uint32", defaultValue: /*665*/ 0 }, //
+  {
+    name: "flags1",
+    type: "bitflags",
+    defaultValue: {},
+    flags: [
+      { bit: 0, name: "flag0", defaultValue: 0 },
+      { bit: 1, name: "knockedOut", defaultValue: 0 },
+      { bit: 2, name: "disableEquipment", defaultValue: 0 },
+      { bit: 3, name: "useEffect", defaultValue: 0 },
+      { bit: 4, name: "flag4", defaultValue: 0 },
+      { bit: 5, name: "flag5", defaultValue: 0 },
+      { bit: 6, name: "flag6", defaultValue: 0 },
+      { bit: 7, name: "flag7", defaultValue: 0 },
+    ],
+  },
 ];
 
 export const lightWeightNpcSchema = [
@@ -1350,7 +1364,7 @@ export const remoteWeaponSchema = [
     type: "array8",
     defaultValue: [],
     fields: [
-      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "weaponDefinitionId", type: "uint32", defaultValue: 0 },
       {
         name: "unknownArray1",
         type: "array8",
