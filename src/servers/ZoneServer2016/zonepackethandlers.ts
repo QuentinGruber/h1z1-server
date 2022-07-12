@@ -1017,7 +1017,7 @@ export class zonePacketHandlers {
                 transientId: character.transientId,
                 attachmentData: character.pGetAttachmentSlots(),
                 resources: character.pGetResources(),
-                remoteWeapons: {data: remoteWeapons}
+                //remoteWeapons: {data: remoteWeapons}
               },
               positionUpdate: {
                 ...character.positionUpdate,
