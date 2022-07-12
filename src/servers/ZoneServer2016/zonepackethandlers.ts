@@ -953,23 +953,79 @@ export class zonePacketHandlers {
             slotId: 27,
             guid: "0x0",
           };
-
-          //server.sendData(client, "LightweightToFullNpc", character.pGetFull());
+          const remoteWeapons: any[] = [];
+          Object.values(character._loadout).forEach((item) => {
+            if(server.isWeapon(item.itemDefinitionId)) {
+              remoteWeapons.push({
+                guid: item.itemGuid,
+                unknownDword1: item.itemDefinitionId,
+                loadoutSlotId: item.slotId,
+                unknownArray1: [{
+                  weaponDefinitionId: server.getItemDefinition(item.itemDefinitionId).PARAM1,
+                  unknownArray1: [
+                    {
+                      unknownDword1: 0,
+                      unknownDword2: 0
+                    },
+                    {
+                      unknownDword1: 0,
+                      unknownDword2: 0
+                    }
+                  ]
+                }]
+              })
+              /*
+              server.sendRemoteWeaponData(client, character.transientId, "RemoteWeapon.AddWeapon", {
+                guid: item.itemGuid,
+                data: {
+                  unknownDword1: item.itemDefinitionId,
+                  unknownByte1: 0,
+                  unknownArray1: [{
+                    weaponDefinitionId: server.getItemDefinition(item.itemDefinitionId).PARAM1,
+                    unknownArray1: [
+                      {
+                        unknownDword1: 0,
+                        unknownDword2: 0
+                      },
+                      {
+                        unknownDword1: 0,
+                        unknownDword2: 0
+                      }
+                    ]
+                  }]
+                }
+              })
+              */
+              console.log(item.itemGuid)
+              console.log(item.itemDefinitionId)
+              console.log(client.character.transientId)
+              console.log(character.transientId)
+              
+            }
+          })
+          /*server.sendData(client, "LightweightToFullNpc", 
+          {...character.pGetFull(),
+            remoteWeapons: {data: remoteWeapons}
+          }
+          );*/
+          
           
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
-            unknownDword1: 0,
-            positionUpdate: {
-              ...character.positionUpdate,
-              sequenceTime: server.getGameTime()
-            },
-            fullPcData: {
-              transientId: character.transientId,
-              attachmentData: character.pGetAttachmentSlots(),
-              resources: character.pGetResources()
-            }
+              
+              fullPcData: {
+                transientId: character.transientId,
+                attachmentData: character.pGetAttachmentSlots(),
+                resources: character.pGetResources(),
+                remoteWeapons: {data: remoteWeapons}
+              },
+              positionUpdate: {
+                ...character.positionUpdate,
+                sequenceTime: server.getGameTime()
+              },
           });
           
+
           server.updateEquipment(client, character);
           server.sendData(client, "Character.WeaponStance", {
             // activates weaponstance key
@@ -1832,12 +1888,11 @@ export class zonePacketHandlers {
             weaponItem.weapon.ammoCount -= 1;
             debug("Weapon.Fire");
             
-            server.sendRemoteWeaponData(client, "Weapon.RemoteWeapon.Update.ProjectileLaunch", {
-              transientId: client.character.transientId,
-              unknownByte1: 1,
-              unknownQword1: weaponItem.itemGuid
-            })
             
+            server.sendRemoteWeaponUpdateData(
+              client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {})
+            
+
             break;
           case "Weapon.ProjectileHitReport":
             server.registerHit(client, p.packet);

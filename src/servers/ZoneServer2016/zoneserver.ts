@@ -41,8 +41,8 @@ import {
   loadoutItem,
   Weather2016,
 } from "../../types/zoneserver";
-import { h1z1PacketsType, weaponPacketsType } from "../../types/packets";
-import { Character2016 as Character, Character2016 } from "./classes/character";
+import { h1z1PacketsType, remoteWeaponPacketsType, remoteWeaponUpdatePacketsType, weaponPacketsType } from "../../types/packets";
+import { Character2016 as Character } from "./classes/character";
 import {
   _,
   generateRandomGuid,
@@ -2121,31 +2121,7 @@ export class ZoneServer2016 extends EventEmitter {
             : 0,
           mountRelatedDword1: vehicle ? 1 : 0,
         });
-        Object.values(characterObj._loadout).forEach((item) => {
-          if(this.isWeapon(item.itemDefinitionId)) {
-            this.sendWeaponData(client, "Weapon.RemoteWeapon.AddWeapon", {
-              transientId: characterObj.transientId,
-              guid: item.itemGuid,
-              data: {
-                unknownDword1: item.itemDefinitionId,
-                unknownByte1: 0,
-                unknownArray1: [{
-                  weaponDefinitionId: this.getItemDefinition(item.itemDefinitionId).PARAM1,
-                  unknownArray1: [
-                    {
-                      unknownDword1: 0,
-                      unknownDword2: 0
-                    },
-                    {
-                      unknownDword1: 0,
-                      unknownDword2: 0
-                    }
-                  ]
-                }]
-              }
-            })
-          }
-        })
+        
         client.spawnedEntities.push(this._characters[characterObj.characterId]);
       }
     }
@@ -2278,13 +2254,35 @@ export class ZoneServer2016 extends EventEmitter {
     })
   }
 
-  sendRemoteWeaponData(client: Client, packetName: weaponPacketsType, obj: any) {
+  sendRemoteWeaponData(client: Client, transientId: number, packetName: remoteWeaponPacketsType, obj: any) {
+    this.sendData(client, "Weapon.Weapon", {
+      weaponPacket: {
+        packetName: "Weapon.RemoteWeapon",
+        gameTime: this.getGameTime(),
+        remoteWeaponPacket: {
+          packetName: packetName,
+          transientId: transientId,
+          packet: obj
+        }
+      }
+    })
+  }
+
+  sendRemoteWeaponUpdateData(client: Client, transientId: number, weaponGuid: string, packetName: remoteWeaponUpdatePacketsType, obj: any) {
     this.sendDataToAllOthersWithSpawnedEntity(
       this._characters, client, client.character.characterId, "Weapon.Weapon", {
       weaponPacket: {
-        packetName: packetName,
+        packetName: "Weapon.RemoteWeapon",
         gameTime: this.getGameTime(),
-        packet: obj
+        remoteWeaponPacket: {
+          packetName: "RemoteWeapon.Update",
+          transientId: transientId,
+          remoteWeaponUpdatePacket: {
+            packetName: packetName,
+            weaponGuid: weaponGuid,
+            packet: obj
+          }
+        }
       }
     })
   }

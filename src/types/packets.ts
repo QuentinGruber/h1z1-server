@@ -2505,10 +2505,13 @@ export type weaponPacketsType =
   | "Weapon.RemoveFireGroup"
   | "Weapon.ReplaceFireGroup"
   | "Weapon.GuidedUpdate"
-  | "Weapon.Reset"
-  | "Weapon.RemoteWeapon.Update.ProjectileLaunch"
-  | "Weapon.RemoteWeapon.AddWeapon";
+  | "Weapon.Reset";
 
+  export type remoteWeaponPacketsType = 
+  | "RemoteWeapon.AddWeapon";
+
+  export type remoteWeaponUpdatePacketsType = 
+  | "Update.ProjectileLaunch";
 
 export type loginPacketsType =
   | "LoginRequest"

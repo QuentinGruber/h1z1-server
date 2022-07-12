@@ -133,107 +133,18 @@ const weaponPackets: any = [
   ["Weapon.ReplaceFireGroup", 0x8313, {}],
   ["Weapon.GuidedUpdate", 0x8314, {}],
   [
-    "Weapon.RemoteWeapon.Reset", 
-    0x831501, 
+    "Weapon.RemoteWeapon", 
+    0x8315, 
     {
       fields: [
         {
-          name: "transientId",
+          name: "weaponPacket",
           type: "custom",
-          parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
-        },
-        {
-          name: "data",
-          type: "byteswithlength",
-          fields: [
-
-          ]
+          packer: packRemoteWeaponPacket,
         },
       ]
     }
   ],
-  [
-    "Weapon.RemoteWeapon.AddWeapon", 
-    0x831502, 
-    {
-      fields: [
-        {
-          name: "transientId",
-          type: "custom",
-          parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
-        },
-        { name: "guid", type: "uint64string", defaultValue: "" },
-        {
-          name: "data",
-          type: "byteswithlength",
-          fields: remoteWeaponSchema
-        },
-      ]
-    }
-  ],
-  ["Weapon.RemoteWeapon.RemoveWeapon", 0x831503, {}],
-  [
-    "Weapon.RemoteWeapon.Update",
-    0x831504,
-    {
-      fields: [
-        {
-          name: "unknownUint1",
-          type: "custom",
-          parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
-        },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-        {
-          name: "unknownUint2",
-          type: "custom",
-          parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
-        },
-      ],
-    },
-  ],
-  ["Weapon.RemoteWeapon.Update.FireState", 0x83150401, {}],
-  ["Weapon.RemoteWeapon.Update.Empty", 0x83150402, {}],
-  ["Weapon.RemoteWeapon.Update.Reload", 0x83150403, {}],
-  ["Weapon.RemoteWeapon.Update.ReloadLoopEnd", 0x83150404, {}],
-  ["Weapon.RemoteWeapon.Update.ReloadInterrupt", 0x83150405, {}],
-  ["Weapon.RemoteWeapon.Update.SwitchFireMode", 0x83150406, {}],
-  ["Weapon.RemoteWeapon.Update.StatUpdate", 0x83150407, {}],
-  ["Weapon.RemoteWeapon.Update.AddFireGroup", 0x83150408, {}],
-  ["Weapon.RemoteWeapon.Update.RemoveFireGroup", 0x83150409, {}],
-  ["Weapon.RemoteWeapon.Update.ReplaceFireGroup", 0x8315040a, {}],
-  [
-    "Weapon.RemoteWeapon.Update.ProjectileLaunch", 
-    0x8315040b, 
-    {
-      fields: [
-        {
-          name: "transientId",
-          type: "custom",
-          parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
-        },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-
-        // below values may not exist
-        //{ name: "unknownByte2", type: "uint8", defaultValue: 0 },
-        //{ name: "unknownQword2", type: "uint64string", defaultValue: "0" },
-      ]
-    }
-  ],
-  ["Weapon.RemoteWeapon.Update.Chamber", 0x8315040c, {}],
-  ["Weapon.RemoteWeapon.Update.Throw", 0x8315040d, {}],
-  ["Weapon.RemoteWeapon.Update.Trigger", 0x8315040e, {}],
-  ["Weapon.RemoteWeapon.Update.ChamberInterrupt", 0x8315040f, {}],
-  ["Weapon.RemoteWeapon.ProjectileLaunchHint", 0x831505, {}],
-  ["Weapon.RemoteWeapon.ProjectileDetonateHint", 0x831506, {}],
-  ["Weapon.RemoteWeapon.ProjectileRemoteContactReport", 0x831507, {}],
   ["Weapon.ChamberRound", 0x8316, {}],
   ["Weapon.GuidedSetNonSeeking", 0x8317, {}],
   ["Weapon.ChamberInterrupt", 0x8318, {}],
@@ -346,8 +257,91 @@ const weaponPackets: any = [
   ],
 ];
 
+const remoteWeaponPackets: any = [
+  [
+    "RemoteWeapon.Reset", 
+    0x01, 
+    {
+      fields: [
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+        {
+          name: "data",
+          type: "byteswithlength",
+          fields: [
+
+          ]
+        },
+      ]
+    }
+  ],
+  [
+    "RemoteWeapon.AddWeapon", 
+    0x02, 
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "" },
+        {
+          name: "data",
+          type: "byteswithlength",
+          fields: remoteWeaponSchema
+        },
+      ]
+    }
+  ],
+  ["RemoteWeapon.RemoveWeapon", 0x03, {}],
+  [
+    "RemoteWeapon.Update",
+    0x04,
+    {
+      fields: [
+        {
+          name: "weaponPacket",
+          type: "custom",
+          packer: packRemoteWeaponUpdatePacket,
+        },
+      ],
+    },
+  ],
+  ["RemoteWeapon.ProjectileLaunchHint", 0x05, {}],
+  ["RemoteWeapon.ProjectileDetonateHint", 0x06, {}],
+  ["RemoteWeapon.ProjectileRemoteContactReport", 0x07, {}],
+]
+
+const remoteWeaponUpdatePackets: any = [
+  ["Update.FireState", 0x01, {}],
+  ["Update.Empty", 0x02, {}],
+  ["Update.Reload", 0x03, {}],
+  ["Update.ReloadLoopEnd", 0x04, {}],
+  ["Update.ReloadInterrupt", 0x05, {}],
+  ["Update.SwitchFireMode", 0x06, {}],
+  ["Update.StatUpdate", 0x07, {}],
+  ["Update.AddFireGroup", 0x08, {}],
+  ["Update.RemoveFireGroup", 0x09, {}],
+  ["Update.ReplaceFireGroup", 0x0a, {}],
+  [
+    "Update.ProjectileLaunch", 
+    0x0b, 
+    { // packet is empty
+      fields: []
+    }
+  ],
+  ["Update.Chamber", 0x0c, {}],
+  ["Update.Throw", 0x0d, {}],
+  ["Update.Trigger", 0x0e, {}],
+  ["Update.ChamberInterrupt", 0x0f, {}],
+]
+
 const [weaponPacketTypes, weaponPacketDescriptors] =
-  PacketTableBuild(weaponPackets);
+  PacketTableBuild(weaponPackets),
+  [remoteWeaponPacketTypes, remoteWeaponPacketDescriptors] =
+  PacketTableBuild(remoteWeaponPackets),
+  [remoteWeaponUpdatePacketTypes, remoteWeaponUpdatePacketDescriptors] =
+  PacketTableBuild(remoteWeaponUpdatePackets);
 
 function parseMultiWeaponPacket(data: Buffer, offset: number) {
   const startOffset = offset,
@@ -408,6 +402,92 @@ export function parseWeaponPacket(data: Buffer, offset: number) {
 }
 
 export function packWeaponPacket(obj: any): Buffer {
+  if(obj.packetName == "Weapon.RemoteWeapon") return packRemoteWeaponPacket(obj);
+  const subObj = obj.packet,
+    subName = obj.packetName,
+    subType = weaponPacketTypes[subName];
+  let data;
+  if (weaponPacketDescriptors[subType]) {
+    const subPacket = weaponPacketDescriptors[subType],
+      subTypeData = writePacketType(subType);
+      console.log(subTypeData)
+    let subData = DataSchema.pack(subPacket.schema, subObj).data;
+    subData = Buffer.concat([subTypeData.slice(1), subData]);
+    data = Buffer.allocUnsafe(subData.length + 4);
+    data.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
+    subData.copy(data, 4);
+  } else {
+    throw "Unknown weapon packet type: " + subType;
+  }
+  console.log(data)
+  return data;
+}
+
+export function packRemoteWeaponPacket(obj: any): Buffer {
+  if(obj.packetName == "RemoteWeapon.Update") return packRemoteWeaponUpdatePacket(obj);
+  // PACKET STRUCTURE:
+  /*
+  - weapon opcode WORD
+  - gametime dword
+  - weapon sub opcode byte
+  - remoteweapon sub opcode byte
+  - transientid 2bitlen (4 bytes)
+  */
+ /*
+  const subObj = obj.packet,
+    subName = obj.packetName,
+    subType = weaponPacketTypes[subName];
+  let data;
+  if (weaponPacketDescriptors[subType]) {
+    const subPacket = weaponPacketDescriptors[subType],
+      subTypeData = writePacketType(subType);
+    let subData = DataSchema.pack(subPacket.schema, subObj).data;
+    subData = Buffer.concat([subTypeData.slice(1), subData]);
+    data = Buffer.allocUnsafe(subData.length + 4);
+    data.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0);
+    subData.copy(data, 4);
+  } else {
+    throw "Unknown weapon packet type: " + subType;
+  }
+  return data;
+  */
+
+ 
+  const subObj = obj.remoteWeaponPacket.packet,
+  subName = obj.remoteWeaponPacket.packetName,
+  subType = remoteWeaponPacketTypes[subName];
+  if (!remoteWeaponPacketDescriptors[subType]) {
+    throw "Unknown weapon packet type: " + subType;
+  }
+  let subData = Buffer.allocUnsafe(6);
+  const subTypeData = writePacketType(subType)
+  subData.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0),
+  subData.writeUInt8(0x15, 4), // "Weapon.RemoteWeapon" opcode
+  subData.writeUInt8(subTypeData[0], 5); // remoteweapon sub opcode
+  console.log("subdata")
+  console.log(subData)
+  let transientId = packUnsignedIntWith2bitLengthValue(obj["remoteWeaponPacket"]["transientId"])
+  subData = Buffer.concat([subData, transientId]);
+  // transientid is only 2 bytes for some reason
+  console.log("TRANSIENTID")
+  console.log(transientId)
+  let packetData = DataSchema.pack(remoteWeaponPacketDescriptors[subType].schema, subObj).data;
+  const data = Buffer.concat([subData, packetData]);
+  console.log(data)
+  return data;
+  
+}
+
+export function packRemoteWeaponUpdatePacket(obj: any): Buffer {
+  /*
+  - weapon opcode WORD
+  - gametime dword
+  - weapon sub opcode byte
+  - remoteweapon sub opcode byte
+  - transientid 2bitlen
+  - weaponGuid uint64string
+  */
+  // TODO
   const subObj = obj.packet,
     subName = obj.packetName,
     subType = weaponPacketTypes[subName];

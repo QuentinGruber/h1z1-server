@@ -800,12 +800,12 @@ export const lightWeightPcSchema = [
     type: "schema",
     fields: identitySchema,
   },
-  { name: "unknownByte1", type: "uint8", defaultValue: /*2*/ 1 },
+  { name: "unknownByte1", type: "uint8", defaultValue: /*2*/ 2 }, // one of these messes with fullcharacter packet
   { name: "actorModelId", type: "uint32", defaultValue: 9240 },
-  { name: "unknownDword1", type: "uint32", defaultValue: /*270*/ 1 },
+  { name: "unknownDword1", type: "uint32", defaultValue: /*270*/ 270 }, // one of these messes with fullcharacter packet
   { name: "position", type: "floatvector3", defaultValue: [0, 80, 0] },
   { name: "rotation", type: "floatvector4", defaultValue: [0, 80, 0, 1] },
-  { name: "unknownDword2", type: "uint32", defaultValue: /*1083598438*/ 1 },
+  { name: "unknownFloat1", type: "float", defaultValue: /*4.7*/ 4.7 }, // one of these messes with fullcharacter packet
   {
     name: "mountGuid",
     type: "uint64string",
@@ -817,11 +817,11 @@ export const lightWeightPcSchema = [
   { name: "effectId", type: "uint32", defaultValue: 0 },
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   {
-    name: "unknownQword1",
+    name: "unknownQword1", // characterstate?
     type: "uint64string",
-    defaultValue: "0x0000000000000000",
+    defaultValue: "0x0100000000100000",
   },
-  { name: "unknownDword5", type: "uint32", defaultValue: /*665*/ 0 }, //
+  { name: "unknownDword5", type: "uint32", defaultValue: /*665*/ 665 }, //
   {
     name: "flags1",
     type: "bitflags",
@@ -1358,7 +1358,7 @@ export const attachmentSchema = [
 
 export const remoteWeaponSchema = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-  { name: "unknownByte1", type: "int8", defaultValue: 0 },
+  { name: "loadoutSlotId", type: "int8", defaultValue: 0 },
   {
     name: "unknownArray1",
     type: "array8",
@@ -1802,25 +1802,9 @@ export const fullNpcSchema = [
 export const fullPcSchema = [
   // NOT FINISHED
   { name: "useCompression", type: "boolean", defaultValue: false },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 }, // needs to be less than 1
-  {
-    name: "positionUpdate",
-    type: "custom",
-    parser: readPositionUpdateData,
-    packer: packPositionUpdateData,
-  },
-  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-  {
-    name: "stats",
-    type: "array",
-    defaultValue: [],
-    fields: statSchema,
-  },
   {
     name: "fullPcData",
-    type: "schema",
+    type: "byteswithlength",
     fields: [
       {
         name: "transientId",
@@ -2137,9 +2121,39 @@ export const fullPcSchema = [
           },
         ],
       },
+      {
+        name: "remoteWeapons",
+        type: "byteswithlength",
+        defaultValue: {},
+        fields: [
+          {
+            name: "data",
+            type: "array",
+            defaultValue: [],
+            fields: [
+              { name: "guid", type: "uint64string", defaultValue: "" },
+              ...remoteWeaponSchema
+            ]
+          },
+        ],
+      },
     ],
   },
-  // CONTINUED
+  {
+    name: "positionUpdate",
+    type: "custom",
+    parser: readPositionUpdateData,
+    packer: packPositionUpdateData,
+  },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+  { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+  {
+    name: "stats",
+    type: "array",
+    defaultValue: [],
+    fields: statSchema,
+  },
 ];
 
 export const respawnLocationSchema = [
