@@ -30,15 +30,28 @@ export const constructionPackets: any = [
     },
   ],
   [
-    "Construction.PlacementFinalizeRequest",
-    0xca0300,
-    {
-      fields: [
-        { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
-        { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
-      ],
-    },
-  ],
+        "Construction.PlacementFinalizeRequest",
+        0xca0300,
+        {
+            fields: [
+                { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+                { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+                { name: "scale", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+                { name: "parentObjectCharacterId", type: "uint64string", defaultValue: "" },
+                { name: "STRING_PARAM1", type: "string", defaultValue: "" },
+                { name: "unkByte1", type: "uint8", defaultValue: 0 },
+                { name: "unk1", type: "float", defaultValue: 0 },
+                { name: "rotation1", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+                { name: "unk2", type: "float", defaultValue: 0 },
+                { name: "unk3", type: "float", defaultValue: 0 },
+                { name: "unk4", type: "float", defaultValue: 0 },
+                { name: "unk5", type: "float", defaultValue: 0 },
+                { name: "rotation2", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+                { name: "unk6", type: "float", defaultValue: 0 },
+                { name: "position2", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+            ],
+        },
+    ],
   [
     "Construction.PlacementFinalizeResponse",
     0xca0400,
