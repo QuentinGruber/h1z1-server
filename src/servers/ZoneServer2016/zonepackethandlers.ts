@@ -44,7 +44,7 @@ import { TemporaryEntity } from "./classes/temporaryentity";
 
 const profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
 const projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
-
+const stats = require("../../../data/2016/sampleData/stats.json");
 export class zonePacketHandlers {
   hax = hax;
   dev = dev;
@@ -955,60 +955,30 @@ export class zonePacketHandlers {
           };
           const remoteWeapons: any[] = [];
           Object.values(character._loadout).forEach((item) => {
-            if(server.isWeapon(item.itemDefinitionId)) {
+            if(item.itemDefinitionId == 1373) { // TEMP TESTING
               remoteWeapons.push({
                 guid: item.itemGuid,
-                unknownDword1: item.itemDefinitionId,
+                weaponDefinitionId: server.getItemDefinition(item.itemDefinitionId).PARAM1,
+                unknownDword1: server.getItemDefinition(item.itemDefinitionId).PARAM1,
                 loadoutSlotId: item.slotId,
-                unknownArray1: [{
-                  weaponDefinitionId: server.getItemDefinition(item.itemDefinitionId).PARAM1,
+                firegroups: [{
+                  firegroupId: server.getWeaponDefinition(
+                    server.getItemDefinition(
+                      item.itemDefinitionId).PARAM1).FIRE_GROUPS[0]?.FIRE_GROUP_ID,
                   unknownArray1: [
                     {
-                      unknownDword1: 0,
-                      unknownDword2: 0
+                      unknownDword1: 19,
+                      unknownDword2: 19
                     },
                     {
-                      unknownDword1: 0,
-                      unknownDword2: 0
+                      unknownDword1: 20,
+                      unknownDword2: 20
                     }
                   ]
                 }]
-              })
-              /*
-              server.sendRemoteWeaponData(client, character.transientId, "RemoteWeapon.AddWeapon", {
-                guid: item.itemGuid,
-                data: {
-                  unknownDword1: item.itemDefinitionId,
-                  unknownByte1: 0,
-                  unknownArray1: [{
-                    weaponDefinitionId: server.getItemDefinition(item.itemDefinitionId).PARAM1,
-                    unknownArray1: [
-                      {
-                        unknownDword1: 0,
-                        unknownDword2: 0
-                      },
-                      {
-                        unknownDword1: 0,
-                        unknownDword2: 0
-                      }
-                    ]
-                  }]
-                }
-              })
-              */
-              console.log(item.itemGuid)
-              console.log(item.itemDefinitionId)
-              console.log(client.character.transientId)
-              console.log(character.transientId)
-              
+              })              
             }
           })
-          /*server.sendData(client, "LightweightToFullNpc", 
-          {...character.pGetFull(),
-            remoteWeapons: {data: remoteWeapons}
-          }
-          );*/
-          
           
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
@@ -1016,19 +986,24 @@ export class zonePacketHandlers {
               fullPcData: {
                 transientId: character.transientId,
                 attachmentData: character.pGetAttachmentSlots(),
-                resources: character.pGetResources(),
-                //remoteWeapons: {data: remoteWeapons}
+                resources: {data: character.pGetResources() },
+                remoteWeapons: {data: remoteWeapons}
               },
               positionUpdate: {
                 ...character.positionUpdate,
                 sequenceTime: server.getGameTime()
               },
+              stats: stats.map((stat: any) => {
+                return stat.statData;
+              })
           });
-          
-
+          /*Object.values(character._loadout).forEach((item) => {
+            server.addItem(client, item, 101, character);
+          })
           server.updateEquipment(client, character);
+          server.updateLoadout(client, character);*/
+          
           server.sendData(client, "Character.WeaponStance", {
-            // activates weaponstance key
             characterId: character.characterId,
             stance: 1,
           });
@@ -1888,10 +1863,13 @@ export class zonePacketHandlers {
             weaponItem.weapon.ammoCount -= 1;
             debug("Weapon.Fire");
             
-            
+            /*
             server.sendRemoteWeaponUpdateData(
-              client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {})
-            
+              client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {
+                unknownDword1: server.getItemDefinition(weaponItem.itemDefinitionId).PARAM1,
+                unknownQword1: client.character.characterId
+            })
+            */
 
             break;
           case "Weapon.ProjectileHitReport":
@@ -1900,6 +1878,8 @@ export class zonePacketHandlers {
             break;
           case "Weapon.ReloadRequest":
             if(client.character.reloadTimer) return;
+            /*server.sendRemoteWeaponUpdateData(
+              client, client.character.transientId, weaponItem.itemGuid, "Update.Reload", {})*/
             client.character.reloadTimer = setTimeout(() => {
               if(!client.character.reloadTimer) return;
               const weaponItem = client.character.getEquippedWeapon();

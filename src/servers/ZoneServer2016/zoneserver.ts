@@ -575,11 +575,11 @@ export class ZoneServer2016 extends EventEmitter {
       }
     })
     .map((slot) => {
-      return this.pGetItemData(client, slot, 101);
+      return this.pGetItemData(client.character, slot, 101);
     });
     Object.values(client.character._containers).forEach((container) => {
       Object.values(container.items).forEach((item) => {
-        items.push(this.pGetItemData(client, item, container.containerDefinitionId))
+        items.push(this.pGetItemData(client.character, item, container.containerDefinitionId))
       })
     })
     return items;
@@ -2894,7 +2894,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   //#region ********************INVENTORY********************
 
-  pGetItemData(client: Client, item: inventoryItem, containerDefId: number) {
+  pGetItemData(character: Character, item: inventoryItem, containerDefId: number) {
     let durability: number = 0;
     const isWeapon = this.isWeapon(item.itemDefinitionId);
     switch (true) {
@@ -2920,7 +2920,7 @@ export class ZoneServer2016 extends EventEmitter {
       currentDurability: durability ? item.currentDurability : 0,
       maxDurabilityFromDefinition: durability,
       unknownBoolean1: true,
-      ownerCharacterId: isWeapon && item.itemDefinitionId !== 85 ? "" : client.character.characterId,
+      ownerCharacterId: isWeapon && item.itemDefinitionId !== 85 ? "" : character.characterId,
       unknownDword9: 1,
       unknownData1: this.getItemWeaponData(item)
     }
@@ -3020,10 +3020,10 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  addItem(client: Client, item: inventoryItem, containerDefinitionId: number) {
+  addItem(client: Client, item: inventoryItem, containerDefinitionId: number, character = client.character) {
     this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
-      data: this.pGetItemData(client, item, containerDefinitionId),
+      data: this.pGetItemData(character, item, containerDefinitionId),
     });
   }
 
@@ -3762,7 +3762,7 @@ export class ZoneServer2016 extends EventEmitter {
               container.items[item.itemGuid].slotId = idx + 1;
               return {
                 itemDefinitionId: item.itemDefinitionId,
-                itemData: this.pGetItemData(client, item, container.containerDefinitionId),
+                itemData: this.pGetItemData(client.character, item, container.containerDefinitionId),
               };
             }),
             unknownBoolean1: true, // needs to be true or bulk doesn't show up
@@ -3801,7 +3801,7 @@ export class ZoneServer2016 extends EventEmitter {
           container.items[item.itemGuid].slotId = idx + 1;
           return {
             itemDefinitionId: item.itemDefinitionId,
-            itemData: this.pGetItemData(client, item, container.containerDefinitionId),
+            itemData: this.pGetItemData(client.character, item, container.containerDefinitionId),
           };
         }),
         unknownBoolean1: true, // needs to be true or bulk doesn't show up
@@ -3851,7 +3851,7 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     this.sendData(client, "ClientUpdate.ItemUpdate", {
       characterId: client.character.characterId,
-      data: this.pGetItemData(client, item, 101),
+      data: this.pGetItemData(client.character, item, 101),
     });
     //this.updateLoadout(client);
   }
@@ -3864,7 +3864,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!container) return;
     this.sendData(client, "ClientUpdate.ItemUpdate", {
       characterId: client.character.characterId,
-      data: this.pGetItemData(client, item, container.containerDefinitionId),
+      data: this.pGetItemData(client.character, item, container.containerDefinitionId),
     });
     this.updateContainer(client, container);
   }

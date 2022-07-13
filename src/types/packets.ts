@@ -2511,7 +2511,8 @@ export type weaponPacketsType =
   | "RemoteWeapon.AddWeapon";
 
   export type remoteWeaponUpdatePacketsType = 
-  | "Update.ProjectileLaunch";
+  | "Update.ProjectileLaunch"
+  | "Update.Reload";
 
 export type loginPacketsType =
   | "LoginRequest"

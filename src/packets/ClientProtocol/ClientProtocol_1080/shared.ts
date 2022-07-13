@@ -1357,14 +1357,14 @@ export const attachmentSchema = [
 ];
 
 export const remoteWeaponSchema = [
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "weaponDefinitionId", type: "uint32", defaultValue: 0 },
   { name: "loadoutSlotId", type: "int8", defaultValue: 0 },
   {
-    name: "unknownArray1",
+    name: "firegroups",
     type: "array8",
     defaultValue: [],
     fields: [
-      { name: "weaponDefinitionId", type: "uint32", defaultValue: 0 },
+      { name: "firegroupId", type: "uint32", defaultValue: 0 },
       {
         name: "unknownArray1",
         type: "array8",
