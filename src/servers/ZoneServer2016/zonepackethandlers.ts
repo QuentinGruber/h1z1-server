@@ -954,6 +954,7 @@ export class zonePacketHandlers {
             guid: "0x0",
           };
           const remoteWeapons: any[] = [];
+          /*
           Object.values(character._loadout).forEach((item) => {
             if(item.itemDefinitionId == 1373) { // TEMP TESTING
               remoteWeapons.push({
@@ -979,7 +980,8 @@ export class zonePacketHandlers {
               })              
             }
           })
-          
+          */
+         
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
               
