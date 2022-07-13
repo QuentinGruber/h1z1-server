@@ -27,6 +27,8 @@ let dev = require("./commands/dev").default;
 
 let admin = require("./commands/admin").default;
 
+const fs = require('fs');
+
 import { _, Int64String, isPosInRadius, getDistance } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
@@ -135,6 +137,7 @@ export class zonePacketHandlers {
       server.tempGodMode(client, 3000);
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
+      server.sendRawData(client, fs.readFileSync('node_modules/h1z1-server/data/2016/rawData/Construction.Unknown.bin'));
       if (client.firstLoading) {
         server.setGodMode(client, false);
         setTimeout(() => {
