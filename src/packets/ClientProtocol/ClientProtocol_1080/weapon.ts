@@ -413,7 +413,6 @@ export function packWeaponPacket(obj: any): Buffer {
   if (weaponPacketDescriptors[subType]) {
     const subPacket = weaponPacketDescriptors[subType],
       subTypeData = writePacketType(subType);
-      console.log(subTypeData)
     let subData = DataSchema.pack(subPacket.schema, subObj).data;
     subData = Buffer.concat([subTypeData.slice(1), subData]);
     data = Buffer.allocUnsafe(subData.length + 4);
@@ -422,21 +421,11 @@ export function packWeaponPacket(obj: any): Buffer {
   } else {
     throw "Unknown weapon packet type: " + subType;
   }
-  console.log(data)
   return data;
 }
 
 export function packRemoteWeaponPacket(obj: any): Buffer {
   if(obj.remoteWeaponPacket.packetName == "RemoteWeapon.Update") return packRemoteWeaponUpdatePacket(obj);
-  // PACKET STRUCTURE:
-  /*
-  - weapon opcode WORD
-  - gametime dword
-  - weapon sub opcode byte
-  - remoteweapon sub opcode byte
-  - transientid 2bitlen (4 bytes)
-  */
- 
   const subObj = obj.remoteWeaponPacket.packet,
   subName = obj.remoteWeaponPacket.packetName,
   subType = remoteWeaponPacketTypes[subName];
@@ -448,23 +437,14 @@ export function packRemoteWeaponPacket(obj: any): Buffer {
   subData.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0),
   subData.writeUInt8(0x15, 4), // "Weapon.RemoteWeapon" opcode
   subData.writeUInt8(subTypeData[0], 5); // remoteweapon sub opcode
-  let transientId = packUnsignedIntWith2bitLengthValue(obj["remoteWeaponPacket"]["transientId"])
+  const transientId = packUnsignedIntWith2bitLengthValue(obj["remoteWeaponPacket"]["transientId"]);
   subData = Buffer.concat([subData, transientId]);
-  let packetData = DataSchema.pack(remoteWeaponPacketDescriptors[subType].schema, subObj).data;
+  const packetData = DataSchema.pack(remoteWeaponPacketDescriptors[subType].schema, subObj).data;
   return Buffer.concat([subData, packetData]);
   
 }
 
 export function packRemoteWeaponUpdatePacket(obj: any): Buffer {
-  /*
-  - weapon opcode WORD
-  - gametime dword
-  - weapon sub opcode byte
-  - remoteweapon sub opcode byte
-  - transientid 2bitlen
-  - weaponupdate sub opcode byte
-  - weaponGuid uint64string
-  */
   const subObj = obj.remoteWeaponPacket.remoteWeaponUpdatePacket.packet,
   subName = obj.remoteWeaponPacket.remoteWeaponUpdatePacket.packetName,
   subType = remoteWeaponUpdatePacketTypes[subName];
@@ -476,16 +456,15 @@ export function packRemoteWeaponUpdatePacket(obj: any): Buffer {
   subData.writeUInt32LE((obj.gameTime & 0xffffffff) >>> 0, 0),
   subData.writeUInt8(0x15, 4), // "Weapon.RemoteWeapon" opcode
   subData.writeUInt8(0x04, 5); // "RemoteWeapon.Update" opcode
-  let transientId = packUnsignedIntWith2bitLengthValue(obj["remoteWeaponPacket"]["transientId"])
+  const transientId = packUnsignedIntWith2bitLengthValue(obj["remoteWeaponPacket"]["transientId"])
   subData = Buffer.concat([subData, transientId]);
   const updateData = Buffer.allocUnsafe(9);
   updateData.writeUInt8(subTypeData[0], 0);
-  //updateData.writeBigUInt64LE(obj["remoteWeaponPacket"]["remoteWeaponUpdatePacket"]["weaponGuid"], 1);
   for (let j = 0; j < 8; j++) {
     updateData.writeUInt8(parseInt(obj["remoteWeaponPacket"]["remoteWeaponUpdatePacket"]["weaponGuid"].substr(2 + (7 - j) * 2, 2), 16), 1 + j);
 }
   subData = Buffer.concat([subData, updateData]);
-  let packetData = DataSchema.pack(remoteWeaponUpdatePacketDescriptors[subType].schema, subObj).data;
+  const packetData = DataSchema.pack(remoteWeaponUpdatePacketDescriptors[subType].schema, subObj).data;
   return Buffer.concat([subData, packetData]);
 }
 
