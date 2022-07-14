@@ -77,7 +77,9 @@ export class SOEServer extends EventEmitter {
   }
 
   private adjustPacketRate(): void {
+    debug("Adjusting packet rate");
     this._currentPacketRatePerClient = this.calculatePacketRate();
+    debug(`Packet rate: ${this._currentPacketRatePerClient}`);
   }
 
   private resetPacketsRate(): void {
