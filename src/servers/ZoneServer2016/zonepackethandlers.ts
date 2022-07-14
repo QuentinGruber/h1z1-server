@@ -954,7 +954,7 @@ export class zonePacketHandlers {
             guid: "0x0",
           };
           const remoteWeapons: any[] = [];
-          /*
+          
           Object.values(character._loadout).forEach((item) => {
             if(item.itemDefinitionId == 1373) { // TEMP TESTING
               remoteWeapons.push({
@@ -968,11 +968,11 @@ export class zonePacketHandlers {
                       item.itemDefinitionId).PARAM1).FIRE_GROUPS[0]?.FIRE_GROUP_ID,
                   unknownArray1: [
                     {
-                      unknownDword1: 19,
+                      unknownDword1: 1373,
                       unknownDword2: 19
                     },
                     {
-                      unknownDword1: 20,
+                      unknownDword1: 1373,
                       unknownDword2: 20
                     }
                   ]
@@ -980,7 +980,7 @@ export class zonePacketHandlers {
               })              
             }
           })
-          */
+          
 
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
