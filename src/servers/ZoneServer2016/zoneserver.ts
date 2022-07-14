@@ -58,6 +58,7 @@ import {
   getRandomFromArray,
   getRandomKeyFromAnObject,
   bigIntToHexString,
+  calculateDamageDistFallOff,
 } from "../../utils/utils";
 
 import { Db, MongoClient } from "mongodb";
@@ -1084,7 +1085,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  generateDamageRecord(targetClient: Client, sourceClient: Client, hitReport: any): DamageRecord {
+  generateDamageRecord(targetClient: Client, sourceClient: Client, hitReport: any, damage: number): DamageRecord {
     const sCharacter = sourceClient.character,
     tCharacter = targetClient.character;
     return {
@@ -1099,7 +1100,8 @@ export class ZoneServer2016 extends EventEmitter {
         weapon: this.getItemDefinition(sCharacter.getEquippedWeapon().itemDefinitionId).MODEL_NAME,
         distance: getDistance(sCharacter.state.position, tCharacter.state.position).toFixed(1),
         hitLocation: hitReport?.hitLocation || "Unknown",
-        hitPosition: hitReport?.position || new Float32Array([0, 0, 0, 0])
+        hitPosition: hitReport?.position || new Float32Array([0, 0, 0, 0]),
+        damage: damage
       }
     }
   }
@@ -1652,13 +1654,13 @@ export class ZoneServer2016 extends EventEmitter {
       return slot.itemDefinitionId >= 0 && itemDef.ITEM_CLASS == 25000 && itemDef.IS_ARMOR;
     }
 
-    checkHelmet(packet: any, damage: number): number {
+    checkHelmet(packet: any, damage: number, helmetDamageDivder = 1): number {
         const c = this.getClientByCharId(packet.hitReport.characterId);
         if (!c || !this.hasHelmet(c.character.characterId)) {
             return damage;
         }
         damage *= 0.75;
-        this.damageItem(c, c.character._loadout[LoadoutSlots.HEAD], damage);
+        this.damageItem(c, c.character._loadout[LoadoutSlots.HEAD], damage / helmetDamageDivder);
         return damage;
     }
 
@@ -1670,7 +1672,7 @@ export class ZoneServer2016 extends EventEmitter {
       return slot.itemDefinitionId >= 0 && itemDef.ITEM_CLASS == 25041;
     }
 
-    checkArmor(packet: any, damage: any): number {
+    checkArmor(packet: any, damage: any, kevlarDamageDivider = 4): number {
         const c = this.getClientByCharId(packet.hitReport.characterId),
         slot = c?.character._loadout[LoadoutSlots.ARMOR],
         itemDef = this.getItemDefinition(slot?.itemDefinitionId);
@@ -1678,18 +1680,19 @@ export class ZoneServer2016 extends EventEmitter {
             return damage;
         }
           if (itemDef.DESCRIPTION_ID == 12073) {
-              damage *= 0.8;
-              this.damageItem(c, c.character._loadout[LoadoutSlots.ARMOR], (damage / 4));
+              damage *= 0.5; // was 0.8
+              this.damageItem(c, c.character._loadout[LoadoutSlots.ARMOR], (damage / kevlarDamageDivider));
           } else if (itemDef.DESCRIPTION_ID == 11151) {
-              damage *= 0.9;
-              this.damageItem(c, c.character._loadout[LoadoutSlots.ARMOR], (damage / 4));
+              damage *= 0.7; // was 0.9
+              this.damageItem(c, c.character._loadout[LoadoutSlots.ARMOR], (damage / kevlarDamageDivider));
           }
         return damage;
     }
     
     registerHit(client: Client, packet: any) {
       const characterId = packet.hitReport.characterId,
-      entityType = this.getEntityType(packet.hitReport.characterId)
+      entityType = this.getEntityType(packet.hitReport.characterId);
+      let hitEntity;
       let damageEntity;
       switch (entityType) {
         case EntityTypes.NPC:
@@ -1699,6 +1702,7 @@ export class ZoneServer2016 extends EventEmitter {
             damageEntity = ()=> {
               this.npcDamage(characterId, damage);
             }
+            hitEntity = this._npcs[characterId];
             break;
         case EntityTypes.VEHICLE:
             if(!this._vehicles[characterId]) {
@@ -1707,6 +1711,7 @@ export class ZoneServer2016 extends EventEmitter {
             damageEntity = ()=> {
               this.damageVehicle(damage, this._vehicles[characterId])
             }
+            hitEntity = this._vehicles[characterId];
             break;
         case EntityTypes.PLAYER:
           if(!this._characters[characterId] || this._characters[characterId].characterStates.knockedOut) {
@@ -1733,17 +1738,19 @@ export class ZoneServer2016 extends EventEmitter {
                     });
             this.playerDamage(c, damage, {client: client, hitReport: packet.hitReport}, causeBleed);
           }
+          hitEntity = this._characters[characterId];
           break;
         case EntityTypes.EXPLOSIVE:
           this.explodeExplosive(this._explosives[characterId]);
           return;
         default:
-            return;
+          return;
     }
         let damage: number,
             isHeadshot = 0,
             canStopBleed = false,
-            hitEffect = 0;
+            hitEffect = 0,
+            isShotgun = false;
         switch (client.character.getEquippedWeapon().itemDefinitionId) {
             case Items.WEAPON_AR15:
             case Items.WEAPON_1911:
@@ -1759,7 +1766,13 @@ export class ZoneServer2016 extends EventEmitter {
                 hitEffect = 1165;
                 break;
             case Items.WEAPON_SHOTGUN:
-                damage = 1667; // 1 pellet 
+                isShotgun = true;
+                damage = 1200; // 1 pellet (was 1667)
+                damage = calculateDamageDistFallOff(
+                  getDistance(client.character.state.position, hitEntity.state.position),
+                  damage,
+                  .5
+                )
                 hitEffect = 1302;
                 break;
             case Items.WEAPON_AK47:
@@ -1787,10 +1800,10 @@ export class ZoneServer2016 extends EventEmitter {
             case 'neck':
               damage *= 4;
               isHeadshot = 1;
-              damage = this.checkHelmet(packet, damage);
+              damage = this.checkHelmet(packet, damage, isShotgun?100:1);
               break;
             default:
-              damage = this.checkArmor(packet, damage)
+              damage = this.checkArmor(packet, damage, isShotgun?10:4)
               canStopBleed = true;
               break;
         }
@@ -1847,7 +1860,7 @@ export class ZoneServer2016 extends EventEmitter {
             if (!damageInfo?.client.character) {
                 return
             }
-            const damageRecord = this.generateDamageRecord(client, damageInfo.client, damageInfo.hitReport);
+            const damageRecord = this.generateDamageRecord(client, damageInfo.client, damageInfo.hitReport, damage);
             client.character.addCombatlogEntry(damageRecord);
             damageInfo.client.character.addCombatlogEntry(damageRecord);
             this.combatLog(client);
@@ -2883,11 +2896,11 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const combatlog = client.character.getCombatLog();
     this.sendChatText(client, "---------------------------------COMBATLOG:--------------------------------");
-    this.sendChatText(client, `TIME | SOURCE | TARGET | WEAPON | DISTANCE | HITLOCATION | HITPOSITION`);
+    this.sendChatText(client, `TIME | SOURCE | TARGET | WEAPON | DISTANCE | HITLOCATION | HITPOSITION | DAMAGE`);
     combatlog.forEach((e) => {
       const hitPosition = `[${e.hitInfo.hitPosition[0].toFixed(2)}, ${e.hitInfo.hitPosition[1].toFixed(2)}, ${e.hitInfo.hitPosition[2].toFixed(2)}]`
       this.sendChatText(client, 
-        `${((Date.now() - e.hitInfo.timestamp)/1000).toFixed(1)}s ${e.source.name == client.character.name?"YOU":e.source.name||"undefined"} ${e.target.name == client.character.name?"YOU":e.target.name||"undefined"} ${e.hitInfo.weapon} ${e.hitInfo.distance}m ${e.hitInfo.hitLocation} ${hitPosition}`);
+        `${((Date.now() - e.hitInfo.timestamp)/1000).toFixed(1)}s ${e.source.name == client.character.name?"YOU":e.source.name||"undefined"} ${e.target.name == client.character.name?"YOU":e.target.name||"undefined"} ${e.hitInfo.weapon} ${e.hitInfo.distance}m ${e.hitInfo.hitLocation} ${hitPosition} ${e.hitInfo.damage}`);
     })
     this.sendChatText(client, "---------------------------------------------------------------------------------");
   }

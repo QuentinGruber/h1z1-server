@@ -981,7 +981,7 @@ export class zonePacketHandlers {
             }
           })
           */
-         
+
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
               
@@ -1935,7 +1935,7 @@ export class zonePacketHandlers {
             debug(`Unhandled weapon packet type: ${p.packetName}`);
             break;
         }
-        console.log(p)
+        //console.log(p)
       }
       
     };
