@@ -59,7 +59,7 @@ export class SOEServer extends EventEmitter {
       }
     );
     setInterval(() => {
-      this.resetPacketsRate();
+      this.resetPacketsSent();
     }, 1000);
   }
 
@@ -82,7 +82,7 @@ export class SOEServer extends EventEmitter {
     debug(`Packet rate: ${this._currentPacketRatePerClient}`);
   }
 
-  private resetPacketsRate(): void {
+  private resetPacketsSent(): void {
     for (const client of this._clients.values()) {
       client.packetsSentThisSec = 0;
     }
