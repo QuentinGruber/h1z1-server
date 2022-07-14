@@ -2889,6 +2889,10 @@ export class ZoneServer2016 extends EventEmitter {
     // send reloadinterrupt to all clients with spawned character
   }
 
+  printCombatLogEntry(client: Client) {
+
+  }
+
   combatLog(client: Client) {
     if(!client.character.getCombatLog().length) {
       this.sendChatText(client, "No combatlog info available");
@@ -2900,7 +2904,7 @@ export class ZoneServer2016 extends EventEmitter {
     combatlog.forEach((e) => {
       const hitPosition = `[${e.hitInfo.hitPosition[0].toFixed(2)}, ${e.hitInfo.hitPosition[1].toFixed(2)}, ${e.hitInfo.hitPosition[2].toFixed(2)}]`
       this.sendChatText(client, 
-        `${((Date.now() - e.hitInfo.timestamp)/1000).toFixed(1)}s ${e.source.name == client.character.name?"YOU":e.source.name||"undefined"} ${e.target.name == client.character.name?"YOU":e.target.name||"undefined"} ${e.hitInfo.weapon} ${e.hitInfo.distance}m ${e.hitInfo.hitLocation} ${hitPosition} ${e.hitInfo.damage}`);
+        `${((Date.now() - e.hitInfo.timestamp)/1000).toFixed(1)}s ${e.source.name == client.character.name?"YOU":e.source.name||"undefined"} ${e.target.name == client.character.name?"YOU":e.target.name||"undefined"} ${e.hitInfo.weapon} ${e.hitInfo.distance}m ${e.hitInfo.hitLocation} ${hitPosition} ${e.hitInfo.damage.toFixed(2)}`);
     })
     this.sendChatText(client, "---------------------------------------------------------------------------------");
   }
@@ -2949,9 +2953,9 @@ export class ZoneServer2016 extends EventEmitter {
         unknownData2: {
           ammoSlots: this.getWeaponAmmoId(slot.itemDefinitionId)?[{ammoSlot: slot.weapon?.ammoCount}]:[],
           //this.getWeaponAmmoSlot(slot.itemDefinitionId),
-          unknownArray2: [{
-            weaponDefinitionId: this.getItemDefinition(slot.itemDefinitionId).PARAM1,
-            unknownArray1: [
+          firegroups: [{
+            firegroupId: this.getWeaponDefinition(this.getItemDefinition(slot.itemDefinitionId).PARAM1)?.FIRE_GROUPS[0]?.FIRE_GROUP_ID,
+            unknownArray1: [ // maybe firemodes?
               {
                 unknownByte1: 0,
                 unknownDword1: 0,

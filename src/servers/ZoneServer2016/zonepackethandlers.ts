@@ -1875,6 +1875,38 @@ export class zonePacketHandlers {
 
             break;
           case "Weapon.ProjectileHitReport":
+            if(client.character.getEquippedWeapon().itemDefinitionId == 1776 && client.isAdmin) {
+              const characterId = p.packet.hitReport.characterId,
+              entityType = server.getEntityType(characterId);
+              switch (entityType) {
+                case EntityTypes.NPC:
+                    if(!server._npcs[characterId] ) {
+                      return;
+                    }
+                    server.deleteEntity(characterId, server._npcs);
+                    break;
+                case EntityTypes.VEHICLE:
+                    if(!server._vehicles[characterId]) {
+                      return;
+                    }
+                    server.deleteEntity(characterId, server._vehicles);
+                    break;
+                case EntityTypes.OBJECT:
+                  if(!server._spawnedItems[characterId] ) {
+                    return;
+                  }
+                  delete server.worldObjectManager._spawnedLootObjects[server._spawnedItems[characterId].spawnerId];
+                  server.deleteEntity(characterId, server._spawnedItems);
+                  break;
+                case EntityTypes.EXPLOSIVE:
+                  server.deleteEntity(characterId, server._explosives);
+                  break;
+                default:
+                  return;
+              }
+              server.sendAlert(client, "Object removed.");
+              return;
+            }
             server.registerHit(client, p.packet);
             debug("Weapon.ProjectileHitReport");
             break;

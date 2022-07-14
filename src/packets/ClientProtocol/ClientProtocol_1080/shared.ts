@@ -1046,11 +1046,11 @@ export function packItemWeaponData(obj: any) {
           ],
         },
         {
-          name: "unknownArray2",
+          name: "firegroups",
           type: "array8",
           defaultValue: [],
           fields: [
-            { name: "weaponDefinitionId", type: "uint32", defaultValue: 0 },
+            { name: "firegroupId", type: "uint32", defaultValue: 0 },
             {
               name: "unknownArray1",
               type: "array8",

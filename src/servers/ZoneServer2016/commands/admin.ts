@@ -116,6 +116,13 @@ const admin: any = {
   ) {
     args.shift()
     server.sendAlertToAll(args.join(" "));
+  },
+  remover: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    server.lootItem(client, server.generateItem(1776), 1)
   }
 };
 
