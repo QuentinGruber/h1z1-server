@@ -59,7 +59,7 @@ export class SOEServer extends EventEmitter {
       }
     );
     setInterval(() => {
-      this.resetPacketsRate();
+      this.resetPacketsSent();
     }, 1000);
   }
 
@@ -77,10 +77,14 @@ export class SOEServer extends EventEmitter {
   }
 
   private adjustPacketRate(): void {
+    return
+    debug("Adjusting packet rate");
     this._currentPacketRatePerClient = this.calculatePacketRate();
+    debug(`Packet rate: ${this._currentPacketRatePerClient}`);
   }
 
-  private resetPacketsRate(): void {
+  private resetPacketsSent(): void {
+    debug("Reset packets sent");
     for (const client of this._clients.values()) {
       client.packetsSentThisSec = 0;
     }
@@ -104,6 +108,7 @@ export class SOEServer extends EventEmitter {
   }
 
   private sendPriorityQueue(client: Client): void {
+    debug("Sending priority queue");
     while (client.packetsSentThisSec < this._currentPacketRatePerClient) {
       const logicalPacket = client.priorityQueue.shift();
       if (logicalPacket) {
@@ -119,6 +124,7 @@ export class SOEServer extends EventEmitter {
   }
 
   private sendOutQueue(client: Client): void {
+    debug("Sending out queue");
     while (client.packetsSentThisSec < this._currentPacketRatePerClient) {
       const logicalPacket = client.outQueue.shift();
       if (logicalPacket) {

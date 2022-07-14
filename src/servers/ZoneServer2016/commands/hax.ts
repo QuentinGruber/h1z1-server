@@ -79,7 +79,7 @@ const hax: any = {
       return;
     }
     const wasAlreadyGod = client.character.godMode;
-    client.character.godMode = true;
+    server.setGodMode(client, true);
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle2016(
       characterId,
@@ -97,7 +97,7 @@ const hax: any = {
       server.assignManagedObject(client, vehicleData);
       client.vehicle.mountedVehicle = characterId;
       setTimeout(() => {
-        client.character.godMode = wasAlreadyGod;
+        server.setGodMode(client, wasAlreadyGod);
       }, 1000);
     };
     server.worldObjectManager.createVehicle(server, vehicleData);
