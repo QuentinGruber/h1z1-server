@@ -114,7 +114,8 @@ const admin: any = {
     client: Client,
     args: any[]
   ) {
-    server.sendAlertToAll(args[1]);
+    args.shift()
+    server.sendAlertToAll(args.join(" "));
   }
 };
 
