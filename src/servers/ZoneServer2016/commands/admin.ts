@@ -108,6 +108,13 @@ const admin: any = {
   ) {
     server.setGodMode(client, !client.character.godMode);
     server.sendAlert(client, `Set godmode to ${client.character.godMode}`)
+  },
+  alert: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    server.sendAlertToAll(args[1]);
   }
 };
 
