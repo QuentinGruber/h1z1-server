@@ -185,7 +185,7 @@ export class LoginServer extends EventEmitter {
                 await this.CharacterCreateRequest(client, packet.result);
                 break;
               case "TunnelAppPacketClientToServer": // only used for nameValidation rn
-                this.TunnelAppPacketClientToServer(client, packet);
+                await this.TunnelAppPacketClientToServer(client, packet);
                 break;
               case "Logout":
                 this.Logout(client);
@@ -450,16 +450,25 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  TunnelAppPacketClientToServer(client: Client, packet: any) {
+  async TunnelAppPacketClientToServer(client: Client, packet: any) {
     const baseResponse = { serverId: packet.serverId };
     let response;
     switch (packet.subPacketName) {
       case "nameValidationRequest":
+        let status = 1;
+        if(this._soloMode) {
+          const duplicateCharacter = await this._db
+          .collection("characters-light")
+          .findOne({ characterName: packet.result.characterName });
+          if(duplicateCharacter) {
+            status = 0;
+          }
+        }
         response = {
           ...baseResponse,
           subPacketOpcode: 0x02,
           firstName: packet.result.characterName,
-          status: 1,
+          status: status,
         };
         break;
       default:
