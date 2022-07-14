@@ -456,7 +456,7 @@ export class LoginServer extends EventEmitter {
     switch (packet.subPacketName) {
       case "nameValidationRequest":
         let status = 1;
-        if(this._soloMode) {
+        if(!this._soloMode) {
           const duplicateCharacter = await this._db
           .collection("characters-light")
           .findOne({ characterName: packet.result.characterName });
