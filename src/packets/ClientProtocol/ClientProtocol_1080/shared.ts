@@ -1064,7 +1064,7 @@ export function packItemWeaponData(obj: any) {
             },
           ],
         },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "loadoutSlotId", type: "uint8", defaultValue: 0 },
         { name: "unknownByte2", type: "uint8", defaultValue: 0 },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
@@ -1357,8 +1357,8 @@ export const attachmentSchema = [
 ];
 
 export const remoteWeaponSchema = [
-  { name: "weaponDefinitionId", type: "uint32", defaultValue: 0 },
-  { name: "loadoutSlotId", type: "int8", defaultValue: 0 },
+  { name: "firegroupId", type: "uint32", defaultValue: 0 },
+  { name: "equipmentSlotId", type: "int8", defaultValue: 0 },
   {
     name: "firegroups",
     type: "array8",

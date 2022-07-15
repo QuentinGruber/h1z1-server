@@ -2982,7 +2982,7 @@ export class ZoneServer2016 extends EventEmitter {
               },*/
             ]
           }],
-          unknownByte1: 0,
+          loadoutSlotId: slot.slotId,
           unknownByte2: 1,
           unknownDword1: 0,
           unknownByte3: 0,

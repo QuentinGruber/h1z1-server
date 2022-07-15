@@ -320,7 +320,15 @@ const remoteWeaponUpdatePackets: any = [
   ["Update.ReloadInterrupt", 0x05, {}],
   ["Update.SwitchFireMode", 0x06, {}],
   ["Update.StatUpdate", 0x07, {}],
-  ["Update.AddFireGroup", 0x08, {}],
+  [
+    "Update.AddFireGroup", 
+    0x08, 
+    {
+      fields: [
+        { name: "firegroupId", type: "uint32", defaultValue: 0 },
+      ]
+    }
+  ],
   ["Update.RemoveFireGroup", 0x09, {}],
   ["Update.ReplaceFireGroup", 0x0a, {}],
   [

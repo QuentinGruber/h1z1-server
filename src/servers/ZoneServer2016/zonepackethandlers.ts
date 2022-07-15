@@ -954,33 +954,28 @@ export class zonePacketHandlers {
             guid: "0x0",
           };
           const remoteWeapons: any[] = [];
-          
+          /*
           Object.values(character._loadout).forEach((item) => {
-            if(item.itemDefinitionId == 1373) { // TEMP TESTING
+            if(server.isWeapon(item.itemDefinitionId)) {
               remoteWeapons.push({
                 guid: item.itemGuid,
-                weaponDefinitionId: server.getItemDefinition(item.itemDefinitionId).PARAM1,
-                unknownDword1: server.getItemDefinition(item.itemDefinitionId).PARAM1,
-                loadoutSlotId: item.slotId,
-                firegroups: [{
-                  firegroupId: server.getWeaponDefinition(
-                    server.getItemDefinition(
-                      item.itemDefinitionId).PARAM1).FIRE_GROUPS[0]?.FIRE_GROUP_ID,
-                  unknownArray1: [
-                    {
-                      unknownDword1: 1373,
-                      unknownDword2: 19
-                    },
-                    {
-                      unknownDword1: 1373,
-                      unknownDword2: 20
-                    }
-                  ]
-                }]
+                firegroupId: server.getItemDefinition(
+                  item.itemDefinitionId).PARAM1, // weapondefId confirmed from z1br
+                equipmentSlotId: character.getActiveEquipmentSlot(item),
+                firegroups: [
+                  {
+                    firegroupId:  server.getItemDefinition(
+                      item.itemDefinitionId).PARAM1.FIRE_GROUPS[0]?.FIRE_GROUP_ID,
+                      unknownArray1: [
+                        {}, {}, {}, {}
+                      ]
+                  }
+                ]
               })              
             }
           })
-          
+          console.log(remoteWeapons)
+          */
 
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
@@ -1864,8 +1859,13 @@ export class zonePacketHandlers {
           case "Weapon.Fire":
             weaponItem.weapon.ammoCount -= 1;
             debug("Weapon.Fire");
-            
             /*
+            server.sendRemoteWeaponUpdateData(
+              client, client.character.transientId, weaponItem.itemGuid, "Update.AddFireGroup", {
+                firegroupId: 1373
+            })
+            */
+           /*
             server.sendRemoteWeaponUpdateData(
               client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {
                 unknownDword1: server.getItemDefinition(weaponItem.itemDefinitionId).PARAM1,
