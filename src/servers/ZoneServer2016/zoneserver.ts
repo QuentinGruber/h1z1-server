@@ -2888,11 +2888,7 @@ export class ZoneServer2016 extends EventEmitter {
     })
     // send reloadinterrupt to all clients with spawned character
   }
-
-  printCombatLogEntry(client: Client) {
-
-  }
-
+  
   combatLog(client: Client) {
     if(!client.character.getCombatLog().length) {
       this.sendChatText(client, "No combatlog info available");
