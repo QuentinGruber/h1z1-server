@@ -77,7 +77,6 @@ export class SOEServer extends EventEmitter {
   }
 
   private adjustPacketRate(): void {
-    return
     debug("Adjusting packet rate");
     this._currentPacketRatePerClient = this.calculatePacketRate();
     debug(`Packet rate: ${this._currentPacketRatePerClient}`);
@@ -145,6 +144,13 @@ export class SOEServer extends EventEmitter {
     this.sendOutQueue(client);
   }
 
+  private soeRoutine(): void {
+      for (const client of this._clients.values()) {
+        this.soeClientRoutine(client);
+      }
+      this._soeClientRoutineLoopMethod(() => this.soeRoutine());
+  }
+
   // Executed at the same rate for every client
   private soeClientRoutine(client: Client) {
     if (!client.isDeleted) {
@@ -157,8 +163,6 @@ export class SOEServer extends EventEmitter {
       // Send pending packets
       this.checkResendQueue(client);
       this.checkClientOutQueues(client);
-
-      this._soeClientRoutineLoopMethod(() => this.soeClientRoutine(client));
     }
   }
 
@@ -369,6 +373,7 @@ export class SOEServer extends EventEmitter {
       this._udpLength = udpLength;
     }
     this._soeClientRoutineLoopMethod = setTimeout;
+    this._soeClientRoutineLoopMethod(() => this.soeRoutine());
     this._connection.on("message", (message) => {
       const data = Buffer.from(message.data);
       try {
@@ -447,7 +452,6 @@ export class SOEServer extends EventEmitter {
             }
           );
 
-          this._soeClientRoutineLoopMethod(() => this.soeClientRoutine(client));
         } else {
           client = this._clients.get(clientId) as SOEClient;
         }
