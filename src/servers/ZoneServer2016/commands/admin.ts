@@ -123,6 +123,14 @@ const admin: any = {
     args: any[]
   ) {
     server.lootItem(client, server.generateItem(1776), 1)
+  },
+  players: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    server.sendChatText(client, `Players: ${
+      Object.values(server._characters).map((character)=> {return character.name}).join(", ")}`)
   }
 };
 
