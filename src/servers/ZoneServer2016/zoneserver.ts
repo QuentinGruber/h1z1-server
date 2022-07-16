@@ -1048,11 +1048,12 @@ export class ZoneServer2016 extends EventEmitter {
 
   worldRoutine(refresh = false) {
     debug("WORLDROUTINE");
+    
     this.executeFuncForAllReadyClients((client: Client) => {
       this.vehicleManager(client);
+      this.itemManager(client);
       this.removeOutOfDistanceEntities(client);
       this.spawnCharacters(client);
-      this.spawnItemObjects(client);
       this.spawnDoors(client);
       this.spawnNpcs(client);
       this.spawnExplosives(client);
@@ -1997,7 +1998,8 @@ export class ZoneServer2016 extends EventEmitter {
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
         (e && // in case if entity is undefined somehow
-        !e.vehicleId &&
+        !e.vehicleId && // ignore vehicles
+        !e.item && // ignore items
         this.filterOutOfDistance(e, client.character.state.position))
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
@@ -2140,22 +2142,40 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnItemObjects(client: Client) {
+  itemManager(client: Client) {
     for (const characterId in this._spawnedItems) {
-      const object = this._spawnedItems[characterId];
+      const itemObject = this._spawnedItems[characterId];
+      // dropped item despawner
+      if((Date.now() - itemObject.creationTime) >= this.worldObjectManager.itemDespawnTimer) {
+        switch(itemObject.spawnerId) {
+          case -1:
+            this.deleteEntity(itemObject.characterId, this._spawnedItems);
+            break;
+        }
+      }
+      // item entity clientside spawner
       if (
         isPosInRadius(
-          object.npcRenderDistance,
+          itemObject.npcRenderDistance,
           client.character.state.position,
-          object.state.position
-        ) &&
-        !client.spawnedEntities.includes(object)
+          itemObject.state.position
+        )
       ) {
-        this.sendData(client, "AddLightweightNpc", {
-          ...object.pGetLightweight(),
-          nameId: this.getItemDefinition(object.item.itemDefinitionId).NAME_ID,
-        });
-        client.spawnedEntities.push(object);
+        if(!client.spawnedEntities.includes(itemObject)) {
+          this.sendData(client, "AddLightweightNpc", {
+            ...itemObject.pGetLightweight(),
+            nameId: this.getItemDefinition(itemObject.item.itemDefinitionId).NAME_ID,
+          });
+          client.spawnedEntities.push(itemObject);
+        }
+      } else {
+        const index = client.spawnedEntities.indexOf(itemObject);
+        if (index > -1) {
+          this.sendData(client, "Character.RemovePlayer", {
+            characterId: itemObject.characterId,
+          });
+          client.spawnedEntities.splice(index, 1);
+        }
       }
     }
   }

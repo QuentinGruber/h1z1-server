@@ -60,12 +60,9 @@ export class WorldObjectManager {
   lastLootRespawnTime: number = 0;
   lastVehicleRespawnTime: number = 0;
   lastNpcRespawnTime: number = 0;
-  lastItemDespawnCheckTime: number = 0;
   lootRespawnTimer: number = 600000; // 10 minutes
   vehicleRespawnTimer: number = 600000; // 10 minutes // 600000
   npcRespawnTimer: number = 600000; // 10 minutes
-  // items are checked every x minutes
-  itemDespawnCheckTimer: number = 900000; // 15 minutes
   // items get despawned after x minutes
   itemDespawnTimer: number = 1800000; // 30 minutes
 
@@ -107,22 +104,6 @@ export class WorldObjectManager {
       this.createVehicles(server);
       this.lastVehicleRespawnTime = Date.now();
     }
-    if (this.lastItemDespawnCheckTime + this.itemDespawnCheckTimer <= Date.now()) {
-      this.despawnDroppedItems(server);
-      this.lastItemDespawnCheckTime = Date.now();
-    }
-  }
-  despawnDroppedItems(server: ZoneServer2016) {
-    // ONLY DESPAWNS DROPPED ITEMS FOR NOW, NOT SPAWNED ITEMS
-    Object.values(server._spawnedItems).forEach((item) => {
-      if((Date.now() - item.creationTime) >= this.itemDespawnTimer) {
-        switch(item.spawnerId) {
-          case -1:
-            server.deleteEntity(item.characterId, server._spawnedItems);
-            break;
-        }
-      }
-    })
   }
   equipRandomSkins(server: ZoneServer2016, npc: Npc): void {
     server.generateRandomEquipmentsFromAnEntity(
