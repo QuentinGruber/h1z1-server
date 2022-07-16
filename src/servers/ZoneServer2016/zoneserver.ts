@@ -1899,8 +1899,10 @@ export class ZoneServer2016 extends EventEmitter {
   tempGodMode(client: Client, durationMs: number) {
     if (!client.character.godMode) {
       this.setGodMode(client, true);
+      client.character.tempGodMode = true;
       setTimeout(() => {
         this.setGodMode(client, false);
+        client.character.tempGodMode = false;
       }, durationMs);
     }
   }
