@@ -575,14 +575,31 @@ const hax: any = {
       client.character.state.lookAt,
       server.getGameTime()
     );
-    vehicle.isManaged = true;
+    /*
+    vehicle.isManaged = true; // stops vehiclemanager from taking over management
     vehicle.onReadyCallback = () => {
       // doing anything with vehicle before client gets fullvehicle packet breaks it
       server.mountVehicle(client, characterId);
       // todo: when vehicle takeover function works, delete assignManagedObject call
       server.assignManagedObject(client, vehicle);
     };
+    */
     server.worldObjectManager.createVehicle(server, vehicle);
+    server.sendData(client, "AddLightweightVehicle", {
+      ...vehicle,
+      npcData: {
+        ...vehicle,
+        ...vehicle.state,
+        actorModelId: vehicle.actorModelId,
+      },
+    });
+    server.sendData(
+      client,
+      "LightweightToFullVehicle",
+      vehicle.pGetFullVehicle()
+    );
+    server.mountVehicle(client, characterId);
+    server.assignManagedObject(client, vehicle);
   },
   additem: function (server: ZoneServer2016, client: Client, args: any[]) {
     const itemDefId = Number(args[1]),

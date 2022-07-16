@@ -2125,6 +2125,7 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(characterObj)
           && !characterObj.characterStates.knockedOut
+          && !characterObj.isSpectator
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
           vehicle = vehicleId ? this._vehicles[vehicleId] : false;
@@ -2401,6 +2402,7 @@ export class ZoneServer2016 extends EventEmitter {
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
+      if(vehicle.vehicleId == 1337) continue; //ignore spectator cam
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
@@ -2604,6 +2606,21 @@ export class ZoneServer2016 extends EventEmitter {
     const seatId = vehicle.getNextSeatId();
     if (seatId < 0) return; // no available seats in vehicle
     vehicle.seats[seatId] = client.character.characterId;
+    if(vehicle.vehicleId == 1337) {
+      this.sendData(
+        client,
+        "Mount.MountResponse",
+        {
+          // mounts character
+          characterId: client.character.characterId,
+          vehicleGuid: vehicle.characterId, // vehicle guid
+          seatId: Number(seatId),
+          isDriver: seatId === "0" ? 1 : 0, //isDriver
+          identity: {},
+        }
+      );
+      return;
+    }
     this.sendDataToAllWithSpawnedEntity(
       this._vehicles,
       vehicleGuid,
@@ -2613,7 +2630,7 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: client.character.characterId,
         vehicleGuid: vehicle.characterId, // vehicle guid
         seatId: Number(seatId),
-        unknownDword3: seatId === "0" ? 1 : 0, //isDriver
+        isDriver: seatId === "0" ? 1 : 0, //isDriver
         identity: {},
       }
     );
@@ -2749,6 +2766,12 @@ export class ZoneServer2016 extends EventEmitter {
     if (!vehicle) return;
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     if (!seatId) return;
+    if(vehicle.vehicleId == 1337) {
+      this.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId
+      })
+      this.deleteEntity(vehicle.characterId, this._vehicles);
+    }
     vehicle.seats[seatId] = "";
     this.sendDataToAllWithSpawnedEntity(
       this._vehicles,
