@@ -459,7 +459,7 @@ export class LoginServer extends EventEmitter {
         if(!this._soloMode) {
           const duplicateCharacter = await this._db
           .collection("characters-light")
-          .findOne({ characterName: packet.result.characterName });
+          .findOne({ characterName: packet.result.characterName, serverId: baseResponse.serverId });
           if(duplicateCharacter) {
             status = 0;
           }
