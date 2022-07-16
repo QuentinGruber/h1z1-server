@@ -2580,29 +2580,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
     client.character.isRunning = false; // maybe some async stuff make this useless need to test that
     client.vehicle.mountedVehicle = vehicle.characterId;
-    switch (vehicle.vehicleId) {
-      case 1:
-        client.vehicle.mountedVehicleType = "offroader";
-        break;
-      case 2:
-        client.vehicle.mountedVehicleType = "pickup";
-        break;
-      case 3:
-        client.vehicle.mountedVehicleType = "policecar";
-        break;
-      case 5:
-        client.vehicle.mountedVehicleType = "atv";
-        break;
-      case 13:
-        client.vehicle.mountedVehicleType = "parachute";
-        break;
-      case 1337:
-        client.vehicle.mountedVehicleType = "spectate";
-        break;
-      default:
-        client.vehicle.mountedVehicleType = "unknown";
-        break;
-    }
     const seatId = vehicle.getNextSeatId();
     if (seatId < 0) return; // no available seats in vehicle
     vehicle.seats[seatId] = client.character.characterId;

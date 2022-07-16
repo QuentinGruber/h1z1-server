@@ -799,7 +799,7 @@ export class zonePacketHandlers {
         return;
       }
       if (packet.data.flags === 510) {
-        client.vehicle.falling = packet.data.unknown10_float;
+        // falling flag, ignore for now
       }
       const movingCharacter = server._characters[client.character.characterId];
       if (movingCharacter) {
@@ -899,6 +899,7 @@ export class zonePacketHandlers {
           break;
         case EntityTypes.VEHICLE: // vehicles
           const vehicle = entityData as Vehicle2016;
+          if(vehicle.vehicleId == 1337) return; // ignore spectator cam
           if (vehicle.vehicleId != 13) {
             server.sendData(
               client,
