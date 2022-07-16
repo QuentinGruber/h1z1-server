@@ -81,7 +81,7 @@ export abstract class H1emuServer extends EventEmitter {
 
   stop(): void {
     this._connection.postMessage({ type: "close" });
-    process.exit(0);
+    process.exitCode = 0;
   }
 
   sendData(client: H1emuClient | undefined, packetName: any, obj: any) {

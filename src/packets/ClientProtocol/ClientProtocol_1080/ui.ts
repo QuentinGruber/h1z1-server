@@ -23,7 +23,17 @@ export const uiPackets: any = [
   ["Ui.ObjectiveTargetUpdate", 0x1a0d, {}],
   ["Ui.Message", 0x1a0e, {}],
   ["Ui.CinematicStartLookAt", 0x1a0f, {}],
-  ["Ui.WeaponHitFeedback", 0x1a10, {}],
+  [
+    "Ui.WeaponHitFeedback", 
+    0x1a10, 
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+      ]
+    }
+  ],
   ["Ui.HeadShotFeedback", 0x1a11, {}],
   ["Ui.WaypointCooldown", 0x1a14, {}],
   ["Ui.ZoneWaypoint", 0x1a15, {}],
@@ -33,5 +43,27 @@ export const uiPackets: any = [
   ["Ui.SomeInteractionThing", 0x1a19, {}],
   ["Ui.RewardNotification", 0x1a1a, {}],
   ["Ui.WarpgateRotateWarning", 0x1a1b, {}],
-  ["Ui.SystemBroadcast", 0x1a1c, {}],
+  [
+    "Ui.ConfirmHit", 
+    0x1a1c, 
+    {
+      fields: [
+        {
+          name: "hitType",
+          type: "bitflags",
+          defaultValue: [],
+          flags: [
+            { bit: 0, name: "isAlly", defaultValue: 0 },
+            { bit: 1, name: "isHeadshot", defaultValue: 0 },
+            { bit: 2, name: "damagedArmor", defaultValue: 0 },
+            { bit: 3, name: "crackedArmor", defaultValue: 0 },
+            { bit: 4, name: "bit4", defaultValue: 0 },
+            { bit: 5, name: "bit5", defaultValue: 0 },
+            { bit: 6, name: "bit6", defaultValue: 0 },
+            { bit: 7, name: "bit7", defaultValue: 0 },
+          ],
+        },
+      ]
+    }
+  ],
 ];

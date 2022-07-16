@@ -219,7 +219,7 @@ export class FarmlandManager {
     const objInHole = server.generateItem(seed.Type, 1);
     if (!objInHole || !objInHole.itemGuid) return null;
     //client side
-    server._objects[objInHole.itemGuid] = new ItemObject(
+    server._spawnedItems[objInHole.itemGuid] = new ItemObject(
       objInHole.itemGuid,
       server.getTransientId(objInHole.itemGuid),
       9163,
@@ -421,7 +421,7 @@ export class FarmlandManager {
     }
     if (!hole || !hole.InsideCropsPile) return false;
     this._server.sendDataToAllWithSpawnedEntity(
-      this._server._objects,
+      this._server._spawnedItems,
       hole.InsideCropsPile.Guid,
       "Command.PlayDialogEffect",
       {
@@ -442,7 +442,7 @@ export class FarmlandManager {
     }
     if (!cid) return;
     this._server.sendDataToAllWithSpawnedEntity(
-      this._server._objects,
+      this._server._spawnedItems,
       cid,
       "Command.PlayDialogEffect",
       {
