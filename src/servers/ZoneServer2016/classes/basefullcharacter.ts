@@ -23,6 +23,19 @@ import { ZoneClient2016 } from "./zoneclient";
 
 const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.json");
 
+function getGender(actorModelId: number): number {
+  switch (actorModelId) {
+      case 9510: // zombiemale
+      case 9240: // male character
+        return 1;
+      case 9634: // zombiefemale
+      case 9474: // female character
+        return 2;
+      default:
+      return 0;
+  }
+}
+
 export class BaseFullCharacter extends BaseLightweightCharacter {
   onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
   _resources: { [resourceId: number]: number } = {};
@@ -32,6 +45,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   loadoutId = 0;
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
+  flags = { a: 0, b: 0, c: 0 };
+  gender: number;
   constructor(
     characterId: string,
     transientId: number,
@@ -40,6 +55,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     rotation: Float32Array
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
+    this.gender = getGender(this.actorModelId);
     this.setupLoadoutSlots();
   }
 
@@ -51,7 +67,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       containerGuid: "0xFFFFFFFFFFFFFFFF",
       currentDurability: 0,
       stackCount: 0,
-      loadoutItemOwnerGuid: "0x0",
+      loadoutItemOwnerGuid: "0x0"
     };
   }
   setupLoadoutSlots() {
@@ -127,6 +143,25 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return 0;
   }
 
+  getEquippedWeapon(): loadoutItem {
+    return this._loadout[this.currentLoadoutSlot];
+  }
+
+  // gets the amount of items of a specific itemDefinitionId
+  getInventoryItemAmount(
+    itemDefinitionId: number
+  ): number {
+    let items = 0
+    for (const container of Object.values(this._containers)) {
+      for (const item of Object.values(container.items)) {
+        if (item.itemDefinitionId == itemDefinitionId) {
+          items += item.stackCount;
+        }
+      }
+    }
+    return items;
+  }
+
   pGetEquipmentSlot(slotId: number) {
     const slot = this._equipment[slotId];
     return slot
@@ -135,8 +170,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           equipmentSlotData: {
             equipmentSlotId: slot.slotId,
             guid: slot.guid || "",
-            tintAlias: slot.tintAlias || "",
-            decalAlias: slot.tintAlias || "#",
+            tintAlias: slot.tintAlias || "Default",
+            decalAlias: slot.decalAlias || "#",
           },
         }
       : undefined;
@@ -154,8 +189,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       ? {
           modelName: slot.modelName,
           textureAlias: slot.textureAlias || "",
-          tintAlias: slot.tintAlias || "",
-          decalAlias: slot.tintAlias || "#",
+          tintAlias: slot.tintAlias || "Default",
+          decalAlias: slot.decalAlias || "#",
           slotId: slot.slotId,
         }
       : undefined;
@@ -180,13 +215,37 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       : undefined;
   }
 
+  
+  pGetAttachmentSlotsMod() {
+    return Object.keys(this._equipment).map((slotId: any) => {
+      if(this.pGetAttachmentSlot(slotId)?.modelName == "Weapon_Empty.adr") {
+        return this.pGetAttachmentSlot(slotId);
+      }
+      return {
+          modelName: "",
+          textureAlias: "",
+          tintAlias: "Default",
+          decalAlias: "#",
+          slotId: slotId,
+          unknownArray1: [], // todo: test
+          unknownBool1: false
+      }
+    });
+  }
+  
+ 
   pGetEquipment() {
     return {
       characterData: {
+        profileId: 5,
         characterId: this.characterId,
       },
+      unknownDword1: 0,
+      unknownString1: "Default",
+      unknownString2: "#",
       equipmentSlots: this.pGetEquipmentSlots(),
       attachmentData: this.pGetAttachmentSlots(),
+      unknownBoolean1: true,
     };
   }
 

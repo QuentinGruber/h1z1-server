@@ -79,7 +79,7 @@ const hax: any = {
       return;
     }
     const wasAlreadyGod = client.character.godMode;
-    client.character.godMode = true;
+    server.setGodMode(client, true);
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle2016(
       characterId,
@@ -97,10 +97,11 @@ const hax: any = {
       server.assignManagedObject(client, vehicleData);
       client.vehicle.mountedVehicle = characterId;
       setTimeout(() => {
-        client.character.godMode = wasAlreadyGod;
+        server.setGodMode(client, wasAlreadyGod);
       }, 1000);
     };
     server.worldObjectManager.createVehicle(server, vehicleData);
+    client.character.ownedVehicle = vehicleData.characterId;
   },
   titan: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendDataToAll("Character.UpdateScale", {
@@ -181,7 +182,7 @@ const hax: any = {
     client.spawnedEntities = [];
     server._props = {};
     server._npcs = {};
-    server._objects = {};
+    server._spawnedItems = {};
     server._vehicles = {};
     server._doors = {};
     server.sendChatText(client, "Objects removed from the game.", true);
@@ -283,9 +284,12 @@ const hax: any = {
     );
   },
   realtime: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.removeForcedTime();
-    server.sendChatText(client, "Game time is now based on real time", true);
-  },
+        server.removeForcedTime();
+        server.sendChatText(client, "Game time is now based on real time", true);
+    },
+    fog: function (server: ZoneServer2016, client: Client, args: any[]) {
+      server.sendChatText(client, 'Fog has been toggled '.concat(server.toggleFog() ? 'ON' : 'OFF'), true);
+    },
   spamied: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[2]) {
       server.sendChatText(
@@ -390,6 +394,7 @@ const hax: any = {
       server.getGameTime()
     );
     server.worldObjectManager.createVehicle(server, vehicle);
+    client.character.ownedVehicle = vehicle.characterId;
   },
   dynamicweather: async function (
     server: ZoneServer2016,
@@ -617,6 +622,41 @@ const hax: any = {
       server.updateEquipmentSlot(client, 3);
     }
   },
+  lighting: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if(!args[1]) {
+      server.sendChatText(client, "[ERROR] Missing lighting file.");
+      return
+    }
+
+    server.sendData(client, "SendZoneDetails", {
+      zoneName: "Z1",
+      zoneType: 4,
+      unknownBoolean1: false,
+      skyData: server._weather2016,
+      zoneId1: 5,
+      zoneId2: 5,
+      nameId: 7699,
+      unknownBoolean2: true,
+      lighting: args[1],
+      unknownBoolean3: false
+    });
+  },
+  /*
+  kit: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.lootItem(client, server.generateItem(Items.WEAPON_308), 1); // sniper
+        server.lootItem(client, server.generateItem(Items.WEAPON_SHOTGUN), 1); // shotgun
+        server.lootItem(client, server.generateItem(Items.WEAPON_AR15), 1); // ar
+        server.lootItem(client, server.generateItem(Items.FIRST_AID), 10); // medkit
+        server.lootItem(client, server.generateItem(Items.BANDAGE), 10); // bandages
+        server.lootItem(client, server.generateItem(Items.AMMO_12GA), 60); // shotgun ammo
+        server.lootItem(client, server.generateItem(Items.AMMO_308), 50); // 308 ammo
+        server.lootItem(client, server.generateItem(Items.AMMO_223), 120); // ar ammo
+        server.lootItem(client, server.generateItem(Items.KEVLAR_DEFAULT), 1); // kevlar
+        server.lootItem(client, server.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
+        server.lootItem(client, server.generateItem(Items.KEVLAR_DEFAULT), 1); // kevlar
+        server.lootItem(client, server.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
+  }
+  */
   /*
   addallitems: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(client, "Adding 1x of all items to inventory.");

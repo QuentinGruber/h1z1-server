@@ -19,6 +19,7 @@ export class ItemObject extends BaseLightweightCharacter {
   spawnerId = 0;
   item: inventoryItem;
   flags = { a: 0, b: 0, c: 255 };
+  creationTime: number = 0;
   constructor(
     characterId: string,
     transientId: number,

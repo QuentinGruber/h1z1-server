@@ -59,7 +59,7 @@ export class SOEServer extends EventEmitter {
       }
     );
     setInterval(() => {
-      this.resetPacketsRate();
+      this.resetPacketsSent();
     }, 1000);
   }
 
@@ -77,10 +77,13 @@ export class SOEServer extends EventEmitter {
   }
 
   private adjustPacketRate(): void {
+    debug("Adjusting packet rate");
     this._currentPacketRatePerClient = this.calculatePacketRate();
+    debug(`Packet rate: ${this._currentPacketRatePerClient}`);
   }
 
-  private resetPacketsRate(): void {
+  private resetPacketsSent(): void {
+    debug("Reset packets sent");
     for (const client of this._clients.values()) {
       client.packetsSentThisSec = 0;
     }
@@ -104,6 +107,7 @@ export class SOEServer extends EventEmitter {
   }
 
   private sendPriorityQueue(client: Client): void {
+    debug("Sending priority queue");
     while (client.packetsSentThisSec < this._currentPacketRatePerClient) {
       const logicalPacket = client.priorityQueue.shift();
       if (logicalPacket) {
@@ -119,6 +123,7 @@ export class SOEServer extends EventEmitter {
   }
 
   private sendOutQueue(client: Client): void {
+    debug("Sending out queue");
     while (client.packetsSentThisSec < this._currentPacketRatePerClient) {
       const logicalPacket = client.outQueue.shift();
       if (logicalPacket) {
@@ -139,6 +144,13 @@ export class SOEServer extends EventEmitter {
     this.sendOutQueue(client);
   }
 
+  private soeRoutine(): void {
+      for (const client of this._clients.values()) {
+        this.soeClientRoutine(client);
+      }
+      this._soeClientRoutineLoopMethod(() => this.soeRoutine());
+  }
+
   // Executed at the same rate for every client
   private soeClientRoutine(client: Client) {
     if (!client.isDeleted) {
@@ -151,8 +163,6 @@ export class SOEServer extends EventEmitter {
       // Send pending packets
       this.checkResendQueue(client);
       this.checkClientOutQueues(client);
-
-      this._soeClientRoutineLoopMethod(() => this.soeClientRoutine(client));
     }
   }
 
@@ -363,6 +373,7 @@ export class SOEServer extends EventEmitter {
       this._udpLength = udpLength;
     }
     this._soeClientRoutineLoopMethod = setTimeout;
+    this._soeClientRoutineLoopMethod(() => this.soeRoutine());
     this._connection.on("message", (message) => {
       const data = Buffer.from(message.data);
       try {
@@ -441,7 +452,6 @@ export class SOEServer extends EventEmitter {
             }
           );
 
-          this._soeClientRoutineLoopMethod(() => this.soeClientRoutine(client));
         } else {
           client = this._clients.get(clientId) as SOEClient;
         }
@@ -469,7 +479,7 @@ export class SOEServer extends EventEmitter {
         }
       } catch (e) {
         console.log(e);
-        process.exit(1);
+        process.exitCode = 1;
       }
     });
     this._connection.postMessage({ type: "bind" });
@@ -477,7 +487,7 @@ export class SOEServer extends EventEmitter {
 
   stop(): void {
     this._connection.postMessage({ type: "close" });
-    process.exit(0);
+    process.exitCode = 0;
   }
   // Build the logical packet via the soeprotocol
   private createLogicalPacket(
@@ -503,7 +513,9 @@ export class SOEServer extends EventEmitter {
         )}`
       );
       console.error(e);
-      process.exit(1);
+      process.exitCode = 444;
+      // @ts-ignore
+      return null
     }
   }
   // The packets is builded from schema and added to one of the queues

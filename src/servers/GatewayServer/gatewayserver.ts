@@ -128,6 +128,6 @@ export class GatewayServer extends EventEmitter {
 
   stop() {
     debug("Shutting down");
-    process.exit(0);
+    process.exitCode = 0;
   }
 }
