@@ -27,7 +27,7 @@ let dev = require("./commands/dev").default;
 
 let admin = require("./commands/admin").default;
 
-import { _, Int64String, isPosInRadius, getDistance } from "../../utils/utils";
+import { _, Int64String, isPosInRadius, getDistance, eul2quat, quat2matrix } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
@@ -1161,11 +1161,20 @@ export class zonePacketHandlers {
       server.changeSeat(client, packet);
     };
     this.constructionPlacementFinalizeRequest = function (
-            server: ZoneServer2016,
-            client: Client,
-            packet: any
-        ) {
-            console.log(packet);
+          server: ZoneServer2016,
+          client: Client,
+          packet: any
+      ) {
+          const array = new Float32Array([packet.data.rotation1[3], packet.data.rotation1[1], packet.data.rotation2[2]]);
+          const matrix = quat2matrix(array)
+          const euler = [Math.atan2(matrix[7], matrix[8]), Math.atan2(-matrix[6], Math.sqrt(Math.pow(matrix[7], 2) + Math.pow(matrix[8], 2))), Math.atan2(matrix[3], matrix[0])];
+          console.log(packet);
+          let final;
+          if (euler[0] >= 0) {
+              final = new Float32Array([euler[1], 0, 0, 0])
+          } else {
+              final = new Float32Array([euler[2], 0, 0, 0])
+          }
             const item = client.character.getItemById(packet.data.itemDefinitionId);
             if (!item) {
                 server.sendData(client, "Construction.PlacementFinalizeResponse", {
@@ -1189,7 +1198,7 @@ export class zonePacketHandlers {
                 transientId,
                 modelId,
                 packet.data.position,
-                packet.data.rotation1,
+                eul2quat(final),
             );
             server._npcs[characterId] = npc;
         };
