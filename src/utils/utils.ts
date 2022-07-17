@@ -95,16 +95,16 @@ export function eul2quat(angle: Float32Array): Float32Array {
 
 export function quat2matrix(angle: Float32Array): any {
   // a little modified for my needs, may not work for other things than construction
-    var x = angle[0];
-    var y = angle[1];
-    var z = angle[2];
-    var w = 0;
+    const x = angle[0];
+    const y = angle[1];
+    const z = angle[2];
+    const w = 0;
 
-    var n = w * w + x * x + y * y + z * z;
-    var s = n === 0 ? 0 : 2 / n;
-    var wx = s * w * x, wy = s * w * y, wz = s * w * z;
-    var xx = s * x * x, xy = s * x * y, xz = s * x * z;
-    var yy = s * y * y, yz = s * y * z, zz = s * z * z;
+    const n = w * w + x * x + y * y + z * z;
+    const s = n === 0 ? 0 : 2 / n;
+    const wx = s * w * x, wy = s * w * y, wz = s * w * z;
+    const xx = s * x * x, xy = s * x * y, xz = s * x * z;
+    const yy = s * y * y, yz = s * y * z, zz = s * z * z;
 
 
     return [
