@@ -15,6 +15,8 @@ export type h1z1PacketsType =
   | "NpcFoundationPermissionsManagerBase.showPermissions"
   | "NpcFoundationPermissionsManager.AddPermission"
   | "NpcFoundationPermissionsManagerEditPermission"
+  | "Locks.ShowMenu"
+  | "Locks.SetLock"
   | "SendZoneDetails"
   | "Objective"
   | "Debug"
