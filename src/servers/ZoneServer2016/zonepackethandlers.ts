@@ -71,6 +71,7 @@ export class zonePacketHandlers {
   GameTimeSync;
   NpcFoundationPermissionsManagerAddPermission;
   NpcFoundationPermissionsManagerEditPermission;
+  LockssetLock;
   Synchronization;
   commandExecuteCommand;
   commandInteractRequest;
@@ -1021,7 +1022,7 @@ export class zonePacketHandlers {
             server: ZoneServer2016,
             client: Client,
             packet: any
-        ) {
+        ) {          
             const { guid } = packet.data,
                 entityData: BaseLightweightCharacter =
                     server._spawnedItems[guid] ||
@@ -1032,7 +1033,7 @@ export class zonePacketHandlers {
                     server._constructionDoors[guid] ||
                     0,
                 entityType = server.getEntityType(guid)
-
+            client.character.currentInteractionGuid = guid;
             if (
                 !entityData ||
                 !isPosInRadius(
@@ -1098,30 +1099,66 @@ export class zonePacketHandlers {
                     break;
                 case EntityTypes.CONSTRUCTION_DOOR:
                     const doorEntity = entityData as constructionDoor;
-                    if (doorEntity.moving) {
-                        return;
+                    console.log(doorEntity);
+                    console.log(client.character.characterId);
+                    if (doorEntity.password != 0 && doorEntity.ownerCharacterId != client.character.characterId && !doorEntity.grantedAccess.includes(client.character.characterId)) {
+                        server.sendData(client, "Locks.ShowMenu", {
+                            characterId: client.character.characterId,
+                            unknownDword1: 2,
+                            lockType: 2,
+                            objectCharacterId: doorEntity.characterId
+                        });
+                        return
                     }
-                    doorEntity.moving = true;
-                    setTimeout(function () {
-                        doorEntity.moving = false;
-                    }, 1000);
-                    server.sendDataToAll("PlayerUpdatePosition", {
-                        transientId: doorEntity.transientId,
-                        positionUpdate: {
-                            sequenceTime: 0,
-                            unknown3_int8: 0,
-                            position: doorEntity.state.position,
-                            orientation: doorEntity.isOpen ? doorEntity.closedAngle : doorEntity.openAngle,
-                        },
-                    });
-                    server.sendDataToAll("Command.PlayDialogEffect", {
-                        characterId: doorEntity.characterId,
-                        effectId: doorEntity.isOpen ? doorEntity.closeSound : doorEntity.openSound,
-                    });
-                    doorEntity.isOpen = !doorEntity.isOpen;
-                    break;
+                         if (doorEntity.password == 0 && doorEntity.ownerCharacterId === client.character.characterId) {
+                            server.sendData(client, "Locks.ShowMenu", {
+                                characterId: client.character.characterId,
+                                unknownDword1: 2,
+                                lockType: 1,
+                                objectCharacterId: doorEntity.characterId
+                            });
+                             return
+                        } 
+                        if (doorEntity.moving) {
+                            return;
+                        }
+                        doorEntity.moving = true;
+                        setTimeout(function () {
+                            doorEntity.moving = false;
+                        }, 1000);
+                        server.sendDataToAll("PlayerUpdatePosition", {
+                            transientId: doorEntity.transientId,
+                            positionUpdate: {
+                                sequenceTime: 0,
+                                unknown3_int8: 0,
+                                position: doorEntity.state.position,
+                                orientation: doorEntity.isOpen ? doorEntity.closedAngle : doorEntity.openAngle,
+                            },
+                        });
+                        server.sendDataToAll("Command.PlayDialogEffect", {
+                            characterId: doorEntity.characterId,
+                            effectId: doorEntity.isOpen ? doorEntity.closeSound : doorEntity.openSound,
+                        });
+                        doorEntity.isOpen = !doorEntity.isOpen; 
+                        break;
                 default:
                     break;
+            }
+
+        };
+        this.LockssetLock = function (
+            server: ZoneServer2016,
+            client: Client,
+            packet: any
+        ) {
+            if (!client.character.currentInteractionGuid || packet.data.password === 1) return;
+            const doorEntity = server._constructionDoors[client.character.currentInteractionGuid] as constructionDoor;
+            if (doorEntity.ownerCharacterId === client.character.characterId) {
+                doorEntity.password = packet.data.password;
+                doorEntity.grantedAccess.push(client.character.characterId);
+            }
+            if (doorEntity.password === packet.data.password) {
+                doorEntity.grantedAccess.push(client.character.characterId);
             }
         };
     this.mountDismountRequest = function (
@@ -2211,8 +2248,11 @@ export class zonePacketHandlers {
         this.NpcFoundationPermissionsManagerEditPermission(server, client, packet);
         break;
       case "NpcFoundationPermissionsManager.AddPermission":
-        this.NpcFoundationPermissionsManagerAddPermission(server, client, packet);
-        break;
+            this.NpcFoundationPermissionsManagerAddPermission(server, client, packet);
+            break;
+      case "Locks.setLock":
+            this.LockssetLock(server, client, packet);
+            break;
       case "Synchronization":
         this.Synchronization(server, client, packet);
         break;
