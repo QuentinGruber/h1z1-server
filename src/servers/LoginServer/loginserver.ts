@@ -569,7 +569,7 @@ export class LoginServer extends EventEmitter {
           .collection("servers")
           .updateOne(
             { serverId: server.serverId },
-            { $set: { allowedAccess: false } }
+            { $set: { allowedAccess: false, populationNumber: 0, populationLevel: 0 } }
           );
       }
     }
