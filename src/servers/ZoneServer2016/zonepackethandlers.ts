@@ -940,20 +940,8 @@ export class zonePacketHandlers {
           }
           break;
         case EntityTypes.PLAYER: // characters
-          const character = entityData as Character2016;
-          character._equipment[28] = {
-            // temporary to fix missing heads
-            modelName: character.headActor,
-            slotId: 28,
-            guid: "0x0",
-          };
-          character._equipment[27] = {
-            // temporary to fix missing hair
-            modelName: character.hairModel,
-            slotId: 27,
-            guid: "0x0",
-          };
-          const remoteWeapons: any[] = [];
+          const character = entityData as Character2016,
+          remoteWeapons: any[] = [];
           /*
           Object.values(character._loadout).forEach((item) => {
             if(server.isWeapon(item.itemDefinitionId)) {
@@ -983,6 +971,9 @@ export class zonePacketHandlers {
               fullPcData: {
                 transientId: character.transientId,
                 attachmentData: character.pGetAttachmentSlots(),
+                headActor: character.headActor,
+                hairModel: character.hairModel,
+
                 resources: {data: character.pGetResources() },
                 remoteWeapons: {data: remoteWeapons}
               },
@@ -1002,7 +993,7 @@ export class zonePacketHandlers {
           
           server.sendData(client, "Character.WeaponStance", {
             characterId: character.characterId,
-            stance: 1,
+            stance: character.positionUpdate?.stance,
           });
           break;
         default:
@@ -1206,6 +1197,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if(client.character.positionUpdate) {
+        client.character.positionUpdate.stance = packet.data.stance
+      }
       server.sendDataToAllOthersWithSpawnedEntity(
         server._characters,
         client,
