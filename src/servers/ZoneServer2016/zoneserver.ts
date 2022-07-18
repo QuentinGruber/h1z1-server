@@ -1604,20 +1604,24 @@ export class ZoneServer2016 extends EventEmitter {
   
   getEntityType(entityKey: string): number {
         switch (true) {
-          case !!this._npcs[entityKey]:
-            return EntityTypes.NPC;
-          case !!this._vehicles[entityKey]:
-            return EntityTypes.VEHICLE;
-          case !!this._characters[entityKey]:
-            return EntityTypes.PLAYER;
-          case !!this._spawnedItems[entityKey]:
-            return EntityTypes.OBJECT;
-          case !!this._doors[entityKey]:
-            return EntityTypes.DOOR;
-          case !!this._explosives[entityKey]:
-            return EntityTypes.EXPLOSIVE;
-          default:
-            return EntityTypes.INVALID;
+            case !!this._npcs[entityKey]:
+                return EntityTypes.NPC;
+            case !!this._vehicles[entityKey]:
+                return EntityTypes.VEHICLE;
+            case !!this._characters[entityKey]:
+                return EntityTypes.PLAYER;
+            case !!this._spawnedItems[entityKey]:
+                return EntityTypes.OBJECT;
+            case !!this._doors[entityKey]:
+                return EntityTypes.DOOR;
+            case !!this._explosives[entityKey]:
+                return EntityTypes.EXPLOSIVE;
+            case !!this._constructionFoundations[entityKey]:
+                return EntityTypes.CONSTRUCTION_FOUNDATION;
+            case !!this._constructionDoors[entityKey]:
+                return EntityTypes.CONSTRUCTION_DOOR;
+            default:
+                return EntityTypes.INVALID;
         }
     }
     
