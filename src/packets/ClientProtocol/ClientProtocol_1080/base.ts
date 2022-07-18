@@ -3339,7 +3339,53 @@ export const basePackets: any = [
   ["ScreenEffectBase", 0xe2, {}],
   ["SpectatorBase", 0xe3, {}],
   ["WhitelistBase", 0xe4, {}],
-  ["NpcFoundationPermissionsManagerBase", 0xe5, {}],
+  ["NpcFoundationPermissionsManagerBase.showPermissions", 0xe505,
+        {
+            fields: [
+                { name: "characterId", type: "uint64string", defaultValue: "0" },
+                { name: "characterId2", type: "uint64string", defaultValue: "0" },
+
+                {
+                    name: "permissions",
+                    type: "array",
+                    defaultValue: [],
+                    fields: [
+                        { name: "characterId", type: "uint64string", defaultValue: "0" },
+                        { name: "characterName", type: "string", defaultValue: "0" },
+                        { name: "useContainers", type: "boolean", defaultValue: false },
+                        { name: "build", type: "boolean", defaultValue: false },
+                        { name: "demolish", type: "boolean", defaultValue: false },
+                        { name: "visit", type: "boolean", defaultValue: false },
+                    ],
+                },
+            ],
+        },
+    ],
+
+    ["NpcFoundationPermissionsManager.AddPermission", 0xe501,
+        {
+            fields: [
+                { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
+                { name: "characterName", type: "string", defaultValue: "" },
+                { name: "unk", type: "uint64string", defaultValue: "0" },
+                { name: "permissionSlot", type: "uint32", defaultValue: 0 },
+
+            ],
+        },
+    ],
+
+    ["NpcFoundationPermissionsManager.EditPermission", 0xe502,
+        {
+            fields: [
+                { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
+                { name: "unk", type: "uint64string", defaultValue: "0" },
+                { name: "characterName", type: "string", defaultValue: "" },
+
+                { name: "permissionSlot", type: "uint32", defaultValue: 0 },
+
+            ],
+        },
+    ],
   ["BattlEyeData", 0xe6, {}],
   ["OnlineIdBase", 0xe7, {}],
   ["Ps4PlayGoBase", 0xe8, {}],
