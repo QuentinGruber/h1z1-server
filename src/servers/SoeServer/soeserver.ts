@@ -41,7 +41,7 @@ export class SOEServer extends EventEmitter {
   private _maxMultiBufferSize: number;
   private _soeClientRoutineLoopMethod!: (arg0: () => void) => void;
   private _resendTimeout: number = 800;
-  protected _maxGlobalPacketRate = 70000;
+  protected _maxGlobalPacketRate = 10000;
   protected _minPacketRate: number = 100;
   private _currentPacketRatePerClient: number = 1000;
   private _ackTiming: number = 80;
