@@ -40,8 +40,8 @@ import { DoorEntity } from "./classes/doorentity";
 import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { Npc } from "./classes/npc";
-import { constructionFoundation } from "h1z1-server/src/servers/ZoneServer2016/classes/constructionFoundation";
-import { constructionDoor } from "h1z1-server/src/servers/ZoneServer2016/classes/constructionDoor";
+import { constructionFoundation } from "./classes/constructionFoundation";
+import { constructionDoor } from "./classes/constructionDoor";
 
 const profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
 const projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
