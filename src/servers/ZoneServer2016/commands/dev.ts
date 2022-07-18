@@ -68,6 +68,15 @@ const dev: any = {
       );
     }, 2000);
   },
+  spam: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const spamNb = args[1] || 1;
+    for (let i = 0; i < spamNb; i++) {
+    server.sendChatText(
+      client,
+      `spam ${i}`,
+      );
+    }
+  },
   list: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(
       client,
