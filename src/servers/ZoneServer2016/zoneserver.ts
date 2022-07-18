@@ -2079,7 +2079,7 @@ export class ZoneServer2016 extends EventEmitter {
                 const range = 11,
                     lat = foundation.state.position[0],
                     long = foundation.state.position[2];
-                let currentAngle = 0,
+                const currentAngle = 0,
                     x2,
                     y2;
                 x2 = Math.cos(currentAngle) * range;
@@ -2689,7 +2689,7 @@ export class ZoneServer2016 extends EventEmitter {
                 unknownString1: "",
             });
             return
-        };
+        }
         const allowedItems = [Items.IED, Items.LANDMINE, Items.PUNJI_STICKS, Items.SNARE]
 
         for (const a in this._constructionFoundations) {
@@ -2709,7 +2709,7 @@ export class ZoneServer2016 extends EventEmitter {
                 this.sendData(client, "Construction.PlacementFinalizeResponse", {
                     status: 0,
                     unknownString1: "",
-                });;
+                });
                 return;
             }
         }
@@ -2804,7 +2804,7 @@ export class ZoneServer2016 extends EventEmitter {
                 }
             );
             delete this._temporaryObjects[characterId];
-        }, 900000);
+        }, time);
         this._temporaryObjects[characterId] = npc;
     }
 
