@@ -1099,8 +1099,6 @@ export class zonePacketHandlers {
                     break;
                 case EntityTypes.CONSTRUCTION_DOOR:
                     const doorEntity = entityData as constructionDoor;
-                    console.log(doorEntity);
-                    console.log(client.character.characterId);
                     if (doorEntity.password != 0 && doorEntity.ownerCharacterId != client.character.characterId && !doorEntity.grantedAccess.includes(client.character.characterId)) {
                         server.sendData(client, "Locks.ShowMenu", {
                             characterId: client.character.characterId,
