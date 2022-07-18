@@ -1358,7 +1358,7 @@ export const attachmentSchema = [
 
 export const remoteWeaponSchema = [
   { name: "firegroupId", type: "uint32", defaultValue: 0 },
-  { name: "equipmentSlotId", type: "int8", defaultValue: 0 },
+  { name: "equipmentSlotId", type: "uint8", defaultValue: 0 },
   {
     name: "firegroups",
     type: "array8",
@@ -1430,6 +1430,27 @@ export const remoteWeaponSchema = [
           },
         ],
       },
+    ],
+  },
+]
+
+export const remoteWeaponExtraSchema = [
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+  { name: "unknownByte3", type: "int8", defaultValue: 0 },
+  { name: "unknownByte4", type: "int8", defaultValue: 0 },
+  { name: "unknownByte5", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte6", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  {
+    name: "unknownArray1",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+      { name: "unknownBoolean2", type: "boolean", defaultValue: false },
     ],
   },
 ]
@@ -2153,6 +2174,15 @@ export const fullPcSchema = [
     type: "array",
     defaultValue: [],
     fields: statSchema,
+  },
+  {
+    name: "remoteWeaponExtra",
+    type: "array",
+    defaultValue: {},
+    fields: [
+      { name: "guid", type: "uint64string", defaultValue: "" },
+      ...remoteWeaponExtraSchema
+    ]
   },
 ];
 
