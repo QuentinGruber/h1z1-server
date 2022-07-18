@@ -2079,11 +2079,9 @@ export class ZoneServer2016 extends EventEmitter {
                 const range = 11,
                     lat = foundation.state.position[0],
                     long = foundation.state.position[2];
-                const currentAngle = 0,
-                    x2,
-                    y2;
-                x2 = Math.cos(currentAngle) * range;
-                y2 = Math.sin(currentAngle) * range;
+                const currentAngle = 0;
+                const x2 = Math.cos(currentAngle) * range;
+                const y2 = Math.sin(currentAngle) * range;
                 const p = [lat + x2, long + y2];
                 client.character.state.position = new Float32Array([
                     p[0],
