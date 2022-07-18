@@ -40,7 +40,8 @@ import { DoorEntity } from "./classes/doorentity";
 import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { Npc } from "./classes/npc";
-import { TemporaryEntity } from "./classes/temporaryentity";
+import { constructionFoundation } from "h1z1-server/src/servers/ZoneServer2016/classes/constructionFoundation";
+import { constructionDoor } from "h1z1-server/src/servers/ZoneServer2016/classes/constructionDoor";
 
 const profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
 const projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
@@ -68,6 +69,8 @@ export class zonePacketHandlers {
   ClientInitializationDetails;
   ClientLogout;
   GameTimeSync;
+  NpcFoundationPermissionsManagerAddPermission;
+  NpcFoundationPermissionsManagerEditPermission;
   Synchronization;
   commandExecuteCommand;
   commandInteractRequest;
@@ -1015,77 +1018,112 @@ export class zonePacketHandlers {
       }
     };
     this.commandPlayerSelect = function (
-      server: ZoneServer2016,
-      client: Client,
-      packet: any
-    ) {
-      const { guid } = packet.data,
-        entityData: BaseLightweightCharacter =
-          server._spawnedItems[guid] ||
-          server._vehicles[guid] ||
-          server._doors[guid] ||
-          server._npcs[guid] ||
-          0,
-        entityType = server.getEntityType(guid)
+            server: ZoneServer2016,
+            client: Client,
+            packet: any
+        ) {
+            const { guid } = packet.data,
+                entityData: BaseLightweightCharacter =
+                    server._spawnedItems[guid] ||
+                    server._vehicles[guid] ||
+                    server._doors[guid] ||
+                    server._npcs[guid] ||
+                    server._constructionFoundations[guid] ||
+                    server._constructionDoors[guid] ||
+                    0,
+                entityType = server.getEntityType(guid)
 
-      if (
-        !entityData ||
-        !isPosInRadius(
-          server._interactionDistance,
-          client.character.state.position,
-          entityData.state.position
-        )
-      )
-        return;
+            if (
+                !entityData ||
+                !isPosInRadius(
+                    server._interactionDistance,
+                    client.character.state.position,
+                    entityData.state.position
+                )
+            )
+                return;
 
-      switch (entityType) {
-        case EntityTypes.OBJECT:
-          server.pickupItem(client, guid);
-          break;
-        case EntityTypes.VEHICLE:
-          !client.vehicle.mountedVehicle
-            ? server.mountVehicle(client, packet.data.guid)
-            : server.dismountVehicle(client);
-          break;
-        case EntityTypes.DOOR:
-          const door = entityData as DoorEntity;
-          if (door.moving) {
-            return;
-          }
-          door.moving = true;
-          setTimeout(function () {
-            door.moving = false;
-          }, 1000);
-          server.sendDataToAll("PlayerUpdatePosition", {
-            transientId: door.transientId,
-            positionUpdate: {
-              sequenceTime: 0,
-              unknown3_int8: 0,
-              position: door.state.position,
-              orientation: door.isOpen ? door.closedAngle : door.openAngle,
-            },
-          });
-          server.sendDataToAll("Command.PlayDialogEffect", {
-            characterId: door.characterId,
-            effectId: door.isOpen ? door.closeSound : door.openSound,
-          });
-          door.isOpen = !door.isOpen;
-          break;
-        case EntityTypes.NPC:
-          const npc = entityData as Npc;
-          server.sendDataToAllWithSpawnedEntity(
-            server._npcs,
-            npc.characterId,
-            "Character.StartMultiStateDeath",
-            {
-              characterId: npc.characterId,
+            switch (entityType) {
+                case EntityTypes.OBJECT:
+                    server.pickupItem(client, guid);
+                    break;
+                case EntityTypes.CONSTRUCTION_FOUNDATION:
+                    const foundation = entityData as constructionFoundation;
+                    if (foundation.ownerCharacterId != client.character.characterId) return;
+                    server.sendData(client, "NpcFoundationPermissionsManagerBase.showPermissions", {
+                        characterId: foundation.characterId,
+                        characterId2: foundation.characterId,
+                        permissions: foundation.permissions
+                    });
+                    break;
+                case EntityTypes.VEHICLE:
+                    !client.vehicle.mountedVehicle
+                        ? server.mountVehicle(client, packet.data.guid)
+                        : server.dismountVehicle(client);
+                    break;
+                case EntityTypes.DOOR:
+                    const door = entityData as DoorEntity;
+                    if (door.moving) {
+                        return;
+                    }
+                    door.moving = true;
+                    setTimeout(function () {
+                        door.moving = false;
+                    }, 1000);
+                    server.sendDataToAll("PlayerUpdatePosition", {
+                        transientId: door.transientId,
+                        positionUpdate: {
+                            sequenceTime: 0,
+                            unknown3_int8: 0,
+                            position: door.state.position,
+                            orientation: door.isOpen ? door.closedAngle : door.openAngle,
+                        },
+                    });
+                    server.sendDataToAll("Command.PlayDialogEffect", {
+                        characterId: door.characterId,
+                        effectId: door.isOpen ? door.closeSound : door.openSound,
+                    });
+                    door.isOpen = !door.isOpen;
+                    break;
+                case EntityTypes.NPC:
+                    const npc = entityData as Npc;
+                    server.sendDataToAllWithSpawnedEntity(
+                        server._npcs,
+                        npc.characterId,
+                        "Character.StartMultiStateDeath",
+                        {
+                            characterId: npc.characterId,
+                        }
+                    );
+                    break;
+                case EntityTypes.CONSTRUCTION_DOOR:
+                    const doorEntity = entityData as constructionDoor;
+                    if (doorEntity.moving) {
+                        return;
+                    }
+                    doorEntity.moving = true;
+                    setTimeout(function () {
+                        doorEntity.moving = false;
+                    }, 1000);
+                    server.sendDataToAll("PlayerUpdatePosition", {
+                        transientId: doorEntity.transientId,
+                        positionUpdate: {
+                            sequenceTime: 0,
+                            unknown3_int8: 0,
+                            position: doorEntity.state.position,
+                            orientation: doorEntity.isOpen ? doorEntity.closedAngle : doorEntity.openAngle,
+                        },
+                    });
+                    server.sendDataToAll("Command.PlayDialogEffect", {
+                        characterId: doorEntity.characterId,
+                        effectId: doorEntity.isOpen ? doorEntity.closeSound : doorEntity.openSound,
+                    });
+                    doorEntity.isOpen = !doorEntity.isOpen;
+                    break;
+                default:
+                    break;
             }
-          );
-          break;
-        default:
-          break;
-      }
-    };
+        };
     this.mountDismountRequest = function (
       server: ZoneServer2016,
       client: Client,
@@ -1106,53 +1144,69 @@ export class zonePacketHandlers {
       }
     };
     this.commandInteractionString = function (
-      server: ZoneServer2016,
-      client: Client,
-      packet: any
-    ) {
-      const { guid } = packet.data,
-        entityData: BaseLightweightCharacter =
-          server._spawnedItems[guid] ||
-          server._vehicles[guid] ||
-          server._doors[guid] ||
-          0,
-        entityType = server.getEntityType(guid)
+            server: ZoneServer2016,
+            client: Client,
+            packet: any
+        ) {
+            const { guid } = packet.data,
+                entityData: BaseLightweightCharacter =
+                    server._spawnedItems[guid] ||
+                    server._vehicles[guid] ||
+                    server._doors[guid] ||
+                    server._constructionFoundations[guid] ||
+                    server._constructionDoors[guid] ||
+                    0,
+                entityType = server.getEntityType(guid)
 
-      if (
-        !entityData ||
-        !isPosInRadius(
-          server._interactionDistance,
-          client.character.state.position,
-          entityData.state.position
-        )
-      )
-        return;
+            if (
+                !entityData ||
+                !isPosInRadius(
+                    server._interactionDistance,
+                    client.character.state.position,
+                    entityData.state.position
+                )
+            )
+                return;
 
-      switch (entityType) {
-        case EntityTypes.OBJECT:
-          server.sendData(client, "Command.InteractionString", {
-            guid: guid,
-            stringId: 29,
-          });
-          break;
-        case EntityTypes.VEHICLE:
-          if (!client.vehicle.mountedVehicle) {
-            server.sendData(client, "Command.InteractionString", {
-              guid: guid,
-              stringId: 15,
-            });
-          }
-          break;
-        case EntityTypes.DOOR:
-          server.sendData(client, "Command.InteractionString", {
-            guid: guid,
-            stringId: 78,
-          });
-          break;
-        default:
-          break;
-      }
-    };
+            switch (entityType) {
+                case EntityTypes.OBJECT:
+                    server.sendData(client, "Command.InteractionString", {
+                        guid: guid,
+                        stringId: 29,
+                    });
+                    break;
+                case EntityTypes.VEHICLE:
+                    if (!client.vehicle.mountedVehicle) {
+                        server.sendData(client, "Command.InteractionString", {
+                            guid: guid,
+                            stringId: 15,
+                        });
+                    }
+                    break;
+                case EntityTypes.DOOR:
+                    server.sendData(client, "Command.InteractionString", {
+                        guid: guid,
+                        stringId: 78,
+                    });
+                    break;
+                case EntityTypes.CONSTRUCTION_DOOR:
+                    server.sendData(client, "Command.InteractionString", {
+                        guid: guid,
+                        stringId: 8944,
+                    });
+                    break;
+                case EntityTypes.CONSTRUCTION_FOUNDATION:
+                    const foundation = entityData as constructionFoundation;
+                    if (foundation.ownerCharacterId != client.character.characterId) return;
+                    server.sendData(client, "Command.InteractionString", {
+                        guid: guid,
+                        stringId: 12979,
+                    });
+                    break;
+                default:
+                    break;
+            }
+        };
     this.mountSeatChangeRequest = function (
       server: ZoneServer2016,
       client: Client,
@@ -1161,46 +1215,25 @@ export class zonePacketHandlers {
       server.changeSeat(client, packet);
     };
     this.constructionPlacementFinalizeRequest = function (
-          server: ZoneServer2016,
-          client: Client,
-          packet: any
-      ) {
-          const array = new Float32Array([packet.data.rotation1[3], packet.data.rotation1[1], packet.data.rotation2[2]]);
-          const matrix = quat2matrix(array)
-          const euler = [Math.atan2(matrix[7], matrix[8]), Math.atan2(-matrix[6], Math.sqrt(Math.pow(matrix[7], 2) + Math.pow(matrix[8], 2))), Math.atan2(matrix[3], matrix[0])];
-          console.log(packet);
-          let final;
-          if (euler[0] >= 0) {
-              final = new Float32Array([euler[1], 0, 0, 0])
-          } else {
-              final = new Float32Array([euler[2], 0, 0, 0])
-          }
-            const item = client.character.getItemById(packet.data.itemDefinitionId);
-            if (!item) {
-                server.sendData(client, "Construction.PlacementFinalizeResponse", {
-                    status: 1,
-                    unknownString1: "",
-                });
-                return
-            };
-            server.removeInventoryItem(client, item);
-            server.sendData(client, "Construction.PlacementFinalizeResponse", {
-                status: 1,
-                unknownString1: "",
-            });
+            server: ZoneServer2016,
+            client: Client,
+            packet: any
+        ) {
+            const array = new Float32Array([packet.data.rotation1[3], packet.data.rotation1[1], packet.data.rotation2[2]]);
+            const matrix = quat2matrix(array)
+            const euler = [Math.atan2(matrix[7], matrix[8]), Math.atan2(-matrix[6], Math.sqrt(Math.pow(matrix[7], 2) + Math.pow(matrix[8], 2))), Math.atan2(matrix[3], matrix[0])];
+            let final;
+            if (euler[0] >= 0) {
+                final = new Float32Array([euler[1], 0, 0, 0])
+            } else {
+                final = new Float32Array([euler[2], 0, 0, 0])
+            }
+
             const modelId = server.getItemDefinition(
                 packet.data.itemDefinitionId
             ).PLACEMENT_MODEL_ID;
-            const characterId = server.generateGuid();
-            const transientId = server.getTransientId(characterId);
-            const npc = new Npc(
-                characterId,
-                transientId,
-                modelId,
-                packet.data.position,
-                eul2quat(final),
-            );
-            server._npcs[characterId] = npc;
+            server.placement(client, packet.data.itemDefinitionId, modelId, packet.data.position, final);
+
         };
     this.commandItemDefinitionRequest = function (
       server: ZoneServer2016,
@@ -1851,7 +1884,125 @@ export class zonePacketHandlers {
       }
       server.switchLoadoutSlot(client, slot);
     };
+    this.NpcFoundationPermissionsManagerEditPermission = function (
+            server: ZoneServer2016,
+            client: Client,
+            packet: any
+        ) {
+            let foundation = server._constructionFoundations[packet.data.objectCharacterId] as constructionFoundation;
+            if (foundation.ownerCharacterId != client.character.characterId) return;
+            let characterId: number | string = 0;
+            for (const a in server._characters) {
+                const character = server._characters[a];
+                if (character.name === packet.data.characterName) {
+                    characterId = character.characterId;
+                }
+            }
+            let obj = {
+                characterId: characterId,
+                characterName: packet.data.characterName,
+                useContainers: false,
+                build: false,
+                demolish: false,
+                visit: false
+            }
+            if (!characterId) {
+                return;
+            }
+            foundation.permissions.forEach((entry: any) => {
+                if (entry.characterId === characterId) {
+                    obj = entry;
+                }
+            })
+            switch (packet.data.permissionSlot) {
+                case 1: obj.build = !obj.build
+                    break;
+                case 2: obj.demolish = !obj.demolish
+                    break;
+                case 3: obj.useContainers = !obj.useContainers
+                    break;
+                case 4: obj.visit = !obj.visit
+                    break;
+            }
+            let push = true;
+            for (let x = 0; x < foundation.permissions.length; x++) {
+                if (foundation.permissions[x].characterName === packet.data.characterName) {
+                    foundation.permissions[x] = obj;
+                    push = false;
+                }
+            }
+            if (push) {
+                foundation.permissions.push(obj)
+            }
+            server._constructionFoundations[packet.data.objectCharacterId].permissions = foundation.permissions;
 
+            server.sendData(client, "NpcFoundationPermissionsManagerBase.showPermissions", {
+                characterId: foundation.characterId,
+                characterId2: foundation.characterId,
+                permissions: foundation.permissions
+            });
+
+        };
+        this.NpcFoundationPermissionsManagerAddPermission = function (
+            server: ZoneServer2016,
+            client: Client,
+            packet: any
+        ) {
+            console.log(packet)
+            let foundation = server._constructionFoundations[packet.data.objectCharacterId] as constructionFoundation;
+            if (foundation.ownerCharacterId != client.character.characterId) return;
+            let characterId: number | string = 0;
+            for (const a in server._characters) {
+                const character = server._characters[a];
+                if (character.name === packet.data.characterName) {
+                    characterId = character.characterId;
+                }
+            }
+            let obj = {
+                characterId: characterId,
+                characterName: packet.data.characterName,
+                useContainers: false,
+                build: false,
+                demolish: false,
+                visit: false
+            }
+            if (!characterId) {
+                return;
+            }
+            foundation.permissions.forEach((entry: any) => {
+                if (entry.characterId === characterId) {
+                    obj = entry;
+                }
+            })
+            switch (packet.data.permissionSlot) {
+                case 1: obj.build = !obj.build
+                    break;
+                case 2: obj.demolish = !obj.demolish
+                    break;
+                case 3: obj.useContainers = !obj.useContainers
+                    break;
+                case 4: obj.visit = !obj.visit
+                    break;
+            }
+            let push = true;
+            for (let x = 0; x < foundation.permissions.length; x++) {
+                if (foundation.permissions[x].characterName === packet.data.characterName) {
+                    foundation.permissions[x] = obj;
+                    push = false;
+                }
+            }
+            if (push) {
+                foundation.permissions.push(obj)
+            }
+            server._constructionFoundations[packet.data.objectCharacterId].permissions = foundation.permissions;
+
+            server.sendData(client, "NpcFoundationPermissionsManagerBase.showPermissions", {
+                characterId: foundation.characterId,
+                characterId2: foundation.characterId,
+                permissions: foundation.permissions
+            });
+
+        };
     this.weapon = function (
       server: ZoneServer2016,
       client: Client,
@@ -2055,6 +2206,12 @@ export class zonePacketHandlers {
         break;
       case "GameTimeSync":
         this.GameTimeSync(server, client, packet);
+        break;
+      case "NpcFoundationPermissionsManager.EditPermission":
+        this.NpcFoundationPermissionsManagerEditPermission(server, client, packet);
+        break;
+      case "NpcFoundationPermissionsManager.AddPermission":
+        this.NpcFoundationPermissionsManagerAddPermission(server, client, packet);
         break;
       case "Synchronization":
         this.Synchronization(server, client, packet);
