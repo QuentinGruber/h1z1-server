@@ -3138,7 +3138,26 @@ export const basePackets: any = [
     },
   ],
   ["NavGen", 0xcc, {}],
-  ["Locks", 0xcd, {}],
+  ["Locks.ShowMenu", 0xcd05,
+        {
+            fields: [
+                { name: "characterId", type: "uint64string", defaultValue: "0" },
+                { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+                { name: "lockType", type: "uint32", defaultValue: 1 },// 1-lock, 2-enter password
+                { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
+            ],
+        },
+    ],
+    ["Locks.setLock", 0xcd0300,
+        {
+            fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 1 }, 
+                { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+                { name: "password", type: "uint32", defaultValue: 0 },
+                
+            ],
+        },
+    ],
   ["Ragdoll", 0xce, {}],
   ["CharacterState", 0xd0, {}],
   [
