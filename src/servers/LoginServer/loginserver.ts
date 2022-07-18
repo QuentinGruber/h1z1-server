@@ -456,18 +456,32 @@ export class LoginServer extends EventEmitter {
     switch (packet.subPacketName) {
       case "nameValidationRequest":
         let status = 1;
+        const characterName = packet.result.characterName;
         if(!this._soloMode) {
-          const duplicateCharacter = await this._db
-          .collection("characters-light")
-          .findOne({ characterName: packet.result.characterName });
-          if(duplicateCharacter) {
-            status = 0;
+          const blackListedEntry = await this._db.collection("blackListEntries").findOne({
+            WORD: characterName.toUpperCase()
+          });
+          if(blackListedEntry){
+            if(blackListedEntry.FILTER_TYPE === 3){
+              status = 5;
+            }
+            else{
+              status = 4;
+            }
+          }
+          else{
+            const duplicateCharacter = await this._db
+            .collection("characters-light")
+            .findOne({ "payload.name":characterName, serverId: baseResponse.serverId, status: 1 });
+            if(duplicateCharacter) {
+              status = 2;
+            }
           }
         }
         response = {
           ...baseResponse,
           subPacketOpcode: 0x02,
-          firstName: packet.result.characterName,
+          firstName: characterName,
           status: status,
         };
         break;
