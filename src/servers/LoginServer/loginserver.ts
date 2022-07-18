@@ -196,7 +196,7 @@ export class LoginServer extends EventEmitter {
           }
         } catch (error) {
           console.log(error);
-          process.exit(1);
+          process.exitCode = 1;
         }
       }
     );
@@ -1031,7 +1031,7 @@ export class LoginServer extends EventEmitter {
   }
   stop(): void {
     debug("Shutting down");
-    process.exit(0);
+    process.exitCode = 0;
   }
 }
 

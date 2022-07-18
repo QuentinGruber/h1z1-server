@@ -17,7 +17,7 @@ import { BaseLightweightCharacter } from "../classes/baselightweightcharacter";
 import { Npc } from "../classes/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
-import { NormanTest } from "../classes/Planting/Test";
+//import { NormanTest } from "../classes/Planting/Test";
 
 const debug = require("debug")("zonepacketHandlers");
 
@@ -639,11 +639,25 @@ const dev: any = {
       });
     }
     */
+   /*
   //region norman testing
   norman: function (server: ZoneServer2016, client: Client, args: any[]) {
     NormanTest.TestEntry(server, client, args);
   },
   //endregion
+  */
+ 
+  weapondefs: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.packWeaponDefinitions();
+    server.sendRawData(client, server.weaponDefinitionsCache);
+  },
+
+  poi: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendData(client, "POIChangeMessage", {
+      messageStringId: Number(args[1]) || 0,
+      id: Number(args[1]) || 0,
+    });
+  }
 };
 
 export default dev;

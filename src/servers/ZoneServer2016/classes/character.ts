@@ -15,7 +15,7 @@ import { ResourceIds } from "../enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
-import { positionUpdate } from "../../../types/zoneserver";
+import { DamageRecord, positionUpdate } from "../../../types/zoneserver";
 
 interface CharacterStates {
   invincibility?: boolean;
@@ -42,7 +42,6 @@ export class Character2016 extends BaseFullCharacter {
   headActor!: string;
   hairModel!: string;
   isRespawning = false;
-  gender!: number;
   creationDate!: string;
   lastLoginDate!: string;
   currentLoadoutSlot = 7; //fists
@@ -55,6 +54,10 @@ export class Character2016 extends BaseFullCharacter {
   timeouts: any;
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
+  reloadTimer?: NodeJS.Timeout | undefined = undefined;
+  private combatlog: DamageRecord[] = [];
+  // characterId of vehicle spawned by /hax drive or spawnvehicle
+  ownedVehicle?: string;
   constructor(characterId: string, transientId: number) {
     super(
       characterId,
@@ -232,6 +235,28 @@ export class Character2016 extends BaseFullCharacter {
 
         client.character.resourcesUpdater.refresh();
       }, 3000);
+    };
+  }
+  clearReloadTimeout(){
+    if(this.reloadTimer) clearTimeout(this.reloadTimer)
+    this.reloadTimer = undefined;
+  }
+  addCombatlogEntry(entry: DamageRecord){
+    this.combatlog.push(entry);
+    if(this.combatlog.length > 10) {
+      this.combatlog.shift()
+    }
+  }
+  getCombatLog() {
+    return this.combatlog;
+  }
+  pGetLightweight() {
+    return {
+      ...super.pGetLightweight(),
+      rotation: this.state.lookAt,
+      identity: {
+        characterName: this.name
+      }
     };
   }
 }

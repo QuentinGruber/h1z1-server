@@ -341,10 +341,13 @@ export const initMongo = async function (
 
 export const getPacketTypeBytes = function (packetType: number): number[] {
   const packetTypeBytes = [];
-  while (packetType) {
+  for (let i = 0; i < 4; i++) {
     packetTypeBytes.unshift(packetType & 0xff);
-    packetType = packetType >> 8;
-  }
+    packetType = packetType >>> 8;
+    if(packetType <= 0) {
+      break;
+    }
+  }  
   return packetTypeBytes;
 };
 
@@ -432,3 +435,8 @@ export const getRandomKeyFromAnObject = (object: any): string => {
   const keys = Object.keys(object);
   return keys[Math.floor(Math.random() * keys.length)];
 };
+
+export function calculateDamageDistFallOff(distance: number, damage: number, range: number) {
+  //return damage / (distance * range);
+  return damage * Math.pow(range,distance/10)
+}
