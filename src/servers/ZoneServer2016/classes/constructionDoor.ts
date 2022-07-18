@@ -15,7 +15,8 @@ import { DoorEntity } from "./doorentity";
 
 export class constructionDoor extends DoorEntity {
     ownerCharacterId: string;
-    password: string = "";
+    password: number = 0;
+    grantedAccess: any = [];
     health: number = 1000000;
     constructor(
         characterId: string,
