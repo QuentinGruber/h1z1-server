@@ -1046,7 +1046,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendCharacterData(client);
   }
 
-  worldRoutine(refresh = false) {
+  private worldRoutine(refresh = false) {
     debug("WORLDROUTINE");
     
     this.executeFuncForAllReadyClients((client: Client) => {
