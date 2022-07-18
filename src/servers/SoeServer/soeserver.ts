@@ -59,6 +59,9 @@ export class SOEServer extends EventEmitter {
       }
     );
     setInterval(() => {
+      console.log(`time: ${Date.now()}: ${JSON.stringify(process.resourceUsage())}`);
+    }, 60000);
+    setInterval(() => {
       this.resetPacketsSent();
     }, 1000);
   }
