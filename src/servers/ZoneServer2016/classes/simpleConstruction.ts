@@ -13,9 +13,8 @@
 
 import { BaseSimpleNpc } from "./basesimplenpc";
 
-export class TemporaryEntity extends BaseSimpleNpc {
-    npcRenderDistance = 40;
-    disappearTimer?: NodeJS.Timeout;
+export class simpleConstruction extends BaseSimpleNpc {
+  health = 1000000;
   constructor(
     characterId: string,
     transientId: number,
