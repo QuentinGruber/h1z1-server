@@ -140,8 +140,18 @@ export class SOEServer extends EventEmitter {
 
   // Send pending packets from client, in priority ones from the priority queue
   private checkClientOutQueues(client: SOEClient) {
-    this.sendPriorityQueue(client);
-    this.sendOutQueue(client);
+    if(client.priorityQueue.length > 0) {
+      if(client.priorityQueue.length > client.priorityQueueWarningLevel){
+        client.hasConnectionsIssues = true;
+      }
+      this.sendPriorityQueue(client);
+    }
+    else if(client.hasConnectionsIssues){
+      client.hasConnectionsIssues = false;
+    }
+    if(client.outQueue.length > 0) {
+      this.sendOutQueue(client);
+    }
   }
 
   private soeRoutine(): void {
@@ -153,17 +163,17 @@ export class SOEServer extends EventEmitter {
 
   // Executed at the same rate for every client
   private soeClientRoutine(client: Client) {
-    if (!client.isDeleted) {
-      if (client.lastAckTime + this._ackTiming < Date.now()) {
+      if (client.lastAckTime + this._ackTiming < Date.now() || client.hasConnectionsIssues) {
         // Acknowledge received packets
         this.checkAck(client);
         this.checkOutOfOrderQueue(client);
         client.lastAckTime = Date.now();
       }
       // Send pending packets
-      this.checkResendQueue(client);
+      if(!client.hasConnectionsIssues) {
+        this.checkResendQueue(client);
+      }
       this.checkClientOutQueues(client);
-    }
   }
 
   // If a packet hasn't been acknowledge in the timeout time, then resend it via the priority queue
