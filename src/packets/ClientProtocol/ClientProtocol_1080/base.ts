@@ -3152,7 +3152,7 @@ export const basePackets: any = [
         {
             fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 1 }, 
-                { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 1 },
                 { name: "password", type: "uint32", defaultValue: 0 },
                 
             ],
