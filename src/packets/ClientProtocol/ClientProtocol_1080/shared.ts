@@ -1357,7 +1357,7 @@ export const attachmentSchema = [
 ];
 
 export const remoteWeaponSchema = [
-  { name: "firegroupId", type: "uint32", defaultValue: 0 },
+  { name: "weaponDefinitionId", type: "uint32", defaultValue: 0 },
   { name: "equipmentSlotId", type: "uint8", defaultValue: 0 },
   {
     name: "firegroups",
@@ -1435,8 +1435,8 @@ export const remoteWeaponSchema = [
 ]
 
 export const remoteWeaponExtraSchema = [
-  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-  { name: "unknownByte2", type: "uint8", defaultValue: 0 },
+  { name: "unknownByte1", type: "int8", defaultValue: 0 },
+  { name: "unknownByte2", type: "int8", defaultValue: 0 },
   { name: "unknownByte3", type: "int8", defaultValue: 0 },
   { name: "unknownByte4", type: "int8", defaultValue: 0 },
   { name: "unknownByte5", type: "uint8", defaultValue: 0 },

@@ -943,62 +943,71 @@ export class zonePacketHandlers {
           const character = entityData as Character2016,
           remoteWeapons: any[] = [],
           remoteWeaponsExtra: any[] = [];
-          Object.values(character._loadout).forEach((item) => {
+          Object.values(character._loadout).forEach((item, i) => {
             if(server.isWeapon(item.itemDefinitionId)) {
               const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
               weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
-              firegroups = weaponDefinition.FIRE_GROUPS
+              firegroups = weaponDefinition.FIRE_GROUPS;
+              let firemodes: any[] = [];
+
+              switch(item.itemDefinitionId) {
+                case 85:
+                  firemodes = [
+                    {}
+                  ]
+                  break;
+                case 10:
+                  firemodes = [
+                    {},
+                    {},
+                    {},
+                    {},
+                  ]
+                  break;
+                default:
+                  break;
+              }
+
               remoteWeapons.push({
                 guid: item.itemGuid,
-                firegroupId: weaponDefinition.ID, // weapondefId confirmed from z1br
+                weaponDefinitionId: weaponDefinition.ID, // weapondefId confirmed from z1br
                 equipmentSlotId: character.getActiveEquipmentSlot(item),
                 firegroups: firegroups.map((firegroup: any) => {
-                  const firegroupDef = server.getFiregroupDefinition(firegroup.FIRE_GROUP_ID),
-                  firemodes = firegroupDef.FIRE_MODES
+                  const firegroupDef = server.getFiregroupDefinition(firegroup.FIRE_GROUP_ID);
+                  //firemodes = firegroupDef.FIRE_MODES
                   return {
                     firegroupId: firegroup.FIRE_GROUP_ID,
-                    unknownArray1: firemodes.map((firemode: any, idx: number)=> {
+                    unknownArray1: firemodes.map((firemode: any, j: number)=> {
                       return {
-                        unknownDword1: firemode.FIRE_MODE_ID,
-                        unknownDword2: idx
+                        unknownDword1: 0,
+                        unknownDword2: 0,//firemode.FIRE_MODE_ID
                       }
                     }) // probably firemodes
                   }
                 })
-                /*[
-                  {
-                    firegroupId:  weaponDefinition.FIRE_GROUPS[0]?.FIRE_GROUP_ID,
-                      unknownArray1: [
-                        //{}, {}, {}, {}
-                      ]
-                  }
-                ]*/
               })     
               remoteWeaponsExtra.push({
                 guid: item.itemGuid,
-                unknownByte1: 0, // firegroupIndex ?
-                unknownByte2: 0, //firegroups[0]?.FIRE_GROUP_ID, // firegroupId ?
+                unknownByte1: 0, // firegroupIndex (default 0)?
+
+                // set to 1 for currently equipped weapon?
+                unknownByte2: character.getEquippedWeapon().itemGuid == item.itemGuid?1:0,
+                //unknownByte2: 0, //firegroups[0]?.FIRE_GROUP_ID, // firegroupId ?
                 unknownByte3: -1,
                 unknownByte4: -1,
                 unknownByte5: 1,
                 unknownDword1: 0,
                 unknownByte6: 0,
                 unknownDword2: 0,
-                unknownArray1: firegroups.map((firegroup: any) => { // same len as firegroups in remoteweapons
+                unknownArray1: firegroups.map((firegroup: any, k: number) => { // same len as firegroups in remoteweapons
                   return { // setting unknownDword1 makes the 308 sound when fullpc packet it sent
-                    unknownDword1: firegroup.FIRE_GROUP_ID,
+                    unknownDword1: 0,
+                    //unknownDword1: firegroup.FIRE_GROUP_ID,
                     //unknownDword1: 1,
-                    unknownBoolean1: true,
-                    unknownBoolean2: true
+                    unknownBoolean1: false,
+                    unknownBoolean2: false
                   }
                 })
-                /*
-                [ // same len as firegroups in remoteweapons
-                  //{},
-                  //{},
-                  //{},
-                  //{}
-                ]*/
               })         
             }
           })
@@ -1015,7 +1024,7 @@ export class zonePacketHandlers {
                 hairModel: character.hairModel,
 
                 resources: {data: character.pGetResources() },
-                remoteWeapons: {data: remoteWeapons},
+                //remoteWeapons: {data: remoteWeapons},
                 
               },
               positionUpdate: {
@@ -1025,8 +1034,34 @@ export class zonePacketHandlers {
               stats: stats.map((stat: any) => {
                 return stat.statData;
               }),
-              remoteWeaponExtra: remoteWeaponsExtra,
+              //remoteWeaponExtra: remoteWeaponsExtra,
           });
+          
+          /*
+          const weapon = character.getEquippedWeapon(),
+          itemdef = server.getItemDefinition(weapon.itemDefinitionId),
+          weaponDefinition = server.getWeaponDefinition(itemdef.PARAM1),
+          firegroups = weaponDefinition.FIRE_GROUPS;
+          server.sendRemoteWeaponData(client, character.transientId, "RemoteWeapon.AddWeapon", {
+            guid: weapon.itemGuid,
+            data: {
+              weaponDefinitionId: itemdef.PARAM1,
+              equipmentSlotId: character.getActiveEquipmentSlot(weapon),
+              firegroups: firegroups.map((firegroup: any) => {
+                return {
+                  firegroupId: firegroup.FIRE_GROUP_ID,
+                  unknownArray1: [
+                    {},
+                    {},
+                    {},
+                    {},
+                  ]
+                }
+              })
+            }
+          })
+          */
+         
           /*Object.values(character._loadout).forEach((item) => {
             server.addItem(client, item, 101, character);
           })
@@ -1896,11 +1931,12 @@ export class zonePacketHandlers {
             weaponItem.weapon.ammoCount -= 1;
             debug("Weapon.Fire");
             
+            /*
             server.sendRemoteWeaponUpdateData(
               client, client.character.transientId, weaponItem.itemGuid, "Update.AddFireGroup", {
                 firegroupId: 1373
             })
-            
+            */
            
             server.sendRemoteWeaponUpdateData(
               client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {
