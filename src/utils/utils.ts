@@ -384,7 +384,7 @@ export class wrappedUint16 {
     }
     this.value = initValue;
   }
-  private wrap(value: number) {
+  static wrap(value: number) {
     let uint16 = value;
     if (uint16 > MAX_UINT16) {
       uint16 -= MAX_UINT16 + 1; // subtract the overflow value;
@@ -392,10 +392,10 @@ export class wrappedUint16 {
     return uint16;
   }
   add(value: number): void {
-    this.value = this.wrap(this.value + value);
+    this.value = wrappedUint16.wrap(this.value + value);
   }
   set(value: number): void {
-    this.value = this.wrap(value);
+    this.value = wrappedUint16.wrap(value);
   }
   get(): number {
     return this.value;
