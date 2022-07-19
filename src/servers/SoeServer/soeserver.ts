@@ -43,7 +43,7 @@ export class SOEServer extends EventEmitter {
   private _resendTimeout: number = 800;
   protected _maxGlobalPacketRate = 10000;
   protected _minPacketRate: number = 100;
-  private _currentPacketRatePerClient: number = 1000;
+  private _currentPacketRatePerClient: number = 100;
   private _ackTiming: number = 80;
   constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
     super();
@@ -74,12 +74,17 @@ export class SOEServer extends EventEmitter {
     const packetRate = this._maxGlobalPacketRate / this._clients.size;
     if (packetRate < this._minPacketRate) {
       return this._minPacketRate;
-    } else {
+    }
+    else if (packetRate > this._maxGlobalPacketRate) {
+      return this._maxGlobalPacketRate;
+    }
+     else {
       return packetRate;
     }
   }
 
   private adjustPacketRate(): void {
+    return // disabled for now
     debug("Adjusting packet rate");
     this._currentPacketRatePerClient = this.calculatePacketRate();
     debug(`Packet rate: ${this._currentPacketRatePerClient}`);
@@ -88,6 +93,7 @@ export class SOEServer extends EventEmitter {
   private resetPacketsSent(): void {
     debug("Reset packets sent");
     for (const client of this._clients.values()) {
+      console.log(client.packetsSentThisSec)
       client.packetsSentThisSec = 0;
     }
   }
@@ -271,6 +277,7 @@ export class SOEServer extends EventEmitter {
       this._compression,
       this._cryptoKey
     );
+    client.priorityQueueWarningLevel = this._currentPacketRatePerClient
     this._clients.set(clientId, client);
     return client;
   }
