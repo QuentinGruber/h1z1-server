@@ -164,6 +164,7 @@ export class ZoneServer2016 extends EventEmitter {
   _recipes: { [recipeId: number]: any } = recipes;
   private lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
+  _packetsStats : Record<string,number> = {}
 
   constructor(
     serverPort: number,
@@ -2220,12 +2221,20 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  logStats(){
+    console.log(JSON.stringify(this._packetsStats));
+  }
+
   private _sendData(
     client: Client,
     packetName: h1z1PacketsType,
     obj: any,
     unbuffered: boolean
   ) {
+    if(this._packetsStats[packetName])
+        this._packetsStats[packetName]++;
+    else
+      this._packetsStats[packetName] = 1;
     switch (packetName) {
       case "KeepAlive":
       case "PlayerUpdatePosition":
