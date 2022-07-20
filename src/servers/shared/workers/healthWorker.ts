@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { parentPort, workerData, Worker } from "worker_threads";
-
+const debug = require("debug")("HEALTHWORKER");
 interface Target {
   prototype: any;
 }
@@ -47,5 +47,6 @@ if (
   workerData.threadToWatchPid === process.pid &&
   !process.env.VSCODE_DEBUG
 ) {
+  debug("Health check started");
   checkHealth();
 }

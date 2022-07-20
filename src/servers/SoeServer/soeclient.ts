@@ -48,6 +48,8 @@ export default class SOEClient {
   waitingQueueCurrentByteLength: number = 0;
   soeClientId: string;
   lastPingTimer!: NodeJS.Timeout;
+  hasConnectionsIssues: boolean = false;
+  priorityQueueWarningLevel: number = 100;
   isDeleted: boolean = false;
   stats: SOEClientStats = {
     totalPacketSent: 0,

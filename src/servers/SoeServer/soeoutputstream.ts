@@ -82,7 +82,7 @@ export class SOEOutputStream extends EventEmitter {
 
   ack(sequence: number, unAckData: Map<number, number>): void {
     // delete all data / timers cached for the sequences behind the given ack sequence
-    while (this._lastAck.get() !== sequence + 1) {
+    while (this._lastAck.get() !== wrappedUint16.wrap(sequence + 1)) {
       const lastAck = this._lastAck.get();
       this.removeFromCache(lastAck);
       unAckData.delete(lastAck);
@@ -91,9 +91,6 @@ export class SOEOutputStream extends EventEmitter {
   }
 
   resendData(sequence: number): void {
-    if (this._hadCacheError) {
-      return;
-    }
     if (this._cache[sequence]) {
       this.emit(
         "dataResend",
@@ -103,11 +100,10 @@ export class SOEOutputStream extends EventEmitter {
         this._cache[sequence].fragment
       );
     } else {
-      console.error(
-        `Cache error, could not resend data for sequence ${sequence}! `
+      // already deleted from cache so already acknowledged by the client not a real issue
+      debug(
+        `Cache error, could not resend data for sequence ${sequence}! ` 
       );
-      this._hadCacheError = true;
-      this.emit("cacheError");
     }
   }
 
