@@ -649,22 +649,9 @@ const hax: any = {
       unknownBoolean3: false
     });
   },
-  /*
   kit: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.lootItem(client, server.generateItem(Items.WEAPON_308), 1); // sniper
-        server.lootItem(client, server.generateItem(Items.WEAPON_SHOTGUN), 1); // shotgun
-        server.lootItem(client, server.generateItem(Items.WEAPON_AR15), 1); // ar
-        server.lootItem(client, server.generateItem(Items.FIRST_AID), 10); // medkit
-        server.lootItem(client, server.generateItem(Items.BANDAGE), 10); // bandages
-        server.lootItem(client, server.generateItem(Items.AMMO_12GA), 60); // shotgun ammo
-        server.lootItem(client, server.generateItem(Items.AMMO_308), 50); // 308 ammo
-        server.lootItem(client, server.generateItem(Items.AMMO_223), 120); // ar ammo
-        server.lootItem(client, server.generateItem(Items.KEVLAR_DEFAULT), 1); // kevlar
-        server.lootItem(client, server.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
-        server.lootItem(client, server.generateItem(Items.KEVLAR_DEFAULT), 1); // kevlar
-        server.lootItem(client, server.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
+    server.giveKitItems(client);
   }
-  */
   /*
   addallitems: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(client, "Adding 1x of all items to inventory.");
