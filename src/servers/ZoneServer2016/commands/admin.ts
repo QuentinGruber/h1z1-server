@@ -141,7 +141,7 @@ const admin: any = {
       server.sendChatText(client, "Missing guid (use /admin players)")
       return;
     }
-    let targetClient = Object.values(server._clients).find((c) => {
+    const targetClient = Object.values(server._clients).find((c) => {
       if(c.loginSessionId == args[1] ||
         c.loginSessionId == args[1].slice(2)) {// in case "0x" is included
           return c;
