@@ -1693,6 +1693,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     
     registerHit(client: Client, packet: any) {
+      if(!client.character.isAlive) return;
       const characterId = packet.hitReport.characterId,
       entityType = this.getEntityType(packet.hitReport.characterId);
       let hitEntity;
@@ -3333,7 +3334,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {
     // only for weapons at the moment
-    if (!this.getItemDefinition(itemDefinitionId).FLAG_CAN_EQUIP) return false;
+    if (!this.getItemDefinition(itemDefinitionId)?.FLAG_CAN_EQUIP) return false;
     return !!equipSlotItemClasses.find(
       (slot: any) =>
         slot.ITEM_CLASS ===
@@ -3346,7 +3347,7 @@ export class ZoneServer2016 extends EventEmitter {
     itemDefinitionId: number,
     loadoutSlotId: number
   ): boolean {
-    if (!this.getItemDefinition(itemDefinitionId).FLAG_CAN_EQUIP) return false;
+    if (!this.getItemDefinition(itemDefinitionId)?.FLAG_CAN_EQUIP) return false;
     return !!loadoutSlotItemClasses.find(
       (slot: any) =>
         slot.ITEM_CLASS ===
@@ -3668,7 +3669,7 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDefId = item.itemDefinitionId,
       itemDef = this.getItemDefinition(itemDefId);
     if (
-      itemDef.FLAG_CAN_EQUIP &&
+      itemDef?.FLAG_CAN_EQUIP &&
       this.getAvailableLoadoutSlot(client.character, itemDefId)
     ) {
       this.sendData(client, "Reward.AddNonRewardItem", {
