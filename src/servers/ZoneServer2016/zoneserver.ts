@@ -2001,7 +2001,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._gameTime = Date.now();
   }
 
-  removeOutOfDistanceEntities(client: Client) {
+  private removeOutOfDistanceEntities(client: Client) {
     // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
@@ -2053,7 +2053,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
-  npcManager(client: Client) {
+  private npcManager(client: Client) {
     for (const characterId in this._npcs) {
       const npc = this._npcs[characterId];
       // dead npc despawner
@@ -2090,7 +2090,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnExplosives(client: Client) {
+  private spawnExplosives(client: Client) {
     for (const characterId in this._explosives) {
       const explosive = this._explosives[characterId];
       if (
@@ -2107,7 +2107,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnTraps(client: Client) {
+  private spawnTraps(client: Client) {
     for (const characterId in this._traps) {
       const trap = this._traps[characterId];
       if (
@@ -2124,7 +2124,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnTemporaryObjects(client: Client) {
+  private spawnTemporaryObjects(client: Client) {
     for (const characterId in this._temporaryObjects) {
       const tempObj = this._temporaryObjects[characterId];
       if (
@@ -2171,7 +2171,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  itemManager(client: Client) {
+  private itemManager(client: Client) {
     for (const characterId in this._spawnedItems) {
       const itemObject = this._spawnedItems[characterId];
       // dropped item despawner
@@ -2209,7 +2209,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnDoors(client: Client) {
+  private spawnDoors(client: Client) {
     for (const characterId in this._doors) {
       const door = this._doors[characterId];
       if (
@@ -2237,7 +2237,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  POIManager(client: Client) {
+  private POIManager(client: Client) {
     // sends POIChangeMessage or clears it based on player location
     let inPOI = false;
     Z1_POIs.forEach((point: any) => {
