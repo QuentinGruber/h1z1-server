@@ -934,9 +934,6 @@ export class ZoneServer2016 extends EventEmitter {
       () => this.worldRoutine.bind(this)(true),
       this.tickRate
     );
-    setInterval(() => {
-      this.logStats();
-    },60000);
   }
 
   sendInitData(client: Client) {
