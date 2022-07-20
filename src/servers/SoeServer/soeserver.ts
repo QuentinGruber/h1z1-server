@@ -43,7 +43,7 @@ export class SOEServer extends EventEmitter {
   private _resendTimeout: number = 800;
   protected _maxGlobalPacketRate = 10000;
   protected _minPacketRate: number = 100;
-  private _currentPacketRatePerClient: number = 100;
+  private _currentPacketRatePerClient: number = 200;
   private _ackTiming: number = 80;
   constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
     super();
