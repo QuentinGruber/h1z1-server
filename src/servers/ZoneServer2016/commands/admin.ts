@@ -130,7 +130,42 @@ const admin: any = {
     args: any[]
   ) {
     server.sendChatText(client, `Players: ${
-      Object.values(server._characters).map((character)=> {return character.name}).join(", ")}`)
+      Object.values(server._clients).map((c)=> {return `${c.character.name}: ${c.loginSessionId}`}).join(", ")}`)
+  },
+  kick: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    if(!args[1]) {
+      server.sendChatText(client, "Missing guid (use /admin players)")
+      return;
+    }
+    let targetClient = Object.values(server._clients).find((c) => {
+      if(c.loginSessionId == args[1] ||
+        c.loginSessionId == args[1].slice(2)) {// in case "0x" is included
+          return c;
+        }
+    })
+    if(!targetClient) {
+      server.sendChatText(client, "Client not found.");
+      return;
+    }
+    const reason = args[2]?args.slice(2).join(" "):"Undefined";
+    for(let i = 0; i<5; i++) {
+      server.sendAlert(targetClient, `You are being kicked from the server. Reason: ${reason}`);
+    }
+    
+    setTimeout(() => {
+      if(!targetClient) {
+        return;
+      }
+      server.sendGlobalChatText(`${targetClient.character.name} has been kicked from the server!`);
+      server.sendData(targetClient, "CharacterSelectSessionResponse", {
+        status: 1,
+        sessionId: client.loginSessionId,
+      });
+    }, 2000);
   }
 };
 
