@@ -76,8 +76,7 @@ import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
 
 // need to get 2016 lists
-//const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
-const spawnLocations = require("../../../data/2016/zoneData/Z1_PVFiesta.json"),
+const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   recipes = require("../../../data/2016/sampleData/recipes.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
   localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
@@ -3909,7 +3908,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.lootContainerItem(client, this.generateItem(1751), 5, sendPacket); // gauze
     this.lootContainerItem(client, this.generateItem(1804), 1, sendPacket); // flare
     this.lootContainerItem(client, this.generateItem(1436), 1, sendPacket); // lighter
-    this.giveKitItems(client);
   }
 
   giveKitItems(client: Client) {
