@@ -75,7 +75,7 @@ export class H1Z1Protocol {
         this.PlayerUpdateManagedPositionOpcode = 0x91;
         this.VehicleCollisionOpcode = 0xaa;
         this.VehicleDimissOpcode = 0x8918;
-        this.weaponOpcode = 0x83;
+        this.weaponOpcode = 0x8300;
         break;
       
     }
@@ -439,6 +439,8 @@ export class H1Z1Protocol {
         break;
       }
       case 3: {
+        console.log(`opcode ${opCode}`)
+        console.log(`weaponOpcode ${opCode}`)
         switch (opCode) {
           case this.PlayerUpdateManagedPositionOpcode: {
             packet =
@@ -451,13 +453,14 @@ export class H1Z1Protocol {
             offset = 1;
             break;
           }
-         /* case this.weaponOpcode: {
+          case 0x82:
+          case 0x83: {
             packet = H1Z1Packets.Packets[this.weaponOpcode];
-            offset = 1;
+            offset = 2;
             break;
-          }*/
-          default: {// temp logic so zonepackethandlers still works the same for now
-            opCode!=0x83?console.error(`unknown packet use flag 3 : ${opCode}`):0;
+          }
+          default: {
+            console.error(`unknown packet use flag 3 : ${opCode}`);
             [packet, offset] = this.resolveOpcode(opCode, data);
             break;
           }
