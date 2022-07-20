@@ -1088,7 +1088,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  generateDamageRecord(targetClient: Client, sourceClient: Client, hitReport: any, damage: number): DamageRecord {
+  generateDamageRecord(targetClient: Client, sourceClient: Client, hitReport: any, oldHealth: number, damage: number): DamageRecord {
     const sCharacter = sourceClient.character,
     tCharacter = targetClient.character;
     return {
@@ -1104,7 +1104,8 @@ export class ZoneServer2016 extends EventEmitter {
         distance: getDistance(sCharacter.state.position, tCharacter.state.position).toFixed(1),
         hitLocation: hitReport?.hitLocation || "Unknown",
         hitPosition: hitReport?.position || new Float32Array([0, 0, 0, 0]),
-        damage: damage
+        oldHP: oldHealth,
+        newHP: oldHealth - damage < 0?0:oldHealth - damage
       }
     }
   }
@@ -1827,7 +1828,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
   
   playerDamage(client: Client, damage: number, damageInfo: {client: Client, hitReport: any} | undefined = undefined, causeBleeding: boolean = false) {
-        const character = client.character;
+        const character = client.character,
+        oldHealth = character._resources[ResourceIds.HEALTH];
         if (
             !client.character.godMode &&
             client.character.isAlive &&
@@ -1864,7 +1866,7 @@ export class ZoneServer2016 extends EventEmitter {
             if (!damageInfo?.client.character) {
                 return
             }
-            const damageRecord = this.generateDamageRecord(client, damageInfo.client, damageInfo.hitReport, damage);
+            const damageRecord = this.generateDamageRecord(client, damageInfo.client, damageInfo.hitReport, oldHealth, damage);
             client.character.addCombatlogEntry(damageRecord);
             damageInfo.client.character.addCombatlogEntry(damageRecord);
             this.combatLog(client);
@@ -2903,11 +2905,11 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const combatlog = client.character.getCombatLog();
     this.sendChatText(client, "---------------------------------COMBATLOG:--------------------------------");
-    this.sendChatText(client, `TIME | SOURCE | TARGET | WEAPON | DISTANCE | HITLOCATION | HITPOSITION | DAMAGE`);
+    this.sendChatText(client, `TIME | SOURCE | TARGET | WEAPON | DISTANCE | HITLOCATION | HITPOSITION | OLD HP | NEW HP`);
     combatlog.forEach((e) => {
-      const hitPosition = `[${e.hitInfo.hitPosition[0].toFixed(2)}, ${e.hitInfo.hitPosition[1].toFixed(2)}, ${e.hitInfo.hitPosition[2].toFixed(2)}]`
+      const hitPosition = `[${e.hitInfo.hitPosition[0].toFixed(0)}, ${e.hitInfo.hitPosition[1].toFixed(0)}, ${e.hitInfo.hitPosition[2].toFixed(0)}]`
       this.sendChatText(client, 
-        `${((Date.now() - e.hitInfo.timestamp)/1000).toFixed(1)}s ${e.source.name == client.character.name?"YOU":e.source.name||"undefined"} ${e.target.name == client.character.name?"YOU":e.target.name||"undefined"} ${e.hitInfo.weapon} ${e.hitInfo.distance}m ${e.hitInfo.hitLocation} ${hitPosition} ${e.hitInfo.damage.toFixed(2)}`);
+        `${((Date.now() - e.hitInfo.timestamp)/1000).toFixed(1)}s ${e.source.name == client.character.name?"YOU":e.source.name||"undefined"} ${e.target.name == client.character.name?"YOU":e.target.name||"undefined"} ${e.hitInfo.weapon} ${e.hitInfo.distance}m ${e.hitInfo.hitLocation} ${hitPosition} ${(e.hitInfo.oldHP/100).toFixed(1)} ${(e.hitInfo.newHP/100).toFixed(1)}`);
     })
     this.sendChatText(client, "---------------------------------------------------------------------------------");
   }
