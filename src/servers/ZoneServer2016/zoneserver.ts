@@ -1628,7 +1628,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     npcDamage(characterId: string, damage: number) {
         if ((this._npcs[characterId].health -= damage) <= 0) {
-            this._npcs[characterId].flags.c = 127;
+            this._npcs[characterId].flags.knockedOut = 1;
             this.sendDataToAllWithSpawnedEntity(
                 this._npcs,
                 characterId,
@@ -1700,7 +1700,7 @@ export class ZoneServer2016 extends EventEmitter {
       let damageEntity;
       switch (entityType) {
         case EntityTypes.NPC:
-            if(!this._npcs[characterId] || this._npcs[characterId].flags.c == 127 ) {
+            if(!this._npcs[characterId] || this._npcs[characterId].flags.knockedOut ) {
               return;
             }
             damageEntity = ()=> {

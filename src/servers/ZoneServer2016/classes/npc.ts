@@ -13,22 +13,37 @@
 
 import { BaseFullCharacter } from "./basefullcharacter";
 
-function getFlags(field: any) {
-    let flagValue = 0;
-    for (let j = 0; j < field.length; j++) {
-        const flag = field[j];
-        if (flag) {
-            flagValue = flagValue | (1 << j);
-        }
-    }
-    return flagValue
-}
-
 export class Npc extends BaseFullCharacter {
     health: number;
     npcRenderDistance = 80;
     spawnerId: number;
     deathTime: number = 0;
+    flags = {
+        bit0: 0,
+        bit1: 0,
+        bit2: 0,
+        bit3: 0,
+        bit4: 0,
+        bit5: 0,
+        bit6: 0,
+        bit7: 0,
+        bit8: 0,
+        bit9: 0,
+        bit10: 0,
+        bit11: 0,
+        projectileCollision: 1,
+        bit13: 0,
+        bit14: 0,
+        bit15: 0,
+        bit16: 0,
+        bit17: 0,
+        bit18: 0,
+        bit19: 0,
+        noCollide: 0,
+        knockedOut: 0,
+        bit22: 0,
+        bit23: 0,
+      }
     constructor(
         characterId: string,
         transientId: number,
@@ -39,9 +54,6 @@ export class Npc extends BaseFullCharacter {
     ) {
         super(characterId, transientId, actorModelId, position, rotation);
         this.spawnerId = spawnerId;
-        this.flags.a = getFlags([false, false, false, false, false, false, false, false]);
-        this.flags.b = getFlags([false, false, false, false, true, false, false, false]);
-        this.flags.c = getFlags([false, false, false, false, false, false, false, false]);
         this.health = 10000;
     }
 }
