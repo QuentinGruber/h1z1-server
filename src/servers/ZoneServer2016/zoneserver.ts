@@ -137,14 +137,14 @@ export class ZoneServer2016 extends EventEmitter {
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
     : [
         "tp",
-        //"spawnnpc",
-        //"rat",
-        //"normalsize",
-        //"drive",
-        //"parachute",
-        //"spawnvehicle",
+        "spawnnpc",
+        "rat",
+        "normalsize",
+        "drive",
+        "parachute",
+        "spawnvehicle",
         "hood",
-        //"kit"
+        "kit"
       ];
   _interactionDistance = 4;
   _pingTimeoutTime = 120000;
@@ -1068,12 +1068,15 @@ export class ZoneServer2016 extends EventEmitter {
   deleteClient(client: Client) {
     if (client) {
       if (client.character) {
-        this.deleteEntity(client.character.characterId, this._characters);
+        client.isLoading = true; // stop anything from acting on character
+        
         clearTimeout(client.character?.resourcesUpdater);
         this.saveCharacterPosition(client);
+        this.dismountVehicle(client);
         client.managedObjects?.forEach((characterId: any) => {
           this.dropVehicleManager(client, characterId);
         });
+        this.deleteEntity(client.character.characterId, this._characters);
       }
       delete this._clients[client.sessionId];
       const soeClient = this.getSoeClient(client.soeClientId);
@@ -1626,7 +1629,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     npcDamage(characterId: string, damage: number) {
         if ((this._npcs[characterId].health -= damage) <= 0) {
-            this._npcs[characterId].flags.c = 127;
+            this._npcs[characterId].flags.knockedOut = 1;
             this.sendDataToAllWithSpawnedEntity(
                 this._npcs,
                 characterId,
@@ -1691,13 +1694,14 @@ export class ZoneServer2016 extends EventEmitter {
     }
     
     registerHit(client: Client, packet: any) {
+      if(!client.character.isAlive) return;
       const characterId = packet.hitReport.characterId,
       entityType = this.getEntityType(packet.hitReport.characterId);
       let hitEntity;
       let damageEntity;
       switch (entityType) {
         case EntityTypes.NPC:
-            if(!this._npcs[characterId] || this._npcs[characterId].flags.c == 127 ) {
+            if(!this._npcs[characterId] || this._npcs[characterId].flags.knockedOut ) {
               return;
             }
             damageEntity = ()=> {
@@ -1900,8 +1904,10 @@ export class ZoneServer2016 extends EventEmitter {
   tempGodMode(client: Client, durationMs: number) {
     if (!client.character.godMode) {
       this.setGodMode(client, true);
+      client.character.tempGodMode = true;
       setTimeout(() => {
         this.setGodMode(client, false);
+        client.character.tempGodMode = false;
       }, durationMs);
     }
   }
@@ -2125,6 +2131,7 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(characterObj)
           && !characterObj.characterStates.knockedOut
+          && !characterObj.isSpectator
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
           vehicle = vehicleId ? this._vehicles[vehicleId] : false;
@@ -2419,6 +2426,7 @@ export class ZoneServer2016 extends EventEmitter {
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
+      if(vehicle.vehicleId == 1337) continue; //ignore spectator cam
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
@@ -2596,32 +2604,24 @@ export class ZoneServer2016 extends EventEmitter {
     }
     client.character.isRunning = false; // maybe some async stuff make this useless need to test that
     client.vehicle.mountedVehicle = vehicle.characterId;
-    switch (vehicle.vehicleId) {
-      case 1:
-        client.vehicle.mountedVehicleType = "offroader";
-        break;
-      case 2:
-        client.vehicle.mountedVehicleType = "pickup";
-        break;
-      case 3:
-        client.vehicle.mountedVehicleType = "policecar";
-        break;
-      case 5:
-        client.vehicle.mountedVehicleType = "atv";
-        break;
-      case 13:
-        client.vehicle.mountedVehicleType = "parachute";
-        break;
-      case 1337:
-        client.vehicle.mountedVehicleType = "spectate";
-        break;
-      default:
-        client.vehicle.mountedVehicleType = "unknown";
-        break;
-    }
     const seatId = vehicle.getNextSeatId();
     if (seatId < 0) return; // no available seats in vehicle
     vehicle.seats[seatId] = client.character.characterId;
+    if(vehicle.vehicleId == 1337) {
+      this.sendData(
+        client,
+        "Mount.MountResponse",
+        {
+          // mounts character
+          characterId: client.character.characterId,
+          vehicleGuid: vehicle.characterId, // vehicle guid
+          seatId: Number(seatId),
+          isDriver: seatId === "0" ? 1 : 0, //isDriver
+          identity: {},
+        }
+      );
+      return;
+    }
     this.sendDataToAllWithSpawnedEntity(
       this._vehicles,
       vehicleGuid,
@@ -2631,7 +2631,7 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: client.character.characterId,
         vehicleGuid: vehicle.characterId, // vehicle guid
         seatId: Number(seatId),
-        unknownDword3: seatId === "0" ? 1 : 0, //isDriver
+        isDriver: seatId === "0" ? 1 : 0, //isDriver
         identity: {},
       }
     );
@@ -2767,6 +2767,13 @@ export class ZoneServer2016 extends EventEmitter {
     if (!vehicle) return;
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     if (!seatId) return;
+    if(vehicle.vehicleId == 1337) { // spectate camera
+      this.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId
+      })
+      this.deleteEntity(vehicle.characterId, this._vehicles);
+      return;
+    }
     vehicle.seats[seatId] = "";
     this.sendDataToAllWithSpawnedEntity(
       this._vehicles,
@@ -3347,7 +3354,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {
     // only for weapons at the moment
-    if (!this.getItemDefinition(itemDefinitionId).FLAG_CAN_EQUIP) return false;
+    if (!this.getItemDefinition(itemDefinitionId)?.FLAG_CAN_EQUIP) return false;
     return !!equipSlotItemClasses.find(
       (slot: any) =>
         slot.ITEM_CLASS ===
@@ -3360,7 +3367,7 @@ export class ZoneServer2016 extends EventEmitter {
     itemDefinitionId: number,
     loadoutSlotId: number
   ): boolean {
-    if (!this.getItemDefinition(itemDefinitionId).FLAG_CAN_EQUIP) return false;
+    if (!this.getItemDefinition(itemDefinitionId)?.FLAG_CAN_EQUIP) return false;
     return !!loadoutSlotItemClasses.find(
       (slot: any) =>
         slot.ITEM_CLASS ===
@@ -3682,7 +3689,7 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDefId = item.itemDefinitionId,
       itemDef = this.getItemDefinition(itemDefId);
     if (
-      itemDef.FLAG_CAN_EQUIP &&
+      itemDef?.FLAG_CAN_EQUIP &&
       this.getAvailableLoadoutSlot(client.character, itemDefId)
     ) {
       this.sendData(client, "Reward.AddNonRewardItem", {

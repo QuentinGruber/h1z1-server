@@ -789,8 +789,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if (client.character.godMode) {
+      if(client.character.tempGodMode) {
         server.setGodMode(client, false);
+        client.character.tempGodMode = false;
       }
       client.character.positionUpdate = packet.data;
       if (packet.data.flags === 513) {
@@ -798,7 +799,7 @@ export class zonePacketHandlers {
         return;
       }
       if (packet.data.flags === 510) {
-        client.vehicle.falling = packet.data.unknown10_float;
+        // falling flag, ignore for now
       }
       const movingCharacter = server._characters[client.character.characterId];
       if (movingCharacter) {
@@ -898,12 +899,19 @@ export class zonePacketHandlers {
           break;
         case EntityTypes.VEHICLE: // vehicles
           const vehicle = entityData as Vehicle2016;
+          if(vehicle.vehicleId == 1337) return; // ignore spectator cam
           if (vehicle.vehicleId != 13) {
             server.sendData(
               client,
               "LightweightToFullVehicle",
-              vehicle.pGetFullVehicle()
+              vehicle
+              .pGetFullVehicle()
             );
+            // prevents cars from spawning in under the map for other characters
+            server.sendData(client, "PlayerUpdatePosition", {
+              transientId: vehicle.transientId,
+              positionUpdate: vehicle.positionUpdate,
+            });
             server.sendData(client, "ResourceEvent", {
               eventData: {
                 type: 1,
@@ -1835,8 +1843,9 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("Weapon.Weapon");
-      if (client.character.godMode) {
+      if(client.character.tempGodMode) {
         server.setGodMode(client, false);
+        client.character.tempGodMode = false;
       }
       switch(packet.data.weaponPacket.packetName) {
         case "Weapon.MultiWeapon":
