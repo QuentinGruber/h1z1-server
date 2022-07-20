@@ -1067,12 +1067,15 @@ export class ZoneServer2016 extends EventEmitter {
   deleteClient(client: Client) {
     if (client) {
       if (client.character) {
-        this.deleteEntity(client.character.characterId, this._characters);
+        client.isLoading = true; // stop anything from acting on character
+        
         clearTimeout(client.character?.resourcesUpdater);
         this.saveCharacterPosition(client);
+        this.dismountVehicle(client);
         client.managedObjects?.forEach((characterId: any) => {
           this.dropVehicleManager(client, characterId);
         });
+        this.deleteEntity(client.character.characterId, this._characters);
       }
       delete this._clients[client.sessionId];
       const soeClient = this.getSoeClient(client.soeClientId);
@@ -2743,11 +2746,12 @@ export class ZoneServer2016 extends EventEmitter {
     if (!vehicle) return;
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     if (!seatId) return;
-    if(vehicle.vehicleId == 1337) {
+    if(vehicle.vehicleId == 1337) { // spectate camera
       this.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId
       })
       this.deleteEntity(vehicle.characterId, this._vehicles);
+      return;
     }
     vehicle.seats[seatId] = "";
     this.sendDataToAllWithSpawnedEntity(
