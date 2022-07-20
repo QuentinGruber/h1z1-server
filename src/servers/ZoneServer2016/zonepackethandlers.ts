@@ -45,6 +45,7 @@ import { TemporaryEntity } from "./classes/temporaryentity";
 const profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
 const projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
 const stats = require("../../../data/2016/sampleData/stats.json");
+const abilities = require("../../../data/2016/sampleData/abilities.json");
 export class zonePacketHandlers {
   hax = hax;
   dev = dev;
@@ -142,7 +143,6 @@ export class zonePacketHandlers {
         gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
       });
       
-      
       server.sendData(client, "ReferenceData.ProjectileDefinitions", {
           definitionsData: projectileDefinitons
       });
@@ -152,6 +152,8 @@ export class zonePacketHandlers {
           profiles: profileDefinitions
         }
       });
+
+      server.sendData(client, "Abilities.SetActivatableAbilityManager", abilities);
 
       /*
         server.sendData(client, "Loadout.SetCurrentLoadout", {
