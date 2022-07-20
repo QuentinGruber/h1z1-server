@@ -2100,6 +2100,7 @@ export class ZoneServer2016 extends EventEmitter {
                         p[1],
                         1,
                     ],
+                    unknownBool2: false // disable loading screen on teleport
                 });
 
             }
