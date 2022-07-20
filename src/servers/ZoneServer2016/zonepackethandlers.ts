@@ -904,8 +904,14 @@ export class zonePacketHandlers {
             server.sendData(
               client,
               "LightweightToFullVehicle",
-              vehicle.pGetFullVehicle()
+              vehicle
+              .pGetFullVehicle()
             );
+            // prevents cars from spawning in under the map for other characters
+            server.sendData(client, "PlayerUpdatePosition", {
+              transientId: vehicle.transientId,
+              positionUpdate: vehicle.positionUpdate,
+            });
             server.sendData(client, "ResourceEvent", {
               eventData: {
                 type: 1,
