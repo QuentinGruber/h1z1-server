@@ -677,7 +677,8 @@ export interface DamageRecord {
     distance: string,
     hitLocation: string,
     hitPosition: Float32Array,
-    damage: number
+    oldHP: number,
+    newHP: number,
   }
 }
 
