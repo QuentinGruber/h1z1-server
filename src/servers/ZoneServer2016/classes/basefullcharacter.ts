@@ -25,13 +25,13 @@ const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.j
 
 function getGender(actorModelId: number): number {
   switch (actorModelId) {
-      case 9510: // zombiemale
-      case 9240: // male character
-        return 1;
-      case 9634: // zombiefemale
-      case 9474: // female character
-        return 2;
-      default:
+    case 9510: // zombiemale
+    case 9240: // male character
+      return 1;
+    case 9634: // zombiefemale
+    case 9474: // female character
+      return 2;
+    default:
       return 0;
   }
 }
@@ -66,7 +66,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       containerGuid: "0xFFFFFFFFFFFFFFFF",
       currentDurability: 0,
       stackCount: 0,
-      loadoutItemOwnerGuid: "0x0"
+      loadoutItemOwnerGuid: "0x0",
     };
   }
   setupLoadoutSlots() {
@@ -147,10 +147,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   // gets the amount of items of a specific itemDefinitionId
-  getInventoryItemAmount(
-    itemDefinitionId: number
-  ): number {
-    let items = 0
+  getInventoryItemAmount(itemDefinitionId: number): number {
+    let items = 0;
     for (const container of Object.values(this._containers)) {
       for (const item of Object.values(container.items)) {
         if (item.itemDefinitionId == itemDefinitionId) {
@@ -214,25 +212,23 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       : undefined;
   }
 
-  
   pGetAttachmentSlotsMod() {
     return Object.keys(this._equipment).map((slotId: any) => {
-      if(this.pGetAttachmentSlot(slotId)?.modelName == "Weapon_Empty.adr") {
+      if (this.pGetAttachmentSlot(slotId)?.modelName == "Weapon_Empty.adr") {
         return this.pGetAttachmentSlot(slotId);
       }
       return {
-          modelName: "",
-          textureAlias: "",
-          tintAlias: "Default",
-          decalAlias: "#",
-          slotId: slotId,
-          unknownArray1: [], // todo: test
-          unknownBool1: false
-      }
+        modelName: "",
+        textureAlias: "",
+        tintAlias: "Default",
+        decalAlias: "#",
+        slotId: slotId,
+        unknownArray1: [], // todo: test
+        unknownBool1: false,
+      };
     });
   }
-  
- 
+
   pGetEquipment() {
     return {
       characterData: {

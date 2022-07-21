@@ -77,7 +77,6 @@ export class H1Z1Protocol {
         this.VehicleDimissOpcode = 0x8918;
         this.weaponOpcode = 0x8300;
         break;
-      
     }
   }
 

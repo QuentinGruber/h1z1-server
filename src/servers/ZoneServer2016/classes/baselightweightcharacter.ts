@@ -59,7 +59,7 @@ export class BaseLightweightCharacter extends BaseEntity {
     knockedOut: 0,
     bit22: 0,
     bit23: 0,
-  }
+  };
   isLightweight = true;
   positionUpdateType = 0;
   headActor = getHeadActor(this.actorModelId);
@@ -91,7 +91,7 @@ export class BaseLightweightCharacter extends BaseEntity {
       flags: {
         flags1: this.flags,
         flags2: this.flags,
-        flags3: this.flags
+        flags3: this.flags,
       },
       headActor: this.headActor,
     };

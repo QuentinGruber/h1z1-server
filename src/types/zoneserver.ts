@@ -666,20 +666,20 @@ export interface Weather2016 {
 
 export interface DamageRecord {
   source: {
-    name: string
-  },
+    name: string;
+  };
   target: {
-    name: string
-  },
+    name: string;
+  };
   hitInfo: {
-    timestamp: number,
-    weapon: string,
-    distance: string,
-    hitLocation: string,
-    hitPosition: Float32Array,
-    oldHP: number,
-    newHP: number,
-  }
+    timestamp: number;
+    weapon: string;
+    distance: string;
+    hitLocation: string;
+    hitPosition: Float32Array;
+    oldHP: number;
+    newHP: number;
+  };
 }
 
 export interface SoeServer {

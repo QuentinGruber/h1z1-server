@@ -13,7 +13,11 @@
 
 import DataSchema from "h1z1-dataschema";
 import { LZ4 } from "../../../utils/utils";
-import { firemodesSchema, packVehicleReferenceData, parseVehicleReferenceData } from "./shared";
+import {
+  firemodesSchema,
+  packVehicleReferenceData,
+  parseVehicleReferenceData,
+} from "./shared";
 
 const weaponDefinitionSchema: any[] = [
   {
@@ -130,10 +134,22 @@ const weaponDefinitionSchema: any[] = [
           { name: "ANIM_ACTOR_SLOT_OVERRIDE", type: "uint32", defaultValue: 0 },
           { name: "DEPLOYABLE_ID", type: "uint32", defaultValue: 0 },
           { name: "SPIN_UP_TIME_MS", type: "uint32", defaultValue: 0 },
-          { name: "SPIN_UP_MOVEMENT_MODIFIER", type: "uint32", defaultValue: 0 },
-          { name: "SPIN_UP_TURN_RATE_MODIFIER", type: "uint32", defaultValue: 0 },
+          {
+            name: "SPIN_UP_MOVEMENT_MODIFIER",
+            type: "uint32",
+            defaultValue: 0,
+          },
+          {
+            name: "SPIN_UP_TURN_RATE_MODIFIER",
+            type: "uint32",
+            defaultValue: 0,
+          },
           { name: "SPOOL_UP_TIME_MS", type: "uint32", defaultValue: 0 },
-          { name: "SPOOL_UP_INITIAL_REFIRE_MS", type: "uint32", defaultValue: 0 },
+          {
+            name: "SPOOL_UP_INITIAL_REFIRE_MS",
+            type: "uint32",
+            defaultValue: 0,
+          },
         ],
       },
     ],
@@ -705,17 +721,41 @@ const weaponDefinitionSchema: any[] = [
               { name: "MAX_CONE_OF_FIRE", type: "float", defaultValue: 0 },
               { name: "COF_RECOVERY_RATE", type: "float", defaultValue: 0 },
               { name: "COF_TURN_PENALTY", type: "float", defaultValue: 0 },
-              { name: "SHOTS_BEFORE_COF_PENALTY", type: "uint32", defaultValue: 0 },
-              { name: "COF_RECOVERY_DELAY_THRESHOLD", type: "float", defaultValue: 0 },
-              { name: "COF_RECOVERY_DELAY_MS", type: "uint32", defaultValue: 0 },
+              {
+                name: "SHOTS_BEFORE_COF_PENALTY",
+                type: "uint32",
+                defaultValue: 0,
+              },
+              {
+                name: "COF_RECOVERY_DELAY_THRESHOLD",
+                type: "float",
+                defaultValue: 0,
+              },
+              {
+                name: "COF_RECOVERY_DELAY_MS",
+                type: "uint32",
+                defaultValue: 0,
+              },
               { name: "COF_GROW_RATE", type: "float", defaultValue: 0 },
               { name: "MIN_CYL_OF_FIRE", type: "float", defaultValue: 0 },
               { name: "MAX_CYL_OF_FIRE", type: "float", defaultValue: 0 },
               { name: "CYLOF_RECOVERY_RATE", type: "float", defaultValue: 0 },
               { name: "CYLOF_TURN_PENALTY", type: "float", defaultValue: 0 },
-              { name: "SHOTS_BEFORE_CYLOF_PENALTY", type: "uint32", defaultValue: 0 },
-              { name: "CYLOF_RECOVERY_DELAY_THRESHOLD", type: "float", defaultValue: 0 },
-              { name: "CYLOF_RECOVERY_DELAY_MS", type: "uint32", defaultValue: 0 },
+              {
+                name: "SHOTS_BEFORE_CYLOF_PENALTY",
+                type: "uint32",
+                defaultValue: 0,
+              },
+              {
+                name: "CYLOF_RECOVERY_DELAY_THRESHOLD",
+                type: "float",
+                defaultValue: 0,
+              },
+              {
+                name: "CYLOF_RECOVERY_DELAY_MS",
+                type: "uint32",
+                defaultValue: 0,
+              },
               { name: "CYLOF_GROW_RATE", type: "float", defaultValue: 0 },
             ],
           },
@@ -764,8 +804,16 @@ const weaponDefinitionSchema: any[] = [
           { name: "WEIGHT", type: "float", defaultValue: 0 },
           { name: "MIN_INPUT_WEIGHT_DELAY_IN", type: "float", defaultValue: 0 },
           { name: "MAX_INPUT_WEIGHT_DELAY_IN", type: "float", defaultValue: 0 },
-          { name: "MIN_INPUT_WEIGHT_DELAY_OUT", type: "float", defaultValue: 0 },
-          { name: "MAX_INPUT_WEIGHT_DELAY_OUT", type: "float", defaultValue: 0 },
+          {
+            name: "MIN_INPUT_WEIGHT_DELAY_OUT",
+            type: "float",
+            defaultValue: 0,
+          },
+          {
+            name: "MAX_INPUT_WEIGHT_DELAY_OUT",
+            type: "float",
+            defaultValue: 0,
+          },
           { name: "MIN_INPUT_FACTOR", type: "float", defaultValue: 0 },
           { name: "MAX_INPUT_FACTOR", type: "float", defaultValue: 0 },
           { name: "REQUIREMENT_ID", type: "uint32", defaultValue: 0 },
@@ -773,8 +821,16 @@ const weaponDefinitionSchema: any[] = [
           { name: "MAGNET_DIST_FOR_MIN_ANGLE", type: "float", defaultValue: 0 },
           { name: "MAGNET_MAX_ANGLE", type: "float", defaultValue: 0 },
           { name: "MAGNET_DIST_FOR_MAX_ANGLE", type: "float", defaultValue: 0 },
-          { name: "MIN_INPUT_STRAFE_ARRIVE_TIME", type: "float", defaultValue: 0 },
-          { name: "MAX_INPUT_STRAFE_ARRIVE_TIME", type: "float", defaultValue: 0 },
+          {
+            name: "MIN_INPUT_STRAFE_ARRIVE_TIME",
+            type: "float",
+            defaultValue: 0,
+          },
+          {
+            name: "MAX_INPUT_STRAFE_ARRIVE_TIME",
+            type: "float",
+            defaultValue: 0,
+          },
         ],
       },
     ],
@@ -823,11 +879,19 @@ const projectileDefinitionSchema: any[] = [
           { name: "FLIGHT_TYPE", type: "uint8", defaultValue: 0 },
           { name: "PROJECTILE_EFFECT_ID", type: "uint32", defaultValue: 0 },
           { name: "LAND_EFFECT_ID", type: "uint32", defaultValue: 0 },
-          { name: "INDIRECT_DAMAGE_EFFECT_ID", type: "uint32", defaultValue: 0 },
+          {
+            name: "INDIRECT_DAMAGE_EFFECT_ID",
+            type: "uint32",
+            defaultValue: 0,
+          },
           { name: "LIFESPAN", type: "float", defaultValue: 0 },
           { name: "MAX_SPEED", type: "float", defaultValue: 0 },
           { name: "TURN_RATE", type: "float", defaultValue: 0 },
-          { name: "BONE_ATTACHMENT_OVERRIDE", type: "string", defaultValue: "" },
+          {
+            name: "BONE_ATTACHMENT_OVERRIDE",
+            type: "string",
+            defaultValue: "",
+          },
           { name: "DRAG", type: "float", defaultValue: 0 },
           { name: "GRAVITY", type: "float", defaultValue: 0 },
           { name: "DAMAGE", type: "float", defaultValue: 0 },
@@ -841,7 +905,11 @@ const projectileDefinitionSchema: any[] = [
           { name: "DAMAGE_RADIUS", type: "float", defaultValue: 0 },
           { name: "DROP_OFF_RADIUS", type: "float", defaultValue: 0 },
           { name: "DROP_OFF_MODIFIER", type: "float", defaultValue: 0 },
-          { name: "TRIGGER_DETONATE_REQUIREMENT", type: "uint8", defaultValue: 0 },
+          {
+            name: "TRIGGER_DETONATE_REQUIREMENT",
+            type: "uint8",
+            defaultValue: 0,
+          },
           { name: "ARM_DISTANCE", type: "uint32", defaultValue: 0 },
           { name: "DETONATE_DISTANCE", type: "uint32", defaultValue: 0 },
           { name: "TETHER_DISTANCE", type: "float", defaultValue: 0 },
@@ -854,7 +922,7 @@ const projectileDefinitionSchema: any[] = [
             type: "array",
             defaultValue: [],
             fields: [
-              { name: "PLAYER_BULLET_RADIUS", type: "uint32", defaultValue: 0 }
+              { name: "PLAYER_BULLET_RADIUS", type: "uint32", defaultValue: 0 },
             ],
           },
           { name: "ITEM_PICKUP_ID", type: "uint32", defaultValue: 0 },
@@ -867,9 +935,9 @@ const projectileDefinitionSchema: any[] = [
           { name: "ANGULAR_VELOCITY_Z_MAX", type: "float", defaultValue: 0 },
         ],
       },
-    ]
+    ],
   },
-]
+];
 
 function packProjectileDefinitionData(obj: any) {
   const compressionData = Buffer.allocUnsafe(8),
@@ -910,8 +978,16 @@ export const referenceDataPackets: any = [
                 { name: "unknownDword6", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword7", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-                { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-                { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+                {
+                  name: "unknownBoolean1",
+                  type: "boolean",
+                  defaultValue: false,
+                },
+                {
+                  name: "unknownBoolean2",
+                  type: "boolean",
+                  defaultValue: false,
+                },
                 { name: "unknownDword9", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword10", type: "uint32", defaultValue: 0 },
                 {
@@ -922,7 +998,6 @@ export const referenceDataPackets: any = [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                    
                   ],
                 },
                 { name: "unknownDword11", type: "uint32", defaultValue: 0 },
@@ -972,8 +1047,8 @@ export const referenceDataPackets: any = [
     },
   ],
   [
-    "ReferenceData.ProjectileDefinitions", 
-    0x1705, 
+    "ReferenceData.ProjectileDefinitions",
+    0x1705,
     {
       fields: [
         {
@@ -982,7 +1057,7 @@ export const referenceDataPackets: any = [
           packer: packProjectileDefinitionData,
         },
       ],
-    }
+    },
   ],
   [
     "ReferenceData.VehicleDefinitions",

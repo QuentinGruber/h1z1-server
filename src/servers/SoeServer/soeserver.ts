@@ -71,17 +71,15 @@ export class SOEServer extends EventEmitter {
     const packetRate = this._maxGlobalPacketRate / this._clients.size;
     if (packetRate < this._minPacketRate) {
       return this._minPacketRate;
-    }
-    else if (packetRate > this._maxGlobalPacketRate) {
+    } else if (packetRate > this._maxGlobalPacketRate) {
       return this._maxGlobalPacketRate;
-    }
-     else {
+    } else {
       return packetRate;
     }
   }
 
   private adjustPacketRate(): void {
-    return // disabled for now
+    return; // disabled for now
     debug("Adjusting packet rate");
     this._currentPacketRatePerClient = this.calculatePacketRate();
     debug(`Packet rate: ${this._currentPacketRatePerClient}`);
@@ -145,40 +143,42 @@ export class SOEServer extends EventEmitter {
 
   // Send pending packets from client, in priority ones from the priority queue
   private checkClientOutQueues(client: SOEClient) {
-    if(client.priorityQueue.length > 0) {
-      if(client.priorityQueue.length > client.priorityQueueWarningLevel){
+    if (client.priorityQueue.length > 0) {
+      if (client.priorityQueue.length > client.priorityQueueWarningLevel) {
         client.hasConnectionsIssues = true;
       }
       this.sendPriorityQueue(client);
-    }
-    else if(client.hasConnectionsIssues){
+    } else if (client.hasConnectionsIssues) {
       client.hasConnectionsIssues = false;
     }
-    if(client.outQueue.length > 0) {
+    if (client.outQueue.length > 0) {
       this.sendOutQueue(client);
     }
   }
 
   private soeRoutine(): void {
-      for (const client of this._clients.values()) {
-        this.soeClientRoutine(client);
-      }
-      this._soeClientRoutineLoopMethod(() => this.soeRoutine());
+    for (const client of this._clients.values()) {
+      this.soeClientRoutine(client);
+    }
+    this._soeClientRoutineLoopMethod(() => this.soeRoutine());
   }
 
   // Executed at the same rate for every client
   private soeClientRoutine(client: Client) {
-      if (client.lastAckTime + this._ackTiming < Date.now() || client.hasConnectionsIssues) {
-        // Acknowledge received packets
-        this.checkAck(client);
-        this.checkOutOfOrderQueue(client);
-        client.lastAckTime = Date.now();
-      }
-      // Send pending packets
-      if(!client.hasConnectionsIssues) {
-        this.checkResendQueue(client);
-      }
-      this.checkClientOutQueues(client);
+    if (
+      client.lastAckTime + this._ackTiming < Date.now() ||
+      client.hasConnectionsIssues
+    ) {
+      // Acknowledge received packets
+      this.checkAck(client);
+      this.checkOutOfOrderQueue(client);
+      client.lastAckTime = Date.now();
+    }
+    // Send pending packets
+    if (!client.hasConnectionsIssues) {
+      this.checkResendQueue(client);
+    }
+    this.checkClientOutQueues(client);
   }
 
   // If a packet hasn't been acknowledge in the timeout time, then resend it via the priority queue
@@ -273,7 +273,7 @@ export class SOEServer extends EventEmitter {
       this._compression,
       this._cryptoKey
     );
-    client.priorityQueueWarningLevel = this._currentPacketRatePerClient
+    client.priorityQueueWarningLevel = this._currentPacketRatePerClient;
     this._clients.set(clientId, client);
     return client;
   }
@@ -463,7 +463,6 @@ export class SOEServer extends EventEmitter {
               );
             }
           );
-
         } else {
           client = this._clients.get(clientId) as SOEClient;
         }
@@ -527,7 +526,7 @@ export class SOEServer extends EventEmitter {
       console.error(e);
       process.exitCode = 444;
       // @ts-ignore
-      return null
+      return null;
     }
   }
   // The packets is builded from schema and added to one of the queues

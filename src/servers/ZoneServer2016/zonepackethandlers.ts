@@ -102,7 +102,7 @@ export class zonePacketHandlers {
       server: ZoneServer2016,
       client: Client,
       packet: any
-    ) {    
+    ) {
       /*
       server.sendData(client, "ClientUpdate.ActivateProfile", {
         profileData: {
@@ -129,7 +129,11 @@ export class zonePacketHandlers {
       }); // Required for WaitForWorldReady
 
       // Required for WaitForWorldReady
-      server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {});
+      server.sendData(
+        client,
+        "ClientUpdate.NetworkProximityUpdatesComplete",
+        {}
+      );
 
       server.customizeDTO(client);
 
@@ -141,16 +145,15 @@ export class zonePacketHandlers {
         guid4: "0x0000000000000000",
         gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
       });
-      
-      
+
       server.sendData(client, "ReferenceData.ProjectileDefinitions", {
-          definitionsData: projectileDefinitons
+        definitionsData: projectileDefinitons,
       });
-      
+
       server.sendData(client, "ReferenceData.ProfileDefinitions", {
         data: {
-          profiles: profileDefinitions
-        }
+          profiles: profileDefinitions,
+        },
       });
 
       /*
@@ -208,7 +211,7 @@ export class zonePacketHandlers {
           "help",
           "netstats",
           "me",
-          "combatlog"
+          "combatlog",
         ];
 
         commands.forEach((command) => {
@@ -236,11 +239,12 @@ export class zonePacketHandlers {
       }
 
       client.isLoading = false;
-      if (!client.character.isAlive) { // try to fix stuck on death screen
-                server.sendData(client, "Character.StartMultiStateDeath", {
-                    characterId: client.character.characterId,
-                });
-            }
+      if (!client.character.isAlive) {
+        // try to fix stuck on death screen
+        server.sendData(client, "Character.StartMultiStateDeath", {
+          characterId: client.character.characterId,
+        });
+      }
     };
     this.Security = function (
       server: ZoneServer2016,
@@ -598,7 +602,7 @@ export class zonePacketHandlers {
           server.combatLog(client);
           break;
         default:
-          console.log(packet.data.commandHash)
+          console.log(packet.data.commandHash);
           break;
       }
     }),
@@ -789,7 +793,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if(client.character.tempGodMode) {
+      if (client.character.tempGodMode) {
         server.setGodMode(client, false);
         client.character.tempGodMode = false;
       }
@@ -889,7 +893,7 @@ export class zonePacketHandlers {
           server._vehicles[characterId] ||
           server._characters[characterId] ||
           0,
-        entityType = server.getEntityType(characterId)
+        entityType = server.getEntityType(characterId);
 
       if (!entityType) return;
       switch (entityType) {
@@ -899,13 +903,12 @@ export class zonePacketHandlers {
           break;
         case EntityTypes.VEHICLE: // vehicles
           const vehicle = entityData as Vehicle2016;
-          if(vehicle.vehicleId == 1337) return; // ignore spectator cam
+          if (vehicle.vehicleId == 1337) return; // ignore spectator cam
           if (vehicle.vehicleId != 13) {
             server.sendData(
               client,
               "LightweightToFullVehicle",
-              vehicle
-              .pGetFullVehicle()
+              vehicle.pGetFullVehicle()
             );
             // prevents cars from spawning in under the map for other characters
             server.sendData(client, "PlayerUpdatePosition", {
@@ -987,27 +990,27 @@ export class zonePacketHandlers {
 
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
-              
-              fullPcData: {
-                transientId: character.transientId,
-                attachmentData: character.pGetAttachmentSlots(),
-                resources: {data: character.pGetResources() },
-                remoteWeapons: {data: remoteWeapons}
-              },
-              positionUpdate: {
-                ...character.positionUpdate,
-                sequenceTime: server.getGameTime()
-              },
-              stats: stats.map((stat: any) => {
-                return stat.statData;
-              })
+
+            fullPcData: {
+              transientId: character.transientId,
+              attachmentData: character.pGetAttachmentSlots(),
+              resources: { data: character.pGetResources() },
+              remoteWeapons: { data: remoteWeapons },
+            },
+            positionUpdate: {
+              ...character.positionUpdate,
+              sequenceTime: server.getGameTime(),
+            },
+            stats: stats.map((stat: any) => {
+              return stat.statData;
+            }),
           });
           /*Object.values(character._loadout).forEach((item) => {
             server.addItem(client, item, 101, character);
           })
           server.updateEquipment(client, character);
           server.updateLoadout(client, character);*/
-          
+
           server.sendData(client, "Character.WeaponStance", {
             characterId: character.characterId,
             stance: 1,
@@ -1033,7 +1036,7 @@ export class zonePacketHandlers {
           server._doors[guid] ||
           server._npcs[guid] ||
           0,
-        entityType = server.getEntityType(guid)
+        entityType = server.getEntityType(guid);
 
       if (
         !entityData ||
@@ -1123,7 +1126,7 @@ export class zonePacketHandlers {
           server._vehicles[guid] ||
           server._doors[guid] ||
           0,
-        entityType = server.getEntityType(guid)
+        entityType = server.getEntityType(guid);
 
       if (
         !entityData ||
@@ -1843,11 +1846,11 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("Weapon.Weapon");
-      if(client.character.tempGodMode) {
+      if (client.character.tempGodMode) {
         server.setGodMode(client, false);
         client.character.tempGodMode = false;
       }
-      switch(packet.data.weaponPacket.packetName) {
+      switch (packet.data.weaponPacket.packetName) {
         case "Weapon.MultiWeapon":
           packet.data.weaponPacket.packet.packets.forEach((p: any) => {
             handleWeaponPacket(p);
@@ -1859,8 +1862,8 @@ export class zonePacketHandlers {
       }
       function handleWeaponPacket(p: any) {
         const weaponItem = client.character.getEquippedWeapon();
-        if(!weaponItem.weapon) return;
-        switch(p.packetName) {
+        if (!weaponItem.weapon) return;
+        switch (p.packetName) {
           case "Weapon.FireStateUpdate":
             debug("Weapon.FireStateUpdate");
             server.damageItem(client, weaponItem, 2);
@@ -1874,7 +1877,7 @@ export class zonePacketHandlers {
                 firegroupId: 1373
             })
             */
-           /*
+            /*
             server.sendRemoteWeaponUpdateData(
               client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {
                 unknownDword1: server.getItemDefinition(weaponItem.itemDefinitionId).PARAM1,
@@ -1884,27 +1887,32 @@ export class zonePacketHandlers {
 
             break;
           case "Weapon.ProjectileHitReport":
-            if(client.character.getEquippedWeapon().itemDefinitionId == 1776 && client.isAdmin) {
+            if (
+              client.character.getEquippedWeapon().itemDefinitionId == 1776 &&
+              client.isAdmin
+            ) {
               const characterId = p.packet.hitReport.characterId,
-              entityType = server.getEntityType(characterId);
+                entityType = server.getEntityType(characterId);
               switch (entityType) {
                 case EntityTypes.NPC:
-                    if(!server._npcs[characterId] ) {
-                      return;
-                    }
-                    server.deleteEntity(characterId, server._npcs);
-                    break;
-                case EntityTypes.VEHICLE:
-                    if(!server._vehicles[characterId]) {
-                      return;
-                    }
-                    server.deleteEntity(characterId, server._vehicles);
-                    break;
-                case EntityTypes.OBJECT:
-                  if(!server._spawnedItems[characterId] ) {
+                  if (!server._npcs[characterId]) {
                     return;
                   }
-                  delete server.worldObjectManager._spawnedLootObjects[server._spawnedItems[characterId].spawnerId];
+                  server.deleteEntity(characterId, server._npcs);
+                  break;
+                case EntityTypes.VEHICLE:
+                  if (!server._vehicles[characterId]) {
+                    return;
+                  }
+                  server.deleteEntity(characterId, server._vehicles);
+                  break;
+                case EntityTypes.OBJECT:
+                  if (!server._spawnedItems[characterId]) {
+                    return;
+                  }
+                  delete server.worldObjectManager._spawnedLootObjects[
+                    server._spawnedItems[characterId].spawnerId
+                  ];
                   server.deleteEntity(characterId, server._spawnedItems);
                   break;
                 case EntityTypes.EXPLOSIVE:
@@ -1920,40 +1928,54 @@ export class zonePacketHandlers {
             debug("Weapon.ProjectileHitReport");
             break;
           case "Weapon.ReloadRequest":
-            if(client.character.reloadTimer) return;
+            if (client.character.reloadTimer) return;
             /*server.sendRemoteWeaponUpdateData(
               client, client.character.transientId, weaponItem.itemGuid, "Update.Reload", {})*/
             client.character.reloadTimer = setTimeout(() => {
-              if(!client.character.reloadTimer) return;
+              if (!client.character.reloadTimer) return;
               const weaponItem = client.character.getEquippedWeapon();
-              if(!weaponItem.weapon || 
-                client.character.getEquippedWeapon().itemGuid != weaponItem.itemGuid) return;
-              const weaponAmmoId = server.getWeaponAmmoId(weaponItem.itemDefinitionId),
-              maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
-              reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
-              maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
-              reloadAmount = (reserveAmmo >= maxReloadAmount)?maxReloadAmount:reserveAmmo; // actual amount able to reload
-              
+              if (
+                !weaponItem.weapon ||
+                client.character.getEquippedWeapon().itemGuid !=
+                  weaponItem.itemGuid
+              )
+                return;
+              const weaponAmmoId = server.getWeaponAmmoId(
+                  weaponItem.itemDefinitionId
+                ),
+                maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
+                reserveAmmo =
+                  client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
+                maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+                reloadAmount =
+                  reserveAmmo >= maxReloadAmount
+                    ? maxReloadAmount
+                    : reserveAmmo; // actual amount able to reload
+
               server.sendWeaponData(client, "Weapon.Reload", {
                 guid: p.packet.characterId,
                 unknownDword1: maxAmmo,
                 ammoCount: weaponItem.weapon.ammoCount + reloadAmount,
                 unknownDword3: maxAmmo,
                 characterId: "0x2",
-              })
-              weaponItem.weapon.ammoCount = weaponItem.weapon.ammoCount + reloadAmount;
-              server.switchLoadoutSlot(client, client.character._loadout[client.character.currentLoadoutSlot]);
+              });
+              weaponItem.weapon.ammoCount =
+                weaponItem.weapon.ammoCount + reloadAmount;
+              server.switchLoadoutSlot(
+                client,
+                client.character._loadout[client.character.currentLoadoutSlot]
+              );
               /*server.sendWeaponData(client, "Weapon.Reset", {
                 guid: weaponItem.itemGuid,
                 unknownBoolean1: true,
                 unknownByte1: 0
               })*/
-              server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
+              server.removeInventoryItems(client, weaponAmmoId, reloadAmount);
             }, server.getWeaponReloadTime(weaponItem.itemDefinitionId));
-            
+
             debug("Weapon.ReloadRequest");
             break;
-          case "Weapon.ReloadInterrupt": 
+          case "Weapon.ReloadInterrupt":
             server.reloadInterrupt(client, weaponItem);
             break;
           case "Weapon.SwitchFireModeRequest":
@@ -1978,7 +2000,6 @@ export class zonePacketHandlers {
         }
         //console.log(p)
       }
-      
     };
     //#endregion
   }

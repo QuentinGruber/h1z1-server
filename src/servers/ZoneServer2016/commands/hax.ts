@@ -284,12 +284,16 @@ const hax: any = {
     );
   },
   realtime: function (server: ZoneServer2016, client: Client, args: any[]) {
-        server.removeForcedTime();
-        server.sendChatText(client, "Game time is now based on real time", true);
-    },
-    fog: function (server: ZoneServer2016, client: Client, args: any[]) {
-      server.sendChatText(client, 'Fog has been toggled '.concat(server.toggleFog() ? 'ON' : 'OFF'), true);
-    },
+    server.removeForcedTime();
+    server.sendChatText(client, "Game time is now based on real time", true);
+  },
+  fog: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      "Fog has been toggled ".concat(server.toggleFog() ? "ON" : "OFF"),
+      true
+    );
+  },
   spamied: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[2]) {
       server.sendChatText(
@@ -631,9 +635,9 @@ const hax: any = {
     }
   },
   lighting: function (server: ZoneServer2016, client: Client, args: any[]) {
-    if(!args[1]) {
+    if (!args[1]) {
       server.sendChatText(client, "[ERROR] Missing lighting file.");
-      return
+      return;
     }
 
     server.sendData(client, "SendZoneDetails", {
@@ -646,12 +650,12 @@ const hax: any = {
       nameId: 7699,
       unknownBoolean2: true,
       lighting: args[1],
-      unknownBoolean3: false
+      unknownBoolean3: false,
     });
   },
   kit: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.giveKitItems(client);
-  }
+  },
   /*
   addallitems: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(client, "Adding 1x of all items to inventory.");
