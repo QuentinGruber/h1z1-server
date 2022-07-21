@@ -439,8 +439,6 @@ export class H1Z1Protocol {
         break;
       }
       case 3: {
-        console.log(`opcode ${opCode}`)
-        console.log(`weaponOpcode ${opCode}`)
         switch (opCode) {
           case this.PlayerUpdateManagedPositionOpcode: {
             packet =
