@@ -13,10 +13,9 @@
 
 import {
   attachmentSchema,
+  packItemWeaponData,
   packUnsignedIntWith2bitLengthValue,
   readUnsignedIntWith2bitLengthValue,
-} from "./shared";
-import {
   itemSchema,
   profileSchema,
   respawnLocationSchema,
@@ -36,7 +35,12 @@ export const clientUpdatePackets: any = [
           type: "byteswithlength",
           fields: [
             ...itemSchema,
-            { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+            {
+              name: "unknownData1",
+              type: "custom",
+              defaultValue: {},
+              packer: packItemWeaponData,
+            },
           ],
         },
       ],
@@ -322,7 +326,7 @@ export const clientUpdatePackets: any = [
     "ClientUpdate.NetworkProximityUpdatesComplete",
     0x113500,
     {
-      fields: [{ name: "done", type: "boolean", defaultValue: false }],
+      fields: [],
     },
   ],
   ["ClientUpdate.FileValidationRequest", 0x113600, {}],

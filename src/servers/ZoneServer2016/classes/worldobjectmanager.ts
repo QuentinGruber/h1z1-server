@@ -63,6 +63,9 @@ export class WorldObjectManager {
   lootRespawnTimer: number = 600000; // 10 minutes
   vehicleRespawnTimer: number = 600000; // 10 minutes // 600000
   npcRespawnTimer: number = 600000; // 10 minutes
+  // items get despawned after x minutes
+  itemDespawnTimer: number = 1800000; // 30 minutes
+  deadNpcDespawnTimer: number = 600000; // 10 minutes
 
   // objects won't spawn if another object is within this radius
   vehicleSpawnRadius: number = 50;
@@ -104,22 +107,10 @@ export class WorldObjectManager {
     }
   }
   equipRandomSkins(server: ZoneServer2016, npc: Npc): void {
-    switch (npc.actorModelId) {
-      case 9510: {
-        server.generateRandomEquipmentsFromAnEntity(
-          npc,
-          "Male",
-          [3, 1, 2, 4, 29, 28, 27, 10, 5]
-        );
-      }
-      case 9634: {
-        server.generateRandomEquipmentsFromAnEntity(
-          npc,
-          "Female",
-          [3, 1, 2, 4, 29, 28, 27, 10, 5]
-        );
-      }
-    }
+    server.generateRandomEquipmentsFromAnEntity(
+      npc,
+      [3, 1, 2, 4, 29, 28, 27, 10, 5]
+    );
   }
   createNpc(
     server: ZoneServer2016,
@@ -148,7 +139,7 @@ export class WorldObjectManager {
     position: Float32Array,
     rotation: Float32Array,
     itemSpawnerId: number = -1
-  ): void {
+  ): ItemObject | undefined {
     if (!item) {
       debug(`[ERROR] Tried to createLootEntity with invalid item object`);
       return;
@@ -170,7 +161,7 @@ export class WorldObjectManager {
       modelId = itemDef.WORLD_MODEL_ID;
     }
     const characterId = generateRandomGuid();
-    server._objects[characterId] = new ItemObject(
+    server._spawnedItems[characterId] = new ItemObject(
       characterId,
       server.getTransientId(characterId),
       modelId,
@@ -180,6 +171,8 @@ export class WorldObjectManager {
       item
     );
     if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;
+    server._spawnedItems[characterId].creationTime = Date.now();
+    return server._spawnedItems[characterId];
   }
 
   createDoor(
@@ -528,14 +521,14 @@ export class WorldObjectManager {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_45Auto.adr":
-        authorizedItems.push({ id: Items.WEAPON_45, count: 1 });
+        authorizedItems.push({ id: Items.WEAPON_1911, count: 1 });
         break;
       case "ItemSpawner_Weapon_M9Auto.adr":
         authorizedItems.push({ id: Items.WEAPON_M9, count: 1 });
         break;
       case "ItemSpawner_AmmoBox02_1911.adr":
         authorizedItems.push({
-          id: Items.AMMO_1911,
+          id: Items.AMMO_45,
           count: randomIntFromInterval(1, 5),
         }); //todo: find item spawner for m9 ammo
         break;
@@ -683,7 +676,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: Items.WATER_EMPTY, count: 1 });
         authorizedItems.push({ id: Items.WATER_PURE, count: 1 });
         authorizedItems.push({
-          id: Items.AMMO_1911,
+          id: Items.AMMO_45,
           count: randomIntFromInterval(1, 5),
         });
         authorizedItems.push({
@@ -748,7 +741,7 @@ export class WorldObjectManager {
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerRare_Tier00.adr":
         authorizedItems.push({
-          id: Items.AMMO_1911,
+          id: Items.AMMO_45,
           count: randomIntFromInterval(1, 8),
         });
         authorizedItems.push({
@@ -781,7 +774,7 @@ export class WorldObjectManager {
           count: randomIntFromInterval(1, 5),
         });
 
-        authorizedItems.push({ id: Items.WEAPON_45, count: 1 });
+        authorizedItems.push({ id: Items.WEAPON_1911, count: 1 });
         authorizedItems.push({ id: Items.WEAPON_M9, count: 1 });
         authorizedItems.push({ id: Items.WEAPON_R380, count: 1 });
         authorizedItems.push({ id: Items.WEAPON_MAGNUM, count: 1 });
@@ -1071,7 +1064,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: Items.FIRST_AID, count: 1 });
         //ammo
         authorizedItems.push({
-          id: Items.AMMO_1911,
+          id: Items.AMMO_45,
           count: randomIntFromInterval(1, 10),
         });
         authorizedItems.push({

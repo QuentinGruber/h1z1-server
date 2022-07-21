@@ -43,6 +43,7 @@ export const equipmentPackets: any = [
           defaultValue: [],
           fields: attachmentSchema,
         },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
       ],
     },
   ],

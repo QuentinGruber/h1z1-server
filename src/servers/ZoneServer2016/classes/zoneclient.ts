@@ -28,13 +28,8 @@ export class ZoneClient2016 {
   spawnedEntities: any[] = [];
   managedObjects: string[] = [];
   vehicle: {
-    falling: number;
     mountedVehicle?: string;
-    mountedVehicleType?: string;
-    mountedVehicleSeat?: number;
-    vehicleState: number;
-    vehicleSeat: number;
-  };
+  } = {};
   npcsToSpawnTimer!: NodeJS.Timeout;
   loginSessionId: string;
   pingTimer: NodeJS.Timeout | undefined;
@@ -56,11 +51,6 @@ export class ZoneClient2016 {
     this.isLoading = true;
     this.firstLoading = true;
     this.loginSessionId = loginSessionId;
-    this.vehicle = {
-      vehicleState: 0,
-      falling: -1,
-      vehicleSeat: 0,
-    };
     this.spawnedEntities = [];
     this.managedObjects = [];
     this.clearTimers = () => {

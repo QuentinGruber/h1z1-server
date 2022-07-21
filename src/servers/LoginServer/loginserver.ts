@@ -185,7 +185,7 @@ export class LoginServer extends EventEmitter {
                 await this.CharacterCreateRequest(client, packet.result);
                 break;
               case "TunnelAppPacketClientToServer": // only used for nameValidation rn
-                this.TunnelAppPacketClientToServer(client, packet);
+                await this.TunnelAppPacketClientToServer(client, packet);
                 break;
               case "Logout":
                 this.Logout(client);
@@ -196,7 +196,7 @@ export class LoginServer extends EventEmitter {
           }
         } catch (error) {
           console.log(error);
-          process.exit(1);
+          process.exitCode = 1;
         }
       }
     );
@@ -450,16 +450,43 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  TunnelAppPacketClientToServer(client: Client, packet: any) {
+  async TunnelAppPacketClientToServer(client: Client, packet: any) {
     const baseResponse = { serverId: packet.serverId };
     let response;
     switch (packet.subPacketName) {
       case "nameValidationRequest":
+        let status = 1;
+        const characterName = packet.result.characterName;
+        if (!this._soloMode) {
+          const blackListedEntry = await this._db
+            .collection("blackListEntries")
+            .findOne({
+              WORD: characterName.toUpperCase(),
+            });
+          if (blackListedEntry) {
+            if (blackListedEntry.FILTER_TYPE === 3) {
+              status = 5;
+            } else {
+              status = 4;
+            }
+          } else {
+            const duplicateCharacter = await this._db
+              .collection("characters-light")
+              .findOne({
+                "payload.name": characterName,
+                serverId: baseResponse.serverId,
+                status: 1,
+              });
+            if (duplicateCharacter) {
+              status = 2;
+            }
+          }
+        }
         response = {
           ...baseResponse,
           subPacketOpcode: 0x02,
-          firstName: packet.result.characterName,
-          status: 1,
+          firstName: characterName,
+          status: status,
         };
         break;
       default:
@@ -542,12 +569,16 @@ export class LoginServer extends EventEmitter {
         server.allowedAccess &&
         !Object.values(this._zoneConnections).includes(server.serverId)
       ) {
-        await this._db
-          .collection("servers")
-          .updateOne(
-            { serverId: server.serverId },
-            { $set: { allowedAccess: false } }
-          );
+        await this._db.collection("servers").updateOne(
+          { serverId: server.serverId },
+          {
+            $set: {
+              allowedAccess: false,
+              populationNumber: 0,
+              populationLevel: 0,
+            },
+          }
+        );
       }
     }
   }
@@ -1008,7 +1039,7 @@ export class LoginServer extends EventEmitter {
   }
   stop(): void {
     debug("Shutting down");
-    process.exit(0);
+    process.exitCode = 0;
   }
 }
 

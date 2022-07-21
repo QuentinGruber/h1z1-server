@@ -10,12 +10,13 @@ loginServer.start().then(() => {
     "mongodb://localhost:27017/",
     1
   );
+  //@ts-ignore
   zoneServer._gatewayServer._crcLength = 2;
   zoneServer._loginServerInfo.address = "127.0.0.1";
 
   zoneServer.start().then(() => {
     setTimeout(() => {
-      var client = new LoginClient(
+      const client = new LoginClient(
         295110,
         "dev",
         "127.0.0.1",

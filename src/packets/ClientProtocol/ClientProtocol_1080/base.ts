@@ -18,6 +18,7 @@ import {
   currencySchema,
   effectTagsSchema,
   equipmentSlotSchema,
+  firemodesSchema,
   fullNpcSchema,
   fullPcSchema,
   itemSchema,
@@ -32,15 +33,18 @@ import {
   readPositionUpdateData,
   readUnsignedIntWith2bitLengthValue,
   recipeData,
+  packItemWeaponData,
 } from "./shared";
 import {
   achievementSchema,
   identitySchema,
+  //profileSchema,
   profileSchema,
   rewardBundleSchema,
   skyData,
   statSchema,
 } from "./shared";
+import { packWeaponPacket, parseWeaponPacket } from "./weapon";
 
 export const basePackets: any = [
   ["Server", 0x01, {}],
@@ -66,8 +70,8 @@ export const basePackets: any = [
             { name: "actorModelId", type: "uint32", defaultValue: 0 },
             { name: "headActor", type: "string", defaultValue: "" },
             { name: "hairModel", type: "string", defaultValue: "" },
-            { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+            { name: "hairTint", type: "uint32", defaultValue: 0 },
+            { name: "eyeTint", type: "uint32", defaultValue: 0 },
             { name: "emptyTexture", type: "string", defaultValue: "" },
             { name: "unknownString3", type: "string", defaultValue: "" },
             { name: "unknownString4", type: "string", defaultValue: "" },
@@ -139,10 +143,11 @@ export const basePackets: any = [
                   fields: [
                     ...itemSchema,
                     {
-                      name: "unknownBoolean2",
-                      type: "boolean",
-                      defaultValue: false,
-                    }, // detail bool?
+                      name: "unknownData1",
+                      type: "custom",
+                      defaultValue: {},
+                      packer: packItemWeaponData,
+                    },
                   ],
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -476,24 +481,18 @@ export const basePackets: any = [
               ],
             },
             { name: "unknownDword33", type: "uint32", defaultValue: 0 },
-
             {
-              name: "unknownArray15",
+              name: "FIRE_MODES_1",
               type: "array",
               defaultValue: [],
-              fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              ],
+              fields: firemodesSchema,
             },
             {
-              name: "unknownArray16",
+              name: "FIRE_MODES_2",
               type: "array",
               defaultValue: [],
-              fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              ],
+              fields: firemodesSchema,
             },
-
             {
               name: "unknownArray17",
               type: "array",
@@ -1284,7 +1283,7 @@ export const basePackets: any = [
               ],
             },
             {
-              name: "unknownArray24", // equipment probably
+              name: "equipmentSlots", // equipment probably
               type: "array",
               defaultValue: [],
               fields: [
@@ -2319,7 +2318,6 @@ export const basePackets: any = [
   ],
   ["ClientLogout", 0x07, {}],
   ["TargetClientNotOnline", 0x08, {}],
-
   [
     "ClientBeginZoning",
     0x0b,
@@ -2331,20 +2329,18 @@ export const basePackets: any = [
         { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
         { name: "skyData", type: "schema", fields: skyData },
         // this byte breaks it for some reason (TODO)
-        //{ name: "unknownByte1", type: "uint8", defaultValue: 5 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 5 },
         { name: "zoneId1", type: "uint32", defaultValue: 5 },
-        { name: "zoneId2", type: "uint32", defaultValue: 5 },
-        { name: "nameId", type: "uint32", defaultValue: 1 },
-        { name: "unknownDword10", type: "uint32", defaultValue: 21205 },
+        { name: "zoneId2", type: "uint32", defaultValue: 0 },
+        { name: "nameId", type: "uint32", defaultValue: 7699 },
+        { name: "unknownDword10", type: "uint32", defaultValue: 674234378 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: true },
-        { name: "unknownBoolean2", type: "boolean", defaultValue: true },
+        { name: "waitForZoneReady", type: "boolean", defaultValue: false },
         { name: "unknownBoolean3", type: "boolean", defaultValue: true },
       ],
     },
   ],
-
   ["Mail", 0x0e, {}],
-
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
   ["Ability.ClientRequestStopAbility", 0x1002, {}],
   ["Ability.ClientMoveAndCast", 0x1003, {}],
@@ -2386,12 +2382,11 @@ export const basePackets: any = [
         { name: "zoneId2", type: "uint32", defaultValue: 0 },
         { name: "nameId", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean2", type: "boolean", defaultValue: false },
-        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "lighting", type: "string", defaultValue: "" },
         { name: "unknownBoolean3", type: "boolean", defaultValue: false },
       ],
     },
   ],
-
   ["Objective", 0x18, {}],
   ["Debug", 0x19, {}],
 
@@ -2625,13 +2620,13 @@ export const basePackets: any = [
       fields: [
         { name: "Unknown2", type: "uint32", defaultValue: 0 },
         { name: "interactGlowAndDist", type: "uint32", defaultValue: 3 }, // client doesnt send interactionstring by distance but still sends interactrequest
-        { name: "unknownBoolean1", type: "boolean", defaultValue: 0 },
-        { name: "timescale", type: "float", defaultValue: 2.0 },
-        { name: "Unknown4", type: "uint32", defaultValue: 0 },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        { name: "timescale", type: "float", defaultValue: 1.0 },
+        { name: "enableWeapons", type: "uint32", defaultValue: 0 },
         { name: "Unknown5", type: "uint32", defaultValue: 0 },
         { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
         { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
-        { name: "velDamageMulti", type: "float", defaultValue: 1.0 }, // 0 = crash
+        { name: "damageMultiplier", type: "float", defaultValue: 1.0 }, // 0 = crash
       ],
     },
   ],
@@ -2707,8 +2702,46 @@ export const basePackets: any = [
     0x6f,
     {
       fields: [
-        { name: "environment", type: "string", defaultValue: "" },
-        { name: "serverId", type: "uint32", defaultValue: 0 },
+        { name: "ENVIRONMENT", type: "string", defaultValue: "" },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        {
+          name: "rulesetDefinitions",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+            { name: "ruleset", type: "string", defaultValue: "" },
+            { name: "unknownString2", type: "string", defaultValue: "" },
+            {
+              name: "rulesets",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                { name: "ID", type: "uint32", defaultValue: 0 },
+                {
+                  name: "DATA",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: [
+                    { name: "ID", type: "uint32", defaultValue: 0 },
+                    { name: "RULESET_ID", type: "uint32", defaultValue: 0 },
+                    {
+                      name: "CONTENT_PACK_ID",
+                      type: "uint32",
+                      defaultValue: 0,
+                    },
+                    {
+                      name: "CONTENT_PACK_ACTION_ID",
+                      type: "uint32",
+                      defaultValue: 0,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
       ],
     },
   ],
@@ -2753,8 +2786,21 @@ export const basePackets: any = [
   ["Target", 0x7e, {}],
   ["GuideStone", 0x80, {}],
   ["Raid", 0x81, {}],
+  [
+    "Weapon.Weapon",
+    0x8300,
+    {
+      fields: [
+        {
+          name: "weaponPacket",
+          type: "custom",
+          parser: parseWeaponPacket,
+          packer: packWeaponPacket,
+        },
+      ],
+    },
+  ],
   ["MatchSchedule", 0x84, {}],
-
   ["Grief", 0x8a, {}],
   ["SpotPlayer", 0x8b, {}],
   ["Faction", 0x8c, {}],

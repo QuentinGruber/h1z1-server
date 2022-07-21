@@ -79,7 +79,7 @@ const hax: any = {
       return;
     }
     const wasAlreadyGod = client.character.godMode;
-    client.character.godMode = true;
+    server.setGodMode(client, true);
     const characterId = server.generateGuid();
     const vehicleData = new Vehicle2016(
       characterId,
@@ -97,10 +97,11 @@ const hax: any = {
       server.assignManagedObject(client, vehicleData);
       client.vehicle.mountedVehicle = characterId;
       setTimeout(() => {
-        client.character.godMode = wasAlreadyGod;
+        server.setGodMode(client, wasAlreadyGod);
       }, 1000);
     };
     server.worldObjectManager.createVehicle(server, vehicleData);
+    client.character.ownedVehicle = vehicleData.characterId;
   },
   titan: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendDataToAll("Character.UpdateScale", {
@@ -181,7 +182,7 @@ const hax: any = {
     client.spawnedEntities = [];
     server._props = {};
     server._npcs = {};
-    server._objects = {};
+    server._spawnedItems = {};
     server._vehicles = {};
     server._doors = {};
     server.sendChatText(client, "Objects removed from the game.", true);
@@ -285,6 +286,13 @@ const hax: any = {
   realtime: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.removeForcedTime();
     server.sendChatText(client, "Game time is now based on real time", true);
+  },
+  fog: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      "Fog has been toggled ".concat(server.toggleFog() ? "ON" : "OFF"),
+      true
+    );
   },
   spamied: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[2]) {
@@ -390,6 +398,7 @@ const hax: any = {
       server.getGameTime()
     );
     server.worldObjectManager.createVehicle(server, vehicle);
+    client.character.ownedVehicle = vehicle.characterId;
   },
   dynamicweather: async function (
     server: ZoneServer2016,
@@ -570,14 +579,22 @@ const hax: any = {
       client.character.state.lookAt,
       server.getGameTime()
     );
-    vehicle.isManaged = true;
-    vehicle.onReadyCallback = () => {
-      // doing anything with vehicle before client gets fullvehicle packet breaks it
-      server.mountVehicle(client, characterId);
-      // todo: when vehicle takeover function works, delete assignManagedObject call
-      server.assignManagedObject(client, vehicle);
-    };
     server.worldObjectManager.createVehicle(server, vehicle);
+    server.sendData(client, "AddLightweightVehicle", {
+      ...vehicle,
+      npcData: {
+        ...vehicle,
+        ...vehicle.state,
+        actorModelId: vehicle.actorModelId,
+      },
+    });
+    server.sendData(
+      client,
+      "LightweightToFullVehicle",
+      vehicle.pGetFullVehicle()
+    );
+    server.mountVehicle(client, characterId);
+    server.assignManagedObject(client, vehicle);
   },
   additem: function (server: ZoneServer2016, client: Client, args: any[]) {
     const itemDefId = Number(args[1]),
@@ -616,6 +633,28 @@ const hax: any = {
           ));
       server.updateEquipmentSlot(client, 3);
     }
+  },
+  lighting: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if (!args[1]) {
+      server.sendChatText(client, "[ERROR] Missing lighting file.");
+      return;
+    }
+
+    server.sendData(client, "SendZoneDetails", {
+      zoneName: "Z1",
+      zoneType: 4,
+      unknownBoolean1: false,
+      skyData: server._weather2016,
+      zoneId1: 5,
+      zoneId2: 5,
+      nameId: 7699,
+      unknownBoolean2: true,
+      lighting: args[1],
+      unknownBoolean3: false,
+    });
+  },
+  kit: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.giveKitItems(client);
   },
   /*
   addallitems: function (server: ZoneServer2016, client: Client, args: any[]) {

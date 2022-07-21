@@ -5,6 +5,7 @@ const zoneServer = new ZoneServer(
   1117,
   Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
 );
+//@ts-ignore
 zoneServer._gatewayServer._crcLength = 2;
 zoneServer.start();
 

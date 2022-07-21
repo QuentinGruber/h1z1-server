@@ -456,6 +456,10 @@ export interface characterEquipment {
   decalAlias?: string;
 }
 
+export interface weaponItem {
+  ammoCount: number;
+}
+
 export interface inventoryItem {
   itemDefinitionId: number;
   slotId: number;
@@ -463,6 +467,7 @@ export interface inventoryItem {
   containerGuid: string;
   currentDurability: number;
   stackCount: number;
+  weapon?: weaponItem;
 }
 
 export interface loadoutItem extends inventoryItem {
@@ -657,6 +662,24 @@ export interface Weather2016 {
   AOGamma: number;
   AOBlackpoint: number;
   unknownDword33: number;
+}
+
+export interface DamageRecord {
+  source: {
+    name: string;
+  };
+  target: {
+    name: string;
+  };
+  hitInfo: {
+    timestamp: number;
+    weapon: string;
+    distance: string;
+    hitLocation: string;
+    hitPosition: Float32Array;
+    oldHP: number;
+    newHP: number;
+  };
 }
 
 export interface SoeServer {

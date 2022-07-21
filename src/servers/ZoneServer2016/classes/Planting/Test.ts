@@ -732,10 +732,10 @@ export namespace NormanTest {
           );
           if (!tItem || !tItem.characterId) return;
           tItem.scale = new Float32Array([4, 4, 4, 1]);
-          server._objects[tItem.characterId] = tItem;
+          server._spawnedItems[tItem.characterId] = tItem;
           const change = function (newModelId: number) {
             server.sendDataToAllWithSpawnedEntity(
-              server._objects,
+              server._spawnedItems,
               tItem.characterId,
               // tItem.characterId,
               "Character.UpdateScale",
@@ -745,7 +745,7 @@ export namespace NormanTest {
               }
             );
             server.sendDataToAllWithSpawnedEntity(
-              server._objects,
+              server._spawnedItems,
               tItem.characterId,
               // tItem.characterId,
               "Character.ReplaceBaseModel",
