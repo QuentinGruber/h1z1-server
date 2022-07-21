@@ -4177,7 +4177,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.lootContainerItem(client, this.generateItem(1804), 1, sendPacket); // flare
     this.lootContainerItem(client, this.generateItem(1436), 1, sendPacket); // lighter
   }
-
+  //
   giveKitItems(client: Client) {
     this.lootItem(client, this.generateItem(Items.WEAPON_308), 1); // sniper
     this.lootItem(client, this.generateItem(Items.WEAPON_SHOTGUN), 1); // shotgun
