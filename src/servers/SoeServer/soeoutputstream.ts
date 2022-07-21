@@ -101,9 +101,7 @@ export class SOEOutputStream extends EventEmitter {
       );
     } else {
       // already deleted from cache so already acknowledged by the client not a real issue
-      debug(
-        `Cache error, could not resend data for sequence ${sequence}! ` 
-      );
+      debug(`Cache error, could not resend data for sequence ${sequence}! `);
     }
   }
 

@@ -239,14 +239,14 @@ export class Character2016 extends BaseFullCharacter {
       }, 3000);
     };
   }
-  clearReloadTimeout(){
-    if(this.reloadTimer) clearTimeout(this.reloadTimer)
+  clearReloadTimeout() {
+    if (this.reloadTimer) clearTimeout(this.reloadTimer);
     this.reloadTimer = undefined;
   }
-  addCombatlogEntry(entry: DamageRecord){
+  addCombatlogEntry(entry: DamageRecord) {
     this.combatlog.push(entry);
-    if(this.combatlog.length > 10) {
-      this.combatlog.shift()
+    if (this.combatlog.length > 10) {
+      this.combatlog.shift();
     }
   }
   getCombatLog() {
@@ -257,8 +257,8 @@ export class Character2016 extends BaseFullCharacter {
       ...super.pGetLightweight(),
       rotation: this.state.lookAt,
       identity: {
-        characterName: this.name
-      }
+        characterName: this.name,
+      },
     };
   }
 }

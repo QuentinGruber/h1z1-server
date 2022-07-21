@@ -98,7 +98,7 @@ export class DoorEntity extends BaseLightweightCharacter {
     knockedOut: 0,
     bit22: 0,
     bit23: 0,
-  }
+  };
   spawnerId: number;
   npcRenderDistance = 150;
   openAngle: number;

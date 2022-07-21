@@ -101,72 +101,63 @@ const admin: any = {
       `Vehicle respawn timer set to ${Number(args[1])}`
     );
   },
-  god: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
+  god: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.setGodMode(client, !client.character.godMode);
-    server.sendAlert(client, `Set godmode to ${client.character.godMode}`)
+    server.sendAlert(client, `Set godmode to ${client.character.godMode}`);
   },
-  alert: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
-    args.shift()
+  alert: function (server: ZoneServer2016, client: Client, args: any[]) {
+    args.shift();
     server.sendAlertToAll(args.join(" "));
   },
-  remover: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
-    server.lootItem(client, server.generateItem(1776), 1)
+  remover: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.lootItem(client, server.generateItem(1776), 1);
   },
-  players: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
-    server.sendChatText(client, `Players: ${
-      Object.values(server._clients).map((c)=> {return `${c.character.name}: ${c.loginSessionId}`}).join(", ")}`)
+  players: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendChatText(
+      client,
+      `Players: ${Object.values(server._clients)
+        .map((c) => {
+          return `${c.character.name}: ${c.loginSessionId}`;
+        })
+        .join(", ")}`
+    );
   },
-  kick: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: any[]
-  ) {
-    if(!args[1]) {
-      server.sendChatText(client, "Missing guid (use /admin players)")
+  kick: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if (!args[1]) {
+      server.sendChatText(client, "Missing guid (use /admin players)");
       return;
     }
     const targetClient = Object.values(server._clients).find((c) => {
-      if(c.loginSessionId == args[1] ||
-        c.loginSessionId == args[1].slice(2)) {// in case "0x" is included
-          return c;
-        }
-    })
-    if(!targetClient) {
+      if (c.loginSessionId == args[1] || c.loginSessionId == args[1].slice(2)) {
+        // in case "0x" is included
+        return c;
+      }
+    });
+    if (!targetClient) {
       server.sendChatText(client, "Client not found.");
       return;
     }
-    const reason = args[2]?args.slice(2).join(" "):"Undefined";
-    for(let i = 0; i<5; i++) {
-      server.sendAlert(targetClient, `You are being kicked from the server. Reason: ${reason}`);
+    const reason = args[2] ? args.slice(2).join(" ") : "Undefined";
+    for (let i = 0; i < 5; i++) {
+      server.sendAlert(
+        targetClient,
+        `You are being kicked from the server. Reason: ${reason}`
+      );
     }
-    
+
     setTimeout(() => {
-      if(!targetClient) {
+      if (!targetClient) {
         return;
       }
-      server.sendGlobalChatText(`${targetClient.character.name} has been kicked from the server!`);
+      server.sendGlobalChatText(
+        `${targetClient.character.name} has been kicked from the server!`
+      );
       server.sendData(targetClient, "CharacterSelectSessionResponse", {
         status: 1,
         sessionId: targetClient.loginSessionId,
       });
     }, 2000);
-  }
+  },
 };
 
 export default admin;

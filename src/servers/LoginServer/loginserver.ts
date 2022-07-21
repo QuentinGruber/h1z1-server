@@ -457,23 +457,27 @@ export class LoginServer extends EventEmitter {
       case "nameValidationRequest":
         let status = 1;
         const characterName = packet.result.characterName;
-        if(!this._soloMode) {
-          const blackListedEntry = await this._db.collection("blackListEntries").findOne({
-            WORD: characterName.toUpperCase()
-          });
-          if(blackListedEntry){
-            if(blackListedEntry.FILTER_TYPE === 3){
+        if (!this._soloMode) {
+          const blackListedEntry = await this._db
+            .collection("blackListEntries")
+            .findOne({
+              WORD: characterName.toUpperCase(),
+            });
+          if (blackListedEntry) {
+            if (blackListedEntry.FILTER_TYPE === 3) {
               status = 5;
-            }
-            else{
+            } else {
               status = 4;
             }
-          }
-          else{
+          } else {
             const duplicateCharacter = await this._db
-            .collection("characters-light")
-            .findOne({ "payload.name":characterName, serverId: baseResponse.serverId, status: 1 });
-            if(duplicateCharacter) {
+              .collection("characters-light")
+              .findOne({
+                "payload.name": characterName,
+                serverId: baseResponse.serverId,
+                status: 1,
+              });
+            if (duplicateCharacter) {
               status = 2;
             }
           }
@@ -565,12 +569,16 @@ export class LoginServer extends EventEmitter {
         server.allowedAccess &&
         !Object.values(this._zoneConnections).includes(server.serverId)
       ) {
-        await this._db
-          .collection("servers")
-          .updateOne(
-            { serverId: server.serverId },
-            { $set: { allowedAccess: false, populationNumber: 0, populationLevel: 0 } }
-          );
+        await this._db.collection("servers").updateOne(
+          { serverId: server.serverId },
+          {
+            $set: {
+              allowedAccess: false,
+              populationNumber: 0,
+              populationLevel: 0,
+            },
+          }
+        );
       }
     }
   }

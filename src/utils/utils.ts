@@ -344,10 +344,10 @@ export const getPacketTypeBytes = function (packetType: number): number[] {
   for (let i = 0; i < 4; i++) {
     packetTypeBytes.unshift(packetType & 0xff);
     packetType = packetType >>> 8;
-    if(packetType <= 0) {
+    if (packetType <= 0) {
       break;
     }
-  }  
+  }
   return packetTypeBytes;
 };
 
@@ -436,7 +436,11 @@ export const getRandomKeyFromAnObject = (object: any): string => {
   return keys[Math.floor(Math.random() * keys.length)];
 };
 
-export function calculateDamageDistFallOff(distance: number, damage: number, range: number) {
+export function calculateDamageDistFallOff(
+  distance: number,
+  damage: number,
+  range: number
+) {
   //return damage / (distance * range);
-  return damage * Math.pow(range,distance/10)
+  return damage * Math.pow(range, distance / 10);
 }

@@ -774,8 +774,6 @@ export const itemSchema = [
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
 ];
 
-
-
 export const identitySchema = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1071,7 +1069,7 @@ export function packItemWeaponData(obj: any) {
       type: "schema",
       defaultValue: {},
       fields: [
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
       ],
     },
     {
@@ -1083,9 +1081,7 @@ export function packItemWeaponData(obj: any) {
           name: "ammoSlots",
           type: "array",
           defaultValue: [],
-          fields: [
-            { name: "ammoSlot", type: "uint32", defaultValue: 0 },
-          ],
+          fields: [{ name: "ammoSlot", type: "uint32", defaultValue: 0 }],
         },
         {
           name: "firegroups",
@@ -1170,16 +1166,13 @@ export function packItemWeaponData(obj: any) {
     },
   ];
 
-  if(!obj["isWeapon"]) {
+  if (!obj["isWeapon"]) {
     return DataSchema.pack(
       [{ name: "unknownBoolean1", type: "boolean", defaultValue: false }],
       obj
-    ).data
+    ).data;
   }
-  return DataSchema.pack(
-    unknownData1Schema,
-    obj
-  ).data
+  return DataSchema.pack(unknownData1Schema, obj).data;
 }
 
 export const currencySchema = [
@@ -1474,7 +1467,7 @@ export const remoteWeaponSchema = [
       },
     ],
   },
-]
+];
 
 export const fullNpcSchema = [
   {
@@ -1811,8 +1804,8 @@ export const fullNpcSchema = [
         defaultValue: [],
         fields: [
           { name: "guid", type: "uint64string", defaultValue: "" },
-          ...remoteWeaponSchema
-        ]
+          ...remoteWeaponSchema,
+        ],
       },
     ],
   },
@@ -2174,8 +2167,8 @@ export const fullPcSchema = [
             defaultValue: [],
             fields: [
               { name: "guid", type: "uint64string", defaultValue: "" },
-              ...remoteWeaponSchema
-            ]
+              ...remoteWeaponSchema,
+            ],
           },
         ],
       },
@@ -2494,16 +2487,19 @@ export const firemodesSchema = [
 
 export function packTargetData(obj: any) {
   const data = Buffer.alloc(1);
-  data.writeUInt8(obj["useTargetData"]?1:0, 0);
-  if(obj["useTargetData"]) {
-    const targetData = DataSchema.pack([
-      {
-        name: "position",
-        type: "floatvector4",
-        defaultValue: [0, 0, 0, 0],
-      },
-      { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
-    ], data)
+  data.writeUInt8(obj["useTargetData"] ? 1 : 0, 0);
+  if (obj["useTargetData"]) {
+    const targetData = DataSchema.pack(
+      [
+        {
+          name: "position",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0],
+        },
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+      ],
+      data
+    );
     return Buffer.concat([data, targetData.data]);
   }
   return data;

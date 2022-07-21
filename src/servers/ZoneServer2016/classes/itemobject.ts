@@ -43,7 +43,7 @@ export class ItemObject extends BaseLightweightCharacter {
     knockedOut: 0,
     bit22: 0,
     bit23: 0,
-  }
+  };
   creationTime: number = 0;
   constructor(
     characterId: string,
