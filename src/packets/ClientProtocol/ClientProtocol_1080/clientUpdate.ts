@@ -74,7 +74,14 @@ export const clientUpdatePackets: any = [
     "ClientUpdate.UpdateStat",
     0x110500,
     {
-      fields: statSchema,
+      fields: [
+        {
+          name: "stats",
+          type: "array",
+          defaultValue: [],
+          fields: statSchema,
+        },
+      ],
     },
   ],
   ["ClientUpdate.CollectionStart", 0x110600, {}],

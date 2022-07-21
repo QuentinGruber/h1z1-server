@@ -152,8 +152,22 @@ export class zonePacketHandlers {
           profiles: profileDefinitions
         }
       });
-
+      
       server.sendData(client, "Abilities.SetActivatableAbilityManager", abilities);
+      server.sendData(client, "ClientUpdate.UpdateStat", {
+        stats: [
+          {
+            statId: 5,
+            statValue: {
+                type: 1,
+                value: {
+                    base: 1.3,
+                    modifier: 0.16
+                }
+            }
+          }
+        ]
+      })
 
       /*
         server.sendData(client, "Loadout.SetCurrentLoadout", {
