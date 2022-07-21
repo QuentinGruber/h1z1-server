@@ -163,7 +163,7 @@ const admin: any = {
       server.sendGlobalChatText(`${targetClient.character.name} has been kicked from the server!`);
       server.sendData(targetClient, "CharacterSelectSessionResponse", {
         status: 1,
-        sessionId: client.loginSessionId,
+        sessionId: targetClient.loginSessionId,
       });
     }, 2000);
   }
