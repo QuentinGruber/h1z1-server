@@ -55,6 +55,8 @@ export class Character2016 extends BaseFullCharacter {
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
   reloadTimer?: NodeJS.Timeout | undefined = undefined;
+  tempGodMode = false;
+  isSpectator = false;
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;

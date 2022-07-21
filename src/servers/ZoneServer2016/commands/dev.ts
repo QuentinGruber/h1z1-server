@@ -525,7 +525,7 @@ const dev: any = {
       ];
       */
     server._npcs[objectCharacterId] = npc; // save npc
-    server.spawnNpcs(client);
+    //server.spawnNpcs(client);
     setTimeout(() => {
       /*
       server.sendData(client, "Container.InitEquippedContainers", {
