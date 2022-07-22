@@ -17,6 +17,7 @@ const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
+const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
   _,
   eul2quat,
@@ -24,12 +25,12 @@ import {
   isPosInRadius,
   randomIntFromInterval,
 } from "../../../utils/utils";
-import { Items } from "../enums";
+import { EquimentSlots, Items } from "../enums";
 import { Vehicle2016 } from "./../classes/vehicle";
 import { inventoryItem } from "types/zoneserver";
 import { ItemObject } from "./itemobject";
 import { DoorEntity } from "./doorentity";
-import { Npc } from "./npc";
+import { Zombie } from "./zombie";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {
@@ -106,13 +107,14 @@ export class WorldObjectManager {
       this.lastVehicleRespawnTime = Date.now();
     }
   }
-  equipRandomSkins(server: ZoneServer2016, npc: Npc): void {
+  equipRandomSkins(server: ZoneServer2016, npc: Zombie,excludedModels: string[] = []): void {
     server.generateRandomEquipmentsFromAnEntity(
       npc,
-      [3, 1, 2, 4, 29, 28, 27, 10, 5]
+      [EquimentSlots.HEAD, EquimentSlots.CHEST, EquimentSlots.LEGS, EquimentSlots.HANDS, EquimentSlots.FEET, EquimentSlots.HAIR],
+      excludedModels
     );
   }
-  createNpc(
+  createZombie(
     server: ZoneServer2016,
     modelId: number,
     position: Float32Array,
@@ -120,7 +122,7 @@ export class WorldObjectManager {
     spawnerId: number = 0
   ) {
     const characterId = generateRandomGuid();
-    const npc = new Npc(
+    const zombie = new Zombie(
       characterId,
       server.getTransientId(characterId),
       modelId,
@@ -128,8 +130,8 @@ export class WorldObjectManager {
       rotation,
       spawnerId
     );
-    this.equipRandomSkins(server, npc);
-    server._npcs[characterId] = npc;
+    this.equipRandomSkins(server, zombie,bannedZombieModels);
+    server._npcs[characterId] = zombie;
     if (spawnerId) this._spawnedNpcs[spawnerId] = characterId;
   }
 
@@ -278,7 +280,7 @@ export class WorldObjectManager {
       if (!authorizedModelId.length) return;
       spawnerType.instances.forEach((npcInstance: any) => {
         let spawn = true;
-        Object.values(server._npcs).every((spawnedNpc: Npc) => {
+        Object.values(server._npcs).every((spawnedNpc: Zombie) => {
           if (
             isPosInRadius(
               this.npcSpawnRadius,
@@ -298,7 +300,7 @@ export class WorldObjectManager {
           if (screamerChance <= this.chanceScreamer) {
             authorizedModelId.push(9667);
           }
-          this.createNpc(
+          this.createZombie(
             server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
