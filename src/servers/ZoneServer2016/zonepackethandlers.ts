@@ -324,12 +324,12 @@ export class zonePacketHandlers {
         return
       }
       const ping = toInt(currentTime - client.lastKeepAliveTime - timeDelay);
+      client.lastKeepAliveTime = Date.now();
       client.pings.push(ping)
       if(client.pings.length > AVG_PING_SECS) {
         client.pings.shift()
       }
       client.avgPing = toInt(_.sum(client.pings) / client.pings.length)
-      client.lastKeepAliveTime = Date.now();
     };
     this.clientUpdateMonitorTimeDrift = function (
       server: ZoneServer2016,
