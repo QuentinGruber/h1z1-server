@@ -41,7 +41,7 @@ function getSchemaBody(schema: any) {
       bodyInterfaceString += "}\n";
     } else {
       const type = typeMap[element.type];
-      const isOptionnal = element.defaultValue;
+      const isOptionnal = element.defaultValue !== undefined;
       bodyInterfaceString += `  ${element.name}${isOptionnal ? "?" : ""}: ${
         type || "any"
       };\n`;
