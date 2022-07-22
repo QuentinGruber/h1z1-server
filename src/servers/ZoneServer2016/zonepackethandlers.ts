@@ -1197,10 +1197,11 @@ export class zonePacketHandlers {
       }
       server.sendData(client, "Command.ItemDefinitionReply", {
         data: {
-          ID: packet.data.ID,
+          ID: itemDef.ID,
           definitionData: {
             ...itemDef,
             HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+            ITEM_TYPE_1: itemDef.ITEM_TYPE,
             flags1: {
               ...itemDef,
             },
@@ -1211,6 +1212,10 @@ export class zonePacketHandlers {
           },
         },
       });
+      if(server.isContainer(itemDef.ID)) {
+        // Fixes containers missing an itemdefinition not showing in inventory
+        server.updateLoadout(client);
+      }
     };
     this.characterWeaponStance = function (
       server: ZoneServer2016,

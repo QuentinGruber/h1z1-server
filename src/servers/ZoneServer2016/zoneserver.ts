@@ -3577,6 +3577,10 @@ export class ZoneServer2016 extends EventEmitter {
     return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 20;
   }
 
+  isContainer(itemDefinitionId: number): boolean {
+    return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 34;
+  }
+
   isArmor(itemDefinitionId: number): boolean {
     return (
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12073 ||
