@@ -18,6 +18,21 @@ export enum LoadoutSlots {
   ARMOR = 38,
 }
 
+export enum EquimentSlots {
+  WEAPON = 0,
+  HEAD = 1,
+  HANDS = 2,
+  CHEST = 3,
+  LEGS = 4,
+  FEET = 5,
+  BACKPACK = 10,
+  HAIR = 27,
+  FACE = 28,
+  EYES = 29,
+  ARMOR = 100,
+  KATANA = 107,
+}
+
 export enum EntityTypes {
   INVALID = 0,
   NPC = 1,

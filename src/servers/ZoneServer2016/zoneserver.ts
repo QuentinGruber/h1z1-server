@@ -97,7 +97,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
-  equipmentModelTexturesMapping = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
+  equipmentModelTexturesMapping: Record<string,Record<string,string[]>> = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 @healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
@@ -3424,18 +3424,27 @@ export class ZoneServer2016 extends EventEmitter {
 
   generateRandomEquipmentsFromAnEntity(
     entity: BaseFullCharacter,
-    slots: number[]
+    slots: number[],
+    excludedModels: string[] = []
   ) {
     slots.forEach((slot) => {
       entity._equipment[slot] = this.generateRandomEquipmentForSlot(
         slot,
-        entity.gender
+        entity.gender,
+        excludedModels
       );
     });
   }
 
-  generateRandomEquipmentForSlot(slotId: number, gender: number) {
+  generateRandomEquipmentForSlot(slotId: number, gender: number, excludedModels: string[] = []) {
     const models = equipmentModelTexturesMapping[slotId];
+    if(excludedModels.length){
+      for (const model in models) {
+        if(excludedModels.includes(model)){
+          delete models[model];
+        }
+      }
+    }
     const model = getRandomKeyFromAnObject(models);
     const skins = equipmentModelTexturesMapping[slotId][model];
     let skin;

@@ -294,6 +294,52 @@ const hax: any = {
       true
     );
   },
+  spamzombies: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if (!args[2]) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax spamzombies [RANGE] [POINTS]"
+      );
+      return;
+    }
+    const multiplied = Number(args[1]) * Number(args[2]);
+    if (multiplied > 600) {
+      server.sendChatText(
+        client,
+        `[ERROR]Maximum RANGE * POINTS value reached: ("${multiplied}"/600)`
+      );
+      return;
+    }
+    const range = Number(args[1]),
+      lat = client.character.state.position[0],
+      long = client.character.state.position[2];
+    const points = [];
+    let rangeFixed = range;
+    const numberOfPoints = Number(args[2]);
+    const degreesPerPoint = 360 / numberOfPoints;
+    for (let j = 1; j < range; j++) {
+      let currentAngle = 0,
+        x2,
+        y2;
+      rangeFixed += -1;
+      for (let i = 0; i < numberOfPoints; i++) {
+        x2 = Math.cos(currentAngle) * rangeFixed;
+        y2 = Math.sin(currentAngle) * rangeFixed;
+        const p = [lat + x2, long + y2];
+        points.push(p);
+        currentAngle += degreesPerPoint;
+      }
+    }
+    points.forEach((obj: any) => {
+      server.worldObjectManager.createZombie(server,9634,new Float32Array([
+        obj[0],
+        client.character.state.position[1],
+        obj[1],
+        1,
+      ]),
+      client.character.state.lookAt)
+    });
+  },
   spamied: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[2]) {
       server.sendChatText(
