@@ -475,10 +475,10 @@ export class zonePacketHandlers {
                 props
               )} vehicles : ${_.size(vehicles)}`
             );
-            const uptime = new Date(Date.now() - server._startTime);
+            const uptimeMin = ((Date.now() - server._startTime) / 60000) * 60;
             server.sendChatText(
               client,
-              `Uptime: ${uptime.getUTCHours()}h ${uptime.getUTCMinutes()}m`
+              `Uptime: ${uptimeMin<60?`${uptimeMin.toFixed()}m`:`${(uptimeMin/60).toFixed()}h `}`
             );
             break;
           }
