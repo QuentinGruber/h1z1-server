@@ -838,13 +838,7 @@ export class zonePacketHandlers {
             client.posAtLogoutStart
           )
         ) {
-          clearTimeout(client.hudTimer);
-          client.hudTimer = null;
-          client.isInteracting = false;
-          server.sendData(client, "ClientUpdate.StartTimer", {
-            stringId: 0,
-            time: 0,
-          }); // don't know how it was done so
+          server.stopHudTimer(client)
         }
       } else if (
         packet.data.vehicle_position &&
@@ -1869,6 +1863,7 @@ export class zonePacketHandlers {
             server.damageItem(client, weaponItem, 2);
             break;
           case "Weapon.Fire":
+            server.stopHudTimer(client);
             weaponItem.weapon.ammoCount -= 1;
             debug("Weapon.Fire");
             /*

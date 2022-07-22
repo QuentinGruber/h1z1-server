@@ -85,6 +85,7 @@ import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
+import { ClientUpdateDeathMetrics } from "types/zone2016packets";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   recipes = require("../../../data/2016/sampleData/recipes.json"),
@@ -1159,12 +1160,23 @@ export class ZoneServer2016 extends EventEmitter {
     };
   }
 
+  sendDeathMetrics(client: Client) {
+    const clientUpdateDeathMetricsPacket:ClientUpdateDeathMetrics = {
+      recipesDiscovered: client.character.metrics.recipesDiscovered,
+      zombiesKilled: client.character.metrics.zombiesKilled,
+      minutesSurvived: (Date.now() - client.character.metrics.startedSurvivingTP) / 60000,
+      wildlifeKilled: client.character.metrics.wildlifeKilled,
+    }
+    this.sendData(client, "ClientUpdate.DeathMetrics",clientUpdateDeathMetricsPacket )
+  }
+
   killCharacter(
     client: Client,
     deathInfo: { client: Client; hitReport: any } | undefined = undefined
   ) {
     const character = client.character;
     if (character.isAlive) {
+      this.sendDeathMetrics(client);
       debug(character.name + " has died");
       if (deathInfo?.client) {
         this.sendAlertToAll(
@@ -1413,7 +1425,17 @@ export class ZoneServer2016 extends EventEmitter {
     }, 1000);
   }
 
+  resetCharacterMetrics(client:Client){
+    client.character.metrics = {
+      zombiesKilled: 0,
+      wildlifeKilled: 0,
+      recipesDiscovered: 0,
+      startedSurvivingTP: Date.now(),
+    }
+  }
+
   async respawnPlayer(client: Client) {
+    this.resetCharacterMetrics(client);
     client.character.isAlive = true;
     client.character.isRunning = false;
     if (client.vehicle.mountedVehicle) {
@@ -1694,11 +1716,12 @@ export class ZoneServer2016 extends EventEmitter {
     this.updateLoadoutItem(client, item);
   }
 
-  npcDamage(characterId: string, damage: number) {
+  npcDamage(client:Client,characterId: string, damage: number) {
     const npc = this._npcs[characterId];
     if ((npc.health -= damage) <= 0) {
       npc.flags.knockedOut = 1;
       npc.deathTime = Date.now();
+      client.character.metrics.zombiesKilled++;
       this.sendDataToAllWithSpawnedEntity(
         this._npcs,
         characterId,
@@ -1793,7 +1816,7 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
         damageEntity = () => {
-          this.npcDamage(characterId, damage);
+          this.npcDamage(client,characterId, damage);
         };
         hitEntity = this._npcs[characterId];
         break;
@@ -4550,6 +4573,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);
 
+  stopHudTimer(client: Client) {
+    this.utilizeHudTimer(client, 0, 0, () => {/*/*/});
+  }
+  
   utilizeHudTimer(
     client: Client,
     nameId: number,
