@@ -31,6 +31,7 @@ import { inventoryItem } from "types/zoneserver";
 import { ItemObject } from "./itemobject";
 import { DoorEntity } from "./doorentity";
 import { Zombie } from "./zombie";
+import { BaseFullCharacter } from "./basefullcharacter";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {
@@ -92,6 +93,9 @@ export class WorldObjectManager {
   chanceNpc: number = 100;
   chanceScreamer: number = 5; // 1000 max
 
+  zombieSlots = [EquimentSlots.HEAD, EquimentSlots.CHEST, EquimentSlots.LEGS, EquimentSlots.HANDS, EquimentSlots.FEET, EquimentSlots.HAIR]
+
+
   run(server: ZoneServer2016) {
     debug("WOM::Run");
     if (this.lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
@@ -107,10 +111,10 @@ export class WorldObjectManager {
       this.lastVehicleRespawnTime = Date.now();
     }
   }
-  equipRandomSkins(server: ZoneServer2016, npc: Zombie,excludedModels: string[] = []): void {
+  equipRandomSkins(server: ZoneServer2016, entity: BaseFullCharacter,slots: EquimentSlots[],excludedModels: string[] = []): void {
     server.generateRandomEquipmentsFromAnEntity(
-      npc,
-      [EquimentSlots.HEAD, EquimentSlots.CHEST, EquimentSlots.LEGS, EquimentSlots.HANDS, EquimentSlots.FEET, EquimentSlots.HAIR],
+      entity,
+      slots,
       excludedModels
     );
   }
@@ -130,7 +134,7 @@ export class WorldObjectManager {
       rotation,
       spawnerId
     );
-    this.equipRandomSkins(server, zombie,bannedZombieModels);
+    this.equipRandomSkins(server, zombie,this.zombieSlots,bannedZombieModels);
     server._npcs[characterId] = zombie;
     if (spawnerId) this._spawnedNpcs[spawnerId] = characterId;
   }
