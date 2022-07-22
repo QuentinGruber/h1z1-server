@@ -1958,24 +1958,18 @@ export class zonePacketHandlers {
                     : reserveAmmo; // actual amount able to reload
 
               server.sendWeaponData(client, "Weapon.Reload", {
-                guid: p.packet.characterId,
+                weaponGuid: p.packet.characterId,
                 unknownDword1: maxAmmo,
                 ammoCount: weaponItem.weapon.ammoCount + reloadAmount,
                 unknownDword3: maxAmmo,
-                characterId: "0x2",
+                currentReloadCount: `0x${(++client.character.currentReloadCount).toString(16)}`,
               });
               weaponItem.weapon.ammoCount =
                 weaponItem.weapon.ammoCount + reloadAmount;
-              server.switchLoadoutSlot(
-                client,
-                client.character._loadout[client.character.currentLoadoutSlot]
-              );
-              /*server.sendWeaponData(client, "Weapon.Reset", {
-                guid: weaponItem.itemGuid,
-                unknownBoolean1: true,
-                unknownByte1: 0
-              })*/
+
               server.removeInventoryItems(client, weaponAmmoId, reloadAmount);
+              clearTimeout(client.character.reloadTimer);
+              client.character.reloadTimer = undefined;
             }, server.getWeaponReloadTime(weaponItem.itemDefinitionId));
 
             debug("Weapon.ReloadRequest");
@@ -2003,7 +1997,7 @@ export class zonePacketHandlers {
             debug(`Unhandled weapon packet type: ${p.packetName}`);
             break;
         }
-        //console.log(p)
+        console.log(p)
       }
     };
     //#endregion

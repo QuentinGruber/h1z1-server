@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Items, LoadoutSlots, ResourceIds } from "../enums";
+import { LoadoutSlots, ResourceIds } from "../enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
@@ -57,6 +57,7 @@ export class Character2016 extends BaseFullCharacter {
   reloadTimer?: NodeJS.Timeout | undefined = undefined;
   tempGodMode = false;
   isSpectator = false;
+  currentReloadCount = 0; // needed for reload packet to work every time
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;

@@ -3088,11 +3088,11 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client.character.reloadTimer) return;
     client.character.clearReloadTimeout();
     this.sendWeaponData(client, "Weapon.Reload", {
-      guid: weaponItem.itemGuid,
+      weaponGuid: weaponItem.itemGuid,
       unknownDword1: weaponItem.weapon.ammoCount,
       ammoCount: weaponItem.weapon.ammoCount,
       unknownDword3: weaponItem.weapon.ammoCount,
-      characterId: "0x2",
+      currentReloadCount: `0x${(client.character.currentReloadCount).toString(16)}`,
     });
     // send reloadinterrupt to all clients with spawned character
   }
@@ -3178,11 +3178,11 @@ export class ZoneServer2016 extends EventEmitter {
       ownerCharacterId:
         isWeapon && item.itemDefinitionId !== 85 ? "" : character.characterId,
       unknownDword9: 1,
-      unknownData1: this.getItemWeaponData(item),
+      unknownData1: this.getItemWeaponData(character, item),
     };
   }
 
-  getItemWeaponData(slot: inventoryItem) {
+  getItemWeaponData(charcter: Character, slot: inventoryItem) {
     if (slot.weapon) {
       return {
         isWeapon: true, // not sent to client, only used as a flag for pack function
@@ -3227,7 +3227,7 @@ export class ZoneServer2016 extends EventEmitter {
               ],
             },
           ],
-          loadoutSlotId: slot.slotId, // todo: this should be equipmentslotid
+          equipmentSlotId: charcter.getActiveEquipmentSlot(slot),
           unknownByte2: 1,
           unknownDword1: 0,
           unknownByte3: 0,
@@ -3764,6 +3764,7 @@ export class ZoneServer2016 extends EventEmitter {
       true,
       oldLoadoutSlot
     );
+    client.character.currentReloadCount = 0;
   }
 
   removeEquipmentItem(client: Client, equipmentSlotId: number): boolean {
