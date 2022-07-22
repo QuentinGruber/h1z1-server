@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ResourceIds } from "../enums";
+import { Items, LoadoutSlots, ResourceIds } from "../enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
@@ -44,7 +44,7 @@ export class Character2016 extends BaseFullCharacter {
   isRespawning = false;
   creationDate!: string;
   lastLoginDate!: string;
-  currentLoadoutSlot = 7; //fists
+  currentLoadoutSlot = LoadoutSlots.FISTS;
   loadoutId = 3; // character
   startRessourceUpdater: any;
   healingInterval?: any;

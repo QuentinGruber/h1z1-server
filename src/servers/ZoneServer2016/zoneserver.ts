@@ -578,8 +578,8 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
 
-    this.giveStartingEquipment(client, false, true);
-    this.giveStartingItems(client, false);
+    this.giveDefaultEquipment(client, false);
+    this.giveDefaultItems(client, false);
   }
 
   pGetInventoryItems(client: Client): any[] {
@@ -1446,8 +1446,8 @@ export class ZoneServer2016 extends EventEmitter {
       position: this._spawnLocations[randomSpawnIndex].position,
     });
     this.clearInventory(client);
-    this.giveStartingEquipment(client, true, true);
-    this.giveStartingItems(client, true);
+    this.giveDefaultEquipment(client, true);
+    this.giveDefaultItems(client, true);
     client.character.state.position =
       this._spawnLocations[randomSpawnIndex].position;
     this.updateResource(
@@ -4158,27 +4158,27 @@ export class ZoneServer2016 extends EventEmitter {
     this.updateContainer(client, container);
   }
 
-  giveStartingEquipment(
+  giveDefaultEquipment(
     client: Client,
     sendPacket: boolean,
-    giveBackpack: boolean = false
   ) {
-    if (giveBackpack) {
-      this.equipItem(client, this.generateItem(2393), sendPacket); // rasta backpack
+    if(!client.character._loadout[LoadoutSlots.FISTS]) {
+      // Fists should never be removed from the inventory, however this is just in case
+      this.equipItem(client, this.generateItem(Items.WEAPON_FISTS), sendPacket);
     }
-    this.equipItem(client, this.generateItem(85), sendPacket); // fists weapon
-    this.equipItem(client, this.generateItem(2377), sendPacket); // DOA Hoodie
-    this.equipItem(client, this.generateItem(2079), sendPacket); // golf pants
+    this.equipItem(client, this.generateItem(Items.SHIRT_DEFAULT), sendPacket);
+    this.equipItem(client, this.generateItem(Items.PANTS_DEFAULT), sendPacket);
   }
-  giveStartingItems(client: Client, sendPacket: boolean) {
-    this.lootContainerItem(client, this.generateItem(1985), 1, sendPacket); // map
-    this.lootContainerItem(client, this.generateItem(1441), 1, sendPacket); // compass
-    this.lootContainerItem(client, this.generateItem(1751), 5, sendPacket); // gauze
-    this.lootContainerItem(client, this.generateItem(1804), 1, sendPacket); // flare
-    this.lootContainerItem(client, this.generateItem(1436), 1, sendPacket); // lighter
+  giveDefaultItems(client: Client, sendPacket: boolean) {
+    this.lootContainerItem(client, this.generateItem(Items.MAP), 1, sendPacket);
+    this.lootContainerItem(client, this.generateItem(Items.COMPASS), 1, sendPacket);
+    this.lootContainerItem(client, this.generateItem(Items.GAUZE), 5, sendPacket);
+    this.lootContainerItem(client, this.generateItem(Items.FLARE), 1, sendPacket);
+    this.lootContainerItem(client, this.generateItem(Items.LIGHTER), 1, sendPacket);
   }
-  //
+
   giveKitItems(client: Client) {
+    // SHOULD NOT BE CALLED BEFORE SENDSELF IS SENT, WILL CRASH CLIENTS !
     this.lootItem(client, this.generateItem(Items.WEAPON_308), 1); // sniper
     this.lootItem(client, this.generateItem(Items.WEAPON_SHOTGUN), 1); // shotgun
     this.lootItem(client, this.generateItem(Items.WEAPON_AR15), 1); // ar
@@ -4191,8 +4191,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
     this.lootItem(client, this.generateItem(Items.KEVLAR_DEFAULT), 1); // kevlar
     this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
-    // todo: fix this
-    //this.lootItem(client, this.generateItem(Items.CONVEYS_BLUE), 1); // conveys
+    this.lootItem(client, this.generateItem(Items.CONVEYS_BLUE), 1); // conveys
   }
 
   clearInventory(client: Client) {
