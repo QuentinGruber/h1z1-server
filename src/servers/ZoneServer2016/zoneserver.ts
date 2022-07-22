@@ -4550,6 +4550,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);
 
+  stopHudTimer(client: Client) {
+    this.utilizeHudTimer(client, 0, 0, () => {/*/*/});
+  }
+  
   utilizeHudTimer(
     client: Client,
     nameId: number,
