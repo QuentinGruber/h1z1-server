@@ -23,6 +23,13 @@ interface CharacterStates {
   knockedOut?: boolean;
   inWater?: boolean;
 }
+
+interface CharacterMetrics {
+  zombiesKilled: number;
+  wildlifeKilled: number;
+  recipesDiscovered: number;
+  startedSurvivingTP: number; // timestamp
+}
 export class Character2016 extends BaseFullCharacter {
   name?: string;
   spawnLocation?: string;
@@ -57,6 +64,7 @@ export class Character2016 extends BaseFullCharacter {
   reloadTimer?: NodeJS.Timeout | undefined = undefined;
   tempGodMode = false;
   isSpectator = false;
+  metrics:CharacterMetrics = {recipesDiscovered: 0, zombiesKilled: 0, wildlifeKilled: 0, startedSurvivingTP: Date.now()};
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
