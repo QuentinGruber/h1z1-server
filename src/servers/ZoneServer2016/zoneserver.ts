@@ -31,6 +31,7 @@ import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 import {
   EntityTypes,
+  EquipSlots,
   Items,
   LoadoutSlots,
   ResourceIds,
@@ -3192,7 +3193,6 @@ export class ZoneServer2016 extends EventEmitter {
           ammoSlots: this.getWeaponAmmoId(slot.itemDefinitionId)
             ? [{ ammoSlot: slot.weapon?.ammoCount }]
             : [],
-          //this.getWeaponAmmoSlot(slot.itemDefinitionId),
           firegroups: [
             {
               firegroupId: this.getWeaponDefinition(
@@ -3227,7 +3227,7 @@ export class ZoneServer2016 extends EventEmitter {
               ],
             },
           ],
-          loadoutSlotId: slot.slotId,
+          loadoutSlotId: slot.slotId, // todo: this should be equipmentslotid
           unknownByte2: 1,
           unknownDword1: 0,
           unknownByte3: 0,
@@ -3565,7 +3565,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (this.isWeapon(itemDefinitionId)) {
       item = {
         ...itemData,
-        weapon: { ammoCount: this.getWeaponMaxAmmo(itemDefinitionId) }, // default ammo count until we have a method to get max ammo count from definition
+        weapon: { ammoCount: 0 },
       };
     } else {
       item = itemData;
@@ -3776,10 +3776,9 @@ export class ZoneServer2016 extends EventEmitter {
         slotId: equipmentSlotId,
       }
     );
-    if (equipmentSlotId === 7) {
-      // primary slot
-      client.character.currentLoadoutSlot = 7;
-      this.equipItem(client, client.character._loadout[7]); //equip fists
+    if (equipmentSlotId === EquipSlots.RHAND) {
+      client.character.currentLoadoutSlot = LoadoutSlots.FISTS;
+      this.equipItem(client, client.character._loadout[LoadoutSlots.FISTS]); //equip fists
     }
     return true;
   }
@@ -4202,7 +4201,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.removeInventoryItem(client, item, item.stackCount);
         }
       }
-      if (item.slotId != 7 && item.itemDefinitionId) {
+      if (item.slotId != Items.WEAPON_FISTS && item.itemDefinitionId) {
         this.removeInventoryItem(client, item, item.stackCount);
       }
     }

@@ -955,7 +955,7 @@ export class zonePacketHandlers {
           character._equipment[28] = {
             // temporary to fix missing heads
             modelName: character.headActor,
-            slotId: 28,
+            slotId: 28, // todo: wrong id
             guid: "0x0",
           };
           character._equipment[27] = {
