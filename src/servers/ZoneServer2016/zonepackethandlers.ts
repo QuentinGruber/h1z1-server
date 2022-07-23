@@ -27,7 +27,7 @@ let dev = require("./commands/dev").default;
 
 let admin = require("./commands/admin").default;
 
-import { _, Int64String, isPosInRadius, getDistance } from "../../utils/utils";
+import { _, Int64String, isPosInRadius, getDistance, toInt } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
@@ -41,6 +41,7 @@ import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { Npc } from "./classes/npc";
 import { TemporaryEntity } from "./classes/temporaryentity";
+import { AVG_PING_SECS } from "../../utils/constants";
 
 const profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
 const projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
@@ -316,9 +317,19 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server.sendData(client, "KeepAlive", {
-        gameTime: packet.data.gameTime,
-      });
+      const timeDelay = 1000;
+      const currentTime = Date.now()
+      if(!client.lastKeepAliveTime) {
+        client.lastKeepAliveTime = currentTime;
+        return
+      }
+      const ping = toInt(currentTime - client.lastKeepAliveTime - timeDelay);
+      client.lastKeepAliveTime = Date.now();
+      client.pings.push(ping)
+      if(client.pings.length > AVG_PING_SECS) {
+        client.pings.shift()
+      }
+      client.avgPing = toInt(_.sum(client.pings) / client.pings.length)
     };
     this.clientUpdateMonitorTimeDrift = function (
       server: ZoneServer2016,
@@ -475,10 +486,10 @@ export class zonePacketHandlers {
                 props
               )} vehicles : ${_.size(vehicles)}`
             );
-            const uptime = new Date(Date.now() - server._startTime);
+            const uptimeMin = ((Date.now() - server._startTime) / 60000) * 60;
             server.sendChatText(
               client,
-              `Uptime: ${uptime.getUTCHours()}h ${uptime.getUTCMinutes()}m`
+              `Uptime: ${uptimeMin<60?`${uptimeMin.toFixed()}m`:`${(uptimeMin/60).toFixed()}h `}`
             );
             break;
           }
@@ -517,6 +528,7 @@ export class zonePacketHandlers {
           const soeClient = server.getSoeClient(client.soeClientId);
           if (soeClient) {
             const stats = soeClient.getNetworkStats();
+            stats.push(`Ping: ${client.avgPing}ms`);
             for (let index = 0; index < stats.length; index++) {
               const stat = stats[index];
               server.sendChatText(client, stat, index == 0);
@@ -838,13 +850,7 @@ export class zonePacketHandlers {
             client.posAtLogoutStart
           )
         ) {
-          clearTimeout(client.hudTimer);
-          client.hudTimer = null;
-          client.isInteracting = false;
-          server.sendData(client, "ClientUpdate.StartTimer", {
-            stringId: 0,
-            time: 0,
-          }); // don't know how it was done so
+          server.stopHudTimer(client)
         }
       } else if (
         packet.data.vehicle_position &&
@@ -1877,6 +1883,7 @@ export class zonePacketHandlers {
             if(weaponItem.weapon.ammoCount > 0) {
               weaponItem.weapon.ammoCount -= 1;
             }
+            server.stopHudTimer(client);
             debug("Weapon.Fire");
             /*
             server.sendRemoteWeaponUpdateData(

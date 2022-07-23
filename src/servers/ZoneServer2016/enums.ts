@@ -20,10 +20,16 @@ export enum LoadoutSlots {
 
 export enum EquipSlots {
   HEAD = 1,
+  HANDS = 2,
   CHEST = 3,
   LEGS = 4,
   FEET = 5,
-  RHAND = 7
+  RHAND = 7,
+  BACKPACK = 10,
+  HAIR = 27,
+  FACE = 28,
+  EYES = 29,
+  ARMOR = 100,
 }
 
 export enum EntityTypes {
