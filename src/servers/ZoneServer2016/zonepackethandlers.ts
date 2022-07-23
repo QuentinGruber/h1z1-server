@@ -33,7 +33,7 @@ import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
-import { EntityTypes, ResourceIds } from "./enums";
+import { EntityTypes, Items, ResourceIds } from "./enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
 import { DoorEntity } from "./classes/doorentity";
@@ -1936,6 +1936,37 @@ export class zonePacketHandlers {
             if (client.character.reloadTimer) return;
             /*server.sendRemoteWeaponUpdateData(
               client, client.character.transientId, weaponItem.itemGuid, "Update.Reload", {})*/
+            if(server.getWeaponAmmoId(
+              weaponItem.itemDefinitionId
+            ) == Items.AMMO_12GA) {
+              const weaponAmmoId = server.getWeaponAmmoId(
+                weaponItem.itemDefinitionId
+              ),
+              maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId);
+              client.character.reloadTimer = setTimeout(() => {
+                if (!client.character.reloadTimer) return;
+                if(!weaponItem?.weapon) return;
+                if( weaponItem.weapon.ammoCount < maxAmmo &&
+                  !server.removeInventoryItems(client, weaponAmmoId, 1)) {
+                  return;
+                }
+                ++weaponItem.weapon.ammoCount;
+                if(weaponItem.weapon.ammoCount == maxAmmo){
+                  server.sendWeaponData(client, "Weapon.Reload", {
+                    weaponGuid: p.packet.characterId,
+                    unknownDword1: maxAmmo,
+                    ammoCount: weaponItem.weapon.ammoCount,
+                    unknownDword3: maxAmmo,
+                    currentReloadCount: `0x${(++client.character.currentReloadCount).toString(16)}`,
+                  });
+                  clearTimeout(client.character.reloadTimer);
+                  client.character.reloadTimer = undefined;
+                  return;
+                }
+                client.character.reloadTimer.refresh();
+              }, server.getWeaponReloadTime(weaponItem.itemDefinitionId));
+              return;
+            }
             client.character.reloadTimer = setTimeout(() => {
               if (!client.character.reloadTimer) return;
               const weaponItem = client.character.getEquippedWeapon();
@@ -1951,25 +1982,25 @@ export class zonePacketHandlers {
                 maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
                 reserveAmmo =
                   client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
-                maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
-                reloadAmount =
-                  reserveAmmo >= maxReloadAmount
-                    ? maxReloadAmount
-                    : reserveAmmo; // actual amount able to reload
+                maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount; // how much ammo is needed for full clip
+                let reloadAmount = reserveAmmo >= maxReloadAmount
+                  ? maxReloadAmount
+                  : reserveAmmo; // actual amount able to reload
 
+              if(!server.removeInventoryItems(client, weaponAmmoId, reloadAmount)) {
+                return;
+              }
+              weaponItem.weapon.ammoCount = weaponItem.weapon.ammoCount + reloadAmount;
+              clearTimeout(client.character.reloadTimer);
+              client.character.reloadTimer = undefined;
+              
               server.sendWeaponData(client, "Weapon.Reload", {
                 weaponGuid: p.packet.characterId,
                 unknownDword1: maxAmmo,
-                ammoCount: weaponItem.weapon.ammoCount + reloadAmount,
+                ammoCount: weaponItem.weapon.ammoCount,
                 unknownDword3: maxAmmo,
                 currentReloadCount: `0x${(++client.character.currentReloadCount).toString(16)}`,
               });
-              weaponItem.weapon.ammoCount =
-                weaponItem.weapon.ammoCount + reloadAmount;
-
-              server.removeInventoryItems(client, weaponAmmoId, reloadAmount);
-              clearTimeout(client.character.reloadTimer);
-              client.character.reloadTimer = undefined;
             }, server.getWeaponReloadTime(weaponItem.itemDefinitionId));
 
             debug("Weapon.ReloadRequest");
