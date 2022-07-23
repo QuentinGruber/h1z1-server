@@ -54,7 +54,6 @@ export class Character2016 extends BaseFullCharacter {
   timeouts: any;
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
-  reloadTimer?: NodeJS.Timeout | undefined = undefined;
   tempGodMode = false;
   isSpectator = false;
   currentReloadCount = 0; // needed for reload packet to work every time
@@ -241,8 +240,10 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
   clearReloadTimeout() {
-    if (this.reloadTimer) clearTimeout(this.reloadTimer);
-    this.reloadTimer = undefined;
+    const weaponItem = this.getEquippedWeapon();
+    if(!weaponItem.weapon?.reloadTimer) return;
+    clearTimeout(weaponItem.weapon.reloadTimer);
+    weaponItem.weapon.reloadTimer = undefined;
   }
   addCombatlogEntry(entry: DamageRecord) {
     this.combatlog.push(entry);

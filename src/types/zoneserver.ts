@@ -458,6 +458,7 @@ export interface characterEquipment {
 
 export interface weaponItem {
   ammoCount: number;
+  reloadTimer?: NodeJS.Timeout;
 }
 
 export interface inventoryItem {
