@@ -33,7 +33,7 @@ import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
-import { EntityTypes, ResourceIds } from "./enums";
+import { EntityTypes, Items, ResourceIds } from "./enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
 import { DoorEntity } from "./classes/doorentity";
@@ -961,7 +961,7 @@ export class zonePacketHandlers {
           character._equipment[28] = {
             // temporary to fix missing heads
             modelName: character.headActor,
-            slotId: 28,
+            slotId: 28, // todo: wrong id
             guid: "0x0",
           };
           character._equipment[27] = {
@@ -1203,10 +1203,11 @@ export class zonePacketHandlers {
       }
       server.sendData(client, "Command.ItemDefinitionReply", {
         data: {
-          ID: packet.data.ID,
+          ID: itemDef.ID,
           definitionData: {
             ...itemDef,
             HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+            ITEM_TYPE_1: itemDef.ITEM_TYPE,
             flags1: {
               ...itemDef,
             },
@@ -1217,6 +1218,10 @@ export class zonePacketHandlers {
           },
         },
       });
+      if(server.isContainer(itemDef.ID)) {
+        // Fixes containers missing an itemdefinition not showing in inventory
+        server.updateLoadout(client);
+      }
     };
     this.characterWeaponStance = function (
       server: ZoneServer2016,
@@ -1875,8 +1880,10 @@ export class zonePacketHandlers {
             server.damageItem(client, weaponItem, 2);
             break;
           case "Weapon.Fire":
+            if(weaponItem.weapon.ammoCount > 0) {
+              weaponItem.weapon.ammoCount -= 1;
+            }
             server.stopHudTimer(client);
-            weaponItem.weapon.ammoCount -= 1;
             debug("Weapon.Fire");
             /*
             server.sendRemoteWeaponUpdateData(
@@ -1935,50 +1942,57 @@ export class zonePacketHandlers {
             debug("Weapon.ProjectileHitReport");
             break;
           case "Weapon.ReloadRequest":
-            if (client.character.reloadTimer) return;
+            if (weaponItem.weapon.reloadTimer) return;
             /*server.sendRemoteWeaponUpdateData(
               client, client.character.transientId, weaponItem.itemGuid, "Update.Reload", {})*/
-            client.character.reloadTimer = setTimeout(() => {
-              if (!client.character.reloadTimer) return;
-              const weaponItem = client.character.getEquippedWeapon();
-              if (
-                !weaponItem.weapon ||
+            const weaponAmmoId = server.getWeaponAmmoId(
+              weaponItem.itemDefinitionId),
+            maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
+            reloadTime = server.getWeaponReloadTime(weaponItem.itemDefinitionId);
+            if(weaponAmmoId == Items.AMMO_12GA) {
+              weaponItem.weapon.reloadTimer = setTimeout(() => {
+                if (!weaponItem.weapon?.reloadTimer || ( weaponItem.weapon.ammoCount < maxAmmo &&
+                  !server.removeInventoryItems(client, weaponAmmoId, 1))) {
+                  return;
+                }
+                if(++weaponItem.weapon.ammoCount == maxAmmo){
+                  server.sendWeaponData(client, "Weapon.Reload", {
+                    weaponGuid: p.packet.characterId,
+                    unknownDword1: maxAmmo,
+                    ammoCount: weaponItem.weapon.ammoCount,
+                    unknownDword3: maxAmmo,
+                    currentReloadCount: `0x${(++weaponItem.weapon.currentReloadCount).toString(16)}`,
+                  });
+                  client.character.clearReloadTimeout()
+                  return;
+                }
+                weaponItem.weapon.reloadTimer.refresh();
+              }, reloadTime);
+              return;
+            }
+            weaponItem.weapon.reloadTimer = setTimeout(() => {
+              if (!weaponItem.weapon?.reloadTimer ||
                 client.character.getEquippedWeapon().itemGuid !=
-                  weaponItem.itemGuid
-              )
-                return;
-              const weaponAmmoId = server.getWeaponAmmoId(
-                  weaponItem.itemDefinitionId
-                ),
-                maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
-                reserveAmmo =
-                  client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
-                maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
-                reloadAmount =
-                  reserveAmmo >= maxReloadAmount
-                    ? maxReloadAmount
-                    : reserveAmmo; // actual amount able to reload
+                  weaponItem.itemGuid) return;
+              const reserveAmmo =
+                client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
+              maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+              reloadAmount = reserveAmmo >= maxReloadAmount
+                ? maxReloadAmount
+                : reserveAmmo; // actual amount able to reload
 
+              if(!server.removeInventoryItems(client, weaponAmmoId, reloadAmount)) {
+                return;
+              }
               server.sendWeaponData(client, "Weapon.Reload", {
-                guid: p.packet.characterId,
+                weaponGuid: p.packet.characterId,
                 unknownDword1: maxAmmo,
-                ammoCount: weaponItem.weapon.ammoCount + reloadAmount,
+                ammoCount: weaponItem.weapon.ammoCount += reloadAmount,
                 unknownDword3: maxAmmo,
-                characterId: "0x2",
+                currentReloadCount: `0x${(++weaponItem.weapon.currentReloadCount).toString(16)}`,
               });
-              weaponItem.weapon.ammoCount =
-                weaponItem.weapon.ammoCount + reloadAmount;
-              server.switchLoadoutSlot(
-                client,
-                client.character._loadout[client.character.currentLoadoutSlot]
-              );
-              /*server.sendWeaponData(client, "Weapon.Reset", {
-                guid: weaponItem.itemGuid,
-                unknownBoolean1: true,
-                unknownByte1: 0
-              })*/
-              server.removeInventoryItems(client, weaponAmmoId, reloadAmount);
-            }, server.getWeaponReloadTime(weaponItem.itemDefinitionId));
+              client.character.clearReloadTimeout();
+            }, reloadTime);
 
             debug("Weapon.ReloadRequest");
             break;
@@ -2005,7 +2019,6 @@ export class zonePacketHandlers {
             debug(`Unhandled weapon packet type: ${p.packetName}`);
             break;
         }
-        //console.log(p)
       }
     };
     //#endregion
