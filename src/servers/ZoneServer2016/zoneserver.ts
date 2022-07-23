@@ -3091,7 +3091,7 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword1: weaponItem.weapon.ammoCount,
       ammoCount: weaponItem.weapon.ammoCount,
       unknownDword3: weaponItem.weapon.ammoCount,
-      currentReloadCount: `0x${(++client.character.currentReloadCount).toString(16)}`,
+      currentReloadCount: `0x${(++weaponItem.weapon.currentReloadCount).toString(16)}`,
     });
     // send reloadinterrupt to all clients with spawned character
   }
@@ -3564,7 +3564,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (this.isWeapon(itemDefinitionId)) {
       item = {
         ...itemData,
-        weapon: { ammoCount: 0 },
+        weapon: { 
+          ammoCount: 0,
+          currentReloadCount: 0
+        },
       };
     } else {
       item = itemData;
@@ -3763,7 +3766,7 @@ export class ZoneServer2016 extends EventEmitter {
       true,
       oldLoadoutSlot
     );
-    client.character.currentReloadCount = 0;
+    if(loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
   }
 
   removeEquipmentItem(client: Client, equipmentSlotId: number): boolean {

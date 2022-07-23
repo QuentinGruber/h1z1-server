@@ -56,7 +56,6 @@ export class Character2016 extends BaseFullCharacter {
   positionUpdate?: positionUpdate;
   tempGodMode = false;
   isSpectator = false;
-  currentReloadCount = 0; // needed for reload packet to work every time
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;

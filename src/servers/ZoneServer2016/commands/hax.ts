@@ -559,16 +559,6 @@ const hax: any = {
     };
     server.sendWeatherUpdatePacket(client, server._weather2016, true);
   },
-  placement: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const modelChoosen = args[1];
-    if (!modelChoosen) {
-      server.sendChatText(client, "[ERROR] Usage /hax placement {modelId}");
-      return;
-    }
-    server.sendData(client, "Construction.PlacementResponse", {
-      model: modelChoosen,
-    });
-  },
   spectate: function (server: ZoneServer2016, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const vehicle = new Vehicle(

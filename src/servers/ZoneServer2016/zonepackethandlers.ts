@@ -1954,7 +1954,7 @@ export class zonePacketHandlers {
                     unknownDword1: maxAmmo,
                     ammoCount: weaponItem.weapon.ammoCount,
                     unknownDword3: maxAmmo,
-                    currentReloadCount: `0x${(++client.character.currentReloadCount).toString(16)}`,
+                    currentReloadCount: `0x${(++weaponItem.weapon.currentReloadCount).toString(16)}`,
                   });
                   client.character.clearReloadTimeout()
                   return;
@@ -1982,7 +1982,7 @@ export class zonePacketHandlers {
                 unknownDword1: maxAmmo,
                 ammoCount: weaponItem.weapon.ammoCount += reloadAmount,
                 unknownDword3: maxAmmo,
-                currentReloadCount: `0x${(++client.character.currentReloadCount).toString(16)}`,
+                currentReloadCount: `0x${(++weaponItem.weapon.currentReloadCount).toString(16)}`,
               });
               client.character.clearReloadTimeout();
             }, reloadTime);

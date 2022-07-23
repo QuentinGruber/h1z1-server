@@ -459,6 +459,7 @@ export interface characterEquipment {
 export interface weaponItem {
   ammoCount: number;
   reloadTimer?: NodeJS.Timeout;
+  currentReloadCount: number; // needed for reload packet to work every time
 }
 
 export interface inventoryItem {
