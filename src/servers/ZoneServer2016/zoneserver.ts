@@ -1558,7 +1558,7 @@ export class ZoneServer2016 extends EventEmitter {
         case "SpeedTree.Blackberry":
           itemDefId = 105;
           if (randomIntFromInterval(1, 10) == 1) {
-            this.lootItem(client, this.generateItem(Items.WEAPON_BRANCH), 1);
+            this.lootItem(client, this.generateItem(Items.WEAPON_BRANCH));
           }
           allowDes = true;
           count = randomIntFromInterval(1, 2);
@@ -3835,6 +3835,10 @@ export class ZoneServer2016 extends EventEmitter {
     item: inventoryItem,
     count: number = 1
   ): boolean {
+    if(count > item.stackCount) {
+      console.error("RemoveInventoryItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}")
+      count = item.stackCount;
+    }
     // removes a specific itemGuid from the inventory (containers and loadout)
     if (client.character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
       return this.removeLoadoutItem(client, item.slotId);
@@ -3931,8 +3935,13 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  lootItem(client: Client, item: inventoryItem | undefined, count: number) {
+  lootItem(client: Client, item?: inventoryItem, count?: number) {
     if (!item) return;
+    if(!count) count = item.stackCount;
+    if(count > item.stackCount) {
+      console.error(`LootItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`);
+      count = item.stackCount;
+    }
     const itemDefId = item.itemDefinitionId,
       itemDef = this.getItemDefinition(itemDefId);
     if (
@@ -3968,7 +3977,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     //endregion
-    this.lootItem(client, item, item.stackCount);
+    this.lootItem(client, item); // TODO: SPLIT STACK IF NOT ENOUGH SPACE !
     this.deleteEntity(guid, this._spawnedItems);
     delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
   }
@@ -4185,19 +4194,20 @@ export class ZoneServer2016 extends EventEmitter {
 
   giveKitItems(client: Client) {
     // SHOULD NOT BE CALLED BEFORE SENDSELF IS SENT, WILL CRASH CLIENTS !
-    this.lootItem(client, this.generateItem(Items.WEAPON_308), 1); // sniper
-    this.lootItem(client, this.generateItem(Items.WEAPON_SHOTGUN), 1); // shotgun
-    this.lootItem(client, this.generateItem(Items.WEAPON_AR15), 1); // ar
-    this.lootItem(client, this.generateItem(Items.FIRST_AID), 10); // medkit
-    this.lootItem(client, this.generateItem(Items.BANDAGE_DRESSED), 10); // dressed bandages
-    this.lootItem(client, this.generateItem(Items.AMMO_12GA), 60); // shotgun ammo
-    this.lootItem(client, this.generateItem(Items.AMMO_308), 50); // 308 ammo
-    this.lootItem(client, this.generateItem(Items.AMMO_223), 120); // ar ammo
-    this.lootItem(client, this.generateItem(Items.KEVLAR_DEFAULT), 1); // kevlar
-    this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
-    this.lootItem(client, this.generateItem(Items.KEVLAR_DEFAULT), 1); // kevlar
-    this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE), 1); // helmet
-    this.lootItem(client, this.generateItem(Items.CONVEYS_BLUE), 1); // conveys
+    this.lootItem(client, this.generateItem(Items.BACKPACK_RASTA));
+    this.lootItem(client, this.generateItem(Items.WEAPON_308)); // sniper
+    this.lootItem(client, this.generateItem(Items.WEAPON_SHOTGUN)); // shotgun
+    this.lootItem(client, this.generateItem(Items.WEAPON_AR15)); // ar
+    this.lootItem(client, this.generateItem(Items.FIRST_AID, 10)); // medkit
+    this.lootItem(client, this.generateItem(Items.BANDAGE_DRESSED, 10)); // dressed bandages
+    this.lootItem(client, this.generateItem(Items.AMMO_12GA, 60)); // shotgun ammo
+    this.lootItem(client, this.generateItem(Items.AMMO_308, 50)); // 308 ammo
+    this.lootItem(client, this.generateItem(Items.AMMO_223, 120)); // ar ammo
+    this.lootItem(client, this.generateItem(Items.KEVLAR_DEFAULT)); // kevlar
+    this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE)); // helmet
+    this.lootItem(client, this.generateItem(Items.KEVLAR_DEFAULT)); // kevlar
+    this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE)); // helmet
+    this.lootItem(client, this.generateItem(Items.CONVEYS_BLUE)); // conveys
   }
 
   clearInventory(client: Client) {
@@ -4541,7 +4551,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   shredItemPass(client: Client, item: inventoryItem, count: number) {
     this.removeInventoryItem(client, item, 1);
-    this.lootItem(client, this.generateItem(23), count);
+    this.lootItem(client, this.generateItem(Items.CLOTH, count));
   }
 
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);

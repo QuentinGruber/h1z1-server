@@ -2012,7 +2012,6 @@ export class zonePacketHandlers {
             debug(`Unhandled weapon packet type: ${p.packetName}`);
             break;
         }
-        console.log(p)
       }
     };
     //#endregion
