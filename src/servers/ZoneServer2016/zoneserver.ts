@@ -1139,9 +1139,11 @@ export class ZoneServer2016 extends EventEmitter {
     return {
       source: {
         name: sCharacter.name || "Unknown",
+        ping: sourceClient.avgPing
       },
       target: {
         name: tCharacter.name || "Unknown",
+        ping: targetClient.avgPing
       },
       hitInfo: {
         timestamp: Date.now(),
@@ -3131,30 +3133,31 @@ export class ZoneServer2016 extends EventEmitter {
     );
     this.sendChatText(
       client,
-      `TIME | SOURCE | TARGET | WEAPON | DISTANCE | HITLOCATION | HITPOSITION | OLD HP | NEW HP`
+      `TIME | SOURCE | TARGET | WEAPON | DISTANCE | HITLOCATION | HITPOSITION | OLD HP | NEW HP | PING | ENEMY PING`
     );
     combatlog.forEach((e) => {
-      const hitPosition = `[${e.hitInfo.hitPosition[0].toFixed(
+      const time = `${((Date.now() - e.hitInfo.timestamp) / 1000).toFixed(1)}s`,
+      source = e.source.name == client.character.name
+      ? "YOU"
+      : e.source.name || "undefined",
+      target = e.target.name == client.character.name
+      ? "YOU"
+      : e.target.name || "undefined",
+      hitPosition = `[${e.hitInfo.hitPosition[0].toFixed(
         0
       )}, ${e.hitInfo.hitPosition[1].toFixed(
         0
-      )}, ${e.hitInfo.hitPosition[2].toFixed(0)}]`;
-      this.sendChatText(
-        client,
-        `${((Date.now() - e.hitInfo.timestamp) / 1000).toFixed(1)}s ${
-          e.source.name == client.character.name
-            ? "YOU"
-            : e.source.name || "undefined"
-        } ${
-          e.target.name == client.character.name
-            ? "YOU"
-            : e.target.name || "undefined"
-        } ${e.hitInfo.weapon} ${e.hitInfo.distance}m ${
-          e.hitInfo.hitLocation
-        } ${hitPosition} ${(e.hitInfo.oldHP / 100).toFixed(1)} ${(
-          e.hitInfo.newHP / 100
-        ).toFixed(1)}`
-      );
+      )}, ${e.hitInfo.hitPosition[2].toFixed(0)}]`,
+      oldHp = (e.hitInfo.oldHP / 100).toFixed(1),
+      newHp = (e.hitInfo.newHP / 100).toFixed(1),
+      ping = `${e.source.name == client.character.name
+        ? e.source.ping
+        : e.target.ping}ms`,
+      enemyPing = `${e.source.name == client.character.name
+        ? e.target.ping
+        : e.source.ping}ms`
+      this.sendChatText(client, 
+        `${time} ${source} ${target} ${e.hitInfo.weapon} ${e.hitInfo.distance}m ${e.hitInfo.hitLocation} ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing}`);
     });
     this.sendChatText(
       client,
