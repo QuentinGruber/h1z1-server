@@ -667,9 +667,11 @@ export interface Weather2016 {
 export interface DamageRecord {
   source: {
     name: string;
+    ping: number;
   };
   target: {
     name: string;
+    ping: number;
   };
   hitInfo: {
     timestamp: number;
