@@ -796,14 +796,6 @@ export class ZoneServer2016 extends EventEmitter {
           ?.collection(`npcs`)
           .insertMany(Object.values(this._npcs));
         await this._db
-          ?.collection(`doors`)
-          .insertMany(Object.values(this._doors));
-        /*
-        await this._db
-          ?.collection(`props`)
-          .insertMany(Object.values(this._props));
-        */
-        await this._db
           ?.collection(`vehicles`)
           .insertMany(Object.values(this._vehicles));
         await this._db
@@ -819,16 +811,6 @@ export class ZoneServer2016 extends EventEmitter {
         await this._db
           ?.collection(`npcs`)
           .insertMany(Object.values(this._npcs));
-        /*
-        await this._db
-          ?.collection(`doors`)
-          .insertMany(Object.values(this._doors));
-          */
-        /*
-        await this._db
-          ?.collection(`props`)
-          .insertMany(Object.values(this._props));
-        */
         await this._db
           ?.collection(`vehicles`)
           .insertMany(Object.values(this._vehicles));
