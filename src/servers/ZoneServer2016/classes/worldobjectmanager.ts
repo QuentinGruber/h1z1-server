@@ -25,7 +25,7 @@ import {
   isPosInRadius,
   randomIntFromInterval,
 } from "../../../utils/utils";
-import { EquimentSlots, Items } from "../enums";
+import { EquipSlots, Items } from "../enums";
 import { Vehicle2016 } from "./../classes/vehicle";
 import { inventoryItem } from "types/zoneserver";
 import { ItemObject } from "./itemobject";
@@ -93,7 +93,7 @@ export class WorldObjectManager {
   chanceNpc: number = 100;
   chanceScreamer: number = 5; // 1000 max
 
-  zombieSlots = [EquimentSlots.HEAD, EquimentSlots.CHEST, EquimentSlots.LEGS, EquimentSlots.HANDS, EquimentSlots.FEET, EquimentSlots.HAIR]
+  zombieSlots = [EquipSlots.HEAD, EquipSlots.CHEST, EquipSlots.LEGS, EquipSlots.HANDS, EquipSlots.FEET, EquipSlots.HAIR]
 
 
   run(server: ZoneServer2016) {
@@ -111,7 +111,7 @@ export class WorldObjectManager {
       this.lastVehicleRespawnTime = Date.now();
     }
   }
-  equipRandomSkins(server: ZoneServer2016, entity: BaseFullCharacter,slots: EquimentSlots[],excludedModels: string[] = []): void {
+  equipRandomSkins(server: ZoneServer2016, entity: BaseFullCharacter,slots: EquipSlots[],excludedModels: string[] = []): void {
     server.generateRandomEquipmentsFromAnEntity(
       entity,
       slots,

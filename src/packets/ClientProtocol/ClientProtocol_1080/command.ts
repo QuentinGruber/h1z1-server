@@ -272,7 +272,7 @@ export const commandPackets: any = [
             { name: "ID", type: "uint32", defaultValue: 0 },
             {
               name: "definitionData",
-              type: "schema",
+              type: "custom",
               defaultValue: {},
               packer: packItemDefinitionData,
             },

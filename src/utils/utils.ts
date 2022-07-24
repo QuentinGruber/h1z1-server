@@ -27,6 +27,9 @@ import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import { positionUpdate } from "types/zoneserver";
 
 export class customLodash {
+  sum(pings: number[]):number {
+    return pings.reduce((a, b) => a + b, 0);
+  }
   cloneDeep(value: unknown) {
     return v8.deserialize(v8.serialize(value));
   }
@@ -216,6 +219,10 @@ export function createPositionUpdate(
     obj.rotation = rotation;
   }
   return obj;
+}
+
+export const toInt = (value: number) => {
+  return Number(value.toFixed(0))
 }
 
 export const Int64String = function (value: number): string {
