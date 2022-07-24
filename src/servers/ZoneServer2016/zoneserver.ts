@@ -180,6 +180,7 @@ export class ZoneServer2016 extends EventEmitter {
   private lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
   _packetsStats: Record<string, number> = {};
+  _hooks: { [hook: string]: (...args: any)=> boolean | null } = {};
 
   constructor(
     serverPort: number,
