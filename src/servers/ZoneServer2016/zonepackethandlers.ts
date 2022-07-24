@@ -171,8 +171,10 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if(server._hooks["OnClientFinishedLoading"] && 
-        server._hooks["OnClientFinishedLoading"](client, packet) == false) {
+      if(server._hooks["OnClientFinishedLoading"] /*&& 
+        server._hooks["OnClientFinishedLoading"](client, packet) == false*/) {
+          console.log("CLIENTFINSHEDLOADING")
+          console.log(server._hooks["OnClientFinishedLoading"](client, packet))
         return;
       }
       server.tempGodMode(client, 15000);
