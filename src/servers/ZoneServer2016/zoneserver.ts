@@ -4253,7 +4253,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.removeInventoryItem(client, item, item.stackCount);
         }
       }
-      if (item.slotId != Items.WEAPON_FISTS && item.itemDefinitionId) {
+      if (item.slotId != LoadoutSlots.FISTS && item.itemDefinitionId) {
         this.removeInventoryItem(client, item, item.stackCount);
       }
     }
