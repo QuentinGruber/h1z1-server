@@ -171,7 +171,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if(server._hooks["OnClientFinishedLoading"] /*&& 
+      if(!!server._hooks["OnClientFinishedLoading"] /*&& 
         server._hooks["OnClientFinishedLoading"](client, packet) == false*/) {
           console.log("CLIENTFINSHEDLOADING")
           console.log(server._hooks["OnClientFinishedLoading"](client, packet))
