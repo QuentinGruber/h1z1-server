@@ -172,7 +172,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       if(server._hooks["OnClientFinishedLoading"] && 
-        !server._hooks["OnClientFinishedLoading"](client, packet)) {
+        server._hooks["OnClientFinishedLoading"](client, packet) == false) {
         return;
       }
       server.tempGodMode(client, 15000);
