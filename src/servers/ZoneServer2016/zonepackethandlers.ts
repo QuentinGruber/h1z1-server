@@ -171,14 +171,11 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      console.log("_CLIENTFINSHEDLOADING")
-      console.log(server._hooks["OnClientFinishedLoading"](client, packet))
-      if(!!server._hooks["OnClientFinishedLoading"] /*&& 
-        server._hooks["OnClientFinishedLoading"](client, packet) == false*/) {
-          console.log("CLIENTFINSHEDLOADING")
-          console.log(server._hooks["OnClientFinishedLoading"](client, packet))
+      if(!!server._hooks["OnClientFinishedLoading"] && 
+        server._hooks["OnClientFinishedLoading"](client, packet) == false) {
         return;
       }
+      
       server.tempGodMode(client, 15000);
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
