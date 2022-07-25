@@ -442,6 +442,10 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if(!!server._hooks["OnClientExecuteCommand"] && 
+        server._hooks["OnClientExecuteCommand"](client, packet) == false) {
+        return;
+      }
       const args: string[] = packet.data.arguments.toLowerCase().split(" ");
       const commandName = args[0];
       switch (packet.data.commandHash) {
