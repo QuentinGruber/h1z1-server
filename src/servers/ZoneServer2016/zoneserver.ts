@@ -529,7 +529,10 @@ export class ZoneServer2016 extends EventEmitter {
       const loadedCharacter = await this._db
         ?.collection("characters")
         .findOne({ characterId: client.character.characterId });
-      if(!loadedCharacter) return;
+      if(!loadedCharacter) {
+        console.log(`[ERROR] Mongo character not found! ownerId: ${client.loginSessionId}`);
+        return;
+      }
       character = {
         serverId: loadedCharacter.serverId,
         creationDate: loadedCharacter.creationDate,
@@ -559,9 +562,12 @@ export class ZoneServer2016 extends EventEmitter {
         (character: any) =>
           character.characterId === client.character.characterId
       );
+      if(!character) {
+        console.log(`[ERROR] Single player character not found! characterId: ${client.character.characterId}`);
+        return;
+      }
       client.character.name = character.characterName;
     }
-    console.log(character);
     client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
     client.character.actorModelId = character.actorModelId;
     client.character.headActor = character.headActor;
@@ -4892,7 +4898,6 @@ export class ZoneServer2016 extends EventEmitter {
       _loadout: client.character._loadout,
       _containers: client.character._containers
     }
-    console.log(saveData)
     if(this._soloMode) {
       const singlePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       let singlePlayerCharacter = singlePlayerCharacters.find(
@@ -4900,7 +4905,7 @@ export class ZoneServer2016 extends EventEmitter {
           character.characterId === client.character.characterId
       );
       if(!singlePlayerCharacter) {
-        console.log("[ERROR] Single player character savedata not found!")
+        console.log("[ERROR] Single player character savedata not found!");
         return;
       }
       singlePlayerCharacter = {
