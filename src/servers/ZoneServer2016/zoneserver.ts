@@ -544,7 +544,8 @@ export class ZoneServer2016 extends EventEmitter {
         isRespawning: loadedCharacter.isRespawning || false,
         position: loadedCharacter.position,
         rotation: loadedCharacter.rotation,
-        _loadout: loadedCharacter._loadout || {}
+        _loadout: loadedCharacter._loadout || {},
+        _containers: loadedCharacter._containers || {}
       }
       client.character.name = character.characterName;
     } else {
@@ -598,6 +599,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.state.position = new Float32Array(character.position);
       client.character.state.rotation = new Float32Array(character.rotation);
       client.character._loadout = character._loadout || {};
+      client.character._containers = character._containers || {};
       this.generateEquipmentFromLoadout(client.character);
     }
   }
@@ -4887,7 +4889,8 @@ export class ZoneServer2016 extends EventEmitter {
       position: Array.from(client.character.state.position),
       rotation: Array.from(client.character.state.lookAt),
       isRespawning: client.character.isRespawning,
-      _loadout: client.character._loadout
+      _loadout: client.character._loadout,
+      _containers: client.character._containers
     }
     console.log(saveData)
     if(this._soloMode) {
