@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ResourceIds } from "../enums";
+import { LoadoutSlots, ResourceIds } from "../enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
@@ -51,7 +51,7 @@ export class Character2016 extends BaseFullCharacter {
   isRespawning = false;
   creationDate!: string;
   lastLoginDate!: string;
-  currentLoadoutSlot = 7; //fists
+  currentLoadoutSlot = LoadoutSlots.FISTS;
   loadoutId = 3; // character
   startRessourceUpdater: any;
   healingInterval?: any;
@@ -61,7 +61,6 @@ export class Character2016 extends BaseFullCharacter {
   timeouts: any;
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
-  reloadTimer?: NodeJS.Timeout | undefined = undefined;
   tempGodMode = false;
   isSpectator = false;
   metrics:CharacterMetrics = {recipesDiscovered: 0, zombiesKilled: 0, wildlifeKilled: 0, startedSurvivingTP: Date.now()};
@@ -248,8 +247,10 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
   clearReloadTimeout() {
-    if (this.reloadTimer) clearTimeout(this.reloadTimer);
-    this.reloadTimer = undefined;
+    const weaponItem = this.getEquippedWeapon();
+    if(!weaponItem.weapon?.reloadTimer) return;
+    clearTimeout(weaponItem.weapon.reloadTimer);
+    weaponItem.weapon.reloadTimer = undefined;
   }
   addCombatlogEntry(entry: DamageRecord) {
     this.combatlog.push(entry);

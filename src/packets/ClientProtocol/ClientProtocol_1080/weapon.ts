@@ -73,11 +73,11 @@ const weaponPackets: any = [
     0x8308,
     {
       fields: [
-        { name: "guid", type: "uint64string", defaultValue: "0" },
+        { name: "weaponGuid", type: "uint64string", defaultValue: "0" },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "ammoCount", type: "uint32", defaultValue: 0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "currentReloadCount", type: "uint64string", defaultValue: "0" },
       ],
     },
   ],

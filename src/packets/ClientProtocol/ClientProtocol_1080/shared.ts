@@ -1102,7 +1102,7 @@ export function packItemWeaponData(obj: any) {
             },
           ],
         },
-        { name: "loadoutSlotId", type: "uint8", defaultValue: 0 },
+        { name: "equipmentSlotId", type: "uint8", defaultValue: 0 },
         { name: "unknownByte2", type: "uint8", defaultValue: 0 },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
