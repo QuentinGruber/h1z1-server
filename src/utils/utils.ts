@@ -416,6 +416,10 @@ export const bigIntToHexString = (bigInt: bigint): string => {
   return `0x${bigInt.toString(16)}`;
 };
 
+export const toHex = (number: number): string => {
+  return `0x${number.toString(16)}`;
+};
+
 export const getRandomFromArray = (array: any[]): any => {
   return array[Math.floor(Math.random() * array.length)];
 };
