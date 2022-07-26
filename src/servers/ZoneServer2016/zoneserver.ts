@@ -599,8 +599,8 @@ export class ZoneServer2016 extends EventEmitter {
       );
       client.character.spawnLocation =
         this._spawnLocations[randomSpawnIndex].name;
-      this.giveStartingEquipment(client, false, true);
-      this.giveStartingItems(client, false);
+      this.giveDefaultEquipment(client, false);
+      this.giveDefaultItems(client, false);
     } else {
       client.character.state.position = new Float32Array(character.position);
       client.character.state.rotation = new Float32Array(character.rotation);
