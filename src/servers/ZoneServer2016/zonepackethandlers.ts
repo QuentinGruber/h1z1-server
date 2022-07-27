@@ -177,18 +177,13 @@ export class zonePacketHandlers {
       if (client.firstLoading) {
         server.setGodMode(client, false);
         setTimeout(() => {
-          server.sendData(client, "POIChangeMessage", {
-            // welcome POI message
-            messageStringId: 20,
-            id: 99,
-          });
-          server.sendChatText(client, "Welcome to H1emu ! :D", true);
+          server.sendAlert(client, "Welcome to H1emu! :D");
           server.sendChatText(
             client,
             `server population : ${_.size(server._characters)}`
           );
           if (client.isAdmin) {
-            server.sendChatText(client, "You are an admin !");
+            server.sendAlert(client, "You are an admin!");
           }
         }, 10000);
 
