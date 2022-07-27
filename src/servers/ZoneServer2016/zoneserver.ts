@@ -3957,13 +3957,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.containerError(client, 5); // slot does not contain item
       return;
     }
-    if (!this.removeInventoryItem(client, item, count)) return;
-    this.sendData(client, "Character.DroppedIemNotification", {
-      characterId: client.character.characterId,
-      itemDefId: item.itemDefinitionId,
-      count: count,
-    });
-
     let dropItem;
     if (item.stackCount == count) {
       dropItem = item;
@@ -3972,6 +3965,12 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       return;
     }
+    if (!this.removeInventoryItem(client, item, count)) return;
+    this.sendData(client, "Character.DroppedIemNotification", {
+      characterId: client.character.characterId,
+      itemDefId: item.itemDefinitionId,
+      count: count,
+    });
     this.worldObjectManager.createLootEntity(
       this,
       dropItem,
