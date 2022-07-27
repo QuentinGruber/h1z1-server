@@ -171,11 +171,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if(!!server._hooks["OnClientFinishedLoading"] && 
-        server._hooks["OnClientFinishedLoading"](client, packet) == false) {
+      if(server.checkHook("OnClientFinishedLoading", client) == false) {
         return;
       }
-      
       server.tempGodMode(client, 15000);
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
@@ -442,8 +440,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if(!!server._hooks["OnClientExecuteCommand"] && 
-        server._hooks["OnClientExecuteCommand"](client, packet) == false) {
+      if(server.checkHook("OnClientExecuteCommand", client, packet) == false) {
         return;
       }
       const args: string[] = packet.data.arguments.toLowerCase().split(" ");

@@ -87,6 +87,7 @@ import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
 import { ClientUpdateDeathMetrics } from "types/zone2016packets";
+import { Hooks } from "./hooks";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   recipes = require("../../../data/2016/sampleData/recipes.json"),
@@ -180,7 +181,7 @@ export class ZoneServer2016 extends EventEmitter {
   private lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
   _packetsStats: Record<string, number> = {};
-  _hooks: { [hook: string]: (...args: any)=> boolean | null } = {};
+  _hooks: { [hook: string]: Array<(...args: any)=> boolean | null> } = {};
 
   constructor(
     serverPort: number,
@@ -4997,6 +4998,26 @@ export class ZoneServer2016 extends EventEmitter {
       debug(`Client (${client.soeClientId}) disconnected ( ping timeout )`);
       this.deleteClient(client);
     }
+  }
+
+  hook(hookName: Hooks, hook: (...args: any)=> boolean | null) {
+    if(!this._hooks[hookName]) this._hooks[hookName] = [];
+    this._hooks[hookName].push(hook);
+    return null;
+  }
+
+  checkHook(hookName: Hooks, ...args: any): boolean | null {
+    if(this._hooks[hookName]?.length > 0) {
+      for(const hook of this._hooks[hookName]) {
+        switch(hook.apply(this, args)) {
+          case true:
+            return true;
+          case false:
+            return false;
+        }
+      }
+    }
+    return null;
   }
 
   toggleFog() {
