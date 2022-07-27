@@ -181,7 +181,7 @@ export class ZoneServer2016 extends EventEmitter {
   private lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
   _packetsStats: Record<string, number> = {};
-  private _hooks: { [hook: string]: Array<(...args: any)=> boolean | null> } = {};
+  private _hooks: { [hook: string]: Array<(...args: any)=> boolean | void> } = {};
 
   constructor(
     serverPort: number,
@@ -949,7 +949,9 @@ export class ZoneServer2016 extends EventEmitter {
   async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
-
+    if(this.checkHook("OnServerInit") == false) {
+      return;
+    }
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
@@ -973,6 +975,12 @@ export class ZoneServer2016 extends EventEmitter {
       () => this.worldRoutine.bind(this)(true),
       this.tickRate
     );
+    this.checkHook("OnServerReady");
+    this.hook("OnServerReady", (client: Client) => {
+      if(client.firstLoading) {
+        this.giveKitItems(client);
+      }
+    });
   }
 
   sendInitData(client: Client) {
@@ -5000,13 +5008,13 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  hook(hookName: Hooks, hook: (...args: any)=> boolean | null) {
+  hook(hookName: Hooks, hook: (...args: any)=> boolean | void) {
     if(!this._hooks[hookName]) this._hooks[hookName] = [];
     this._hooks[hookName].push(hook);
-    return null;
+    return;
   }
 
-  checkHook(hookName: Hooks, ...args: any): boolean | null {
+  checkHook(hookName: Hooks, ...args: any): boolean | void {
     if(this._hooks[hookName]?.length > 0) {
       for(const hook of this._hooks[hookName]) {
         switch(hook.apply(this, args)) {
@@ -5017,7 +5025,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
-    return null;
+    return;
   }
 
   toggleFog() {

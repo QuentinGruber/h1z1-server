@@ -1,3 +1,5 @@
 export type Hooks =
   | "OnClientFinishedLoading"
-  | "OnClientExecuteCommand";
+  | "OnClientExecuteCommand"
+  | "OnServerInit"
+  | "OnServerReady";
