@@ -2334,6 +2334,8 @@ export class ZoneServer2016 extends EventEmitter {
         switch (itemObject.spawnerId) {
           case -1:
             this.deleteEntity(itemObject.characterId, this._spawnedItems);
+            this.sendCompositeEffectToAllWithSpawnedEntity(this._spawnedItems, itemObject, 
+              this.getItemDefinition(itemObject.item.itemDefinitionId).PICKUP_EFFECT ?? 5151);
             continue;
         }
       }
@@ -2765,6 +2767,14 @@ export class ZoneServer2016 extends EventEmitter {
       }
       this.assignManagedObject(newClient, vehicle);
     }
+  }
+
+  sendCompositeEffectToAllWithSpawnedEntity(dictionary: { [id: string]: any }, object: BaseEntity, effectId: number) {
+    this.sendDataToAllWithSpawnedEntity(this._spawnedItems, object.characterId, "Character.PlayWorldCompositeEffect", {
+      characterId: "0x0",
+      effectId: effectId,
+      position: object.state.position,
+    });
   }
 
   sendDataToAllWithSpawnedEntity(
@@ -4001,12 +4011,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(client, `[ERROR] Invalid item`);
       return;
     }
-    this.sendDataToAllWithSpawnedEntity(this._spawnedItems, object.characterId, "Character.PlayWorldCompositeEffect", {
-      characterId: "0x0",
-      effectId:
-        this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151,
-      position: object.state.position,
-    });
+    this.sendCompositeEffectToAllWithSpawnedEntity(this._spawnedItems, object, 
+      this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151);
     //region Norman added. if it is a crop product, randomly generated product is processed by the planting manager. else, continue
     if (this.plantingManager.TriggerPicking(item, client, this)) {
       return;
@@ -4642,16 +4648,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._explosives[explosive.characterId]) {
       return;
     }
-    this.sendDataToAllWithSpawnedEntity(
-      this._explosives,
-      explosive.characterId,
-      "Character.PlayWorldCompositeEffect",
-      {
-        characterId: "0x0",
-        effectId: 1875,
-        position: explosive.state.position,
-      }
-    );
+    this.sendCompositeEffectToAllWithSpawnedEntity(this._explosives, explosive, 1875);
     this.sendDataToAllWithSpawnedEntity(
       this._explosives,
       explosive.characterId,
