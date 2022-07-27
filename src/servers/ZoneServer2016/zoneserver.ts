@@ -87,7 +87,7 @@ import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
 import { ClientUpdateDeathMetrics } from "types/zone2016packets";
-import { Hooks } from "./hooks";
+import { AsyncHooks, AsyncHookType, FunctionHookType, Hooks } from "./hooks";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   recipes = require("../../../data/2016/sampleData/recipes.json"),
@@ -181,7 +181,8 @@ export class ZoneServer2016 extends EventEmitter {
   private lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
   _packetsStats: Record<string, number> = {};
-  private _hooks: { [hook: string]: Array<(...args: any)=> boolean | void> } = {};
+  private _hooks: { [hook: string]: Array<(...args: any)=> FunctionHookType> } = {};
+  private _asyncHooks: { [hook: string]: Array<(...args: any)=> AsyncHookType> } = {};
 
   constructor(
     serverPort: number,
@@ -952,6 +953,9 @@ export class ZoneServer2016 extends EventEmitter {
     if(this.checkHook("OnServerInit") == false) {
       return;
     }
+    if(await this.checkAsyncHook("OnServerInit") == false) {
+      return;
+    }
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
@@ -976,11 +980,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.tickRate
     );
     this.checkHook("OnServerReady");
-    this.hook("OnServerReady", (client: Client) => {
-      if(client.firstLoading) {
-        this.giveKitItems(client);
-      }
-    });
   }
 
   sendInitData(client: Client) {
@@ -5008,13 +5007,19 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  hook(hookName: Hooks, hook: (...args: any)=> boolean | void) {
+  hook(hookName: Hooks, hook: (...args: any)=> FunctionHookType) {
     if(!this._hooks[hookName]) this._hooks[hookName] = [];
     this._hooks[hookName].push(hook);
     return;
   }
 
-  checkHook(hookName: Hooks, ...args: any): boolean | void {
+  hookAsync(hookName: AsyncHooks, hook: (...args: any)=> AsyncHookType) {
+    if(!this._asyncHooks[hookName]) this._asyncHooks[hookName] = [];
+    this._asyncHooks[hookName].push(hook);
+    return;
+  }
+
+  checkHook(hookName: Hooks, ...args: any): FunctionHookType {
     if(this._hooks[hookName]?.length > 0) {
       for(const hook of this._hooks[hookName]) {
         switch(hook.apply(this, args)) {
@@ -5026,6 +5031,23 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     return;
+  }
+
+  async checkAsyncHook(hookName: Hooks, ...args: any): AsyncHookType {
+    if(this._asyncHooks[hookName]?.length > 0) {
+      for(const hook of this._asyncHooks[hookName]) {
+        await hook.apply(this, args).then((ret)=> {
+          switch(ret) {
+            case true:
+              return new Promise<boolean>(()=>{return true;});
+            case false:
+              return new Promise<boolean>(()=>{return false;});
+          }
+        })
+        
+      }
+    }
+    return new Promise<void>(()=>{return;});
   }
 
   toggleFog() {
