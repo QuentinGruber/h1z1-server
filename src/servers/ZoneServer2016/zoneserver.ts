@@ -4223,6 +4223,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.equipItem(client, this.generateItem(Items.WEAPON_FISTS), sendPacket);
     }
     this.equipItem(client, this.generateItem(Items.SHIRT_DEFAULT), sendPacket);
+    this.equipItem(client, this.generateItem(Items.WAIST_PACK), sendPacket);
     this.equipItem(client, this.generateItem(Items.PANTS_DEFAULT), sendPacket);
   }
   giveDefaultItems(client: Client, sendPacket: boolean) {
