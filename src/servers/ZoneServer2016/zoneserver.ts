@@ -4001,7 +4001,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(client, `[ERROR] Invalid item`);
       return;
     }
-    this.sendData(client, "Character.PlayWorldCompositeEffect", {
+    this.sendDataToAllWithSpawnedEntity(this._spawnedItems, object.characterId, "Character.PlayWorldCompositeEffect", {
       characterId: "0x0",
       effectId:
         this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151,
