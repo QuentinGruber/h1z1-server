@@ -524,7 +524,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async loadCharacterData(client: Client) {
-    let character: FullCharacterSaveData;
+    let savedCharacter: FullCharacterSaveData;
     if (!this._soloMode) {
       const loadedCharacter = await this._db
         ?.collection("characters")
@@ -533,7 +533,7 @@ export class ZoneServer2016 extends EventEmitter {
         console.log(`[ERROR] Mongo character not found! ownerId: ${client.loginSessionId}`);
         return;
       }
-      character = {
+      savedCharacter = {
         serverId: loadedCharacter.serverId,
         creationDate: loadedCharacter.creationDate,
         lastLoginDate: loadedCharacter.lastLoginDate,
@@ -550,7 +550,6 @@ export class ZoneServer2016 extends EventEmitter {
         _loadout: loadedCharacter._loadout || {},
         _containers: loadedCharacter._containers || {}
       }
-      client.character.name = character.characterName;
     } else {
       delete require.cache[
         require.resolve(
@@ -558,29 +557,29 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ];
       const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
-      character = SinglePlayerCharacters.find(
+      savedCharacter = SinglePlayerCharacters.find(
         (character: any) =>
           character.characterId === client.character.characterId
       );
-      if(!character) {
+      if(!savedCharacter) {
         console.log(`[ERROR] Single player character not found! characterId: ${client.character.characterId}`);
         return;
       }
-      client.character.name = character.characterName;
     }
     client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
-    client.character.actorModelId = character.actorModelId;
-    client.character.headActor = character.headActor;
-    client.character.isRespawning = character.isRespawning;
-    client.character.gender = character.gender;
-    client.character.creationDate = character.creationDate;
-    client.character.lastLoginDate = character.lastLoginDate;
-    client.character.hairModel = character.hairModel || "";
+    client.character.name = savedCharacter.characterName;
+    client.character.actorModelId = savedCharacter.actorModelId;
+    client.character.headActor = savedCharacter.headActor;
+    client.character.isRespawning = savedCharacter.isRespawning;
+    client.character.gender = savedCharacter.gender;
+    client.character.creationDate = savedCharacter.creationDate;
+    client.character.lastLoginDate = savedCharacter.lastLoginDate;
+    client.character.hairModel = savedCharacter.hairModel || "";
 
     let newCharacter = false;
     if (
-      (_.isEqual(character.position, [0, 0, 0, 1]) &&
-        _.isEqual(character.rotation, [0, 0, 0, 1]))
+      (_.isEqual(savedCharacter.position, [0, 0, 0, 1]) &&
+        _.isEqual(savedCharacter.rotation, [0, 0, 0, 1]))
     ) {
       // if position/rotation hasn't changed
       newCharacter = true;
@@ -602,10 +601,10 @@ export class ZoneServer2016 extends EventEmitter {
       this.giveDefaultEquipment(client, false);
       this.giveDefaultItems(client, false);
     } else {
-      client.character.state.position = new Float32Array(character.position);
-      client.character.state.rotation = new Float32Array(character.rotation);
-      client.character._loadout = character._loadout || {};
-      client.character._containers = character._containers || {};
+      client.character.state.position = new Float32Array(savedCharacter.position);
+      client.character.state.rotation = new Float32Array(savedCharacter.rotation);
+      client.character._loadout = savedCharacter._loadout || {};
+      client.character._containers = savedCharacter._containers || {};
       this.generateEquipmentFromLoadout(client.character);
     }
   }
