@@ -976,7 +976,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
-      () => this.worldRoutine.bind(this)(true),
+      () => this.worldRoutine.bind(this)(),
       this.tickRate
     );
     this.checkHook("OnServerReady");
@@ -1094,24 +1094,28 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendCharacterData(client);
   }
 
-  private worldRoutine(refresh = false) {
+  private worldRoutine() {
     debug("WORLDROUTINE");
-
-    this.executeFuncForAllReadyClients((client: Client) => {
-      this.vehicleManager(client);
-      this.itemManager(client);
-      this.npcManager(client);
-      this.removeOutOfDistanceEntities(client);
-      this.spawnCharacters(client);
-      this.spawnDoors(client);
-      this.spawnExplosives(client);
-      this.spawnTraps(client);
-      this.spawnTemporaryObjects(client);
-      this.POIManager(client);
-      client.posAtLastRoutine = client.character.state.position;
-    });
-    if (this._ready) this.worldObjectManager.run(this);
-    if (refresh) this.worldRoutineTimer.refresh();
+    if(this.checkHook("OnWorldRoutine") == false) {
+      return false;
+    }
+    else {
+      this.executeFuncForAllReadyClients((client: Client) => {
+        this.vehicleManager(client);
+        this.itemManager(client);
+        this.npcManager(client);
+        this.removeOutOfDistanceEntities(client);
+        this.spawnCharacters(client);
+        this.spawnDoors(client);
+        this.spawnExplosives(client);
+        this.spawnTraps(client);
+        this.spawnTemporaryObjects(client);
+        this.POIManager(client);
+        client.posAtLastRoutine = client.character.state.position;
+      });
+      if (this._ready) this.worldObjectManager.run(this);
+    }
+    this.worldRoutineTimer.refresh();
   }
   deleteClient(client: Client) {
     if (client) {

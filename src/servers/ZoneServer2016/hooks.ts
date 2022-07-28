@@ -5,7 +5,8 @@ export type Hooks =
   | AsyncHooks
   | "OnClientFinishedLoading"
   | "OnClientExecuteCommand"
-  | "OnServerReady";
+  | "OnServerReady"
+  | "OnWorldRoutine";
 
 export type FunctionHookType =
   | boolean 
