@@ -1,8 +1,3 @@
-// ======================================================================
-//
-//   GNU GENERAL PUBLIC LICENSE
-//   Version 3, 29 June 2007
-//   copyright (C) 2020 - 2021 Quentin Gruber
 //   copyright (C) 2021 - 2022 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
@@ -14,14 +9,24 @@
 import { BaseSimpleNpc } from "./basesimplenpc";
 
 export class simpleConstruction extends BaseSimpleNpc {
-  health = 1000000;
-  constructor(
-    characterId: string,
-    transientId: number,
-    actorModelId: number,
-    position: Float32Array,
-    rotation: Float32Array
-  ) {
-    super(characterId, transientId, actorModelId, position, rotation);
-  }
+    health = 1000000;
+    slot?: string;
+    parentObjectCharacterId?: string;
+    constructor(
+        characterId: string,
+        transientId: number,
+        actorModelId: number,
+        position: Float32Array,
+        rotation: Float32Array,
+        slot?: string,
+        parentObjectCharacterId?: string,
+    ) {
+        super(characterId, transientId, actorModelId, position, rotation);
+        if (slot) {
+            this.slot = slot;
+        }
+        if (parentObjectCharacterId) {
+            this.parentObjectCharacterId = parentObjectCharacterId;
+        }
+    }
 }
