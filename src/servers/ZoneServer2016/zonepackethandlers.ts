@@ -180,11 +180,6 @@ export class zonePacketHandlers {
       if (client.firstLoading) {
         server.setGodMode(client, false);
         setTimeout(() => {
-          server.sendData(client, "POIChangeMessage", {
-            // welcome POI message
-            messageStringId: 20,
-            id: 99,
-          });
           server.sendChatText(client, "Welcome to H1emu ! :D", true);
           server.sendChatText(
             client,
