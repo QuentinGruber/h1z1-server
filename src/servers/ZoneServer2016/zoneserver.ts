@@ -1593,7 +1593,16 @@ export class ZoneServer2016 extends EventEmitter {
           allowDes = true;
           count = randomIntFromInterval(1, 2);
           break;
-        default: // default case for cutting trees
+        case "SpeedTree.RedMaple":
+        case "SpeedTree.WesternRedCedar":
+        case "SpeedTree.GreenMaple":
+        case "SpeedTree.GreenMapleDead":
+        case "SpeedTree.WesternCedarSapling":
+        case "SpeedTree.SaplingMaple":
+        case "SpeedTree.WhiteBirch":
+        case "SpeedTree.RedCedar":
+        case "SpeedTree.PaperBirch":
+        case "SpeedTree.OregonOak":
           if (!this._speedTreesCounter[packet.data.id]) {
             this._speedTreesCounter[packet.data.id] = {
               hitPoints: randomIntFromInterval(12, 19),
@@ -1607,6 +1616,8 @@ export class ZoneServer2016 extends EventEmitter {
             }
           }
           break;
+        default: // boulders (do nothing);
+          return;
       }
       if (itemDefId) {
         this.lootContainerItem(client, this.generateItem(itemDefId), count);
