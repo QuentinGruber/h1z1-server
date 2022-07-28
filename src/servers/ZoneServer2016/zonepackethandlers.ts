@@ -1253,7 +1253,7 @@ export class zonePacketHandlers {
             server: ZoneServer2016,
             client: Client,
             packet: any
-        ) {
+    ) {
             const array = new Float32Array([packet.data.rotation1[3], packet.data.rotation1[1], packet.data.rotation2[2]]);
             const matrix = quat2matrix(array)
             const euler = [Math.atan2(matrix[7], matrix[8]), Math.atan2(-matrix[6], Math.sqrt(Math.pow(matrix[7], 2) + Math.pow(matrix[8], 2))), Math.atan2(matrix[3], matrix[0])];
@@ -1267,7 +1267,7 @@ export class zonePacketHandlers {
             const modelId = server.getItemDefinition(
                 packet.data.itemDefinitionId
             ).PLACEMENT_MODEL_ID;
-            server.placement(client, packet.data.itemDefinitionId, modelId, packet.data.position, final);
+        server.placement(client, packet.data.itemDefinitionId, modelId, packet.data.position, final, packet.data.parentObjectCharacterId, packet.data.BuildingSlot);
 
         };
     this.commandItemDefinitionRequest = function (
@@ -1969,7 +1969,11 @@ export class zonePacketHandlers {
             if (push) {
                 foundation.permissions.push(obj)
             }
-            server._constructionFoundations[packet.data.objectCharacterId].permissions = foundation.permissions;
+        server._constructionFoundations[packet.data.objectCharacterId].permissions = foundation.permissions;
+        Object.values(server._constructionFoundations[packet.data.objectCharacterId].expansions).forEach((objectCharacterId: string) => {
+            const child = server._constructionFoundations[objectCharacterId];
+            child.permissions = foundation.permissions;
+        })
 
             server.sendData(client, "NpcFoundationPermissionsManagerBase.showPermissions", {
                 characterId: foundation.characterId,
@@ -1983,7 +1987,6 @@ export class zonePacketHandlers {
             client: Client,
             packet: any
         ) {
-            console.log(packet)
             let foundation = server._constructionFoundations[packet.data.objectCharacterId] as constructionFoundation;
             if (foundation.ownerCharacterId != client.character.characterId) return;
             let characterId: number | string = 0;
@@ -2030,6 +2033,10 @@ export class zonePacketHandlers {
                 foundation.permissions.push(obj)
             }
             server._constructionFoundations[packet.data.objectCharacterId].permissions = foundation.permissions;
+            Object.values(server._constructionFoundations[packet.data.objectCharacterId].expansions).forEach((objectCharacterId: string) => {
+                const child = server._constructionFoundations[objectCharacterId];
+                child.permissions = foundation.permissions;
+            })
 
             server.sendData(client, "NpcFoundationPermissionsManagerBase.showPermissions", {
                 characterId: foundation.characterId,
