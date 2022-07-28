@@ -5036,18 +5036,15 @@ export class ZoneServer2016 extends EventEmitter {
   async checkAsyncHook(hookName: Hooks, ...args: any): AsyncHookType {
     if(this._asyncHooks[hookName]?.length > 0) {
       for(const hook of this._asyncHooks[hookName]) {
-        await hook.apply(this, args).then((ret)=> {
-          switch(ret) {
-            case true:
-              return new Promise<boolean>(()=>{return true;});
-            case false:
-              return new Promise<boolean>(()=>{return false;});
-          }
-        })
-        
+        switch(await hook.apply(this, args)) {
+          case true:
+            return Promise.resolve(true);
+          case false:
+            return Promise.resolve(false);
+        }
       }
     }
-    return new Promise<void>(()=>{return;});
+    return Promise.resolve();
   }
 
   toggleFog() {
