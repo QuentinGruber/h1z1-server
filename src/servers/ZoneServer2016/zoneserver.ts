@@ -1621,6 +1621,8 @@ export class ZoneServer2016 extends EventEmitter {
                 return EntityTypes.CONSTRUCTION_FOUNDATION;
             case !!this._constructionDoors[entityKey]:
                 return EntityTypes.CONSTRUCTION_DOOR;
+            case !!this._constructionSimple[entityKey]:
+                return EntityTypes.CONSTRUCTION_SIMPLE;
             default:
                 return EntityTypes.INVALID;
         }
