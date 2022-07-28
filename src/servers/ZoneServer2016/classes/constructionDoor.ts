@@ -18,6 +18,8 @@ export class constructionDoor extends DoorEntity {
     password: number = 0;
     grantedAccess: any = [];
     health: number = 1000000;
+    parentObjectCharacterId: string;
+    buildingSlot: string;
     constructor(
         characterId: string,
         transientId: number,
@@ -25,10 +27,14 @@ export class constructionDoor extends DoorEntity {
         position: Float32Array,
         rotation: Float32Array,
         scale: Float32Array,
-        spawnerId: number,
-        ownerCharacterId: string
+        itemDefinitionId: number,
+        ownerCharacterId: string,
+        parentObjectCharacterId: string,
+        BuildingSlot: string,
     ) {
         super(characterId, transientId, actorModelId, position, rotation, new Float32Array(scale), 0);
         this.ownerCharacterId = ownerCharacterId;
+        this.parentObjectCharacterId = parentObjectCharacterId;
+        this.buildingSlot = BuildingSlot;
     }
 }
