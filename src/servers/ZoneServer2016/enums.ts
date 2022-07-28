@@ -1,4 +1,5 @@
 // ======================================================================
+// ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
@@ -27,7 +28,8 @@ export enum EntityTypes {
     DOOR = 5,
     EXPLOSIVE = 6,
     CONSTRUCTION_FOUNDATION = 7,
-    CONSTRUCTION_DOOR = 8
+    CONSTRUCTION_DOOR = 8,
+    CONSTRUCTION_SIMPLE = 9
 }
 
 export enum ResourceIds {
@@ -121,6 +123,7 @@ export enum Items {
     GROUND_TAMPER = 124,
     SHACK = 1433,
     FOUNDATION = 1378,
+    FOUNDATION_EXPANSION = 2336,
     METAL_GATE = 148,
     METAL_DOOR = 1881,
     FERTILIZER = 25,
