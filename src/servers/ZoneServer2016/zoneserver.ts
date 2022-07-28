@@ -2058,53 +2058,80 @@ export class ZoneServer2016 extends EventEmitter {
   
   foundationPermissionChecker(client: Client) {
         for (const a in this._constructionFoundations) {
+            const foundation = this._constructionFoundations[a] as constructionFoundation;
+            if (!foundation.isSecured || foundation.itemDefinitionId === Items.FOUNDATION_EXPANSION) continue;
             let allowed = false;
-            const foundation = this._constructionFoundations[a];
-            let detectRange = 7;
-            switch (foundation.actorModelId) {
-                case 9180: detectRange = 2;
-                    break;
-                case 48: detectRange = 10;
-                    break;
-            }
+            let detectRange = 2.2;
             foundation.permissions.forEach((element: any) => {
                 if (element.characterId === client.character.characterId && element.visit) {
                     allowed = true;
                 }
             })
-            if (
-                isPosInRadius(
-                    detectRange,
-                    client.character.state.position,
-                    foundation.state.position
-                ) && !allowed
-            ) {
-                this.sendChatText(client, "Construction: no visitor permission")
-                const range = 11,
-                    lat = foundation.state.position[0],
-                    long = foundation.state.position[2];
-                const currentAngle = 0;
-                const x2 = Math.cos(currentAngle) * range;
-                const y2 = Math.sin(currentAngle) * range;
-                const p = [lat + x2, long + y2];
-                client.character.state.position = new Float32Array([
-                    p[0],
-                    client.character.state.position[1] + 1,
-                    p[1],
-                    1,
-                ]);
-                this.sendData(client, "ClientUpdate.UpdateLocation", {
-                    position: [
+            if (allowed) continue;
+            if (foundation.itemDefinitionId === Items.FOUNDATION || foundation.itemDefinitionId === Items.GROUND_TAMPER) {
+                if (this.checkInsideFoundation(foundation, client.character)) {
+                    this.sendChatText(client, "Construction: no visitor permission")
+                    const range = 15,
+                        lat = foundation.state.position[0],
+                        long = foundation.state.position[2];
+                    const currentAngle = 0;
+                    const x2 = Math.cos(currentAngle) * range;
+                    const y2 = Math.sin(currentAngle) * range;
+                    const p = [lat + x2, long + y2];
+                    client.character.state.position = new Float32Array([
                         p[0],
-                        client.character.state.position[1],
+                        client.character.state.position[1] + 1,
                         p[1],
                         1,
-                    ],
-                    unknownBool2: false // disable loading screen on teleport
-                });
+                    ]);
+                    this.sendData(client, "ClientUpdate.UpdateLocation", {
+                        position: [
+                            p[0],
+                            client.character.state.position[1],
+                            p[1],
+                            1,
+                        ],
+                        unknownBool2: false
+                    });
+                }
+            } else if (foundation.itemDefinitionId === Items.SHACK) {
+                if (
+                    isPosInRadius(
+                        detectRange,
+                        client.character.state.position,
+                        foundation.state.position
+                    )) {
+                    this.sendChatText(client, "Construction: no visitor permission")
+                    const range = 5,
+                        lat = foundation.state.position[0],
+                        long = foundation.state.position[2];
+                    const currentAngle = 0;
+                    const x2 = Math.cos(currentAngle) * range;
+                    const y2 = Math.sin(currentAngle) * range;
+                    const p = [lat + x2, long + y2];
+                    client.character.state.position = new Float32Array([
+                        p[0],
+                        client.character.state.position[1] + 1,
+                        p[1],
+                        1,
+                    ]);
+                    this.sendData(client, "ClientUpdate.UpdateLocation", {
+                        position: [
+                            p[0],
+                            client.character.state.position[1],
+                            p[1],
+                            1,
+                        ],
+                        unknownBool2: false
+                    });
 
+                }
             }
         }
+    }
+
+    checkInsideFoundation(foundation: constructionFoundation, entity: any) {
+        return isInside([entity.state.position[0], entity.state.position[2]], foundation.securedPolygons)
     }
 
   spawnNpcs(client: Client) {
@@ -2684,7 +2711,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendRawData(client, buffer);
     }
     
-    placement(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array) {
+    placement(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId: string, BuildingSlot: string) {
         const item = client.character.getItemById(itemDefinitionId);
         if (!item) {
             this.sendData(client, "Construction.PlacementFinalizeResponse", {
@@ -2733,31 +2760,60 @@ export class ZoneServer2016 extends EventEmitter {
             case Items.LANDMINE: this.placeExplosiveEntity(client, itemDefinitionId, modelId, position, eul2quat(rotation), false);
                 break;
             case Items.METAL_GATE:
-            case Items.METAL_DOOR: this.placeConstructionDoor(client, itemDefinitionId, modelId, position, rotation);
+            case Items.METAL_DOOR: this.placeConstructionDoor(client, itemDefinitionId, modelId, position, rotation, parentObjectCharacterId, BuildingSlot);
                 break;
             case Items.GROUND_TAMPER:
             case Items.SHACK:
             case Items.FOUNDATION: this.placeConstructionFoundation(client, itemDefinitionId, modelId, position, eul2quat(rotation));
                 break;
+            case Items.FOUNDATION_EXPANSION:
+                const slot = BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();
+                this.placeConstructionFoundation(client, itemDefinitionId, modelId, position, eul2quat(rotation), parentObjectCharacterId, slot);
+                break;
             default:
                 const characterId = this.generateGuid();
                 const transientId = this.getTransientId(characterId);
-                const npc = new simpleConstruction(
-                    characterId,
-                    transientId,
-                    modelId,
-                    position,
-                    new Float32Array([0, rotation[0], 0]),
-                );
-                this._constructionSimple[characterId] = npc;
+                if (BuildingSlot.includes('PerimeterWall') && Number(parentObjectCharacterId)) {
+                    const slot = BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();
+
+                    const npc = new simpleConstruction(
+                        characterId,
+                        transientId,
+                        modelId,
+                        position,
+                        new Float32Array([0, rotation[0], 0]),
+                        slot,
+                        parentObjectCharacterId
+
+                    );
+                    this._constructionSimple[characterId] = npc;
+                    switch (this.getEntityType(parentObjectCharacterId)) {
+                        case EntityTypes.CONSTRUCTION_FOUNDATION:
+                            const foundation = this._constructionFoundations[parentObjectCharacterId] as constructionFoundation;
+                            foundation.changePerimeters(this, slot, npc.state.position);
+                            break;
+                    }
+                } else {
+                    const npc = new simpleConstruction(
+                        characterId,
+                        transientId,
+                        modelId,
+                        position,
+                        new Float32Array([0, rotation[0], 0]),
+
+                    );
+                    this._constructionSimple[characterId] = npc;
+                }
                 break;
         }
 
     }
 
-    placeConstructionDoor(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array) {
+    placeConstructionDoor(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId: string, BuildingSlot: string) {
         const characterId = this.generateGuid();
         const transientId = this.getTransientId(characterId);
+        const slot = BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();
+
         const npc = new constructionDoor(
             characterId,
             transientId,
@@ -2765,13 +2821,23 @@ export class ZoneServer2016 extends EventEmitter {
             position,
             rotation,
             new Float32Array([1, 1, 1, 1]),
-            0,
+            itemDefinitionId,
             client.character.characterId,
+            parentObjectCharacterId,
+            slot
         )
+        if (Number(parentObjectCharacterId)) {
+            switch (this.getEntityType(parentObjectCharacterId)) {
+                case EntityTypes.CONSTRUCTION_FOUNDATION:
+                    const foundation = this._constructionFoundations[parentObjectCharacterId] as constructionFoundation;
+                    foundation.changePerimeters(this, slot, npc.state.position);
+                    break;
+            }
+        }
         this._constructionDoors[characterId] = npc;
     }
 
-    placeConstructionFoundation(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array) {
+    placeConstructionFoundation(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId?: string, BuildingSlot?: string,) {
         const characterId = this.generateGuid();
         const transientId = this.getTransientId(characterId);
         const npc = new constructionFoundation(
@@ -2780,11 +2846,16 @@ export class ZoneServer2016 extends EventEmitter {
             modelId,
             position,
             rotation,
-            0,
+            itemDefinitionId,
             client.character.characterId,
-            client.character.name
+            client.character.name,
+            parentObjectCharacterId,
+            BuildingSlot,
         )
         this._constructionFoundations[characterId] = npc;
+        if (itemDefinitionId === Items.FOUNDATION_EXPANSION && parentObjectCharacterId && BuildingSlot) {
+            this._constructionFoundations[parentObjectCharacterId].expansions[BuildingSlot] = characterId;
+        }
     }
 
     placeTemporaryEntity(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, time: number) {
@@ -2999,7 +3070,6 @@ export class ZoneServer2016 extends EventEmitter {
         }, 90);
         this._explosives[characterId] = npc;
     }
-
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
