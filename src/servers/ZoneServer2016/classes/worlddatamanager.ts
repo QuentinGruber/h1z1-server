@@ -92,23 +92,6 @@ export class WorldDataManager {
     if (newCharacter || client.character.isRespawning) {
       client.character.isRespawning = false;
       server.respawnPlayer(client);
-      /*
-      // Take position/rotation from a random spawn location.
-      const randomSpawnIndex = Math.floor(
-        Math.random() * server._spawnLocations.length
-      );
-      client.character.state.position = new Float32Array(
-        server._spawnLocations[randomSpawnIndex].position
-      );
-      client.character.state.rotation = new Float32Array(
-        server._spawnLocations[randomSpawnIndex].rotation
-      );
-      client.character.spawnLocation =
-        server._spawnLocations[randomSpawnIndex].name;
-      server.clearInventory(client);
-      server.giveDefaultEquipment(client, false);
-      server.giveDefaultItems(client, false);
-      */
     } else {
       client.character.state.position = new Float32Array(savedCharacter.position);
       client.character.state.rotation = new Float32Array(savedCharacter.rotation);
