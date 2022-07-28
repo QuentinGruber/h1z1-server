@@ -199,7 +199,7 @@ export class zonePacketHandlers {
         client.firstLoading = false;
         client.pingTimer?.refresh();
         client.savePositionTimer = setTimeout(
-          () => server.saveCharacterPosition(client),
+          () => server.worldDataManager.saveCharacterPosition(server, client),
           30000
         );
         const commands = [

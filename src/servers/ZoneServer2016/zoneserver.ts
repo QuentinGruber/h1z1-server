@@ -27,7 +27,7 @@ import { Resolver } from "dns";
 import { promisify } from "util";
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
-import { Vehicle2016 as Vehicle } from "./classes/vehicle";
+import { Vehicle2016 as Vehicle, Vehicle2016 } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 import {
   EntityTypes,
@@ -59,7 +59,6 @@ import {
   _,
   generateRandomGuid,
   getAppDataFolderPath,
-  initMongo,
   Int64String,
   isPosInRadius,
   getDistance,
@@ -88,7 +87,7 @@ import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
 import { ClientUpdateDeathMetrics } from "types/zone2016packets";
 import { CharacterUpdateSaveData, FullCharacterSaveData } from "types/savedata";
-const fs = require("fs");
+import { WorldDataManager } from "./classes/worldsavemanager";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   recipes = require("../../../data/2016/sampleData/recipes.json"),
@@ -109,7 +108,7 @@ export class ZoneServer2016 extends EventEmitter {
   _protocol: H1Z1Protocol;
   _db?: Db;
   _soloMode = false;
-  private _mongoAddress: string;
+  readonly _mongoAddress: string;
   _clientProtocol = "ClientProtocol_1080";
   _dynamicWeatherWorker: any;
   _dynamicWeatherEnabled = true;
@@ -165,6 +164,7 @@ export class ZoneServer2016 extends EventEmitter {
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
   worldObjectManager: WorldObjectManager;
+  worldDataManager: WorldDataManager;
   plantingManager: PlantingManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
@@ -205,6 +205,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
+    this.worldDataManager = new WorldDataManager();
     this.plantingManager = new PlantingManager(null);
 
     if (!this._mongoAddress) {
@@ -523,92 +524,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  async loadCharacterData(client: Client) {
-    let savedCharacter: FullCharacterSaveData;
-    if (!this._soloMode) {
-      const loadedCharacter = await this._db
-        ?.collection("characters")
-        .findOne({ characterId: client.character.characterId });
-      if(!loadedCharacter) {
-        console.log(`[ERROR] Mongo character not found! ownerId: ${client.loginSessionId}`);
-        return;
-      }
-      savedCharacter = {
-        serverId: loadedCharacter.serverId,
-        creationDate: loadedCharacter.creationDate,
-        lastLoginDate: loadedCharacter.lastLoginDate,
-        characterId: loadedCharacter.characterId,
-        ownerId: loadedCharacter.ownerId,
-        characterName: loadedCharacter.characterName,
-        actorModelId: loadedCharacter.modelId,
-        headActor: loadedCharacter.headActor,
-        hairModel: loadedCharacter.hairModel,
-        gender: loadedCharacter.gender,
-        isRespawning: loadedCharacter.isRespawning || false,
-        position: loadedCharacter.position,
-        rotation: loadedCharacter.rotation,
-        _loadout: loadedCharacter._loadout || {},
-        _containers: loadedCharacter._containers || {}
-      }
-    } else {
-      delete require.cache[
-        require.resolve(
-          `${this._appDataFolder}/single_player_characters2016.json`
-        )
-      ];
-      const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
-      savedCharacter = SinglePlayerCharacters.find(
-        (character: any) =>
-          character.characterId === client.character.characterId
-      );
-      if(!savedCharacter) {
-        console.log(`[ERROR] Single player character not found! characterId: ${client.character.characterId}`);
-        return;
-      }
-    }
-    client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
-    client.character.name = savedCharacter.characterName;
-    client.character.actorModelId = savedCharacter.actorModelId;
-    client.character.headActor = savedCharacter.headActor;
-    client.character.isRespawning = savedCharacter.isRespawning;
-    client.character.gender = savedCharacter.gender;
-    client.character.creationDate = savedCharacter.creationDate;
-    client.character.lastLoginDate = savedCharacter.lastLoginDate;
-    client.character.hairModel = savedCharacter.hairModel || "";
-
-    let newCharacter = false;
-    if (
-      (_.isEqual(savedCharacter.position, [0, 0, 0, 1]) &&
-        _.isEqual(savedCharacter.rotation, [0, 0, 0, 1]))
-    ) {
-      // if position/rotation hasn't changed
-      newCharacter = true;
-    }
-
-    if (newCharacter) {
-      // Take position/rotation from a random spawn location.
-      const randomSpawnIndex = Math.floor(
-        Math.random() * this._spawnLocations.length
-      );
-      client.character.state.position = new Float32Array(
-        this._spawnLocations[randomSpawnIndex].position
-      );
-      client.character.state.rotation = new Float32Array(
-        this._spawnLocations[randomSpawnIndex].rotation
-      );
-      client.character.spawnLocation =
-        this._spawnLocations[randomSpawnIndex].name;
-      this.giveDefaultEquipment(client, false);
-      this.giveDefaultItems(client, false);
-    } else {
-      client.character.state.position = new Float32Array(savedCharacter.position);
-      client.character.state.rotation = new Float32Array(savedCharacter.rotation);
-      client.character._loadout = savedCharacter._loadout || {};
-      client.character._containers = savedCharacter._containers || {};
-      this.generateEquipmentFromLoadout(client.character);
-    }
-  }
-
   pGetInventoryItems(client: Client): any[] {
     const items: any[] = Object.values(client.character._loadout)
       .filter((slot) => {
@@ -634,7 +549,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async sendCharacterData(client: Client) {
-    await this.loadCharacterData(client);
+    await this.worldDataManager.loadCharacterData(this, client);
     const containers = this.initializeContainerList(client, false);
     this.sendData(client, "SendSelfToClient", {
       data: {
@@ -654,25 +569,6 @@ export class ZoneServer2016 extends EventEmitter {
         },
         recipes: Object.values(this._recipes),
         stats: stats,
-        /*()=>{
-          const stats = [];
-          for(let i =0; i >= 89; i++) {
-            stats.push({
-              "statId": i,
-              "statData": {
-                  "statId": i,
-                  "statValue": {
-                      "type": 1,
-                      "value": {
-                          "base": randomIntFromInterval(0, 2),
-                          "modifier": 0
-                      }
-                  }
-              }
-            });
-          }
-          return stats;
-        }*/ 
         loadoutSlots: client.character.pGetLoadoutSlots(),
         equipmentSlots: client.character.pGetEquipment(),
         characterResources: client.character.pGetResources(),
@@ -693,125 +589,6 @@ export class ZoneServer2016 extends EventEmitter {
     });
 
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
-  }
-
-  async fetchZoneData(): Promise<void> {
-    if (this._mongoAddress) {
-      const mongoClient = new MongoClient(this._mongoAddress, {
-        maxPoolSize: 50,
-      });
-      try {
-        await mongoClient.connect();
-      } catch (e) {
-        throw debug(
-          "[ERROR]Unable to connect to mongo server " + this._mongoAddress
-        );
-      }
-      debug("connected to mongo !");
-      // if no collections exist on h1server database , fill it with samples
-      (await mongoClient.db("h1server").collections()).length ||
-        (await initMongo(mongoClient, debugName));
-      this._db = mongoClient.db("h1server");
-    }
-  }
-
-  async loadVehicleData() {
-    const vehiclesArray: any = await this._db
-      ?.collection("vehicles")
-      .find({ worldId: this._worldId })
-      .toArray();
-    for (let index = 0; index < vehiclesArray.length; index++) {
-      const vehicle = vehiclesArray[index];
-      const vehicleData = new Vehicle(
-        vehicle.characterId,
-        vehicle.transientId,
-        vehicle.actorModelId,
-        new Float32Array(vehicle.state.position),
-        new Float32Array(vehicle.state.rotation),
-        this._gameTime
-      );
-      this.worldObjectManager.createVehicle(this, vehicleData);
-    }
-  }
-
-  async fetchWorldData(): Promise<void> {
-    if (!this._soloMode) {
-      this._doors = {};
-      const doorArray: any = await this._db
-        ?.collection("doors")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < doorArray.length; index++) {
-        const door = doorArray[index];
-        this._doors[door.characterId] = door;
-      }
-      /*
-      this._props = {};
-      const propsArray: any = await this._db
-        ?.collection("props")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < propsArray.length; index++) {
-        const prop = propsArray[index];
-        this._props[prop.characterId] = prop;
-      }
-      */
-
-      await this.loadVehicleData();
-
-      const npcsArray: any = await this._db
-        ?.collection("npcs")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < npcsArray.length; index++) {
-        const npc = npcsArray[index];
-        this._npcs[npc.characterId] = npc;
-      }
-      this._spawnedItems = {};
-      const objectsArray: any = await this._db
-        ?.collection("objects")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < objectsArray.length; index++) {
-        const object = objectsArray[index];
-        this._spawnedItems[object.characterId] = object;
-      }
-      this._transientIds = this.getAllCurrentUsedTransientId();
-      debug("World fetched!");
-    }
-  }
-
-  async saveWorld(): Promise<void> {
-    if (!this._soloMode) {
-      if (this._worldId) {
-        await this._db
-          ?.collection(`npcs`)
-          .insertMany(Object.values(this._npcs));
-        await this._db
-          ?.collection(`vehicles`)
-          .insertMany(Object.values(this._vehicles));
-        await this._db
-          ?.collection(`objects`)
-          .insertMany(Object.values(this._spawnedItems));
-      } else {
-        const numberOfWorld: number =
-          (await this._db?.collection("worlds").find({}).count()) || 0;
-        this._worldId = numberOfWorld + 1;
-        await this._db?.collection("worlds").insertOne({
-          worldId: this._worldId,
-        });
-        await this._db
-          ?.collection(`npcs`)
-          .insertMany(Object.values(this._npcs));
-        await this._db
-          ?.collection(`vehicles`)
-          .insertMany(Object.values(this._vehicles));
-        await this._db
-          ?.collection(`objects`)
-          .insertMany(Object.values(this._spawnedItems));
-        debug("World saved!");
-      }
-    }
   }
 
   packItemDefinitions() {
@@ -874,20 +651,20 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  async setupServer(): Promise<void> {
+  async setupServer() {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
-    await this.fetchZoneData();
+    await this.worldDataManager.fetchZoneData(this);
     //this._profiles = this.generateProfiles();
     if (
       await this._db?.collection("worlds").findOne({ worldId: this._worldId })
     ) {
-      await this.fetchWorldData();
+      await this.worldDataManager.fetchWorldData(this);
     } else {
       await this._db
         ?.collection(`worlds`)
         .insertOne({ worldId: this._worldId });
-      await this.saveWorld();
+      await this.worldDataManager.saveWorld(this);
     }
 
     this.packItemDefinitions();
@@ -1072,13 +849,12 @@ export class ZoneServer2016 extends EventEmitter {
       this.spawnTraps(client);
       this.spawnTemporaryObjects(client);
       this.POIManager(client);
-      if (this.lastSaveTime + this.worldSaveTimer <= Date.now()) {
-        this.saveCharacterData(client);
-        this.lastSaveTime = Date.now();
-      }
       client.posAtLastRoutine = client.character.state.position;
     });
-    if (this._ready) this.worldObjectManager.run(this);
+    if (this._ready) {
+      this.worldObjectManager.run(this);
+      this.worldDataManager.run(this);
+    }
     if (refresh) this.worldRoutineTimer.refresh();
   }
   deleteClient(client: Client) {
@@ -1087,7 +863,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.isLoading = true; // stop anything from acting on character
 
         clearTimeout(client.character?.resourcesUpdater);
-        this.saveCharacterData(client);
+        this.worldDataManager.saveCharacterData(this, client);
         this.dismountVehicle(client);
         client.managedObjects?.forEach((characterId: any) => {
           this.dropVehicleManager(client, characterId);
@@ -3333,7 +3109,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   generateEquipmentFromLoadout(character: Character) {
-    Object.values(character._loadout).forEach((slot)=> {
+    for(const slot of Object.values(character._loadout)) {
+      if(!slot.itemDefinitionId) continue;
       const def = this.getItemDefinition(slot.itemDefinitionId);
       let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
       /*
@@ -3364,7 +3141,7 @@ export class ZoneServer2016 extends EventEmitter {
         };
         character._equipment[equipmentSlotId] = equipmentData;
       }
-    })
+    }
   }
 
   equipItem(
@@ -4888,57 +4665,6 @@ export class ZoneServer2016 extends EventEmitter {
       if (!clientObj.isLoading) {
         callback(clientObj);
       }
-    }
-  }
-  async saveCharacterPosition(client: Client, refreshTimeout = false) {
-    if (client.character) {
-      const { position, rotation } = client.character.state;
-      await this._db?.collection("characters").updateOne(
-        { characterId: client.character.characterId },
-        {
-          $set: {
-            position: position,
-            rotation: rotation,
-          },
-        }
-      );
-      refreshTimeout && client.savePositionTimer.refresh();
-    }
-  }
-
-  async saveCharacterData(client: Client) {
-    const saveData: CharacterUpdateSaveData = {
-      position: Array.from(client.character.state.position),
-      rotation: Array.from(client.character.state.lookAt),
-      isRespawning: client.character.isRespawning,
-      _loadout: client.character._loadout,
-      _containers: client.character._containers
-    }
-    if(this._soloMode) {
-      const singlePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
-      let singlePlayerCharacter = singlePlayerCharacters.find(
-        (character: any) =>
-          character.characterId === client.character.characterId
-      );
-      if(!singlePlayerCharacter) {
-        console.log("[ERROR] Single player character savedata not found!");
-        return;
-      }
-      singlePlayerCharacter = {
-        ...singlePlayerCharacter,
-        ...saveData
-      }
-      fs.writeFileSync(`${this._appDataFolder}/single_player_characters2016.json`, JSON.stringify([singlePlayerCharacter], null, 2));
-    }
-    else {
-      await this._db?.collection("characters").updateOne(
-        { characterId: client.character.characterId },
-        {
-          $set: {
-            ...saveData
-          },
-        }
-      );
     }
   }
 
