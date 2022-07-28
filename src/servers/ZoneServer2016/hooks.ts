@@ -1,14 +1,11 @@
 export type AsyncHooks =
-| "OnClientFinishedLoading"
-| "OnClientExecuteCommand"
 | "OnServerInit"
 | "OnServerReady";
 
 export type Hooks =
   | AsyncHooks
   | "OnClientFinishedLoading"
-  | "OnClientExecuteCommand"
-  | "OnServerReady";
+  | "OnClientExecuteCommand";
 
 export type FunctionHookType =
   | boolean 

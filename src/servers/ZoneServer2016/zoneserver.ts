@@ -980,6 +980,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.tickRate
     );
     this.checkHook("OnServerReady");
+    await this.checkAsyncHook("OnServerReady")
   }
 
   sendInitData(client: Client) {
