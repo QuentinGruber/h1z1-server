@@ -87,7 +87,7 @@ import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
 import { ClientUpdateDeathMetrics } from "types/zone2016packets";
 import { CharacterUpdateSaveData, FullCharacterSaveData } from "types/savedata";
-import { WorldDataManager } from "./classes/worldsavemanager";
+import { WorldDataManager } from "./classes/worlddatamanager";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   recipes = require("../../../data/2016/sampleData/recipes.json"),
