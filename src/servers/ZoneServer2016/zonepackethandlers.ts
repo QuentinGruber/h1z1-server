@@ -1368,11 +1368,7 @@ export class zonePacketHandlers {
           server.igniteOption(client, item);
           break;
         case 7: // unload weapon
-          if(!item.weapon) {
-            debug("Client attempted to use unload option on a non-weapon!")
-            return;
-          }
-          if(item.weapon.ammoCount) {
+          if(item.weapon?.ammoCount) {
             server.lootItem(client, server.generateItem(server.getWeaponAmmoId(item.itemDefinitionId), item.weapon.ammoCount))
             item.weapon.ammoCount = 0;
             if(client.character.getEquippedWeapon().itemGuid == item.itemGuid) {
