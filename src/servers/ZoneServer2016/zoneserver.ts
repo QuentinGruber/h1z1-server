@@ -932,6 +932,7 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     const character = client.character;
     if (character.isAlive) {
+      client.character.isRespawning = true;
       this.sendDeathMetrics(client);
       debug(character.name + " has died");
       if (deathInfo?.client) {
@@ -1194,6 +1195,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.resetCharacterMetrics(client);
     client.character.isAlive = true;
     client.character.isRunning = false;
+    client.character.isRespawning = false;
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
     }
@@ -1205,7 +1207,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character._resources[ResourceIds.BLEEDING] = -40;
     client.character.healingTicks = 0;
     client.character.healingMaxTicks = 0;
-    client.character.resourcesUpdater.refresh();
+    client.character.resourcesUpdater?.refresh();
     client.character.characterStates.knockedOut = false;
     this.updateCharacterState(
       client,

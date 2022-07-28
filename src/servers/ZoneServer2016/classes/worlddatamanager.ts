@@ -24,15 +24,16 @@ export class WorldDataManager {
     }
   }
 
+  //#region CHARACTER
+
   async loadCharacterData(server: ZoneServer2016, client: Client) {
     let savedCharacter: FullCharacterSaveData;
     if (!server._soloMode) {
-      console.log(" LOADING MONGO DATA ")
       const loadedCharacter = await server._db
         ?.collection("characters")
         .findOne({ characterId: client.character.characterId });
       if(!loadedCharacter) {
-        console.log(`[ERROR] Mongo character not found! ownerId: ${client.loginSessionId}`);
+        console.log(`[ERROR] Mongo character not found! characterId: ${client.character.characterId}`);
         return;
       }
       savedCharacter = {
@@ -50,10 +51,9 @@ export class WorldDataManager {
         position: loadedCharacter.position,
         rotation: loadedCharacter.rotation,
         _loadout: loadedCharacter._loadout || {},
-        _containers: loadedCharacter._containers || {}
+        _containers: loadedCharacter._containers || {},
+        _resources: loadedCharacter._resources || client.character._resources
       }
-      console.log(" SAVED CHARACTER ")
-      console.log(savedCharacter)
     } else {
       delete require.cache[
         require.resolve(
@@ -89,7 +89,10 @@ export class WorldDataManager {
       newCharacter = true;
     }
 
-    if (newCharacter) {
+    if (newCharacter || client.character.isRespawning) {
+      client.character.isRespawning = false;
+      server.respawnPlayer(client);
+      /*
       // Take position/rotation from a random spawn location.
       const randomSpawnIndex = Math.floor(
         Math.random() * server._spawnLocations.length
@@ -102,13 +105,16 @@ export class WorldDataManager {
       );
       client.character.spawnLocation =
         server._spawnLocations[randomSpawnIndex].name;
+      server.clearInventory(client);
       server.giveDefaultEquipment(client, false);
       server.giveDefaultItems(client, false);
+      */
     } else {
       client.character.state.position = new Float32Array(savedCharacter.position);
       client.character.state.rotation = new Float32Array(savedCharacter.rotation);
       client.character._loadout = savedCharacter._loadout || {};
       client.character._containers = savedCharacter._containers || {};
+      client.character._resources = savedCharacter._resources || client.character._resources;
       server.generateEquipmentFromLoadout(client.character);
     }
   }
@@ -120,8 +126,8 @@ export class WorldDataManager {
         { characterId: client.character.characterId },
         {
           $set: {
-            position: position,
-            rotation: rotation,
+            position: Array.from(position),
+            rotation: Array.from(rotation),
           },
         }
       );
@@ -135,7 +141,8 @@ export class WorldDataManager {
       rotation: Array.from(client.character.state.lookAt),
       isRespawning: client.character.isRespawning,
       _loadout: client.character._loadout,
-      _containers: client.character._containers
+      _containers: client.character._containers,
+      _resources: client.character._resources
     }
     if(server._soloMode) {
       const singlePlayerCharacters = require(`${server._appDataFolder}/single_player_characters2016.json`);
@@ -164,6 +171,8 @@ export class WorldDataManager {
       );
     }
   }
+
+  //#endregion
 
   async fetchZoneData(server: ZoneServer2016) {
     if (server._mongoAddress) {

@@ -9,6 +9,7 @@ interface BaseFullCharacterUpdateSaveData
 extends BaseEntityUpdateSaveData {
   _loadout: { [loadoutSlotId: number]: loadoutItem };
   _containers: { [loadoutSlotId: number]: loadoutContainer };
+  _resources: { [resourceId: number]: number };
 }
 
 export interface CharacterUpdateSaveData 
@@ -32,7 +33,7 @@ extends CharacterUpdateSaveData{
 
 export interface VehicleUpdateSaveData 
 extends BaseFullCharacterUpdateSaveData {
-  
+
 }
 
 export interface FullVehicleSaveData
