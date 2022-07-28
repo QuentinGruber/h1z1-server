@@ -59,7 +59,8 @@ import {
     getRandomKeyFromAnObject,
     bigIntToHexString,
     calculateDamageDistFallOff,
-    eul2quat
+    eul2quat,
+    isInside,
 } from "../../utils/utils";
 
 import { Db, MongoClient } from "mongodb";
