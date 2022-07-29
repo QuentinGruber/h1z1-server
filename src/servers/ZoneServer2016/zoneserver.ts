@@ -27,7 +27,7 @@ import { Resolver } from "dns";
 import { promisify } from "util";
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
-import { Vehicle2016 as Vehicle, Vehicle2016 } from "./classes/vehicle";
+import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 import {
   EntityTypes,
@@ -72,7 +72,7 @@ import {
   toHex,
 } from "../../utils/utils";
 
-import { Db, MongoClient } from "mongodb";
+import { Db } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ItemObject } from "./classes/itemobject";
@@ -86,7 +86,7 @@ import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
 import { ClientUpdateDeathMetrics } from "types/zone2016packets";
-import { CharacterUpdateSaveData, FullCharacterSaveData } from "types/savedata";
+import { FullCharacterSaveData } from "types/savedata";
 import { WorldDataManager } from "./classes/worlddatamanager";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
