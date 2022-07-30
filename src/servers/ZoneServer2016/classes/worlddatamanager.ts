@@ -201,20 +201,20 @@ export class WorldDataManager {
   }
 
   async fetchWorldData(server: ZoneServer2016) {
+    await this.loadVehicleData(server);
     if (server._soloMode) {
-
+      // TODO
     }
     else {
-      await this.loadVehicleData(server);
 
-      server._transientIds = server.getAllCurrentUsedTransientId();
-      debug("World fetched!");
     }
+    server._transientIds = server.getAllCurrentUsedTransientId();
+    debug("World fetched!");
   }
 
   async saveWorld(server: ZoneServer2016) {
     if (server._soloMode) {
-      
+      // TODO
     }
     else {
       if (!server._worldId) {
@@ -232,10 +232,20 @@ export class WorldDataManager {
   }
 
   async loadVehicleData(server: ZoneServer2016) {
-    const vehicles: Array<FullVehicleSaveData> = <any>await server._db
+    let vehicles: Array<FullVehicleSaveData>;
+    if(server._soloMode) {
+      vehicles = require(`${server._appDataFolder}/worlddata/vehicles.json`);
+      if(!vehicles) {
+        debug("Vehicle data not found in file, aborting.")
+        return;
+      }
+    }
+    else {
+      vehicles = <any>await server._db
       ?.collection("vehicles")
       .find({ worldId: server._worldId })
       .toArray();
+    }
     vehicles.forEach((vehicle)=> {
       const transientId = server.getTransientId(vehicle.characterId);
       const vehicleData = new Vehicle2016(
@@ -266,8 +276,13 @@ export class WorldDataManager {
         _resources: vehicle._resources
       }
     })
-    const collection = server._db?.collection("vehicles");
-    collection?.deleteMany({serverId: server._worldId}) // clear vehicles
-    collection?.insertMany(vehicles)
+    if(server._soloMode) {
+      fs.writeFileSync(`${server._appDataFolder}/worlddata/vehicles.json`, JSON.stringify(vehicles, null, 2));
+    }
+    else {
+      const collection = server._db?.collection("vehicles");
+      collection?.deleteMany({serverId: server._worldId}) // clear vehicles
+      collection?.insertMany(vehicles)
+    }
   }
 }
