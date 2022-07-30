@@ -749,7 +749,7 @@ export class zonePacketHandlers {
       );
       //}
       if (packet.data.positionUpdate.engineRPM) {
-        vehicle.positionUpdate = packet.data.positionUpdate;
+        //vehicle.positionUpdate = packet.data.positionUpdate;
       }
       if (packet.data.positionUpdate.position) {
         vehicle.state.position = new Float32Array([
@@ -809,7 +809,7 @@ export class zonePacketHandlers {
         server.setGodMode(client, false);
         client.character.tempGodMode = false;
       }
-      client.character.positionUpdate = packet.data;
+      //client.character.positionUpdate = packet.data;
       if (packet.data.flags === 513) {
         // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
         return;
@@ -917,10 +917,12 @@ export class zonePacketHandlers {
               vehicle.pGetFullVehicle()
             );
             // prevents cars from spawning in under the map for other characters
+            /*
             server.sendData(client, "PlayerUpdatePosition", {
               transientId: vehicle.transientId,
               positionUpdate: vehicle.positionUpdate,
             });
+            */
             server.sendData(client, "ResourceEvent", {
               eventData: {
                 type: 1,
@@ -933,6 +935,7 @@ export class zonePacketHandlers {
           }
           for (const a in vehicle.seats) {
             const seatId = vehicle.getCharacterSeat(vehicle.seats[a]);
+            if(!vehicle.seats[a]) continue;
             server.sendData(client, "Mount.MountResponse", {
               // mounts character
               characterId: vehicle.seats[a],

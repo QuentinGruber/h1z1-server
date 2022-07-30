@@ -177,6 +177,19 @@ export const setupAppDataFolder = (): void => {
       JSON.stringify([])
     );
   }
+  if (
+    !fs.existsSync(`${AppDataFolderPath}/worlddata`)
+  ) {
+    fs.mkdirSync(`${AppDataFolderPath}/worlddata`);
+  }
+  if (
+    !fs.existsSync(`${AppDataFolderPath}/worlddata/vehicles.json`)
+  ) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/vehicles.json`,
+      JSON.stringify([])
+    );
+  }
 };
 
 export const objectIsEmpty = (obj: Record<string, unknown>) => {
@@ -339,10 +352,7 @@ export const initMongo = async function (
   await mongoClient.db(dbName).collection("servers").insertMany(servers);
   await mongoClient.db(dbName).createCollection("zone-whitelist");
   const zoneWhitelist = require("../../data/defaultDatabase/shared/zone-whitelist.json");
-  await mongoClient
-    .db(dbName)
-    .collection("zone-whitelist")
-    .insertMany(zoneWhitelist);
+  await mongoClient.db(dbName).collection("zone-whitelist").insertMany(zoneWhitelist);
   debug("h1server database was missing... created one with samples.");
 };
 

@@ -50,7 +50,6 @@ export class Vehicle2016 extends BaseFullCharacter {
   vehicleManager?: string;
   seats: { [seatId: string]: any } = {};
   passengers: passengers = {};
-  gameTime: number;
   vehicleId: number;
   destroyedState = 0;
   positionUpdateType = 1;
@@ -100,11 +99,10 @@ export class Vehicle2016 extends BaseFullCharacter {
         break;
     }
     Object.seal(this.seats); // object can't be edited, but properties can
-    this.gameTime = gameTime;
     this.positionUpdate = createPositionUpdate(
       this.state.position,
       this.state.rotation,
-      this.gameTime
+      gameTime
     );
   }
   getSeatCount() {

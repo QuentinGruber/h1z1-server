@@ -1,8 +1,19 @@
 import { loadoutContainer, loadoutItem } from "./zoneserver";
 
+interface BaseSaveData {
+  serverId: number;
+}
+
 interface BaseEntityUpdateSaveData {
   position: Array<number>;
   rotation: Array<number>;
+}
+
+interface BaseFullEntitySaveData 
+extends BaseEntityUpdateSaveData, 
+BaseSaveData {
+  characterId: string;
+  actorModelId: number;
 }
 
 interface BaseFullCharacterUpdateSaveData
@@ -18,25 +29,19 @@ extends BaseFullCharacterUpdateSaveData {
 }
 
 export interface FullCharacterSaveData
-extends CharacterUpdateSaveData{
-  serverId: number;
+extends CharacterUpdateSaveData, 
+BaseFullEntitySaveData {
   creationDate: string;
   lastLoginDate: string;
-  characterId: string;
   ownerId: string;
   characterName: string;
-  actorModelId: number;
   headActor: string;
   hairModel: string;
   gender: number;
 }
 
-export interface VehicleUpdateSaveData 
-extends BaseFullCharacterUpdateSaveData {
-
-}
-
 export interface FullVehicleSaveData
-extends VehicleUpdateSaveData {
+extends BaseFullCharacterUpdateSaveData,
+BaseFullEntitySaveData {
 
 }
