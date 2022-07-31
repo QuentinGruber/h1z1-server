@@ -27,7 +27,7 @@ let dev = require("./commands/dev").default;
 
 let admin = require("./commands/admin").default;
 
-import { _, Int64String, isPosInRadius, getDistance, eul2quat, quat2matrix } from "../../utils/utils";
+import { _, Int64String, isPosInRadius, getDistance, eul2quat, quat2matrix, randomIntFromInterval } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
@@ -42,6 +42,7 @@ import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { Npc } from "./classes/npc";
 import { constructionFoundation } from "./classes/constructionFoundation";
 import { constructionDoor } from "./classes/constructionDoor";
+import { constructionCrop } from "./classes/constructionCrop";
 
 const profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
 const projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
@@ -1031,6 +1032,7 @@ export class zonePacketHandlers {
                     server._npcs[guid] ||
                     server._constructionFoundations[guid] ||
                     server._constructionDoors[guid] ||
+                    server._constructionCrops[guid] ||
                     0,
                 entityType = server.getEntityType(guid)
             client.character.currentInteractionGuid = guid;
@@ -1139,6 +1141,33 @@ export class zonePacketHandlers {
                         });
                         doorEntity.isOpen = !doorEntity.isOpen; 
                         break;
+                case EntityTypes.CONSTRUCTION_CROP:
+                    //TODO: Cleanup
+                    const cropEntity = entityData as constructionCrop;
+                    if(!cropEntity.mature) return;
+                    server.sendDataToAllWithSpawnedEntity(
+                      server._constructionCrops,
+                      cropEntity.characterId,
+                      "Character.RemovePlayer",
+                      {
+                          characterId: cropEntity.characterId,
+                      }
+                    );
+
+                    const growthDefinition = server.getGrowthDefinition(cropEntity.itemDefinitionId).STAGES[cropEntity.growthStage];
+                    if(growthDefinition != undefined) {
+                      for (const rewardId in growthDefinition?.REWARDS) {
+                        const rewardObj = growthDefinition.REWARDS[rewardId];
+                        if(randomIntFromInterval(0, 100) <= rewardObj.CHANCE || rewardObj.CHANCE == 100) {
+                          const count = randomIntFromInterval(rewardObj.MIN, rewardObj.MAX);
+                          server.lootContainerItem(client, server.generateItem(rewardObj.ITEM_DEFINITION_ID), count);
+                        }
+                      }
+                    }
+
+                    server._constructionTilledGround[cropEntity.parentObjectCharacterId].cropSlots[cropEntity.buildingSlot] = new Float32Array([0, 0, 0, 0]);
+                    delete server._constructionCrops[cropEntity.characterId];
+                  break;
                 default:
                     break;
             }
@@ -1190,6 +1219,7 @@ export class zonePacketHandlers {
                     server._doors[guid] ||
                     server._constructionFoundations[guid] ||
                     server._constructionDoors[guid] ||
+                    server._constructionCrops[guid] ||
                     0,
                 entityType = server.getEntityType(guid)
 
@@ -1236,6 +1266,14 @@ export class zonePacketHandlers {
                     server.sendData(client, "Command.InteractionString", {
                         guid: guid,
                         stringId: 12979,
+                    });
+                    break;
+                case EntityTypes.CONSTRUCTION_CROP:
+                    const crop = entityData as constructionCrop;
+                    if (crop.ownerCharacterId != client.character.characterId || !crop.mature) return;
+                    server.sendData(client, "Command.InteractionString", {
+                        guid: guid,
+                        stringId: 29,
                     });
                     break;
                 default:

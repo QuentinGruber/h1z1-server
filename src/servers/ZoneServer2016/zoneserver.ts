@@ -79,7 +79,8 @@ import { BaseEntity } from "./classes/baseentity";
 import { constructionDoor } from "./classes/constructionDoor";
 import { constructionFoundation } from "./classes/constructionFoundation";
 import { simpleConstruction } from "./classes/simpleConstruction";
-
+import { constructionTilledGround } from "./classes/constructionTilledGround";
+import { constructionCrop } from "./classes/constructionCrop";
 
 // need to get 2016 lists
 //const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -89,6 +90,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_PVFiesta.json"),
   localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
   stats = require("../../../data/2016/sampleData/stats.json"),
   itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
+  growthDefinitions = require("./../../../data/2016/dataSources/ServerFarmingGrowthDefinitions.json"),
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
@@ -116,6 +118,8 @@ export class ZoneServer2016 extends EventEmitter {
     _constructionFoundations: { [characterId: string]: constructionFoundation } = {};
     _constructionDoors: { [characterId: string]: constructionDoor } = {};
     _constructionSimple: { [characterId: string]: simpleConstruction } = {};
+    _constructionTilledGround: { [characterId: string]: constructionTilledGround } = {};
+    _constructionCrops: { [characterId: string]: constructionCrop } = {};
     _npcs: { [characterId: string]: Npc } = {};
     _spawnedItems: { [characterId: string]: ItemObject } = {};
     _doors: { [characterId: string]: DoorEntity } = {};
@@ -164,6 +168,7 @@ export class ZoneServer2016 extends EventEmitter {
     plantingManager: PlantingManager;
     _ready: boolean = false;
     _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
+    _growthDefinitions: { [itemDefinitionId: number]: any } = growthDefinitions;
     _weaponDefinitions: { [weaponDefinitionId: number]: any } = weaponDefinitions.WEAPON_DEFINITIONS;
     _firegroupDefinitions: { [firegroupId: number]: any } = weaponDefinitions.FIRE_GROUP_DEFINITIONS;
     _firemodeDefinitions: { [firemodeId: number]: any } = weaponDefinitions.FIRE_MODE_DEFINITIONS;
@@ -1623,6 +1628,10 @@ export class ZoneServer2016 extends EventEmitter {
                 return EntityTypes.CONSTRUCTION_DOOR;
             case !!this._constructionSimple[entityKey]:
                 return EntityTypes.CONSTRUCTION_SIMPLE;
+            case !!this._constructionTilledGround[entityKey]:
+                return EntityTypes.CONSTRUCTION_TILLEDGROUND;
+            case !!this._constructionCrops[entityKey]:
+                return EntityTypes.CONSTRUCTION_CROP;
             default:
                 return EntityTypes.INVALID;
         }
@@ -2200,6 +2209,37 @@ export class ZoneServer2016 extends EventEmitter {
                 client.spawnedEntities.push(object);
             }
         }
+
+        for (const characterId in this._constructionTilledGround) {
+          const npc = this._constructionTilledGround[characterId];
+          if (
+            isPosInRadius(
+              500,
+              client.character.state.position,
+              npc.state.position
+            ) &&
+            !client.spawnedEntities.includes(npc)
+          ) {
+            this.addLightweightNpc(client, npc);
+            client.spawnedEntities.push(npc);
+          }
+        }
+
+        for (const characterId in this._constructionCrops) {
+          const npc = this._constructionCrops[characterId];
+          if (
+            isPosInRadius(
+              500,
+              client.character.state.position,
+              npc.state.position
+            ) &&
+            !client.spawnedEntities.includes(npc)
+          ) {
+            
+            this.addLightweightNpc(client, npc);
+            client.spawnedEntities.push(npc);
+          }
+        }
     }
 
   spawnExplosives(client: Client) {
@@ -2752,6 +2792,11 @@ export class ZoneServer2016 extends EventEmitter {
             unknownString1: "",
         });
         switch (itemDefinitionId) {
+            case Items.SEED_CORN:
+            case Items.SEED_WHEAT: this.placeSeed(client, itemDefinitionId, position, rotation, parentObjectCharacterId, BuildingSlot);
+              break;
+            case Items.GROUND_TILLER: this.placeGroundTiller(client, itemDefinitionId, position, eul2quat(rotation));
+              break;
             case Items.SNARE: this.placeTrap(client, itemDefinitionId, modelId, position, rotation);
                 break;
             case Items.PUNJI_STICKS: this.placeTrap(client, itemDefinitionId, modelId, position, rotation);
@@ -2810,6 +2855,63 @@ export class ZoneServer2016 extends EventEmitter {
                 break;
         }
 
+    }
+
+    placeGroundTiller(client: Client, itemDefinitionId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId?: string, BuildingSlot?: string) {
+      const characterId = this.generateGuid();
+      const transientId = this.getTransientId(characterId);
+      this._constructionTilledGround[characterId] = new constructionTilledGround(
+        characterId,
+        transientId,
+        position,
+        rotation,
+        client.character.characterId,
+        BuildingSlot
+      );
+    }
+
+    placeSeed(client: Client, itemDefinitionId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId: string, BuildingSlot: string) {
+      const characterId = this.generateGuid();
+      const transientId = this.getTransientId(characterId);
+      const slot = BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();
+
+      const npc = new constructionCrop(
+        characterId,
+        transientId,
+        this.getGrowthDefinition(itemDefinitionId).STAGES[0].MODEL_ID,
+        position,
+        rotation,
+        new Float32Array([1, 1, 1, 1]),
+        itemDefinitionId,
+        client.character.characterId,
+        parentObjectCharacterId,
+        slot
+      )
+
+      if (Number(parentObjectCharacterId)) {
+        switch (this.getEntityType(parentObjectCharacterId)) {
+            case EntityTypes.CONSTRUCTION_TILLEDGROUND:
+                const tilledGround = this._constructionTilledGround[parentObjectCharacterId] as constructionTilledGround;
+                tilledGround.sowSeed(this, slot, npc.state.position);
+                break;
+        }
+      }
+
+      this._constructionCrops[characterId] = npc;
+
+      //TODO: Add server side aging for crops
+      /*setTimeout(() => {
+        this.sendDataToAllWithSpawnedEntity(
+          this._constructionCrops,
+          characterId,
+          "Character.ReplaceBaseModel",
+          {
+            characterId: characterId,
+            modelId: 61,
+            effectId: 5056,
+          }
+        )
+      }, 10000);*/
     }
 
     placeConstructionDoor(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId: string, BuildingSlot: string) {
@@ -3702,6 +3804,11 @@ export class ZoneServer2016 extends EventEmitter {
       textureAlias: skin,
       guid: bigIntToHexString(this.generateItemGuid()),
     };
+  }
+
+  getGrowthDefinition(itemDefinitionId: number) {
+    if(!itemDefinitionId) return;
+    return this._growthDefinitions[itemDefinitionId];
   }
 
   getItemDefinition(itemDefinitionId: number | undefined) {
