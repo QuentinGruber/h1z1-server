@@ -54,7 +54,7 @@ export class constructionTilledGround extends Npc {
               continue;
             }
 
-            if(cropObj.age++ >= stageObj.AGE) {
+            if(cropObj.age++ >= (cropObj.fertilized ? stageObj.AGE / 3 : stageObj.AGE)) {
               //TODO: Cropstage cannot be higher then length
               cropObj.growthStage++;
 

@@ -4697,7 +4697,14 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case 25: //Fertilizer
         this.utilizeHudTimer(client, nameId, timeout, () => {
-          this.plantingManager.FertilizeCrops(client, this);
+          //this.plantingManager.FertilizeCrops(client, this);
+          //TODO: Maybe find a better solution to get all crops within x amount of distance
+          for (const cropId in this._constructionCrops) {
+            const cropObj = this._constructionCrops[cropId];
+            if(getDistance(cropObj.pGetLightweight().position, client.character.pGetLightweight().position) < 6) {
+              cropObj.fertilized = true;
+            }
+          }
           this.removeInventoryItem(client, item);
         });
         return;
