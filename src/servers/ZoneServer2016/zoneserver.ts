@@ -179,7 +179,7 @@ export class ZoneServer2016 extends EventEmitter {
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
   _recipes: { [recipeId: number]: any } = recipes;
-  private lastItemGuid: bigint = 0x3000000000000000n;
+  lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
   _packetsStats: Record<string, number> = {};
   worldSaveTimer: number = 600000; // 10 minutes

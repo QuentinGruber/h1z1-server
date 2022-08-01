@@ -190,6 +190,14 @@ export const setupAppDataFolder = (): void => {
       JSON.stringify([])
     );
   }
+  if (
+    !fs.existsSync(`${AppDataFolderPath}/worlddata/world.json`)
+  ) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/world.json`,
+      JSON.stringify([])
+    );
+  }
 };
 
 export const objectIsEmpty = (obj: Record<string, unknown>) => {

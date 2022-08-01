@@ -1,5 +1,5 @@
 import { MongoClient } from "mongodb";
-import { CharacterUpdateSaveData, FullCharacterSaveData, FullVehicleSaveData } from "types/savedata";
+import { CharacterUpdateSaveData, FullCharacterSaveData, FullVehicleSaveData, ServerSaveData } from "types/savedata";
 import { initMongo, _ } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "./vehicle";
@@ -23,8 +23,90 @@ export class WorldDataManager {
       this.lastSaveTime = Date.now();
     }
   }
+  
+  async fetchZoneData(server: ZoneServer2016) {
+    if (server._mongoAddress) {
+      const mongoClient = new MongoClient(server._mongoAddress, {
+        maxPoolSize: 50,
+      });
+      try {
+        await mongoClient.connect();
+      } catch (e) {
+        throw debug(
+          "[ERROR]Unable to connect to mongo server " + server._mongoAddress
+        );
+      }
+      debug("connected to mongo !");
+      // if no collections exist on h1server database , fill it with samples
+      (await mongoClient.db("h1server").collections()).length ||
+        (await initMongo(mongoClient, "ZoneServer"));
+      server._db = mongoClient.db("h1server");
+    }
+  }
 
-  //#region CHARACTER
+  async fetchWorldData(server: ZoneServer2016) {
+    await this.loadVehicleData(server);
+    if (server._soloMode) {
+      // TODO
+    }
+    else {
+
+    }
+    server._transientIds = server.getAllCurrentUsedTransientId();
+    debug("World fetched!");
+  }
+
+  async saveWorld(server: ZoneServer2016) {
+    if (server._soloMode) {
+      // TODO
+    }
+    else {
+      if (!server._worldId) {
+        const numberOfWorld: number =
+          (await server._db?.collection("worlds").find({}).count()) || 0;
+        server._worldId = numberOfWorld + 1;
+        await server._db?.collection("worlds").insertOne({
+          worldId: server._worldId,
+        });
+        debug("Existing world was not found, created one.");
+      }
+    }
+    await this.saveVehicles(server);
+    debug("World saved!");
+  }
+
+  //#region SERVER DATA
+
+  private async loadServerData(server: ZoneServer2016) {
+    let serverData;
+    if (server._soloMode) {
+      serverData = require(`${server._appDataFolder}/worlddata/world.json`);
+      if(!serverData) {
+        debug("Vehicle data not found in file, aborting.")
+        return;
+      }
+    }
+    else {
+
+    }
+  }
+
+  private async saveServerData(server: ZoneServer2016) {
+    const saveData: ServerSaveData = {
+      serverId: server._worldId,
+      lastItemGuid: server.lastItemGuid
+    }
+    if (server._soloMode) {
+      fs.writeFileSync(`${server._appDataFolder}/worlddata/world.json`, JSON.stringify(saveData, null, 2));
+    }
+    else {
+      
+    }
+  }
+
+  //#endregion
+
+  //#region CHARACTER DATA
 
   async loadCharacterData(server: ZoneServer2016, client: Client) {
     let savedCharacter: FullCharacterSaveData;
@@ -180,58 +262,9 @@ export class WorldDataManager {
 
   //#endregion
 
-  async fetchZoneData(server: ZoneServer2016) {
-    if (server._mongoAddress) {
-      const mongoClient = new MongoClient(server._mongoAddress, {
-        maxPoolSize: 50,
-      });
-      try {
-        await mongoClient.connect();
-      } catch (e) {
-        throw debug(
-          "[ERROR]Unable to connect to mongo server " + server._mongoAddress
-        );
-      }
-      debug("connected to mongo !");
-      // if no collections exist on h1server database , fill it with samples
-      (await mongoClient.db("h1server").collections()).length ||
-        (await initMongo(mongoClient, "ZoneServer"));
-      server._db = mongoClient.db("h1server");
-    }
-  }
+  //#region VEHICLE DATA
 
-  async fetchWorldData(server: ZoneServer2016) {
-    await this.loadVehicleData(server);
-    if (server._soloMode) {
-      // TODO
-    }
-    else {
-
-    }
-    server._transientIds = server.getAllCurrentUsedTransientId();
-    debug("World fetched!");
-  }
-
-  async saveWorld(server: ZoneServer2016) {
-    if (server._soloMode) {
-      // TODO
-    }
-    else {
-      if (!server._worldId) {
-        const numberOfWorld: number =
-          (await server._db?.collection("worlds").find({}).count()) || 0;
-        server._worldId = numberOfWorld + 1;
-        await server._db?.collection("worlds").insertOne({
-          worldId: server._worldId,
-        });
-        debug("Existing world was not found, created one.");
-      }
-      await this.saveVehicles(server);
-    }
-    debug("World saved!");
-  }
-
-  async loadVehicleData(server: ZoneServer2016) {
+  private async loadVehicleData(server: ZoneServer2016) {
     let vehicles: Array<FullVehicleSaveData>;
     if(server._soloMode) {
       vehicles = require(`${server._appDataFolder}/worlddata/vehicles.json`);
@@ -263,7 +296,7 @@ export class WorldDataManager {
     })
   }
 
-  async saveVehicles(server: ZoneServer2016) {
+  private async saveVehicles(server: ZoneServer2016) {
     const vehicles: Array<FullVehicleSaveData> = Object.values(server._vehicles).map((vehicle)=> {
       return {
         serverId: server._worldId,
@@ -286,3 +319,5 @@ export class WorldDataManager {
     }
   }
 }
+
+//#endregion
