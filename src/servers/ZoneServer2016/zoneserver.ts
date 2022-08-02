@@ -79,8 +79,8 @@ import { BaseEntity } from "./classes/baseentity";
 import { constructionDoor } from "./classes/constructionDoor";
 import { constructionFoundation } from "./classes/constructionFoundation";
 import { simpleConstruction } from "./classes/simpleConstruction";
-import { constructionTilledGround } from "./classes/constructionTilledGround";
-import { constructionCrop } from "./classes/constructionCrop";
+import { farmingTilledGround } from "./classes/farmingTilledGround";
+import { farmingCrop } from "./classes/farmingCrop";
 
 // need to get 2016 lists
 //const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -90,7 +90,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_PVFiesta.json"),
   localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
   stats = require("../../../data/2016/sampleData/stats.json"),
   itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
-  growthDefinitions = require("./../../../data/2016/dataSources/ServerFarmingGrowthDefinitions.json"),
+  farmingDefinitions = require("./../../../data/2016/dataSources/ServerFarmingDefinitions.json"),
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
@@ -118,8 +118,8 @@ export class ZoneServer2016 extends EventEmitter {
     _constructionFoundations: { [characterId: string]: constructionFoundation } = {};
     _constructionDoors: { [characterId: string]: constructionDoor } = {};
     _constructionSimple: { [characterId: string]: simpleConstruction } = {};
-    _constructionTilledGround: { [characterId: string]: constructionTilledGround } = {};
-    _constructionCrops: { [characterId: string]: constructionCrop } = {};
+    _farmingTilledGround: { [characterId: string]: farmingTilledGround } = {};
+    _farmingCrops: { [characterId: string]: farmingCrop } = {};
     _npcs: { [characterId: string]: Npc } = {};
     _spawnedItems: { [characterId: string]: ItemObject } = {};
     _doors: { [characterId: string]: DoorEntity } = {};
@@ -168,7 +168,8 @@ export class ZoneServer2016 extends EventEmitter {
     plantingManager: PlantingManager;
     _ready: boolean = false;
     _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
-    _growthDefinitions: { [itemDefinitionId: number]: any } = growthDefinitions;
+    _farmingFertilizerDefinition: any = farmingDefinitions.FERTILIZER_DEFINITION;
+    _farmingGrowthDefinition: { [itemDefinitionId: number]: any } = farmingDefinitions.GROWTH_DEFINITIONS;
     _weaponDefinitions: { [weaponDefinitionId: number]: any } = weaponDefinitions.WEAPON_DEFINITIONS;
     _firegroupDefinitions: { [firegroupId: number]: any } = weaponDefinitions.FIRE_GROUP_DEFINITIONS;
     _firemodeDefinitions: { [firemodeId: number]: any } = weaponDefinitions.FIRE_MODE_DEFINITIONS;
@@ -1628,10 +1629,10 @@ export class ZoneServer2016 extends EventEmitter {
                 return EntityTypes.CONSTRUCTION_DOOR;
             case !!this._constructionSimple[entityKey]:
                 return EntityTypes.CONSTRUCTION_SIMPLE;
-            case !!this._constructionTilledGround[entityKey]:
-                return EntityTypes.CONSTRUCTION_TILLEDGROUND;
-            case !!this._constructionCrops[entityKey]:
-                return EntityTypes.CONSTRUCTION_CROP;
+            case !!this._farmingTilledGround[entityKey]:
+                return EntityTypes.FARMING_TILLEDGROUND;
+            case !!this._farmingCrops[entityKey]:
+                return EntityTypes.FARMING_CROP;
             default:
                 return EntityTypes.INVALID;
         }
@@ -2210,8 +2211,8 @@ export class ZoneServer2016 extends EventEmitter {
             }
         }
 
-        for (const characterId in this._constructionTilledGround) {
-          const npc = this._constructionTilledGround[characterId];
+        for (const characterId in this._farmingTilledGround) {
+          const npc = this._farmingTilledGround[characterId];
           if (
             isPosInRadius(
               500,
@@ -2225,8 +2226,8 @@ export class ZoneServer2016 extends EventEmitter {
           }
         }
 
-        for (const characterId in this._constructionCrops) {
-          const npc = this._constructionCrops[characterId];
+        for (const characterId in this._farmingCrops) {
+          const npc = this._farmingCrops[characterId];
           if (
             isPosInRadius(
               500,
@@ -2860,7 +2861,7 @@ export class ZoneServer2016 extends EventEmitter {
     placeGroundTiller(client: Client, itemDefinitionId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId?: string, BuildingSlot?: string) {
       const characterId = this.generateGuid();
       const transientId = this.getTransientId(characterId);
-      this._constructionTilledGround[characterId] = new constructionTilledGround(
+      this._farmingTilledGround[characterId] = new farmingTilledGround(
         characterId,
         transientId,
         position,
@@ -2875,10 +2876,10 @@ export class ZoneServer2016 extends EventEmitter {
       const transientId = this.getTransientId(characterId);
       const slot = BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();
 
-      const npc = new constructionCrop(
+      this._farmingCrops[characterId] = new farmingCrop(
         characterId,
         transientId,
-        this.getGrowthDefinition(itemDefinitionId).STAGES[0].MODEL_ID,
+        this.getGrowthDefinition(itemDefinitionId)?.STAGES[0]?.MODEL_ID ?? 9163,
         position,
         rotation,
         new Float32Array([1, 1, 1, 1]),
@@ -2886,32 +2887,16 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId,
         parentObjectCharacterId,
         slot
-      )
+      );
 
       if (Number(parentObjectCharacterId)) {
         switch (this.getEntityType(parentObjectCharacterId)) {
-            case EntityTypes.CONSTRUCTION_TILLEDGROUND:
-                const tilledGround = this._constructionTilledGround[parentObjectCharacterId] as constructionTilledGround;
-                tilledGround.sowSeed(this, slot, npc.state.position);
+            case EntityTypes.FARMING_TILLEDGROUND:
+                const tilledGround = this._farmingTilledGround[parentObjectCharacterId] as farmingTilledGround;
+                tilledGround.sowSeed(this, slot, characterId);
                 break;
         }
       }
-
-      this._constructionCrops[characterId] = npc;
-
-      //TODO: Add server side aging for crops
-      /*setTimeout(() => {
-        this.sendDataToAllWithSpawnedEntity(
-          this._constructionCrops,
-          characterId,
-          "Character.ReplaceBaseModel",
-          {
-            characterId: characterId,
-            modelId: 61,
-            effectId: 5056,
-          }
-        )
-      }, 10000);*/
     }
 
     placeConstructionDoor(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId: string, BuildingSlot: string) {
@@ -3808,7 +3793,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   getGrowthDefinition(itemDefinitionId: number) {
     if(!itemDefinitionId) return;
-    return this._growthDefinitions[itemDefinitionId];
+    return this._farmingGrowthDefinition[itemDefinitionId];
+  }
+
+  getFertilizerDefinition() {
+    return this._farmingFertilizerDefinition;
   }
 
   getItemDefinition(itemDefinitionId: number | undefined) {
@@ -4697,14 +4686,14 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case 25: //Fertilizer
         this.utilizeHudTimer(client, nameId, timeout, () => {
-          //this.plantingManager.FertilizeCrops(client, this);
-          //TODO: Maybe find a better solution to get all crops within x amount of distance
-          for (const cropId in this._constructionCrops) {
-            const cropObj = this._constructionCrops[cropId];
-            if(getDistance(cropObj.pGetLightweight().position, client.character.pGetLightweight().position) < 6) {
-              cropObj.fertilized = true;
+          client.spawnedEntities.filter((e) => {
+            return e instanceof farmingCrop;
+          }).forEach((entity) => {
+            const cropEntity = entity as farmingCrop;
+            if(getDistance(entity.pGetLightweight().position, client.character.pGetLightweight().position) <= this.getFertilizerDefinition().DISTANCE) {
+              cropEntity.fertilized = true;
             }
-          }
+          });
           this.removeInventoryItem(client, item);
         });
         return;

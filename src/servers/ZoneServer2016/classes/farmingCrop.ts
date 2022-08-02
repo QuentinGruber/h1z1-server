@@ -12,9 +12,10 @@
 // ======================================================================
 
 import { eul2quat } from "../../../utils/utils";
+import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 
-export class constructionCrop extends BaseLightweightCharacter {
+export class farmingCrop extends BaseLightweightCharacter {
     ownerCharacterId: string;
     parentObjectCharacterId: string;
     buildingSlot: string;
@@ -22,7 +23,6 @@ export class constructionCrop extends BaseLightweightCharacter {
     growthStage: number;
     age: number;
     fertilized: boolean = false;
-    mature: boolean = false;
     constructor(
         characterId: string,
         transientId: number,
@@ -48,5 +48,9 @@ export class constructionCrop extends BaseLightweightCharacter {
         this.itemDefinitionId = itemDefinitionId;
         this.age = 0;
         this.growthStage = 0;
+    }
+
+    lastStage(server: ZoneServer2016) {
+        return server.getGrowthDefinition(this.itemDefinitionId).STAGES.length -1 == this.growthStage;
     }
 }

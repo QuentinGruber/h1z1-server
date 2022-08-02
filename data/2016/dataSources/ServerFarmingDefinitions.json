@@ -1,0 +1,88 @@
+{
+    "GROWTH_DEFINITIONS": {
+      "1987": {
+        "STAGES": [
+          {
+            "MODEL_ID": 9163,
+            "MAX_AGE": 21600
+          },
+          {
+            "MODEL_ID": 59,
+            "MAX_AGE": 43200
+          },
+          {
+            "MODEL_ID": 60,
+            "MAX_AGE": 64800
+          },
+          {
+            "MODEL_ID": 61,
+            "MAX_AGE": 86400,
+            "REWARDS": [
+              {
+                "ITEM_DEFINITION_ID": 107,
+                "MIN": 1,
+                "MAX": 2,
+                "CHANCE": 100
+              },
+              {
+                "ITEM_DEFINITION_ID": 1987,
+                "MIN": 1,
+                "MAX": 1,
+                "CHANCE": 100
+              },
+              {
+                "ITEM_DEFINITION_ID": 106,
+                "MIN": 1,
+                "MAX": 2,
+                "CHANCE": 10
+              }
+            ]
+          }
+        ]
+      },
+      "1988": {
+        "STAGES": [
+          {
+            "MODEL_ID": 9163,
+            "MAX_AGE": 21
+          },
+          {
+            "MODEL_ID": 9191,
+            "MAX_AGE": 43
+          },
+          {
+            "MODEL_ID": 9190,
+            "MAX_AGE": 64
+          },
+          {
+            "MODEL_ID": 9189,
+            "MAX_AGE": 86,
+            "REWARDS": [
+              {
+                "ITEM_DEFINITION_ID": 1438,
+                "MIN": 1,
+                "MAX": 2,
+                "CHANCE": 100
+              },
+              {
+                "ITEM_DEFINITION_ID": 1988,
+                "MIN": 1,
+                "MAX": 1,
+                "CHANCE": 100
+              },
+              {
+                "ITEM_DEFINITION_ID": 1437,
+                "MIN": 1,
+                "MAX": 2,
+                "CHANCE": 10
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "FERTILIZER_DEFINITION": {
+      "AGE_DIVISION": 3,
+      "DISTANCE": 6
+    }
+  }

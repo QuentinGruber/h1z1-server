@@ -42,7 +42,7 @@ import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { Npc } from "./classes/npc";
 import { constructionFoundation } from "./classes/constructionFoundation";
 import { constructionDoor } from "./classes/constructionDoor";
-import { constructionCrop } from "./classes/constructionCrop";
+import { farmingCrop } from "./classes/farmingCrop";
 
 const profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
 const projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
@@ -1032,7 +1032,7 @@ export class zonePacketHandlers {
                     server._npcs[guid] ||
                     server._constructionFoundations[guid] ||
                     server._constructionDoors[guid] ||
-                    server._constructionCrops[guid] ||
+                    server._farmingCrops[guid] ||
                     0,
                 entityType = server.getEntityType(guid)
             client.character.currentInteractionGuid = guid;
@@ -1141,12 +1141,11 @@ export class zonePacketHandlers {
                         });
                         doorEntity.isOpen = !doorEntity.isOpen; 
                         break;
-                case EntityTypes.CONSTRUCTION_CROP:
-                    //TODO: Cleanup
-                    const cropEntity = entityData as constructionCrop;
-                    if(!cropEntity.mature) return;
+                case EntityTypes.FARMING_CROP:
+                    const cropEntity = entityData as farmingCrop;
+                    if(!cropEntity.lastStage(server)) return;
                     server.sendDataToAllWithSpawnedEntity(
-                      server._constructionCrops,
+                      server._farmingCrops,
                       cropEntity.characterId,
                       "Character.RemovePlayer",
                       {
@@ -1165,8 +1164,8 @@ export class zonePacketHandlers {
                       }
                     }
 
-                    server._constructionTilledGround[cropEntity.parentObjectCharacterId].cropSlots[cropEntity.buildingSlot] = new Float32Array([0, 0, 0, 0]);
-                    delete server._constructionCrops[cropEntity.characterId];
+                    server._farmingTilledGround[cropEntity.parentObjectCharacterId].cropSlots[cropEntity.buildingSlot] = '';
+                    delete server._farmingCrops[cropEntity.characterId];
                   break;
                 default:
                     break;
@@ -1219,7 +1218,7 @@ export class zonePacketHandlers {
                     server._doors[guid] ||
                     server._constructionFoundations[guid] ||
                     server._constructionDoors[guid] ||
-                    server._constructionCrops[guid] ||
+                    server._farmingCrops[guid] ||
                     0,
                 entityType = server.getEntityType(guid)
 
@@ -1268,9 +1267,9 @@ export class zonePacketHandlers {
                         stringId: 12979,
                     });
                     break;
-                case EntityTypes.CONSTRUCTION_CROP:
-                    const crop = entityData as constructionCrop;
-                    if (crop.ownerCharacterId != client.character.characterId || !crop.mature) return;
+                case EntityTypes.FARMING_CROP:
+                    const crop = entityData as farmingCrop;
+                    if (crop.ownerCharacterId != client.character.characterId || !crop.lastStage(server)) return;
                     server.sendData(client, "Command.InteractionString", {
                         guid: guid,
                         stringId: 29,
