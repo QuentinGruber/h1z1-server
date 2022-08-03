@@ -1,10 +1,10 @@
 export interface LoginRequest {
   sessionId: string;
   systemFingerPrint: string;
-  Locale: number;
-  ThirdPartyAuthTicket: number;
-  ThirdPartyUserId: number;
-  ThirdPartyId: number;
+  Locale?: number;
+  ThirdPartyAuthTicket?: number;
+  ThirdPartyUserId?: number;
+  ThirdPartyId?: number;
 }
 export interface LoginReply {
   loggedIn: boolean;
@@ -14,7 +14,8 @@ export interface LoginReply {
   namespace: string;
   ApplicationPayload: any;
 }
-export interface Logout {}
+export interface Logout {
+}
 export interface ForceDisconnect {
   reason?: number;
 }
@@ -30,7 +31,7 @@ export interface CharacterCreateReply {
 export interface CharacterLoginRequest {
   characterId: string;
   serverId: number;
-  status: number;
+  status?: number;
   payload: any;
 }
 export interface CharacterLoginReply {
@@ -48,13 +49,15 @@ export interface CharacterDeleteReply {
   status: number;
   Payload: string;
 }
-export interface CharacterSelectInfoRequest {}
+export interface CharacterSelectInfoRequest {
+}
 export interface CharacterSelectInfoReply {
   status: number;
   canBypassServerLock: boolean;
   characters: any[];
 }
-export interface ServerListRequest {}
+export interface ServerListRequest {
+}
 export interface ServerListReply {
   servers: any[];
 }
@@ -72,5 +75,7 @@ export interface ServerUpdate {
   populationData: string;
   allowedAccess: boolean;
 }
-export interface TunnelAppPacketClientToServer {}
-export interface TunnelAppPacketServerToClient {}
+export interface TunnelAppPacketClientToServer {
+}
+export interface TunnelAppPacketServerToClient {
+}

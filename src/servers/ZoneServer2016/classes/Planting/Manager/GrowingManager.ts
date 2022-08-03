@@ -237,7 +237,7 @@ export class GrowingManager {
         }
       }
       //multi outcome items created by single guid, so only run once
-      server.deleteEntity(hole.InsideCropsPile.Guid, server._objects);
+      server.deleteEntity(hole.InsideCropsPile.Guid, server._spawnedItems);
       //remove from hole;
       hole.InsideCropsPile.LootAbleProducts = [];
       hole.InsideCropsPile = null;
@@ -377,7 +377,7 @@ export class GrowingManager {
   ): boolean {
     if (!hole || !hole.InsideCropsPile) return false;
     // server.sendDataToAllWithSpawnedEntity(
-    //     server._objects,
+    //     server._spawnedItems,
     //     hole.InsideCropsPile.Guid,
     //     // tItem.characterId,
     //     "Character.UpdateScale",
@@ -393,7 +393,7 @@ export class GrowingManager {
         ? 5056
         : 0;
     server.sendDataToAllWithSpawnedEntity(
-      server._objects,
+      server._spawnedItems,
       hole.InsideCropsPile.Guid,
       // tItem.characterId,
       "Character.ReplaceBaseModel",

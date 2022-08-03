@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { parentPort, workerData, Worker } from "worker_threads";
-
+const debug = require("debug")("HEALTHWORKER");
 interface Target {
   prototype: any;
 }
@@ -27,15 +27,17 @@ export function healthThreadDecorator(target: Target) {
     });
   }
 }
+const healthTime = 10000
 function checkHealth() {
   const { threadToWatchPid } = workerData;
   let healthTimeoutTimer: any;
   const healthTimer = setTimeout(() => {
     parentPort?.postMessage(true);
     healthTimeoutTimer = setTimeout(() => {
+      console.log("Health check failed");
       process.kill(threadToWatchPid);
-    }, 25000);
-  }, 10000);
+    }, healthTime);
+  }, healthTime);
   parentPort?.on("message", () => {
     healthTimer.refresh();
     clearTimeout(healthTimeoutTimer);
@@ -46,5 +48,6 @@ if (
   workerData.threadToWatchPid === process.pid &&
   !process.env.VSCODE_DEBUG
 ) {
+  debug("Health check started");
   checkHealth();
 }

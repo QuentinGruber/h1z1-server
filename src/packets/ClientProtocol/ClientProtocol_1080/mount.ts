@@ -24,7 +24,7 @@ export const mountPackets: any = [
         { name: "vehicleGuid", type: "uint64string", defaultValue: "0" },
         { name: "seatId", type: "uint32", defaultValue: 0 }, // seat 0-3
         { name: "unknownDword2", type: "uint32", defaultValue: 1 }, // must be 1 or we dont get into vehicle?
-        { name: "unknownDword3", type: "uint32", defaultValue: 1 }, // is driver? (you can be on seat 3 and still have control)
+        { name: "isDriver", type: "uint32", defaultValue: 1 }, // is driver? (you can be on seat 3 and still have control)
         { name: "unknownDword4", type: "uint32", defaultValue: 0 }, // colored lines on screen
         { name: "identity", type: "schema", fields: identitySchema },
         { name: "tagString", type: "string", defaultValue: "" },

@@ -18,6 +18,7 @@ const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const Z1_props = require("../../../../data/2016/zoneData/Z1_props.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
+const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
   _,
   eul2quat,
@@ -25,13 +26,15 @@ import {
   isPosInRadius,
   randomIntFromInterval,
 } from "../../../utils/utils";
-import { Items } from "../enums";
+import { EquipSlots, Items } from "../enums";
 import { Vehicle2016 } from "./../classes/vehicle";
 import { inventoryItem } from "types/zoneserver";
 import { ItemObject } from "./itemobject";
 import { DoorEntity } from "./doorentity";
 import { propEntity } from "./propEntity";
 import { Npc } from "./npc";
+import { Zombie } from "./zombie";
+import { BaseFullCharacter } from "./basefullcharacter";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {
@@ -65,6 +68,9 @@ export class WorldObjectManager {
   lootRespawnTimer: number = 600000; // 10 minutes
   vehicleRespawnTimer: number = 600000; // 10 minutes // 600000
   npcRespawnTimer: number = 600000; // 10 minutes
+  // items get despawned after x minutes
+  itemDespawnTimer: number = 1800000; // 30 minutes
+  deadNpcDespawnTimer: number = 600000; // 10 minutes
 
   // objects won't spawn if another object is within this radius
   vehicleSpawnRadius: number = 50;
@@ -90,6 +96,9 @@ export class WorldObjectManager {
   chanceNpc: number = 100;
   chanceScreamer: number = 5; // 1000 max
 
+  zombieSlots = [EquipSlots.HEAD, EquipSlots.CHEST, EquipSlots.LEGS, EquipSlots.HANDS, EquipSlots.FEET, EquipSlots.HAIR]
+
+
   run(server: ZoneServer2016) {
     debug("WOM::Run");
     if (this.lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
@@ -105,25 +114,14 @@ export class WorldObjectManager {
       this.lastVehicleRespawnTime = Date.now();
     }
   }
-  equipRandomSkins(server: ZoneServer2016, npc: Npc): void {
-    switch (npc.actorModelId) {
-      case 9510: {
-        server.generateRandomEquipmentsFromAnEntity(
-          npc,
-          "Male",
-          [3, 1, 2, 4, 29, 28, 27, 10, 5]
-        );
-      }
-      case 9634: {
-        server.generateRandomEquipmentsFromAnEntity(
-          npc,
-          "Female",
-          [3, 1, 2, 4, 29, 28, 27, 10, 5]
-        );
-      }
-    }
+  equipRandomSkins(server: ZoneServer2016, entity: BaseFullCharacter,slots: EquipSlots[],excludedModels: string[] = []): void {
+    server.generateRandomEquipmentsFromAnEntity(
+      entity,
+      slots,
+      excludedModels
+    );
   }
-  createNpc(
+  createZombie(
     server: ZoneServer2016,
     modelId: number,
     position: Float32Array,
@@ -131,7 +129,7 @@ export class WorldObjectManager {
     spawnerId: number = 0
   ) {
     const characterId = generateRandomGuid();
-    const npc = new Npc(
+    const zombie = new Zombie(
       characterId,
       server.getTransientId(characterId),
       modelId,
@@ -139,8 +137,8 @@ export class WorldObjectManager {
       rotation,
       spawnerId
     );
-    this.equipRandomSkins(server, npc);
-    server._npcs[characterId] = npc;
+    this.equipRandomSkins(server, zombie,this.zombieSlots,bannedZombieModels);
+    server._npcs[characterId] = zombie;
     if (spawnerId) this._spawnedNpcs[spawnerId] = characterId;
   }
 
@@ -150,7 +148,7 @@ export class WorldObjectManager {
     position: Float32Array,
     rotation: Float32Array,
     itemSpawnerId: number = -1
-  ): void {
+  ): ItemObject | undefined {
     if (!item) {
       debug(`[ERROR] Tried to createLootEntity with invalid item object`);
       return;
@@ -172,7 +170,7 @@ export class WorldObjectManager {
       modelId = itemDef.WORLD_MODEL_ID;
     }
     const characterId = generateRandomGuid();
-    server._objects[characterId] = new ItemObject(
+    server._spawnedItems[characterId] = new ItemObject(
       characterId,
       server.getTransientId(characterId),
       modelId,
@@ -182,6 +180,8 @@ export class WorldObjectManager {
       item
     );
     if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;
+    server._spawnedItems[characterId].creationTime = Date.now();
+    return server._spawnedItems[characterId];
   }
   
   createProps(server: ZoneServer2016) {
@@ -306,7 +306,7 @@ export class WorldObjectManager {
       if (!authorizedModelId.length) return;
       spawnerType.instances.forEach((npcInstance: any) => {
         let spawn = true;
-        Object.values(server._npcs).every((spawnedNpc: Npc) => {
+        Object.values(server._npcs).every((spawnedNpc: Zombie) => {
           if (
             isPosInRadius(
               this.npcSpawnRadius,
@@ -326,7 +326,7 @@ export class WorldObjectManager {
           if (screamerChance <= this.chanceScreamer) {
             authorizedModelId.push(9667);
           }
-          this.createNpc(
+          this.createZombie(
             server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
@@ -549,14 +549,14 @@ export class WorldObjectManager {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_45Auto.adr":
-        authorizedItems.push({ id: Items.WEAPON_45, count: 1 });
+        authorizedItems.push({ id: Items.WEAPON_1911, count: 1 });
         break;
       case "ItemSpawner_Weapon_M9Auto.adr":
         authorizedItems.push({ id: Items.WEAPON_M9, count: 1 });
         break;
       case "ItemSpawner_AmmoBox02_1911.adr":
         authorizedItems.push({
-          id: Items.AMMO_1911,
+          id: Items.AMMO_45,
           count: randomIntFromInterval(1, 5),
         }); //todo: find item spawner for m9 ammo
         break;
@@ -704,7 +704,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: Items.WATER_EMPTY, count: 1 });
         authorizedItems.push({ id: Items.WATER_PURE, count: 1 });
         authorizedItems.push({
-          id: Items.AMMO_1911,
+          id: Items.AMMO_45,
           count: randomIntFromInterval(1, 5),
         });
         authorizedItems.push({
@@ -769,7 +769,7 @@ export class WorldObjectManager {
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerRare_Tier00.adr":
         authorizedItems.push({
-          id: Items.AMMO_1911,
+          id: Items.AMMO_45,
           count: randomIntFromInterval(1, 8),
         });
         authorizedItems.push({
@@ -802,7 +802,7 @@ export class WorldObjectManager {
           count: randomIntFromInterval(1, 5),
         });
 
-        authorizedItems.push({ id: Items.WEAPON_45, count: 1 });
+        authorizedItems.push({ id: Items.WEAPON_1911, count: 1 });
         authorizedItems.push({ id: Items.WEAPON_M9, count: 1 });
         authorizedItems.push({ id: Items.WEAPON_R380, count: 1 });
         authorizedItems.push({ id: Items.WEAPON_MAGNUM, count: 1 });
@@ -1092,7 +1092,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: Items.FIRST_AID, count: 1 });
         //ammo
         authorizedItems.push({
-          id: Items.AMMO_1911,
+          id: Items.AMMO_45,
           count: randomIntFromInterval(1, 10),
         });
         authorizedItems.push({
