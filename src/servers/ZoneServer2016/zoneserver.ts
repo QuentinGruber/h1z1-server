@@ -1097,7 +1097,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.spawnCharacters(client);
       this.spawnDoors(client);
       this.spawnProps(client)
-      this.spawnNpcs(client);
       this.spawnExplosives(client);
       this.spawnTraps(client);
       this.spawnTemporaryObjects(client);
