@@ -164,4 +164,5 @@ export enum Items {
   GAUZE = 1751,
   FLARE = 1804,
   BACKPACK_RASTA = 2393,
+  WAIST_PACK = 1803
 }

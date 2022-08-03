@@ -177,18 +177,13 @@ export class zonePacketHandlers {
       if (client.firstLoading) {
         server.setGodMode(client, false);
         setTimeout(() => {
-          server.sendData(client, "POIChangeMessage", {
-            // welcome POI message
-            messageStringId: 20,
-            id: 99,
-          });
-          server.sendChatText(client, "Welcome to H1emu ! :D", true);
+          server.sendAlert(client, "Welcome to H1emu! :D");
           server.sendChatText(
             client,
             `server population : ${_.size(server._characters)}`
           );
           if (client.isAdmin) {
-            server.sendChatText(client, "You are an admin !");
+            server.sendAlert(client, "You are an admin!");
           }
         }, 10000);
 
@@ -237,6 +232,10 @@ export class zonePacketHandlers {
           server.sendZonePopulationUpdate();
         }
         server.executeFuncForAllReadyClients(() => server.spawnCharacters);
+        // clear /hax run since switching servers doesn't automatically clear it
+        server.sendData(client, "Command.RunSpeed", {
+          runSpeed: 0,
+        });
       }
 
       client.isLoading = false;
@@ -1368,6 +1367,21 @@ export class zonePacketHandlers {
         case 11: //ignite
           server.igniteOption(client, item);
           break;
+        case 7: // unload weapon
+          if(item.weapon?.ammoCount) {
+            server.lootItem(client, server.generateItem(server.getWeaponAmmoId(item.itemDefinitionId), item.weapon.ammoCount))
+            item.weapon.ammoCount = 0;
+            if(client.character.getEquippedWeapon().itemGuid == item.itemGuid) {
+              server.sendWeaponData(client, "Weapon.Reload", {
+                weaponGuid: item.itemGuid,
+                unknownDword1: 0,
+                ammoCount: 0,
+                unknownDword3: 0,
+                currentReloadCount: `0x${(++item.weapon.currentReloadCount).toString(16)}`,
+              });
+            }
+          }
+          break;
         default:
           server.sendChatText(
             client,
@@ -1951,11 +1965,27 @@ export class zonePacketHandlers {
             reloadTime = server.getWeaponReloadTime(weaponItem.itemDefinitionId);
             if(weaponAmmoId == Items.AMMO_12GA) {
               weaponItem.weapon.reloadTimer = setTimeout(() => {
-                if (!weaponItem.weapon?.reloadTimer || ( weaponItem.weapon.ammoCount < maxAmmo &&
-                  !server.removeInventoryItems(client, weaponAmmoId, 1))) {
+                if(!weaponItem.weapon?.reloadTimer) {
+                  client.character.clearReloadTimeout()
                   return;
                 }
-                if(++weaponItem.weapon.ammoCount == maxAmmo){
+                const reserveAmmo = // how much ammo is in inventory
+                client.character.getInventoryItemAmount(weaponAmmoId);
+                if (!reserveAmmo || 
+                  (weaponItem.weapon.ammoCount < maxAmmo &&
+                  !server.removeInventoryItems(client, weaponAmmoId, 1)) ||
+                  ++weaponItem.weapon.ammoCount == maxAmmo) {
+                  server.sendWeaponData(client, "Weapon.Reload", {
+                    weaponGuid: p.packet.characterId,
+                    unknownDword1: maxAmmo,
+                    ammoCount: weaponItem.weapon.ammoCount,
+                    unknownDword3: maxAmmo,
+                    currentReloadCount: `0x${(++weaponItem.weapon.currentReloadCount).toString(16)}`,
+                  });
+                  client.character.clearReloadTimeout()
+                  return;
+                }
+                if (!(reserveAmmo - 1)) { // updated reserve ammo
                   server.sendWeaponData(client, "Weapon.Reload", {
                     weaponGuid: p.packet.characterId,
                     unknownDword1: maxAmmo,
@@ -1974,9 +2004,9 @@ export class zonePacketHandlers {
               if (!weaponItem.weapon?.reloadTimer ||
                 client.character.getEquippedWeapon().itemGuid !=
                   weaponItem.itemGuid) return;
-              const reserveAmmo =
-                client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
-              maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+              const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+              reserveAmmo = // how much ammo is in inventory
+                client.character.getInventoryItemAmount(weaponAmmoId),
               reloadAmount = reserveAmmo >= maxReloadAmount
                 ? maxReloadAmount
                 : reserveAmmo; // actual amount able to reload

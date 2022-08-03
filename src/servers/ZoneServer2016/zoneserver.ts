@@ -1593,7 +1593,16 @@ export class ZoneServer2016 extends EventEmitter {
           allowDes = true;
           count = randomIntFromInterval(1, 2);
           break;
-        default: // default case for cutting trees
+        case "SpeedTree.RedMaple":
+        case "SpeedTree.WesternRedCedar":
+        case "SpeedTree.GreenMaple":
+        case "SpeedTree.GreenMapleDead":
+        case "SpeedTree.WesternCedarSapling":
+        case "SpeedTree.SaplingMaple":
+        case "SpeedTree.WhiteBirch":
+        case "SpeedTree.RedCedar":
+        case "SpeedTree.PaperBirch":
+        case "SpeedTree.OregonOak":
           if (!this._speedTreesCounter[packet.data.id]) {
             this._speedTreesCounter[packet.data.id] = {
               hitPoints: randomIntFromInterval(12, 19),
@@ -1607,6 +1616,8 @@ export class ZoneServer2016 extends EventEmitter {
             }
           }
           break;
+        default: // boulders (do nothing);
+          return;
       }
       if (itemDefId) {
         this.lootContainerItem(client, this.generateItem(itemDefId), count);
@@ -2334,6 +2345,8 @@ export class ZoneServer2016 extends EventEmitter {
         switch (itemObject.spawnerId) {
           case -1:
             this.deleteEntity(itemObject.characterId, this._spawnedItems);
+            this.sendCompositeEffectToAllWithSpawnedEntity(this._spawnedItems, itemObject, 
+              this.getItemDefinition(itemObject.item.itemDefinitionId).PICKUP_EFFECT ?? 5151);
             continue;
         }
       }
@@ -2765,6 +2778,14 @@ export class ZoneServer2016 extends EventEmitter {
       }
       this.assignManagedObject(newClient, vehicle);
     }
+  }
+
+  sendCompositeEffectToAllWithSpawnedEntity(dictionary: { [id: string]: any }, object: BaseEntity, effectId: number) {
+    this.sendDataToAllWithSpawnedEntity(this._spawnedItems, object.characterId, "Character.PlayWorldCompositeEffect", {
+      characterId: "0x0",
+      effectId: effectId,
+      position: object.state.position,
+    });
   }
 
   sendDataToAllWithSpawnedEntity(
@@ -3947,13 +3968,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.containerError(client, 5); // slot does not contain item
       return;
     }
-    if (!this.removeInventoryItem(client, item, count)) return;
-    this.sendData(client, "Character.DroppedIemNotification", {
-      characterId: client.character.characterId,
-      itemDefId: item.itemDefinitionId,
-      count: count,
-    });
-
     let dropItem;
     if (item.stackCount == count) {
       dropItem = item;
@@ -3962,6 +3976,12 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       return;
     }
+    if (!this.removeInventoryItem(client, item, count)) return;
+    this.sendData(client, "Character.DroppedIemNotification", {
+      characterId: client.character.characterId,
+      itemDefId: item.itemDefinitionId,
+      count: count,
+    });
     this.worldObjectManager.createLootEntity(
       this,
       dropItem,
@@ -4001,12 +4021,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(client, `[ERROR] Invalid item`);
       return;
     }
-    this.sendData(client, "Character.PlayWorldCompositeEffect", {
-      characterId: "0x0",
-      effectId:
-        this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151,
-      position: object.state.position,
-    });
+    this.sendCompositeEffectToAllWithSpawnedEntity(this._spawnedItems, object, 
+      this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151);
     //region Norman added. if it is a crop product, randomly generated product is processed by the planting manager. else, continue
     if (this.plantingManager.TriggerPicking(item, client, this)) {
       return;
@@ -4217,6 +4233,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.equipItem(client, this.generateItem(Items.WEAPON_FISTS), sendPacket);
     }
     this.equipItem(client, this.generateItem(Items.SHIRT_DEFAULT), sendPacket);
+    this.equipItem(client, this.generateItem(Items.WAIST_PACK), sendPacket);
     this.equipItem(client, this.generateItem(Items.PANTS_DEFAULT), sendPacket);
   }
   giveDefaultItems(client: Client, sendPacket: boolean) {
@@ -4642,16 +4659,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._explosives[explosive.characterId]) {
       return;
     }
-    this.sendDataToAllWithSpawnedEntity(
-      this._explosives,
-      explosive.characterId,
-      "Character.PlayWorldCompositeEffect",
-      {
-        characterId: "0x0",
-        effectId: 1875,
-        position: explosive.state.position,
-      }
-    );
+    this.sendCompositeEffectToAllWithSpawnedEntity(this._explosives, explosive, 1875);
     this.sendDataToAllWithSpawnedEntity(
       this._explosives,
       explosive.characterId,
