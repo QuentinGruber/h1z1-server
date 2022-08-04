@@ -669,6 +669,11 @@ export interface CharacterPlayWorldCompositeEffect {
 export interface CharacterFullCharacterDataRequest {
   characterId?: string;
 }
+export interface CharacterKilledBy {
+  killer?: string;
+  killed?: string;
+  isCheater?: boolean;
+}
 export interface CharacterMotorRunning {
   characterId?: string;
   unknownBool1?: boolean;
