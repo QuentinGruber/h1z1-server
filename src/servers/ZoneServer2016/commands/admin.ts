@@ -159,12 +159,16 @@ const admin: any = {
     }, 2000);
   },
   savecharacters: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.executeFuncForAllReadyClients((client: Client)=>server.worldDataManager.saveCharacterData(server, client));
+    server.worldDataManager.saveCharacters(server);
     server.sendChatText(client, "Character data has been saved!");
   },
   savevehicles: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.worldDataManager.saveVehicles(server);
     server.sendChatText(client, "Vehicles have been saved!");
+  },
+  save: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.worldDataManager.saveWorld(server);
+    server.sendChatText(client, "World saved!");
   }
 };
 

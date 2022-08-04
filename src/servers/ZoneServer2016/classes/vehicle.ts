@@ -41,7 +41,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   destroyedEffect: number = 0;
   engineOn: boolean = false;
   isLocked: number = 0;
-  positionUpdate: positionUpdate;
+  positionUpdate: any/*positionUpdate*/;
   fuelUpdater: any;
   isInvulnerable: boolean = false;
   onDismount?: any;
@@ -99,12 +99,19 @@ export class Vehicle2016 extends BaseFullCharacter {
         break;
     }
     Object.seal(this.seats); // object can't be edited, but properties can
-    this.positionUpdate = createPositionUpdate(
-      this.state.position,
-      this.state.rotation,
-      gameTime
-    );
+    this.positionUpdate = {
+      ...createPositionUpdate(
+        this.state.position,
+        this.state.rotation,
+        gameTime
+      ),
+      vehicle: this,
+      get position() {
+        return this.vehicle.state.position;
+      }
+    };
   }
+
   getSeatCount() {
     return Object.keys(this.seats).length;
   }

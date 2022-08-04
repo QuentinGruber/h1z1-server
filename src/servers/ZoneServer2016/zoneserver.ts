@@ -67,7 +67,7 @@ import {
   generateTransientId,
   getRandomFromArray,
   getRandomKeyFromAnObject,
-  bigIntToHexString,
+  toBigHex,
   calculateDamageDistFallOff,
   toHex,
 } from "../../utils/utils";
@@ -182,8 +182,6 @@ export class ZoneServer2016 extends EventEmitter {
   lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
   _packetsStats: Record<string, number> = {};
-  worldSaveTimer: number = 600000; // 10 minutes
-  lastSaveTime: number = 0;
 
   constructor(
     serverPort: number,
@@ -591,7 +589,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
   }
 
-  packItemDefinitions() {
+  private packItemDefinitions() {
     this.itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
       // cache itemDefinitions so server doesn't have to spend time packing for each
       // character login
@@ -619,7 +617,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  packWeaponDefinitions() {
+  private packWeaponDefinitions() {
     this.weaponDefinitionsCache = this._protocol.pack(
       "ReferenceData.WeaponDefinitions",
       {
@@ -651,30 +649,8 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  async setupServer() {
-    this.forceTime(971172000000); // force day time by default - not working for now
-    this._frozeCycle = false;
-    await this.worldDataManager.fetchZoneData(this);
-    //this._profiles = this.generateProfiles();
-    if (
-      await this._db?.collection("worlds").findOne({ worldId: this._worldId })
-    ) {
-      await this.worldDataManager.fetchWorldData(this);
-    } else {
-      await this._db
-        ?.collection(`worlds`)
-        .insertOne({ worldId: this._worldId });
-      await this.worldDataManager.saveWorld(this);
-    }
-
-    this.packItemDefinitions();
-    this.packWeaponDefinitions();
-
-    // other entities are handled by worldRoutine
-    this.worldObjectManager.createDoors(this);
-
-    if (!this._soloMode) {
-      debug("Starting H1emuZoneServer");
+  private async initializeLoginServerConnection() {
+    debug("Starting H1emuZoneServer");
       if (!this._loginServerInfo.address) {
         await this.fetchLoginInfo();
       }
@@ -689,7 +665,31 @@ export class ZoneServer2016 extends EventEmitter {
           { serverId: this._worldId },
           { $set: { populationNumber: 0, populationLevel: 0 } }
         );
+  }
+
+  private async setupServer() {
+    this.forceTime(971172000000); // force day time by default - not working for now
+    this._frozeCycle = false;
+
+    if (!this._soloMode) {
+      await this.worldDataManager.initializeDatabase(this);
+      if (
+        await this._db?.collection("worlds").findOne({ worldId: this._worldId })
+      ) {
+        await this.worldDataManager.fetchWorldData(this);
+      } else {
+        await this.worldDataManager.insertWorld(this);
+        await this.worldDataManager.saveWorld(this);
+      }
+      this.initializeLoginServerConnection();
     }
+
+    // !!ANYTHING THAT USES / GENERATES ITEMS MUST BE CALLED AFTER WORLD DATA IS LOADED!!
+
+    this.packItemDefinitions();
+    this.packWeaponDefinitions();
+    this.worldObjectManager.createDoors(this);
+
     this._ready = true;
     debug("Server ready");
   }
@@ -706,13 +706,12 @@ export class ZoneServer2016 extends EventEmitter {
         if (!this._dynamicWeatherEnabled) {
           return;
         }
-        const rnd_weather = dynamicWeather(
+        this._weather2016 = dynamicWeather(
           this._serverTime,
           this._startTime,
           this._timeMultiplier
         );
-        this._weather2016 = rnd_weather;
-        this.sendDataToAll("UpdateWeatherData", rnd_weather);
+        this.sendDataToAll("UpdateWeatherData", this._weather2016);
         this._dynamicWeatherWorker.refresh();
       }, 360000 / this._timeMultiplier);
     }
@@ -2401,12 +2400,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (!client.spawnedEntities.includes(vehicle)) {
           this.sendData(client, "AddLightweightVehicle", {
-            ...vehicle,
-            npcData: {
-              ...vehicle,
-              ...vehicle.state,
-              actorModelId: vehicle.actorModelId,
-            },
+            ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
           });
           const passengers: any[] = [];
@@ -2491,13 +2485,8 @@ export class ZoneServer2016 extends EventEmitter {
       );
 
       this.sendData(client, "AddLightweightVehicle", {
-        ...vehicle,
-        npcData: {
-          ...vehicle,
-          position: vehicle.state.position,
-          rotation: vehicle.state.rotation,
-          actorModelId: vehicle.actorModelId,
-        },
+        ...vehicle.pGetLightweightVehicle(),
+        unknownGuid1: this.generateGuid(),
       });
       client.managedObjects.splice(index, 1);
       // blocks vehicleManager from taking over management during a takeover
@@ -3273,7 +3262,7 @@ export class ZoneServer2016 extends EventEmitter {
       modelName: model.replace("<gender>", gender == 1 ? "Male" : "Female"),
       slotId,
       textureAlias: skin,
-      guid: bigIntToHexString(this.generateItemGuid()),
+      guid: toBigHex(this.generateItemGuid()),
     };
   }
 

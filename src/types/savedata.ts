@@ -48,5 +48,5 @@ BaseFullEntitySaveData {
 
 export interface ServerSaveData
 extends BaseSaveData {
-  lastItemGuid: bigint;
+  lastItemGuid: string;
 }

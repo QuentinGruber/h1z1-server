@@ -195,7 +195,7 @@ export const setupAppDataFolder = (): void => {
   ) {
     fs.writeFileSync(
       `${AppDataFolderPath}/worlddata/world.json`,
-      JSON.stringify([])
+      JSON.stringify({})
     );
   }
 };
@@ -430,7 +430,7 @@ export class wrappedUint16 {
   }
 }
 
-export const bigIntToHexString = (bigInt: bigint): string => {
+export const toBigHex = (bigInt: bigint): string => {
   return `0x${bigInt.toString(16)}`;
 };
 

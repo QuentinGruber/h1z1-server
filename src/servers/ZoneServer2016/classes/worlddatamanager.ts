@@ -1,6 +1,6 @@
 import { MongoClient } from "mongodb";
 import { CharacterUpdateSaveData, FullCharacterSaveData, FullVehicleSaveData, ServerSaveData } from "types/savedata";
-import { initMongo, _ } from "../../../utils/utils";
+import { initMongo, toBigHex, _ } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "./vehicle";
 import { ZoneClient2016 as Client } from "./zoneclient";
@@ -11,7 +11,6 @@ const debug = require("debug")("ZoneServer");
 export class WorldDataManager {
   lastSaveTime = 0;
   saveTimer = 600000; // 10 minutes
-
   run(server: ZoneServer2016) {
     debug("WorldDataManager::Run");
     if (this.lastSaveTime + this.saveTimer <= Date.now()) {
@@ -24,7 +23,7 @@ export class WorldDataManager {
     }
   }
   
-  async fetchZoneData(server: ZoneServer2016) {
+  async initializeDatabase(server: ZoneServer2016) {
     if (server._mongoAddress) {
       const mongoClient = new MongoClient(server._mongoAddress, {
         maxPoolSize: 50,
@@ -44,63 +43,68 @@ export class WorldDataManager {
     }
   }
 
+  async insertWorld(server: ZoneServer2016) {
+    if (!server._worldId) {
+      const worldCount =
+        await server._db?.collection("worlds").countDocuments() || 0;
+      server._worldId = worldCount + 1;
+      await server._db?.collection("worlds").insertOne({
+        worldId: server._worldId,
+      });
+      debug("Existing world was not found, created one.");
+    }
+  }
+
   async fetchWorldData(server: ZoneServer2016) {
     await this.loadVehicleData(server);
-    if (server._soloMode) {
-      // TODO
-    }
-    else {
-
-    }
+    await this.loadServerData(server);
     server._transientIds = server.getAllCurrentUsedTransientId();
     debug("World fetched!");
   }
 
   async saveWorld(server: ZoneServer2016) {
-    if (server._soloMode) {
-      // TODO
-    }
-    else {
-      if (!server._worldId) {
-        const numberOfWorld: number =
-          (await server._db?.collection("worlds").find({}).count()) || 0;
-        server._worldId = numberOfWorld + 1;
-        await server._db?.collection("worlds").insertOne({
-          worldId: server._worldId,
-        });
-        debug("Existing world was not found, created one.");
-      }
-    }
     await this.saveVehicles(server);
+    await this.saveServerData(server);
+    await this.saveCharacters(server);
     debug("World saved!");
   }
 
   //#region SERVER DATA
 
   private async loadServerData(server: ZoneServer2016) {
-    let serverData;
+    let serverData: ServerSaveData;
     if (server._soloMode) {
       serverData = require(`${server._appDataFolder}/worlddata/world.json`);
       if(!serverData) {
-        debug("Vehicle data not found in file, aborting.")
+        debug("World data not found in file, aborting.")
         return;
       }
     }
     else {
-
+      serverData = <any>await server._db
+      ?.collection("worlds")
+      .find({ worldId: server._worldId });
     }
+    server.lastItemGuid = BigInt(serverData.lastItemGuid || server.lastItemGuid);
   }
 
   private async saveServerData(server: ZoneServer2016) {
     const saveData: ServerSaveData = {
       serverId: server._worldId,
-      lastItemGuid: server.lastItemGuid
+      lastItemGuid: toBigHex(server.lastItemGuid)
     }
     if (server._soloMode) {
       fs.writeFileSync(`${server._appDataFolder}/worlddata/world.json`, JSON.stringify(saveData, null, 2));
     }
     else {
-      
+      await server._db?.collection("worlds").updateOne(
+        { worldId: server._worldId },
+        {
+          $set: {
+            ...saveData
+          },
+        }
+      );
     }
   }
 
@@ -260,6 +264,11 @@ export class WorldDataManager {
     }
   }
 
+  async saveCharacters(server: ZoneServer2016) {
+    // TODO: NEED TO PROMISIFY EXECUTEFUNCFORALLREADYCLIENTS SO AWAIT CAN BE USED
+    server.executeFuncForAllReadyClients((client: Client)=>server.worldDataManager.saveCharacterData(server, client));
+  }
+
   //#endregion
 
   //#region VEHICLE DATA
@@ -296,7 +305,7 @@ export class WorldDataManager {
     })
   }
 
-  private async saveVehicles(server: ZoneServer2016) {
+  async saveVehicles(server: ZoneServer2016) {
     const vehicles: Array<FullVehicleSaveData> = Object.values(server._vehicles).map((vehicle)=> {
       return {
         serverId: server._worldId,
