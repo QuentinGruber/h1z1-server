@@ -32,7 +32,6 @@ import { inventoryItem } from "types/zoneserver";
 import { ItemObject } from "./itemobject";
 import { DoorEntity } from "./doorentity";
 import { propEntity } from "./propEntity";
-import { Npc } from "./npc";
 import { Zombie } from "./zombie";
 import { BaseFullCharacter } from "./basefullcharacter";
 const debug = require("debug")("ZoneServer");
