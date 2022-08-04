@@ -86,7 +86,7 @@ import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
-import { ClientUpdateDeathMetrics } from "types/zone2016packets";
+import { CharacterKilledBy, ClientUpdateDeathMetrics } from "types/zone2016packets";
 import { AsyncHooks, AsyncHookType, FunctionHookType, Hooks } from "./hooks";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -1195,9 +1195,10 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendDeathMetrics(client);
       debug(character.name + " has died");
       if (deathInfo?.client) {
-        this.sendAlertToAll(
-          `${deathInfo.client.character.name} has killed ${client.character.name}!`
-        );
+        this.sendDataToAll("Character.KilledBy",{
+          killed:client.character.characterId,
+          killer: deathInfo.client.character.characterId,
+          isCheater:deathInfo.client.character.godMode} as CharacterKilledBy);
       }
       client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
