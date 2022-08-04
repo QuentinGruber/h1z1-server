@@ -87,6 +87,7 @@ import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
 import { ClientUpdateDeathMetrics } from "types/zone2016packets";
+import { AsyncHooks, AsyncHookType, FunctionHookType, Hooks } from "./hooks";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   recipes = require("../../../data/2016/sampleData/recipes.json"),
@@ -180,6 +181,8 @@ export class ZoneServer2016 extends EventEmitter {
   private lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
   _packetsStats: Record<string, number> = {};
+  private _hooks: { [hook: string]: Array<(...args: any)=> FunctionHookType> } = {};
+  private _asyncHooks: { [hook: string]: Array<(...args: any)=> AsyncHookType> } = {};
 
   constructor(
     serverPort: number,
@@ -948,7 +951,12 @@ export class ZoneServer2016 extends EventEmitter {
   async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
-
+    if(this.checkHook("OnServerInit") == false) {
+      return;
+    }
+    if(await this.checkAsyncHook("OnServerInit") == false) {
+      return;
+    }
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
@@ -969,9 +977,10 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
-      () => this.worldRoutine.bind(this)(true),
+      () => this.worldRoutine.bind(this)(),
       this.tickRate
     );
+    this.checkHook("OnServerReady");
   }
 
   sendInitData(client: Client) {
@@ -1086,25 +1095,29 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendCharacterData(client);
   }
 
-  private worldRoutine(refresh = false) {
+  private worldRoutine() {
     debug("WORLDROUTINE");
-
-    this.executeFuncForAllReadyClients((client: Client) => {
-      this.vehicleManager(client);
-      this.itemManager(client);
-      this.npcManager(client);
-      this.removeOutOfDistanceEntities(client);
-      this.spawnCharacters(client);
-      this.spawnDoors(client);
-      this.spawnProps(client)
-      this.spawnExplosives(client);
-      this.spawnTraps(client);
-      this.spawnTemporaryObjects(client);
-      this.POIManager(client);
-      client.posAtLastRoutine = client.character.state.position;
-    });
-    if (this._ready) this.worldObjectManager.run(this);
-    if (refresh) this.worldRoutineTimer.refresh();
+    if(this.checkHook("OnWorldRoutine") == false) {
+      return false;
+    }
+    else {
+      this.executeFuncForAllReadyClients((client: Client) => {
+        this.vehicleManager(client);
+        this.itemManager(client);
+        this.npcManager(client);
+        this.removeOutOfDistanceEntities(client);
+        this.spawnCharacters(client);
+        this.spawnDoors(client);
+        this.spawnProps(client)
+        this.spawnExplosives(client);
+        this.spawnTraps(client);
+        this.spawnTemporaryObjects(client);
+        this.POIManager(client);
+        client.posAtLastRoutine = client.character.state.position;
+      });
+      if (this._ready) this.worldObjectManager.run(this);
+    }
+    this.worldRoutineTimer.refresh();
   }
   deleteClient(client: Client) {
     if (client) {
@@ -5031,6 +5044,46 @@ export class ZoneServer2016 extends EventEmitter {
       debug(`Client (${client.soeClientId}) disconnected ( ping timeout )`);
       this.deleteClient(client);
     }
+  }
+
+  hook(hookName: Hooks, hook: (...args: any)=> FunctionHookType) {
+    if(!this._hooks[hookName]) this._hooks[hookName] = [];
+    this._hooks[hookName].push(hook);
+    return;
+  }
+
+  hookAsync(hookName: AsyncHooks, hook: (...args: any)=> AsyncHookType) {
+    if(!this._asyncHooks[hookName]) this._asyncHooks[hookName] = [];
+    this._asyncHooks[hookName].push(hook);
+    return;
+  }
+
+  checkHook(hookName: Hooks, ...args: any): FunctionHookType {
+    if(this._hooks[hookName]?.length > 0) {
+      for(const hook of this._hooks[hookName]) {
+        switch(hook.apply(this, args)) {
+          case true:
+            return true;
+          case false:
+            return false;
+        }
+      }
+    }
+    return;
+  }
+
+  async checkAsyncHook(hookName: Hooks, ...args: any): AsyncHookType {
+    if(this._asyncHooks[hookName]?.length > 0) {
+      for(const hook of this._asyncHooks[hookName]) {
+        switch(await hook.apply(this, args)) {
+          case true:
+            return Promise.resolve(true);
+          case false:
+            return Promise.resolve(false);
+        }
+      }
+    }
+    return Promise.resolve();
   }
 
   toggleFog() {
