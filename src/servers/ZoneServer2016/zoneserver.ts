@@ -2322,7 +2322,8 @@ export class ZoneServer2016 extends EventEmitter {
     for (const c in this._clients) {
       const characterObj: Character = this._clients[c].character;
       if (
-        client.character.characterId != characterObj.characterId &&
+        client.character.characterId != characterObj.characterId  &&
+        characterObj.isReady &&
         isPosInRadius(
           this._charactersRenderDistance,
           client.character.state.position,

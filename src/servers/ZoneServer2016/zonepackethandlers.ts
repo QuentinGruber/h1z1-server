@@ -234,11 +234,11 @@ export class zonePacketHandlers {
         if (!server._soloMode) {
           server.sendZonePopulationUpdate();
         }
-        server.executeFuncForAllReadyClients(() => server.spawnCharacters);
         // clear /hax run since switching servers doesn't automatically clear it
         server.sendData(client, "Command.RunSpeed", {
           runSpeed: 0,
         });
+        client.character.isReady = true;
       }
 
       client.isLoading = false;
