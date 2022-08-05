@@ -88,6 +88,8 @@ import { BaseEntity } from "./classes/baseentity";
 import { ClientUpdateDeathMetrics } from "types/zone2016packets";
 import { FullCharacterSaveData } from "types/savedata";
 import { WorldDataManager } from "./classes/worlddatamanager";
+import { CharacterKilledBy, ClientUpdateDeathMetrics } from "types/zone2016packets";
+import { AsyncHooks, AsyncHookType, FunctionHookType, Hooks } from "./hooks";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   recipes = require("../../../data/2016/sampleData/recipes.json"),
@@ -182,6 +184,8 @@ export class ZoneServer2016 extends EventEmitter {
   lastItemGuid: bigint = 0x3000000000000000n;
   private _transientIdGenerator = generateTransientId();
   _packetsStats: Record<string, number> = {};
+  private _hooks: { [hook: string]: Array<(...args: any)=> FunctionHookType> } = {};
+  private _asyncHooks: { [hook: string]: Array<(...args: any)=> AsyncHookType> } = {};
 
   constructor(
     serverPort: number,
@@ -697,7 +701,12 @@ export class ZoneServer2016 extends EventEmitter {
   async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
-
+    if(this.checkHook("OnServerInit") == false) {
+      return;
+    }
+    if(await this.checkAsyncHook("OnServerInit") == false) {
+      return;
+    }
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
@@ -717,9 +726,10 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
-      () => this.worldRoutine.bind(this)(true),
+      () => this.worldRoutine.bind(this)(),
       this.tickRate
     );
+    this.checkHook("OnServerReady");
   }
 
   sendInitData(client: Client) {
@@ -834,27 +844,32 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendCharacterData(client);
   }
 
-  private worldRoutine(refresh = false) {
+  private worldRoutine() {
     debug("WORLDROUTINE");
 
-    this.executeFuncForAllReadyClients((client: Client) => {
-      this.vehicleManager(client);
-      this.itemManager(client);
-      this.npcManager(client);
-      this.removeOutOfDistanceEntities(client);
-      this.spawnCharacters(client);
-      this.spawnDoors(client);
-      this.spawnExplosives(client);
-      this.spawnTraps(client);
-      this.spawnTemporaryObjects(client);
-      this.POIManager(client);
-      client.posAtLastRoutine = client.character.state.position;
-    });
-    if (this._ready) {
-      this.worldObjectManager.run(this);
-      this.worldDataManager.run(this);
+   if(this.checkHook("OnWorldRoutine") == false) {
+      return false;
     }
-    if (refresh) this.worldRoutineTimer.refresh();
+    else {
+      this.executeFuncForAllReadyClients((client: Client) => {
+        this.vehicleManager(client);
+        this.itemManager(client);
+        this.npcManager(client);
+        this.removeOutOfDistanceEntities(client);
+        this.spawnCharacters(client);
+        this.spawnDoors(client);
+        this.spawnExplosives(client);
+        this.spawnTraps(client);
+        this.spawnTemporaryObjects(client);
+        this.POIManager(client);
+        client.posAtLastRoutine = client.character.state.position;
+      });
+      if (this._ready) {
+        this.worldObjectManager.run(this);
+        this.worldDataManager.run(this);
+      }
+    }
+    this.worldRoutineTimer.refresh();
   }
   deleteClient(client: Client) {
     if (client) {
@@ -935,9 +950,10 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendDeathMetrics(client);
       debug(character.name + " has died");
       if (deathInfo?.client) {
-        this.sendAlertToAll(
-          `${deathInfo.client.character.name} has killed ${client.character.name}!`
-        );
+        this.sendDataToAll("Character.KilledBy",{
+          killed:client.character.characterId,
+          killer: deathInfo.client.character.characterId,
+          isCheater:deathInfo.client.character.godMode} as CharacterKilledBy);
       }
       client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
@@ -1347,7 +1363,16 @@ export class ZoneServer2016 extends EventEmitter {
           allowDes = true;
           count = randomIntFromInterval(1, 2);
           break;
-        default: // default case for cutting trees
+        case "SpeedTree.RedMaple":
+        case "SpeedTree.WesternRedCedar":
+        case "SpeedTree.GreenMaple":
+        case "SpeedTree.GreenMapleDead":
+        case "SpeedTree.WesternCedarSapling":
+        case "SpeedTree.SaplingMaple":
+        case "SpeedTree.WhiteBirch":
+        case "SpeedTree.RedCedar":
+        case "SpeedTree.PaperBirch":
+        case "SpeedTree.OregonOak":
           if (!this._speedTreesCounter[packet.data.id]) {
             this._speedTreesCounter[packet.data.id] = {
               hitPoints: randomIntFromInterval(12, 19),
@@ -1361,6 +1386,8 @@ export class ZoneServer2016 extends EventEmitter {
             }
           }
           break;
+        default: // boulders (do nothing);
+          return;
       }
       if (itemDefId) {
         this.lootContainerItem(client, this.generateItem(itemDefId), count);
@@ -2051,7 +2078,8 @@ export class ZoneServer2016 extends EventEmitter {
     for (const c in this._clients) {
       const characterObj: Character = this._clients[c].character;
       if (
-        client.character.characterId != characterObj.characterId &&
+        client.character.characterId != characterObj.characterId  &&
+        characterObj.isReady &&
         isPosInRadius(
           this._charactersRenderDistance,
           client.character.state.position,
@@ -2088,6 +2116,8 @@ export class ZoneServer2016 extends EventEmitter {
         switch (itemObject.spawnerId) {
           case -1:
             this.deleteEntity(itemObject.characterId, this._spawnedItems);
+            this.sendCompositeEffectToAllWithSpawnedEntity(this._spawnedItems, itemObject, 
+              this.getItemDefinition(itemObject.item.itemDefinitionId).PICKUP_EFFECT ?? 5151);
             continue;
         }
       }
@@ -2509,6 +2539,14 @@ export class ZoneServer2016 extends EventEmitter {
       }
       this.assignManagedObject(newClient, vehicle);
     }
+  }
+
+  sendCompositeEffectToAllWithSpawnedEntity(dictionary: { [id: string]: any }, object: BaseEntity, effectId: number) {
+    this.sendDataToAllWithSpawnedEntity(this._spawnedItems, object.characterId, "Character.PlayWorldCompositeEffect", {
+      characterId: "0x0",
+      effectId: effectId,
+      position: object.state.position,
+    });
   }
 
   sendDataToAllWithSpawnedEntity(
@@ -3727,13 +3765,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.containerError(client, 5); // slot does not contain item
       return;
     }
-    if (!this.removeInventoryItem(client, item, count)) return;
-    this.sendData(client, "Character.DroppedIemNotification", {
-      characterId: client.character.characterId,
-      itemDefId: item.itemDefinitionId,
-      count: count,
-    });
-
     let dropItem;
     if (item.stackCount == count) {
       dropItem = item;
@@ -3742,6 +3773,12 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       return;
     }
+    if (!this.removeInventoryItem(client, item, count)) return;
+    this.sendData(client, "Character.DroppedIemNotification", {
+      characterId: client.character.characterId,
+      itemDefId: item.itemDefinitionId,
+      count: count,
+    });
     this.worldObjectManager.createLootEntity(
       this,
       dropItem,
@@ -3781,12 +3818,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(client, `[ERROR] Invalid item`);
       return;
     }
-    this.sendData(client, "Character.PlayWorldCompositeEffect", {
-      characterId: "0x0",
-      effectId:
-        this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151,
-      position: object.state.position,
-    });
+    this.sendCompositeEffectToAllWithSpawnedEntity(this._spawnedItems, object, 
+      this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151);
     //region Norman added. if it is a crop product, randomly generated product is processed by the planting manager. else, continue
     if (this.plantingManager.TriggerPicking(item, client, this)) {
       return;
@@ -3997,6 +4030,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.equipItem(client, this.generateItem(Items.WEAPON_FISTS), sendPacket);
     }
     this.equipItem(client, this.generateItem(Items.SHIRT_DEFAULT), sendPacket);
+    this.equipItem(client, this.generateItem(Items.WAIST_PACK), sendPacket);
     this.equipItem(client, this.generateItem(Items.PANTS_DEFAULT), sendPacket);
   }
   giveDefaultItems(client: Client, sendPacket: boolean) {
@@ -4422,16 +4456,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._explosives[explosive.characterId]) {
       return;
     }
-    this.sendDataToAllWithSpawnedEntity(
-      this._explosives,
-      explosive.characterId,
-      "Character.PlayWorldCompositeEffect",
-      {
-        characterId: "0x0",
-        effectId: 1875,
-        position: explosive.state.position,
-      }
-    );
+    this.sendCompositeEffectToAllWithSpawnedEntity(this._explosives, explosive, 1875);
     this.sendDataToAllWithSpawnedEntity(
       this._explosives,
       explosive.characterId,
@@ -4762,6 +4787,46 @@ export class ZoneServer2016 extends EventEmitter {
       debug(`Client (${client.soeClientId}) disconnected ( ping timeout )`);
       this.deleteClient(client);
     }
+  }
+
+  hook(hookName: Hooks, hook: (...args: any)=> FunctionHookType) {
+    if(!this._hooks[hookName]) this._hooks[hookName] = [];
+    this._hooks[hookName].push(hook);
+    return;
+  }
+
+  hookAsync(hookName: AsyncHooks, hook: (...args: any)=> AsyncHookType) {
+    if(!this._asyncHooks[hookName]) this._asyncHooks[hookName] = [];
+    this._asyncHooks[hookName].push(hook);
+    return;
+  }
+
+  checkHook(hookName: Hooks, ...args: any): FunctionHookType {
+    if(this._hooks[hookName]?.length > 0) {
+      for(const hook of this._hooks[hookName]) {
+        switch(hook.apply(this, args)) {
+          case true:
+            return true;
+          case false:
+            return false;
+        }
+      }
+    }
+    return;
+  }
+
+  async checkAsyncHook(hookName: Hooks, ...args: any): AsyncHookType {
+    if(this._asyncHooks[hookName]?.length > 0) {
+      for(const hook of this._asyncHooks[hookName]) {
+        switch(await hook.apply(this, args)) {
+          case true:
+            return Promise.resolve(true);
+          case false:
+            return Promise.resolve(false);
+        }
+      }
+    }
+    return Promise.resolve();
   }
 
   toggleFog() {

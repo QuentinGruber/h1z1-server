@@ -49,6 +49,7 @@ export class Character2016 extends BaseFullCharacter {
   headActor!: string;
   hairModel!: string;
   isRespawning = false;
+  isReady = false;
   creationDate!: string;
   lastLoginDate!: string;
   currentLoadoutSlot = LoadoutSlots.FISTS;
