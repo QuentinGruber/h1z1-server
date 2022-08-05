@@ -56,14 +56,14 @@ export class WorldDataManager {
   }
 
   async fetchWorldData(server: ZoneServer2016) {
-    await this.loadVehicleData(server);
+    //await this.loadVehicleData(server);
     await this.loadServerData(server);
     server._transientIds = server.getAllCurrentUsedTransientId();
     debug("World fetched!");
   }
 
   async saveWorld(server: ZoneServer2016) {
-    await this.saveVehicles(server);
+    //await this.saveVehicles(server);
     await this.saveServerData(server);
     await this.saveCharacters(server);
     debug("World saved!");
@@ -224,7 +224,8 @@ export class WorldDataManager {
     refreshTimeout && client.savePositionTimer.refresh();
   }
 
-  async saveCharacterData(server: ZoneServer2016, client: Client) {
+  async saveCharacterData(server: ZoneServer2016, client: Client, updateItemGuid = true) {
+    if(updateItemGuid) await this.saveServerData(server);
     const saveData: CharacterUpdateSaveData = {
       position: Array.from(client.character.state.position),
       rotation: Array.from(client.character.state.lookAt),
@@ -265,8 +266,16 @@ export class WorldDataManager {
   }
 
   async saveCharacters(server: ZoneServer2016) {
-    // TODO: NEED TO PROMISIFY EXECUTEFUNCFORALLREADYCLIENTS SO AWAIT CAN BE USED
-    server.executeFuncForAllReadyClients((client: Client)=>server.worldDataManager.saveCharacterData(server, client));
+    const promises: Array<any> = [];
+    await this.saveServerData(server);
+    server.executeFuncForAllReadyClients((client: Client)=> {
+      promises.push(
+        server.worldDataManager.saveCharacterData(server, client, false).then((ret)=> {
+          return ret;
+        })
+      );
+    });
+    await Promise.all(promises)
   }
 
   //#endregion

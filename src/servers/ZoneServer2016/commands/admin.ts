@@ -158,16 +158,19 @@ const admin: any = {
       });
     }, 2000);
   },
-  savecharacters: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.worldDataManager.saveCharacters(server);
+  savecharacters: async function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendChatText(client, "CharacterData save started.");
+    await server.worldDataManager.saveCharacters(server);
     server.sendChatText(client, "Character data has been saved!");
   },
-  savevehicles: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.worldDataManager.saveVehicles(server);
+  savevehicles: async function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendChatText(client, "VehicleData save started.");
+    await server.worldDataManager.saveVehicles(server);
     server.sendChatText(client, "Vehicles have been saved!");
   },
-  save: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.worldDataManager.saveWorld(server);
+  save: async function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.sendChatText(client, "World save started.");
+    await server.worldDataManager.saveWorld(server);
     server.sendChatText(client, "World saved!");
   }
 };
