@@ -13,7 +13,7 @@
 
 import { createPositionUpdate } from "../../../utils/utils";
 import { ResourceIds } from "../enums";
-import { positionUpdate, passengers } from "../../../types/zoneserver";
+import { /*positionUpdate,*/ passengers } from "../../../types/zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 
 function getVehicleId(ModelId: number) {
