@@ -85,7 +85,6 @@ import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
-import { ClientUpdateDeathMetrics } from "types/zone2016packets";
 import { FullCharacterSaveData } from "types/savedata";
 import { WorldDataManager } from "./classes/worlddatamanager";
 import { CharacterKilledBy, ClientUpdateDeathMetrics } from "types/zone2016packets";
