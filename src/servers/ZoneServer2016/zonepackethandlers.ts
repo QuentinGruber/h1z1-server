@@ -27,7 +27,7 @@ let dev = require("./commands/dev").default;
 
 let admin = require("./commands/admin").default;
 
-import { _, Int64String, isPosInRadius, getDistance, toInt } from "../../utils/utils";
+import { _, Int64String, isPosInRadius, getDistance, toInt, toHex } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
@@ -174,6 +174,7 @@ export class zonePacketHandlers {
       if(server.checkHook("OnClientFinishedLoading", client) == false) {
         return;
       }
+      client.character.lastLoginDate = toHex(Date.now())
       server.tempGodMode(client, 15000);
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
@@ -242,7 +243,7 @@ export class zonePacketHandlers {
       }
 
       client.isLoading = false;
-      if (!client.character.isAlive) {
+      if (!client.character.isAlive || client.character.isRespawning) {
         // try to fix stuck on death screen
         server.sendData(client, "Character.StartMultiStateDeath", {
           characterId: client.character.characterId,
@@ -296,8 +297,11 @@ export class zonePacketHandlers {
         damage = packet.data.damage,
         vehicle = server._vehicles[characterId];
       if (characterId === client.character.characterId) {
-        if (!client.vehicle.mountedVehicle) {
-          // if not mounted
+        if (!client.vehicle.mountedVehicle) { // if not mounted
+          // fixes collision dmg bug on login
+          if(Number(client.character.lastLoginDate) + 4000 >= Date.now()) {
+            return;
+          }
           server.playerDamage(client, damage);
         }
       } else if (vehicle) {
