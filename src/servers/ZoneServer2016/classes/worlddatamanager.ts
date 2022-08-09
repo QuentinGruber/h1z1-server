@@ -12,6 +12,7 @@ export class WorldDataManager {
   lastSaveTime = 0;
   saveTimer = 600000; // 10 minutes
   run(server: ZoneServer2016) {
+    if(!server.enableWorldSaves) return;
     debug("WorldDataManager::Run");
     if (this.lastSaveTime + this.saveTimer <= Date.now()) {
       server.executeFuncForAllReadyClients((client: Client)=> {
@@ -56,6 +57,7 @@ export class WorldDataManager {
   }
 
   async fetchWorldData(server: ZoneServer2016) {
+    if(!server.enableWorldSaves) return;
     //await this.loadVehicleData(server);
     await this.loadServerData(server);
     server._transientIds = server.getAllCurrentUsedTransientId();
@@ -72,6 +74,7 @@ export class WorldDataManager {
   //#region SERVER DATA
 
   private async loadServerData(server: ZoneServer2016) {
+    if(!server.enableWorldSaves) return;
     let serverData: ServerSaveData;
     if (server._soloMode) {
       serverData = require(`${server._appDataFolder}/worlddata/world.json`);
@@ -89,6 +92,7 @@ export class WorldDataManager {
   }
 
   private async saveServerData(server: ZoneServer2016) {
+    if(!server.enableWorldSaves) return;
     const saveData: ServerSaveData = {
       serverId: server._worldId,
       lastItemGuid: toBigHex(server.lastItemGuid)
@@ -189,6 +193,7 @@ export class WorldDataManager {
   }
 
   async saveCharacterPosition(server: ZoneServer2016, client: Client, refreshTimeout = false) {
+    if(!server.enableWorldSaves) return;
     if (!client.character) {
       return;
     }
@@ -225,6 +230,7 @@ export class WorldDataManager {
   }
 
   async saveCharacterData(server: ZoneServer2016, client: Client, updateItemGuid = true) {
+    if(!server.enableWorldSaves) return;
     if(updateItemGuid) await this.saveServerData(server);
     const saveData: CharacterUpdateSaveData = {
       position: Array.from(client.character.state.position),
@@ -266,6 +272,7 @@ export class WorldDataManager {
   }
 
   async saveCharacters(server: ZoneServer2016) {
+    if(!server.enableWorldSaves) return;
     const promises: Array<any> = [];
     await this.saveServerData(server);
     server.executeFuncForAllReadyClients((client: Client)=> {
@@ -283,6 +290,7 @@ export class WorldDataManager {
   //#region VEHICLE DATA
 
   private async loadVehicleData(server: ZoneServer2016) {
+    if(!server.enableWorldSaves) return;
     let vehicles: Array<FullVehicleSaveData>;
     if(server._soloMode) {
       vehicles = require(`${server._appDataFolder}/worlddata/vehicles.json`);
@@ -315,6 +323,7 @@ export class WorldDataManager {
   }
 
   async saveVehicles(server: ZoneServer2016) {
+    if(!server.enableWorldSaves) return;
     const vehicles: Array<FullVehicleSaveData> = Object.values(server._vehicles).map((vehicle)=> {
       return {
         serverId: server._worldId,

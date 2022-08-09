@@ -105,7 +105,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
 
 @healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
-  _gatewayServer: GatewayServer;
+  private _gatewayServer: GatewayServer;
   _protocol: H1Z1Protocol;
   _db?: Db;
   _soloMode = false;
@@ -185,6 +185,7 @@ export class ZoneServer2016 extends EventEmitter {
   _packetsStats: Record<string, number> = {};
   private _hooks: { [hook: string]: Array<(...args: any)=> FunctionHookType> } = {};
   private _asyncHooks: { [hook: string]: Array<(...args: any)=> AsyncHookType> } = {};
+  enableWorldSaves: boolean;
 
   constructor(
     serverPort: number,
@@ -208,6 +209,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.worldObjectManager = new WorldObjectManager();
     this.worldDataManager = new WorldDataManager();
     this.plantingManager = new PlantingManager(null);
+    this.enableWorldSaves = process.env.ENABLE_SAVES?.toLowerCase() == "false"?false:true;
 
     if (!this._mongoAddress) {
       this._soloMode = true;
@@ -694,6 +696,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.worldObjectManager.createDoors(this);
 
     this._ready = true;
+    console.log(`Server saving ${this.enableWorldSaves?"enabled":"disabled"}.`);
     debug("Server ready");
   }
 
@@ -865,7 +868,7 @@ export class ZoneServer2016 extends EventEmitter {
       });
       if (this._ready) {
         this.worldObjectManager.run(this);
-        this.worldDataManager.run(this);
+        if(this.enableWorldSaves) this.worldDataManager.run(this);
       }
     }
     this.worldRoutineTimer.refresh();
