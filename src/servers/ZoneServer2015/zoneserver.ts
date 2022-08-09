@@ -227,7 +227,7 @@ export class ZoneServer2015 extends EventEmitter {
         (err: string, client: H1emuClient) => {
           console.error(`h1emuServer sessionfailed for ${client.sessionId}`);
           console.error(err);
-          process.exit(1);
+          process.exitCode = 1;
         }
       );
 
@@ -2591,7 +2591,7 @@ export class ZoneServer2015 extends EventEmitter {
 
   stop(): void {
     debug("Shutting down");
-    process.exit(0);
+    process.exitCode = 0;
   }
 
   forceTime(time: number): void {

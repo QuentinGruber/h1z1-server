@@ -11,17 +11,24 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ResourceIds } from "../enums";
+import { LoadoutSlots, ResourceIds } from "../enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
-import { positionUpdate } from "../../../types/zoneserver";
+import { DamageRecord, positionUpdate } from "../../../types/zoneserver";
 
 interface CharacterStates {
   invincibility?: boolean;
   gmHidden?: boolean;
   knockedOut?: boolean;
   inWater?: boolean;
+}
+
+interface CharacterMetrics {
+  zombiesKilled: number;
+  wildlifeKilled: number;
+  recipesDiscovered: number;
+  startedSurvivingTP: number; // timestamp
 }
 export class Character2016 extends BaseFullCharacter {
   name?: string;
@@ -42,10 +49,10 @@ export class Character2016 extends BaseFullCharacter {
   headActor!: string;
   hairModel!: string;
   isRespawning = false;
-  gender!: number;
+  isReady = false;
   creationDate!: string;
   lastLoginDate!: string;
-  currentLoadoutSlot = 7; //fists
+  currentLoadoutSlot = LoadoutSlots.FISTS;
   loadoutId = 3; // character
   startRessourceUpdater: any;
   healingInterval?: any;
@@ -55,6 +62,12 @@ export class Character2016 extends BaseFullCharacter {
   timeouts: any;
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
+  tempGodMode = false;
+  isSpectator = false;
+  metrics:CharacterMetrics = {recipesDiscovered: 0, zombiesKilled: 0, wildlifeKilled: 0, startedSurvivingTP: Date.now()};
+  private combatlog: DamageRecord[] = [];
+  // characterId of vehicle spawned by /hax drive or spawnvehicle
+  ownedVehicle?: string;
   constructor(characterId: string, transientId: number) {
     super(
       characterId,
@@ -232,6 +245,30 @@ export class Character2016 extends BaseFullCharacter {
 
         client.character.resourcesUpdater.refresh();
       }, 3000);
+    };
+  }
+  clearReloadTimeout() {
+    const weaponItem = this.getEquippedWeapon();
+    if(!weaponItem.weapon?.reloadTimer) return;
+    clearTimeout(weaponItem.weapon.reloadTimer);
+    weaponItem.weapon.reloadTimer = undefined;
+  }
+  addCombatlogEntry(entry: DamageRecord) {
+    this.combatlog.push(entry);
+    if (this.combatlog.length > 10) {
+      this.combatlog.shift();
+    }
+  }
+  getCombatLog() {
+    return this.combatlog;
+  }
+  pGetLightweight() {
+    return {
+      ...super.pGetLightweight(),
+      rotation: this.state.lookAt,
+      identity: {
+        characterName: this.name,
+      },
     };
   }
 }
