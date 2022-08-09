@@ -818,7 +818,7 @@ export class zonePacketHandlers {
         server.setGodMode(client, false);
         client.character.tempGodMode = false;
       }
-      //client.character.positionUpdate = packet.data;
+      client.character.positionUpdate = packet.data;
       if (packet.data.flags === 513) {
         // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
         return;
