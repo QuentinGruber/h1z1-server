@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { LoadoutSlots, ResourceIds } from "../enums";
+import { LoadoutIds, LoadoutSlots, ResourceIds } from "../enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
@@ -53,7 +53,7 @@ export class Character2016 extends BaseFullCharacter {
   creationDate!: string;
   lastLoginDate!: string;
   currentLoadoutSlot = LoadoutSlots.FISTS;
-  loadoutId = 3; // character
+  loadoutId = LoadoutIds.CHARACTER
   startRessourceUpdater: any;
   healingInterval?: any;
   healingTicks: number;
@@ -64,7 +64,7 @@ export class Character2016 extends BaseFullCharacter {
   positionUpdate?: positionUpdate;
   tempGodMode = false;
   isSpectator = false;
-  metrics:CharacterMetrics = {recipesDiscovered: 0, zombiesKilled: 0, wildlifeKilled: 0, startedSurvivingTP: Date.now()};
+  metrics: CharacterMetrics = {recipesDiscovered: 0, zombiesKilled: 0, wildlifeKilled: 0, startedSurvivingTP: Date.now()};
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;

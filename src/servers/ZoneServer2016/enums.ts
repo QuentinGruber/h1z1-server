@@ -11,6 +11,19 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum Characters {
+  MALE_WHITE = 1,
+  MALE_WHITE_BALD = 2,
+  FEMALE_WHITE_YOUNG = 3,
+  FEMALE_WHITE = 4,
+  MALE_BLACK = 5,
+  FEMALE_BLACK = 6
+}
+
+export enum LoadoutIds {
+  CHARACTER = 3
+}
+
 export enum LoadoutSlots {
   PRIMARY = 1,
   FISTS = 7,

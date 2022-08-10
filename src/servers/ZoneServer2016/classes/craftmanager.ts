@@ -166,7 +166,7 @@ export class CraftManager {
     );
     const r = server._recipes[recipeId];
     for (const component of r.components) {
-      const inventory = server.getInventoryAsContainer(client);
+      const inventory = server.getInventoryAsContainer(client.character);
       let remainingItems = component.requiredAmount * count,
         stackCount = 0;
       if (!inventory[component.itemDefinitionId]) {
