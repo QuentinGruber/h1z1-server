@@ -108,7 +108,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
 @healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
   private _gatewayServer: GatewayServer;
-  _protocol: H1Z1Protocol;
+  readonly _protocol: H1Z1Protocol;
   _db?: Db;
   _soloMode = false;
   readonly _mongoAddress: string;
@@ -122,7 +122,7 @@ export class ZoneServer2016 extends EventEmitter {
   _worldId = 0;
   readonly _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
-  _npcs: { [characterId: string]: Npc } = {};
+   _npcs: { [characterId: string]: Npc } = {};
   _spawnedItems: { [characterId: string]: ItemObject } = {};
   _doors: { [characterId: string]: DoorEntity } = {};
   _explosives: { [characterId: string]: ExplosiveEntity } = {};
@@ -1204,12 +1204,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   resetCharacterMetrics(client:Client){
-    client.character.metrics = {
-      zombiesKilled: 0,
-      wildlifeKilled: 0,
-      recipesDiscovered: 0,
-      startedSurvivingTP: Date.now(),
-    }
+    client.character.metrics.zombiesKilled = 0;
+    client.character.metrics.wildlifeKilled = 0;
+    client.character.metrics.recipesDiscovered = 0;
+    client.character.metrics.startedSurvivingTP = Date.now();
   }
 
   async respawnPlayer(client: Client) {
@@ -3773,7 +3771,7 @@ export class ZoneServer2016 extends EventEmitter {
   /**
    * Removes a specified amount of an item across all inventory containers /
    * loadout (LOADOUT DISABLED FOR NOW).
-   * @param client The client to have their items removed.
+   * @param client The client to have its items removed.
    * @param itemDefinitionId The itemDefinitionId of the item(s) to be removed.
    * @param requiredCount Optional: The number of items to remove, default 1.
    * @returns Returns true if all items were successfully removed, false if there was an error.

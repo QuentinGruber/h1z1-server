@@ -53,7 +53,7 @@ export class Character2016 extends BaseFullCharacter {
   creationDate!: string;
   lastLoginDate!: string;
   currentLoadoutSlot = LoadoutSlots.FISTS;
-  loadoutId = LoadoutIds.CHARACTER
+  readonly loadoutId = LoadoutIds.CHARACTER
   startRessourceUpdater: any;
   healingInterval?: any;
   healingTicks: number;
@@ -64,7 +64,7 @@ export class Character2016 extends BaseFullCharacter {
   positionUpdate?: positionUpdate;
   tempGodMode = false;
   isSpectator = false;
-  metrics: CharacterMetrics = {recipesDiscovered: 0, zombiesKilled: 0, wildlifeKilled: 0, startedSurvivingTP: Date.now()};
+  readonly metrics: CharacterMetrics = {recipesDiscovered: 0, zombiesKilled: 0, wildlifeKilled: 0, startedSurvivingTP: Date.now()};
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
@@ -262,6 +262,9 @@ export class Character2016 extends BaseFullCharacter {
   getCombatLog() {
     return this.combatlog;
   }
+  /**
+   * Gets the lightweightpc fields for use in sendself and addlightweightpc
+  */
   pGetLightweight() {
     return {
       ...super.pGetLightweight(),

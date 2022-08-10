@@ -78,6 +78,9 @@ export class BaseLightweightCharacter extends BaseEntity {
     };
   }
 
+   /**
+   * Gets the lightweight npc/pc fields for use in sendself, addlightweightnpc, or addlightweightpc
+  */
   pGetLightweight() {
     return {
       characterId: this.characterId,
