@@ -33,11 +33,13 @@ import {
   Characters,
   EntityTypes,
   EquipSlots,
+  ItemClasses,
   Items,
   LoadoutIds,
   LoadoutSlots,
   ResourceIds,
   ResourceTypes,
+  VehicleIds,
 } from "./enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { changeFog } from "./workers/dynamicWeather";
@@ -1039,7 +1041,7 @@ export class ZoneServer2016 extends EventEmitter {
       let supercriticalDamageEffect: number;
       let destroyedVehicleModel: number;
       switch (vehicle.vehicleId) {
-        case 1: //offroader
+        case VehicleIds.OFFROADER:
           destroyedVehicleEffect = 135;
           destroyedVehicleModel = 7226;
           minorDamageEffect = 182;
@@ -1047,7 +1049,7 @@ export class ZoneServer2016 extends EventEmitter {
           criticalDamageEffect = 180;
           supercriticalDamageEffect = 5227;
           break;
-        case 2: // pickup
+        case VehicleIds.PICKUP:
           destroyedVehicleEffect = 326;
           destroyedVehicleModel = 9315;
           minorDamageEffect = 325;
@@ -1055,7 +1057,7 @@ export class ZoneServer2016 extends EventEmitter {
           criticalDamageEffect = 323;
           supercriticalDamageEffect = 5228;
           break;
-        case 3: // police car
+        case VehicleIds.POLICECAR:
           destroyedVehicleEffect = 286;
           destroyedVehicleModel = 9316;
           minorDamageEffect = 285;
@@ -1063,7 +1065,7 @@ export class ZoneServer2016 extends EventEmitter {
           criticalDamageEffect = 283;
           supercriticalDamageEffect = 5229;
           break;
-        case 5: // atv
+        case VehicleIds.ATV:
           destroyedVehicleEffect = 357;
           destroyedVehicleModel = 9593;
           minorDamageEffect = 360;
@@ -2423,7 +2425,7 @@ export class ZoneServer2016 extends EventEmitter {
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
-      if (vehicle.vehicleId == 1337) continue; //ignore spectator cam
+      if (vehicle.vehicleId == VehicleIds.SPECTATE) continue; //ignore spectator cam
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
@@ -2602,7 +2604,7 @@ export class ZoneServer2016 extends EventEmitter {
     const seatId = vehicle.getNextSeatId();
     if (seatId < 0) return; // no available seats in vehicle
     vehicle.seats[seatId] = client.character.characterId;
-    if (vehicle.vehicleId == 1337) {
+    if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.MountResponse", {
         // mounts character
         characterId: client.character.characterId,
@@ -2758,8 +2760,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!vehicle) return;
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     if (!seatId) return;
-    if (vehicle.vehicleId == 1337) {
-      // spectate camera
+    if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
@@ -3505,7 +3506,7 @@ export class ZoneServer2016 extends EventEmitter {
   getAvailableLoadoutSlot(
     character: BaseFullCharacter,
     itemDefId: number,
-    loadoutId: number = 3
+    loadoutId: number = LoadoutIds.CHARACTER
   ): number {
     // gets an open loadoutslot for a specified itemDefinitionId
     const itemDef = this.getItemDefinition(itemDefId),
@@ -3517,23 +3518,22 @@ export class ZoneServer2016 extends EventEmitter {
     let slot = loadoutSlotItemClass?.SLOT;
     if (!slot) return 0;
     switch (itemDef.ITEM_CLASS) {
-      case 25036: // long weapons
-      case 4096: // pistols
-      case 4098: // melees
-      case 25037: // melees
+      case ItemClasses.WEAPONS_LONG:
+      case ItemClasses.WEAPONS_PISTOL:
+      case ItemClasses.WEAPONS_MELEES:
+      case ItemClasses.WEAPONS_MELEES0:
         if (character._loadout[slot]?.itemDefinitionId) {
           // primary
-          slot = 3; // secondary
+          slot = LoadoutSlots.SECONDARY;
         }
-        if (slot == 3 && character._loadout[slot]?.itemDefinitionId) {
+        if (slot == LoadoutSlots.SECONDARY && character._loadout[slot]?.itemDefinitionId) {
           // secondary
-          slot = 4; // tertiary
+          slot = LoadoutSlots.TERTIARY;
         }
         break;
-      case 25054: // item1/item2 slots
+      case ItemClasses.WEAPONS_GENERIC: // item1/item2 slots
         if (character._loadout[slot]?.itemDefinitionId) {
-          // item 1
-          slot = 41; // item 2
+          slot = LoadoutSlots.ITEM2;
         }
         break;
     }
@@ -4153,16 +4153,16 @@ export class ZoneServer2016 extends EventEmitter {
     let givetrash = 0;
     let timeout = 1000;
     switch (item.itemDefinitionId) {
-      case 105: // berries
+      case Items.BLACK_BERRIES:
         drinkCount = 200;
         eatCount = 200;
         timeout = 600;
         break;
-      case 7: // canned Food
+      case Items.CANNED_FOOD01:
         eatCount = 4000;
         givetrash = 48;
         break;
-      case 1402: // M.R.E Apple
+      case Items.MRE_APPLE:
         eatCount = 6000;
         drinkCount = 6000;
         break;
@@ -4185,18 +4185,18 @@ export class ZoneServer2016 extends EventEmitter {
     let healCount = 9;
     let bandagingCount = 40;
     switch (item.itemDefinitionId) {
-      case 78: // med kit
-      case 2424:
+      case Items.WEAPON_FIRST_AID:
+      case Items.FIRST_AID:
         healCount = 99;
         timeout = 5000;
         bandagingCount = 120;
         break;
-      case 24: // bandage
-      case 1751: // gauze
+      case Items.BANDAGE:
+      case Items.GAUZE:
         healCount = 9;
         timeout = 1000;
         break;
-      case 2214: //dressed bandage
+      case Items.BANDAGE_DRESSED:
         healCount = 29;
         timeout = 2000;
         break;
@@ -4217,9 +4217,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (!itemDef) return;
     let timeout = 100;
     switch (item.itemDefinitionId) {
-      case 1436: // lighter
+      case Items.LIGHTER:
         break;
-      case 1452: // bow drill
+      case Items.BOW_DRILL:
         timeout = 15000;
         break;
       default:
@@ -4238,21 +4238,18 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let drinkCount = 2000;
-    const eatCount = 0;
-    let givetrash = 0;
+    const eatCount = 0,
+    givetrash = Items.WATER_EMPTY;
     const timeout = 1000;
     switch (item.itemDefinitionId) {
-      case 1368: // dirty water
+      case Items.WATER_DIRTY:
         drinkCount = 1000;
-        givetrash = 1353;
         break;
-      case 1535: //stagnant water
+      case Items.WATER_STAGNANT:
         drinkCount = 2000;
-        givetrash = 1353;
         break;
-      case 1371: // purified water
+      case Items.WATER_PURE:
         drinkCount = 4000;
-        givetrash = 1353;
         break;
       default:
         this.sendChatText(
@@ -4286,14 +4283,14 @@ export class ZoneServer2016 extends EventEmitter {
     let useoption = "";
     let timeout = 1000;
     switch (item.itemDefinitionId) {
-      case 1353: // empty bottle
+      case Items.WATER_EMPTY:
         useoption = "fill";
         break;
-      case 1709: // swizzle
+      case Items.SWIZZLE:
         useoption = "sniff";
         timeout = 3000;
         break;
-      case 25: //Fertilizer
+      case Items.FERTILIZER:
         this.utilizeHudTimer(client, nameId, timeout, () => {
           this.plantingManager.FertilizeCrops(client, this);
           this.removeInventoryItem(client, item);
@@ -4327,11 +4324,18 @@ export class ZoneServer2016 extends EventEmitter {
     const timeout = 5000;
     let fuelValue = 2500;
     switch (item.itemDefinitionId) {
-      case 1384: // ethanol
+      case Items.FUEL_ETHANOL:
         fuelValue = 5000;
         break;
+      case Items.FUEL_BIOFUEL:
+        fuelValue = 2500;
       default:
-        break;
+        this.sendChatText(
+          client,
+          "[ERROR] Fuel not mapped to item Definition " +
+            item.itemDefinitionId
+        );
+        return;
     }
     this.utilizeHudTimer(client, nameId, timeout, () => {
       this.refuelVehiclePass(client, item, vehicleGuid, fuelValue);

@@ -33,7 +33,7 @@ import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
-import { EntityTypes, Items, ResourceIds } from "./enums";
+import { EntityTypes, Items, ResourceIds, VehicleIds } from "./enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
 import { DoorEntity } from "./classes/doorentity";
@@ -918,30 +918,31 @@ export class zonePacketHandlers {
           break;
         case EntityTypes.VEHICLE: // vehicles
           const vehicle = entityData as Vehicle2016;
-          if (vehicle.vehicleId == 1337) return; // ignore spectator cam
-          if (vehicle.vehicleId != 13) {
-            server.sendData(
-              client,
-              "LightweightToFullVehicle",
-              vehicle.pGetFullVehicle()
-            );
-            // prevents cars from spawning in under the map for other characters
-            /*
-            server.sendData(client, "PlayerUpdatePosition", {
-              transientId: vehicle.transientId,
-              positionUpdate: vehicle.positionUpdate,
-            });
-            */
-            server.sendData(client, "ResourceEvent", {
-              eventData: {
-                type: 1,
-                value: {
-                  characterId: vehicle.characterId,
-                  characterResources: vehicle.pGetResources(),
-                },
+          if (
+            vehicle.vehicleId == VehicleIds.SPECTATE ||
+            vehicle.vehicleId == VehicleIds.PARACHUTE
+            ) return;
+          server.sendData(
+            client,
+            "LightweightToFullVehicle",
+            vehicle.pGetFullVehicle()
+          );
+          // prevents cars from spawning in under the map for other characters
+           /*
+          server.sendData(client, "PlayerUpdatePosition", {
+            transientId: vehicle.transientId,
+            positionUpdate: vehicle.positionUpdate,
+          });
+          */
+          server.sendData(client, "ResourceEvent", {
+            eventData: {
+              type: 1,
+              value: {
+                characterId: vehicle.characterId,
+                characterResources: vehicle.pGetResources(),
               },
-            });
-          }
+            },
+          });
           for (const a in vehicle.seats) {
             const seatId = vehicle.getCharacterSeat(vehicle.seats[a]);
             if(!vehicle.seats[a]) continue;

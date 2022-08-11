@@ -263,7 +263,7 @@ export class Character2016 extends BaseFullCharacter {
     return this.combatlog;
   }
   /**
-   * Gets the lightweightpc fields for use in sendself and addlightweightpc
+   * Gets the lightweightpc packetfields for use in sendself and addlightweightpc
   */
   pGetLightweight() {
     return {
