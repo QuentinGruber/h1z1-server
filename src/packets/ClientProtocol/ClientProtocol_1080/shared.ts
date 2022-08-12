@@ -1831,7 +1831,7 @@ export const fullNpcSchema = [
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
     ],
   },
-  { name: "unknownDword21", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
 ];
 
 export const fullPcSchema = [

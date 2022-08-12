@@ -531,21 +531,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  pGetInventoryItems(client: Client): any[] {
-    const items: any[] = Object.values(client.character._loadout)
+  pGetInventoryItems(character: BaseFullCharacter): any[] {
+    const items: any[] = Object.values(character._loadout)
       .filter((slot) => {
         if (slot.itemDefinitionId) {
           return true;
         }
       })
       .map((slot) => {
-        return this.pGetItemData(client.character, slot, 101);
+        return this.pGetItemData(character, slot, 101);
       });
-    Object.values(client.character._containers).forEach((container) => {
+    Object.values(character._containers).forEach((container) => {
       Object.values(container.items).forEach((item) => {
         items.push(
           this.pGetItemData(
-            client.character,
+            character,
             item,
             container.containerDefinitionId
           )
@@ -571,7 +571,7 @@ export class ZoneServer2016 extends EventEmitter {
           characterName: client.character.name,
         },
         inventory: {
-          items: this.pGetInventoryItems(client),
+          items: this.pGetInventoryItems(client.character),
           //unknownDword1: 2355
         },
         recipes: Object.values(this._recipes),
@@ -2628,11 +2628,11 @@ export class ZoneServer2016 extends EventEmitter {
         identity: {},
       }
     );
-    /*
+    
     if(seatId === "0") {
       this.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
         objectCharacterId: vehicle.characterId,
-        containerGuid: vehicle.characterId,// idk just testing for now
+        containerGuid: vehicle._loadout[31]?.itemGuid,
         unknownBool1: false,
         itemsData: {
           items: [],
@@ -2640,7 +2640,7 @@ export class ZoneServer2016 extends EventEmitter {
         },
       });
     }
-    */
+    
     if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
       if (vehicle._resources[ResourceIds.FUEL] > 0) {
@@ -2955,7 +2955,7 @@ export class ZoneServer2016 extends EventEmitter {
   //#region ********************INVENTORY********************
 
   pGetItemData(
-    character: Character,
+    character: BaseFullCharacter,
     item: inventoryItem,
     containerDefId: number
   ) {
@@ -2994,7 +2994,7 @@ export class ZoneServer2016 extends EventEmitter {
     };
   }
 
-  getItemWeaponData(charcter: Character, slot: inventoryItem) {
+  getItemWeaponData(charcter: BaseFullCharacter, slot: inventoryItem) {
     if (slot.weapon) {
       return {
         isWeapon: true, // not sent to client, only used as a flag for pack function
