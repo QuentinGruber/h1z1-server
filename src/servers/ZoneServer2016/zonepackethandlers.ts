@@ -927,6 +927,7 @@ export class zonePacketHandlers {
             "LightweightToFullVehicle",
             vehicle.pGetFullVehicle()
           );
+          server.updateLoadout(client, vehicle);
           // prevents cars from spawning in under the map for other characters
            /*
           server.sendData(client, "PlayerUpdatePosition", {

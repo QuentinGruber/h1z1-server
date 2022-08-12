@@ -223,9 +223,12 @@ export class WorldObjectManager {
     debug("All doors objects created");
   }
 
-  createVehicle(server: ZoneServer2016, vehicleData: Vehicle2016) {
+  createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
     // setup vehicle loadout slots, containers, etc here
-    server._vehicles[vehicleData.characterId] = vehicleData;
+    server.equipItem(vehicle, server.generateItem(1885), false, 33);
+    server.equipItem(vehicle, server.generateItem(2197), false, 34);
+    server.equipItem(vehicle, server.generateItem(1474));
+    server._vehicles[vehicle.characterId] = vehicle;
   }
 
   createVehicles(server: ZoneServer2016) {

@@ -3061,13 +3061,15 @@ export class ZoneServer2016 extends EventEmitter {
     };
   }
 
-  updateLoadout(client: Client, character = client.character) {
+  updateLoadout(client: Client, character: BaseFullCharacter = client.character) {
     this.sendData(
       client,
       "Loadout.SetLoadoutSlots",
       character.pGetLoadoutSlots()
     );
-    this.checkConveys(client);
+    if(client.character.characterId == character.characterId) {
+      this.checkConveys(client);
+    }
   }
 
   updateEquipment(
@@ -3513,15 +3515,14 @@ export class ZoneServer2016 extends EventEmitter {
  */
   getAvailableLoadoutSlot(
     character: BaseFullCharacter,
-    itemDefId: number,
-    loadoutId: number = LoadoutIds.CHARACTER
+    itemDefId: number
   ): number {
     // gets an open loadoutslot for a specified itemDefinitionId
     const itemDef = this.getItemDefinition(itemDefId),
       loadoutSlotItemClass = loadoutSlotItemClasses.find(
         (slot: any) =>
           slot.ITEM_CLASS === itemDef.ITEM_CLASS &&
-          loadoutId === slot.LOADOUT_ID
+          character.loadoutId === slot.LOADOUT_ID
       );
     let slot = loadoutSlotItemClass?.SLOT;
     if (!slot) return 0;
