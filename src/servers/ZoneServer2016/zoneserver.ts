@@ -3753,7 +3753,7 @@ export class ZoneServer2016 extends EventEmitter {
     count: number = 1
   ): boolean {
     if(count > item.stackCount) {
-      console.error("RemoveInventoryItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}")
+      console.error(`RemoveInventoryItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`)
       count = item.stackCount;
     }
     if (client.character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
@@ -4265,7 +4265,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   fillPass(client: Client, item: inventoryItem) {
     if (client.character.characterStates.inWater) {
-      this.removeInventoryItem(client, item, 1);
+      this.removeInventoryItem(client, item);
       this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
     } else {
       this.sendAlert(client, "There is no water source nearby");
@@ -4273,7 +4273,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sniffPass(client: Client, item: inventoryItem) {
-    this.removeInventoryItem(client, item, 1);
+    this.removeInventoryItem(client, item);
     this.applyMovementModifier(client, 1.15, "swizzle");
   }
 
@@ -4450,7 +4450,7 @@ export class ZoneServer2016 extends EventEmitter {
       bleeding,
       ResourceIds.BLEEDING
     );
-    this.removeInventoryItem(client, item, 1);
+    this.removeInventoryItem(client, item);
   }
 
   refuelVehiclePass(
@@ -4459,7 +4459,7 @@ export class ZoneServer2016 extends EventEmitter {
     vehicleGuid: string,
     fuelValue: number
   ) {
-    this.removeInventoryItem(client, item, 1);
+    this.removeInventoryItem(client, item);
     const vehicle = this._vehicles[vehicleGuid];
     vehicle._resources[ResourceIds.FUEL] += fuelValue;
     if (vehicle._resources[ResourceIds.FUEL] > 10000) {
@@ -4475,7 +4475,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   shredItemPass(client: Client, item: inventoryItem, count: number) {
-    this.removeInventoryItem(client, item, 1);
+    this.removeInventoryItem(client, item);
     this.lootItem(client, this.generateItem(Items.CLOTH, count));
   }
 
