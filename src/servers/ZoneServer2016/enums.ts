@@ -170,6 +170,7 @@ export enum Items {
   METAL_SCRAP = 48,
   TARP = 155,
   WOOD_LOG = 16,
+  WOOD_STICK = 111,
   GROUND_TILLER = 1383,
   FERTILIZER = 25,
   SEED_CORN = 1987,

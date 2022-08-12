@@ -1356,7 +1356,7 @@ export class ZoneServer2016 extends EventEmitter {
       let itemDefId = 0;
       switch (packet.data.name) {
         case "SpeedTree.Blackberry":
-          itemDefId = 105;
+          itemDefId = Items.BLACK_BERRIES;
           if (randomIntFromInterval(1, 10) == 1) {
             this.lootItem(client, this.generateItem(Items.WEAPON_BRANCH));
           }
@@ -1365,7 +1365,7 @@ export class ZoneServer2016 extends EventEmitter {
           break;
         case "SpeedTree.DevilClub":
         case "SpeedTree.VineMaple":
-          itemDefId = 111;
+          itemDefId = Items.WOOD_STICK;
           allowDes = true;
           count = randomIntFromInterval(1, 2);
           break;
@@ -1387,7 +1387,7 @@ export class ZoneServer2016 extends EventEmitter {
             if (this._speedTreesCounter[packet.data.id].hitPoints-- == 0) {
               allowDes = true;
               delete this._speedTreesCounter[packet.data.id]; // If out of health destroy tree and delete its key
-              itemDefId = 16;
+              itemDefId = Items.WOOD_LOG;
               count = randomIntFromInterval(2, 6);
             }
           }
