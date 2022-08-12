@@ -101,6 +101,8 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   stats = require("../../../data/2016/sampleData/stats.json"),
   itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
+  profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json"),
+  projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
@@ -181,6 +183,8 @@ export class ZoneServer2016 extends EventEmitter {
     weaponDefinitions.FIRE_MODE_DEFINITIONS;
   itemDefinitionsCache: any;
   weaponDefinitionsCache: any;
+  projectileDefinitionsCache: any;
+  profileDefinitionsCache: any;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
   _recipes: { [recipeId: number]: any } = recipes;
@@ -660,6 +664,24 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  private packProjectileDefinitions() {
+    this.projectileDefinitionsCache = this._protocol.pack(
+      "ReferenceData.ProjectileDefinitions",{ 
+        definitionsData: projectileDefinitons 
+      }
+    );
+  }
+
+  private packProfileDefinitions() {
+    this.profileDefinitionsCache = this._protocol.pack(
+      "ReferenceData.ProfileDefinitions", {
+        data: {
+          profiles: profileDefinitions,
+        },
+      }
+    );
+  }
+
   private async initializeLoginServerConnection() {
     debug("Starting H1emuZoneServer");
       if (!this._loginServerInfo.address) {
@@ -699,6 +721,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.packItemDefinitions();
     this.packWeaponDefinitions();
+    this.packProjectileDefinitions();
+    this.packProfileDefinitions();
     this.worldObjectManager.createDoors(this);
 
     this._ready = true;

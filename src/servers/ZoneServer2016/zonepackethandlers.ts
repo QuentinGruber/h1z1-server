@@ -43,8 +43,6 @@ import { Npc } from "./classes/npc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { AVG_PING_SECS } from "../../utils/constants";
 
-const profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
-const projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
 const stats = require("../../../data/2016/sampleData/stats.json");
 export class zonePacketHandlers {
   hax = hax;
@@ -147,16 +145,9 @@ export class zonePacketHandlers {
         gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
       });
 
-      server.sendData(client, "ReferenceData.ProjectileDefinitions", {
-        definitionsData: projectileDefinitons,
-      });
+      server.sendRawData(client, server.projectileDefinitionsCache);
 
-      server.sendData(client, "ReferenceData.ProfileDefinitions", {
-        data: {
-          profiles: profileDefinitions,
-        },
-      });
-
+      server.sendRawData(client, server.profileDefinitionsCache);
       /*
         server.sendData(client, "Loadout.SetCurrentLoadout", {
           guid: client.character.guid,
