@@ -1847,13 +1847,13 @@ export class zonePacketHandlers {
               }
               if (oldLoadoutItem.itemDefinitionId) {
                 server.equipItem(
-                  client,
+                  client.character,
                   oldLoadoutItem,
                   true,
                   loadoutItem.slotId
                 );
               }
-              server.equipItem(client, loadoutItem, true, newSlotId);
+              server.equipItem(client.character, loadoutItem, true, newSlotId);
             } else {
               // invalid
               server.containerError(client, 3); // unknown container
