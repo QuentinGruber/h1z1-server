@@ -664,6 +664,9 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  /**
+  * Caches projectile definitons so they aren't packed every time a client logs in.
+ */
   private packProjectileDefinitions() {
     this.projectileDefinitionsCache = this._protocol.pack(
       "ReferenceData.ProjectileDefinitions",{ 
@@ -672,6 +675,9 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  /**
+  * Caches profile definitons so they aren't packed every time a client logs in.
+ */
   private packProfileDefinitions() {
     this.profileDefinitionsCache = this._protocol.pack(
       "ReferenceData.ProfileDefinitions", {
