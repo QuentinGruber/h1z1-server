@@ -968,6 +968,7 @@ export class zonePacketHandlers {
                   break;
               }
 
+              /*
               remoteWeapons.push({
                 guid: item.itemGuid,
                 weaponDefinitionId: weaponDefinition.ID, // weapondefId confirmed from z1br
@@ -1008,11 +1009,12 @@ export class zonePacketHandlers {
                     unknownBoolean2: false
                   }
                 })
-              })         
+              })    
+              */     
             }
           })
-          console.log(JSON.stringify(remoteWeapons, null, 2))
-          console.log(JSON.stringify(remoteWeaponsExtra, null, 2))
+          //console.log(JSON.stringify(remoteWeapons, null, 2))
+          //console.log(JSON.stringify(remoteWeaponsExtra, null, 2))
 
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
