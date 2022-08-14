@@ -1828,6 +1828,15 @@ export const fullNpcSchema = [
           ...remoteWeaponSchema,
         ],
       },
+      {
+        name: "remoteWeaponExtra",
+        type: "array",
+        defaultValue: {},
+        fields: [
+          { name: "guid", type: "uint64string", defaultValue: "" },
+          ...remoteWeaponExtraSchema
+        ]
+      },
     ],
   },
   {
@@ -1852,7 +1861,7 @@ export const fullNpcSchema = [
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
     ],
   },
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword21", type: "uint32", defaultValue: 0 },
 ];
 
 export const fullPcSchema = [
@@ -2526,7 +2535,7 @@ export function packTargetData(obj: any) {
         },
         { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
       ],
-      data
+      obj
     );
     return Buffer.concat([data, targetData.data]);
   }

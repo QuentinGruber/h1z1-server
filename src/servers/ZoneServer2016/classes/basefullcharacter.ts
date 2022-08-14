@@ -281,12 +281,12 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       targetData: {},
       unknownArray1: [],
       unknownArray2: [],
-      unknownArray3: { data: [] },
-      unknownArray4: { data: [] },
-      unknownArray5: { data: [] },
-      unknownArray6: { data: [] },
-      remoteWeapons: { data: [] },
-      itemsData: { data: [] },
+      unknownArray3: { data: {} },
+      unknownArray4: { data: {} },
+      unknownArray5: { data: {} },
+      unknownArray6: { data: {} },
+      remoteWeapons: { data: {} },
+      itemsData: { data: {} },
     };
   }
 
