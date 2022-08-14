@@ -13,7 +13,7 @@
 
 import { createPositionUpdate } from "../../../utils/utils";
 import { ResourceIds } from "../enums";
-import { positionUpdate, passengers } from "../../../types/zoneserver";
+import { /*positionUpdate,*/ passengers } from "../../../types/zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 
 function getVehicleId(ModelId: number) {
@@ -41,7 +41,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   destroyedEffect: number = 0;
   engineOn: boolean = false;
   isLocked: number = 0;
-  positionUpdate: positionUpdate;
+  positionUpdate: any/*positionUpdate*/;
   fuelUpdater: any;
   isInvulnerable: boolean = false;
   onDismount?: any;
@@ -50,7 +50,6 @@ export class Vehicle2016 extends BaseFullCharacter {
   vehicleManager?: string;
   seats: { [seatId: string]: any } = {};
   passengers: passengers = {};
-  gameTime: number;
   vehicleId: number;
   destroyedState = 0;
   positionUpdateType = 1;
@@ -100,13 +99,19 @@ export class Vehicle2016 extends BaseFullCharacter {
         break;
     }
     Object.seal(this.seats); // object can't be edited, but properties can
-    this.gameTime = gameTime;
-    this.positionUpdate = createPositionUpdate(
-      this.state.position,
-      this.state.rotation,
-      this.gameTime
-    );
+    this.positionUpdate = {
+      ...createPositionUpdate(
+        this.state.position,
+        this.state.rotation,
+        gameTime
+      ),
+      vehicle: this,
+      get position() {
+        return this.vehicle.state.position;
+      }
+    };
   }
+
   getSeatCount() {
     return Object.keys(this.seats).length;
   }

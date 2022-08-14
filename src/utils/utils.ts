@@ -177,6 +177,27 @@ export const setupAppDataFolder = (): void => {
       JSON.stringify([])
     );
   }
+  if (
+    !fs.existsSync(`${AppDataFolderPath}/worlddata`)
+  ) {
+    fs.mkdirSync(`${AppDataFolderPath}/worlddata`);
+  }
+  if (
+    !fs.existsSync(`${AppDataFolderPath}/worlddata/vehicles.json`)
+  ) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/vehicles.json`,
+      JSON.stringify([])
+    );
+  }
+  if (
+    !fs.existsSync(`${AppDataFolderPath}/worlddata/world.json`)
+  ) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/world.json`,
+      JSON.stringify({})
+    );
+  }
 };
 
 export const objectIsEmpty = (obj: Record<string, unknown>) => {
@@ -339,10 +360,7 @@ export const initMongo = async function (
   await mongoClient.db(dbName).collection("servers").insertMany(servers);
   await mongoClient.db(dbName).createCollection("zone-whitelist");
   const zoneWhitelist = require("../../data/defaultDatabase/shared/zone-whitelist.json");
-  await mongoClient
-    .db(dbName)
-    .collection("zone-whitelist")
-    .insertMany(zoneWhitelist);
+  await mongoClient.db(dbName).collection("zone-whitelist").insertMany(zoneWhitelist);
   debug("h1server database was missing... created one with samples.");
 };
 
@@ -412,8 +430,12 @@ export class wrappedUint16 {
   }
 }
 
-export const bigIntToHexString = (bigInt: bigint): string => {
+export const toBigHex = (bigInt: bigint): string => {
   return `0x${bigInt.toString(16)}`;
+};
+
+export const toHex = (number: number): string => {
+  return `0x${number.toString(16)}`;
 };
 
 export const getRandomFromArray = (array: any[]): any => {
