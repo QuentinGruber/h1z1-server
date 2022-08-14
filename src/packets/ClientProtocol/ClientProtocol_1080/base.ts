@@ -143,7 +143,7 @@ export const basePackets: any = [
                   fields: [
                     ...itemSchema,
                     {
-                      name: "unknownData1",
+                      name: "weaponData",
                       type: "custom",
                       defaultValue: {},
                       packer: packItemWeaponData,

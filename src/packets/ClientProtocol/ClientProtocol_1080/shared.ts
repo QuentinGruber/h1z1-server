@@ -1855,7 +1855,7 @@ export const fullNpcSchema = [
             defaultValue: {},
             fields: itemSchema,
           },
-          { name: "unknownBool1", type: "boolean", defaultValue: false },
+          { name: "unknownBool2", type: "boolean", defaultValue: false },
         ],
       },
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },

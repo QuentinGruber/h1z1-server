@@ -2630,13 +2630,21 @@ export class ZoneServer2016 extends EventEmitter {
     );
     
     if(seatId === "0") {
+      const inventory = Object.values(vehicle._containers)[0];
+      console.log("BEGINCHARACTERACCESS")
+      console.log(inventory)
       this.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
         objectCharacterId: vehicle.characterId,
-        containerGuid: vehicle._loadout[31]?.itemGuid,
+        containerGuid: vehicle.characterId,//inventory?.itemGuid,
         unknownBool1: false,
         itemsData: {
-          items: [],
-          unknownDword1: 0,
+          items: Object.values(inventory).map((item) => {
+            return vehicle.pGetItemData(
+              item,
+              inventory.containerDefinitionId
+            )
+          }),
+          unknownDword1: inventory.containerDefinitionId,
         },
       });
     }
@@ -2990,7 +2998,7 @@ export class ZoneServer2016 extends EventEmitter {
       ownerCharacterId:
         isWeapon && item.itemDefinitionId !== 85 ? "" : character.characterId,
       unknownDword9: 1,
-      unknownData1: this.getItemWeaponData(character, item),
+      weaponData: this.getItemWeaponData(character, item),
     };
   }
 

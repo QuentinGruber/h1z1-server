@@ -36,7 +36,7 @@ export const clientUpdatePackets: any = [
           fields: [
             ...itemSchema,
             {
-              name: "unknownData1",
+              name: "weaponData",
               type: "custom",
               defaultValue: {},
               packer: packItemWeaponData,
