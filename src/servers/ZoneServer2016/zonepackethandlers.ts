@@ -971,60 +971,129 @@ export class zonePacketHandlers {
           }
           break;
         case EntityTypes.PLAYER: // characters
-          const character = entityData as Character2016;
-          character._equipment[28] = {
-            // temporary to fix missing heads
-            modelName: character.headActor,
-            slotId: 28, // todo: wrong id
-            guid: "0x0",
-          };
-          character._equipment[27] = {
-            // temporary to fix missing hair
-            modelName: character.hairModel,
-            slotId: 27,
-            guid: "0x0",
-          };
-          const remoteWeapons: any[] = [];
-          /*
-          Object.values(character._loadout).forEach((item) => {
+          const character = entityData as Character2016,
+          remoteWeapons: any[] = [],
+          remoteWeaponsExtra: any[] = [];
+          Object.values(character._loadout).forEach((item, i) => {
             if(server.isWeapon(item.itemDefinitionId)) {
+              const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
+              weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
+              firegroups = weaponDefinition.FIRE_GROUPS;
+              let firemodes: any[] = [];
+
+              switch(item.itemDefinitionId) {
+                case 85:
+                  firemodes = [
+                    {}
+                  ]
+                  break;
+                case 10:
+                  firemodes = [
+                    {},
+                    {},
+                    {},
+                    {},
+                  ]
+                  break;
+                default:
+                  break;
+              }
+
+              /*
               remoteWeapons.push({
                 guid: item.itemGuid,
-                firegroupId: server.getItemDefinition(
-                  item.itemDefinitionId).PARAM1, // weapondefId confirmed from z1br
+                weaponDefinitionId: weaponDefinition.ID, // weapondefId confirmed from z1br
                 equipmentSlotId: character.getActiveEquipmentSlot(item),
-                firegroups: [
-                  {
-                    firegroupId:  server.getItemDefinition(
-                      item.itemDefinitionId).PARAM1.FIRE_GROUPS[0]?.FIRE_GROUP_ID,
-                      unknownArray1: [
-                        {}, {}, {}, {}
-                      ]
+                firegroups: firegroups.map((firegroup: any) => {
+                  const firegroupDef = server.getFiregroupDefinition(firegroup.FIRE_GROUP_ID);
+                  //firemodes = firegroupDef.FIRE_MODES
+                  return {
+                    firegroupId: firegroup.FIRE_GROUP_ID,
+                    unknownArray1: firemodes.map((firemode: any, j: number)=> {
+                      return {
+                        unknownDword1: 0,
+                        unknownDword2: 0,//firemode.FIRE_MODE_ID
+                      }
+                    }) // probably firemodes
                   }
-                ]
-              })              
+                })
+              })     
+              remoteWeaponsExtra.push({
+                guid: item.itemGuid,
+                unknownByte1: 0, // firegroupIndex (default 0)?
+
+                // set to 1 for currently equipped weapon?
+                unknownByte2: character.getEquippedWeapon().itemGuid == item.itemGuid?1:0,
+                //unknownByte2: 0, //firegroups[0]?.FIRE_GROUP_ID, // firegroupId ?
+                unknownByte3: -1,
+                unknownByte4: -1,
+                unknownByte5: 1,
+                unknownDword1: 0,
+                unknownByte6: 0,
+                unknownDword2: 0,
+                unknownArray1: firegroups.map((firegroup: any, k: number) => { // same len as firegroups in remoteweapons
+                  return { // setting unknownDword1 makes the 308 sound when fullpc packet it sent
+                    unknownDword1: 0,
+                    //unknownDword1: firegroup.FIRE_GROUP_ID,
+                    //unknownDword1: 1,
+                    unknownBoolean1: false,
+                    unknownBoolean2: false
+                  }
+                })
+              })    
+              */     
             }
           })
-          console.log(remoteWeapons)
-          */
+          //console.log(JSON.stringify(remoteWeapons, null, 2))
+          //console.log(JSON.stringify(remoteWeaponsExtra, null, 2))
 
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
+              fullPcData: {
+                transientId: character.transientId,
+                attachmentData: character.pGetAttachmentSlots(),
+                headActor: character.headActor,
+                hairModel: character.hairModel,
 
-            fullPcData: {
-              transientId: character.transientId,
-              attachmentData: character.pGetAttachmentSlots(),
-              resources: { data: character.pGetResources() },
-              remoteWeapons: { data: remoteWeapons },
-            },
-            positionUpdate: {
-              ...character.positionUpdate,
-              sequenceTime: server.getGameTime(),
-            },
-            stats: stats.map((stat: any) => {
-              return stat.statData;
-            }),
+                resources: {data: character.pGetResources() },
+                //remoteWeapons: {data: remoteWeapons},
+                
+              },
+              positionUpdate: {
+                ...character.positionUpdate,
+                sequenceTime: server.getGameTime()
+              },
+              stats: stats.map((stat: any) => {
+                return stat.statData;
+              }),
+              //remoteWeaponExtra: remoteWeaponsExtra,
           });
+          
+          /*
+          const weapon = character.getEquippedWeapon(),
+          itemdef = server.getItemDefinition(weapon.itemDefinitionId),
+          weaponDefinition = server.getWeaponDefinition(itemdef.PARAM1),
+          firegroups = weaponDefinition.FIRE_GROUPS;
+          server.sendRemoteWeaponData(client, character.transientId, "RemoteWeapon.AddWeapon", {
+            guid: weapon.itemGuid,
+            data: {
+              weaponDefinitionId: itemdef.PARAM1,
+              equipmentSlotId: character.getActiveEquipmentSlot(weapon),
+              firegroups: firegroups.map((firegroup: any) => {
+                return {
+                  firegroupId: firegroup.FIRE_GROUP_ID,
+                  unknownArray1: [
+                    {},
+                    {},
+                    {},
+                    {},
+                  ]
+                }
+              })
+            }
+          })
+          */
+         
           /*Object.values(character._loadout).forEach((item) => {
             server.addItem(client, item, 101, character);
           })
@@ -1033,7 +1102,7 @@ export class zonePacketHandlers {
 
           server.sendData(client, "Character.WeaponStance", {
             characterId: character.characterId,
-            stance: 1,
+            stance: character.positionUpdate?.stance,
           });
           break;
         default:
@@ -1242,6 +1311,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if(client.character.positionUpdate) {
+        client.character.positionUpdate.stance = packet.data.stance
+      }
       server.sendDataToAllOthersWithSpawnedEntity(
         server._characters,
         client,
@@ -1914,26 +1986,24 @@ export class zonePacketHandlers {
             }
             server.stopHudTimer(client);
             debug("Weapon.Fire");
+            
             /*
             server.sendRemoteWeaponUpdateData(
               client, client.character.transientId, weaponItem.itemGuid, "Update.AddFireGroup", {
                 firegroupId: 1373
             })
             */
-            /*
             server.sendRemoteWeaponUpdateData(
               client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {
-                unknownDword1: server.getItemDefinition(weaponItem.itemDefinitionId).PARAM1,
-                unknownQword1: client.character.characterId
+                unknownDword1: 0, // firegroup / firemode index?
+                unknownQword1: "0xE454DA7"/*1367048*/ // idk what this number is, was dumped from the client when the local character shoots
             })
-            */
+            
 
             break;
           case "Weapon.ProjectileHitReport":
-            if (
-              client.character.getEquippedWeapon().itemDefinitionId == 1776 &&
-              client.isAdmin
-            ) {
+            if(client.character.getEquippedWeapon().itemDefinitionId == 1776) {
+              if(!client.isAdmin) return;
               const characterId = p.packet.hitReport.characterId,
                 entityType = server.getEntityType(characterId);
               switch (entityType) {
