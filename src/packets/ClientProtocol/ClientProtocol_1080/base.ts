@@ -33,7 +33,7 @@ import {
   readPositionUpdateData,
   readUnsignedIntWith2bitLengthValue,
   recipeData,
-  packItemWeaponData
+  packItemWeaponData,
 } from "./shared";
 import {
   achievementSchema,
@@ -2726,8 +2726,16 @@ export const basePackets: any = [
                   fields: [
                     { name: "ID", type: "uint32", defaultValue: 0 },
                     { name: "RULESET_ID", type: "uint32", defaultValue: 0 },
-                    { name: "CONTENT_PACK_ID", type: "uint32", defaultValue: 0 },
-                    { name: "CONTENT_PACK_ACTION_ID", type: "uint32", defaultValue: 0 },
+                    {
+                      name: "CONTENT_PACK_ID",
+                      type: "uint32",
+                      defaultValue: 0,
+                    },
+                    {
+                      name: "CONTENT_PACK_ACTION_ID",
+                      type: "uint32",
+                      defaultValue: 0,
+                    },
                   ],
                 },
               ],

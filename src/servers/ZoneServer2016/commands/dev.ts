@@ -68,6 +68,15 @@ const dev: any = {
       );
     }, 2000);
   },
+  stats: function (server: ZoneServer2016, client: Client, args: any[]) {
+    server.logStats();
+  },
+  spam: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const spamNb = args[1] || 1;
+    for (let i = 0; i < spamNb; i++) {
+      server.sendChatText(client, `spam ${i}`);
+    }
+  },
   list: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(
       client,
@@ -513,7 +522,7 @@ const dev: any = {
       ];
       */
     server._npcs[objectCharacterId] = npc; // save npc
-    server.spawnNpcs(client);
+    //server.spawnNpcs(client);
     setTimeout(() => {
       /*
       server.sendData(client, "Container.InitEquippedContainers", {
@@ -639,14 +648,14 @@ const dev: any = {
       });
     }
     */
-   /*
+  /*
   //region norman testing
   norman: function (server: ZoneServer2016, client: Client, args: any[]) {
     NormanTest.TestEntry(server, client, args);
   },
   //endregion
   */
- 
+
   weapondefs: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.packWeaponDefinitions();
     server.sendRawData(client, server.weaponDefinitionsCache);
@@ -657,7 +666,7 @@ const dev: any = {
       messageStringId: Number(args[1]) || 0,
       id: Number(args[1]) || 0,
     });
-  }
+  },
 };
 
 export default dev;

@@ -15,7 +15,21 @@ export enum LoadoutSlots {
   PRIMARY = 1,
   FISTS = 7,
   HEAD = 11,
-  ARMOR = 38
+  ARMOR = 38,
+}
+
+export enum EquipSlots {
+  HEAD = 1,
+  HANDS = 2,
+  CHEST = 3,
+  LEGS = 4,
+  FEET = 5,
+  RHAND = 7,
+  BACKPACK = 10,
+  HAIR = 27,
+  FACE = 28,
+  EYES = 29,
+  ARMOR = 100,
 }
 
 export enum EntityTypes {
@@ -82,6 +96,7 @@ export enum Items {
   WEAPON_FLASHLIGHT = 1380,
   WEAPON_WRENCH = 1538,
   WEAPON_BRANCH = 1725,
+  WEAPON_FISTS = 85,
   AMMO_223 = 1429,
   AMMO_12GA = 1511,
   AMMO_45 = 1428,
@@ -98,7 +113,7 @@ export enum Items {
   WATER_PURE = 1371,
   HELMET_MOTORCYCLE = 2170, // TODO = expand with other default helmet colors
   HAT_CAP = 12, // TODO = expand with other cap colors
-  SHIRT_DEFAULT = 92, // TODO = expand with other default shirts
+  SHIRT_DEFAULT = 2088, // TODO = expand with other default shirts
   PANTS_DEFAULT = 2177, // TODO = expand with other default pants
   CONVEYS_BLUE = 2217, // TODO = expand with other convey colors
   HAT_BEANIE = 2162,
@@ -130,8 +145,7 @@ export enum Items {
   GUNPOWDER = 11,
   LANDMINE = 74,
   KEVLAR_DEFAULT = 2271,
-  FLARE = 1672,
-  CLOTH = 74,
+  CLOTH = 23,
   METAL_PIPE = 47,
   HEADLIGHTS_OFFROADER = 9,
   HEADLIGHTS_POLICE = 1730,
@@ -145,4 +159,10 @@ export enum Items {
   GRENADE_FLASH = 2235,
   GRENADE_GAS = 2237,
   GRENADE_HE = 2243,
+  MAP = 1985,
+  COMPASS = 1441,
+  GAUZE = 1751,
+  FLARE = 1804,
+  BACKPACK_RASTA = 2393,
+  WAIST_PACK = 1803
 }

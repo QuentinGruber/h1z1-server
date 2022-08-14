@@ -27,13 +27,13 @@ let dev = require("./commands/dev").default;
 
 let admin = require("./commands/admin").default;
 
-import { _, Int64String, isPosInRadius, getDistance } from "../../utils/utils";
+import { _, Int64String, isPosInRadius, getDistance, toInt } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
-import { EntityTypes, ResourceIds } from "./enums";
+import { EntityTypes, Items, ResourceIds } from "./enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
 import { DoorEntity } from "./classes/doorentity";
@@ -41,6 +41,7 @@ import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { Npc } from "./classes/npc";
 import { TemporaryEntity } from "./classes/temporaryentity";
+import { AVG_PING_SECS } from "../../utils/constants";
 
 const profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
 const projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
@@ -102,7 +103,7 @@ export class zonePacketHandlers {
       server: ZoneServer2016,
       client: Client,
       packet: any
-    ) {    
+    ) {
       /*
       server.sendData(client, "ClientUpdate.ActivateProfile", {
         profileData: {
@@ -129,7 +130,11 @@ export class zonePacketHandlers {
       }); // Required for WaitForWorldReady
 
       // Required for WaitForWorldReady
-      server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {});
+      server.sendData(
+        client,
+        "ClientUpdate.NetworkProximityUpdatesComplete",
+        {}
+      );
 
       server.customizeDTO(client);
 
@@ -141,16 +146,15 @@ export class zonePacketHandlers {
         guid4: "0x0000000000000000",
         gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
       });
-      
-      
+
       server.sendData(client, "ReferenceData.ProjectileDefinitions", {
-          definitionsData: projectileDefinitons
+        definitionsData: projectileDefinitons,
       });
-      
+
       server.sendData(client, "ReferenceData.ProfileDefinitions", {
         data: {
-          profiles: profileDefinitions
-        }
+          profiles: profileDefinitions,
+        },
       });
 
       /*
@@ -167,24 +171,22 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if(server.checkHook("OnClientFinishedLoading", client) == false) {
+        return;
+      }
       server.tempGodMode(client, 15000);
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
       if (client.firstLoading) {
         server.setGodMode(client, false);
         setTimeout(() => {
-          server.sendData(client, "POIChangeMessage", {
-            // welcome POI message
-            messageStringId: 20,
-            id: 99,
-          });
-          server.sendChatText(client, "Welcome to H1emu ! :D", true);
+          server.sendAlert(client, "Welcome to H1emu! :D");
           server.sendChatText(
             client,
             `server population : ${_.size(server._characters)}`
           );
           if (client.isAdmin) {
-            server.sendChatText(client, "You are an admin !");
+            server.sendAlert(client, "You are an admin!");
           }
         }, 10000);
 
@@ -208,7 +210,7 @@ export class zonePacketHandlers {
           "help",
           "netstats",
           "me",
-          "combatlog"
+          "combatlog",
         ];
 
         commands.forEach((command) => {
@@ -232,15 +234,20 @@ export class zonePacketHandlers {
         if (!server._soloMode) {
           server.sendZonePopulationUpdate();
         }
-        server.executeFuncForAllReadyClients(() => server.spawnCharacters);
+        // clear /hax run since switching servers doesn't automatically clear it
+        server.sendData(client, "Command.RunSpeed", {
+          runSpeed: 0,
+        });
+        client.character.isReady = true;
       }
 
       client.isLoading = false;
-      if (!client.character.isAlive) { // try to fix stuck on death screen
-                server.sendData(client, "Character.StartMultiStateDeath", {
-                    characterId: client.character.characterId,
-                });
-            }
+      if (!client.character.isAlive) {
+        // try to fix stuck on death screen
+        server.sendData(client, "Character.StartMultiStateDeath", {
+          characterId: client.character.characterId,
+        });
+      }
     };
     this.Security = function (
       server: ZoneServer2016,
@@ -312,9 +319,19 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server.sendData(client, "KeepAlive", {
-        gameTime: packet.data.gameTime,
-      });
+      const timeDelay = 1000;
+      const currentTime = Date.now()
+      if(!client.lastKeepAliveTime) {
+        client.lastKeepAliveTime = currentTime;
+        return
+      }
+      const ping = toInt(currentTime - client.lastKeepAliveTime - timeDelay);
+      client.lastKeepAliveTime = Date.now();
+      client.pings.push(ping)
+      if(client.pings.length > AVG_PING_SECS) {
+        client.pings.shift()
+      }
+      client.avgPing = toInt(_.sum(client.pings) / client.pings.length)
     };
     this.clientUpdateMonitorTimeDrift = function (
       server: ZoneServer2016,
@@ -422,6 +439,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if(server.checkHook("OnClientExecuteCommand", client, packet) == false) {
+        return;
+      }
       const args: string[] = packet.data.arguments.toLowerCase().split(" ");
       const commandName = args[0];
       switch (packet.data.commandHash) {
@@ -471,10 +491,10 @@ export class zonePacketHandlers {
                 props
               )} vehicles : ${_.size(vehicles)}`
             );
-            const uptime = new Date(Date.now() - server._startTime);
+            const uptimeMin = ((Date.now() - server._startTime) / 60000);
             server.sendChatText(
               client,
-              `Uptime: ${uptime.getUTCHours()}h ${uptime.getUTCMinutes()}m`
+              `Uptime: ${uptimeMin<60?`${uptimeMin.toFixed()}m`:`${(uptimeMin/60).toFixed()}h `}`
             );
             break;
           }
@@ -513,6 +533,7 @@ export class zonePacketHandlers {
           const soeClient = server.getSoeClient(client.soeClientId);
           if (soeClient) {
             const stats = soeClient.getNetworkStats();
+            stats.push(`Ping: ${client.avgPing}ms`);
             for (let index = 0; index < stats.length; index++) {
               const stat = stats[index];
               server.sendChatText(client, stat, index == 0);
@@ -598,7 +619,7 @@ export class zonePacketHandlers {
           server.combatLog(client);
           break;
         default:
-          console.log(packet.data.commandHash)
+          console.log(packet.data.commandHash);
           break;
       }
     }),
@@ -789,8 +810,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if (client.character.godMode) {
+      if (client.character.tempGodMode) {
         server.setGodMode(client, false);
+        client.character.tempGodMode = false;
       }
       client.character.positionUpdate = packet.data;
       if (packet.data.flags === 513) {
@@ -798,7 +820,7 @@ export class zonePacketHandlers {
         return;
       }
       if (packet.data.flags === 510) {
-        client.vehicle.falling = packet.data.unknown10_float;
+        // falling flag, ignore for now
       }
       const movingCharacter = server._characters[client.character.characterId];
       if (movingCharacter) {
@@ -833,13 +855,7 @@ export class zonePacketHandlers {
             client.posAtLogoutStart
           )
         ) {
-          clearTimeout(client.hudTimer);
-          client.hudTimer = null;
-          client.isInteracting = false;
-          server.sendData(client, "ClientUpdate.StartTimer", {
-            stringId: 0,
-            time: 0,
-          }); // don't know how it was done so
+          server.stopHudTimer(client)
         }
       } else if (
         packet.data.vehicle_position &&
@@ -888,7 +904,7 @@ export class zonePacketHandlers {
           server._vehicles[characterId] ||
           server._characters[characterId] ||
           0,
-        entityType = server.getEntityType(characterId)
+        entityType = server.getEntityType(characterId);
 
       if (!entityType) return;
       switch (entityType) {
@@ -898,12 +914,18 @@ export class zonePacketHandlers {
           break;
         case EntityTypes.VEHICLE: // vehicles
           const vehicle = entityData as Vehicle2016;
+          if (vehicle.vehicleId == 1337) return; // ignore spectator cam
           if (vehicle.vehicleId != 13) {
             server.sendData(
               client,
               "LightweightToFullVehicle",
               vehicle.pGetFullVehicle()
             );
+            // prevents cars from spawning in under the map for other characters
+            server.sendData(client, "PlayerUpdatePosition", {
+              transientId: vehicle.transientId,
+              positionUpdate: vehicle.positionUpdate,
+            });
             server.sendData(client, "ResourceEvent", {
               eventData: {
                 type: 1,
@@ -1018,7 +1040,6 @@ export class zonePacketHandlers {
 
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
-              
               fullPcData: {
                 transientId: character.transientId,
                 attachmentData: character.pGetAttachmentSlots(),
@@ -1069,7 +1090,7 @@ export class zonePacketHandlers {
           })
           server.updateEquipment(client, character);
           server.updateLoadout(client, character);*/
-          
+
           server.sendData(client, "Character.WeaponStance", {
             characterId: character.characterId,
             stance: character.positionUpdate?.stance,
@@ -1095,7 +1116,7 @@ export class zonePacketHandlers {
           server._doors[guid] ||
           server._npcs[guid] ||
           0,
-        entityType = server.getEntityType(guid)
+        entityType = server.getEntityType(guid);
 
       if (
         !entityData ||
@@ -1185,7 +1206,7 @@ export class zonePacketHandlers {
           server._vehicles[guid] ||
           server._doors[guid] ||
           0,
-        entityType = server.getEntityType(guid)
+        entityType = server.getEntityType(guid);
 
       if (
         !entityData ||
@@ -1256,10 +1277,11 @@ export class zonePacketHandlers {
       }
       server.sendData(client, "Command.ItemDefinitionReply", {
         data: {
-          ID: packet.data.ID,
+          ID: itemDef.ID,
           definitionData: {
             ...itemDef,
             HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+            ITEM_TYPE_1: itemDef.ITEM_TYPE,
             flags1: {
               ...itemDef,
             },
@@ -1270,6 +1292,10 @@ export class zonePacketHandlers {
           },
         },
       });
+      if(server.isContainer(itemDef.ID)) {
+        // Fixes containers missing an itemdefinition not showing in inventory
+        server.updateLoadout(client);
+      }
     };
     this.characterWeaponStance = function (
       server: ZoneServer2016,
@@ -1418,6 +1444,21 @@ export class zonePacketHandlers {
           break;
         case 11: //ignite
           server.igniteOption(client, item);
+          break;
+        case 7: // unload weapon
+          if(item.weapon?.ammoCount) {
+            server.lootItem(client, server.generateItem(server.getWeaponAmmoId(item.itemDefinitionId), item.weapon.ammoCount))
+            item.weapon.ammoCount = 0;
+            if(client.character.getEquippedWeapon().itemGuid == item.itemGuid) {
+              server.sendWeaponData(client, "Weapon.Reload", {
+                weaponGuid: item.itemGuid,
+                unknownDword1: 0,
+                ammoCount: 0,
+                unknownDword3: 0,
+                currentReloadCount: `0x${(++item.weapon.currentReloadCount).toString(16)}`,
+              });
+            }
+          }
           break;
         default:
           server.sendChatText(
@@ -1908,10 +1949,11 @@ export class zonePacketHandlers {
       packet: any
     ) {
       debug("Weapon.Weapon");
-      if (client.character.godMode) {
+      if (client.character.tempGodMode) {
         server.setGodMode(client, false);
+        client.character.tempGodMode = false;
       }
-      switch(packet.data.weaponPacket.packetName) {
+      switch (packet.data.weaponPacket.packetName) {
         case "Weapon.MultiWeapon":
           packet.data.weaponPacket.packet.packets.forEach((p: any) => {
             handleWeaponPacket(p);
@@ -1923,14 +1965,17 @@ export class zonePacketHandlers {
       }
       function handleWeaponPacket(p: any) {
         const weaponItem = client.character.getEquippedWeapon();
-        if(!weaponItem.weapon) return;
-        switch(p.packetName) {
+        if (!weaponItem.weapon) return;
+        switch (p.packetName) {
           case "Weapon.FireStateUpdate":
             debug("Weapon.FireStateUpdate");
             server.damageItem(client, weaponItem, 2);
             break;
           case "Weapon.Fire":
-            weaponItem.weapon.ammoCount -= 1;
+            if(weaponItem.weapon.ammoCount > 0) {
+              weaponItem.weapon.ammoCount -= 1;
+            }
+            server.stopHudTimer(client);
             debug("Weapon.Fire");
             
             /*
@@ -1939,7 +1984,6 @@ export class zonePacketHandlers {
                 firegroupId: 1373
             })
             */
-           
             server.sendRemoteWeaponUpdateData(
               client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {
                 unknownDword1: 0, // firegroup / firemode index?
@@ -1952,25 +1996,27 @@ export class zonePacketHandlers {
             if(client.character.getEquippedWeapon().itemDefinitionId == 1776) {
               if(!client.isAdmin) return;
               const characterId = p.packet.hitReport.characterId,
-              entityType = server.getEntityType(characterId);
+                entityType = server.getEntityType(characterId);
               switch (entityType) {
                 case EntityTypes.NPC:
-                    if(!server._npcs[characterId] ) {
-                      return;
-                    }
-                    server.deleteEntity(characterId, server._npcs);
-                    break;
-                case EntityTypes.VEHICLE:
-                    if(!server._vehicles[characterId]) {
-                      return;
-                    }
-                    server.deleteEntity(characterId, server._vehicles);
-                    break;
-                case EntityTypes.OBJECT:
-                  if(!server._spawnedItems[characterId] ) {
+                  if (!server._npcs[characterId]) {
                     return;
                   }
-                  delete server.worldObjectManager._spawnedLootObjects[server._spawnedItems[characterId].spawnerId];
+                  server.deleteEntity(characterId, server._npcs);
+                  break;
+                case EntityTypes.VEHICLE:
+                  if (!server._vehicles[characterId]) {
+                    return;
+                  }
+                  server.deleteEntity(characterId, server._vehicles);
+                  break;
+                case EntityTypes.OBJECT:
+                  if (!server._spawnedItems[characterId]) {
+                    return;
+                  }
+                  delete server.worldObjectManager._spawnedLootObjects[
+                    server._spawnedItems[characterId].spawnerId
+                  ];
                   server.deleteEntity(characterId, server._spawnedItems);
                   break;
                 case EntityTypes.EXPLOSIVE:
@@ -1986,40 +2032,77 @@ export class zonePacketHandlers {
             debug("Weapon.ProjectileHitReport");
             break;
           case "Weapon.ReloadRequest":
-            if(client.character.reloadTimer) return;
-            server.sendRemoteWeaponUpdateData(
-              client, client.character.transientId, weaponItem.itemGuid, "Update.Reload", {})
-            client.character.reloadTimer = setTimeout(() => {
-              if(!client.character.reloadTimer) return;
-              const weaponItem = client.character.getEquippedWeapon();
-              if(!weaponItem.weapon || 
-                client.character.getEquippedWeapon().itemGuid != weaponItem.itemGuid) return;
-              const weaponAmmoId = server.getWeaponAmmoId(weaponItem.itemDefinitionId),
-              maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
-              reserveAmmo = client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
-              maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
-              reloadAmount = (reserveAmmo >= maxReloadAmount)?maxReloadAmount:reserveAmmo; // actual amount able to reload
-              
+            if (weaponItem.weapon.reloadTimer) return;
+            /*server.sendRemoteWeaponUpdateData(
+              client, client.character.transientId, weaponItem.itemGuid, "Update.Reload", {})*/
+            const weaponAmmoId = server.getWeaponAmmoId(
+              weaponItem.itemDefinitionId),
+            maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
+            reloadTime = server.getWeaponReloadTime(weaponItem.itemDefinitionId);
+            if(weaponAmmoId == Items.AMMO_12GA) {
+              weaponItem.weapon.reloadTimer = setTimeout(() => {
+                if(!weaponItem.weapon?.reloadTimer) {
+                  client.character.clearReloadTimeout()
+                  return;
+                }
+                const reserveAmmo = // how much ammo is in inventory
+                client.character.getInventoryItemAmount(weaponAmmoId);
+                if (!reserveAmmo || 
+                  (weaponItem.weapon.ammoCount < maxAmmo &&
+                  !server.removeInventoryItems(client, weaponAmmoId, 1)) ||
+                  ++weaponItem.weapon.ammoCount == maxAmmo) {
+                  server.sendWeaponData(client, "Weapon.Reload", {
+                    weaponGuid: p.packet.characterId,
+                    unknownDword1: maxAmmo,
+                    ammoCount: weaponItem.weapon.ammoCount,
+                    unknownDword3: maxAmmo,
+                    currentReloadCount: `0x${(++weaponItem.weapon.currentReloadCount).toString(16)}`,
+                  });
+                  client.character.clearReloadTimeout()
+                  return;
+                }
+                if (!(reserveAmmo - 1)) { // updated reserve ammo
+                  server.sendWeaponData(client, "Weapon.Reload", {
+                    weaponGuid: p.packet.characterId,
+                    unknownDword1: maxAmmo,
+                    ammoCount: weaponItem.weapon.ammoCount,
+                    unknownDword3: maxAmmo,
+                    currentReloadCount: `0x${(++weaponItem.weapon.currentReloadCount).toString(16)}`,
+                  });
+                  client.character.clearReloadTimeout()
+                  return;
+                }
+                weaponItem.weapon.reloadTimer.refresh();
+              }, reloadTime);
+              return;
+            }
+            weaponItem.weapon.reloadTimer = setTimeout(() => {
+              if (!weaponItem.weapon?.reloadTimer ||
+                client.character.getEquippedWeapon().itemGuid !=
+                  weaponItem.itemGuid) return;
+              const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+              reserveAmmo = // how much ammo is in inventory
+                client.character.getInventoryItemAmount(weaponAmmoId),
+              reloadAmount = reserveAmmo >= maxReloadAmount
+                ? maxReloadAmount
+                : reserveAmmo; // actual amount able to reload
+
+              if(!server.removeInventoryItems(client, weaponAmmoId, reloadAmount)) {
+                return;
+              }
               server.sendWeaponData(client, "Weapon.Reload", {
-                guid: p.packet.characterId,
+                weaponGuid: p.packet.characterId,
                 unknownDword1: maxAmmo,
-                ammoCount: weaponItem.weapon.ammoCount + reloadAmount,
+                ammoCount: weaponItem.weapon.ammoCount += reloadAmount,
                 unknownDword3: maxAmmo,
-                characterId: "0x2",
-              })
-              weaponItem.weapon.ammoCount = weaponItem.weapon.ammoCount + reloadAmount;
-              server.switchLoadoutSlot(client, client.character._loadout[client.character.currentLoadoutSlot]);
-              /*server.sendWeaponData(client, "Weapon.Reset", {
-                guid: weaponItem.itemGuid,
-                unknownBoolean1: true,
-                unknownByte1: 0
-              })*/
-              server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
-            }, server.getWeaponReloadTime(weaponItem.itemDefinitionId));
-            
+                currentReloadCount: `0x${(++weaponItem.weapon.currentReloadCount).toString(16)}`,
+              });
+              client.character.clearReloadTimeout();
+            }, reloadTime);
+
             debug("Weapon.ReloadRequest");
             break;
-          case "Weapon.ReloadInterrupt": 
+          case "Weapon.ReloadInterrupt":
             server.reloadInterrupt(client, weaponItem);
             break;
           case "Weapon.SwitchFireModeRequest":
@@ -2042,9 +2125,7 @@ export class zonePacketHandlers {
             debug(`Unhandled weapon packet type: ${p.packetName}`);
             break;
         }
-        //console.log(p)
       }
-      
     };
     //#endregion
   }
