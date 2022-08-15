@@ -606,6 +606,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
 
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
+    this.checkHook("OnSentCharacterData")
   }
 
   /**
