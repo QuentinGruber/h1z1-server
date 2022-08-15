@@ -1,12 +1,14 @@
 export type AsyncHooks =
-| "OnServerInit";
+  | "OnServerInit"
+  | "OnSendCharacterData";
 
 export type Hooks =
   | AsyncHooks
   | "OnClientFinishedLoading"
   | "OnClientExecuteCommand"
   | "OnServerReady"
-  | "OnWorldRoutine";
+  | "OnWorldRoutine"
+  | "OnSentCharacterData";
 
 export type FunctionHookType =
   | boolean 

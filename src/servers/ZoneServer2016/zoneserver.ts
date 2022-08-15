@@ -560,6 +560,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async sendCharacterData(client: Client) {
+    if(this.checkHook("OnSendCharacterData") == false) {
+      return;
+    }
+    if(await this.checkAsyncHook("OnSendCharacterData") == false) {
+      return;
+    }
     await this.worldDataManager.loadCharacterData(this, client);
     const containers = this.initializeContainerList(client, false);
     this.sendData(client, "SendSelfToClient", {
