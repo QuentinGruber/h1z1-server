@@ -162,9 +162,8 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if(server.checkHook("OnClientFinishedLoading", client) == false) {
-        return;
-      }
+      if(!server.checkHook("OnClientFinishedLoading", client)) return;
+
       client.character.lastLoginDate = toHex(Date.now())
       server.tempGodMode(client, 15000);
       client.currentPOI = 0; // clears currentPOI for POIManager
@@ -434,9 +433,10 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if(server.checkHook("OnClientExecuteCommand", client, packet) == false) {
-        return;
-      }
+      if(!server.checkHook(
+        "OnClientExecuteCommand", client, packet.data.commandHash, packet.data.arguments
+      )) return;
+
       const args: string[] = packet.data.arguments.toLowerCase().split(" ");
       const commandName = args[0];
       switch (packet.data.commandHash) {

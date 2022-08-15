@@ -560,12 +560,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async sendCharacterData(client: Client) {
-    if(this.checkHook("OnSendCharacterData") == false) {
-      return;
-    }
-    if(await this.checkAsyncHook("OnSendCharacterData") == false) {
-      return;
-    }
+    if(!this.checkHook("OnSendCharacterData", client)) return;
+    if(!await this.checkAsyncHook("OnSendCharacterData", client)) return;
+
     await this.worldDataManager.loadCharacterData(this, client);
     const containers = this.initializeContainerList(client, false);
     this.sendData(client, "SendSelfToClient", {
@@ -604,11 +601,10 @@ export class ZoneServer2016 extends EventEmitter {
       characterId: client.character.characterId,
       containers: containers,
     });
-
+    
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
-    this.checkHook("OnSentCharacterData")
+    this.checkHook("OnSentCharacterData", client);
   }
-
   /**
   * Caches item definitons so they aren't packed every time a client logs in.
  */
@@ -746,12 +742,9 @@ export class ZoneServer2016 extends EventEmitter {
   async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
-    if(this.checkHook("OnServerInit") == false) {
-      return;
-    }
-    if(await this.checkAsyncHook("OnServerInit") == false) {
-      return;
-    }
+    if(!this.checkHook("OnServerInit")) return;
+    if(!await this.checkAsyncHook("OnServerInit")) return;
+
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
@@ -892,9 +885,7 @@ export class ZoneServer2016 extends EventEmitter {
   private worldRoutine() {
     debug("WORLDROUTINE");
 
-   if(this.checkHook("OnWorldRoutine") == false) {
-      return false;
-    }
+    if(!this.checkHook("OnWorldRoutine")) return;
     else {
       this.executeFuncForAllReadyClients((client: Client) => {
         this.vehicleManager(client);
@@ -4949,9 +4940,9 @@ export class ZoneServer2016 extends EventEmitter {
    * function based on the return behavior of each hook.
    * @param hookName The name of the async hook
    * @param hook The function to be called when the hook is executed.
-   * @returns Returns the value of the first hook to return a boolean.
+   * @returns Returns the value of the first hook to return a boolean, or true.
  */
-  checkHook(hookName: Hooks, ...args: any): FunctionHookType {
+  checkHook(hookName: Hooks, ...args: any): boolean {
     if(this._hooks[hookName]?.length > 0) {
       for(const hook of this._hooks[hookName]) {
         switch(hook.apply(this, args)) {
@@ -4962,7 +4953,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
-    return;
+    return true;
   }
 
   /**
@@ -4970,9 +4961,9 @@ export class ZoneServer2016 extends EventEmitter {
    * function based on the return behavior of each hook.
    * @param hookName The name of the async hook.
    * @param hook The function to be called when the hook is executed.
-   * @returns Returns the value of the first hook to return a boolean.
+   * @returns Returns the value of the first hook to return a boolean, or true.
  */
-  async checkAsyncHook(hookName: Hooks, ...args: any): AsyncHookType {
+  async checkAsyncHook(hookName: Hooks, ...args: any): Promise<boolean> {
     if(this._asyncHooks[hookName]?.length > 0) {
       for(const hook of this._asyncHooks[hookName]) {
         switch(await hook.apply(this, args)) {
@@ -4983,7 +4974,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
-    return Promise.resolve();
+    return Promise.resolve(true);
   }
 
   toggleFog() {
