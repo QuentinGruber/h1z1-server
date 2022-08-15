@@ -1,6 +1,7 @@
 export type AsyncHooks =
   | "OnServerInit"
-  | "OnSendCharacterData";
+  | "OnSendCharacterData"
+  | "OnLoadCharacterData";
 
 export type Hooks =
   | AsyncHooks
@@ -8,7 +9,8 @@ export type Hooks =
   | "OnClientExecuteCommand"
   | "OnServerReady"
   | "OnWorldRoutine"
-  | "OnSentCharacterData";
+  | "OnSentCharacterData"
+  | "OnLoadedCharacterData";
 
 export type FunctionHookType =
   | boolean 

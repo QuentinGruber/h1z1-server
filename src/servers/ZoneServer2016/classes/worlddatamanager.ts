@@ -117,6 +117,9 @@ export class WorldDataManager {
   //#region CHARACTER DATA
 
   async loadCharacterData(server: ZoneServer2016, client: Client) {
+    if(!server.checkHook("OnLoadCharacterData", client)) return;
+    if(!await server.checkAsyncHook("OnLoadCharacterData", client)) return;
+
     let savedCharacter: FullCharacterSaveData;
     if (server._soloMode) {
       delete require.cache[
@@ -190,6 +193,8 @@ export class WorldDataManager {
       client.character._resources = savedCharacter._resources || client.character._resources;
       server.generateEquipmentFromLoadout(client.character);
     }
+
+    server.checkHook("OnLoadedCharacterData", client);
   }
 
   async saveCharacterPosition(server: ZoneServer2016, client: Client, refreshTimeout = false) {
