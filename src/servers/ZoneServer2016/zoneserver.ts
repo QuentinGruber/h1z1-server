@@ -1241,8 +1241,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async respawnPlayer(client: Client) {
-    if(!this.checkHook("OnPlayerRespawn")) return;
-    if(!await this.checkAsyncHook("OnPlayerRespawn")) return;
+    if(!this.checkHook("OnPlayerRespawn", client)) return;
+    if(!await this.checkAsyncHook("OnPlayerRespawn", client)) return;
 
     this.resetCharacterMetrics(client);
     client.character.isAlive = true;
@@ -1346,7 +1346,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }, 2000);
 
-    this.checkHook("OnPlayerRespawned");
+    this.checkHook("OnPlayerRespawned", client);
   }
 
   speedTreeDestroy(packet: any) {
