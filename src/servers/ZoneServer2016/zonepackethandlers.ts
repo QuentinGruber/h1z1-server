@@ -566,7 +566,7 @@ export class zonePacketHandlers {
           } else {
             server.sendChatText(
               client,
-              `Unknown command: /hax ${commandName} , display hax all commands by using /hax list`
+              `Unknown command: "/hax ${commandName}", display hax all commands by using "/hax list"`
             );
           }
           break;
@@ -586,7 +586,7 @@ export class zonePacketHandlers {
           } else {
             server.sendChatText(
               client,
-              `Unknown command: /dev ${commandName} , display dev all commands by using /dev list`
+              `Unknown command: "/dev ${commandName}", display dev all commands by using "/dev list"`
             );
           }
           break;
@@ -606,7 +606,7 @@ export class zonePacketHandlers {
           } else {
             server.sendChatText(
               client,
-              `Unknown command: /admin ${commandName} , display admin all commands by using /admin list`
+              `Unknown command: "/admin ${commandName}", display admin all commands by using "/admin list"`
             );
           }
           break;
