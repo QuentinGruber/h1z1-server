@@ -1241,6 +1241,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async respawnPlayer(client: Client) {
+    if(!this.checkHook("OnPlayerRespawn")) return;
+    if(!await this.checkAsyncHook("OnPlayerRespawn")) return;
+
     this.resetCharacterMetrics(client);
     client.character.isAlive = true;
     client.character.isRunning = false;
@@ -1342,6 +1345,8 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
     }, 2000);
+
+    this.checkHook("OnPlayerRespawned");
   }
 
   speedTreeDestroy(packet: any) {
@@ -4925,7 +4930,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Registers a new hook to be called when the corresponding checkAsync() call is executed.
+   * Registers a new hook to be called when the corresponding checkAsyncHook() call is executed.
    * @param hookName The name of the async hook.
    * @param hook The function to be called when the hook is executed.
  */

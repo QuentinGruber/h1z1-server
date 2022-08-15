@@ -1,7 +1,8 @@
 export type AsyncHooks =
   | "OnServerInit"
   | "OnSendCharacterData"
-  | "OnLoadCharacterData";
+  | "OnLoadCharacterData"
+  | "OnPlayerRespawn";
 
 export type Hooks =
   | AsyncHooks
@@ -10,7 +11,8 @@ export type Hooks =
   | "OnServerReady"
   | "OnWorldRoutine"
   | "OnSentCharacterData"
-  | "OnLoadedCharacterData";
+  | "OnLoadedCharacterData"
+  | "OnPlayerRespawned";
 
 export type FunctionHookType =
   | boolean 
