@@ -182,7 +182,7 @@ export class WorldDataManager {
       newCharacter = true;
     }
 
-    if (newCharacter || client.character.isRespawning) {
+    if (newCharacter || client.character.isRespawning || !server.enableWorldSaves) {
       client.character.isRespawning = false;
       server.respawnPlayer(client);
     } else {
