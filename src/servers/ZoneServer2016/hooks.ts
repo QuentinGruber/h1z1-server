@@ -12,7 +12,9 @@ export type Hooks =
   | "OnWorldRoutine"
   | "OnSentCharacterData"
   | "OnLoadedCharacterData"
-  | "OnPlayerRespawned";
+  | "OnPlayerRespawned"
+  | "OnPlayerDeath"
+  | "OnPlayerDied";
 
 export type FunctionHookType =
   | boolean 

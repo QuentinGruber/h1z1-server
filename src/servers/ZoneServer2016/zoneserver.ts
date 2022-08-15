@@ -980,6 +980,8 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     deathInfo: { client: Client; hitReport: any } | undefined = undefined
   ) {
+    if(!this.checkHook("OnPlayerDeath", client, deathInfo)) return;
+
     const character = client.character;
     if (character.isAlive) {
       client.character.isRespawning = true;
@@ -1022,6 +1024,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.clearMovementModifiers(client);
     character.isAlive = false;
+
+    this.checkHook("OnPlayerDied", client, deathInfo)
   }
 
   async explosionDamage(position: Float32Array, npcTriggered: string) {
