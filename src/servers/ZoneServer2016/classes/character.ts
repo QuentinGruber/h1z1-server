@@ -64,6 +64,7 @@ export class Character2016 extends BaseFullCharacter {
   positionUpdate?: positionUpdate;
   tempGodMode = false;
   isSpectator = false;
+  initialized = false; // if sendself has been sent
   readonly metrics: CharacterMetrics = {recipesDiscovered: 0, zombiesKilled: 0, wildlifeKilled: 0, startedSurvivingTP: Date.now()};
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
