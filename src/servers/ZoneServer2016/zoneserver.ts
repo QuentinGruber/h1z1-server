@@ -3718,7 +3718,7 @@ export class ZoneServer2016 extends EventEmitter {
   clearEquipmentSlot(client: Client, equipmentSlotId: number): boolean {
     if (!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
-    if(!client.character.initialized) {
+    if(client.character.initialized) {
       this.sendDataToAllWithSpawnedEntity(
         this._characters,
         client.character.characterId,
