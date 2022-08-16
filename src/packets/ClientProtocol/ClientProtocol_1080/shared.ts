@@ -1835,7 +1835,6 @@ export const fullNpcSchema = [
 ];
 
 export const fullPcSchema = [
-  // NOT FINISHED
   { name: "useCompression", type: "boolean", defaultValue: false },
   {
     name: "fullPcData",
@@ -1896,7 +1895,6 @@ export const fullPcSchema = [
       { name: "unknownBool2", type: "boolean", defaultValue: false },
       { name: "unknownBool3", type: "boolean", defaultValue: false },
       { name: "unknownDword15", type: "uint32", defaultValue: 0 },
-      //{ name: "unknownDword16", type: "uint32", defaultValue: 0 },
       {
         name: "unknownArray1",
         type: "byteswithlength",

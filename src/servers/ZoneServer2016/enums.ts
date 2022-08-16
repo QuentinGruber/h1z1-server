@@ -11,11 +11,45 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum ItemClasses {
+  WEAPONS_LONG = 25036,
+  WEAPONS_PISTOL = 4096,
+  WEAPONS_MELEES = 4098,
+  WEAPONS_MELEES0 = 25037,
+  WEAPONS_GENERIC = 25054
+}
+
+export enum VehicleIds {
+  OFFROADER = 1,
+  PICKUP = 2,
+  POLICECAR = 3,
+  ATV = 5,
+  PARACHUTE = 13,
+  SPECTATE = 1337
+}
+
+export enum Characters {
+  MALE_WHITE = 1,
+  MALE_WHITE_BALD = 2,
+  FEMALE_WHITE_YOUNG = 3,
+  FEMALE_WHITE = 4,
+  MALE_BLACK = 5,
+  FEMALE_BLACK = 6
+}
+
+export enum LoadoutIds {
+  CHARACTER = 3,
+  VEHICLE = 5
+}
+
 export enum LoadoutSlots {
   PRIMARY = 1,
+  SECONDARY = 3,
+  TERTIARY = 4,
   FISTS = 7,
   HEAD = 11,
   ARMOR = 38,
+  ITEM2 = 41,
 }
 
 export enum EquipSlots {
@@ -97,6 +131,7 @@ export enum Items {
   WEAPON_WRENCH = 1538,
   WEAPON_BRANCH = 1725,
   WEAPON_FISTS = 85,
+  WEAPON_FIRST_AID = 78,
   AMMO_223 = 1429,
   AMMO_12GA = 1511,
   AMMO_45 = 1428,
@@ -110,7 +145,10 @@ export enum Items {
   FIRST_AID = 2424,
   GROUND_COFFEE = 56, // TODO = expand with more canned food types
   CANNED_FOOD01 = 7,
+  BLACK_BERRIES = 105,
   WATER_PURE = 1371,
+  WATER_STAGNANT = 1535,
+  WATER_DIRTY = 1368,
   HELMET_MOTORCYCLE = 2170, // TODO = expand with other default helmet colors
   HAT_CAP = 12, // TODO = expand with other cap colors
   SHIRT_DEFAULT = 2088, // TODO = expand with other default shirts
@@ -122,14 +160,17 @@ export enum Items {
   SPARKPLUGS = 1701,
   SALT = 22,
   LIGHTER = 1436,
+  BOW_DRILL = 1452,
   WATER_EMPTY = 1353,
   MRE_APPLE = 1402, // TODO = add other MRE types
   FUEL_BIOFUEL = 73,
+  FUEL_ETHANOL = 1384,
   WOOD_PLANK = 109,
   METAL_SHEET = 46,
   METAL_SCRAP = 48,
   TARP = 155,
   WOOD_LOG = 16,
+  WOOD_STICK = 111,
   GROUND_TILLER = 1383,
   FERTILIZER = 25,
   SEED_CORN = 1987,
@@ -164,5 +205,6 @@ export enum Items {
   GAUZE = 1751,
   FLARE = 1804,
   BACKPACK_RASTA = 2393,
-  WAIST_PACK = 1803
+  WAIST_PACK = 1803,
+  SWIZZLE = 1709,
 }
