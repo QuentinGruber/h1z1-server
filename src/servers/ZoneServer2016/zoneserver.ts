@@ -50,6 +50,7 @@ import {
   inventoryItem,
   loadoutContainer,
   loadoutItem,
+  SpawnLocation,
   Weather2016,
 } from "../../types/zoneserver";
 import {
@@ -120,7 +121,7 @@ export class ZoneServer2016 extends EventEmitter {
   _dynamicWeatherWorker: any;
   _dynamicWeatherEnabled = true;
   _defaultWeatherTemplate = "z1br";
-  _spawnLocations = spawnLocations;
+  _spawnLocations: Array<SpawnLocation> = spawnLocations;
   private _h1emuZoneServer!: H1emuZoneServer;
   readonly _appDataFolder = getAppDataFolderPath();
   _worldId = 0;
@@ -1355,7 +1356,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }, 2000);
     }
-    
+
     this.checkHook("OnPlayerRespawned", client);
   }
 
@@ -3918,11 +3919,13 @@ export class ZoneServer2016 extends EventEmitter {
       itemDef?.FLAG_CAN_EQUIP &&
       this.getAvailableLoadoutSlot(client.character, itemDefId)
     ) {
-      this.sendData(client, "Reward.AddNonRewardItem", {
-        itemDefId: itemDefId,
-        iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
-        count: count,
-      });
+      if(client.character.initialized) {
+        this.sendData(client, "Reward.AddNonRewardItem", {
+          itemDefId: itemDefId,
+          iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
+          count: count,
+        });
+      }
       this.equipItem(client, item);
     } else {
       this.lootContainerItem(client, item, count);

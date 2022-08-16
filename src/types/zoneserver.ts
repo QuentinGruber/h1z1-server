@@ -686,6 +686,13 @@ export interface DamageRecord {
   };
 }
 
+export interface SpawnLocation {
+  id: number,
+  name: string,
+  position: Float32Array,
+  rotation: Float32Array,
+}
+
 export interface SoeServer {
   on: (arg0: string, arg1: any) => void;
   start: (
