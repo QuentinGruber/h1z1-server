@@ -1271,16 +1271,19 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.characterStates,
       true
     );
-    this.sendData(client, "Character.RespawnReply", {
-      characterId: client.character.characterId,
-      status: 1,
-    });
     const randomSpawnIndex = Math.floor(
       Math.random() * this._spawnLocations.length
     );
-    this.sendData(client, "ClientUpdate.UpdateLocation", {
-      position: this._spawnLocations[randomSpawnIndex].position,
-    });
+    if(!client.firstLoading) {
+      this.sendData(client, "Character.RespawnReply", {
+        characterId: client.character.characterId,
+        status: 1,
+      });
+      this.sendData(client, "ClientUpdate.UpdateLocation", {
+        position: this._spawnLocations[randomSpawnIndex].position,
+      });
+    }
+    
     this.clearInventory(client);
     this.giveDefaultEquipment(client, true);
     this.giveDefaultItems(client, true);
@@ -1318,6 +1321,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     // fixes characters showing up as dead if they respawn close to other characters
+    if(client.firstLoading) return;
     this.sendDataToAllOthersWithSpawnedEntity(
       this._characters,
       client,
@@ -3099,18 +3103,20 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   updateLoadout(client: Client, character = client.character) {
+    this.checkConveys(client);
+    if(client.firstLoading) return;
     this.sendData(
       client,
       "Loadout.SetLoadoutSlots",
       character.pGetLoadoutSlots()
     );
-    this.checkConveys(client);
   }
 
   updateEquipment(
     client: Client,
     character: BaseFullCharacter = client.character
   ) {
+    if(client.firstLoading) return;
     this.sendData(
       client,
       "Equipment.SetCharacterEquipment",
@@ -3123,6 +3129,7 @@ export class ZoneServer2016 extends EventEmitter {
     slotId: number,
     character = client.character
   ) {
+    if(client.firstLoading) return;
     this.sendDataToAllWithSpawnedEntity(
       this._characters,
       client.character.characterId,
@@ -3137,6 +3144,7 @@ export class ZoneServer2016 extends EventEmitter {
     containerDefinitionId: number,
     character = client.character
   ) {
+    if(client.firstLoading) return;
     this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
       data: this.pGetItemData(character, item, containerDefinitionId),
@@ -3707,17 +3715,19 @@ export class ZoneServer2016 extends EventEmitter {
   clearEquipmentSlot(client: Client, equipmentSlotId: number): boolean {
     if (!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
-    this.sendDataToAllWithSpawnedEntity(
-      this._characters,
-      client.character.characterId,
-      "Equipment.UnsetCharacterEquipmentSlot",
-      {
-        characterData: {
-          characterId: client.character.characterId,
-        },
-        slotId: equipmentSlotId,
-      }
-    );
+    if(!client.firstLoading) {
+      this.sendDataToAllWithSpawnedEntity(
+        this._characters,
+        client.character.characterId,
+        "Equipment.UnsetCharacterEquipmentSlot",
+        {
+          characterData: {
+            characterId: client.character.characterId,
+          },
+          slotId: equipmentSlotId,
+        }
+      );
+    }
     if (equipmentSlotId === EquipSlots.RHAND) {
       client.character.currentLoadoutSlot = LoadoutSlots.FISTS;
       this.equipItem(client, client.character._loadout[LoadoutSlots.FISTS]); //equip fists
@@ -3970,7 +3980,7 @@ export class ZoneServer2016 extends EventEmitter {
         ];
       itemStack.stackCount += count;
       this.updateContainerItem(client, itemStack, availableContainer);
-      if (sendUpdate) {
+      if (sendUpdate && !client.firstLoading) {
         this.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
@@ -3989,6 +3999,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   deleteItem(client: Client, itemGuid: string) {
+    if(client.firstLoading) return;
     this.sendData(client, "ClientUpdate.ItemDelete", {
       characterId: client.character.characterId,
       itemGuid: itemGuid,
@@ -4039,7 +4050,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   updateContainer(client: Client, container: loadoutContainer | undefined) {
-    if (!container) return;
+    if (!container || client.firstLoading) return;
     const containerDefinition = this.getContainerDefinition(
       container.containerDefinitionId
     );
@@ -4093,7 +4104,7 @@ export class ZoneServer2016 extends EventEmitter {
       container.containerDefinitionId
     );
     this.updateContainer(client, container);
-    if (sendUpdate) {
+    if (sendUpdate && !client.firstLoading) {
       this.sendData(client, "Reward.AddNonRewardItem", {
         itemDefId: itemDefId,
         iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
@@ -4115,7 +4126,7 @@ export class ZoneServer2016 extends EventEmitter {
     item: inventoryItem,
     container: loadoutContainer | undefined
   ) {
-    if (!container) return;
+    if (!container || client.firstLoading) return;
     this.sendData(client, "ClientUpdate.ItemUpdate", {
       characterId: client.character.characterId,
       data: this.pGetItemData(
@@ -4672,6 +4683,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   divideMovementModifier(client: Client, modifier: number) {
     const modifierFixed = 1 / modifier;
+    if(client.firstLoading) return;
     this.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
       speed: modifierFixed,
     });

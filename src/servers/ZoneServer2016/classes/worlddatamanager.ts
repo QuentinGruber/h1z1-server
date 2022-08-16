@@ -184,7 +184,7 @@ export class WorldDataManager {
 
     if (newCharacter || client.character.isRespawning || !server.enableWorldSaves) {
       client.character.isRespawning = false;
-      server.respawnPlayer(client);
+      await server.respawnPlayer(client);
     } else {
       client.character.state.position = new Float32Array(savedCharacter.position);
       client.character.state.rotation = new Float32Array(savedCharacter.rotation);
