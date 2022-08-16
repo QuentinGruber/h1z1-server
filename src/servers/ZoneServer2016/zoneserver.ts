@@ -1322,39 +1322,40 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     // fixes characters showing up as dead if they respawn close to other characters
-    if(!client.character.initialized) return;
-    this.sendDataToAllOthersWithSpawnedEntity(
-      this._characters,
-      client,
-      client.character.characterId,
-      "Character.RemovePlayer",
-      {
-        characterId: client.character.characterId,
-      }
-    );
-    const vehicleId = client.vehicle.mountedVehicle,
-      vehicle = vehicleId ? this._vehicles[vehicleId] : false;
-    setTimeout(() => {
-      if (!client?.character) return;
+    if(client.character.initialized) {
       this.sendDataToAllOthersWithSpawnedEntity(
         this._characters,
         client,
         client.character.characterId,
-        "AddLightweightPc",
+        "Character.RemovePlayer",
         {
-          ...client.character.pGetLightweight(),
-          identity: {
-            characterName: client.character.name,
-          },
-          mountGuid: vehicleId || "",
-          mountSeatId: vehicle
-            ? vehicle.getCharacterSeat(client.character.characterId)
-            : 0,
-          mountRelatedDword1: vehicle ? 1 : 0,
+          characterId: client.character.characterId,
         }
       );
-    }, 2000);
-
+      const vehicleId = client.vehicle.mountedVehicle,
+        vehicle = vehicleId ? this._vehicles[vehicleId] : false;
+      setTimeout(() => {
+        if (!client?.character) return;
+        this.sendDataToAllOthersWithSpawnedEntity(
+          this._characters,
+          client,
+          client.character.characterId,
+          "AddLightweightPc",
+          {
+            ...client.character.pGetLightweight(),
+            identity: {
+              characterName: client.character.name,
+            },
+            mountGuid: vehicleId || "",
+            mountSeatId: vehicle
+              ? vehicle.getCharacterSeat(client.character.characterId)
+              : 0,
+            mountRelatedDword1: vehicle ? 1 : 0,
+          }
+        );
+      }, 2000);
+    }
+    
     this.checkHook("OnPlayerRespawned", client);
   }
 
