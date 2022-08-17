@@ -93,8 +93,14 @@ export class WorldObjectManager {
   chanceNpc: number = 100;
   chanceScreamer: number = 5; // 1000 max
 
-  private zombieSlots = [EquipSlots.HEAD, EquipSlots.CHEST, EquipSlots.LEGS, EquipSlots.HANDS, EquipSlots.FEET, EquipSlots.HAIR]
-
+  private zombieSlots = [
+    EquipSlots.HEAD,
+    EquipSlots.CHEST,
+    EquipSlots.LEGS,
+    EquipSlots.HANDS,
+    EquipSlots.FEET,
+    EquipSlots.HAIR,
+  ];
 
   run(server: ZoneServer2016) {
     debug("WOM::Run");
@@ -111,12 +117,13 @@ export class WorldObjectManager {
       this.lastVehicleRespawnTime = Date.now();
     }
   }
-  private equipRandomSkins(server: ZoneServer2016, entity: BaseFullCharacter,slots: EquipSlots[],excludedModels: string[] = []): void {
-    server.generateRandomEquipmentsFromAnEntity(
-      entity,
-      slots,
-      excludedModels
-    );
+  private equipRandomSkins(
+    server: ZoneServer2016,
+    entity: BaseFullCharacter,
+    slots: EquipSlots[],
+    excludedModels: string[] = []
+  ): void {
+    server.generateRandomEquipmentsFromAnEntity(entity, slots, excludedModels);
   }
   createZombie(
     server: ZoneServer2016,
@@ -134,7 +141,7 @@ export class WorldObjectManager {
       rotation,
       spawnerId
     );
-    this.equipRandomSkins(server, zombie,this.zombieSlots,bannedZombieModels);
+    this.equipRandomSkins(server, zombie, this.zombieSlots, bannedZombieModels);
     server._npcs[characterId] = zombie;
     if (spawnerId) this._spawnedNpcs[spawnerId] = characterId;
   }

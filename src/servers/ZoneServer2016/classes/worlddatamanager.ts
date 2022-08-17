@@ -1,5 +1,10 @@
 import { MongoClient } from "mongodb";
-import { CharacterUpdateSaveData, FullCharacterSaveData, FullVehicleSaveData, ServerSaveData } from "types/savedata";
+import {
+  CharacterUpdateSaveData,
+  FullCharacterSaveData,
+  FullVehicleSaveData,
+  ServerSaveData,
+} from "types/savedata";
 import { initMongo, toBigHex, _ } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "./vehicle";
@@ -12,18 +17,18 @@ export class WorldDataManager {
   lastSaveTime = 0;
   saveTimer = 600000; // 10 minutes
   run(server: ZoneServer2016) {
-    if(!server.enableWorldSaves) return;
+    if (!server.enableWorldSaves) return;
     debug("WorldDataManager::Run");
     if (this.lastSaveTime + this.saveTimer <= Date.now()) {
-      server.executeFuncForAllReadyClients((client: Client)=> {
+      server.executeFuncForAllReadyClients((client: Client) => {
         this.saveCharacterData(server, client);
-      })
+      });
       // save here
 
       this.lastSaveTime = Date.now();
     }
   }
-  
+
   async initializeDatabase(server: ZoneServer2016) {
     if (server._mongoAddress) {
       const mongoClient = new MongoClient(server._mongoAddress, {
@@ -47,7 +52,7 @@ export class WorldDataManager {
   async insertWorld(server: ZoneServer2016) {
     if (!server._worldId) {
       const worldCount =
-        await server._db?.collection("worlds").countDocuments() || 0;
+        (await server._db?.collection("worlds").countDocuments()) || 0;
       server._worldId = worldCount + 1;
       await server._db?.collection("worlds").insertOne({
         worldId: server._worldId,
@@ -57,7 +62,7 @@ export class WorldDataManager {
   }
 
   async fetchWorldData(server: ZoneServer2016) {
-    if(!server.enableWorldSaves) return;
+    if (!server.enableWorldSaves) return;
     //await this.loadVehicleData(server);
     await this.loadServerData(server);
     server._transientIds = server.getAllCurrentUsedTransientId();
@@ -74,38 +79,43 @@ export class WorldDataManager {
   //#region SERVER DATA
 
   private async loadServerData(server: ZoneServer2016) {
-    if(!server.enableWorldSaves) return;
+    if (!server.enableWorldSaves) return;
     let serverData: ServerSaveData;
     if (server._soloMode) {
       serverData = require(`${server._appDataFolder}/worlddata/world.json`);
-      if(!serverData) {
-        debug("World data not found in file, aborting.")
+      if (!serverData) {
+        debug("World data not found in file, aborting.");
         return;
       }
+    } else {
+      serverData = <any>(
+        await server._db
+          ?.collection("worlds")
+          .find({ worldId: server._worldId })
+      );
     }
-    else {
-      serverData = <any>await server._db
-      ?.collection("worlds")
-      .find({ worldId: server._worldId });
-    }
-    server.lastItemGuid = BigInt(serverData.lastItemGuid || server.lastItemGuid);
+    server.lastItemGuid = BigInt(
+      serverData.lastItemGuid || server.lastItemGuid
+    );
   }
 
   private async saveServerData(server: ZoneServer2016) {
-    if(!server.enableWorldSaves) return;
+    if (!server.enableWorldSaves) return;
     const saveData: ServerSaveData = {
       serverId: server._worldId,
-      lastItemGuid: toBigHex(server.lastItemGuid)
-    }
+      lastItemGuid: toBigHex(server.lastItemGuid),
+    };
     if (server._soloMode) {
-      fs.writeFileSync(`${server._appDataFolder}/worlddata/world.json`, JSON.stringify(saveData, null, 2));
-    }
-    else {
+      fs.writeFileSync(
+        `${server._appDataFolder}/worlddata/world.json`,
+        JSON.stringify(saveData, null, 2)
+      );
+    } else {
       await server._db?.collection("worlds").updateOne(
         { worldId: server._worldId },
         {
           $set: {
-            ...saveData
+            ...saveData,
           },
         }
       );
@@ -117,8 +127,8 @@ export class WorldDataManager {
   //#region CHARACTER DATA
 
   async loadCharacterData(server: ZoneServer2016, client: Client) {
-    if(!server.checkHook("OnLoadCharacterData", client)) return;
-    if(!await server.checkAsyncHook("OnLoadCharacterData", client)) return;
+    if (!server.checkHook("OnLoadCharacterData", client)) return;
+    if (!(await server.checkAsyncHook("OnLoadCharacterData", client))) return;
 
     let savedCharacter: FullCharacterSaveData;
     if (server._soloMode) {
@@ -132,16 +142,20 @@ export class WorldDataManager {
         (character: any) =>
           character.characterId === client.character.characterId
       );
-      if(!savedCharacter) {
-        console.log(`[ERROR] Single player character not found! characterId: ${client.character.characterId}`);
+      if (!savedCharacter) {
+        console.log(
+          `[ERROR] Single player character not found! characterId: ${client.character.characterId}`
+        );
         return;
       }
     } else {
       const loadedCharacter = await server._db
         ?.collection("characters")
         .findOne({ characterId: client.character.characterId });
-      if(!loadedCharacter) {
-        console.log(`[ERROR] Mongo character not found! characterId: ${client.character.characterId}`);
+      if (!loadedCharacter) {
+        console.log(
+          `[ERROR] Mongo character not found! characterId: ${client.character.characterId}`
+        );
         return;
       }
       savedCharacter = {
@@ -160,8 +174,8 @@ export class WorldDataManager {
         rotation: loadedCharacter.rotation,
         _loadout: loadedCharacter._loadout || {},
         _containers: loadedCharacter._containers || {},
-        _resources: loadedCharacter._resources || client.character._resources
-      }
+        _resources: loadedCharacter._resources || client.character._resources,
+      };
     }
     client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
     client.character.name = savedCharacter.characterName;
@@ -175,30 +189,43 @@ export class WorldDataManager {
 
     let newCharacter = false;
     if (
-      (_.isEqual(savedCharacter.position, [0, 0, 0, 1]) &&
-        _.isEqual(savedCharacter.rotation, [0, 0, 0, 1]))
+      _.isEqual(savedCharacter.position, [0, 0, 0, 1]) &&
+      _.isEqual(savedCharacter.rotation, [0, 0, 0, 1])
     ) {
       // if position/rotation hasn't changed
       newCharacter = true;
     }
 
-    if (newCharacter || client.character.isRespawning || !server.enableWorldSaves) {
+    if (
+      newCharacter ||
+      client.character.isRespawning ||
+      !server.enableWorldSaves
+    ) {
       client.character.isRespawning = false;
       await server.respawnPlayer(client);
     } else {
-      client.character.state.position = new Float32Array(savedCharacter.position);
-      client.character.state.rotation = new Float32Array(savedCharacter.rotation);
+      client.character.state.position = new Float32Array(
+        savedCharacter.position
+      );
+      client.character.state.rotation = new Float32Array(
+        savedCharacter.rotation
+      );
       client.character._loadout = savedCharacter._loadout || {};
       client.character._containers = savedCharacter._containers || {};
-      client.character._resources = savedCharacter._resources || client.character._resources;
+      client.character._resources =
+        savedCharacter._resources || client.character._resources;
       server.generateEquipmentFromLoadout(client.character);
     }
 
     server.checkHook("OnLoadedCharacterData", client);
   }
 
-  async saveCharacterPosition(server: ZoneServer2016, client: Client, refreshTimeout = false) {
-    if(!server.enableWorldSaves) return;
+  async saveCharacterPosition(
+    server: ZoneServer2016,
+    client: Client,
+    refreshTimeout = false
+  ) {
+    if (!server.enableWorldSaves) return;
     if (!client.character) {
       return;
     }
@@ -209,7 +236,7 @@ export class WorldDataManager {
         (character: any) =>
           character.characterId === client.character.characterId
       );
-      if(!singlePlayerCharacter) {
+      if (!singlePlayerCharacter) {
         console.log("[ERROR] Single player character savedata not found!");
         return;
       }
@@ -217,10 +244,12 @@ export class WorldDataManager {
         ...singlePlayerCharacter,
         position: Array.from(position),
         rotation: Array.from(lookAt),
-      }
-      fs.writeFileSync(`${server._appDataFolder}/single_player_characters2016.json`, JSON.stringify([singlePlayerCharacter], null, 2));
-    }
-    else {
+      };
+      fs.writeFileSync(
+        `${server._appDataFolder}/single_player_characters2016.json`,
+        JSON.stringify([singlePlayerCharacter], null, 2)
+      );
+    } else {
       await server._db?.collection("characters").updateOne(
         { characterId: client.character.characterId },
         {
@@ -234,42 +263,48 @@ export class WorldDataManager {
     refreshTimeout && client.savePositionTimer.refresh();
   }
 
-  async saveCharacterData(server: ZoneServer2016, client: Client, updateItemGuid = true) {
-    if(!server.enableWorldSaves) return;
-    if(updateItemGuid) await this.saveServerData(server);
+  async saveCharacterData(
+    server: ZoneServer2016,
+    client: Client,
+    updateItemGuid = true
+  ) {
+    if (!server.enableWorldSaves) return;
+    if (updateItemGuid) await this.saveServerData(server);
     const saveData: CharacterUpdateSaveData = {
       position: Array.from(client.character.state.position),
       rotation: Array.from(client.character.state.lookAt),
       isRespawning: client.character.isRespawning,
       _loadout: client.character._loadout,
       _containers: client.character._containers,
-      _resources: client.character._resources
-    }
-    if(server._soloMode) {
+      _resources: client.character._resources,
+    };
+    if (server._soloMode) {
       const singlePlayerCharacters = require(`${server._appDataFolder}/single_player_characters2016.json`);
       let singlePlayerCharacter = singlePlayerCharacters.find(
         (character: any) =>
           character.characterId === client.character.characterId
       );
-      if(!singlePlayerCharacter) {
+      if (!singlePlayerCharacter) {
         console.log("[ERROR] Single player character savedata not found!");
         return;
       }
       singlePlayerCharacter = {
         ...singlePlayerCharacter,
-        ...saveData
-      }
-      fs.writeFileSync(`${server._appDataFolder}/single_player_characters2016.json`, JSON.stringify([singlePlayerCharacter], null, 2));
-    }
-    else {
+        ...saveData,
+      };
+      fs.writeFileSync(
+        `${server._appDataFolder}/single_player_characters2016.json`,
+        JSON.stringify([singlePlayerCharacter], null, 2)
+      );
+    } else {
       await server._db?.collection("characters").updateOne(
         {
-          serverId: server._worldId, 
-          characterId: client.character.characterId
+          serverId: server._worldId,
+          characterId: client.character.characterId,
         },
         {
           $set: {
-            ...saveData
+            ...saveData,
           },
         }
       );
@@ -277,17 +312,19 @@ export class WorldDataManager {
   }
 
   async saveCharacters(server: ZoneServer2016) {
-    if(!server.enableWorldSaves) return;
+    if (!server.enableWorldSaves) return;
     const promises: Array<any> = [];
     await this.saveServerData(server);
-    server.executeFuncForAllReadyClients((client: Client)=> {
+    server.executeFuncForAllReadyClients((client: Client) => {
       promises.push(
-        server.worldDataManager.saveCharacterData(server, client, false).then((ret)=> {
-          return ret;
-        })
+        server.worldDataManager
+          .saveCharacterData(server, client, false)
+          .then((ret) => {
+            return ret;
+          })
       );
     });
-    await Promise.all(promises)
+    await Promise.all(promises);
   }
 
   //#endregion
@@ -295,22 +332,23 @@ export class WorldDataManager {
   //#region VEHICLE DATA
 
   private async loadVehicleData(server: ZoneServer2016) {
-    if(!server.enableWorldSaves) return;
+    if (!server.enableWorldSaves) return;
     let vehicles: Array<FullVehicleSaveData>;
-    if(server._soloMode) {
+    if (server._soloMode) {
       vehicles = require(`${server._appDataFolder}/worlddata/vehicles.json`);
-      if(!vehicles) {
-        debug("Vehicle data not found in file, aborting.")
+      if (!vehicles) {
+        debug("Vehicle data not found in file, aborting.");
         return;
       }
+    } else {
+      vehicles = <any>(
+        await server._db
+          ?.collection("vehicles")
+          .find({ worldId: server._worldId })
+          .toArray()
+      );
     }
-    else {
-      vehicles = <any>await server._db
-      ?.collection("vehicles")
-      .find({ worldId: server._worldId })
-      .toArray();
-    }
-    vehicles.forEach((vehicle)=> {
+    vehicles.forEach((vehicle) => {
       const transientId = server.getTransientId(vehicle.characterId);
       const vehicleData = new Vehicle2016(
         vehicle.characterId,
@@ -320,16 +358,18 @@ export class WorldDataManager {
         new Float32Array(vehicle.rotation),
         server._gameTime
       );
-      vehicleData._loadout = vehicle._loadout,
-      vehicleData._containers = vehicle._containers,
-      vehicleData._resources = vehicle._resources
+      (vehicleData._loadout = vehicle._loadout),
+        (vehicleData._containers = vehicle._containers),
+        (vehicleData._resources = vehicle._resources);
       server.worldObjectManager.createVehicle(server, vehicleData);
-    })
+    });
   }
 
   async saveVehicles(server: ZoneServer2016) {
-    if(!server.enableWorldSaves) return;
-    const vehicles: Array<FullVehicleSaveData> = Object.values(server._vehicles).map((vehicle)=> {
+    if (!server.enableWorldSaves) return;
+    const vehicles: Array<FullVehicleSaveData> = Object.values(
+      server._vehicles
+    ).map((vehicle) => {
       return {
         serverId: server._worldId,
         characterId: vehicle.characterId,
@@ -338,16 +378,18 @@ export class WorldDataManager {
         rotation: Array.from(vehicle.state.rotation),
         _loadout: vehicle._loadout,
         _containers: vehicle._containers,
-        _resources: vehicle._resources
-      }
-    })
-    if(server._soloMode) {
-      fs.writeFileSync(`${server._appDataFolder}/worlddata/vehicles.json`, JSON.stringify(vehicles, null, 2));
-    }
-    else {
+        _resources: vehicle._resources,
+      };
+    });
+    if (server._soloMode) {
+      fs.writeFileSync(
+        `${server._appDataFolder}/worlddata/vehicles.json`,
+        JSON.stringify(vehicles, null, 2)
+      );
+    } else {
       const collection = server._db?.collection("vehicles");
-      collection?.deleteMany({serverId: server._worldId}) // clear vehicles
-      collection?.insertMany(vehicles)
+      collection?.deleteMany({ serverId: server._worldId }); // clear vehicles
+      collection?.insertMany(vehicles);
     }
   }
 }

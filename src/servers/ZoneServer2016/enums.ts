@@ -16,7 +16,7 @@ export enum ItemClasses {
   WEAPONS_PISTOL = 4096,
   WEAPONS_MELEES = 4098,
   WEAPONS_MELEES0 = 25037,
-  WEAPONS_GENERIC = 25054
+  WEAPONS_GENERIC = 25054,
 }
 
 export enum VehicleIds {
@@ -25,7 +25,7 @@ export enum VehicleIds {
   POLICECAR = 3,
   ATV = 5,
   PARACHUTE = 13,
-  SPECTATE = 1337
+  SPECTATE = 1337,
 }
 
 export enum Characters {
@@ -34,12 +34,12 @@ export enum Characters {
   FEMALE_WHITE_YOUNG = 3,
   FEMALE_WHITE = 4,
   MALE_BLACK = 5,
-  FEMALE_BLACK = 6
+  FEMALE_BLACK = 6,
 }
 
 export enum LoadoutIds {
   CHARACTER = 3,
-  VEHICLE = 5
+  VEHICLE = 5,
 }
 
 export enum LoadoutSlots {

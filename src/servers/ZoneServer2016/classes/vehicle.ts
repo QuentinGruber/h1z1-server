@@ -41,7 +41,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   destroyedEffect: number = 0;
   engineOn: boolean = false;
   isLocked: number = 0;
-  positionUpdate: any/*positionUpdate*/;
+  positionUpdate: any /*positionUpdate*/;
   fuelUpdater: any;
   isInvulnerable: boolean = false;
   onDismount?: any;
@@ -73,8 +73,8 @@ export class Vehicle2016 extends BaseFullCharacter {
       lookAt: new Float32Array([0, 0, 0, 1]),
     };
     this.vehicleId = getVehicleId(this.actorModelId);
-    this.isInvulnerable = 
-      this.vehicleId == VehicleIds.SPECTATE || 
+    this.isInvulnerable =
+      this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;
     switch (this.vehicleId) {
       case VehicleIds.OFFROADER:
@@ -110,7 +110,7 @@ export class Vehicle2016 extends BaseFullCharacter {
       vehicle: this,
       get position() {
         return this.vehicle.state.position;
-      }
+      },
     };
   }
 
