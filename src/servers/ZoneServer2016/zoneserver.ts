@@ -144,7 +144,7 @@ export class ZoneServer2016 extends EventEmitter {
   tickRate = 500;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
-  private readonly _loginServerInfo: { address?: string; port: number } = {
+  readonly _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110,
   };
