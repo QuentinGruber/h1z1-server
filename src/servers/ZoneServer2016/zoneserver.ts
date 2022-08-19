@@ -3117,7 +3117,8 @@ export class ZoneServer2016 extends EventEmitter {
     if(client.character.characterId == character.characterId) {
       this.checkConveys(client);
     }
-    if(!client.character.initialized) return;
+    if( client.character.characterId == character.characterId &&
+      !client.character.initialized) return;
     this.sendData(
       client,
       "Loadout.SetLoadoutSlots",
@@ -3129,7 +3130,8 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     character: BaseFullCharacter = client.character
   ) {
-    if(!client.character.initialized) return;
+    if( client.character.characterId == character.characterId &&
+      !client.character.initialized) return;
     this.sendData(
       client,
       "Equipment.SetCharacterEquipment",
@@ -3142,7 +3144,8 @@ export class ZoneServer2016 extends EventEmitter {
     slotId: number,
     character = client.character
   ) {
-    if(!client.character.initialized) return;
+    if( client.character.characterId == character.characterId &&
+      !client.character.initialized) return;
     this.sendDataToAllWithSpawnedEntity(
       this._characters,
       client.character.characterId,
@@ -3157,7 +3160,8 @@ export class ZoneServer2016 extends EventEmitter {
     containerDefinitionId: number,
     character = client.character
   ) {
-    if(!client.character.initialized) return;
+    if( client.character.characterId == character.characterId &&
+      !client.character.initialized) return;
     this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
       data: this.pGetItemData(character, item, containerDefinitionId),
@@ -3949,7 +3953,7 @@ export class ZoneServer2016 extends EventEmitter {
           count: count,
         });
       }
-      this.equipItem(client, item);
+      this.equipItem(client.character, item);
     } else {
       this.lootContainerItem(client, item, count);
     }
