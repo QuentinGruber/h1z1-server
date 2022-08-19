@@ -43,8 +43,6 @@ import { Npc } from "./classes/npc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { AVG_PING_SECS } from "../../utils/constants";
 
-const profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
-const projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
 const stats = require("../../../data/2016/sampleData/stats.json");
 export class zonePacketHandlers {
   hax = hax;
@@ -147,16 +145,9 @@ export class zonePacketHandlers {
         gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
       });
 
-      server.sendData(client, "ReferenceData.ProjectileDefinitions", {
-        definitionsData: projectileDefinitons,
-      });
+      server.sendRawData(client, server.projectileDefinitionsCache);
 
-      server.sendData(client, "ReferenceData.ProfileDefinitions", {
-        data: {
-          profiles: profileDefinitions,
-        },
-      });
-
+      server.sendRawData(client, server.profileDefinitionsCache);
       /*
         server.sendData(client, "Loadout.SetCurrentLoadout", {
           guid: client.character.guid,
@@ -171,9 +162,8 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if(server.checkHook("OnClientFinishedLoading", client) == false) {
-        return;
-      }
+      if(!server.checkHook("OnClientFinishedLoading", client)) return;
+
       client.character.lastLoginDate = toHex(Date.now())
       server.tempGodMode(client, 15000);
       client.currentPOI = 0; // clears currentPOI for POIManager
@@ -443,9 +433,10 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      if(server.checkHook("OnClientExecuteCommand", client, packet) == false) {
-        return;
-      }
+      if(!server.checkHook(
+        "OnClientExecuteCommand", client, packet.data.commandHash, packet.data.arguments
+      )) return;
+
       const args: string[] = packet.data.arguments.toLowerCase().split(" ");
       const commandName = args[0];
       switch (packet.data.commandHash) {
@@ -575,7 +566,7 @@ export class zonePacketHandlers {
           } else {
             server.sendChatText(
               client,
-              `Unknown command: /hax ${commandName} , display hax all commands by using /hax list`
+              `Unknown command: "/hax ${commandName}", display hax all commands by using "/hax list"`
             );
           }
           break;
@@ -595,7 +586,7 @@ export class zonePacketHandlers {
           } else {
             server.sendChatText(
               client,
-              `Unknown command: /dev ${commandName} , display dev all commands by using /dev list`
+              `Unknown command: "/dev ${commandName}", display dev all commands by using "/dev list"`
             );
           }
           break;
@@ -615,7 +606,7 @@ export class zonePacketHandlers {
           } else {
             server.sendChatText(
               client,
-              `Unknown command: /admin ${commandName} , display admin all commands by using /admin list`
+              `Unknown command: "/admin ${commandName}", display admin all commands by using "/admin list"`
             );
           }
           break;

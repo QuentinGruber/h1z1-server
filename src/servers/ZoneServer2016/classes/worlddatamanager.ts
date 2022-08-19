@@ -117,6 +117,9 @@ export class WorldDataManager {
   //#region CHARACTER DATA
 
   async loadCharacterData(server: ZoneServer2016, client: Client) {
+    if(!server.checkHook("OnLoadCharacterData", client)) return;
+    if(!await server.checkAsyncHook("OnLoadCharacterData", client)) return;
+
     let savedCharacter: FullCharacterSaveData;
     if (server._soloMode) {
       delete require.cache[
@@ -179,9 +182,9 @@ export class WorldDataManager {
       newCharacter = true;
     }
 
-    if (newCharacter || client.character.isRespawning) {
+    if (newCharacter || client.character.isRespawning || !server.enableWorldSaves) {
       client.character.isRespawning = false;
-      server.respawnPlayer(client);
+      await server.respawnPlayer(client);
     } else {
       client.character.state.position = new Float32Array(savedCharacter.position);
       client.character.state.rotation = new Float32Array(savedCharacter.rotation);
@@ -190,6 +193,8 @@ export class WorldDataManager {
       client.character._resources = savedCharacter._resources || client.character._resources;
       server.generateEquipmentFromLoadout(client.character);
     }
+
+    server.checkHook("OnLoadedCharacterData", client);
   }
 
   async saveCharacterPosition(server: ZoneServer2016, client: Client, refreshTimeout = false) {
