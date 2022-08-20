@@ -141,7 +141,6 @@ export enum Items {
   AMMO_762 = 2325,
   AMMO_44 = 1719,
   BACKPACK = 1605,
-  GAS_CAN = 73,
   FIRST_AID = 2424,
   GROUND_COFFEE = 56, // TODO = expand with more canned food types
   CANNED_FOOD01 = 7,

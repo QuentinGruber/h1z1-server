@@ -4457,6 +4457,7 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case Items.FUEL_BIOFUEL:
         fuelValue = 2500;
+        break;
       default:
         this.sendChatText(
           client,
