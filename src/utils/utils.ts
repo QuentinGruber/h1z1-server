@@ -27,7 +27,7 @@ import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import { positionUpdate } from "types/zoneserver";
 
 export class customLodash {
-  sum(pings: number[]):number {
+  sum(pings: number[]): number {
     return pings.reduce((a, b) => a + b, 0);
   }
   cloneDeep(value: unknown) {
@@ -177,22 +177,16 @@ export const setupAppDataFolder = (): void => {
       JSON.stringify([])
     );
   }
-  if (
-    !fs.existsSync(`${AppDataFolderPath}/worlddata`)
-  ) {
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata`)) {
     fs.mkdirSync(`${AppDataFolderPath}/worlddata`);
   }
-  if (
-    !fs.existsSync(`${AppDataFolderPath}/worlddata/vehicles.json`)
-  ) {
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/vehicles.json`)) {
     fs.writeFileSync(
       `${AppDataFolderPath}/worlddata/vehicles.json`,
       JSON.stringify([])
     );
   }
-  if (
-    !fs.existsSync(`${AppDataFolderPath}/worlddata/world.json`)
-  ) {
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/world.json`)) {
     fs.writeFileSync(
       `${AppDataFolderPath}/worlddata/world.json`,
       JSON.stringify({})
@@ -243,8 +237,8 @@ export function createPositionUpdate(
 }
 
 export const toInt = (value: number) => {
-  return Number(value.toFixed(0))
-}
+  return Number(value.toFixed(0));
+};
 
 export const Int64String = function (value: number): string {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
@@ -360,7 +354,10 @@ export const initMongo = async function (
   await mongoClient.db(dbName).collection("servers").insertMany(servers);
   await mongoClient.db(dbName).createCollection("zone-whitelist");
   const zoneWhitelist = require("../../data/defaultDatabase/shared/zone-whitelist.json");
-  await mongoClient.db(dbName).collection("zone-whitelist").insertMany(zoneWhitelist);
+  await mongoClient
+    .db(dbName)
+    .collection("zone-whitelist")
+    .insertMany(zoneWhitelist);
   debug("h1server database was missing... created one with samples.");
 };
 

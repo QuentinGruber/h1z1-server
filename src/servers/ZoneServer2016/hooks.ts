@@ -16,9 +16,6 @@ export type Hooks =
   | "OnPlayerDeath"
   | "OnPlayerDied";
 
-export type FunctionHookType =
-  | boolean 
-  | void;
+export type FunctionHookType = boolean | void;
 
-export type AsyncHookType =
-  | Promise<void | boolean>;
+export type AsyncHookType = Promise<void | boolean>;

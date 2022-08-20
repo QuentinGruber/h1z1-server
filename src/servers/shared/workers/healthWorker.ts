@@ -27,7 +27,7 @@ export function healthThreadDecorator(target: Target) {
     });
   }
 }
-const healthTime = 10000
+const healthTime = 10000;
 function checkHealth() {
   const { threadToWatchPid } = workerData;
   let healthTimeoutTimer: any;
