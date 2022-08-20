@@ -27,6 +27,9 @@ import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import { positionUpdate } from "types/zoneserver";
 
 export class customLodash {
+  sum(pings: number[]): number {
+    return pings.reduce((a, b) => a + b, 0);
+  }
   cloneDeep(value: unknown) {
     return v8.deserialize(v8.serialize(value));
   }
@@ -174,6 +177,21 @@ export const setupAppDataFolder = (): void => {
       JSON.stringify([])
     );
   }
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata`)) {
+    fs.mkdirSync(`${AppDataFolderPath}/worlddata`);
+  }
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/vehicles.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/vehicles.json`,
+      JSON.stringify([])
+    );
+  }
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/world.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/world.json`,
+      JSON.stringify({})
+    );
+  }
 };
 
 export const objectIsEmpty = (obj: Record<string, unknown>) => {
@@ -217,6 +235,10 @@ export function createPositionUpdate(
   }
   return obj;
 }
+
+export const toInt = (value: number) => {
+  return Number(value.toFixed(0));
+};
 
 export const Int64String = function (value: number): string {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
@@ -405,8 +427,12 @@ export class wrappedUint16 {
   }
 }
 
-export const bigIntToHexString = (bigInt: bigint): string => {
+export const toBigHex = (bigInt: bigint): string => {
   return `0x${bigInt.toString(16)}`;
+};
+
+export const toHex = (number: number): string => {
+  return `0x${number.toString(16)}`;
 };
 
 export const getRandomFromArray = (array: any[]): any => {

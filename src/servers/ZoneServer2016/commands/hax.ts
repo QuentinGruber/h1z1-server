@@ -294,6 +294,56 @@ const hax: any = {
       true
     );
   },
+  spamzombies: function (server: ZoneServer2016, client: Client, args: any[]) {
+    if (!args[2]) {
+      server.sendChatText(
+        client,
+        "[ERROR] Usage /hax spamzombies [RANGE] [POINTS]"
+      );
+      return;
+    }
+    const multiplied = Number(args[1]) * Number(args[2]);
+    if (multiplied > 600) {
+      server.sendChatText(
+        client,
+        `[ERROR]Maximum RANGE * POINTS value reached: ("${multiplied}"/600)`
+      );
+      return;
+    }
+    const range = Number(args[1]),
+      lat = client.character.state.position[0],
+      long = client.character.state.position[2];
+    const points = [];
+    let rangeFixed = range;
+    const numberOfPoints = Number(args[2]);
+    const degreesPerPoint = 360 / numberOfPoints;
+    for (let j = 1; j < range; j++) {
+      let currentAngle = 0,
+        x2,
+        y2;
+      rangeFixed += -1;
+      for (let i = 0; i < numberOfPoints; i++) {
+        x2 = Math.cos(currentAngle) * rangeFixed;
+        y2 = Math.sin(currentAngle) * rangeFixed;
+        const p = [lat + x2, long + y2];
+        points.push(p);
+        currentAngle += degreesPerPoint;
+      }
+    }
+    points.forEach((obj: any) => {
+      server.worldObjectManager.createZombie(
+        server,
+        9634,
+        new Float32Array([
+          obj[0],
+          client.character.state.position[1],
+          obj[1],
+          1,
+        ]),
+        client.character.state.lookAt
+      );
+    });
+  },
   spamied: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[2]) {
       server.sendChatText(
@@ -559,16 +609,6 @@ const hax: any = {
     };
     server.sendWeatherUpdatePacket(client, server._weather2016, true);
   },
-  placement: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const modelChoosen = args[1];
-    if (!modelChoosen) {
-      server.sendChatText(client, "[ERROR] Usage /hax placement {modelId}");
-      return;
-    }
-    server.sendData(client, "Construction.PlacementResponse", {
-      model: modelChoosen,
-    });
-  },
   spectate: function (server: ZoneServer2016, client: Client, args: any[]) {
     const characterId = server.generateGuid();
     const vehicle = new Vehicle(
@@ -610,7 +650,7 @@ const hax: any = {
       client,
       `Adding ${count}x item${count == 1 ? "" : "s"} with id ${itemDefId}.`
     );
-    server.lootItem(client, server.generateItem(itemDefId), count);
+    server.lootItem(client, server.generateItem(itemDefId, count));
   },
   hood: function (server: ZoneServer2016, client: Client) {
     const equipment = client.character._equipment[3] || {},

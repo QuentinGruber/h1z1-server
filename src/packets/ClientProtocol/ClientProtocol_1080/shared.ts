@@ -1102,7 +1102,7 @@ export function packItemWeaponData(obj: any) {
             },
           ],
         },
-        { name: "loadoutSlotId", type: "uint8", defaultValue: 0 },
+        { name: "equipmentSlotId", type: "uint8", defaultValue: 0 },
         { name: "unknownByte2", type: "uint8", defaultValue: 0 },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
@@ -1835,7 +1835,6 @@ export const fullNpcSchema = [
 ];
 
 export const fullPcSchema = [
-  // NOT FINISHED
   { name: "useCompression", type: "boolean", defaultValue: false },
   {
     name: "fullPcData",
@@ -1896,7 +1895,6 @@ export const fullPcSchema = [
       { name: "unknownBool2", type: "boolean", defaultValue: false },
       { name: "unknownBool3", type: "boolean", defaultValue: false },
       { name: "unknownDword15", type: "uint32", defaultValue: 0 },
-      //{ name: "unknownDword16", type: "uint32", defaultValue: 0 },
       {
         name: "unknownArray1",
         type: "byteswithlength",

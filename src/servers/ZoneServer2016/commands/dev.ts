@@ -90,6 +90,10 @@ const dev: any = {
       sessionId: client.loginSessionId,
     });
   },
+  r: function (server: ZoneServer2016, client: Client, args: any[]) {
+    // quick respawn
+    server.respawnPlayer(client);
+  },
   testpacket: function (server: ZoneServer2016, client: Client, args: any[]) {
     const packetName = args[1];
     server.sendData(client, packetName, {});
@@ -655,11 +659,6 @@ const dev: any = {
   },
   //endregion
   */
-
-  weapondefs: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.packWeaponDefinitions();
-    server.sendRawData(client, server.weaponDefinitionsCache);
-  },
 
   poi: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendData(client, "POIChangeMessage", {

@@ -133,7 +133,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
     return undefined;
   }
-  getActiveEquipmentSlot(item: loadoutItem) {
+  getActiveEquipmentSlot(item: inventoryItem) {
     for (const equipment of Object.values(this._equipment)) {
       if (item.itemGuid == equipment.guid) {
         return equipment.slotId;

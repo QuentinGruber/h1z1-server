@@ -38,6 +38,9 @@ export class ZoneClient2016 {
   clearTimers: () => void;
   sessionId: number;
   soeClientId: string;
+  lastKeepAliveTime: number = 0;
+  pings: number[] = [];
+  avgPing: number = 0;
   constructor(
     sessionId: number,
     soeClientId: string,

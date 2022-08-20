@@ -458,6 +458,8 @@ export interface characterEquipment {
 
 export interface weaponItem {
   ammoCount: number;
+  reloadTimer?: NodeJS.Timeout;
+  currentReloadCount: number; // needed for reload packet to work every time
 }
 
 export interface inventoryItem {
@@ -667,9 +669,11 @@ export interface Weather2016 {
 export interface DamageRecord {
   source: {
     name: string;
+    ping: number;
   };
   target: {
     name: string;
+    ping: number;
   };
   hitInfo: {
     timestamp: number;
@@ -680,6 +684,13 @@ export interface DamageRecord {
     oldHP: number;
     newHP: number;
   };
+}
+
+export interface SpawnLocation {
+  id: number;
+  name: string;
+  position: Float32Array;
+  rotation: Float32Array;
 }
 
 export interface SoeServer {

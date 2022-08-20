@@ -459,7 +459,25 @@ export const characterPackets: any = [
   ],
   ["Character.Deploy", 0x0f46, {}],
   ["Character.LowAmmoUpdate", 0x0f47, {}],
-  ["Character.KilledBy", 0x0f48, {}],
+  [
+    "Character.KilledBy",
+    0x0f48,
+    {
+      fields: [
+        {
+          name: "killer",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "killed",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "isCheater", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
   [
     "Character.MotorRunning",
     0x0f49,

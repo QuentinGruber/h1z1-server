@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ResourceIds } from "../enums";
+import { LoadoutIds, LoadoutSlots, ResourceIds } from "../enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
@@ -22,6 +22,13 @@ interface CharacterStates {
   gmHidden?: boolean;
   knockedOut?: boolean;
   inWater?: boolean;
+}
+
+interface CharacterMetrics {
+  zombiesKilled: number;
+  wildlifeKilled: number;
+  recipesDiscovered: number;
+  startedSurvivingTP: number; // timestamp
 }
 export class Character2016 extends BaseFullCharacter {
   name?: string;
@@ -42,10 +49,11 @@ export class Character2016 extends BaseFullCharacter {
   headActor!: string;
   hairModel!: string;
   isRespawning = false;
+  isReady = false;
   creationDate!: string;
   lastLoginDate!: string;
-  currentLoadoutSlot = 7; //fists
-  loadoutId = 3; // character
+  currentLoadoutSlot = LoadoutSlots.FISTS;
+  readonly loadoutId = LoadoutIds.CHARACTER;
   startRessourceUpdater: any;
   healingInterval?: any;
   healingTicks: number;
@@ -54,9 +62,15 @@ export class Character2016 extends BaseFullCharacter {
   timeouts: any;
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
-  reloadTimer?: NodeJS.Timeout | undefined = undefined;
   tempGodMode = false;
   isSpectator = false;
+  initialized = false; // if sendself has been sent
+  readonly metrics: CharacterMetrics = {
+    recipesDiscovered: 0,
+    zombiesKilled: 0,
+    wildlifeKilled: 0,
+    startedSurvivingTP: Date.now(),
+  };
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
@@ -240,8 +254,10 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
   clearReloadTimeout() {
-    if (this.reloadTimer) clearTimeout(this.reloadTimer);
-    this.reloadTimer = undefined;
+    const weaponItem = this.getEquippedWeapon();
+    if (!weaponItem.weapon?.reloadTimer) return;
+    clearTimeout(weaponItem.weapon.reloadTimer);
+    weaponItem.weapon.reloadTimer = undefined;
   }
   addCombatlogEntry(entry: DamageRecord) {
     this.combatlog.push(entry);
@@ -252,6 +268,9 @@ export class Character2016 extends BaseFullCharacter {
   getCombatLog() {
     return this.combatlog;
   }
+  /**
+   * Gets the lightweightpc packetfields for use in sendself and addlightweightpc
+   */
   pGetLightweight() {
     return {
       ...super.pGetLightweight(),

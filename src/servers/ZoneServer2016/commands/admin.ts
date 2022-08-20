@@ -110,7 +110,7 @@ const admin: any = {
     server.sendAlertToAll(args.join(" "));
   },
   remover: function (server: ZoneServer2016, client: Client, args: any[]) {
-    server.lootItem(client, server.generateItem(1776), 1);
+    server.lootItem(client, server.generateItem(1776));
   },
   players: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.sendChatText(
@@ -157,6 +157,41 @@ const admin: any = {
         sessionId: targetClient.loginSessionId,
       });
     }, 2000);
+  },
+  savecharacters: async function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    if (!server.enableWorldSaves) {
+      server.sendChatText(client, "Server saving is disabled.");
+      return;
+    }
+    server.sendChatText(client, "CharacterData save started.");
+    await server.worldDataManager.saveCharacters(server);
+    server.sendChatText(client, "Character data has been saved!");
+  },
+  savevehicles: async function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    if (!server.enableWorldSaves) {
+      server.sendChatText(client, "Server saving is disabled.");
+      return;
+    }
+    server.sendChatText(client, "VehicleData save started.");
+    await server.worldDataManager.saveVehicles(server);
+    server.sendChatText(client, "Vehicles have been saved!");
+  },
+  save: async function (server: ZoneServer2016, client: Client, args: any[]) {
+    if (!server.enableWorldSaves) {
+      server.sendChatText(client, "Server saving is disabled.");
+      return;
+    }
+    server.sendChatText(client, "World save started.");
+    await server.worldDataManager.saveWorld(server);
+    server.sendChatText(client, "World saved!");
   },
 };
 

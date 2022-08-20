@@ -27,13 +27,20 @@ let dev = require("./commands/dev").default;
 
 let admin = require("./commands/admin").default;
 
-import { _, Int64String, isPosInRadius, getDistance } from "../../utils/utils";
+import {
+  _,
+  Int64String,
+  isPosInRadius,
+  getDistance,
+  toInt,
+  toHex,
+} from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
-import { EntityTypes, ResourceIds } from "./enums";
+import { EntityTypes, Items, ResourceIds, VehicleIds } from "./enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
 import { DoorEntity } from "./classes/doorentity";
@@ -41,9 +48,8 @@ import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { Npc } from "./classes/npc";
 import { TemporaryEntity } from "./classes/temporaryentity";
+import { AVG_PING_SECS } from "../../utils/constants";
 
-const profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json");
-const projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json");
 const stats = require("../../../data/2016/sampleData/stats.json");
 export class zonePacketHandlers {
   hax = hax;
@@ -146,16 +152,9 @@ export class zonePacketHandlers {
         gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
       });
 
-      server.sendData(client, "ReferenceData.ProjectileDefinitions", {
-        definitionsData: projectileDefinitons,
-      });
+      server.sendRawData(client, server.projectileDefinitionsCache);
 
-      server.sendData(client, "ReferenceData.ProfileDefinitions", {
-        data: {
-          profiles: profileDefinitions,
-        },
-      });
-
+      server.sendRawData(client, server.profileDefinitionsCache);
       /*
         server.sendData(client, "Loadout.SetCurrentLoadout", {
           guid: client.character.guid,
@@ -170,24 +169,22 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if (!server.checkHook("OnClientFinishedLoading", client)) return;
+
+      client.character.lastLoginDate = toHex(Date.now());
       server.tempGodMode(client, 15000);
       client.currentPOI = 0; // clears currentPOI for POIManager
       server.sendGameTimeSync(client);
       if (client.firstLoading) {
         server.setGodMode(client, false);
         setTimeout(() => {
-          server.sendData(client, "POIChangeMessage", {
-            // welcome POI message
-            messageStringId: 20,
-            id: 99,
-          });
-          server.sendChatText(client, "Welcome to H1emu ! :D", true);
+          server.sendAlert(client, "Welcome to H1emu! :D");
           server.sendChatText(
             client,
             `server population : ${_.size(server._characters)}`
           );
           if (client.isAdmin) {
-            server.sendChatText(client, "You are an admin !");
+            server.sendAlert(client, "You are an admin!");
           }
         }, 10000);
 
@@ -198,7 +195,7 @@ export class zonePacketHandlers {
         client.firstLoading = false;
         client.pingTimer?.refresh();
         client.savePositionTimer = setTimeout(
-          () => server.saveCharacterPosition(client),
+          () => server.worldDataManager.saveCharacterPosition(server, client),
           30000
         );
         const commands = [
@@ -235,11 +232,15 @@ export class zonePacketHandlers {
         if (!server._soloMode) {
           server.sendZonePopulationUpdate();
         }
-        server.executeFuncForAllReadyClients(() => server.spawnCharacters);
+        // clear /hax run since switching servers doesn't automatically clear it
+        server.sendData(client, "Command.RunSpeed", {
+          runSpeed: 0,
+        });
+        client.character.isReady = true;
       }
 
       client.isLoading = false;
-      if (!client.character.isAlive) {
+      if (!client.character.isAlive || client.character.isRespawning) {
         // try to fix stuck on death screen
         server.sendData(client, "Character.StartMultiStateDeath", {
           characterId: client.character.characterId,
@@ -295,6 +296,10 @@ export class zonePacketHandlers {
       if (characterId === client.character.characterId) {
         if (!client.vehicle.mountedVehicle) {
           // if not mounted
+          // fixes collision dmg bug on login
+          if (Number(client.character.lastLoginDate) + 4000 >= Date.now()) {
+            return;
+          }
           server.playerDamage(client, damage);
         }
       } else if (vehicle) {
@@ -316,9 +321,19 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      server.sendData(client, "KeepAlive", {
-        gameTime: packet.data.gameTime,
-      });
+      const timeDelay = 1000;
+      const currentTime = Date.now();
+      if (!client.lastKeepAliveTime) {
+        client.lastKeepAliveTime = currentTime;
+        return;
+      }
+      const ping = toInt(currentTime - client.lastKeepAliveTime - timeDelay);
+      client.lastKeepAliveTime = Date.now();
+      client.pings.push(ping);
+      if (client.pings.length > AVG_PING_SECS) {
+        client.pings.shift();
+      }
+      client.avgPing = toInt(_.sum(client.pings) / client.pings.length);
     };
     this.clientUpdateMonitorTimeDrift = function (
       server: ZoneServer2016,
@@ -426,6 +441,16 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if (
+        !server.checkHook(
+          "OnClientExecuteCommand",
+          client,
+          packet.data.commandHash,
+          packet.data.arguments
+        )
+      )
+        return;
+
       const args: string[] = packet.data.arguments.toLowerCase().split(" ");
       const commandName = args[0];
       switch (packet.data.commandHash) {
@@ -475,10 +500,14 @@ export class zonePacketHandlers {
                 props
               )} vehicles : ${_.size(vehicles)}`
             );
-            const uptime = new Date(Date.now() - server._startTime);
+            const uptimeMin = (Date.now() - server._startTime) / 60000;
             server.sendChatText(
               client,
-              `Uptime: ${uptime.getUTCHours()}h ${uptime.getUTCMinutes()}m`
+              `Uptime: ${
+                uptimeMin < 60
+                  ? `${uptimeMin.toFixed()}m`
+                  : `${(uptimeMin / 60).toFixed()}h `
+              }`
             );
             break;
           }
@@ -517,6 +546,7 @@ export class zonePacketHandlers {
           const soeClient = server.getSoeClient(client.soeClientId);
           if (soeClient) {
             const stats = soeClient.getNetworkStats();
+            stats.push(`Ping: ${client.avgPing}ms`);
             for (let index = 0; index < stats.length; index++) {
               const stat = stats[index];
               server.sendChatText(client, stat, index == 0);
@@ -554,7 +584,7 @@ export class zonePacketHandlers {
           } else {
             server.sendChatText(
               client,
-              `Unknown command: /hax ${commandName} , display hax all commands by using /hax list`
+              `Unknown command: "/hax ${commandName}", display hax all commands by using "/hax list"`
             );
           }
           break;
@@ -574,7 +604,7 @@ export class zonePacketHandlers {
           } else {
             server.sendChatText(
               client,
-              `Unknown command: /dev ${commandName} , display dev all commands by using /dev list`
+              `Unknown command: "/dev ${commandName}", display dev all commands by using "/dev list"`
             );
           }
           break;
@@ -594,7 +624,7 @@ export class zonePacketHandlers {
           } else {
             server.sendChatText(
               client,
-              `Unknown command: /admin ${commandName} , display admin all commands by using /admin list`
+              `Unknown command: "/admin ${commandName}", display admin all commands by using "/admin list"`
             );
           }
           break;
@@ -838,13 +868,7 @@ export class zonePacketHandlers {
             client.posAtLogoutStart
           )
         ) {
-          clearTimeout(client.hudTimer);
-          client.hudTimer = null;
-          client.isInteracting = false;
-          server.sendData(client, "ClientUpdate.StartTimer", {
-            stringId: 0,
-            time: 0,
-          }); // don't know how it was done so
+          server.stopHudTimer(client);
         }
       } else if (
         packet.data.vehicle_position &&
@@ -903,30 +927,35 @@ export class zonePacketHandlers {
           break;
         case EntityTypes.VEHICLE: // vehicles
           const vehicle = entityData as Vehicle2016;
-          if (vehicle.vehicleId == 1337) return; // ignore spectator cam
-          if (vehicle.vehicleId != 13) {
-            server.sendData(
-              client,
-              "LightweightToFullVehicle",
-              vehicle.pGetFullVehicle()
-            );
-            // prevents cars from spawning in under the map for other characters
-            server.sendData(client, "PlayerUpdatePosition", {
-              transientId: vehicle.transientId,
-              positionUpdate: vehicle.positionUpdate,
-            });
-            server.sendData(client, "ResourceEvent", {
-              eventData: {
-                type: 1,
-                value: {
-                  characterId: vehicle.characterId,
-                  characterResources: vehicle.pGetResources(),
-                },
+          if (
+            vehicle.vehicleId == VehicleIds.SPECTATE ||
+            vehicle.vehicleId == VehicleIds.PARACHUTE
+          )
+            return;
+          server.sendData(
+            client,
+            "LightweightToFullVehicle",
+            vehicle.pGetFullVehicle()
+          );
+          // prevents cars from spawning in under the map for other characters
+          /*
+          server.sendData(client, "PlayerUpdatePosition", {
+            transientId: vehicle.transientId,
+            positionUpdate: vehicle.positionUpdate,
+          });
+          */
+          server.sendData(client, "ResourceEvent", {
+            eventData: {
+              type: 1,
+              value: {
+                characterId: vehicle.characterId,
+                characterResources: vehicle.pGetResources(),
               },
-            });
-          }
+            },
+          });
           for (const a in vehicle.seats) {
             const seatId = vehicle.getCharacterSeat(vehicle.seats[a]);
+            if (!vehicle.seats[a]) continue;
             server.sendData(client, "Mount.MountResponse", {
               // mounts character
               characterId: vehicle.seats[a],
@@ -955,7 +984,7 @@ export class zonePacketHandlers {
           character._equipment[28] = {
             // temporary to fix missing heads
             modelName: character.headActor,
-            slotId: 28,
+            slotId: 28, // todo: wrong id
             guid: "0x0",
           };
           character._equipment[27] = {
@@ -1197,10 +1226,11 @@ export class zonePacketHandlers {
       }
       server.sendData(client, "Command.ItemDefinitionReply", {
         data: {
-          ID: packet.data.ID,
+          ID: itemDef.ID,
           definitionData: {
             ...itemDef,
             HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+            ITEM_TYPE_1: itemDef.ITEM_TYPE,
             flags1: {
               ...itemDef,
             },
@@ -1211,6 +1241,10 @@ export class zonePacketHandlers {
           },
         },
       });
+      if (server.isContainer(itemDef.ID)) {
+        // Fixes containers missing an itemdefinition not showing in inventory
+        server.updateLoadout(client);
+      }
     };
     this.characterWeaponStance = function (
       server: ZoneServer2016,
@@ -1356,6 +1390,30 @@ export class zonePacketHandlers {
           break;
         case 11: //ignite
           server.igniteOption(client, item);
+          break;
+        case 7: // unload weapon
+          if (item.weapon?.ammoCount) {
+            server.lootItem(
+              client,
+              server.generateItem(
+                server.getWeaponAmmoId(item.itemDefinitionId),
+                item.weapon.ammoCount
+              )
+            );
+            item.weapon.ammoCount = 0;
+            if (
+              client.character.getEquippedWeapon().itemGuid == item.itemGuid
+            ) {
+              server.sendWeaponData(client, "Weapon.Reload", {
+                weaponGuid: item.itemGuid,
+                unknownDword1: 0,
+                ammoCount: 0,
+                unknownDword3: 0,
+                currentReloadCount: `0x${(++item.weapon
+                  .currentReloadCount).toString(16)}`,
+              });
+            }
+          }
           break;
         default:
           server.sendChatText(
@@ -1869,7 +1927,10 @@ export class zonePacketHandlers {
             server.damageItem(client, weaponItem, 2);
             break;
           case "Weapon.Fire":
-            weaponItem.weapon.ammoCount -= 1;
+            if (weaponItem.weapon.ammoCount > 0) {
+              weaponItem.weapon.ammoCount -= 1;
+            }
+            server.stopHudTimer(client);
             debug("Weapon.Fire");
             /*
             server.sendRemoteWeaponUpdateData(
@@ -1928,50 +1989,88 @@ export class zonePacketHandlers {
             debug("Weapon.ProjectileHitReport");
             break;
           case "Weapon.ReloadRequest":
-            if (client.character.reloadTimer) return;
+            if (weaponItem.weapon.reloadTimer) return;
             /*server.sendRemoteWeaponUpdateData(
               client, client.character.transientId, weaponItem.itemGuid, "Update.Reload", {})*/
-            client.character.reloadTimer = setTimeout(() => {
-              if (!client.character.reloadTimer) return;
-              const weaponItem = client.character.getEquippedWeapon();
+            const weaponAmmoId = server.getWeaponAmmoId(
+                weaponItem.itemDefinitionId
+              ),
+              maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
+              reloadTime = server.getWeaponReloadTime(
+                weaponItem.itemDefinitionId
+              );
+            if (weaponAmmoId == Items.AMMO_12GA) {
+              weaponItem.weapon.reloadTimer = setTimeout(() => {
+                if (!weaponItem.weapon?.reloadTimer) {
+                  client.character.clearReloadTimeout();
+                  return;
+                }
+                const reserveAmmo = // how much ammo is in inventory
+                  client.character.getInventoryItemAmount(weaponAmmoId);
+                if (
+                  !reserveAmmo ||
+                  (weaponItem.weapon.ammoCount < maxAmmo &&
+                    !server.removeInventoryItems(client, weaponAmmoId, 1)) ||
+                  ++weaponItem.weapon.ammoCount == maxAmmo
+                ) {
+                  server.sendWeaponData(client, "Weapon.Reload", {
+                    weaponGuid: p.packet.characterId,
+                    unknownDword1: maxAmmo,
+                    ammoCount: weaponItem.weapon.ammoCount,
+                    unknownDword3: maxAmmo,
+                    currentReloadCount: `0x${(++weaponItem.weapon
+                      .currentReloadCount).toString(16)}`,
+                  });
+                  client.character.clearReloadTimeout();
+                  return;
+                }
+                if (!(reserveAmmo - 1)) {
+                  // updated reserve ammo
+                  server.sendWeaponData(client, "Weapon.Reload", {
+                    weaponGuid: p.packet.characterId,
+                    unknownDword1: maxAmmo,
+                    ammoCount: weaponItem.weapon.ammoCount,
+                    unknownDword3: maxAmmo,
+                    currentReloadCount: `0x${(++weaponItem.weapon
+                      .currentReloadCount).toString(16)}`,
+                  });
+                  client.character.clearReloadTimeout();
+                  return;
+                }
+                weaponItem.weapon.reloadTimer.refresh();
+              }, reloadTime);
+              return;
+            }
+            weaponItem.weapon.reloadTimer = setTimeout(() => {
               if (
-                !weaponItem.weapon ||
+                !weaponItem.weapon?.reloadTimer ||
                 client.character.getEquippedWeapon().itemGuid !=
                   weaponItem.itemGuid
               )
                 return;
-              const weaponAmmoId = server.getWeaponAmmoId(
-                  weaponItem.itemDefinitionId
-                ),
-                maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
-                reserveAmmo =
-                  client.character.getInventoryItemAmount(weaponAmmoId), // how much ammo is in inventory
-                maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+              const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+                reserveAmmo = // how much ammo is in inventory
+                  client.character.getInventoryItemAmount(weaponAmmoId),
                 reloadAmount =
                   reserveAmmo >= maxReloadAmount
                     ? maxReloadAmount
                     : reserveAmmo; // actual amount able to reload
 
+              if (
+                !server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
+              ) {
+                return;
+              }
               server.sendWeaponData(client, "Weapon.Reload", {
-                guid: p.packet.characterId,
+                weaponGuid: p.packet.characterId,
                 unknownDword1: maxAmmo,
-                ammoCount: weaponItem.weapon.ammoCount + reloadAmount,
+                ammoCount: (weaponItem.weapon.ammoCount += reloadAmount),
                 unknownDword3: maxAmmo,
-                characterId: "0x2",
+                currentReloadCount: `0x${(++weaponItem.weapon
+                  .currentReloadCount).toString(16)}`,
               });
-              weaponItem.weapon.ammoCount =
-                weaponItem.weapon.ammoCount + reloadAmount;
-              server.switchLoadoutSlot(
-                client,
-                client.character._loadout[client.character.currentLoadoutSlot]
-              );
-              /*server.sendWeaponData(client, "Weapon.Reset", {
-                guid: weaponItem.itemGuid,
-                unknownBoolean1: true,
-                unknownByte1: 0
-              })*/
-              server.removeInventoryItems(client, weaponAmmoId, reloadAmount);
-            }, server.getWeaponReloadTime(weaponItem.itemDefinitionId));
+              client.character.clearReloadTimeout();
+            }, reloadTime);
 
             debug("Weapon.ReloadRequest");
             break;
@@ -1998,7 +2097,6 @@ export class zonePacketHandlers {
             debug(`Unhandled weapon packet type: ${p.packetName}`);
             break;
         }
-        //console.log(p)
       }
     };
     //#endregion

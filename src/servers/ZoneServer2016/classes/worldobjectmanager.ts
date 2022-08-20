@@ -17,6 +17,7 @@ const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
+const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
   _,
   eul2quat,
@@ -24,12 +25,13 @@ import {
   isPosInRadius,
   randomIntFromInterval,
 } from "../../../utils/utils";
-import { Items } from "../enums";
+import { EquipSlots, Items } from "../enums";
 import { Vehicle2016 } from "./../classes/vehicle";
 import { inventoryItem } from "types/zoneserver";
 import { ItemObject } from "./itemobject";
 import { DoorEntity } from "./doorentity";
-import { Npc } from "./npc";
+import { Zombie } from "./zombie";
+import { BaseFullCharacter } from "./basefullcharacter";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {
@@ -57,9 +59,9 @@ export class WorldObjectManager {
   _spawnedLootObjects: { [spawnerId: number]: string } = {};
   vehicleSpawnCap: number = 100;
 
-  lastLootRespawnTime: number = 0;
-  lastVehicleRespawnTime: number = 0;
-  lastNpcRespawnTime: number = 0;
+  private lastLootRespawnTime: number = 0;
+  private lastVehicleRespawnTime: number = 0;
+  private lastNpcRespawnTime: number = 0;
   lootRespawnTimer: number = 600000; // 10 minutes
   vehicleRespawnTimer: number = 600000; // 10 minutes // 600000
   npcRespawnTimer: number = 600000; // 10 minutes
@@ -91,6 +93,15 @@ export class WorldObjectManager {
   chanceNpc: number = 100;
   chanceScreamer: number = 5; // 1000 max
 
+  private zombieSlots = [
+    EquipSlots.HEAD,
+    EquipSlots.CHEST,
+    EquipSlots.LEGS,
+    EquipSlots.HANDS,
+    EquipSlots.FEET,
+    EquipSlots.HAIR,
+  ];
+
   run(server: ZoneServer2016) {
     debug("WOM::Run");
     if (this.lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
@@ -106,13 +117,15 @@ export class WorldObjectManager {
       this.lastVehicleRespawnTime = Date.now();
     }
   }
-  equipRandomSkins(server: ZoneServer2016, npc: Npc): void {
-    server.generateRandomEquipmentsFromAnEntity(
-      npc,
-      [3, 1, 2, 4, 29, 28, 27, 10, 5]
-    );
+  private equipRandomSkins(
+    server: ZoneServer2016,
+    entity: BaseFullCharacter,
+    slots: EquipSlots[],
+    excludedModels: string[] = []
+  ): void {
+    server.generateRandomEquipmentsFromAnEntity(entity, slots, excludedModels);
   }
-  createNpc(
+  createZombie(
     server: ZoneServer2016,
     modelId: number,
     position: Float32Array,
@@ -120,7 +133,7 @@ export class WorldObjectManager {
     spawnerId: number = 0
   ) {
     const characterId = generateRandomGuid();
-    const npc = new Npc(
+    const zombie = new Zombie(
       characterId,
       server.getTransientId(characterId),
       modelId,
@@ -128,8 +141,8 @@ export class WorldObjectManager {
       rotation,
       spawnerId
     );
-    this.equipRandomSkins(server, npc);
-    server._npcs[characterId] = npc;
+    this.equipRandomSkins(server, zombie, this.zombieSlots, bannedZombieModels);
+    server._npcs[characterId] = zombie;
     if (spawnerId) this._spawnedNpcs[spawnerId] = characterId;
   }
 
@@ -175,7 +188,7 @@ export class WorldObjectManager {
     return server._spawnedItems[characterId];
   }
 
-  createDoor(
+  private createDoor(
     server: ZoneServer2016,
     modelID: number,
     position: Float32Array,
@@ -278,7 +291,7 @@ export class WorldObjectManager {
       if (!authorizedModelId.length) return;
       spawnerType.instances.forEach((npcInstance: any) => {
         let spawn = true;
-        Object.values(server._npcs).every((spawnedNpc: Npc) => {
+        Object.values(server._npcs).every((spawnedNpc: Zombie) => {
           if (
             isPosInRadius(
               this.npcSpawnRadius,
@@ -298,7 +311,7 @@ export class WorldObjectManager {
           if (screamerChance <= this.chanceScreamer) {
             authorizedModelId.push(9667);
           }
-          this.createNpc(
+          this.createZombie(
             server,
             authorizedModelId[
               Math.floor(Math.random() * authorizedModelId.length)
@@ -374,7 +387,7 @@ export class WorldObjectManager {
     debug(`WOM: Military objects created. Spawnrate: ${this.chanceMilitary}%`);
   }
 
-  createAR15(server: ZoneServer2016, spawnerType: any) {
+  private createAR15(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_M16A4.adr":
@@ -412,7 +425,7 @@ export class WorldObjectManager {
       }
     });
   }
-  createPumpShotgun(server: ZoneServer2016, spawnerType: any) {
+  private createPumpShotgun(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_PumpShotgun01.adr":
@@ -445,7 +458,7 @@ export class WorldObjectManager {
     });
   }
 
-  createTools(server: ZoneServer2016, spawnerType: any) {
+  private createTools(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_Crowbar01.adr":
@@ -517,7 +530,7 @@ export class WorldObjectManager {
     });
   }
 
-  createPistols(server: ZoneServer2016, spawnerType: any) {
+  private createPistols(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_45Auto.adr":
@@ -553,7 +566,7 @@ export class WorldObjectManager {
     });
   }
 
-  createM24(server: ZoneServer2016, spawnerType: any) {
+  private createM24(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Weapon_M24.adr":
@@ -586,7 +599,7 @@ export class WorldObjectManager {
     });
   }
 
-  createConsumables(server: ZoneServer2016, spawnerType: any) {
+  private createConsumables(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_FirstAidKit.adr":
@@ -620,7 +633,7 @@ export class WorldObjectManager {
     });
   }
 
-  createClothes(server: ZoneServer2016, spawnerType: any) {
+  private createClothes(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Clothes_MotorcycleHelmet.adr":
@@ -657,7 +670,7 @@ export class WorldObjectManager {
     });
   }
 
-  createResidential(server: ZoneServer2016, spawnerType: any) {
+  private createResidential(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerResidential_Tier00.adr":
@@ -736,7 +749,7 @@ export class WorldObjectManager {
     });
   }
 
-  createRare(server: ZoneServer2016, spawnerType: any) {
+  private createRare(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerRare_Tier00.adr":
@@ -804,7 +817,7 @@ export class WorldObjectManager {
     });
   }
 
-  createIndustrial(server: ZoneServer2016, spawnerType: any) {
+  private createIndustrial(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerIndustrial_Tier00.adr":
@@ -868,7 +881,7 @@ export class WorldObjectManager {
     });
   }
 
-  createWorld(server: ZoneServer2016, spawnerType: any) {
+  private createWorld(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerWorld_Tier00.adr":
@@ -905,7 +918,7 @@ export class WorldObjectManager {
     });
   }
 
-  createLog(server: ZoneServer2016, spawnerType: any) {
+  private createLog(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Log01.adr":
@@ -935,7 +948,7 @@ export class WorldObjectManager {
     });
   }
 
-  createCommercial(server: ZoneServer2016, spawnerType: any) {
+  private createCommercial(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerCommercial_Tier00.adr":
@@ -969,7 +982,7 @@ export class WorldObjectManager {
     });
   }
 
-  createFarm(server: ZoneServer2016, spawnerType: any) {
+  private createFarm(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerFarm.adr":
@@ -1007,7 +1020,7 @@ export class WorldObjectManager {
       }
     });
   }
-  createHospital(server: ZoneServer2016, spawnerType: any) {
+  private createHospital(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawnerHospital.adr":
@@ -1051,7 +1064,7 @@ export class WorldObjectManager {
       }
     });
   }
-  createMilitary(server: ZoneServer2016, spawnerType: any) {
+  private createMilitary(server: ZoneServer2016, spawnerType: any) {
     const authorizedItems: Array<{ id: number; count: number }> = [];
     switch (spawnerType.actorDefinition) {
       case "ItemSpawner_Z1_MilitaryBase_Tents1.adr": // uncommon
