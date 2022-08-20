@@ -78,12 +78,18 @@ export class BaseLightweightCharacter extends BaseEntity {
     };
   }
 
+  /**
+   * Gets the lightweight npc/pc packet fields for use in sendself, addlightweightnpc, or addlightweightpc
+   */
   pGetLightweight() {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
       actorModelId: this.actorModelId,
-      position: this.state.position,
+      // fix players / vehicles spawning in ground
+      position: Array.from(this.state.position).map((pos, idx) => {
+        return idx == 1 ? pos++ : pos;
+      }),
       rotation: this.state.rotation,
       scale: this.scale,
       positionUpdateType: this.positionUpdateType,

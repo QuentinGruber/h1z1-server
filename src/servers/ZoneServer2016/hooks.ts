@@ -1,16 +1,21 @@
 export type AsyncHooks =
-| "OnServerInit";
+  | "OnServerInit"
+  | "OnSendCharacterData"
+  | "OnLoadCharacterData"
+  | "OnPlayerRespawn";
 
 export type Hooks =
   | AsyncHooks
   | "OnClientFinishedLoading"
   | "OnClientExecuteCommand"
   | "OnServerReady"
-  | "OnWorldRoutine";
+  | "OnWorldRoutine"
+  | "OnSentCharacterData"
+  | "OnLoadedCharacterData"
+  | "OnPlayerRespawned"
+  | "OnPlayerDeath"
+  | "OnPlayerDied";
 
-export type FunctionHookType =
-  | boolean 
-  | void;
+export type FunctionHookType = boolean | void;
 
-export type AsyncHookType =
-  | Promise<void | boolean>;
+export type AsyncHookType = Promise<void | boolean>;

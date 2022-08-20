@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { LoadoutSlots, ResourceIds } from "../enums";
+import { LoadoutIds, LoadoutSlots, ResourceIds } from "../enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
@@ -53,7 +53,7 @@ export class Character2016 extends BaseFullCharacter {
   creationDate!: string;
   lastLoginDate!: string;
   currentLoadoutSlot = LoadoutSlots.FISTS;
-  loadoutId = 3; // character
+  readonly loadoutId = LoadoutIds.CHARACTER;
   startRessourceUpdater: any;
   healingInterval?: any;
   healingTicks: number;
@@ -64,7 +64,13 @@ export class Character2016 extends BaseFullCharacter {
   positionUpdate?: positionUpdate;
   tempGodMode = false;
   isSpectator = false;
-  metrics:CharacterMetrics = {recipesDiscovered: 0, zombiesKilled: 0, wildlifeKilled: 0, startedSurvivingTP: Date.now()};
+  initialized = false; // if sendself has been sent
+  readonly metrics: CharacterMetrics = {
+    recipesDiscovered: 0,
+    zombiesKilled: 0,
+    wildlifeKilled: 0,
+    startedSurvivingTP: Date.now(),
+  };
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
@@ -249,7 +255,7 @@ export class Character2016 extends BaseFullCharacter {
   }
   clearReloadTimeout() {
     const weaponItem = this.getEquippedWeapon();
-    if(!weaponItem.weapon?.reloadTimer) return;
+    if (!weaponItem.weapon?.reloadTimer) return;
     clearTimeout(weaponItem.weapon.reloadTimer);
     weaponItem.weapon.reloadTimer = undefined;
   }
@@ -262,6 +268,9 @@ export class Character2016 extends BaseFullCharacter {
   getCombatLog() {
     return this.combatlog;
   }
+  /**
+   * Gets the lightweightpc packetfields for use in sendself and addlightweightpc
+   */
   pGetLightweight() {
     return {
       ...super.pGetLightweight(),

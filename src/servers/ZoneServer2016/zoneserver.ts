@@ -30,12 +30,16 @@ import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 import {
+  Characters,
   EntityTypes,
   EquipSlots,
+  ItemClasses,
   Items,
+  LoadoutIds,
   LoadoutSlots,
   ResourceIds,
   ResourceTypes,
+  VehicleIds,
 } from "./enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { changeFog } from "./workers/dynamicWeather";
@@ -46,6 +50,7 @@ import {
   inventoryItem,
   loadoutContainer,
   loadoutItem,
+  SpawnLocation,
   Weather2016,
 } from "../../types/zoneserver";
 import {
@@ -59,21 +64,20 @@ import {
   _,
   generateRandomGuid,
   getAppDataFolderPath,
-  initMongo,
   Int64String,
   isPosInRadius,
   getDistance,
   randomIntFromInterval,
   Scheduler,
   generateTransientId,
-  objectIsEmpty,
   getRandomFromArray,
   getRandomKeyFromAnObject,
-  bigIntToHexString,
+  toBigHex,
   calculateDamageDistFallOff,
+  toHex,
 } from "../../utils/utils";
 
-import { Db, MongoClient } from "mongodb";
+import { Db } from "mongodb";
 import dynamicWeather from "./workers/dynamicWeather";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ItemObject } from "./classes/itemobject";
@@ -86,7 +90,12 @@ import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
-import { CharacterKilledBy, ClientUpdateDeathMetrics } from "types/zone2016packets";
+import { FullCharacterSaveData } from "types/savedata";
+import { WorldDataManager } from "./classes/worlddatamanager";
+import {
+  CharacterKilledBy,
+  ClientUpdateDeathMetrics,
+} from "types/zone2016packets";
 import { AsyncHooks, AsyncHookType, FunctionHookType, Hooks } from "./hooks";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -96,28 +105,33 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   stats = require("../../../data/2016/sampleData/stats.json"),
   itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
+  profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json"),
+  projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
-  equipmentModelTexturesMapping: Record<string,Record<string,string[]>> = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
+  equipmentModelTexturesMapping: Record<
+    string,
+    Record<string, string[]>
+  > = require("../../../data/2016/sampleData/equipmentModelTexturesMapping.json");
 
 @healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
-  _gatewayServer: GatewayServer;
-  _protocol: H1Z1Protocol;
+  private _gatewayServer: GatewayServer;
+  readonly _protocol: H1Z1Protocol;
   _db?: Db;
   _soloMode = false;
-  private _mongoAddress: string;
-  _clientProtocol = "ClientProtocol_1080";
+  readonly _mongoAddress: string;
+  private readonly _clientProtocol = "ClientProtocol_1080";
   _dynamicWeatherWorker: any;
   _dynamicWeatherEnabled = true;
   _defaultWeatherTemplate = "z1br";
-  _spawnLocations = spawnLocations;
+  _spawnLocations: Array<SpawnLocation> = spawnLocations;
   private _h1emuZoneServer!: H1emuZoneServer;
-  _appDataFolder = getAppDataFolderPath();
+  readonly _appDataFolder = getAppDataFolderPath();
   _worldId = 0;
-  _clients: { [characterId: string]: Client } = {};
+  readonly _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
   _npcs: { [characterId: string]: Npc } = {};
   _spawnedItems: { [characterId: string]: ItemObject } = {};
@@ -130,7 +144,7 @@ export class ZoneServer2016 extends EventEmitter {
   _speedTrees: any = {};
   _speedTreesCounter: any = {};
   _gameTime: any;
-  _serverTime = this.getCurrentTime();
+  readonly _serverTime = this.getCurrentTime();
   _startTime = 0;
   _startGameTime = 0;
   _timeMultiplier = 72;
@@ -139,7 +153,7 @@ export class ZoneServer2016 extends EventEmitter {
   tickRate = 500;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
-  _loginServerInfo: { address?: string; port: number } = {
+  readonly _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110,
   };
@@ -164,6 +178,7 @@ export class ZoneServer2016 extends EventEmitter {
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
   worldObjectManager: WorldObjectManager;
+  worldDataManager: WorldDataManager;
   plantingManager: PlantingManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
@@ -175,14 +190,21 @@ export class ZoneServer2016 extends EventEmitter {
     weaponDefinitions.FIRE_MODE_DEFINITIONS;
   itemDefinitionsCache: any;
   weaponDefinitionsCache: any;
+  projectileDefinitionsCache: any;
+  profileDefinitionsCache: any;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
   _recipes: { [recipeId: number]: any } = recipes;
-  private lastItemGuid: bigint = 0x3000000000000000n;
-  private _transientIdGenerator = generateTransientId();
+  lastItemGuid: bigint = 0x3000000000000000n;
+  private readonly _transientIdGenerator = generateTransientId();
   _packetsStats: Record<string, number> = {};
-  private _hooks: { [hook: string]: Array<(...args: any)=> FunctionHookType> } = {};
-  private _asyncHooks: { [hook: string]: Array<(...args: any)=> AsyncHookType> } = {};
+  private readonly _hooks: {
+    [hook: string]: Array<(...args: any) => FunctionHookType>;
+  } = {};
+  private readonly _asyncHooks: {
+    [hook: string]: Array<(...args: any) => AsyncHookType>;
+  } = {};
+  enableWorldSaves: boolean;
 
   constructor(
     serverPort: number,
@@ -204,7 +226,10 @@ export class ZoneServer2016 extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
+    this.worldDataManager = new WorldDataManager();
     this.plantingManager = new PlantingManager(null);
+    this.enableWorldSaves =
+      process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
 
     if (!this._mongoAddress) {
       this._soloMode = true;
@@ -445,37 +470,37 @@ export class ZoneServer2016 extends EventEmitter {
   async onCharacterCreateRequest(client: any, packet: any) {
     function getCharacterModelData(payload: any): any {
       switch (payload.headType) {
-        case 6: // black female
+        case Characters.FEMALE_BLACK:
           return {
             modelId: 9474,
             headActor: "SurvivorFemale_Head_03.adr",
             hairModel: "SurvivorFemale_Hair_ShortMessy.adr",
           };
-        case 5: // black male
+        case Characters.MALE_BLACK:
           return {
             modelId: 9240,
             headActor: "SurvivorMale_Head_04.adr",
             hairModel: "SurvivorMale_HatHair_Short.adr",
           };
-        case 4: // older white female
+        case Characters.FEMALE_WHITE:
           return {
             modelId: 9474,
             headActor: "SurvivorFemale_Head_02.adr",
             hairModel: "SurvivorFemale_Hair_ShortBun.adr",
           };
-        case 3: // young white female
+        case Characters.FEMALE_WHITE_YOUNG:
           return {
             modelId: 9474,
             headActor: "SurvivorFemale_Head_02.adr",
             hairModel: "SurvivorFemale_Hair_ShortBun.adr",
           };
-        case 2: // bald white male
+        case Characters.MALE_WHITE_BALD:
           return {
             modelId: 9240,
             headActor: "SurvivorMale_Head_01.adr",
             hairModel: "SurvivorMale_HatHair_Short.adr",
           };
-        case 1: // white male
+        case Characters.MALE_WHITE:
         default:
           return {
             modelId: 9240,
@@ -489,17 +514,19 @@ export class ZoneServer2016 extends EventEmitter {
     try {
       const characterData = JSON.parse(characterObjStringify),
         characterModelData = getCharacterModelData(characterData.payload);
-      let character = require("../../../data/2016/sampleData/character.json");
+      let character: FullCharacterSaveData = require("../../../data/2016/sampleData/character.json");
       character = {
         ...character,
-        characterId: characterData.characterId,
         serverId: characterData.serverId,
+        creationDate: toHex(Date.now()),
+        lastLoginDate: toHex(Date.now()),
+        characterId: characterData.characterId,
         ownerId: characterData.ownerId,
-        gender: characterData.payload.gender,
         characterName: characterData.payload.characterName,
         actorModelId: characterModelData.modelId,
         headActor: characterModelData.headActor,
         hairModel: characterModelData.hairModel,
+        gender: characterData.payload.gender,
       };
       const collection = (this._db as Db).collection("characters");
       const charactersArray = await collection.findOne({
@@ -518,73 +545,6 @@ export class ZoneServer2016 extends EventEmitter {
         status: 0,
       });
     }
-  }
-
-  async loadCharacterData(client: Client) {
-    let character: any;
-    if (!this._soloMode) {
-      character = await this._db
-        ?.collection("characters")
-        .findOne({ characterId: client.character.characterId });
-      client.character.name = character.characterName;
-    } else {
-      delete require.cache[
-        require.resolve(
-          `${this._appDataFolder}/single_player_characters2016.json`
-        )
-      ];
-      const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
-      character = SinglePlayerCharacters.find(
-        (character: any) =>
-          character.characterId === client.character.characterId
-      );
-      client.character.name = character.characterName;
-    }
-
-    client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
-    client.character.actorModelId = character.actorModelId;
-    client.character.headActor = character.headActor;
-    client.character.isRespawning = character.isRespawning;
-    client.character.gender = character.gender;
-    client.character.creationDate = character.creationDate;
-    client.character.lastLoginDate = character.lastLoginDate;
-    client.character.hairModel = character.hairModel || "";
-
-    let isRandomlySpawning = false;
-    if (
-      (_.isEqual(character.position, [0, 0, 0, 1]) &&
-        _.isEqual(character.rotation, [0, 0, 0, 1])) ||
-      objectIsEmpty(character.position) ||
-      objectIsEmpty(character.rotation)
-    ) {
-      // if position/rotation hasn't changed
-      isRandomlySpawning = true;
-    }
-
-    if (isRandomlySpawning) {
-      // Take position/rotation from a random spawn location.
-      const randomSpawnIndex = Math.floor(
-        Math.random() * this._spawnLocations.length
-      );
-      client.character.state.position = new Float32Array(
-        this._spawnLocations[randomSpawnIndex].position
-      );
-      client.character.state.rotation = new Float32Array(
-        this._spawnLocations[randomSpawnIndex].rotation
-      );
-      client.character.spawnLocation =
-        this._spawnLocations[randomSpawnIndex].name;
-    } else {
-      client.character.state.position = new Float32Array(
-        Object.values(character.position)
-      );
-      client.character.state.rotation = new Float32Array(
-        Object.values(character.rotation)
-      );
-    }
-
-    this.giveDefaultEquipment(client, false);
-    this.giveDefaultItems(client, false);
   }
 
   pGetInventoryItems(client: Client): any[] {
@@ -612,7 +572,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async sendCharacterData(client: Client) {
-    await this.loadCharacterData(client);
+    if (!this.checkHook("OnSendCharacterData", client)) return;
+    if (!(await this.checkAsyncHook("OnSendCharacterData", client))) return;
+
+    await this.worldDataManager.loadCharacterData(this, client);
     const containers = this.initializeContainerList(client, false);
     this.sendData(client, "SendSelfToClient", {
       data: {
@@ -632,63 +595,10 @@ export class ZoneServer2016 extends EventEmitter {
         },
         recipes: Object.values(this._recipes),
         stats: stats,
-        /*()=>{
-          const stats = [];
-          for(let i =0; i >= 89; i++) {
-            stats.push({
-              "statId": i,
-              "statData": {
-                  "statId": i,
-                  "statValue": {
-                      "type": 1,
-                      "value": {
-                          "base": randomIntFromInterval(0, 2),
-                          "modifier": 0
-                      }
-                  }
-              }
-            });
-          }
-          return stats;
-        }*/ loadoutSlots: client.character.pGetLoadoutSlots(),
+        loadoutSlots: client.character.pGetLoadoutSlots(),
         equipmentSlots: client.character.pGetEquipment(),
         characterResources: client.character.pGetResources(),
-        containers: containers /*
-        FIRE_MODES_1: [
-          { FIRE_MODE_ID: 366 },
-          { FIRE_MODE_ID: 367 },
-          { FIRE_MODE_ID: 368 },
-        ],
-        FIRE_MODES_2: [
-          { FIRE_MODE_ID: 539 },
-          { FIRE_MODE_ID: 540 },
-        ],*/,
-        profiles: [
-          // CORRECT profileId for loadoutId 3
-          /*{
-            profileId: 5,
-            nameId: 66,
-            descriptionId: 66,
-            type: 3,
-            unknownDword1: 0,
-            unknownArray1: []
-          }*/
-          /*{profileId: 0},
-          {profileId: 0},
-          {profileId: 0},
-          {profileId: 0},
-          {profileId: 0},
-          {profileId: 0},
-          {profileId: 0},
-          {profileId: 0},
-          {profileId: 0},
-          {profileId: 0},
-          {profileId: 0},
-          {profileId: 0},
-          {profileId: 0},
-          {profileId: 0},*/
-        ],
-        currentProfile: 0,
+        containers: containers,
         //unknownQword1: client.character.characterId,
         //unknownDword38: 1,
         //vehicleLoadoutRelatedQword: client.character.characterId,
@@ -697,6 +607,7 @@ export class ZoneServer2016 extends EventEmitter {
         //unknownDword40: 1
       },
     });
+    client.character.initialized = true;
 
     this.sendData(client, "Container.InitEquippedContainers", {
       ignore: client.character.characterId,
@@ -705,149 +616,13 @@ export class ZoneServer2016 extends EventEmitter {
     });
 
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
+    this.checkHook("OnSentCharacterData", client);
   }
-
-  async fetchZoneData(): Promise<void> {
-    if (this._mongoAddress) {
-      const mongoClient = new MongoClient(this._mongoAddress, {
-        maxPoolSize: 50,
-      });
-      try {
-        await mongoClient.connect();
-      } catch (e) {
-        throw debug(
-          "[ERROR]Unable to connect to mongo server " + this._mongoAddress
-        );
-      }
-      debug("connected to mongo !");
-      // if no collections exist on h1server database , fill it with samples
-      (await mongoClient.db("h1server").collections()).length ||
-        (await initMongo(mongoClient, debugName));
-      this._db = mongoClient.db("h1server");
-    }
-  }
-
-  async loadVehicleData() {
-    const vehiclesArray: any = await this._db
-      ?.collection("vehicles")
-      .find({ worldId: this._worldId })
-      .toArray();
-    for (let index = 0; index < vehiclesArray.length; index++) {
-      const vehicle = vehiclesArray[index];
-      const vehicleData = new Vehicle(
-        vehicle.characterId,
-        vehicle.transientId,
-        vehicle.actorModelId,
-        new Float32Array(vehicle.state.position),
-        new Float32Array(vehicle.state.rotation),
-        this._gameTime
-      );
-      this.worldObjectManager.createVehicle(this, vehicleData);
-    }
-  }
-
-  async fetchWorldData(): Promise<void> {
-    if (!this._soloMode) {
-      this._doors = {};
-      const doorArray: any = await this._db
-        ?.collection("doors")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < doorArray.length; index++) {
-        const door = doorArray[index];
-        this._doors[door.characterId] = door;
-      }
-      /*
-      this._props = {};
-      const propsArray: any = await this._db
-        ?.collection("props")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < propsArray.length; index++) {
-        const prop = propsArray[index];
-        this._props[prop.characterId] = prop;
-      }
-      */
-
-      await this.loadVehicleData();
-
-      const npcsArray: any = await this._db
-        ?.collection("npcs")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < npcsArray.length; index++) {
-        const npc = npcsArray[index];
-        this._npcs[npc.characterId] = npc;
-      }
-      this._spawnedItems = {};
-      const objectsArray: any = await this._db
-        ?.collection("objects")
-        .find({ worldId: this._worldId })
-        .toArray();
-      for (let index = 0; index < objectsArray.length; index++) {
-        const object = objectsArray[index];
-        this._spawnedItems[object.characterId] = object;
-      }
-      this._transientIds = this.getAllCurrentUsedTransientId();
-      debug("World fetched!");
-    }
-  }
-
-  async saveWorld(): Promise<void> {
-    if (!this._soloMode) {
-      if (this._worldId) {
-        await this._db
-          ?.collection(`npcs`)
-          .insertMany(Object.values(this._npcs));
-        await this._db
-          ?.collection(`doors`)
-          .insertMany(Object.values(this._doors));
-        /*
-        await this._db
-          ?.collection(`props`)
-          .insertMany(Object.values(this._props));
-        */
-        await this._db
-          ?.collection(`vehicles`)
-          .insertMany(Object.values(this._vehicles));
-        await this._db
-          ?.collection(`objects`)
-          .insertMany(Object.values(this._spawnedItems));
-      } else {
-        const numberOfWorld: number =
-          (await this._db?.collection("worlds").find({}).count()) || 0;
-        this._worldId = numberOfWorld + 1;
-        await this._db?.collection("worlds").insertOne({
-          worldId: this._worldId,
-        });
-        await this._db
-          ?.collection(`npcs`)
-          .insertMany(Object.values(this._npcs));
-        /*
-        await this._db
-          ?.collection(`doors`)
-          .insertMany(Object.values(this._doors));
-          */
-        /*
-        await this._db
-          ?.collection(`props`)
-          .insertMany(Object.values(this._props));
-        */
-        await this._db
-          ?.collection(`vehicles`)
-          .insertMany(Object.values(this._vehicles));
-        await this._db
-          ?.collection(`objects`)
-          .insertMany(Object.values(this._spawnedItems));
-        debug("World saved!");
-      }
-    }
-  }
-
-  packItemDefinitions() {
+  /**
+   * Caches item definitons so they aren't packed every time a client logs in.
+   */
+  private packItemDefinitions() {
     this.itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
-      // cache itemDefinitions so server doesn't have to spend time packing for each
-      // character login
       data: {
         itemDefinitions: Object.values(this._itemDefinitions).map(
           (itemDef: any) => {
@@ -872,12 +647,13 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  packWeaponDefinitions() {
+  /**
+   * Caches weapon definitons so they aren't packed every time a client logs in.
+   */
+  private packWeaponDefinitions() {
     this.weaponDefinitionsCache = this._protocol.pack(
       "ReferenceData.WeaponDefinitions",
       {
-        // cache weaponDefinitions so server doesn't have to spend time packing for each
-        // character login
         data: {
           definitionsData: {
             WEAPON_DEFINITIONS: Object.values(
@@ -904,58 +680,88 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  async setupServer(): Promise<void> {
+  /**
+   * Caches projectile definitons so they aren't packed every time a client logs in.
+   */
+  private packProjectileDefinitions() {
+    this.projectileDefinitionsCache = this._protocol.pack(
+      "ReferenceData.ProjectileDefinitions",
+      {
+        definitionsData: projectileDefinitons,
+      }
+    );
+  }
+
+  /**
+   * Caches profile definitons so they aren't packed every time a client logs in.
+   */
+  private packProfileDefinitions() {
+    this.profileDefinitionsCache = this._protocol.pack(
+      "ReferenceData.ProfileDefinitions",
+      {
+        data: {
+          profiles: profileDefinitions,
+        },
+      }
+    );
+  }
+
+  private async initializeLoginServerConnection() {
+    debug("Starting H1emuZoneServer");
+    if (!this._loginServerInfo.address) {
+      await this.fetchLoginInfo();
+    }
+    this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
+      serverId: this._worldId,
+      h1emuVersion: process.env.H1Z1_SERVER_VERSION,
+    });
+    this._h1emuZoneServer.start();
+    await this._db
+      ?.collection("servers")
+      .findOneAndUpdate(
+        { serverId: this._worldId },
+        { $set: { populationNumber: 0, populationLevel: 0 } }
+      );
+  }
+
+  private async setupServer() {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
-    await this.fetchZoneData();
-    //this._profiles = this.generateProfiles();
-    if (
-      await this._db?.collection("worlds").findOne({ worldId: this._worldId })
-    ) {
-      await this.fetchWorldData();
-    } else {
-      await this._db
-        ?.collection(`worlds`)
-        .insertOne({ worldId: this._worldId });
-      await this.saveWorld();
+
+    if (!this._soloMode) {
+      await this.worldDataManager.initializeDatabase(this);
+      if (
+        await this._db?.collection("worlds").findOne({ worldId: this._worldId })
+      ) {
+        await this.worldDataManager.fetchWorldData(this);
+      } else {
+        await this.worldDataManager.insertWorld(this);
+        await this.worldDataManager.saveWorld(this);
+      }
+      this.initializeLoginServerConnection();
     }
+
+    // !!ANYTHING THAT USES / GENERATES ITEMS MUST BE CALLED AFTER WORLD DATA IS LOADED!!
 
     this.packItemDefinitions();
     this.packWeaponDefinitions();
-
-    // other entities are handled by worldRoutine
+    this.packProjectileDefinitions();
+    this.packProfileDefinitions();
     this.worldObjectManager.createDoors(this);
 
-    if (!this._soloMode) {
-      debug("Starting H1emuZoneServer");
-      if (!this._loginServerInfo.address) {
-        await this.fetchLoginInfo();
-      }
-      this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
-        serverId: this._worldId,
-        h1emuVersion: process.env.H1Z1_SERVER_VERSION,
-      });
-      this._h1emuZoneServer.start();
-      await this._db
-        ?.collection("servers")
-        .findOneAndUpdate(
-          { serverId: this._worldId },
-          { $set: { populationNumber: 0, populationLevel: 0 } }
-        );
-    }
     this._ready = true;
+    console.log(
+      `Server saving ${this.enableWorldSaves ? "enabled" : "disabled"}.`
+    );
     debug("Server ready");
   }
 
   async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
-    if(this.checkHook("OnServerInit") == false) {
-      return;
-    }
-    if(await this.checkAsyncHook("OnServerInit") == false) {
-      return;
-    }
+    if (!this.checkHook("OnServerInit")) return;
+    if (!(await this.checkAsyncHook("OnServerInit"))) return;
+
     await this.setupServer();
     this._startTime += Date.now();
     this._startGameTime += Date.now();
@@ -964,13 +770,12 @@ export class ZoneServer2016 extends EventEmitter {
         if (!this._dynamicWeatherEnabled) {
           return;
         }
-        const rnd_weather = dynamicWeather(
+        this._weather2016 = dynamicWeather(
           this._serverTime,
           this._startTime,
           this._timeMultiplier
         );
-        this._weather2016 = rnd_weather;
-        this.sendDataToAll("UpdateWeatherData", rnd_weather);
+        this.sendDataToAll("UpdateWeatherData", this._weather2016);
         this._dynamicWeatherWorker.refresh();
       }, 360000 / this._timeMultiplier);
     }
@@ -1096,9 +901,8 @@ export class ZoneServer2016 extends EventEmitter {
 
   private worldRoutine() {
     debug("WORLDROUTINE");
-    if(this.checkHook("OnWorldRoutine") == false) {
-      return false;
-    }
+
+    if (!this.checkHook("OnWorldRoutine")) return;
     else {
       this.executeFuncForAllReadyClients((client: Client) => {
         this.vehicleManager(client);
@@ -1113,7 +917,10 @@ export class ZoneServer2016 extends EventEmitter {
         this.POIManager(client);
         client.posAtLastRoutine = client.character.state.position;
       });
-      if (this._ready) this.worldObjectManager.run(this);
+      if (this._ready) {
+        this.worldObjectManager.run(this);
+        if (this.enableWorldSaves) this.worldDataManager.run(this);
+      }
     }
     this.worldRoutineTimer.refresh();
   }
@@ -1123,7 +930,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.isLoading = true; // stop anything from acting on character
 
         clearTimeout(client.character?.resourcesUpdater);
-        this.saveCharacterPosition(client);
+        this.worldDataManager.saveCharacterData(this, client);
         this.dismountVehicle(client);
         client.managedObjects?.forEach((characterId: any) => {
           this.dropVehicleManager(client, characterId);
@@ -1153,11 +960,11 @@ export class ZoneServer2016 extends EventEmitter {
     return {
       source: {
         name: sCharacter.name || "Unknown",
-        ping: sourceClient.avgPing
+        ping: sourceClient.avgPing,
       },
       target: {
         name: tCharacter.name || "Unknown",
-        ping: targetClient.avgPing
+        ping: targetClient.avgPing,
       },
       hitInfo: {
         timestamp: Date.now(),
@@ -1177,28 +984,37 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendDeathMetrics(client: Client) {
-    const clientUpdateDeathMetricsPacket:ClientUpdateDeathMetrics = {
+    const clientUpdateDeathMetricsPacket: ClientUpdateDeathMetrics = {
       recipesDiscovered: client.character.metrics.recipesDiscovered,
       zombiesKilled: client.character.metrics.zombiesKilled,
-      minutesSurvived: (Date.now() - client.character.metrics.startedSurvivingTP) / 60000,
+      minutesSurvived:
+        (Date.now() - client.character.metrics.startedSurvivingTP) / 60000,
       wildlifeKilled: client.character.metrics.wildlifeKilled,
-    }
-    this.sendData(client, "ClientUpdate.DeathMetrics",clientUpdateDeathMetricsPacket )
+    };
+    this.sendData(
+      client,
+      "ClientUpdate.DeathMetrics",
+      clientUpdateDeathMetricsPacket
+    );
   }
 
   killCharacter(
     client: Client,
     deathInfo: { client: Client; hitReport: any } | undefined = undefined
   ) {
+    if (!this.checkHook("OnPlayerDeath", client, deathInfo)) return;
+
     const character = client.character;
     if (character.isAlive) {
+      client.character.isRespawning = true;
       this.sendDeathMetrics(client);
       debug(character.name + " has died");
       if (deathInfo?.client) {
-        this.sendDataToAll("Character.KilledBy",{
-          killed:client.character.characterId,
+        this.sendDataToAll("Character.KilledBy", {
+          killed: client.character.characterId,
           killer: deathInfo.client.character.characterId,
-          isCheater:deathInfo.client.character.godMode} as CharacterKilledBy);
+          isCheater: deathInfo.client.character.godMode,
+        } as CharacterKilledBy);
       }
       client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
@@ -1231,6 +1047,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.clearMovementModifiers(client);
     character.isAlive = false;
+
+    this.checkHook("OnPlayerDied", client, deathInfo);
   }
 
   async explosionDamage(position: Float32Array, npcTriggered: string) {
@@ -1278,7 +1096,7 @@ export class ZoneServer2016 extends EventEmitter {
       let supercriticalDamageEffect: number;
       let destroyedVehicleModel: number;
       switch (vehicle.vehicleId) {
-        case 1: //offroader
+        case VehicleIds.OFFROADER:
           destroyedVehicleEffect = 135;
           destroyedVehicleModel = 7226;
           minorDamageEffect = 182;
@@ -1286,7 +1104,7 @@ export class ZoneServer2016 extends EventEmitter {
           criticalDamageEffect = 180;
           supercriticalDamageEffect = 5227;
           break;
-        case 2: // pickup
+        case VehicleIds.PICKUP:
           destroyedVehicleEffect = 326;
           destroyedVehicleModel = 9315;
           minorDamageEffect = 325;
@@ -1294,7 +1112,7 @@ export class ZoneServer2016 extends EventEmitter {
           criticalDamageEffect = 323;
           supercriticalDamageEffect = 5228;
           break;
-        case 3: // police car
+        case VehicleIds.POLICECAR:
           destroyedVehicleEffect = 286;
           destroyedVehicleModel = 9316;
           minorDamageEffect = 285;
@@ -1302,7 +1120,7 @@ export class ZoneServer2016 extends EventEmitter {
           criticalDamageEffect = 283;
           supercriticalDamageEffect = 5229;
           break;
-        case 5: // atv
+        case VehicleIds.ATV:
           destroyedVehicleEffect = 357;
           destroyedVehicleModel = 9593;
           minorDamageEffect = 360;
@@ -1442,19 +1260,21 @@ export class ZoneServer2016 extends EventEmitter {
     }, 1000);
   }
 
-  resetCharacterMetrics(client:Client){
-    client.character.metrics = {
-      zombiesKilled: 0,
-      wildlifeKilled: 0,
-      recipesDiscovered: 0,
-      startedSurvivingTP: Date.now(),
-    }
+  resetCharacterMetrics(client: Client) {
+    client.character.metrics.zombiesKilled = 0;
+    client.character.metrics.wildlifeKilled = 0;
+    client.character.metrics.recipesDiscovered = 0;
+    client.character.metrics.startedSurvivingTP = Date.now();
   }
 
   async respawnPlayer(client: Client) {
+    if (!this.checkHook("OnPlayerRespawn", client)) return;
+    if (!(await this.checkAsyncHook("OnPlayerRespawn", client))) return;
+
     this.resetCharacterMetrics(client);
     client.character.isAlive = true;
     client.character.isRunning = false;
+    client.character.isRespawning = false;
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
     }
@@ -1466,7 +1286,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character._resources[ResourceIds.BLEEDING] = -40;
     client.character.healingTicks = 0;
     client.character.healingMaxTicks = 0;
-    client.character.resourcesUpdater.refresh();
+    client.character.resourcesUpdater?.refresh();
     client.character.characterStates.knockedOut = false;
     this.updateCharacterState(
       client,
@@ -1474,16 +1294,19 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.characterStates,
       true
     );
-    this.sendData(client, "Character.RespawnReply", {
-      characterId: client.character.characterId,
-      status: 1,
-    });
     const randomSpawnIndex = Math.floor(
       Math.random() * this._spawnLocations.length
     );
-    this.sendData(client, "ClientUpdate.UpdateLocation", {
-      position: this._spawnLocations[randomSpawnIndex].position,
-    });
+    if (client.character.initialized) {
+      this.sendData(client, "Character.RespawnReply", {
+        characterId: client.character.characterId,
+        status: 1,
+      });
+      this.sendData(client, "ClientUpdate.UpdateLocation", {
+        position: this._spawnLocations[randomSpawnIndex].position,
+      });
+    }
+
     this.clearInventory(client);
     this.giveDefaultEquipment(client, true);
     this.giveDefaultItems(client, true);
@@ -1521,37 +1344,41 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     // fixes characters showing up as dead if they respawn close to other characters
-    this.sendDataToAllOthersWithSpawnedEntity(
-      this._characters,
-      client,
-      client.character.characterId,
-      "Character.RemovePlayer",
-      {
-        characterId: client.character.characterId,
-      }
-    );
-    const vehicleId = client.vehicle.mountedVehicle,
-      vehicle = vehicleId ? this._vehicles[vehicleId] : false;
-    setTimeout(() => {
-      if (!client?.character) return;
+    if (client.character.initialized) {
       this.sendDataToAllOthersWithSpawnedEntity(
         this._characters,
         client,
         client.character.characterId,
-        "AddLightweightPc",
+        "Character.RemovePlayer",
         {
-          ...client.character.pGetLightweight(),
-          identity: {
-            characterName: client.character.name,
-          },
-          mountGuid: vehicleId || "",
-          mountSeatId: vehicle
-            ? vehicle.getCharacterSeat(client.character.characterId)
-            : 0,
-          mountRelatedDword1: vehicle ? 1 : 0,
+          characterId: client.character.characterId,
         }
       );
-    }, 2000);
+      const vehicleId = client.vehicle.mountedVehicle,
+        vehicle = vehicleId ? this._vehicles[vehicleId] : false;
+      setTimeout(() => {
+        if (!client?.character) return;
+        this.sendDataToAllOthersWithSpawnedEntity(
+          this._characters,
+          client,
+          client.character.characterId,
+          "AddLightweightPc",
+          {
+            ...client.character.pGetLightweight(),
+            identity: {
+              characterName: client.character.name,
+            },
+            mountGuid: vehicleId || "",
+            mountSeatId: vehicle
+              ? vehicle.getCharacterSeat(client.character.characterId)
+              : 0,
+            mountRelatedDword1: vehicle ? 1 : 0,
+          }
+        );
+      }, 2000);
+    }
+
+    this.checkHook("OnPlayerRespawned", client);
   }
 
   speedTreeDestroy(packet: any) {
@@ -1594,7 +1421,7 @@ export class ZoneServer2016 extends EventEmitter {
       let itemDefId = 0;
       switch (packet.data.name) {
         case "SpeedTree.Blackberry":
-          itemDefId = 105;
+          itemDefId = Items.BLACK_BERRIES;
           if (randomIntFromInterval(1, 10) == 1) {
             this.lootItem(client, this.generateItem(Items.WEAPON_BRANCH));
           }
@@ -1603,7 +1430,7 @@ export class ZoneServer2016 extends EventEmitter {
           break;
         case "SpeedTree.DevilClub":
         case "SpeedTree.VineMaple":
-          itemDefId = 111;
+          itemDefId = Items.WOOD_STICK;
           allowDes = true;
           count = randomIntFromInterval(1, 2);
           break;
@@ -1625,7 +1452,7 @@ export class ZoneServer2016 extends EventEmitter {
             if (this._speedTreesCounter[packet.data.id].hitPoints-- == 0) {
               allowDes = true;
               delete this._speedTreesCounter[packet.data.id]; // If out of health destroy tree and delete its key
-              itemDefId = 16;
+              itemDefId = Items.WOOD_LOG;
               count = randomIntFromInterval(2, 6);
             }
           }
@@ -1744,7 +1571,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.updateLoadoutItem(client, item);
   }
 
-  npcDamage(client:Client,characterId: string, damage: number) {
+  npcDamage(client: Client, characterId: string, damage: number) {
     const npc = this._npcs[characterId];
     if ((npc.health -= damage) <= 0) {
       npc.flags.knockedOut = 1;
@@ -1844,7 +1671,7 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
         damageEntity = () => {
-          this.npcDamage(client,characterId, damage);
+          this.npcDamage(client, characterId, damage);
         };
         hitEntity = this._npcs[characterId];
         break;
@@ -2322,7 +2149,7 @@ export class ZoneServer2016 extends EventEmitter {
     for (const c in this._clients) {
       const characterObj: Character = this._clients[c].character;
       if (
-        client.character.characterId != characterObj.characterId  &&
+        client.character.characterId != characterObj.characterId &&
         characterObj.isReady &&
         isPosInRadius(
           this._charactersRenderDistance,
@@ -2360,8 +2187,12 @@ export class ZoneServer2016 extends EventEmitter {
         switch (itemObject.spawnerId) {
           case -1:
             this.deleteEntity(itemObject.characterId, this._spawnedItems);
-            this.sendCompositeEffectToAllWithSpawnedEntity(this._spawnedItems, itemObject, 
-              this.getItemDefinition(itemObject.item.itemDefinitionId).PICKUP_EFFECT ?? 5151);
+            this.sendCompositeEffectToAllWithSpawnedEntity(
+              this._spawnedItems,
+              itemObject,
+              this.getItemDefinition(itemObject.item.itemDefinitionId)
+                .PICKUP_EFFECT ?? 5151
+            );
             continue;
         }
       }
@@ -2663,7 +2494,7 @@ export class ZoneServer2016 extends EventEmitter {
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
-      if (vehicle.vehicleId == 1337) continue; //ignore spectator cam
+      if (vehicle.vehicleId == VehicleIds.SPECTATE) continue; //ignore spectator cam
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
@@ -2674,12 +2505,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (!client.spawnedEntities.includes(vehicle)) {
           this.sendData(client, "AddLightweightVehicle", {
-            ...vehicle,
-            npcData: {
-              ...vehicle,
-              ...vehicle.state,
-              actorModelId: vehicle.actorModelId,
-            },
+            ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
           });
           const passengers: any[] = [];
@@ -2764,13 +2590,8 @@ export class ZoneServer2016 extends EventEmitter {
       );
 
       this.sendData(client, "AddLightweightVehicle", {
-        ...vehicle,
-        npcData: {
-          ...vehicle,
-          position: vehicle.state.position,
-          rotation: vehicle.state.rotation,
-          actorModelId: vehicle.actorModelId,
-        },
+        ...vehicle.pGetLightweightVehicle(),
+        unknownGuid1: this.generateGuid(),
       });
       client.managedObjects.splice(index, 1);
       // blocks vehicleManager from taking over management during a takeover
@@ -2795,12 +2616,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sendCompositeEffectToAllWithSpawnedEntity(dictionary: { [id: string]: any }, object: BaseEntity, effectId: number) {
-    this.sendDataToAllWithSpawnedEntity(this._spawnedItems, object.characterId, "Character.PlayWorldCompositeEffect", {
-      characterId: "0x0",
-      effectId: effectId,
-      position: object.state.position,
-    });
+  sendCompositeEffectToAllWithSpawnedEntity(
+    dictionary: { [id: string]: any },
+    object: BaseEntity,
+    effectId: number
+  ) {
+    this.sendDataToAllWithSpawnedEntity(
+      this._spawnedItems,
+      object.characterId,
+      "Character.PlayWorldCompositeEffect",
+      {
+        characterId: "0x0",
+        effectId: effectId,
+        position: object.state.position,
+      }
+    );
   }
 
   sendDataToAllWithSpawnedEntity(
@@ -2852,7 +2682,7 @@ export class ZoneServer2016 extends EventEmitter {
     const seatId = vehicle.getNextSeatId();
     if (seatId < 0) return; // no available seats in vehicle
     vehicle.seats[seatId] = client.character.characterId;
-    if (vehicle.vehicleId == 1337) {
+    if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.MountResponse", {
         // mounts character
         characterId: client.character.characterId,
@@ -3008,8 +2838,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!vehicle) return;
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     if (!seatId) return;
-    if (vehicle.vehicleId == 1337) {
-      // spectate camera
+    if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
@@ -3152,7 +2981,8 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword1: weaponItem.weapon.ammoCount,
       ammoCount: weaponItem.weapon.ammoCount,
       unknownDword3: weaponItem.weapon.ammoCount,
-      currentReloadCount: `0x${(++weaponItem.weapon.currentReloadCount).toString(16)}`,
+      currentReloadCount: `0x${(++weaponItem.weapon
+        .currentReloadCount).toString(16)}`,
     });
     // send reloadinterrupt to all clients with spawned character
   }
@@ -3173,27 +3003,31 @@ export class ZoneServer2016 extends EventEmitter {
     );
     combatlog.forEach((e) => {
       const time = `${((Date.now() - e.hitInfo.timestamp) / 1000).toFixed(1)}s`,
-      source = e.source.name == client.character.name
-      ? "YOU"
-      : e.source.name || "undefined",
-      target = e.target.name == client.character.name
-      ? "YOU"
-      : e.target.name || "undefined",
-      hitPosition = `[${e.hitInfo.hitPosition[0].toFixed(
-        0
-      )}, ${e.hitInfo.hitPosition[1].toFixed(
-        0
-      )}, ${e.hitInfo.hitPosition[2].toFixed(0)}]`,
-      oldHp = (e.hitInfo.oldHP / 100).toFixed(1),
-      newHp = (e.hitInfo.newHP / 100).toFixed(1),
-      ping = `${e.source.name == client.character.name
-        ? e.source.ping
-        : e.target.ping}ms`,
-      enemyPing = `${e.source.name == client.character.name
-        ? e.target.ping
-        : e.source.ping}ms`
-      this.sendChatText(client, 
-        `${time} ${source} ${target} ${e.hitInfo.weapon} ${e.hitInfo.distance}m ${e.hitInfo.hitLocation} ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing}`);
+        source =
+          e.source.name == client.character.name
+            ? "YOU"
+            : e.source.name || "undefined",
+        target =
+          e.target.name == client.character.name
+            ? "YOU"
+            : e.target.name || "undefined",
+        hitPosition = `[${e.hitInfo.hitPosition[0].toFixed(
+          0
+        )}, ${e.hitInfo.hitPosition[1].toFixed(
+          0
+        )}, ${e.hitInfo.hitPosition[2].toFixed(0)}]`,
+        oldHp = (e.hitInfo.oldHP / 100).toFixed(1),
+        newHp = (e.hitInfo.newHP / 100).toFixed(1),
+        ping = `${
+          e.source.name == client.character.name ? e.source.ping : e.target.ping
+        }ms`,
+        enemyPing = `${
+          e.source.name == client.character.name ? e.target.ping : e.source.ping
+        }ms`;
+      this.sendChatText(
+        client,
+        `${time} ${source} ${target} ${e.hitInfo.weapon} ${e.hitInfo.distance}m ${e.hitInfo.hitLocation} ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing}`
+      );
     });
     this.sendChatText(
       client,
@@ -3311,18 +3145,20 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   updateLoadout(client: Client, character = client.character) {
+    this.checkConveys(client);
+    if (!client.character.initialized) return;
     this.sendData(
       client,
       "Loadout.SetLoadoutSlots",
       character.pGetLoadoutSlots()
     );
-    this.checkConveys(client);
   }
 
   updateEquipment(
     client: Client,
     character: BaseFullCharacter = client.character
   ) {
+    if (!client.character.initialized) return;
     this.sendData(
       client,
       "Equipment.SetCharacterEquipment",
@@ -3335,6 +3171,7 @@ export class ZoneServer2016 extends EventEmitter {
     slotId: number,
     character = client.character
   ) {
+    if (!client.character.initialized) return;
     this.sendDataToAllWithSpawnedEntity(
       this._characters,
       client.character.characterId,
@@ -3349,6 +3186,7 @@ export class ZoneServer2016 extends EventEmitter {
     containerDefinitionId: number,
     character = client.character
   ) {
+    if (!client.character.initialized) return;
     this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
       data: this.pGetItemData(character, item, containerDefinitionId),
@@ -3389,6 +3227,42 @@ export class ZoneServer2016 extends EventEmitter {
       this.lootContainerItem(client, oldLoadoutItem, 1, false);
     }
     this.equipItem(client, item, true, slotId);
+  }
+
+  generateEquipmentFromLoadout(character: Character) {
+    for (const slot of Object.values(character._loadout)) {
+      if (!slot.itemDefinitionId) continue;
+      const def = this.getItemDefinition(slot.itemDefinitionId);
+      let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
+      /*
+      if(slot.slotId = LoadoutSlots.FISTS) {
+        equipmentSlotId = EquipSlots.RHAND
+      }
+      */
+      if (this.isWeapon(slot.itemDefinitionId)) {
+        if (slot.slotId == character.currentLoadoutSlot) {
+          equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
+        } else {
+          equipmentSlotId = this.getAvailablePassiveEquipmentSlot(
+            character,
+            slot.itemDefinitionId
+          );
+        }
+      }
+      if (equipmentSlotId) {
+        const equipmentData: characterEquipment = {
+          modelName: def.MODEL_NAME.replace(
+            "<gender>",
+            character.gender == 1 ? "Male" : "Female"
+          ),
+          slotId: equipmentSlotId,
+          guid: slot.itemGuid,
+          textureAlias: def.TEXTURE_ALIAS || "default0",
+          tintAlias: "",
+        };
+        character._equipment[equipmentSlotId] = equipmentData;
+      }
+    }
   }
 
   equipItem(
@@ -3433,7 +3307,7 @@ export class ZoneServer2016 extends EventEmitter {
       } else {
         equipmentSlotId = this.getAvailablePassiveEquipmentSlot(
           client.character,
-          item
+          item.itemDefinitionId
         );
       }
     }
@@ -3497,11 +3371,15 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  generateRandomEquipmentForSlot(slotId: number, gender: number, excludedModels: string[] = []) {
+  generateRandomEquipmentForSlot(
+    slotId: number,
+    gender: number,
+    excludedModels: string[] = []
+  ) {
     const models = equipmentModelTexturesMapping[slotId];
-    if(excludedModels.length){
+    if (excludedModels.length) {
       for (const model in models) {
-        if(excludedModels.includes(model)){
+        if (excludedModels.includes(model)) {
           delete models[model];
         }
       }
@@ -3518,7 +3396,7 @@ export class ZoneServer2016 extends EventEmitter {
       modelName: model.replace("<gender>", gender == 1 ? "Male" : "Female"),
       slotId,
       textureAlias: skin,
-      guid: bigIntToHexString(this.generateItemGuid()),
+      guid: toBigHex(this.generateItemGuid()),
     };
   }
 
@@ -3635,9 +3513,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (this.isWeapon(itemDefinitionId)) {
       item = {
         ...itemData,
-        weapon: { 
+        weapon: {
           ammoCount: 0,
-          currentReloadCount: 0
+          currentReloadCount: 0,
         },
       };
     } else {
@@ -3694,9 +3572,14 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  getLoadoutSlot(itemDefinitionId: number, loadoutId: number = 3) {
-    // gets the first loadoutSlot an item can go into (occupied or not)
-    const itemDef = this.getItemDefinition(itemDefinitionId),
+  /**
+   * Gets the first loadout slot that a specified item is able to go into.
+   * @param itemDefId The definition ID of an item to check.
+   * @param loadoutId Optional: The loadoutId of the entity to get the slot for, default LoadoutIds.CHARACTER.
+   * @returns Returns the ID of the first loadout slot that an item can go into (occupied or not).
+   */
+  getLoadoutSlot(itemDefId: number, loadoutId: number = LoadoutIds.CHARACTER) {
+    const itemDef = this.getItemDefinition(itemDefId),
       loadoutSlotItemClass = loadoutSlotItemClasses.find(
         (slot: any) =>
           slot.ITEM_CLASS === itemDef.ITEM_CLASS &&
@@ -3705,13 +3588,19 @@ export class ZoneServer2016 extends EventEmitter {
     return loadoutSlotItemClass?.SLOT || 0;
   }
 
+  /**
+   * Gets the first available loadout slot for a given item.
+   * @param character The character to check.
+   * @param itemDefId The definition ID of an item to try to find a slot for.
+   * @returns Returns the ID of an available loadout slot.
+   */
   getAvailableLoadoutSlot(
     character: BaseFullCharacter,
-    itemDefinitionId: number,
-    loadoutId: number = 3
+    itemDefId: number,
+    loadoutId: number = LoadoutIds.CHARACTER
   ): number {
     // gets an open loadoutslot for a specified itemDefinitionId
-    const itemDef = this.getItemDefinition(itemDefinitionId),
+    const itemDef = this.getItemDefinition(itemDefId),
       loadoutSlotItemClass = loadoutSlotItemClasses.find(
         (slot: any) =>
           slot.ITEM_CLASS === itemDef.ITEM_CLASS &&
@@ -3720,23 +3609,25 @@ export class ZoneServer2016 extends EventEmitter {
     let slot = loadoutSlotItemClass?.SLOT;
     if (!slot) return 0;
     switch (itemDef.ITEM_CLASS) {
-      case 25036: // long weapons
-      case 4096: // pistols
-      case 4098: // melees
-      case 25037: // melees
+      case ItemClasses.WEAPONS_LONG:
+      case ItemClasses.WEAPONS_PISTOL:
+      case ItemClasses.WEAPONS_MELEES:
+      case ItemClasses.WEAPONS_MELEES0:
         if (character._loadout[slot]?.itemDefinitionId) {
           // primary
-          slot = 3; // secondary
+          slot = LoadoutSlots.SECONDARY;
         }
-        if (slot == 3 && character._loadout[slot]?.itemDefinitionId) {
+        if (
+          slot == LoadoutSlots.SECONDARY &&
+          character._loadout[slot]?.itemDefinitionId
+        ) {
           // secondary
-          slot = 4; // tertiary
+          slot = LoadoutSlots.TERTIARY;
         }
         break;
-      case 25054: // item1/item2 slots
+      case ItemClasses.WEAPONS_GENERIC: // item1/item2 slots
         if (character._loadout[slot]?.itemDefinitionId) {
-          // item 1
-          slot = 41; // item 2
+          slot = LoadoutSlots.ITEM2;
         }
         break;
     }
@@ -3744,14 +3635,19 @@ export class ZoneServer2016 extends EventEmitter {
     return slot;
   }
 
+  /**
+   * Gets the first available passive equipment slot for a given item.
+   * @param character The character to check.
+   * @param itemDefId The definition ID of an item to try to find a slot for.
+   * @returns Returns the ID of an available passive equipment slot.
+   */
   getAvailablePassiveEquipmentSlot(
     character: BaseFullCharacter,
-    item: inventoryItem
+    itemDefId: number
   ): number {
-    const itemDef = this.getItemDefinition(item.itemDefinitionId),
+    const itemDef = this.getItemDefinition(itemDefId),
       itemClass = itemDef?.ITEM_CLASS;
-    if (!itemDef || !itemClass || !this.isWeapon(item.itemDefinitionId))
-      return 0;
+    if (!itemDef || !itemClass || !this.isWeapon(itemDefId)) return 0;
     for (const slot of equipSlotItemClasses) {
       if (
         slot.ITEM_CLASS == itemDef.ITEM_CLASS &&
@@ -3763,6 +3659,11 @@ export class ZoneServer2016 extends EventEmitter {
     return 0;
   }
 
+  /**
+   * Gets the used bulk for a given container.
+   * @param container The container to check.
+   * @returns Returns the amount of bulk used.
+   */
   getContainerBulk(container: loadoutContainer): number {
     let bulk = 0;
     for (const item of Object.values(container.items)) {
@@ -3772,15 +3673,20 @@ export class ZoneServer2016 extends EventEmitter {
     return bulk;
   }
 
+  /**
+   * Returns the first container that has enough space for an item stack.
+   * @param character The character to check.
+   * @param itemDefinitionId The item definition ID to try to put in a container.
+   * @param count The amount of items to try and fit in a container.
+   * @returns Returns a container with available space, or undefined.
+   */
   getAvailableContainer(
-    client: Client,
+    character: BaseFullCharacter,
     itemDefinitionId: number,
     count: number
   ): loadoutContainer | undefined {
-    // returns the first container that has enough space to store count * itemDefinitionId bulk
-
     const itemDef = this.getItemDefinition(itemDefinitionId);
-    for (const container of Object.values(client.character._containers)) {
+    for (const container of Object.values(character._containers)) {
       const containerItemDef = this.getItemDefinition(
           container?.itemDefinitionId
         ),
@@ -3796,13 +3702,21 @@ export class ZoneServer2016 extends EventEmitter {
     return;
   }
 
+  /**
+   * Gets an item stack in a container that has space for a specified item.
+   * @param container The container to check.
+   * @param itemDefId The item definition ID of the item stack to check.
+   * @param count The amount of items to fit into the stack.
+   * @param slotId Optional: The slotId of a specific item stack to check.
+   * @returns Returns the itemGuid of the item stack.
+   */
   getAvailableItemStack(
     container: loadoutContainer,
     itemDefId: number,
     count: number,
     slotId: number = 0
   ): string {
-    // returns the itemGuid of the first open stack in container arg that has enough open slots and is the same itemDefinitionId as itemDefId arg
+    //
     // if slotId is defined, then only an item with the same slotId will be returned
     if (this.getItemDefinition(itemDefId).MAX_STACK_SIZE == 1) return "";
     for (const item of Object.values(container.items)) {
@@ -3823,7 +3737,7 @@ export class ZoneServer2016 extends EventEmitter {
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     this.reloadInterrupt(client, client.character._loadout[oldLoadoutSlot]);
     // remove passive equip
-    this.removeEquipmentItem(
+    this.clearEquipmentSlot(
       client,
       client.character.getActiveEquipmentSlot(loadoutItem)
     );
@@ -3837,23 +3751,31 @@ export class ZoneServer2016 extends EventEmitter {
       true,
       oldLoadoutSlot
     );
-    if(loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
+    if (loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
   }
 
-  removeEquipmentItem(client: Client, equipmentSlotId: number): boolean {
+  /**
+   * Clears a client's equipmentSlot.
+   * @param client The client to have their equipment slot cleared.
+   * @param equipmentSlotId The equipment slot to clear.
+   * @returns Returns true if the slot was cleared, false if the slot is invalid.
+   */
+  clearEquipmentSlot(client: Client, equipmentSlotId: number): boolean {
     if (!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
-    this.sendDataToAllWithSpawnedEntity(
-      this._characters,
-      client.character.characterId,
-      "Equipment.UnsetCharacterEquipmentSlot",
-      {
-        characterData: {
-          characterId: client.character.characterId,
-        },
-        slotId: equipmentSlotId,
-      }
-    );
+    if (client.character.initialized) {
+      this.sendDataToAllWithSpawnedEntity(
+        this._characters,
+        client.character.characterId,
+        "Equipment.UnsetCharacterEquipmentSlot",
+        {
+          characterData: {
+            characterId: client.character.characterId,
+          },
+          slotId: equipmentSlotId,
+        }
+      );
+    }
     if (equipmentSlotId === EquipSlots.RHAND) {
       client.character.currentLoadoutSlot = LoadoutSlots.FISTS;
       this.equipItem(client, client.character._loadout[LoadoutSlots.FISTS]); //equip fists
@@ -3861,6 +3783,12 @@ export class ZoneServer2016 extends EventEmitter {
     return true;
   }
 
+  /**
+   * Removes an item from the loadout.
+   * @param client The client to have their items removed.
+   * @param loadoutSlotId The loadout slot containing the item to remove.
+   * @returns Returns true if the item was successfully removed, false if there was an error.
+   */
   removeLoadoutItem(client: Client, loadoutSlotId: number): boolean {
     const item = client.character._loadout[loadoutSlotId],
       itemDefId = item?.itemDefinitionId; // save before item gets deleted
@@ -3868,7 +3796,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.deleteItem(client, item.itemGuid);
     client.character.clearLoadoutSlot(loadoutSlotId);
     this.updateLoadout(client);
-    this.removeEquipmentItem(
+    this.clearEquipmentSlot(
       client,
       client.character.getActiveEquipmentSlot(item)
     );
@@ -3879,13 +3807,20 @@ export class ZoneServer2016 extends EventEmitter {
     return true;
   }
 
+  /**
+   * Removes items from a specific item stack in a container.
+   * @param client The client to have their items removed.
+   * @param item The item object.
+   * @param container The container that has the item stack in it.
+   * @param requiredCount Optional: The number of items to remove from the stack, default 1.
+   * @returns Returns true if the items were successfully removed, false if there was an error.
+   */
   removeContainerItem(
     client: Client,
     item: inventoryItem | undefined,
     container: loadoutContainer | undefined,
     count: number
   ): boolean {
-    // removes a specific itemGuid from a specified container
     if (!container || !item) return false;
     if (item.stackCount == count) {
       delete container.items[item.itemGuid];
@@ -3901,16 +3836,24 @@ export class ZoneServer2016 extends EventEmitter {
     return true;
   }
 
+  /**
+   * Removes items from an specific item stack in the inventory, including containers and loadout.
+   * @param client The client to have their items removed.
+   * @param item The item object.
+   * @param requiredCount Optional: The number of items to remove from the stack, default 1.
+   * @returns Returns true if the items were successfully removed, false if there was an error.
+   */
   removeInventoryItem(
     client: Client,
     item: inventoryItem,
     count: number = 1
   ): boolean {
-    if(count > item.stackCount) {
-      console.error("RemoveInventoryItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}")
+    if (count > item.stackCount) {
+      console.error(
+        `RemoveInventoryItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`
+      );
       count = item.stackCount;
     }
-    // removes a specific itemGuid from the inventory (containers and loadout)
     if (client.character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
       return this.removeLoadoutItem(client, item.slotId);
     } else {
@@ -3923,12 +3866,19 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  /**
+   * Removes a specified amount of an item across all inventory containers /
+   * loadout (LOADOUT DISABLED FOR NOW).
+   * @param client The client to have its items removed.
+   * @param itemDefinitionId The itemDefinitionId of the item(s) to be removed.
+   * @param requiredCount Optional: The number of items to remove, default 1.
+   * @returns Returns true if all items were successfully removed, false if there was an error.
+   */
   removeInventoryItems(
     client: Client,
     itemDefinitionId: number,
     requiredCount: number = 1
   ): boolean {
-    // removes x amount of items between multiple stacks, containers, and loadout
     const loadoutSlotId = 0; //this.getActiveLoadoutSlot(client, itemDefinitionId);
     // loadout disabled for now
     if (
@@ -3959,7 +3909,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
       if (requiredCount) {
-        // missing some items
+        // inventory doesn't have enough items
         return false;
       }
       for (const itemStack of Object.values(removeItems)) {
@@ -4007,9 +3957,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   lootItem(client: Client, item?: inventoryItem, count?: number) {
     if (!item) return;
-    if(!count) count = item.stackCount;
-    if(count > item.stackCount) {
-      console.error(`LootItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`);
+    if (!count) count = item.stackCount;
+    if (count > item.stackCount) {
+      console.error(
+        `LootItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`
+      );
       count = item.stackCount;
     }
     const itemDefId = item.itemDefinitionId,
@@ -4018,11 +3970,13 @@ export class ZoneServer2016 extends EventEmitter {
       itemDef?.FLAG_CAN_EQUIP &&
       this.getAvailableLoadoutSlot(client.character, itemDefId)
     ) {
-      this.sendData(client, "Reward.AddNonRewardItem", {
-        itemDefId: itemDefId,
-        iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
-        count: count,
-      });
+      if (client.character.initialized) {
+        this.sendData(client, "Reward.AddNonRewardItem", {
+          itemDefId: itemDefId,
+          iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
+          count: count,
+        });
+      }
       this.equipItem(client, item);
     } else {
       this.lootContainerItem(client, item, count);
@@ -4036,8 +3990,11 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(client, `[ERROR] Invalid item`);
       return;
     }
-    this.sendCompositeEffectToAllWithSpawnedEntity(this._spawnedItems, object, 
-      this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151);
+    this.sendCompositeEffectToAllWithSpawnedEntity(
+      this._spawnedItems,
+      object,
+      this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151
+    );
     //region Norman added. if it is a crop product, randomly generated product is processed by the planting manager. else, continue
     if (this.plantingManager.TriggerPicking(item, client, this)) {
       return;
@@ -4056,7 +4013,11 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     if (!item) return;
     const itemDefId = item.itemDefinitionId,
-      availableContainer = this.getAvailableContainer(client, itemDefId, count);
+      availableContainer = this.getAvailableContainer(
+        client.character,
+        itemDefId,
+        count
+      );
     if (!availableContainer) {
       // container error full
       this.sendData(client, "Character.NoSpaceNotification", {
@@ -4082,7 +4043,7 @@ export class ZoneServer2016 extends EventEmitter {
         ];
       itemStack.stackCount += count;
       this.updateContainerItem(client, itemStack, availableContainer);
-      if (sendUpdate) {
+      if (sendUpdate && client.character.initialized) {
         this.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
@@ -4101,6 +4062,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   deleteItem(client: Client, itemGuid: string) {
+    if (!client.character.initialized) return;
     this.sendData(client, "ClientUpdate.ItemDelete", {
       characterId: client.character.characterId,
       itemGuid: itemGuid,
@@ -4140,7 +4102,7 @@ export class ZoneServer2016 extends EventEmitter {
         };
       }
     );
-    if (sendPacket) {
+    if (sendPacket && client.character.initialized) {
       this.sendData(client, "Container.InitEquippedContainers", {
         ignore: client.character.characterId,
         characterId: client.character.characterId,
@@ -4151,7 +4113,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   updateContainer(client: Client, container: loadoutContainer | undefined) {
-    if (!container) return;
+    if (!container || !client.character.initialized) return;
     const containerDefinition = this.getContainerDefinition(
       container.containerDefinitionId
     );
@@ -4205,7 +4167,7 @@ export class ZoneServer2016 extends EventEmitter {
       container.containerDefinitionId
     );
     this.updateContainer(client, container);
-    if (sendUpdate) {
+    if (sendUpdate && !client.character.initialized) {
       this.sendData(client, "Reward.AddNonRewardItem", {
         itemDefId: itemDefId,
         iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
@@ -4227,7 +4189,7 @@ export class ZoneServer2016 extends EventEmitter {
     item: inventoryItem,
     container: loadoutContainer | undefined
   ) {
-    if (!container) return;
+    if (!container || !client.character.initialized) return;
     this.sendData(client, "ClientUpdate.ItemUpdate", {
       characterId: client.character.characterId,
       data: this.pGetItemData(
@@ -4239,11 +4201,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.updateContainer(client, container);
   }
 
-  giveDefaultEquipment(
-    client: Client,
-    sendPacket: boolean,
-  ) {
-    if(!client.character._loadout[LoadoutSlots.FISTS]) {
+  giveDefaultEquipment(client: Client, sendPacket: boolean) {
+    if (!client.character._loadout[LoadoutSlots.FISTS]) {
       // Fists should never be removed from the inventory, however this is just in case
       this.equipItem(client, this.generateItem(Items.WEAPON_FISTS), sendPacket);
     }
@@ -4253,10 +4212,30 @@ export class ZoneServer2016 extends EventEmitter {
   }
   giveDefaultItems(client: Client, sendPacket: boolean) {
     this.lootContainerItem(client, this.generateItem(Items.MAP), 1, sendPacket);
-    this.lootContainerItem(client, this.generateItem(Items.COMPASS), 1, sendPacket);
-    this.lootContainerItem(client, this.generateItem(Items.GAUZE), 5, sendPacket);
-    this.lootContainerItem(client, this.generateItem(Items.FLARE), 1, sendPacket);
-    this.lootContainerItem(client, this.generateItem(Items.LIGHTER), 1, sendPacket);
+    this.lootContainerItem(
+      client,
+      this.generateItem(Items.COMPASS),
+      1,
+      sendPacket
+    );
+    this.lootContainerItem(
+      client,
+      this.generateItem(Items.GAUZE),
+      5,
+      sendPacket
+    );
+    this.lootContainerItem(
+      client,
+      this.generateItem(Items.FLARE),
+      1,
+      sendPacket
+    );
+    this.lootContainerItem(
+      client,
+      this.generateItem(Items.LIGHTER),
+      1,
+      sendPacket
+    );
   }
 
   giveKitItems(client: Client) {
@@ -4276,7 +4255,10 @@ export class ZoneServer2016 extends EventEmitter {
     this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE)); // helmet
     this.lootItem(client, this.generateItem(Items.CONVEYS_BLUE)); // conveys
   }
-
+  /**
+   * Clears all items from a character's inventory.
+   * @param client The client that'll have it's character's inventory cleared.
+   */
   clearInventory(client: Client) {
     for (const item of Object.values(client.character._loadout)) {
       if (client.character._containers[item.slotId]) {
@@ -4299,16 +4281,16 @@ export class ZoneServer2016 extends EventEmitter {
     let givetrash = 0;
     let timeout = 1000;
     switch (item.itemDefinitionId) {
-      case 105: // berries
+      case Items.BLACK_BERRIES:
         drinkCount = 200;
         eatCount = 200;
         timeout = 600;
         break;
-      case 7: // canned Food
+      case Items.CANNED_FOOD01:
         eatCount = 4000;
         givetrash = 48;
         break;
-      case 1402: // M.R.E Apple
+      case Items.MRE_APPLE:
         eatCount = 6000;
         drinkCount = 6000;
         break;
@@ -4331,18 +4313,18 @@ export class ZoneServer2016 extends EventEmitter {
     let healCount = 9;
     let bandagingCount = 40;
     switch (item.itemDefinitionId) {
-      case 78: // med kit
-      case 2424:
+      case Items.WEAPON_FIRST_AID:
+      case Items.FIRST_AID:
         healCount = 99;
         timeout = 5000;
         bandagingCount = 120;
         break;
-      case 24: // bandage
-      case 1751: // gauze
+      case Items.BANDAGE:
+      case Items.GAUZE:
         healCount = 9;
         timeout = 1000;
         break;
-      case 2214: //dressed bandage
+      case Items.BANDAGE_DRESSED:
         healCount = 29;
         timeout = 2000;
         break;
@@ -4363,9 +4345,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (!itemDef) return;
     let timeout = 100;
     switch (item.itemDefinitionId) {
-      case 1436: // lighter
+      case Items.LIGHTER:
         break;
-      case 1452: // bow drill
+      case Items.BOW_DRILL:
         timeout = 15000;
         break;
       default:
@@ -4384,21 +4366,18 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let drinkCount = 2000;
-    const eatCount = 0;
-    let givetrash = 0;
+    const eatCount = 0,
+      givetrash = Items.WATER_EMPTY;
     const timeout = 1000;
     switch (item.itemDefinitionId) {
-      case 1368: // dirty water
+      case Items.WATER_DIRTY:
         drinkCount = 1000;
-        givetrash = 1353;
         break;
-      case 1535: //stagnant water
+      case Items.WATER_STAGNANT:
         drinkCount = 2000;
-        givetrash = 1353;
         break;
-      case 1371: // purified water
+      case Items.WATER_PURE:
         drinkCount = 4000;
-        givetrash = 1353;
         break;
       default:
         this.sendChatText(
@@ -4414,7 +4393,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   fillPass(client: Client, item: inventoryItem) {
     if (client.character.characterStates.inWater) {
-      this.removeInventoryItem(client, item, 1);
+      this.removeInventoryItem(client, item);
       this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
     } else {
       this.sendAlert(client, "There is no water source nearby");
@@ -4422,7 +4401,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sniffPass(client: Client, item: inventoryItem) {
-    this.removeInventoryItem(client, item, 1);
+    this.removeInventoryItem(client, item);
     this.applyMovementModifier(client, 1.15, "swizzle");
   }
 
@@ -4432,14 +4411,14 @@ export class ZoneServer2016 extends EventEmitter {
     let useoption = "";
     let timeout = 1000;
     switch (item.itemDefinitionId) {
-      case 1353: // empty bottle
+      case Items.WATER_EMPTY:
         useoption = "fill";
         break;
-      case 1709: // swizzle
+      case Items.SWIZZLE:
         useoption = "sniff";
         timeout = 3000;
         break;
-      case 25: //Fertilizer
+      case Items.FERTILIZER:
         this.utilizeHudTimer(client, nameId, timeout, () => {
           this.plantingManager.FertilizeCrops(client, this);
           this.removeInventoryItem(client, item);
@@ -4473,11 +4452,17 @@ export class ZoneServer2016 extends EventEmitter {
     const timeout = 5000;
     let fuelValue = 2500;
     switch (item.itemDefinitionId) {
-      case 1384: // ethanol
+      case Items.FUEL_ETHANOL:
         fuelValue = 5000;
         break;
+      case Items.FUEL_BIOFUEL:
+        fuelValue = 2500;
       default:
-        break;
+        this.sendChatText(
+          client,
+          "[ERROR] Fuel not mapped to item Definition " + item.itemDefinitionId
+        );
+        return;
     }
     this.utilizeHudTimer(client, nameId, timeout, () => {
       this.refuelVehiclePass(client, item, vehicleGuid, fuelValue);
@@ -4592,7 +4577,7 @@ export class ZoneServer2016 extends EventEmitter {
       bleeding,
       ResourceIds.BLEEDING
     );
-    this.removeInventoryItem(client, item, 1);
+    this.removeInventoryItem(client, item);
   }
 
   refuelVehiclePass(
@@ -4601,7 +4586,7 @@ export class ZoneServer2016 extends EventEmitter {
     vehicleGuid: string,
     fuelValue: number
   ) {
-    this.removeInventoryItem(client, item, 1);
+    this.removeInventoryItem(client, item);
     const vehicle = this._vehicles[vehicleGuid];
     vehicle._resources[ResourceIds.FUEL] += fuelValue;
     if (vehicle._resources[ResourceIds.FUEL] > 10000) {
@@ -4617,16 +4602,18 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   shredItemPass(client: Client, item: inventoryItem, count: number) {
-    this.removeInventoryItem(client, item, 1);
+    this.removeInventoryItem(client, item);
     this.lootItem(client, this.generateItem(Items.CLOTH, count));
   }
 
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);
 
   stopHudTimer(client: Client) {
-    this.utilizeHudTimer(client, 0, 0, () => {/*/*/});
+    this.utilizeHudTimer(client, 0, 0, () => {
+      /*/*/
+    });
   }
-  
+
   utilizeHudTimer(
     client: Client,
     nameId: number,
@@ -4674,7 +4661,11 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._explosives[explosive.characterId]) {
       return;
     }
-    this.sendCompositeEffectToAllWithSpawnedEntity(this._explosives, explosive, 1875);
+    this.sendCompositeEffectToAllWithSpawnedEntity(
+      this._explosives,
+      explosive,
+      1875
+    );
     this.sendDataToAllWithSpawnedEntity(
       this._explosives,
       explosive.characterId,
@@ -4687,11 +4678,16 @@ export class ZoneServer2016 extends EventEmitter {
     this.explosionDamage(explosive.state.position, explosive.characterId);
   }
 
-  getInventoryAsContainer(client: Client): {
+  /**
+   * Gets all inventory containers as an array of items.
+   * @param character The character to check.
+   * @returns Returns an array containing all items across all containers.
+   */
+  getInventoryAsContainer(character: BaseFullCharacter): {
     [itemDefinitionId: number]: inventoryItem[];
   } {
     const inventory: { [itemDefinitionId: number]: inventoryItem[] } = {};
-    for (const container of Object.values(client.character._containers)) {
+    for (const container of Object.values(character._containers)) {
       for (const item of Object.values(container.items)) {
         if (!inventory[item.itemDefinitionId]) {
           inventory[item.itemDefinitionId] = []; // init array
@@ -4772,6 +4768,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   divideMovementModifier(client: Client, modifier: number) {
     const modifierFixed = 1 / modifier;
+    if (!client.character.initialized) return;
     this.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
       speed: modifierFixed,
     });
@@ -4880,7 +4877,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     return allTransient;
   }
-  async fetchLoginInfo() {
+  private async fetchLoginInfo() {
     const resolver = new Resolver();
     const loginServerAddress = await new Promise((resolve) => {
       resolver.resolve4("loginserver.h1emu.com", (err, addresses) => {
@@ -4901,21 +4898,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
-  async saveCharacterPosition(client: Client, refreshTimeout = false) {
-    if (client?.character) {
-      const { position, rotation } = client.character.state;
-      await this._db?.collection("characters").updateOne(
-        { characterId: client.character.characterId },
-        {
-          $set: {
-            position: position,
-            rotation: rotation,
-          },
-        }
-      );
-      refreshTimeout && client.savePositionTimer.refresh();
-    }
-  }
+
   private _sendDataToAll(
     packetName: h1z1PacketsType,
     obj: any,
@@ -4973,7 +4956,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(this._clients[a], message, clearChat);
     }
   }
-  filterOutOfDistance(
+  private filterOutOfDistance(
     element: BaseEntity,
     playerPosition: Float32Array
   ): boolean {
@@ -5001,6 +4984,11 @@ export class ZoneServer2016 extends EventEmitter {
     });
     this.deleteEntity(vehicleGuid, this._vehicles);
   }
+
+  /**
+   * Generates a new transientId and maps it to a provided characterId.
+   * @param characterId The characterId to map the transientId to.
+   */
   getTransientId(characterId: string): number {
     const generatedTransient = this._transientIdGenerator.next()
       .value as number;
@@ -5008,11 +4996,21 @@ export class ZoneServer2016 extends EventEmitter {
     this._characterIds[characterId] = generatedTransient;
     return generatedTransient;
   }
+
+  /**
+   * Reloads all packet handlers, structures, and commands for the entire server.
+   * @param client The client that called the function.
+   */
   reloadPackets(client: Client) {
     this.reloadZonePacketHandlers();
     this._protocol.reloadPacketDefinitions();
     this.sendChatText(client, "[DEV] Packets reloaded", true);
   }
+
+  /**
+   * Disconnects a client from the zone.
+   * @param client The client to be disconnected
+   */
   timeoutClient(client: Client) {
     if (!!this._clients[client.sessionId]) {
       // if hasn't already deleted
@@ -5021,22 +5019,39 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  hook(hookName: Hooks, hook: (...args: any)=> FunctionHookType) {
-    if(!this._hooks[hookName]) this._hooks[hookName] = [];
+  /**
+   * Registers a new hook to be called when the corresponding checkHook() call is executed.
+   * @param hookName The name of the hook
+   * @param hook The function to be called when the hook is executed.
+   */
+  hook(hookName: Hooks, hook: (...args: any) => FunctionHookType) {
+    if (!this._hooks[hookName]) this._hooks[hookName] = [];
     this._hooks[hookName].push(hook);
     return;
   }
 
-  hookAsync(hookName: AsyncHooks, hook: (...args: any)=> AsyncHookType) {
-    if(!this._asyncHooks[hookName]) this._asyncHooks[hookName] = [];
+  /**
+   * Registers a new hook to be called when the corresponding checkAsyncHook() call is executed.
+   * @param hookName The name of the async hook.
+   * @param hook The function to be called when the hook is executed.
+   */
+  hookAsync(hookName: AsyncHooks, hook: (...args: any) => AsyncHookType) {
+    if (!this._asyncHooks[hookName]) this._asyncHooks[hookName] = [];
     this._asyncHooks[hookName].push(hook);
     return;
   }
 
-  checkHook(hookName: Hooks, ...args: any): FunctionHookType {
-    if(this._hooks[hookName]?.length > 0) {
-      for(const hook of this._hooks[hookName]) {
-        switch(hook.apply(this, args)) {
+  /**
+   * Calls all hooks currently registered and either halts or continues the
+   * function based on the return behavior of each hook.
+   * @param hookName The name of the async hook
+   * @param hook The function to be called when the hook is executed.
+   * @returns Returns the value of the first hook to return a boolean, or true.
+   */
+  checkHook(hookName: Hooks, ...args: any): boolean {
+    if (this._hooks[hookName]?.length > 0) {
+      for (const hook of this._hooks[hookName]) {
+        switch (hook.apply(this, args)) {
           case true:
             return true;
           case false:
@@ -5044,13 +5059,20 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
-    return;
+    return true;
   }
 
-  async checkAsyncHook(hookName: Hooks, ...args: any): AsyncHookType {
-    if(this._asyncHooks[hookName]?.length > 0) {
-      for(const hook of this._asyncHooks[hookName]) {
-        switch(await hook.apply(this, args)) {
+  /**
+   * Calls all async hooks currently registered and either halts or continues the
+   * function based on the return behavior of each hook.
+   * @param hookName The name of the async hook.
+   * @param hook The function to be called when the hook is executed.
+   * @returns Returns the value of the first hook to return a boolean, or true.
+   */
+  async checkAsyncHook(hookName: Hooks, ...args: any): Promise<boolean> {
+    if (this._asyncHooks[hookName]?.length > 0) {
+      for (const hook of this._asyncHooks[hookName]) {
+        switch (await hook.apply(this, args)) {
           case true:
             return Promise.resolve(true);
           case false:
@@ -5058,7 +5080,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
-    return Promise.resolve();
+    return Promise.resolve(true);
   }
 
   toggleFog() {
