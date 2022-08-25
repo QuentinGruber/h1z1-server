@@ -14,7 +14,7 @@
 import { EventEmitter } from "events";
 import { RemoteInfo } from "dgram";
 import { Soeprotocol } from "h1emu-core";
-import Client from "./soeclient";
+import Client, { packetsQueue } from "./soeclient";
 import SOEClient from "./soeclient";
 import { Worker } from "worker_threads";
 import { crc_length_options } from "../../types/soeserver";
@@ -202,49 +202,34 @@ export class SOEServer extends EventEmitter {
         "Ack",
         {
           sequence: client.nextAck.get(),
-        },
-        false
+        }
       );
     }
   }
 
   // send the queued packets
-  private sendClientWaitQueue(client: Client) {
-    if (client.waitQueueTimer) {
-      clearTimeout(client.waitQueueTimer);
-      client.waitQueueTimer = undefined;
+  private sendClientWaitQueue(client: Client,queue: packetsQueue,prioritize: boolean): void {
+    if (queue.timer) {
+      clearTimeout(queue.timer);
+      queue.timer = undefined;
     }
-    if (client.waitingQueue.length) {
-      if (client.waitingQueue.length > 1) {
+    if (queue.packets.length) {
         this._sendLogicalPacket(client, "MultiPacket", {
-          sub_packets: client.waitingQueue,
-        });
+          sub_packets: queue.packets.map((packet) => {return Array.from(packet.data)}),
+        },prioritize,true);
         // if a packet in the waiting queue is a reliable packet, then we need to set the timeout
-        for (let index = 0; index < client.waitingQueue.length; index++) {
-          const packet = client.waitingQueue[index];
+        for (let index = 0; index < queue.packets.length; index++) {
+          const packet = queue.packets[index];
           if (
-            (packet.sequence && packet.name === "Data") ||
-            packet.name === "DataFragment"
+            packet.isReliable
           ) {
             client.unAckData.set(
-              packet.sequence,
+              packet.sequence as number,
               Date.now() + this._waitQueueTimeMs
             );
           }
         }
-      } else {
-        // if only one packets
-        const extractedPacket = client.waitingQueue[0];
-        const logicalPacket = this.createLogicalPacket(
-          client,
-          extractedPacket.name,
-          extractedPacket
-        );
-        client.outQueue.push(logicalPacket);
       }
-      client.waitingQueueCurrentByteLength = 0;
-      client.waitingQueue = [];
-    }
   }
   // If some packets are received out of order then we Acknowledge then one by one
   private checkOutOfOrderQueue(client: Client) {
@@ -314,7 +299,7 @@ export class SOEServer extends EventEmitter {
             encrypt_method: client.compression,
             udp_length: client.serverUdpLength,
           },
-          true
+          true,true
         );
         break;
       case "Disconnect":
@@ -529,6 +514,42 @@ export class SOEServer extends EventEmitter {
       return null;
     }
   }
+
+  private _addPacketToQueue(
+    logicalPacket: LogicalPacket,
+    queue: packetsQueue
+  ): void {
+    const fullBufferedPacketLen = logicalPacket.data.length + 1; // the additionnal byte is the length of the packet written in the buffer when assembling the packet
+        queue.packets.push(logicalPacket);
+        queue.CurrentByteLength += fullBufferedPacketLen;
+  }
+
+  private _canBeBuffered(
+    logicalPacket: LogicalPacket,
+    queue: packetsQueue
+  ): boolean {
+    return this._waitQueueTimeMs > 0 &&
+        logicalPacket.data.length < 255 &&
+        queue.CurrentByteLength + logicalPacket.data.length <=
+          this._maxMultiBufferSize
+  }
+
+  private _addPacketToBuffer(
+    client: SOEClient,
+    logicalPacket: LogicalPacket,
+    queue: packetsQueue,
+    prioritize: boolean
+  ): void {
+    this._addPacketToQueue(logicalPacket, queue);
+    if (!queue.timer) {
+      queue.timer = setTimeout(
+        ()=>{this.sendClientWaitQueue(client, queue,prioritize)},
+        this._waitQueueTimeMs
+      );
+    }
+  }
+
+  
   // The packets is builded from schema and added to one of the queues
   private _sendLogicalPacket(
     client: Client,
@@ -538,37 +559,17 @@ export class SOEServer extends EventEmitter {
     unbuffered = false
   ): void {
     const logicalPacket = this.createLogicalPacket(client, packetName, packet);
-    if (prioritize) {
-      client.priorityQueue.push(logicalPacket);
-    } else {
       if (
         !unbuffered &&
-        packetName !== "MultiPacket" &&
-        this._waitQueueTimeMs > 0 &&
-        logicalPacket.data.length < 255 &&
-        client.waitingQueueCurrentByteLength + logicalPacket.data.length <=
-          this._maxMultiBufferSize
+        packetName !== "MultiPacket" && this._canBeBuffered(logicalPacket, client.waitingQueue)
       ) {
-        const fullBufferedPacketLen = logicalPacket.data.length + 1; // the additionnal byte is the length of the packet written in the buffer when assembling the packet
-        client.waitingQueue.push({
-          name: packetName,
-          ...packet,
-        });
-        client.waitingQueueCurrentByteLength += fullBufferedPacketLen;
-        if (!client.waitQueueTimer) {
-          client.waitQueueTimer = setTimeout(
-            () => this.sendClientWaitQueue(client),
-            this._waitQueueTimeMs
-          );
-        }
+        this._addPacketToBuffer(client, logicalPacket, client.waitingQueue, prioritize);
       } else {
         if (packetName !== "MultiPacket") {
-          // that's bad but it's the only way to avoid a bug rn
-          this.sendClientWaitQueue(client);
+          this.sendClientWaitQueue(client, client.waitingQueue,prioritize);
         }
         client.outQueue.push(logicalPacket);
       }
-    }
   }
 
   // Called by the application to send data to a client

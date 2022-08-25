@@ -23,6 +23,12 @@ interface SOEClientStats {
   packetResend: number;
   packetsOutOfOrder: number;
 }
+
+export interface packetsQueue {
+  packets: LogicalPacket[];
+  CurrentByteLength: number;
+  timer?: NodeJS.Timeout;
+}
 export default class SOEClient {
   sessionId: number = 0;
   address: string;
@@ -34,7 +40,8 @@ export default class SOEClient {
   packetsSentThisSec: number = 0;
   compression: number;
   useEncryption: boolean = true;
-  waitingQueue: soePacket[] = [];
+  waitingQueue: packetsQueue = {packets: [], CurrentByteLength: 0};
+  priorityWaitingQueue: packetsQueue = {packets: [], CurrentByteLength: 0};
   outQueue: LogicalPacket[] = [];
   priorityQueue: LogicalPacket[] = [];
   protocolName: string = "unset";
@@ -44,8 +51,6 @@ export default class SOEClient {
   lastAck: wrappedUint16 = new wrappedUint16(-1);
   inputStream: SOEInputStream;
   outputStream: SOEOutputStream;
-  waitQueueTimer?: NodeJS.Timeout;
-  waitingQueueCurrentByteLength: number = 0;
   soeClientId: string;
   lastPingTimer!: NodeJS.Timeout;
   hasConnectionsIssues: boolean = false;
