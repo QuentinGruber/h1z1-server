@@ -38,12 +38,9 @@ export default class SOEClient {
   clientUdpLength: number = 512;
   serverUdpLength: number = 512;
   packetsSentThisSec: number = 0;
-  compression: number;
   useEncryption: boolean = true;
   waitingQueue: packetsQueue = {packets: [], CurrentByteLength: 0};
-  priorityWaitingQueue: packetsQueue = {packets: [], CurrentByteLength: 0};
   outQueue: LogicalPacket[] = [];
-  priorityQueue: LogicalPacket[] = [];
   protocolName: string = "unset";
   unAckData: Map<number, number> = new Map();
   outOfOrderPackets: soePacket[] = [];
@@ -53,8 +50,6 @@ export default class SOEClient {
   outputStream: SOEOutputStream;
   soeClientId: string;
   lastPingTimer!: NodeJS.Timeout;
-  hasConnectionsIssues: boolean = false;
-  priorityQueueWarningLevel: number = 100;
   isDeleted: boolean = false;
   stats: SOEClientStats = {
     totalPacketSent: 0,
@@ -65,14 +60,12 @@ export default class SOEClient {
   constructor(
     remote: RemoteInfo,
     crcSeed: number,
-    compression: number,
     cryptoKey: Uint8Array
   ) {
     this.soeClientId = remote.address + ":" + remote.port;
     this.address = remote.address;
     this.port = remote.port;
     this.crcSeed = crcSeed;
-    this.compression = compression;
     this.inputStream = new SOEInputStream(cryptoKey);
     this.outputStream = new SOEOutputStream(cryptoKey);
   }

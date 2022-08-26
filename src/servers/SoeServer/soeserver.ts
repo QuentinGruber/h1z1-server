@@ -20,14 +20,13 @@ import { Worker } from "worker_threads";
 import { crc_length_options } from "../../types/soeserver";
 import { LogicalPacket } from "./logicalPacket";
 import { json } from "types/shared";
-const debug = require("debug")("SOEServer");
+const debug = console.log ||  require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
 export class SOEServer extends EventEmitter {
   _protocolName: string;
   _serverPort: number;
   _cryptoKey: Uint8Array;
-  _compression: number = 0;
   _protocol!: Soeprotocol;
   _udpLength: number = 512;
   _useEncryption: boolean = true;
@@ -41,9 +40,7 @@ export class SOEServer extends EventEmitter {
   private _maxMultiBufferSize: number;
   private _soeClientRoutineLoopMethod!: (arg0: () => void) => void;
   private _resendTimeout: number = 800;
-  protected _maxGlobalPacketRate = 10000;
-  protected _minPacketRate: number = 100;
-  private _currentPacketRatePerClient: number = 200;
+  private _packetRatePerClient: number = 200;
   private _ackTiming: number = 80;
   constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
     super();
@@ -65,24 +62,6 @@ export class SOEServer extends EventEmitter {
 
   getSoeClient(soeClientId: string): SOEClient | undefined {
     return this._clients.get(soeClientId);
-  }
-
-  private calculatePacketRate(): number {
-    const packetRate = this._maxGlobalPacketRate / this._clients.size;
-    if (packetRate < this._minPacketRate) {
-      return this._minPacketRate;
-    } else if (packetRate > this._maxGlobalPacketRate) {
-      return this._maxGlobalPacketRate;
-    } else {
-      return packetRate;
-    }
-  }
-
-  private adjustPacketRate(): void {
-    return; // disabled for now
-    debug("Adjusting packet rate");
-    this._currentPacketRatePerClient = this.calculatePacketRate();
-    debug(`Packet rate: ${this._currentPacketRatePerClient}`);
   }
 
   private resetPacketsSent(): void {
@@ -109,25 +88,9 @@ export class SOEServer extends EventEmitter {
     );
   }
 
-  private sendPriorityQueue(client: Client): void {
-    debug("Sending priority queue");
-    while (client.packetsSentThisSec < this._currentPacketRatePerClient) {
-      const logicalPacket = client.priorityQueue.shift();
-      if (logicalPacket) {
-        // if is a reliable packet
-        if (logicalPacket.isReliable && logicalPacket.sequence) {
-          client.unAckData.set(logicalPacket.sequence, Date.now());
-        }
-        this._sendPhysicalPacket(client, logicalPacket.data);
-      } else {
-        break;
-      }
-    }
-  }
-
   private sendOutQueue(client: Client): void {
     debug("Sending out queue");
-    while (client.packetsSentThisSec < this._currentPacketRatePerClient) {
+    while (client.packetsSentThisSec < this._packetRatePerClient) {
       const logicalPacket = client.outQueue.shift();
       if (logicalPacket) {
         // if is a reliable packet
@@ -143,14 +106,6 @@ export class SOEServer extends EventEmitter {
 
   // Send pending packets from client, in priority ones from the priority queue
   private checkClientOutQueues(client: SOEClient) {
-    if (client.priorityQueue.length > 0) {
-      if (client.priorityQueue.length > client.priorityQueueWarningLevel) {
-        client.hasConnectionsIssues = true;
-      }
-      this.sendPriorityQueue(client);
-    } else if (client.hasConnectionsIssues) {
-      client.hasConnectionsIssues = false;
-    }
     if (client.outQueue.length > 0) {
       this.sendOutQueue(client);
     }
@@ -166,8 +121,7 @@ export class SOEServer extends EventEmitter {
   // Executed at the same rate for every client
   private soeClientRoutine(client: Client) {
     if (
-      client.lastAckTime + this._ackTiming < Date.now() ||
-      client.hasConnectionsIssues
+      client.lastAckTime + this._ackTiming < Date.now()
     ) {
       // Acknowledge received packets
       this.checkAck(client);
@@ -175,9 +129,7 @@ export class SOEServer extends EventEmitter {
       client.lastAckTime = Date.now();
     }
     // Send pending packets
-    if (!client.hasConnectionsIssues) {
-      this.checkResendQueue(client);
-    }
+    this.checkResendQueue(client);
     this.checkClientOutQueues(client);
   }
 
@@ -208,7 +160,7 @@ export class SOEServer extends EventEmitter {
   }
 
   // send the queued packets
-  private sendClientWaitQueue(client: Client,queue: packetsQueue,prioritize: boolean): void {
+  private sendClientWaitQueue(client: Client,queue: packetsQueue): void {
     if (queue.timer) {
       clearTimeout(queue.timer);
       queue.timer = undefined;
@@ -216,7 +168,7 @@ export class SOEServer extends EventEmitter {
     if (queue.packets.length) {
         this._sendLogicalPacket(client, "MultiPacket", {
           sub_packets: queue.packets.map((packet) => {return Array.from(packet.data)}),
-        },prioritize,true);
+        });
         // if a packet in the waiting queue is a reliable packet, then we need to set the timeout
         for (let index = 0; index < queue.packets.length; index++) {
           const packet = queue.packets[index];
@@ -242,8 +194,7 @@ export class SOEServer extends EventEmitter {
             "OutOfOrder",
             {
               sequence: sequence,
-            },
-            false
+            }
           );
         }
       }
@@ -251,20 +202,13 @@ export class SOEServer extends EventEmitter {
   }
 
   private _createClient(clientId: string, remote: RemoteInfo) {
-    this.adjustPacketRate();
     const client = new SOEClient(
       remote,
       this._crcSeed,
-      this._compression,
       this._cryptoKey
     );
-    client.priorityQueueWarningLevel = this._currentPacketRatePerClient;
     this._clients.set(clientId, client);
     return client;
-  }
-
-  private _disconnectClient(client: Client) {
-    this._sendPhysicalPacket(client, Buffer.from([0x00, 0x99, 0x99])); // doesnt work
   }
 
   private handlePacket(client: SOEClient, packet: any) {
@@ -276,7 +220,6 @@ export class SOEServer extends EventEmitter {
         client.sessionId = packet.session_id;
         client.clientUdpLength = packet.udp_length;
         client.protocolName = packet.protocol;
-        client.compression = this._compression;
         client.serverUdpLength = this._udpLength;
         client.crcSeed = this._crcSeed;
         client.crcLength = this._crcLength;
@@ -296,10 +239,10 @@ export class SOEServer extends EventEmitter {
             session_id: client.sessionId,
             crc_seed: client.crcSeed,
             crc_length: client.crcLength,
-            encrypt_method: client.compression,
+            encrypt_method: 0,
             udp_length: client.serverUdpLength,
           },
-          true,true
+          true
         );
         break;
       case "Disconnect":
@@ -365,7 +308,6 @@ export class SOEServer extends EventEmitter {
   }
 
   start(crcLength?: crc_length_options, udpLength?: number): void {
-    this._compression = 0;
     if (crcLength !== undefined) {
       this._crcLength = crcLength;
     }
@@ -426,7 +368,6 @@ export class SOEServer extends EventEmitter {
                   sequence: sequence,
                   data: data,
                 },
-                false,
                 unbuffered
               );
             }
@@ -435,7 +376,7 @@ export class SOEServer extends EventEmitter {
           // the only difference with the event "data" is that resended data is send via the priority queue
           client.outputStream.on(
             "dataResend",
-            (err: string, data: Buffer, sequence: number, fragment: any) => {
+            (err: string, data: Buffer, sequence: number, fragment: boolean) => {
               client.stats.packetResend++;
               this._sendLogicalPacket(
                 client,
@@ -537,13 +478,12 @@ export class SOEServer extends EventEmitter {
   private _addPacketToBuffer(
     client: SOEClient,
     logicalPacket: LogicalPacket,
-    queue: packetsQueue,
-    prioritize: boolean
-  ): void {
+    queue: packetsQueue
+    ): void {
     this._addPacketToQueue(logicalPacket, queue);
     if (!queue.timer) {
       queue.timer = setTimeout(
-        ()=>{this.sendClientWaitQueue(client, queue,prioritize)},
+        ()=>{this.sendClientWaitQueue(client, queue)},
         this._waitQueueTimeMs
       );
     }
@@ -555,7 +495,6 @@ export class SOEServer extends EventEmitter {
     client: Client,
     packetName: string,
     packet: json,
-    prioritize = false,
     unbuffered = false
   ): void {
     const logicalPacket = this.createLogicalPacket(client, packetName, packet);
@@ -563,10 +502,10 @@ export class SOEServer extends EventEmitter {
         !unbuffered &&
         packetName !== "MultiPacket" && this._canBeBuffered(logicalPacket, client.waitingQueue)
       ) {
-        this._addPacketToBuffer(client, logicalPacket, client.waitingQueue, prioritize);
+        this._addPacketToBuffer(client, logicalPacket, client.waitingQueue);
       } else {
         if (packetName !== "MultiPacket") {
-          this.sendClientWaitQueue(client, client.waitingQueue,prioritize);
+          this.sendClientWaitQueue(client, client.waitingQueue);
         }
         client.outQueue.push(logicalPacket);
       }
@@ -605,7 +544,6 @@ export class SOEServer extends EventEmitter {
 
   deleteClient(client: SOEClient): void {
     this._clients.delete(client.address + ":" + client.port);
-    this.adjustPacketRate();
     debug("client connection from port : ", client.port, " deleted");
   }
 }
