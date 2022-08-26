@@ -426,9 +426,25 @@ export class SOEServer extends EventEmitter {
     this._connection.postMessage({ type: "close" });
     process.exitCode = 0;
   }
+
+  private packLogicalData(packetName: string,packet: json):Buffer{
+    let logicalData;
+    // TODO: add other supported direct access
+    switch (packetName) {
+      case "SessionRequest":
+        logicalData = this._protocol.pack_session_request_packet(packet.session_id,packet.crc_length,packet.udp_length,packet.protocol);
+        break;
+      case "SessionReply":
+        logicalData = this._protocol.pack_session_reply_packet(packet.session_id,packet.crc_seed,packet.crc_length,packet.encrypt_method,packet.udp_length);
+        break;
+      default:
+        logicalData = this._protocol.pack(packetName, JSON.stringify(packet))
+        break;
+    }
+    return Buffer.from(logicalData);
+  }
   // Build the logical packet via the soeprotocol
   private createLogicalPacket(
-    client: Client,
     packetName: string,
     packet: json
   ): LogicalPacket {
@@ -437,7 +453,7 @@ export class SOEServer extends EventEmitter {
     }
     try {
       const logicalPacket = new LogicalPacket(
-        Buffer.from(this._protocol.pack(packetName, JSON.stringify(packet))),
+        this.packLogicalData(packetName, packet),
         packet.sequence
       );
       return logicalPacket;
@@ -497,7 +513,7 @@ export class SOEServer extends EventEmitter {
     packet: json,
     unbuffered = false
   ): void {
-    const logicalPacket = this.createLogicalPacket(client, packetName, packet);
+    const logicalPacket = this.createLogicalPacket(packetName, packet);
       if (
         !unbuffered &&
         packetName !== "MultiPacket" && this._canBeBuffered(logicalPacket, client.waitingQueue)
