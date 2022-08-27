@@ -437,6 +437,8 @@ export class SOEServer extends EventEmitter {
       case "SessionReply":
         logicalData = this._protocol.pack_session_reply_packet(packet.session_id,packet.crc_seed,packet.crc_length,packet.encrypt_method,packet.udp_length);
         break;
+      case "MultiPacket":
+        logicalData = this._protocol.pack_multi_fromjs(packet);
       default:
         logicalData = this._protocol.pack(packetName, JSON.stringify(packet))
         break;
@@ -449,7 +451,7 @@ export class SOEServer extends EventEmitter {
     packet: json
   ): LogicalPacket {
     if (packet.data) {
-      packet.data = [...packet.data];
+      packet.data = [...packet.data]; // TODO move this
     }
     try {
       const logicalPacket = new LogicalPacket(
@@ -515,6 +517,7 @@ export class SOEServer extends EventEmitter {
   ): void {
     const logicalPacket = this.createLogicalPacket(packetName, packet);
       if (
+        packetName !== "Ack" && // ISSUES WITH BUFFERED ACKS
         !unbuffered &&
         packetName !== "MultiPacket" && this._canBeBuffered(logicalPacket, client.waitingQueue)
       ) {
