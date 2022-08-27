@@ -38,10 +38,11 @@ export class SOEServer extends EventEmitter {
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean = false;
   private _maxMultiBufferSize: number;
-  private _soeClientRoutineLoopMethod!: (arg0: () => void) => void;
+  private _soeClientRoutineLoopMethod!: (arg0: () => void,arg1:number) => void;
   private _resendTimeout: number = 300;
   private _packetRatePerClient: number = 500;
   private _ackTiming: number = 80;
+  private _routineTiming: number = 3;
   constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
@@ -115,7 +116,7 @@ export class SOEServer extends EventEmitter {
     for (const client of this._clients.values()) {
       this.soeClientRoutine(client);
     }
-    this._soeClientRoutineLoopMethod(() => this.soeRoutine());
+    this._soeClientRoutineLoopMethod(() => this.soeRoutine(),this._routineTiming);
   }
 
   // Executed at the same rate for every client
@@ -326,7 +327,7 @@ export class SOEServer extends EventEmitter {
       this._udpLength = udpLength;
     }
     this._soeClientRoutineLoopMethod = setTimeout;
-    this._soeClientRoutineLoopMethod(() => this.soeRoutine());
+    this._soeClientRoutineLoopMethod(() => this.soeRoutine(),this._routineTiming);
     this._connection.on("message", (message) => {
       const data = Buffer.from(message.data);
       try {
@@ -394,8 +395,7 @@ export class SOEServer extends EventEmitter {
                 {
                   sequence: sequence,
                   data: data,
-                },
-                true
+                }
               );
             }
           );
