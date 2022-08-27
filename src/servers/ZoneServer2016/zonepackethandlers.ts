@@ -1008,7 +1008,7 @@ export class zonePacketHandlers {
                   break;
               }
 
-              /*
+              
               remoteWeapons.push({
                 guid: item.itemGuid,
                 weaponDefinitionId: weaponDefinition.ID, // weapondefId confirmed from z1br
@@ -1050,11 +1050,11 @@ export class zonePacketHandlers {
                   }
                 })
               })    
-              */     
+              
             }
           })
-          //console.log(JSON.stringify(remoteWeapons, null, 2))
-          //console.log(JSON.stringify(remoteWeaponsExtra, null, 2))
+          console.log(JSON.stringify(remoteWeapons, null, 2))
+          console.log(JSON.stringify(remoteWeaponsExtra, null, 2))
 
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
@@ -1065,7 +1065,7 @@ export class zonePacketHandlers {
                 hairModel: character.hairModel,
 
                 resources: {data: character.pGetResources() },
-                //remoteWeapons: {data: remoteWeapons},
+                remoteWeapons: {data: remoteWeapons},
                 
               },
               positionUpdate: {
@@ -1075,10 +1075,10 @@ export class zonePacketHandlers {
               stats: stats.map((stat: any) => {
                 return stat.statData;
               }),
-              //remoteWeaponExtra: remoteWeaponsExtra,
+              remoteWeaponExtra: remoteWeaponsExtra,
           });
           
-          /*
+          
           const weapon = character.getEquippedWeapon(),
           itemdef = server.getItemDefinition(weapon.itemDefinitionId),
           weaponDefinition = server.getWeaponDefinition(itemdef.PARAM1),
@@ -1101,7 +1101,7 @@ export class zonePacketHandlers {
               })
             }
           })
-          */
+          
          
           /*Object.values(character._loadout).forEach((item) => {
             server.addItem(client, item, 101, character);
