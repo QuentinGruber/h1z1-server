@@ -39,8 +39,8 @@ export class SOEServer extends EventEmitter {
   _usePingTimeout: boolean = false;
   private _maxMultiBufferSize: number;
   private _soeClientRoutineLoopMethod!: (arg0: () => void) => void;
-  private _resendTimeout: number = 800;
-  private _packetRatePerClient: number = 200;
+  private _resendTimeout: number = 300;
+  private _packetRatePerClient: number = 500;
   private _ackTiming: number = 80;
   constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
     super();
