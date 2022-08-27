@@ -20,7 +20,7 @@ import { Worker } from "worker_threads";
 import { crc_length_options } from "../../types/soeserver";
 import { LogicalPacket } from "./logicalPacket";
 import { json } from "types/shared";
-const debug = console.log ||  require("debug")("SOEServer");
+const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
 export class SOEServer extends EventEmitter {
@@ -159,6 +159,25 @@ export class SOEServer extends EventEmitter {
     }
   }
 
+  private resetPacketsQueue(queue: packetsQueue) {
+    queue.packets = [];
+    queue.CurrentByteLength = 0
+  }
+
+  private setupResendForQueuedPackets(client:Client,queue: packetsQueue) {
+    for (let index = 0; index < queue.packets.length; index++) {
+      const packet = queue.packets[index];
+      if (
+        packet.isReliable
+      ) {
+        client.unAckData.set(
+          packet.sequence as number,
+          Date.now() + this._waitQueueTimeMs
+        );
+      }
+    }
+  }
+
   // send the queued packets
   private sendClientWaitQueue(client: Client,queue: packetsQueue): void {
     if (queue.timer) {
@@ -170,17 +189,8 @@ export class SOEServer extends EventEmitter {
           sub_packets: queue.packets.map((packet) => {return Array.from(packet.data)}),
         });
         // if a packet in the waiting queue is a reliable packet, then we need to set the timeout
-        for (let index = 0; index < queue.packets.length; index++) {
-          const packet = queue.packets[index];
-          if (
-            packet.isReliable
-          ) {
-            client.unAckData.set(
-              packet.sequence as number,
-              Date.now() + this._waitQueueTimeMs
-            );
-          }
-        }
+        this.setupResendForQueuedPackets(client,queue);
+        this.resetPacketsQueue(queue);
       }
   }
   // If some packets are received out of order then we Acknowledge then one by one
@@ -429,7 +439,6 @@ export class SOEServer extends EventEmitter {
 
   private packLogicalData(packetName: string,packet: json):Buffer{
     let logicalData;
-    // TODO: add other supported direct access
     switch (packetName) {
       case "SessionRequest":
         logicalData = this._protocol.pack_session_request_packet(packet.session_id,packet.crc_length,packet.udp_length,packet.protocol);
@@ -439,6 +448,19 @@ export class SOEServer extends EventEmitter {
         break;
       case "MultiPacket":
         logicalData = this._protocol.pack_multi_fromjs(packet);
+        break;
+      case "Ack":
+        logicalData = this._protocol.pack_ack_packet(packet.sequence);
+        break;
+      case "OutOfOrder":
+        logicalData = this._protocol.pack_out_of_order_packet(packet.sequence);
+        break;
+      case "Data":
+        logicalData = this._protocol.pack_data_packet(packet.data,packet.sequence);
+        break;
+      case "DataFragment":
+        logicalData = this._protocol.pack_fragment_data_packet(packet.data,packet.sequence);
+        break;
       default:
         logicalData = this._protocol.pack(packetName, JSON.stringify(packet))
         break;
@@ -450,9 +472,6 @@ export class SOEServer extends EventEmitter {
     packetName: string,
     packet: json
   ): LogicalPacket {
-    if (packet.data) {
-      packet.data = [...packet.data]; // TODO move this
-    }
     try {
       const logicalPacket = new LogicalPacket(
         this.packLogicalData(packetName, packet),
@@ -517,7 +536,6 @@ export class SOEServer extends EventEmitter {
   ): void {
     const logicalPacket = this.createLogicalPacket(packetName, packet);
       if (
-        packetName !== "Ack" && // ISSUES WITH BUFFERED ACKS
         !unbuffered &&
         packetName !== "MultiPacket" && this._canBeBuffered(logicalPacket, client.waitingQueue)
       ) {
