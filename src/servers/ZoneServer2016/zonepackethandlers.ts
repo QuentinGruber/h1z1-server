@@ -1042,8 +1042,8 @@ export class zonePacketHandlers {
                 unknownDword2: 0,
                 unknownArray1: firegroups.map((firegroup: any, k: number) => { // same len as firegroups in remoteweapons
                   return { // setting unknownDword1 makes the 308 sound when fullpc packet it sent
-                    unknownDword1: 0,
-                    //unknownDword1: firegroup.FIRE_GROUP_ID,
+                    //unknownDword1: 0,
+                    unknownDword1: firegroup.FIRE_GROUP_ID,
                     //unknownDword1: 1,
                     unknownBoolean1: false,
                     unknownBoolean2: false
@@ -2013,8 +2013,9 @@ export class zonePacketHandlers {
             */
             server.sendRemoteWeaponUpdateData(
               client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {
+                // both of these values are usually 0 when the local player shoots
                 unknownDword1: 0, // firegroup / firemode index?
-                unknownQword1: "0xE454DA7"/*1367048*/ // idk what this number is, was dumped from the client when the local character shoots
+                unknownQword1: "0x0"
             })
             
 
@@ -2060,8 +2061,8 @@ export class zonePacketHandlers {
             break;
           case "Weapon.ReloadRequest":
             if (weaponItem.weapon.reloadTimer) return;
-            /*server.sendRemoteWeaponUpdateData(
-              client, client.character.transientId, weaponItem.itemGuid, "Update.Reload", {})*/
+            server.sendRemoteWeaponUpdateData(
+              client, client.character.transientId, weaponItem.itemGuid, "Update.Reload", {})
             const weaponAmmoId = server.getWeaponAmmoId(
                 weaponItem.itemDefinitionId
               ),
