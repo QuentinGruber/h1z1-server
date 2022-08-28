@@ -4167,7 +4167,7 @@ export class ZoneServer2016 extends EventEmitter {
       container.containerDefinitionId
     );
     this.updateContainer(client, container);
-    if (sendUpdate && !client.character.initialized) {
+    if (sendUpdate && client.character.initialized) {
       this.sendData(client, "Reward.AddNonRewardItem", {
         itemDefId: itemDefId,
         iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
@@ -4457,6 +4457,7 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case Items.FUEL_BIOFUEL:
         fuelValue = 2500;
+        break;
       default:
         this.sendChatText(
           client,
