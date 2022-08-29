@@ -1,8 +1,8 @@
 import { LoginClient, LoginServer, ZoneServer } from "../../../h1z1-server";
 
 const loginServer = new LoginServer(1115, "mongodb://localhost:27017/");
-loginServer._crcLength = 2;
 loginServer._enableHttpServer = false; // note: if i want to enable it and test routes , i need to change port 80 to something superior at 1024
+loginServer._soeServer._waitQueueTimeMs = 0;
 loginServer.start().then(() => {
   const zoneServer = new ZoneServer(
     1117,
