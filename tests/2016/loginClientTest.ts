@@ -4,6 +4,7 @@ import { LoginClient, LoginProtocol, LoginServer } from "../../h1z1-server";
 const loginServer2016 = new LoginServer(1115);
 loginServer2016._protocol = new LoginProtocol();
 loginServer2016.start();
+loginServer2016._soeServer._waitQueueTimeMs = 0;
 
 const client = new LoginClient(
   295110,
