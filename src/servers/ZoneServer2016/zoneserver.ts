@@ -2622,11 +2622,11 @@ export class ZoneServer2016 extends EventEmitter {
     effectId: number
   ) {
     this.sendDataToAllWithSpawnedEntity(
-      this._spawnedItems,
+      dictionary,
       object.characterId,
       "Character.PlayWorldCompositeEffect",
       {
-        characterId: "0x0",
+        characterId: object.characterId,
         effectId: effectId,
         position: object.state.position,
       }
