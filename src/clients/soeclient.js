@@ -45,7 +45,7 @@ class SOEClient {
     this._outQueue = [];
 
     const connection = (this._connection = dgram.createSocket("udp4"));
-    const protocol = (this._protocol = new Soeprotocol(0,0));
+    const protocol = (this._protocol = new Soeprotocol(false,0));
     const inputStream = (this._inputStream = new SOEInputStream(cryptoKey));
     const outputStream = (this._outputStream = new SOEOutputStream(cryptoKey));
 
@@ -68,9 +68,6 @@ class SOEClient {
     });
 
     outputStream.on("data", function (err, data, sequence, fragment) {
-      console.log("on data")
-      console.log(data)
-      console.log(sequence)
       if (fragment) {
         me._sendPacket("DataFragment", {
           sequence: sequence,
@@ -157,14 +154,13 @@ class SOEClient {
       switch (packet.name) {
           case "SessionReply":
               debug("Received session reply from server");
-              me._compression = packet.compression;
-              me._crcSeed = packet.crcSeed;
-              me._crcLength = packet.crcLength;
-              me._udpLength = packet.udpLength;
+              me._compression = 0;
+              me._crcSeed = packet.crc_seed;
+              me._crcLength = packet.crc_length;
+              me._udpLength = packet.udp_length;
               inputStream.toggleEncryption(me._useEncryption);
               outputStream.toggleEncryption(me._useEncryption);
-              outputStream.setFragmentSize(packet.udpLength - 7);
-              console.log(me)
+              outputStream.setFragmentSize(packet.udp_length - 7);
               me.emit("connect", null, packet);
               break;
           case "Disconnect":
@@ -175,8 +171,8 @@ class SOEClient {
           case "MultiPacket":
               let lastOutOfOrder = 0;
               const channel = 0;
-              for (let i = 0; i < packet.subPackets.length; i++) {
-                  const subPacket = packet.subPackets[i];
+              for (let i = 0; i < packet.sub_packets.length; i++) {
+                  const subPacket = packet.sub_packets[i];
                   switch (subPacket.name) {
                       case "OutOfOrder":
                           if (subPacket.sequence > lastOutOfOrder) {
@@ -205,11 +201,11 @@ class SOEClient {
               break;
           case "Data":
               debug("Received data packet from server");
-              inputStream.write(packet.data, packet.sequence, false);
+              inputStream.write(Buffer.from(packet.data), packet.sequence, false);
               break;
           case "DataFragment":
               debug("Received data fragment from server");
-              inputStream.write(packet.data, packet.sequence, true);
+              inputStream.write(Buffer.from(packet.data), packet.sequence, true);
               break;
           case "OutOfOrder":
               debug("Received out-order-packet packet on channel " +
@@ -233,8 +229,6 @@ class SOEClient {
       if (me._dumpData) {
         fs.writeFileSync("debug/soeclient_" + n1++ + "_in.dat", data);
       }
-      console.log(data)
-      console.log(protocol)
       const result = JSON.parse(protocol.parse(data))
       handlePacket(result);
     });
@@ -287,11 +281,11 @@ class SOEClient {
   }
 
   _sendPacket(packetName, packet, prioritize) {
+    if(packet.data) {
+      packet.data = [...packet.data]
+    }
     const data = Buffer.from(this._protocol.pack(packetName, JSON.stringify(packet)));
-        console.log(packet)
-        console.log(JSON.stringify(packet))
-        console.log(data)
-        debug(this._guid, "Sending " + packetName + " packet to server");
+        console.log(this._guid, "Sending " + packetName + " packet to server");
     debug(this._guid, "Sending " + packetName + " packet to server");
     if (this._dumpData) {
       fs.writeFileSync(

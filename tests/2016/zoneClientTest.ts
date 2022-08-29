@@ -2,10 +2,12 @@
 
 import { ZoneServer2016, ZoneClient } from "../../h1z1-server";
 
-new ZoneServer2016(
+const zone = new ZoneServer2016(
   1117,
   Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
-).start();
+)
+zone.start();
+(zone as any )._gatewayServer._soeServer._waitQueueTimeMs = 0;
 
 var client = new ZoneClient(
   "127.0.0.1",

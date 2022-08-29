@@ -5,8 +5,7 @@ const zoneServer = new ZoneServer(
   1117,
   Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
 );
-//@ts-ignore
-zoneServer._gatewayServer._crcLength = 2;
+(zoneServer as any )._gatewayServer._soeServer._waitQueueTimeMs = 0;
 zoneServer.start();
 
 fs.writeFileSync(
@@ -218,4 +217,4 @@ setTimeout(() => {
 
 setInterval(() => {
   throw new Error("Test timed out!");
-}, 15000);
+}, 60000);
