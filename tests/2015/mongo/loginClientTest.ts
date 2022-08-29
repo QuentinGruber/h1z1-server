@@ -11,7 +11,7 @@ loginServer.start().then(() => {
     1
   );
   //@ts-ignore
-  zoneServer._gatewayServer._crcLength = 2;
+  zoneServer._gatewayServer._waitQueueTimeMs = 0;
   zoneServer._loginServerInfo.address = "127.0.0.1";
 
   zoneServer.start().then(() => {
