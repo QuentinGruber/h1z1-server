@@ -39,7 +39,7 @@ export default class SOEClient {
   serverUdpLength: number = 512;
   packetsSentThisSec: number = 0;
   useEncryption: boolean = true;
-  waitingQueue: packetsQueue = {packets: [], CurrentByteLength: 0};
+  waitingQueue: packetsQueue = { packets: [], CurrentByteLength: 0 };
   outQueue: LogicalPacket[] = [];
   protocolName: string = "unset";
   unAckData: Map<number, number> = new Map();
@@ -57,11 +57,7 @@ export default class SOEClient {
     packetResend: 0,
   };
   lastAckTime: number = 0;
-  constructor(
-    remote: RemoteInfo,
-    crcSeed: number,
-    cryptoKey: Uint8Array
-  ) {
+  constructor(remote: RemoteInfo, crcSeed: number, cryptoKey: Uint8Array) {
     this.soeClientId = remote.address + ":" + remote.port;
     this.address = remote.address;
     this.port = remote.port;

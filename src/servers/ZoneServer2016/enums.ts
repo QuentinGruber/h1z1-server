@@ -134,7 +134,7 @@ export enum Items {
   WEAPON_FISTS = 85,
   WEAPON_FIRST_AID = 78,
   //#endregion
-  
+
   //#region AMMO
   AMMO_223 = 1429,
   AMMO_12GA = 1511,
@@ -145,7 +145,6 @@ export enum Items {
   AMMO_762 = 2325,
   AMMO_44 = 1719,
   //#endregion
-
 
   //#region PERISHABLE
   FIRST_AID = 2424,
@@ -161,7 +160,7 @@ export enum Items {
   WATER_DIRTY = 1368,
   MRE_APPLE = 1402, // TODO = add other MRE types
   //#endregion
-  
+
   BACKPACK = 1605,
   HELMET_MOTORCYCLE = 2170, // TODO = expand with other default helmet colors
   HAT_CAP = 12, // TODO = expand with other cap colors
