@@ -2086,7 +2086,7 @@ export class zonePacketHandlers {
                   });
                   server.sendRemoteWeaponUpdateDataToAll(
                     client, client.character.transientId, weaponItem.itemGuid, "Update.ReloadLoopEnd", {
-                      endLoop: false
+                      endLoop: true
                     }
                   )
                   client.character.clearReloadTimeout();
