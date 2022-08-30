@@ -2123,11 +2123,6 @@ export class zonePacketHandlers {
                 unknownDword3: maxAmmo,
                 currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
               });
-              server.sendRemoteWeaponUpdateDataToAll(
-                client, client.character.transientId, weaponItem.itemGuid, "Update.ReloadLoopEnd", {
-                  endLoop: true
-                }
-              )
               client.character.clearReloadTimeout();
             }, reloadTime);
 
