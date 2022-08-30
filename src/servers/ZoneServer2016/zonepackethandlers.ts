@@ -1051,6 +1051,8 @@ export class zonePacketHandlers {
               }),
               remoteWeaponExtra: remoteWeaponsExtra,
           });
+
+          // needed so all weapons replicate reload and projectile impact
           Object.values(character._loadout).forEach((item, i) => {
             if(!server.isWeapon(item.itemDefinitionId)) return;
             server.sendRemoteWeaponUpdateData(
@@ -1084,12 +1086,6 @@ export class zonePacketHandlers {
             }
           })
           */
-         
-          /*Object.values(character._loadout).forEach((item) => {
-            server.addItem(client, item, 101, character);
-          })
-          server.updateEquipment(client, character);
-          server.updateLoadout(client, character);*/
 
           server.sendData(client, "Character.WeaponStance", {
             characterId: character.characterId,
@@ -1463,8 +1459,7 @@ export class zonePacketHandlers {
                 unknownDword1: 0,
                 ammoCount: 0,
                 unknownDword3: 0,
-                currentReloadCount: `0x${(++item.weapon
-                  .currentReloadCount).toString(16)}`,
+                currentReloadCount: toHex(++item.weapon.currentReloadCount),
               });
             }
           }
@@ -2070,9 +2065,13 @@ export class zonePacketHandlers {
                     unknownDword1: maxAmmo,
                     ammoCount: weaponItem.weapon.ammoCount,
                     unknownDword3: maxAmmo,
-                    currentReloadCount: `0x${(++weaponItem.weapon
-                      .currentReloadCount).toString(16)}`,
+                    currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
                   });
+                  server.sendRemoteWeaponUpdateDataToAll(
+                    client, client.character.transientId, weaponItem.itemGuid, "Update.ReloadLoopEnd", {
+                      endLoop: true
+                    }
+                  )
                   client.character.clearReloadTimeout();
                   return;
                 }
@@ -2083,9 +2082,13 @@ export class zonePacketHandlers {
                     unknownDword1: maxAmmo,
                     ammoCount: weaponItem.weapon.ammoCount,
                     unknownDword3: maxAmmo,
-                    currentReloadCount: `0x${(++weaponItem.weapon
-                      .currentReloadCount).toString(16)}`,
+                    currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
                   });
+                  server.sendRemoteWeaponUpdateDataToAll(
+                    client, client.character.transientId, weaponItem.itemGuid, "Update.ReloadLoopEnd", {
+                      endLoop: false
+                    }
+                  )
                   client.character.clearReloadTimeout();
                   return;
                 }
@@ -2118,9 +2121,13 @@ export class zonePacketHandlers {
                 unknownDword1: maxAmmo,
                 ammoCount: (weaponItem.weapon.ammoCount += reloadAmount),
                 unknownDword3: maxAmmo,
-                currentReloadCount: `0x${(++weaponItem.weapon
-                  .currentReloadCount).toString(16)}`,
+                currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
               });
+              server.sendRemoteWeaponUpdateDataToAll(
+                client, client.character.transientId, weaponItem.itemGuid, "Update.ReloadLoopEnd", {
+                  endLoop: true
+                }
+              )
               client.character.clearReloadTimeout();
             }, reloadTime);
 

@@ -3009,10 +3009,11 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword1: weaponItem.weapon.ammoCount,
       ammoCount: weaponItem.weapon.ammoCount,
       unknownDword3: weaponItem.weapon.ammoCount,
-      currentReloadCount: `0x${(++weaponItem.weapon
-        .currentReloadCount).toString(16)}`,
+      currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount)
     });
-    // send reloadinterrupt to all clients with spawned character
+    this.sendRemoteWeaponUpdateDataToAll(
+      client, client.character.transientId, weaponItem.itemGuid, "Update.ReloadInterrupt", {}
+    )
   }
 
   combatLog(client: Client) {
@@ -3516,7 +3517,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    const generatedGuid = `0x${this.generateItemGuid().toString(16)}`;
+    const generatedGuid = toBigHex(this.generateItemGuid());
     let durability: number = 2000;
     switch (true) {
       case this.isWeapon(itemDefinitionId):

@@ -329,7 +329,15 @@ const remoteWeaponUpdatePackets: any = [
   ],
   ["Update.Empty", 0x02, {}],
   ["Update.Reload", 0x03, {}],
-  ["Update.ReloadLoopEnd", 0x04, {}],
+  [
+    "Update.ReloadLoopEnd", 
+    0x04, 
+    {
+      fields: [
+        { name: "endLoop", type: "boolean", defaultValue: false },
+      ]
+    }
+  ],
   ["Update.ReloadInterrupt", 0x05, {}],
   [
     "Update.SwitchFireMode", 

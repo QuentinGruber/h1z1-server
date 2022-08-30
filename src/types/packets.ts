@@ -2514,7 +2514,9 @@ export type remoteWeaponUpdatePacketsType =
   | "Update.Reload"
   | "Update.AddFireGroup"
   | "Update.FireState"
-  | "Update.SwitchFireMode";
+  | "Update.SwitchFireMode"
+  | "Update.ReloadLoopEnd"
+  | "Update.ReloadInterrupt";
 
 export type loginPacketsType =
   | "LoginRequest"
