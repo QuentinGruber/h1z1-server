@@ -42,8 +42,8 @@ const weaponPackets: any = [
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "weaponProjectileCount", type: "uint32", defaultValue: 0 },
+        { name: "sessionProjectileCount", type: "uint32", defaultValue: 0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
       ],
     },
@@ -74,7 +74,7 @@ const weaponPackets: any = [
     {
       fields: [
         { name: "weaponGuid", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "weaponProjectileCount", type: "uint32", defaultValue: 0 },
         { name: "ammoCount", type: "uint32", defaultValue: 0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
         { name: "currentReloadCount", type: "uint64string", defaultValue: "0" },
@@ -89,8 +89,8 @@ const weaponPackets: any = [
     {
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "firemode", type: "uint8", defaultValue: 0 },
+        { name: "firegroupIndex", type: "uint8", defaultValue: 0 },
+        { name: "firemodeIndex", type: "uint8", defaultValue: 0 },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
       ],
     },
@@ -202,8 +202,8 @@ const weaponPackets: any = [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "weaponProjectileCount", type: "uint32", defaultValue: 0 },
+        { name: "sessionProjectileCount", type: "uint32", defaultValue: 0 },
         { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
       ],
@@ -311,12 +311,36 @@ const remoteWeaponPackets: any = [
 ];
 
 const remoteWeaponUpdatePackets: any = [
-  ["Update.FireState", 0x01, {}],
+  [
+    "Update.FireState", 
+    0x01, 
+    {
+      fields: [
+        { name: "firestate", type: "uint8", defaultValue: 0 },
+        /*{
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },*/
+        { name: "position", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
+      ]
+    }
+  ],
   ["Update.Empty", 0x02, {}],
   ["Update.Reload", 0x03, {}],
   ["Update.ReloadLoopEnd", 0x04, {}],
   ["Update.ReloadInterrupt", 0x05, {}],
-  ["Update.SwitchFireMode", 0x06, {}],
+  [
+    "Update.SwitchFireMode", 
+    0x06, 
+    {
+      fields: [
+        { name: "firegroupIndex", type: "uint8", defaultValue: 0 },
+        { name: "firemodeIndex", type: "uint8", defaultValue: 0 },
+      ]
+    }
+  ],
   ["Update.StatUpdate", 0x07, {}],
   [
     "Update.AddFireGroup",
@@ -491,7 +515,7 @@ export function packRemoteWeaponUpdatePacket(obj: any): Buffer {
 }
 
 const hitReportSchema = [
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "sessionProjectileCount", type: "uint32", defaultValue: 0 },
   { name: "characterId", type: "uint64string", defaultValue: "0" },
   { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
   { name: "hitLocationLen", type: "uint8", defaultValue: 0 },

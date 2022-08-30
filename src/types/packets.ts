@@ -2512,7 +2512,9 @@ export type remoteWeaponPacketsType = "RemoteWeapon.AddWeapon";
 export type remoteWeaponUpdatePacketsType =
   | "Update.ProjectileLaunch"
   | "Update.Reload"
-  | "Update.AddFireGroup";
+  | "Update.AddFireGroup"
+  | "Update.FireState"
+  | "Update.SwitchFireMode";
 
 export type loginPacketsType =
   | "LoginRequest"

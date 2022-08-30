@@ -2363,6 +2363,34 @@ export class ZoneServer2016 extends EventEmitter {
     packetName: remoteWeaponUpdatePacketsType,
     obj: any
   ) {
+    this.sendData(
+      client,
+      "Weapon.Weapon",
+      {
+        weaponPacket: {
+          packetName: "Weapon.RemoteWeapon",
+          gameTime: this.getGameTime(),
+          remoteWeaponPacket: {
+            packetName: "RemoteWeapon.Update",
+            transientId: transientId,
+            remoteWeaponUpdatePacket: {
+              packetName: packetName,
+              weaponGuid: weaponGuid,
+              packet: obj,
+            },
+          },
+        },
+      }
+    );
+  }
+
+  sendRemoteWeaponUpdateDataToAll(
+    client: Client,
+    transientId: number,
+    weaponGuid: string,
+    packetName: remoteWeaponUpdatePacketsType,
+    obj: any
+  ) {
     this.sendDataToAllOthersWithSpawnedEntity(
       this._characters,
       client,
