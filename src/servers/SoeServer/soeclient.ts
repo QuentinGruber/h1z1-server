@@ -23,6 +23,12 @@ interface SOEClientStats {
   packetResend: number;
   packetsOutOfOrder: number;
 }
+
+export interface packetsQueue {
+  packets: LogicalPacket[];
+  CurrentByteLength: number;
+  timer?: NodeJS.Timeout;
+}
 export default class SOEClient {
   sessionId: number = 0;
   address: string;
@@ -32,11 +38,9 @@ export default class SOEClient {
   clientUdpLength: number = 512;
   serverUdpLength: number = 512;
   packetsSentThisSec: number = 0;
-  compression: number;
   useEncryption: boolean = true;
-  waitingQueue: soePacket[] = [];
+  waitingQueue: packetsQueue = { packets: [], CurrentByteLength: 0 };
   outQueue: LogicalPacket[] = [];
-  priorityQueue: LogicalPacket[] = [];
   protocolName: string = "unset";
   unAckData: Map<number, number> = new Map();
   outOfOrderPackets: soePacket[] = [];
@@ -44,12 +48,8 @@ export default class SOEClient {
   lastAck: wrappedUint16 = new wrappedUint16(-1);
   inputStream: SOEInputStream;
   outputStream: SOEOutputStream;
-  waitQueueTimer?: NodeJS.Timeout;
-  waitingQueueCurrentByteLength: number = 0;
   soeClientId: string;
   lastPingTimer!: NodeJS.Timeout;
-  hasConnectionsIssues: boolean = false;
-  priorityQueueWarningLevel: number = 100;
   isDeleted: boolean = false;
   stats: SOEClientStats = {
     totalPacketSent: 0,
@@ -57,17 +57,11 @@ export default class SOEClient {
     packetResend: 0,
   };
   lastAckTime: number = 0;
-  constructor(
-    remote: RemoteInfo,
-    crcSeed: number,
-    compression: number,
-    cryptoKey: Uint8Array
-  ) {
+  constructor(remote: RemoteInfo, crcSeed: number, cryptoKey: Uint8Array) {
     this.soeClientId = remote.address + ":" + remote.port;
     this.address = remote.address;
     this.port = remote.port;
     this.crcSeed = crcSeed;
-    this.compression = compression;
     this.inputStream = new SOEInputStream(cryptoKey);
     this.outputStream = new SOEOutputStream(cryptoKey);
   }
