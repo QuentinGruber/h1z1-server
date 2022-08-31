@@ -980,56 +980,7 @@ export class zonePacketHandlers {
           }
           break;
         case EntityTypes.PLAYER: // characters
-          const character = entityData as Character2016,
-          remoteWeapons: any[] = [],
-          remoteWeaponsExtra: any[] = [];
-          Object.values(character._loadout).forEach((item, i) => {
-            if(server.isWeapon(item.itemDefinitionId)) {
-              const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
-              weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
-              firegroups = weaponDefinition.FIRE_GROUPS; 
-              remoteWeapons.push({
-                guid: item.itemGuid,
-                weaponDefinitionId: weaponDefinition.ID,
-                equipmentSlotId: character.getActiveEquipmentSlot(item),
-                firegroups: firegroups.map((firegroup: any) => {
-                  const firegroupDef = server.getFiregroupDefinition(firegroup.FIRE_GROUP_ID),
-                  firemodes = firegroupDef.FIRE_MODES
-                  return {
-                    firegroupId: firegroup.FIRE_GROUP_ID,
-                    unknownArray1: firemodes.map((firemode: any, j: number)=> {
-                      return {
-                       unknownDword1: j,
-                       unknownDword2: firemode.FIRE_MODE_ID,
-                      }
-                    }) // probably firemodes
-                  }
-                })
-              })     
-              remoteWeaponsExtra.push({
-                guid: item.itemGuid,
-                unknownByte1: 0, // firegroupIndex (default 0)?
-                unknownByte2: 0, // MOST LIKELY firemodeIndex?
-                unknownByte3: -1,
-                unknownByte4: -1,
-                unknownByte5: 1,
-                unknownDword1: 0,
-                unknownByte6: 0,
-                unknownDword2: 0,
-                unknownArray1: firegroups.map((firegroup: any, k: number) => { // same len as firegroups in remoteweapons
-                  return { // setting unknownDword1 makes the 308 sound when fullpc packet it sent
-                    unknownDword1: 0,//firegroup.FIRE_GROUP_ID,
-                    unknownBoolean1: false,
-                    unknownBoolean2: false
-                  }
-                })
-              })    
-              
-            }
-          })
-          console.log(JSON.stringify(remoteWeapons, null, 2))
-          console.log(JSON.stringify(remoteWeaponsExtra, null, 2))
-
+          const character = entityData as Character2016;
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
               fullPcData: {
@@ -1039,7 +990,7 @@ export class zonePacketHandlers {
                 hairModel: character.hairModel,
 
                 resources: {data: character.pGetResources() },
-                remoteWeapons: {data: remoteWeapons},
+                remoteWeapons: {data: server.pGetRemoteWeaponsData(character)},
                 
               },
               positionUpdate: {
@@ -1049,7 +1000,7 @@ export class zonePacketHandlers {
               stats: stats.map((stat: any) => {
                 return stat.statData;
               }),
-              remoteWeaponExtra: remoteWeaponsExtra,
+              remoteWeaponsExtra: server.pGetRemoteWeaponsExtraData(character)
           });
 
           // needed so all weapons replicate reload and projectile impact
@@ -1061,31 +1012,6 @@ export class zonePacketHandlers {
                 firemodeIndex: 0,
             })
           })
-          
-          /*
-          const weapon = character.getEquippedWeapon(),
-          itemdef = server.getItemDefinition(weapon.itemDefinitionId),
-          weaponDefinition = server.getWeaponDefinition(itemdef.PARAM1),
-          firegroups = weaponDefinition.FIRE_GROUPS;
-          server.sendRemoteWeaponData(client, character.transientId, "RemoteWeapon.AddWeapon", {
-            guid: weapon.itemGuid,
-            data: {
-              weaponDefinitionId: itemdef.PARAM1,
-              equipmentSlotId: character.getActiveEquipmentSlot(weapon),
-              firegroups: firegroups.map((firegroup: any) => {
-                return {
-                  firegroupId: firegroup.FIRE_GROUP_ID,
-                  unknownArray1: [
-                    {},
-                    {},
-                    {},
-                    {},
-                  ]
-                }
-              })
-            }
-          })
-          */
 
           server.sendData(client, "Character.WeaponStance", {
             characterId: character.characterId,
@@ -1975,9 +1901,9 @@ export class zonePacketHandlers {
           case "Weapon.FireStateUpdate":
             debug("Weapon.FireStateUpdate");
             if(p.packet.firestate == 64) { // empty firestate
-              server.sendRemoteWeaponUpdateDataToAll(
+              server.sendRemoteWeaponUpdateDataToAllOthers(
                 client, client.character.transientId, weaponItem.itemGuid, "Update.Empty", {});
-              server.sendRemoteWeaponUpdateDataToAll(
+              server.sendRemoteWeaponUpdateDataToAllOthers(
                 client, client.character.transientId, weaponItem.itemGuid, "Update.FireState", {
                   state: {
                     firestate: 64,
@@ -1989,11 +1915,11 @@ export class zonePacketHandlers {
             // prevent empty weapons from entering an active firestate
             if(!weaponItem.weapon?.ammoCount) return;
             if(p.packet.firestate > 0) {
-              server.sendRemoteWeaponUpdateDataToAll(
+              server.sendRemoteWeaponUpdateDataToAllOthers(
                 client, client.character.transientId, weaponItem.itemGuid, "Update.Chamber", {}
               )
             }
-            server.sendRemoteWeaponUpdateDataToAll(
+            server.sendRemoteWeaponUpdateDataToAllOthers(
               client, client.character.transientId, weaponItem.itemGuid, "Update.FireState", {
                 state: {
                   firestate: p.packet.firestate,
@@ -2008,7 +1934,7 @@ export class zonePacketHandlers {
             if (weaponItem.weapon.ammoCount <= 0) return;
             weaponItem.weapon.ammoCount -= 1;
             server.stopHudTimer(client);
-            server.sendRemoteWeaponUpdateDataToAll(
+            server.sendRemoteWeaponUpdateDataToAllOthers(
               client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {});
             break;
           case "Weapon.ProjectileHitReport":
@@ -2053,7 +1979,7 @@ export class zonePacketHandlers {
           case "Weapon.ReloadRequest":
             if (weaponItem.weapon.reloadTimer) return;
             // force 0 firestate so gun doesnt shoot randomly after reloading
-            server.sendRemoteWeaponUpdateDataToAll(
+            server.sendRemoteWeaponUpdateDataToAllOthers(
               client, client.character.transientId, weaponItem.itemGuid, "Update.FireState", {
                 state: {
                   firestate: 0,
@@ -2061,7 +1987,7 @@ export class zonePacketHandlers {
                   position: client.character.state.position
                 }
             })
-            server.sendRemoteWeaponUpdateDataToAll(
+            server.sendRemoteWeaponUpdateDataToAllOthers(
               client, client.character.transientId, weaponItem.itemGuid, "Update.Reload", {})
             const weaponAmmoId = server.getWeaponAmmoId(
                 weaponItem.itemDefinitionId
@@ -2092,7 +2018,7 @@ export class zonePacketHandlers {
                     unknownDword3: maxAmmo,
                     currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
                   });
-                  server.sendRemoteWeaponUpdateDataToAll(
+                  server.sendRemoteWeaponUpdateDataToAllOthers(
                     client, client.character.transientId, weaponItem.itemGuid, "Update.ReloadLoopEnd", {
                       endLoop: true
                     }
@@ -2109,7 +2035,7 @@ export class zonePacketHandlers {
                     unknownDword3: maxAmmo,
                     currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
                   });
-                  server.sendRemoteWeaponUpdateDataToAll(
+                  server.sendRemoteWeaponUpdateDataToAllOthers(
                     client, client.character.transientId, weaponItem.itemGuid, "Update.ReloadLoopEnd", {
                       endLoop: true
                     }
@@ -2165,7 +2091,7 @@ export class zonePacketHandlers {
             // temp workaround to fix 308 sound while aiming
             if(p.packet.firemodeIndex == 1 && 
               server.getItemDefinition(weaponItem.itemDefinitionId).PARAM1 == 1373) return;
-            server.sendRemoteWeaponUpdateDataToAll(
+            server.sendRemoteWeaponUpdateDataToAllOthers(
               client, client.character.transientId, weaponItem.itemGuid, "Update.SwitchFireMode", {
                 firegroupIndex: p.packet.firegroupIndex,
                 firemodeIndex: p.packet.firemodeIndex,
@@ -2181,7 +2107,7 @@ export class zonePacketHandlers {
             debug("MeleeHitMaterial");
             break;
           case "Weapon.AimBlockedNotify":
-            server.sendRemoteWeaponUpdateDataToAll(
+            server.sendRemoteWeaponUpdateDataToAllOthers(
               client, client.character.transientId, weaponItem.itemGuid, "Update.AimBlocked", {
                 aimBlocked: p.packet.aimBlocked,
             })

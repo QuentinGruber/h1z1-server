@@ -2356,6 +2356,31 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  sendRemoteWeaponDataToAllOthers(
+    client: Client,
+    transientId: number,
+    packetName: remoteWeaponPacketsType,
+    obj: any
+  ) {
+    this.sendDataToAllOthersWithSpawnedEntity(
+      this._characters, 
+      client, 
+      client.character.characterId, 
+      "Weapon.Weapon", 
+      {
+        weaponPacket: {
+          packetName: "Weapon.RemoteWeapon",
+          gameTime: this.getGameTime(),
+          remoteWeaponPacket: {
+            packetName: packetName,
+            transientId: transientId,
+            packet: obj,
+          },
+        },
+      }
+    );
+  }
+
   sendRemoteWeaponUpdateData(
     client: Client,
     transientId: number,
@@ -2384,7 +2409,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  sendRemoteWeaponUpdateDataToAll(
+  sendRemoteWeaponUpdateDataToAllOthers(
     client: Client,
     transientId: number,
     weaponGuid: string,
@@ -3011,7 +3036,7 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword3: weaponItem.weapon.ammoCount,
       currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount)
     });
-    this.sendRemoteWeaponUpdateDataToAll(
+    this.sendRemoteWeaponUpdateDataToAllOthers(
       client, client.character.transientId, weaponItem.itemGuid, "Update.ReloadInterrupt", {}
     )
   }
@@ -3104,6 +3129,85 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword9: 1,
       unknownData1: this.getItemWeaponData(character, item),
     };
+  }
+
+  pGetRemoteWeaponData(
+    character: Character,
+    item: inventoryItem
+  ) {
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+      weaponDefinition = this.getWeaponDefinition(itemDefinition.PARAM1),
+      firegroups = weaponDefinition.FIRE_GROUPS; 
+    return {
+      weaponDefinitionId: weaponDefinition.ID,
+      equipmentSlotId: character.getActiveEquipmentSlot(item),
+      firegroups: firegroups.map((firegroup: any) => {
+        const firegroupDef = this.getFiregroupDefinition(firegroup.FIRE_GROUP_ID),
+        firemodes = firegroupDef.FIRE_MODES
+        return {
+          firegroupId: firegroup.FIRE_GROUP_ID,
+          unknownArray1: firemodes.map((firemode: any, j: number)=> {
+            return {
+             unknownDword1: j,
+             unknownDword2: firemode.FIRE_MODE_ID,
+            }
+          }) // probably firemodes
+        }
+      })
+    };
+  }
+
+  pGetRemoteWeaponExtraData(
+    item: inventoryItem
+  ) {
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+      weaponDefinition = this.getWeaponDefinition(itemDefinition.PARAM1),
+      firegroups = weaponDefinition.FIRE_GROUPS; 
+    return {
+      guid: item.itemGuid,
+      unknownByte1: 0, // firegroupIndex (default 0)?
+      unknownByte2: 0, // MOST LIKELY firemodeIndex?
+      unknownByte3: -1,
+      unknownByte4: -1,
+      unknownByte5: 1,
+      unknownDword1: 0,
+      unknownByte6: 0,
+      unknownDword2: 0,
+      unknownArray1: firegroups.map((firegroup: any, k: number) => { // same len as firegroups in remoteweapons
+        return { // setting unknownDword1 makes the 308 sound when fullpc packet it sent
+          unknownDword1: 0,//firegroup.FIRE_GROUP_ID,
+          unknownBoolean1: false,
+          unknownBoolean2: false
+        }
+      })
+    };
+  }
+
+  pGetRemoteWeaponsData(
+    character: Character
+  ) {
+    const remoteWeapons: any[] = [];
+    Object.values(character._loadout).forEach((item, i) => {
+      if(this.isWeapon(item.itemDefinitionId)) {
+        remoteWeapons.push({
+          guid: item.itemGuid,
+          ...this.pGetRemoteWeaponData(character, item)
+        }); 
+      }
+    });
+    return remoteWeapons;
+  }
+
+  pGetRemoteWeaponsExtraData(
+    character: Character
+  ) {
+    const remoteWeaponsExtra: any[] = [];
+    Object.values(character._loadout).forEach((item, i) => {
+      if(this.isWeapon(item.itemDefinitionId)) {
+        remoteWeaponsExtra.push(this.pGetRemoteWeaponExtraData(item));
+      }
+    });
+    return remoteWeaponsExtra;
   }
 
   getItemWeaponData(charcter: Character, slot: inventoryItem) {
@@ -3813,7 +3917,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!item || !item.itemDefinitionId) return false;
 
     if(this.isWeapon(item.itemDefinitionId)) {
-      this.sendRemoteWeaponData(client, client.character.transientId, "RemoteWeapon.RemoveWeapon", {
+      this.sendRemoteWeaponDataToAllOthers(client, client.character.transientId, "RemoteWeapon.RemoveWeapon", {
         guid: item.itemGuid,
       })
     }
@@ -4003,24 +4107,10 @@ export class ZoneServer2016 extends EventEmitter {
       }
       this.equipItem(client, item);
       if(this.isWeapon(item.itemDefinitionId)) {
-        const weaponDefinition = this.getWeaponDefinition(itemDef.PARAM1),
-          firegroups = weaponDefinition.FIRE_GROUPS; 
-        this.sendRemoteWeaponData(client, client.character.transientId, "RemoteWeapon.AddWeapon", {
-          guid: item.itemGuid,
+        this.sendRemoteWeaponDataToAllOthers(client, client.character.transientId, "RemoteWeapon.Reset", {
           data: {
-            weaponDefinitionId: itemDef.PARAM1,
-            equipmentSlotId: client.character.getActiveEquipmentSlot(item),
-            firegroups: firegroups.map((firegroup: any) => {
-              return {
-                firegroupId: firegroup.FIRE_GROUP_ID,
-                unknownArray1: [
-                  {},
-                  {},
-                  {},
-                  {},
-                ]
-              }
-            })
+            remoteWeapons: this.pGetRemoteWeaponsData(client.character),
+            remoteWeaponsExtra: this.pGetRemoteWeaponsExtraData(client.character)
           }
         })
       }

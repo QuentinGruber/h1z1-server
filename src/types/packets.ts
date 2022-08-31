@@ -2508,9 +2508,10 @@ export type weaponPacketsType =
   | "Weapon.Reset";
 
 export type remoteWeaponPacketsType = 
+  | "RemoteWeapon.Reset"
   | "RemoteWeapon.AddWeapon"
   | "RemoteWeapon.RemoveWeapon";
-  
+
 export type remoteWeaponUpdatePacketsType =
   | "Update.ProjectileLaunch"
   | "Update.Reload"

@@ -17,6 +17,7 @@ import {
   packUnsignedIntWith2bitLengthValue,
   readPacketType,
   readUnsignedIntWith2bitLengthValue,
+  remoteWeaponExtraSchema,
   remoteWeaponSchema,
   writePacketType,
 } from "./shared";
@@ -264,15 +265,29 @@ const remoteWeaponPackets: any = [
     {
       fields: [
         {
-          name: "transientId",
-          type: "custom",
-          parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
-        },
-        {
           name: "data",
           type: "byteswithlength",
-          fields: [],
+          defaultValue: {},
+          fields: [
+            {
+              name: "remoteWeapons",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                { name: "guid", type: "uint64string", defaultValue: "" },
+                ...remoteWeaponSchema,
+              ],
+            },
+            {
+              name: "remoteWeaponsExtra",
+              type: "array",
+              defaultValue: {},
+              fields: [
+                { name: "guid", type: "uint64string", defaultValue: "" },
+                ...remoteWeaponExtraSchema
+              ]
+            },
+          ],
         },
       ],
     },
