@@ -1974,27 +1974,42 @@ export class zonePacketHandlers {
         switch (p.packetName) {
           case "Weapon.FireStateUpdate":
             debug("Weapon.FireStateUpdate");
+            if(p.packet.firestate == 64) { // empty firestate
+              server.sendRemoteWeaponUpdateDataToAll(
+                client, client.character.transientId, weaponItem.itemGuid, "Update.Empty", {});
+              server.sendRemoteWeaponUpdateDataToAll(
+                client, client.character.transientId, weaponItem.itemGuid, "Update.FireState", {
+                  state: {
+                    firestate: 64,
+                    transientId: client.character.transientId,
+                    position: client.character.state.position
+                  }
+              })
+            }
+            // prevent empty weapons from entering an active firestate
+            if(!weaponItem.weapon?.ammoCount) return;
+            if(p.packet.firestate > 0) {
+              server.sendRemoteWeaponUpdateDataToAll(
+                client, client.character.transientId, weaponItem.itemGuid, "Update.Chamber", {}
+              )
+            }
             server.sendRemoteWeaponUpdateDataToAll(
               client, client.character.transientId, weaponItem.itemGuid, "Update.FireState", {
-                firestate: p.packet.firestate,
-                //transientId: client.character.transientId
-                position: client.character.state.position
+                state: {
+                  firestate: p.packet.firestate,
+                  transientId: client.character.transientId,
+                  position: client.character.state.position
+                }
             })
-            server.damageItem(client, weaponItem, 2);
+            if(weaponItem.weapon.ammoCount) server.damageItem(client, weaponItem, 2);
             break;
           case "Weapon.Fire":
-            if (weaponItem.weapon.ammoCount > 0) {
-              weaponItem.weapon.ammoCount -= 1;
-            }
-            server.stopHudTimer(client);
             debug("Weapon.Fire");
-
+            if (weaponItem.weapon.ammoCount <= 0) return;
+            weaponItem.weapon.ammoCount -= 1;
+            server.stopHudTimer(client);
             server.sendRemoteWeaponUpdateDataToAll(
-              client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {
-                unknownDword1: 0,
-                unknownQword1: "0x0"
-            })
-
+              client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {});
             break;
           case "Weapon.ProjectileHitReport":
             if(client.character.getEquippedWeapon().itemDefinitionId == 1776) {
@@ -2037,6 +2052,15 @@ export class zonePacketHandlers {
             break;
           case "Weapon.ReloadRequest":
             if (weaponItem.weapon.reloadTimer) return;
+            // force 0 firestate so gun doesnt shoot randomly after reloading
+            server.sendRemoteWeaponUpdateDataToAll(
+              client, client.character.transientId, weaponItem.itemGuid, "Update.FireState", {
+                state: {
+                  firestate: 0,
+                  transientId: client.character.transientId,
+                  position: client.character.state.position
+                }
+            })
             server.sendRemoteWeaponUpdateDataToAll(
               client, client.character.transientId, weaponItem.itemGuid, "Update.Reload", {})
             const weaponAmmoId = server.getWeaponAmmoId(
@@ -2046,6 +2070,7 @@ export class zonePacketHandlers {
               reloadTime = server.getWeaponReloadTime(
                 weaponItem.itemDefinitionId
               );
+            //#region SHOTGUN ONLY
             if (weaponAmmoId == Items.AMMO_12GA) {
               weaponItem.weapon.reloadTimer = setTimeout(() => {
                 if (!weaponItem.weapon?.reloadTimer) {
@@ -2096,6 +2121,7 @@ export class zonePacketHandlers {
               }, reloadTime);
               return;
             }
+            //#endregion
             weaponItem.weapon.reloadTimer = setTimeout(() => {
               if (
                 !weaponItem.weapon?.reloadTimer ||
@@ -2133,6 +2159,12 @@ export class zonePacketHandlers {
             break;
           case "Weapon.SwitchFireModeRequest":
             debug("SwitchFireModeRequest");
+            // workaround so aiming in doesn't sometimes make the shooting sound
+            if(!weaponItem.weapon?.ammoCount) return;
+
+            // temp workaround to fix 308 sound while aiming
+            if(p.packet.firemodeIndex == 1 && 
+              server.getItemDefinition(weaponItem.itemDefinitionId).PARAM1 == 1373) return;
             server.sendRemoteWeaponUpdateDataToAll(
               client, client.character.transientId, weaponItem.itemGuid, "Update.SwitchFireMode", {
                 firegroupIndex: p.packet.firegroupIndex,
@@ -2146,10 +2178,13 @@ export class zonePacketHandlers {
             debug("ProjectileContactReport");
             break;
           case "Weapon.MeleeHitMaterial":
-            server.sendAlert(client, `MaterialType: ${p.packet.materialType}`);
             debug("MeleeHitMaterial");
             break;
           case "Weapon.AimBlockedNotify":
+            server.sendRemoteWeaponUpdateDataToAll(
+              client, client.character.transientId, weaponItem.itemGuid, "Update.AimBlocked", {
+                aimBlocked: p.packet.aimBlocked,
+            })
             debug("AimBlockedNotify");
             break;
           default:

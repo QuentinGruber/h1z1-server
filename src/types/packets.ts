@@ -2507,8 +2507,10 @@ export type weaponPacketsType =
   | "Weapon.GuidedUpdate"
   | "Weapon.Reset";
 
-export type remoteWeaponPacketsType = "RemoteWeapon.AddWeapon";
-
+export type remoteWeaponPacketsType = 
+  | "RemoteWeapon.AddWeapon"
+  | "RemoteWeapon.RemoveWeapon";
+  
 export type remoteWeaponUpdatePacketsType =
   | "Update.ProjectileLaunch"
   | "Update.Reload"
@@ -2516,7 +2518,10 @@ export type remoteWeaponUpdatePacketsType =
   | "Update.FireState"
   | "Update.SwitchFireMode"
   | "Update.ReloadLoopEnd"
-  | "Update.ReloadInterrupt";
+  | "Update.ReloadInterrupt"
+  | "Update.AimBlocked"
+  | "Update.Empty"
+  | "Update.Chamber";
 
 export type loginPacketsType =
   | "LoginRequest"

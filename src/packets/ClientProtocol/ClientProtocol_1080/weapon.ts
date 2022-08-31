@@ -291,7 +291,15 @@ const remoteWeaponPackets: any = [
       ],
     },
   ],
-  ["RemoteWeapon.RemoveWeapon", 0x03, {}],
+  [
+    "RemoteWeapon.RemoveWeapon", 
+    0x03, 
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "" },
+      ],
+    },
+  ],
   [
     "RemoteWeapon.Update",
     0x04,
@@ -316,18 +324,31 @@ const remoteWeaponUpdatePackets: any = [
     0x01, 
     {
       fields: [
-        { name: "firestate", type: "uint8", defaultValue: 0 },
+        {
+          name: "state",
+          type: "custom",
+          packer: packFirestateUpdate,
+        },
+        //{ name: "firestate", type: "uint8", defaultValue: 0 },
         /*{
           name: "transientId",
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
         },*/
-        { name: "position", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
+        //{ name: "position", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
       ]
     }
   ],
-  ["Update.Empty", 0x02, {}],
+  [
+    "Update.Empty", 
+    0x02, 
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      ]
+    }
+  ],
   ["Update.Reload", 0x03, {}],
   [
     "Update.ReloadLoopEnd", 
@@ -373,6 +394,15 @@ const remoteWeaponUpdatePackets: any = [
   ["Update.Throw", 0x0d, {}],
   ["Update.Trigger", 0x0e, {}],
   ["Update.ChamberInterrupt", 0x0f, {}],
+  [
+    "Update.AimBlocked", 
+    0x010, 
+    {
+      fields: [
+        { name: "aimBlocked", type: "boolean", defaultValue: false },
+      ]
+    }
+  ],
 ];
 
 const [weaponPacketTypes, weaponPacketDescriptors] =
@@ -456,6 +486,29 @@ export function packWeaponPacket(obj: any): Buffer {
     subData.copy(data, 4);
   } else {
     throw "Unknown weapon packet type: " + subType;
+  }
+  return data;
+}
+
+function packFirestateUpdate(obj: any): Buffer {
+  let data = Buffer.alloc(1);
+  data.writeUInt8(obj.firestate);
+  if ((obj.firestate & 2) == 0) { // transientId
+    data = Buffer.concat([data, DataSchema.pack(
+      [{
+        name: "transientId",
+        type: "custom",
+        parser: readUnsignedIntWith2bitLengthValue,
+        packer: packUnsignedIntWith2bitLengthValue,
+      }],
+      obj
+    ).data]);
+  }
+  else { // floatvector4
+    data = Buffer.concat([data, DataSchema.pack(
+      [{ name: "position", type: "floatvector4", defaultValue: [1, 1, 1, 1] }],
+      obj
+    ).data]);
   }
   return data;
 }

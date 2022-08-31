@@ -3135,19 +3135,7 @@ export class ZoneServer2016 extends EventEmitter {
                   unknownDword1: 0,
                   unknownDword2: 0,
                   unknownDword3: 0,
-                } /*
-              {
-                unknownByte1: 0,
-                unknownDword1: 0,
-                unknownDword2: 0,
-                unknownDword3: 0
-              },
-              {
-                unknownByte1: 0,
-                unknownDword1: 0,
-                unknownDword2: 0,
-                unknownDword3: 0
-              },*/,
+                }
               ],
             },
           ],
@@ -3821,7 +3809,14 @@ export class ZoneServer2016 extends EventEmitter {
   removeLoadoutItem(client: Client, loadoutSlotId: number): boolean {
     const item = client.character._loadout[loadoutSlotId],
       itemDefId = item?.itemDefinitionId; // save before item gets deleted
+
     if (!item || !item.itemDefinitionId) return false;
+
+    if(this.isWeapon(item.itemDefinitionId)) {
+      this.sendRemoteWeaponData(client, client.character.transientId, "RemoteWeapon.RemoveWeapon", {
+        guid: item.itemGuid,
+      })
+    }
     this.deleteItem(client, item.itemGuid);
     client.character.clearLoadoutSlot(loadoutSlotId);
     this.updateLoadout(client);
@@ -4007,6 +4002,28 @@ export class ZoneServer2016 extends EventEmitter {
         });
       }
       this.equipItem(client, item);
+      if(this.isWeapon(item.itemDefinitionId)) {
+        const weaponDefinition = this.getWeaponDefinition(itemDef.PARAM1),
+          firegroups = weaponDefinition.FIRE_GROUPS; 
+        this.sendRemoteWeaponData(client, client.character.transientId, "RemoteWeapon.AddWeapon", {
+          guid: item.itemGuid,
+          data: {
+            weaponDefinitionId: itemDef.PARAM1,
+            equipmentSlotId: client.character.getActiveEquipmentSlot(item),
+            firegroups: firegroups.map((firegroup: any) => {
+              return {
+                firegroupId: firegroup.FIRE_GROUP_ID,
+                unknownArray1: [
+                  {},
+                  {},
+                  {},
+                  {},
+                ]
+              }
+            })
+          }
+        })
+      }
     } else {
       this.lootContainerItem(client, item, count);
     }
