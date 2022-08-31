@@ -1894,7 +1894,6 @@ export class zonePacketHandlers {
           break;
       }
       function handleWeaponPacket(p: any) {
-        console.log(p)
         const weaponItem = client.character.getEquippedWeapon();
         if (!weaponItem.weapon) return;
         switch (p.packetName) {

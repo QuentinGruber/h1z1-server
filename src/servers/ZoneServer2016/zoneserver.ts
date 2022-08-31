@@ -3173,7 +3173,7 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword1: 0,
       unknownByte6: 0,
       unknownDword2: 0,
-      unknownArray1: firegroups.map((firegroup: any, k: number) => { // same len as firegroups in remoteweapons
+      unknownArray1: firegroups.map(() => { // same len as firegroups in remoteweapons
         return { // setting unknownDword1 makes the 308 sound when fullpc packet it sent
           unknownDword1: 0,//firegroup.FIRE_GROUP_ID,
           unknownBoolean1: false,
@@ -3187,7 +3187,7 @@ export class ZoneServer2016 extends EventEmitter {
     character: Character
   ) {
     const remoteWeapons: any[] = [];
-    Object.values(character._loadout).forEach((item, i) => {
+    Object.values(character._loadout).forEach((item) => {
       if(this.isWeapon(item.itemDefinitionId)) {
         remoteWeapons.push({
           guid: item.itemGuid,
@@ -3202,7 +3202,7 @@ export class ZoneServer2016 extends EventEmitter {
     character: Character
   ) {
     const remoteWeaponsExtra: any[] = [];
-    Object.values(character._loadout).forEach((item, i) => {
+    Object.values(character._loadout).forEach((item) => {
       if(this.isWeapon(item.itemDefinitionId)) {
         remoteWeaponsExtra.push(this.pGetRemoteWeaponExtraData(item));
       }
