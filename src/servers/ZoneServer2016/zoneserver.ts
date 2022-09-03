@@ -3355,11 +3355,6 @@ export class ZoneServer2016 extends EventEmitter {
       if (!slot.itemDefinitionId) continue;
       const def = this.getItemDefinition(slot.itemDefinitionId);
       let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
-      /*
-      if(slot.slotId = LoadoutSlots.FISTS) {
-        equipmentSlotId = EquipSlots.RHAND
-      }
-      */
       if (this.isWeapon(slot.itemDefinitionId)) {
         if (slot.slotId == character.currentLoadoutSlot) {
           equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
@@ -3970,7 +3965,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param item The item object.
    * @param requiredCount Optional: The number of items to remove from the stack, default 1.
    * @returns Returns true if the items were successfully removed, false if there was an error.
-   */
+  */
   removeInventoryItem(
     client: Client,
     item: inventoryItem,
@@ -4001,7 +3996,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param itemDefinitionId The itemDefinitionId of the item(s) to be removed.
    * @param requiredCount Optional: The number of items to remove, default 1.
    * @returns Returns true if all items were successfully removed, false if there was an error.
-   */
+  */
   removeInventoryItems(
     client: Client,
     itemDefinitionId: number,
@@ -4056,7 +4051,13 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  dropItem(client: Client, item: inventoryItem, count: number = 1) {
+  /**
+   * Removes a single item type from the inventory and spawns it on the ground
+   * @param client The client to have its item dropped.
+   * @param item The item object.
+   * @param count Optional: The number of items to drop on the ground, default 1.
+  */
+  dropItem(client: Client, item: inventoryItem, count: number = 1): void {
     if (!item) {
       this.containerError(client, 5); // slot does not contain item
       return;

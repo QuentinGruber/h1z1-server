@@ -344,14 +344,6 @@ const remoteWeaponUpdatePackets: any = [
           type: "custom",
           packer: packFirestateUpdate,
         },
-        //{ name: "firestate", type: "uint8", defaultValue: 0 },
-        /*{
-          name: "transientId",
-          type: "custom",
-          parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
-        },*/
-        //{ name: "position", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
       ]
     }
   ],
