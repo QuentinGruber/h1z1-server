@@ -16,7 +16,7 @@ export enum ItemClasses {
   WEAPONS_PISTOL = 4096,
   WEAPONS_MELEES = 4098,
   WEAPONS_MELEES0 = 25037,
-  WEAPONS_GENERIC = 25054
+  WEAPONS_GENERIC = 25054,
 }
 
 export enum VehicleIds {
@@ -25,7 +25,7 @@ export enum VehicleIds {
   POLICECAR = 3,
   ATV = 5,
   PARACHUTE = 13,
-  SPECTATE = 1337
+  SPECTATE = 1337,
 }
 
 export enum Characters {
@@ -34,7 +34,7 @@ export enum Characters {
   FEMALE_WHITE_YOUNG = 3,
   FEMALE_WHITE = 4,
   MALE_BLACK = 5,
-  FEMALE_BLACK = 6
+  FEMALE_BLACK = 6,
 }
 
 export enum LoadoutIds {
@@ -104,6 +104,7 @@ export enum ResourceTypes {
 }
 
 export enum Items {
+  //#region WEAPONS
   WEAPON_AR15 = 10,
   WEAPON_AK47 = 2229,
   WEAPON_SHOTGUN = 2663,
@@ -135,6 +136,9 @@ export enum Items {
   WEAPON_BRANCH = 1725,
   WEAPON_FISTS = 85,
   WEAPON_FIRST_AID = 78,
+  //#endregion
+
+  //#region AMMO
   AMMO_223 = 1429,
   AMMO_12GA = 1511,
   AMMO_45 = 1428,
@@ -143,15 +147,24 @@ export enum Items {
   AMMO_380 = 1992,
   AMMO_762 = 2325,
   AMMO_44 = 1719,
-  BACKPACK = 1605,
-  GAS_CAN = 73,
+  //#endregion
+
+  //#region PERISHABLE
   FIRST_AID = 2424,
+  BANDAGE = 24,
+  BANDAGE_DRESSED = 2214,
+  GAUZE = 1751,
+  SWIZZLE = 1709,
   GROUND_COFFEE = 56, // TODO = expand with more canned food types
   CANNED_FOOD01 = 7,
   BLACK_BERRIES = 105,
   WATER_PURE = 1371,
   WATER_STAGNANT = 1535,
   WATER_DIRTY = 1368,
+  MRE_APPLE = 1402, // TODO = add other MRE types
+  //#endregion
+
+  BACKPACK = 1605,
   HELMET_MOTORCYCLE = 2170, // TODO = expand with other default helmet colors
   HAT_CAP = 12, // TODO = expand with other cap colors
   SHIRT_DEFAULT = 2088, // TODO = expand with other default shirts
@@ -165,7 +178,6 @@ export enum Items {
   LIGHTER = 1436,
   BOW_DRILL = 1452,
   WATER_EMPTY = 1353,
-  MRE_APPLE = 1402, // TODO = add other MRE types
   FUEL_BIOFUEL = 73,
   FUEL_ETHANOL = 1384,
   WOOD_PLANK = 109,
@@ -178,8 +190,6 @@ export enum Items {
   FERTILIZER = 25,
   SEED_CORN = 1987,
   SEED_WHEAT = 1988,
-  BANDAGE = 24,
-  BANDAGE_DRESSED = 2214,
   VIAL_EMPTY = 2510,
   SYRINGE_EMPTY = 1508,
   GHILLIE_SUIT = 92,
@@ -197,12 +207,10 @@ export enum Items {
   GRENADE_HE = 2243,
   MAP = 1985,
   COMPASS = 1441,
-  GAUZE = 1751,
   FLARE = 1804,
   BACKPACK_RASTA = 2393,
   WAIST_PACK = 1803,
   SWIZZLE = 1709,
-
 
   HEADLIGHTS_OFFROADER = 9,
   HEADLIGHTS_PICKUP = 1728,

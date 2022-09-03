@@ -58,7 +58,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   destroyedEffect: number = 0;
   engineOn: boolean = false;
   isLocked: number = 0;
-  positionUpdate: any/*positionUpdate*/;
+  positionUpdate: any /*positionUpdate*/;
   fuelUpdater: any;
   isInvulnerable: boolean = false;
   onDismount?: any;
@@ -127,7 +127,7 @@ export class Vehicle2016 extends BaseFullCharacter {
       vehicle: this,
       get position() {
         return this.vehicle.state.position;
-      }
+      },
     };
   }
 

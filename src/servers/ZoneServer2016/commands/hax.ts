@@ -331,13 +331,17 @@ const hax: any = {
       }
     }
     points.forEach((obj: any) => {
-      server.worldObjectManager.createZombie(server,9634,new Float32Array([
-        obj[0],
-        client.character.state.position[1],
-        obj[1],
-        1,
-      ]),
-      client.character.state.lookAt)
+      server.worldObjectManager.createZombie(
+        server,
+        9634,
+        new Float32Array([
+          obj[0],
+          client.character.state.position[1],
+          obj[1],
+          1,
+        ]),
+        client.character.state.lookAt
+      );
     });
   },
   spamied: function (server: ZoneServer2016, client: Client, args: any[]) {

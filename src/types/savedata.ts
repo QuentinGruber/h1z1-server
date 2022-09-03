@@ -9,28 +9,27 @@ interface BaseEntityUpdateSaveData {
   rotation: Array<number>;
 }
 
-interface BaseFullEntitySaveData 
-extends BaseEntityUpdateSaveData, 
-BaseSaveData {
+interface BaseFullEntitySaveData
+  extends BaseEntityUpdateSaveData,
+    BaseSaveData {
   characterId: string;
   actorModelId: number;
 }
 
-interface BaseFullCharacterUpdateSaveData
-extends BaseEntityUpdateSaveData {
+interface BaseFullCharacterUpdateSaveData extends BaseEntityUpdateSaveData {
   _loadout: { [loadoutSlotId: number]: loadoutItem };
   _containers: { [loadoutSlotId: number]: loadoutContainer };
   _resources: { [resourceId: number]: number };
 }
 
-export interface CharacterUpdateSaveData 
-extends BaseFullCharacterUpdateSaveData {
+export interface CharacterUpdateSaveData
+  extends BaseFullCharacterUpdateSaveData {
   isRespawning: boolean;
 }
 
 export interface FullCharacterSaveData
-extends CharacterUpdateSaveData, 
-BaseFullEntitySaveData {
+  extends CharacterUpdateSaveData,
+    BaseFullEntitySaveData {
   creationDate: string;
   lastLoginDate: string;
   ownerId: string;
@@ -41,12 +40,9 @@ BaseFullEntitySaveData {
 }
 
 export interface FullVehicleSaveData
-extends BaseFullCharacterUpdateSaveData,
-BaseFullEntitySaveData {
+  extends BaseFullCharacterUpdateSaveData,
+    BaseFullEntitySaveData {}
 
-}
-
-export interface ServerSaveData
-extends BaseSaveData {
+export interface ServerSaveData extends BaseSaveData {
   lastItemGuid: string;
 }

@@ -53,7 +53,7 @@ export class Character2016 extends BaseFullCharacter {
   creationDate!: string;
   lastLoginDate!: string;
   currentLoadoutSlot = LoadoutSlots.FISTS;
-  readonly loadoutId = LoadoutIds.CHARACTER
+  readonly loadoutId = LoadoutIds.CHARACTER;
   startRessourceUpdater: any;
   healingInterval?: any;
   healingTicks: number;
@@ -65,7 +65,12 @@ export class Character2016 extends BaseFullCharacter {
   tempGodMode = false;
   isSpectator = false;
   initialized = false; // if sendself has been sent
-  readonly metrics: CharacterMetrics = {recipesDiscovered: 0, zombiesKilled: 0, wildlifeKilled: 0, startedSurvivingTP: Date.now()};
+  readonly metrics: CharacterMetrics = {
+    recipesDiscovered: 0,
+    zombiesKilled: 0,
+    wildlifeKilled: 0,
+    startedSurvivingTP: Date.now(),
+  };
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
@@ -250,7 +255,7 @@ export class Character2016 extends BaseFullCharacter {
   }
   clearReloadTimeout() {
     const weaponItem = this.getEquippedWeapon();
-    if(!weaponItem.weapon?.reloadTimer) return;
+    if (!weaponItem.weapon?.reloadTimer) return;
     clearTimeout(weaponItem.weapon.reloadTimer);
     weaponItem.weapon.reloadTimer = undefined;
   }
@@ -265,7 +270,7 @@ export class Character2016 extends BaseFullCharacter {
   }
   /**
    * Gets the lightweightpc packetfields for use in sendself and addlightweightpc
-  */
+   */
   pGetLightweight() {
     return {
       ...super.pGetLightweight(),
