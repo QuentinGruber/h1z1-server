@@ -17,7 +17,7 @@ import {
   loadoutContainer,
   inventoryItem,
 } from "../../../types/zoneserver";
-import { Items, ResourceIds, ResourceTypes } from "../enums";
+import { ResourceIds, ResourceTypes } from "../enums";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "./zoneclient";
 
