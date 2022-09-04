@@ -3409,6 +3409,37 @@ export const basePackets: any = [
       ],
     },
   ],
+  [
+    "AccessedCharacter.Unknown2",
+    0xf10600,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "itemsData",
+          type: "byteswithlength",
+          defaultValue: null,
+          fields: [
+            {
+              name: "items",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                {
+                  name: "item",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: itemSchema,
+                },
+                { name: "unknownBool1", type: "boolean", defaultValue: false },
+              ],
+            },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          ],
+        },
+      ],
+    },
+  ],
   ["ShaderParameterOverrideBase", 0xf2, {}],
   ["VehicleSkinBase", 0xf3, {}],
   ["WeaponLagLockParameters", 0xf5, {}],

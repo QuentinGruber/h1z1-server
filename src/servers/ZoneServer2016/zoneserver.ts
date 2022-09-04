@@ -576,7 +576,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.checkAsyncHook("OnSendCharacterData", client))) return;
 
     await this.worldDataManager.loadCharacterData(this, client);
-    const containers = this.initializeContainerList(client, false);
+    const containers = this.pGetContainers(client.character);
     this.sendData(client, "SendSelfToClient", {
       data: {
         ...client.character.pGetLightweight(),
@@ -608,12 +608,7 @@ export class ZoneServer2016 extends EventEmitter {
       },
     });
     client.character.initialized = true;
-
-    this.sendData(client, "Container.InitEquippedContainers", {
-      ignore: client.character.characterId,
-      characterId: client.character.characterId,
-      containers: containers,
-    });
+    this.initializeContainerList(client);
 
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
     this.checkHook("OnSentCharacterData", client);
@@ -2706,14 +2701,30 @@ export class ZoneServer2016 extends EventEmitter {
         identity: {},
       }
     );
+
+    console.log(vehicle._containers)
+    this.initializeContainerList(client, vehicle);
     
     if(seatId === "0") {
       const inventory = Object.values(vehicle._containers)[0];
       console.log("BEGINCHARACTERACCESS")
       console.log(inventory)
+      this.sendData(client, "Vehicle.InventoryItems", {
+        characterId: vehicle.characterId,
+        itemsData: {
+          items: Object.values(inventory).map((item) => {
+            return vehicle.pGetItemData(
+              item,
+              inventory.containerDefinitionId
+            )
+          }),
+          unknownDword1: inventory.containerDefinitionId,
+        },
+      });
+      /*
       this.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
         objectCharacterId: vehicle.characterId,
-        containerGuid: vehicle.characterId,//inventory?.itemGuid,
+        containerGuid: inventory?.itemGuid,
         unknownBool1: false,
         itemsData: {
           items: Object.values(inventory).map((item) => {
@@ -2725,8 +2736,8 @@ export class ZoneServer2016 extends EventEmitter {
           unknownDword1: inventory.containerDefinitionId,
         },
       });
+      */
     }
-    
     if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
       if (vehicle._resources[ResourceIds.FUEL] > 0) {
@@ -3180,16 +3191,15 @@ export class ZoneServer2016 extends EventEmitter {
 
   updateEquipmentSlot(
     client: Client,
-    slotId: number,
-    character = client.character
+    slotId: number
   ) {
-    if( client.character.characterId == character.characterId &&
+    if( client.character.characterId == client.character.characterId &&
       !client.character.initialized) return;
     this.sendDataToAllWithSpawnedEntity(
       this._characters,
       client.character.characterId,
       "Equipment.SetCharacterEquipmentSlot",
-      character.pGetEquipmentSlotFull(slotId)
+      client.character.pGetEquipmentSlotFull(slotId)
     );
   }
 
@@ -3197,7 +3207,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     item: inventoryItem,
     containerDefinitionId: number,
-    character = client.character
+    character: BaseFullCharacter = client.character
   ) {
     if( client.character.characterId == character.characterId &&
       !client.character.initialized) return;
@@ -3369,7 +3379,7 @@ export class ZoneServer2016 extends EventEmitter {
         containerDefinitionId: def.PARAM1,
         items: {},
       };
-      if (client && sendPacket) this.initializeContainerList(client);
+      if (client && sendPacket) this.initializeContainerList(client, character);
     }
 
     if (!sendPacket || !client) return;
@@ -4090,47 +4100,51 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  initializeContainerList(client: Client, sendPacket: boolean = true) {
-    const containers = Object.values(client.character._containers).map(
+  pGetContainerData(character: BaseFullCharacter, container: loadoutContainer) {
+    const containerDefinition = this.getContainerDefinition(
+      container.containerDefinitionId
+    );
+    return {
+      loadoutSlotId: container.slotId,
+      containerData: {
+        guid: container.itemGuid,
+        definitionId: container.containerDefinitionId,
+        associatedCharacterId: character.characterId,
+        slots: containerDefinition.MAXIMUM_SLOTS,
+        items: Object.values(container.items).map((item, idx) => {
+          container.items[item.itemGuid].slotId = idx + 1;
+          return {
+            itemDefinitionId: item.itemDefinitionId,
+            itemData: this.pGetItemData(
+              character,
+              item,
+              container.containerDefinitionId
+            ),
+          };
+        }),
+        unknownBoolean1: true, // needs to be true or bulk doesn't show up
+        maxBulk: containerDefinition.MAX_BULK,
+        unknownDword4: 28,
+        bulkUsed: this.getContainerBulk(container),
+        hasBulkLimit: !!containerDefinition.MAX_BULK,
+      },
+    }
+  }
+
+  pGetContainers(character: BaseFullCharacter) {
+    return Object.values(character._containers).map(
       (container) => {
-        const containerDefinition = this.getContainerDefinition(
-          container.containerDefinitionId
-        );
-        return {
-          loadoutSlotId: container.slotId,
-          containerData: {
-            guid: container.itemGuid,
-            definitionId: container.containerDefinitionId,
-            associatedCharacterId: client.character.characterId,
-            slots: containerDefinition.MAXIMUM_SLOTS,
-            items: Object.values(container.items).map((item, idx) => {
-              container.items[item.itemGuid].slotId = idx + 1;
-              return {
-                itemDefinitionId: item.itemDefinitionId,
-                itemData: this.pGetItemData(
-                  client.character,
-                  item,
-                  container.containerDefinitionId
-                ),
-              };
-            }),
-            unknownBoolean1: true, // needs to be true or bulk doesn't show up
-            maxBulk: containerDefinition.MAX_BULK,
-            unknownDword4: 28,
-            bulkUsed: this.getContainerBulk(container),
-            hasBulkLimit: !!containerDefinition.MAX_BULK,
-          },
-        };
+        return this.pGetContainerData(character, container);
       }
     );
-    if (sendPacket && client.character.initialized) {
-      this.sendData(client, "Container.InitEquippedContainers", {
-        ignore: client.character.characterId,
-        characterId: client.character.characterId,
-        containers: containers,
-      });
-    }
-    return containers;
+  }
+
+  initializeContainerList(client: Client, character: BaseFullCharacter = client.character): void {
+    this.sendData(client, "Container.InitEquippedContainers", {
+      ignore: character.characterId,
+      characterId: character.characterId,
+      containers: this.pGetContainers(character),
+    });
   }
 
   updateContainer(client: Client, container: loadoutContainer | undefined) {

@@ -410,7 +410,7 @@ const dev: any = {
   ) {
     server.sendData(client, "Container.ListAll", {
       characterId: client.character.characterId,
-      containers: server.initializeContainerList(client, false),
+      containers: server.pGetContainers(client.character),
     });
   },
   shutdown: function (server: ZoneServer2016, client: Client, args: any[]) {
@@ -424,9 +424,6 @@ const dev: any = {
     client: Client,
     args: any[]
   ) {
-    /*
-    const backpack: any = server.generateItem(1602)?.itemGuid;
-    server.equipItem(client, backpack);*/
     const objectCharacterId = server.generateGuid(),
       npc = new Npc(
         objectCharacterId,
@@ -435,145 +432,27 @@ const dev: any = {
         client.character.state.position,
         client.character.state.lookAt
       );
+    const item = server.generateItem(1504);
+    npc.loadoutId = 5;
+    server.equipItem(npc, item);
     npc.onReadyCallback = () => {
-      const item = server.generateItem(1504)?.itemGuid;
-      server.sendData(client, "ClientUpdate.ItemAdd", {
-        characterId: objectCharacterId,
-        data: {
-          itemDefinitionId: 1504,
-          tintId: 5,
-          guid: item,
-          count: 1, // also ammoCount
-          itemSubData: {
-            unknownBoolean1: false,
-          },
-          containerGuid: "0xFFFFFFFFFFFFFFFF",
-          containerDefinitionId: 28,
-          containerSlotId: 31,
-          baseDurability: 2000,
-          currentDurability: 2000,
-          maxDurabilityFromDefinition: 2000,
-          unknownBoolean1: true,
-          unknownQword3: client.character.characterId,
-          unknownDword9: 28,
-          unknownBoolean2: true,
-        },
-      });
-      server.sendData(client, "Loadout.SetLoadoutSlots", {
-        characterId: objectCharacterId,
-        loadoutId: 5,
-        loadoutData: {
-          loadoutSlots: [
-            {
-              hotbarSlotId: 31, // affects Equip Item context entry packet, and Container.MoveItem
-              loadoutId: 5,
-              slotId: 31,
-              loadoutItemData: {
-                itemDefinitionId: 1504,
-                loadoutItemOwnerGuid: item,
-                unknownByte1: 255, // flags?
-              },
-              unknownDword4: 3,
-            },
-          ],
-        },
-        currentSlotId: 31,
-      });
+      if(!item) return;
+      server.addItem(client, item, 101, npc);
     };
-    const item: any = server.generateItem(2425)?.itemGuid; /*,
-      containerGuid = server.generateGuid(),
-      containers = [
-        {
-          loadoutSlotId: 92,
-          containerData: {
-            guid: objectCharacterId,
-            definitionId: 92,
-            associatedCharacterId: objectCharacterId,
-            slots: 9999,
-            items: [
-              {
-                itemDefinitionId: server._items[item].itemDefinitionId,
-                itemData: {
-                  itemDefinitionId: server._items[item].itemDefinitionId,
-                  itemData: {
-                    itemDefinitionId: server._items[item].itemDefinitionId,
-                    tintId: 1,
-                    guid: item,
-                    count: 1,
-                    itemSubData: {
-                      unknownBoolean1: false,
-                    },
-                    containerGuid: containerGuid,
-                    containerDefinitionId: 1,
-                    containerSlotId: 1,
-                    baseDurability: 1,
-                    currentDurability: 1,
-                    maxDurabilityFromDefinition: 1,
-                    unknownBoolean1: true,
-                    unknownQword3: containerGuid,
-                    unknownDword9: 1,
-                  },
-                },
-              },
-            ],
-            unknownBoolean1: true,
-            maxBulk: 1,
-            unknownDword4: 1,
-            bulkUsed: 1,
-            hasBulkLimit: true,
-          },
-        },
-      ];
-      */
     server._npcs[objectCharacterId] = npc; // save npc
-    //server.spawnNpcs(client);
     setTimeout(() => {
-      /*
-      server.sendData(client, "Container.InitEquippedContainers", {
-        ignore: client.character.characterId,
-        //ignore2: client.character.characterId,
-        characterId: objectCharacterId,
-        containers: containers,
-      });
-      */
+      server.sendChatText(client, "ASDASDSAD")
+      server.initializeContainerList(client, npc);
       server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
         objectCharacterId: objectCharacterId,
-        containerGuid: objectCharacterId,
+        containerGuid: item?.itemGuid,
         unknownBool1: false,
         itemsData: {
-          items: [
-            {
-              item: {
-                //itemDefinitionId: server._items[item].itemDefinitionId,
-                itemData: {
-                  //itemDefinitionId: server._items[item].itemDefinitionId,
-                  itemData: {
-                    //itemDefinitionId: server._items[item].itemDefinitionId,
-                    tintId: 1,
-                    guid: item,
-                    count: 92,
-                    itemSubData: {
-                      unknownBoolean1: false,
-                    },
-                    containerGuid: objectCharacterId,
-                    containerDefinitionId: 92,
-                    containerSlotId: 92,
-                    baseDurability: 92,
-                    currentDurability: 92,
-                    maxDurabilityFromDefinition: 92,
-                    unknownBoolean1: true,
-                    unknownQword3: client.character.characterId,
-                    unknownDword9: 92,
-                  },
-                },
-              },
-              unknownBool1: true,
-            },
-          ],
+          items: [],
           unknownDword1: 92,
         },
       });
-    }, 5000);
+    }, 2000);
   },
   fte: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[3]) {
@@ -665,6 +544,22 @@ const dev: any = {
       messageStringId: Number(args[1]) || 0,
       id: Number(args[1]) || 0,
     });
+  },
+
+  vehicleaccess: function (server: ZoneServer2016, client: Client, args: any[]) {
+    const characterId = client.vehicle.mountedVehicle;
+    console.log(characterId)
+    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+      objectCharacterId: characterId,
+      containerGuid: characterId,
+      unknownBool1: true,
+      itemsData: {
+        items: [
+        ],
+        unknownDword1: 92,
+      },
+    });
+    
   },
 };
 
