@@ -2080,7 +2080,7 @@ export class ZoneServer2016 extends EventEmitter {
             const foundation = this._constructionFoundations[a] as constructionFoundation;
             if (!foundation.isSecured || foundation.itemDefinitionId === Items.FOUNDATION_EXPANSION) continue;
             let allowed = false;
-            let detectRange = 2.2;
+            const detectRange = 2.2;
             foundation.permissions.forEach((element: any) => {
                 if (element.characterId === client.character.characterId && element.visit) {
                     allowed = true;

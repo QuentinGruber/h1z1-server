@@ -1992,7 +1992,7 @@ export class zonePacketHandlers {
             client: Client,
             packet: any
         ) {
-            let foundation = server._constructionFoundations[packet.data.objectCharacterId] as constructionFoundation;
+            const foundation = server._constructionFoundations[packet.data.objectCharacterId] as constructionFoundation;
             if (foundation.ownerCharacterId != client.character.characterId) return;
             let characterId: number | string = 0;
             for (const a in server._characters) {
@@ -2055,7 +2055,7 @@ export class zonePacketHandlers {
             client: Client,
             packet: any
         ) {
-            let foundation = server._constructionFoundations[packet.data.objectCharacterId] as constructionFoundation;
+            const foundation = server._constructionFoundations[packet.data.objectCharacterId] as constructionFoundation;
             if (foundation.ownerCharacterId != client.character.characterId) return;
             let characterId: number | string = 0;
             for (const a in server._characters) {

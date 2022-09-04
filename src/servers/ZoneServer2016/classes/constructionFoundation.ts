@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { Npc } from "./npc";
-import { EntityTypes, Items } from "../enums";
+import { Items } from "../enums";
 import { ZoneServer2016 } from "../zoneserver";
 
 
@@ -115,7 +115,7 @@ export class constructionFoundation extends Npc {
         }
     }
     checkPerimeters(server: ZoneServer2016) {
-        let temporaryPolygons = [];
+        const temporaryPolygons = [];
         this.securedPolygons = [];
         let result = true;
         let side01: boolean = false;
