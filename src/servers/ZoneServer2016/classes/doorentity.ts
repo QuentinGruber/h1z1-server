@@ -77,39 +77,64 @@ function getDoorSound(actorModelId: number) {
 }
 
 export class DoorEntity extends BaseLightweightCharacter {
-    flags = { a: 0, b: 127, c: 0 };
-    spawnerId: number;
-    npcRenderDistance = 150;
-    openAngle: number;
-    closedAngle: number;
-    startRot: Float32Array;
-    positionUpdateType = 1;
-    moving = false;
-    isOpen = false;
-    openSound: number;
-    closeSound: number;
-    constructor(
-        characterId: string,
-        transientId: number,
-        actorModelId: number,
-        position: Float32Array,
-        rotation: Float32Array,
-        scale: Float32Array,
-        spawnerId: number
-    ) {
-        super(characterId, transientId, actorModelId, position, rotation);
-        this.scale = new Float32Array(scale);
-        this.spawnerId = spawnerId;
-        this.startRot = rotation;
-        (this.state.rotation = new Float32Array(
-            eul2quat(
-                new Float32Array([rotation[0], rotation[1], rotation[2], rotation[3]])
-            )
-        )),
-            (this.openAngle = this.startRot[0] + 1.575);
-        this.closedAngle = this.startRot[0];
-        const { openSound, closeSound } = getDoorSound(this.actorModelId);
-        this.openSound = openSound;
-        this.closeSound = closeSound;
-    }
+  flags = {
+    bit0: 0,
+    bit1: 0,
+    bit2: 0,
+    bit3: 0,
+    bit4: 0,
+    bit5: 0,
+    bit6: 0,
+    bit7: 0,
+    bit8: 0,
+    bit9: 0,
+    bit10: 0,
+    bit11: 0,
+    projectileCollision: 1,
+    bit13: 0,
+    bit14: 0,
+    bit15: 0,
+    bit16: 0,
+    bit17: 0,
+    bit18: 0,
+    bit19: 0,
+    noCollide: 0,
+    knockedOut: 0,
+    bit22: 0,
+    bit23: 0,
+  };
+  spawnerId: number;
+  npcRenderDistance = 150;
+  openAngle: number;
+  closedAngle: number;
+  startRot: Float32Array;
+  positionUpdateType = 1;
+  moving = false;
+  isOpen = false;
+  openSound: number;
+  closeSound: number;
+  constructor(
+    characterId: string,
+    transientId: number,
+    actorModelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    scale: Float32Array,
+    spawnerId: number
+  ) {
+    super(characterId, transientId, actorModelId, position, rotation);
+    this.scale = new Float32Array(scale);
+    this.spawnerId = spawnerId;
+    this.startRot = rotation;
+    (this.state.rotation = new Float32Array(
+      eul2quat(
+        new Float32Array([rotation[0], rotation[1], rotation[2], rotation[3]])
+      )
+    )),
+      (this.openAngle = this.startRot[0] + 1.575);
+    this.closedAngle = this.startRot[0];
+    const { openSound, closeSound } = getDoorSound(this.actorModelId);
+    this.openSound = openSound;
+    this.closeSound = closeSound;
+  }
 }

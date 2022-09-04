@@ -2491,7 +2491,7 @@ export type h1z1PacketsType =
   | "ClientPath.Reply"
   | "Ui.ConfirmHit";
 
-export type weaponPacketsType = 
+export type weaponPacketsType =
   | "Weapon.FireStateUpdate"
   | "Weapon.FireStateTargetedUpdate"
   | "Weapon.Fire"
@@ -2512,10 +2512,9 @@ export type weaponPacketsType =
   | "Weapon.GuidedUpdate"
   | "Weapon.Reset";
 
-  export type remoteWeaponPacketsType = 
-  | "RemoteWeapon.AddWeapon";
+export type remoteWeaponPacketsType = "RemoteWeapon.AddWeapon";
 
-  export type remoteWeaponUpdatePacketsType = 
+export type remoteWeaponUpdatePacketsType =
   | "Update.ProjectileLaunch"
   | "Update.Reload"
   | "Update.AddFireGroup";

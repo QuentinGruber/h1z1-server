@@ -774,8 +774,6 @@ export const itemSchema = [
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
 ];
 
-
-
 export const identitySchema = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -881,9 +879,51 @@ export const lightWeightNpcSchema = [
     name: "flags",
     type: "schema",
     fields: [
-      { name: "a", type: "uint8", defaultValue: 0 },
-      { name: "b", type: "uint8", defaultValue: 0 },
-      { name: "c", type: "uint8", defaultValue: 0 },
+      {
+        name: "flags1",
+        type: "bitflags",
+        defaultValue: [],
+        flags: [
+          { bit: 0, name: "bit0", defaultValue: 0 },
+          { bit: 1, name: "bit1", defaultValue: 0 },
+          { bit: 2, name: "bit2", defaultValue: 0 },
+          { bit: 3, name: "bit3", defaultValue: 0 },
+          { bit: 4, name: "bit4", defaultValue: 0 },
+          { bit: 5, name: "bit5", defaultValue: 0 },
+          { bit: 6, name: "bit6", defaultValue: 0 },
+          { bit: 7, name: "bit7", defaultValue: 0 },
+        ],
+      },
+      {
+        name: "flags2",
+        type: "bitflags",
+        defaultValue: [],
+        flags: [
+          { bit: 0, name: "bit8", defaultValue: 0 },
+          { bit: 1, name: "bit9", defaultValue: 0 },
+          { bit: 2, name: "bit10", defaultValue: 0 },
+          { bit: 3, name: "bit11", defaultValue: 0 },
+          { bit: 4, name: "projectileCollision", defaultValue: 0 },
+          { bit: 5, name: "bit13", defaultValue: 0 },
+          { bit: 6, name: "bit14", defaultValue: 0 },
+          { bit: 7, name: "bit15", defaultValue: 0 },
+        ],
+      },
+      {
+        name: "flags3",
+        type: "bitflags",
+        defaultValue: [],
+        flags: [
+          { bit: 0, name: "bit16", defaultValue: 0 },
+          { bit: 1, name: "bit17", defaultValue: 0 },
+          { bit: 2, name: "bit18", defaultValue: 0 },
+          { bit: 3, name: "bit19", defaultValue: 0 },
+          { bit: 4, name: "noCollide", defaultValue: 0 },
+          { bit: 5, name: "knockedOut", defaultValue: 0 },
+          { bit: 6, name: "bit22", defaultValue: 0 },
+          { bit: 7, name: "bit23", defaultValue: 0 },
+        ],
+      },
     ],
     defaultValue: {},
   },
@@ -1029,7 +1069,7 @@ export function packItemWeaponData(obj: any) {
       type: "schema",
       defaultValue: {},
       fields: [
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
       ],
     },
     {
@@ -1041,9 +1081,7 @@ export function packItemWeaponData(obj: any) {
           name: "ammoSlots",
           type: "array",
           defaultValue: [],
-          fields: [
-            { name: "ammoSlot", type: "uint32", defaultValue: 0 },
-          ],
+          fields: [{ name: "ammoSlot", type: "uint32", defaultValue: 0 }],
         },
         {
           name: "firegroups",
@@ -1064,7 +1102,7 @@ export function packItemWeaponData(obj: any) {
             },
           ],
         },
-        { name: "loadoutSlotId", type: "uint8", defaultValue: 0 },
+        { name: "equipmentSlotId", type: "uint8", defaultValue: 0 },
         { name: "unknownByte2", type: "uint8", defaultValue: 0 },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
@@ -1128,16 +1166,13 @@ export function packItemWeaponData(obj: any) {
     },
   ];
 
-  if(!obj["isWeapon"]) {
+  if (!obj["isWeapon"]) {
     return DataSchema.pack(
       [{ name: "unknownBoolean1", type: "boolean", defaultValue: false }],
       obj
-    ).data
+    ).data;
   }
-  return DataSchema.pack(
-    unknownData1Schema,
-    obj
-  ).data
+  return DataSchema.pack(unknownData1Schema, obj).data;
 }
 
 export const currencySchema = [
@@ -1432,7 +1467,7 @@ export const remoteWeaponSchema = [
       },
     ],
   },
-]
+];
 
 export const fullNpcSchema = [
   {
@@ -1769,8 +1804,8 @@ export const fullNpcSchema = [
         defaultValue: [],
         fields: [
           { name: "guid", type: "uint64string", defaultValue: "" },
-          ...remoteWeaponSchema
-        ]
+          ...remoteWeaponSchema,
+        ],
       },
     ],
   },
@@ -1800,7 +1835,6 @@ export const fullNpcSchema = [
 ];
 
 export const fullPcSchema = [
-  // NOT FINISHED
   { name: "useCompression", type: "boolean", defaultValue: false },
   {
     name: "fullPcData",
@@ -1861,7 +1895,6 @@ export const fullPcSchema = [
       { name: "unknownBool2", type: "boolean", defaultValue: false },
       { name: "unknownBool3", type: "boolean", defaultValue: false },
       { name: "unknownDword15", type: "uint32", defaultValue: 0 },
-      //{ name: "unknownDword16", type: "uint32", defaultValue: 0 },
       {
         name: "unknownArray1",
         type: "byteswithlength",
@@ -2132,8 +2165,8 @@ export const fullPcSchema = [
             defaultValue: [],
             fields: [
               { name: "guid", type: "uint64string", defaultValue: "" },
-              ...remoteWeaponSchema
-            ]
+              ...remoteWeaponSchema,
+            ],
           },
         ],
       },
@@ -2452,16 +2485,19 @@ export const firemodesSchema = [
 
 export function packTargetData(obj: any) {
   const data = Buffer.alloc(1);
-  data.writeUInt8(obj["useTargetData"]?1:0, 0);
-  if(obj["useTargetData"]) {
-    const targetData = DataSchema.pack([
-      {
-        name: "position",
-        type: "floatvector4",
-        defaultValue: [0, 0, 0, 0],
-      },
-      { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
-    ], data)
+  data.writeUInt8(obj["useTargetData"] ? 1 : 0, 0);
+  if (obj["useTargetData"]) {
+    const targetData = DataSchema.pack(
+      [
+        {
+          name: "position",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0],
+        },
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
+      ],
+      data
+    );
     return Buffer.concat([data, targetData.data]);
   }
   return data;

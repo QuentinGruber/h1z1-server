@@ -16,7 +16,7 @@ const EventEmitter = require("events").EventEmitter,
     require("../servers/SoeServer/soeinputstream").SOEInputStream,
   SOEOutputStream =
     require("../servers/SoeServer/soeoutputstream").SOEOutputStream,
-  SOEProtocol = require("../protocols/soeprotocol").SOEProtocol,
+  { Soeprotocol } = require("h1emu-core"),
   util = require("util"),
   fs = require("fs"),
   dgram = require("dgram"),
@@ -44,7 +44,7 @@ class SOEClient {
     this._outQueue = [];
 
     const connection = (this._connection = dgram.createSocket("udp4"));
-    const protocol = (this._protocol = new SOEProtocol());
+    const protocol = (this._protocol = new Soeprotocol(false, 0));
     const inputStream = (this._inputStream = new SOEInputStream(cryptoKey));
     const outputStream = (this._outputStream = new SOEOutputStream(cryptoKey));
 
@@ -150,22 +150,17 @@ class SOEClient {
     checkOutQueue();
 
     function handlePacket(packet) {
-      const soePacket = packet.soePacket,
-        result = soePacket.result;
-      switch (soePacket.name) {
+      switch (packet.name) {
         case "SessionReply":
           debug("Received session reply from server");
-
-          me._compression = result.compression;
-          me._crcSeed = result.crcSeed;
-          me._crcLength = result.crcLength;
-          me._udpLength = result.udpLength;
-
+          me._compression = 0;
+          me._crcSeed = packet.crc_seed;
+          me._crcLength = packet.crc_length;
+          me._udpLength = packet.udp_length;
           inputStream.toggleEncryption(me._useEncryption);
           outputStream.toggleEncryption(me._useEncryption);
-          outputStream.setFragmentSize(result.udpLength - 7);
-
-          me.emit("connect", null, result);
+          outputStream.setFragmentSize(packet.udp_length - 7);
+          me.emit("connect", null, packet);
           break;
         case "Disconnect":
           debug("Received disconnect from server");
@@ -175,8 +170,8 @@ class SOEClient {
         case "MultiPacket":
           let lastOutOfOrder = 0;
           const channel = 0;
-          for (let i = 0; i < result.subPackets.length; i++) {
-            const subPacket = result.subPackets[i];
+          for (let i = 0; i < packet.sub_packets.length; i++) {
+            const subPacket = packet.sub_packets[i];
             switch (subPacket.name) {
               case "OutOfOrder":
                 if (subPacket.sequence > lastOutOfOrder) {
@@ -207,23 +202,23 @@ class SOEClient {
           break;
         case "Data":
           debug("Received data packet from server");
-          inputStream.write(result.data, result.sequence, false);
+          inputStream.write(Buffer.from(packet.data), packet.sequence, false);
           break;
         case "DataFragment":
           debug("Received data fragment from server");
-          inputStream.write(result.data, result.sequence, true);
+          inputStream.write(Buffer.from(packet.data), packet.sequence, true);
           break;
         case "OutOfOrder":
           debug(
             "Received out-order-packet packet on channel " +
-              result.channel +
+              packet.channel +
               ", sequence " +
-              result.sequence
+              packet.sequence
           );
           //outputStream.resendData(result.sequence);
           break;
         case "Ack":
-          outputStream.ack(result.sequence, new Map());
+          outputStream.ack(packet.sequence, new Map());
           break;
         case "FatalError":
           debug("Received fatal error from server");
@@ -237,7 +232,7 @@ class SOEClient {
       if (me._dumpData) {
         fs.writeFileSync("debug/soeclient_" + n1++ + "_in.dat", data);
       }
-      const result = protocol.parse(data, me._crcSeed, me._compression);
+      const result = JSON.parse(protocol.parse(data));
       handlePacket(result);
     });
 
@@ -259,9 +254,9 @@ class SOEClient {
     this._connection.bind(this._localPort, function () {
       me._sendPacket("SessionRequest", {
         protocol: me._protocolName,
-        crcLength: 3,
-        sessionId: me._sessionId,
-        udpLength: 512,
+        crc_length: 3,
+        session_id: me._sessionId,
+        udp_length: 512,
       });
     });
   }
@@ -289,12 +284,13 @@ class SOEClient {
   }
 
   _sendPacket(packetName, packet, prioritize) {
-    const data = this._protocol.pack(
-      packetName,
-      packet,
-      this._crcSeed,
-      this._compression
+    if (packet.data) {
+      packet.data = [...packet.data];
+    }
+    const data = Buffer.from(
+      this._protocol.pack(packetName, JSON.stringify(packet))
     );
+    console.log(this._guid, "Sending " + packetName + " packet to server");
     debug(this._guid, "Sending " + packetName + " packet to server");
     if (this._dumpData) {
       fs.writeFileSync(

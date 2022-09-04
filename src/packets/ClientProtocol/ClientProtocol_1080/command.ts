@@ -20,16 +20,16 @@ export const commandPackets: any = [
   ["Command.PlayerPlaySpeech", 0x090400, {}],
   ["Command.DialogResponse", 0x090500, {}],
   [
-    "Command.PlaySoundAtLocation", 
-    0x090600, 
+    "Command.PlaySoundAtLocation",
+    0x090600,
     {
       fields: [
         { name: "unknownString1", type: "string", defaultValue: "" },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   [
     "Command.InteractRequest",
@@ -176,14 +176,14 @@ export const commandPackets: any = [
   ["Command.RequestRewardPreviewUpdate", 0x092600, {}],
   ["Command.RequestRewardPreviewUpdateReply", 0x092700, {}],
   [
-    "Command.PlaySoundIdOnTarget", 
-    0x092800, 
+    "Command.PlaySoundIdOnTarget",
+    0x092800,
     {
       fields: [
         { name: "soundId", type: "uint32", defaultValue: 0 },
         { name: "targetData", type: "custom", packer: packTargetData },
-      ]
-    }
+      ],
+    },
   ],
   ["Command.RequestPlayIntroEncounter", 0x092900, {}],
   ["Command.SpotPlayer", 0x092a00, {}],
@@ -272,7 +272,7 @@ export const commandPackets: any = [
             { name: "ID", type: "uint32", defaultValue: 0 },
             {
               name: "definitionData",
-              type: "schema",
+              type: "custom",
               defaultValue: {},
               packer: packItemDefinitionData,
             },

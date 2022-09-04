@@ -52,14 +52,13 @@ async function test() {
     1
   );
   zoneServer._loginServerInfo.address = "127.0.0.1";
-    //@ts-ignore
-
-  zoneServer._gatewayServer._crcLength = 2;
+  //@ts-ignore
+  zoneServer._gatewayServer._soeServer._waitQueueTimeMs = 0;
 
   await zoneServer.start();
 
   setTimeout(async () => {
-      //@ts-ignore
+    //@ts-ignore
     await zoneServer._db.collection("characters").insertOne(character);
     //await zoneServer._db.collection("user-sessions").insertOne(usersession);
     const client = new ZoneClient(
@@ -88,5 +87,5 @@ async function test() {
 
 const loginServer = new LoginServer(1115, "mongodb://localhost:27017/");
 loginServer._enableHttpServer = false; // note: if i want to enable it and test routes , i need to change port 80 to something superior at 1024
-loginServer._crcLength = 2;
+loginServer._soeServer._waitQueueTimeMs = 0;
 loginServer.start().then(test);
