@@ -47,7 +47,7 @@ import { DoorEntity } from "./classes/doorentity";
 import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { Npc } from "./classes/npc";
-import { constructionFoundation } from "./classes/constructionFoundation";
+import { ConstructionParentEntity } from "./classes/constructionParentEntity";
 import { constructionDoor } from "./classes/constructionDoor";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { AVG_PING_SECS } from "../../utils/constants";
@@ -1089,7 +1089,7 @@ export class zonePacketHandlers {
                     server.pickupItem(client, guid);
                     break;
                 case EntityTypes.CONSTRUCTION_FOUNDATION:
-                    const foundation = entityData as constructionFoundation;
+                    const foundation = entityData as ConstructionParentEntity;
                     if (foundation.ownerCharacterId != client.character.characterId) return;
                     server.sendData(client, "NpcFoundationPermissionsManagerBase.showPermissions", {
                         characterId: foundation.characterId,
@@ -1270,7 +1270,7 @@ export class zonePacketHandlers {
                     });
                     break;
                 case EntityTypes.CONSTRUCTION_FOUNDATION:
-                    const foundation = entityData as constructionFoundation;
+                    const foundation = entityData as ConstructionParentEntity;
                     if (foundation.ownerCharacterId != client.character.characterId) return;
                     server.sendData(client, "Command.InteractionString", {
                         guid: guid,
@@ -1992,7 +1992,7 @@ export class zonePacketHandlers {
             client: Client,
             packet: any
         ) {
-            const foundation = server._constructionFoundations[packet.data.objectCharacterId] as constructionFoundation;
+            const foundation = server._constructionFoundations[packet.data.objectCharacterId] as ConstructionParentEntity;
             if (foundation.ownerCharacterId != client.character.characterId) return;
             let characterId: number | string = 0;
             for (const a in server._characters) {
@@ -2055,7 +2055,7 @@ export class zonePacketHandlers {
             client: Client,
             packet: any
         ) {
-            const foundation = server._constructionFoundations[packet.data.objectCharacterId] as constructionFoundation;
+            const foundation = server._constructionFoundations[packet.data.objectCharacterId] as ConstructionParentEntity;
             if (foundation.ownerCharacterId != client.character.characterId) return;
             let characterId: number | string = 0;
             for (const a in server._characters) {

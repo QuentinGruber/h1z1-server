@@ -93,7 +93,7 @@ import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
 import { constructionDoor } from "./classes/constructionDoor";
-import { constructionFoundation } from "./classes/constructionFoundation";
+import { ConstructionParentEntity } from "./classes/constructionParentEntity";
 import { simpleConstruction } from "./classes/simpleConstruction";
 import { FullCharacterSaveData } from "types/savedata";
 import { WorldDataManager } from "./classes/worlddatamanager";
@@ -146,7 +146,7 @@ export class ZoneServer2016 extends EventEmitter {
   _temporaryObjects: { [characterId: string]: TemporaryEntity } = {};
   _vehicles: { [characterId: string]: Vehicle } = {};
 
-  _constructionFoundations: { [characterId: string]: constructionFoundation } = {};
+  _constructionFoundations: { [characterId: string]: ConstructionParentEntity } = {};
   _constructionDoors: { [characterId: string]: constructionDoor } = {};
   _constructionSimple: { [characterId: string]: simpleConstruction } = {};
 
@@ -2077,7 +2077,7 @@ export class ZoneServer2016 extends EventEmitter {
   
   foundationPermissionChecker(client: Client) {
         for (const a in this._constructionFoundations) {
-            const foundation = this._constructionFoundations[a] as constructionFoundation;
+            const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
             if (!foundation.isSecured || foundation.itemDefinitionId === Items.FOUNDATION_EXPANSION) continue;
             let allowed = false;
             const detectRange = 2.2;
@@ -2149,7 +2149,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
     }
 
-    checkInsideFoundation(foundation: constructionFoundation, entity: any) {
+    checkInsideFoundation(foundation: ConstructionParentEntity, entity: any) {
         return isInside([entity.state.position[0], entity.state.position[2]], foundation.securedPolygons)
     }
 
@@ -2897,7 +2897,7 @@ export class ZoneServer2016 extends EventEmitter {
                     this._constructionSimple[characterId] = npc;
                     switch (this.getEntityType(parentObjectCharacterId)) {
                         case EntityTypes.CONSTRUCTION_FOUNDATION:
-                            const foundation = this._constructionFoundations[parentObjectCharacterId] as constructionFoundation;
+                            const foundation = this._constructionFoundations[parentObjectCharacterId] as ConstructionParentEntity;
                             foundation.changePerimeters(this, slot, npc.state.position);
                             break;
                     }
@@ -2937,7 +2937,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (Number(parentObjectCharacterId)) {
             switch (this.getEntityType(parentObjectCharacterId)) {
                 case EntityTypes.CONSTRUCTION_FOUNDATION:
-                    const foundation = this._constructionFoundations[parentObjectCharacterId] as constructionFoundation;
+                    const foundation = this._constructionFoundations[parentObjectCharacterId] as ConstructionParentEntity;
                     foundation.changePerimeters(this, slot, npc.state.position);
                     break;
             }
@@ -2948,7 +2948,7 @@ export class ZoneServer2016 extends EventEmitter {
     placeConstructionFoundation(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId?: string, BuildingSlot?: string,) {
         const characterId = this.generateGuid();
         const transientId = this.getTransientId(characterId);
-        const npc = new constructionFoundation(
+        const npc = new ConstructionParentEntity(
             characterId,
             transientId,
             modelId,
