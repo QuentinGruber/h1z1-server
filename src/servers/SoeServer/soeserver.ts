@@ -306,7 +306,8 @@ export class SOEServer extends EventEmitter {
       case "FatalErrorReply":
         break;
       default:
-        console.log("Unknown packet " + packet);
+        console.log(`Unknown SOE packet received from ${client.sessionId}`);
+        console.log(packet);
     }
   }
 
