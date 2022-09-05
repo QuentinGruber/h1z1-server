@@ -272,8 +272,8 @@ export class WorldDataManager {
     if (!server.enableWorldSaves) return;
     if (updateItemGuid) await this.saveServerData(server);
     const loadoutKeys = Object.keys(client.character._loadout),
-    containerKeys = Object.keys(client.character._containers);
-    let loadoutSaveData: {[loadoutSlotId: number]: loadoutItem} = {},
+    containerKeys = Object.keys(client.character._containers),
+    loadoutSaveData: {[loadoutSlotId: number]: loadoutItem} = {},
     containerSaveData: {[loadoutSlotId: number]: loadoutContainer} = {};
     Object.values(client.character._loadout).forEach((item, idx)=> {
       loadoutSaveData[Number(loadoutKeys[idx])] = {
