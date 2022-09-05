@@ -5,6 +5,7 @@ import {
   FullVehicleSaveData,
   ServerSaveData,
 } from "types/savedata";
+import { loadoutContainer, loadoutItem } from "types/zoneserver";
 import { initMongo, toBigHex, _ } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "./vehicle";
@@ -270,12 +271,35 @@ export class WorldDataManager {
   ) {
     if (!server.enableWorldSaves) return;
     if (updateItemGuid) await this.saveServerData(server);
+    const loadoutKeys = Object.keys(client.character._loadout),
+    containerKeys = Object.keys(client.character._containers);
+    let loadoutSaveData: {[loadoutSlotId: number]: loadoutItem} = {},
+    containerSaveData: {[loadoutSlotId: number]: loadoutContainer} = {};
+    Object.values(client.character._loadout).forEach((item, idx)=> {
+      loadoutSaveData[Number(loadoutKeys[idx])] = {
+        ...item,
+        weapon: item.weapon == undefined?undefined: {
+          ...item.weapon,
+          reloadTimer: undefined // force this to undefined to fix BSONError: cyclic dependency
+        }
+      }
+    });
+    Object.values(client.character._containers).forEach((item, idx)=> {
+      containerSaveData[Number(containerKeys[idx])] = {
+        ...item,
+        weapon: item.weapon == undefined?undefined: {
+          ...item.weapon,
+          reloadTimer: undefined // force this to undefined to fix BSONError: cyclic dependency
+        }
+      }
+    });
+
     const saveData: CharacterUpdateSaveData = {
       position: Array.from(client.character.state.position),
       rotation: Array.from(client.character.state.lookAt),
       isRespawning: client.character.isRespawning,
-      _loadout: client.character._loadout,
-      _containers: client.character._containers,
+      _loadout: loadoutSaveData,
+      _containers: containerSaveData,
       _resources: client.character._resources,
     };
     if (server._soloMode) {
