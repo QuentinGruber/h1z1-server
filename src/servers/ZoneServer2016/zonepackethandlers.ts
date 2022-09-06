@@ -48,9 +48,11 @@ import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { Npc } from "./classes/npc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { AVG_PING_SECS } from "../../utils/constants";
+import { CommandHandler } from "./commands/commandhandler";
 
 const stats = require("../../../data/2016/sampleData/stats.json");
 export class zonePacketHandlers {
+  commandHandler: CommandHandler;
   hax = hax;
   dev = dev;
   admin = admin;
@@ -103,6 +105,8 @@ export class zonePacketHandlers {
   loadoutSelectSlot;
   weapon;
   constructor() {
+    this.commandHandler = new CommandHandler();
+
     this.ClientIsReady = function (
       server: ZoneServer2016,
       client: Client,
@@ -454,119 +458,6 @@ export class zonePacketHandlers {
       const args: string[] = packet.data.arguments.toLowerCase().split(" ");
       const commandName = args[0];
       switch (packet.data.commandHash) {
-        case flhash("ME"):
-          server.sendChatText(client, `ZoneClientId :${client.loginSessionId}`);
-          break;
-        case flhash("RESPAWN"):
-          server.killCharacter(client);
-          break;
-        case flhash("CLIENTINFO"):
-          server.sendChatText(
-            client,
-            `Spawned entities count : ${client.spawnedEntities.length}`
-          );
-          break;
-        case flhash("SERVERINFO"):
-          if (commandName === "mem") {
-            const used = process.memoryUsage().rss / 1024 / 1024;
-            server.sendChatText(
-              client,
-              `Used memory ${Math.round(used * 100) / 100} MB`
-            );
-            break;
-          } else {
-            const {
-              _clients: clients,
-              _characters: characters,
-              _npcs: npcs,
-              _spawnedItems: objects,
-              _vehicles: vehicles,
-              _doors: doors,
-              _props: props,
-            } = server;
-            const serverVersion = require("../../../package.json").version;
-            server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-            server.sendChatText(
-              client,
-              `clients: ${_.size(clients)} characters : ${_.size(characters)}`
-            );
-            server.sendChatText(
-              client,
-              `npcs : ${_.size(npcs)} doors : ${_.size(doors)}`
-            );
-            server.sendChatText(
-              client,
-              `objects : ${_.size(objects)} props : ${_.size(
-                props
-              )} vehicles : ${_.size(vehicles)}`
-            );
-            const uptimeMin = (Date.now() - server._startTime) / 60000;
-            server.sendChatText(
-              client,
-              `Uptime: ${
-                uptimeMin < 60
-                  ? `${uptimeMin.toFixed()}m`
-                  : `${(uptimeMin / 60).toFixed()}h `
-              }`
-            );
-            break;
-          }
-        case flhash("SPAWNINFO"):
-          server.sendChatText(
-            client,
-            `You spawned at "${client.character.spawnLocation}"`,
-            true
-          );
-          break;
-        case flhash("HELP"):
-          const haxCommandList: string[] = [];
-          Object.keys(this.hax).forEach((key) => {
-            haxCommandList.push(`/hax ${key}`);
-          });
-          const devCommandList: string[] = [];
-          Object.keys(this.dev).forEach((key) => {
-            devCommandList.push(`/dev ${key}`);
-          });
-          const adminCommandList: string[] = [];
-          Object.keys(this.admin).forEach((key) => {
-            adminCommandList.push(`/admin ${key}`);
-          });
-          const commandList = ["/help", "/loc", "/spawninfo", "/serverinfo"];
-          server.sendChatText(client, `Commands list:`);
-          commandList
-            .concat(haxCommandList, devCommandList, adminCommandList)
-            .sort((a: string, b: string) => a.localeCompare(b))
-            .forEach((command: string) => {
-              server.sendChatText(client, `${command}`);
-            });
-          break;
-        case flhash("NETSTATS"):
-          const soeClient = server.getSoeClient(client.soeClientId);
-          if (soeClient) {
-            const stats = soeClient.getNetworkStats();
-            stats.push(`Ping: ${client.avgPing}ms`);
-            for (let index = 0; index < stats.length; index++) {
-              const stat = stats[index];
-              server.sendChatText(client, stat, index == 0);
-            }
-          }
-          break;
-        case flhash("LOCATION"):
-        case flhash("LOC"):
-          const { position, rotation } = client.character.state;
-          server.sendChatText(
-            client,
-            `position: ${position[0].toFixed(2)},${position[1].toFixed(
-              2
-            )},${position[2].toFixed(2)}`
-          );
-          server.sendChatText(
-            client,
-            `rotation: ${rotation[0].toFixed(2)},${rotation[1].toFixed(
-              2
-            )},${rotation[2].toFixed(2)}`
-          );
-          break;
         case flhash("HAX"):
           if (!!hax[commandName]) {
             if (
@@ -624,11 +515,8 @@ export class zonePacketHandlers {
             );
           }
           break;
-        case 389871706: // combatlog
-          server.combatLog(client);
-          break;
         default:
-          console.log(packet.data.commandHash);
+          this.commandHandler.executeCommand(server, client, packet);
           break;
       }
     }),
