@@ -1290,6 +1290,31 @@ export const commands: Array<Command> = [
 
   //#endregion
 
+  // depreciation messages
+  {
+    name: "hax",
+    permissionLevel: PermissionLevels.DEV,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      server.sendChatText(client, "/hax and /admin are no longer used. Do /help for a list of commands.");
+    }
+  },
+  {
+    name: "admin",
+    permissionLevel: PermissionLevels.DEV,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      server.sendChatText(client, "/hax and /admin are no longer used. Do /help for a list of commands.");
+    }
+  },
+
+
   //#region DEV PERMISSIONS
   {
     name: "dev",
