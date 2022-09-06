@@ -19,8 +19,6 @@ import { ZoneServer2016 } from "./zoneserver";
 
 const debug = require("debug")("ZoneServer");
 
-import { joaat } from "h1emu-core";
-
 let hax = require("./commands/hax").default;
 
 let dev = require("./commands/dev").default;
@@ -34,6 +32,7 @@ import {
   getDistance,
   toInt,
   toHex,
+  flhash,
 } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
@@ -205,6 +204,7 @@ export class zonePacketHandlers {
           "location",
           "serverinfo",
           "spawninfo",
+          "clientinfo",
           "help",
           "netstats",
           "me",
@@ -454,19 +454,19 @@ export class zonePacketHandlers {
       const args: string[] = packet.data.arguments.toLowerCase().split(" ");
       const commandName = args[0];
       switch (packet.data.commandHash) {
-        case 4265452888: // /me
+        case flhash("ME"):
           server.sendChatText(client, `ZoneClientId :${client.loginSessionId}`);
           break;
-        case 3720768430: // /respawn
+        case flhash("RESPAWN"):
           server.killCharacter(client);
           break;
-        case 3357274581: // /clientinfo
+        case flhash("CLIENTINFO"):
           server.sendChatText(
             client,
             `Spawned entities count : ${client.spawnedEntities.length}`
           );
           break;
-        case 2371122039: // /serverinfo
+        case flhash("SERVERINFO"):
           if (commandName === "mem") {
             const used = process.memoryUsage().rss / 1024 / 1024;
             server.sendChatText(
@@ -511,15 +511,14 @@ export class zonePacketHandlers {
             );
             break;
           }
-        case 1757604914: // /spawninfo
+        case flhash("SPAWNINFO"):
           server.sendChatText(
             client,
             `You spawned at "${client.character.spawnLocation}"`,
             true
           );
           break;
-        case joaat("HELP"):
-        case 3575372649: // /help
+        case flhash("HELP"):
           const haxCommandList: string[] = [];
           Object.keys(this.hax).forEach((key) => {
             haxCommandList.push(`/hax ${key}`);
@@ -541,8 +540,7 @@ export class zonePacketHandlers {
               server.sendChatText(client, `${command}`);
             });
           break;
-        case joaat("NETSTATS"):
-        case 265037938: // /netstats
+        case flhash("NETSTATS"):
           const soeClient = server.getSoeClient(client.soeClientId);
           if (soeClient) {
             const stats = soeClient.getNetworkStats();
@@ -553,8 +551,8 @@ export class zonePacketHandlers {
             }
           }
           break;
-        case joaat("LOCATION"):
-        case 3270589520: // /loc
+        case flhash("LOCATION"):
+        case flhash("LOC"):
           const { position, rotation } = client.character.state;
           server.sendChatText(
             client,
@@ -569,7 +567,7 @@ export class zonePacketHandlers {
             )},${rotation[2].toFixed(2)}`
           );
           break;
-        case joaat("HAX"):
+        case flhash("HAX"):
           if (!!hax[commandName]) {
             if (
               client.isAdmin ||
@@ -588,8 +586,7 @@ export class zonePacketHandlers {
             );
           }
           break;
-        case joaat("DEV"):
-        case 552078457: // dev
+          case flhash("DEV"):
           if (!!dev[commandName]) {
             if (
               client.isAdmin ||
@@ -608,8 +605,7 @@ export class zonePacketHandlers {
             );
           }
           break;
-        case joaat("ADMIN"):
-        case 997464845: // admin
+        case flhash("ADMIN"):
           if (!!admin[commandName]) {
             if (
               client.isAdmin ||
