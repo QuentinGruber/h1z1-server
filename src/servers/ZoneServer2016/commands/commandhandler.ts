@@ -5,7 +5,7 @@ import { Command } from "./types";
 import { commands } from "./commands";
 
 export class CommandHandler {
-  private commands: {[hash: number]: Command} = {}
+  readonly commands: {[hash: number]: Command} = {}
   constructor() {
     commands.forEach((command)=> {
       this.commands[flhash(command.name.toUpperCase())] = command;

@@ -201,23 +201,10 @@ export class zonePacketHandlers {
           () => server.worldDataManager.saveCharacterPosition(server, client),
           30000
         );
-        const commands = [
-          "hax",
-          "dev",
-          "admin",
-          "location",
-          "serverinfo",
-          "spawninfo",
-          "clientinfo",
-          "help",
-          "netstats",
-          "me",
-          "combatlog",
-        ];
 
-        commands.forEach((command) => {
+        Object.values(this.commandHandler.commands).forEach((command) => {
           server.sendData(client, "Command.AddWorldCommand", {
-            command: command,
+            command: command.name,
           });
         });
 
@@ -454,71 +441,7 @@ export class zonePacketHandlers {
         )
       )
         return;
-
-      const args: string[] = packet.data.arguments.toLowerCase().split(" ");
-      const commandName = args[0];
-      switch (packet.data.commandHash) {
-        case flhash("HAX"):
-          if (!!hax[commandName]) {
-            if (
-              client.isAdmin ||
-              commandName === "list" ||
-              server._allowedCommands.length === 0 ||
-              server._allowedCommands.includes(commandName)
-            ) {
-              this.hax[commandName](server, client, args);
-            } else {
-              server.sendChatText(client, "You don't have access to that.");
-            }
-          } else {
-            server.sendChatText(
-              client,
-              `Unknown command: "/hax ${commandName}", display hax all commands by using "/hax list"`
-            );
-          }
-          break;
-          case flhash("DEV"):
-          if (!!dev[commandName]) {
-            if (
-              client.isAdmin ||
-              commandName === "list" ||
-              server._allowedCommands.length === 0 ||
-              server._allowedCommands.includes(commandName)
-            ) {
-              this.dev[commandName](server, client, args);
-            } else {
-              server.sendChatText(client, "You don't have access to that.");
-            }
-          } else {
-            server.sendChatText(
-              client,
-              `Unknown command: "/dev ${commandName}", display dev all commands by using "/dev list"`
-            );
-          }
-          break;
-        case flhash("ADMIN"):
-          if (!!admin[commandName]) {
-            if (
-              client.isAdmin ||
-              commandName === "list" ||
-              server._allowedCommands.length === 0 ||
-              server._allowedCommands.includes(commandName)
-            ) {
-              this.admin[commandName](server, client, args);
-            } else {
-              server.sendChatText(client, "You don't have access to that.");
-            }
-          } else {
-            server.sendChatText(
-              client,
-              `Unknown command: "/admin ${commandName}", display admin all commands by using "/admin list"`
-            );
-          }
-          break;
-        default:
-          this.commandHandler.executeCommand(server, client, packet);
-          break;
-      }
+      this.commandHandler.executeCommand(server, client, packet);
     }),
       (this.commandInteractRequest = function (
         server: ZoneServer2016,

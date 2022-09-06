@@ -1,6 +1,9 @@
 import { _ } from "../../../utils/utils";
 import { ZoneClient2016 as Client} from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import admin from "./admin";
+import dev from "./dev";
+import hax from "./hax";
 import { Command, PermissionLevels } from "./types";
 
 export const commands: Array<Command> = [
@@ -160,6 +163,96 @@ export const commands: Array<Command> = [
       packet: any
     ) => {
       server.combatLog(client);
+    }
+  },
+
+
+
+  {
+    name: "hax",
+    permissionLevel: PermissionLevels.DEV,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      packet: any
+    ) => {
+      const args: string[] = packet.data.arguments.toLowerCase().split(" ");
+      const commandName = args[0];
+      if (!!hax[commandName]) {
+        if (
+          client.isAdmin ||
+          commandName === "list" ||
+          server._allowedCommands.length === 0 ||
+          server._allowedCommands.includes(commandName)
+        ) {
+          hax[commandName](server, client, args);
+        } else {
+          server.sendChatText(client, "You don't have access to that.");
+        }
+      } else {
+        server.sendChatText(
+          client,
+          `Unknown command: "/hax ${commandName}", display hax all commands by using "/hax list"`
+        );
+      }
+    }
+  },
+  {
+    name: "dev",
+    permissionLevel: PermissionLevels.DEV,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      packet: any
+    ) => {
+      const args: string[] = packet.data.arguments.toLowerCase().split(" ");
+      const commandName = args[0];
+      if (!!dev[commandName]) {
+        if (
+          client.isAdmin ||
+          commandName === "list" ||
+          server._allowedCommands.length === 0 ||
+          server._allowedCommands.includes(commandName)
+        ) {
+          dev[commandName](server, client, args);
+        } else {
+          server.sendChatText(client, "You don't have access to that.");
+        }
+      } else {
+        server.sendChatText(
+          client,
+          `Unknown command: "/dev ${commandName}", display dev all commands by using "/dev list"`
+        );
+      }
+    }
+  },
+  {
+    name: "admin",
+    permissionLevel: PermissionLevels.DEV,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      packet: any
+    ) => {
+      const args: string[] = packet.data.arguments.toLowerCase().split(" ");
+      const commandName = args[0];
+      if (!!admin[commandName]) {
+        if (
+          client.isAdmin ||
+          commandName === "list" ||
+          server._allowedCommands.length === 0 ||
+          server._allowedCommands.includes(commandName)
+        ) {
+          admin[commandName](server, client, args);
+        } else {
+          server.sendChatText(client, "You don't have access to that.");
+        }
+      } else {
+        server.sendChatText(
+          client,
+          `Unknown command: "/admin ${commandName}", display admin all commands by using "/admin list"`
+        );
+      }
     }
   },
 ]
