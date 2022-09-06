@@ -841,19 +841,6 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "run",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (
-      server: ZoneServer2016, 
-      client: Client, 
-      args: any[]
-    ) => {
-      server.sendData(client, "Command.RunSpeed", {
-        runSpeed: Number(args[0]),
-      });
-    }
-  },
-  {
     name: "randomweather",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (
@@ -914,41 +901,6 @@ export const commands: Array<Command> = [
         unknownDword33: 0,
       };
       server.sendWeatherUpdatePacket(client, server._weather2016, true);
-    }
-  },
-  {
-    name: "spectate",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (
-      server: ZoneServer2016, 
-      client: Client, 
-      args: any[]
-    ) => {
-      const characterId = server.generateGuid();
-      const vehicle = new Vehicle(
-        characterId,
-        server.getTransientId(characterId),
-        9371,
-        client.character.state.position,
-        client.character.state.lookAt,
-        server.getGameTime()
-      );
-      server.worldObjectManager.createVehicle(server, vehicle);
-      server.sendData(client, "AddLightweightVehicle", {
-        ...vehicle,
-        npcData: {
-          ...vehicle,
-          ...vehicle.state,
-          actorModelId: vehicle.actorModelId,
-        },
-      });
-      server.sendData(
-        client,
-        "LightweightToFullVehicle",
-        vehicle.pGetFullVehicle()
-      );
-      server.mountVehicle(client, characterId);
-      server.assignManagedObject(client, vehicle);
     }
   },
   {

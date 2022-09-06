@@ -3,9 +3,12 @@ import { ZoneServer2016 } from "../zoneserver";
 import { flhash } from "../../../utils/utils";
 import { Command, PermissionLevels } from "./types";
 import { commands } from "./commands";
+import { internalCommands } from "./internalcommands";
 
 export class CommandHandler {
-  readonly commands: {[hash: number]: Command} = {}
+  readonly commands: {[hash: number]: Command} = {};
+  readonly internalCommands: {[name: string]: Command} = {};
+
   constructor() {
     this.indexCommands(commands);
   }
@@ -13,6 +16,9 @@ export class CommandHandler {
   indexCommands(commands: Array<Command>) {
     commands.forEach((command)=> {
       this.commands[flhash(command.name.toUpperCase())] = command;
+    })
+    internalCommands.forEach((command)=> {
+      this.internalCommands[command.name] = command;
     })
   }
 
@@ -46,6 +52,30 @@ export class CommandHandler {
     }
     else {
       server.sendChatText(client, `Unknown command, hash: ${hash}`);
+    }
+  }
+
+  executeInternalCommand (
+    server: ZoneServer2016,
+    client: Client,
+    commandName: string,
+    packet: any
+  ) {
+    if(this.internalCommands[commandName]) {
+      const command = this.internalCommands[commandName];
+      // temp permissionLevel logic until isAdmin is replaced
+      if(
+        command.permissionLevel != PermissionLevels.DEFAULT &&
+        !client.isAdmin && 
+        (server._allowedCommands.length > 0 && !server._allowedCommands.includes(command.name))
+      ) {
+        server.sendChatText(client, "You don't have access to that.");
+        return;
+      }
+      command.execute(server, client, packet.data);
+    }
+    else {
+      server.sendChatText(client, `Unknown command: ${commandName}`);
     }
   }
 

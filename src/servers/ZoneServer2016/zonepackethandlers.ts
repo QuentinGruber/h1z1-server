@@ -94,6 +94,9 @@ export class zonePacketHandlers {
   vehicleDismiss;
   loadoutSelectSlot;
   weapon;
+  commandRun;
+  commandSpectate;
+
   constructor() {
     this.commandHandler = new CommandHandler();
 
@@ -703,8 +706,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
-      server.respawnPlayer(client);
+      this.commandHandler.executeInternalCommand(server, client, "respawn", packet);
     };
     this.characterFullCharacterDataRequest = function (
       server: ZoneServer2016,
@@ -1899,6 +1901,20 @@ export class zonePacketHandlers {
         }
       }
     };
+    this.commandRun = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      this.commandHandler.executeInternalCommand(server, client, "run", packet);
+    };
+    this.commandSpectate = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      this.commandHandler.executeInternalCommand(server, client, "spectate", packet);
+    };
     //#endregion
   }
 
@@ -2047,6 +2063,12 @@ export class zonePacketHandlers {
         break;
       case "Weapon.Weapon":
         this.weapon(server, client, packet);
+        break;
+      case "Command.RunSpeed":
+        this.commandRun(server, client, packet);
+        break;
+      case "Command.Spectate":
+        this.commandSpectate(server, client, packet);
         break;
       default:
         debug(packet);
