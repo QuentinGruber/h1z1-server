@@ -21,7 +21,8 @@ export class CommandHandler {
     client: Client,
     packet: any
   ) {
-    const hash = packet.data.commandHash;
+    const hash = packet.data.commandHash,
+    args: string[] = packet.data.arguments.toLowerCase().split(" ");
     if(this.commands[hash]) {
       const command = this.commands[hash];
       // temp permissionLevel logic until isAdmin is replaced
@@ -33,7 +34,7 @@ export class CommandHandler {
         server.sendChatText(client, "You don't have access to that.");
         return;
       }
-      command.execute(server, client, packet);
+      command.execute(server, client, args);
     }
     else if(hash == flhash("HELP")) {
       server.sendChatText(
