@@ -2,7 +2,6 @@ import { _ } from "../../../utils/utils";
 import { ZoneClient2016 as Client} from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import admin from "./admin";
-import dev from "./dev";
 import hax from "./hax";
 import { Command, PermissionLevels } from "./types";
 
@@ -166,6 +165,10 @@ export const commands: Array<Command> = [
     }
   },
 
+  
+
+
+
 
 
   {
@@ -207,6 +210,8 @@ export const commands: Array<Command> = [
     ) => {
       const args: string[] = packet.data.arguments.toLowerCase().split(" ");
       const commandName = args[0];
+      delete require.cache[require.resolve("./dev")];
+      const dev = require("./dev").default;
       if (!!dev[commandName]) {
         if (
           client.isAdmin ||
@@ -228,7 +233,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "admin",
-    permissionLevel: PermissionLevels.DEV,
+    permissionLevel: PermissionLevels.ADMIN,
     execute: (
       server: ZoneServer2016, 
       client: Client, 

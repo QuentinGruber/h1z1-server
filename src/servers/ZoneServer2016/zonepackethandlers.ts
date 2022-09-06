@@ -19,12 +19,6 @@ import { ZoneServer2016 } from "./zoneserver";
 
 const debug = require("debug")("ZoneServer");
 
-let hax = require("./commands/hax").default;
-
-let dev = require("./commands/dev").default;
-
-let admin = require("./commands/admin").default;
-
 import {
   _,
   Int64String,
@@ -32,7 +26,6 @@ import {
   getDistance,
   toInt,
   toHex,
-  flhash,
 } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
@@ -53,9 +46,6 @@ import { CommandHandler } from "./commands/commandhandler";
 const stats = require("../../../data/2016/sampleData/stats.json");
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
-  hax = hax;
-  dev = dev;
-  admin = admin;
   ClientIsReady;
   ClientFinishedLoading;
   Security;
@@ -201,7 +191,10 @@ export class zonePacketHandlers {
           () => server.worldDataManager.saveCharacterPosition(server, client),
           30000
         );
-
+        
+        server.sendData(client, "Command.AddWorldCommand", {
+          command: "help",
+        });
         Object.values(this.commandHandler.commands).forEach((command) => {
           server.sendData(client, "Command.AddWorldCommand", {
             command: command.name,
@@ -2062,14 +2055,9 @@ export class zonePacketHandlers {
     }
   }
   async reloadCommandCache() {
-    delete require.cache[require.resolve("./commands/hax")];
-    delete require.cache[require.resolve("./commands/dev")];
-    delete require.cache[require.resolve("./commands/admin")];
-    hax = require("./commands/hax").default;
-    dev = require("./commands/dev").default;
-    admin = require("./commands/admin").default;
-    this.hax = require("./commands/hax").default;
-    this.dev = require("./commands/dev").default;
-    this.admin = require("./commands/admin").default;
+    delete require.cache[require.resolve("./commands/commandhandler")];
+    const CommandHandler = (require("./commands/commandhandler") as any).CommandHandler;
+    this.commandHandler = new CommandHandler();
+    this.commandHandler.reloadCommands();
   }
 }
