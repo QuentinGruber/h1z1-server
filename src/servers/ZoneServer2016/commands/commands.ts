@@ -13,13 +13,12 @@
 
 import fs from "fs";
 
-import { _ } from "../../../utils/utils";
+import { zoneShutdown, _ } from "../../../utils/utils";
 import { ExplosiveEntity } from "../classes/explosiveentity";
 import { Npc } from "../classes/npc";
 import { Vehicle2016 as Vehicle} from "../classes/vehicle";
 import { ZoneClient2016 as Client} from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
-import admin from "./admin";
 import { Command, PermissionLevels } from "./types";
 
 function getDriveModel(model: string) {
@@ -1030,6 +1029,263 @@ export const commands: Array<Command> = [
       */
     }
   },
+  {
+    name: "shutdown",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      const timeLeft = args[0] ? args[0] : 0;
+      const message = args[1] ? args[1] : " ";
+      const startedTime = Date.now();
+      await zoneShutdown(server, startedTime, timeLeft, message);
+    }
+  },
+  {
+    name: "respawnloot",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      server.worldObjectManager.createLoot(server);
+      server.sendChatText(client, `Respawned loot`);
+    }
+  },
+  {
+    name: "respawnnpcs",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      server.worldObjectManager.createNpcs(server);
+      server.sendChatText(client, `Respawned npcs`);
+    }
+  },
+  {
+    name: "respawnvehicles",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      server.worldObjectManager.createVehicles(server);
+      server.sendChatText(client, `Respawned vehicles`);
+    }
+  },
+  {
+    name: "lootrespawntimer",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /lootrespawntimer <time>`
+        );
+        return;
+      }
+      server.worldObjectManager.lootRespawnTimer = Number(args[0]);
+      server.sendChatText(client, `Loot respawn timer set to ${Number(args[0])}`);
+    }
+  },
+  {
+    name: "npcrespawntimer",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /npcrespawntimer <time>`
+        );
+        return;
+      }
+      server.worldObjectManager.npcRespawnTimer = Number(args[0]);
+      server.sendChatText(client, `Npc respawn timer set to ${Number(args[0])}`);
+    }
+  },
+  {
+    name: "vehiclerespawntimer",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /admin vehiclerespawntimer <time>`
+        );
+        return;
+      }
+      server.worldObjectManager.vehicleRespawnTimer = Number(args[0]);
+      server.sendChatText(
+        client,
+        `Vehicle respawn timer set to ${Number(args[0])}`
+      );
+    }
+  },
+  {
+    name: "god",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      server.setGodMode(client, !client.character.godMode);
+      server.sendAlert(client, `Set godmode to ${client.character.godMode}`);
+    }
+  },
+  {
+    name: "alert",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      server.sendAlertToAll(args.join(" "));
+    }
+  },
+  {
+    name: "remover",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      server.lootItem(client, server.generateItem(1776));
+    }
+  },
+  {
+    name: "players",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      server.sendChatText(
+        client,
+        `Players: ${Object.values(server._clients)
+          .map((c) => {
+            return `${c.character.name}: ${c.loginSessionId}`;
+          })
+          .join(", ")}`
+      );
+    }
+  },
+  {
+    name: "kick",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(client, "Missing guid (use /admin players)");
+        return;
+      }
+      const targetClient = Object.values(server._clients).find((c) => {
+        if (c.loginSessionId == args[0] || c.loginSessionId == args[0].slice(2)) {
+          // in case "0x" is included
+          return c;
+        }
+      });
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      const reason = args[1] ? args.slice(1).join(" ") : "Undefined";
+      for (let i = 0; i < 5; i++) {
+        server.sendAlert(
+          targetClient,
+          `You are being kicked from the server. Reason: ${reason}`
+        );
+      }
+  
+      setTimeout(() => {
+        if (!targetClient) {
+          return;
+        }
+        server.sendGlobalChatText(
+          `${targetClient.character.name} has been kicked from the server!`
+        );
+        server.sendData(targetClient, "CharacterSelectSessionResponse", {
+          status: 1,
+          sessionId: targetClient.loginSessionId,
+        });
+      }, 2000);
+    }
+  },
+  {
+    name: "savecharacters",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      if (!server.enableWorldSaves) {
+        server.sendChatText(client, "Server saving is disabled.");
+        return;
+      }
+      server.sendChatText(client, "CharacterData save started.");
+      await server.worldDataManager.saveCharacters(server);
+      server.sendChatText(client, "Character data has been saved!");
+    }
+  },
+  {
+    name: "savevehicles",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      if (!server.enableWorldSaves) {
+        server.sendChatText(client, "Server saving is disabled.");
+        return;
+      }
+      server.sendChatText(client, "VehicleData save started.");
+      await server.worldDataManager.saveVehicles(server);
+      server.sendChatText(client, "Vehicles have been saved!");
+    }
+  },
+  {
+    name: "save",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      if (!server.enableWorldSaves) {
+        server.sendChatText(client, "Server saving is disabled.");
+        return;
+      }
+      server.sendChatText(client, "World save started.");
+      await server.worldDataManager.saveWorld(server);
+      server.sendChatText(client, "World saved!");
+    }
+  },
 
   //#endregion
 
@@ -1065,32 +1321,4 @@ export const commands: Array<Command> = [
     }
   },
   //#endregion
-  {
-    name: "admin",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (
-      server: ZoneServer2016, 
-      client: Client, 
-      args: any[]
-    ) => {
-      const commandName = args[0];
-      if (!!admin[commandName]) {
-        if (
-          client.isAdmin ||
-          commandName === "list" ||
-          server._allowedCommands.length === 0 ||
-          server._allowedCommands.includes(commandName)
-        ) {
-          admin[commandName](server, client, args);
-        } else {
-          server.sendChatText(client, "You don't have access to that.");
-        }
-      } else {
-        server.sendChatText(
-          client,
-          `Unknown command: "/admin ${commandName}", display admin all commands by using "/admin list"`
-        );
-      }
-    }
-  },
 ]
