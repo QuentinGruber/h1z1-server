@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import fs from "fs";
 
 import { zoneShutdown, _ } from "../../../utils/utils";
