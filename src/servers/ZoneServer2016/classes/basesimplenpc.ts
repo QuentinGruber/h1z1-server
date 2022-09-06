@@ -13,33 +13,8 @@
 
 import { BaseEntity } from "./baseentity";
 
-function getDamageRange(actorModelId: number) {
-    let damageRange: number;
-    switch (actorModelId) {
-        case 49:
-        case 50:
-        case 9407:
-            damageRange = 5;
-            break;
-        case 51:
-        case 9408:
-            damageRange = 4;
-            break;
-        case 52:
-        case 9411:
-            damageRange = 8;
-        case 9181:
-            damageRange = 2;
-        default:
-            damageRange = 2;
-            break;
-    }
-    return damageRange;
-}
-
 export class BaseSimpleNpc extends BaseEntity {
-    health = 100000;
-    damageRange: number;
+  health = 100000;
   constructor(
     characterId: string,
     transientId: number,
@@ -47,8 +22,7 @@ export class BaseSimpleNpc extends BaseEntity {
     position: Float32Array,
     rotation: Float32Array
   ) {
-      super(characterId, transientId, actorModelId, position, rotation);
-      this.damageRange = getDamageRange(actorModelId);
+    super(characterId, transientId, actorModelId, position, rotation);
   }
   pGetSimpleNpc() {
     return {
