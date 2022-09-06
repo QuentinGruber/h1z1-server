@@ -67,7 +67,7 @@ export const internalCommands: Array<Command> = [
   },
   {
     name: "run",
-    permissionLevel: PermissionLevels.DEFAULT,
+    permissionLevel: PermissionLevels.ADMIN,
     execute: (
       server: ZoneServer2016, 
       client: Client, 
