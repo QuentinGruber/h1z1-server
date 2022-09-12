@@ -9,7 +9,8 @@
 import { BaseSimpleNpc } from "./basesimplenpc";
 
 export class simpleConstruction extends BaseSimpleNpc {
-    health = 1000000;
+    health: number = 1000000;
+    healthPercentage: number = 100;
     slot?: string;
     parentObjectCharacterId?: string;
     constructor(
@@ -28,5 +29,15 @@ export class simpleConstruction extends BaseSimpleNpc {
         if (parentObjectCharacterId) {
             this.parentObjectCharacterId = parentObjectCharacterId;
         }
+    }
+    pGetConstructionHealth() {
+        return {
+            characterId: this.characterId,
+            health: this.health / 10000,
+        };
+    }
+    pDamageConstruction(damage: number) {
+        this.health -= damage;
+        this.healthPercentage = this.health / 10000;
     }
 }

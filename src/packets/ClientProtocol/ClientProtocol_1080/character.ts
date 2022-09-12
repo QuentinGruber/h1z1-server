@@ -560,7 +560,7 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "health", type: "float", defaultValue: 0 },
+        { name: "healthPercentage", type: "float", defaultValue: 0 },
       ],
     },
   ],

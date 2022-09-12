@@ -1089,6 +1089,15 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
+
+      for (const construction in this._constructionSimple) {
+          const constructionObject = this._constructionSimple[construction];
+          const distance = getDistance(constructionObject.state.position, position);
+          if (distance <= 3) {
+              this.damageConstruction(constructionObject.characterId, distance < 1? 50000:50000/Math.sqrt(distance), this._constructionFoundations)
+          }
+      }
+
     for (const explosive in this._explosives) {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
@@ -1098,7 +1107,26 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
-  }
+    }
+
+    damageConstruction(constructionCharId: string, damage: number, dictionary: any) {
+        const constructionObject: simpleConstruction | ConstructionParentEntity = dictionary[constructionCharId];
+        constructionObject.pDamageConstruction(damage);
+        if (constructionObject.health <= 0) {
+            this.deleteEntity(constructionCharId, dictionary)
+            return;
+        }
+        this.sendDataToAllWithSpawnedEntity(
+            dictionary,
+            constructionCharId,
+            "Character.UpdateSimpleProxyHealth",
+            {
+                characterId: constructionObject.characterId,
+                healthPercentage: constructionObject.healthPercentage
+            }
+        );
+
+    }
 
   damageVehicle(damage: number, vehicle: Vehicle) {
     if (!vehicle.isInvulnerable) {
@@ -2073,7 +2101,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
-  }
+    }
   
   foundationPermissionChecker(client: Client) {
         for (const a in this._constructionFoundations) {

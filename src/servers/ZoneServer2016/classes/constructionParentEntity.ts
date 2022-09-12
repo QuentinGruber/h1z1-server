@@ -17,6 +17,7 @@ import { ZoneServer2016 } from "../zoneserver";
 
 
 export class ConstructionParentEntity extends Npc {
+    healthPercentage: number = 100;
     permissions: any;
     ownerCharacterId: string;
     perimeters: { [slot: string]: Float32Array };
@@ -234,5 +235,15 @@ export class ConstructionParentEntity extends Npc {
         }
         this.perimeters[slot as keyof typeof this.perimeters] = value;
         this.checkPerimeters(server)
+    }
+    pGetConstructionHealth() {
+        return {
+            characterId: this.characterId,
+            health: this.health / 10000,
+        };
+    }
+    pDamageConstruction(damage: number) {
+        this.health -= damage;
+        this.healthPercentage = this.health / 10000;
     }
 }
