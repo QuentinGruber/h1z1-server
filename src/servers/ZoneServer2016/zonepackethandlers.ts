@@ -1304,7 +1304,9 @@ export class zonePacketHandlers {
           } else {
               final = new Float32Array([euler[2], 0, 0, 0])
           }
-
+          if (Number(final[0].toFixed(2)) === -0.00) {
+              final[0] = 0;
+          }
           const modelId = server.getItemDefinition(
               packet.data.itemDefinitionId
           ).PLACEMENT_MODEL_ID;
