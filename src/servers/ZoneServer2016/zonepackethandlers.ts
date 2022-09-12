@@ -1289,27 +1289,28 @@ export class zonePacketHandlers {
     ) {
       server.changeSeat(client, packet);
     };
-    this.constructionPlacementFinalizeRequest = function (
-            server: ZoneServer2016,
-            client: Client,
-            packet: any
-    ) {
-            const array = new Float32Array([packet.data.rotation1[3], packet.data.rotation1[1], packet.data.rotation2[2]]);
-            const matrix = quat2matrix(array)
-            const euler = [Math.atan2(matrix[7], matrix[8]), Math.atan2(-matrix[6], Math.sqrt(Math.pow(matrix[7], 2) + Math.pow(matrix[8], 2))), Math.atan2(matrix[3], matrix[0])];
-            let final;
-            if (euler[0] >= 0) {
-                final = new Float32Array([euler[1], 0, 0, 0])
-            } else {
-                final = new Float32Array([euler[2], 0, 0, 0])
-            }
+      this.constructionPlacementFinalizeRequest = function (
+          server: ZoneServer2016,
+          client: Client,
+          packet: any
+      ) {
+          if (packet.data.itemDefinitionId === 0) return;
+          const array = new Float32Array([packet.data.rotation1[3], packet.data.rotation1[1], packet.data.rotation2[2]]);
+          const matrix = quat2matrix(array)
+          const euler = [Math.atan2(matrix[7], matrix[8]), Math.atan2(-matrix[6], Math.sqrt(Math.pow(matrix[7], 2) + Math.pow(matrix[8], 2))), Math.atan2(matrix[3], matrix[0])];
+          let final;
+          if (euler[0] >= 0) {
+              final = new Float32Array([euler[1], 0, 0, 0])
+          } else {
+              final = new Float32Array([euler[2], 0, 0, 0])
+          }
 
-            const modelId = server.getItemDefinition(
-                packet.data.itemDefinitionId
-            ).PLACEMENT_MODEL_ID;
-        server.placement(client, packet.data.itemDefinitionId, modelId, packet.data.position, final, packet.data.parentObjectCharacterId, packet.data.BuildingSlot);
+          const modelId = server.getItemDefinition(
+              packet.data.itemDefinitionId
+          ).PLACEMENT_MODEL_ID;
+          server.placement(client, packet.data.itemDefinitionId, modelId, packet.data.position, final, packet.data.parentObjectCharacterId, packet.data.BuildingSlot);
 
-        };
+      };
     this.commandItemDefinitionRequest = function (
       server: ZoneServer2016,
       client: Client,
