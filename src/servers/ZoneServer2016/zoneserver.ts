@@ -1098,6 +1098,24 @@ export class ZoneServer2016 extends EventEmitter {
           }
       }
 
+      for (const construction in this._constructionDoors) {
+          const constructionObject = this._constructionDoors[construction];
+          const distance = getDistance(constructionObject.state.position, position);
+          if (distance <= 3) {
+              this.damageConstruction(constructionObject.characterId, distance < 1 ? 50000 : 50000 / Math.sqrt(distance), this._constructionFoundations)
+          }
+      }
+
+      for (const construction in this._constructionFoundations) {
+          const constructionObject = this._constructionFoundations[construction];
+          const allowed = [Items.SHACK, Items.SMALL_SHACK, Items.BASIC_SHACK]
+          if (!allowed.includes(constructionObject.itemDefinitionId)) return;
+          const distance = getDistance(constructionObject.state.position, position);
+          if (distance <= 3) {
+              this.damageConstruction(constructionObject.characterId, distance < 1 ? 50000 : 50000 / Math.sqrt(distance), this._constructionFoundations)
+          }
+      }
+
     for (const explosive in this._explosives) {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
