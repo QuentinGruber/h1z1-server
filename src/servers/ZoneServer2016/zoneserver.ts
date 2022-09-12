@@ -1100,10 +1100,7 @@ export class ZoneServer2016 extends EventEmitter {
                       }
                   }
                   else {
-                      const distance = getDistance(constructionObject.state.position, position);
-                      if (distance <= 5) {
-                          this.damageConstruction(constructionObject.characterId, distance < 1 ? 50000 : 55000 / Math.sqrt(distance), this._constructionSimple)
-                      }
+                      this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
                   }
               } else {
                   for (const a in this._constructionFoundations) {
@@ -1114,10 +1111,7 @@ export class ZoneServer2016 extends EventEmitter {
                           }
                       }
                       else {
-                          const distance = getDistance(constructionObject.state.position, position);
-                          if (distance <= 5) {
-                              this.damageConstruction(constructionObject.characterId, distance < 1 ? 50000 : 55000 / Math.sqrt(distance), this._constructionSimple)
-                          }
+                          this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
                       }
                   }
               }
@@ -1133,10 +1127,7 @@ export class ZoneServer2016 extends EventEmitter {
                   }
               }
               else {
-                  const distance = getDistance(constructionObject.state.position, position);
-                  if (distance <= 5) {
-                      this.damageConstruction(constructionObject.characterId, distance < 1 ? 50000 : 55000 / Math.sqrt(Math.sqrt(distance)), this._constructionDoors)
-                  }
+                  this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionDoors, position)
               }
           }
       }
@@ -1145,10 +1136,7 @@ export class ZoneServer2016 extends EventEmitter {
           const constructionObject = this._constructionFoundations[construction] as ConstructionParentEntity;
           const allowed = [Items.SHACK, Items.SMALL_SHACK, Items.BASIC_SHACK]
           if (allowed.includes(constructionObject.itemDefinitionId)) {
-              const distance = getDistance(constructionObject.state.position, position);
-              if (distance <= 5) {
-                  this.damageConstruction(constructionObject.characterId, distance < 1 ? 50000 : 55000 / Math.sqrt(distance), this._constructionFoundations)
-              }
+              this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionFoundations, position)
           }
       }
 
@@ -1167,9 +1155,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendAlert(client, 'You must destroy the bases gate layer before affecting interior structures');
     }
 
-    damageConstruction(constructionCharId: string, damage: number, dictionary: any) {
+    checkConstructionDamage(constructionCharId: string, damage: number, dictionary: any, position: Float32Array) {
         const constructionObject: simpleConstruction | ConstructionParentEntity = dictionary[constructionCharId];
-        constructionObject.pDamageConstruction(damage);
+        const distance = getDistance(constructionObject.state.position, position);
+        if (distance > 5) return;
+        constructionObject.pDamageConstruction(distance < 1 ? damage : damage / Math.sqrt(distance * 1.5));
         if (constructionObject.health <= 0) {
             if (constructionObject.actorModelId === 50 || constructionObject.actorModelId === 49) {
                 if (constructionObject.parentObjectCharacterId) {
