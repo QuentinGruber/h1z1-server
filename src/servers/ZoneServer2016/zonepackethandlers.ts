@@ -1177,7 +1177,8 @@ export class zonePacketHandlers {
                             characterId: doorEntity.characterId,
                             effectId: doorEntity.isOpen ? doorEntity.closeSound : doorEntity.openSound,
                         });
-                        doorEntity.isOpen = !doorEntity.isOpen; 
+                    doorEntity.isOpen = !doorEntity.isOpen;
+                    server._constructionFoundations[doorEntity.parentObjectCharacterId].isSecured = !doorEntity.isOpen;
                         break;
                 default:
                     break;

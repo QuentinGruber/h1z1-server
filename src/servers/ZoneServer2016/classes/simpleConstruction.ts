@@ -11,7 +11,7 @@ import { BaseSimpleNpc } from "./basesimplenpc";
 export class simpleConstruction extends BaseSimpleNpc {
     health: number = 1000000;
     healthPercentage: number = 100;
-    slot?: string;
+    buildingSlot?: string;
     parentObjectCharacterId?: string;
     constructor(
         characterId: string,
@@ -19,12 +19,12 @@ export class simpleConstruction extends BaseSimpleNpc {
         actorModelId: number,
         position: Float32Array,
         rotation: Float32Array,
-        slot?: string,
         parentObjectCharacterId?: string,
+        slot?: string,
     ) {
         super(characterId, transientId, actorModelId, position, rotation);
         if (slot) {
-            this.slot = slot;
+            this.buildingSlot = slot;
         }
         if (parentObjectCharacterId) {
             this.parentObjectCharacterId = parentObjectCharacterId;

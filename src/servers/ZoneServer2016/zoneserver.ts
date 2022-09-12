@@ -26,7 +26,7 @@ import { Resolver } from "dns";
 
 import { promisify } from "util";
 import { zonePacketHandlers } from "./zonepackethandlers";
-import { ZoneClient2016 as Client } from "./classes/zoneclient";
+import { ZoneClient2016 as Client, ZoneClient2016 } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 import {
@@ -1064,7 +1064,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.checkHook("OnPlayerDied", client, deathInfo);
   }
 
-  async explosionDamage(position: Float32Array, npcTriggered: string) {
+  async explosionDamage(position: Float32Array, npcTriggered: string, client?: Client) {
     for (const character in this._clients) {
       const characterObj = this._clients[character];
       if (!characterObj.character.godMode) {
@@ -1091,28 +1091,64 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
       for (const construction in this._constructionSimple) {
-          const constructionObject = this._constructionSimple[construction];
-          const distance = getDistance(constructionObject.state.position, position);
-          if (distance <= 3) {
-              this.damageConstruction(constructionObject.characterId, distance < 1? 50000:50000/Math.sqrt(distance), this._constructionFoundations)
+          const constructionObject = this._constructionSimple[construction] as simpleConstruction;
+          if (constructionObject.actorModelId != 9487 && constructionObject.actorModelId != 9488) {
+              if (constructionObject.parentObjectCharacterId) {
+                  if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
+                      if (client) {
+                          this.sendBaseSecuredMessage(client);
+                      }
+                  }
+                  else {
+                      const distance = getDistance(constructionObject.state.position, position);
+                      if (distance <= 5) {
+                          this.damageConstruction(constructionObject.characterId, distance < 1 ? 50000 : 55000 / Math.sqrt(distance), this._constructionSimple)
+                      }
+                  }
+              } else {
+                  for (const a in this._constructionFoundations) {
+                      const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
+                      if (foundation.isSecured && isInside([constructionObject.state.position[0], constructionObject.state.position[2]], foundation.securedPolygons)) {
+                          if (client) {
+                              this.sendBaseSecuredMessage(client);
+                          }
+                      }
+                      else {
+                          const distance = getDistance(constructionObject.state.position, position);
+                          if (distance <= 5) {
+                              this.damageConstruction(constructionObject.characterId, distance < 1 ? 50000 : 55000 / Math.sqrt(distance), this._constructionSimple)
+                          }
+                      }
+                  }
+              }
           }
       }
 
       for (const construction in this._constructionDoors) {
-          const constructionObject = this._constructionDoors[construction];
-          const distance = getDistance(constructionObject.state.position, position);
-          if (distance <= 3) {
-              this.damageConstruction(constructionObject.characterId, distance < 1 ? 50000 : 50000 / Math.sqrt(distance), this._constructionFoundations)
+          const constructionObject = this._constructionDoors[construction] as constructionDoor;
+          if (constructionObject.parentObjectCharacterId) {
+              if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 49) {
+                  if (client) {
+                      this.sendBaseSecuredMessage(client);
+                  }
+              }
+              else {
+                  const distance = getDistance(constructionObject.state.position, position);
+                  if (distance <= 5) {
+                      this.damageConstruction(constructionObject.characterId, distance < 1 ? 50000 : 55000 / Math.sqrt(Math.sqrt(distance)), this._constructionDoors)
+                  }
+              }
           }
       }
 
       for (const construction in this._constructionFoundations) {
-          const constructionObject = this._constructionFoundations[construction];
+          const constructionObject = this._constructionFoundations[construction] as ConstructionParentEntity;
           const allowed = [Items.SHACK, Items.SMALL_SHACK, Items.BASIC_SHACK]
-          if (!allowed.includes(constructionObject.itemDefinitionId)) return;
-          const distance = getDistance(constructionObject.state.position, position);
-          if (distance <= 3) {
-              this.damageConstruction(constructionObject.characterId, distance < 1 ? 50000 : 50000 / Math.sqrt(distance), this._constructionFoundations)
+          if (allowed.includes(constructionObject.itemDefinitionId)) {
+              const distance = getDistance(constructionObject.state.position, position);
+              if (distance <= 5) {
+                  this.damageConstruction(constructionObject.characterId, distance < 1 ? 50000 : 55000 / Math.sqrt(distance), this._constructionFoundations)
+              }
           }
       }
 
@@ -1127,10 +1163,20 @@ export class ZoneServer2016 extends EventEmitter {
     }
     }
 
+    sendBaseSecuredMessage(client: Client) {
+        this.sendAlert(client, 'You must destroy the bases gate layer before affecting interior structures');
+    }
+
     damageConstruction(constructionCharId: string, damage: number, dictionary: any) {
         const constructionObject: simpleConstruction | ConstructionParentEntity = dictionary[constructionCharId];
         constructionObject.pDamageConstruction(damage);
         if (constructionObject.health <= 0) {
+            if (constructionObject.actorModelId === 50 || constructionObject.actorModelId === 49) {
+                if (constructionObject.parentObjectCharacterId) {
+                    const foundation = this._constructionFoundations[constructionObject.parentObjectCharacterId] as ConstructionParentEntity;
+                    foundation.changePerimeters(this, constructionObject.buildingSlot, new Float32Array([0, 0, 0, 0]));
+                }
+            }
             this.deleteEntity(constructionCharId, dictionary)
             return;
         }
@@ -2928,17 +2974,15 @@ export class ZoneServer2016 extends EventEmitter {
                 const characterId = this.generateGuid();
                 const transientId = this.getTransientId(characterId);
                 if (BuildingSlot.includes('PerimeterWall') && Number(parentObjectCharacterId)) {
-                    const slot = BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();
-
+                    const slot = BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();                   
                     const npc = new simpleConstruction(
                         characterId,
                         transientId,
                         modelId,
                         position,
                         new Float32Array([0, rotation[0], 0]),
+                        parentObjectCharacterId,
                         slot,
-                        parentObjectCharacterId
-
                     );
                     this._constructionSimple[characterId] = npc;
                     switch (this.getEntityType(parentObjectCharacterId)) {
@@ -2948,12 +2992,21 @@ export class ZoneServer2016 extends EventEmitter {
                             break;
                     }
                 } else {
+                    if (!parentObjectCharacterId) {
+                        for (const a in this._constructionFoundations) {
+                            const object = this._constructionFoundations[a] as ConstructionParentEntity;
+                            if (object.itemDefinitionId === Items.FOUNDATION && isPosInRadius(10, object.state.position, position)) {
+                                parentObjectCharacterId = object.characterId;
+                            }
+                        }
+                    }
                     const npc = new simpleConstruction(
                         characterId,
                         transientId,
                         modelId,
                         position,
                         new Float32Array([0, rotation[0], 0]),
+                        parentObjectCharacterId
 
                     );
                     this._constructionSimple[characterId] = npc;
@@ -5109,7 +5162,8 @@ export class ZoneServer2016 extends EventEmitter {
           this._explosives[a].state.position
         )
       ) {
-        this.igniteIED(this._explosives[a]);
+          this.igniteIED(this._explosives[a], client);
+          return;
       }
     }
   }
@@ -5185,7 +5239,7 @@ export class ZoneServer2016 extends EventEmitter {
     }, timeout);
   }
 
-  igniteIED(IED: ExplosiveEntity) {
+  igniteIED(IED: ExplosiveEntity, client: Client) {
     if (!IED.isIED) {
       return;
     }
@@ -5208,11 +5262,11 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     setTimeout(() => {
-      this.explodeExplosive(IED);
+      this.explodeExplosive(IED, client);
     }, 10000);
   }
 
-  explodeExplosive(explosive: ExplosiveEntity) {
+  explodeExplosive(explosive: ExplosiveEntity, client?: Client) {
     if (!this._explosives[explosive.characterId]) {
       return;
     }
@@ -5230,7 +5284,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     delete this._explosives[explosive.characterId];
-    this.explosionDamage(explosive.state.position, explosive.characterId);
+      client ? this.explosionDamage(explosive.state.position, explosive.characterId, client) : this.explosionDamage(explosive.state.position, explosive.characterId);
   }
 
   /**

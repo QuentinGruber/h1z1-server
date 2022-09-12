@@ -18,6 +18,7 @@ export class constructionDoor extends DoorEntity {
     password: number = 0;
     grantedAccess: any = [];
     health: number = 1000000;
+    healthPercentage: number = 100;
     parentObjectCharacterId: string;
     buildingSlot: string;
     constructor(
@@ -36,5 +37,15 @@ export class constructionDoor extends DoorEntity {
         this.ownerCharacterId = ownerCharacterId;
         this.parentObjectCharacterId = parentObjectCharacterId;
         this.buildingSlot = BuildingSlot;
+    }
+    pGetConstructionHealth() {
+        return {
+            characterId: this.characterId,
+            health: this.health / 10000,
+        };
+    }
+    pDamageConstruction(damage: number) {
+        this.health -= damage;
+        this.healthPercentage = this.health / 10000;
     }
 }

@@ -227,7 +227,8 @@ export class ConstructionParentEntity extends Npc {
                 break;
         }
     }
-    changePerimeters(server: ZoneServer2016, slot: string, value: Float32Array) {
+    changePerimeters(server: ZoneServer2016, slot: string | undefined, value: Float32Array) {
+        if (!slot) return;
         if (this.itemDefinitionId === Items.SHACK) {
             this.perimeters["01"] = value;
             this.checkPerimeters(server)
