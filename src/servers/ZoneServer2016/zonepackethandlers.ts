@@ -1178,8 +1178,10 @@ export class zonePacketHandlers {
                             effectId: doorEntity.isOpen ? doorEntity.closeSound : doorEntity.openSound,
                         });
                     doorEntity.isOpen = !doorEntity.isOpen;
-                    server._constructionFoundations[doorEntity.parentObjectCharacterId].isSecured = !doorEntity.isOpen;
-                        break;
+                    doorEntity.isOpen ?
+                        server._constructionFoundations[doorEntity.parentObjectCharacterId].changePerimeters(server, doorEntity.buildingSlot, new Float32Array([0, 0, 0, 0])) :
+                        server._constructionFoundations[doorEntity.parentObjectCharacterId].changePerimeters(server, doorEntity.buildingSlot, doorEntity.state.position);
+                    break;
                 default:
                     break;
             }
