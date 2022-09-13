@@ -1092,26 +1092,41 @@ export class ZoneServer2016 extends EventEmitter {
 
       for (const construction in this._constructionSimple) {
           const constructionObject = this._constructionSimple[construction] as simpleConstruction;
-          if (constructionObject.actorModelId != 9487 && constructionObject.actorModelId != 9488) {
-              if (constructionObject.parentObjectCharacterId) {
-                  if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
-                      if (client) {
-                          this.sendBaseSecuredMessage(client);
-                      }
-                  }
-                  else {
-                      this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
-                  }
-              } else {
-                  for (const a in this._constructionFoundations) {
-                      const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
-                      if (foundation.isSecured && isInside([constructionObject.state.position[0], constructionObject.state.position[2]], foundation.securedPolygons)) {
-                          if (client) {
-                              this.sendBaseSecuredMessage(client);
+          if (isPosInRadius(5, constructionObject.state.position, position)) {
+              if (constructionObject.actorModelId != 9487 && constructionObject.actorModelId != 9488) {
+                  if (constructionObject.parentObjectCharacterId) {
+                      if (this._constructionFoundations[constructionObject.parentObjectCharacterId]) {
+                          if (this._constructionFoundations[constructionObject.parentObjectCharacterId])
+                              if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
+                                  if (client) {
+                                      this.sendBaseSecuredMessage(client);
+                                  }
+                              }
+                              else {
+                                  this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
+                              }
+                      } else if (this._constructionSimple[constructionObject.parentObjectCharacterId]) {
+                          const parentConstruction = this._constructionSimple[constructionObject.parentObjectCharacterId] as simpleConstruction;
+                          if (parentConstruction.parentObjectCharacterId && this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
+                              if (client) {
+                                  this.sendBaseSecuredMessage(client);
+                              }
+                          }
+                          else {
+                              this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
                           }
                       }
-                      else {
-                          this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
+                  } else {
+                      for (const a in this._constructionFoundations) {
+                          const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
+                          if (foundation.isSecured && isInside([constructionObject.state.position[0], constructionObject.state.position[2]], foundation.securedPolygons)) {
+                              if (client) {
+                                  this.sendBaseSecuredMessage(client);
+                              }
+                          }
+                          else {
+                              this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
+                          }
                       }
                   }
               }
@@ -1120,23 +1135,27 @@ export class ZoneServer2016 extends EventEmitter {
 
       for (const construction in this._constructionDoors) {
           const constructionObject = this._constructionDoors[construction] as constructionDoor;
-          if (constructionObject.parentObjectCharacterId) {
-              if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 49) {
-                  if (client) {
-                      this.sendBaseSecuredMessage(client);
+          if (isPosInRadius(5, constructionObject.state.position, position)) {
+              if (constructionObject.parentObjectCharacterId) {
+                  if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 49) {
+                      if (client) {
+                          this.sendBaseSecuredMessage(client);
+                      }
                   }
-              }
-              else {
-                  this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionDoors, position)
+                  else {
+                      this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionDoors, position)
+                  }
               }
           }
       }
 
       for (const construction in this._constructionFoundations) {
           const constructionObject = this._constructionFoundations[construction] as ConstructionParentEntity;
-          const allowed = [Items.SHACK, Items.SMALL_SHACK, Items.BASIC_SHACK]
-          if (allowed.includes(constructionObject.itemDefinitionId)) {
-              this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionFoundations, position)
+          if (isPosInRadius(5, constructionObject.state.position, position)) {
+              const allowed = [Items.SHACK, Items.SMALL_SHACK, Items.BASIC_SHACK]
+              if (allowed.includes(constructionObject.itemDefinitionId)) {
+                  this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionFoundations, position)
+              }
           }
       }
 
