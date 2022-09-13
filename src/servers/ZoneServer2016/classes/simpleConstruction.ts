@@ -6,9 +6,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Npc } from "./npc";
+import { BaseLightweightCharacter } from "./baselightweightcharacter";
 
-export class simpleConstruction extends Npc {
+export class simpleConstruction extends BaseLightweightCharacter {
     health: number = 1000000;
     healthPercentage: number = 100;
     buildingSlot?: string;
