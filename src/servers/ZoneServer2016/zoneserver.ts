@@ -1175,10 +1175,30 @@ export class ZoneServer2016 extends EventEmitter {
             constructionCharId,
             "Character.UpdateSimpleProxyHealth",
             {
-                characterId: constructionObject.characterId,
+                characterId: constructionCharId,
                 healthPercentage: constructionObject.healthPercentage
             }
         );
+        this.sendDataToAllWithSpawnedEntity( // play burning effect & remove it after 20s
+            dictionary,
+            constructionCharId,
+            "Command.PlayDialogEffect",
+            {
+                characterId: constructionCharId,
+                effectId: 1214,
+            }
+        );
+        setTimeout(() => {
+            this.sendDataToAllWithSpawnedEntity(
+                dictionary,
+                constructionCharId,
+                "Command.PlayDialogEffect",
+                {
+                    characterId: constructionCharId,
+                    effectId: 0,
+                }
+            );
+        }, 20000)
 
     }
 
