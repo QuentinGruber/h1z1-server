@@ -729,7 +729,18 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
+        debug(packet);
+        server.sendData(client, "ResourceEvent", {
+            eventData: {
+                type: 3,
+                value: {
+                    characterId: client.character.characterId,
+                    resourceId: 56,
+                    resourceType: 56,
+                    initialValue: 0,
+                },
+            },
+        });
       server.speedTreeUse(client, packet);
     };
     this.GetRewardBuffInfo = function (
@@ -1304,7 +1315,7 @@ export class zonePacketHandlers {
           } else {
               final = new Float32Array([euler[2], 0, 0, 0])
           }
-          if (Number(final[0].toFixed(2)) === 0.00) {
+          if (Number(final[0].toFixed(1)) === 0.0) {
               final[0] = 0;
           }
           const modelId = server.getItemDefinition(

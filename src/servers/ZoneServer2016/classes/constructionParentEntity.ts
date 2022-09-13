@@ -11,12 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Npc } from "./npc";
+import { simpleConstruction } from "./simpleConstruction";
 import { Items } from "../enums";
 import { ZoneServer2016 } from "../zoneserver";
 
 
-export class ConstructionParentEntity extends Npc {
+export class ConstructionParentEntity extends simpleConstruction {
     healthPercentage: number = 100;
     permissions: any;
     ownerCharacterId: string;
@@ -236,15 +236,5 @@ export class ConstructionParentEntity extends Npc {
         }
         this.perimeters[slot as keyof typeof this.perimeters] = value;
         this.checkPerimeters(server)
-    }
-    pGetConstructionHealth() {
-        return {
-            characterId: this.characterId,
-            health: this.health / 10000,
-        };
-    }
-    pDamageConstruction(damage: number) {
-        this.health -= damage;
-        this.healthPercentage = this.health / 10000;
     }
 }

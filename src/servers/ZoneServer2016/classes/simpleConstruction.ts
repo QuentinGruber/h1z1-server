@@ -6,9 +6,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { BaseSimpleNpc } from "./basesimplenpc";
+import { Npc } from "./npc";
 
-export class simpleConstruction extends BaseSimpleNpc {
+export class simpleConstruction extends Npc {
     health: number = 1000000;
     healthPercentage: number = 100;
     buildingSlot?: string;

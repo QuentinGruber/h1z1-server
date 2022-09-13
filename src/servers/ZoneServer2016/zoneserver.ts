@@ -2349,7 +2349,7 @@ export class ZoneServer2016 extends EventEmitter {
                 ) &&
                 !client.spawnedEntities.includes(object)
             ) {
-                this.addSimpleNpc(client, object);
+                this.addLightweightNpc(client, object);
                 client.spawnedEntities.push(object);
             }
         }
@@ -3005,7 +3005,7 @@ export class ZoneServer2016 extends EventEmitter {
                         transientId,
                         modelId,
                         position,
-                        new Float32Array([0, rotation[0], 0]),
+                        eul2quat(rotation),
                         parentObjectCharacterId,
                         slot,
                     );
@@ -3030,7 +3030,7 @@ export class ZoneServer2016 extends EventEmitter {
                         transientId,
                         modelId,
                         position,
-                        new Float32Array([0, rotation[0], 0]),
+                        eul2quat(rotation),
                         parentObjectCharacterId
 
                     );
