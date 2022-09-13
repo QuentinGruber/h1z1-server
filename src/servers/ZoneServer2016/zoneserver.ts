@@ -1159,16 +1159,21 @@ export class ZoneServer2016 extends EventEmitter {
           }
       }
 
-    for (const explosive in this._explosives) {
-      const explosiveObj = this._explosives[explosive];
-      if (explosiveObj.characterId != npcTriggered) {
-        if (getDistance(position, explosiveObj.state.position) < 2) {
-          await Scheduler.wait(150);
-          this.explodeExplosive(explosiveObj);
-        }
+      for (const explosive in this._explosives) {
+          const explosiveObj = this._explosives[explosive];
+          if (explosiveObj.characterId != npcTriggered) {
+              if (getDistance(position, explosiveObj.state.position) < 2) {
+                  await Scheduler.wait(150);
+                  if (this._spawnedItems[explosiveObj.characterId]) {
+                      const object = this._spawnedItems[explosiveObj.characterId];
+                      this.deleteEntity(explosiveObj.characterId, this._spawnedItems)
+                      delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
+                  }
+                  this.explodeExplosive(explosiveObj);
+              }
+          }
       }
-    }
-    }
+  }
 
     sendBaseSecuredMessage(client: Client) {
         this.sendAlert(client, 'You must destroy the bases gate layer before affecting interior structures');
@@ -1870,9 +1875,17 @@ export class ZoneServer2016 extends EventEmitter {
         };
         hitEntity = this._characters[characterId];
         break;
-      case EntityTypes.EXPLOSIVE:
+        case EntityTypes.OBJECT:
+            if (this._spawnedItems[characterId]) {
+                const object = this._spawnedItems[characterId]
+                this.deleteEntity(characterId, this._spawnedItems);               
+                delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
+            }
         this.explodeExplosive(this._explosives[characterId]);
-        return;
+            return;
+        case EntityTypes.EXPLOSIVE:
+            this.explodeExplosive(this._explosives[characterId]);
+            return;
       default:
         return;
     }
@@ -4657,7 +4670,10 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     //endregion
-    this.lootItem(client, item); // TODO: SPLIT STACK IF NOT ENOUGH SPACE !
+      this.lootItem(client, item); // TODO: SPLIT STACK IF NOT ENOUGH SPACE !
+      if (item.itemDefinitionId === Items.FUEL_BIOFUEL || item.itemDefinitionId === Items.FUEL_ETHANOL) {
+          this.deleteEntity(object.characterId, this._explosives)
+      }
     this.deleteEntity(guid, this._spawnedItems);
     delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
   }
