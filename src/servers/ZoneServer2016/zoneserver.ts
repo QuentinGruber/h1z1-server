@@ -1167,7 +1167,7 @@ export class ZoneServer2016 extends EventEmitter {
                     foundation.changePerimeters(this, constructionObject.buildingSlot, new Float32Array([0, 0, 0, 0]));
                 }
             }
-            this.deleteEntity(constructionCharId, dictionary)
+            this.deleteEntity(constructionCharId, dictionary, 242)
             return;
         }
         this.sendDataToAllWithSpawnedEntity(
@@ -2151,15 +2151,30 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  deleteEntity(characterId: string, dictionary: any) {
-    this.sendDataToAllWithSpawnedEntity(
-      dictionary,
-      characterId,
-      "Character.RemovePlayer",
-      {
-        characterId: characterId,
+  deleteEntity(characterId: string, dictionary: any, effectId?: number, timeToDisappear?: number) {
+      if (effectId) {
+          this.sendDataToAllWithSpawnedEntity(
+              dictionary,
+              characterId,
+              "Character.RemovePlayer",
+              {
+                  characterId: characterId,
+                  unknownWord1: 1,
+                  effectId: effectId,
+                  timeToDisappear: timeToDisappear ? timeToDisappear:0
+              }
+          );
       }
-    );
+      else {
+          this.sendDataToAllWithSpawnedEntity(
+              dictionary,
+              characterId,
+              "Character.RemovePlayer",
+              {
+                  characterId: characterId,
+              }
+          );
+      }
     delete dictionary[characterId];
 
     delete this._transientIds[this._characterIds[characterId]];
@@ -5280,21 +5295,8 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._explosives[explosive.characterId]) {
       return;
     }
-    this.sendCompositeEffectToAllWithSpawnedEntity(
-      this._explosives,
-      explosive,
-      1875
-    );
-    this.sendDataToAllWithSpawnedEntity(
-      this._explosives,
-      explosive.characterId,
-      "Character.RemovePlayer",
-      {
-        characterId: explosive.characterId,
-      }
-    );
-    delete this._explosives[explosive.characterId];
-      client ? this.explosionDamage(explosive.state.position, explosive.characterId, client) : this.explosionDamage(explosive.state.position, explosive.characterId);
+      this.deleteEntity(explosive.characterId, this._explosives, 1875)
+    client ? this.explosionDamage(explosive.state.position, explosive.characterId, client) : this.explosionDamage(explosive.state.position, explosive.characterId);
   }
 
   /**

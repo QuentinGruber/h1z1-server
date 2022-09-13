@@ -19,13 +19,13 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownWord1", type: "uint16", defaultValue: 0 },
+        { name: "unknownWord1", type: "uint16", defaultValue: 0 }, // must be 1 to work as remove gracefully
         { name: "unknownBool1", type: "boolean", defaultValue: 0 },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        { name: "effectDelay", type: "uint32", defaultValue: 1 },
+        { name: "effectId", type: "uint32", defaultValue: 1 },
+        { name: "stickyEffectId", type: "uint32", defaultValue: 1 },
+        { name: "timeToDisappear", type: "uint32", defaultValue: 1 },
       ],
     },
   ],
