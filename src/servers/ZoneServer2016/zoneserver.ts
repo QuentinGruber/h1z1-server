@@ -3006,6 +3006,25 @@ export class ZoneServer2016 extends EventEmitter {
                 return;
             }
         }
+        if (this._constructionFoundations[parentObjectCharacterId]) {
+            if (!isPosInRadius(11, this._constructionFoundations[parentObjectCharacterId].state.position, position)) {
+                this.sendChatText(client, "Placement blocked: placement error")
+                this.sendData(client, "Construction.PlacementFinalizeResponse", {
+                    status: 0,
+                    unknownString1: "",
+                });
+                return;
+            }
+        } else if (this._constructionSimple[parentObjectCharacterId]) {
+            if (!isPosInRadius(5, this._constructionSimple[parentObjectCharacterId].state.position, position)) {
+                this.sendChatText(client, "Placement blocked: placement error")
+                this.sendData(client, "Construction.PlacementFinalizeResponse", {
+                    status: 0,
+                    unknownString1: "",
+                });
+                return;
+            }
+        }
         this.removeInventoryItem(client, item);
         this.sendData(client, "Construction.PlacementFinalizeResponse", {
             status: 1,
