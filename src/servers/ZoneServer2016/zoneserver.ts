@@ -1160,6 +1160,12 @@ export class ZoneServer2016 extends EventEmitter {
         const distance = getDistance(constructionObject.state.position, position);
         if (distance > 5) return;
         constructionObject.pDamageConstruction(distance < 1 ? damage : damage / Math.sqrt(distance * 1.5));
+        for (const a in this._clients) {
+            const c = this._clients[a] as Client;
+            if (isPosInRadius(25, c.character.state.position, constructionObject.state.position)) {
+                this.sendChatText(c, 'Construction Health: ' + constructionObject.healthPercentage.toFixed(0) + "/100")
+            }
+        }
         if (constructionObject.health <= 0) {
             if (constructionObject.actorModelId === 50 || constructionObject.actorModelId === 49) {
                 if (constructionObject.parentObjectCharacterId) {
