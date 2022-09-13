@@ -2351,7 +2351,7 @@ export class ZoneServer2016 extends EventEmitter {
             const npc = this._constructionFoundations[characterId];
             if (
                 isPosInRadius(
-                    500,
+                    npc.npcRenderDistance ? npc.npcRenderDistance : this._charactersRenderDistance,
                     client.character.state.position,
                     npc.state.position
                 ) &&
@@ -2366,7 +2366,7 @@ export class ZoneServer2016 extends EventEmitter {
             const npc = this._constructionDoors[characterId];
             if (
                 isPosInRadius(
-                    500,
+                    npc.npcRenderDistance ? npc.npcRenderDistance : this._charactersRenderDistance,
                     client.character.state.position,
                     npc.state.position
                 ) &&
@@ -2381,9 +2381,9 @@ export class ZoneServer2016 extends EventEmitter {
             const object = this._constructionSimple[characterId];
             if (
                 isPosInRadius(
-                    30,
+                    object.npcRenderDistance ? object.npcRenderDistance : this._charactersRenderDistance,
                     client.character.state.position,
-                    object.state.position
+                   object.state.position
                 ) &&
                 !client.spawnedEntities.includes(object)
             ) {
