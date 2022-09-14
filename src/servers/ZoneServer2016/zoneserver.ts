@@ -123,1070 +123,1057 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
 
 @healthThreadDecorator
 export class ZoneServer2016 extends EventEmitter {
-    private _gatewayServer: GatewayServer;
-    readonly _protocol: H1Z1Protocol;
-    _db?: Db;
-    _soloMode = false;
-    readonly _mongoAddress: string;
-    private readonly _clientProtocol = "ClientProtocol_1080";
-    _dynamicWeatherWorker: any;
-    _dynamicWeatherEnabled = true;
-    _defaultWeatherTemplate = "z1br";
-    _spawnLocations: Array<SpawnLocation> = spawnLocations;
-    private _h1emuZoneServer!: H1emuZoneServer;
-    readonly _appDataFolder = getAppDataFolderPath();
-    _worldId = 0;
-    readonly _clients: { [characterId: string]: Client } = {};
-    _characters: { [characterId: string]: Character } = {};
-    _npcs: { [characterId: string]: Npc } = {};
-    _spawnedItems: { [characterId: string]: ItemObject } = {};
-    _doors: { [characterId: string]: DoorEntity } = {};
-    _explosives: { [characterId: string]: ExplosiveEntity } = {};
-    _traps: { [characterId: string]: TrapEntity } = {};
-    _temporaryObjects: { [characterId: string]: TemporaryEntity } = {};
-    _vehicles: { [characterId: string]: Vehicle } = {};
+  private _gatewayServer: GatewayServer;
+  readonly _protocol: H1Z1Protocol;
+  _db?: Db;
+  _soloMode = false;
+  readonly _mongoAddress: string;
+  private readonly _clientProtocol = "ClientProtocol_1080";
+  _dynamicWeatherWorker: any;
+  _dynamicWeatherEnabled = true;
+  _defaultWeatherTemplate = "z1br";
+  _spawnLocations: Array<SpawnLocation> = spawnLocations;
+  private _h1emuZoneServer!: H1emuZoneServer;
+  readonly _appDataFolder = getAppDataFolderPath();
+  _worldId = 0;
+  readonly _clients: { [characterId: string]: Client } = {};
+  _characters: { [characterId: string]: Character } = {};
+  _npcs: { [characterId: string]: Npc } = {};
+  _spawnedItems: { [characterId: string]: ItemObject } = {};
+  _doors: { [characterId: string]: DoorEntity } = {};
+  _explosives: { [characterId: string]: ExplosiveEntity } = {};
+  _traps: { [characterId: string]: TrapEntity } = {};
+  _temporaryObjects: { [characterId: string]: TemporaryEntity } = {};
+  _vehicles: { [characterId: string]: Vehicle } = {};
 
-    _constructionFoundations: { [characterId: string]: ConstructionParentEntity } = {};
-    _constructionDoors: { [characterId: string]: constructionDoor } = {};
-    _constructionSimple: { [characterId: string]: simpleConstruction } = {};
+  _constructionFoundations: { [characterId: string]: ConstructionParentEntity } = {};
+  _constructionDoors: { [characterId: string]: constructionDoor } = {};
+  _constructionSimple: { [characterId: string]: simpleConstruction } = {};
 
-    _props: any = {};
-    _speedTrees: any = {};
-    _speedTreesCounter: any = {};
-    _gameTime: any;
-    readonly _serverTime = this.getCurrentTime();
-    _startTime = 0;
-    _startGameTime = 0;
-    _timeMultiplier = 72;
-    _cycleSpeed = 100;
-    _frozeCycle = false;
-    tickRate = 500;
-    _transientIds: { [transientId: number]: string } = {};
-    _characterIds: { [characterId: string]: number } = {};
-    readonly _loginServerInfo: { address?: string; port: number } = {
-        address: process.env.LOGINSERVER_IP,
-        port: 1110,
-    };
-    worldRoutineTimer!: NodeJS.Timeout;
-    _charactersRenderDistance = 350;
-    _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
-        ? JSON.parse(process.env.ALLOWED_COMMANDS)
-        : [
-            "tp",
-            "spawnnpc",
-            "rat",
-            "normalsize",
-            "drive",
-            "parachute",
-            "spawnvehicle",
-            "hood",
-            "kit",
-        ];
-    _interactionDistance = 4;
-    _pingTimeoutTime = 120000;
-    _weather2016: Weather2016;
-    _packetHandlers: zonePacketHandlers;
-    _weatherTemplates: any;
-    worldObjectManager: WorldObjectManager;
-    worldDataManager: WorldDataManager;
-    plantingManager: PlantingManager;
-    _ready: boolean = false;
-    _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
-    _weaponDefinitions: { [weaponDefinitionId: number]: any } =
-        weaponDefinitions.WEAPON_DEFINITIONS;
-    _firegroupDefinitions: { [firegroupId: number]: any } =
-        weaponDefinitions.FIRE_GROUP_DEFINITIONS;
-    _firemodeDefinitions: { [firemodeId: number]: any } =
-        weaponDefinitions.FIRE_MODE_DEFINITIONS;
-    itemDefinitionsCache: any;
-    weaponDefinitionsCache: any;
-    projectileDefinitionsCache: any;
-    profileDefinitionsCache: any;
-    _containerDefinitions: { [containerDefinitionId: number]: any } =
-        containerDefinitions;
-    _recipes: { [recipeId: number]: any } = recipes;
-    lastItemGuid: bigint = 0x3000000000000000n;
-    private readonly _transientIdGenerator = generateTransientId();
-    _packetsStats: Record<string, number> = {};
-    private readonly _hooks: {
-        [hook: string]: Array<(...args: any) => FunctionHookType>;
-    } = {};
-    private readonly _asyncHooks: {
-        [hook: string]: Array<(...args: any) => AsyncHookType>;
-    } = {};
-    enableWorldSaves: boolean;
+  _props: any = {};
+  _speedTrees: any = {};
+  _speedTreesCounter: any = {};
+  _gameTime: any;
+  readonly _serverTime = this.getCurrentTime();
+  _startTime = 0;
+  _startGameTime = 0;
+  _timeMultiplier = 72;
+  _cycleSpeed = 100;
+  _frozeCycle = false;
+  tickRate = 500;
+  _transientIds: { [transientId: number]: string } = {};
+  _characterIds: { [characterId: string]: number } = {};
+  readonly _loginServerInfo: { address?: string; port: number } = {
+    address: process.env.LOGINSERVER_IP,
+    port: 1110,
+  };
+  worldRoutineTimer!: NodeJS.Timeout;
+  _charactersRenderDistance = 350;
+  _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
+    ? JSON.parse(process.env.ALLOWED_COMMANDS)
+    : [
+        "tp",
+        "spawnnpc",
+        "rat",
+        "normalsize",
+        "drive",
+        "parachute",
+        "spawnvehicle",
+        "hood",
+        "kit",
+      ];
+  _interactionDistance = 4;
+  _pingTimeoutTime = 120000;
+  _weather2016: Weather2016;
+  _packetHandlers: zonePacketHandlers;
+  _weatherTemplates: any;
+  worldObjectManager: WorldObjectManager;
+  worldDataManager: WorldDataManager;
+  plantingManager: PlantingManager;
+  _ready: boolean = false;
+  _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
+  _weaponDefinitions: { [weaponDefinitionId: number]: any } =
+    weaponDefinitions.WEAPON_DEFINITIONS;
+  _firegroupDefinitions: { [firegroupId: number]: any } =
+    weaponDefinitions.FIRE_GROUP_DEFINITIONS;
+  _firemodeDefinitions: { [firemodeId: number]: any } =
+    weaponDefinitions.FIRE_MODE_DEFINITIONS;
+  itemDefinitionsCache: any;
+  weaponDefinitionsCache: any;
+  projectileDefinitionsCache: any;
+  profileDefinitionsCache: any;
+  _containerDefinitions: { [containerDefinitionId: number]: any } =
+    containerDefinitions;
+  _recipes: { [recipeId: number]: any } = recipes;
+  lastItemGuid: bigint = 0x3000000000000000n;
+  private readonly _transientIdGenerator = generateTransientId();
+  _packetsStats: Record<string, number> = {};
+  private readonly _hooks: {
+    [hook: string]: Array<(...args: any) => FunctionHookType>;
+  } = {};
+  private readonly _asyncHooks: {
+    [hook: string]: Array<(...args: any) => AsyncHookType>;
+  } = {};
+  enableWorldSaves: boolean;
 
-    constructor(
-        serverPort: number,
-        gatewayKey: Uint8Array,
-        mongoAddress = "",
-        worldId?: number,
-        internalServerPort?: number
-    ) {
-        super();
-        this._gatewayServer = new GatewayServer(
-            "ExternalGatewayApi_3",
-            serverPort,
-            gatewayKey
-        );
-        this._packetHandlers = new zonePacketHandlers();
-        this._mongoAddress = mongoAddress;
-        this._worldId = worldId || 0;
-        this._protocol = new H1Z1Protocol("ClientProtocol_1080");
-        this._weatherTemplates = localWeatherTemplates;
-        this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
-        this.worldObjectManager = new WorldObjectManager();
-        this.worldDataManager = new WorldDataManager();
-        this.plantingManager = new PlantingManager(null);
-        this.enableWorldSaves =
-            process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
+  constructor(
+    serverPort: number,
+    gatewayKey: Uint8Array,
+    mongoAddress = "",
+    worldId?: number,
+    internalServerPort?: number
+  ) {
+    super();
+    this._gatewayServer = new GatewayServer(
+      "ExternalGatewayApi_3",
+      serverPort,
+      gatewayKey
+    );
+    this._packetHandlers = new zonePacketHandlers();
+    this._mongoAddress = mongoAddress;
+    this._worldId = worldId || 0;
+    this._protocol = new H1Z1Protocol("ClientProtocol_1080");
+    this._weatherTemplates = localWeatherTemplates;
+    this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
+    this.worldObjectManager = new WorldObjectManager();
+    this.worldDataManager = new WorldDataManager();
+    this.plantingManager = new PlantingManager(null);
+    this.enableWorldSaves =
+      process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
 
-        if (!this._mongoAddress) {
-            this._soloMode = true;
-            debug("Server in solo mode !");
+    if (!this._mongoAddress) {
+      this._soloMode = true;
+      debug("Server in solo mode !");
+    }
+    this.on("data", this.onZoneDataEvent);
+
+    this.on("login", (err, client) => {
+      this.onZoneLoginEvent(err, client);
+    });
+
+    this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
+      const client = this._clients[soeClient.sessionId];
+      this.deleteClient(client);
+      // TODO: force crash the client
+    });
+    this._gatewayServer.on(
+      "login",
+      async (
+        err: string,
+        client: SOEClient,
+        characterId: string,
+        loginSessionId: string,
+        clientProtocol: string
+      ) => {
+        if (clientProtocol !== this._clientProtocol) {
+          debug(`${client.address} is using the wrong client protocol`);
+          this.sendData(client as any, "LoginFailed", {});
+          return;
         }
-        this.on("data", this.onZoneDataEvent);
-
-        this.on("login", (err, client) => {
-            this.onZoneLoginEvent(err, client);
-        });
-
-        this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
-            const client = this._clients[soeClient.sessionId];
-            this.deleteClient(client);
-            // TODO: force crash the client
-        });
-        this._gatewayServer.on(
-            "login",
-            async (
-                err: string,
-                client: SOEClient,
-                characterId: string,
-                loginSessionId: string,
-                clientProtocol: string
-            ) => {
-                if (clientProtocol !== this._clientProtocol) {
-                    debug(`${client.address} is using the wrong client protocol`);
-                    this.sendData(client as any, "LoginFailed", {});
-                    return;
-                }
-                debug(
-                    `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
-                );
-                const generatedTransient = this.getTransientId(characterId);
-                const zoneClient = this.createClient(
-                    client.sessionId,
-                    client.soeClientId,
-                    loginSessionId,
-                    characterId,
-                    generatedTransient
-                );
-                if (!this._soloMode) {
-                    zoneClient.isAdmin =
-                        (await this._db?.collection("admins").findOne({
-                            sessionId: zoneClient.loginSessionId,
-                            serverId: this._worldId,
-                        })) != undefined;
-                } else {
-                    zoneClient.isAdmin = true;
-                }
-                this._clients[client.sessionId] = zoneClient;
-                this._characters[characterId] = zoneClient.character;
-                zoneClient.pingTimer = setTimeout(() => {
-                    this.timeoutClient(zoneClient);
-                }, this._pingTimeoutTime);
-                this.emit("login", err, zoneClient);
-            }
+        debug(
+          `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
         );
-        this._gatewayServer.on("disconnect", (err: string, client: SOEClient) => {
-            this.deleteClient(this._clients[client.sessionId]);
-        });
-
-        this._gatewayServer.on(
-            "tunneldata",
-            (err: string, client: SOEClient, data: Buffer, flags: number) => {
-                const packet = this._protocol.parse(data, flags);
-                if (packet) {
-                    this.emit("data", null, this._clients[client.sessionId], packet);
-                } else {
-                    debug("zonefailed : ", data);
-                }
-            }
+        const generatedTransient = this.getTransientId(characterId);
+        const zoneClient = this.createClient(
+          client.sessionId,
+          client.soeClientId,
+          loginSessionId,
+          characterId,
+          generatedTransient
         );
-
         if (!this._soloMode) {
-            this._h1emuZoneServer = new H1emuZoneServer(internalServerPort); // opens local socket to connect to loginserver
+          zoneClient.isAdmin =
+            (await this._db?.collection("admins").findOne({
+              sessionId: zoneClient.loginSessionId,
+              serverId: this._worldId,
+            })) != undefined;
+        } else {
+          zoneClient.isAdmin = true;
+        }
+        this._clients[client.sessionId] = zoneClient;
+        this._characters[characterId] = zoneClient.character;
+        zoneClient.pingTimer = setTimeout(() => {
+          this.timeoutClient(zoneClient);
+        }, this._pingTimeoutTime);
+        this.emit("login", err, zoneClient);
+      }
+    );
+    this._gatewayServer.on("disconnect", (err: string, client: SOEClient) => {
+      this.deleteClient(this._clients[client.sessionId]);
+    });
 
-            this._h1emuZoneServer.on(
-                "session",
-                (err: string, client: H1emuClient) => {
-                    if (err) {
-                        debug(
-                            `An error occured for LoginConnection with ${client.sessionId}`
-                        );
-                        console.error(err);
-                    } else {
-                        debug(`LoginConnection established for ${client.sessionId}`);
-                    }
-                }
+    this._gatewayServer.on(
+      "tunneldata",
+      (err: string, client: SOEClient, data: Buffer, flags: number) => {
+        const packet = this._protocol.parse(data, flags);
+        if (packet) {
+          this.emit("data", null, this._clients[client.sessionId], packet);
+        } else {
+          debug("zonefailed : ", data);
+        }
+      }
+    );
+
+    if (!this._soloMode) {
+      this._h1emuZoneServer = new H1emuZoneServer(internalServerPort); // opens local socket to connect to loginserver
+
+      this._h1emuZoneServer.on(
+        "session",
+        (err: string, client: H1emuClient) => {
+          if (err) {
+            debug(
+              `An error occured for LoginConnection with ${client.sessionId}`
             );
+            console.error(err);
+          } else {
+            debug(`LoginConnection established for ${client.sessionId}`);
+          }
+        }
+      );
 
-            this._h1emuZoneServer.on(
-                "sessionfailed",
-                (err: string, client: H1emuClient) => {
-                    console.error(`h1emuServer sessionfailed for ${client.sessionId}`);
-                    console.error(err);
-                    process.exitCode = 11;
-                }
-            );
+      this._h1emuZoneServer.on(
+        "sessionfailed",
+        (err: string, client: H1emuClient) => {
+          console.error(`h1emuServer sessionfailed for ${client.sessionId}`);
+          console.error(err);
+          process.exitCode = 11;
+        }
+      );
 
-            this._h1emuZoneServer.on(
-                "disconnect",
-                (err: string, client: H1emuClient, reason: number) => {
-                    debug(
-                        `LoginConnection dropped: ${reason ? "Connection Lost" : "Unknown Error"
-                        }`
+      this._h1emuZoneServer.on(
+        "disconnect",
+        (err: string, client: H1emuClient, reason: number) => {
+          debug(
+            `LoginConnection dropped: ${
+              reason ? "Connection Lost" : "Unknown Error"
+            }`
+          );
+        }
+      );
+
+      this._h1emuZoneServer.on(
+        "data",
+        async (err: string, client: H1emuClient, packet: any) => {
+          if (err) {
+            console.error(err);
+          } else {
+            switch (packet.name) {
+              case "CharacterCreateRequest": {
+                this.onCharacterCreateRequest(client, packet);
+                break;
+              }
+              case "CharacterExistRequest": {
+                const { characterId, reqId } = packet.data;
+                try {
+                  const collection = (this._db as Db).collection("characters");
+                  const charactersArray = await collection
+                    .find({ characterId: characterId })
+                    .toArray();
+                  if (charactersArray.length) {
+                    this._h1emuZoneServer.sendData(
+                      client,
+                      "CharacterExistReply",
+                      { status: 1, reqId: reqId }
                     );
-                }
-            );
-
-            this._h1emuZoneServer.on(
-                "data",
-                async (err: string, client: H1emuClient, packet: any) => {
-                    if (err) {
-                        console.error(err);
-                    } else {
-                        switch (packet.name) {
-                            case "CharacterCreateRequest": {
-                                this.onCharacterCreateRequest(client, packet);
-                                break;
-                            }
-                            case "CharacterExistRequest": {
-                                const { characterId, reqId } = packet.data;
-                                try {
-                                    const collection = (this._db as Db).collection("characters");
-                                    const charactersArray = await collection
-                                        .find({ characterId: characterId })
-                                        .toArray();
-                                    if (charactersArray.length) {
-                                        this._h1emuZoneServer.sendData(
-                                            client,
-                                            "CharacterExistReply",
-                                            { status: 1, reqId: reqId }
-                                        );
-                                    } else {
-                                        this._h1emuZoneServer.sendData(
-                                            client,
-                                            "CharacterExistReply",
-                                            { status: 0, reqId: reqId }
-                                        );
-                                    }
-                                } catch (error) {
-                                    this._h1emuZoneServer.sendData(
-                                        client,
-                                        "CharacterExistReply",
-                                        { status: 0, reqId: reqId }
-                                    );
-                                }
-                                break;
-                            }
-                            case "CharacterDeleteRequest": {
-                                const { characterId, reqId } = packet.data;
-                                try {
-                                    const collection = (this._db as Db).collection("characters");
-                                    const charactersArray = await collection
-                                        .find({ characterId: characterId })
-                                        .toArray();
-                                    if (charactersArray.length === 1) {
-                                        await collection.updateOne(
-                                            { characterId: characterId },
-                                            {
-                                                $set: {
-                                                    status: 0,
-                                                },
-                                            }
-                                        );
-                                        this._h1emuZoneServer.sendData(
-                                            client,
-                                            "CharacterDeleteReply",
-                                            { status: 1, reqId: reqId }
-                                        );
-                                    } else {
-                                        this._h1emuZoneServer.sendData(
-                                            client,
-                                            "CharacterDeleteReply",
-                                            { status: 1, reqId: reqId }
-                                        );
-                                    }
-                                } catch (error) {
-                                    this._h1emuZoneServer.sendData(
-                                        client,
-                                        "CharacterDeleteReply",
-                                        { status: 0, reqId: reqId }
-                                    );
-                                }
-                                break;
-                            }
-                            default:
-                                debug(`Unhandled h1emu packet: ${packet.name}`);
-                                break;
-                        }
-                    }
-                }
-            );
-        }
-    }
-
-    onZoneLoginEvent(err: any, client: Client) {
-        if (err) {
-            console.error(err);
-        } else {
-            debug("zone login");
-            try {
-                this.sendInitData(client);
-            } catch (error) {
-                debug(error);
-                this.sendData(client, "LoginFailed", {});
-            }
-        }
-    }
-
-    onZoneDataEvent(err: any, client: Client, packet: any) {
-        if (err) {
-            console.error(err);
-        } else {
-            if (!client) {
-                return;
-            }
-            client.pingTimer?.refresh();
-            if (
-                packet.name != "KeepAlive" &&
-                packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
-                packet.name != "PlayerUpdateManagedPosition" &&
-                packet.name != "ClientUpdate.MonitorTimeDrift"
-            ) {
-                debug(`Receive Data ${[packet.name]}`);
-            }
-            try {
-                this._packetHandlers.processPacket(this, client, packet);
-            } catch (error) {
-                console.error(error);
-                console.error(`An error occurred while processing a packet : `, packet);
-            }
-        }
-    }
-
-    async onCharacterCreateRequest(client: any, packet: any) {
-        function getCharacterModelData(payload: any): any {
-            switch (payload.headType) {
-                case Characters.FEMALE_BLACK:
-                    return {
-                        modelId: 9474,
-                        headActor: "SurvivorFemale_Head_03.adr",
-                        hairModel: "SurvivorFemale_Hair_ShortMessy.adr",
-                    };
-                case Characters.MALE_BLACK:
-                    return {
-                        modelId: 9240,
-                        headActor: "SurvivorMale_Head_04.adr",
-                        hairModel: "SurvivorMale_HatHair_Short.adr",
-                    };
-                case Characters.FEMALE_WHITE:
-                    return {
-                        modelId: 9474,
-                        headActor: "SurvivorFemale_Head_02.adr",
-                        hairModel: "SurvivorFemale_Hair_ShortBun.adr",
-                    };
-                case Characters.FEMALE_WHITE_YOUNG:
-                    return {
-                        modelId: 9474,
-                        headActor: "SurvivorFemale_Head_02.adr",
-                        hairModel: "SurvivorFemale_Hair_ShortBun.adr",
-                    };
-                case Characters.MALE_WHITE_BALD:
-                    return {
-                        modelId: 9240,
-                        headActor: "SurvivorMale_Head_01.adr",
-                        hairModel: "SurvivorMale_HatHair_Short.adr",
-                    };
-                case Characters.MALE_WHITE:
-                default:
-                    return {
-                        modelId: 9240,
-                        headActor: "SurvivorMale_Head_01.adr",
-                        hairModel: "SurvivorMale_Hair_ShortMessy.adr",
-                    };
-            }
-        }
-
-        const { characterObjStringify, reqId } = packet.data;
-        try {
-            const characterData = JSON.parse(characterObjStringify),
-                characterModelData = getCharacterModelData(characterData.payload);
-            let character: FullCharacterSaveData = require("../../../data/2016/sampleData/character.json");
-            character = {
-                ...character,
-                serverId: characterData.serverId,
-                creationDate: toHex(Date.now()),
-                lastLoginDate: toHex(Date.now()),
-                characterId: characterData.characterId,
-                ownerId: characterData.ownerId,
-                characterName: characterData.payload.characterName,
-                actorModelId: characterModelData.modelId,
-                headActor: characterModelData.headActor,
-                hairModel: characterModelData.hairModel,
-                gender: characterData.payload.gender,
-            };
-            const collection = (this._db as Db).collection("characters");
-            const charactersArray = await collection.findOne({
-                characterId: character.characterId,
-            });
-            if (!charactersArray) {
-                await collection.insertOne(character);
-            }
-            this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
-                reqId: reqId,
-                status: 1,
-            });
-        } catch (error) {
-            this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
-                reqId: reqId,
-                status: 0,
-            });
-        }
-    }
-
-    pGetInventoryItems(client: Client): any[] {
-        const items: any[] = Object.values(client.character._loadout)
-            .filter((slot) => {
-                if (slot.itemDefinitionId) {
-                    return true;
-                }
-            })
-            .map((slot) => {
-                return this.pGetItemData(client.character, slot, 101);
-            });
-        Object.values(client.character._containers).forEach((container) => {
-            Object.values(container.items).forEach((item) => {
-                items.push(
-                    this.pGetItemData(
-                        client.character,
-                        item,
-                        container.containerDefinitionId
-                    )
-                );
-            });
-        });
-        return items;
-    }
-
-    async sendCharacterData(client: Client) {
-        if (!this.checkHook("OnSendCharacterData", client)) return;
-        if (!(await this.checkAsyncHook("OnSendCharacterData", client))) return;
-
-        await this.worldDataManager.loadCharacterData(this, client);
-        const containers = this.initializeContainerList(client, false);
-        this.sendData(client, "SendSelfToClient", {
-            data: {
-                ...client.character.pGetLightweight(),
-                guid: client.guid,
-                hairModel: client.character.hairModel,
-                isRespawning: client.character.isRespawning,
-                gender: client.character.gender,
-                creationDate: client.character.creationDate,
-                lastLoginDate: client.character.lastLoginDate,
-                identity: {
-                    characterName: client.character.name,
-                },
-                inventory: {
-                    items: this.pGetInventoryItems(client),
-                    //unknownDword1: 2355
-                },
-                recipes: Object.values(this._recipes),
-                stats: stats,
-                loadoutSlots: client.character.pGetLoadoutSlots(),
-                equipmentSlots: client.character.pGetEquipment(),
-                characterResources: client.character.pGetResources(),
-                containers: containers,
-                //unknownQword1: client.character.characterId,
-                //unknownDword38: 1,
-                //vehicleLoadoutRelatedQword: client.character.characterId,
-                //unknownQword3: client.character.characterId,
-                //vehicleLoadoutRelatedDword: 1,
-                //unknownDword40: 1
-            },
-        });
-        client.character.initialized = true;
-
-        this.sendData(client, "Container.InitEquippedContainers", {
-            ignore: client.character.characterId,
-            characterId: client.character.characterId,
-            containers: containers,
-        });
-
-        this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
-        this.checkHook("OnSentCharacterData", client);
-    }
-    /**
-     * Caches item definitons so they aren't packed every time a client logs in.
-     */
-    private packItemDefinitions() {
-        this.itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
-            data: {
-                itemDefinitions: Object.values(this._itemDefinitions).map(
-                    (itemDef: any) => {
-                        return {
-                            ID: itemDef.ID,
-                            definitionData: {
-                                ...itemDef,
-                                HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
-                                ITEM_TYPE_1: itemDef.ITEM_TYPE,
-                                flags1: {
-                                    ...itemDef,
-                                },
-                                flags2: {
-                                    ...itemDef,
-                                },
-                                stats: [],
-                            },
-                        };
-                    }
-                ),
-            },
-        });
-    }
-
-    /**
-     * Caches weapon definitons so they aren't packed every time a client logs in.
-     */
-    private packWeaponDefinitions() {
-        this.weaponDefinitionsCache = this._protocol.pack(
-            "ReferenceData.WeaponDefinitions",
-            {
-                data: {
-                    definitionsData: {
-                        WEAPON_DEFINITIONS: Object.values(
-                            weaponDefinitions.WEAPON_DEFINITIONS
-                        ),
-                        FIRE_GROUP_DEFINITIONS: Object.values(
-                            weaponDefinitions.FIRE_GROUP_DEFINITIONS
-                        ),
-                        FIRE_MODE_DEFINITIONS: Object.values(
-                            weaponDefinitions.FIRE_MODE_DEFINITIONS
-                        ),
-                        PLAYER_STATE_GROUP_DEFINITIONS: Object.values(
-                            weaponDefinitions.PLAYER_STATE_GROUP_DEFINITIONS
-                        ),
-                        FIRE_MODE_PROJECTILE_MAPPING_DATA: Object.values(
-                            weaponDefinitions.FIRE_MODE_PROJECTILE_MAPPING_DATA
-                        ),
-                        AIM_ASSIST_DEFINITIONS: Object.values(
-                            weaponDefinitions.AIM_ASSIST_DEFINITIONS
-                        ),
-                    },
-                },
-            }
-        );
-    }
-
-    /**
-     * Caches projectile definitons so they aren't packed every time a client logs in.
-     */
-    private packProjectileDefinitions() {
-        this.projectileDefinitionsCache = this._protocol.pack(
-            "ReferenceData.ProjectileDefinitions",
-            {
-                definitionsData: projectileDefinitons,
-            }
-        );
-    }
-
-    /**
-     * Caches profile definitons so they aren't packed every time a client logs in.
-     */
-    private packProfileDefinitions() {
-        this.profileDefinitionsCache = this._protocol.pack(
-            "ReferenceData.ProfileDefinitions",
-            {
-                data: {
-                    profiles: profileDefinitions,
-                },
-            }
-        );
-    }
-
-    private async initializeLoginServerConnection() {
-        debug("Starting H1emuZoneServer");
-        if (!this._loginServerInfo.address) {
-            await this.fetchLoginInfo();
-        }
-        this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
-            serverId: this._worldId,
-            h1emuVersion: process.env.H1Z1_SERVER_VERSION,
-        });
-        this._h1emuZoneServer.start();
-        await this._db
-            ?.collection("servers")
-            .findOneAndUpdate(
-                { serverId: this._worldId },
-                { $set: { populationNumber: 0, populationLevel: 0 } }
-            );
-    }
-
-    private async setupServer() {
-        this.forceTime(971172000000); // force day time by default - not working for now
-        this._frozeCycle = false;
-
-        if (!this._soloMode) {
-            await this.worldDataManager.initializeDatabase(this);
-            if (
-                await this._db?.collection("worlds").findOne({ worldId: this._worldId })
-            ) {
-                await this.worldDataManager.fetchWorldData(this);
-            } else {
-                await this.worldDataManager.insertWorld(this);
-                await this.worldDataManager.saveWorld(this);
-            }
-            this.initializeLoginServerConnection();
-        }
-
-        // !!ANYTHING THAT USES / GENERATES ITEMS MUST BE CALLED AFTER WORLD DATA IS LOADED!!
-
-        this.packItemDefinitions();
-        this.packWeaponDefinitions();
-        this.packProjectileDefinitions();
-        this.packProfileDefinitions();
-        this.worldObjectManager.createDoors(this);
-
-        this._ready = true;
-        console.log(
-            `Server saving ${this.enableWorldSaves ? "enabled" : "disabled"}.`
-        );
-        debug("Server ready");
-    }
-
-    async start(): Promise<void> {
-        debug("Starting server");
-        debug(`Protocol used : ${this._protocol.protocolName}`);
-        if (!this.checkHook("OnServerInit")) return;
-        if (!(await this.checkAsyncHook("OnServerInit"))) return;
-
-        await this.setupServer();
-        this._startTime += Date.now();
-        this._startGameTime += Date.now();
-        if (this._dynamicWeatherEnabled) {
-            this._dynamicWeatherWorker = setTimeout(() => {
-                if (!this._dynamicWeatherEnabled) {
-                    return;
-                }
-                this._weather2016 = dynamicWeather(
-                    this._serverTime,
-                    this._startTime,
-                    this._timeMultiplier
-                );
-                this.sendDataToAll("UpdateWeatherData", this._weather2016);
-                this._dynamicWeatherWorker.refresh();
-            }, 360000 / this._timeMultiplier);
-        }
-        this._gatewayServer.start();
-        this.worldRoutineTimer = setTimeout(
-            () => this.worldRoutine.bind(this)(),
-            this.tickRate
-        );
-        this.checkHook("OnServerReady");
-    }
-
-    sendInitData(client: Client) {
-        this.sendData(client, "InitializationParameters", {
-            ENVIRONMENT: "LIVE",
-            unknownString1: "",
-            rulesetDefinitions: [
-                /*
-                {
-                  unknownDword1: 1,
-                  unknownDword2: 1,
-                  ruleset: "Permadeath",
-                  unknownString2: "",
-                  rulesets: [
-                    {
-                      ID: 1,
-                      DATA: {
-                        ID: 1,
-                        RULESET_ID: 1,
-                        CONTENT_PACK_ID: 112,
-                        CONTENT_PACK_ACTION_ID: 1,
-                      }
-                    }
-                  ]
-                },
-                {
-                  unknownDword1: 3,
-                  unknownDword2: 3,
-                  ruleset: "Headshots",
-                  unknownString2: "",
-                  rulesets: []
-                },
-                {
-                  unknownDword1: 4,
-                  unknownDword2: 4,
-                  ruleset: "FirstPersonOnly",
-                  unknownString2: "",
-                  rulesets: []
-                },
-                {
-                  unknownDword1: 5,
-                  unknownDword2: 5,
-                  ruleset: "PvE", //  could be "Normal"
-                  unknownString2: "",
-                  rulesets: [
-                    {
-                      ID: 3,
-                      DATA: {
-                        ID: 3,
-                        RULESET_ID: 5,
-                        CONTENT_PACK_ID: 119,
-                        CONTENT_PACK_ACTION_ID: 2,
-                      }
-                    },
-                  ]
-                },
-                {
-                  unknownDword1: 6,
-                  unknownDword2: 6,
-                  ruleset: "BattleRoyale",
-                  unknownString2: "",
-                  rulesets: [
-                    
-                  ]
-                },*/
-            ],
-        });
-
-        this.sendData(client, "SendZoneDetails", {
-            zoneName: "Z1",
-            zoneType: 4,
-            unknownBoolean1: false,
-            skyData: this._weather2016,
-            zoneId1: 5,
-            zoneId2: 5,
-            nameId: 7699,
-            unknownBoolean2: true,
-            lighting: "Lighting.txt",
-            unknownBoolean3: false,
-        });
-
-        if (!this.itemDefinitionsCache) {
-            this.packItemDefinitions();
-        }
-        // disabled since it breaks weapon inspect
-        //this.sendRawData(client, this.itemDefinitionsCache);
-        if (!this.weaponDefinitionsCache) {
-            this.packWeaponDefinitions();
-        }
-        this.sendRawData(client, this.weaponDefinitionsCache);
-        // packet is just broken, idk why
-        /*
-        this.sendData(client, "ClientBeginZoning", {
-          //position: Array.from(client.character.state.position),
-          //rotation: Array.from(client.character.state.rotation),
-          skyData: this._weather2016,
-        });
-        */
-
-        this.sendData(client, "ClientGameSettings", {
-            Unknown2: 0,
-            interactGlowAndDist: 3, // 3
-            unknownBoolean1: true,
-            timescale: 1.0,
-            enableWeapons: 1,
-            Unknown5: 1,
-            unknownFloat1: 0.0,
-            unknownFloat2: 15,
-            damageMultiplier: 11,
-        });
-
-        this.sendCharacterData(client);
-    }
-
-    private worldRoutine() {
-        debug("WORLDROUTINE");
-
-        if (!this.checkHook("OnWorldRoutine")) return;
-        else {
-            this.executeFuncForAllReadyClients((client: Client) => {
-                this.vehicleManager(client);
-                this.itemManager(client);
-                this.npcManager(client);
-                this.removeOutOfDistanceEntities(client);
-                this.spawnCharacters(client);
-                this.spawnDoors(client);
-                this.spawnConstructionNpcs(client);
-                this.spawnExplosives(client);
-                this.spawnTraps(client);
-                this.spawnTemporaryObjects(client);
-                this.POIManager(client);
-                this.foundationPermissionChecker(client);
-                client.posAtLastRoutine = client.character.state.position;
-            });
-            if (this._ready) {
-                this.worldObjectManager.run(this);
-                if (this.enableWorldSaves) this.worldDataManager.run(this);
-            }
-        }
-        this.worldRoutineTimer.refresh();
-    }
-
-    deleteClient(client: Client) {
-        if (client) {
-            if (client.character) {
-                client.isLoading = true; // stop anything from acting on character
-
-                clearTimeout(client.character?.resourcesUpdater);
-                this.worldDataManager.saveCharacterData(this, client);
-                this.dismountVehicle(client);
-                client.managedObjects?.forEach((characterId: any) => {
-                    this.dropVehicleManager(client, characterId);
-                });
-                this.deleteEntity(client.character.characterId, this._characters);
-            }
-            delete this._clients[client.sessionId];
-            const soeClient = this.getSoeClient(client.soeClientId);
-            if (soeClient) {
-                this._gatewayServer._soeServer.deleteClient(soeClient);
-            }
-            if (!this._soloMode) {
-                this.sendZonePopulationUpdate();
-            }
-        }
-    }
-
-    generateDamageRecord(
-        targetClient: Client,
-        sourceClient: Client,
-        hitReport: any,
-        oldHealth: number,
-        damage: number
-    ): DamageRecord {
-        const sCharacter = sourceClient.character,
-            tCharacter = targetClient.character;
-        return {
-            source: {
-                name: sCharacter.name || "Unknown",
-                ping: sourceClient.avgPing,
-            },
-            target: {
-                name: tCharacter.name || "Unknown",
-                ping: targetClient.avgPing,
-            },
-            hitInfo: {
-                timestamp: Date.now(),
-                weapon: this.getItemDefinition(
-                    sCharacter.getEquippedWeapon().itemDefinitionId
-                ).MODEL_NAME,
-                distance: getDistance(
-                    sCharacter.state.position,
-                    tCharacter.state.position
-                ).toFixed(1),
-                hitLocation: hitReport?.hitLocation || "Unknown",
-                hitPosition: hitReport?.position || new Float32Array([0, 0, 0, 0]),
-                oldHP: oldHealth,
-                newHP: oldHealth - damage < 0 ? 0 : oldHealth - damage,
-            },
-        };
-    }
-
-    sendDeathMetrics(client: Client) {
-        const clientUpdateDeathMetricsPacket: ClientUpdateDeathMetrics = {
-            recipesDiscovered: client.character.metrics.recipesDiscovered,
-            zombiesKilled: client.character.metrics.zombiesKilled,
-            minutesSurvived:
-                (Date.now() - client.character.metrics.startedSurvivingTP) / 60000,
-            wildlifeKilled: client.character.metrics.wildlifeKilled,
-        };
-        this.sendData(
-            client,
-            "ClientUpdate.DeathMetrics",
-            clientUpdateDeathMetricsPacket
-        );
-    }
-
-    killCharacter(
-        client: Client,
-        deathInfo: { client: Client; hitReport: any } | undefined = undefined
-    ) {
-        if (!this.checkHook("OnPlayerDeath", client, deathInfo)) return;
-
-        const character = client.character;
-        if (character.isAlive) {
-            client.character.isRespawning = true;
-            this.sendDeathMetrics(client);
-            debug(character.name + " has died");
-            if (deathInfo?.client) {
-                this.sendDataToAll("Character.KilledBy", {
-                    killed: client.character.characterId,
-                    killer: deathInfo.client.character.characterId,
-                    isCheater: deathInfo.client.character.godMode,
-                } as CharacterKilledBy);
-            }
-            client.character.isRunning = false;
-            client.character.characterStates.knockedOut = true;
-            this.updateCharacterState(
-                client,
-                client.character.characterId,
-                client.character.characterStates,
-                false
-            );
-            if (!client.isLoading) {
-                this.sendDataToAllWithSpawnedEntity(
-                    this._characters,
-                    client.character.characterId,
-                    "Character.StartMultiStateDeath",
-                    {
-                        characterId: client.character.characterId,
-                    }
-                );
-            } else {
-                this.sendDataToAllOthersWithSpawnedEntity(
-                    this._characters,
+                  } else {
+                    this._h1emuZoneServer.sendData(
+                      client,
+                      "CharacterExistReply",
+                      { status: 0, reqId: reqId }
+                    );
+                  }
+                } catch (error) {
+                  this._h1emuZoneServer.sendData(
                     client,
-                    client.character.characterId,
-                    "Character.StartMultiStateDeath",
-                    {
-                        characterId: client.character.characterId,
-                    }
-                );
-            }
-        }
-        this.clearMovementModifiers(client);
-        character.isAlive = false;
-
-        this.checkHook("OnPlayerDied", client, deathInfo);
-    }
-
-    async explosionDamage(position: Float32Array, npcTriggered: string, client?: Client) {
-        for (const character in this._clients) {
-            const characterObj = this._clients[character];
-            if (!characterObj.character.godMode) {
-                if (isPosInRadius(8, characterObj.character.state.position, position)) {
-                    const distance = getDistance(
-                        position,
-                        characterObj.character.state.position
+                    "CharacterExistReply",
+                    { status: 0, reqId: reqId }
+                  );
+                }
+                break;
+              }
+              case "CharacterDeleteRequest": {
+                const { characterId, reqId } = packet.data;
+                try {
+                  const collection = (this._db as Db).collection("characters");
+                  const charactersArray = await collection
+                    .find({ characterId: characterId })
+                    .toArray();
+                  if (charactersArray.length === 1) {
+                    await collection.updateOne(
+                      { characterId: characterId },
+                      {
+                        $set: {
+                          status: 0,
+                        },
+                      }
                     );
-                    const damage = 50000 / distance;
-                    this.playerDamage(this._clients[character], damage);
+                    this._h1emuZoneServer.sendData(
+                      client,
+                      "CharacterDeleteReply",
+                      { status: 1, reqId: reqId }
+                    );
+                  } else {
+                    this._h1emuZoneServer.sendData(
+                      client,
+                      "CharacterDeleteReply",
+                      { status: 1, reqId: reqId }
+                    );
+                  }
+                } catch (error) {
+                  this._h1emuZoneServer.sendData(
+                    client,
+                    "CharacterDeleteReply",
+                    { status: 0, reqId: reqId }
+                  );
                 }
+                break;
+              }
+              default:
+                debug(`Unhandled h1emu packet: ${packet.name}`);
+                break;
             }
+          }
         }
-        for (const vehicleKey in this._vehicles) {
-            const vehicle = this._vehicles[vehicleKey];
-            if (vehicle.characterId != npcTriggered) {
-                if (isPosInRadius(5, vehicle.state.position, position)) {
-                    const distance = getDistance(position, vehicle.state.position);
-                    const damage = 250000 / distance;
-                    await Scheduler.wait(150);
-                    this.damageVehicle(damage, vehicle);
-                }
-            }
-        }
+      );
+    }
+  }
 
-        for (const construction in this._constructionSimple) {
-            const constructionObject = this._constructionSimple[construction] as simpleConstruction;
-            let fixedPosition = this.getFixedConstructionPosition(constructionObject);
-            if (isPosInRadius(6, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position, position)) {
-                if (constructionObject.actorModelId != 9487 && constructionObject.actorModelId != 9488) {
-                    if (constructionObject.parentObjectCharacterId) {
-                        if (this._constructionFoundations[constructionObject.parentObjectCharacterId]) {
-                            if (this._constructionFoundations[constructionObject.parentObjectCharacterId])
-                                if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
-                                    if (client) {
-                                        this.sendBaseSecuredMessage(client);
-                                    }
-                                }
-                                else {
-                                    this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
-                                }
-                        } else if (this._constructionSimple[constructionObject.parentObjectCharacterId]) {
-                            const parentConstruction = this._constructionSimple[constructionObject.parentObjectCharacterId] as simpleConstruction;
-                            if (parentConstruction.parentObjectCharacterId && this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
-                                if (client) {
-                                    this.sendBaseSecuredMessage(client);
-                                }
-                            }
-                            else {
-                                this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
-                            }
-                        }
-                    } else {
-                        for (const a in this._constructionFoundations) {
-                            const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
-                            if (foundation.isSecured && isInside([constructionObject.state.position[0], constructionObject.state.position[2]], foundation.securedPolygons)) {
-                                if (client) {
-                                    this.sendBaseSecuredMessage(client);
-                                }
-                            }
-                            else {
-                                this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
-                            }
-                        }
-                    }
-                }
-            }
-        }
+  onZoneLoginEvent(err: any, client: Client) {
+    if (err) {
+      console.error(err);
+    } else {
+      debug("zone login");
+      try {
+        this.sendInitData(client);
+      } catch (error) {
+        debug(error);
+        this.sendData(client, "LoginFailed", {});
+      }
+    }
+  }
 
-        for (const construction in this._constructionDoors) {
-            const constructionObject = this._constructionDoors[construction] as constructionDoor;
-            const fixedPosition = this.getFixedConstructionPosition(constructionObject);
-            if (isPosInRadius(6, fixedPosition, position)) {
-                if (constructionObject.parentObjectCharacterId) {
-                    if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 49) {
-                        if (client) {
-                            this.sendBaseSecuredMessage(client);
-                        }
-                    }
-                    else {
-                        this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionDoors, position)
-                    }
-                }
-            }
-        }
+  onZoneDataEvent(err: any, client: Client, packet: any) {
+    if (err) {
+      console.error(err);
+    } else {
+      if (!client) {
+        return;
+      }
+      client.pingTimer?.refresh();
+      if (
+        packet.name != "KeepAlive" &&
+        packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
+        packet.name != "PlayerUpdateManagedPosition" &&
+        packet.name != "ClientUpdate.MonitorTimeDrift"
+      ) {
+        debug(`Receive Data ${[packet.name]}`);
+      }
+      try {
+        this._packetHandlers.processPacket(this, client, packet);
+      } catch (error) {
+        console.error(error);
+        console.error(`An error occurred while processing a packet : `, packet);
+      }
+    }
+  }
 
-        for (const construction in this._constructionFoundations) {
-            const constructionObject = this._constructionFoundations[construction] as ConstructionParentEntity;
-            if (isPosInRadius(6, constructionObject.state.position, position)) {
-                const allowed = [Items.SHACK, Items.SMALL_SHACK, Items.BASIC_SHACK]
-                if (allowed.includes(constructionObject.itemDefinitionId)) {
-                    this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionFoundations, position)
-                }
-            }
-        }
-
-        for (const explosive in this._explosives) {
-            const explosiveObj = this._explosives[explosive];
-            if (explosiveObj.characterId != npcTriggered) {
-                if (getDistance(position, explosiveObj.state.position) < 2) {
-                    await Scheduler.wait(150);
-                    if (this._spawnedItems[explosiveObj.characterId]) {
-                        const object = this._spawnedItems[explosiveObj.characterId];
-                        this.deleteEntity(explosiveObj.characterId, this._spawnedItems)
-                        delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
-                    }
-                    this.explodeExplosive(explosiveObj);
-                }
-            }
-        }
+  async onCharacterCreateRequest(client: any, packet: any) {
+    function getCharacterModelData(payload: any): any {
+      switch (payload.headType) {
+        case Characters.FEMALE_BLACK:
+          return {
+            modelId: 9474,
+            headActor: "SurvivorFemale_Head_03.adr",
+            hairModel: "SurvivorFemale_Hair_ShortMessy.adr",
+          };
+        case Characters.MALE_BLACK:
+          return {
+            modelId: 9240,
+            headActor: "SurvivorMale_Head_04.adr",
+            hairModel: "SurvivorMale_HatHair_Short.adr",
+          };
+        case Characters.FEMALE_WHITE:
+          return {
+            modelId: 9474,
+            headActor: "SurvivorFemale_Head_02.adr",
+            hairModel: "SurvivorFemale_Hair_ShortBun.adr",
+          };
+        case Characters.FEMALE_WHITE_YOUNG:
+          return {
+            modelId: 9474,
+            headActor: "SurvivorFemale_Head_02.adr",
+            hairModel: "SurvivorFemale_Hair_ShortBun.adr",
+          };
+        case Characters.MALE_WHITE_BALD:
+          return {
+            modelId: 9240,
+            headActor: "SurvivorMale_Head_01.adr",
+            hairModel: "SurvivorMale_HatHair_Short.adr",
+          };
+        case Characters.MALE_WHITE:
+        default:
+          return {
+            modelId: 9240,
+            headActor: "SurvivorMale_Head_01.adr",
+            hairModel: "SurvivorMale_Hair_ShortMessy.adr",
+          };
+      }
     }
 
-    getFixedConstructionPosition(construction: any) {
-        const p = construction.state.position; // we have to fix walls/gates position cuz regular one is their right corner
-        if (construction.openAngle != undefined) {
-            return new Float32Array([p[0] + Math.cos(-construction.openAngle) * 2.5, p[1], p[2] + Math.sin(-construction.openAngle) * 2.5]);
-        } else if (construction.actorModelId === 50 || construction.actorModelId === 9407) {
-            let angle = construction.eulerAngle + 1.575
-            const p = construction.state.position
-            return new Float32Array([p[0] + Math.cos(-angle) * 2.5, p[1], p[2] + Math.sin(-angle) * 2.5]);
-        } else return new Float32Array([0, 0, 0, 0])
-
+    const { characterObjStringify, reqId } = packet.data;
+    try {
+      const characterData = JSON.parse(characterObjStringify),
+        characterModelData = getCharacterModelData(characterData.payload);
+      let character: FullCharacterSaveData = require("../../../data/2016/sampleData/character.json");
+      character = {
+        ...character,
+        serverId: characterData.serverId,
+        creationDate: toHex(Date.now()),
+        lastLoginDate: toHex(Date.now()),
+        characterId: characterData.characterId,
+        ownerId: characterData.ownerId,
+        characterName: characterData.payload.characterName,
+        actorModelId: characterModelData.modelId,
+        headActor: characterModelData.headActor,
+        hairModel: characterModelData.hairModel,
+        gender: characterData.payload.gender,
+      };
+      const collection = (this._db as Db).collection("characters");
+      const charactersArray = await collection.findOne({
+        characterId: character.characterId,
+      });
+      if (!charactersArray) {
+        await collection.insertOne(character);
+      }
+      this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
+        reqId: reqId,
+        status: 1,
+      });
+    } catch (error) {
+      this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
+        reqId: reqId,
+        status: 0,
+      });
     }
+  }
+
+  pGetInventoryItems(client: Client): any[] {
+    const items: any[] = Object.values(client.character._loadout)
+      .filter((slot) => {
+        if (slot.itemDefinitionId) {
+          return true;
+        }
+      })
+      .map((slot) => {
+        return this.pGetItemData(client.character, slot, 101);
+      });
+    Object.values(client.character._containers).forEach((container) => {
+      Object.values(container.items).forEach((item) => {
+        items.push(
+          this.pGetItemData(
+            client.character,
+            item,
+            container.containerDefinitionId
+          )
+        );
+      });
+    });
+    return items;
+  }
+
+  async sendCharacterData(client: Client) {
+    if (!this.checkHook("OnSendCharacterData", client)) return;
+    if (!(await this.checkAsyncHook("OnSendCharacterData", client))) return;
+
+    await this.worldDataManager.loadCharacterData(this, client);
+    const containers = this.initializeContainerList(client, false);
+    this.sendData(client, "SendSelfToClient", {
+      data: {
+        ...client.character.pGetLightweight(),
+        guid: client.guid,
+        hairModel: client.character.hairModel,
+        isRespawning: client.character.isRespawning,
+        gender: client.character.gender,
+        creationDate: client.character.creationDate,
+        lastLoginDate: client.character.lastLoginDate,
+        identity: {
+          characterName: client.character.name,
+        },
+        inventory: {
+          items: this.pGetInventoryItems(client),
+          //unknownDword1: 2355
+        },
+        recipes: Object.values(this._recipes),
+        stats: stats,
+        loadoutSlots: client.character.pGetLoadoutSlots(),
+        equipmentSlots: client.character.pGetEquipment(),
+        characterResources: client.character.pGetResources(),
+        containers: containers,
+        //unknownQword1: client.character.characterId,
+        //unknownDword38: 1,
+        //vehicleLoadoutRelatedQword: client.character.characterId,
+        //unknownQword3: client.character.characterId,
+        //vehicleLoadoutRelatedDword: 1,
+        //unknownDword40: 1
+      },
+    });
+    client.character.initialized = true;
+
+    this.sendData(client, "Container.InitEquippedContainers", {
+      ignore: client.character.characterId,
+      characterId: client.character.characterId,
+      containers: containers,
+    });
+
+    this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
+    this.checkHook("OnSentCharacterData", client);
+  }
+  /**
+   * Caches item definitons so they aren't packed every time a client logs in.
+   */
+  private packItemDefinitions() {
+    this.itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
+      data: {
+        itemDefinitions: Object.values(this._itemDefinitions).map(
+          (itemDef: any) => {
+            return {
+              ID: itemDef.ID,
+              definitionData: {
+                ...itemDef,
+                HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+                ITEM_TYPE_1: itemDef.ITEM_TYPE,
+                flags1: {
+                  ...itemDef,
+                },
+                flags2: {
+                  ...itemDef,
+                },
+                stats: [],
+              },
+            };
+          }
+        ),
+      },
+    });
+  }
+
+  /**
+   * Caches weapon definitons so they aren't packed every time a client logs in.
+   */
+  private packWeaponDefinitions() {
+    this.weaponDefinitionsCache = this._protocol.pack(
+      "ReferenceData.WeaponDefinitions",
+      {
+        data: {
+          definitionsData: {
+            WEAPON_DEFINITIONS: Object.values(
+              weaponDefinitions.WEAPON_DEFINITIONS
+            ),
+            FIRE_GROUP_DEFINITIONS: Object.values(
+              weaponDefinitions.FIRE_GROUP_DEFINITIONS
+            ),
+            FIRE_MODE_DEFINITIONS: Object.values(
+              weaponDefinitions.FIRE_MODE_DEFINITIONS
+            ),
+            PLAYER_STATE_GROUP_DEFINITIONS: Object.values(
+              weaponDefinitions.PLAYER_STATE_GROUP_DEFINITIONS
+            ),
+            FIRE_MODE_PROJECTILE_MAPPING_DATA: Object.values(
+              weaponDefinitions.FIRE_MODE_PROJECTILE_MAPPING_DATA
+            ),
+            AIM_ASSIST_DEFINITIONS: Object.values(
+              weaponDefinitions.AIM_ASSIST_DEFINITIONS
+            ),
+          },
+        },
+      }
+    );
+  }
+
+  /**
+   * Caches projectile definitons so they aren't packed every time a client logs in.
+   */
+  private packProjectileDefinitions() {
+    this.projectileDefinitionsCache = this._protocol.pack(
+      "ReferenceData.ProjectileDefinitions",
+      {
+        definitionsData: projectileDefinitons,
+      }
+    );
+  }
+
+  /**
+   * Caches profile definitons so they aren't packed every time a client logs in.
+   */
+  private packProfileDefinitions() {
+    this.profileDefinitionsCache = this._protocol.pack(
+      "ReferenceData.ProfileDefinitions",
+      {
+        data: {
+          profiles: profileDefinitions,
+        },
+      }
+    );
+  }
+
+  private async initializeLoginServerConnection() {
+    debug("Starting H1emuZoneServer");
+    if (!this._loginServerInfo.address) {
+      await this.fetchLoginInfo();
+    }
+    this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
+      serverId: this._worldId,
+      h1emuVersion: process.env.H1Z1_SERVER_VERSION,
+    });
+    this._h1emuZoneServer.start();
+    await this._db
+      ?.collection("servers")
+      .findOneAndUpdate(
+        { serverId: this._worldId },
+        { $set: { populationNumber: 0, populationLevel: 0 } }
+      );
+  }
+
+  private async setupServer() {
+    this.forceTime(971172000000); // force day time by default - not working for now
+    this._frozeCycle = false;
+
+    if (!this._soloMode) {
+      await this.worldDataManager.initializeDatabase(this);
+      if (
+        await this._db?.collection("worlds").findOne({ worldId: this._worldId })
+      ) {
+        await this.worldDataManager.fetchWorldData(this);
+      } else {
+        await this.worldDataManager.insertWorld(this);
+        await this.worldDataManager.saveWorld(this);
+      }
+      this.initializeLoginServerConnection();
+    }
+
+    // !!ANYTHING THAT USES / GENERATES ITEMS MUST BE CALLED AFTER WORLD DATA IS LOADED!!
+
+    this.packItemDefinitions();
+    this.packWeaponDefinitions();
+    this.packProjectileDefinitions();
+    this.packProfileDefinitions();
+    this.worldObjectManager.createDoors(this);
+
+    this._ready = true;
+    console.log(
+      `Server saving ${this.enableWorldSaves ? "enabled" : "disabled"}.`
+    );
+    debug("Server ready");
+  }
+
+  async start(): Promise<void> {
+    debug("Starting server");
+    debug(`Protocol used : ${this._protocol.protocolName}`);
+    if (!this.checkHook("OnServerInit")) return;
+    if (!(await this.checkAsyncHook("OnServerInit"))) return;
+
+    await this.setupServer();
+    this._startTime += Date.now();
+    this._startGameTime += Date.now();
+    if (this._dynamicWeatherEnabled) {
+      this._dynamicWeatherWorker = setTimeout(() => {
+        if (!this._dynamicWeatherEnabled) {
+          return;
+        }
+        this._weather2016 = dynamicWeather(
+          this._serverTime,
+          this._startTime,
+          this._timeMultiplier
+        );
+        this.sendDataToAll("UpdateWeatherData", this._weather2016);
+        this._dynamicWeatherWorker.refresh();
+      }, 360000 / this._timeMultiplier);
+    }
+    this._gatewayServer.start();
+    this.worldRoutineTimer = setTimeout(
+      () => this.worldRoutine.bind(this)(),
+      this.tickRate
+    );
+    this.checkHook("OnServerReady");
+  }
+
+  sendInitData(client: Client) {
+    this.sendData(client, "InitializationParameters", {
+      ENVIRONMENT: "LIVE",
+      unknownString1: "",
+      rulesetDefinitions: [
+        /*
+        {
+          unknownDword1: 1,
+          unknownDword2: 1,
+          ruleset: "Permadeath",
+          unknownString2: "",
+          rulesets: [
+            {
+              ID: 1,
+              DATA: {
+                ID: 1,
+                RULESET_ID: 1,
+                CONTENT_PACK_ID: 112,
+                CONTENT_PACK_ACTION_ID: 1,
+              }
+            }
+          ]
+        },
+        {
+          unknownDword1: 3,
+          unknownDword2: 3,
+          ruleset: "Headshots",
+          unknownString2: "",
+          rulesets: []
+        },
+        {
+          unknownDword1: 4,
+          unknownDword2: 4,
+          ruleset: "FirstPersonOnly",
+          unknownString2: "",
+          rulesets: []
+        },
+        {
+          unknownDword1: 5,
+          unknownDword2: 5,
+          ruleset: "PvE", //  could be "Normal"
+          unknownString2: "",
+          rulesets: [
+            {
+              ID: 3,
+              DATA: {
+                ID: 3,
+                RULESET_ID: 5,
+                CONTENT_PACK_ID: 119,
+                CONTENT_PACK_ACTION_ID: 2,
+              }
+            },
+          ]
+        },
+        {
+          unknownDword1: 6,
+          unknownDword2: 6,
+          ruleset: "BattleRoyale",
+          unknownString2: "",
+          rulesets: [
+            
+          ]
+        },*/
+      ],
+    });
+
+    this.sendData(client, "SendZoneDetails", {
+      zoneName: "Z1",
+      zoneType: 4,
+      unknownBoolean1: false,
+      skyData: this._weather2016,
+      zoneId1: 5,
+      zoneId2: 5,
+      nameId: 7699,
+      unknownBoolean2: true,
+      lighting: "Lighting.txt",
+      unknownBoolean3: false,
+    });
+
+    if (!this.itemDefinitionsCache) {
+      this.packItemDefinitions();
+    }
+    // disabled since it breaks weapon inspect
+    //this.sendRawData(client, this.itemDefinitionsCache);
+    if (!this.weaponDefinitionsCache) {
+      this.packWeaponDefinitions();
+    }
+    this.sendRawData(client, this.weaponDefinitionsCache);
+    // packet is just broken, idk why
+    /*
+    this.sendData(client, "ClientBeginZoning", {
+      //position: Array.from(client.character.state.position),
+      //rotation: Array.from(client.character.state.rotation),
+      skyData: this._weather2016,
+    });
+    */
+
+    this.sendData(client, "ClientGameSettings", {
+      Unknown2: 0,
+      interactGlowAndDist: 3, // 3
+      unknownBoolean1: true,
+      timescale: 1.0,
+      enableWeapons: 1,
+      Unknown5: 1,
+      unknownFloat1: 0.0,
+      unknownFloat2: 15,
+      damageMultiplier: 11,
+    });
+
+    this.sendCharacterData(client);
+  }
+
+  private worldRoutine() {
+    debug("WORLDROUTINE");
+
+    if (!this.checkHook("OnWorldRoutine")) return;
+    else {
+      this.executeFuncForAllReadyClients((client: Client) => {
+        this.vehicleManager(client);
+        this.itemManager(client);
+        this.npcManager(client);
+        this.removeOutOfDistanceEntities(client);
+        this.spawnCharacters(client);
+        this.spawnDoors(client);
+        this.spawnConstructionNpcs(client);
+        this.spawnExplosives(client);
+        this.spawnTraps(client);
+        this.spawnTemporaryObjects(client);
+        this.POIManager(client);
+        this.foundationPermissionChecker(client);
+        client.posAtLastRoutine = client.character.state.position;
+      });
+      if (this._ready) {
+        this.worldObjectManager.run(this);
+        if (this.enableWorldSaves) this.worldDataManager.run(this);
+      }
+    }
+    this.worldRoutineTimer.refresh();
+  }
+  
+  deleteClient(client: Client) {
+    if (client) {
+      if (client.character) {
+        client.isLoading = true; // stop anything from acting on character
+
+        clearTimeout(client.character?.resourcesUpdater);
+        this.worldDataManager.saveCharacterData(this, client);
+        this.dismountVehicle(client);
+        client.managedObjects?.forEach((characterId: any) => {
+          this.dropVehicleManager(client, characterId);
+        });
+        this.deleteEntity(client.character.characterId, this._characters);
+      }
+      delete this._clients[client.sessionId];
+      const soeClient = this.getSoeClient(client.soeClientId);
+      if (soeClient) {
+        this._gatewayServer._soeServer.deleteClient(soeClient);
+      }
+      if (!this._soloMode) {
+        this.sendZonePopulationUpdate();
+      }
+    }
+  }
+
+  generateDamageRecord(
+    targetClient: Client,
+    sourceClient: Client,
+    hitReport: any,
+    oldHealth: number,
+    damage: number
+  ): DamageRecord {
+    const sCharacter = sourceClient.character,
+      tCharacter = targetClient.character;
+    return {
+      source: {
+        name: sCharacter.name || "Unknown",
+        ping: sourceClient.avgPing,
+      },
+      target: {
+        name: tCharacter.name || "Unknown",
+        ping: targetClient.avgPing,
+      },
+      hitInfo: {
+        timestamp: Date.now(),
+        weapon: this.getItemDefinition(
+          sCharacter.getEquippedWeapon().itemDefinitionId
+        ).MODEL_NAME,
+        distance: getDistance(
+          sCharacter.state.position,
+          tCharacter.state.position
+        ).toFixed(1),
+        hitLocation: hitReport?.hitLocation || "Unknown",
+        hitPosition: hitReport?.position || new Float32Array([0, 0, 0, 0]),
+        oldHP: oldHealth,
+        newHP: oldHealth - damage < 0 ? 0 : oldHealth - damage,
+      },
+    };
+  }
+
+  sendDeathMetrics(client: Client) {
+    const clientUpdateDeathMetricsPacket: ClientUpdateDeathMetrics = {
+      recipesDiscovered: client.character.metrics.recipesDiscovered,
+      zombiesKilled: client.character.metrics.zombiesKilled,
+      minutesSurvived:
+        (Date.now() - client.character.metrics.startedSurvivingTP) / 60000,
+      wildlifeKilled: client.character.metrics.wildlifeKilled,
+    };
+    this.sendData(
+      client,
+      "ClientUpdate.DeathMetrics",
+      clientUpdateDeathMetricsPacket
+    );
+  }
+
+  killCharacter(
+    client: Client,
+    deathInfo: { client: Client; hitReport: any } | undefined = undefined
+  ) {
+    if (!this.checkHook("OnPlayerDeath", client, deathInfo)) return;
+
+    const character = client.character;
+    if (character.isAlive) {
+      client.character.isRespawning = true;
+      this.sendDeathMetrics(client);
+      debug(character.name + " has died");
+      if (deathInfo?.client) {
+        this.sendDataToAll("Character.KilledBy", {
+          killed: client.character.characterId,
+          killer: deathInfo.client.character.characterId,
+          isCheater: deathInfo.client.character.godMode,
+        } as CharacterKilledBy);
+      }
+      client.character.isRunning = false;
+      client.character.characterStates.knockedOut = true;
+      this.updateCharacterState(
+        client,
+        client.character.characterId,
+        client.character.characterStates,
+        false
+      );
+      if (!client.isLoading) {
+        this.sendDataToAllWithSpawnedEntity(
+          this._characters,
+          client.character.characterId,
+          "Character.StartMultiStateDeath",
+          {
+            characterId: client.character.characterId,
+          }
+        );
+      } else {
+        this.sendDataToAllOthersWithSpawnedEntity(
+          this._characters,
+          client,
+          client.character.characterId,
+          "Character.StartMultiStateDeath",
+          {
+            characterId: client.character.characterId,
+          }
+        );
+      }
+    }
+    this.clearMovementModifiers(client);
+    character.isAlive = false;
+
+    this.checkHook("OnPlayerDied", client, deathInfo);
+  }
+
+  async explosionDamage(position: Float32Array, npcTriggered: string, client?: Client) {
+    for (const character in this._clients) {
+      const characterObj = this._clients[character];
+      if (!characterObj.character.godMode) {
+        if (isPosInRadius(8, characterObj.character.state.position, position)) {
+          const distance = getDistance(
+            position,
+            characterObj.character.state.position
+          );
+          const damage = 50000 / distance;
+          this.playerDamage(this._clients[character], damage);
+        }
+      }
+    }
+    for (const vehicleKey in this._vehicles) {
+      const vehicle = this._vehicles[vehicleKey];
+      if (vehicle.characterId != npcTriggered) {
+        if (isPosInRadius(5, vehicle.state.position, position)) {
+          const distance = getDistance(position, vehicle.state.position);
+          const damage = 250000 / distance;
+          await Scheduler.wait(150);
+          this.damageVehicle(damage, vehicle);
+        }
+      }
+    }
+
+      for (const construction in this._constructionSimple) {
+          const constructionObject = this._constructionSimple[construction] as simpleConstruction;
+          if (isPosInRadius(5, constructionObject.state.position, position)) {
+              if (constructionObject.actorModelId != 9487 && constructionObject.actorModelId != 9488) {
+                  if (constructionObject.parentObjectCharacterId) {
+                      if (this._constructionFoundations[constructionObject.parentObjectCharacterId]) {
+                          if (this._constructionFoundations[constructionObject.parentObjectCharacterId])
+                              if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
+                                  if (client) {
+                                      this.sendBaseSecuredMessage(client);
+                                  }
+                              }
+                              else {
+                                  this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
+                              }
+                      } else if (this._constructionSimple[constructionObject.parentObjectCharacterId]) {
+                          const parentConstruction = this._constructionSimple[constructionObject.parentObjectCharacterId] as simpleConstruction;
+                          if (parentConstruction.parentObjectCharacterId && this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
+                              if (client) {
+                                  this.sendBaseSecuredMessage(client);
+                              }
+                          }
+                          else {
+                              this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
+                          }
+                      }
+                  } else {
+                      for (const a in this._constructionFoundations) {
+                          const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
+                          if (foundation.isSecured && isInside([constructionObject.state.position[0], constructionObject.state.position[2]], foundation.securedPolygons)) {
+                              if (client) {
+                                  this.sendBaseSecuredMessage(client);
+                              }
+                          }
+                          else {
+                              this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
+                          }
+                      }
+                  }
+              }
+          }
+      }
+
+      for (const construction in this._constructionDoors) {
+          const constructionObject = this._constructionDoors[construction] as constructionDoor;
+          if (isPosInRadius(5, constructionObject.state.position, position)) {
+              if (constructionObject.parentObjectCharacterId) {
+                  if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 49) {
+                      if (client) {
+                          this.sendBaseSecuredMessage(client);
+                      }
+                  }
+                  else {
+                      this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionDoors, position)
+                  }
+              }
+          }
+      }
+
+      for (const construction in this._constructionFoundations) {
+          const constructionObject = this._constructionFoundations[construction] as ConstructionParentEntity;
+          if (isPosInRadius(5, constructionObject.state.position, position)) {
+              const allowed = [Items.SHACK, Items.SMALL_SHACK, Items.BASIC_SHACK]
+              if (allowed.includes(constructionObject.itemDefinitionId)) {
+                  this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionFoundations, position)
+              }
+          }
+      }
+
+      for (const explosive in this._explosives) {
+          const explosiveObj = this._explosives[explosive];
+          if (explosiveObj.characterId != npcTriggered) {
+              if (getDistance(position, explosiveObj.state.position) < 2) {
+                  await Scheduler.wait(150);
+                  if (this._spawnedItems[explosiveObj.characterId]) {
+                      const object = this._spawnedItems[explosiveObj.characterId];
+                      this.deleteEntity(explosiveObj.characterId, this._spawnedItems)
+                      delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
+                  }
+                  this.explodeExplosive(explosiveObj);
+              }
+          }
+      }
+  }
 
     sendBaseSecuredMessage(client: Client) {
         this.sendAlert(client, 'You must destroy the bases gate layer before affecting interior structures');
@@ -1195,7 +1182,8 @@ export class ZoneServer2016 extends EventEmitter {
     checkConstructionDamage(constructionCharId: string, damage: number, dictionary: any, position: Float32Array) {
         const constructionObject: simpleConstruction | ConstructionParentEntity = dictionary[constructionCharId];
         const distance = getDistance(constructionObject.state.position, position);
-        constructionObject.pDamageConstruction(distance < 1 ? damage : damage / Math.sqrt(Math.sqrt(distance)));
+        if (distance > 5) return;
+        constructionObject.pDamageConstruction(distance < 1 ? damage : damage / Math.sqrt(distance * 1.5));
         for (const a in this._clients) {
             const c = this._clients[a] as Client;
             if (isPosInRadius(25, c.character.state.position, constructionObject.state.position)) {
@@ -3077,7 +3065,6 @@ export class ZoneServer2016 extends EventEmitter {
                         eul2quat(rotation),
                         parentObjectCharacterId,
                         slot,
-                        rotation[0]
                     );
                     this._constructionSimple[characterId] = npc;
                     switch (this.getEntityType(parentObjectCharacterId)) {
