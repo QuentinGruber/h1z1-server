@@ -1064,116 +1064,129 @@ export class ZoneServer2016 extends EventEmitter {
     this.checkHook("OnPlayerDied", client, deathInfo);
   }
 
-  async explosionDamage(position: Float32Array, npcTriggered: string, client?: Client) {
-    for (const character in this._clients) {
-      const characterObj = this._clients[character];
-      if (!characterObj.character.godMode) {
-        if (isPosInRadius(8, characterObj.character.state.position, position)) {
-          const distance = getDistance(
-            position,
-            characterObj.character.state.position
-          );
-          const damage = 50000 / distance;
-          this.playerDamage(this._clients[character], damage);
+    async explosionDamage(position: Float32Array, npcTriggered: string, client?: Client) {
+        for (const character in this._clients) {
+            const characterObj = this._clients[character];
+            if (!characterObj.character.godMode) {
+                if (isPosInRadius(8, characterObj.character.state.position, position)) {
+                    const distance = getDistance(
+                        position,
+                        characterObj.character.state.position
+                    );
+                    const damage = 50000 / distance;
+                    this.playerDamage(this._clients[character], damage);
+                }
+            }
         }
-      }
-    }
-    for (const vehicleKey in this._vehicles) {
-      const vehicle = this._vehicles[vehicleKey];
-      if (vehicle.characterId != npcTriggered) {
-        if (isPosInRadius(5, vehicle.state.position, position)) {
-          const distance = getDistance(position, vehicle.state.position);
-          const damage = 250000 / distance;
-          await Scheduler.wait(150);
-          this.damageVehicle(damage, vehicle);
+        for (const vehicleKey in this._vehicles) {
+            const vehicle = this._vehicles[vehicleKey];
+            if (vehicle.characterId != npcTriggered) {
+                if (isPosInRadius(5, vehicle.state.position, position)) {
+                    const distance = getDistance(position, vehicle.state.position);
+                    const damage = 250000 / distance;
+                    await Scheduler.wait(150);
+                    this.damageVehicle(damage, vehicle);
+                }
+            }
         }
-      }
+
+        for (const construction in this._constructionSimple) {
+            const constructionObject = this._constructionSimple[construction] as simpleConstruction;
+            let fixedPosition = this.getFixedConstructionPosition(constructionObject);
+            if (isPosInRadius(6, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position, position)) {
+                if (constructionObject.actorModelId != 9487 && constructionObject.actorModelId != 9488) {
+                    if (constructionObject.parentObjectCharacterId) {
+                        if (this._constructionFoundations[constructionObject.parentObjectCharacterId]) {
+                            if (this._constructionFoundations[constructionObject.parentObjectCharacterId])
+                                if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
+                                    if (client) {
+                                        this.sendBaseSecuredMessage(client);
+                                    }
+                                }
+                                else {
+                                    this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
+                                }
+                        } else if (this._constructionSimple[constructionObject.parentObjectCharacterId]) {
+                            const parentConstruction = this._constructionSimple[constructionObject.parentObjectCharacterId] as simpleConstruction;
+                            if (parentConstruction.parentObjectCharacterId && this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
+                                if (client) {
+                                    this.sendBaseSecuredMessage(client);
+                                }
+                            }
+                            else {
+                                this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
+                            }
+                        }
+                    } else {
+                        for (const a in this._constructionFoundations) {
+                            const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
+                            if (foundation.isSecured && isInside([constructionObject.state.position[0], constructionObject.state.position[2]], foundation.securedPolygons)) {
+                                if (client) {
+                                    this.sendBaseSecuredMessage(client);
+                                }
+                            }
+                            else {
+                                this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for (const construction in this._constructionDoors) {
+            const constructionObject = this._constructionDoors[construction] as constructionDoor;
+            const fixedPosition = this.getFixedConstructionPosition(constructionObject);
+            if (isPosInRadius(6, fixedPosition, position)) {
+                if (constructionObject.parentObjectCharacterId) {
+                    if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 49) {
+                        if (client) {
+                            this.sendBaseSecuredMessage(client);
+                        }
+                    }
+                    else {
+                        this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionDoors, position)
+                    }
+                }
+            }
+        }
+
+        for (const construction in this._constructionFoundations) {
+            const constructionObject = this._constructionFoundations[construction] as ConstructionParentEntity;
+            if (isPosInRadius(6, constructionObject.state.position, position)) {
+                const allowed = [Items.SHACK, Items.SMALL_SHACK, Items.BASIC_SHACK]
+                if (allowed.includes(constructionObject.itemDefinitionId)) {
+                    this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionFoundations, position)
+                }
+            }
+        }
+
+        for (const explosive in this._explosives) {
+            const explosiveObj = this._explosives[explosive];
+            if (explosiveObj.characterId != npcTriggered) {
+                if (getDistance(position, explosiveObj.state.position) < 2) {
+                    await Scheduler.wait(150);
+                    if (this._spawnedItems[explosiveObj.characterId]) {
+                        const object = this._spawnedItems[explosiveObj.characterId];
+                        this.deleteEntity(explosiveObj.characterId, this._spawnedItems)
+                        delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
+                    }
+                    this.explodeExplosive(explosiveObj);
+                }
+            }
+        }
     }
 
-      for (const construction in this._constructionSimple) {
-          const constructionObject = this._constructionSimple[construction] as simpleConstruction;
-          if (isPosInRadius(5, constructionObject.state.position, position)) {
-              if (constructionObject.actorModelId != 9487 && constructionObject.actorModelId != 9488) {
-                  if (constructionObject.parentObjectCharacterId) {
-                      if (this._constructionFoundations[constructionObject.parentObjectCharacterId]) {
-                          if (this._constructionFoundations[constructionObject.parentObjectCharacterId])
-                              if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
-                                  if (client) {
-                                      this.sendBaseSecuredMessage(client);
-                                  }
-                              }
-                              else {
-                                  this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
-                              }
-                      } else if (this._constructionSimple[constructionObject.parentObjectCharacterId]) {
-                          const parentConstruction = this._constructionSimple[constructionObject.parentObjectCharacterId] as simpleConstruction;
-                          if (parentConstruction.parentObjectCharacterId && this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
-                              if (client) {
-                                  this.sendBaseSecuredMessage(client);
-                              }
-                          }
-                          else {
-                              this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
-                          }
-                      }
-                  } else {
-                      for (const a in this._constructionFoundations) {
-                          const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
-                          if (foundation.isSecured && isInside([constructionObject.state.position[0], constructionObject.state.position[2]], foundation.securedPolygons)) {
-                              if (client) {
-                                  this.sendBaseSecuredMessage(client);
-                              }
-                          }
-                          else {
-                              this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
-                          }
-                      }
-                  }
-              }
-          }
-      }
-
-      for (const construction in this._constructionDoors) {
-          const constructionObject = this._constructionDoors[construction] as constructionDoor;
-          if (isPosInRadius(5, constructionObject.state.position, position)) {
-              if (constructionObject.parentObjectCharacterId) {
-                  if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 49) {
-                      if (client) {
-                          this.sendBaseSecuredMessage(client);
-                      }
-                  }
-                  else {
-                      this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionDoors, position)
-                  }
-              }
-          }
-      }
-
-      for (const construction in this._constructionFoundations) {
-          const constructionObject = this._constructionFoundations[construction] as ConstructionParentEntity;
-          if (isPosInRadius(5, constructionObject.state.position, position)) {
-              const allowed = [Items.SHACK, Items.SMALL_SHACK, Items.BASIC_SHACK]
-              if (allowed.includes(constructionObject.itemDefinitionId)) {
-                  this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionFoundations, position)
-              }
-          }
-      }
-
-      for (const explosive in this._explosives) {
-          const explosiveObj = this._explosives[explosive];
-          if (explosiveObj.characterId != npcTriggered) {
-              if (getDistance(position, explosiveObj.state.position) < 2) {
-                  await Scheduler.wait(150);
-                  if (this._spawnedItems[explosiveObj.characterId]) {
-                      const object = this._spawnedItems[explosiveObj.characterId];
-                      this.deleteEntity(explosiveObj.characterId, this._spawnedItems)
-                      delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
-                  }
-                  this.explodeExplosive(explosiveObj);
-              }
-          }
-      }
-  }
+    getFixedConstructionPosition(construction: any) {
+        const p = construction.state.position; // we have to fix walls/gates position cuz regular one is their right corner
+        if (construction.openAngle != undefined) {
+            return new Float32Array([p[0] + Math.cos(-construction.openAngle) * 2.5, p[1], p[2] + Math.sin(-construction.openAngle) * 2.5]);
+        } else if (construction.actorModelId === 50 || construction.actorModelId === 9407) {
+            let angle = construction.eulerAngle + 1.575
+            const p = construction.state.position
+            return new Float32Array([p[0] + Math.cos(-angle) * 2.5, p[1], p[2] + Math.sin(-angle) * 2.5]);
+        } else return new Float32Array([0, 0, 0, 0])
+    }
 
     sendBaseSecuredMessage(client: Client) {
         this.sendAlert(client, 'You must destroy the bases gate layer before affecting interior structures');
@@ -1182,8 +1195,7 @@ export class ZoneServer2016 extends EventEmitter {
     checkConstructionDamage(constructionCharId: string, damage: number, dictionary: any, position: Float32Array) {
         const constructionObject: simpleConstruction | ConstructionParentEntity = dictionary[constructionCharId];
         const distance = getDistance(constructionObject.state.position, position);
-        if (distance > 5) return;
-        constructionObject.pDamageConstruction(distance < 1 ? damage : damage / Math.sqrt(distance * 1.5));
+        constructionObject.pDamageConstruction(distance < 2 ? damage : damage / Math.sqrt(distance));
         for (const a in this._clients) {
             const c = this._clients[a] as Client;
             if (isPosInRadius(25, c.character.state.position, constructionObject.state.position)) {
@@ -3065,6 +3077,7 @@ export class ZoneServer2016 extends EventEmitter {
                         eul2quat(rotation),
                         parentObjectCharacterId,
                         slot,
+                        rotation[0]
                     );
                     this._constructionSimple[characterId] = npc;
                     switch (this.getEntityType(parentObjectCharacterId)) {
