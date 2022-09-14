@@ -874,7 +874,8 @@ export class zonePacketHandlers {
             client.posAtLogoutStart
           )
         ) {
-          server.stopHudTimer(client);
+            server.stopHudTimer(client);
+            delete client.hudTimer;
         }
       } else if (
         packet.data.vehicle_position &&
