@@ -1092,7 +1092,7 @@ export class ZoneServer2016 extends EventEmitter {
 
         for (const construction in this._constructionSimple) {
             const constructionObject = this._constructionSimple[construction] as simpleConstruction;
-            let fixedPosition = this.getFixedConstructionPosition(constructionObject);
+            const fixedPosition = this.getFixedConstructionPosition(constructionObject);
             if (isPosInRadius(6, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position, position)) {
                 if (constructionObject.actorModelId != 9487 && constructionObject.actorModelId != 9488) {
                     if (constructionObject.parentObjectCharacterId) {
@@ -1182,7 +1182,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (construction.openAngle != undefined) {
             return new Float32Array([p[0] + Math.cos(-construction.openAngle) * 2.5, p[1], p[2] + Math.sin(-construction.openAngle) * 2.5]);
         } else if (construction.actorModelId === 50 || construction.actorModelId === 9407) {
-            let angle = construction.eulerAngle + 1.575
+            const angle = construction.eulerAngle + 1.575
             const p = construction.state.position
             return new Float32Array([p[0] + Math.cos(-angle) * 2.5, p[1], p[2] + Math.sin(-angle) * 2.5]);
         } else return new Float32Array([0, 0, 0, 0])
