@@ -77,6 +77,7 @@ import {
   toHex,
   eul2quat,
   isInside,
+  movePoint
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -1092,7 +1093,7 @@ export class ZoneServer2016 extends EventEmitter {
 
         for (const construction in this._constructionSimple) {
             const constructionObject = this._constructionSimple[construction] as simpleConstruction;
-            const fixedPosition = this.getFixedConstructionPosition(constructionObject);
+            const fixedPosition = this.getFixedConstructionPosition(constructionObject, 2.5);
             if (isPosInRadius(6, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position, position)) {
                 if (constructionObject.actorModelId != 9487 && constructionObject.actorModelId != 9488) {
                     if (constructionObject.parentObjectCharacterId) {
@@ -1104,7 +1105,7 @@ export class ZoneServer2016 extends EventEmitter {
                                     }
                                 }
                                 else {
-                                    this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
+                                    this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position)
                                 }
                         } else if (this._constructionSimple[constructionObject.parentObjectCharacterId]) {
                             const parentConstruction = this._constructionSimple[constructionObject.parentObjectCharacterId] as simpleConstruction;
@@ -1114,7 +1115,7 @@ export class ZoneServer2016 extends EventEmitter {
                                 }
                             }
                             else {
-                                this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
+                                this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position)
                             }
                         }
                     } else {
@@ -1126,7 +1127,7 @@ export class ZoneServer2016 extends EventEmitter {
                                 }
                             }
                             else {
-                                this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position)
+                                this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position)
                             }
                         }
                     }
@@ -1136,7 +1137,7 @@ export class ZoneServer2016 extends EventEmitter {
 
         for (const construction in this._constructionDoors) {
             const constructionObject = this._constructionDoors[construction] as constructionDoor;
-            const fixedPosition = this.getFixedConstructionPosition(constructionObject);
+            const fixedPosition = this.getFixedConstructionPosition(constructionObject, 2.5);
             if (isPosInRadius(6, fixedPosition, position)) {
                 if (constructionObject.parentObjectCharacterId) {
                     if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 49) {
@@ -1145,7 +1146,7 @@ export class ZoneServer2016 extends EventEmitter {
                         }
                     }
                     else {
-                        this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionDoors, position)
+                        this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionDoors, position, fixedPosition)
                     }
                 }
             }
@@ -1156,7 +1157,7 @@ export class ZoneServer2016 extends EventEmitter {
             if (isPosInRadius(6, constructionObject.state.position, position)) {
                 const allowed = [Items.SHACK, Items.SMALL_SHACK, Items.BASIC_SHACK]
                 if (allowed.includes(constructionObject.itemDefinitionId)) {
-                    this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionFoundations, position)
+                    this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionFoundations, position, constructionObject.state.position)
                 }
             }
         }
@@ -1177,14 +1178,11 @@ export class ZoneServer2016 extends EventEmitter {
         }
     }
 
-    getFixedConstructionPosition(construction: any) {
-        const p = construction.state.position; // we have to fix walls/gates position cuz regular one is their right corner
+    getFixedConstructionPosition(construction: any, distance: number) {
         if (construction.openAngle != undefined) {
-            return new Float32Array([p[0] + Math.cos(-construction.openAngle) * 2.5, p[1], p[2] + Math.sin(-construction.openAngle) * 2.5]);
+            return movePoint(construction.state.position, -construction.openAngle, distance)  // we have to fix walls/gates position cuz regular one is their right corner
         } else if (construction.actorModelId === 50 || construction.actorModelId === 9407) {
-            const angle = construction.eulerAngle + 1.575
-            const p = construction.state.position
-            return new Float32Array([p[0] + Math.cos(-angle) * 2.5, p[1], p[2] + Math.sin(-angle) * 2.5]);
+            return movePoint(construction.state.position, -(construction.eulerAngle + 1.575), distance)
         } else return new Float32Array([0, 0, 0, 0])
     }
 
@@ -1192,13 +1190,13 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendAlert(client, 'You must destroy the bases gate layer before affecting interior structures');
     }
 
-    checkConstructionDamage(constructionCharId: string, damage: number, dictionary: any, position: Float32Array) {
+    checkConstructionDamage(constructionCharId: string, damage: number, dictionary: any, position: Float32Array, entityPosition: Float32Array) {
         const constructionObject: simpleConstruction | ConstructionParentEntity = dictionary[constructionCharId];
-        const distance = getDistance(constructionObject.state.position, position);
+        const distance = getDistance(entityPosition, position);
         constructionObject.pDamageConstruction(distance < 2 ? damage : damage / Math.sqrt(distance));
         for (const a in this._clients) {
             const c = this._clients[a] as Client;
-            if (isPosInRadius(25, c.character.state.position, constructionObject.state.position)) {
+            if (isPosInRadius(25, c.character.state.position, entityPosition)) {
                 this.sendChatText(c, 'Construction Health: ' + constructionObject.healthPercentage.toFixed(0) + "/100")
             }
         }

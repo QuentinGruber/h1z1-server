@@ -136,6 +136,10 @@ export function eul2quatLegacy(angle: number[]) {
   return [qx, qy, -qz, qw];
 }
 
+export function movePoint(position: Float32Array, angle: number, distance: number) { // angle in radians
+    return new Float32Array([position[0] + Math.cos(angle) * distance, position[1], position[2] + Math.sin(angle) * distance]);
+}
+
 export async function zoneShutdown(
   server: ZoneServer2016 | ZoneServer2015,
   startedTime: number,
