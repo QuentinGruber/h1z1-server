@@ -446,17 +446,23 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       debug("zone login");
         try {
-        for (const a in this._bannedClients) {
-            const bannedClient = this._bannedClients[a];
-            if (bannedClient.loginSessionId === client.loginSessionId) {
-                if (bannedClient.banType != "normal") {
-                    client.banType = bannedClient.banType;                  
-                } else {                   
-                    this.sendData(client, "LoginFailed", {});
-                    return
+            for (const a in this._bannedClients) {
+                const bannedClient = this._bannedClients[a];
+                if (bannedClient.loginSessionId === client.loginSessionId) {
+                    client.banType = bannedClient.banType
+                    switch (bannedClient.banType) {
+                        case "normal":
+                            this.sendData(client, "LoginFailed", {});
+                            return
+                        case "rick":
+                            this.sendData(client, "ClientExitLaunchUrl", {
+                                url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                            });
+                            this.sendData(client, "LoginFailed", {})
+                            return
+                    }
                 }
             }
-        }
         this.sendInitData(client);
       } catch (error) {
         debug(error);
@@ -2808,6 +2814,12 @@ export class ZoneServer2016 extends EventEmitter {
                             characterId: object.characterId,
                         });
                     });
+                    break;
+                case "rick":
+                    this.sendData(client, "ClientExitLaunchUrl", {
+                        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                    });
+                    this.sendData(client, "LoginFailed", {})
                     break;
             }           
         }

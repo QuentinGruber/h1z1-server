@@ -2491,7 +2491,13 @@ export const basePackets: any = [
       fields: [{ name: "gameTime", type: "uint32", defaultValue: 0 }],
     },
   ],
-  ["ClientExitLaunchUrl", 0x3d, {}],
+    ["ClientExitLaunchUrl", 0x3d,
+        {
+            fields: [
+                { name: "url", type: "string", defaultValue: "" }
+            ],
+        },
+        ],
   ["ClientPendingKickFromServer", 0x3f, {}],
   [
     "MembershipActivation",
@@ -2592,7 +2598,11 @@ export const basePackets: any = [
   ["CommerceSessionRequest", 0x4e, {}],
   ["CommerceSessionResponse", 0x4f, {}],
   ["TrackedEvent", 0x50, {}],
-  ["LoginFailed", 0x51, {}],
+    ["LoginFailed", 0x51,
+        {
+            fields: [],
+        },
+    ],
   ["LoginToUChat", 0x52, {}],
   ["ZoneSafeTeleportRequest", 0x53, {}],
   ["RemoteInteractionRequest", 0x54, {}],

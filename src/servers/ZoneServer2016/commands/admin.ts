@@ -80,12 +80,12 @@ const admin: any = {
             );
             return;
       }
-      const banTypes = ["nodamage", "hiddenplayers"];
+      const banTypes = ["nodamage", "hiddenplayers", "rick"];
       const banType = args[2].toString().toLowerCase()
       if (!banTypes.includes(banType)) {
           server.sendChatText(
               client,
-              `valid ban types: NoDamage & hiddenPlayers`
+              `valid ban types: ${banTypes.join(", ") }`
           );
           return;
       }
