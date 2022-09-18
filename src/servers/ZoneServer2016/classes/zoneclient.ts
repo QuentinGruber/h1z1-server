@@ -21,6 +21,7 @@ export class ZoneClient2016 {
   isLoading: boolean = true;
   isInteracting: boolean = false;
   isAdmin: boolean = false;
+  banType: string = "";
   posAtLastRoutine: Float32Array = new Float32Array();
   posAtLogoutStart: Float32Array = new Float32Array();
   hudTimer?: NodeJS.Timeout | null;

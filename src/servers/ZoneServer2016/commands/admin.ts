@@ -68,6 +68,73 @@ const admin: any = {
     server.worldObjectManager.lootRespawnTimer = Number(args[1]);
     server.sendChatText(client, `Loot respawn timer set to ${Number(args[1])}`);
   },
+  silentban: function (
+        server: ZoneServer2016,
+        client: Client,
+        args: any[]
+    ) {
+        if (!args[1] || !args[2]) {
+            server.sendChatText(
+                client,
+                `Correct usage: /admin silentban {name} {type} {reason}`
+            );
+            return;
+      }
+      const banTypes = ["nodamage", "hiddenplayers"];
+      const banType = args[2].toString().toLowerCase()
+      if (!banTypes.includes(banType)) {
+          server.sendChatText(
+              client,
+              `valid ban types: NoDamage & hiddenPlayers`
+          );
+          return;
+      }
+        for (const a in server._clients) {
+            const iteratedClient = server._clients[a];
+            if (iteratedClient.character.name && iteratedClient.character.name.toLocaleLowerCase() === args[1].toString().toLowerCase()) {
+                const reason = args.slice(3).join(" ");
+                server.banClient(iteratedClient, reason, banType, client.character.name)
+                server.sendChatText(
+                    client,
+                    `You have silently banned ${iteratedClient.character.name}, banType: ${banType}`
+                );
+                return;
+            }
+        }
+        server.sendChatText(
+            client,
+            `Cannot find any user with name ${args[1]}`
+        );
+    },
+  ban: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
+    if (!args[1]) {
+      server.sendChatText(
+        client,
+        `Correct usage: /admin ban {name} {reason}`
+      );
+      return;
+      }
+      for (const a in server._clients) {
+          const iteratedClient = server._clients[a];
+          if (iteratedClient.character.name && iteratedClient.character.name.toLocaleLowerCase() === args[1].toString().toLowerCase()) {
+              const reason = args.slice(2).join(" ");
+              server.banClient(iteratedClient, reason, "normal", client.character.name)
+              server.sendChatText(
+                  client,
+                  `You have banned ${iteratedClient.character.name}`
+              );
+              return;
+          }
+      }
+      server.sendChatText(
+          client,
+          `Cannot find any user with name ${args[1]}`
+      );
+  },
   npcrespawntimer: function (
     server: ZoneServer2016,
     client: Client,

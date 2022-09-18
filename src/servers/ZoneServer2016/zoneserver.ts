@@ -164,6 +164,7 @@ export class ZoneServer2016 extends EventEmitter {
   tickRate = 500;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
+  _bannedClients: { [loginSessionId: string]: {name?: string, banReason: string, loginSessionId: string, IP: string, HWID: string, banType: string, adminName?: string} } = {};
   readonly _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110,
@@ -444,7 +445,18 @@ export class ZoneServer2016 extends EventEmitter {
       console.error(err);
     } else {
       debug("zone login");
-      try {
+        try {
+        for (const a in this._bannedClients) {
+            const bannedClient = this._bannedClients[a];
+            if (bannedClient.loginSessionId === client.loginSessionId) {
+                if (bannedClient.banType != "normal") {
+                    client.banType = bannedClient.banType;                  
+                } else {                   
+                    this.sendData(client, "LoginFailed", {});
+                    return
+                }
+            }
+        }
         this.sendInitData(client);
       } catch (error) {
         debug(error);
@@ -456,8 +468,7 @@ export class ZoneServer2016 extends EventEmitter {
   onZoneDataEvent(err: any, client: Client, packet: any) {
     if (err) {
       console.error(err);
-    } else {
-      if (!client) {
+    } else {      if (!client) {
         return;
       }
       client.pingTimer?.refresh();
@@ -2467,7 +2478,8 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(characterObj) &&
         !characterObj.characterStates.knockedOut &&
-        !characterObj.isSpectator
+        !characterObj.isSpectator &&
+        client.banType != "hiddenplayers"
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
           vehicle = vehicleId ? this._vehicles[vehicleId] : false;
@@ -2752,6 +2764,54 @@ export class ZoneServer2016 extends EventEmitter {
       generatedTransient
     );
   }
+
+    banClient(client: Client, reason: string, banType: string, adminName?: string) {
+            const object = {
+                name: client.character.name,
+                banType: banType,
+                banReason: reason ? reason : "no reason",
+                loginSessionId: client.loginSessionId,
+                IP: "",
+                HWID: "",
+                adminName: adminName? adminName:""
+        };
+        this._bannedClients[client.loginSessionId] = object;
+        if (banType === "normal") {
+            this.sendAlert(
+                client,
+                reason ? `YOU HAVE BEEN BANNED FROM THE SERVER. REASON: ${reason}` : "YOU HAVE BEEN BANNED FROM THE SERVER."
+            );
+            this.sendGlobalChatText(
+                `${client.character.name} has been Banned from the server!`
+            );
+            setTimeout(() => {               
+                this.sendData(client, "CharacterSelectSessionResponse", {
+                    status: 1,
+                    sessionId: client.loginSessionId,
+                });
+            }, 3000)
+        } else {
+            client.banType = banType;
+            switch (banType) {
+                case "hiddenplayers":
+                    const objectsToRemove = client.spawnedEntities.filter(
+                        (e) =>
+                            e && // in case if entity is undefined somehow
+                            !e.vehicleId && // ignore vehicles
+                            !e.item
+                            );
+                    client.spawnedEntities = client.spawnedEntities.filter((el) => {
+                        return !objectsToRemove.includes(el);
+                    });
+                    objectsToRemove.forEach((object: any) => {
+                        this.sendData(client, "Character.RemovePlayer", {
+                            characterId: object.characterId,
+                        });
+                    });
+                    break;
+            }           
+        }
+    }
 
   getCurrentTime(): number {
     return Number((Date.now() / 1000).toFixed(0));

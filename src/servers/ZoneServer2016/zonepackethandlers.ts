@@ -2207,6 +2207,7 @@ export class zonePacketHandlers {
               server.sendAlert(client, "Object removed.");
               return;
             }
+            if (client.banType === "nodamage") return;
             server.registerHit(client, p.packet);
             debug("Weapon.ProjectileHitReport");
             break;
