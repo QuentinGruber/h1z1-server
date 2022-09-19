@@ -1120,7 +1120,7 @@ export class ZoneServer2016 extends EventEmitter {
                     if (constructionObject.parentObjectCharacterId) {
                         if (this._constructionFoundations[constructionObject.parentObjectCharacterId]) {
                             if (this._constructionFoundations[constructionObject.parentObjectCharacterId])
-                                if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
+                                if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50 && constructionObject.actorModelId != 9407) {
                                     if (client) {
                                         this.sendBaseSecuredMessage(client);
                                     }
@@ -1130,7 +1130,7 @@ export class ZoneServer2016 extends EventEmitter {
                                 }
                         } else if (this._constructionSimple[constructionObject.parentObjectCharacterId]) {
                             const parentConstruction = this._constructionSimple[constructionObject.parentObjectCharacterId] as simpleConstruction;
-                            if (parentConstruction.parentObjectCharacterId && this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50) {
+                            if (parentConstruction.parentObjectCharacterId && this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50 && constructionObject.actorModelId != 9407) {
                                 if (client) {
                                     this.sendBaseSecuredMessage(client);
                                 }
@@ -1204,7 +1204,7 @@ export class ZoneServer2016 extends EventEmitter {
             return movePoint(construction.state.position, -construction.openAngle, distance)  // we have to fix walls/gates position cuz regular one is their right corner
         } else if (construction.actorModelId === 50 || construction.actorModelId === 9407) {
             return movePoint(construction.state.position, -(construction.eulerAngle + 1.575), distance)
-        } else return new Float32Array([0, 0, 0, 0])
+        } else return new Float32Array(construction.state.position)
     }
 
     sendBaseSecuredMessage(client: Client) {
@@ -1912,9 +1912,9 @@ export class ZoneServer2016 extends EventEmitter {
                     const object = this._spawnedItems[characterId]
                     this.deleteEntity(characterId, this._spawnedItems);
                     delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
+                    this.explodeExplosive(this._explosives[characterId]);
                 }
-            }
-        this.explodeExplosive(this._explosives[characterId]);
+            }       
             return;
         case EntityTypes.EXPLOSIVE:
             this.explodeExplosive(this._explosives[characterId]);
@@ -3160,8 +3160,8 @@ export class ZoneServer2016 extends EventEmitter {
             default:
                 const characterId = this.generateGuid();
                 const transientId = this.getTransientId(characterId);
-                if (BuildingSlot.includes('PerimeterWall') && Number(parentObjectCharacterId)) {
-                    const slot = BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();                   
+                if (BuildingSlot.includes('PerimeterWall') || BuildingSlot === "WallStack" && Number(parentObjectCharacterId)) {
+                    const slot = BuildingSlot === "WallStack"? "":BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();                   
                     const npc = new simpleConstruction(
                         characterId,
                         transientId,
@@ -3194,8 +3194,7 @@ export class ZoneServer2016 extends EventEmitter {
                         modelId,
                         position,
                         eul2quat(rotation),
-                        parentObjectCharacterId
-
+                        parentObjectCharacterId,
                     );
                     this._constructionSimple[characterId] = npc;
                 }
