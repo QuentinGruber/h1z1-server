@@ -153,6 +153,91 @@ const admin: any = {
           `Cannot find any user with name ${args[1]}`
       );
     },
+    silentbanid: function (
+        server: ZoneServer2016,
+        client: Client,
+        args: any[]
+    ) {
+        if (!args[1] || !args[2]) {
+            server.sendChatText(
+                client,
+                `Correct usage: /admin silentban {ZoneClientId} {type} {time} {reason}`
+            );
+            return;
+        }
+        const banTypes = ["nodamage", "hiddenplayers", "rick"];
+        const banType = args[2].toString().toLowerCase()
+        if (!banTypes.includes(banType)) {
+            server.sendChatText(
+                client,
+                `valid ban types: ${banTypes.join(", ")}`
+            );
+            return;
+        }
+        for (const a in server._clients) {
+            const iteratedClient = server._clients[a];
+            if (Number(iteratedClient.loginSessionId) === Number(args[1])) {
+                let time = Number(args[3]) ? Number(args[3]) * 60000 : 0;
+                if (time > 0) {
+                    time += Date.now()
+                    server.sendChatText(
+                        client,
+                        `You have silently banned ${iteratedClient.character.name} until ${server.getDateString(time)}`
+                    );
+                } else {
+                    server.sendChatText(
+                        client,
+                        `You have silently banned ${iteratedClient.character.name} permemently, banType: ${banType}`
+                    );
+                }
+                const reason = args.slice(4).join(" ");
+                server.banClient(iteratedClient, reason, banType, client.character.name ? client.character.name : "", time)
+                return;
+            }
+        }
+        server.sendChatText(
+            client,
+            `Cannot find any user with name ${args[1]}`
+        );
+    },
+    banid: function (
+        server: ZoneServer2016,
+        client: Client,
+        args: any[]
+    ) {
+        if (!args[1]) {
+            server.sendChatText(
+                client,
+                `Correct usage: /admin ban {name} {ZoneClientId} {reason}`
+            );
+            return;
+        }
+        for (const a in server._clients) {
+            const iteratedClient = server._clients[a];
+            if (Number(iteratedClient.loginSessionId) === Number(args[1])) {
+                let time = Number(args[2]) ? Number(args[2]) * 60000 : 0;
+                if (time > 0) {
+                    time += Date.now()
+                    server.sendChatText(
+                        client,
+                        `You have banned ${iteratedClient.character.name} until ${server.getDateString(time)}`
+                    );
+                } else {
+                    server.sendChatText(
+                        client,
+                        `You have banned ${iteratedClient.character.name} permemently`
+                    );
+                }
+                const reason = args.slice(3).join(" ");
+                server.banClient(iteratedClient, reason, "normal", client.character.name ? client.character.name : "", time)
+                return;
+            }
+        }
+        server.sendChatText(
+            client,
+            `Cannot find any user with zoneClientId ${args[1]}`
+        );
+    },
     unban: function (
         server: ZoneServer2016,
         client: Client,
@@ -172,7 +257,7 @@ const admin: any = {
                 delete server._bannedClients[a];
                 server.sendChatText(
                     client,
-                    `Removed ban on user ${args[1]}`
+                    `Removed ban on user ${bannedClient.name}`
                 );
                 return;
             }
@@ -181,6 +266,35 @@ const admin: any = {
         server.sendChatText(
             client,
             `Cannot find any banned user with name ${args[1]}`
+        );
+    },
+    unbanid: function (
+        server: ZoneServer2016,
+        client: Client,
+        args: any[]
+    ) {
+        if (!args[1]) {
+            server.sendChatText(
+                client,
+                `Correct usage: /admin unbanid {ZoneClientId}`
+            );
+            return;
+        }
+        for (const a in server._bannedClients) {
+            const bannedClient = server._bannedClients[a]
+            if (Number(bannedClient.loginSessionId) === Number(args[1])) {
+                delete server._bannedClients[a];
+                server.sendChatText(
+                    client,
+                    `Removed ban on user ${args[1]}`
+                );
+                return;
+            }
+        }
+
+        server.sendChatText(
+            client,
+            `Cannot find any banned user with ZoneClientId ${args[1]}`
         );
     },
   npcrespawntimer: function (
