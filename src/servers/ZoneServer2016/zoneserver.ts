@@ -2821,6 +2821,36 @@ export class ZoneServer2016 extends EventEmitter {
         }
     }
 
+    enforceBan(client: Client) {
+        switch (client.banType) {
+            case "normal":
+                this.sendData(client, "LoginFailed", {});
+                return
+            case "hiddenplayers":
+                const objectsToRemove = client.spawnedEntities.filter(
+                    (e) =>
+                        e && // in case if entity is undefined somehow
+                        !e.vehicleId && // ignore vehicles
+                        !e.item
+                );
+                client.spawnedEntities = client.spawnedEntities.filter((el) => {
+                    return !objectsToRemove.includes(el);
+                });
+                objectsToRemove.forEach((object: any) => {
+                    this.sendData(client, "Character.RemovePlayer", {
+                        characterId: object.characterId,
+                    });
+                });
+                break;
+            case "rick":
+                this.sendData(client, "ClientExitLaunchUrl", {
+                    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                });
+                this.sendData(client, "LoginFailed", {})
+                break;
+        } 
+    }
+
     getDateString(timestamp: number) {
         const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
         const date = new Date(timestamp);

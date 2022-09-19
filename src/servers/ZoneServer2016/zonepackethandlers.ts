@@ -194,11 +194,17 @@ export class zonePacketHandlers {
             server.sendAlert(client, "You are an admin!");
           }
         }, 10000);
-
-        server.sendChatTextToAllOthers(
-          client,
-          `${client.character.name} has joined the server !`
-        );
+          if (client.banType = "") {
+              server.sendChatTextToAllOthers(
+                  client,
+                  `${client.character.name} has joined the server !`
+              );
+          } else if (client.banType === "normal" || client.banType === "rick") {
+              server.sendChatTextToAllOthers(
+                  client,
+                  `Cheater ${client.character.name} tried to join the server !`
+              );
+          }
         client.firstLoading = false;
         client.pingTimer?.refresh();
         client.savePositionTimer = setTimeout(
@@ -742,17 +748,7 @@ export class zonePacketHandlers {
               }
               if (bannedClient.loginSessionId === client.loginSessionId || bannedClient.HWID === client.HWID && client.HWID != "") {
                   client.banType = bannedClient.banType
-                  switch (bannedClient.banType) {
-                      case "normal":
-                          server.sendData(client, "LoginFailed", {});
-                          return
-                      case "rick":
-                          server.sendData(client, "ClientExitLaunchUrl", {
-                              url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                          });
-                          server.sendData(client, "LoginFailed", {})
-                          return
-                  }
+                  server.enforceBan(client)
               }
           }
       };
