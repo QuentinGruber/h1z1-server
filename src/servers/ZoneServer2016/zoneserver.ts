@@ -5466,7 +5466,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   explodeExplosive(explosive: ExplosiveEntity, client?: Client) {
-      if (!explosive) return;
+      if (!this._explosives[explosive.characterId]) {
+          return;
+      }
       this.deleteEntity(explosive.characterId, this._explosives, 1875)
     client ? this.explosionDamage(explosive.state.position, explosive.characterId, client) : this.explosionDamage(explosive.state.position, explosive.characterId);
   }
