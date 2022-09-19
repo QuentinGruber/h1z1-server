@@ -194,16 +194,12 @@ export class zonePacketHandlers {
             server.sendAlert(client, "You are an admin!");
           }
         }, 10000);
-          if (client.banType = "") {
-              server.sendChatTextToAllOthers(
-                  client,
-                  `${client.character.name} has joined the server !`
-              );
-          } else if (client.banType === "normal" || client.banType === "rick") {
-              server.sendChatTextToAllOthers(
-                  client,
-                  `Cheater ${client.character.name} tried to join the server !`
-              );
+        server.sendChatTextToAllOthers(
+          client,
+          `${client.character.name} has joined the server !`
+          );
+          if (client.banType != "") {
+              server.sendChatTextToAdmins(`Silently banned ${client.character.name} has joined the server !`,)
           }
         client.firstLoading = false;
         client.pingTimer?.refresh();

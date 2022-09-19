@@ -5743,7 +5743,14 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendChatText(this._clients[a], message, clearChat);
       }
     }
-  }
+    }
+    sendChatTextToAdmins(message: string, clearChat = false) {
+        for (const a in this._clients) {
+            if (this._clients[a].isAdmin) {
+                this.sendChatText(this._clients[a], message, clearChat);
+            }
+        }
+    }
   sendGlobalChatText(message: string, clearChat = false) {
     for (const a in this._clients) {
       this.sendChatText(this._clients[a], message, clearChat);
