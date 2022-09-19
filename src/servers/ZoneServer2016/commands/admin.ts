@@ -152,7 +152,37 @@ const admin: any = {
           client,
           `Cannot find any user with name ${args[1]}`
       );
-  },
+    },
+    unban: function (
+        server: ZoneServer2016,
+        client: Client,
+        args: any[]
+    ) {
+        if (!args[1]) {
+            server.sendChatText(
+                client,
+                `Correct usage: /admin unban {banned name}`
+            );
+            return;
+        }
+        const name = args[1].toString().toLowerCase();
+        for (const a in server._bannedClients) {
+            const bannedClient = server._bannedClients[a]
+            if (bannedClient.name?.toLowerCase() === name) {
+                delete server._bannedClients[a];
+                server.sendChatText(
+                    client,
+                    `Removed ban on user ${args[1]}`
+                );
+                return;
+            }
+        }
+
+        server.sendChatText(
+            client,
+            `Cannot find any banned user with name ${args[1]}`
+        );
+    },
   npcrespawntimer: function (
     server: ZoneServer2016,
     client: Client,
