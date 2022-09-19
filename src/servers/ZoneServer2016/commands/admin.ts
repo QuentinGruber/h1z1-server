@@ -76,7 +76,7 @@ const admin: any = {
         if (!args[1] || !args[2]) {
             server.sendChatText(
                 client,
-                `Correct usage: /admin silentban {name} {type} {reason}`
+                `Correct usage: /admin silentban {name} {type} {time} {reason}`
             );
             return;
       }
@@ -92,12 +92,21 @@ const admin: any = {
         for (const a in server._clients) {
             const iteratedClient = server._clients[a];
             if (iteratedClient.character.name && iteratedClient.character.name.toLocaleLowerCase() === args[1].toString().toLowerCase()) {
-                const reason = args.slice(3).join(" ");
-                server.banClient(iteratedClient, reason, banType, client.character.name)
-                server.sendChatText(
-                    client,
-                    `You have silently banned ${iteratedClient.character.name}, banType: ${banType}`
-                );
+                let time = Number(args[3]) ? Number(args[3]) * 60000 : 0;
+                if (time > 0) {
+                    time += Date.now()
+                    server.sendChatText(
+                        client,
+                        `You have silently banned ${iteratedClient.character.name} until ${server.getDateString(time)}`
+                    );
+                } else {
+                    server.sendChatText(
+                        client,
+                        `You have silently banned ${iteratedClient.character.name} permemently, banType: ${banType}`
+                    );
+                }
+                const reason = args.slice(4).join(" ");
+                server.banClient(iteratedClient, reason, banType, client.character.name ? client.character.name:"", time)
                 return;
             }
         }
@@ -114,19 +123,28 @@ const admin: any = {
     if (!args[1]) {
       server.sendChatText(
         client,
-        `Correct usage: /admin ban {name} {reason}`
+        `Correct usage: /admin ban {name} {time} {reason}`
       );
       return;
       }
       for (const a in server._clients) {
           const iteratedClient = server._clients[a];
           if (iteratedClient.character.name && iteratedClient.character.name.toLocaleLowerCase() === args[1].toString().toLowerCase()) {
-              const reason = args.slice(2).join(" ");
-              server.banClient(iteratedClient, reason, "normal", client.character.name)
-              server.sendChatText(
-                  client,
-                  `You have banned ${iteratedClient.character.name}`
-              );
+              let time = Number(args[2]) ? Number(args[2]) * 60000 : 0;
+              if (time > 0) {
+                  time += Date.now()
+                  server.sendChatText(
+                      client,
+                      `You have banned ${iteratedClient.character.name} until ${server.getDateString(time)}`
+                  );
+              } else {
+                  server.sendChatText(
+                      client,
+                      `You have banned ${iteratedClient.character.name} permemently`
+                  );
+              }            
+              const reason = args.slice(3).join(" ");
+              server.banClient(iteratedClient, reason, "normal", client.character.name ? client.character.name : "", time)
               return;
           }
       }

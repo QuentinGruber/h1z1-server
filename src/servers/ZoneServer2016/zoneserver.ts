@@ -164,7 +164,7 @@ export class ZoneServer2016 extends EventEmitter {
   tickRate = 500;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
-  _bannedClients: { [loginSessionId: string]: {name?: string, banReason: string, loginSessionId: string, IP: string, HWID: string, banType: string, adminName?: string} } = {};
+  _bannedClients: { [loginSessionId: string]: { name?: string, banReason: string, loginSessionId: string, IP: string, HWID: string, banType: string, adminName: string, expirationDate: number} } = {};
   readonly _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110,
@@ -448,6 +448,10 @@ export class ZoneServer2016 extends EventEmitter {
         try {
             for (const a in this._bannedClients) {
                 const bannedClient = this._bannedClients[a];
+                if (bannedClient.expirationDate != 0 && bannedClient.expirationDate < Date.now()) {
+                    delete this._bannedClients[a];
+                    continue
+                }
                 if (bannedClient.loginSessionId === client.loginSessionId) {
                     client.banType = bannedClient.banType
                     switch (bannedClient.banType) {
@@ -2771,7 +2775,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-    banClient(client: Client, reason: string, banType: string, adminName?: string) {
+    banClient(client: Client, reason: string, banType: string, adminName: string, timestamp: number) {
             const object = {
                 name: client.character.name,
                 banType: banType,
@@ -2779,17 +2783,28 @@ export class ZoneServer2016 extends EventEmitter {
                 loginSessionId: client.loginSessionId,
                 IP: "",
                 HWID: "",
-                adminName: adminName? adminName:""
+                adminName: adminName ? adminName : "",
+                expirationDate: 0,
         };
+        if (timestamp) {
+            object.expirationDate = timestamp;
+        }
         this._bannedClients[client.loginSessionId] = object;
         if (banType === "normal") {
-            this.sendAlert(
-                client,
-                reason ? `YOU HAVE BEEN BANNED FROM THE SERVER. REASON: ${reason}` : "YOU HAVE BEEN BANNED FROM THE SERVER."
-            );
-            this.sendGlobalChatText(
-                `${client.character.name} has been Banned from the server!`
-            );
+            if (timestamp) {
+                this.sendAlert(
+                    client,
+                    reason ? `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(timestamp)}. REASON: ${reason}` : `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(timestamp)}`
+                );
+            } else {
+                this.sendAlert(
+                    client,
+                    reason ? `YOU HAVE BEEN PERMAMENTLY BANNED FROM THE SERVER REASON: ${reason}` : "YOU HAVE BEEN BANNED FROM THE SERVER."
+                );
+                this.sendGlobalChatText(
+                    `${client.character.name} has been Banned from the server!`
+                );
+            }
             setTimeout(() => {               
                 this.sendData(client, "CharacterSelectSessionResponse", {
                     status: 1,
@@ -2823,6 +2838,12 @@ export class ZoneServer2016 extends EventEmitter {
                     break;
             }           
         }
+    }
+
+    getDateString(timestamp: number) {
+        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const date = new Date(timestamp);
+        return `${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()} ${date.getHours()}:${date.getMinutes()}`
     }
 
   getCurrentTime(): number {
