@@ -86,6 +86,7 @@ export class zonePacketHandlers {
   commandStartLogoutRequest;
   CharacterSelectSessionRequest;
   profileStatsGetPlayerProfileStats;
+  WallOfDataClientSystemInfo;
   DtoHitSpeedTreeReport;
   GetRewardBuffInfo;
   PlayerUpdateManagedPosition;
@@ -113,7 +114,7 @@ export class zonePacketHandlers {
       server: ZoneServer2016,
       client: Client,
       packet: any
-    ) {
+    ) {      
       /*
       server.sendData(client, "ClientUpdate.ActivateProfile", {
         profileData: {
@@ -724,6 +725,37 @@ export class zonePacketHandlers {
         require("../../../data/profilestats.json")
       );
     };
+      this.WallOfDataClientSystemInfo = function (
+          server: ZoneServer2016,
+          client: Client,
+          packet: any
+      ) {
+          const info = packet.data.info
+          const startPos = info.search("Device") + 9;
+          const cut = info.substring(startPos, info.length)
+          client.HWID = cut.substring(0, cut.search(",") - 1);
+          for (const a in server._bannedClients) {
+              const bannedClient = server._bannedClients[a];
+              if (bannedClient.expirationDate != 0 && bannedClient.expirationDate < Date.now()) {
+                  delete server._bannedClients[a];
+                  continue
+              }
+              if (bannedClient.loginSessionId === client.loginSessionId || bannedClient.HWID === client.HWID && client.HWID != "") {
+                  client.banType = bannedClient.banType
+                  switch (bannedClient.banType) {
+                      case "normal":
+                          server.sendData(client, "LoginFailed", {});
+                          return
+                      case "rick":
+                          server.sendData(client, "ClientExitLaunchUrl", {
+                              url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+                          });
+                          server.sendData(client, "LoginFailed", {})
+                          return
+                  }
+              }
+          }
+      };
     this.DtoHitSpeedTreeReport = function (
       server: ZoneServer2016,
       client: Client,
@@ -2416,6 +2448,9 @@ export class zonePacketHandlers {
         break;
       case "ProfileStats.GetPlayerProfileStats":
         this.profileStatsGetPlayerProfileStats(server, client, packet);
+        break;
+      case "WallOfData.ClientSystemInfo":
+        this.WallOfDataClientSystemInfo(server, client, packet)
         break;
       case "DtoHitSpeedTreeReport":
         this.DtoHitSpeedTreeReport(server, client, packet);

@@ -445,28 +445,7 @@ export class ZoneServer2016 extends EventEmitter {
       console.error(err);
     } else {
       debug("zone login");
-        try {
-            for (const a in this._bannedClients) {
-                const bannedClient = this._bannedClients[a];
-                if (bannedClient.expirationDate != 0 && bannedClient.expirationDate < Date.now()) {
-                    delete this._bannedClients[a];
-                    continue
-                }
-                if (bannedClient.loginSessionId === client.loginSessionId) {
-                    client.banType = bannedClient.banType
-                    switch (bannedClient.banType) {
-                        case "normal":
-                            this.sendData(client, "LoginFailed", {});
-                            return
-                        case "rick":
-                            this.sendData(client, "ClientExitLaunchUrl", {
-                                url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                            });
-                            this.sendData(client, "LoginFailed", {})
-                            return
-                    }
-                }
-            }
+        try {            
         this.sendInitData(client);
       } catch (error) {
         debug(error);
@@ -2784,7 +2763,7 @@ export class ZoneServer2016 extends EventEmitter {
                 banReason: reason ? reason : "no reason",
                 loginSessionId: client.loginSessionId,
                 IP: "",
-                HWID: "",
+                HWID: client.HWID,
                 adminName: adminName ? adminName : "",
                 expirationDate: 0,
         };
