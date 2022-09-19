@@ -1908,9 +1908,11 @@ export class ZoneServer2016 extends EventEmitter {
         break;
         case EntityTypes.OBJECT:
             if (this._spawnedItems[characterId]) {
-                const object = this._spawnedItems[characterId]
-                this.deleteEntity(characterId, this._spawnedItems);               
-                delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
+                if (this._spawnedItems[characterId].item.itemDefinitionId === Items.FUEL_BIOFUEL || this._spawnedItems[characterId].item.itemDefinitionId === Items.FUEL_ETHANOL) {
+                    const object = this._spawnedItems[characterId]
+                    this.deleteEntity(characterId, this._spawnedItems);
+                    delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
+                }
             }
         this.explodeExplosive(this._explosives[characterId]);
             return;
@@ -5456,9 +5458,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   explodeExplosive(explosive: ExplosiveEntity, client?: Client) {
-    if (!this._explosives[explosive.characterId]) {
-      return;
-    }
+      if (!explosive) return;
       this.deleteEntity(explosive.characterId, this._explosives, 1875)
     client ? this.explosionDamage(explosive.state.position, explosive.characterId, client) : this.explosionDamage(explosive.state.position, explosive.characterId);
   }
