@@ -882,7 +882,7 @@ export class zonePacketHandlers {
         );
       }
         if (packet.data.position) {
-          server.speedFairPlayCheck(client, Date.now(), packet.data.position)
+        server.speedFairPlayCheck(client, Date.now(), packet.data.position)
         client.character.state.position = new Float32Array([
           packet.data.position[0],
           packet.data.position[1],
@@ -2175,6 +2175,7 @@ export class zonePacketHandlers {
             if (weaponItem.weapon.ammoCount > 0) {
               weaponItem.weapon.ammoCount -= 1;
             }
+            server.hitMissFairPlayCheck(client, false)
             server.stopHudTimer(client);
             debug("Weapon.Fire");
             /*

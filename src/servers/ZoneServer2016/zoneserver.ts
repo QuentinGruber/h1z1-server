@@ -128,6 +128,7 @@ export class ZoneServer2016 extends EventEmitter {
   readonly _protocol: H1Z1Protocol;
   _db?: Db;
   _soloMode = false;
+  _useFairPlay = true;
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
   _dynamicWeatherWorker: any;
@@ -1625,7 +1626,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
     speedFairPlayCheck(client: Client, sequenceTime: number, position: Float32Array) {
-        if (client.isAdmin) return;
+        if (client.isAdmin || !this._useFairPlay) return;
         const speed = (getDistance(client.oldPos.position, position) / 1000) / (sequenceTime - client.oldPos.time) * 3600000;
         const verticalSpeed = (getDistance(new Float32Array([0, client.oldPos.position[1], 0]), new Float32Array([0, position[1], 0])) / 1000) / (sequenceTime - client.oldPos.time) * 3600000;
         if (speed > 35 && verticalSpeed < 50) {
@@ -1641,6 +1642,19 @@ export class ZoneServer2016 extends EventEmitter {
             );           
         }
         client.oldPos = {position: position, time: Date.now()}
+    }
+
+    hitMissFairPlayCheck(client: Client, hit: boolean) {
+        if (!this._useFairPlay) return
+        if (hit) {
+            client.pvpStats.shotsHit += 1;
+            const hitRatio = client.pvpStats.shotsHit / client.pvpStats.shotsFired
+            if (client.pvpStats.shotsFired > 10 && hitRatio > 0.8) {
+                this.sendChatTextToAdmins(`FairPlay: ${client.character.name} exceeds hit/miss ratio (${hitRatio.toFixed(4)}% of ${client.pvpStats.shotsFired} shots fired)`, false)
+            }
+        } else {
+            client.pvpStats.shotsFired += 1;
+        }       
     }  
 
   updateResource(
@@ -1841,7 +1855,7 @@ export class ZoneServer2016 extends EventEmitter {
     const characterId = packet.hitReport.characterId,
       entityType = this.getEntityType(packet.hitReport.characterId);
     let hitEntity;
-    let damageEntity;
+    let damageEntity;   
     switch (entityType) {
       case EntityTypes.NPC:
         if (
@@ -1865,6 +1879,7 @@ export class ZoneServer2016 extends EventEmitter {
         hitEntity = this._vehicles[characterId];
         break;
       case EntityTypes.PLAYER:
+        this.hitMissFairPlayCheck(client, true)
         if (
           !this._characters[characterId] ||
           this._characters[characterId].characterStates.knockedOut
