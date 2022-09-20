@@ -74,6 +74,7 @@ export class Character2016 extends BaseFullCharacter {
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
+  currentInteractionGuid?: string;
   constructor(characterId: string, transientId: number) {
     super(
       characterId,

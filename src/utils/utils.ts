@@ -96,6 +96,26 @@ export function eul2quat(angle: Float32Array): Float32Array {
   return new Float32Array([qx, qy, -qz, qw]);
 }
 
+export function quat2matrix(angle: Float32Array): any {
+  // a little modified for my needs, may not work for other things than construction
+    const x = angle[0];
+    const y = angle[1];
+    const z = angle[2];
+    const w = 0;
+
+    const n = w * w + x * x + y * y + z * z;
+    const s = n === 0 ? 0 : 2 / n;
+    const wx = s * w * x, wy = s * w * y, wz = s * w * z;
+    const xx = s * x * x, xy = s * x * y, xz = s * x * z;
+    const yy = s * y * y, yz = s * y * z, zz = s * z * z;
+
+
+    return [
+        1 - (yy + zz), xy - wz, xz + wy,
+        xy + wz, 1 - (xx + zz), yz - wx,
+        xz - wy, yz + wx, 1 - (xx + yy)];
+}
+
 export function eul2quatLegacy(angle: number[]) {
   // Assuming the angles are in radians.
   const heading = angle[0],
@@ -114,6 +134,10 @@ export function eul2quatLegacy(angle: number[]) {
   const qz = c1c2 * s3 + s1s2 * c3;
   const qx = c1 * s2 * c3 - s1 * c2 * s3;
   return [qx, qy, -qz, qw];
+}
+
+export function movePoint(position: Float32Array, angle: number, distance: number) { // angle in radians
+    return new Float32Array([position[0] + Math.cos(angle) * distance, position[1], position[2] + Math.sin(angle) * distance]);
 }
 
 export async function zoneShutdown(
@@ -200,6 +224,21 @@ export const objectIsEmpty = (obj: Record<string, unknown>) => {
 
 const isBetween = (radius: number, value1: number, value2: number): boolean => {
   return value1 <= value2 + radius && value1 >= value2 - radius;
+};
+
+export const isInside = (point: [number, number], vs: any) => {
+
+    const x = point[0], y = point[1];
+
+    let inside = false;
+    for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+        const xi = vs[i][0], yi = vs[i][1],
+        xj = vs[j][0], yj = vs[j][1],
+        intersect = ((yi > y) != (yj > y))
+          && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+    }
+    return inside;
 };
 
 export const isPosInRadius = (
