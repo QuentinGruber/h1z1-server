@@ -1642,8 +1642,6 @@ export class ZoneServer2016 extends EventEmitter {
                 `FairPlay: kicking ${client.character.name}`
             );           
         }
-        console.log(verticalSpeed)
-        console.log(client.speedWarnsNumber)
         client.oldPos.position = position;
         client.oldPos.time = sequenceTime
     }
