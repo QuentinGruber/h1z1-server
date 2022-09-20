@@ -1624,6 +1624,30 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+    speedFairPlayCheck(client: Client, sequenceTime: number, position: Float32Array) {
+        const speed = (getDistance(client.oldPos.position, position) / 1000) / (sequenceTime - client.oldPos.time) * 3600000;
+        const verticalSpeed = (getDistance(new Float32Array([0, client.oldPos.position[1], 0]), new Float32Array([0, position[1], 0])) / 1000) / (sequenceTime - client.oldPos.time) * 3600000;
+        if (speed > 40 && verticalSpeed < 50) {
+            client.speedWarnsNumber += 1
+        } else if (client.speedWarnsNumber != 0) {
+            client.speedWarnsNumber -= 1
+        }
+        if (client.speedWarnsNumber > 20) {
+            this.sendData(client, "CharacterSelectSessionResponse", {
+                status: 1,
+                sessionId: client.loginSessionId,
+            });
+            client.speedWarnsNumber = 0
+            this.sendAlertToAll(
+                `FairPlay: kicking ${client.character.name}`
+            );           
+        }
+        console.log(verticalSpeed)
+        console.log(client.speedWarnsNumber)
+        client.oldPos.position = position;
+        client.oldPos.time = sequenceTime
+    }
+
   updateResource(
     client: Client,
     entityId: string,

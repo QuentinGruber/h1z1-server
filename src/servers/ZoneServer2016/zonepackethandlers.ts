@@ -881,15 +881,14 @@ export class zonePacketHandlers {
           )
         );
       }
-
-      if (packet.data.position) {
+        if (packet.data.position) {
+          server.speedFairPlayCheck(client, packet.data.sequenceTime, packet.data.position)
         client.character.state.position = new Float32Array([
           packet.data.position[0],
           packet.data.position[1],
           packet.data.position[2],
           0,
-        ]);
-
+        ]);        
         if (
           client.hudTimer != null &&
           !isPosInRadius(

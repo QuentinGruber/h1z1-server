@@ -25,6 +25,8 @@ export class ZoneClient2016 {
   HWID: string = "";
   posAtLastRoutine: Float32Array = new Float32Array();
   posAtLogoutStart: Float32Array = new Float32Array();
+  oldPos: { position: Float32Array, time: number} = { position: new Float32Array(), time: 0};
+  speedWarnsNumber: number = 0;
   hudTimer?: NodeJS.Timeout | null;
   spawnedDTOs: any[] = [];
   spawnedEntities: any[] = [];
