@@ -19,14 +19,6 @@ import { ZoneServer2016 } from "./zoneserver";
 
 const debug = require("debug")("ZoneServer");
 
-import { joaat } from "h1emu-core";
-
-let hax = require("./commands/hax").default;
-
-let dev = require("./commands/dev").default;
-
-let admin = require("./commands/admin").default;
-
 import {
   _,
   Int64String,
@@ -51,12 +43,11 @@ import { ConstructionParentEntity } from "./classes/constructionParentEntity";
 import { constructionDoor } from "./classes/constructionDoor";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { AVG_PING_SECS } from "../../utils/constants";
+import { CommandHandler } from "./commands/commandhandler";
 
 const stats = require("../../../data/2016/sampleData/stats.json");
 export class zonePacketHandlers {
-  hax = hax;
-  dev = dev;
-  admin = admin;
+  commandHandler: CommandHandler;
   ClientIsReady;
   ClientFinishedLoading;
   Security;
@@ -108,7 +99,12 @@ export class zonePacketHandlers {
   vehicleDismiss;
   loadoutSelectSlot;
   weapon;
+  commandRun;
+  commandSpectate;
+
   constructor() {
+    this.commandHandler = new CommandHandler();
+
     this.ClientIsReady = function (
       server: ZoneServer2016,
       client: Client,
@@ -204,22 +200,13 @@ export class zonePacketHandlers {
           () => server.worldDataManager.saveCharacterPosition(server, client),
           30000
         );
-        const commands = [
-          "hax",
-          "dev",
-          "admin",
-          "location",
-          "serverinfo",
-          "spawninfo",
-          "help",
-          "netstats",
-          "me",
-          "combatlog",
-        ];
-
-        commands.forEach((command) => {
+        
+        server.sendData(client, "Command.AddWorldCommand", {
+          command: "help",
+        });
+        Object.values(this.commandHandler.commands).forEach((command) => {
           server.sendData(client, "Command.AddWorldCommand", {
-            command: command,
+            command: command.name,
           });
         });
 
@@ -456,191 +443,7 @@ export class zonePacketHandlers {
         )
       )
         return;
-
-      const args: string[] = packet.data.arguments.toLowerCase().split(" ");
-      const commandName = args[0];
-      switch (packet.data.commandHash) {
-        case 4265452888: // /me
-          server.sendChatText(client, `ZoneClientId :${client.loginSessionId}`);
-          break;
-        case 3720768430: // /respawn
-          server.killCharacter(client);
-          break;
-        case 3357274581: // /clientinfo
-          server.sendChatText(
-            client,
-            `Spawned entities count : ${client.spawnedEntities.length}`
-          );
-          break;
-        case 2371122039: // /serverinfo
-          if (commandName === "mem") {
-            const used = process.memoryUsage().rss / 1024 / 1024;
-            server.sendChatText(
-              client,
-              `Used memory ${Math.round(used * 100) / 100} MB`
-            );
-            break;
-          } else {
-            const {
-              _clients: clients,
-              _characters: characters,
-              _npcs: npcs,
-              _spawnedItems: objects,
-              _vehicles: vehicles,
-              _doors: doors,
-              _props: props,
-            } = server;
-            const serverVersion = require("../../../package.json").version;
-            server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-            server.sendChatText(
-              client,
-              `clients: ${_.size(clients)} characters : ${_.size(characters)}`
-            );
-            server.sendChatText(
-              client,
-              `npcs : ${_.size(npcs)} doors : ${_.size(doors)}`
-            );
-            server.sendChatText(
-              client,
-              `objects : ${_.size(objects)} props : ${_.size(
-                props
-              )} vehicles : ${_.size(vehicles)}`
-            );
-            const uptimeMin = (Date.now() - server._startTime) / 60000;
-            server.sendChatText(
-              client,
-              `Uptime: ${
-                uptimeMin < 60
-                  ? `${uptimeMin.toFixed()}m`
-                  : `${(uptimeMin / 60).toFixed()}h `
-              }`
-            );
-            break;
-          }
-        case 1757604914: // /spawninfo
-          server.sendChatText(
-            client,
-            `You spawned at "${client.character.spawnLocation}"`,
-            true
-          );
-          break;
-        case joaat("HELP"):
-        case 3575372649: // /help
-          const haxCommandList: string[] = [];
-          Object.keys(this.hax).forEach((key) => {
-            haxCommandList.push(`/hax ${key}`);
-          });
-          const devCommandList: string[] = [];
-          Object.keys(this.dev).forEach((key) => {
-            devCommandList.push(`/dev ${key}`);
-          });
-          const adminCommandList: string[] = [];
-          Object.keys(this.admin).forEach((key) => {
-            adminCommandList.push(`/admin ${key}`);
-          });
-          const commandList = ["/help", "/loc", "/spawninfo", "/serverinfo"];
-          server.sendChatText(client, `Commands list:`);
-          commandList
-            .concat(haxCommandList, devCommandList, adminCommandList)
-            .sort((a: string, b: string) => a.localeCompare(b))
-            .forEach((command: string) => {
-              server.sendChatText(client, `${command}`);
-            });
-          break;
-        case joaat("NETSTATS"):
-        case 265037938: // /netstats
-          const soeClient = server.getSoeClient(client.soeClientId);
-          if (soeClient) {
-            const stats = soeClient.getNetworkStats();
-            stats.push(`Ping: ${client.avgPing}ms`);
-            for (let index = 0; index < stats.length; index++) {
-              const stat = stats[index];
-              server.sendChatText(client, stat, index == 0);
-            }
-          }
-          break;
-        case joaat("LOCATION"):
-        case 3270589520: // /loc
-          const { position, rotation } = client.character.state;
-          server.sendChatText(
-            client,
-            `position: ${position[0].toFixed(2)},${position[1].toFixed(
-              2
-            )},${position[2].toFixed(2)}`
-          );
-          server.sendChatText(
-            client,
-            `rotation: ${rotation[0].toFixed(2)},${rotation[1].toFixed(
-              2
-            )},${rotation[2].toFixed(2)}`
-          );
-          break;
-        case joaat("HAX"):
-          if (!!hax[commandName]) {
-            if (
-              client.isAdmin ||
-              commandName === "list" ||
-              server._allowedCommands.length === 0 ||
-              server._allowedCommands.includes(commandName)
-            ) {
-              this.hax[commandName](server, client, args);
-            } else {
-              server.sendChatText(client, "You don't have access to that.");
-            }
-          } else {
-            server.sendChatText(
-              client,
-              `Unknown command: "/hax ${commandName}", display hax all commands by using "/hax list"`
-            );
-          }
-          break;
-        case joaat("DEV"):
-        case 552078457: // dev
-          if (!!dev[commandName]) {
-            if (
-              client.isAdmin ||
-              commandName === "list" ||
-              server._allowedCommands.length === 0 ||
-              server._allowedCommands.includes(commandName)
-            ) {
-              this.dev[commandName](server, client, args);
-            } else {
-              server.sendChatText(client, "You don't have access to that.");
-            }
-          } else {
-            server.sendChatText(
-              client,
-              `Unknown command: "/dev ${commandName}", display dev all commands by using "/dev list"`
-            );
-          }
-          break;
-        case joaat("ADMIN"):
-        case 997464845: // admin
-          if (!!admin[commandName]) {
-            if (
-              client.isAdmin ||
-              commandName === "list" ||
-              server._allowedCommands.length === 0 ||
-              server._allowedCommands.includes(commandName)
-            ) {
-              this.admin[commandName](server, client, args);
-            } else {
-              server.sendChatText(client, "You don't have access to that.");
-            }
-          } else {
-            server.sendChatText(
-              client,
-              `Unknown command: "/admin ${commandName}", display admin all commands by using "/admin list"`
-            );
-          }
-          break;
-        case 389871706: // combatlog
-          server.combatLog(client);
-          break;
-        default:
-          console.log(packet.data.commandHash);
-          break;
-      }
+      this.commandHandler.executeCommand(server, client, packet);
     }),
       (this.commandInteractRequest = function (
         server: ZoneServer2016,
@@ -909,8 +712,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
-      server.respawnPlayer(client);
+      this.commandHandler.executeInternalCommand(server, client, "respawn", packet);
     };
     this.characterFullCharacterDataRequest = function (
       server: ZoneServer2016,
@@ -2314,6 +2116,20 @@ export class zonePacketHandlers {
         }
       }
     };
+    this.commandRun = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      this.commandHandler.executeInternalCommand(server, client, "run", packet);
+    };
+    this.commandSpectate = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+      this.commandHandler.executeInternalCommand(server, client, "spectate", packet);
+    };
     //#endregion
   }
 
@@ -2472,6 +2288,12 @@ export class zonePacketHandlers {
       case "Weapon.Weapon":
         this.weapon(server, client, packet);
         break;
+      case "Command.RunSpeed":
+        this.commandRun(server, client, packet);
+        break;
+      case "Command.Spectate":
+        this.commandSpectate(server, client, packet);
+        break;
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");
@@ -2479,14 +2301,9 @@ export class zonePacketHandlers {
     }
   }
   async reloadCommandCache() {
-    delete require.cache[require.resolve("./commands/hax")];
-    delete require.cache[require.resolve("./commands/dev")];
-    delete require.cache[require.resolve("./commands/admin")];
-    hax = require("./commands/hax").default;
-    dev = require("./commands/dev").default;
-    admin = require("./commands/admin").default;
-    this.hax = require("./commands/hax").default;
-    this.dev = require("./commands/dev").default;
-    this.admin = require("./commands/admin").default;
+    delete require.cache[require.resolve("./commands/commandhandler")];
+    const CommandHandler = (require("./commands/commandhandler") as any).CommandHandler;
+    this.commandHandler = new CommandHandler();
+    this.commandHandler.reloadCommands();
   }
 }

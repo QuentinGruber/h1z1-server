@@ -505,3 +505,16 @@ export function calculateDamageDistFallOff(
   //return damage / (distance * range);
   return damage * Math.pow(range, distance / 10);
 }
+
+export function flhash(str: string) {
+  let hashvar1 = 0, hashvar2 = 0;
+
+  for (let i = 0; i < str.length; i++) {
+    hashvar1 = hashvar2 + str.charCodeAt(i);
+    hashvar2 = ((1025 * hashvar1) >> 6) ^ (1025 * hashvar1);
+  }
+
+  const hash = 32769 * (((9 * hashvar2) >> 11) ^ (9 * hashvar2));
+
+  return Number(`0x${hash.toString(16).slice(-8)}`)
+}
