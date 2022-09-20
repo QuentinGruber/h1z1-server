@@ -3003,7 +3003,7 @@ export const basePackets: any = [
     "SendSecurityPacketAndSelfDestruct",
     0x99,
     {
-      fields: [],
+        fields: [{ name: "unk", type: "uint32", defaultValue: 4294967295 }],
     },
   ],
   [

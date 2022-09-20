@@ -356,6 +356,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+        if (packet.data.file === "ClientProc.log" && !client.clientLogs.includes(packet.data.message)) {
+            client.clientLogs.push(packet.data.message)
+        }
       debug(packet);
     };
     this.wallOfDataUIEvent = function (

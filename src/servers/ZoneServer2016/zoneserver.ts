@@ -1648,8 +1648,8 @@ export class ZoneServer2016 extends EventEmitter {
         if (!this._useFairPlay) return
         if (hit) {
             client.pvpStats.shotsHit += 1;
-            const hitRatio = client.pvpStats.shotsHit / client.pvpStats.shotsFired
-            if (client.pvpStats.shotsFired > 10 && hitRatio > 0.8) {
+            const hitRatio = 100 * client.pvpStats.shotsHit / client.pvpStats.shotsFired
+            if (client.pvpStats.shotsFired > 10 && hitRatio > 80) {
                 this.sendChatTextToAdmins(`FairPlay: ${client.character.name} exceeds hit/miss ratio (${hitRatio.toFixed(4)}% of ${client.pvpStats.shotsFired} shots fired)`, false)
             }
         } else {

@@ -297,6 +297,32 @@ const admin: any = {
             `Cannot find any banned user with ZoneClientId ${args[1]}`
         );
     },
+    listprocesses: function (
+        server: ZoneServer2016,
+        client: Client,
+        args: any[]
+    ) {
+        if (!args[1]) {
+            server.sendChatText(
+                client,
+                `Correct usage: /admin listProcesses {ZoneClientId}`
+            );
+            return;
+        }
+        for (const a in server._clients) {
+            const iteratedClient = server._clients[a];
+            if (Number(iteratedClient.loginSessionId) === Number(args[1])) {
+                server.sendChatText(
+                    client,
+                    `Showing process list of user: ${iteratedClient.character.name}`
+                );
+                for (let index = 0; index < iteratedClient.clientLogs.length; index++) {
+                    const element = iteratedClient.clientLogs[index];
+                    server.sendChatText(client, `${element}`);
+                }
+            }
+        }       
+    },
   npcrespawntimer: function (
     server: ZoneServer2016,
     client: Client,
