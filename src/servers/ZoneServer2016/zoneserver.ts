@@ -1634,17 +1634,14 @@ export class ZoneServer2016 extends EventEmitter {
             client.speedWarnsNumber -= 1
         }
         if (client.speedWarnsNumber > 30) {
-            this.sendData(client, "CharacterSelectSessionResponse", {
-                status: 1,
-                sessionId: client.loginSessionId,
-            });
+            this.kickPlayer(client)
             client.speedWarnsNumber = 0
             this.sendAlertToAll(
                 `FairPlay: kicking ${client.character.name}`
             );           
         }
         client.oldPos = {position: position, time: Date.now()}
-    }
+    }  
 
   updateResource(
     client: Client,
@@ -2809,44 +2806,18 @@ export class ZoneServer2016 extends EventEmitter {
                 );
             }
             setTimeout(() => {               
-                this.sendData(client, "CharacterSelectSessionResponse", {
-                    status: 1,
-                    sessionId: client.loginSessionId,
-                });
+                this.kickPlayer(client)
             }, 3000)
         } else {
             client.banType = banType;
-            switch (banType) {
-                case "hiddenplayers":
-                    const objectsToRemove = client.spawnedEntities.filter(
-                        (e) =>
-                            e && // in case if entity is undefined somehow
-                            !e.vehicleId && // ignore vehicles
-                            !e.item
-                            );
-                    client.spawnedEntities = client.spawnedEntities.filter((el) => {
-                        return !objectsToRemove.includes(el);
-                    });
-                    objectsToRemove.forEach((object: any) => {
-                        this.sendData(client, "Character.RemovePlayer", {
-                            characterId: object.characterId,
-                        });
-                    });
-                    break;
-                case "rick":
-                    this.sendData(client, "ClientExitLaunchUrl", {
-                        url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                    });
-                    this.sendData(client, "LoginFailed", {})
-                    break;
-            }           
+            this.enforceBan(client)         
         }
     }
 
     enforceBan(client: Client) {
         switch (client.banType) {
             case "normal":
-                this.sendData(client, "LoginFailed", {});
+                this.kickPlayer(client)
                 return
             case "hiddenplayers":
                 const objectsToRemove = client.spawnedEntities.filter(
@@ -2871,6 +2842,13 @@ export class ZoneServer2016 extends EventEmitter {
                 this.sendData(client, "LoginFailed", {})
                 break;
         } 
+    }
+
+    kickPlayer(client: Client) {
+        this.sendData(client, "CharacterSelectSessionResponse", {
+            status: 1,
+            sessionId: client.loginSessionId,
+        });
     }
 
     getDateString(timestamp: number) {
