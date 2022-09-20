@@ -11,12 +11,13 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Npc } from "./npc";
+import { simpleConstruction } from "./simpleConstruction";
 import { Items } from "../enums";
 import { ZoneServer2016 } from "../zoneserver";
 
 
-export class ConstructionParentEntity extends Npc {
+export class ConstructionParentEntity extends simpleConstruction {
+    healthPercentage: number = 100;
     permissions: any;
     ownerCharacterId: string;
     perimeters: { [slot: string]: Float32Array };
@@ -226,7 +227,8 @@ export class ConstructionParentEntity extends Npc {
                 break;
         }
     }
-    changePerimeters(server: ZoneServer2016, slot: string, value: Float32Array) {
+    changePerimeters(server: ZoneServer2016, slot: string | undefined, value: Float32Array) {
+        if (!slot) return;
         if (this.itemDefinitionId === Items.SHACK) {
             this.perimeters["01"] = value;
             this.checkPerimeters(server)

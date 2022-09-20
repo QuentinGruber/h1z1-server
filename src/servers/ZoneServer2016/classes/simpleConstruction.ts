@@ -6,27 +6,43 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { BaseSimpleNpc } from "./basesimplenpc";
+import { BaseLightweightCharacter } from "./baselightweightcharacter";
 
-export class simpleConstruction extends BaseSimpleNpc {
-    health = 1000000;
-    slot?: string;
+export class simpleConstruction extends BaseLightweightCharacter {
+    health: number = 1000000;
+    healthPercentage: number = 100;
+    buildingSlot?: string;
     parentObjectCharacterId?: string;
+    eulerAngle?: number;
     constructor(
         characterId: string,
         transientId: number,
         actorModelId: number,
         position: Float32Array,
         rotation: Float32Array,
-        slot?: string,
         parentObjectCharacterId?: string,
+        slot?: string,
+        eulerAngle?: number,
     ) {
         super(characterId, transientId, actorModelId, position, rotation);
         if (slot) {
-            this.slot = slot;
+            this.buildingSlot = slot;
         }
         if (parentObjectCharacterId) {
             this.parentObjectCharacterId = parentObjectCharacterId;
         }
+        if (eulerAngle) {
+            this.eulerAngle = eulerAngle
+        }
+    }
+    pGetConstructionHealth() {
+        return {
+            characterId: this.characterId,
+            health: this.health / 10000,
+        };
+    }
+    pDamageConstruction(damage: number) {
+        this.health -= damage;
+        this.healthPercentage = this.health / 10000;
     }
 }

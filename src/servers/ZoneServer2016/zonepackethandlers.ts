@@ -77,6 +77,7 @@ export class zonePacketHandlers {
   commandStartLogoutRequest;
   CharacterSelectSessionRequest;
   profileStatsGetPlayerProfileStats;
+  WallOfDataClientSystemInfo;
   DtoHitSpeedTreeReport;
   GetRewardBuffInfo;
   PlayerUpdateManagedPosition;
@@ -109,7 +110,7 @@ export class zonePacketHandlers {
       server: ZoneServer2016,
       client: Client,
       packet: any
-    ) {
+    ) {      
       /*
       server.sendData(client, "ClientUpdate.ActivateProfile", {
         profileData: {
@@ -189,11 +190,13 @@ export class zonePacketHandlers {
             server.sendAlert(client, "You are an admin!");
           }
         }, 10000);
-
         server.sendChatTextToAllOthers(
           client,
           `${client.character.name} has joined the server !`
-        );
+          );
+          if (client.banType != "") {
+              server.sendChatTextToAdmins(`Silently banned ${client.character.name} has joined the server !`,)
+          }
         client.firstLoading = false;
         client.pingTimer?.refresh();
         client.savePositionTimer = setTimeout(
@@ -340,6 +343,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+        if (packet.data.file === "ClientProc.log" && !client.clientLogs.includes(packet.data.message)) {
+            client.clientLogs.push(packet.data.message)
+        }
       debug(packet);
     };
     this.wallOfDataUIEvent = function (
@@ -527,6 +533,27 @@ export class zonePacketHandlers {
         require("../../../data/profilestats.json")
       );
     };
+      this.WallOfDataClientSystemInfo = function (
+          server: ZoneServer2016,
+          client: Client,
+          packet: any
+      ) {
+          const info = packet.data.info
+          const startPos = info.search("Device") + 9;
+          const cut = info.substring(startPos, info.length)
+          client.HWID = cut.substring(0, cut.search(",") - 1);
+          for (const a in server._bannedClients) {
+              const bannedClient = server._bannedClients[a];
+              if (bannedClient.expirationDate != 0 && bannedClient.expirationDate < Date.now()) {
+                  delete server._bannedClients[a];
+                  continue
+              }
+              if (bannedClient.loginSessionId === client.loginSessionId || bannedClient.HWID === client.HWID && client.HWID != "") {
+                  client.banType = bannedClient.banType
+                  server.enforceBan(client)
+              }
+          }
+      };
     this.DtoHitSpeedTreeReport = function (
       server: ZoneServer2016,
       client: Client,
@@ -660,15 +687,14 @@ export class zonePacketHandlers {
           )
         );
       }
-
-      if (packet.data.position) {
+        if (packet.data.position) {
+        server.speedFairPlayCheck(client, Date.now(), packet.data.position)
         client.character.state.position = new Float32Array([
           packet.data.position[0],
           packet.data.position[1],
           packet.data.position[2],
           0,
-        ]);
-
+        ]);        
         if (
           client.hudTimer != null &&
           !isPosInRadius(
@@ -677,7 +703,8 @@ export class zonePacketHandlers {
             client.posAtLogoutStart
           )
         ) {
-          server.stopHudTimer(client);
+            server.stopHudTimer(client);
+            delete client.hudTimer;
         }
       } else if (
         packet.data.vehicle_position &&
@@ -979,8 +1006,11 @@ export class zonePacketHandlers {
                             characterId: doorEntity.characterId,
                             effectId: doorEntity.isOpen ? doorEntity.closeSound : doorEntity.openSound,
                         });
-                        doorEntity.isOpen = !doorEntity.isOpen; 
-                        break;
+                    doorEntity.isOpen = !doorEntity.isOpen;
+                    doorEntity.isOpen ?
+                        server._constructionFoundations[doorEntity.parentObjectCharacterId].changePerimeters(server, doorEntity.buildingSlot, new Float32Array([0, 0, 0, 0])) :
+                        server._constructionFoundations[doorEntity.parentObjectCharacterId].changePerimeters(server, doorEntity.buildingSlot, doorEntity.state.position);
+                    break;
                 default:
                     break;
             }
@@ -1090,27 +1120,30 @@ export class zonePacketHandlers {
     ) {
       server.changeSeat(client, packet);
     };
-    this.constructionPlacementFinalizeRequest = function (
-            server: ZoneServer2016,
-            client: Client,
-            packet: any
-    ) {
-            const array = new Float32Array([packet.data.rotation1[3], packet.data.rotation1[1], packet.data.rotation2[2]]);
-            const matrix = quat2matrix(array)
-            const euler = [Math.atan2(matrix[7], matrix[8]), Math.atan2(-matrix[6], Math.sqrt(Math.pow(matrix[7], 2) + Math.pow(matrix[8], 2))), Math.atan2(matrix[3], matrix[0])];
-            let final;
-            if (euler[0] >= 0) {
-                final = new Float32Array([euler[1], 0, 0, 0])
-            } else {
-                final = new Float32Array([euler[2], 0, 0, 0])
-            }
+      this.constructionPlacementFinalizeRequest = function (
+          server: ZoneServer2016,
+          client: Client,
+          packet: any
+      ) {
+          if (packet.data.itemDefinitionId === 0) return;
+          const array = new Float32Array([packet.data.rotation1[3], packet.data.rotation1[1], packet.data.rotation2[2]]);
+          const matrix = quat2matrix(array)
+          const euler = [Math.atan2(matrix[7], matrix[8]), Math.atan2(-matrix[6], Math.sqrt(Math.pow(matrix[7], 2) + Math.pow(matrix[8], 2))), Math.atan2(matrix[3], matrix[0])];
+          let final;
+          if (euler[0] >= 0) {
+              final = new Float32Array([euler[1], 0, 0, 0])
+          } else {
+              final = new Float32Array([euler[2], 0, 0, 0])
+          }
+          if (Number(final[0].toFixed(2)) === 0.00) {
+              final[0] = 0;
+          }
+          const modelId = server.getItemDefinition(
+              packet.data.itemDefinitionId
+          ).PLACEMENT_MODEL_ID;
+          server.placement(client, packet.data.itemDefinitionId, modelId, packet.data.position, final, packet.data.parentObjectCharacterId, packet.data.BuildingSlot);
 
-            const modelId = server.getItemDefinition(
-                packet.data.itemDefinitionId
-            ).PLACEMENT_MODEL_ID;
-        server.placement(client, packet.data.itemDefinitionId, modelId, packet.data.position, final, packet.data.parentObjectCharacterId, packet.data.BuildingSlot);
-
-        };
+      };
     this.commandItemDefinitionRequest = function (
       server: ZoneServer2016,
       client: Client,
@@ -1947,6 +1980,7 @@ export class zonePacketHandlers {
             if (weaponItem.weapon.ammoCount > 0) {
               weaponItem.weapon.ammoCount -= 1;
             }
+            server.hitMissFairPlayCheck(client, false)
             server.stopHudTimer(client);
             debug("Weapon.Fire");
             /*
@@ -2002,6 +2036,7 @@ export class zonePacketHandlers {
               server.sendAlert(client, "Object removed.");
               return;
             }
+            if (client.banType === "nodamage") return;
             server.registerHit(client, p.packet);
             debug("Weapon.ProjectileHitReport");
             break;
@@ -2224,6 +2259,9 @@ export class zonePacketHandlers {
         break;
       case "ProfileStats.GetPlayerProfileStats":
         this.profileStatsGetPlayerProfileStats(server, client, packet);
+        break;
+      case "WallOfData.ClientSystemInfo":
+        this.WallOfDataClientSystemInfo(server, client, packet)
         break;
       case "DtoHitSpeedTreeReport":
         this.DtoHitSpeedTreeReport(server, client, packet);
