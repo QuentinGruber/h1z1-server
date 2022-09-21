@@ -2217,7 +2217,7 @@ export class ZoneServer2016 extends EventEmitter {
         !e.vehicleId && // ignore vehicles
         !e.item && // ignore items
         !e.deathTime && // ignore npcs
-        this.filterOutOfDistance(e, client.character.state.position)
+        client.character.isSpectator? this.filterOutOfDistanceSpectaror(e, client.character.state.position):this.filterOutOfDistance(e, client.character.state.position)
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
@@ -2497,7 +2497,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId != characterObj.characterId &&
         characterObj.isReady &&
         isPosInRadius(
-          this._charactersRenderDistance,
+          client.character.isSpectator? 1000:this._charactersRenderDistance,
           client.character.state.position,
           characterObj.state.position
         ) &&
@@ -2922,7 +2922,7 @@ export class ZoneServer2016 extends EventEmitter {
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
-      if (vehicle.vehicleId == VehicleIds.SPECTATE) continue; //ignore spectator cam
+      //if (vehicle.vehicleId == VehicleIds.SPECTATE) continue; //ignore spectator cam // shouldnt be needed anymore
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
@@ -3500,17 +3500,6 @@ export class ZoneServer2016 extends EventEmitter {
     const seatId = vehicle.getNextSeatId();
     if (seatId < 0) return; // no available seats in vehicle
     vehicle.seats[seatId] = client.character.characterId;
-    if (vehicle.vehicleId == VehicleIds.SPECTATE) {
-      this.sendData(client, "Mount.MountResponse", {
-        // mounts character
-        characterId: client.character.characterId,
-        vehicleGuid: vehicle.characterId, // vehicle guid
-        seatId: Number(seatId),
-        isDriver: seatId === "0" ? 1 : 0, //isDriver
-        identity: {},
-      });
-      return;
-    }
     this.sendDataToAllWithSpawnedEntity(
       this._vehicles,
       vehicleGuid,
@@ -5783,6 +5772,26 @@ export class ZoneServer2016 extends EventEmitter {
       element.state.position
     );
   }
+
+    private filterOutOfDistanceSpectaror(
+        element: BaseEntity,
+        playerPosition: Float32Array
+    ): boolean {
+        if (this._characters[element.characterId]) {
+            return !isPosInRadius(
+                1000,
+                playerPosition,
+                element.state.position
+            );
+        } else {
+            return !isPosInRadius(
+                element.npcRenderDistance || this._charactersRenderDistance,
+                playerPosition,
+                element.state.position
+            );
+        }
+    }
+
   getServerTimeTest(): number {
     debug("get server time");
     const delta = Date.now() - this._startTime;

@@ -587,6 +587,10 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if (client.character.isSpectator && packet.data.positionUpdate.position) {
+          client.character.state.position = packet.data.positionUpdate.position;
+          return;
+      }
       const characterId: string = server._transientIds[packet.data.transientId],
         vehicle = characterId ? server._vehicles[characterId] : undefined;
       if (!vehicle) return;
