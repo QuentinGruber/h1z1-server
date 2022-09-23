@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { LoadoutSlots, ResourceIds } from "../enums";
+import { LoadoutIds, LoadoutSlots, ResourceIds } from "../enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
@@ -49,10 +49,11 @@ export class Character2016 extends BaseFullCharacter {
   headActor!: string;
   hairModel!: string;
   isRespawning = false;
+  isReady = false;
   creationDate!: string;
   lastLoginDate!: string;
   currentLoadoutSlot = LoadoutSlots.FISTS;
-  loadoutId = 3; // character
+  readonly loadoutId = LoadoutIds.CHARACTER;
   startRessourceUpdater: any;
   healingInterval?: any;
   healingTicks: number;
@@ -63,10 +64,17 @@ export class Character2016 extends BaseFullCharacter {
   positionUpdate?: positionUpdate;
   tempGodMode = false;
   isSpectator = false;
-  metrics:CharacterMetrics = {recipesDiscovered: 0, zombiesKilled: 0, wildlifeKilled: 0, startedSurvivingTP: Date.now()};
+  initialized = false; // if sendself has been sent
+  readonly metrics: CharacterMetrics = {
+    recipesDiscovered: 0,
+    zombiesKilled: 0,
+    wildlifeKilled: 0,
+    startedSurvivingTP: Date.now(),
+  };
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
+  currentInteractionGuid?: string;
   constructor(characterId: string, transientId: number) {
     super(
       characterId,
@@ -144,15 +152,14 @@ export class Character2016 extends BaseFullCharacter {
           (client.vehicle.mountedVehicle == "" ||
             !client.vehicle.mountedVehicle)
         ) {
-          client.character._resources[ResourceIds.STAMINA] -= 20;
+          client.character._resources[ResourceIds.STAMINA] -= 15;
           client.character.isExhausted =
             client.character._resources[ResourceIds.STAMINA] < 120;
         } else if (!client.character.isBleeding || !client.character.isMoving) {
           client.character._resources[ResourceIds.STAMINA] += 30;
         }
 
-        // if we had a packets we could modify sprint stat to 0
-        // or play exhausted sounds etc
+        // todo: modify sprint stat
         client.character._resources[ResourceIds.HUNGER] -= 10;
         client.character._resources[ResourceIds.HYDRATION] -= 20;
         if (client.character._resources[ResourceIds.STAMINA] > 600) {
@@ -248,7 +255,7 @@ export class Character2016 extends BaseFullCharacter {
   }
   clearReloadTimeout() {
     const weaponItem = this.getEquippedWeapon();
-    if(!weaponItem.weapon?.reloadTimer) return;
+    if (!weaponItem.weapon?.reloadTimer) return;
     clearTimeout(weaponItem.weapon.reloadTimer);
     weaponItem.weapon.reloadTimer = undefined;
   }
@@ -261,6 +268,9 @@ export class Character2016 extends BaseFullCharacter {
   getCombatLog() {
     return this.combatlog;
   }
+  /**
+   * Gets the lightweightpc packetfields for use in sendself and addlightweightpc
+   */
   pGetLightweight() {
     return {
       ...super.pGetLightweight(),

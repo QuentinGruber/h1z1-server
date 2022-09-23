@@ -12,26 +12,26 @@
 // ======================================================================
 
 import { createPositionUpdate } from "../../../utils/utils";
-import { ResourceIds } from "../enums";
-import { positionUpdate, passengers } from "../../../types/zoneserver";
+import { LoadoutIds, ResourceIds, VehicleIds } from "../enums";
+import { /*positionUpdate,*/ passengers } from "../../../types/zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {
-    case 7225: // offroader
-      return 1;
+    case 7225:
+      return VehicleIds.OFFROADER;
     case 9258: // pickup
-      return 2;
+      return VehicleIds.PICKUP;
     case 9301: // policecar
-      return 3;
+      return VehicleIds.POLICECAR;
     case 9588: // atv
-      return 5;
+      return VehicleIds.ATV;
     case 9374: // parachute
-      return 13;
+      return VehicleIds.PARACHUTE;
     case 9371: // spectate
-      return 1337;
+      return VehicleIds.SPECTATE;
     default:
-      return 1;
+      return VehicleIds.OFFROADER;
   }
 }
 
@@ -41,7 +41,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   destroyedEffect: number = 0;
   engineOn: boolean = false;
   isLocked: number = 0;
-  positionUpdate: positionUpdate;
+  positionUpdate: any /*positionUpdate*/;
   fuelUpdater: any;
   isInvulnerable: boolean = false;
   onDismount?: any;
@@ -50,11 +50,10 @@ export class Vehicle2016 extends BaseFullCharacter {
   vehicleManager?: string;
   seats: { [seatId: string]: any } = {};
   passengers: passengers = {};
-  gameTime: number;
   vehicleId: number;
   destroyedState = 0;
   positionUpdateType = 1;
-  loadoutId = 5; // vehicle (need to confirm)
+  loadoutId = LoadoutIds.VEHICLE;
   constructor(
     characterId: string,
     transientId: number,
@@ -74,11 +73,13 @@ export class Vehicle2016 extends BaseFullCharacter {
       lookAt: new Float32Array([0, 0, 0, 1]),
     };
     this.vehicleId = getVehicleId(this.actorModelId);
-    this.isInvulnerable = this.vehicleId == 1337 || this.vehicleId == 13;
+    this.isInvulnerable =
+      this.vehicleId == VehicleIds.SPECTATE ||
+      this.vehicleId == VehicleIds.PARACHUTE;
     switch (this.vehicleId) {
-      case 1: // offroader
-      case 2: // pickup
-      case 3: // policecar
+      case VehicleIds.OFFROADER:
+      case VehicleIds.PICKUP:
+      case VehicleIds.POLICECAR:
         this.seats = {
           0: "",
           1: "",
@@ -87,7 +88,7 @@ export class Vehicle2016 extends BaseFullCharacter {
           4: "",
         };
         break;
-      case 5: // atv
+      case VehicleIds.ATV:
         this.seats = {
           0: "",
           1: "",
@@ -100,13 +101,19 @@ export class Vehicle2016 extends BaseFullCharacter {
         break;
     }
     Object.seal(this.seats); // object can't be edited, but properties can
-    this.gameTime = gameTime;
-    this.positionUpdate = createPositionUpdate(
-      this.state.position,
-      this.state.rotation,
-      this.gameTime
-    );
+    this.positionUpdate = {
+      ...createPositionUpdate(
+        this.state.position,
+        this.state.rotation,
+        gameTime
+      ),
+      vehicle: this,
+      get position() {
+        return this.vehicle.state.position;
+      },
+    };
   }
+
   getSeatCount() {
     return Object.keys(this.seats).length;
   }

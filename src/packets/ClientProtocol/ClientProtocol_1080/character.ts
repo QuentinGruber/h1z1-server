@@ -19,13 +19,13 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownWord1", type: "uint16", defaultValue: 0 },
+        { name: "unknownWord1", type: "uint16", defaultValue: 0 }, // must be 1 to work as remove gracefully
         { name: "unknownBool1", type: "boolean", defaultValue: 0 },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        { name: "effectDelay", type: "uint32", defaultValue: 1 },
+        { name: "effectId", type: "uint32", defaultValue: 1 },
+        { name: "stickyEffectId", type: "uint32", defaultValue: 1 },
+        { name: "timeToDisappear", type: "uint32", defaultValue: 1 },
       ],
     },
   ],
@@ -459,7 +459,25 @@ export const characterPackets: any = [
   ],
   ["Character.Deploy", 0x0f46, {}],
   ["Character.LowAmmoUpdate", 0x0f47, {}],
-  ["Character.KilledBy", 0x0f48, {}],
+  [
+    "Character.KilledBy",
+    0x0f48,
+    {
+      fields: [
+        {
+          name: "killer",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000",
+        },
+        {
+          name: "killed",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000",
+        },
+        { name: "isCheater", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
   [
     "Character.MotorRunning",
     0x0f49,
@@ -542,7 +560,7 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "health", type: "float", defaultValue: 0 },
+        { name: "healthPercentage", type: "float", defaultValue: 0 },
       ],
     },
   ],
