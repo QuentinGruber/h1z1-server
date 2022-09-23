@@ -129,6 +129,8 @@ export class ZoneServer2016 extends EventEmitter {
   _db?: Db;
   _soloMode = false;
   _useFairPlay = true;
+  _discordWebhookUrl = ""; // enter your discord hook url here
+  _serverName = ""; // enter your server name here
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
   _dynamicWeatherWorker: any;
@@ -1030,6 +1032,12 @@ export class ZoneServer2016 extends EventEmitter {
           killer: deathInfo.client.character.characterId,
           isCheater: deathInfo.client.character.godMode,
         } as CharacterKilledBy);
+          client.lastDeathReport = {
+              position: client.character.state.position, 
+              attackerPosition: deathInfo.client.character.state.position,
+              distance: Number(getDistance(client.character.state.position, deathInfo.client.character.state.position).toFixed(2)),
+              attacker: deathInfo.client
+            };
       }
       client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
@@ -1065,6 +1073,21 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.checkHook("OnPlayerDied", client, deathInfo);
   }
+
+    sendDiscordHook(client: Client, client2: Client, title: string, description: string, args: any) {
+        if (!this._discordWebhookUrl) return
+        const { Webhook, MessageBuilder } = require('discord-webhook-node');
+        const hook = new Webhook(this._discordWebhookUrl);
+        const embed = new MessageBuilder()
+            .setTitle(title)
+            .setAuthor(`${this._serverName}`, 'https://b.thumbs.redditmedia.com/AOe74IKe0Z9ONKat9WX_Px0aIU8dPJWNR_076ViqKDU.png')
+            .setColor('#ff0000')
+            .setDescription(description)
+        for (const a in args) {
+                embed.addField(args[a].title, args[a].info, true)               
+        }
+        hook.send(embed);
+    }
 
     async explosionDamage(position: Float32Array, npcTriggered: string, client?: Client) {
         for (const character in this._clients) {
@@ -1644,10 +1667,40 @@ export class ZoneServer2016 extends EventEmitter {
         client.oldPos = {position: position, time: Date.now()}
     }
 
-    hitMissFairPlayCheck(client: Client, hit: boolean) {
+    hitMissFairPlayCheck(client: Client, hit: boolean, hitLocation: string) {
         if (!this._useFairPlay) return
         if (hit) {
             client.pvpStats.shotsHit += 1;
+            switch (hitLocation) {
+                case "head":
+                case "glasses":
+                case "neck":
+                    client.pvpStats.head += 1;
+                    break;
+                case "spineupper":
+                case "spinelower":
+                case "spinemiddle":
+                    client.pvpStats.spine += 1
+                    break;
+                case "l_hip":
+                case "r_hip":
+                case "l_knee":
+                case "r_knee":
+                case "l_ankle":
+                case "r_ankle":
+                    client.pvpStats.legs += 1;
+                    break;
+                case "l_elbow":
+                case "r_elbow":
+                case "r_shoulder":
+                case "l_shoulder":
+                case "r_wrist":
+                case "l_wrist":
+                    client.pvpStats.hands += 1;
+                    break;
+                default:
+                    break;
+            }
             const hitRatio = 100 * client.pvpStats.shotsHit / client.pvpStats.shotsFired
             if (client.pvpStats.shotsFired > 10 && hitRatio > 80) {
                 this.sendChatTextToAdmins(`FairPlay: ${client.character.name} exceeds hit/miss ratio (${hitRatio.toFixed(4)}% of ${client.pvpStats.shotsFired} shots fired)`, false)
@@ -1879,7 +1932,7 @@ export class ZoneServer2016 extends EventEmitter {
         hitEntity = this._vehicles[characterId];
         break;
       case EntityTypes.PLAYER:
-        this.hitMissFairPlayCheck(client, true)
+        this.hitMissFairPlayCheck(client, true, packet.hitReport.hitLocation.toLowerCase())
         if (
           !this._characters[characterId] ||
           this._characters[characterId].characterStates.knockedOut

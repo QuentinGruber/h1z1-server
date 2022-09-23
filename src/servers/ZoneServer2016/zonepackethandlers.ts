@@ -79,6 +79,8 @@ export class zonePacketHandlers {
   profileStatsGetPlayerProfileStats;
   WallOfDataClientSystemInfo;
   DtoHitSpeedTreeReport;
+  CommandPointAndReport;
+  CommandReportLastDeath;
   GetRewardBuffInfo;
   PlayerUpdateManagedPosition;
   vehicleStateData;
@@ -567,8 +569,82 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
-      debug(packet);
       server.speedTreeUse(client, packet);
+    };
+      this.CommandPointAndReport = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+        debug(packet);
+        const targetClient = Object.values(server._clients).find((c) => {
+            if (c.character.characterId == packet.data.reportedCharacterId) {
+                return c;
+            }
+        });
+        if (!server._discordWebhookUrl) {
+            server.sendChatText(client, "Contact admin to enable discord web hooks");
+            return;
+          }
+        if (!targetClient) {
+            server.sendChatText(client, "Client not found.");
+            return;
+          }
+          targetClient.reports += 1;
+          let logs: any[] = []
+          targetClient.clientLogs.forEach((log: { log: string, isSuspicious: boolean })  => {
+              if (log.isSuspicious) {
+                  logs.push(log.log)
+              }
+          })
+          const obj = [
+              { title: 'Reported player:', info: `name: ${targetClient.character.name}, id:${targetClient.loginSessionId}`},              
+              { title: 'Reported player position:', info: `${targetClient.character.state.position[0]}   ${targetClient.character.state.position[1]}   ${targetClient.character.state.position[2]}` },
+              { title: 'Reported player pvp stats:', info: `Shots fired:${targetClient.pvpStats.shotsFired}, shots hit:${targetClient.pvpStats.shotsHit}, overall accuracy: ${(100 * targetClient.pvpStats.shotsHit / targetClient.pvpStats.shotsFired).toFixed(2)}% | head: ${(targetClient.pvpStats.head * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}% | spine: ${(targetClient.pvpStats.spine * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}% | hands: ${(targetClient.pvpStats.hands * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}% | legs ${(targetClient.pvpStats.legs * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}%` },
+              { title: 'Reported player suspicious processes:', info: `:${logs}` },
+              { title: 'Reported by:', info: `name: ${client.character.name}, id: ${client.loginSessionId}` },
+              { title: 'Position:', info: `${client.character.state.position[0]}   ${client.character.state.position[1]}   ${client.character.state.position[2]}` },
+              { title: 'Time:', info: `${server.getDateString(Date.now())}` },
+              { title: 'Total reports this session:', info: `${targetClient.reports}` }
+          ]
+          server.sendDiscordHook(client, targetClient, 'Point and Click Report', 'player decided that suspect is sus :)', obj) // mas³o maœlane
+        
+    };
+    this.CommandReportLastDeath = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: any
+    ) {
+        const targetClient = client.lastDeathReport?.attacker;
+        if (!client.lastDeathReport) return;
+        if (!server._discordWebhookUrl) {
+            server.sendChatText(client, "Contact admin to enable discord web hooks");
+            return;
+        }
+        if (!targetClient) {
+            server.sendChatText(client, "Client not found.");
+            return;
+        }
+        targetClient.reports += 1;
+        let logs: any[] = []
+        targetClient.clientLogs.forEach((log: { log: string, isSuspicious: boolean }) => {
+            if (log.isSuspicious) {
+                logs.push(log.log)
+            }
+        })
+        const obj = [
+            { title: 'Reported player:', info: `name: ${targetClient.character.name}, id:${targetClient.loginSessionId}` },
+            { title: 'Reported player position:', info: `${targetClient.character.state.position[0]}   ${targetClient.character.state.position[1]}   ${targetClient.character.state.position[2]}` },
+            { title: 'Distance between players:', info: `${client.lastDeathReport?.distance}` },
+            { title: 'Reported player pvp stats:', info: `Shots fired:${targetClient.pvpStats.shotsFired}, shots hit:${targetClient.pvpStats.shotsHit}, overall accuracy: ${(100 * targetClient.pvpStats.shotsHit / targetClient.pvpStats.shotsFired).toFixed(2)}% | head: ${(targetClient.pvpStats.head * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}% | spine: ${(targetClient.pvpStats.spine * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}% | hands: ${(targetClient.pvpStats.hands * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}% | legs ${(targetClient.pvpStats.legs * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}%` },
+            { title: 'Reported player suspicious processes:', info: `:${logs}` },
+            { title: 'Reported by:', info: `name: ${client.character.name}, id: ${client.loginSessionId}` },
+            { title: 'Position:', info: `${client.character.state.position[0]}   ${client.character.state.position[1]}   ${client.character.state.position[2]}` },
+            { title: 'Time:', info: `${server.getDateString(Date.now())}` },
+            { title: 'Total reports this session:', info: `${targetClient.reports}` }
+        ]        
+        server.sendDiscordHook(client, targetClient, 'Death report', 'player reported his last death', obj)
+        delete client.lastDeathReport;
     };
     this.GetRewardBuffInfo = function (
       server: ZoneServer2016,
@@ -1992,7 +2068,7 @@ export class zonePacketHandlers {
             if (weaponItem.weapon.ammoCount > 0) {
               weaponItem.weapon.ammoCount -= 1;
             }
-            server.hitMissFairPlayCheck(client, false)
+            server.hitMissFairPlayCheck(client, false, "")
             server.stopHudTimer(client);
             debug("Weapon.Fire");
             /*
@@ -2277,6 +2353,12 @@ export class zonePacketHandlers {
         break;
       case "DtoHitSpeedTreeReport":
         this.DtoHitSpeedTreeReport(server, client, packet);
+        break;
+      case "Command.PointAndReport":
+        this.CommandPointAndReport (server, client, packet);
+        break;
+      case "Command.ReportLastDeath":
+        this.CommandReportLastDeath(server, client, packet);
         break;
       case "GetRewardBuffInfo":
         this.GetRewardBuffInfo(server, client, packet);
