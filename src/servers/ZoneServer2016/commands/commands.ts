@@ -507,6 +507,78 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "tphere",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /tphere {name|playerId}`
+        );
+        return;
+      }
+      const targetClient = Object.values(server._clients).find((c) => {
+          if (c.character.name?.toLowerCase().replace(/\s/g, '') == args[0].toLowerCase() || c.loginSessionId == args[0]) {
+          return c;
+        }
+      });
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }      
+      targetClient.isLoading = true;
+      server.sendData(targetClient, "ClientUpdate.UpdateLocation", {
+          position: client.character.state.position,
+          triggerLoadingScreen: true,
+      });
+      server.sendChatText(
+          client,
+          `Teleporting ${targetClient.character.name} to your location`
+      );
+      server.sendWeatherUpdatePacket(client, server._weather2016);
+    }
+  },
+  {
+    name: "tpto",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /tpto {name|playerId}`
+        );
+        return;
+      }
+      const targetClient = Object.values(server._clients).find((c) => {
+          if (c.character.name?.toLowerCase().replace(/\s/g, '') == args[0].toLowerCase() || c.loginSessionId == args[0]) {
+          return c;
+        }
+      });
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }         
+      targetClient.isLoading = true;
+      server.sendData(client, "ClientUpdate.UpdateLocation", {
+          position: targetClient.character.state.position,
+          triggerLoadingScreen: true,
+      });
+      server.sendChatText(
+          client,
+          `Teleporting to ${targetClient.character.name}'s location`
+      );
+      server.sendWeatherUpdatePacket(client, server._weather2016);
+    }
+  },
+  {
     name: "time",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (
@@ -916,15 +988,27 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          "[ERROR] Usage /additem {itemDefinitionId} {count}"
+          "[ERROR] Usage /additem {itemDefinitionId} optional: {count} {playerName|PlayerId}"
         );
         return;
       }
+      let targetClient;
+      if (args[2]) {
+          targetClient = Object.values(server._clients).find((c) => {
+              if (c.character.name?.toLowerCase().replace(/\s/g, '') == args[2].toLowerCase() || c.loginSessionId == args[2]) {
+                  return c;
+              }
+          });
+      }
+      if (args[2] && !targetClient){
+          server.sendChatText(client, "Client not found.");
+          return;
+      }
       server.sendChatText(
         client,
-        `Adding ${count}x item${count == 1 ? "" : "s"} with id ${itemDefId}.`
+          `Adding ${count}x item${count == 1 ? "" : "s"} with id ${itemDefId} to player ${targetClient ? targetClient.character.name : client.character.name}`
       );
-      server.lootItem(client, server.generateItem(itemDefId, count));
+      server.lootItem(targetClient? targetClient:client, server.generateItem(itemDefId, count));
     }
   },
   {
@@ -1145,20 +1229,22 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "kick",
+    name: "slay",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: (
+    execute: async (
       server: ZoneServer2016, 
       client: Client, 
       args: any[]
     ) => {
       if (!args[0]) {
-        server.sendChatText(client, "Missing guid (use /admin players)");
+        server.sendChatText(
+          client,
+          `Correct usage: /slay {name|playerId}`
+        );
         return;
       }
       const targetClient = Object.values(server._clients).find((c) => {
-        if (c.loginSessionId == args[0] || c.loginSessionId == args[0].slice(2)) {
-          // in case "0x" is included
+          if (c.character.name?.toLowerCase().replace(/\s/g, '') == args[0].toLowerCase() || c.loginSessionId == args[0]) {
           return c;
         }
       });
@@ -1166,26 +1252,8 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Client not found.");
         return;
       }
-      const reason = args[1] ? args.slice(1).join(" ") : "Undefined";
-      for (let i = 0; i < 5; i++) {
-        server.sendAlert(
-          targetClient,
-          `You are being kicked from the server. Reason: ${reason}`
-        );
-      }
-  
-      setTimeout(() => {
-        if (!targetClient) {
-          return;
-        }
-        server.sendGlobalChatText(
-          `${targetClient.character.name} has been kicked from the server!`
-        );
-        server.sendData(targetClient, "CharacterSelectSessionResponse", {
-          status: 1,
-          sessionId: targetClient.loginSessionId,
-        });
-      }, 2000);
+      server.sendGlobalChatText(`${targetClient.character.name} has been slain`);
+      server.killCharacter(targetClient)
     }
   },
   {
@@ -1250,7 +1318,7 @@ export const commands: Array<Command> = [
       if (!args[0] || !args[1]) {
         server.sendChatText(
             client,
-            `Correct usage: /silentban {name} {type} {time} {reason}`
+            `Correct usage: /silentban {name|playerId} {type}  optional: {time} {reason}`
         );
         return;
       }
@@ -1263,32 +1331,31 @@ export const commands: Array<Command> = [
           );
           return;
       }
-      for (const a in server._clients) {
-          const iteratedClient = server._clients[a];
-          if (iteratedClient.character.name && iteratedClient.character.name.toLocaleLowerCase() === args[0].toString().toLowerCase()) {
-              let time = Number(args[2]) ? Number(args[2]) * 60000 : 0;
-              if (time > 0) {
-                  time += Date.now()
-                  server.sendChatText(
-                      client,
-                      `You have silently banned ${iteratedClient.character.name} until ${server.getDateString(time)}`
-                  );
-              } else {
-                  server.sendChatText(
-                      client,
-                      `You have silently banned ${iteratedClient.character.name} permemently, banType: ${banType}`
-                  );
-              }
-              const reason = args.slice(3).join(" ");
-              server.banClient(iteratedClient, reason, banType, client.character.name ? client.character.name:"", time)
-              return;
-          }
+      const targetClient = Object.values(server._clients).find((c) => {
+          if (c.character.name?.toLowerCase().replace(/\s/g, '') == args[0].toLowerCase() || c.loginSessionId == args[0]) {
+          return c;
+        }
+      });
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
       }
-      server.sendChatText(
-          client,
-          `Cannot find any user with name ${args[0]}`
-      );
-    }
+      let time = Number(args[2]) ? Number(args[2]) * 60000 : 0;
+      if (time > 0) {
+          time += Date.now()
+          server.sendChatText(
+              client,
+              `You have silently banned ${targetClient.character.name} until ${server.getDateString(time)}`
+          );
+      } else {
+          server.sendChatText(
+              client,
+              `You have silently banned ${targetClient.character.name} permemently, banType: ${banType}`
+          );
+      }
+      const reason = args.slice(3).join(" ");
+      server.banClient(targetClient, reason, banType, client.character.name ? client.character.name : "", time)
+        }
   },
   {
     name: "ban",
@@ -1301,92 +1368,40 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /ban {name} {time} {reason}`
+          `Correct usage: /ban {name|playerId} optional: {time} {reason}`
         );
         return;
       }
-      for (const a in server._clients) {
-        const iteratedClient = server._clients[a];
-        if (iteratedClient.character.name && iteratedClient.character.name.toLocaleLowerCase() === args[0].toString().toLowerCase()) {
-          let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
-          if (time > 0) {
-            time += Date.now()
-            server.sendChatText(
-              client,
-              `You have banned ${iteratedClient.character.name} until ${server.getDateString(time)}`
-            );
-          } else {
-            server.sendChatText(
-              client,
-              `You have banned ${iteratedClient.character.name} permemently`
-            );
-          }            
-          const reason = args.slice(2).join(" ");
-          server.banClient(iteratedClient, reason, "normal", client.character.name ? client.character.name : "", time)
-          return;
+      const targetClient = Object.values(server._clients).find((c) => {
+          if (c.character.name?.toLowerCase().replace(/\s/g, '') == args[0].toLowerCase() || c.loginSessionId == args[0]) {
+          return c;
         }
+      });
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
       }
-      server.sendChatText(
-          client,
-          `Cannot find any user with name ${args[0]}`
-      );
-    }
+      let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
+      if (time > 0) {
+          time += Date.now()
+          server.sendChatText(
+              client,
+              `You have banned ${targetClient.character.name} until ${server.getDateString(time)}`
+          );
+      } else {
+          server.sendChatText(
+              client,
+              `You have banned ${targetClient.character.name} permemently`
+          );
+      }
+      const reason = args.slice(2).join(" ");
+      server.banClient(targetClient, reason, "normal", client.character.name ? client.character.name : "", time)
+     }
   },
   {
-    name: "silentbanid",
+    name: "kick",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (
-      server: ZoneServer2016, 
-      client: Client, 
-      args: any[]
-    ) => {
-      if (!args[0] || !args[1]) {
-        server.sendChatText(
-          client,
-          `Correct usage: /silentban {ZoneClientId} {type} {time} {reason}`
-        );
-        return;
-      }
-      const banTypes = ["nodamage", "hiddenplayers", "rick"];
-      const banType = args[1].toString().toLowerCase()
-      if (!banTypes.includes(banType)) {
-        server.sendChatText(
-            client,
-            `Valid ban types: ${banTypes.join(", ")}`
-        );
-        return;
-      }
-      for (const a in server._clients) {
-        const iteratedClient = server._clients[a];
-        if (Number(iteratedClient.loginSessionId) === Number(args[0])) {
-          let time = Number(args[2]) ? Number(args[2]) * 60000 : 0;
-          if (time > 0) {
-            time += Date.now()
-            server.sendChatText(
-                client,
-                `You have silently banned ${iteratedClient.character.name} until ${server.getDateString(time)}`
-            );
-          } else {
-            server.sendChatText(
-              client,
-              `You have silently banned ${iteratedClient.character.name} permemently, banType: ${banType}`
-            );
-          }
-          const reason = args.slice(3).join(" ");
-          server.banClient(iteratedClient, reason, banType, client.character.name ? client.character.name : "", time)
-          return;
-        }
-      }
-      server.sendChatText(
-        client,
-        `Cannot find any user with name ${args[1]}`
-      );
-    }
-  },
-  {
-    name: "banid",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: async (
+    execute: (
       server: ZoneServer2016, 
       client: Client, 
       args: any[]
@@ -1394,35 +1409,36 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin ban {name} {ZoneClientId} {reason}`
+          `Correct usage: /kick {name|playerId} optional: {reason}`
         );
         return;
       }
-      for (const a in server._clients) {
-        const iteratedClient = server._clients[a];
-        if (Number(iteratedClient.loginSessionId) === Number(args[0])) {
-          let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
-          if (time > 0) {
-            time += Date.now()
-            server.sendChatText(
-              client,
-              `You have banned ${iteratedClient.character.name} until ${server.getDateString(time)}`
-            );
-          } else {
-            server.sendChatText(
-              client,
-              `You have banned ${iteratedClient.character.name} permemently`
-            );
-          }
-          const reason = args.slice(2).join(" ");
-          server.banClient(iteratedClient, reason, "normal", client.character.name ? client.character.name : "", time)
+      const targetClient = Object.values(server._clients).find((c) => {
+          if (c.character.name?.toLowerCase().replace(/\s/g, '') == args[0].toLowerCase() || c.loginSessionId == args[0]) {
+          return c;
+        }
+      });
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      const reason = args[1] ? args.slice(1).join(" ") : "Undefined";
+      for (let i = 0; i < 5; i++) {
+        server.sendAlert(
+          targetClient,
+          `You are being kicked from the server. Reason: ${reason}`
+        );
+      }
+  
+      setTimeout(() => {
+        if (!targetClient) {
           return;
         }
-      }
-      server.sendChatText(
-        client,
-        `Cannot find any user with zoneClientId ${args[0]}`
-      );
+        server.sendGlobalChatText(
+          `${targetClient.character.name} has been kicked from the server!`
+        );
+        server.kickPlayer(targetClient)
+      }, 2000);
     }
   },
   {
@@ -1436,14 +1452,14 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin unban {banned name}`
+          `Correct usage: /admin unban {name|playerId}`
         );
         return;
       }
       const name = args[0].toString().toLowerCase();
       for (const a in server._bannedClients) {
         const bannedClient = server._bannedClients[a]
-        if (bannedClient.name?.toLowerCase() === name) {
+        if (bannedClient.name?.toLowerCase().replace(/\s/g, '') === name || bannedClient.loginSessionId == args[0]) {
           delete server._bannedClients[a];
           server.sendChatText(
             client,
@@ -1455,38 +1471,6 @@ export const commands: Array<Command> = [
       server.sendChatText(
         client,
         `Cannot find any banned user with name ${args[0]}`
-      );
-    }
-  },
-  {
-    name: "unbanid",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: async (
-      server: ZoneServer2016, 
-      client: Client, 
-      args: any[]
-    ) => {
-      if (!args[0]) {
-        server.sendChatText(
-            client,
-            `Correct usage: /admin unbanid {ZoneClientId}`
-        );
-        return;
-      }
-      for (const a in server._bannedClients) {
-        const bannedClient = server._bannedClients[a]
-        if (Number(bannedClient.loginSessionId) === Number(args[0])) {
-          delete server._bannedClients[a];
-          server.sendChatText(
-            client,
-            `Removed ban on user ${args[0]}`
-          );
-          return;
-        }
-      }
-      server.sendChatText(
-        client,
-        `Cannot find any banned user with ZoneClientId ${args[0]}`
       );
     }
   },
@@ -1514,7 +1498,7 @@ export const commands: Array<Command> = [
           );
             for (let index = 0; index < iteratedClient.clientLogs.length; index++) {
               const element = iteratedClient.clientLogs[index];
-              server.sendChatText(client, `${element}`);
+              server.sendChatText(client, `${element.log}`);
           }
         }
       }
