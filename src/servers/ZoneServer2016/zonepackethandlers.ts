@@ -346,7 +346,7 @@ export class zonePacketHandlers {
         if (packet.data.file === "ClientProc.log" && !client.clientLogs.includes(packet.data.message)) {
             const suspicious = ["cheatengine", "injector", "gameover", "processhacker"];
             const obj = {log: packet.data.message, isSuspicious: false}
-            for (var x = 0; x < suspicious.length; x++) {
+            for (let x = 0; x < suspicious.length; x++) {
                 if (packet.data.message.toLowerCase().includes(suspicious[x])) {
                     obj.isSuspicious = true
                     server.sendChatTextToAdmins(`FairPlay: ${client.character.name} is using suspicious software - ${obj.log.toLowerCase().substring(obj.log.toLowerCase().lastIndexOf(suspicious[x].toLowerCase()))}`, false);
