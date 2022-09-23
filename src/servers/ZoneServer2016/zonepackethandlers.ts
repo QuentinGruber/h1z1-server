@@ -345,7 +345,7 @@ export class zonePacketHandlers {
     ) {
         if (packet.data.file === "ClientProc.log" && !client.clientLogs.includes(packet.data.message)) {
             const suspicious = ["cheatengine", "injector", "gameover", "processhacker"];
-            let obj = {log: packet.data.message, isSuspicious: false}
+            const obj = {log: packet.data.message, isSuspicious: false}
             for (var x = 0; x < suspicious.length; x++) {
                 if (packet.data.message.toLowerCase().includes(suspicious[x])) {
                     obj.isSuspicious = true
