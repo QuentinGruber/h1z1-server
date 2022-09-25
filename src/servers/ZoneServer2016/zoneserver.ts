@@ -3191,7 +3191,7 @@ export class ZoneServer2016 extends EventEmitter {
                 break;
             case Items.FOUNDATION_EXPANSION:
                 const slot = BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();
-                this.placeConstructionFoundation(client, itemDefinitionId, modelId, position, eul2quat(rotation), parentObjectCharacterId, slot, BuildingSlot);
+                this.placeConstructionFoundation(client, itemDefinitionId, modelId, position, eul2quat(rotation), parentObjectCharacterId, slot);
                 break;
             default:
                 const characterId = this.generateGuid();
@@ -3281,7 +3281,7 @@ export class ZoneServer2016 extends EventEmitter {
         this._constructionDoors[characterId] = npc;
     }
 
-    placeConstructionFoundation(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId?: string, BuildingSlot?: string, occupiedSlot?:string) {
+    placeConstructionFoundation(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId?: string, BuildingSlot?: string) {
         const characterId = this.generateGuid();
         const transientId = this.getTransientId(characterId);
         const npc = new ConstructionParentEntity(
