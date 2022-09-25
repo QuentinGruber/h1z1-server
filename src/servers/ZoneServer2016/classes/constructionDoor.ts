@@ -21,6 +21,7 @@ export class constructionDoor extends DoorEntity {
     healthPercentage: number = 100;
     parentObjectCharacterId: string;
     buildingSlot: string;
+    slot?: string;
     constructor(
         characterId: string,
         transientId: number,
@@ -32,11 +33,13 @@ export class constructionDoor extends DoorEntity {
         ownerCharacterId: string,
         parentObjectCharacterId: string,
         BuildingSlot: string,
+        slot: string,
     ) {
         super(characterId, transientId, actorModelId, position, rotation, new Float32Array(scale), 0);
         this.ownerCharacterId = ownerCharacterId;
         this.parentObjectCharacterId = parentObjectCharacterId;
         this.buildingSlot = BuildingSlot;
+        if (slot) this.buildingSlot = slot;
     }
     pGetConstructionHealth() {
         return {

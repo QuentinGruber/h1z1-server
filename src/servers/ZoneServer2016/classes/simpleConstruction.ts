@@ -14,6 +14,8 @@ export class simpleConstruction extends BaseLightweightCharacter {
     buildingSlot?: string;
     parentObjectCharacterId?: string;
     eulerAngle?: number;
+    slot?: string;
+    occupiedSlots: string[] = [];
     constructor(
         characterId: string,
         transientId: number,
@@ -22,18 +24,13 @@ export class simpleConstruction extends BaseLightweightCharacter {
         rotation: Float32Array,
         parentObjectCharacterId?: string,
         slot?: string,
+        BuildingSlot?: string,
         eulerAngle?: number,
     ) {
         super(characterId, transientId, actorModelId, position, rotation);
-        if (slot) {
-            this.buildingSlot = slot;
-        }
-        if (parentObjectCharacterId) {
-            this.parentObjectCharacterId = parentObjectCharacterId;
-        }
-        if (eulerAngle) {
-            this.eulerAngle = eulerAngle
-        }
+        if (BuildingSlot) this.buildingSlot = BuildingSlot; this.parentObjectCharacterId = parentObjectCharacterId;
+        if (eulerAngle) this.eulerAngle = eulerAngle;
+        if (slot) this.slot = slot
     }
     pGetConstructionHealth() {
         return {
