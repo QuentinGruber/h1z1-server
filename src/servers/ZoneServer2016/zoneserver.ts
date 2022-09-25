@@ -66,6 +66,7 @@ import {
   getAppDataFolderPath,
   Int64String,
   isPosInRadius,
+  isPosInRadiusWithY,
   getDistance,
   randomIntFromInterval,
   Scheduler,
@@ -2282,7 +2283,6 @@ export class ZoneServer2016 extends EventEmitter {
             const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
             if (!foundation.isSecured) continue;
             let allowed = false;
-            const detectRange = 2.39;
             foundation.permissions.forEach((element: any) => {
                 if (element.characterId === client.character.characterId && element.visit) {
                     allowed = true;
@@ -2310,10 +2310,11 @@ export class ZoneServer2016 extends EventEmitter {
                         break;
                 }
                 if (
-                    isPosInRadius(
+                    isPosInRadiusWithY(
                         detectRange,
                         client.character.state.position,
-                        foundation.state.position
+                        foundation.state.position,
+                        2.5
                     )) {
                     this.tpPlayerOutsideFoundation(client, foundation)
                 }

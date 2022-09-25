@@ -251,6 +251,18 @@ export const isPosInRadius = (
     isBetween(radius, player_position[2], enemi_position[2])
   );
 };
+export const isPosInRadiusWithY = (
+    radius: number,
+    player_position: Float32Array,
+    enemi_position: Float32Array,
+    y_radius: number,
+): boolean => {
+    return (
+        isBetween(radius, player_position[0], enemi_position[0]) &&
+        isBetween(radius, player_position[2], enemi_position[2]) &&
+        isBetween(y_radius, player_position[1], enemi_position[1])
+    );
+};
 
 export function getDistance(p1: Float32Array, p2: Float32Array) {
   const a = p1[0] - p2[0];
