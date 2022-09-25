@@ -2280,7 +2280,6 @@ export class ZoneServer2016 extends EventEmitter {
   foundationPermissionChecker(client: Client) {
         for (const a in this._constructionFoundations) {
             const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
-            console.log(getDistance(foundation.state.position, client.character.state.position))
             if (!foundation.isSecured) continue;
             let allowed = false;
             const detectRange = 2.39;
