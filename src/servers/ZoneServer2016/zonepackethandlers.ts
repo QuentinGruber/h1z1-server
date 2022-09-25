@@ -199,10 +199,6 @@ export class zonePacketHandlers {
           }
         client.firstLoading = false;
         client.pingTimer?.refresh();
-        client.savePositionTimer = setTimeout(
-          () => server.worldDataManager.saveCharacterPosition(server, client),
-          30000
-        );
         
         server.sendData(client, "Command.AddWorldCommand", {
           command: "help",
