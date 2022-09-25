@@ -128,7 +128,7 @@ export class ConstructionParentEntity extends simpleConstruction {
             case Items.FOUNDATION:
                 if (this.expansions["01"] && server._constructionFoundations[this.expansions["01"]].isSecured) {
                     const expansion = server._constructionFoundations[this.expansions["01"]];
-                    let tempExpansionPolygons: any[] = [];
+                    const tempExpansionPolygons: any[] = [];
                     tempExpansionPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
                     tempExpansionPolygons.push([expansion.perimeters["02"][0], expansion.perimeters["02"][2]])
                     tempExpansionPolygons.push([expansion.perimeters["05"][0], expansion.perimeters["05"][2]])
@@ -150,7 +150,7 @@ export class ConstructionParentEntity extends simpleConstruction {
                 }
                 if (this.expansions["02"] && server._constructionFoundations[this.expansions["02"]].isSecured) {
                     const expansion = server._constructionFoundations[this.expansions["02"]];
-                    let tempExpansionPolygons: any[] = [];
+                    const tempExpansionPolygons: any[] = [];
                     tempExpansionPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
                     tempExpansionPolygons.push([expansion.perimeters["02"][0], expansion.perimeters["02"][2]])
                     tempExpansionPolygons.push([expansion.perimeters["05"][0], expansion.perimeters["05"][2]])
@@ -172,7 +172,7 @@ export class ConstructionParentEntity extends simpleConstruction {
                 }
                 if (this.expansions["03"] && server._constructionFoundations[this.expansions["03"]].isSecured) {
                     const expansion = server._constructionFoundations[this.expansions["03"]];
-                    let tempExpansionPolygons: any[] = [];
+                    const tempExpansionPolygons: any[] = [];
                     tempExpansionPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
                     tempExpansionPolygons.push([expansion.perimeters["02"][0], expansion.perimeters["02"][2]])
                     tempExpansionPolygons.push([expansion.perimeters["05"][0], expansion.perimeters["05"][2]])
@@ -194,7 +194,7 @@ export class ConstructionParentEntity extends simpleConstruction {
                 }
                 if (this.expansions["04"] && server._constructionFoundations[this.expansions["04"]].isSecured) {
                     const expansion = server._constructionFoundations[this.expansions["04"]];
-                    let tempExpansionPolygons: any[] = [];
+                    const tempExpansionPolygons: any[] = [];
                     tempExpansionPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
                     tempExpansionPolygons.push([expansion.perimeters["02"][0], expansion.perimeters["02"][2]])
                     tempExpansionPolygons.push([expansion.perimeters["05"][0], expansion.perimeters["05"][2]])
