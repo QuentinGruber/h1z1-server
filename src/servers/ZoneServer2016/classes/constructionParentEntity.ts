@@ -39,7 +39,6 @@ export class ConstructionParentEntity extends simpleConstruction {
         ownerName: string | undefined,
         parentObjectCharacterId?: string,
         BuildingSlot?: string,
-        occupiedSlot?: string,
     ) {
         super(characterId, transientId, actorModelId, position, rotation);
         this.health = 1000000;

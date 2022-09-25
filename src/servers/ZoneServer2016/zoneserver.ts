@@ -3295,7 +3295,6 @@ export class ZoneServer2016 extends EventEmitter {
             client.character.name,
             parentObjectCharacterId,
             BuildingSlot,
-            occupiedSlot,
         )
         this._constructionFoundations[characterId] = npc;
         if (itemDefinitionId === Items.FOUNDATION_EXPANSION && parentObjectCharacterId && BuildingSlot) {
