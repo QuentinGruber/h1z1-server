@@ -128,65 +128,89 @@ export class ConstructionParentEntity extends simpleConstruction {
             case Items.FOUNDATION:
                 if (this.expansions["01"] && server._constructionFoundations[this.expansions["01"]].isSecured) {
                     const expansion = server._constructionFoundations[this.expansions["01"]];
-                    Object.values(expansion.perimeters).forEach((value: Float32Array) => {
-                        temporaryPolygons.push([value[0], value[2]])
-                        side01 = true;
-                    });
+                    let tempExpansionPolygons: any[] = [];
+                    tempExpansionPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
+                    tempExpansionPolygons.push([expansion.perimeters["02"][0], expansion.perimeters["02"][2]])
+                    tempExpansionPolygons.push([expansion.perimeters["05"][0], expansion.perimeters["05"][2]])
+                    if (server._constructionFoundations[this.expansions["04"]] && server._constructionFoundations[this.expansions["04"]].perimeters["01"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
+                        tempExpansionPolygons.push([server._constructionFoundations[this.expansions["04"]].perimeters["01"][0], server._constructionFoundations[this.expansions["04"]].perimeters["01"][2]])
+                    } else {
+                        tempExpansionPolygons.push([this.perimeters["07"][0], this.perimeters["07"][2]])
+                    }
+                    expansion.securedPolygons = tempExpansionPolygons
+                    temporaryPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
+                    side01 = true;
                 } else {
                     if (this.perimeters["04"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["05"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["06"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
                         temporaryPolygons.push([this.perimeters["04"][0], this.perimeters["04"][2]])
-                        temporaryPolygons.push([this.perimeters["05"][0], this.perimeters["05"][2]])
-                        temporaryPolygons.push([this.perimeters["06"][0], this.perimeters["06"][2]])
                         side01 = true;
                     }
                 }
                 if (this.expansions["02"] && server._constructionFoundations[this.expansions["02"]].isSecured) {
                     const expansion = server._constructionFoundations[this.expansions["02"]];
-                    Object.values(expansion.perimeters).forEach((value: Float32Array) => {
-                        temporaryPolygons.push([value[0], value[2]])
-                        side02 = true;
-                    });
+                    let tempExpansionPolygons: any[] = [];
+                    tempExpansionPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
+                    tempExpansionPolygons.push([expansion.perimeters["02"][0], expansion.perimeters["02"][2]])
+                    tempExpansionPolygons.push([expansion.perimeters["05"][0], expansion.perimeters["05"][2]])
+                    if (server._constructionFoundations[this.expansions["01"]] && server._constructionFoundations[this.expansions["01"]].perimeters["01"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
+                        tempExpansionPolygons.push([server._constructionFoundations[this.expansions["01"]].perimeters["01"][0], server._constructionFoundations[this.expansions["01"]].perimeters["01"][2]])
+                    } else {
+                        tempExpansionPolygons.push([this.perimeters["04"][0], this.perimeters["04"][2]])
+                    }
+                    expansion.securedPolygons = tempExpansionPolygons
+                    temporaryPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
+                    side02 = true;
                 } else {
                     if (this.perimeters["01"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["02"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["03"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
                         temporaryPolygons.push([this.perimeters["01"][0], this.perimeters["01"][2]])
-                        temporaryPolygons.push([this.perimeters["02"][0], this.perimeters["02"][2]])
-                        temporaryPolygons.push([this.perimeters["03"][0], this.perimeters["03"][2]])
                         side02 = true;
                     }
                 }
                 if (this.expansions["03"] && server._constructionFoundations[this.expansions["03"]].isSecured) {
                     const expansion = server._constructionFoundations[this.expansions["03"]];
-                    Object.values(expansion.perimeters).forEach((value: Float32Array) => {
-                        temporaryPolygons.push([value[0], value[2]])
-                        side03 = true;
-                    });
+                    let tempExpansionPolygons: any[] = [];
+                    tempExpansionPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
+                    tempExpansionPolygons.push([expansion.perimeters["02"][0], expansion.perimeters["02"][2]])
+                    tempExpansionPolygons.push([expansion.perimeters["05"][0], expansion.perimeters["05"][2]])
+                    if (server._constructionFoundations[this.expansions["02"]] && server._constructionFoundations[this.expansions["02"]].perimeters["01"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
+                        tempExpansionPolygons.push([server._constructionFoundations[this.expansions["02"]].perimeters["01"][0], server._constructionFoundations[this.expansions["02"]].perimeters["01"][2]])
+                    } else {
+                        tempExpansionPolygons.push([this.perimeters["01"][0], this.perimeters["01"][2]])
+                    }
+                    expansion.securedPolygons = tempExpansionPolygons
+                    temporaryPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
+                    side03 = true;
                 } else {
                     if (this.perimeters["10"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["11"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["12"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
                         temporaryPolygons.push([this.perimeters["10"][0], this.perimeters["10"][2]])
-                        temporaryPolygons.push([this.perimeters["11"][0], this.perimeters["11"][2]])
-                        temporaryPolygons.push([this.perimeters["12"][0], this.perimeters["12"][2]])
                         side03 = true;
                     }
                 }
                 if (this.expansions["04"] && server._constructionFoundations[this.expansions["04"]].isSecured) {
                     const expansion = server._constructionFoundations[this.expansions["04"]];
-                    Object.values(expansion.perimeters).forEach((value: Float32Array) => {
-                        temporaryPolygons.push([value[0], value[2]])
-                        side04 = true;
-                    });
+                    let tempExpansionPolygons: any[] = [];
+                    tempExpansionPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
+                    tempExpansionPolygons.push([expansion.perimeters["02"][0], expansion.perimeters["02"][2]])
+                    tempExpansionPolygons.push([expansion.perimeters["05"][0], expansion.perimeters["05"][2]])
+                    if (server._constructionFoundations[this.expansions["03"]] && server._constructionFoundations[this.expansions["03"]].perimeters["01"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
+                        tempExpansionPolygons.push([server._constructionFoundations[this.expansions["03"]].perimeters["01"][0], server._constructionFoundations[this.expansions["03"]].perimeters["01"][2]])
+                    } else {
+                        tempExpansionPolygons.push([this.perimeters["10"][0], this.perimeters["10"][2]])
+                    }
+                    expansion.securedPolygons = tempExpansionPolygons
+                    temporaryPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
+                    side04 = true;
                 } else {
                     if (this.perimeters["07"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["08"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["09"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
                         temporaryPolygons.push([this.perimeters["07"][0], this.perimeters["07"][2]])
-                        temporaryPolygons.push([this.perimeters["08"][0], this.perimeters["08"][2]])
-                        temporaryPolygons.push([this.perimeters["09"][0], this.perimeters["09"][2]])
                         side04 = true;
                     }
                 }
@@ -216,9 +240,11 @@ export class ConstructionParentEntity extends simpleConstruction {
                     }
                 });
                 if (result) {
-                    Object.values(this.perimeters).forEach((value: Float32Array) => {
-                        this.securedPolygons.push([value[0], value[2]])
-                    });
+                    temporaryPolygons.push([this.perimeters["13"][0], this.perimeters["13"][2]])
+                    temporaryPolygons.push([this.perimeters["09"][0], this.perimeters["09"][2]])
+                    temporaryPolygons.push([this.perimeters["05"][0], this.perimeters["05"][2]])
+                    temporaryPolygons.push([this.perimeters["01"][0], this.perimeters["01"][2]])
+                    this.securedPolygons = temporaryPolygons
                 }
                 this.isSecured = result;
                 break;

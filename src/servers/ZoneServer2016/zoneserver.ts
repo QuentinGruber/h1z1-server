@@ -1239,7 +1239,7 @@ export class ZoneServer2016 extends EventEmitter {
                     effectId: 0,
                 }
             );
-        }, 20000)
+        }, 5000)
 
     }
 
@@ -1380,7 +1380,7 @@ export class ZoneServer2016 extends EventEmitter {
     destroyedVehicleModel: number
   ) {
     vehicle._resources[ResourceIds.CONDITION] = 0;
-    this.explosionDamage(vehicle.state.position, vehicle.characterId);
+    if (!this._vehicles[vehicle.characterId]) return;  
     this.sendDataToAllWithSpawnedEntity(
       this._vehicles,
       vehicle.characterId,
@@ -1402,6 +1402,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     this.deleteEntity(vehicle.characterId, this._vehicles);
+    this.explosionDamage(vehicle.state.position, vehicle.characterId);
   }
 
   startVehicleDamageDelay(vehicle: Vehicle) {
@@ -2279,40 +2280,21 @@ export class ZoneServer2016 extends EventEmitter {
   foundationPermissionChecker(client: Client) {
         for (const a in this._constructionFoundations) {
             const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
-            if (!foundation.isSecured || foundation.itemDefinitionId === Items.FOUNDATION_EXPANSION) continue;
+            if (!foundation.isSecured) continue;
             let allowed = false;
-            const detectRange = 2.2;
+            const detectRange = 2.39;
             foundation.permissions.forEach((element: any) => {
                 if (element.characterId === client.character.characterId && element.visit) {
                     allowed = true;
                 }
             })
             if (allowed) continue;
-            if (foundation.itemDefinitionId === Items.FOUNDATION || foundation.itemDefinitionId === Items.GROUND_TAMPER) {
+            if (foundation.itemDefinitionId === Items.FOUNDATION || foundation.itemDefinitionId === Items.FOUNDATION_EXPANSION || foundation.itemDefinitionId === Items.GROUND_TAMPER) {
+                if (this._constructionFoundations[foundation.parentObjectCharacterId]) {
+                    if (!this._constructionFoundations[foundation.parentObjectCharacterId].isSecured) continue;
+                }
                 if (this.checkInsideFoundation(foundation, client.character)) {
-                    this.sendChatText(client, "Construction: no visitor permission")
-                    const range = 15,
-                        lat = foundation.state.position[0],
-                        long = foundation.state.position[2];
-                    const currentAngle = 0;
-                    const x2 = Math.cos(currentAngle) * range;
-                    const y2 = Math.sin(currentAngle) * range;
-                    const p = [lat + x2, long + y2];
-                    client.character.state.position = new Float32Array([
-                        p[0],
-                        client.character.state.position[1] + 1,
-                        p[1],
-                        1,
-                    ]);
-                    this.sendData(client, "ClientUpdate.UpdateLocation", {
-                        position: [
-                            p[0],
-                            client.character.state.position[1],
-                            p[1],
-                            1,
-                        ],
-                        unknownBool2: false
-                    });
+                    this.tpPlayerOutsideFoundation(client, foundation)
                 }
             } else if (foundation.itemDefinitionId === Items.SHACK) {
                 if (
@@ -2321,30 +2303,7 @@ export class ZoneServer2016 extends EventEmitter {
                         client.character.state.position,
                         foundation.state.position
                     )) {
-                    this.sendChatText(client, "Construction: no visitor permission")
-                    const range = 5,
-                        lat = foundation.state.position[0],
-                        long = foundation.state.position[2];
-                    const currentAngle = 0;
-                    const x2 = Math.cos(currentAngle) * range;
-                    const y2 = Math.sin(currentAngle) * range;
-                    const p = [lat + x2, long + y2];
-                    client.character.state.position = new Float32Array([
-                        p[0],
-                        client.character.state.position[1] + 1,
-                        p[1],
-                        1,
-                    ]);
-                    this.sendData(client, "ClientUpdate.UpdateLocation", {
-                        position: [
-                            p[0],
-                            client.character.state.position[1],
-                            p[1],
-                            1,
-                        ],
-                        unknownBool2: false
-                    });
-
+                    this.tpPlayerOutsideFoundation(client, foundation)
                 }
             }
         }
@@ -2352,6 +2311,24 @@ export class ZoneServer2016 extends EventEmitter {
 
     checkInsideFoundation(foundation: ConstructionParentEntity, entity: any) {
         return isInside([entity.state.position[0], entity.state.position[2]], foundation.securedPolygons)
+    }
+
+    tpPlayerOutsideFoundation(client: Client, foundation: ConstructionParentEntity) {
+        const currentAngle = Math.atan2(client.character.state.position[2] - foundation.state.position[2], client.character.state.position[0] - foundation.state.position[0])
+        const newPos = movePoint(client.character.state.position, currentAngle, 3)
+        this.sendChatText(client, "Construction: no visitor permission")
+        if (client.vehicle.mountedVehicle) {
+            this.dismountVehicle(client)
+        }
+        this.sendData(client, "ClientUpdate.UpdateLocation", {
+            position: [
+                newPos[0],
+                client.character.state.position[1] + 1,
+                newPos[2],
+                1,
+            ],
+            unknownBool2: false
+        })
     }
 
   private npcManager(client: Client) {
@@ -3136,7 +3113,7 @@ export class ZoneServer2016 extends EventEmitter {
             }
         }
         if (this._constructionFoundations[parentObjectCharacterId]) {
-            if (!isPosInRadius(11, this._constructionFoundations[parentObjectCharacterId].state.position, position)) {
+            if (!isPosInRadius(this._constructionFoundations[parentObjectCharacterId].itemDefinitionId == Items.FOUNDATION? 11:15, this._constructionFoundations[parentObjectCharacterId].state.position, position)) {
                 this.sendChatText(client, "Placement blocked: placement error")
                 this.sendData(client, "Construction.PlacementFinalizeResponse", {
                     status: 0,
@@ -3511,6 +3488,7 @@ export class ZoneServer2016 extends EventEmitter {
       });
       return;
     }
+    client.character.state.position = vehicle.state.position;
     this.sendDataToAllWithSpawnedEntity(
       this._vehicles,
       vehicleGuid,
