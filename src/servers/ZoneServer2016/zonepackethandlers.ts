@@ -591,7 +591,7 @@ export class zonePacketHandlers {
             return;
           }
           targetClient.reports += 1;
-          let logs: any[] = []
+          const logs: any[] = []
           targetClient.clientLogs.forEach((log: { log: string, isSuspicious: boolean })  => {
               if (log.isSuspicious) {
                   logs.push(log.log)
@@ -626,7 +626,7 @@ export class zonePacketHandlers {
             return;
         }
         targetClient.reports += 1;
-        let logs: any[] = []
+        const logs: any[] = []
         targetClient.clientLogs.forEach((log: { log: string, isSuspicious: boolean }) => {
             if (log.isSuspicious) {
                 logs.push(log.log)
