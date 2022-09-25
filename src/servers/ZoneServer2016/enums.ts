@@ -174,6 +174,7 @@ export enum Items {
     FOUNDATION_EXPANSION = 2336,
     METAL_GATE = 148,
     METAL_DOOR = 1881,
+    BASIC_SHACK_DOOR = 1470,
     LANDMINE = 74,
     IED = 1699,
     PUNJI_STICKS = 98,

@@ -2280,6 +2280,7 @@ export class ZoneServer2016 extends EventEmitter {
   foundationPermissionChecker(client: Client) {
         for (const a in this._constructionFoundations) {
             const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
+            console.log(getDistance(foundation.state.position, client.character.state.position))
             if (!foundation.isSecured) continue;
             let allowed = false;
             const detectRange = 2.39;
@@ -2296,7 +2297,19 @@ export class ZoneServer2016 extends EventEmitter {
                 if (this.checkInsideFoundation(foundation, client.character)) {
                     this.tpPlayerOutsideFoundation(client, foundation)
                 }
-            } else if (foundation.itemDefinitionId === Items.SHACK) {
+            } else if (foundation.itemDefinitionId === Items.SHACK || foundation.itemDefinitionId === Items.SMALL_SHACK || foundation.itemDefinitionId === Items.BASIC_SHACK) {
+                let detectRange = 2.39;
+                switch (foundation.itemDefinitionId) {
+                    case Items.SHACK:
+                        detectRange = 2.39;
+                        break;
+                    case Items.SMALL_SHACK:
+                        detectRange = 1.81
+                        break;
+                    case Items.BASIC_SHACK:
+                        detectRange = 1;
+                        break;
+                }
                 if (
                     isPosInRadius(
                         detectRange,
@@ -3147,11 +3160,14 @@ export class ZoneServer2016 extends EventEmitter {
                 break;
             case Items.LANDMINE: this.placeExplosiveEntity(client, itemDefinitionId, modelId, position, eul2quat(rotation), false);
                 break;
+            case Items.BASIC_SHACK_DOOR:
             case Items.METAL_GATE:
             case Items.METAL_DOOR: this.placeConstructionDoor(client, itemDefinitionId, modelId, position, rotation, parentObjectCharacterId, BuildingSlot);
                 break;
             case Items.GROUND_TAMPER:
+            case Items.BASIC_SHACK:
             case Items.SHACK:
+            case Items.SMALL_SHACK:
             case Items.FOUNDATION: this.placeConstructionFoundation(client, itemDefinitionId, modelId, position, eul2quat(rotation));
                 break;
             case Items.FOUNDATION_EXPANSION:
@@ -3250,6 +3266,7 @@ export class ZoneServer2016 extends EventEmitter {
         this._constructionFoundations[characterId] = npc;
         if (itemDefinitionId === Items.FOUNDATION_EXPANSION && parentObjectCharacterId && BuildingSlot) {
             this._constructionFoundations[parentObjectCharacterId].expansions[BuildingSlot] = characterId;
+            this._constructionFoundations[characterId].permissions = this._constructionFoundations[parentObjectCharacterId].permissions;
         }
     }
 

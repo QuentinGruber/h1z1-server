@@ -99,6 +99,8 @@ export class ConstructionParentEntity extends simpleConstruction {
                     "12": new Float32Array([0, 0, 0, 0]),
                 }
                 break;
+            case Items.SMALL_SHACK:
+            case Items.BASIC_SHACK:
             case Items.SHACK:
                 this.perimeters = {
                     "01": new Float32Array([0, 0, 0, 0]),
@@ -249,13 +251,15 @@ export class ConstructionParentEntity extends simpleConstruction {
                 this.isSecured = result;
                 break;
             case Items.SHACK:
+            case Items.SMALL_SHACK:
+            case Items.BASIC_SHACK:
                 this.isSecured = this.perimeters["01"].reduce((accumulator, currentValue) => accumulator + currentValue) === 0 ? false : true;
                 break;
         }
     }
     changePerimeters(server: ZoneServer2016, slot: string | undefined, value: Float32Array) {
         if (!slot) return;
-        if (this.itemDefinitionId === Items.SHACK) {
+        if (this.itemDefinitionId === Items.SHACK || this.itemDefinitionId === Items.SMALL_SHACK || this.itemDefinitionId === Items.BASIC_SHACK) {
             this.perimeters["01"] = value;
             this.checkPerimeters(server)
             return;
