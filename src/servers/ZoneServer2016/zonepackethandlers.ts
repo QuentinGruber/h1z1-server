@@ -862,8 +862,9 @@ export class zonePacketHandlers {
               remoteWeapons: { data: remoteWeapons },
             },
             positionUpdate: {
-              ...character.positionUpdate,
               sequenceTime: server.getGameTime(),
+              unknown3_int8: 0,
+              position: character.state.position,
             },
             stats: stats.map((stat: any) => {
               return stat.statData;
