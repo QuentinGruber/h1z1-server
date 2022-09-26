@@ -54,8 +54,7 @@ export const internalCommands: Array<Command> = [
               server.sendData(iteratedClient, "Character.RemovePlayer", {
                   characterId: client.character.characterId,
               });
-              const index = iteratedClient.spawnedEntities.indexOf(iteratedClient);
-              iteratedClient.spawnedEntities.splice(index, 1);
+              iteratedClient.spawnedEntities.splice(iteratedClient.spawnedEntities.indexOf(client.character), 1);
           }
       }
       server.worldObjectManager.createVehicle(server, vehicle);
