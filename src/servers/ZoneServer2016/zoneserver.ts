@@ -2113,7 +2113,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  toggleHiddenMode(client: Client) {
+  /*toggleHiddenMode(client: Client) {
     client.character.isHidden = !client.character.isHidden;
     client.character.characterStates.gmHidden = client.character.isHidden;
     this.updateCharacterState(
@@ -2122,7 +2122,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.characterStates,
       false
     );
-  }
+  }*/
 
   tempGodMode(client: Client, durationMs: number) {
     if (!client.character.godMode) {
@@ -2303,7 +2303,7 @@ export class ZoneServer2016 extends EventEmitter {
             if (foundation.itemDefinitionId == Items.SHACK || foundation.itemDefinitionId == Items.SMALL_SHACK || foundation.itemDefinitionId == Items.BASIC_SHACK) {
                 if (this.checkInsideFoundation(foundation, client.character)) {
                     if (allowed) {
-                        this.constructionHidePlayer(client, true)
+                        this.constructionHidePlayer(client, foundation.characterId, true)
                         isInSecuredArea = true
                     } else {this.tpPlayerOutsideFoundation(client, foundation)}
                 }
@@ -2317,7 +2317,7 @@ export class ZoneServer2016 extends EventEmitter {
                 return
             }
         }
-      if (!isInSecuredArea && client.character.isHidden) client.character.isHidden = false;
+      if (!isInSecuredArea && client.character.isHidden) client.character.isHidden = "";
     }
 
     checkInsideFoundation(foundation: ConstructionParentEntity, entity: any) {
@@ -2336,17 +2336,17 @@ export class ZoneServer2016 extends EventEmitter {
                     detectRange = 1;
                     break;
             }
-            return (isPosInRadiusWithY(detectRange,entity.state.position,foundation.state.position,2.5))
+            return (isPosInRadiusWithY(detectRange,entity.state.position,foundation.state.position,2))
         }
     }
 
-    constructionHidePlayer(client: Client, state: boolean) {
+    constructionHidePlayer(client: Client, constructionGuid: string, state: boolean) {
         if (state) {
             if (!client.character.isHidden) {
-                client.character.isHidden = true;
+                client.character.isHidden = constructionGuid;
                 for (const a in this._clients) {
                     const iteratedClient = this._clients[a]
-                    if (iteratedClient.spawnedEntities.includes(client.character)) {
+                    if (iteratedClient.spawnedEntities.includes(client.character) && iteratedClient.character.isHidden != client.character.isHidden) {
                         this.sendData(iteratedClient, "Character.RemovePlayer", {
                             characterId: client.character.characterId,
                         });
@@ -2354,7 +2354,7 @@ export class ZoneServer2016 extends EventEmitter {
                     }
                 }
             } else return
-        } else if (client.character.isHidden) client.character.isHidden = false;
+        } else if (client.character.isHidden) client.character.isHidden = "";
     }
 
     tpPlayerOutsideFoundation(client: Client, foundation: ConstructionParentEntity) {
@@ -2525,7 +2525,7 @@ export class ZoneServer2016 extends EventEmitter {
         !client.spawnedEntities.includes(characterObj) &&
         !characterObj.characterStates.knockedOut &&
         !characterObj.isSpectator &&
-        !characterObj.isHidden &&
+        characterObj.isHidden == client.character.isHidden &&
         client.banType != "hiddenplayers"
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
