@@ -14,6 +14,7 @@
 import { simpleConstruction } from "./simpleConstruction";
 import { Items } from "../enums";
 import { ZoneServer2016 } from "../zoneserver";
+import { getRectangleCorners } from "../../../utils/utils";
 
 
 export class ConstructionParentEntity extends simpleConstruction {
@@ -27,7 +28,8 @@ export class ConstructionParentEntity extends simpleConstruction {
     parentObjectCharacterId: string;
     occupiedSlots: string[]= [];
     buildingSlot?: string;
-    securedPolygons: any;
+    securedPolygons: any[];
+    eulerAngle?: number;
     constructor(
         characterId: string,
         transientId: number,
@@ -39,6 +41,7 @@ export class ConstructionParentEntity extends simpleConstruction {
         ownerName: string | undefined,
         parentObjectCharacterId: string,
         BuildingSlot?: string,
+        eulerAngle?: number,
     ) {
         super(characterId, transientId, actorModelId, position, rotation, itemDefinitionId, parentObjectCharacterId);
         this.health = 1000000;
@@ -51,6 +54,7 @@ export class ConstructionParentEntity extends simpleConstruction {
             demolish: true,
             visit: true,
         }
+        if (eulerAngle) this.eulerAngle = eulerAngle;
         this.itemDefinitionId = itemDefinitionId
         this.permissions = [ownerPermission]
         this.parentObjectCharacterId = parentObjectCharacterId;
@@ -120,7 +124,6 @@ export class ConstructionParentEntity extends simpleConstruction {
         let side02: boolean = false;
         let side03: boolean = false;
         let side04: boolean = false;
-
         switch (this.itemDefinitionId) {
             case Items.FOUNDATION:
                 if (this.expansions["01"] && server._constructionFoundations[this.expansions["01"]].isSecured) {
@@ -249,6 +252,7 @@ export class ConstructionParentEntity extends simpleConstruction {
             case Items.SMALL_SHACK:
             case Items.BASIC_SHACK:
                 this.isSecured = this.perimeters["01"].reduce((accumulator, currentValue) => accumulator + currentValue) === 0 ? false : true;
+                if (this.eulerAngle) this.securedPolygons = getRectangleCorners(this.state.position, 3.5, 2.5, -this.eulerAngle)
                 break;
         }
     }

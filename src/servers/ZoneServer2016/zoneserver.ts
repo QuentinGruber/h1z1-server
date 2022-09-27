@@ -79,7 +79,8 @@ import {
   eul2quat,
   isInside,
   isInsideWithY,
-  movePoint
+  movePoint,
+  getRectangleCorners
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -2347,23 +2348,23 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     checkInsideFoundation(foundation: ConstructionParentEntity, entity: any) {
-        if (foundation.itemDefinitionId == Items.FOUNDATION || foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION || foundation.itemDefinitionId == Items.GROUND_TAMPER) {
-            return isInside([entity.state.position[0], entity.state.position[2]], foundation.securedPolygons)
-        } else if (foundation.itemDefinitionId === Items.SHACK || foundation.itemDefinitionId === Items.SMALL_SHACK || foundation.itemDefinitionId === Items.BASIC_SHACK) {
-            let detectRange = 2.39;
-            switch (foundation.itemDefinitionId) {
-                case Items.SHACK:
-                    detectRange = 2.39;
-                    break;
-                case Items.SMALL_SHACK:
-                    detectRange = 1.75;
-                    break;
-                case Items.BASIC_SHACK:
-                    detectRange = 1;
-                    break;
-            }
-            return (isPosInRadiusWithY(detectRange,entity.state.position,foundation.state.position,2))
+        let detectRange = 2.39;
+        switch (foundation.itemDefinitionId) {
+            case Items.FOUNDATION:
+            case Items.FOUNDATION_EXPANSION:
+            case Items.GROUND_TAMPER:
+                return isInside([entity.state.position[0], entity.state.position[2]], foundation.securedPolygons)
+            case Items.SHACK:
+                detectRange = 2.39;
+                return isPosInRadiusWithY(detectRange, entity.state.position, foundation.state.position, 2)
+            case Items.BASIC_SHACK:
+                detectRange = 1;
+                return isPosInRadiusWithY(detectRange, entity.state.position, foundation.state.position, 2)
+            case Items.SMALL_SHACK:
+                return isInsideWithY([entity.state.position[0], entity.state.position[2]], foundation.securedPolygons, entity.state.position[1], foundation.state.position[1], 2.1)
+
         }
+        return false
     }
 
     constructionHidePlayer(client: Client, constructionGuid: string, state: boolean) {
@@ -3252,8 +3253,9 @@ export class ZoneServer2016 extends EventEmitter {
             case Items.GROUND_TAMPER:
             case Items.BASIC_SHACK:
             case Items.SHACK:
-            case Items.SMALL_SHACK:
             case Items.FOUNDATION: this.placeConstructionFoundation(client, itemDefinitionId, modelId, position, eul2quat(rotation) , parentObjectCharacterId);
+                break;
+            case Items.SMALL_SHACK: this.placeConstructionFoundation(client, itemDefinitionId, modelId, position, eul2quat(rotation), parentObjectCharacterId, "", rotation[0]);
                 break;
             case Items.FOUNDATION_EXPANSION:
                 const slot = BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();
@@ -3307,39 +3309,17 @@ export class ZoneServer2016 extends EventEmitter {
                     );
                     if (npc.eulerAngle) {
                         const angle = -(npc.eulerAngle);
-                        const points: any[] = [];
-                        const middlePointA = movePoint(position, angle, 2.5);
-                        const middlePointB = movePoint(position, angle + 180 * Math.PI / 180, 2.5);
-                        let pointA1;
-                        let pointA2;
-                        let pointB1;
-                        let pointB2;
-                        let arr: any[] = [];
                         switch (itemDefinitionId) {
                             case Items.LARGE_SHELTER:
-                            case Items.UPPER_LEVEL_LARGE_SHELER:                               
-                                pointA1 = movePoint(middlePointA, angle + 90 * (Math.PI / 180), 7.5);
-                                pointA2 = movePoint(middlePointA, angle + 270 * (Math.PI / 180), 2.5);
-                                pointB2 = movePoint(middlePointB, angle + 270 * (Math.PI / 180), 2.5);
-                                pointB1 = movePoint(middlePointB, angle + 90 * (Math.PI / 180), 7.5);
-                                arr = [pointA1, pointA2, pointB2, pointB1]
-                                arr.forEach((point: Float32Array) => {
-                                    points.push([point[0], point[2]])
-                                })
+                            case Items.UPPER_LEVEL_LARGE_SHELER:
+                                const centerPoint = movePoint(position, angle + 90 * Math.PI / 180, 2.5);
+                                npc.securedPolygons = getRectangleCorners(centerPoint, 10, 5, angle);
                                 break;
                             case Items.SHELTER:
                             case Items.UPPER_LEVEL_SHELTER:
-                                pointA1 = movePoint(middlePointA, angle + 90 * (Math.PI / 180), 2.5);
-                                pointA2 = movePoint(middlePointA, angle + 270 * (Math.PI / 180), 2.5);
-                                pointB2 = movePoint(middlePointB, angle + 270 * (Math.PI / 180), 2.5);
-                                pointB1 = movePoint(middlePointB, angle + 90 * (Math.PI / 180), 2.5);                          
-                                arr = [pointA1, pointA2, pointB2, pointB1]
-                                arr.forEach((point: Float32Array) => {
-                                    points.push([point[0], point[2]])                                  
-                                })
+                                npc.securedPolygons = getRectangleCorners(position, 5, 5, angle);
                                 break;
                         }
-                        if (points) npc.securedPolygons = points;
                     }
                     this._constructionSimple[characterId] = npc;
                 }
@@ -3394,7 +3374,7 @@ export class ZoneServer2016 extends EventEmitter {
         this._constructionDoors[characterId] = npc;
     }
 
-    placeConstructionFoundation(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId: string, BuildingSlot?: string) {
+    placeConstructionFoundation(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId: string, BuildingSlot?: string, eulerAngle?: number) {
         const characterId = this.generateGuid();
         const transientId = this.getTransientId(characterId);
         const npc = new ConstructionParentEntity(
@@ -3408,12 +3388,13 @@ export class ZoneServer2016 extends EventEmitter {
             client.character.name,
             parentObjectCharacterId,
             BuildingSlot,
+            eulerAngle,
         )
-        this._constructionFoundations[characterId] = npc;
         if (itemDefinitionId === Items.FOUNDATION_EXPANSION && parentObjectCharacterId && BuildingSlot) {
             this._constructionFoundations[parentObjectCharacterId].expansions[BuildingSlot] = characterId;
-            this._constructionFoundations[characterId].permissions = this._constructionFoundations[parentObjectCharacterId].permissions;
-        }
+            npc.permissions = this._constructionFoundations[parentObjectCharacterId].permissions;
+        } 
+        this._constructionFoundations[characterId] = npc
     }
 
     placeTemporaryEntity(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, time: number) {

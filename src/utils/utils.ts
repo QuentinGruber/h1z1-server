@@ -287,19 +287,34 @@ export function getDistance(p1: Float32Array, p2: Float32Array) {
 }
 
 export function createPositionUpdate(
-  position: Float32Array,
-  rotation: Float32Array,
-  gameTime: number
+    position: Float32Array,
+    rotation: Float32Array,
+    gameTime: number
 ): positionUpdate {
-  const obj: positionUpdate = {
-    flags: 4095,
-    sequenceTime: gameTime,
-    position: [...position],
-  };
-  if (rotation) {
-    obj.rotation = rotation;
-  }
-  return obj;
+    const obj: positionUpdate = {
+        flags: 4095,
+        sequenceTime: gameTime,
+        position: [...position],
+    };
+    if (rotation) {
+        obj.rotation = rotation;
+    }
+    return obj;
+}
+
+export function getRectangleCorners(
+    centerPoint: Float32Array,
+    a_len: number,
+    h_len: number,
+    angle: number
+): any[] {
+    const middlePointA = movePoint(centerPoint, angle, h_len / 2);
+    const middlePointB = movePoint(centerPoint, angle + 180 * Math.PI / 180, h_len / 2);
+    const pointA = movePoint(middlePointA, angle + 90 * (Math.PI / 180), a_len / 2);
+    const pointB = movePoint(middlePointA, angle + 270 * (Math.PI / 180), a_len / 2);
+    const pointC = movePoint(middlePointB, angle + 270 * (Math.PI / 180), a_len / 2);
+    const pointD = movePoint(middlePointB, angle + 90 * (Math.PI / 180), a_len / 2);
+    return [[pointA[0], pointA[2]], [pointB[0], pointB[2]], [pointC[0], pointC[2]], [pointD[0], pointD[2]]]
 }
 
 export const toInt = (value: number) => {
@@ -331,7 +346,8 @@ export const removeCacheFullDir = function (directoryPath: string): void {
     if (file.substring(file.length - 3) === ".js") {
       delete require.cache[normalize(`${directoryPath}/${file}`)];
     }
-  }
+    }
+
 };
 
 export const generateCommandList = (
