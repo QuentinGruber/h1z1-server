@@ -78,6 +78,7 @@ import {
   toHex,
   eul2quat,
   isInside,
+  isInsideWithY,
   movePoint
 } from "../../utils/utils";
 
@@ -2292,7 +2293,7 @@ export class ZoneServer2016 extends EventEmitter {
   foundationPermissionChecker(client: Client) {
       let isInSecuredArea = false;
         for (const a in this._constructionFoundations) {
-            const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
+            const foundation = this._constructionFoundations[a] as ConstructionParentEntity;   
             if (!foundation.isSecured) continue;
             let allowed = false;
             foundation.permissions.forEach((element: any) => {
@@ -2317,6 +2318,29 @@ export class ZoneServer2016 extends EventEmitter {
                 return
             }
         }
+      for (const a in this._constructionSimple) {
+          const construction = this._constructionSimple[a] as simpleConstruction;
+          let allowed = false;
+          if (!construction.isSecured) continue;
+          let foundation: ConstructionParentEntity;
+          if (this._constructionFoundations[construction.parentObjectCharacterId]) {
+              foundation = this._constructionFoundations[construction.parentObjectCharacterId]
+          } else if (this._constructionFoundations[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId]) {
+              foundation = this._constructionFoundations[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId]
+          } else continue;
+          if (!foundation) continue;
+          foundation.permissions.forEach((element: any) => {
+              if (element.characterId === client.character.characterId && element.visit) {
+                  allowed = true;
+              }
+          })
+          if (isInsideWithY([client.character.state.position[0], client.character.state.position[2]], construction.securedPolygons, client.character.state.position[1], construction.state.position[1], 2)) {
+              if (allowed) {
+                  this.constructionHidePlayer(client, construction.characterId, true)
+                  isInSecuredArea = true
+              } else { this.tpPlayerOutsideFoundation(client, foundation) }
+          }
+      }
       if (!isInSecuredArea && client.character.isHidden) client.character.isHidden = "";
     }
 
@@ -2330,7 +2354,7 @@ export class ZoneServer2016 extends EventEmitter {
                     detectRange = 2.39;
                     break;
                 case Items.SMALL_SHACK:
-                    detectRange = 1.81
+                    detectRange = 1.75;
                     break;
                 case Items.BASIC_SHACK:
                     detectRange = 1;
@@ -2441,6 +2465,17 @@ export class ZoneServer2016 extends EventEmitter {
             ) {
                 this.addLightweightNpc(client, npc);
                 client.spawnedEntities.push(npc);
+                if (npc.isOpen) {
+                    this.sendData(client,"PlayerUpdatePosition", {
+                        transientId: npc.transientId,
+                        positionUpdate: {
+                            sequenceTime: 0,
+                            unknown3_int8: 0,
+                            position: npc.state.position,
+                            orientation: npc.openAngle,
+                        },
+                    });
+                }
             }
         }
 
@@ -2606,7 +2641,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.addLightweightNpc(client, door);
         client.spawnedEntities.push(door);
         if (door.isOpen) {
-          this.sendDataToAll("PlayerUpdatePosition", {
+          this.sendData(client,"PlayerUpdatePosition", {
             transientId: door.transientId,
             positionUpdate: {
               sequenceTime: 0,
@@ -3216,7 +3251,7 @@ export class ZoneServer2016 extends EventEmitter {
             case Items.BASIC_SHACK:
             case Items.SHACK:
             case Items.SMALL_SHACK:
-            case Items.FOUNDATION: this.placeConstructionFoundation(client, itemDefinitionId, modelId, position, eul2quat(rotation));
+            case Items.FOUNDATION: this.placeConstructionFoundation(client, itemDefinitionId, modelId, position, eul2quat(rotation) , parentObjectCharacterId);
                 break;
             case Items.FOUNDATION_EXPANSION:
                 const slot = BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();
@@ -3262,8 +3297,46 @@ export class ZoneServer2016 extends EventEmitter {
                         position,
                         eul2quat(rotation),
                         parentObjectCharacterId,
-                        BuildingSlot
+                        BuildingSlot,
+                        "",
+                        rotation[0],
                     );
+                    if (npc.eulerAngle) {
+                        let angle = -(npc.eulerAngle);
+                        let points: any[] = [];
+                        const middlePointA = movePoint(position, angle, 2.5);
+                        const middlePointB = movePoint(position, angle + 180 * Math.PI / 180, 2.5);
+                        let pointA1;
+                        let pointA2;
+                        let pointB1;
+                        let pointB2;
+                        let arr: any[] = [];
+                        switch (itemDefinitionId) {
+                            case Items.LARGE_SHELTER:
+                            case Items.UPPER_LEVEL_LARGE_SHELER:                               
+                                pointA1 = movePoint(middlePointA, angle + 90 * (Math.PI / 180), 7.5);
+                                pointA2 = movePoint(middlePointA, angle + 270 * (Math.PI / 180), 2.5);
+                                pointB2 = movePoint(middlePointB, angle + 270 * (Math.PI / 180), 2.5);
+                                pointB1 = movePoint(middlePointB, angle + 90 * (Math.PI / 180), 7.5);
+                                arr = [pointA1, pointA2, pointB2, pointB1]
+                                arr.forEach((point: Float32Array) => {
+                                    points.push([point[0], point[2]])
+                                })
+                                break;
+                            case Items.SHELTER:
+                            case Items.UPPER_LEVEL_SHELTER:
+                                pointA1 = movePoint(middlePointA, angle + 90 * (Math.PI / 180), 2.5);
+                                pointA2 = movePoint(middlePointA, angle + 270 * (Math.PI / 180), 2.5);
+                                pointB2 = movePoint(middlePointB, angle + 270 * (Math.PI / 180), 2.5);
+                                pointB1 = movePoint(middlePointB, angle + 90 * (Math.PI / 180), 2.5);                          
+                                arr = [pointA1, pointA2, pointB2, pointB1]
+                                arr.forEach((point: Float32Array) => {
+                                    points.push([point[0], point[2]])                                  
+                                })
+                                break;
+                        }
+                        if (points) npc.securedPolygons = points;
+                    }
                     this._constructionSimple[characterId] = npc;
                 }
                 if (BuildingSlot != "" && parentObjectCharacterId) {
@@ -3275,7 +3348,7 @@ export class ZoneServer2016 extends EventEmitter {
                 }
                 break;
         }
-
+        this.spawnConstructionNpcs(client)
     }
 
     placeConstructionDoor(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId: string, BuildingSlot: string) {
@@ -3302,15 +3375,23 @@ export class ZoneServer2016 extends EventEmitter {
                     const foundation = this._constructionFoundations[parentObjectCharacterId] as ConstructionParentEntity;
                     foundation.changePerimeters(this, slot, npc.state.position);
                     break;
+                case EntityTypes.CONSTRUCTION_SIMPLE:
+                    const construction = this._constructionSimple[parentObjectCharacterId] as simpleConstruction;
+                    construction.changePerimeters(this, BuildingSlot, npc.state.position);
+                    break;
             }
         }
         if (BuildingSlot != "" && parentObjectCharacterId) {
-            this._constructionFoundations[parentObjectCharacterId].occupiedSlots.push(BuildingSlot);
+            if (this._constructionFoundations[parentObjectCharacterId]) {
+                this._constructionFoundations[parentObjectCharacterId].occupiedSlots.push(BuildingSlot);
+            } else if (this._constructionSimple[parentObjectCharacterId]) {
+                this._constructionSimple[parentObjectCharacterId].occupiedSlots.push(BuildingSlot);
+            }
         }
         this._constructionDoors[characterId] = npc;
     }
 
-    placeConstructionFoundation(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId?: string, BuildingSlot?: string) {
+    placeConstructionFoundation(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId: string, BuildingSlot?: string) {
         const characterId = this.generateGuid();
         const transientId = this.getTransientId(characterId);
         const npc = new ConstructionParentEntity(

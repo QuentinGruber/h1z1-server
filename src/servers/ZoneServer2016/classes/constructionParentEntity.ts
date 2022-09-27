@@ -37,10 +37,10 @@ export class ConstructionParentEntity extends simpleConstruction {
         itemDefinition: number,
         ownerCharacterId: string,
         ownerName: string | undefined,
-        parentObjectCharacterId?: string,
+        parentObjectCharacterId: string,
         BuildingSlot?: string,
     ) {
-        super(characterId, transientId, actorModelId, position, rotation);
+        super(characterId, transientId, actorModelId, position, rotation, parentObjectCharacterId);
         this.health = 1000000;
         this.ownerCharacterId = ownerCharacterId;
         const ownerPermission = {
@@ -53,11 +53,7 @@ export class ConstructionParentEntity extends simpleConstruction {
         }
         this.itemDefinitionId = itemDefinition
         this.permissions = [ownerPermission]
-        if (parentObjectCharacterId) {
-            this.parentObjectCharacterId = parentObjectCharacterId;
-        } else {
-            this.parentObjectCharacterId = "";
-        }
+        this.parentObjectCharacterId = parentObjectCharacterId;
         if (BuildingSlot) this.buildingSlot = BuildingSlot;
         this.securedPolygons = [];
         this.perimeters = {};

@@ -1008,9 +1008,15 @@ export class zonePacketHandlers {
                             effectId: doorEntity.isOpen ? doorEntity.closeSound : doorEntity.openSound,
                         });
                     doorEntity.isOpen = !doorEntity.isOpen;
-                    doorEntity.isOpen ?
-                        server._constructionFoundations[doorEntity.parentObjectCharacterId].changePerimeters(server, doorEntity.buildingSlot, new Float32Array([0, 0, 0, 0])) :
-                        server._constructionFoundations[doorEntity.parentObjectCharacterId].changePerimeters(server, doorEntity.buildingSlot, doorEntity.state.position);
+                    if (server._constructionFoundations[doorEntity.parentObjectCharacterId]) {
+                        doorEntity.isOpen ?
+                            server._constructionFoundations[doorEntity.parentObjectCharacterId].changePerimeters(server, doorEntity.buildingSlot, new Float32Array([0, 0, 0, 0])) :
+                            server._constructionFoundations[doorEntity.parentObjectCharacterId].changePerimeters(server, doorEntity.buildingSlot, doorEntity.state.position);
+                    } else if (server._constructionSimple[doorEntity.parentObjectCharacterId]) {
+                        doorEntity.isOpen ?
+                            server._constructionSimple[doorEntity.parentObjectCharacterId].changePerimeters(server, 'LoveShackDoor', new Float32Array([0, 0, 0, 0])) :
+                            server._constructionSimple[doorEntity.parentObjectCharacterId].changePerimeters(server, 'LoveShackDoor', doorEntity.state.position);
+                    }
                     break;
                 default:
                     break;

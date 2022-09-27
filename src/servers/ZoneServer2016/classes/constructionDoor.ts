@@ -39,7 +39,6 @@ export class constructionDoor extends DoorEntity {
         this.ownerCharacterId = ownerCharacterId;
         this.parentObjectCharacterId = parentObjectCharacterId;
         this.buildingSlot = BuildingSlot;
-        if (slot) this.buildingSlot = slot;
     }
     pGetConstructionHealth() {
         return {

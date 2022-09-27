@@ -241,6 +241,21 @@ export const isInside = (point: [number, number], vs: any) => {
     return inside;
 };
 
+export const isInsideWithY = (point: [number, number], vs: any,y_pos1:number, y_pos2:number, y_radius: number) => {
+
+    const x = point[0], y = point[1];
+
+    let inside = false;
+    for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+        const xi = vs[i][0], yi = vs[i][1],
+            xj = vs[j][0], yj = vs[j][1],
+            intersect = ((yi > y) != (yj > y))
+                && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+    }
+    return inside && isBetween(y_radius, y_pos1, y_pos2);
+};
+
 export const isPosInRadius = (
   radius: number,
   player_position: Float32Array,
