@@ -14,6 +14,7 @@ export class simpleConstruction extends BaseLightweightCharacter {
     healthPercentage: number = 100;
     buildingSlot?: string;
     perimeters: { [slot: string]: Float32Array };
+    itemDefinitionId: number;
     parentObjectCharacterId: string;
     eulerAngle?: number;
     slot?: string;
@@ -26,12 +27,14 @@ export class simpleConstruction extends BaseLightweightCharacter {
         actorModelId: number,
         position: Float32Array,
         rotation: Float32Array,
+        itemDefinitionId: number,
         parentObjectCharacterId: string,
         slot?: string,
         BuildingSlot?: string,
         eulerAngle?: number,
     ) {
         super(characterId, transientId, actorModelId, position, rotation);
+        this.itemDefinitionId = itemDefinitionId;
         if (BuildingSlot) this.buildingSlot = BuildingSlot;
         this.parentObjectCharacterId = parentObjectCharacterId;
         if (eulerAngle) this.eulerAngle = eulerAngle;

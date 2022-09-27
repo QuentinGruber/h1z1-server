@@ -34,13 +34,13 @@ export class ConstructionParentEntity extends simpleConstruction {
         actorModelId: number,
         position: Float32Array,
         rotation: Float32Array,
-        itemDefinition: number,
+        itemDefinitionId: number,
         ownerCharacterId: string,
         ownerName: string | undefined,
         parentObjectCharacterId: string,
         BuildingSlot?: string,
     ) {
-        super(characterId, transientId, actorModelId, position, rotation, parentObjectCharacterId);
+        super(characterId, transientId, actorModelId, position, rotation, itemDefinitionId, parentObjectCharacterId);
         this.health = 1000000;
         this.ownerCharacterId = ownerCharacterId;
         const ownerPermission = {
@@ -51,7 +51,7 @@ export class ConstructionParentEntity extends simpleConstruction {
             demolish: true,
             visit: true,
         }
-        this.itemDefinitionId = itemDefinition
+        this.itemDefinitionId = itemDefinitionId
         this.permissions = [ownerPermission]
         this.parentObjectCharacterId = parentObjectCharacterId;
         if (BuildingSlot) this.buildingSlot = BuildingSlot;

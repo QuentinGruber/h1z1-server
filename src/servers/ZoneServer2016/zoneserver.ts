@@ -2318,8 +2318,10 @@ export class ZoneServer2016 extends EventEmitter {
                 return
             }
         }
+      const allowedIds = [Items.SHELTER, Items.LARGE_SHELTER, Items.UPPER_LEVEL_SHELTER, Items.UPPER_LEVEL_LARGE_SHELER]
       for (const a in this._constructionSimple) {
           const construction = this._constructionSimple[a] as simpleConstruction;
+          if (!allowedIds.includes(construction.itemDefinitionId)) continue;
           let allowed = false;
           if (!construction.isSecured) continue;
           let foundation: ConstructionParentEntity;
@@ -3268,6 +3270,7 @@ export class ZoneServer2016 extends EventEmitter {
                         modelId,
                         position,
                         eul2quat(rotation),
+                        itemDefinitionId,
                         parentObjectCharacterId,
                         BuildingSlot,
                         slot,
@@ -3296,14 +3299,15 @@ export class ZoneServer2016 extends EventEmitter {
                         modelId,
                         position,
                         eul2quat(rotation),
+                        itemDefinitionId,
                         parentObjectCharacterId,
                         BuildingSlot,
                         "",
                         rotation[0],
                     );
                     if (npc.eulerAngle) {
-                        let angle = -(npc.eulerAngle);
-                        let points: any[] = [];
+                        const angle = -(npc.eulerAngle);
+                        const points: any[] = [];
                         const middlePointA = movePoint(position, angle, 2.5);
                         const middlePointB = movePoint(position, angle + 180 * Math.PI / 180, 2.5);
                         let pointA1;
@@ -3367,7 +3371,6 @@ export class ZoneServer2016 extends EventEmitter {
             client.character.characterId,
             parentObjectCharacterId,
             slot,
-            BuildingSlot
         )
         if (Number(parentObjectCharacterId)) {
             switch (this.getEntityType(parentObjectCharacterId)) {
