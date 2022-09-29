@@ -1097,12 +1097,13 @@ export class ZoneServer2016 extends EventEmitter {
 
         for (const construction in this._constructionSimple) {
             const constructionObject = this._constructionSimple[construction] as simpleConstruction;
+            if (constructionObject.itemDefinitionId == Items.FOUNDATION_RAMP || constructionObject.itemDefinitionId == Items.FOUNDATION_STAIRS) continue;
             const fixedPosition = this.getFixedConstructionPosition(constructionObject, (constructionObject.itemDefinitionId == Items.LARGE_SHELTER || constructionObject.itemDefinitionId == Items.UPPER_LEVEL_LARGE_SHELER)? 7.5:2.5);
             if (isPosInRadius(6, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position, position)) {
-                if (constructionObject.actorModelId != 9487 && constructionObject.actorModelId != 9488) {
+                const notProtected = [Items.METAL_WALL, Items.UPPER_METAL_WALL]
                         if (this._constructionFoundations[constructionObject.parentObjectCharacterId]) {
                             if (this._constructionFoundations[constructionObject.parentObjectCharacterId])
-                                if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50 && constructionObject.actorModelId != 9407) {
+                                if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && !notProtected.includes(constructionObject.itemDefinitionId)) {
                                     if (client) {
                                         this.sendBaseSecuredMessage(client);
                                     }
@@ -1112,7 +1113,7 @@ export class ZoneServer2016 extends EventEmitter {
                                 }
                         } else if (this._constructionSimple[constructionObject.parentObjectCharacterId] ? this._constructionSimple[constructionObject.parentObjectCharacterId] : this._constructionSimple[this._constructionSimple[constructionObject.parentObjectCharacterId].parentObjectCharacterId]) {
                             const parentConstruction = this._constructionSimple[constructionObject.parentObjectCharacterId] as simpleConstruction;
-                            if (this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50 && constructionObject.actorModelId != 9407) {
+                            if (this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured && !notProtected.includes(constructionObject.itemDefinitionId)) {
                                 if (client) {
                                     this.sendBaseSecuredMessage(client);
                                 }
@@ -1121,7 +1122,6 @@ export class ZoneServer2016 extends EventEmitter {
                                 this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position)
                             }
                         }
-                }
             }
         }
 
@@ -1130,7 +1130,7 @@ export class ZoneServer2016 extends EventEmitter {
             const fixedPosition = this.getFixedConstructionPosition(constructionObject, constructionObject.itemDefinitionId == Items.METAL_DOOR ? 0.625: 2.5)
             const foundation = this._constructionFoundations[constructionObject.parentObjectCharacterId] ? this._constructionFoundations[constructionObject.parentObjectCharacterId] : this._constructionFoundations[this._constructionSimple[constructionObject.parentObjectCharacterId].parentObjectCharacterId]
             if (isPosInRadius(6, fixedPosition, position)) {
-                    if (foundation && foundation.isSecured && constructionObject.actorModelId != 49) {
+                    if (foundation && foundation.isSecured && constructionObject.itemDefinitionId != Items.METAL_GATE) {
                         if (client) {
                             this.sendBaseSecuredMessage(client);
                         }
@@ -1189,11 +1189,27 @@ export class ZoneServer2016 extends EventEmitter {
             ResourceIds.CONSTRUCTION_CONDITION,
             ResourceTypes.CONDITION,
             dictionary
-        );
-        this.sendEffectToAllWithSpawnedEntity(constructionCharId, 1124, dictionary)  
+        ); 
+        this.sendDataToAllWithSpawnedEntity( // play burning effect & remove it after 15s
+            dictionary,
+            constructionCharId,
+            "Command.PlayDialogEffect",
+            {
+                characterId: constructionCharId,
+                effectId: 1214,
+            }
+        );  
         setTimeout(() => {
-            this.sendEffectToAllWithSpawnedEntity(constructionCharId, 0, dictionary)
-        }, 10000)
+            this.sendDataToAllWithSpawnedEntity( 
+                dictionary,
+                constructionCharId,
+                "Command.PlayDialogEffect",
+                {
+                    characterId: constructionCharId,
+                    effectId: 0,
+                }
+            );
+        }, 15000)
         if (constructionObject.health > 0) return
         const foundation = this._constructionFoundations[constructionObject.parentObjectCharacterId] ? this._constructionFoundations[constructionObject.parentObjectCharacterId] : this._constructionSimple[constructionObject.parentObjectCharacterId]
         if (constructionObject.itemDefinitionId == Items.METAL_DOOR || constructionObject.itemDefinitionId == Items.METAL_GATE || constructionObject.itemDefinitionId == Items.METAL_WALL) {
@@ -1312,7 +1328,15 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         if (allowSend) {
-          this.sendEffectToAllWithSpawnedEntity(vehicle.characterId, damageeffect, this._vehicles)
+          this.sendDataToAllWithSpawnedEntity( 
+              this._vehicles,
+              vehicle.characterId,
+                "Command.PlayDialogEffect",
+                {
+                    characterId: vehicle.characterId,
+                    effectId: damageeffect,
+                }
+            );
           this._vehicles[vehicle.characterId].destroyedEffect = damageeffect;
           if (!vehicle.damageTimeout && startDamageTimeout) {
             this.startVehicleDamageDelay(vehicle);
@@ -3113,7 +3137,7 @@ export class ZoneServer2016 extends EventEmitter {
         });
     }
 
-  sendEffectToAllWithSpawnedEntity(
+  /*sendEffectToAllWithSpawnedEntity( idk whats wrong with it, sometimes works and sometimes doesnt
     characterId: string,
     effectId: number,
     dictionary: any,
@@ -3128,7 +3152,7 @@ export class ZoneServer2016 extends EventEmitter {
           }
       );
     
-  }
+  }*/
 
   sendDataToAllWithSpawnedEntity(
     dictionary: { [id: string]: any },
@@ -5602,8 +5626,24 @@ export class ZoneServer2016 extends EventEmitter {
     if (!IED.isIED) {
       return;
     }
-    this.sendEffectToAllWithSpawnedEntity(IED.characterId, 5034, this._explosives)
-    this.sendEffectToAllWithSpawnedEntity(IED.characterId, 185, this._explosives)
+    this.sendDataToAllWithSpawnedEntity(
+        this._explosives,
+        IED.characterId,
+        "Command.PlayDialogEffect",
+        {
+            characterId: IED.characterId,
+            effectId: 5034,
+        }
+    );
+    this.sendDataToAllWithSpawnedEntity(
+        this._explosives,
+        IED.characterId,
+        "Command.PlayDialogEffect",
+        {
+            characterId: IED.characterId,
+            effectId: 185,
+        }
+    );
     setTimeout(() => {
       this.explodeExplosive(IED, client);
     }, 10000);
