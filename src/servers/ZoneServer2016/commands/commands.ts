@@ -101,7 +101,7 @@ export const commands: Array<Command> = [
           _doors: doors,
           _props: props,
         } = server;
-        const serverVersion = require("../../../package.json").version;
+        const serverVersion = require("../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
         server.sendChatText(
           client,
