@@ -74,6 +74,7 @@ export class Character2016 extends BaseFullCharacter {
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
+  currentInteractionGuid?: string;
   constructor(characterId: string, transientId: number) {
     super(
       characterId,
@@ -151,15 +152,14 @@ export class Character2016 extends BaseFullCharacter {
           (client.vehicle.mountedVehicle == "" ||
             !client.vehicle.mountedVehicle)
         ) {
-          client.character._resources[ResourceIds.STAMINA] -= 20;
+          client.character._resources[ResourceIds.STAMINA] -= 15;
           client.character.isExhausted =
             client.character._resources[ResourceIds.STAMINA] < 120;
         } else if (!client.character.isBleeding || !client.character.isMoving) {
           client.character._resources[ResourceIds.STAMINA] += 30;
         }
 
-        // if we had a packets we could modify sprint stat to 0
-        // or play exhausted sounds etc
+        // todo: modify sprint stat
         client.character._resources[ResourceIds.HUNGER] -= 10;
         client.character._resources[ResourceIds.HYDRATION] -= 20;
         if (client.character._resources[ResourceIds.STAMINA] > 600) {

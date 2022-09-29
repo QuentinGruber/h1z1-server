@@ -5,6 +5,7 @@ import {
   FullVehicleSaveData,
   ServerSaveData,
 } from "types/savedata";
+import { loadoutContainer, loadoutItem } from "types/zoneserver";
 import { initMongo, toBigHex, _ } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "./vehicle";
@@ -220,49 +221,6 @@ export class WorldDataManager {
     server.checkHook("OnLoadedCharacterData", client);
   }
 
-  async saveCharacterPosition(
-    server: ZoneServer2016,
-    client: Client,
-    refreshTimeout = false
-  ) {
-    if (!server.enableWorldSaves) return;
-    if (!client.character) {
-      return;
-    }
-    const { position, lookAt } = client.character.state;
-    if (server._soloMode) {
-      const singlePlayerCharacters = require(`${server._appDataFolder}/single_player_characters2016.json`);
-      let singlePlayerCharacter = singlePlayerCharacters.find(
-        (character: any) =>
-          character.characterId === client.character.characterId
-      );
-      if (!singlePlayerCharacter) {
-        console.log("[ERROR] Single player character savedata not found!");
-        return;
-      }
-      singlePlayerCharacter = {
-        ...singlePlayerCharacter,
-        position: Array.from(position),
-        rotation: Array.from(lookAt),
-      };
-      fs.writeFileSync(
-        `${server._appDataFolder}/single_player_characters2016.json`,
-        JSON.stringify([singlePlayerCharacter], null, 2)
-      );
-    } else {
-      await server._db?.collection("characters").updateOne(
-        { characterId: client.character.characterId },
-        {
-          $set: {
-            position: Array.from(position),
-            rotation: Array.from(lookAt),
-          },
-        }
-      );
-    }
-    refreshTimeout && client.savePositionTimer.refresh();
-  }
-
   async saveCharacterData(
     server: ZoneServer2016,
     client: Client,
@@ -270,12 +228,35 @@ export class WorldDataManager {
   ) {
     if (!server.enableWorldSaves) return;
     if (updateItemGuid) await this.saveServerData(server);
+    const loadoutKeys = Object.keys(client.character._loadout),
+    containerKeys = Object.keys(client.character._containers),
+    loadoutSaveData: {[loadoutSlotId: number]: loadoutItem} = {},
+    containerSaveData: {[loadoutSlotId: number]: loadoutContainer} = {};
+    Object.values(client.character._loadout).forEach((item, idx)=> {
+      loadoutSaveData[Number(loadoutKeys[idx])] = {
+        ...item,
+        weapon: item.weapon == undefined?undefined: {
+          ...item.weapon,
+          reloadTimer: undefined // force this to undefined to fix BSONError: cyclic dependency
+        }
+      }
+    });
+    Object.values(client.character._containers).forEach((item, idx)=> {
+      containerSaveData[Number(containerKeys[idx])] = {
+        ...item,
+        weapon: item.weapon == undefined?undefined: {
+          ...item.weapon,
+          reloadTimer: undefined // force this to undefined to fix BSONError: cyclic dependency
+        }
+      }
+    });
+
     const saveData: CharacterUpdateSaveData = {
       position: Array.from(client.character.state.position),
       rotation: Array.from(client.character.state.lookAt),
       isRespawning: client.character.isRespawning,
-      _loadout: client.character._loadout,
-      _containers: client.character._containers,
+      _loadout: loadoutSaveData,
+      _containers: containerSaveData,
       _resources: client.character._resources,
     };
     if (server._soloMode) {
