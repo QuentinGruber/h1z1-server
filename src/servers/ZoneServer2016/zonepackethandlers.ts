@@ -577,7 +577,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
         debug(packet);
-        const targetClient = Object.values(server._clients).find((c) => {
+        /*const targetClient = Object.values(server._clients).find((c) => {
             if (c.character.characterId == packet.data.reportedCharacterId) {
                 return c;
             }
@@ -608,7 +608,7 @@ export class zonePacketHandlers {
               { title: 'Total reports this session:', info: `${targetClient.reports}` }
           ]
           server.sendDiscordHook(client, targetClient, 'Point and Click Report', 'player decided that suspect is sus :)', obj) // mas³o maœlane
-        
+        */ // disabled for now, people use it to check if a player is nearby
     };
     this.CommandReportLastDeath = function (
       server: ZoneServer2016,
