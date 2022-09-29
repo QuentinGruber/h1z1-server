@@ -57,7 +57,6 @@ export const internalCommands: Array<Command> = [
               iteratedClient.spawnedEntities.splice(iteratedClient.spawnedEntities.indexOf(client.character), 1);
           }
       }
-      server.worldObjectManager.createVehicle(server, vehicle);
       server.sendData(client, "SpectatorBase", {});
       server.sendData(client, "AddLightweightVehicle", {
         ...vehicle,
@@ -74,7 +73,14 @@ export const internalCommands: Array<Command> = [
             isDriver: 1, 
             identity: {},
         });
-      server.assignManagedObject(client, vehicle);
+        server.sendData(client, "Character.ManagedObject", {
+            objectCharacterId: vehicle.characterId,
+            characterId: client.character.characterId,
+        });
+        server.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
+            control: true,
+            objectCharacterId: vehicle.characterId,
+        });
     }
   },
   {
