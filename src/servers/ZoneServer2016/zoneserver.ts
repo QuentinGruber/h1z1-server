@@ -1100,7 +1100,6 @@ export class ZoneServer2016 extends EventEmitter {
             const fixedPosition = this.getFixedConstructionPosition(constructionObject, 2.5);
             if (isPosInRadius(6, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position, position)) {
                 if (constructionObject.actorModelId != 9487 && constructionObject.actorModelId != 9488) {
-                    if (constructionObject.parentObjectCharacterId) {
                         if (this._constructionFoundations[constructionObject.parentObjectCharacterId]) {
                             if (this._constructionFoundations[constructionObject.parentObjectCharacterId])
                                 if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50 && constructionObject.actorModelId != 9407) {
@@ -1111,7 +1110,7 @@ export class ZoneServer2016 extends EventEmitter {
                                 else {
                                     this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position)
                                 }
-                        } else if (this._constructionSimple[constructionObject.parentObjectCharacterId]) {
+                        } else if (this._constructionSimple[constructionObject.parentObjectCharacterId] ? this._constructionSimple[constructionObject.parentObjectCharacterId] : this._constructionSimple[this._constructionSimple[constructionObject.parentObjectCharacterId].parentObjectCharacterId]) {
                             const parentConstruction = this._constructionSimple[constructionObject.parentObjectCharacterId] as simpleConstruction;
                             if (parentConstruction.parentObjectCharacterId && this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50 && constructionObject.actorModelId != 9407) {
                                 if (client) {
@@ -1122,19 +1121,6 @@ export class ZoneServer2016 extends EventEmitter {
                                 this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position)
                             }
                         }
-                    } else {
-                        for (const a in this._constructionFoundations) {
-                            const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
-                            if (foundation.isSecured && isInside([constructionObject.state.position[0], constructionObject.state.position[2]], foundation.securedPolygons)) {
-                                if (client) {
-                                    this.sendBaseSecuredMessage(client);
-                                }
-                            }
-                            else {
-                                this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position)
-                            }
-                        }
-                    }
                 }
             }
         }
