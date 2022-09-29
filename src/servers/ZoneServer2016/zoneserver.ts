@@ -1112,7 +1112,7 @@ export class ZoneServer2016 extends EventEmitter {
                                 }
                         } else if (this._constructionSimple[constructionObject.parentObjectCharacterId] ? this._constructionSimple[constructionObject.parentObjectCharacterId] : this._constructionSimple[this._constructionSimple[constructionObject.parentObjectCharacterId].parentObjectCharacterId]) {
                             const parentConstruction = this._constructionSimple[constructionObject.parentObjectCharacterId] as simpleConstruction;
-                            if (parentConstruction.parentObjectCharacterId && this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50 && constructionObject.actorModelId != 9407) {
+                            if (this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 50 && constructionObject.actorModelId != 9407) {
                                 if (client) {
                                     this.sendBaseSecuredMessage(client);
                                 }
@@ -1183,27 +1183,6 @@ export class ZoneServer2016 extends EventEmitter {
         const constructionObject: simpleConstruction | ConstructionParentEntity = dictionary[constructionCharId];
         const distance = getDistance(entityPosition, position);
         constructionObject.pDamageConstruction(distance < 2 ? damage : damage / Math.sqrt(distance));
-        if (constructionObject.health <= 0) {
-            if (constructionObject.actorModelId === 50 || constructionObject.actorModelId === 49) {
-                if (constructionObject.parentObjectCharacterId) {
-                    const foundation = this._constructionFoundations[constructionObject.parentObjectCharacterId] as ConstructionParentEntity;
-                    foundation.changePerimeters(this, constructionObject.buildingSlot, new Float32Array([0, 0, 0, 0]));
-                }
-            }
-            if (constructionObject.slot && constructionObject.parentObjectCharacterId) {
-                if (this._constructionFoundations[constructionObject.parentObjectCharacterId]) {
-                    const foundation = this._constructionFoundations[constructionObject.parentObjectCharacterId]
-                    const index = foundation.occupiedSlots.indexOf(constructionObject.slot);
-                    foundation.occupiedSlots.splice(index, 1)
-                } else if (this._constructionSimple[constructionObject.parentObjectCharacterId]) {
-                    const constructionSimple = this._constructionSimple[constructionObject.parentObjectCharacterId];
-                    const index = constructionSimple.occupiedSlots.indexOf(constructionObject.slot);
-                    constructionSimple.occupiedSlots.splice(index, 1)
-                }
-            }
-            this.deleteEntity(constructionCharId, dictionary, 242)
-            return;
-        }
         this.updateResourceToAllWithSpawnedEntity(
             constructionObject.characterId,
             constructionObject.health,
@@ -1211,7 +1190,7 @@ export class ZoneServer2016 extends EventEmitter {
             ResourceTypes.CONDITION,
             dictionary
         );
-        this.sendDataToAllWithSpawnedEntity( // play burning effect & remove it after 20s
+        this.sendDataToAllWithSpawnedEntity( // play burning effect & remove it after 10s
             dictionary,
             constructionCharId,
             "Command.PlayDialogEffect",
@@ -1230,7 +1209,17 @@ export class ZoneServer2016 extends EventEmitter {
                     effectId: 0,
                 }
             );
-        }, 5000)
+        }, 10000)
+        if (constructionObject.health > 0) return
+        const foundation = this._constructionFoundations[constructionObject.parentObjectCharacterId] ? this._constructionFoundations[constructionObject.parentObjectCharacterId] : this._constructionSimple[constructionObject.parentObjectCharacterId]
+        if (constructionObject.itemDefinitionId != Items.METAL_DOOR && constructionObject.itemDefinitionId != Items.METAL_GATE && constructionObject.itemDefinitionId != Items.METAL_WALL) {
+            foundation.changePerimeters(this, constructionObject.buildingSlot, new Float32Array([0, 0, 0, 0]));
+        }
+        this.deleteEntity(constructionCharId, dictionary, 242, 3000)
+        if (!constructionObject.slot || !constructionObject.parentObjectCharacterId) return;
+        const index = foundation.occupiedSlots.indexOf(constructionObject.slot);
+        foundation.occupiedSlots.splice(index, 1)
+        return;
 
     }
 
@@ -2263,7 +2252,8 @@ export class ZoneServer2016 extends EventEmitter {
                   characterId: characterId,
                   unknownWord1: 1,
                   effectId: effectId,
-                  timeToDisappear: timeToDisappear ? timeToDisappear:0
+                  timeToDisappear: timeToDisappear ? timeToDisappear : 0,
+                  effectDelay: timeToDisappear ? timeToDisappear : 0
               }
           );
       }
