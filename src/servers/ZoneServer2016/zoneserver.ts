@@ -1142,9 +1142,9 @@ export class ZoneServer2016 extends EventEmitter {
         for (const construction in this._constructionDoors) {
             const constructionObject = this._constructionDoors[construction] as constructionDoor;
             const fixedPosition = this.getFixedConstructionPosition(constructionObject, 2.5);
+            const foundation = this._constructionFoundations[constructionObject.parentObjectCharacterId] ? this._constructionFoundations[constructionObject.parentObjectCharacterId] : this._constructionFoundations[this._constructionSimple[constructionObject.parentObjectCharacterId].parentObjectCharacterId]
             if (isPosInRadius(6, fixedPosition, position)) {
-                if (constructionObject.parentObjectCharacterId) {
-                    if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && constructionObject.actorModelId != 49) {
+                    if (foundation && foundation.isSecured && constructionObject.actorModelId != 49) {
                         if (client) {
                             this.sendBaseSecuredMessage(client);
                         }
@@ -1152,7 +1152,6 @@ export class ZoneServer2016 extends EventEmitter {
                     else {
                         this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionDoors, position, fixedPosition)
                     }
-                }
             }
         }
 
@@ -1198,12 +1197,6 @@ export class ZoneServer2016 extends EventEmitter {
         const constructionObject: simpleConstruction | ConstructionParentEntity = dictionary[constructionCharId];
         const distance = getDistance(entityPosition, position);
         constructionObject.pDamageConstruction(distance < 2 ? damage : damage / Math.sqrt(distance));
-        for (const a in this._clients) {
-            const c = this._clients[a] as Client;
-            if (isPosInRadius(25, c.character.state.position, entityPosition)) {
-                this.sendChatText(c, 'Construction Health: ' + constructionObject.healthPercentage.toFixed(0) + "/100")
-            }
-        }
         if (constructionObject.health <= 0) {
             if (constructionObject.actorModelId === 50 || constructionObject.actorModelId === 49) {
                 if (constructionObject.parentObjectCharacterId) {
@@ -1225,14 +1218,12 @@ export class ZoneServer2016 extends EventEmitter {
             this.deleteEntity(constructionCharId, dictionary, 242)
             return;
         }
-        this.sendDataToAllWithSpawnedEntity(
-            dictionary,
-            constructionCharId,
-            "Character.UpdateSimpleProxyHealth",
-            {
-                characterId: constructionCharId,
-                healthPercentage: constructionObject.healthPercentage
-            }
+        this.updateResourceToAllWithSpawnedEntity(
+            constructionObject.characterId,
+            constructionObject.health,
+            ResourceIds.CONSTRUCTION_CONDITION,
+            ResourceTypes.CONDITION,
+            dictionary
         );
         this.sendDataToAllWithSpawnedEntity( // play burning effect & remove it after 20s
             dictionary,
@@ -1677,7 +1668,7 @@ export class ZoneServer2016 extends EventEmitter {
     entityId: string,
     value: number,
     resourceId: number,
-    resourceType = resourceId // most resources have the same id and type
+    resourceType?: number // most resources have the same id and type
   ) {
     this.sendData(client, "ResourceEvent", {
       eventData: {
@@ -1685,7 +1676,7 @@ export class ZoneServer2016 extends EventEmitter {
         value: {
           characterId: entityId,
           resourceId: resourceId,
-          resourceType: resourceType,
+          resourceType: resourceType? resourceType:resourceId,
           initialValue: value >= 0 ? value : 0,
         },
       },
@@ -1727,6 +1718,32 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendDataToAllOthersWithSpawnedEntity(
       this._vehicles,
       client,
+      entityId,
+      "ResourceEvent",
+      {
+        eventData: {
+          type: 3,
+          value: {
+            characterId: entityId,
+            resourceId: resourceId,
+            resourceType: resourceType,
+            initialValue: value >= 0 ? value : 0,
+          },
+        },
+      }
+    );
+  }
+
+
+  updateResourceToAllWithSpawnedEntity(
+    entityId: string,
+    value: number,
+    resourceId: number,
+    resourceType: number,
+    dictionary: any,
+  ) {
+    this.sendDataToAllWithSpawnedEntity(
+      dictionary,
       entityId,
       "ResourceEvent",
       {
@@ -2453,6 +2470,15 @@ export class ZoneServer2016 extends EventEmitter {
             ) {
                 this.addLightweightNpc(client, npc);
                 client.spawnedEntities.push(npc);
+                if (npc.itemDefinitionId == Items.SHACK || npc.itemDefinitionId == Items.SMALL_SHACK || npc.itemDefinitionId == Items.BASIC_SHACK) {
+                    this.updateResource(
+                        client,
+                        npc.characterId,
+                        npc.health,
+                        ResourceIds.CONSTRUCTION_CONDITION,
+                        ResourceTypes.CONDITION
+                    );
+                }
             }
         }
 
@@ -2468,6 +2494,13 @@ export class ZoneServer2016 extends EventEmitter {
             ) {
                 this.addLightweightNpc(client, npc);
                 client.spawnedEntities.push(npc);
+                this.updateResource(
+                    client,
+                    npc.characterId,
+                    npc.health,
+                    ResourceIds.CONSTRUCTION_CONDITION,
+                    ResourceTypes.CONDITION
+                );
                 if (npc.isOpen) {
                     this.sendData(client,"PlayerUpdatePosition", {
                         transientId: npc.transientId,
@@ -2483,17 +2516,24 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         for (const characterId in this._constructionSimple) {
-            const object = this._constructionSimple[characterId];
+            const npc = this._constructionSimple[characterId];
             if (
                 isPosInRadius(
-                    object.npcRenderDistance ? object.npcRenderDistance : this._charactersRenderDistance,
+                    npc.npcRenderDistance ? npc.npcRenderDistance : this._charactersRenderDistance,
                     client.character.state.position,
-                   object.state.position
+                    npc.state.position
                 ) &&
-                !client.spawnedEntities.includes(object)
+                !client.spawnedEntities.includes(npc)
             ) {
-                this.addLightweightNpc(client, object);
-                client.spawnedEntities.push(object);
+                this.addLightweightNpc(client, npc);
+                client.spawnedEntities.push(npc);
+                this.updateResource(
+                    client,
+                    npc.characterId,
+                    npc.health,
+                    ResourceIds.CONSTRUCTION_CONDITION,
+                    ResourceTypes.CONDITION
+                );
             }
         }
     }
@@ -3351,6 +3391,7 @@ export class ZoneServer2016 extends EventEmitter {
             client.character.characterId,
             parentObjectCharacterId,
             slot,
+            BuildingSlot,
         )
         if (Number(parentObjectCharacterId)) {
             switch (this.getEntityType(parentObjectCharacterId)) {

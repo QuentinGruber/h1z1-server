@@ -90,6 +90,7 @@ export enum ResourceIds {
     COMFORT = 68,
     FUEL = 396,
     CONDITION = 561,
+    CONSTRUCTION_CONDITION = 567,
 }
 
 export enum ResourceTypes {

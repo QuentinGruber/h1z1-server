@@ -39,6 +39,7 @@ export class simpleConstruction extends BaseLightweightCharacter {
         this.parentObjectCharacterId = parentObjectCharacterId;
         if (eulerAngle) this.eulerAngle = eulerAngle;
         if (slot) this.slot = slot
+        this.profileId = 999; /// mark as construction
         this.perimeters = {
             "LoveShackDoor": new Float32Array([0, 0, 0, 0])
         }
