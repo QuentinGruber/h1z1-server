@@ -184,7 +184,7 @@ export class WorldObjectManager {
       itemSpawnerId || 0,
       item
       );
-      if (item.itemDefinitionId === Items.FUEL_ETHANOL || itemDef === Items.FUEL_BIOFUEL) {
+      if (item.itemDefinitionId === Items.FUEL_ETHANOL || item.itemDefinitionId === Items.FUEL_BIOFUEL) {
           server._spawnedItems[characterId].flags.projectileCollision = 1
           server._explosives[characterId] = new ExplosiveEntity(
               characterId,
