@@ -1975,10 +1975,10 @@ export class ZoneServer2016 extends EventEmitter {
         case EntityTypes.OBJECT:
             if (this._spawnedItems[characterId]) {
                 if (this._spawnedItems[characterId].item.itemDefinitionId === Items.FUEL_BIOFUEL || this._spawnedItems[characterId].item.itemDefinitionId === Items.FUEL_ETHANOL) {
-                    const object = this._spawnedItems[characterId]
                     this.deleteEntity(characterId, this._spawnedItems);
-                    delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
-                    this.explodeExplosive(this._explosives[characterId]);
+                    if (this._explosives[characterId]) {
+                        this.explodeExplosive(this._explosives[characterId]);
+                    }
                 }
             }       
             return;
@@ -4869,11 +4869,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
     //endregion
       this.lootItem(client, item); // TODO: SPLIT STACK IF NOT ENOUGH SPACE !
-      if (item.itemDefinitionId === Items.FUEL_BIOFUEL || item.itemDefinitionId === Items.FUEL_ETHANOL) {
-          this.deleteEntity(object.characterId, this._explosives)
-      }
     this.deleteEntity(guid, this._spawnedItems);
     delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
+    if (item.itemDefinitionId === Items.FUEL_BIOFUEL || item.itemDefinitionId === Items.FUEL_ETHANOL) {
+          if (!this._explosives[object.characterId]) return
+          this.deleteEntity(object.characterId, this._explosives)
+      }
   }
 
   lootContainerItem(
