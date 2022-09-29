@@ -1155,7 +1155,7 @@ export class ZoneServer2016 extends EventEmitter {
             const explosiveObj = this._explosives[explosive];
             if (explosiveObj.characterId != npcTriggered) {
                 if (getDistance(position, explosiveObj.state.position) < 2) {
-                    await Scheduler.wait(150);
+                    await Scheduler.wait(200);
                     if (this._spawnedItems[explosiveObj.characterId]) {
                         const object = this._spawnedItems[explosiveObj.characterId];
                         this.deleteEntity(explosiveObj.characterId, this._spawnedItems)
@@ -1190,29 +1190,13 @@ export class ZoneServer2016 extends EventEmitter {
             ResourceTypes.CONDITION,
             dictionary
         );
-        this.sendDataToAllWithSpawnedEntity( // play burning effect & remove it after 10s
-            dictionary,
-            constructionCharId,
-            "Command.PlayDialogEffect",
-            {
-                characterId: constructionCharId,
-                effectId: 1214,
-            }
-        );
+        this.sendEffectToAllWithSpawnedEntity(constructionCharId, 1124, dictionary)  
         setTimeout(() => {
-            this.sendDataToAllWithSpawnedEntity(
-                dictionary,
-                constructionCharId,
-                "Command.PlayDialogEffect",
-                {
-                    characterId: constructionCharId,
-                    effectId: 0,
-                }
-            );
+            this.sendEffectToAllWithSpawnedEntity(constructionCharId, 0, dictionary)
         }, 10000)
         if (constructionObject.health > 0) return
         const foundation = this._constructionFoundations[constructionObject.parentObjectCharacterId] ? this._constructionFoundations[constructionObject.parentObjectCharacterId] : this._constructionSimple[constructionObject.parentObjectCharacterId]
-        if (constructionObject.itemDefinitionId != Items.METAL_DOOR && constructionObject.itemDefinitionId != Items.METAL_GATE && constructionObject.itemDefinitionId != Items.METAL_WALL) {
+        if (constructionObject.itemDefinitionId == Items.METAL_DOOR || constructionObject.itemDefinitionId == Items.METAL_GATE || constructionObject.itemDefinitionId == Items.METAL_WALL) {
             foundation.changePerimeters(this, constructionObject.buildingSlot, new Float32Array([0, 0, 0, 0]));
         }
         this.deleteEntity(constructionCharId, dictionary, 242, 3000)
@@ -1328,15 +1312,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         if (allowSend) {
-          this.sendDataToAllWithSpawnedEntity(
-            this._vehicles,
-            vehicle.characterId,
-            "Command.PlayDialogEffect",
-            {
-              characterId: vehicle.characterId,
-              effectId: damageeffect,
-            }
-          );
+          this.sendEffectToAllWithSpawnedEntity(vehicle.characterId, damageeffect, this._vehicles)
           this._vehicles[vehicle.characterId].destroyedEffect = damageeffect;
           if (!vehicle.damageTimeout && startDamageTimeout) {
             this.startVehicleDamageDelay(vehicle);
@@ -2243,32 +2219,19 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   deleteEntity(characterId: string, dictionary: any, effectId?: number, timeToDisappear?: number) {
-      if (effectId) {
           this.sendDataToAllWithSpawnedEntity(
               dictionary,
               characterId,
               "Character.RemovePlayer",
               {
                   characterId: characterId,
-                  unknownWord1: 1,
-                  effectId: effectId,
+                  unknownWord1: effectId ? 1 : 0,
+                  effectId: effectId ? effectId : 0,
                   timeToDisappear: timeToDisappear ? timeToDisappear : 0,
                   effectDelay: timeToDisappear ? timeToDisappear : 0
               }
           );
-      }
-      else {
-          this.sendDataToAllWithSpawnedEntity(
-              dictionary,
-              characterId,
-              "Character.RemovePlayer",
-              {
-                  characterId: characterId,
-              }
-          );
-      }
     delete dictionary[characterId];
-
     delete this._transientIds[this._characterIds[characterId]];
     delete this._characterIds[characterId];
   }
@@ -3137,6 +3100,36 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+    sendCompositeEffectToAllInRange(
+        range: number,
+        characterId: string,
+        position: Float32Array,
+        effectId: number,
+    ) {
+        this.sendDataToAllInRange(range, position, "Character.PlayWorldCompositeEffect", {
+            characterId: characterId,
+            effectId: effectId,
+            position: position,
+        });
+    }
+
+  sendEffectToAllWithSpawnedEntity(
+    characterId: string,
+    effectId: number,
+    dictionary: any,
+  ) {
+      this.sendDataToAllWithSpawnedEntity(
+          dictionary,
+          characterId,
+          "Command.PlayDialogEffect",
+          {
+              characterId: characterId,
+              effectId: effectId,
+          }
+      );
+    
+  }
+
   sendDataToAllWithSpawnedEntity(
     dictionary: { [id: string]: any },
     entityCharacterId: string = "",
@@ -3155,6 +3148,19 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
+
+    sendDataToAllInRange(
+        range: number,
+        position: Float32Array,
+        packetName: any,
+        obj: any
+    ) {
+        for (const a in this._clients) {
+            if (isPosInRadius(range,this._clients[a].character.state.position,position)) {
+                this.sendData(this._clients[a], packetName, obj);
+            }
+        }
+    }
 
   sendDataToAllOthersWithSpawnedEntity(
     dictionary: { [id: string]: any },
@@ -5596,24 +5602,8 @@ export class ZoneServer2016 extends EventEmitter {
     if (!IED.isIED) {
       return;
     }
-    this.sendDataToAllWithSpawnedEntity(
-      this._explosives,
-      IED.characterId,
-      "Command.PlayDialogEffect",
-      {
-        characterId: IED.characterId,
-        effectId: 5034,
-      }
-    );
-    this.sendDataToAllWithSpawnedEntity(
-      this._explosives,
-      IED.characterId,
-      "Command.PlayDialogEffect",
-      {
-        characterId: IED.characterId,
-        effectId: 185,
-      }
-    );
+    this.sendEffectToAllWithSpawnedEntity(IED.characterId, 5034, this._explosives)
+    this.sendEffectToAllWithSpawnedEntity(IED.characterId, 185, this._explosives)
     setTimeout(() => {
       this.explodeExplosive(IED, client);
     }, 10000);
@@ -5623,7 +5613,8 @@ export class ZoneServer2016 extends EventEmitter {
       if (!this._explosives[explosive.characterId]) {
           return;
       }
-      this.deleteEntity(explosive.characterId, this._explosives, 1875)
+      this.sendCompositeEffectToAllInRange(600, "", explosive.state.position, 1875)
+      this.deleteEntity(explosive.characterId, this._explosives,)
     client ? this.explosionDamage(explosive.state.position, explosive.characterId, client) : this.explosionDamage(explosive.state.position, explosive.characterId);
   }
 
