@@ -941,7 +941,7 @@ export class zonePacketHandlers {
                     setTimeout(function () {
                         door.moving = false;
                     }, 1000);
-                    server.sendDataToAll("PlayerUpdatePosition", {
+                    server.sendDataToAllWithSpawnedEntity(server._doors, door.characterId,"PlayerUpdatePosition", {
                         transientId: door.transientId,
                         positionUpdate: {
                             sequenceTime: 0,
@@ -950,7 +950,7 @@ export class zonePacketHandlers {
                             orientation: door.isOpen ? door.closedAngle : door.openAngle,
                         },
                     });
-                    server.sendDataToAll("Command.PlayDialogEffect", {
+                    server.sendDataToAllWithSpawnedEntity(server._doors, door.characterId, "Command.PlayDialogEffect", {
                         characterId: door.characterId,
                         effectId: door.isOpen ? door.closeSound : door.openSound,
                     });
@@ -994,7 +994,7 @@ export class zonePacketHandlers {
                         setTimeout(function () {
                             doorEntity.moving = false;
                         }, 1000);
-                        server.sendDataToAll("PlayerUpdatePosition", {
+                        server.sendDataToAllWithSpawnedEntity(server._constructionDoors, doorEntity.characterId, "PlayerUpdatePosition", {
                             transientId: doorEntity.transientId,
                             positionUpdate: {
                                 sequenceTime: 0,
@@ -1003,7 +1003,7 @@ export class zonePacketHandlers {
                                 orientation: doorEntity.isOpen ? doorEntity.closedAngle : doorEntity.openAngle,
                             },
                         });
-                        server.sendDataToAll("Command.PlayDialogEffect", {
+                        server.sendDataToAllWithSpawnedEntity(server._constructionDoors, doorEntity.characterId, "Command.PlayDialogEffect", {
                             characterId: doorEntity.characterId,
                             effectId: doorEntity.isOpen ? doorEntity.closeSound : doorEntity.openSound,
                         });
