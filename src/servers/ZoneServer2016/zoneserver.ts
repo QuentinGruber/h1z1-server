@@ -1097,7 +1097,7 @@ export class ZoneServer2016 extends EventEmitter {
 
         for (const construction in this._constructionSimple) {
             const constructionObject = this._constructionSimple[construction] as simpleConstruction;
-            const fixedPosition = this.getFixedConstructionPosition(constructionObject, 2.5);
+            const fixedPosition = this.getFixedConstructionPosition(constructionObject, (constructionObject.itemDefinitionId == Items.LARGE_SHELTER || constructionObject.itemDefinitionId == Items.UPPER_LEVEL_LARGE_SHELER)? 7.5:2.5);
             if (isPosInRadius(6, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position, position)) {
                 if (constructionObject.actorModelId != 9487 && constructionObject.actorModelId != 9488) {
                         if (this._constructionFoundations[constructionObject.parentObjectCharacterId]) {
@@ -1127,7 +1127,7 @@ export class ZoneServer2016 extends EventEmitter {
 
         for (const construction in this._constructionDoors) {
             const constructionObject = this._constructionDoors[construction] as constructionDoor;
-            const fixedPosition = this.getFixedConstructionPosition(constructionObject, 2.5);
+            const fixedPosition = this.getFixedConstructionPosition(constructionObject, constructionObject.itemDefinitionId == Items.METAL_DOOR ? 0.625: 2.5)
             const foundation = this._constructionFoundations[constructionObject.parentObjectCharacterId] ? this._constructionFoundations[constructionObject.parentObjectCharacterId] : this._constructionFoundations[this._constructionSimple[constructionObject.parentObjectCharacterId].parentObjectCharacterId]
             if (isPosInRadius(6, fixedPosition, position)) {
                     if (foundation && foundation.isSecured && constructionObject.actorModelId != 49) {
@@ -1170,7 +1170,7 @@ export class ZoneServer2016 extends EventEmitter {
     getFixedConstructionPosition(construction: any, distance: number) {
         if (construction.openAngle != undefined) {
             return movePoint(construction.state.position, -construction.openAngle, distance)  // we have to fix walls/gates position cuz regular one is their right corner
-        } else if (construction.actorModelId === 50 || construction.actorModelId === 9407) {
+        } else if (construction.itemDefinitionId == Items.METAL_WALL || construction.itemDefinitionId == Items.UPPER_METAL_WALL || construction.itemDefinitionId == Items.UPPER_LEVEL_LARGE_SHELER || construction.itemDefinitionId == Items.LARGE_SHELTER) {
             return movePoint(construction.state.position, -(construction.eulerAngle + 1.575), distance)
         } else return new Float32Array(construction.state.position)
     }
