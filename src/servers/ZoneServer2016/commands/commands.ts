@@ -311,7 +311,20 @@ export const commands: Array<Command> = [
       client.character.ownedVehicle = vehicleData.characterId;
     }
   },
-
+  {
+    name: "d",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      server.sendData(client, "CharacterSelectSessionResponse", {
+        status: 1,
+        sessionId: client.loginSessionId,
+      });
+    }
+  },
   {
     name: "titan",
     permissionLevel: PermissionLevels.ADMIN,
