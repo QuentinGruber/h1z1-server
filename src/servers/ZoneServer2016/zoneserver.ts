@@ -1668,7 +1668,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     hitMissFairPlayCheck(client: Client, hit: boolean, hitLocation: string) {
-        if (!this._useFairPlay) return
+        if (!this._useFairPlay || client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_SHOTGUN) return
         if (hit) {
             client.pvpStats.shotsHit += 1;
             switch (hitLocation) {
