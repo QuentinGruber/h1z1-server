@@ -8,6 +8,21 @@
 
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneServer2016 } from "../zoneserver";
+import { Items } from "../enums";
+function getDamageRange(definitionId: number): number {
+    switch (definitionId) {
+        case Items.METAL_WALL:
+        case Items.UPPER_METAL_WALL:
+        case Items.SHELTER:
+        case Items.UPPER_LEVEL_SHELTER:
+            return 4.3
+        case Items.LARGE_SHELTER:
+        case Items.UPPER_LEVEL_LARGE_SHELER:
+            return 6.5
+        default:
+            return 2
+    }
+}
 
 export class simpleConstruction extends BaseLightweightCharacter {
     health: number = 1000000;
@@ -21,6 +36,8 @@ export class simpleConstruction extends BaseLightweightCharacter {
     occupiedSlots: string[] = [];
     securedPolygons?: any;
     isSecured = false;
+    damageRange: number;
+    fixedPosition?: Float32Array;
     constructor(
         characterId: string,
         transientId: number,
@@ -43,6 +60,7 @@ export class simpleConstruction extends BaseLightweightCharacter {
         this.perimeters = {
             "LoveShackDoor": new Float32Array([0, 0, 0, 0])
         }
+        this.damageRange = getDamageRange(this.itemDefinitionId);
     }
     pGetConstructionHealth() {
         return {

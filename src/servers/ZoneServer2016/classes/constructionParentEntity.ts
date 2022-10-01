@@ -16,6 +16,19 @@ import { Items } from "../enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { getRectangleCorners } from "../../../utils/utils";
 
+function getDamageRange(definitionId: number): number {
+    switch (definitionId) {
+        case Items.SHACK:
+            return 4.5
+        case Items.SMALL_SHACK:
+            return 4
+        case Items.BASIC_SHACK:
+            return 3
+        default:
+            return 4.5
+    }
+}
+
 
 export class ConstructionParentEntity extends simpleConstruction {
     healthPercentage: number = 100;
@@ -25,11 +38,14 @@ export class ConstructionParentEntity extends simpleConstruction {
     itemDefinitionId: number;
     expansions: { [slot: string]: string } = {};
     isSecured: boolean = false;
+    isFullySecured: boolean = true;
     parentObjectCharacterId: string;
     occupiedSlots: string[]= [];
     buildingSlot?: string;
     securedPolygons: any[];
     eulerAngle?: number;
+    damageRange: number;
+    fixedPosition?: Float32Array;
     constructor(
         characterId: string,
         transientId: number,
@@ -61,6 +77,7 @@ export class ConstructionParentEntity extends simpleConstruction {
         if (BuildingSlot) this.buildingSlot = BuildingSlot;
         this.securedPolygons = [];
         this.perimeters = {};
+        this.damageRange = getDamageRange(this.itemDefinitionId)
         switch (this.itemDefinitionId) {
             case Items.GROUND_TAMPER:
                 this.perimeters = {
@@ -140,12 +157,20 @@ export class ConstructionParentEntity extends simpleConstruction {
                     expansion.securedPolygons = tempExpansionPolygons
                     temporaryPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
                     side01 = true;
+                    if (this.perimeters["04"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
+                        this.perimeters["05"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
+                        this.perimeters["06"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
+                        expansion.isFullySecured = true;
+                    } else expansion.isFullySecured = false;
                 } else {
                     if (this.perimeters["04"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["05"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["06"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
                         temporaryPolygons.push([this.perimeters["04"][0], this.perimeters["04"][2]])
                         side01 = true;
+                        if (this.expansions["01"] && server._constructionFoundations[this.expansions["01"]]) server._constructionFoundations[this.expansions["01"]].isFullySecured = true
+                    } else {
+                        if (this.expansions["01"] && server._constructionFoundations[this.expansions["01"]]) server._constructionFoundations[this.expansions["01"]].isFullySecured = false
                     }
                 }
                 if (this.expansions["02"] && server._constructionFoundations[this.expansions["02"]].isSecured) {
@@ -162,12 +187,20 @@ export class ConstructionParentEntity extends simpleConstruction {
                     expansion.securedPolygons = tempExpansionPolygons
                     temporaryPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
                     side02 = true;
+                    if (this.perimeters["01"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
+                        this.perimeters["02"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
+                        this.perimeters["03"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
+                        expansion.isFullySecured = true;
+                    } else expansion.isFullySecured = false;
                 } else {
                     if (this.perimeters["01"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["02"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["03"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
                         temporaryPolygons.push([this.perimeters["01"][0], this.perimeters["01"][2]])
                         side02 = true;
+                        if (this.expansions["02"] && server._constructionFoundations[this.expansions["02"]]) server._constructionFoundations[this.expansions["02"]].isFullySecured = true
+                    } else {
+                        if (this.expansions["02"] && server._constructionFoundations[this.expansions["02"]]) server._constructionFoundations[this.expansions["02"]].isFullySecured = false
                     }
                 }
                 if (this.expansions["03"] && server._constructionFoundations[this.expansions["03"]].isSecured) {
@@ -183,13 +216,21 @@ export class ConstructionParentEntity extends simpleConstruction {
                     }
                     expansion.securedPolygons = tempExpansionPolygons
                     temporaryPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
-                    side03 = true;
+                    side03 = true
+                    if (this.perimeters["10"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
+                        this.perimeters["11"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
+                        this.perimeters["12"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
+                        expansion.isFullySecured = true;
+                    } else expansion.isFullySecured = false;
                 } else {
                     if (this.perimeters["10"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["11"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["12"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
                         temporaryPolygons.push([this.perimeters["10"][0], this.perimeters["10"][2]])
                         side03 = true;
+                        if (this.expansions["03"] && server._constructionFoundations[this.expansions["03"]]) server._constructionFoundations[this.expansions["03"]].isFullySecured = true
+                    } else {
+                        if (this.expansions["03"] && server._constructionFoundations[this.expansions["03"]]) server._constructionFoundations[this.expansions["03"]].isFullySecured = false
                     }
                 }
                 if (this.expansions["04"] && server._constructionFoundations[this.expansions["04"]].isSecured) {
@@ -206,12 +247,20 @@ export class ConstructionParentEntity extends simpleConstruction {
                     expansion.securedPolygons = tempExpansionPolygons
                     temporaryPolygons.push([expansion.perimeters["01"][0], expansion.perimeters["01"][2]])
                     side04 = true;
+                    if (this.perimeters["07"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
+                        this.perimeters["08"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
+                        this.perimeters["09"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
+                        expansion.isFullySecured = true;
+                    } else expansion.isFullySecured = false;
                 } else {
                     if (this.perimeters["07"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["08"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0 &&
                         this.perimeters["09"].reduce((accumulator, currentValue) => accumulator + currentValue) != 0) {
                         temporaryPolygons.push([this.perimeters["07"][0], this.perimeters["07"][2]])
                         side04 = true;
+                        if (this.expansions["04"] && server._constructionFoundations[this.expansions["04"]]) server._constructionFoundations[this.expansions["04"]].isFullySecured = true
+                    } else {
+                        if (this.expansions["04"] && server._constructionFoundations[this.expansions["04"]]) server._constructionFoundations[this.expansions["04"]].isFullySecured = false
                     }
                 }
                 if (side01 && side02 && side03 && side04) {

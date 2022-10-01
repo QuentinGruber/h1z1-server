@@ -1098,52 +1098,35 @@ export class ZoneServer2016 extends EventEmitter {
         for (const construction in this._constructionSimple) {
             const constructionObject = this._constructionSimple[construction] as simpleConstruction;
             if (constructionObject.itemDefinitionId == Items.FOUNDATION_RAMP || constructionObject.itemDefinitionId == Items.FOUNDATION_STAIRS) continue;
-            const fixedPosition = this.getFixedConstructionPosition(constructionObject, (constructionObject.itemDefinitionId == Items.LARGE_SHELTER || constructionObject.itemDefinitionId == Items.UPPER_LEVEL_LARGE_SHELER)? 7.5:2.5);
-            if (isPosInRadius(6, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position, position)) {
-                const notProtected = [Items.METAL_WALL, Items.UPPER_METAL_WALL]
-                        if (this._constructionFoundations[constructionObject.parentObjectCharacterId]) {
-                            if (this._constructionFoundations[constructionObject.parentObjectCharacterId])
-                                if (this._constructionFoundations[constructionObject.parentObjectCharacterId].isSecured && !notProtected.includes(constructionObject.itemDefinitionId)) {
-                                    if (client) {
-                                        this.sendBaseSecuredMessage(client);
-                                    }
-                                }
-                                else {
-                                    this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position)
-                                }
-                        } else if (this._constructionSimple[constructionObject.parentObjectCharacterId] ? this._constructionSimple[constructionObject.parentObjectCharacterId] : this._constructionSimple[this._constructionSimple[constructionObject.parentObjectCharacterId].parentObjectCharacterId]) {
-                            const parentConstruction = this._constructionSimple[constructionObject.parentObjectCharacterId] as simpleConstruction;
-                            if (this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured && !notProtected.includes(constructionObject.itemDefinitionId)) {
-                                if (client) {
-                                    this.sendBaseSecuredMessage(client);
-                                }
-                            }
-                            else {
-                                this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position, fixedPosition.reduce((partialSum, a) => partialSum + a, 0) != 0 ? fixedPosition : constructionObject.state.position)
-                            }
-                        }
+            if (isPosInRadius(constructionObject.damageRange, constructionObject.fixedPosition ? constructionObject.fixedPosition : constructionObject.state.position, position)) {
+                if (this.isConstructionInSecuredArea(constructionObject, "simple")) {
+                    if (client) {
+                        this.sendBaseSecuredMessage(client);
+                    }
+                }
+                else {
+                    this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position, constructionObject.fixedPosition ? constructionObject.fixedPosition : constructionObject.state.position)
+                }
             }
         }
 
         for (const construction in this._constructionDoors) {
             const constructionObject = this._constructionDoors[construction] as constructionDoor;
-            const fixedPosition = this.getFixedConstructionPosition(constructionObject, constructionObject.itemDefinitionId == Items.METAL_DOOR ? 0.625: 2.5)
-            const foundation = this._constructionFoundations[constructionObject.parentObjectCharacterId] ? this._constructionFoundations[constructionObject.parentObjectCharacterId] : this._constructionFoundations[this._constructionSimple[constructionObject.parentObjectCharacterId].parentObjectCharacterId]
-            if (isPosInRadius(6, fixedPosition, position)) {
-                    if (foundation && foundation.isSecured && constructionObject.itemDefinitionId != Items.METAL_GATE) {
+            if (isPosInRadius(constructionObject.damageRange, constructionObject.fixedPosition ? constructionObject.fixedPosition : constructionObject.state.position, position)) {
+                if (this.isConstructionInSecuredArea(constructionObject, "door")) {
                         if (client) {
                             this.sendBaseSecuredMessage(client);
                         }
                     }
                     else {
-                        this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionDoors, position, fixedPosition)
+                        this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionDoors, position, constructionObject.fixedPosition ? constructionObject.fixedPosition : constructionObject.state.position)
                     }
             }
         }
 
         for (const construction in this._constructionFoundations) {
             const constructionObject = this._constructionFoundations[construction] as ConstructionParentEntity;
-            if (isPosInRadius(6, constructionObject.state.position, position)) {
+            if (isPosInRadius(constructionObject.damageRange, constructionObject.state.position, position)) {
                 const allowed = [Items.SHACK, Items.SMALL_SHACK, Items.BASIC_SHACK]
                 if (allowed.includes(constructionObject.itemDefinitionId)) {
                     this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionFoundations, position, constructionObject.state.position)
@@ -1167,12 +1150,36 @@ export class ZoneServer2016 extends EventEmitter {
         }
     }
 
-    getFixedConstructionPosition(construction: any, distance: number) {
-        if (construction.openAngle != undefined) {
-            return movePoint(construction.state.position, -construction.openAngle, distance)  // we have to fix walls/gates position cuz regular one is their right corner
-        } else if (construction.itemDefinitionId == Items.METAL_WALL || construction.itemDefinitionId == Items.UPPER_METAL_WALL || construction.itemDefinitionId == Items.UPPER_LEVEL_LARGE_SHELER || construction.itemDefinitionId == Items.LARGE_SHELTER) {
-            return movePoint(construction.state.position, -(construction.eulerAngle + 1.575), distance)
-        } else return new Float32Array(construction.state.position)
+    isConstructionInSecuredArea(construction: any, type: string) {
+        switch (type) {
+            case "simple":
+                const notProtected = [Items.METAL_WALL, Items.UPPER_METAL_WALL];
+                if (notProtected.includes(construction.itemDefinitionId)) return false;
+                if (this._constructionFoundations[construction.parentObjectCharacterId]) {
+                    if (this._constructionFoundations[this._constructionFoundations[construction.parentObjectCharacterId].parentObjectCharacterId]) {
+                        if (this._constructionFoundations[construction.parentObjectCharacterId].isFullySecured) return true
+                        else if (this._constructionFoundations[this._constructionFoundations[construction.parentObjectCharacterId].parentObjectCharacterId].isSecured && this._constructionFoundations[construction.parentObjectCharacterId].isSecured) return true
+                        else return false
+                    }
+                    if (this._constructionFoundations[construction.parentObjectCharacterId] && this._constructionFoundations[construction.parentObjectCharacterId].isSecured) return true
+                }
+                else if (this._constructionSimple[construction.parentObjectCharacterId] ? this._constructionSimple[construction.parentObjectCharacterId] : this._constructionSimple[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId]) {
+                    const parentConstruction = this._constructionSimple[construction.parentObjectCharacterId] ? this._constructionSimple[construction.parentObjectCharacterId] : this._constructionSimple[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId] as simpleConstruction;
+                    if (this._constructionFoundations[parentConstruction.parentObjectCharacterId]) {
+                        if (this._constructionFoundations[this._constructionFoundations[parentConstruction.parentObjectCharacterId].parentObjectCharacterId]) {
+                            if (this._constructionFoundations[parentConstruction.parentObjectCharacterId].isFullySecured) return true
+                            else if (this._constructionFoundations[this._constructionFoundations[parentConstruction.parentObjectCharacterId].parentObjectCharacterId].isSecured && this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured) return true
+                            else return false
+                        }
+                        if (this._constructionFoundations[parentConstruction.parentObjectCharacterId] && this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured) return true
+                    } else return false
+                }
+            case "door":
+                const foundation = this._constructionFoundations[construction.parentObjectCharacterId] ? this._constructionFoundations[construction.parentObjectCharacterId] : this._constructionFoundations[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId]
+                if (foundation && foundation.isSecured && construction.itemDefinitionId != Items.METAL_GATE) return true
+                else return false
+        }
+        return false
     }
 
     sendBaseSecuredMessage(client: Client) {
@@ -3324,6 +3331,7 @@ export class ZoneServer2016 extends EventEmitter {
                         slot,
                         rotation[0],                      
                     );
+                    if (npc.eulerAngle) npc.fixedPosition = movePoint(npc.state.position, -(npc.eulerAngle + 90 * Math.PI/180 ), 2.5)                
                     this._constructionSimple[characterId] = npc;
                     switch (this.getEntityType(parentObjectCharacterId)) {
                         case EntityTypes.CONSTRUCTION_FOUNDATION:
@@ -3359,6 +3367,7 @@ export class ZoneServer2016 extends EventEmitter {
                             case Items.LARGE_SHELTER:
                             case Items.UPPER_LEVEL_LARGE_SHELER:
                                 const centerPoint = movePoint(position, angle + 90 * Math.PI / 180, 2.5);
+                                npc.fixedPosition = centerPoint;
                                 npc.securedPolygons = getRectangleCorners(centerPoint, 10, 5, angle);
                                 break;
                             case Items.SHELTER:
@@ -3399,6 +3408,7 @@ export class ZoneServer2016 extends EventEmitter {
             slot,
             BuildingSlot,
         )
+        npc.fixedPosition = movePoint(npc.state.position, -npc.openAngle, npc.itemDefinitionId == Items.METAL_DOOR ? 0.625 : 2.5)
         if (Number(parentObjectCharacterId)) {
             switch (this.getEntityType(parentObjectCharacterId)) {
                 case EntityTypes.CONSTRUCTION_FOUNDATION:
@@ -3440,7 +3450,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (itemDefinitionId === Items.FOUNDATION_EXPANSION && parentObjectCharacterId && BuildingSlot) {
             this._constructionFoundations[parentObjectCharacterId].expansions[BuildingSlot] = characterId;
             npc.permissions = this._constructionFoundations[parentObjectCharacterId].permissions;
-        } 
+        }
         this._constructionFoundations[characterId] = npc
     }
 

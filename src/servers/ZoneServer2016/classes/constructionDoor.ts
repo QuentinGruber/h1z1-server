@@ -12,6 +12,18 @@
 // ======================================================================
 
 import { DoorEntity } from "./doorentity";
+import { Items } from "../enums";
+function getDamageRange(definitionId: number): number {
+    switch (definitionId) {
+        case Items.METAL_GATE:
+            return 4.3
+        case Items.METAL_DOOR:
+        case Items.BASIC_SHACK_DOOR:
+            return 1.5
+        default:
+            return 1.5
+    }
+}
 
 export class constructionDoor extends DoorEntity {
     ownerCharacterId: string;
@@ -23,6 +35,8 @@ export class constructionDoor extends DoorEntity {
     buildingSlot: string;
     itemDefinitionId: number;
     slot?: string;
+    damageRange: number;
+    fixedPosition?: Float32Array;
     constructor(
         characterId: string,
         transientId: number,
@@ -43,6 +57,7 @@ export class constructionDoor extends DoorEntity {
         this.buildingSlot = BuildingSlot;
         if (slot) this.slot = slot;
         this.profileId = 999; /// mark as construction
+        this.damageRange = getDamageRange(this.itemDefinitionId);
     }
     pGetConstructionHealth() {
         return {
