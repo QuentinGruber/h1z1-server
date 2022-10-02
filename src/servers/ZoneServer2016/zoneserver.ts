@@ -1175,7 +1175,7 @@ export class ZoneServer2016 extends EventEmitter {
                     } else return false
                 }
             case "door":
-                const foundation = this._constructionFoundations[construction.parentObjectCharacterId] ? this._constructionFoundations[construction.parentObjectCharacterId] : this._constructionFoundations[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId]
+                const foundation = this._constructionFoundations[construction.parentObjectCharacterId] ? this._constructionFoundations[construction.parentObjectCharacterId] : this._constructionFoundations[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId] ? this._constructionFoundations[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId] : this._constructionFoundations[this._constructionSimple[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId].parentObjectCharacterId]
                 if (foundation && foundation.isSecured && construction.itemDefinitionId != Items.METAL_GATE) return true
                 else return false
         }
