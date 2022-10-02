@@ -1652,7 +1652,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (client.isAdmin || !this._useFairPlay) return;
         const speed = (getDistance(client.oldPos.position, position) / 1000) / (sequenceTime - client.oldPos.time) * 3600000;
         const verticalSpeed = (getDistance(new Float32Array([0, client.oldPos.position[1], 0]), new Float32Array([0, position[1], 0])) / 1000) / (sequenceTime - client.oldPos.time) * 3600000;
-        if (speed > 35 && verticalSpeed < 50) {
+        if (speed > 35 && (verticalSpeed < 50 || verticalSpeed == Infinity)) {
             client.speedWarnsNumber += 1
         } else if (client.speedWarnsNumber != 0) {
             client.speedWarnsNumber -= 1
