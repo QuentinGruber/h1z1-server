@@ -45,4 +45,5 @@ export interface FullVehicleSaveData
 
 export interface ServerSaveData extends BaseSaveData {
   lastItemGuid: string;
+  worldSaveVersion: number;
 }

@@ -96,7 +96,7 @@ import { BaseEntity } from "./classes/baseentity";
 import { constructionDoor } from "./classes/constructionDoor";
 import { ConstructionParentEntity } from "./classes/constructionParentEntity";
 import { simpleConstruction } from "./classes/simpleConstruction";
-import { FullCharacterSaveData } from "types/savedata";
+import { FullCharacterSaveData, ServerSaveData } from "types/savedata";
 import { WorldDataManager } from "./classes/worlddatamanager";
 import {
   CharacterKilledBy,
@@ -218,6 +218,7 @@ export class ZoneServer2016 extends EventEmitter {
     [hook: string]: Array<(...args: any) => AsyncHookType>;
   } = {};
   enableWorldSaves: boolean;
+  readonly worldSaveVersion: number = 1;
 
   constructor(
     serverPort: number,
@@ -742,9 +743,18 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!this._soloMode) {
       await this.worldDataManager.initializeDatabase(this);
+      const loadedWorld = await this._db?.collection("worlds").findOne({ worldId: this._worldId }) as unknown as ServerSaveData; 
       if (
-        await this._db?.collection("worlds").findOne({ worldId: this._worldId })
+        loadedWorld
       ) {
+        if(loadedWorld.worldSaveVersion !== this.worldSaveVersion){
+          console.log("World save version mismatch, deleting world data");
+          await this._db?.collection("worlds").deleteOne({ worldId: this._worldId });
+          // TODO: delete all entities linked to this worldId
+        } else {
+          await this.worldDataManager.insertWorld(this);
+          await this.worldDataManager.saveWorld(this);
+        }
         await this.worldDataManager.fetchWorldData(this);
       } else {
         await this.worldDataManager.insertWorld(this);

@@ -105,6 +105,7 @@ export class WorldDataManager {
     const saveData: ServerSaveData = {
       serverId: server._worldId,
       lastItemGuid: toBigHex(server.lastItemGuid),
+      worldSaveVersion: server.worldSaveVersion
     };
     if (server._soloMode) {
       fs.writeFileSync(
