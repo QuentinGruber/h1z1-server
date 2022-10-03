@@ -101,6 +101,8 @@ import { WorldDataManager } from "./classes/worlddatamanager";
 import {
   CharacterKilledBy,
   ClientUpdateDeathMetrics,
+  EquipmentSetCharacterEquipmentSlot,
+  zone2016packets,
 } from "types/zone2016packets";
 import { AsyncHooks, AsyncHookType, FunctionHookType, Hooks } from "./hooks";
 
@@ -2265,7 +2267,7 @@ export class ZoneServer2016 extends EventEmitter {
     delete this._characterIds[characterId];
   }
 
-  sendManagedObjectResponseControlPacket(client: Client, obj: any) {
+  sendManagedObjectResponseControlPacket(client: Client, obj: zone2016packets) {
     this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", obj);
   }
 
@@ -2637,7 +2639,7 @@ export class ZoneServer2016 extends EventEmitter {
   private _sendData(
     client: Client,
     packetName: h1z1PacketsType,
-    obj: any,
+    obj: zone2016packets,
     unbuffered: boolean
   ) {
     if (this._packetsStats[packetName]) this._packetsStats[packetName]++;
@@ -2665,15 +2667,15 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sendUnbufferedData(client: Client, packetName: h1z1PacketsType, obj: any) {
+  sendUnbufferedData(client: Client, packetName: h1z1PacketsType, obj: zone2016packets) {
     this._sendData(client, packetName, obj, true);
   }
 
-  sendData(client: Client, packetName: h1z1PacketsType, obj: any) {
+  sendData(client: Client, packetName: h1z1PacketsType, obj: zone2016packets) {
     this._sendData(client, packetName, obj, false);
   }
 
-  sendWeaponData(client: Client, packetName: weaponPacketsType, obj: any) {
+  sendWeaponData(client: Client, packetName: weaponPacketsType, obj: zone2016packets) {
     this.sendData(client, "Weapon.Weapon", {
       weaponPacket: {
         packetName: packetName,
@@ -2687,7 +2689,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     transientId: number,
     packetName: remoteWeaponPacketsType,
-    obj: any
+    obj: zone2016packets
   ) {
     this.sendData(client, "Weapon.Weapon", {
       weaponPacket: {
@@ -2707,7 +2709,7 @@ export class ZoneServer2016 extends EventEmitter {
     transientId: number,
     weaponGuid: string,
     packetName: remoteWeaponUpdatePacketsType,
-    obj: any
+    obj: zone2016packets
   ) {
     this.sendDataToAllOthersWithSpawnedEntity(
       this._characters,
@@ -3064,8 +3066,8 @@ export class ZoneServer2016 extends EventEmitter {
   sendDataToAllWithSpawnedEntity(
     dictionary: { [id: string]: any },
     entityCharacterId: string = "",
-    packetName: any,
-    obj: any
+    packetName: h1z1PacketsType,
+    obj: zone2016packets
   ) {
     if (!entityCharacterId) return;
     for (const a in this._clients) {
@@ -3084,8 +3086,8 @@ export class ZoneServer2016 extends EventEmitter {
     dictionary: { [id: string]: any },
     client: Client,
     entityCharacterId: string = "",
-    packetName: any,
-    obj: any
+    packetName: h1z1PacketsType,
+    obj: zone2016packets
   ) {
     if (!entityCharacterId) return;
     for (const a in this._clients) {
@@ -3994,7 +3996,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._characters,
       client.character.characterId,
       "Equipment.SetCharacterEquipmentSlot",
-      character.pGetEquipmentSlotFull(slotId)
+      character.pGetEquipmentSlotFull(slotId) as EquipmentSetCharacterEquipmentSlot
     );
   }
 
@@ -5711,7 +5713,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   private _sendDataToAll(
     packetName: h1z1PacketsType,
-    obj: any,
+    obj: zone2016packets,
     unbuffered: boolean
   ) {
     const data = this._protocol.pack(packetName, obj);
@@ -5726,10 +5728,10 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sendDataToAll(packetName: h1z1PacketsType, obj: any) {
+  sendDataToAll(packetName: h1z1PacketsType, obj: zone2016packets) {
     this._sendDataToAll(packetName, obj, false);
   }
-  sendUnbufferedDataToAll(packetName: h1z1PacketsType, obj: any) {
+  sendUnbufferedDataToAll(packetName: h1z1PacketsType, obj: zone2016packets) {
     this._sendDataToAll(packetName, obj, true);
   }
   dropVehicleManager(client: Client, vehicleGuid: string) {
