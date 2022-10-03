@@ -38,6 +38,7 @@ export const internalCommands: Array<Command> = [
       client: Client, 
       packetData: any
     ) => {
+      client.character.isSpectator = true;
       const characterId = server.generateGuid();
       const vehicle = new Vehicle(
         characterId,
@@ -47,7 +48,18 @@ export const internalCommands: Array<Command> = [
         client.character.state.lookAt,
         server.getGameTime()
       );
+      for (const a in server._clients) {
+          const iteratedClient = server._clients[a]
+          if (iteratedClient.spawnedEntities.includes(client.character)) {
+              server.sendData(iteratedClient, "Character.RemovePlayer", {
+                  characterId: client.character.characterId,
+              });
+              const index = iteratedClient.spawnedEntities.indexOf(iteratedClient);
+              iteratedClient.spawnedEntities.splice(index, 1);
+          }
+      }
       server.worldObjectManager.createVehicle(server, vehicle);
+      server.sendData(client, "SpectatorBase", {});
       server.sendData(client, "AddLightweightVehicle", {
         ...vehicle,
         npcData: {
@@ -56,12 +68,13 @@ export const internalCommands: Array<Command> = [
           actorModelId: vehicle.actorModelId,
         },
       });
-      server.sendData(
-        client,
-        "LightweightToFullVehicle",
-        vehicle.pGetFullVehicle()
-      );
-      server.mountVehicle(client, characterId);
+        server.sendData(client, "Mount.MountResponse", {
+            characterId: client.character.characterId,
+            vehicleGuid: vehicle.characterId, 
+            seatId: 0,
+            isDriver: 1, 
+            identity: {},
+        });
       server.assignManagedObject(client, vehicle);
     }
   },
