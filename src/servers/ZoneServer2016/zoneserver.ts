@@ -371,7 +371,7 @@ export class ZoneServer2016 extends EventEmitter {
                 try {
                   const collection = (this._db as Db).collection("characters");
                   const charactersArray = await collection
-                    .find({ characterId: characterId })
+                    .find({ characterId: characterId, serverId: this._worldId, status: 1 })
                     .toArray();
                   if (charactersArray.length) {
                     this._h1emuZoneServer.sendData(
@@ -540,6 +540,8 @@ export class ZoneServer2016 extends EventEmitter {
         headActor: characterModelData.headActor,
         hairModel: characterModelData.hairModel,
         gender: characterData.payload.gender,
+        status: 1,
+        worldSaveVersion: this.worldSaveVersion
       };
       const collection = (this._db as Db).collection("characters");
       const charactersArray = await collection.findOne({
@@ -749,9 +751,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if(loadedWorld.worldSaveVersion !== this.worldSaveVersion){
           console.log("World save version mismatch, deleting world data");
-          await this._db?.collection("worlds").deleteOne({ worldId: this._worldId });
-          // TODO: delete all entities linked to this worldId
-        } else {
+          await this.worldDataManager.deleteWorld(this)
           await this.worldDataManager.insertWorld(this);
           await this.worldDataManager.saveWorld(this);
         }

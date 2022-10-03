@@ -20,6 +20,7 @@ interface BaseFullCharacterUpdateSaveData extends BaseEntityUpdateSaveData {
   _loadout: { [loadoutSlotId: number]: loadoutItem };
   _containers: { [loadoutSlotId: number]: loadoutContainer };
   _resources: { [resourceId: number]: number };
+  worldSaveVersion: number;
 }
 
 export interface CharacterUpdateSaveData
@@ -37,6 +38,7 @@ export interface FullCharacterSaveData
   headActor: string;
   hairModel: string;
   gender: number;
+  status: number;
 }
 
 export interface FullVehicleSaveData
