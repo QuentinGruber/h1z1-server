@@ -1,0 +1,17 @@
+{
+  "LOGINSERVER_IP": "127.0.0.1",
+
+  "MONGO_URL": "",
+
+  "WORLD_ID": 0,
+
+  "VSCODE_DEBUG": "false",
+
+  "DEBUG": "",
+
+  "isBin": "",
+
+  "ALLOWED_COMMANDS": ["tp"],
+
+  "SOLO_PLAY_IP": "127.0.0.1"
+}
