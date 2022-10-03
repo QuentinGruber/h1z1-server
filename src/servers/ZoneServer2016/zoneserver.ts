@@ -54,11 +54,13 @@ import {
   Weather2016,
 } from "../../types/zoneserver";
 import {
-  h1z1PacketsType,
+  h1z1PacketsType
+} from "../../types/packets";
+import {
   remoteWeaponPacketsType,
   remoteWeaponUpdatePacketsType,
   weaponPacketsType,
-} from "../../types/packets";
+} from "../../types/weaponPackets";
 import { Character2016 as Character } from "./classes/character";
 import {
   _,
