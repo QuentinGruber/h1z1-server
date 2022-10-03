@@ -221,49 +221,6 @@ export class WorldDataManager {
     server.checkHook("OnLoadedCharacterData", client);
   }
 
-  async saveCharacterPosition(
-    server: ZoneServer2016,
-    client: Client,
-    refreshTimeout = false
-  ) {
-    if (!server.enableWorldSaves) return;
-    if (!client.character) {
-      return;
-    }
-    const { position, lookAt } = client.character.state;
-    if (server._soloMode) {
-      const singlePlayerCharacters = require(`${server._appDataFolder}/single_player_characters2016.json`);
-      let singlePlayerCharacter = singlePlayerCharacters.find(
-        (character: any) =>
-          character.characterId === client.character.characterId
-      );
-      if (!singlePlayerCharacter) {
-        console.log("[ERROR] Single player character savedata not found!");
-        return;
-      }
-      singlePlayerCharacter = {
-        ...singlePlayerCharacter,
-        position: Array.from(position),
-        rotation: Array.from(lookAt),
-      };
-      fs.writeFileSync(
-        `${server._appDataFolder}/single_player_characters2016.json`,
-        JSON.stringify([singlePlayerCharacter], null, 2)
-      );
-    } else {
-      await server._db?.collection("characters").updateOne(
-        { characterId: client.character.characterId },
-        {
-          $set: {
-            position: Array.from(position),
-            rotation: Array.from(lookAt),
-          },
-        }
-      );
-    }
-    refreshTimeout && client.savePositionTimer.refresh();
-  }
-
   async saveCharacterData(
     server: ZoneServer2016,
     client: Client,
