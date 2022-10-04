@@ -1,15 +1,11 @@
 {
   "LOGINSERVER_IP": "127.0.0.1",
 
-  "MONGO_URL": "",
-
-  "WORLD_ID": 0,
+  "WORLD_ID": 1,
 
   "VSCODE_DEBUG": "false",
 
-  "DEBUG": "",
-
-  "isBin": "",
+  "DEBUG": "loginserver",
 
   "ALLOWED_COMMANDS": ["tp"],
 
