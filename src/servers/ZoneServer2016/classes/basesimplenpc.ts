@@ -14,7 +14,7 @@
 import { BaseEntity } from "./baseentity";
 
 export class BaseSimpleNpc extends BaseEntity {
-  health = 100000;
+    health = 100000;
   constructor(
     characterId: string,
     transientId: number,
@@ -22,7 +22,7 @@ export class BaseSimpleNpc extends BaseEntity {
     position: Float32Array,
     rotation: Float32Array
   ) {
-    super(characterId, transientId, actorModelId, position, rotation);
+      super(characterId, transientId, actorModelId, position, rotation);
   }
   pGetSimpleNpc() {
     return {
@@ -39,7 +39,7 @@ export class BaseSimpleNpc extends BaseEntity {
   pGetSimpleProxyHealth() {
     return {
       characterId: this.characterId,
-      health: this.health / 1000,
+      healthPercentage: this.health / 1000,
     };
   }
 }

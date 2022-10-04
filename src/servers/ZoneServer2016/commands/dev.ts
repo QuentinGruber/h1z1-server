@@ -13,6 +13,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
+import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
 import { BaseLightweightCharacter } from "../classes/baselightweightcharacter";
 import { Npc } from "../classes/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
@@ -64,7 +65,7 @@ const dev: any = {
 
       server.sendDataToAll(
         "Equipment.SetCharacterEquipmentSlot",
-        zombie.pGetEquipmentSlotFull(3)
+        zombie.pGetEquipmentSlotFull(3) as EquipmentSetCharacterEquipmentSlot
       );
     }, 2000);
   },

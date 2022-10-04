@@ -1,4 +1,5 @@
 // ======================================================================
+// ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
@@ -70,37 +71,41 @@ export enum EquipSlots {
 }
 
 export enum EntityTypes {
-  INVALID = 0,
-  NPC = 1,
-  VEHICLE = 2,
-  PLAYER = 3,
-  OBJECT = 4,
-  DOOR = 5,
-  EXPLOSIVE = 6,
+    INVALID = 0,
+    NPC = 1,
+    VEHICLE = 2,
+    PLAYER = 3,
+    OBJECT = 4,
+    DOOR = 5,
+    EXPLOSIVE = 6,
+    CONSTRUCTION_FOUNDATION = 7,
+    CONSTRUCTION_DOOR = 8,
+    CONSTRUCTION_SIMPLE = 9
 }
 
 export enum ResourceIds {
-  HEALTH = 1,
-  HUNGER = 4,
-  HYDRATION = 5,
-  STAMINA = 6,
-  VIRUS = 12,
-  BLEEDING = 21,
-  COMFORT = 68,
-  FUEL = 396,
-  CONDITION = 561,
+    HEALTH = 1,
+    HUNGER = 4,
+    HYDRATION = 5,
+    STAMINA = 6,
+    VIRUS = 12,
+    BLEEDING = 21,
+    COMFORT = 68,
+    FUEL = 396,
+    CONDITION = 561,
+    CONSTRUCTION_CONDITION = 567,
 }
 
 export enum ResourceTypes {
-  HEALTH = 1,
-  HUNGER = 4,
-  HYDRATION = 5,
-  STAMINA = 6,
-  VIRUS = 12,
-  BLEEDING = 21,
-  COMFORT = 68,
-  FUEL = 50,
-  CONDITION = 1,
+    HEALTH = 1,
+    HUNGER = 4,
+    HYDRATION = 5,
+    STAMINA = 6,
+    VIRUS = 12,
+    BLEEDING = 21,
+    COMFORT = 68,
+    FUEL = 50,
+    CONDITION = 1,
 }
 
 export enum Items {
@@ -164,6 +169,30 @@ export enum Items {
   MRE_APPLE = 1402, // TODO = add other MRE types
   //#endregion
 
+  //#region CONSTRUCTION
+    GROUND_TAMPER = 124,
+    SHACK = 1433,
+    SMALL_SHACK = 1440,
+    BASIC_SHACK = 1468,
+    SHELTER = 150,
+    LARGE_SHELTER = 153,
+    UPPER_LEVEL_LARGE_SHELER = 1897,
+    UPPER_LEVEL_SHELTER = 1898,
+    FOUNDATION = 1378,
+    FOUNDATION_EXPANSION = 2336,
+    FOUNDATION_RAMP = 2269,
+    FOUNDATION_STAIRS = 2270,
+    METAL_GATE = 148,
+    METAL_DOOR = 1881,
+    METAL_WALL = 149,
+    UPPER_METAL_WALL = 1896,
+    BASIC_SHACK_DOOR = 1470,
+    LANDMINE = 74,
+    IED = 1699,
+    PUNJI_STICKS = 98,
+    SNARE = 1415,
+  //#endregion
+
   BACKPACK = 1605,
   HELMET_MOTORCYCLE = 2170, // TODO = expand with other default helmet colors
   HAT_CAP = 12, // TODO = expand with other cap colors
@@ -197,14 +226,13 @@ export enum Items {
   RESPIRATOR = 2148,
   NV_GOGGLES = 1700,
   GUNPOWDER = 11,
-  LANDMINE = 74,
   KEVLAR_DEFAULT = 2271,
   CLOTH = 23,
   METAL_PIPE = 47,
   GRENADE_SMOKE = 2236,
   GRENADE_FLASH = 2235,
   GRENADE_GAS = 2237,
-  GRENADE_HE = 2243,
+  GRENADE_HE = 65,
   MAP = 1985,
   COMPASS = 1441,
   FLARE = 1804,

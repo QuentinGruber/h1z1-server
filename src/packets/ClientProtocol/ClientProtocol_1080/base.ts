@@ -2491,7 +2491,13 @@ export const basePackets: any = [
       fields: [{ name: "gameTime", type: "uint32", defaultValue: 0 }],
     },
   ],
-  ["ClientExitLaunchUrl", 0x3d, {}],
+    ["ClientExitLaunchUrl", 0x3d,
+        {
+            fields: [
+                { name: "url", type: "string", defaultValue: "" }
+            ],
+        },
+        ],
   ["ClientPendingKickFromServer", 0x3f, {}],
   [
     "MembershipActivation",
@@ -2592,7 +2598,11 @@ export const basePackets: any = [
   ["CommerceSessionRequest", 0x4e, {}],
   ["CommerceSessionResponse", 0x4f, {}],
   ["TrackedEvent", 0x50, {}],
-  ["LoginFailed", 0x51, {}],
+    ["LoginFailed", 0x51,
+        {
+            fields: [],
+        },
+    ],
   ["LoginToUChat", 0x52, {}],
   ["ZoneSafeTeleportRequest", 0x53, {}],
   ["RemoteInteractionRequest", 0x54, {}],
@@ -2993,7 +3003,7 @@ export const basePackets: any = [
     "SendSecurityPacketAndSelfDestruct",
     0x99,
     {
-      fields: [],
+        fields: [{ name: "unk", type: "uint32", defaultValue: 4294967295 }],
     },
   ],
   [
@@ -3146,7 +3156,26 @@ export const basePackets: any = [
     },
   ],
   ["NavGen", 0xcc, {}],
-  ["Locks", 0xcd, {}],
+  ["Locks.ShowMenu", 0xcd05,
+        {
+            fields: [
+                { name: "characterId", type: "uint64string", defaultValue: "0" },
+                { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+                { name: "lockType", type: "uint32", defaultValue: 1 },// 1-lock, 2-enter password
+                { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
+            ],
+        },
+    ],
+    ["Locks.setLock", 0xcd0300,
+        {
+            fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 1 }, 
+                { name: "unknownDword2", type: "uint32", defaultValue: 1 },
+                { name: "password", type: "uint32", defaultValue: 0 },
+                
+            ],
+        },
+    ],
   ["Ragdoll", 0xce, {}],
   ["CharacterState", 0xd0, {}],
   [
@@ -3345,9 +3374,55 @@ export const basePackets: any = [
   ["GrinderBase", 0xe0, {}],
   ["RequestObject", 0xe1, {}],
   ["ScreenEffectBase", 0xe2, {}],
-  ["SpectatorBase", 0xe3, {}],
+  ["SpectatorBase", 0xe30100, {fields: []}],
   ["WhitelistBase", 0xe4, {}],
-  ["NpcFoundationPermissionsManagerBase", 0xe5, {}],
+  ["NpcFoundationPermissionsManagerBase.showPermissions", 0xe505,
+        {
+            fields: [
+                { name: "characterId", type: "uint64string", defaultValue: "0" },
+                { name: "characterId2", type: "uint64string", defaultValue: "0" },
+
+                {
+                    name: "permissions",
+                    type: "array",
+                    defaultValue: [],
+                    fields: [
+                        { name: "characterId", type: "uint64string", defaultValue: "0" },
+                        { name: "characterName", type: "string", defaultValue: "0" },
+                        { name: "useContainers", type: "boolean", defaultValue: false },
+                        { name: "build", type: "boolean", defaultValue: false },
+                        { name: "demolish", type: "boolean", defaultValue: false },
+                        { name: "visit", type: "boolean", defaultValue: false },
+                    ],
+                },
+            ],
+        },
+    ],
+
+    ["NpcFoundationPermissionsManager.AddPermission", 0xe501,
+        {
+            fields: [
+                { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
+                { name: "characterName", type: "string", defaultValue: "" },
+                { name: "unk", type: "uint64string", defaultValue: "0" },
+                { name: "permissionSlot", type: "uint32", defaultValue: 0 },
+
+            ],
+        },
+    ],
+
+    ["NpcFoundationPermissionsManager.EditPermission", 0xe502,
+        {
+            fields: [
+                { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
+                { name: "unk", type: "uint64string", defaultValue: "0" },
+                { name: "characterName", type: "string", defaultValue: "" },
+
+                { name: "permissionSlot", type: "uint32", defaultValue: 0 },
+
+            ],
+        },
+    ],
   ["BattlEyeData", 0xe6, {}],
   ["OnlineIdBase", 0xe7, {}],
   ["Ps4PlayGoBase", 0xe8, {}],

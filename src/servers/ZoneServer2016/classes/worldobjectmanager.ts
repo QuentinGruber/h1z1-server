@@ -32,6 +32,7 @@ import { ItemObject } from "./itemobject";
 import { DoorEntity } from "./doorentity";
 import { Zombie } from "./zombie";
 import { BaseFullCharacter } from "./basefullcharacter";
+import { ExplosiveEntity } from "./explosiveentity";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {
@@ -182,7 +183,18 @@ export class WorldObjectManager {
       rotation,
       itemSpawnerId || 0,
       item
-    );
+      );
+      if (item.itemDefinitionId === Items.FUEL_ETHANOL || itemDef === Items.FUEL_BIOFUEL) {
+          server._spawnedItems[characterId].flags.projectileCollision = 1
+          server._explosives[characterId] = new ExplosiveEntity(
+              characterId,
+              server.getTransientId(characterId),
+              modelId,
+              position,
+              rotation,
+              false
+          )
+      }
     if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;
     server._spawnedItems[characterId].creationTime = Date.now();
     return server._spawnedItems[characterId];

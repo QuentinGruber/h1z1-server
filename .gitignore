@@ -4,3 +4,4 @@ out
 tests_out
 benchmarks_out
 bin/*.exe
+.vs
