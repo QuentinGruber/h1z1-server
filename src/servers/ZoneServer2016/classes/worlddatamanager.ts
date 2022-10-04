@@ -52,13 +52,22 @@ export class WorldDataManager {
 
   async insertWorld(server: ZoneServer2016) {
     if (!server._worldId) {
-      const worldCount =
+      const worldCount:number =
         (await server._db?.collection("worlds").countDocuments()) || 0;
       server._worldId = worldCount + 1;
       await server._db?.collection("worlds").insertOne({
         worldId: server._worldId,
+        lastItemGuid: toBigHex(server.lastItemGuid),
+        worldSaveVersion: server.worldSaveVersion
       });
       debug("Existing world was not found, created one.");
+    }
+    else{
+      await server._db?.collection("worlds").insertOne({
+        worldId: server._worldId,
+        lastItemGuid: toBigHex(server.lastItemGuid),
+        worldSaveVersion: server.worldSaveVersion
+      });
     }
   }
 
@@ -68,6 +77,40 @@ export class WorldDataManager {
     await this.loadServerData(server);
     server._transientIds = server.getAllCurrentUsedTransientId();
     debug("World fetched!");
+  }
+  async deleteServerData(server: ZoneServer2016) {
+    if (!server.enableWorldSaves) return;
+    if (server._soloMode) {
+      fs.writeFileSync(
+        `${server._appDataFolder}/worlddata/world.json`,
+        JSON.stringify({}, null, 2)
+      );
+    } else {
+      await server._db?.collection("worlds").deleteOne({
+        worldId: server._worldId,
+      });
+    }
+  }
+
+  async deleteCharacters(server: ZoneServer2016) {
+    if (!server.enableWorldSaves) return;
+    if (server._soloMode) {
+      fs.writeFileSync(
+        `${server._appDataFolder}/single_player_characters2016.json`,
+        JSON.stringify({}, null, 2)
+      );
+    } else {
+      await server._db?.collection("characters").updateMany({
+        serverId: server._worldId,
+      },{$set:{status:0}});
+    }
+  }
+
+  
+  async deleteWorld(server: ZoneServer2016){
+    await this.deleteServerData(server);
+    await this.deleteCharacters(server);
+    debug("World deleted!");
   }
 
   async saveWorld(server: ZoneServer2016) {
@@ -105,6 +148,7 @@ export class WorldDataManager {
     const saveData: ServerSaveData = {
       serverId: server._worldId,
       lastItemGuid: toBigHex(server.lastItemGuid),
+      worldSaveVersion: server.worldSaveVersion
     };
     if (server._soloMode) {
       fs.writeFileSync(
@@ -176,6 +220,8 @@ export class WorldDataManager {
         _loadout: loadedCharacter._loadout || {},
         _containers: loadedCharacter._containers || {},
         _resources: loadedCharacter._resources || client.character._resources,
+        status: 1,
+        worldSaveVersion: server.worldSaveVersion
       };
     }
     client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
@@ -258,6 +304,7 @@ export class WorldDataManager {
       _loadout: loadoutSaveData,
       _containers: containerSaveData,
       _resources: client.character._resources,
+      worldSaveVersion: server.worldSaveVersion,
     };
     if (server._soloMode) {
       const singlePlayerCharacters = require(`${server._appDataFolder}/single_player_characters2016.json`);
@@ -360,6 +407,7 @@ export class WorldDataManager {
         _loadout: vehicle._loadout,
         _containers: vehicle._containers,
         _resources: vehicle._resources,
+        worldSaveVersion: server.worldSaveVersion
       };
     });
     if (server._soloMode) {

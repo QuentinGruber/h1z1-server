@@ -101,7 +101,7 @@ import { BaseEntity } from "./classes/baseentity";
 import { constructionDoor } from "./classes/constructionDoor";
 import { ConstructionParentEntity } from "./classes/constructionParentEntity";
 import { simpleConstruction } from "./classes/simpleConstruction";
-import { FullCharacterSaveData } from "types/savedata";
+import { FullCharacterSaveData, ServerSaveData } from "types/savedata";
 import { WorldDataManager } from "./classes/worlddatamanager";
 import {
   CharacterKilledBy,
@@ -225,6 +225,7 @@ export class ZoneServer2016 extends EventEmitter {
     [hook: string]: Array<(...args: any) => AsyncHookType>;
   } = {};
   enableWorldSaves: boolean;
+  readonly worldSaveVersion: number = 1;
 
   constructor(
     serverPort: number,
@@ -377,7 +378,7 @@ export class ZoneServer2016 extends EventEmitter {
                 try {
                   const collection = (this._db as Db).collection("characters");
                   const charactersArray = await collection
-                    .find({ characterId: characterId })
+                    .find({ characterId: characterId, serverId: this._worldId, status: 1 })
                     .toArray();
                   if (charactersArray.length) {
                     this._h1emuZoneServer.sendData(
@@ -546,6 +547,8 @@ export class ZoneServer2016 extends EventEmitter {
         headActor: characterModelData.headActor,
         hairModel: characterModelData.hairModel,
         gender: characterData.payload.gender,
+        status: 1,
+        worldSaveVersion: this.worldSaveVersion
       };
       const collection = (this._db as Db).collection("characters");
       const charactersArray = await collection.findOne({
@@ -749,9 +752,16 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!this._soloMode) {
       await this.worldDataManager.initializeDatabase(this);
+      const loadedWorld = await this._db?.collection("worlds").findOne({ worldId: this._worldId }) as unknown as ServerSaveData; 
       if (
-        await this._db?.collection("worlds").findOne({ worldId: this._worldId })
+        loadedWorld
       ) {
+        if(loadedWorld.worldSaveVersion !== this.worldSaveVersion){
+          console.log("World save version mismatch, deleting world data");
+          await this.worldDataManager.deleteWorld(this)
+          await this.worldDataManager.insertWorld(this);
+          await this.worldDataManager.saveWorld(this);
+        }
         await this.worldDataManager.fetchWorldData(this);
       } else {
         await this.worldDataManager.insertWorld(this);
