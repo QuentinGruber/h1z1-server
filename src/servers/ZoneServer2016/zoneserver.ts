@@ -4270,11 +4270,6 @@ export class ZoneServer2016 extends EventEmitter {
       if (!slot.itemDefinitionId) continue;
       const def = this.getItemDefinition(slot.itemDefinitionId);
       let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
-      /*
-      if(slot.slotId = LoadoutSlots.FISTS) {
-        equipmentSlotId = EquipSlots.RHAND
-      }
-      */
       if (this.isWeapon(slot.itemDefinitionId)) {
         if (slot.slotId == character.currentLoadoutSlot) {
           equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
