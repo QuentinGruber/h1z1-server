@@ -1148,7 +1148,7 @@ export class zonePacketHandlers {
           const modelId = server.getItemDefinition(
               packet.data.itemDefinitionId
           ).PLACEMENT_MODEL_ID;
-          server.placement(client, packet.data.itemDefinitionId, modelId, packet.data.position, final, packet.data.parentObjectCharacterId, packet.data.BuildingSlot);
+          server.placement(client, packet.data.itemDefinitionId, modelId, packet.data.position, final, packet.data.parentObjectCharacterId == 0x0000000000000000 ? "" : packet.data.parentObjectCharacterId, packet.data.BuildingSlot);
 
       };
     this.commandItemDefinitionRequest = function (
