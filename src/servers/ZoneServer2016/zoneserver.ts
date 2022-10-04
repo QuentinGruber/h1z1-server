@@ -4398,7 +4398,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.addItem(client, loadoutData, 101);
     this.updateLoadout(client);
-    if (equipmentSlotId) this.updateEquipmentSlot(client, equipmentSlotId);
+    if (equipmentSlotId) this.updateEquipmentSlot(client, equipmentSlotId, character);
   }
 
   generateRandomEquipmentsFromAnEntity(
