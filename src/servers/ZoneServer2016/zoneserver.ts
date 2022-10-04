@@ -1167,6 +1167,7 @@ export class ZoneServer2016 extends EventEmitter {
     isConstructionInSecuredArea(construction: any, type: string) {
         switch (type) {
             case "simple":
+                if (!construction.parentObjectCharacterId) return false
                 const notProtected = [Items.METAL_WALL, Items.UPPER_METAL_WALL];
                 if (notProtected.includes(construction.itemDefinitionId)) return false;
                 if (this._constructionFoundations[construction.parentObjectCharacterId]) {
@@ -3354,14 +3355,8 @@ export class ZoneServer2016 extends EventEmitter {
                             break;
                     }
                 } else {
-                    if (!parentObjectCharacterId) {
-                        for (const a in this._constructionFoundations) {
-                            const foundation = this._constructionFoundations[a] as ConstructionParentEntity;
-                            const fakenpc = { state: { position: position } };
-                            if (foundation.isSecured && this.checkInsideFoundation(foundation, fakenpc)) {
-                                parentObjectCharacterId = foundation.characterId
-                            }
-                        }
+                    if (!Number(parentObjectCharacterId)) {
+                        parentObjectCharacterId = ""
                     }
                     const npc = new simpleConstruction(
                         characterId,
