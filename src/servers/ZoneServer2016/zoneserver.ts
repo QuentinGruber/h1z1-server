@@ -4203,7 +4203,7 @@ export class ZoneServer2016 extends EventEmitter {
   updateEquipmentSlot(
     client: Client,
     slotId: number,
-    character = client.character
+    character: BaseFullCharacter = client.character
   ) {
     if( character.characterId == client.character.characterId &&
       !client.character.initialized) return;
