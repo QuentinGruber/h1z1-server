@@ -219,8 +219,8 @@ export class zonePacketHandlers {
           characterId: client.character.characterId,
           stance: 1,
         });
-        server.updateEquipment(client); // needed or third person character will be invisible
-        server.updateLoadout(client); // needed or all loadout context menu entries aren't shown
+        server.updateEquipment(client.character); // needed or third person character will be invisible
+        server.updateLoadout(client.character); // needed or all loadout context menu entries aren't shown
         if (!server._soloMode) {
           server.sendZonePopulationUpdate();
         }
@@ -768,7 +768,7 @@ export class zonePacketHandlers {
             "LightweightToFullVehicle",
             vehicle.pGetFullVehicle()
           );
-          server.updateLoadout(client, vehicle);
+          server.updateLoadout(vehicle);
           // prevents cars from spawning in under the map for other characters
           /*
           server.sendData(client, "PlayerUpdatePosition", {
@@ -936,8 +936,8 @@ export class zonePacketHandlers {
           /*Object.values(character._loadout).forEach((item) => {
             server.addItem(client, item, 101, character);
           })
-          server.updateEquipment(client, character);
-          server.updateLoadout(client, character);*/
+          server.updateEquipment(character);
+          server.updateLoadout(character);*/
 
           server.sendData(client, "Character.WeaponStance", {
             characterId: character.characterId,
@@ -1248,7 +1248,7 @@ export class zonePacketHandlers {
       });
       if (server.isContainer(itemDef.ID)) {
         // Fixes containers missing an itemdefinition not showing in inventory
-        server.updateLoadout(client);
+        server.updateLoadout(client.character);
       }
     };
     this.characterWeaponStance = function (

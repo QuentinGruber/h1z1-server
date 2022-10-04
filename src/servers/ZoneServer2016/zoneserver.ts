@@ -2421,7 +2421,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (!client.spawnedEntities.includes(npc)) {
           this.addLightweightNpc(client, npc);
-          this.updateEquipment(client, npc); // TODO: maybe we can already add the equipment to the npc?
+          this.updateEquipment(npc); // TODO: maybe we can already add the equipment to the npc?
           client.spawnedEntities.push(npc);
         }
       } else {
@@ -4174,42 +4174,38 @@ export class ZoneServer2016 extends EventEmitter {
     };
   }
 
-  updateLoadout(client: Client, character: BaseFullCharacter = client.character) {
-    if(client.character.characterId == character.characterId) {
+  updateLoadout(character: BaseFullCharacter) {
+    const client = this.getClientByCharId(character.characterId);
+    if(client) {
+      if( !client.character.initialized ) return;
       this.checkConveys(client);
     }
-    if( client.character.characterId == character.characterId &&
-      !client.character.initialized) return;
-    this.sendData(
-      client,
+    this.sendDataToAllWithSpawnedEntity(
+      this._characters,
+      character.characterId,
       "Loadout.SetLoadoutSlots",
       character.pGetLoadoutSlots()
     );
   }
 
-  updateEquipment(
-    client: Client,
-    character: BaseFullCharacter = client.character
-  ) {
-    if( client.character.characterId == character.characterId &&
-      !client.character.initialized) return;
-    this.sendData(
-      client,
+  updateEquipment(character: BaseFullCharacter) {
+    if( !this.getClientByCharId(character.characterId)?.character.initialized ) return;
+    this.sendDataToAllWithSpawnedEntity(
+      this._characters,
+      character.characterId,
       "Equipment.SetCharacterEquipment",
       character.pGetEquipment()
     );
   }
 
   updateEquipmentSlot(
-    client: Client,
+    character: BaseFullCharacter,
     slotId: number,
-    character: BaseFullCharacter = client.character
   ) {
-    if( character.characterId == client.character.characterId &&
-      !client.character.initialized) return;
+    if( !this.getClientByCharId(character.characterId)?.character.initialized ) return;
     this.sendDataToAllWithSpawnedEntity(
       this._characters,
-      client.character.characterId,
+      character.characterId,
       "Equipment.SetCharacterEquipmentSlot",
       character.pGetEquipmentSlotFull(slotId) as EquipmentSetCharacterEquipmentSlot
     );
@@ -4386,14 +4382,16 @@ export class ZoneServer2016 extends EventEmitter {
         containerDefinitionId: def.PARAM1,
         items: {},
       };
-      if (client && sendPacket) this.initializeContainerList(client, character);
+      if (client && sendPacket) this.initializeContainerList(client);
     }
+    
+    // probably will need to replicate this for vehicles / maybe npcs
+    if (client && sendPacket) this.addItem(client, loadoutData, 101);
 
-    if (!sendPacket || !client) return;
+    if (!sendPacket) return;
 
-    this.addItem(client, loadoutData, 101);
-    this.updateLoadout(client);
-    if (equipmentSlotId) this.updateEquipmentSlot(client, equipmentSlotId, character);
+    this.updateLoadout(character);
+    if (equipmentSlotId) this.updateEquipmentSlot(character, equipmentSlotId);
   }
 
   generateRandomEquipmentsFromAnEntity(
@@ -4598,6 +4596,12 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  /**
+   * Validates that a given itemDefinitionId can be equipped in a given loadout slot.
+   * @param itemDefId The definition ID of an item to validate.
+   * @param loadoutSlotId The loadoutSlotId to have the item validated for.
+   * @returns Returns true/false if the item can go in a specified loadout slot.
+  */
   validateLoadoutSlot(
     itemDefinitionId: number,
     loadoutSlotId: number
@@ -4616,7 +4620,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param itemDefId The definition ID of an item to check.
    * @param loadoutId Optional: The loadoutId of the entity to get the slot for, default LoadoutIds.CHARACTER.
    * @returns Returns the ID of the first loadout slot that an item can go into (occupied or not).
-   */
+  */
   getLoadoutSlot(itemDefId: number, loadoutId: number = LoadoutIds.CHARACTER) {
     const itemDef = this.getItemDefinition(itemDefId),
       loadoutSlotItemClass = loadoutSlotItemClasses.find(
@@ -4833,7 +4837,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!item || !item.itemDefinitionId) return false;
     this.deleteItem(client, item.itemGuid);
     client.character.clearLoadoutSlot(loadoutSlotId);
-    this.updateLoadout(client);
+    this.updateLoadout(client.character);
     this.clearEquipmentSlot(
       client,
       client.character.getActiveEquipmentSlot(item)
@@ -5226,7 +5230,7 @@ export class ZoneServer2016 extends EventEmitter {
       characterId: client.character.characterId,
       data: this.pGetItemData(client.character, item, 101),
     });
-    //this.updateLoadout(client);
+    //this.updateLoadout(client.character);
   }
 
   updateContainerItem(
