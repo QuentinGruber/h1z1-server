@@ -2270,7 +2270,7 @@ export class ZoneServer2016 extends EventEmitter {
         !e.vehicleId && // ignore vehicles
         !e.item && // ignore items
         !e.deathTime && // ignore npcs
-        client.character.isSpectator? this.filterOutOfDistanceSpectaror(e, client.character.state.position):this.filterOutOfDistance(e, client.character.state.position)
+        this.filterOutOfDistance(e, client.character.state.position)
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
@@ -5834,25 +5834,6 @@ export class ZoneServer2016 extends EventEmitter {
       element.state.position
     );
   }
-
-    private filterOutOfDistanceSpectaror(
-        element: BaseEntity,
-        playerPosition: Float32Array
-    ): boolean {
-        if (this._characters[element.characterId]) {
-            return !isPosInRadius(
-                1000,
-                playerPosition,
-                element.state.position
-            );
-        } else {
-            return !isPosInRadius(
-                element.npcRenderDistance || this._charactersRenderDistance,
-                playerPosition,
-                element.state.position
-            );
-        }
-    }
 
   getServerTimeTest(): number {
     debug("get server time");
