@@ -25,7 +25,9 @@ if(ConfigFilePath){
   const loadedConfigFile = require(ConfigFilePath);
   if(loadedConfigFile){
     for (const key in loadedConfigFile) {
-      process.env[key] = loadedConfigFile[key];
+      if(!process.env[key]){
+        process.env[key] = loadedConfigFile[key];
+      }
     }
   }
 }
