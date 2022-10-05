@@ -301,6 +301,11 @@ export class ZoneServer2016 extends EventEmitter {
         } else {
           zoneClient.isAdmin = true;
         }
+
+        if(!process.env.VSCODE_DEBUG && this._characters[characterId]) {
+          this.sendData(client as any, "LoginFailed", {});
+          return;
+        }
         this._clients[client.sessionId] = zoneClient;
         this._characters[characterId] = zoneClient.character;
         zoneClient.pingTimer = setTimeout(() => {
