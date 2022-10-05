@@ -175,7 +175,7 @@ export async function zoneShutdown(
 export function getDifference(s1:string, s2:string) {
     s1 = s1.toLowerCase();
     s2 = s2.toLowerCase();
-    let costs = new Array();
+    const costs: any[] = [];
     for (let i = 0; i <= s1.length; i++) {
         let lastValue = i;
         for (let j = 0; j <= s2.length; j++) {
