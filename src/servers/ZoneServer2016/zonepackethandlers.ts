@@ -602,6 +602,13 @@ export class zonePacketHandlers {
         vehicle.positionUpdate = packet.data.positionUpdate;
       }
       if (packet.data.positionUpdate.position) {
+        if(vehicle.positionUpdate.position[1] < -20) { // If the vehicle is falling trough the map
+          vehicle.positionUpdate.position[1] = 20;
+          server.sendData(client, "PlayerUpdatePosition", {
+            transientId: packet.data.transientId,
+            positionUpdate: vehicle.positionUpdate,
+          });
+        }
         vehicle.state.position = new Float32Array([
           packet.data.positionUpdate.position[0],
           packet.data.positionUpdate.position[1],
