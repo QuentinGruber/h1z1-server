@@ -1008,7 +1008,7 @@ export const commands: Array<Command> = [
         let itemDefId
         let similar
         const keys = Object.keys(Items);
-        for (var x = 0; x < keys.length; x++) {
+        for (let x = 0; x < keys.length; x++) {
             if (keys[x] == args[0].toString().toUpperCase()) itemDefId = Number(Object.values(Items)[x])
             else if (getDifference(keys[x], args[0].toString()) <= 3 && getDifference(keys[x], args[0].toString()) != 0) similar = keys[x];
         };
