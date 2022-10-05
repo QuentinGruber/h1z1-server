@@ -302,7 +302,7 @@ export class ZoneServer2016 extends EventEmitter {
           zoneClient.isAdmin = true;
         }
 
-        if(!process.env.VSCODE_DEBUG && this._characters[characterId]) {
+        if(this._characters[characterId]) {
           this.sendData(client as any, "LoginFailed", {});
           return;
         }
