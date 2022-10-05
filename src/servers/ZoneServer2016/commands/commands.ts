@@ -14,13 +14,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import fs from "fs";
 
-import { zoneShutdown, _ } from "../../../utils/utils";
+import { zoneShutdown, _, getDifference } from "../../../utils/utils";
 import { ExplosiveEntity } from "../classes/explosiveentity";
 import { Npc } from "../classes/npc";
 import { Vehicle2016 as Vehicle} from "../classes/vehicle";
 import { ZoneClient2016 as Client} from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
+import { Items } from "../enums";
 
 function getDriveModel(model: string) {
   switch (model) {
@@ -996,15 +997,30 @@ export const commands: Array<Command> = [
       client: Client, 
       args: any[]
     ) => {
-      const itemDefId = Number(args[0]),
-      count = Number(args[1]) || 1;
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          "[ERROR] Usage /additem {itemDefinitionId} optional: {count} {playerName|PlayerId}"
-        );
-        return;
-      }
+        if (!args[0]) {
+            server.sendChatText(
+                client,
+                "[ERROR] Usage /additem {itemDefinitionId} optional: {count} {playerName|playerId}"
+            );
+            return;
+        }
+        const count = Number(args[1]) || 1;
+        let itemDefId
+        let similar
+        const keys = Object.keys(Items);
+        for (var x = 0; x < keys.length; x++) {
+            if (keys[x] == args[0].toString().toUpperCase()) itemDefId = Number(Object.values(Items)[x])
+            else if (getDifference(keys[x], args[0].toString()) <= 3 && getDifference(keys[x], args[0].toString()) != 0) similar = keys[x];
+        };
+        if (!itemDefId) itemDefId = Number(args[0])
+        const item = server.generateItem(itemDefId, count)
+        if (!item) {
+            server.sendChatText(
+                client,
+                similar ? `[ERROR] Cannot find item "${args[0].toUpperCase()}", did you mean "${similar}"` : `[ERROR] Cannot find item "${args[0]}"`
+            );
+            return;
+        }
       let targetClient;
       if (args[2]) {
           targetClient = Object.values(server._clients).find((c) => {
@@ -1021,7 +1037,7 @@ export const commands: Array<Command> = [
         client,
           `Adding ${count}x item${count == 1 ? "" : "s"} with id ${itemDefId} to player ${targetClient ? targetClient.character.name : client.character.name}`
       );
-      server.lootItem(targetClient? targetClient:client, server.generateItem(itemDefId, count));
+      server.lootItem(targetClient? targetClient:client, item);
     }
   },
   {
