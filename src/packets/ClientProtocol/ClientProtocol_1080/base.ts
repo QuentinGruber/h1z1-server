@@ -3374,7 +3374,7 @@ export const basePackets: any = [
   ["GrinderBase", 0xe0, {}],
   ["RequestObject", 0xe1, {}],
   ["ScreenEffectBase", 0xe2, {}],
-  ["SpectatorBase", 0xe3, {}],
+  ["SpectatorBase", 0xe30100, {fields: []}],
   ["WhitelistBase", 0xe4, {}],
   ["NpcFoundationPermissionsManagerBase.showPermissions", 0xe505,
         {

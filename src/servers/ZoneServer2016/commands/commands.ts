@@ -101,7 +101,7 @@ export const commands: Array<Command> = [
           _doors: doors,
           _props: props,
         } = server;
-        const serverVersion = require("../../../package.json").version;
+        const serverVersion = require("../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
         server.sendChatText(
           client,
@@ -311,7 +311,20 @@ export const commands: Array<Command> = [
       client.character.ownedVehicle = vehicleData.characterId;
     }
   },
-
+  {
+    name: "d",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      server.sendData(client, "CharacterSelectSessionResponse", {
+        status: 1,
+        sessionId: client.loginSessionId,
+      });
+    }
+  },
   {
     name: "titan",
     permissionLevel: PermissionLevels.ADMIN,

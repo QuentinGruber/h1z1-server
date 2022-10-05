@@ -819,10 +819,8 @@ export class zonePacketHandlers {
                 attachmentData: character.pGetAttachmentSlots(),
                 headActor: character.headActor,
                 hairModel: character.hairModel,
-
                 resources: {data: character.pGetResources() },
                 remoteWeapons: {data: server.pGetRemoteWeaponsData(character)},
-                
               },
               positionUpdate: {
                 ...character.positionUpdate,
@@ -909,7 +907,7 @@ export class zonePacketHandlers {
                     setTimeout(function () {
                         door.moving = false;
                     }, 1000);
-                    server.sendDataToAll("PlayerUpdatePosition", {
+                    server.sendDataToAllWithSpawnedEntity(server._doors, door.characterId,"PlayerUpdatePosition", {
                         transientId: door.transientId,
                         positionUpdate: {
                             sequenceTime: 0,
@@ -918,7 +916,7 @@ export class zonePacketHandlers {
                             orientation: door.isOpen ? door.closedAngle : door.openAngle,
                         },
                     });
-                    server.sendDataToAll("Command.PlayDialogEffect", {
+                    server.sendDataToAllWithSpawnedEntity(server._doors, door.characterId, "Command.PlayDialogEffect", {
                         characterId: door.characterId,
                         effectId: door.isOpen ? door.closeSound : door.openSound,
                     });
@@ -962,7 +960,7 @@ export class zonePacketHandlers {
                         setTimeout(function () {
                             doorEntity.moving = false;
                         }, 1000);
-                        server.sendDataToAll("PlayerUpdatePosition", {
+                        server.sendDataToAllWithSpawnedEntity(server._constructionDoors, doorEntity.characterId, "PlayerUpdatePosition", {
                             transientId: doorEntity.transientId,
                             positionUpdate: {
                                 sequenceTime: 0,
@@ -971,14 +969,20 @@ export class zonePacketHandlers {
                                 orientation: doorEntity.isOpen ? doorEntity.closedAngle : doorEntity.openAngle,
                             },
                         });
-                        server.sendDataToAll("Command.PlayDialogEffect", {
+                        server.sendDataToAllWithSpawnedEntity(server._constructionDoors, doorEntity.characterId, "Command.PlayDialogEffect", {
                             characterId: doorEntity.characterId,
                             effectId: doorEntity.isOpen ? doorEntity.closeSound : doorEntity.openSound,
                         });
                     doorEntity.isOpen = !doorEntity.isOpen;
-                    doorEntity.isOpen ?
-                        server._constructionFoundations[doorEntity.parentObjectCharacterId].changePerimeters(server, doorEntity.buildingSlot, new Float32Array([0, 0, 0, 0])) :
-                        server._constructionFoundations[doorEntity.parentObjectCharacterId].changePerimeters(server, doorEntity.buildingSlot, doorEntity.state.position);
+                    if (server._constructionFoundations[doorEntity.parentObjectCharacterId]) {
+                        doorEntity.isOpen ?
+                            server._constructionFoundations[doorEntity.parentObjectCharacterId].changePerimeters(server, doorEntity.buildingSlot, new Float32Array([0, 0, 0, 0])) :
+                            server._constructionFoundations[doorEntity.parentObjectCharacterId].changePerimeters(server, doorEntity.buildingSlot, doorEntity.state.position);
+                    } else if (server._constructionSimple[doorEntity.parentObjectCharacterId]) {
+                        doorEntity.isOpen ?
+                            server._constructionSimple[doorEntity.parentObjectCharacterId].changePerimeters(server, 'LoveShackDoor', new Float32Array([0, 0, 0, 0])) :
+                            server._constructionSimple[doorEntity.parentObjectCharacterId].changePerimeters(server, 'LoveShackDoor', doorEntity.state.position);
+                    }
                     break;
                 default:
                     break;
@@ -1793,69 +1797,69 @@ export class zonePacketHandlers {
       }
       server.switchLoadoutSlot(client, slot);
     };
-    this.NpcFoundationPermissionsManagerEditPermission = function (
-            server: ZoneServer2016,
-            client: Client,
-            packet: any
-        ) {
-            const foundation = server._constructionFoundations[packet.data.objectCharacterId] as ConstructionParentEntity;
-            if (foundation.ownerCharacterId != client.character.characterId) return;
-            let characterId: number | string = 0;
-            for (const a in server._characters) {
-                const character = server._characters[a];
-                if (character.name === packet.data.characterName) {
-                    characterId = character.characterId;
-                }
-            }
-            let obj = {
-                characterId: characterId,
-                characterName: packet.data.characterName,
-                useContainers: false,
-                build: false,
-                demolish: false,
-                visit: false
-            }
-            if (!characterId) {
-                return;
-            }
-            foundation.permissions.forEach((entry: any) => {
-                if (entry.characterId === characterId) {
-                    obj = entry;
-                }
-            })
-            switch (packet.data.permissionSlot) {
-                case 1: obj.build = !obj.build
-                    break;
-                case 2: obj.demolish = !obj.demolish
-                    break;
-                case 3: obj.useContainers = !obj.useContainers
-                    break;
-                case 4: obj.visit = !obj.visit
-                    break;
-            }
-            let push = true;
-            for (let x = 0; x < foundation.permissions.length; x++) {
-                if (foundation.permissions[x].characterName === packet.data.characterName) {
-                    foundation.permissions[x] = obj;
-                    push = false;
-                }
-            }
-            if (push) {
-                foundation.permissions.push(obj)
-            }
-        server._constructionFoundations[packet.data.objectCharacterId].permissions = foundation.permissions;
-        Object.values(server._constructionFoundations[packet.data.objectCharacterId].expansions).forEach((objectCharacterId: string) => {
-            const child = server._constructionFoundations[objectCharacterId];
-            child.permissions = foundation.permissions;
-        })
+      this.NpcFoundationPermissionsManagerEditPermission = function (
+          server: ZoneServer2016,
+          client: Client,
+          packet: any
+      ) {
+          const foundation = server._constructionFoundations[packet.data.objectCharacterId] as ConstructionParentEntity;
+          if (foundation.ownerCharacterId != client.character.characterId) return;
+          let characterId: number | string = 0;
+          for (const a in server._characters) {
+              const character = server._characters[a];
+              if (character.name === packet.data.characterName) {
+                  characterId = character.characterId;
+              }
+          }
+          let obj = {
+              characterId: characterId,
+              characterName: packet.data.characterName,
+              useContainers: false,
+              build: false,
+              demolish: false,
+              visit: false
+          }
+          if (!characterId) {
+              return;
+          }
+          foundation.permissions.forEach((entry: any) => {
+              if (entry.characterId === characterId) {
+                  obj = entry;
+              }
+          })
+          switch (packet.data.permissionSlot) {
+              case 1: obj.build = !obj.build
+                  break;
+              case 2: obj.demolish = !obj.demolish
+                  break;
+              case 3: obj.useContainers = !obj.useContainers
+                  break;
+              case 4: obj.visit = !obj.visit
+                  break;
+          }
+          let push = true;
+          for (let x = 0; x < foundation.permissions.length; x++) {
+              if (foundation.permissions[x].characterName === packet.data.characterName) {
+                  foundation.permissions[x] = obj;
+                  push = false;
+              }
+          }
+          if (push) {
+              foundation.permissions.push(obj)
+          }
+          server._constructionFoundations[packet.data.objectCharacterId].permissions = foundation.permissions;
+          Object.values(server._constructionFoundations[packet.data.objectCharacterId].expansions).forEach((objectCharacterId: string) => {
+              const child = server._constructionFoundations[objectCharacterId];
+              child.permissions = foundation.permissions;
+          })
 
-            server.sendData(client, "NpcFoundationPermissionsManagerBase.showPermissions", {
-                characterId: foundation.characterId,
-                characterId2: foundation.characterId,
-                permissions: foundation.permissions
-            });
+          server.sendData(client, "NpcFoundationPermissionsManagerBase.showPermissions", {
+              characterId: foundation.characterId,
+              characterId2: foundation.characterId,
+              permissions: foundation.permissions
+          });
 
-        };
+      };
         this.NpcFoundationPermissionsManagerAddPermission = function (
             server: ZoneServer2016,
             client: Client,

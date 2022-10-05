@@ -208,8 +208,23 @@ export class SOEServer extends EventEmitter {
     }
   }
 
+  private _checkForDupIp(client: Client): string | null {
+    for (const otherClient of this._clients.values()) {
+      if (otherClient !== client) {
+        if (otherClient.address === client.address) {
+          return otherClient.soeClientId;
+        }
+      }
+    }
+    return null;
+  }
+
   private _createClient(clientId: string, remote: RemoteInfo) {
     const client = new SOEClient(remote, this._crcSeed, this._cryptoKey);
+    const dupIp = this._checkForDupIp(client);
+    if(dupIp && !process.env.VSCODE_DEBUG) {
+      this._clients.delete(dupIp);
+    }
     this._clients.set(clientId, client);
     return client;
   }
@@ -311,6 +326,11 @@ export class SOEServer extends EventEmitter {
     }
   }
 
+
+  private _getClientId(remote: RemoteInfo) {
+    return remote.address + ":" + remote.port;
+  }
+
   start(crcLength?: crc_length_options, udpLength?: number): void {
     if (crcLength !== undefined) {
       this._crcLength = crcLength;
@@ -328,7 +348,7 @@ export class SOEServer extends EventEmitter {
       const data = Buffer.from(message.data);
       try {
         let client: SOEClient;
-        const clientId = message.remote.address + ":" + message.remote.port;
+        const clientId = this._getClientId(message.remote);
         debug(data.length + " bytes from ", clientId);
         let unknow_client;
         // if doesn't know the client

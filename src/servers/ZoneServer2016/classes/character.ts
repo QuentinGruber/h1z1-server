@@ -38,7 +38,7 @@ export class Character2016 extends BaseFullCharacter {
   godMode = false;
   characterStates: CharacterStates;
   isRunning = false;
-  isHidden = false;
+  isHidden:string = "";
   isBleeding = false;
   isBandaged = false;
   isExhausted = false;
