@@ -3944,6 +3944,7 @@ export class ZoneServer2016 extends EventEmitter {
           vehicleGuid: vehicle.characterId,
           identity: {},
           seatId: packet.data.seatId,
+          unknownDword2: packet.data.seatId === 0 ?1:0
         }
       );
       vehicle.seats[oldSeatId] = "";
