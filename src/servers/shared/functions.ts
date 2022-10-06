@@ -11,7 +11,7 @@ export function getCharacterModelData(payload: any): any {
       case Characters.MALE_BLACK:
         return {
           modelId: 9240,
-          headActor: "SurvivorMale_Head_04.adr",
+          headActor: "SurvivorMale_Head_03.adr",
           hairModel: "",
         };
       case Characters.FEMALE_WHITE:
