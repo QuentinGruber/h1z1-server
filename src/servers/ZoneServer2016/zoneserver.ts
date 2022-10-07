@@ -2751,12 +2751,65 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  sendRemoteWeaponDataToAllOthers(
+    client: Client,
+    transientId: number,
+    packetName: remoteWeaponPacketsType,
+    obj: any
+  ) {
+    this.sendDataToAllOthersWithSpawnedEntity(
+      this._characters, 
+      client, 
+      client.character.characterId, 
+      "Weapon.Weapon", 
+      {
+        weaponPacket: {
+          packetName: "Weapon.RemoteWeapon",
+          gameTime: this.getGameTime(),
+          remoteWeaponPacket: {
+            packetName: packetName,
+            transientId: transientId,
+            packet: obj,
+          },
+        },
+      }
+    );
+  }
+
   sendRemoteWeaponUpdateData(
     client: Client,
     transientId: number,
     weaponGuid: string,
     packetName: remoteWeaponUpdatePacketsType,
     obj: zone2016packets
+  ) {
+    this.sendData(
+      client,
+      "Weapon.Weapon",
+      {
+        weaponPacket: {
+          packetName: "Weapon.RemoteWeapon",
+          gameTime: this.getGameTime(),
+          remoteWeaponPacket: {
+            packetName: "RemoteWeapon.Update",
+            transientId: transientId,
+            remoteWeaponUpdatePacket: {
+              packetName: packetName,
+              weaponGuid: weaponGuid,
+              packet: obj,
+            },
+          },
+        },
+      }
+    );
+  }
+
+  sendRemoteWeaponUpdateDataToAllOthers(
+    client: Client,
+    transientId: number,
+    weaponGuid: string,
+    packetName: remoteWeaponUpdatePacketsType,
+    obj: any
   ) {
     this.sendDataToAllOthersWithSpawnedEntity(
       this._characters,
@@ -3951,10 +4004,11 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword1: weaponItem.weapon.ammoCount,
       ammoCount: weaponItem.weapon.ammoCount,
       unknownDword3: weaponItem.weapon.ammoCount,
-      currentReloadCount: `0x${(++weaponItem.weapon
-        .currentReloadCount).toString(16)}`,
+      currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount)
     });
-    // send reloadinterrupt to all clients with spawned character
+    this.sendRemoteWeaponUpdateDataToAllOthers(
+      client, client.character.transientId, weaponItem.itemGuid, "Update.ReloadInterrupt", {}
+    )
   }
 
   combatLog(client: Client) {
@@ -4047,6 +4101,85 @@ export class ZoneServer2016 extends EventEmitter {
     };
   }
 
+  pGetRemoteWeaponData(
+    character: Character,
+    item: inventoryItem
+  ) {
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+      weaponDefinition = this.getWeaponDefinition(itemDefinition.PARAM1),
+      firegroups = weaponDefinition.FIRE_GROUPS; 
+    return {
+      weaponDefinitionId: weaponDefinition.ID,
+      equipmentSlotId: character.getActiveEquipmentSlot(item),
+      firegroups: firegroups.map((firegroup: any) => {
+        const firegroupDef = this.getFiregroupDefinition(firegroup.FIRE_GROUP_ID),
+        firemodes = firegroupDef.FIRE_MODES
+        return {
+          firegroupId: firegroup.FIRE_GROUP_ID,
+          unknownArray1: firemodes.map((firemode: any, j: number)=> {
+            return {
+             unknownDword1: j,
+             unknownDword2: firemode.FIRE_MODE_ID,
+            }
+          }) // probably firemodes
+        }
+      })
+    };
+  }
+
+  pGetRemoteWeaponExtraData(
+    item: inventoryItem
+  ) {
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+      weaponDefinition = this.getWeaponDefinition(itemDefinition.PARAM1),
+      firegroups = weaponDefinition.FIRE_GROUPS; 
+    return {
+      guid: item.itemGuid,
+      unknownByte1: 0, // firegroupIndex (default 0)?
+      unknownByte2: 0, // MOST LIKELY firemodeIndex?
+      unknownByte3: -1,
+      unknownByte4: -1,
+      unknownByte5: 1,
+      unknownDword1: 0,
+      unknownByte6: 0,
+      unknownDword2: 0,
+      unknownArray1: firegroups.map(() => { // same len as firegroups in remoteweapons
+        return { // setting unknownDword1 makes the 308 sound when fullpc packet it sent
+          unknownDword1: 0,//firegroup.FIRE_GROUP_ID,
+          unknownBoolean1: false,
+          unknownBoolean2: false
+        }
+      })
+    };
+  }
+
+  pGetRemoteWeaponsData(
+    character: Character
+  ) {
+    const remoteWeapons: any[] = [];
+    Object.values(character._loadout).forEach((item) => {
+      if(this.isWeapon(item.itemDefinitionId)) {
+        remoteWeapons.push({
+          guid: item.itemGuid,
+          ...this.pGetRemoteWeaponData(character, item)
+        }); 
+      }
+    });
+    return remoteWeapons;
+  }
+
+  pGetRemoteWeaponsExtraData(
+    character: Character
+  ) {
+    const remoteWeaponsExtra: any[] = [];
+    Object.values(character._loadout).forEach((item) => {
+      if(this.isWeapon(item.itemDefinitionId)) {
+        remoteWeaponsExtra.push(this.pGetRemoteWeaponExtraData(item));
+      }
+    });
+    return remoteWeaponsExtra;
+  }
+
   getItemWeaponData(charcter: Character, slot: inventoryItem) {
     if (slot.weapon) {
       return {
@@ -4076,19 +4209,7 @@ export class ZoneServer2016 extends EventEmitter {
                   unknownDword1: 0,
                   unknownDword2: 0,
                   unknownDword3: 0,
-                } /*
-              {
-                unknownByte1: 0,
-                unknownDword1: 0,
-                unknownDword2: 0,
-                unknownDword3: 0
-              },
-              {
-                unknownByte1: 0,
-                unknownDword1: 0,
-                unknownDword2: 0,
-                unknownDword3: 0
-              },*/,
+                }
               ],
             },
           ],
@@ -4204,11 +4325,6 @@ export class ZoneServer2016 extends EventEmitter {
       if (!slot.itemDefinitionId) continue;
       const def = this.getItemDefinition(slot.itemDefinitionId);
       let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
-      /*
-      if(slot.slotId = LoadoutSlots.FISTS) {
-        equipmentSlotId = EquipSlots.RHAND
-      }
-      */
       if (this.isWeapon(slot.itemDefinitionId)) {
         if (slot.slotId == character.currentLoadoutSlot) {
           equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
@@ -4458,7 +4574,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    const generatedGuid = `0x${this.generateItemGuid().toString(16)}`;
+    const generatedGuid = toBigHex(this.generateItemGuid());
     let durability: number = 2000;
     switch (true) {
       case this.isWeapon(itemDefinitionId):
@@ -4762,7 +4878,14 @@ export class ZoneServer2016 extends EventEmitter {
   removeLoadoutItem(client: Client, loadoutSlotId: number): boolean {
     const item = client.character._loadout[loadoutSlotId],
       itemDefId = item?.itemDefinitionId; // save before item gets deleted
+
     if (!item || !item.itemDefinitionId) return false;
+
+    if(this.isWeapon(item.itemDefinitionId)) {
+      this.sendRemoteWeaponDataToAllOthers(client, client.character.transientId, "RemoteWeapon.RemoveWeapon", {
+        guid: item.itemGuid,
+      })
+    }
     this.deleteItem(client, item.itemGuid);
     client.character.clearLoadoutSlot(loadoutSlotId);
     this.updateLoadout(client);
@@ -4812,7 +4935,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param item The item object.
    * @param requiredCount Optional: The number of items to remove from the stack, default 1.
    * @returns Returns true if the items were successfully removed, false if there was an error.
-   */
+  */
   removeInventoryItem(
     client: Client,
     item: inventoryItem,
@@ -4843,7 +4966,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param itemDefinitionId The itemDefinitionId of the item(s) to be removed.
    * @param requiredCount Optional: The number of items to remove, default 1.
    * @returns Returns true if all items were successfully removed, false if there was an error.
-   */
+  */
   removeInventoryItems(
     client: Client,
     itemDefinitionId: number,
@@ -4898,7 +5021,13 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  dropItem(client: Client, item: inventoryItem, count: number = 1) {
+  /**
+   * Removes a single item type from the inventory and spawns it on the ground
+   * @param client The client to have its item dropped.
+   * @param item The item object.
+   * @param count Optional: The number of items to drop on the ground, default 1.
+  */
+  dropItem(client: Client, item: inventoryItem, count: number = 1): void {
     if (!item) {
       this.containerError(client, 5); // slot does not contain item
       return;
@@ -4948,6 +5077,14 @@ export class ZoneServer2016 extends EventEmitter {
         });
       }
       this.equipItem(client, item);
+      if(this.isWeapon(item.itemDefinitionId)) {
+        this.sendRemoteWeaponDataToAllOthers(client, client.character.transientId, "RemoteWeapon.Reset", {
+          data: {
+            remoteWeapons: this.pGetRemoteWeaponsData(client.character),
+            remoteWeaponsExtra: this.pGetRemoteWeaponsExtraData(client.character)
+          }
+        })
+      }
     } else {
       this.lootContainerItem(client, item, count);
     }

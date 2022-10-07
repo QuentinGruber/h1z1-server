@@ -17,6 +17,7 @@ import {
   packUnsignedIntWith2bitLengthValue,
   readPacketType,
   readUnsignedIntWith2bitLengthValue,
+  remoteWeaponExtraSchema,
   remoteWeaponSchema,
   writePacketType,
 } from "./shared";
@@ -42,8 +43,8 @@ const weaponPackets: any = [
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "weaponProjectileCount", type: "uint32", defaultValue: 0 },
+        { name: "sessionProjectileCount", type: "uint32", defaultValue: 0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
       ],
     },
@@ -74,7 +75,7 @@ const weaponPackets: any = [
     {
       fields: [
         { name: "weaponGuid", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "weaponProjectileCount", type: "uint32", defaultValue: 0 },
         { name: "ammoCount", type: "uint32", defaultValue: 0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
         { name: "currentReloadCount", type: "uint64string", defaultValue: "0" },
@@ -89,8 +90,8 @@ const weaponPackets: any = [
     {
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "firemode", type: "uint8", defaultValue: 0 },
+        { name: "firegroupIndex", type: "uint8", defaultValue: 0 },
+        { name: "firemodeIndex", type: "uint8", defaultValue: 0 },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
       ],
     },
@@ -202,8 +203,8 @@ const weaponPackets: any = [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "weaponProjectileCount", type: "uint32", defaultValue: 0 },
+        { name: "sessionProjectileCount", type: "uint32", defaultValue: 0 },
         { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
       ],
@@ -264,15 +265,29 @@ const remoteWeaponPackets: any = [
     {
       fields: [
         {
-          name: "transientId",
-          type: "custom",
-          parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
-        },
-        {
           name: "data",
           type: "byteswithlength",
-          fields: [],
+          defaultValue: {},
+          fields: [
+            {
+              name: "remoteWeapons",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                { name: "guid", type: "uint64string", defaultValue: "" },
+                ...remoteWeaponSchema,
+              ],
+            },
+            {
+              name: "remoteWeaponsExtra",
+              type: "array",
+              defaultValue: {},
+              fields: [
+                { name: "guid", type: "uint64string", defaultValue: "" },
+                ...remoteWeaponExtraSchema
+              ]
+            },
+          ],
         },
       ],
     },
@@ -291,7 +306,15 @@ const remoteWeaponPackets: any = [
       ],
     },
   ],
-  ["RemoteWeapon.RemoveWeapon", 0x03, {}],
+  [
+    "RemoteWeapon.RemoveWeapon", 
+    0x03, 
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "" },
+      ],
+    },
+  ],
   [
     "RemoteWeapon.Update",
     0x04,
@@ -311,12 +334,49 @@ const remoteWeaponPackets: any = [
 ];
 
 const remoteWeaponUpdatePackets: any = [
-  ["Update.FireState", 0x01, {}],
-  ["Update.Empty", 0x02, {}],
+  [
+    "Update.FireState", 
+    0x01, 
+    {
+      fields: [
+        {
+          name: "state",
+          type: "custom",
+          packer: packFirestateUpdate,
+        },
+      ]
+    }
+  ],
+  [
+    "Update.Empty", 
+    0x02, 
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      ]
+    }
+  ],
   ["Update.Reload", 0x03, {}],
-  ["Update.ReloadLoopEnd", 0x04, {}],
+  [
+    "Update.ReloadLoopEnd", 
+    0x04, 
+    {
+      fields: [
+        { name: "endLoop", type: "boolean", defaultValue: false },
+      ]
+    }
+  ],
   ["Update.ReloadInterrupt", 0x05, {}],
-  ["Update.SwitchFireMode", 0x06, {}],
+  [
+    "Update.SwitchFireMode", 
+    0x06, 
+    {
+      fields: [
+        { name: "firegroupIndex", type: "uint8", defaultValue: 0 },
+        { name: "firemodeIndex", type: "uint8", defaultValue: 0 },
+      ]
+    }
+  ],
   ["Update.StatUpdate", 0x07, {}],
   [
     "Update.AddFireGroup",
@@ -341,6 +401,15 @@ const remoteWeaponUpdatePackets: any = [
   ["Update.Throw", 0x0d, {}],
   ["Update.Trigger", 0x0e, {}],
   ["Update.ChamberInterrupt", 0x0f, {}],
+  [
+    "Update.AimBlocked", 
+    0x010, 
+    {
+      fields: [
+        { name: "aimBlocked", type: "boolean", defaultValue: false },
+      ]
+    }
+  ],
 ];
 
 const [weaponPacketTypes, weaponPacketDescriptors] =
@@ -428,6 +497,29 @@ export function packWeaponPacket(obj: any): Buffer {
   return data;
 }
 
+function packFirestateUpdate(obj: any): Buffer {
+  let data = Buffer.alloc(1);
+  data.writeUInt8(obj.firestate);
+  if ((obj.firestate & 2) == 0) { // transientId
+    data = Buffer.concat([data, DataSchema.pack(
+      [{
+        name: "transientId",
+        type: "custom",
+        parser: readUnsignedIntWith2bitLengthValue,
+        packer: packUnsignedIntWith2bitLengthValue,
+      }],
+      obj
+    ).data]);
+  }
+  else { // floatvector4
+    data = Buffer.concat([data, DataSchema.pack(
+      [{ name: "position", type: "floatvector4", defaultValue: [1, 1, 1, 1] }],
+      obj
+    ).data]);
+  }
+  return data;
+}
+
 export function packRemoteWeaponPacket(obj: any): Buffer {
   if (obj.remoteWeaponPacket.packetName == "RemoteWeapon.Update")
     return packRemoteWeaponUpdatePacket(obj);
@@ -491,7 +583,7 @@ export function packRemoteWeaponUpdatePacket(obj: any): Buffer {
 }
 
 const hitReportSchema = [
-  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "sessionProjectileCount", type: "uint32", defaultValue: 0 },
   { name: "characterId", type: "uint64string", defaultValue: "0" },
   { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
   { name: "hitLocationLen", type: "uint8", defaultValue: 0 },
