@@ -9,7 +9,6 @@
     "node": ">=0.16.0 <19"
   },
   "bin": {
-    "if-env": "scripts/if-env.js",
     "h1z1-server-demo": "scripts/h1z1-server-demo.js",
     "h1z1-server-demo-2016": "scripts/h1z1-server-demo-2016.js"
   },
