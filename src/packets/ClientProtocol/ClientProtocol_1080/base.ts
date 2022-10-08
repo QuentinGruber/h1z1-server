@@ -143,7 +143,7 @@ export const basePackets: any = [
                   fields: [
                     ...itemSchema,
                     {
-                      name: "unknownData1",
+                      name: "weaponData",
                       type: "custom",
                       defaultValue: {},
                       packer: packItemWeaponData,
@@ -3481,6 +3481,37 @@ export const basePackets: any = [
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "containerGuid", type: "uint64string", defaultValue: "0" },
+      ],
+    },
+  ],
+  [
+    "AccessedCharacter.Unknown2",
+    0xf10600,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "itemsData",
+          type: "byteswithlength",
+          defaultValue: null,
+          fields: [
+            {
+              name: "items",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                {
+                  name: "item",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: itemSchema,
+                },
+                { name: "unknownBool1", type: "boolean", defaultValue: false },
+              ],
+            },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          ],
+        },
       ],
     },
   ],

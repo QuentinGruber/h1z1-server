@@ -19,6 +19,7 @@ import { ExplosiveEntity } from "../classes/explosiveentity";
 import { Npc } from "../classes/npc";
 import { Vehicle2016 as Vehicle} from "../classes/vehicle";
 import { ZoneClient2016 as Client} from "../classes/zoneclient";
+import { EquipSlots } from "../enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
 
@@ -223,7 +224,7 @@ export const commands: Array<Command> = [
               "Down",
               "Up"
             ));
-        server.updateEquipmentSlot(client, 3);
+        server.updateEquipmentSlot(client.character, EquipSlots.CHEST);
       }
     }
   },

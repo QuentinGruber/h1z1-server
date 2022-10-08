@@ -1449,6 +1449,7 @@ export type h1z1PacketsType =
   | "AccessedCharacter.BeginCharacterAccess"
   | "AccessedCharacter.EndCharacterAccess"
   | "AccessedCharacter.Unknown1"
+  | "AccessedCharacter.Unknown2"
   | "ShaderParameterOverrideBase"
   | "VehicleSkinBase"
   | "WeaponLagLockParameters"
