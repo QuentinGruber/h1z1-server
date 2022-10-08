@@ -3725,7 +3725,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
 
-    console.log(vehicle._containers)
     this.initializeContainerList(client, vehicle);
     
     if(seatId === "0") {
