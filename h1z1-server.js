@@ -19,7 +19,18 @@ console.log(
 );
 console.log(`Node ${process.version}`);
 
+const ConfigFilePath = process.env.CONFIG;
 
+if(ConfigFilePath){
+  const loadedConfigFile = require(ConfigFilePath);
+  if(loadedConfigFile){
+    for (const key in loadedConfigFile) {
+      if(!process.env[key]){
+        process.env[key] = loadedConfigFile[key];
+      }
+    }
+  }
+}
 
 const h1z1Server = module.exports;
 

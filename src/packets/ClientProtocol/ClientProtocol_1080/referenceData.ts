@@ -775,8 +775,8 @@ const weaponDefinitionSchema: any[] = [
         defaultValue: {},
         fields: [
           { name: "ID", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-          { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+          { name: "INDEX", type: "uint32", defaultValue: 0 },
+          { name: "PROJECTILE_DEFINITION_ID", type: "uint32", defaultValue: 0 },
         ],
       },
     ],

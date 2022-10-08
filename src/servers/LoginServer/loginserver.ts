@@ -50,52 +50,12 @@ import {
   LoginUdp_11packets,
 } from "types/LoginUdp_11packets";
 import { LoginUdp_9packets } from "types/LoginUdp_9packets";
+import { getCharacterModelData } from "../shared/functions";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
 
-function getCharacterModelData(payload: any): any {
-  switch (payload.headType) {
-    case 6: // black female
-      return {
-        modelId: 9474,
-        headActor: "SurvivorFemale_Head_03.adr",
-        hairModel: "SurvivorFemale_Hair_ShortMessy.adr",
-      };
-    case 5: // black male
-      return {
-        modelId: 9240,
-        headActor: "SurvivorMale_Head_04.adr",
-        hairModel: "SurvivorMale_HatHair_Short.adr",
-      };
-    case 4: // older white female
-      return {
-        modelId: 9474,
-        headActor: "SurvivorFemale_Head_02.adr",
-        hairModel: "SurvivorFemale_Hair_ShortBun.adr",
-      };
-    case 3: // young white female
-      return {
-        modelId: 9474,
-        headActor: "SurvivorFemale_Head_02.adr",
-        hairModel: "SurvivorFemale_Hair_ShortBun.adr",
-      };
-    case 2: // bald white male
-      return {
-        modelId: 9240,
-        headActor: "SurvivorMale_Head_01.adr",
-        hairModel: "SurvivorMale_HatHair_Short.adr",
-      };
-    case 1: // white male
-    default:
-      return {
-        modelId: 9240,
-        headActor: "SurvivorMale_Head_01.adr",
-        hairModel: "SurvivorMale_Hair_ShortMessy.adr",
-      };
-  }
-}
 @healthThreadDecorator
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;

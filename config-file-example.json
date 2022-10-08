@@ -1,0 +1,13 @@
+{
+  "LOGINSERVER_IP": "127.0.0.1",
+
+  "WORLD_ID": 1,
+
+  "VSCODE_DEBUG": "false",
+
+  "DEBUG": "loginserver",
+
+  "ALLOWED_COMMANDS": ["tp"],
+
+  "SOLO_PLAY_IP": "127.0.0.1"
+}
