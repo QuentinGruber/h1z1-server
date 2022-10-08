@@ -3730,7 +3730,6 @@ export class ZoneServer2016 extends EventEmitter {
     
     if(seatId === "0") {
       const inventory = Object.values(vehicle._containers)[0];
-      console.log("BEGINCHARACTERACCESS")
       this.sendData(client, "Vehicle.InventoryItems", {
         characterId: vehicle.characterId,
         itemsData: {
