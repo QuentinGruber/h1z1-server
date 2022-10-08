@@ -4199,7 +4199,7 @@ export class ZoneServer2016 extends EventEmitter {
     return remoteWeaponsExtra;
   }
 
-  getItemWeaponData(charcter: Character, slot: inventoryItem) {
+  getItemWeaponData(charcter: BaseFullCharacter, slot: inventoryItem) {
     if (slot.weapon) {
       return {
         isWeapon: true, // not sent to client, only used as a flag for pack function
@@ -5112,7 +5112,7 @@ export class ZoneServer2016 extends EventEmitter {
           count: count,
         });
       }
-      this.equipItem(client, item);
+      this.equipItem(client.character, item);
       if(this.isWeapon(item.itemDefinitionId)) {
         this.sendRemoteWeaponDataToAllOthers(client, client.character.transientId, "RemoteWeapon.Reset", {
           data: {
