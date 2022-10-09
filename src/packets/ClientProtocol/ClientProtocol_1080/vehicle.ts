@@ -288,8 +288,8 @@ export const vehiclePackets: any = [
   ["Vehicle.ItemDefinitionRequest", 0x8928, {}],
   ["Vehicle.ItemDefinitionReply", 0x8929, {}],
   [
-    "Vehicle.InventoryItems", 
-    0x892a, 
+    "Vehicle.InventoryItems",
+    0x892a,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
@@ -315,7 +315,7 @@ export const vehiclePackets: any = [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
           ],
         },
-      ]
-    }
+      ],
+    },
   ],
 ];

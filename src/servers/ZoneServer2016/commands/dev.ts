@@ -437,12 +437,12 @@ const dev: any = {
     npc.loadoutId = 5;
     server.equipItem(npc, item);
     npc.onReadyCallback = () => {
-      if(!item) return;
+      if (!item) return;
       server.addItem(client, item, 101, npc);
     };
     server._npcs[objectCharacterId] = npc; // save npc
     setTimeout(() => {
-      server.sendChatText(client, "ASDASDSAD")
+      server.sendChatText(client, "ASDASDSAD");
       server.initializeContainerList(client, npc);
       server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
         objectCharacterId: objectCharacterId,
@@ -547,20 +547,22 @@ const dev: any = {
     });
   },
 
-  vehicleaccess: function (server: ZoneServer2016, client: Client, args: any[]) {
+  vehicleaccess: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: any[]
+  ) {
     const characterId = client.vehicle.mountedVehicle;
-    console.log(characterId)
+    console.log(characterId);
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId: characterId,
       containerGuid: characterId,
       unknownBool1: true,
       itemsData: {
-        items: [
-        ],
+        items: [],
         unknownDword1: 92,
       },
     });
-    
   },
 };
 
