@@ -429,16 +429,16 @@ export class zonePacketHandlers {
       const clientTimeHoursMs = Number(packet.data.clientHoursMs)
       const currentHoursMs = getCurrentHoursMs();
       const ping = currentHoursMs - clientTimeHoursMs - syncInterval
+      const serverTime = Int64String(Number((Date.now()/1000).toFixed(0)));
+      const reflectedPacket: Synchronization = {...packet.data,
+      serverTime: serverTime,
+      serverTime2: serverTime,
+      time3: Int64String(Number(packet.data.clientTime) +2)
+      }
+      console.log(reflectedPacket)
       console.log(ping)
-      const serverTime = Int64String(server.getServerTime());
-      server.sendData(client, "Synchronization", { // reflected packet isn't used correctly the clock-drift is fucked
-        clientHoursMs: packet.data.clientHoursMs,
-        ClientHoursMs2: packet.data.clientHoursMs,
-        clientTime: packet.data.clientTime,
-        serverTime: serverTime,
-        serverTime2: serverTime,
-        time3: Int64String(currentHoursMs), // not sure what this is
-      } as Synchronization);
+      // reflected packet isn't used correctly the clock-drift is fucked
+      server.sendData(client, "Synchronization", reflectedPacket);
     };
     (this.commandExecuteCommand = async function (
       server: ZoneServer2016,
