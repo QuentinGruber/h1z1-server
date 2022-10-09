@@ -52,7 +52,7 @@ import {
   SpawnLocation,
   Weather2016,
 } from "../../types/zoneserver";
-import { h1z1PacketsType } from "../../types/packets";
+import { h1z1PacketsType2016 } from "../../types/packets";
 import {
   remoteWeaponPacketsType,
   remoteWeaponUpdatePacketsType,
@@ -2992,7 +2992,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   private _sendData(
     client: Client,
-    packetName: h1z1PacketsType,
+    packetName: h1z1PacketsType2016,
     obj: zone2016packets,
     unbuffered: boolean
   ) {
@@ -3023,13 +3023,13 @@ export class ZoneServer2016 extends EventEmitter {
 
   sendUnbufferedData(
     client: Client,
-    packetName: h1z1PacketsType,
+    packetName: h1z1PacketsType2016,
     obj: zone2016packets
   ) {
     this._sendData(client, packetName, obj, true);
   }
 
-  sendData(client: Client, packetName: h1z1PacketsType, obj: zone2016packets) {
+  sendData(client: Client, packetName: h1z1PacketsType2016, obj: zone2016packets) {
     this._sendData(client, packetName, obj, false);
   }
 
@@ -3541,7 +3541,7 @@ export class ZoneServer2016 extends EventEmitter {
   sendDataToAllWithSpawnedEntity(
     dictionary: { [id: string]: any },
     entityCharacterId: string = "",
-    packetName: h1z1PacketsType,
+    packetName: h1z1PacketsType2016,
     obj: zone2016packets
   ) {
     if (!entityCharacterId) return;
@@ -3580,7 +3580,7 @@ export class ZoneServer2016 extends EventEmitter {
     dictionary: { [id: string]: any },
     client: Client,
     entityCharacterId: string = "",
-    packetName: h1z1PacketsType,
+    packetName: h1z1PacketsType2016,
     obj: zone2016packets
   ) {
     if (!entityCharacterId) return;
@@ -6649,7 +6649,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private _sendDataToAll(
-    packetName: h1z1PacketsType,
+    packetName: h1z1PacketsType2016,
     obj: zone2016packets,
     unbuffered: boolean
   ) {
@@ -6665,10 +6665,10 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sendDataToAll(packetName: h1z1PacketsType, obj: zone2016packets) {
+  sendDataToAll(packetName: h1z1PacketsType2016, obj: zone2016packets) {
     this._sendDataToAll(packetName, obj, false);
   }
-  sendUnbufferedDataToAll(packetName: h1z1PacketsType, obj: zone2016packets) {
+  sendUnbufferedDataToAll(packetName: h1z1PacketsType2016, obj: zone2016packets) {
     this._sendDataToAll(packetName, obj, true);
   }
   dropVehicleManager(client: Client, vehicleGuid: string) {
