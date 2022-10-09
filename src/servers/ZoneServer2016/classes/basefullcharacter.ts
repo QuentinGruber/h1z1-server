@@ -268,6 +268,46 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
+  pGetItemData(item: inventoryItem, containerDefId: number) {
+    return {
+      itemDefinitionId: item.itemDefinitionId,
+      tintId: 0,
+      guid: item.itemGuid,
+      count: item.stackCount,
+      itemSubData: {
+        hasSubData: false,
+      },
+      containerGuid: item.containerGuid,
+      containerDefinitionId: containerDefId,
+      containerSlotId: item.slotId,
+      baseDurability: 0,
+      currentDurability: item.currentDurability,
+      maxDurabilityFromDefinition: 0,
+      unknownBoolean1: true,
+      ownerCharacterId: this.characterId,
+      unknownDword9: 1,
+      unknownBoolean2: false,
+    };
+  }
+
+  pGetInventoryItems() {
+    const items: any[] = Object.values(this._loadout)
+      .filter((slot) => {
+        if (slot.itemDefinitionId) {
+          return true;
+        }
+      })
+      .map((slot) => {
+        return this.pGetItemData(slot, 101);
+      });
+    Object.values(this._containers).forEach((container) => {
+      Object.values(container.items).forEach((item) => {
+        items.push(this.pGetItemData(item, container.containerDefinitionId));
+      });
+    });
+    return items;
+  }
+
   pGetFull() {
     return {
       transientId: this.transientId,
@@ -281,12 +321,15 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       targetData: {},
       unknownArray1: [],
       unknownArray2: [],
-      unknownArray3: { data: [] },
-      unknownArray4: { data: [] },
-      unknownArray5: { data: [] },
-      unknownArray6: { data: [] },
-      remoteWeapons: { data: [] },
-      itemsData: { data: [] },
+      unknownArray3: { data: {} },
+      unknownArray4: { data: {} },
+      unknownArray5: { data: {} },
+      unknownArray6: { data: {} },
+      remoteWeapons: { data: {} },
+      itemsData: {
+        items: this.pGetInventoryItems(),
+        unknownDword1: 0,
+      },
     };
   }
 

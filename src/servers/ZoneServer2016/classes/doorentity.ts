@@ -18,6 +18,10 @@ function getDoorSound(actorModelId: number) {
   let openSound = 5048;
   let closeSound = 5049;
   switch (actorModelId) {
+    case 49:
+      openSound = 5081;
+      closeSound = 5082;
+      break;
     case 9009:
     case 9165:
     case 9167:

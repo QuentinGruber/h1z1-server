@@ -42,6 +42,7 @@ process.env.isBin && require("./workers/dynamicWeather");
 
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
+import { zone2015packets } from "types/zone2015packets";
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
@@ -2517,7 +2518,11 @@ export class ZoneServer2015 extends EventEmitter {
     }
   }
 
-  sendData(client: Client, packetName: h1z1PacketsType, obj: any): void {
+  sendData(
+    client: Client,
+    packetName: h1z1PacketsType,
+    obj: zone2015packets
+  ): void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }

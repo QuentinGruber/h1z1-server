@@ -78,3 +78,21 @@ export interface TunnelAppPacketClientToServer {
 export interface TunnelAppPacketServerToClient {
   unknown1: boolean;
 }
+export type LoginUdp_11packets =
+  | LoginRequest
+  | LoginReply
+  | Logout
+  | ForceDisconnect
+  | CharacterCreateRequest
+  | CharacterCreateReply
+  | CharacterLoginRequest
+  | CharacterLoginReply
+  | CharacterDeleteRequest
+  | CharacterDeleteReply
+  | CharacterSelectInfoRequest
+  | CharacterSelectInfoReply
+  | ServerListRequest
+  | ServerListReply
+  | ServerUpdate
+  | TunnelAppPacketClientToServer
+  | TunnelAppPacketServerToClient;

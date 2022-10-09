@@ -144,7 +144,8 @@ export type h1z1PacketsType =
   | "Resource"
   | "SkyChanged"
   | "NavGen"
-  | "Locks"
+  | "Locks.ShowMenu"
+  | "Locks.setLock"
   | "Abilities.InitAbility"
   | "Abilities.UpdateAbility"
   | "Abilities.UninitAbility"
@@ -1366,6 +1367,7 @@ export type h1z1PacketsType =
   | "Target"
   | "GuideStone"
   | "Raid"
+  | "Weapon.Weapon"
   | "MatchSchedule"
   | "Grief"
   | "SpotPlayer"
@@ -1412,7 +1414,8 @@ export type h1z1PacketsType =
   | "Resources"
   | "UpdateWeatherData"
   | "NavGen"
-  | "Locks"
+  | "Locks.ShowMenu"
+  | "Locks.setLock"
   | "Ragdoll"
   | "CharacterState"
   | "AddLightweightPc"
@@ -1429,7 +1432,9 @@ export type h1z1PacketsType =
   | "ScreenEffectBase"
   | "SpectatorBase"
   | "WhitelistBase"
-  | "NpcFoundationPermissionsManagerBase"
+  | "NpcFoundationPermissionsManagerBase.showPermissions"
+  | "NpcFoundationPermissionsManager.AddPermission"
+  | "NpcFoundationPermissionsManager.EditPermission"
   | "BattlEyeData"
   | "OnlineIdBase"
   | "Ps4PlayGoBase"
@@ -1444,6 +1449,7 @@ export type h1z1PacketsType =
   | "AccessedCharacter.BeginCharacterAccess"
   | "AccessedCharacter.EndCharacterAccess"
   | "AccessedCharacter.Unknown1"
+  | "AccessedCharacter.Unknown2"
   | "ShaderParameterOverrideBase"
   | "VehicleSkinBase"
   | "WeaponLagLockParameters"
@@ -2425,7 +2431,7 @@ export type h1z1PacketsType =
   | "Ui.SomeInteractionThing"
   | "Ui.RewardNotification"
   | "Ui.WarpgateRotateWarning"
-  | "Ui.SystemBroadcast"
+  | "Ui.ConfirmHit"
   | "Vehicle.Owner"
   | "Vehicle.Occupy"
   | "Vehicle.StateData"
@@ -2483,37 +2489,7 @@ export type h1z1PacketsType =
   | "WallOfData.ClientTransition"
   | "ZoneSetting.Data"
   | "ClientPath.Request"
-  | "ClientPath.Reply"
-  | "Ui.ConfirmHit";
-
-export type weaponPacketsType =
-  | "Weapon.FireStateUpdate"
-  | "Weapon.FireStateTargetedUpdate"
-  | "Weapon.Fire"
-  | "Weapon.FireWithDefinitionMapping"
-  | "Weapon.FireNoProjectile"
-  | "Weapon.ProjectileHitReport"
-  | "Weapon.ReloadRequest"
-  | "Weapon.Reload"
-  | "Weapon.ReloadInterrupt"
-  | "Weapon.ReloadRejected"
-  | "Weapon.SwitchFireModeRequest"
-  | "Weapon.LockOnGuidUpdate"
-  | "Weapon.LockOnLocationUpdate"
-  | "Weapon.StatUpdate"
-  | "Weapon.AddFireGroup"
-  | "Weapon.RemoveFireGroup"
-  | "Weapon.ReplaceFireGroup"
-  | "Weapon.GuidedUpdate"
-  | "Weapon.Reset";
-
-export type remoteWeaponPacketsType = "RemoteWeapon.AddWeapon";
-
-export type remoteWeaponUpdatePacketsType =
-  | "Update.ProjectileLaunch"
-  | "Update.Reload"
-  | "Update.AddFireGroup";
-
+  | "ClientPath.Reply";
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"

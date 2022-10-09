@@ -74,3 +74,21 @@ export interface ServerUpdate {
 }
 export interface TunnelAppPacketClientToServer {}
 export interface TunnelAppPacketServerToClient {}
+export type LoginUdp_9packets =
+  | LoginRequest
+  | LoginReply
+  | Logout
+  | ForceDisconnect
+  | CharacterCreateRequest
+  | CharacterCreateReply
+  | CharacterLoginRequest
+  | CharacterLoginReply
+  | CharacterDeleteRequest
+  | CharacterDeleteReply
+  | CharacterSelectInfoRequest
+  | CharacterSelectInfoReply
+  | ServerListRequest
+  | ServerListReply
+  | ServerUpdate
+  | TunnelAppPacketClientToServer
+  | TunnelAppPacketServerToClient;

@@ -47,53 +47,15 @@ import {
   CharacterDeleteRequest,
   CharacterLoginRequest,
   CharacterCreateRequest,
+  LoginUdp_11packets,
 } from "types/LoginUdp_11packets";
+import { LoginUdp_9packets } from "types/LoginUdp_9packets";
+import { getCharacterModelData } from "../shared/functions";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
 const characterItemDefinitionsDummy = require("../../../data/2015/sampleData/characterItemDefinitionsDummy.json");
 
-function getCharacterModelData(payload: any): any {
-  switch (payload.headType) {
-    case 6: // black female
-      return {
-        modelId: 9474,
-        headActor: "SurvivorFemale_Head_03.adr",
-        hairModel: "SurvivorFemale_Hair_ShortMessy.adr",
-      };
-    case 5: // black male
-      return {
-        modelId: 9240,
-        headActor: "SurvivorMale_Head_04.adr",
-        hairModel: "SurvivorMale_HatHair_Short.adr",
-      };
-    case 4: // older white female
-      return {
-        modelId: 9474,
-        headActor: "SurvivorFemale_Head_02.adr",
-        hairModel: "SurvivorFemale_Hair_ShortBun.adr",
-      };
-    case 3: // young white female
-      return {
-        modelId: 9474,
-        headActor: "SurvivorFemale_Head_02.adr",
-        hairModel: "SurvivorFemale_Hair_ShortBun.adr",
-      };
-    case 2: // bald white male
-      return {
-        modelId: 9240,
-        headActor: "SurvivorMale_Head_01.adr",
-        hairModel: "SurvivorMale_HatHair_Short.adr",
-      };
-    case 1: // white male
-    default:
-      return {
-        modelId: 9240,
-        headActor: "SurvivorMale_Head_01.adr",
-        hairModel: "SurvivorMale_Hair_ShortMessy.adr",
-      };
-  }
-}
 @healthThreadDecorator
 export class LoginServer extends EventEmitter {
   _soeServer: SOEServer;
@@ -321,7 +283,11 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  sendData(client: Client, packetName: loginPacketsType, obj: any) {
+  sendData(
+    client: Client,
+    packetName: loginPacketsType,
+    obj: LoginUdp_9packets | LoginUdp_11packets
+  ) {
     let data;
     switch (client.protocolName) {
       case "LoginUdp_9": {
@@ -452,7 +418,7 @@ export class LoginServer extends EventEmitter {
 
   async TunnelAppPacketClientToServer(client: Client, packet: any) {
     const baseResponse = { serverId: packet.serverId };
-    let response;
+    let response: unknown;
     switch (packet.subPacketName) {
       case "nameValidationRequest":
         let status = 1;
@@ -493,7 +459,11 @@ export class LoginServer extends EventEmitter {
         debug(`Unhandled tunnel packet "${packet.subPacketName}"`);
         break;
     }
-    this.sendData(client, "TunnelAppPacketServerToClient", response);
+    this.sendData(
+      client,
+      "TunnelAppPacketServerToClient",
+      response as LoginUdp_9packets | LoginUdp_11packets
+    );
   }
 
   Logout(client: Client) {

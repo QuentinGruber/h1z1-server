@@ -13,3 +13,10 @@ export interface ChannelIsRoutable {
   isRoutable: boolean;
 }
 export interface ConnectionIsNotRoutable {}
+export type gatewaypackets =
+  | LoginRequest
+  | LoginReply
+  | Logout
+  | ForceDisconnect
+  | ChannelIsRoutable
+  | ConnectionIsNotRoutable;

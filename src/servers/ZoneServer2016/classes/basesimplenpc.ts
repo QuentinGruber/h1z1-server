@@ -39,7 +39,7 @@ export class BaseSimpleNpc extends BaseEntity {
   pGetSimpleProxyHealth() {
     return {
       characterId: this.characterId,
-      health: this.health / 1000,
+      healthPercentage: this.health / 1000,
     };
   }
 }
