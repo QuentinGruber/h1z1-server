@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "debug": "4.3.4",
-    "discord-webhook-node": "^1.1.8",
+    "discord-webhook-node": "1.1.8",
     "h1emu-core": "^0.9.1",
     "h1z1-dataschema": "1.5.12",
     "mongodb": "4.7.0",
