@@ -752,7 +752,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 113
+            "FIRE_GROUP_ID": 14
           },
           {
             "FIRE_GROUP_ID": 58
@@ -974,7 +974,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1373
+            "FIRE_GROUP_ID": 15
           }
         ]
       }
@@ -1029,7 +1029,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1374
+            "FIRE_GROUP_ID": 16
           }
         ]
       }
@@ -1071,7 +1071,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1375
+            "FIRE_GROUP_ID": 17
           }
         ]
       }
@@ -1223,7 +1223,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1384
+            "FIRE_GROUP_ID": 20
           }
         ]
       }
@@ -1265,7 +1265,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1385
+            "FIRE_GROUP_ID": 21
           }
         ]
       }
@@ -1375,7 +1375,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1387
+            "FIRE_GROUP_ID": 26
           },
           {
             "FIRE_GROUP_ID": 62
@@ -1436,7 +1436,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1388
+            "FIRE_GROUP_ID": 27
           }
         ]
       }
@@ -1491,7 +1491,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1389
+            "FIRE_GROUP_ID": 28
           }
         ]
       }
@@ -1617,7 +1617,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1393
+            "FIRE_GROUP_ID": 31
           }
         ]
       }
@@ -1659,7 +1659,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1394
+            "FIRE_GROUP_ID": 32
           }
         ]
       }
@@ -1701,7 +1701,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1395
+            "FIRE_GROUP_ID": 33
           }
         ]
       }
@@ -1743,7 +1743,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1396
+            "FIRE_GROUP_ID": 34
           }
         ]
       }
@@ -1798,7 +1798,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1397
+            "FIRE_GROUP_ID": 35
           }
         ]
       }
@@ -1895,7 +1895,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1399
+            "FIRE_GROUP_ID": 37
           },
           {
             "FIRE_GROUP_ID": 60
@@ -2014,7 +2014,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1401
+            "FIRE_GROUP_ID": 39
           }
         ]
       }
@@ -2221,7 +2221,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1405
+            "FIRE_GROUP_ID": 51
           }
         ]
       }
@@ -2276,7 +2276,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1406
+            "FIRE_GROUP_ID": 174
           }
         ]
       }
@@ -2665,7 +2665,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1414
+            "FIRE_GROUP_ID": 46
           },
           {
             "FIRE_GROUP_ID": 64
@@ -2713,7 +2713,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1415
+            "FIRE_GROUP_ID": 47
           }
         ]
       }
@@ -3107,7 +3107,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1424
+            "FIRE_GROUP_ID": 53
           },
           {
             "FIRE_GROUP_ID": 78
@@ -3440,7 +3440,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1434
+            "FIRE_GROUP_ID": 84
           }
         ]
       }
@@ -3537,7 +3537,7 @@
         "AMMO_SLOTS": [],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1436
+            "FIRE_GROUP_ID": 86
           }
         ]
       }
@@ -3744,7 +3744,7 @@
         ],
         "FIRE_GROUPS": [
           {
-            "FIRE_GROUP_ID": 1440
+            "FIRE_GROUP_ID": 90
           }
         ]
       }
@@ -6902,10 +6902,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "113": {
-      "ID": 113,
+    "14": {
+      "ID": 14,
       "DATA": {
-        "ID": 113,
+        "ID": 14,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 17
@@ -6927,10 +6927,60 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1375": {
-      "ID": 1375,
+    "15": {
+      "ID": 15,
       "DATA": {
-        "ID": 1375,
+        "ID": 15,
+        "FIRE_MODES": [
+          {
+            "FIRE_MODE_ID": 19
+          },
+          {
+            "FIRE_MODE_ID": 20
+          }
+        ],
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
+      }
+    },
+    "16": {
+      "ID": 16,
+      "DATA": {
+        "ID": 16,
+        "FIRE_MODES": [
+          {
+            "FIRE_MODE_ID": 21
+          },
+          {
+            "FIRE_MODE_ID": 22
+          }
+        ],
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
+      }
+    },
+    "17": {
+      "ID": 17,
+      "DATA": {
+        "ID": 17,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 23
@@ -6999,10 +7049,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1384": {
-      "ID": 1384,
+    "20": {
+      "ID": 20,
       "DATA": {
-        "ID": 1384,
+        "ID": 20,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 160
@@ -7024,10 +7074,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1385": {
-      "ID": 1385,
+    "21": {
+      "ID": 21,
       "DATA": {
-        "ID": 1385,
+        "ID": 21,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 23
@@ -7118,10 +7168,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1387": {
-      "ID": 1387,
+    "26": {
+      "ID": 26,
       "DATA": {
-        "ID": 1387,
+        "ID": 26,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 118
@@ -7143,10 +7193,35 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1389": {
-      "ID": 1389,
+    "27": {
+      "ID": 27,
       "DATA": {
-        "ID": 1389,
+        "ID": 27,
+        "FIRE_MODES": [
+          {
+            "FIRE_MODE_ID": 39
+          },
+          {
+            "FIRE_MODE_ID": 40
+          }
+        ],
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
+      }
+    },
+    "28": {
+      "ID": 28,
+      "DATA": {
+        "ID": 28,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 41
@@ -7212,10 +7287,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1393": {
-      "ID": 1393,
+    "31": {
+      "ID": 31,
       "DATA": {
-        "ID": 1393,
+        "ID": 31,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 44
@@ -7234,10 +7309,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1394": {
-      "ID": 1394,
+    "32": {
+      "ID": 32,
       "DATA": {
-        "ID": 1394,
+        "ID": 32,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 45
@@ -7256,10 +7331,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1395": {
-      "ID": 1395,
+    "33": {
+      "ID": 33,
       "DATA": {
-        "ID": 1395,
+        "ID": 33,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 46
@@ -7278,10 +7353,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1396": {
-      "ID": 1396,
+    "34": {
+      "ID": 34,
       "DATA": {
-        "ID": 1396,
+        "ID": 34,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 47
@@ -7300,10 +7375,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1397": {
-      "ID": 1397,
+    "35": {
+      "ID": 35,
       "DATA": {
-        "ID": 1397,
+        "ID": 35,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 48
@@ -7347,10 +7422,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1399": {
-      "ID": 1399,
+    "37": {
+      "ID": 37,
       "DATA": {
-        "ID": 1399,
+        "ID": 37,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 113
@@ -7360,6 +7435,56 @@
           }
         ],
         "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
+      }
+    },
+    "38": {
+      "ID": 38,
+      "DATA": {
+        "ID": 38,
+        "FIRE_MODES": [
+          {
+            "FIRE_MODE_ID": 52
+          },
+          {
+            "FIRE_MODE_ID": 51
+          }
+        ],
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
+      }
+    },
+    "39": {
+      "ID": 39,
+      "DATA": {
+        "ID": 39,
+        "FIRE_MODES": [
+          {
+            "FIRE_MODE_ID": 53
+          },
+          {
+            "FIRE_MODE_ID": 54
+          }
+        ],
+        "FLAGS": 0,
         "CHAMBER_DURATION_MS": 0,
         "IMAGE_SET_OVERRIDE": 0,
         "TRANSITION_DURATION_MS": 0,
@@ -7522,10 +7647,35 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1415": {
-      "ID": 1415,
+    "46": {
+      "ID": 46,
       "DATA": {
-        "ID": 1415,
+        "ID": 46,
+        "FIRE_MODES": [
+          {
+            "FIRE_MODE_ID": 67
+          },
+          {
+            "FIRE_MODE_ID": 68
+          }
+        ],
+        "FLAGS": 8,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
+      }
+    },
+    "47": {
+      "ID": 47,
+      "DATA": {
+        "ID": 47,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 69
@@ -7619,6 +7769,31 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
+    "51": {
+      "ID": 51,
+      "DATA": {
+        "ID": 51,
+        "FIRE_MODES": [
+          {
+            "FIRE_MODE_ID": 78
+          },
+          {
+            "FIRE_MODE_ID": 79
+          }
+        ],
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
+      }
+    },
     "52": {
       "ID": 52,
       "DATA": {
@@ -7635,6 +7810,31 @@
         "CHAMBER_DURATION_MS": 0,
         "IMAGE_SET_OVERRIDE": 0,
         "TRANSITION_DURATION_MS": 100,
+        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
+        "DEPLOYABLE_ID": 0,
+        "SPIN_UP_TIME_MS": 0,
+        "SPIN_UP_MOVEMENT_MODIFIER": 0,
+        "SPIN_UP_TURN_RATE_MODIFIER": 0,
+        "SPOOL_UP_TIME_MS": 0,
+        "SPOOL_UP_INITIAL_REFIRE_MS": 0
+      }
+    },
+    "53": {
+      "ID": 53,
+      "DATA": {
+        "ID": 53,
+        "FIRE_MODES": [
+          {
+            "FIRE_MODE_ID": 78
+          },
+          {
+            "FIRE_MODE_ID": 79
+          }
+        ],
+        "FLAGS": 0,
+        "CHAMBER_DURATION_MS": 0,
+        "IMAGE_SET_OVERRIDE": 0,
+        "TRANSITION_DURATION_MS": 0,
         "ANIM_ACTOR_SLOT_OVERRIDE": 0,
         "DEPLOYABLE_ID": 0,
         "SPIN_UP_TIME_MS": 0,
@@ -8320,10 +8520,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1434": {
-      "ID": 1434,
+    "84": {
+      "ID": 84,
       "DATA": {
-        "ID": 1434,
+        "ID": 84,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 140
@@ -8370,10 +8570,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1436": {
-      "ID": 1436,
+    "86": {
+      "ID": 86,
       "DATA": {
-        "ID": 1436,
+        "ID": 86,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 144
@@ -8464,10 +8664,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1440": {
-      "ID": 1440,
+    "90": {
+      "ID": 90,
       "DATA": {
-        "ID": 1440,
+        "ID": 90,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 150
@@ -9155,10 +9355,10 @@
         "SPOOL_UP_INITIAL_REFIRE_MS": 0
       }
     },
-    "1406": {
-      "ID": 1406,
+    "174": {
+      "ID": 174,
       "DATA": {
-        "ID": 1406,
+        "ID": 174,
         "FIRE_MODES": [
           {
             "FIRE_MODE_ID": 308
@@ -9987,206 +10187,6 @@
           },
           {
             "FIRE_MODE_ID": 540
-          }
-        ],
-        "FLAGS": 0,
-        "CHAMBER_DURATION_MS": 0,
-        "IMAGE_SET_OVERRIDE": 0,
-        "TRANSITION_DURATION_MS": 0,
-        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
-        "DEPLOYABLE_ID": 0,
-        "SPIN_UP_TIME_MS": 0,
-        "SPIN_UP_MOVEMENT_MODIFIER": 0,
-        "SPIN_UP_TURN_RATE_MODIFIER": 0,
-        "SPOOL_UP_TIME_MS": 0,
-        "SPOOL_UP_INITIAL_REFIRE_MS": 0
-      }
-    },
-    "1373": {
-      "ID": 1373,
-      "DATA": {
-        "ID": 1373,
-        "FIRE_MODES": [
-          {
-            "FIRE_MODE_ID": 19
-          },
-          {
-            "FIRE_MODE_ID": 20
-          }
-        ],
-        "FLAGS": 0,
-        "CHAMBER_DURATION_MS": 0,
-        "IMAGE_SET_OVERRIDE": 0,
-        "TRANSITION_DURATION_MS": 0,
-        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
-        "DEPLOYABLE_ID": 0,
-        "SPIN_UP_TIME_MS": 0,
-        "SPIN_UP_MOVEMENT_MODIFIER": 0,
-        "SPIN_UP_TURN_RATE_MODIFIER": 0,
-        "SPOOL_UP_TIME_MS": 0,
-        "SPOOL_UP_INITIAL_REFIRE_MS": 0
-      }
-    },
-    "1374": {
-      "ID": 1374,
-      "DATA": {
-        "ID": 1374,
-        "FIRE_MODES": [
-          {
-            "FIRE_MODE_ID": 21
-          },
-          {
-            "FIRE_MODE_ID": 22
-          }
-        ],
-        "FLAGS": 0,
-        "CHAMBER_DURATION_MS": 0,
-        "IMAGE_SET_OVERRIDE": 0,
-        "TRANSITION_DURATION_MS": 0,
-        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
-        "DEPLOYABLE_ID": 0,
-        "SPIN_UP_TIME_MS": 0,
-        "SPIN_UP_MOVEMENT_MODIFIER": 0,
-        "SPIN_UP_TURN_RATE_MODIFIER": 0,
-        "SPOOL_UP_TIME_MS": 0,
-        "SPOOL_UP_INITIAL_REFIRE_MS": 0
-      }
-    },
-    "1388": {
-      "ID": 1388,
-      "DATA": {
-        "ID": 1388,
-        "FIRE_MODES": [
-          {
-            "FIRE_MODE_ID": 39
-          },
-          {
-            "FIRE_MODE_ID": 40
-          }
-        ],
-        "FLAGS": 0,
-        "CHAMBER_DURATION_MS": 0,
-        "IMAGE_SET_OVERRIDE": 0,
-        "TRANSITION_DURATION_MS": 0,
-        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
-        "DEPLOYABLE_ID": 0,
-        "SPIN_UP_TIME_MS": 0,
-        "SPIN_UP_MOVEMENT_MODIFIER": 0,
-        "SPIN_UP_TURN_RATE_MODIFIER": 0,
-        "SPOOL_UP_TIME_MS": 0,
-        "SPOOL_UP_INITIAL_REFIRE_MS": 0
-      }
-    },
-    "1400": {
-      "ID": 1400,
-      "DATA": {
-        "ID": 1400,
-        "FIRE_MODES": [
-          {
-            "FIRE_MODE_ID": 52
-          },
-          {
-            "FIRE_MODE_ID": 51
-          }
-        ],
-        "FLAGS": 0,
-        "CHAMBER_DURATION_MS": 0,
-        "IMAGE_SET_OVERRIDE": 0,
-        "TRANSITION_DURATION_MS": 0,
-        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
-        "DEPLOYABLE_ID": 0,
-        "SPIN_UP_TIME_MS": 0,
-        "SPIN_UP_MOVEMENT_MODIFIER": 0,
-        "SPIN_UP_TURN_RATE_MODIFIER": 0,
-        "SPOOL_UP_TIME_MS": 0,
-        "SPOOL_UP_INITIAL_REFIRE_MS": 0
-      }
-    },
-    "1401": {
-      "ID": 1401,
-      "DATA": {
-        "ID": 1401,
-        "FIRE_MODES": [
-          {
-            "FIRE_MODE_ID": 53
-          },
-          {
-            "FIRE_MODE_ID": 54
-          }
-        ],
-        "FLAGS": 0,
-        "CHAMBER_DURATION_MS": 0,
-        "IMAGE_SET_OVERRIDE": 0,
-        "TRANSITION_DURATION_MS": 0,
-        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
-        "DEPLOYABLE_ID": 0,
-        "SPIN_UP_TIME_MS": 0,
-        "SPIN_UP_MOVEMENT_MODIFIER": 0,
-        "SPIN_UP_TURN_RATE_MODIFIER": 0,
-        "SPOOL_UP_TIME_MS": 0,
-        "SPOOL_UP_INITIAL_REFIRE_MS": 0
-      }
-    },
-    "1405": {
-      "ID": 1405,
-      "DATA": {
-        "ID": 1405,
-        "FIRE_MODES": [
-          {
-            "FIRE_MODE_ID": 78
-          },
-          {
-            "FIRE_MODE_ID": 79
-          }
-        ],
-        "FLAGS": 0,
-        "CHAMBER_DURATION_MS": 0,
-        "IMAGE_SET_OVERRIDE": 0,
-        "TRANSITION_DURATION_MS": 0,
-        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
-        "DEPLOYABLE_ID": 0,
-        "SPIN_UP_TIME_MS": 0,
-        "SPIN_UP_MOVEMENT_MODIFIER": 0,
-        "SPIN_UP_TURN_RATE_MODIFIER": 0,
-        "SPOOL_UP_TIME_MS": 0,
-        "SPOOL_UP_INITIAL_REFIRE_MS": 0
-      }
-    },
-    "1414": {
-      "ID": 1414,
-      "DATA": {
-        "ID": 1414,
-        "FIRE_MODES": [
-          {
-            "FIRE_MODE_ID": 67
-          },
-          {
-            "FIRE_MODE_ID": 68
-          }
-        ],
-        "FLAGS": 8,
-        "CHAMBER_DURATION_MS": 0,
-        "IMAGE_SET_OVERRIDE": 0,
-        "TRANSITION_DURATION_MS": 0,
-        "ANIM_ACTOR_SLOT_OVERRIDE": 0,
-        "DEPLOYABLE_ID": 0,
-        "SPIN_UP_TIME_MS": 0,
-        "SPIN_UP_MOVEMENT_MODIFIER": 0,
-        "SPIN_UP_TURN_RATE_MODIFIER": 0,
-        "SPOOL_UP_TIME_MS": 0,
-        "SPOOL_UP_INITIAL_REFIRE_MS": 0
-      }
-    },
-    "1424": {
-      "ID": 1424,
-      "DATA": {
-        "ID": 1424,
-        "FIRE_MODES": [
-          {
-            "FIRE_MODE_ID": 78
-          },
-          {
-            "FIRE_MODE_ID": 79
           }
         ],
         "FLAGS": 0,
@@ -74801,1872 +74801,1872 @@
       "ID": 2,
       "DATA": {
         "ID": 2,
-        "unknownDword2": 1,
-        "unknownDword3": 19000
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19000
       }
     },
     "3": {
       "ID": 3,
       "DATA": {
         "ID": 3,
-        "unknownDword2": 1,
-        "unknownDword3": 19000
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19000
       }
     },
     "4": {
       "ID": 4,
       "DATA": {
         "ID": 4,
-        "unknownDword2": 1,
-        "unknownDword3": 19000
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19000
       }
     },
     "5": {
       "ID": 5,
       "DATA": {
         "ID": 5,
-        "unknownDword2": 1,
-        "unknownDword3": 70043
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70043
       }
     },
     "6": {
       "ID": 6,
       "DATA": {
         "ID": 6,
-        "unknownDword2": 1,
-        "unknownDword3": 19000
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19000
       }
     },
     "8": {
       "ID": 8,
       "DATA": {
         "ID": 8,
-        "unknownDword2": 1,
-        "unknownDword3": 19002
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19002
       }
     },
     "9": {
       "ID": 9,
       "DATA": {
         "ID": 9,
-        "unknownDword2": 1,
-        "unknownDword3": 19002
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19002
       }
     },
     "10": {
       "ID": 10,
       "DATA": {
         "ID": 10,
-        "unknownDword2": 1,
-        "unknownDword3": 2023
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 2023
       }
     },
     "16": {
       "ID": 16,
       "DATA": {
         "ID": 16,
-        "unknownDword2": 1,
-        "unknownDword3": 0
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 0
       }
     },
     "17": {
       "ID": 17,
       "DATA": {
         "ID": 17,
-        "unknownDword2": 1,
-        "unknownDword3": 70038
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70038
       }
     },
     "18": {
       "ID": 18,
       "DATA": {
         "ID": 18,
-        "unknownDword2": 1,
-        "unknownDword3": 70038
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70038
       }
     },
     "19": {
       "ID": 19,
       "DATA": {
         "ID": 19,
-        "unknownDword2": 1,
-        "unknownDword3": 70041
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70041
       }
     },
     "20": {
       "ID": 20,
       "DATA": {
         "ID": 20,
-        "unknownDword2": 1,
-        "unknownDword3": 70041
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70041
       }
     },
     "21": {
       "ID": 21,
       "DATA": {
         "ID": 21,
-        "unknownDword2": 1,
-        "unknownDword3": 70040
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70040
       }
     },
     "22": {
       "ID": 22,
       "DATA": {
         "ID": 22,
-        "unknownDword2": 1,
-        "unknownDword3": 70040
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70040
       }
     },
     "24": {
       "ID": 24,
       "DATA": {
         "ID": 24,
-        "unknownDword2": 1,
-        "unknownDword3": 70039
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70039
       }
     },
     "25": {
       "ID": 25,
       "DATA": {
         "ID": 25,
-        "unknownDword2": 1,
-        "unknownDword3": 70039
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70039
       }
     },
     "26": {
       "ID": 26,
       "DATA": {
         "ID": 26,
-        "unknownDword2": 1,
-        "unknownDword3": 70038
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70038
       }
     },
     "27": {
       "ID": 27,
       "DATA": {
         "ID": 27,
-        "unknownDword2": 1,
-        "unknownDword3": 70054
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70054
       }
     },
     "33": {
       "ID": 33,
       "DATA": {
         "ID": 33,
-        "unknownDword2": 1,
-        "unknownDword3": 70042
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70042
       }
     },
     "34": {
       "ID": 34,
       "DATA": {
         "ID": 34,
-        "unknownDword2": 1,
-        "unknownDword3": 70042
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70042
       }
     },
     "35": {
       "ID": 35,
       "DATA": {
         "ID": 35,
-        "unknownDword2": 1,
-        "unknownDword3": 70043
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70043
       }
     },
     "36": {
       "ID": 36,
       "DATA": {
         "ID": 36,
-        "unknownDword2": 1,
-        "unknownDword3": 70045
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70045
       }
     },
     "37": {
       "ID": 37,
       "DATA": {
         "ID": 37,
-        "unknownDword2": 1,
-        "unknownDword3": 70044
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70044
       }
     },
     "38": {
       "ID": 38,
       "DATA": {
         "ID": 38,
-        "unknownDword2": 1,
-        "unknownDword3": 70046
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70046
       }
     },
     "39": {
       "ID": 39,
       "DATA": {
         "ID": 39,
-        "unknownDword2": 1,
-        "unknownDword3": 70047
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70047
       }
     },
     "40": {
       "ID": 40,
       "DATA": {
         "ID": 40,
-        "unknownDword2": 1,
-        "unknownDword3": 70047
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70047
       }
     },
     "48": {
       "ID": 48,
       "DATA": {
         "ID": 48,
-        "unknownDword2": 1,
-        "unknownDword3": 19000
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19000
       }
     },
     "50": {
       "ID": 50,
       "DATA": {
         "ID": 50,
-        "unknownDword2": 1,
-        "unknownDword3": 70054
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70054
       }
     },
     "51": {
       "ID": 51,
       "DATA": {
         "ID": 51,
-        "unknownDword2": 1,
-        "unknownDword3": 70053
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70053
       }
     },
     "52": {
       "ID": 52,
       "DATA": {
         "ID": 52,
-        "unknownDword2": 1,
-        "unknownDword3": 70053
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70053
       }
     },
     "53": {
       "ID": 53,
       "DATA": {
         "ID": 53,
-        "unknownDword2": 1,
-        "unknownDword3": 70055
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70055
       }
     },
     "54": {
       "ID": 54,
       "DATA": {
         "ID": 54,
-        "unknownDword2": 1,
-        "unknownDword3": 70055
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70055
       }
     },
     "56": {
       "ID": 56,
       "DATA": {
         "ID": 56,
-        "unknownDword2": 1,
-        "unknownDword3": 70056
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70056
       }
     },
     "58": {
       "ID": 58,
       "DATA": {
         "ID": 58,
-        "unknownDword2": 1,
-        "unknownDword3": 19002
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19002
       }
     },
     "59": {
       "ID": 59,
       "DATA": {
         "ID": 59,
-        "unknownDword2": 1,
-        "unknownDword3": 70057
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70057
       }
     },
     "61": {
       "ID": 61,
       "DATA": {
         "ID": 61,
-        "unknownDword2": 1,
-        "unknownDword3": 70058
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70058
       }
     },
     "63": {
       "ID": 63,
       "DATA": {
         "ID": 63,
-        "unknownDword2": 1,
-        "unknownDword3": 70059
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70059
       }
     },
     "65": {
       "ID": 65,
       "DATA": {
         "ID": 65,
-        "unknownDword2": 1,
-        "unknownDword3": 70060
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70060
       }
     },
     "66": {
       "ID": 66,
       "DATA": {
         "ID": 66,
-        "unknownDword2": 1,
-        "unknownDword3": 70060
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70060
       }
     },
     "67": {
       "ID": 67,
       "DATA": {
         "ID": 67,
-        "unknownDword2": 1,
-        "unknownDword3": 70061
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70061
       }
     },
     "68": {
       "ID": 68,
       "DATA": {
         "ID": 68,
-        "unknownDword2": 1,
-        "unknownDword3": 70061
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70061
       }
     },
     "71": {
       "ID": 71,
       "DATA": {
         "ID": 71,
-        "unknownDword2": 1,
-        "unknownDword3": 70062
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70062
       }
     },
     "72": {
       "ID": 72,
       "DATA": {
         "ID": 72,
-        "unknownDword2": 1,
-        "unknownDword3": 70062
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70062
       }
     },
     "73": {
       "ID": 73,
       "DATA": {
         "ID": 73,
-        "unknownDword2": 1,
-        "unknownDword3": 70038
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70038
       }
     },
     "75": {
       "ID": 75,
       "DATA": {
         "ID": 75,
-        "unknownDword2": 1,
-        "unknownDword3": 70062
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70062
       }
     },
     "76": {
       "ID": 76,
       "DATA": {
         "ID": 76,
-        "unknownDword2": 1,
-        "unknownDword3": 70062
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70062
       }
     },
     "77": {
       "ID": 77,
       "DATA": {
         "ID": 77,
-        "unknownDword2": 1,
-        "unknownDword3": 70054
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70054
       }
     },
     "78": {
       "ID": 78,
       "DATA": {
         "ID": 78,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "79": {
       "ID": 79,
       "DATA": {
         "ID": 79,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "81": {
       "ID": 81,
       "DATA": {
         "ID": 81,
-        "unknownDword2": 1,
-        "unknownDword3": 70064
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70064
       }
     },
     "82": {
       "ID": 82,
       "DATA": {
         "ID": 82,
-        "unknownDword2": 1,
-        "unknownDword3": 70064
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70064
       }
     },
     "91": {
       "ID": 91,
       "DATA": {
         "ID": 91,
-        "unknownDword2": 1,
-        "unknownDword3": 70062
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70062
       }
     },
     "92": {
       "ID": 92,
       "DATA": {
         "ID": 92,
-        "unknownDword2": 1,
-        "unknownDword3": 70064
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70064
       }
     },
     "93": {
       "ID": 93,
       "DATA": {
         "ID": 93,
-        "unknownDword2": 1,
-        "unknownDword3": 70071
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70071
       }
     },
     "94": {
       "ID": 94,
       "DATA": {
         "ID": 94,
-        "unknownDword2": 1,
-        "unknownDword3": 70070
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70070
       }
     },
     "95": {
       "ID": 95,
       "DATA": {
         "ID": 95,
-        "unknownDword2": 1,
-        "unknownDword3": 70069
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70069
       }
     },
     "96": {
       "ID": 96,
       "DATA": {
         "ID": 96,
-        "unknownDword2": 1,
-        "unknownDword3": 70068
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70068
       }
     },
     "97": {
       "ID": 97,
       "DATA": {
         "ID": 97,
-        "unknownDword2": 1,
-        "unknownDword3": 70067
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70067
       }
     },
     "99": {
       "ID": 99,
       "DATA": {
         "ID": 99,
-        "unknownDword2": 1,
-        "unknownDword3": 70066
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70066
       }
     },
     "101": {
       "ID": 101,
       "DATA": {
         "ID": 101,
-        "unknownDword2": 1,
-        "unknownDword3": 70066
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70066
       }
     },
     "110": {
       "ID": 110,
       "DATA": {
         "ID": 110,
-        "unknownDword2": 1,
-        "unknownDword3": 70071
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70071
       }
     },
     "111": {
       "ID": 111,
       "DATA": {
         "ID": 111,
-        "unknownDword2": 1,
-        "unknownDword3": 70070
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70070
       }
     },
     "112": {
       "ID": 112,
       "DATA": {
         "ID": 112,
-        "unknownDword2": 1,
-        "unknownDword3": 70069
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70069
       }
     },
     "113": {
       "ID": 113,
       "DATA": {
         "ID": 113,
-        "unknownDword2": 1,
-        "unknownDword3": 70054
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70054
       }
     },
     "114": {
       "ID": 114,
       "DATA": {
         "ID": 114,
-        "unknownDword2": 1,
-        "unknownDword3": 70062
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70062
       }
     },
     "115": {
       "ID": 115,
       "DATA": {
         "ID": 115,
-        "unknownDword2": 1,
-        "unknownDword3": 70064
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70064
       }
     },
     "116": {
       "ID": 116,
       "DATA": {
         "ID": 116,
-        "unknownDword2": 1,
-        "unknownDword3": 70067
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70067
       }
     },
     "117": {
       "ID": 117,
       "DATA": {
         "ID": 117,
-        "unknownDword2": 1,
-        "unknownDword3": 70068
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70068
       }
     },
     "118": {
       "ID": 118,
       "DATA": {
         "ID": 118,
-        "unknownDword2": 1,
-        "unknownDword3": 70046
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70046
       }
     },
     "120": {
       "ID": 120,
       "DATA": {
         "ID": 120,
-        "unknownDword2": 1,
-        "unknownDword3": 70062
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70062
       }
     },
     "121": {
       "ID": 121,
       "DATA": {
         "ID": 121,
-        "unknownDword2": 1,
-        "unknownDword3": 70065
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70065
       }
     },
     "122": {
       "ID": 122,
       "DATA": {
         "ID": 122,
-        "unknownDword2": 1,
-        "unknownDword3": 70065
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70065
       }
     },
     "124": {
       "ID": 124,
       "DATA": {
         "ID": 124,
-        "unknownDword2": 1,
-        "unknownDword3": 70056
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70056
       }
     },
     "125": {
       "ID": 125,
       "DATA": {
         "ID": 125,
-        "unknownDword2": 1,
-        "unknownDword3": 70058
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70058
       }
     },
     "126": {
       "ID": 126,
       "DATA": {
         "ID": 126,
-        "unknownDword2": 1,
-        "unknownDword3": 70057
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70057
       }
     },
     "127": {
       "ID": 127,
       "DATA": {
         "ID": 127,
-        "unknownDword2": 1,
-        "unknownDword3": 70059
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70059
       }
     },
     "129": {
       "ID": 129,
       "DATA": {
         "ID": 129,
-        "unknownDword2": 1,
-        "unknownDword3": 70064
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70064
       }
     },
     "130": {
       "ID": 130,
       "DATA": {
         "ID": 130,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "131": {
       "ID": 131,
       "DATA": {
         "ID": 131,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "132": {
       "ID": 132,
       "DATA": {
         "ID": 132,
-        "unknownDword2": 1,
-        "unknownDword3": 70057
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70057
       }
     },
     "133": {
       "ID": 133,
       "DATA": {
         "ID": 133,
-        "unknownDword2": 1,
-        "unknownDword3": 70057
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70057
       }
     },
     "134": {
       "ID": 134,
       "DATA": {
         "ID": 134,
-        "unknownDword2": 1,
-        "unknownDword3": 70072
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70072
       }
     },
     "136": {
       "ID": 136,
       "DATA": {
         "ID": 136,
-        "unknownDword2": 1,
-        "unknownDword3": 70073
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70073
       }
     },
     "137": {
       "ID": 137,
       "DATA": {
         "ID": 137,
-        "unknownDword2": 1,
-        "unknownDword3": 70073
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70073
       }
     },
     "138": {
       "ID": 138,
       "DATA": {
         "ID": 138,
-        "unknownDword2": 1,
-        "unknownDword3": 70040
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70040
       }
     },
     "139": {
       "ID": 139,
       "DATA": {
         "ID": 139,
-        "unknownDword2": 1,
-        "unknownDword3": 70040
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70040
       }
     },
     "140": {
       "ID": 140,
       "DATA": {
         "ID": 140,
-        "unknownDword2": 1,
-        "unknownDword3": 70126
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70126
       }
     },
     "141": {
       "ID": 141,
       "DATA": {
         "ID": 141,
-        "unknownDword2": 1,
-        "unknownDword3": 70126
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70126
       }
     },
     "146": {
       "ID": 146,
       "DATA": {
         "ID": 146,
-        "unknownDword2": 1,
-        "unknownDword3": 70075
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70075
       }
     },
     "147": {
       "ID": 147,
       "DATA": {
         "ID": 147,
-        "unknownDword2": 1,
-        "unknownDword3": 70076
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70076
       }
     },
     "149": {
       "ID": 149,
       "DATA": {
         "ID": 149,
-        "unknownDword2": 1,
-        "unknownDword3": 70077
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70077
       }
     },
     "150": {
       "ID": 150,
       "DATA": {
         "ID": 150,
-        "unknownDword2": 1,
-        "unknownDword3": 70078
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70078
       }
     },
     "152": {
       "ID": 152,
       "DATA": {
         "ID": 152,
-        "unknownDword2": 1,
-        "unknownDword3": 70079
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70079
       }
     },
     "161": {
       "ID": 161,
       "DATA": {
         "ID": 161,
-        "unknownDword2": 1,
-        "unknownDword3": 70095
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70095
       }
     },
     "165": {
       "ID": 165,
       "DATA": {
         "ID": 165,
-        "unknownDword2": 1,
-        "unknownDword3": 70097
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70097
       }
     },
     "166": {
       "ID": 166,
       "DATA": {
         "ID": 166,
-        "unknownDword2": 1,
-        "unknownDword3": 70097
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70097
       }
     },
     "167": {
       "ID": 167,
       "DATA": {
         "ID": 167,
-        "unknownDword2": 1,
-        "unknownDword3": 70098
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70098
       }
     },
     "168": {
       "ID": 168,
       "DATA": {
         "ID": 168,
-        "unknownDword2": 1,
-        "unknownDword3": 70098
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70098
       }
     },
     "169": {
       "ID": 169,
       "DATA": {
         "ID": 169,
-        "unknownDword2": 1,
-        "unknownDword3": 70099
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70099
       }
     },
     "170": {
       "ID": 170,
       "DATA": {
         "ID": 170,
-        "unknownDword2": 1,
-        "unknownDword3": 70099
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70099
       }
     },
     "171": {
       "ID": 171,
       "DATA": {
         "ID": 171,
-        "unknownDword2": 1,
-        "unknownDword3": 70100
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70100
       }
     },
     "172": {
       "ID": 172,
       "DATA": {
         "ID": 172,
-        "unknownDword2": 1,
-        "unknownDword3": 70100
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70100
       }
     },
     "173": {
       "ID": 173,
       "DATA": {
         "ID": 173,
-        "unknownDword2": 1,
-        "unknownDword3": 70101
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70101
       }
     },
     "174": {
       "ID": 174,
       "DATA": {
         "ID": 174,
-        "unknownDword2": 1,
-        "unknownDword3": 70101
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70101
       }
     },
     "175": {
       "ID": 175,
       "DATA": {
         "ID": 175,
-        "unknownDword2": 1,
-        "unknownDword3": 70056
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70056
       }
     },
     "176": {
       "ID": 176,
       "DATA": {
         "ID": 176,
-        "unknownDword2": 1,
-        "unknownDword3": 70126
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70126
       }
     },
     "177": {
       "ID": 177,
       "DATA": {
         "ID": 177,
-        "unknownDword2": 1,
-        "unknownDword3": 70126
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70126
       }
     },
     "181": {
       "ID": 181,
       "DATA": {
         "ID": 181,
-        "unknownDword2": 1,
-        "unknownDword3": 70119
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70119
       }
     },
     "182": {
       "ID": 182,
       "DATA": {
         "ID": 182,
-        "unknownDword2": 1,
-        "unknownDword3": 70119
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70119
       }
     },
     "183": {
       "ID": 183,
       "DATA": {
         "ID": 183,
-        "unknownDword2": 1,
-        "unknownDword3": 70120
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70120
       }
     },
     "184": {
       "ID": 184,
       "DATA": {
         "ID": 184,
-        "unknownDword2": 1,
-        "unknownDword3": 70120
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70120
       }
     },
     "185": {
       "ID": 185,
       "DATA": {
         "ID": 185,
-        "unknownDword2": 1,
-        "unknownDword3": 19002
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19002
       }
     },
     "187": {
       "ID": 187,
       "DATA": {
         "ID": 187,
-        "unknownDword2": 1,
-        "unknownDword3": 70122
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70122
       }
     },
     "188": {
       "ID": 188,
       "DATA": {
         "ID": 188,
-        "unknownDword2": 1,
-        "unknownDword3": 70122
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70122
       }
     },
     "201": {
       "ID": 201,
       "DATA": {
         "ID": 201,
-        "unknownDword2": 1,
-        "unknownDword3": 70123
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70123
       }
     },
     "204": {
       "ID": 204,
       "DATA": {
         "ID": 204,
-        "unknownDword2": 1,
-        "unknownDword3": 70078
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70078
       }
     },
     "261": {
       "ID": 261,
       "DATA": {
         "ID": 261,
-        "unknownDword2": 1,
-        "unknownDword3": 70127
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70127
       }
     },
     "262": {
       "ID": 262,
       "DATA": {
         "ID": 262,
-        "unknownDword2": 1,
-        "unknownDword3": 70128
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70128
       }
     },
     "263": {
       "ID": 263,
       "DATA": {
         "ID": 263,
-        "unknownDword2": 1,
-        "unknownDword3": 70129
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70129
       }
     },
     "264": {
       "ID": 264,
       "DATA": {
         "ID": 264,
-        "unknownDword2": 1,
-        "unknownDword3": 70130
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70130
       }
     },
     "293": {
       "ID": 293,
       "DATA": {
         "ID": 293,
-        "unknownDword2": 1,
-        "unknownDword3": 70056
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70056
       }
     },
     "297": {
       "ID": 297,
       "DATA": {
         "ID": 297,
-        "unknownDword2": 1,
-        "unknownDword3": 2023
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 2023
       }
     },
     "299": {
       "ID": 299,
       "DATA": {
         "ID": 299,
-        "unknownDword2": 1,
-        "unknownDword3": 70059
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70059
       }
     },
     "300": {
       "ID": 300,
       "DATA": {
         "ID": 300,
-        "unknownDword2": 1,
-        "unknownDword3": 70058
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70058
       }
     },
     "301": {
       "ID": 301,
       "DATA": {
         "ID": 301,
-        "unknownDword2": 1,
-        "unknownDword3": 70057
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70057
       }
     },
     "302": {
       "ID": 302,
       "DATA": {
         "ID": 302,
-        "unknownDword2": 1,
-        "unknownDword3": 70146
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70146
       }
     },
     "303": {
       "ID": 303,
       "DATA": {
         "ID": 303,
-        "unknownDword2": 1,
-        "unknownDword3": 70146
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70146
       }
     },
     "304": {
       "ID": 304,
       "DATA": {
         "ID": 304,
-        "unknownDword2": 1,
-        "unknownDword3": 70147
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70147
       }
     },
     "305": {
       "ID": 305,
       "DATA": {
         "ID": 305,
-        "unknownDword2": 1,
-        "unknownDword3": 70147
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70147
       }
     },
     "306": {
       "ID": 306,
       "DATA": {
         "ID": 306,
-        "unknownDword2": 1,
-        "unknownDword3": 70148
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70148
       }
     },
     "307": {
       "ID": 307,
       "DATA": {
         "ID": 307,
-        "unknownDword2": 1,
-        "unknownDword3": 70148
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70148
       }
     },
     "308": {
       "ID": 308,
       "DATA": {
         "ID": 308,
-        "unknownDword2": 1,
-        "unknownDword3": 70149
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70149
       }
     },
     "309": {
       "ID": 309,
       "DATA": {
         "ID": 309,
-        "unknownDword2": 1,
-        "unknownDword3": 70149
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70149
       }
     },
     "310": {
       "ID": 310,
       "DATA": {
         "ID": 310,
-        "unknownDword2": 1,
-        "unknownDword3": 70150
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70150
       }
     },
     "311": {
       "ID": 311,
       "DATA": {
         "ID": 311,
-        "unknownDword2": 1,
-        "unknownDword3": 70150
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70150
       }
     },
     "312": {
       "ID": 312,
       "DATA": {
         "ID": 312,
-        "unknownDword2": 1,
-        "unknownDword3": 70061
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70061
       }
     },
     "313": {
       "ID": 313,
       "DATA": {
         "ID": 313,
-        "unknownDword2": 1,
-        "unknownDword3": 70151
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70151
       }
     },
     "314": {
       "ID": 314,
       "DATA": {
         "ID": 314,
-        "unknownDword2": 1,
-        "unknownDword3": 70151
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70151
       }
     },
     "333": {
       "ID": 333,
       "DATA": {
         "ID": 333,
-        "unknownDword2": 1,
-        "unknownDword3": 70152
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70152
       }
     },
     "334": {
       "ID": 334,
       "DATA": {
         "ID": 334,
-        "unknownDword2": 1,
-        "unknownDword3": 70152
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70152
       }
     },
     "349": {
       "ID": 349,
       "DATA": {
         "ID": 349,
-        "unknownDword2": 1,
-        "unknownDword3": 70170
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70170
       }
     },
     "350": {
       "ID": 350,
       "DATA": {
         "ID": 350,
-        "unknownDword2": 1,
-        "unknownDword3": 70170
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70170
       }
     },
     "351": {
       "ID": 351,
       "DATA": {
         "ID": 351,
-        "unknownDword2": 1,
-        "unknownDword3": 70171
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70171
       }
     },
     "352": {
       "ID": 352,
       "DATA": {
         "ID": 352,
-        "unknownDword2": 1,
-        "unknownDword3": 70171
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70171
       }
     },
     "353": {
       "ID": 353,
       "DATA": {
         "ID": 353,
-        "unknownDword2": 1,
-        "unknownDword3": 70167
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70167
       }
     },
     "354": {
       "ID": 354,
       "DATA": {
         "ID": 354,
-        "unknownDword2": 1,
-        "unknownDword3": 70167
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70167
       }
     },
     "356": {
       "ID": 356,
       "DATA": {
         "ID": 356,
-        "unknownDword2": 1,
-        "unknownDword3": 70173
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70173
       }
     },
     "357": {
       "ID": 357,
       "DATA": {
         "ID": 357,
-        "unknownDword2": 1,
-        "unknownDword3": 70173
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70173
       }
     },
     "363": {
       "ID": 363,
       "DATA": {
         "ID": 363,
-        "unknownDword2": 1,
-        "unknownDword3": 70168
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70168
       }
     },
     "364": {
       "ID": 364,
       "DATA": {
         "ID": 364,
-        "unknownDword2": 1,
-        "unknownDword3": 70168
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70168
       }
     },
     "366": {
       "ID": 366,
       "DATA": {
         "ID": 366,
-        "unknownDword2": 1,
-        "unknownDword3": 70172
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70172
       }
     },
     "367": {
       "ID": 367,
       "DATA": {
         "ID": 367,
-        "unknownDword2": 1,
-        "unknownDword3": 70172
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70172
       }
     },
     "368": {
       "ID": 368,
       "DATA": {
         "ID": 368,
-        "unknownDword2": 1,
-        "unknownDword3": 70172
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70172
       }
     },
     "369": {
       "ID": 369,
       "DATA": {
         "ID": 369,
-        "unknownDword2": 1,
-        "unknownDword3": 70174
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70174
       }
     },
     "370": {
       "ID": 370,
       "DATA": {
         "ID": 370,
-        "unknownDword2": 1,
-        "unknownDword3": 70174
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70174
       }
     },
     "380": {
       "ID": 380,
       "DATA": {
         "ID": 380,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "381": {
       "ID": 381,
       "DATA": {
         "ID": 381,
-        "unknownDword2": 1,
-        "unknownDword3": 19002
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19002
       }
     },
     "386": {
       "ID": 386,
       "DATA": {
         "ID": 386,
-        "unknownDword2": 1,
-        "unknownDword3": 70169
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70169
       }
     },
     "387": {
       "ID": 387,
       "DATA": {
         "ID": 387,
-        "unknownDword2": 1,
-        "unknownDword3": 70169
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70169
       }
     },
     "388": {
       "ID": 388,
       "DATA": {
         "ID": 388,
-        "unknownDword2": 1,
-        "unknownDword3": 70169
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70169
       }
     },
     "395": {
       "ID": 395,
       "DATA": {
         "ID": 395,
-        "unknownDword2": 1,
-        "unknownDword3": 19002
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19002
       }
     },
     "396": {
       "ID": 396,
       "DATA": {
         "ID": 396,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "399": {
       "ID": 399,
       "DATA": {
         "ID": 399,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "400": {
       "ID": 400,
       "DATA": {
         "ID": 400,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "405": {
       "ID": 405,
       "DATA": {
         "ID": 405,
-        "unknownDword2": 1,
-        "unknownDword3": 19002
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19002
       }
     },
     "406": {
       "ID": 406,
       "DATA": {
         "ID": 406,
-        "unknownDword2": 1,
-        "unknownDword3": 70040
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70040
       }
     },
     "407": {
       "ID": 407,
       "DATA": {
         "ID": 407,
-        "unknownDword2": 1,
-        "unknownDword3": 70047
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70047
       }
     },
     "408": {
       "ID": 408,
       "DATA": {
         "ID": 408,
-        "unknownDword2": 1,
-        "unknownDword3": 70055
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70055
       }
     },
     "409": {
       "ID": 409,
       "DATA": {
         "ID": 409,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "410": {
       "ID": 410,
       "DATA": {
         "ID": 410,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "411": {
       "ID": 411,
       "DATA": {
         "ID": 411,
-        "unknownDword2": 1,
-        "unknownDword3": 70061
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70061
       }
     },
     "412": {
       "ID": 412,
       "DATA": {
         "ID": 412,
-        "unknownDword2": 1,
-        "unknownDword3": 70071
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70071
       }
     },
     "413": {
       "ID": 413,
       "DATA": {
         "ID": 413,
-        "unknownDword2": 1,
-        "unknownDword3": 70070
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70070
       }
     },
     "414": {
       "ID": 414,
       "DATA": {
         "ID": 414,
-        "unknownDword2": 1,
-        "unknownDword3": 70126
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70126
       }
     },
     "415": {
       "ID": 415,
       "DATA": {
         "ID": 415,
-        "unknownDword2": 1,
-        "unknownDword3": 70152
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70152
       }
     },
     "416": {
       "ID": 416,
       "DATA": {
         "ID": 416,
-        "unknownDword2": 1,
-        "unknownDword3": 70168
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70168
       }
     },
     "417": {
       "ID": 417,
       "DATA": {
         "ID": 417,
-        "unknownDword2": 1,
-        "unknownDword3": 70174
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70174
       }
     },
     "418": {
       "ID": 418,
       "DATA": {
         "ID": 418,
-        "unknownDword2": 1,
-        "unknownDword3": 19000
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19000
       }
     },
     "419": {
       "ID": 419,
       "DATA": {
         "ID": 419,
-        "unknownDword2": 1,
-        "unknownDword3": 70041
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70041
       }
     },
     "423": {
       "ID": 423,
       "DATA": {
         "ID": 423,
-        "unknownDword2": 1,
-        "unknownDword3": 70187
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70187
       }
     },
     "424": {
       "ID": 424,
       "DATA": {
         "ID": 424,
-        "unknownDword2": 1,
-        "unknownDword3": 70191
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70191
       }
     },
     "431": {
       "ID": 431,
       "DATA": {
         "ID": 431,
-        "unknownDword2": 1,
-        "unknownDword3": 19002
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19002
       }
     },
     "432": {
       "ID": 432,
       "DATA": {
         "ID": 432,
-        "unknownDword2": 1,
-        "unknownDword3": 70041
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70041
       }
     },
     "433": {
       "ID": 433,
       "DATA": {
         "ID": 433,
-        "unknownDword2": 1,
-        "unknownDword3": 70040
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70040
       }
     },
     "434": {
       "ID": 434,
       "DATA": {
         "ID": 434,
-        "unknownDword2": 1,
-        "unknownDword3": 70047
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70047
       }
     },
     "435": {
       "ID": 435,
       "DATA": {
         "ID": 435,
-        "unknownDword2": 1,
-        "unknownDword3": 70055
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70055
       }
     },
     "436": {
       "ID": 436,
       "DATA": {
         "ID": 436,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "437": {
       "ID": 437,
       "DATA": {
         "ID": 437,
-        "unknownDword2": 1,
-        "unknownDword3": 70070
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70070
       }
     },
     "438": {
       "ID": 438,
       "DATA": {
         "ID": 438,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "439": {
       "ID": 439,
       "DATA": {
         "ID": 439,
-        "unknownDword2": 1,
-        "unknownDword3": 70061
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70061
       }
     },
     "440": {
       "ID": 440,
       "DATA": {
         "ID": 440,
-        "unknownDword2": 1,
-        "unknownDword3": 70071
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70071
       }
     },
     "441": {
       "ID": 441,
       "DATA": {
         "ID": 441,
-        "unknownDword2": 1,
-        "unknownDword3": 70126
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70126
       }
     },
     "442": {
       "ID": 442,
       "DATA": {
         "ID": 442,
-        "unknownDword2": 1,
-        "unknownDword3": 70174
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70174
       }
     },
     "444": {
       "ID": 444,
       "DATA": {
         "ID": 444,
-        "unknownDword2": 1,
-        "unknownDword3": 70191
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70191
       }
     },
     "448": {
       "ID": 448,
       "DATA": {
         "ID": 448,
-        "unknownDword2": 1,
-        "unknownDword3": 70152
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70152
       }
     },
     "450": {
       "ID": 450,
       "DATA": {
         "ID": 450,
-        "unknownDword2": 1,
-        "unknownDword3": 19002
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19002
       }
     },
     "451": {
       "ID": 451,
       "DATA": {
         "ID": 451,
-        "unknownDword2": 1,
-        "unknownDword3": 19002
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 19002
       }
     },
     "452": {
       "ID": 452,
       "DATA": {
         "ID": 452,
-        "unknownDword2": 1,
-        "unknownDword3": 70041
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70041
       }
     },
     "453": {
       "ID": 453,
       "DATA": {
         "ID": 453,
-        "unknownDword2": 1,
-        "unknownDword3": 70041
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70041
       }
     },
     "454": {
       "ID": 454,
       "DATA": {
         "ID": 454,
-        "unknownDword2": 1,
-        "unknownDword3": 70040
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70040
       }
     },
     "455": {
       "ID": 455,
       "DATA": {
         "ID": 455,
-        "unknownDword2": 1,
-        "unknownDword3": 70040
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70040
       }
     },
     "456": {
       "ID": 456,
       "DATA": {
         "ID": 456,
-        "unknownDword2": 1,
-        "unknownDword3": 70047
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70047
       }
     },
     "457": {
       "ID": 457,
       "DATA": {
         "ID": 457,
-        "unknownDword2": 1,
-        "unknownDword3": 70047
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70047
       }
     },
     "458": {
       "ID": 458,
       "DATA": {
         "ID": 458,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "459": {
       "ID": 459,
       "DATA": {
         "ID": 459,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "460": {
       "ID": 460,
       "DATA": {
         "ID": 460,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "461": {
       "ID": 461,
       "DATA": {
         "ID": 461,
-        "unknownDword2": 1,
-        "unknownDword3": 70063
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70063
       }
     },
     "462": {
       "ID": 462,
       "DATA": {
         "ID": 462,
-        "unknownDword2": 1,
-        "unknownDword3": 70070
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70070
       }
     },
     "463": {
       "ID": 463,
       "DATA": {
         "ID": 463,
-        "unknownDword2": 1,
-        "unknownDword3": 70070
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70070
       }
     },
     "464": {
       "ID": 464,
       "DATA": {
         "ID": 464,
-        "unknownDword2": 1,
-        "unknownDword3": 70126
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70126
       }
     },
     "465": {
       "ID": 465,
       "DATA": {
         "ID": 465,
-        "unknownDword2": 1,
-        "unknownDword3": 70126
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70126
       }
     },
     "466": {
       "ID": 466,
       "DATA": {
         "ID": 466,
-        "unknownDword2": 1,
-        "unknownDword3": 70174
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70174
       }
     },
     "467": {
       "ID": 467,
       "DATA": {
         "ID": 467,
-        "unknownDword2": 1,
-        "unknownDword3": 70174
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70174
       }
     },
     "468": {
       "ID": 468,
       "DATA": {
         "ID": 468,
-        "unknownDword2": 1,
-        "unknownDword3": 70152
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70152
       }
     },
     "469": {
       "ID": 469,
       "DATA": {
         "ID": 469,
-        "unknownDword2": 1,
-        "unknownDword3": 70152
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70152
       }
     },
     "471": {
       "ID": 471,
       "DATA": {
         "ID": 471,
-        "unknownDword2": 1,
-        "unknownDword3": 70122
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70122
       }
     },
     "472": {
       "ID": 472,
       "DATA": {
         "ID": 472,
-        "unknownDword2": 1,
-        "unknownDword3": 70122
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70122
       }
     },
     "473": {
       "ID": 473,
       "DATA": {
         "ID": 473,
-        "unknownDword2": 1,
-        "unknownDword3": 70122
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70122
       }
     },
     "474": {
       "ID": 474,
       "DATA": {
         "ID": 474,
-        "unknownDword2": 1,
-        "unknownDword3": 70122
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70122
       }
     },
     "487": {
       "ID": 487,
       "DATA": {
         "ID": 487,
-        "unknownDword2": 1,
-        "unknownDword3": 70205
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70205
       }
     },
     "488": {
       "ID": 488,
       "DATA": {
         "ID": 488,
-        "unknownDword2": 1,
-        "unknownDword3": 70205
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70205
       }
     },
     "491": {
       "ID": 491,
       "DATA": {
         "ID": 491,
-        "unknownDword2": 1,
-        "unknownDword3": 70206
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70206
       }
     },
     "492": {
       "ID": 492,
       "DATA": {
         "ID": 492,
-        "unknownDword2": 1,
-        "unknownDword3": 70206
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70206
       }
     },
     "493": {
       "ID": 493,
       "DATA": {
         "ID": 493,
-        "unknownDword2": 1,
-        "unknownDword3": 70208
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70208
       }
     },
     "494": {
       "ID": 494,
       "DATA": {
         "ID": 494,
-        "unknownDword2": 1,
-        "unknownDword3": 70208
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70208
       }
     },
     "504": {
       "ID": 504,
       "DATA": {
         "ID": 504,
-        "unknownDword2": 1,
-        "unknownDword3": 70213
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70213
       }
     },
     "505": {
       "ID": 505,
       "DATA": {
         "ID": 505,
-        "unknownDword2": 1,
-        "unknownDword3": 70213
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70213
       }
     },
     "506": {
       "ID": 506,
       "DATA": {
         "ID": 506,
-        "unknownDword2": 1,
-        "unknownDword3": 70214
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70214
       }
     },
     "507": {
       "ID": 507,
       "DATA": {
         "ID": 507,
-        "unknownDword2": 1,
-        "unknownDword3": 70214
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70214
       }
     },
     "508": {
       "ID": 508,
       "DATA": {
         "ID": 508,
-        "unknownDword2": 1,
-        "unknownDword3": 70215
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70215
       }
     },
     "509": {
       "ID": 509,
       "DATA": {
         "ID": 509,
-        "unknownDword2": 1,
-        "unknownDword3": 70215
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70215
       }
     },
     "539": {
       "ID": 539,
       "DATA": {
         "ID": 539,
-        "unknownDword2": 1,
-        "unknownDword3": 70229
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70229
       }
     },
     "540": {
       "ID": 540,
       "DATA": {
         "ID": 540,
-        "unknownDword2": 1,
-        "unknownDword3": 70229
+        "INDEX": 1,
+        "PROJECTILE_DEFINITION_ID": 70229
       }
     }
   },

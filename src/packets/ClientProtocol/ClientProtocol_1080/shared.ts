@@ -1392,8 +1392,8 @@ export const attachmentSchema = [
 ];
 
 export const remoteWeaponSchema = [
-  { name: "firegroupId", type: "uint32", defaultValue: 0 },
-  { name: "equipmentSlotId", type: "int8", defaultValue: 0 },
+  { name: "weaponDefinitionId", type: "uint32", defaultValue: 0 },
+  { name: "equipmentSlotId", type: "uint8", defaultValue: 0 },
   {
     name: "firegroups",
     type: "array8",
@@ -1468,6 +1468,27 @@ export const remoteWeaponSchema = [
     ],
   },
 ];
+
+export const remoteWeaponExtraSchema = [
+  { name: "unknownByte1", type: "int8", defaultValue: 0 },
+  { name: "unknownByte2", type: "int8", defaultValue: 0 },
+  { name: "unknownByte3", type: "int8", defaultValue: 0 },
+  { name: "unknownByte4", type: "int8", defaultValue: 0 },
+  { name: "unknownByte5", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+  { name: "unknownByte6", type: "uint8", defaultValue: 0 },
+  { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+  {
+    name: "unknownArray1",
+    type: "array",
+    defaultValue: [],
+    fields: [
+      { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+      { name: "unknownBoolean2", type: "boolean", defaultValue: false },
+    ],
+  },
+]
 
 export const fullNpcSchema = [
   {
@@ -1807,6 +1828,15 @@ export const fullNpcSchema = [
           ...remoteWeaponSchema,
         ],
       },
+      {
+        name: "remoteWeaponExtra",
+        type: "array",
+        defaultValue: {},
+        fields: [
+          { name: "guid", type: "uint64string", defaultValue: "" },
+          ...remoteWeaponExtraSchema
+        ]
+      },
     ],
   },
   {
@@ -1825,7 +1855,7 @@ export const fullNpcSchema = [
             defaultValue: {},
             fields: itemSchema,
           },
-          { name: "unknownBool1", type: "boolean", defaultValue: false },
+          { name: "unknownBool2", type: "boolean", defaultValue: false },
         ],
       },
       { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -1857,8 +1887,8 @@ export const fullPcSchema = [
         defaultValue: [],
         fields: attachmentSchema,
       },
-      { name: "unknownString1", type: "string", defaultValue: "" },
-      { name: "unknownString2", type: "string", defaultValue: "" },
+      { name: "headActor", type: "string", defaultValue: "" },
+      { name: "hairModel", type: "string", defaultValue: "" },
       { name: "unknownDword5", type: "uint32", defaultValue: 0 },
       { name: "unknownDword6", type: "uint32", defaultValue: 0 },
       { name: "unknownDword7", type: "uint32", defaultValue: 0 },
@@ -2187,6 +2217,15 @@ export const fullPcSchema = [
     defaultValue: [],
     fields: statSchema,
   },
+  {
+    name: "remoteWeaponExtra",
+    type: "array",
+    defaultValue: {},
+    fields: [
+      { name: "guid", type: "uint64string", defaultValue: "" },
+      ...remoteWeaponExtraSchema
+    ]
+  },
 ];
 
 export const respawnLocationSchema = [
@@ -2496,7 +2535,7 @@ export function packTargetData(obj: any) {
         },
         { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
       ],
-      data
+      obj
     );
     return Buffer.concat([data, targetData.data]);
   }

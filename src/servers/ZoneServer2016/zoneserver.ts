@@ -30,7 +30,6 @@ import { ZoneClient2016 as Client} from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 import {
-  Characters,
   EntityTypes,
   EquipSlots,
   ItemClasses,
@@ -110,6 +109,7 @@ import {
   zone2016packets,
 } from "types/zone2016packets";
 import { AsyncHooks, AsyncHookType, FunctionHookType, Hooks } from "./hooks";
+import { getCharacterModelData } from "../shared/functions";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   recipes = require("../../../data/2016/sampleData/recipes.json"),
@@ -303,6 +303,11 @@ export class ZoneServer2016 extends EventEmitter {
         } else {
           zoneClient.isAdmin = true;
         }
+
+        if(this._characters[characterId]) {
+          this.sendData(client as any, "LoginFailed", {});
+          return;
+        }
         this._clients[client.sessionId] = zoneClient;
         this._characters[characterId] = zoneClient.character;
         zoneClient.pingTimer = setTimeout(() => {
@@ -490,47 +495,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async onCharacterCreateRequest(client: any, packet: any) {
-    function getCharacterModelData(payload: any): any {
-      switch (payload.headType) {
-        case Characters.FEMALE_BLACK:
-          return {
-            modelId: 9474,
-            headActor: "SurvivorFemale_Head_03.adr",
-            hairModel: "SurvivorFemale_Hair_ShortMessy.adr",
-          };
-        case Characters.MALE_BLACK:
-          return {
-            modelId: 9240,
-            headActor: "SurvivorMale_Head_04.adr",
-            hairModel: "SurvivorMale_HatHair_Short.adr",
-          };
-        case Characters.FEMALE_WHITE:
-          return {
-            modelId: 9474,
-            headActor: "SurvivorFemale_Head_02.adr",
-            hairModel: "SurvivorFemale_Hair_ShortBun.adr",
-          };
-        case Characters.FEMALE_WHITE_YOUNG:
-          return {
-            modelId: 9474,
-            headActor: "SurvivorFemale_Head_02.adr",
-            hairModel: "SurvivorFemale_Hair_ShortBun.adr",
-          };
-        case Characters.MALE_WHITE_BALD:
-          return {
-            modelId: 9240,
-            headActor: "SurvivorMale_Head_01.adr",
-            hairModel: "SurvivorMale_HatHair_Short.adr",
-          };
-        case Characters.MALE_WHITE:
-        default:
-          return {
-            modelId: 9240,
-            headActor: "SurvivorMale_Head_01.adr",
-            hairModel: "SurvivorMale_Hair_ShortMessy.adr",
-          };
-      }
-    }
 
     const { characterObjStringify, reqId } = packet.data;
     try {
@@ -571,21 +535,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  pGetInventoryItems(client: Client): any[] {
-    const items: any[] = Object.values(client.character._loadout)
+  pGetInventoryItems(character: BaseFullCharacter): any[] {
+    const items: any[] = Object.values(character._loadout)
       .filter((slot) => {
         if (slot.itemDefinitionId) {
           return true;
         }
       })
       .map((slot) => {
-        return this.pGetItemData(client.character, slot, 101);
+        return this.pGetItemData(character, slot, 101);
       });
-    Object.values(client.character._containers).forEach((container) => {
+    Object.values(character._containers).forEach((container) => {
       Object.values(container.items).forEach((item) => {
         items.push(
           this.pGetItemData(
-            client.character,
+            character,
             item,
             container.containerDefinitionId
           )
@@ -600,7 +564,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.checkAsyncHook("OnSendCharacterData", client))) return;
 
     await this.worldDataManager.loadCharacterData(this, client);
-    const containers = this.initializeContainerList(client, false);
+    const containers = this.pGetContainers(client.character);
     this.sendData(client, "SendSelfToClient", {
       data: {
         ...client.character.pGetLightweight(),
@@ -614,7 +578,7 @@ export class ZoneServer2016 extends EventEmitter {
           characterName: client.character.name,
         },
         inventory: {
-          items: this.pGetInventoryItems(client),
+          items: this.pGetInventoryItems(client.character),
           //unknownDword1: 2355
         },
         recipes: Object.values(this._recipes),
@@ -632,12 +596,7 @@ export class ZoneServer2016 extends EventEmitter {
       },
     });
     client.character.initialized = true;
-
-    this.sendData(client, "Container.InitEquippedContainers", {
-      ignore: client.character.characterId,
-      characterId: client.character.characterId,
-      containers: containers,
-    });
+    this.initializeContainerList(client);
 
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
     this.checkHook("OnSentCharacterData", client);
@@ -2480,7 +2439,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (!client.spawnedEntities.includes(npc)) {
           this.addLightweightNpc(client, npc);
-          this.updateEquipment(client, npc); // TODO: maybe we can already add the equipment to the npc?
+          this.updateEquipment(npc); // TODO: maybe we can already add the equipment to the npc?
           client.spawnedEntities.push(npc);
         }
       } else {
@@ -2840,12 +2799,65 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  sendRemoteWeaponDataToAllOthers(
+    client: Client,
+    transientId: number,
+    packetName: remoteWeaponPacketsType,
+    obj: any
+  ) {
+    this.sendDataToAllOthersWithSpawnedEntity(
+      this._characters, 
+      client, 
+      client.character.characterId, 
+      "Weapon.Weapon", 
+      {
+        weaponPacket: {
+          packetName: "Weapon.RemoteWeapon",
+          gameTime: this.getGameTime(),
+          remoteWeaponPacket: {
+            packetName: packetName,
+            transientId: transientId,
+            packet: obj,
+          },
+        },
+      }
+    );
+  }
+
   sendRemoteWeaponUpdateData(
     client: Client,
     transientId: number,
     weaponGuid: string,
     packetName: remoteWeaponUpdatePacketsType,
     obj: zone2016packets
+  ) {
+    this.sendData(
+      client,
+      "Weapon.Weapon",
+      {
+        weaponPacket: {
+          packetName: "Weapon.RemoteWeapon",
+          gameTime: this.getGameTime(),
+          remoteWeaponPacket: {
+            packetName: "RemoteWeapon.Update",
+            transientId: transientId,
+            remoteWeaponUpdatePacket: {
+              packetName: packetName,
+              weaponGuid: weaponGuid,
+              packet: obj,
+            },
+          },
+        },
+      }
+    );
+  }
+
+  sendRemoteWeaponUpdateDataToAllOthers(
+    client: Client,
+    transientId: number,
+    weaponGuid: string,
+    packetName: remoteWeaponUpdatePacketsType,
+    obj: any
   ) {
     this.sendDataToAllOthersWithSpawnedEntity(
       this._characters,
@@ -3761,19 +3773,40 @@ export class ZoneServer2016 extends EventEmitter {
         identity: {},
       }
     );
-    /*
+
+    this.initializeContainerList(client, vehicle);
+    
     if(seatId === "0") {
-      this.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-        objectCharacterId: vehicle.characterId,
-        containerGuid: vehicle.characterId,// idk just testing for now
-        unknownBool1: false,
+      const inventory = Object.values(vehicle._containers)[0];
+      this.sendData(client, "Vehicle.InventoryItems", {
+        characterId: vehicle.characterId,
         itemsData: {
-          items: [],
-          unknownDword1: 0,
+          items: Object.values(inventory).map((item) => {
+            return vehicle.pGetItemData(
+              item,
+              inventory.containerDefinitionId
+            )
+          }),
+          unknownDword1: inventory.containerDefinitionId,
         },
       });
+      /*
+      this.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+        objectCharacterId: vehicle.characterId,
+        containerGuid: inventory?.itemGuid,
+        unknownBool1: false,
+        itemsData: {
+          items: Object.values(inventory).map((item) => {
+            return vehicle.pGetItemData(
+              item,
+              inventory.containerDefinitionId
+            )
+          }),
+          unknownDword1: inventory.containerDefinitionId,
+        },
+      });
+      */
     }
-    */
     if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
       if (vehicle._resources[ResourceIds.FUEL] > 0) {
@@ -4036,10 +4069,11 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword1: weaponItem.weapon.ammoCount,
       ammoCount: weaponItem.weapon.ammoCount,
       unknownDword3: weaponItem.weapon.ammoCount,
-      currentReloadCount: `0x${(++weaponItem.weapon
-        .currentReloadCount).toString(16)}`,
+      currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount)
     });
-    // send reloadinterrupt to all clients with spawned character
+    this.sendRemoteWeaponUpdateDataToAllOthers(
+      client, client.character.transientId, weaponItem.itemGuid, "Update.ReloadInterrupt", {}
+    )
   }
 
   combatLog(client: Client) {
@@ -4093,7 +4127,7 @@ export class ZoneServer2016 extends EventEmitter {
   //#region ********************INVENTORY********************
 
   pGetItemData(
-    character: Character,
+    character: BaseFullCharacter,
     item: inventoryItem,
     containerDefId: number
   ) {
@@ -4128,11 +4162,90 @@ export class ZoneServer2016 extends EventEmitter {
       ownerCharacterId:
         isWeapon && item.itemDefinitionId !== 85 ? "" : character.characterId,
       unknownDword9: 1,
-      unknownData1: this.getItemWeaponData(character, item),
+      weaponData: this.getItemWeaponData(character, item),
+    };
+  }
+  
+  pGetRemoteWeaponData(
+    character: Character,
+    item: inventoryItem
+  ) {
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+      weaponDefinition = this.getWeaponDefinition(itemDefinition.PARAM1),
+      firegroups = weaponDefinition.FIRE_GROUPS; 
+    return {
+      weaponDefinitionId: weaponDefinition.ID,
+      equipmentSlotId: character.getActiveEquipmentSlot(item),
+      firegroups: firegroups.map((firegroup: any) => {
+        const firegroupDef = this.getFiregroupDefinition(firegroup.FIRE_GROUP_ID),
+        firemodes = firegroupDef.FIRE_MODES
+        return {
+          firegroupId: firegroup.FIRE_GROUP_ID,
+          unknownArray1: firemodes.map((firemode: any, j: number)=> {
+            return {
+             unknownDword1: j,
+             unknownDword2: firemode.FIRE_MODE_ID,
+            }
+          }) // probably firemodes
+        }
+      })
     };
   }
 
-  getItemWeaponData(charcter: Character, slot: inventoryItem) {
+  pGetRemoteWeaponExtraData(
+    item: inventoryItem
+  ) {
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+      weaponDefinition = this.getWeaponDefinition(itemDefinition.PARAM1),
+      firegroups = weaponDefinition.FIRE_GROUPS; 
+    return {
+      guid: item.itemGuid,
+      unknownByte1: 0, // firegroupIndex (default 0)?
+      unknownByte2: 0, // MOST LIKELY firemodeIndex?
+      unknownByte3: -1,
+      unknownByte4: -1,
+      unknownByte5: 1,
+      unknownDword1: 0,
+      unknownByte6: 0,
+      unknownDword2: 0,
+      unknownArray1: firegroups.map(() => { // same len as firegroups in remoteweapons
+        return { // setting unknownDword1 makes the 308 sound when fullpc packet it sent
+          unknownDword1: 0,//firegroup.FIRE_GROUP_ID,
+          unknownBoolean1: false,
+          unknownBoolean2: false
+        }
+      })
+    };
+  }
+
+  pGetRemoteWeaponsData(
+    character: Character
+  ) {
+    const remoteWeapons: any[] = [];
+    Object.values(character._loadout).forEach((item) => {
+      if(this.isWeapon(item.itemDefinitionId)) {
+        remoteWeapons.push({
+          guid: item.itemGuid,
+          ...this.pGetRemoteWeaponData(character, item)
+        }); 
+      }
+    });
+    return remoteWeapons;
+  }
+
+  pGetRemoteWeaponsExtraData(
+    character: Character
+  ) {
+    const remoteWeaponsExtra: any[] = [];
+    Object.values(character._loadout).forEach((item) => {
+      if(this.isWeapon(item.itemDefinitionId)) {
+        remoteWeaponsExtra.push(this.pGetRemoteWeaponExtraData(item));
+      }
+    });
+    return remoteWeaponsExtra;
+  }
+
+  getItemWeaponData(charcter: BaseFullCharacter, slot: inventoryItem) {
     if (slot.weapon) {
       return {
         isWeapon: true, // not sent to client, only used as a flag for pack function
@@ -4161,19 +4274,7 @@ export class ZoneServer2016 extends EventEmitter {
                   unknownDword1: 0,
                   unknownDword2: 0,
                   unknownDword3: 0,
-                } /*
-              {
-                unknownByte1: 0,
-                unknownDword1: 0,
-                unknownDword2: 0,
-                unknownDword3: 0
-              },
-              {
-                unknownByte1: 0,
-                unknownDword1: 0,
-                unknownDword2: 0,
-                unknownDword3: 0
-              },*/,
+                }
               ],
             },
           ],
@@ -4199,37 +4300,38 @@ export class ZoneServer2016 extends EventEmitter {
     };
   }
 
-  updateLoadout(client: Client, character = client.character) {
-    this.checkConveys(client);
-    if (!client.character.initialized) return;
-    this.sendData(
-      client,
+  updateLoadout(character: BaseFullCharacter) {
+    const client = this.getClientByCharId(character.characterId);
+    if(client) {
+      if( !client.character.initialized ) return;
+      this.checkConveys(client);
+    }
+    this.sendDataToAllWithSpawnedEntity(
+      this._characters,
+      character.characterId,
       "Loadout.SetLoadoutSlots",
       character.pGetLoadoutSlots()
     );
   }
 
-  updateEquipment(
-    client: Client,
-    character: BaseFullCharacter = client.character
-  ) {
-    if (!client.character.initialized) return;
-    this.sendData(
-      client,
+  updateEquipment(character: BaseFullCharacter) {
+    if( !this.getClientByCharId(character.characterId)?.character.initialized ) return;
+    this.sendDataToAllWithSpawnedEntity(
+      this._characters,
+      character.characterId,
       "Equipment.SetCharacterEquipment",
       character.pGetEquipment()
     );
   }
 
   updateEquipmentSlot(
-    client: Client,
+    character: BaseFullCharacter,
     slotId: number,
-    character = client.character
   ) {
-    if (!client.character.initialized) return;
+    if( !this.getClientByCharId(character.characterId)?.character.initialized ) return;
     this.sendDataToAllWithSpawnedEntity(
       this._characters,
-      client.character.characterId,
+      character.characterId,
       "Equipment.SetCharacterEquipmentSlot",
       character.pGetEquipmentSlotFull(slotId) as EquipmentSetCharacterEquipmentSlot
     );
@@ -4239,9 +4341,10 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     item: inventoryItem,
     containerDefinitionId: number,
-    character = client.character
+    character: BaseFullCharacter = client.character
   ) {
-    if (!client.character.initialized) return;
+    if( client.character.characterId == character.characterId &&
+      !client.character.initialized) return;
     this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
       data: this.pGetItemData(character, item, containerDefinitionId),
@@ -4281,7 +4384,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       this.lootContainerItem(client, oldLoadoutItem, 1, false);
     }
-    this.equipItem(client, item, true, slotId);
+    this.equipItem(client.character, item, true, slotId);
   }
 
   generateEquipmentFromLoadout(character: Character) {
@@ -4289,11 +4392,6 @@ export class ZoneServer2016 extends EventEmitter {
       if (!slot.itemDefinitionId) continue;
       const def = this.getItemDefinition(slot.itemDefinitionId);
       let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
-      /*
-      if(slot.slotId = LoadoutSlots.FISTS) {
-        equipmentSlotId = EquipSlots.RHAND
-      }
-      */
       if (this.isWeapon(slot.itemDefinitionId)) {
         if (slot.slotId == character.currentLoadoutSlot) {
           equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
@@ -4320,13 +4418,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  /** 
+  * Equips an item to a BaseFullCharacter.
+  * @param character The character to equip the item to.
+  * @param item The item to equip.
+  * @param sendPacket Optional: Only used if character param belongs to a client. Sends equipment, 
+  * loadout, and item update packets to client if true.
+  * @param loadoutSlotId Optional: The loadoutSlotId to manually try to equip the item to. This will be 
+  * found automatically if not defined.
+  */
   equipItem(
-    client: Client,
+    character: BaseFullCharacter,
     item: inventoryItem | undefined,
     sendPacket: boolean = true,
     loadoutSlotId: number = 0
   ) {
-    // equips any item with a vaild itemGuid
     if (!item) {
       debug("[ERROR] EquipItem: Invalid item!");
       return;
@@ -4341,7 +4447,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     } else {
       loadoutSlotId = this.getAvailableLoadoutSlot(
-        client.character,
+        character,
         item.itemDefinitionId
       );
       if (!loadoutSlotId) {
@@ -4357,11 +4463,11 @@ export class ZoneServer2016 extends EventEmitter {
 
     let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
     if (this.isWeapon(item.itemDefinitionId)) {
-      if (loadoutSlotId == client.character.currentLoadoutSlot) {
+      if (loadoutSlotId == character.currentLoadoutSlot) {
         equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
       } else {
         equipmentSlotId = this.getAvailablePassiveEquipmentSlot(
-          client.character,
+          character,
           item.itemDefinitionId
         );
       }
@@ -4371,25 +4477,25 @@ export class ZoneServer2016 extends EventEmitter {
       const equipmentData: characterEquipment = {
         modelName: def.MODEL_NAME.replace(
           "<gender>",
-          client.character.gender == 1 ? "Male" : "Female"
+          character.gender == 1 ? "Male" : "Female"
         ),
         slotId: equipmentSlotId,
         guid: item.itemGuid,
         textureAlias: def.TEXTURE_ALIAS || "default0",
         tintAlias: "",
       };
-      client.character._equipment[equipmentSlotId] = equipmentData;
+      character._equipment[equipmentSlotId] = equipmentData;
     }
     const loadoutData: loadoutItem = {
       ...item,
       slotId: loadoutSlotId,
       containerGuid: "0xFFFFFFFFFFFFFFFF",
       stackCount: 1,
-      loadoutItemOwnerGuid: client.character.characterId,
+      loadoutItemOwnerGuid: character.characterId,
     };
-    client.character._loadout[loadoutSlotId] = loadoutData;
-
-    if (client.character._loadout[loadoutSlotId] && sendPacket) {
+    character._loadout[loadoutSlotId] = loadoutData;
+    const client = this.getClientByCharId(character.characterId);
+    if (client && character._loadout[loadoutSlotId] && sendPacket) {
       this.deleteItem(
         client,
         client.character._loadout[loadoutSlotId].itemGuid
@@ -4397,19 +4503,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (def.ITEM_TYPE === 34) {
-      client.character._containers[loadoutSlotId] = {
-        ...client.character._loadout[loadoutSlotId],
+      character._containers[loadoutSlotId] = {
+        ...character._loadout[loadoutSlotId],
         containerDefinitionId: def.PARAM1,
         items: {},
       };
-      if (sendPacket) this.initializeContainerList(client);
+      if (client && sendPacket) this.initializeContainerList(client);
     }
+    
+    // probably will need to replicate this for vehicles / maybe npcs
+    if (client && sendPacket) this.addItem(client, loadoutData, 101);
 
     if (!sendPacket) return;
 
-    this.addItem(client, loadoutData, 101);
-    this.updateLoadout(client);
-    if (equipmentSlotId) this.updateEquipmentSlot(client, equipmentSlotId);
+    this.updateLoadout(character);
+    if (equipmentSlotId) this.updateEquipmentSlot(character, equipmentSlotId);
   }
 
   generateRandomEquipmentsFromAnEntity(
@@ -4543,7 +4651,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    const generatedGuid = `0x${this.generateItemGuid().toString(16)}`;
+    const generatedGuid = toBigHex(this.generateItemGuid());
     let durability: number = 2000;
     switch (true) {
       case this.isWeapon(itemDefinitionId):
@@ -4614,6 +4722,12 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  /**
+   * Validates that a given itemDefinitionId can be equipped in a given loadout slot.
+   * @param itemDefId The definition ID of an item to validate.
+   * @param loadoutSlotId The loadoutSlotId to have the item validated for.
+   * @returns Returns true/false if the item can go in a specified loadout slot.
+  */
   validateLoadoutSlot(
     itemDefinitionId: number,
     loadoutSlotId: number
@@ -4632,7 +4746,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param itemDefId The definition ID of an item to check.
    * @param loadoutId Optional: The loadoutId of the entity to get the slot for, default LoadoutIds.CHARACTER.
    * @returns Returns the ID of the first loadout slot that an item can go into (occupied or not).
-   */
+  */
   getLoadoutSlot(itemDefId: number, loadoutId: number = LoadoutIds.CHARACTER) {
     const itemDef = this.getItemDefinition(itemDefId),
       loadoutSlotItemClass = loadoutSlotItemClasses.find(
@@ -4651,15 +4765,14 @@ export class ZoneServer2016 extends EventEmitter {
    */
   getAvailableLoadoutSlot(
     character: BaseFullCharacter,
-    itemDefId: number,
-    loadoutId: number = LoadoutIds.CHARACTER
+    itemDefId: number
   ): number {
     // gets an open loadoutslot for a specified itemDefinitionId
     const itemDef = this.getItemDefinition(itemDefId),
       loadoutSlotItemClass = loadoutSlotItemClasses.find(
         (slot: any) =>
           slot.ITEM_CLASS === itemDef.ITEM_CLASS &&
-          loadoutId === slot.LOADOUT_ID
+          character.loadoutId === slot.LOADOUT_ID
       );
     let slot = loadoutSlotItemClass?.SLOT;
     if (!slot) return 0;
@@ -4797,11 +4910,11 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.getActiveEquipmentSlot(loadoutItem)
     );
     client.character.currentLoadoutSlot = loadoutItem.slotId;
-    this.equipItem(client, loadoutItem, true, loadoutItem.slotId);
+    this.equipItem(client.character, loadoutItem, true, loadoutItem.slotId);
 
     // equip passive slot
     this.equipItem(
-      client,
+      client.character,
       client.character._loadout[oldLoadoutSlot],
       true,
       oldLoadoutSlot
@@ -4833,7 +4946,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (equipmentSlotId === EquipSlots.RHAND) {
       client.character.currentLoadoutSlot = LoadoutSlots.FISTS;
-      this.equipItem(client, client.character._loadout[LoadoutSlots.FISTS]); //equip fists
+      this.equipItem(client.character, client.character._loadout[LoadoutSlots.FISTS]); //equip fists
     }
     return true;
   }
@@ -4847,10 +4960,17 @@ export class ZoneServer2016 extends EventEmitter {
   removeLoadoutItem(client: Client, loadoutSlotId: number): boolean {
     const item = client.character._loadout[loadoutSlotId],
       itemDefId = item?.itemDefinitionId; // save before item gets deleted
+
     if (!item || !item.itemDefinitionId) return false;
+
+    if(this.isWeapon(item.itemDefinitionId)) {
+      this.sendRemoteWeaponDataToAllOthers(client, client.character.transientId, "RemoteWeapon.RemoveWeapon", {
+        guid: item.itemGuid,
+      })
+    }
     this.deleteItem(client, item.itemGuid);
     client.character.clearLoadoutSlot(loadoutSlotId);
-    this.updateLoadout(client);
+    this.updateLoadout(client.character);
     this.clearEquipmentSlot(
       client,
       client.character.getActiveEquipmentSlot(item)
@@ -4897,7 +5017,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param item The item object.
    * @param requiredCount Optional: The number of items to remove from the stack, default 1.
    * @returns Returns true if the items were successfully removed, false if there was an error.
-   */
+  */
   removeInventoryItem(
     client: Client,
     item: inventoryItem,
@@ -4928,7 +5048,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param itemDefinitionId The itemDefinitionId of the item(s) to be removed.
    * @param requiredCount Optional: The number of items to remove, default 1.
    * @returns Returns true if all items were successfully removed, false if there was an error.
-   */
+  */
   removeInventoryItems(
     client: Client,
     itemDefinitionId: number,
@@ -4983,7 +5103,13 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  dropItem(client: Client, item: inventoryItem, count: number = 1) {
+  /**
+   * Removes a single item type from the inventory and spawns it on the ground
+   * @param client The client to have its item dropped.
+   * @param item The item object.
+   * @param count Optional: The number of items to drop on the ground, default 1.
+  */
+  dropItem(client: Client, item: inventoryItem, count: number = 1): void {
     if (!item) {
       this.containerError(client, 5); // slot does not contain item
       return;
@@ -5025,14 +5151,22 @@ export class ZoneServer2016 extends EventEmitter {
       itemDef?.FLAG_CAN_EQUIP &&
       this.getAvailableLoadoutSlot(client.character, itemDefId)
     ) {
-      if (client.character.initialized) {
+      if(client.character.initialized) {
         this.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
           count: count,
         });
       }
-      this.equipItem(client, item);
+      this.equipItem(client.character, item);
+      if(this.isWeapon(item.itemDefinitionId)) {
+        this.sendRemoteWeaponDataToAllOthers(client, client.character.transientId, "RemoteWeapon.Reset", {
+          data: {
+            remoteWeapons: this.pGetRemoteWeaponsData(client.character),
+            remoteWeaponsExtra: this.pGetRemoteWeaponsExtraData(client.character)
+          }
+        })
+      }
     } else {
       this.lootContainerItem(client, item, count);
     }
@@ -5128,47 +5262,51 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  initializeContainerList(client: Client, sendPacket: boolean = true) {
-    const containers = Object.values(client.character._containers).map(
+  pGetContainerData(character: BaseFullCharacter, container: loadoutContainer) {
+    const containerDefinition = this.getContainerDefinition(
+      container.containerDefinitionId
+    );
+    return {
+      loadoutSlotId: container.slotId,
+      containerData: {
+        guid: container.itemGuid,
+        definitionId: container.containerDefinitionId,
+        associatedCharacterId: character.characterId,
+        slots: containerDefinition.MAXIMUM_SLOTS,
+        items: Object.values(container.items).map((item, idx) => {
+          container.items[item.itemGuid].slotId = idx + 1;
+          return {
+            itemDefinitionId: item.itemDefinitionId,
+            itemData: this.pGetItemData(
+              character,
+              item,
+              container.containerDefinitionId
+            ),
+          };
+        }),
+        unknownBoolean1: true, // needs to be true or bulk doesn't show up
+        maxBulk: containerDefinition.MAX_BULK,
+        unknownDword4: 28,
+        bulkUsed: this.getContainerBulk(container),
+        hasBulkLimit: !!containerDefinition.MAX_BULK,
+      },
+    }
+  }
+
+  pGetContainers(character: BaseFullCharacter) {
+    return Object.values(character._containers).map(
       (container) => {
-        const containerDefinition = this.getContainerDefinition(
-          container.containerDefinitionId
-        );
-        return {
-          loadoutSlotId: container.slotId,
-          containerData: {
-            guid: container.itemGuid,
-            definitionId: container.containerDefinitionId,
-            associatedCharacterId: client.character.characterId,
-            slots: containerDefinition.MAXIMUM_SLOTS,
-            items: Object.values(container.items).map((item, idx) => {
-              container.items[item.itemGuid].slotId = idx + 1;
-              return {
-                itemDefinitionId: item.itemDefinitionId,
-                itemData: this.pGetItemData(
-                  client.character,
-                  item,
-                  container.containerDefinitionId
-                ),
-              };
-            }),
-            unknownBoolean1: true, // needs to be true or bulk doesn't show up
-            maxBulk: containerDefinition.MAX_BULK,
-            unknownDword4: 28,
-            bulkUsed: this.getContainerBulk(container),
-            hasBulkLimit: !!containerDefinition.MAX_BULK,
-          },
-        };
+        return this.pGetContainerData(character, container);
       }
     );
-    if (sendPacket && client.character.initialized) {
-      this.sendData(client, "Container.InitEquippedContainers", {
-        ignore: client.character.characterId,
-        characterId: client.character.characterId,
-        containers: containers,
-      });
-    }
-    return containers;
+  }
+
+  initializeContainerList(client: Client, character: BaseFullCharacter = client.character): void {
+    this.sendData(client, "Container.InitEquippedContainers", {
+      ignore: character.characterId,
+      characterId: character.characterId,
+      containers: this.pGetContainers(character),
+    });
   }
 
   updateContainer(client: Client, container: loadoutContainer | undefined) {
@@ -5240,7 +5378,7 @@ export class ZoneServer2016 extends EventEmitter {
       characterId: client.character.characterId,
       data: this.pGetItemData(client.character, item, 101),
     });
-    //this.updateLoadout(client);
+    //this.updateLoadout(client.character);
   }
 
   updateContainerItem(
@@ -5263,11 +5401,11 @@ export class ZoneServer2016 extends EventEmitter {
   giveDefaultEquipment(client: Client, sendPacket: boolean) {
     if (!client.character._loadout[LoadoutSlots.FISTS]) {
       // Fists should never be removed from the inventory, however this is just in case
-      this.equipItem(client, this.generateItem(Items.WEAPON_FISTS), sendPacket);
+      this.equipItem(client.character, this.generateItem(Items.WEAPON_FISTS), sendPacket);
     }
-    this.equipItem(client, this.generateItem(Items.SHIRT_DEFAULT), sendPacket);
-    this.equipItem(client, this.generateItem(Items.WAIST_PACK), sendPacket);
-    this.equipItem(client, this.generateItem(Items.PANTS_DEFAULT), sendPacket);
+    this.equipItem(client.character, this.generateItem(Items.SHIRT_DEFAULT), sendPacket);
+    this.equipItem(client.character, this.generateItem(Items.WAIST_PACK), sendPacket);
+    this.equipItem(client.character, this.generateItem(Items.PANTS_DEFAULT), sendPacket);
   }
   giveDefaultItems(client: Client, sendPacket: boolean) {
     this.lootContainerItem(client, this.generateItem(Items.MAP), 1, sendPacket);

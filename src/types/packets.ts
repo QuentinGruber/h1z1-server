@@ -1449,6 +1449,7 @@ export type h1z1PacketsType =
   | "AccessedCharacter.BeginCharacterAccess"
   | "AccessedCharacter.EndCharacterAccess"
   | "AccessedCharacter.Unknown1"
+  | "AccessedCharacter.Unknown2"
   | "ShaderParameterOverrideBase"
   | "VehicleSkinBase"
   | "WeaponLagLockParameters"
@@ -2488,7 +2489,9 @@ export type h1z1PacketsType =
   | "WallOfData.ClientTransition"
   | "ZoneSetting.Data"
   | "ClientPath.Request"
-  | "ClientPath.Reply";
+  | "ClientPath.Reply"
+  | "Ui.ConfirmHit";
+
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"

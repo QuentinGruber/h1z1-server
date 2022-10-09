@@ -221,8 +221,8 @@ export class zonePacketHandlers {
           characterId: client.character.characterId,
           stance: 1,
         });
-        server.updateEquipment(client); // needed or third person character will be invisible
-        server.updateLoadout(client); // needed or all loadout context menu entries aren't shown
+        server.updateEquipment(client.character); // needed or third person character will be invisible
+        server.updateLoadout(client.character); // needed or all loadout context menu entries aren't shown
         if (!server._soloMode) {
           server.sendZonePopulationUpdate();
         }
@@ -603,7 +603,7 @@ export class zonePacketHandlers {
               { title: 'Time:', info: `${server.getDateString(Date.now())}` },
               { title: 'Total reports this session:', info: `${targetClient.reports}` }
           ]
-          server.sendDiscordHook(client, targetClient, 'Point and Click Report', 'player decided that suspect is sus :)', obj) // mas³o maœlane
+          server.sendDiscordHook(client, targetClient, 'Point and Click Report', 'player decided that suspect is sus :)', obj) // masï¿½o maï¿½lane
         */ // disabled for now, people use it to check if a player is nearby
     };
     this.CommandReportLastDeath = function (
@@ -690,6 +690,10 @@ export class zonePacketHandlers {
         vehicle.positionUpdate = packet.data.positionUpdate;
       }
       if (packet.data.positionUpdate.position) {
+        if(packet.data.positionUpdate.position[1] < -100) { // If the vehicle is falling trough the map
+          server.deleteEntity(vehicle.characterId,server._vehicles);
+          return;
+        }
         vehicle.state.position = new Float32Array([
           packet.data.positionUpdate.position[0],
           packet.data.positionUpdate.position[1],
@@ -856,6 +860,7 @@ export class zonePacketHandlers {
             "LightweightToFullVehicle",
             vehicle.pGetFullVehicle()
           );
+          server.updateLoadout(vehicle);
           // prevents cars from spawning in under the map for other characters
           /*
           server.sendData(client, "PlayerUpdatePosition", {
@@ -900,69 +905,39 @@ export class zonePacketHandlers {
           break;
         case EntityTypes.PLAYER: // characters
           const character = entityData as Character2016;
-          character._equipment[28] = {
-            // temporary to fix missing heads
-            modelName: character.headActor,
-            slotId: 28, // todo: wrong id
-            guid: "0x0",
-          };
-          character._equipment[27] = {
-            // temporary to fix missing hair
-            modelName: character.hairModel,
-            slotId: 27,
-            guid: "0x0",
-          };
-          const remoteWeapons: any[] = [];
-          /*
-          Object.values(character._loadout).forEach((item) => {
-            if(server.isWeapon(item.itemDefinitionId)) {
-              remoteWeapons.push({
-                guid: item.itemGuid,
-                firegroupId: server.getItemDefinition(
-                  item.itemDefinitionId).PARAM1, // weapondefId confirmed from z1br
-                equipmentSlotId: character.getActiveEquipmentSlot(item),
-                firegroups: [
-                  {
-                    firegroupId:  server.getItemDefinition(
-                      item.itemDefinitionId).PARAM1.FIRE_GROUPS[0]?.FIRE_GROUP_ID,
-                      unknownArray1: [
-                        {}, {}, {}, {}
-                      ]
-                  }
-                ]
-              })              
-            }
-          })
-          console.log(remoteWeapons)
-          */
-
           server.sendData(client, "LightweightToFullPc", {
             useCompression: false,
-
-            fullPcData: {
-              transientId: character.transientId,
-              attachmentData: character.pGetAttachmentSlots(),
-              resources: { data: character.pGetResources() },
-              remoteWeapons: { data: remoteWeapons },
-            },
-            positionUpdate: {
-              sequenceTime: server.getGameTime(),
-              unknown3_int8: 0,
-              position: character.state.position,
-            },
-            stats: stats.map((stat: any) => {
-              return stat.statData;
-            }),
+              fullPcData: {
+                transientId: character.transientId,
+                attachmentData: character.pGetAttachmentSlots(),
+                headActor: character.headActor,
+                hairModel: character.hairModel,
+                resources: {data: character.pGetResources() },
+                remoteWeapons: {data: server.pGetRemoteWeaponsData(character)},
+              },
+              positionUpdate: {
+                ...character.positionUpdate,
+                sequenceTime: server.getGameTime()
+              },
+              stats: stats.map((stat: any) => {
+                return stat.statData;
+              }),
+              remoteWeaponsExtra: server.pGetRemoteWeaponsExtraData(character)
           });
-          /*Object.values(character._loadout).forEach((item) => {
-            server.addItem(client, item, 101, character);
+
+          // needed so all weapons replicate reload and projectile impact
+          Object.values(character._loadout).forEach((item, i) => {
+            if(!server.isWeapon(item.itemDefinitionId)) return;
+            server.sendRemoteWeaponUpdateData(
+              client, character.transientId, item.itemGuid, "Update.SwitchFireMode", {
+                firegroupIndex: 0,
+                firemodeIndex: 0,
+            })
           })
-          server.updateEquipment(client, character);
-          server.updateLoadout(client, character);*/
 
           server.sendData(client, "Character.WeaponStance", {
             characterId: character.characterId,
-            stance: 1,
+            stance: character.positionUpdate?.stance,
           });
           break;
         default:
@@ -1269,7 +1244,7 @@ export class zonePacketHandlers {
       });
       if (server.isContainer(itemDef.ID)) {
         // Fixes containers missing an itemdefinition not showing in inventory
-        server.updateLoadout(client);
+        server.updateLoadout(client.character);
       }
     };
     this.characterWeaponStance = function (
@@ -1277,6 +1252,9 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if(client.character.positionUpdate) {
+        client.character.positionUpdate.stance = packet.data.stance
+      }
       server.sendDataToAllOthersWithSpawnedEntity(
         server._characters,
         client,
@@ -1435,8 +1413,7 @@ export class zonePacketHandlers {
                 unknownDword1: 0,
                 ammoCount: 0,
                 unknownDword3: 0,
-                currentReloadCount: `0x${(++item.weapon
-                  .currentReloadCount).toString(16)}`,
+                currentReloadCount: toHex(++item.weapon.currentReloadCount),
               });
             }
           }
@@ -1882,13 +1859,13 @@ export class zonePacketHandlers {
               }
               if (oldLoadoutItem.itemDefinitionId) {
                 server.equipItem(
-                  client,
+                  client.character,
                   oldLoadoutItem,
                   true,
                   loadoutItem.slotId
                 );
               }
-              server.equipItem(client, loadoutItem, true, newSlotId);
+              server.equipItem(client.character, loadoutItem, true, newSlotId);
             } else {
               // invalid
               server.containerError(client, 3); // unknown container
@@ -2065,35 +2042,48 @@ export class zonePacketHandlers {
         switch (p.packetName) {
           case "Weapon.FireStateUpdate":
             debug("Weapon.FireStateUpdate");
-            server.damageItem(client, weaponItem, 2);
+            if(p.packet.firestate == 64) { // empty firestate
+              server.sendRemoteWeaponUpdateDataToAllOthers(
+                client, client.character.transientId, weaponItem.itemGuid, "Update.Empty", {});
+              server.sendRemoteWeaponUpdateDataToAllOthers(
+                client, client.character.transientId, weaponItem.itemGuid, "Update.FireState", {
+                  state: {
+                    firestate: 64,
+                    transientId: client.character.transientId,
+                    position: client.character.state.position
+                  }
+              })
+            }
+            // prevent empty weapons from entering an active firestate
+            if(!weaponItem.weapon?.ammoCount) return;
+            if(p.packet.firestate > 0) {
+              server.sendRemoteWeaponUpdateDataToAllOthers(
+                client, client.character.transientId, weaponItem.itemGuid, "Update.Chamber", {}
+              )
+            }
+            server.sendRemoteWeaponUpdateDataToAllOthers(
+              client, client.character.transientId, weaponItem.itemGuid, "Update.FireState", {
+                state: {
+                  firestate: p.packet.firestate,
+                  transientId: client.character.transientId,
+                  position: client.character.state.position
+                }
+            })
+            if(weaponItem.weapon.ammoCount) server.damageItem(client, weaponItem, 2);
             break;
           case "Weapon.Fire":
+            if (weaponItem.weapon.ammoCount <= 0) return;
             if (weaponItem.weapon.ammoCount > 0) {
               weaponItem.weapon.ammoCount -= 1;
             }
             server.hitMissFairPlayCheck(client, false, "")
             server.stopHudTimer(client);
-            debug("Weapon.Fire");
-            /*
-            server.sendRemoteWeaponUpdateData(
-              client, client.character.transientId, weaponItem.itemGuid, "Update.AddFireGroup", {
-                firegroupId: 1373
-            })
-            */
-            /*
-            server.sendRemoteWeaponUpdateData(
-              client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {
-                unknownDword1: server.getItemDefinition(weaponItem.itemDefinitionId).PARAM1,
-                unknownQword1: client.character.characterId
-            })
-            */
-
+            server.sendRemoteWeaponUpdateDataToAllOthers(
+              client, client.character.transientId, weaponItem.itemGuid, "Update.ProjectileLaunch", {});
             break;
           case "Weapon.ProjectileHitReport":
-            if (
-              client.character.getEquippedWeapon().itemDefinitionId == 1776 &&
-              client.isAdmin
-            ) {
+            if(client.character.getEquippedWeapon().itemDefinitionId == 1776) {
+              if(!client.isAdmin) return;
               const characterId = p.packet.hitReport.characterId,
                 entityType = server.getEntityType(characterId);
               switch (entityType) {
@@ -2133,8 +2123,17 @@ export class zonePacketHandlers {
             break;
           case "Weapon.ReloadRequest":
             if (weaponItem.weapon.reloadTimer) return;
-            /*server.sendRemoteWeaponUpdateData(
-              client, client.character.transientId, weaponItem.itemGuid, "Update.Reload", {})*/
+            // force 0 firestate so gun doesnt shoot randomly after reloading
+            server.sendRemoteWeaponUpdateDataToAllOthers(
+              client, client.character.transientId, weaponItem.itemGuid, "Update.FireState", {
+                state: {
+                  firestate: 0,
+                  transientId: client.character.transientId,
+                  position: client.character.state.position
+                }
+            })
+            server.sendRemoteWeaponUpdateDataToAllOthers(
+              client, client.character.transientId, weaponItem.itemGuid, "Update.Reload", {})
             const weaponAmmoId = server.getWeaponAmmoId(
                 weaponItem.itemDefinitionId
               ),
@@ -2142,6 +2141,7 @@ export class zonePacketHandlers {
               reloadTime = server.getWeaponReloadTime(
                 weaponItem.itemDefinitionId
               );
+            //#region SHOTGUN ONLY
             if (weaponAmmoId == Items.AMMO_12GA) {
               weaponItem.weapon.reloadTimer = setTimeout(() => {
                 if (!weaponItem.weapon?.reloadTimer) {
@@ -2161,9 +2161,13 @@ export class zonePacketHandlers {
                     unknownDword1: maxAmmo,
                     ammoCount: weaponItem.weapon.ammoCount,
                     unknownDword3: maxAmmo,
-                    currentReloadCount: `0x${(++weaponItem.weapon
-                      .currentReloadCount).toString(16)}`,
+                    currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
                   });
+                  server.sendRemoteWeaponUpdateDataToAllOthers(
+                    client, client.character.transientId, weaponItem.itemGuid, "Update.ReloadLoopEnd", {
+                      endLoop: true
+                    }
+                  )
                   client.character.clearReloadTimeout();
                   return;
                 }
@@ -2174,9 +2178,13 @@ export class zonePacketHandlers {
                     unknownDword1: maxAmmo,
                     ammoCount: weaponItem.weapon.ammoCount,
                     unknownDword3: maxAmmo,
-                    currentReloadCount: `0x${(++weaponItem.weapon
-                      .currentReloadCount).toString(16)}`,
+                    currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
                   });
+                  server.sendRemoteWeaponUpdateDataToAllOthers(
+                    client, client.character.transientId, weaponItem.itemGuid, "Update.ReloadLoopEnd", {
+                      endLoop: true
+                    }
+                  )
                   client.character.clearReloadTimeout();
                   return;
                 }
@@ -2184,6 +2192,7 @@ export class zonePacketHandlers {
               }, reloadTime);
               return;
             }
+            //#endregion
             weaponItem.weapon.reloadTimer = setTimeout(() => {
               if (
                 !weaponItem.weapon?.reloadTimer ||
@@ -2209,8 +2218,7 @@ export class zonePacketHandlers {
                 unknownDword1: maxAmmo,
                 ammoCount: (weaponItem.weapon.ammoCount += reloadAmount),
                 unknownDword3: maxAmmo,
-                currentReloadCount: `0x${(++weaponItem.weapon
-                  .currentReloadCount).toString(16)}`,
+                currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
               });
               client.character.clearReloadTimeout();
             }, reloadTime);
@@ -2222,6 +2230,17 @@ export class zonePacketHandlers {
             break;
           case "Weapon.SwitchFireModeRequest":
             debug("SwitchFireModeRequest");
+            // workaround so aiming in doesn't sometimes make the shooting sound
+            if(!weaponItem.weapon?.ammoCount) return;
+
+            // temp workaround to fix 308 sound while aiming
+            if(p.packet.firemodeIndex == 1 && 
+              server.getItemDefinition(weaponItem.itemDefinitionId).PARAM1 == 1373) return;
+            server.sendRemoteWeaponUpdateDataToAllOthers(
+              client, client.character.transientId, weaponItem.itemGuid, "Update.SwitchFireMode", {
+                firegroupIndex: p.packet.firegroupIndex,
+                firemodeIndex: p.packet.firemodeIndex,
+            })
             break;
           case "Weapon.WeaponFireHint":
             debug("WeaponFireHint");
@@ -2230,10 +2249,13 @@ export class zonePacketHandlers {
             debug("ProjectileContactReport");
             break;
           case "Weapon.MeleeHitMaterial":
-            debug(`MaterialType: ${p.packet.materialType}`);
             debug("MeleeHitMaterial");
             break;
           case "Weapon.AimBlockedNotify":
+            server.sendRemoteWeaponUpdateDataToAllOthers(
+              client, client.character.transientId, weaponItem.itemGuid, "Update.AimBlocked", {
+                aimBlocked: p.packet.aimBlocked,
+            })
             debug("AimBlockedNotify");
             break;
           default:

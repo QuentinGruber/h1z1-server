@@ -9,14 +9,13 @@
     "node": ">=0.16.0 <19"
   },
   "bin": {
-    "if-env": "scripts/if-env.js",
     "h1z1-server-demo": "scripts/h1z1-server-demo.js",
     "h1z1-server-demo-2016": "scripts/h1z1-server-demo-2016.js"
   },
   "dependencies": {
     "debug": "4.3.4",
     "discord-webhook-node": "1.1.8",
-    "h1emu-core": "^0.9.1",
+    "h1emu-core": "0.9.3",
     "h1z1-dataschema": "1.5.12",
     "mongodb": "4.7.0",
     "typescript": "4.7.2"
@@ -31,7 +30,7 @@
     "glob": "8.0.3",
     "prettier": "2.7.1",
     "ts-node": "10.8.0",
-    "typedoc": "0.22.16"
+    "typedoc": "0.23.15"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",

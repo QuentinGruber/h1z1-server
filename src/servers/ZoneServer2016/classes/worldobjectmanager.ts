@@ -242,9 +242,17 @@ export class WorldObjectManager {
     debug("All doors objects created");
   }
 
-  createVehicle(server: ZoneServer2016, vehicleData: Vehicle2016) {
+  createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
     // setup vehicle loadout slots, containers, etc here
-    server._vehicles[vehicleData.characterId] = vehicleData;
+    // todo: add siren and horn
+    server.equipItem(vehicle, server.generateItem(vehicle.getInventoryItemId()));
+    server.equipItem(vehicle, server.generateItem(vehicle.getTurboItemId()));
+    server.equipItem(vehicle, server.generateItem(vehicle.getHeadlightsItemId()));
+    server.equipItem(vehicle, server.generateItem(vehicle.getMotorItemId()));
+    server.equipItem(vehicle, server.generateItem(Items.BATTERY));
+    server.equipItem(vehicle, server.generateItem(Items.SPARKPLUGS));
+    server.equipItem(vehicle, server.generateItem(Items.VEHICLE_HOTWIRE));
+    server._vehicles[vehicle.characterId] = vehicle;
   }
 
   createVehicles(server: ZoneServer2016) {
