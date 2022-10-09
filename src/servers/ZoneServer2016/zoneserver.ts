@@ -136,8 +136,8 @@ export class ZoneServer2016 extends EventEmitter {
   _db?: Db;
   _soloMode = false;
   _useFairPlay = true;
-  _discordWebhookUrl = ""; // enter your discord hook url here
-  _serverName = ""; // enter your server name here
+  _discordWebhookUrl = process.env.DISCORD_WEBHOOK_URL || "";
+  _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
   _dynamicWeatherWorker: any;
