@@ -25,7 +25,8 @@ import {
   isPosInRadius,
   toInt,
   toHex,
-  quat2matrix
+  quat2matrix,
+  getCurrentHoursMs
 } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
@@ -44,6 +45,7 @@ import { constructionDoor } from "./classes/constructionDoor";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { AVG_PING_SECS } from "../../utils/constants";
 import { CommandHandler } from "./commands/commandhandler";
+import { Synchronization } from "types/zone2016packets";
 
 const stats = require("../../../data/2016/sampleData/stats.json");
 export class zonePacketHandlers {
@@ -419,17 +421,24 @@ export class zonePacketHandlers {
     this.Synchronization = function (
       server: ZoneServer2016,
       client: Client,
-      packet: any
+      packet: {data:Synchronization}
     ) {
+      console.log(packet.data)
+      const syncInterval = 5000;
+      //const clientTime = Number(packet.data.clientTime)
+      const clientTimeHoursMs = Number(packet.data.clientHoursMs)
+      const currentHoursMs = getCurrentHoursMs();
+      const ping = currentHoursMs - clientTimeHoursMs - syncInterval
+      console.log(ping)
       const serverTime = Int64String(server.getServerTime());
-      server.sendData(client, "Synchronization", {
-        time1: packet.data.time1,
-        time2: packet.data.time2,
+      server.sendData(client, "Synchronization", { // reflected packet isn't used correctly the clock-drift is fucked
+        clientHoursMs: packet.data.clientHoursMs,
+        ClientHoursMs2: packet.data.clientHoursMs,
         clientTime: packet.data.clientTime,
         serverTime: serverTime,
         serverTime2: serverTime,
-        time3: packet.data.clientTime + 2,
-      });
+        time3: Int64String(currentHoursMs), // not sure what this is
+      } as Synchronization);
     };
     (this.commandExecuteCommand = async function (
       server: ZoneServer2016,

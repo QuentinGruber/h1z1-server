@@ -2819,12 +2819,12 @@ export const basePackets: any = [
     0x8d,
     {
       fields: [
-        { name: "time1", type: "uint64string", defaultValue: "0" },
-        { name: "time2", type: "uint64string", defaultValue: "0" },
+        { name: "clientHoursMs", type: "uint64string", defaultValue: "0" }, // seems like hours since a 12h trip in ms UTC time
+        { name: "clientHoursMs2", type: "uint64string", defaultValue: "0" },
         { name: "clientTime", type: "uint64string", defaultValue: "0" },
         { name: "serverTime", type: "uint64string", defaultValue: "0" },
         { name: "serverTime2", type: "uint64string", defaultValue: "0" },
-        { name: "time3", type: "uint64string", defaultValue: "0" },
+        { name: "time3", type: "uint64string", defaultValue: "0" }, // maybe drift ?
       ],
     },
   ],
