@@ -2489,9 +2489,7 @@ export type h1z1PacketsType =
   | "WallOfData.ClientTransition"
   | "ZoneSetting.Data"
   | "ClientPath.Request"
-  | "ClientPath.Reply"
-  | "Ui.ConfirmHit";
-
+  | "ClientPath.Reply";
 export type loginPacketsType =
   | "LoginRequest"
   | "LoginReply"
