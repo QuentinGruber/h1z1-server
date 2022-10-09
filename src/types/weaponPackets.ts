@@ -19,7 +19,7 @@ export type weaponPacketsType =
   | "Weapon.GuidedUpdate"
   | "Weapon.Reset";
 
-export type remoteWeaponPacketsType = 
+export type remoteWeaponPacketsType =
   | "RemoteWeapon.Reset"
   | "RemoteWeapon.AddWeapon"
   | "RemoteWeapon.RemoveWeapon";

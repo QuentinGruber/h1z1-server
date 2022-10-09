@@ -1,4 +1,4 @@
-import { ZoneClient2016 as Client} from "../classes/zoneclient";
+import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 
 export enum PermissionLevels {
@@ -11,9 +11,5 @@ export enum PermissionLevels {
 export interface Command {
   name: string;
   permissionLevel: PermissionLevels;
-  execute: (
-    server: ZoneServer2016,
-    client: Client,
-    packet: any
-  )=>void;
+  execute: (server: ZoneServer2016, client: Client, packet: any) => void;
 }

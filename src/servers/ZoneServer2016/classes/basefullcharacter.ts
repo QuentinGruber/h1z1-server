@@ -268,10 +268,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
-  pGetItemData(
-    item: inventoryItem,
-    containerDefId: number
-  ) {
+  pGetItemData(item: inventoryItem, containerDefId: number) {
     return {
       itemDefinitionId: item.itemDefinitionId,
       tintId: 0,
@@ -289,7 +286,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       unknownBoolean1: true,
       ownerCharacterId: this.characterId,
       unknownDword9: 1,
-      unknownBoolean2: false
+      unknownBoolean2: false,
     };
   }
 
@@ -305,12 +302,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       });
     Object.values(this._containers).forEach((container) => {
       Object.values(container.items).forEach((item) => {
-        items.push(
-          this.pGetItemData(
-            item,
-            container.containerDefinitionId
-          )
-        );
+        items.push(this.pGetItemData(item, container.containerDefinitionId));
       });
     });
     return items;
@@ -334,9 +326,9 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       unknownArray5: { data: {} },
       unknownArray6: { data: {} },
       remoteWeapons: { data: {} },
-      itemsData: { 
+      itemsData: {
         items: this.pGetInventoryItems(),
-        unknownDword1: 0 
+        unknownDword1: 0,
       },
     };
   }

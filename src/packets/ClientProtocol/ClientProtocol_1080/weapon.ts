@@ -284,8 +284,8 @@ const remoteWeaponPackets: any = [
               defaultValue: {},
               fields: [
                 { name: "guid", type: "uint64string", defaultValue: "" },
-                ...remoteWeaponExtraSchema
-              ]
+                ...remoteWeaponExtraSchema,
+              ],
             },
           ],
         },
@@ -307,12 +307,10 @@ const remoteWeaponPackets: any = [
     },
   ],
   [
-    "RemoteWeapon.RemoveWeapon", 
-    0x03, 
+    "RemoteWeapon.RemoveWeapon",
+    0x03,
     {
-      fields: [
-        { name: "guid", type: "uint64string", defaultValue: "" },
-      ],
+      fields: [{ name: "guid", type: "uint64string", defaultValue: "" }],
     },
   ],
   [
@@ -335,8 +333,8 @@ const remoteWeaponPackets: any = [
 
 const remoteWeaponUpdatePackets: any = [
   [
-    "Update.FireState", 
-    0x01, 
+    "Update.FireState",
+    0x01,
     {
       fields: [
         {
@@ -344,38 +342,34 @@ const remoteWeaponUpdatePackets: any = [
           type: "custom",
           packer: packFirestateUpdate,
         },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Update.Empty", 
-    0x02, 
+    "Update.Empty",
+    0x02,
     {
-      fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
+    },
   ],
   ["Update.Reload", 0x03, {}],
   [
-    "Update.ReloadLoopEnd", 
-    0x04, 
+    "Update.ReloadLoopEnd",
+    0x04,
     {
-      fields: [
-        { name: "endLoop", type: "boolean", defaultValue: false },
-      ]
-    }
+      fields: [{ name: "endLoop", type: "boolean", defaultValue: false }],
+    },
   ],
   ["Update.ReloadInterrupt", 0x05, {}],
   [
-    "Update.SwitchFireMode", 
-    0x06, 
+    "Update.SwitchFireMode",
+    0x06,
     {
       fields: [
         { name: "firegroupIndex", type: "uint8", defaultValue: 0 },
         { name: "firemodeIndex", type: "uint8", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   ["Update.StatUpdate", 0x07, {}],
   [
@@ -402,13 +396,11 @@ const remoteWeaponUpdatePackets: any = [
   ["Update.Trigger", 0x0e, {}],
   ["Update.ChamberInterrupt", 0x0f, {}],
   [
-    "Update.AimBlocked", 
-    0x010, 
+    "Update.AimBlocked",
+    0x010,
     {
-      fields: [
-        { name: "aimBlocked", type: "boolean", defaultValue: false },
-      ]
-    }
+      fields: [{ name: "aimBlocked", type: "boolean", defaultValue: false }],
+    },
   ],
 ];
 
@@ -500,22 +492,37 @@ export function packWeaponPacket(obj: any): Buffer {
 function packFirestateUpdate(obj: any): Buffer {
   let data = Buffer.alloc(1);
   data.writeUInt8(obj.firestate);
-  if ((obj.firestate & 2) == 0) { // transientId
-    data = Buffer.concat([data, DataSchema.pack(
-      [{
-        name: "transientId",
-        type: "custom",
-        parser: readUnsignedIntWith2bitLengthValue,
-        packer: packUnsignedIntWith2bitLengthValue,
-      }],
-      obj
-    ).data]);
-  }
-  else { // floatvector4
-    data = Buffer.concat([data, DataSchema.pack(
-      [{ name: "position", type: "floatvector4", defaultValue: [1, 1, 1, 1] }],
-      obj
-    ).data]);
+  if ((obj.firestate & 2) == 0) {
+    // transientId
+    data = Buffer.concat([
+      data,
+      DataSchema.pack(
+        [
+          {
+            name: "transientId",
+            type: "custom",
+            parser: readUnsignedIntWith2bitLengthValue,
+            packer: packUnsignedIntWith2bitLengthValue,
+          },
+        ],
+        obj
+      ).data,
+    ]);
+  } else {
+    // floatvector4
+    data = Buffer.concat([
+      data,
+      DataSchema.pack(
+        [
+          {
+            name: "position",
+            type: "floatvector4",
+            defaultValue: [1, 1, 1, 1],
+          },
+        ],
+        obj
+      ).data,
+    ]);
   }
   return data;
 }

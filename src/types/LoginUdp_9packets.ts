@@ -14,8 +14,7 @@ export interface LoginReply {
   namespace: string;
   ApplicationPayload: any;
 }
-export interface Logout {
-}
+export interface Logout {}
 export interface ForceDisconnect {
   reason?: number;
 }
@@ -49,15 +48,13 @@ export interface CharacterDeleteReply {
   status: number;
   Payload: string;
 }
-export interface CharacterSelectInfoRequest {
-}
+export interface CharacterSelectInfoRequest {}
 export interface CharacterSelectInfoReply {
   status: number;
   canBypassServerLock: boolean;
   characters: any[];
 }
-export interface ServerListRequest {
-}
+export interface ServerListRequest {}
 export interface ServerListReply {
   servers: any[];
 }
@@ -75,8 +72,23 @@ export interface ServerUpdate {
   populationData: string;
   allowedAccess: boolean;
 }
-export interface TunnelAppPacketClientToServer {
-}
-export interface TunnelAppPacketServerToClient {
-}
-export type LoginUdp_9packets = LoginRequest | LoginReply | Logout | ForceDisconnect | CharacterCreateRequest | CharacterCreateReply | CharacterLoginRequest | CharacterLoginReply | CharacterDeleteRequest | CharacterDeleteReply | CharacterSelectInfoRequest | CharacterSelectInfoReply | ServerListRequest | ServerListReply | ServerUpdate | TunnelAppPacketClientToServer | TunnelAppPacketServerToClient;
+export interface TunnelAppPacketClientToServer {}
+export interface TunnelAppPacketServerToClient {}
+export type LoginUdp_9packets =
+  | LoginRequest
+  | LoginReply
+  | Logout
+  | ForceDisconnect
+  | CharacterCreateRequest
+  | CharacterCreateReply
+  | CharacterLoginRequest
+  | CharacterLoginReply
+  | CharacterDeleteRequest
+  | CharacterDeleteReply
+  | CharacterSelectInfoRequest
+  | CharacterSelectInfoReply
+  | ServerListRequest
+  | ServerListReply
+  | ServerUpdate
+  | TunnelAppPacketClientToServer
+  | TunnelAppPacketServerToClient;
