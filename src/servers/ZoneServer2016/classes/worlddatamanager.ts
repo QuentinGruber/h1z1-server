@@ -52,21 +52,20 @@ export class WorldDataManager {
 
   async insertWorld(server: ZoneServer2016) {
     if (!server._worldId) {
-      const worldCount:number =
+      const worldCount: number =
         (await server._db?.collection("worlds").countDocuments()) || 0;
       server._worldId = worldCount + 1;
       await server._db?.collection("worlds").insertOne({
         worldId: server._worldId,
         lastItemGuid: toBigHex(server.lastItemGuid),
-        worldSaveVersion: server.worldSaveVersion
+        worldSaveVersion: server.worldSaveVersion,
       });
       debug("Existing world was not found, created one.");
-    }
-    else{
+    } else {
       await server._db?.collection("worlds").insertOne({
         worldId: server._worldId,
         lastItemGuid: toBigHex(server.lastItemGuid),
-        worldSaveVersion: server.worldSaveVersion
+        worldSaveVersion: server.worldSaveVersion,
       });
     }
   }
@@ -100,14 +99,16 @@ export class WorldDataManager {
         JSON.stringify({}, null, 2)
       );
     } else {
-      await server._db?.collection("characters").updateMany({
-        serverId: server._worldId,
-      },{$set:{status:0}});
+      await server._db?.collection("characters").updateMany(
+        {
+          serverId: server._worldId,
+        },
+        { $set: { status: 0 } }
+      );
     }
   }
 
-  
-  async deleteWorld(server: ZoneServer2016){
+  async deleteWorld(server: ZoneServer2016) {
     await this.deleteServerData(server);
     await this.deleteCharacters(server);
     debug("World deleted!");
@@ -148,7 +149,7 @@ export class WorldDataManager {
     const saveData: ServerSaveData = {
       serverId: server._worldId,
       lastItemGuid: toBigHex(server.lastItemGuid),
-      worldSaveVersion: server.worldSaveVersion
+      worldSaveVersion: server.worldSaveVersion,
     };
     if (server._soloMode) {
       fs.writeFileSync(
@@ -221,7 +222,7 @@ export class WorldDataManager {
         _containers: loadedCharacter._containers || {},
         _resources: loadedCharacter._resources || client.character._resources,
         status: 1,
-        worldSaveVersion: server.worldSaveVersion
+        worldSaveVersion: server.worldSaveVersion,
       };
     }
     client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
@@ -275,26 +276,32 @@ export class WorldDataManager {
     if (!server.enableWorldSaves) return;
     if (updateItemGuid) await this.saveServerData(server);
     const loadoutKeys = Object.keys(client.character._loadout),
-    containerKeys = Object.keys(client.character._containers),
-    loadoutSaveData: {[loadoutSlotId: number]: loadoutItem} = {},
-    containerSaveData: {[loadoutSlotId: number]: loadoutContainer} = {};
-    Object.values(client.character._loadout).forEach((item, idx)=> {
+      containerKeys = Object.keys(client.character._containers),
+      loadoutSaveData: { [loadoutSlotId: number]: loadoutItem } = {},
+      containerSaveData: { [loadoutSlotId: number]: loadoutContainer } = {};
+    Object.values(client.character._loadout).forEach((item, idx) => {
       loadoutSaveData[Number(loadoutKeys[idx])] = {
         ...item,
-        weapon: item.weapon == undefined?undefined: {
-          ...item.weapon,
-          reloadTimer: undefined // force this to undefined to fix BSONError: cyclic dependency
-        }
-      }
+        weapon:
+          item.weapon == undefined
+            ? undefined
+            : {
+                ...item.weapon,
+                reloadTimer: undefined, // force this to undefined to fix BSONError: cyclic dependency
+              },
+      };
     });
-    Object.values(client.character._containers).forEach((item, idx)=> {
+    Object.values(client.character._containers).forEach((item, idx) => {
       containerSaveData[Number(containerKeys[idx])] = {
         ...item,
-        weapon: item.weapon == undefined?undefined: {
-          ...item.weapon,
-          reloadTimer: undefined // force this to undefined to fix BSONError: cyclic dependency
-        }
-      }
+        weapon:
+          item.weapon == undefined
+            ? undefined
+            : {
+                ...item.weapon,
+                reloadTimer: undefined, // force this to undefined to fix BSONError: cyclic dependency
+              },
+      };
     });
 
     const saveData: CharacterUpdateSaveData = {
@@ -407,7 +414,7 @@ export class WorldDataManager {
         _loadout: vehicle._loadout,
         _containers: vehicle._containers,
         _resources: vehicle._resources,
-        worldSaveVersion: server.worldSaveVersion
+        worldSaveVersion: server.worldSaveVersion,
       };
     });
     if (server._soloMode) {

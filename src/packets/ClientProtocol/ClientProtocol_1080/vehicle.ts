@@ -292,5 +292,35 @@ export const vehiclePackets: any = [
   }],
   ["Vehicle.ItemDefinitionRequest", 0x8928, {}],
   ["Vehicle.ItemDefinitionReply", 0x8929, {}],
-  ["Vehicle.InventoryItems", 0x892a, {}],
+  [
+    "Vehicle.InventoryItems",
+    0x892a,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "itemsData",
+          type: "byteswithlength",
+          defaultValue: null,
+          fields: [
+            {
+              name: "items",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                {
+                  name: "item",
+                  type: "schema",
+                  defaultValue: {},
+                  fields: itemSchema,
+                },
+                { name: "unknownBool1", type: "boolean", defaultValue: false },
+              ],
+            },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+          ],
+        },
+      ],
+    },
+  ],
 ];

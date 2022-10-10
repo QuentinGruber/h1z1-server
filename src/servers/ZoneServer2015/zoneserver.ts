@@ -2518,7 +2518,11 @@ export class ZoneServer2015 extends EventEmitter {
     }
   }
 
-  sendData(client: Client, packetName: h1z1PacketsType, obj: zone2015packets): void {
+  sendData(
+    client: Client,
+    packetName: h1z1PacketsType,
+    obj: zone2015packets
+  ): void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
