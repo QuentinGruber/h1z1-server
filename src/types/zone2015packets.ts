@@ -1,3 +1,4 @@
+/* prettier-ignore */ 
 export interface SendSelfToClient {
   data: any;
 }
