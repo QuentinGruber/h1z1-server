@@ -4535,6 +4535,7 @@ export class ZoneServer2016 extends EventEmitter {
           vehicleGuid: vehicle.characterId,
           identity: {},
           seatId: packet.data.seatId,
+          unknownDword2: packet.data.seatId === 0 ?1:0 // if set to 1 the select character will have drive access
         }
       );
       vehicle.seats[oldSeatId] = "";

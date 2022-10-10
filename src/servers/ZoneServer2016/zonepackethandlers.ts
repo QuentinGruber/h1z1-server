@@ -44,6 +44,7 @@ import { constructionDoor } from "./classes/constructionDoor";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { AVG_PING_SECS } from "../../utils/constants";
 import { CommandHandler } from "./commands/commandhandler";
+import { VehicleCurrentMoveMode } from "types/zone2015packets";
 
 const stats = require("../../../data/2016/sampleData/stats.json");
 export class zonePacketHandlers {
@@ -98,6 +99,7 @@ export class zonePacketHandlers {
   containerMoveItem;
   commandSuicide;
   vehicleDismiss;
+  vehicleCurrentMoveMode;
   loadoutSelectSlot;
   weapon;
   commandRun;
@@ -1107,6 +1109,14 @@ export class zonePacketHandlers {
     ) {
       // only for driver seat
       server.dismountVehicle(client);
+    };
+    this.vehicleCurrentMoveMode = function (
+      server: ZoneServer2016,
+      client: Client,
+      packet: {data:VehicleCurrentMoveMode}
+    ) {
+      const {characterId,moveMode} = packet.data
+      debug(`vehTransient:${server._vehicles[characterId as string].transientId} , mode: ${moveMode} from ${client.character.name} time:${Date.now()}`)
     };
     this.vehicleDismiss = function (
       server: ZoneServer2016,
@@ -2490,6 +2500,9 @@ export class zonePacketHandlers {
         break;
       case "Command.InteractCancel":
         this.commandInteractCancel(server, client, packet);
+        break;
+      case "Vehicle.CurrentMoveMode":
+        this.vehicleCurrentMoveMode(server, client, packet);
         break;
       case "Vehicle.Dismiss":
         this.vehicleDismiss(server, client, packet);

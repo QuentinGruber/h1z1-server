@@ -23,7 +23,7 @@ const packetsFiles: any = {
 };
 
 const typePath: string = "./src/types/packets.ts";
-let steamString = ""; // should use a streamWriter but i'm lazy
+let steamString = "/* prettier-ignore */ \n"; // should use a streamWriter but i'm lazy
 Object.keys(packetsFiles).forEach((packetsFileName) => {
   const packetsFile: string[] = packetsFiles[packetsFileName];
   steamString += `export type ${packetsFileName} = `;
