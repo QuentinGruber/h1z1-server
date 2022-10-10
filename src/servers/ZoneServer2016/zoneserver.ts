@@ -2076,13 +2076,13 @@ export class ZoneServer2016 extends EventEmitter {
         hitEntity = this._vehicles[characterId];
         break;
       case EntityTypes.PLAYER:
-        this.hitMissFairPlayCheck(client, true);
         if (
           !this._characters[characterId] ||
           this._characters[characterId].characterStates.knockedOut
         ) {
           return;
         }
+        this.hitMissFairPlayCheck(client, true);
         damageEntity = () => {
           const c = this.getClientByCharId(characterId);
           if (!c) {
