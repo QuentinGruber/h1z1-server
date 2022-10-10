@@ -1054,7 +1054,7 @@ export class zonePacketHandlers {
       packet: {data:VehicleCurrentMoveMode}
     ) {
       const {characterId,moveMode} = packet.data
-      console.log(`vehTransient:${server._vehicles[characterId as string].transientId} , mode: ${moveMode} from ${client.character.name}`)
+      debug(`vehTransient:${server._vehicles[characterId as string].transientId} , mode: ${moveMode} from ${client.character.name} time:${Date.now()}`)
     };
     this.vehicleDismiss = function (
       server: ZoneServer2016,

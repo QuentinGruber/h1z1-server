@@ -844,7 +844,7 @@ export interface MountMountResponse {
   seatId?: number;
   unknownDword2?: number;
   isDriver?: number;
-  unknownDword4?: number;
+  debugStuff?: number;
   identity? :{
   unknownDword1?: number;
   unknownDword2?: number;
@@ -863,8 +863,8 @@ export interface MountDismountRequest {
 export interface MountDismountResponse {
   characterId?: string;
   vehicleGuid?: string;
-  unknownDword1?: number;
-  unknownBoolean1?: boolean;
+  debugStuff?: number;
+  removePlayerControl?: boolean;
   unknownByte1?: number;
 }
 export interface MountSeatChangeRequest {
