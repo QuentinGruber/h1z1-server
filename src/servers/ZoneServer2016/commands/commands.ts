@@ -1207,7 +1207,7 @@ export const commands: Array<Command> = [
     }
   },
   {
-    name: "god",
+    name: "godmode",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (
       server: ZoneServer2016, 
