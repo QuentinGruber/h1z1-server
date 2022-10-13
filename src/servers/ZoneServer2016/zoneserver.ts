@@ -1149,32 +1149,26 @@ export class ZoneServer2016 extends EventEmitter {
     isConstructionInSecuredArea(construction: any, type: string) {
         switch (type) {
             case "simple":
-                if (!construction.parentObjectCharacterId) return false
-                const notProtected = [Items.METAL_WALL, Items.UPPER_METAL_WALL];
-                if (notProtected.includes(construction.itemDefinitionId)) return false;
-                if (this._constructionFoundations[construction.parentObjectCharacterId]) {
-                    if (this._constructionFoundations[this._constructionFoundations[construction.parentObjectCharacterId].parentObjectCharacterId]) {
-                        if (this._constructionFoundations[construction.parentObjectCharacterId].isFullySecured) return true
-                        else if (this._constructionFoundations[this._constructionFoundations[construction.parentObjectCharacterId].parentObjectCharacterId].isSecured && this._constructionFoundations[construction.parentObjectCharacterId].isSecured) return true
+                for (const a in this._constructionFoundations) {
+                    const foundation = this._constructionFoundations[a]
+                    if (this._constructionFoundations[foundation.parentObjectCharacterId]) {
+                        if (foundation.isFullySecured && isInside([construction.state.position[0], construction.state.position[2]], foundation.securedPolygons)) return true
+                        else if (this._constructionFoundations[foundation.parentObjectCharacterId].isSecured && foundation.isSecured && isInside([construction.state.position[0], construction.state.position[2]], foundation.securedPolygons)) return true
                         else return false
                     }
-                    if (this._constructionFoundations[construction.parentObjectCharacterId] && this._constructionFoundations[construction.parentObjectCharacterId].isSecured) return true
-                }
-                else if (this._constructionSimple[construction.parentObjectCharacterId] ? this._constructionSimple[construction.parentObjectCharacterId] : this._constructionSimple[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId]) {
-                    const parentConstruction = this._constructionSimple[construction.parentObjectCharacterId] ? this._constructionSimple[construction.parentObjectCharacterId] : this._constructionSimple[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId] as simpleConstruction;
-                    if (this._constructionFoundations[parentConstruction.parentObjectCharacterId]) {
-                        if (this._constructionFoundations[this._constructionFoundations[parentConstruction.parentObjectCharacterId].parentObjectCharacterId]) {
-                            if (this._constructionFoundations[parentConstruction.parentObjectCharacterId].isFullySecured) return true
-                            else if (this._constructionFoundations[this._constructionFoundations[parentConstruction.parentObjectCharacterId].parentObjectCharacterId].isSecured && this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured) return true
-                            else return false
-                        }
-                        if (this._constructionFoundations[parentConstruction.parentObjectCharacterId] && this._constructionFoundations[parentConstruction.parentObjectCharacterId].isSecured) return true
-                    } else return false
+                    if (foundation.isSecured && isInside([construction.state.position[0], construction.state.position[2]], foundation.securedPolygons)) return true
                 }
             case "door":
-                const foundation = this._constructionFoundations[construction.parentObjectCharacterId] ? this._constructionFoundations[construction.parentObjectCharacterId] : this._constructionFoundations[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId] ? this._constructionFoundations[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId] : this._constructionFoundations[this._constructionSimple[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId].parentObjectCharacterId]
-                if (foundation && foundation.isSecured && construction.itemDefinitionId != Items.METAL_GATE) return true
-                else return false
+                if (construction.itemDefinitionId == Items.METAL_GATE) return false
+                for (const a in this._constructionFoundations) {
+                    const foundation = this._constructionFoundations[a]
+                    if (this._constructionFoundations[foundation.parentObjectCharacterId]) {
+                        if (foundation.isFullySecured && isInside([construction.state.position[0], construction.state.position[2]], foundation.securedPolygons)) return true
+                        else if (this._constructionFoundations[foundation.parentObjectCharacterId].isSecured && foundation.isSecured && isInside([construction.state.position[0], construction.state.position[2]], foundation.securedPolygons)) return true
+                        else return false
+                    }
+                    if (foundation.isSecured && isInside([construction.state.position[0], construction.state.position[2]], foundation.securedPolygons)) return true
+                }
         }
         return false
     }
@@ -1215,12 +1209,13 @@ export class ZoneServer2016 extends EventEmitter {
             );
         }, 15000)
         if (constructionObject.health > 0) return
-        const foundation = this._constructionFoundations[constructionObject.parentObjectCharacterId] ? this._constructionFoundations[constructionObject.parentObjectCharacterId] : this._constructionSimple[constructionObject.parentObjectCharacterId]
+        this.deleteEntity(constructionCharId, dictionary, 242, 3000)
+        const foundation = this._constructionFoundations[constructionObject.parentObjectCharacterId] ? this._constructionFoundations[constructionObject.parentObjectCharacterId] : this._constructionSimple[constructionObject.parentObjectCharacterId]       
+        if (!foundation) return;
         if (constructionObject.itemDefinitionId == Items.METAL_DOOR || constructionObject.itemDefinitionId == Items.METAL_GATE || constructionObject.itemDefinitionId == Items.METAL_WALL) {
             foundation.changePerimeters(this, constructionObject.buildingSlot, new Float32Array([0, 0, 0, 0]));
         }
-        this.deleteEntity(constructionCharId, dictionary, 242, 3000)
-        if (!constructionObject.slot || !constructionObject.parentObjectCharacterId) return;
+        if (!constructionObject.slot || !constructionObject.parentObjectCharacterId) return;    
         const index = foundation.occupiedSlots.indexOf(constructionObject.slot);
         foundation.occupiedSlots.splice(index, 1)
         return;
@@ -2339,12 +2334,18 @@ export class ZoneServer2016 extends EventEmitter {
           if (!allowedIds.includes(construction.itemDefinitionId)) continue;
           let allowed = false;
           if (!construction.isSecured) continue;
-          let foundation: ConstructionParentEntity;
+          let foundation: ConstructionParentEntity | undefined;
           if (this._constructionFoundations[construction.parentObjectCharacterId]) {
               foundation = this._constructionFoundations[construction.parentObjectCharacterId]
-          } else if (this._constructionFoundations[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId]) {
+          } else if (this._constructionSimple[construction.parentObjectCharacterId] && this._constructionFoundations[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId]) {
               foundation = this._constructionFoundations[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId]
-          } else continue;
+          } else {
+              for (const a in this._constructionFoundations) {
+                  const b = this._constructionFoundations[a]
+                  if (!this.checkInsideFoundation(b, construction)) continue
+                  foundation = b;
+              }
+          };
           if (!foundation) continue;
           foundation.permissions.forEach((element: any) => {
               if (element.characterId === client.character.characterId && element.visit) {
