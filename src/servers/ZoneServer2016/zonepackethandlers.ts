@@ -2087,30 +2087,39 @@ export class zonePacketHandlers {
               const characterId = p.packet.hitReport.characterId,
                 entityType = server.getEntityType(characterId);
               switch (entityType) {
-                case EntityTypes.NPC:
-                  if (!server._npcs[characterId]) {
-                    return;
-                  }
-                  server.deleteEntity(characterId, server._npcs);
-                  break;
-                case EntityTypes.VEHICLE:
-                  if (!server._vehicles[characterId]) {
-                    return;
-                  }
-                  server.deleteEntity(characterId, server._vehicles);
-                  break;
-                case EntityTypes.OBJECT:
-                  if (!server._spawnedItems[characterId]) {
-                    return;
-                  }
-                  delete server.worldObjectManager._spawnedLootObjects[
-                    server._spawnedItems[characterId].spawnerId
-                  ];
-                  server.deleteEntity(characterId, server._spawnedItems);
-                  break;
-                case EntityTypes.EXPLOSIVE:
-                  server.deleteEntity(characterId, server._explosives);
-                  break;
+                  case EntityTypes.NPC:
+                      if (!server._npcs[characterId]) {
+                          return;
+                      }
+                      server.deleteEntity(characterId, server._npcs);
+                      break;
+                  case EntityTypes.VEHICLE:
+                      if (!server._vehicles[characterId]) {
+                          return;
+                      }
+                      server.deleteEntity(characterId, server._vehicles);
+                      break;
+                  case EntityTypes.OBJECT:
+                      if (!server._spawnedItems[characterId]) {
+                          return;
+                      }
+                      delete server.worldObjectManager._spawnedLootObjects[
+                          server._spawnedItems[characterId].spawnerId
+                      ];
+                      server.deleteEntity(characterId, server._spawnedItems);
+                      break;
+                  case EntityTypes.EXPLOSIVE:
+                      server.deleteEntity(characterId, server._explosives);
+                      break;
+                  case EntityTypes.CONSTRUCTION_DOOR:
+                      server.deleteEntity(characterId, server._explosives);
+                      break;
+                  case EntityTypes.CONSTRUCTION_SIMPLE:
+                      server.deleteEntity(characterId, server._explosives);
+                      break;
+                  case EntityTypes.CONSTRUCTION_FOUNDATION:
+                      server.deleteEntity(characterId, server._explosives);
+                      break;
                 default:
                   return;
               }
