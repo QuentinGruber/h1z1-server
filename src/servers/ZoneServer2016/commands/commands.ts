@@ -14,7 +14,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import fs from "fs";
 
-import { zoneShutdown, _, getDifference } from "../../../utils/utils";
+import { zoneShutdown, _, getDifference, isPosInRadius } from "../../../utils/utils";
 import { ExplosiveEntity } from "../classes/explosiveentity";
 import { Npc } from "../classes/npc";
 import { Vehicle2016 as Vehicle} from "../classes/vehicle";
@@ -1532,6 +1532,52 @@ export const commands: Array<Command> = [
           }
         }
       }
+    }
+  },
+  {
+    name: "deletebase",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016, 
+      client: Client, 
+      args: any[]
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /deleteBase {range(max 100)} `
+        );
+        return;
+      }
+      if (Number(args[0]) > 100) {
+        server.sendChatText(
+          client,
+          `Maximum range is 100`
+        );
+        return;
+      }
+      for (const a in server._constructionSimple) {
+          const construction = server._constructionSimple[a];
+          if (isPosInRadius(Number(args[0]), client.character.state.position, construction.state.position)) {
+              server.deleteEntity(construction.characterId, server._constructionSimple, 1875, 500)
+          }
+      }
+      for (const a in server._constructionDoors) {
+          const construction = server._constructionDoors[a];
+          if (isPosInRadius(Number(args[0]), client.character.state.position, construction.state.position)) {
+              server.deleteEntity(construction.characterId, server._constructionDoors, 1875, 500)
+          }
+      }
+      for (const a in server._constructionFoundations) {
+          const construction = server._constructionFoundations[a];
+          if (isPosInRadius(Number(args[0]), client.character.state.position, construction.state.position)) {
+              server.deleteEntity(construction.characterId, server._constructionFoundations, 1875, 500)
+          }
+      }
+      server.sendChatText(
+          client,
+          `Removed all constructions in range of ${Number(args[0])}`
+        );
     }
   },
   //#endregion
