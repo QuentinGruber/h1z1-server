@@ -3370,7 +3370,7 @@ export class ZoneServer2016 extends EventEmitter {
             return
         }
         if (this._constructionFoundations[parentObjectCharacterId]) {
-            if (!isPosInRadius(this._constructionFoundations[parentObjectCharacterId].itemDefinitionId == Items.FOUNDATION? 11:15, this._constructionFoundations[parentObjectCharacterId].state.position, position)) {
+            if (!isPosInRadiusWithY(this._constructionFoundations[parentObjectCharacterId].itemDefinitionId == Items.FOUNDATION? 11:15, this._constructionFoundations[parentObjectCharacterId].state.position, position, 10)) {
                 this.sendChatText(client, "Placement blocked: placement error")
                 this.sendData(client, "Construction.PlacementFinalizeResponse", {
                     status: 0,
