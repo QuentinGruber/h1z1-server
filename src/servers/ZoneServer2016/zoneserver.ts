@@ -568,6 +568,37 @@ export class ZoneServer2016 extends EventEmitter {
     return items;
   }
 
+  pGetRecipes(): any[] {
+    // todo: change to per-character recipe lists
+    return Object.values(this._recipes).map((recipe)=> {
+      const def = this.getItemDefinition(recipe.itemDefinitionId);
+      return {
+        recipeId: def.ID,
+        nameId: def.NAME_ID,
+        iconId: def.IMAGE_SET_ID,
+        unknownDword1: 0, // idk
+        descriptionId: def.DESCRIPTION_ID,
+        unknownDword2: 1, // idk
+        bundleCount: 0, // might be the amount that crafting 1 item gives you, default 0 for all
+        membersOnly: false, // could be used for admin-only recipes?
+        filterId: recipe.filterId, // need to create enum for this
+        components: recipe.components.map((component: any) => {
+          const def = this.getItemDefinition(component.itemDefinitionId);
+          return {
+            unknownDword1: 0, // idk
+            nameId: def.NAME_ID,
+            iconId: def.IMAGE_SET_ID,
+            unknownDword2: 0, // idk
+            requiredAmount: component.requiredAmount,
+            unknownQword1: "0x0", // idk
+            unknownDword3: 0, // idk
+            itemDefinitionId: def.ID
+          }
+        })
+      }
+    });
+  }
+
   async sendCharacterData(client: Client) {
     if (!this.checkHook("OnSendCharacterData", client)) return;
     if (!(await this.checkAsyncHook("OnSendCharacterData", client))) return;
@@ -590,7 +621,7 @@ export class ZoneServer2016 extends EventEmitter {
           items: this.pGetInventoryItems(client.character),
           //unknownDword1: 2355
         },
-        recipes: Object.values(this._recipes),
+        recipes: this.pGetRecipes(), // todo: change to per-character recipe lists
         stats: stats,
         loadoutSlots: client.character.pGetLoadoutSlots(),
         equipmentSlots: client.character.pGetEquipment(),
