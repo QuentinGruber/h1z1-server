@@ -2302,8 +2302,11 @@ export class ZoneServer2016 extends EventEmitter {
   
   foundationPermissionChecker(client: Client) {
       let isInSecuredArea = false;
-        for (const a in this._constructionFoundations) {
-            const foundation = this._constructionFoundations[a] as ConstructionParentEntity;   
+        for (const a in this._constructionFoundations) {       
+            const foundation = this._constructionFoundations[a] as ConstructionParentEntity;  
+            if (foundation.itemDefinitionId == Items.FOUNDATION || foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION) {
+                if (isPosInRadiusWithY(foundation.itemDefinitionId == Items.FOUNDATION ? 6.46 : 4.9, client.character.state.position, new Float32Array([foundation.state.position[0], foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION ? foundation.state.position[1] - 2.5 : foundation.state.position[1], foundation.state.position[2], 1]), 2)) this.tpPlayerOutsideFoundation(client, foundation, true)
+            }
             if (!foundation.isSecured) continue;
             let allowed = false;
             foundation.permissions.forEach((element: any) => {
@@ -2399,8 +2402,21 @@ export class ZoneServer2016 extends EventEmitter {
         } else if (client.character.isHidden) client.character.isHidden = "";
     }
 
-    tpPlayerOutsideFoundation(client: Client, foundation: ConstructionParentEntity) {
+    tpPlayerOutsideFoundation(client: Client, foundation: ConstructionParentEntity, tpUp: boolean = false) {
         const currentAngle = Math.atan2(client.character.state.position[2] - foundation.state.position[2], client.character.state.position[0] - foundation.state.position[0])
+        if (tpUp) {
+            this.sendChatText(client, "Construction: stuck under foundation")
+            this.sendData(client, "ClientUpdate.UpdateLocation", {
+                position: [
+                    client.character.state.position[0],
+                    client.character.state.position[1] + 2.5,
+                    client.character.state.position[2],
+                    1,
+                ],
+                unknownBool2: false
+            })
+            return;
+        }
         const newPos = movePoint(client.character.state.position, currentAngle, 3)
         this.sendChatText(client, "Construction: no visitor permission")
         if (client.vehicle.mountedVehicle) {
