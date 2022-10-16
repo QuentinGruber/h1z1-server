@@ -12,6 +12,15 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum FilterIds {
+  COOKING = 2,
+  FURNACE = 4,
+  WEAPONS = 5,
+  HOUSING = 6,
+  SURVIVAL = 7,
+  COMPONENT = 8
+}
+
 export enum ItemClasses {
   WEAPONS_LONG = 25036,
   WEAPONS_PISTOL = 4096,
@@ -193,6 +202,17 @@ export enum Items {
   SNARE = 1415,
   //#endregion
 
+  //#region COMPONENT
+  SHARD_METAL = 114,
+  SHARD_BRASS = 3780,
+  SHARD_PLASTIC = 3775,
+  GUNPOWDER_REFINED = 3805,
+  ALLOY_LEAD = 3779,
+  PROTOTYPE_MECHANISM = 3455,
+  PROTOTYPE_TRIGGER_ASSEMBLY = 3456,
+  PROTOTYPE_RECEIVER = 3457,
+  //#endregion
+
   BACKPACK = 1605,
   HELMET_MOTORCYCLE = 2170, // TODO = expand with other default helmet colors
   HAT_CAP = 12, // TODO = expand with other cap colors
@@ -238,6 +258,7 @@ export enum Items {
   FLARE = 1804,
   BACKPACK_RASTA = 2393,
   WAIST_PACK = 1803,
+  VEHICLE_KEY = 3460,
 
   HEADLIGHTS_OFFROADER = 9,
   HEADLIGHTS_PICKUP = 1728,

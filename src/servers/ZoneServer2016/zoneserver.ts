@@ -571,8 +571,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   pGetRecipes(): any[] {
     // todo: change to per-character recipe lists
-    return Object.values(this._recipes).map((recipe)=> {
-      const def = this.getItemDefinition(recipe.itemDefinitionId);
+    const recipeKeys = Object.keys(this._recipes)
+    return Object.values(this._recipes).map((recipe, idx)=> {
+      const def = this.getItemDefinition(Number(recipeKeys[idx]));
       return {
         recipeId: def.ID,
         nameId: def.NAME_ID,

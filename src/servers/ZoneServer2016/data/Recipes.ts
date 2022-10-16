@@ -1,4 +1,166 @@
+import { FilterIds, Items } from "../enums"
+
 export const recipes = {
+  [Items.AMMO_223]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.SHARD_METAL,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.ALLOY_LEAD,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.SHARD_BRASS,
+        requiredAmount: 3
+      },
+      {
+        itemDefinitionId: Items.GUNPOWDER_REFINED,
+        requiredAmount: 2
+      },
+    ]
+  },
+  [Items.AMMO_308]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.SHARD_METAL,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.ALLOY_LEAD,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.SHARD_BRASS,
+        requiredAmount: 3
+      },
+      {
+        itemDefinitionId: Items.GUNPOWDER_REFINED,
+        requiredAmount: 4
+      },
+    ]
+  },
+  [Items.AMMO_380]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.ALLOY_LEAD,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.SHARD_BRASS,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.GUNPOWDER_REFINED,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.AMMO_44]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.SHARD_METAL,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.ALLOY_LEAD,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.SHARD_BRASS,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.GUNPOWDER_REFINED,
+        requiredAmount: 2
+      },
+    ]
+  },
+  [Items.AMMO_45]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.ALLOY_LEAD,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.SHARD_BRASS,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.GUNPOWDER_REFINED,
+        requiredAmount: 2
+      },
+    ]
+  },
+  [Items.AMMO_12GA]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.SHARD_PLASTIC,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.ALLOY_LEAD,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.SHARD_BRASS,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.GUNPOWDER_REFINED,
+        requiredAmount: 4
+      },
+    ]
+  },
+  [Items.AMMO_762]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.SHARD_METAL,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.ALLOY_LEAD,
+        requiredAmount: 3
+      },
+      {
+        itemDefinitionId: Items.SHARD_BRASS,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.GUNPOWDER_REFINED,
+        requiredAmount: 2
+      },
+    ]
+  },
+  [Items.AMMO_9MM]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.ALLOY_LEAD,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.SHARD_BRASS,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.GUNPOWDER_REFINED,
+        requiredAmount: 1
+      },
+    ]
+  },
+
+
+
+
   "3": {
     "unknownDword1": 0,
     "descriptionId": 588,
