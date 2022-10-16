@@ -456,6 +456,13 @@ export const commandPackets: any = [
   ["Command.SelectiveSpawnAddById", 0x095204, {}],
   [
     "Command.ReportLastDeath",
+    0x095300,
+    {
+      fields: [],
+    },
+  ],
+  [
+    "Command.Report",
     0x095400,
     {
       fields: [
