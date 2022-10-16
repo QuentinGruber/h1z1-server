@@ -231,6 +231,7 @@ const weaponPackets: any = [
         },
         { name: "unknownDword7", type: "int32", defaultValue: 0 },
         { name: "unknownWord1", type: "uint16", defaultValue: 0 },
+        { name: "unknownDword8", type: "uint32", defaultValue: 0 },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
       ],
     },
