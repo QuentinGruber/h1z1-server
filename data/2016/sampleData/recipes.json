@@ -1235,30 +1235,6 @@
     ],
     "itemDefinitionId": 135
   },
-  "139": {
-    "recipeId": 139,
-    "nameId": 662,
-    "iconId": 42,
-    "unknownDword1": 0,
-    "descriptionId": 663,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 7,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 1055,
-        "iconId": 36,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1374
-      }
-    ],
-    "itemDefinitionId": 139
-  },
   "141": {
     "recipeId": 141,
     "nameId": 666,
@@ -1282,30 +1258,6 @@
       }
     ],
     "itemDefinitionId": 141
-  },
-  "146": {
-    "recipeId": 146,
-    "nameId": 676,
-    "iconId": 42,
-    "unknownDword1": 0,
-    "descriptionId": 677,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 7,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 610,
-        "iconId": 89,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 98
-      }
-    ],
-    "itemDefinitionId": 146
   },
   "148": {
     "recipeId": 148,
@@ -1594,30 +1546,6 @@
       }
     ],
     "itemDefinitionId": 1361
-  },
-  "1363": {
-    "recipeId": 1363,
-    "nameId": 1034,
-    "iconId": 15,
-    "unknownDword1": 0,
-    "descriptionId": 1249,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 2,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 1033,
-        "iconId": 13,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1362
-      }
-    ],
-    "itemDefinitionId": 1363
   },
   "1371": {
     "recipeId": 1371,
@@ -2246,30 +2174,6 @@
     "components": [
       {
         "unknownDword1": 0,
-        "nameId": 1208,
-        "iconId": 42,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1446
-      }
-    ],
-    "itemDefinitionId": 1445
-  },
-  "1446": {
-    "recipeId": 1446,
-    "nameId": 1208,
-    "iconId": 42,
-    "unknownDword1": 0,
-    "descriptionId": 1209,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 7,
-    "components": [
-      {
-        "unknownDword1": 0,
         "nameId": 1184,
         "iconId": 42,
         "unknownDword2": 0,
@@ -2299,7 +2203,7 @@
         "itemDefinitionId": 57
       }
     ],
-    "itemDefinitionId": 1446
+    "itemDefinitionId": 1445
   },
   "1447": {
     "recipeId": 1447,
@@ -2946,80 +2850,6 @@
       }
     ],
     "itemDefinitionId": 1699
-  },
-  "1736": {
-    "recipeId": 1736,
-    "nameId": 16,
-    "iconId": 42,
-    "unknownDword1": 0,
-    "descriptionId": 1218,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 5,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 1081,
-        "iconId": 0,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 8
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 952,
-        "iconId": 240,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1344
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 1066,
-        "iconId": 239,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 90
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 1071,
-        "iconId": 237,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 9
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 1519,
-        "iconId": 236,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1696
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 1532,
-        "iconId": 238,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1701
-      }
-    ],
-    "itemDefinitionId": 1736
   },
   "2111": {
     "recipeId": 2111,
