@@ -100,6 +100,8 @@ import { ConstructionParentEntity } from "./classes/constructionParentEntity";
 import { simpleConstruction } from "./classes/simpleConstruction";
 import { FullCharacterSaveData, ServerSaveData } from "types/savedata";
 import { WorldDataManager } from "./classes/worlddatamanager";
+import { recipes } from "./data/Recipes";
+
 import {
   CharacterKilledBy,
   ClientUpdateDeathMetrics,
@@ -110,7 +112,6 @@ import { AsyncHooks, AsyncHookType, FunctionHookType, Hooks } from "./hooks";
 import { getCharacterModelData } from "../shared/functions";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
-  recipes = require("../../../data/2016/sampleData/recipes.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
   localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
   stats = require("../../../data/2016/sampleData/stats.json"),
