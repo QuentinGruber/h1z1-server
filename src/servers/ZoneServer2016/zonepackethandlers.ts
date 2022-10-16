@@ -233,7 +233,6 @@ export class zonePacketHandlers {
         client.character.isReady = true;
       }
 
-      client.isLoading = false;
       if (!client.character.isAlive || client.character.isRespawning) {
         // try to fix stuck on death screen
         server.sendData(client, "Character.StartMultiStateDeath", {
@@ -747,6 +746,7 @@ export class zonePacketHandlers {
       client: Client,
       packet: any
     ) {
+      if (packet.data.flags == 1 && client.isLoading) client.isLoading = false
       if (client.character.tempGodMode) {
         server.setGodMode(client, false);
         client.character.tempGodMode = false;
