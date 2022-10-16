@@ -456,12 +456,24 @@ export const commandPackets: any = [
   ["Command.SelectiveSpawnAddById", 0x095204, {}],
   [
     "Command.ReportLastDeath",
-    0x095300,
+    0x095400,
     {
-      fields: [],
+      fields: [
+        {
+          name: "unknownVector1",
+          type: "floatvector3",
+          defaultValue: [0, 0, 0],
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { // could be 2 dwords or something else idk -Meme
+          name: "unknownQword1",
+          type: "uint64string",
+          defaultValue: "0x0",
+        },
+      ],
     },
   ],
-  ["Command.BecomeEnforcer", 0x095404, {}],
+  //["Command.BecomeEnforcer", 0x095404, {}],
   ["Command.BecomeReferee", 0x095504, {}],
   ["Command.Profiler", 0x095604, {}],
   ["Command.WorldKickPending", 0x095704, {}],
