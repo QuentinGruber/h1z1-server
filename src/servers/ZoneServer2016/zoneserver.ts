@@ -576,14 +576,15 @@ export class ZoneServer2016 extends EventEmitter {
       const def = this.getItemDefinition(Number(recipeKeys[idx]));
       return {
         recipeId: def.ID,
+        itemDefinitionId: def.ID,
         nameId: def.NAME_ID,
         iconId: def.IMAGE_SET_ID,
         unknownDword1: 0, // idk
         descriptionId: def.DESCRIPTION_ID,
         unknownDword2: 1, // idk
-        bundleCount: 0, // might be the amount that crafting 1 item gives you, default 0 for all
+        bundleCount: recipe.craftAmount || 1,
         membersOnly: false, // could be used for admin-only recipes?
-        filterId: recipe.filterId, // need to create enum for this
+        filterId: recipe.filterId,
         components: recipe.components.map((component: any) => {
           const def = this.getItemDefinition(component.itemDefinitionId);
           return {

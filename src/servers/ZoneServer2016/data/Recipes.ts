@@ -971,18 +971,9 @@ export const recipes = {
       },
     ]
   },
-  // TODO
-  /*
-  [Items.GUN_PART]: {
-    filterId: FilterIds.COMPONENT,
-    components: [
-      {
-        itemDefinitionId: Items.WEAPON_1911,
-        requiredAmount: 1
-      },
-    ]
-  },
-  */
+
+  // TODO GUN PARTS
+
   [Items.REPAIR_KIT_GUN]: {
     filterId: FilterIds.WEAPONS,
     components: [
@@ -1382,18 +1373,7 @@ export const recipes = {
       },
     ]
   },
-  // TODO: Implement this once it's found in itemdefinitions
-  /*
-  [Items.PUNJI_STICK_ROW]: {
-    filterId: FilterIds.,
-    components: [
-      {
-        itemDefinitionId: Items.WOOD_STICK,
-        requiredAmount: 20
-      },
-    ]
-  },
-  */
+  // TODO: find PUNJI_STICK_ROW def for 20 sticks
   [Items.PUNJI_STICKS]: {
     filterId: FilterIds.SURVIVAL,
     components: [
@@ -1571,9 +1551,9 @@ export const recipes = {
       },
     ]
   },
-  /*
-    MEDICAL SKINS HERE TODO
-  */
+  
+   // MEDICAL SKINS HERE TODO
+
   [Items.SLEEPING_MAT]: {
     filterId: FilterIds.SURVIVAL,
     components: [
