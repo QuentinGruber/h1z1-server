@@ -2551,9 +2551,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const allowedIds = [
       Items.SHELTER,
-      Items.LARGE_SHELTER,
-      Items.UPPER_LEVEL_SHELTER,
-      Items.UPPER_LEVEL_LARGE_SHELER,
+      Items.SHELTER_LARGE,
+      Items.SHELTER_UPPER,
+      Items.SHELTER_UPPER_LARGE,
     ];
     for (const a in this._constructionSimple) {
       const construction = this._constructionSimple[a] as simpleConstruction;
@@ -3912,8 +3912,8 @@ export class ZoneServer2016 extends EventEmitter {
           if (npc.eulerAngle) {
             const angle = -npc.eulerAngle;
             switch (itemDefinitionId) {
-              case Items.LARGE_SHELTER:
-              case Items.UPPER_LEVEL_LARGE_SHELER:
+              case Items.SHELTER_LARGE:
+              case Items.SHELTER_UPPER_LARGE:
                 const centerPoint = movePoint(
                   position,
                   angle + (90 * Math.PI) / 180,
@@ -3928,7 +3928,7 @@ export class ZoneServer2016 extends EventEmitter {
                 );
                 break;
               case Items.SHELTER:
-              case Items.UPPER_LEVEL_SHELTER:
+              case Items.SHELTER_UPPER:
                 npc.securedPolygons = getRectangleCorners(
                   position,
                   5,

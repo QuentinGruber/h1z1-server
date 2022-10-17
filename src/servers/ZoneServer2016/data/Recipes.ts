@@ -920,6 +920,576 @@ export const recipes = {
       },
     ]
   },
+  [Items.TRAP_GAS]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.GRENADE_GAS,
+        requiredAmount: 3
+      },
+      {
+        itemDefinitionId: Items.TRAP_IGNITION_KIT,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.GROUND_TAMPER]: {
+    filterId: FilterIds.HOUSING,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.NAIL,
+        requiredAmount: 4
+      },
+      {
+        itemDefinitionId: Items.METAL_BRACKET,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.WEAPON_BRANCH,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.GROUND_TILLER]: {
+    filterId: FilterIds.HOUSING,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_PIPE,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.SHARD_METAL,
+        requiredAmount: 4
+      },
+    ]
+  },
+  // TODO
+  /*
+  [Items.GUN_PART]: {
+    filterId: FilterIds.COMPONENT,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_1911,
+        requiredAmount: 1
+      },
+    ]
+  },
+  */
+  [Items.REPAIR_KIT_GUN]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.GUN_PART,
+        requiredAmount: 2
+      },
+    ]
+  },
+  [Items.UPGRADE_KIT_GUN]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.SHARD_METAL,
+        requiredAmount: 5
+      },
+      {
+        itemDefinitionId: Items.REPAIR_KIT_GUN,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.GUNPOWDER]: {
+    filterId: FilterIds.COMPONENT,
+    components: [
+      {
+        itemDefinitionId: Items.FERTILIZER,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.CHARCOAL,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.WEAPON_HAMMER]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_BAR,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.HAND_SHOVEL]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.BLACKBERRY_HANDFUL]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
+      {
+        itemDefinitionId: Items.BLACKBERRY,
+        requiredAmount: 10
+      },
+    ]
+  },
+  [Items.ANTI_VIRAL_BOTTLE]: {
+    filterId: FilterIds.COMPONENT,
+    components: [
+      {
+        itemDefinitionId: Items.HANDWRITTEN_NOTE_CAROLINE,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.ANTI_VIRAL_BOTTLE_EMPTY,
+        requiredAmount: 3
+      },
+    ]
+  },
+  [Items.IED]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.CLOTH,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.LANDMINE,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.COMPASS_IMPROVISED]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
+      {
+        itemDefinitionId: Items.SHARD_METAL,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WATER_PURE,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.SKINNING_KNIFE]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SCRAP,
+        requiredAmount: 3
+      },
+      {
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.LANDMINE]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.GUNPOWDER,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.SHARD_METAL,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.SHELTER_LARGE]: {
+    filterId: FilterIds.HOUSING,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 8
+      },
+      {
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 8
+      },
+      {
+        itemDefinitionId: Items.NAIL,
+        requiredAmount: 16
+      },
+      {
+        itemDefinitionId: Items.METAL_BRACKET,
+        requiredAmount: 8
+      },
+    ]
+  },
+  [Items.LOOKOUT_TOWER]: {
+    filterId: FilterIds.HOUSING,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 4
+      },
+      {
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 20
+      },
+      {
+        itemDefinitionId: Items.NAIL,
+        requiredAmount: 40
+      },
+    ]
+  },
+  [Items.WEAPON_MACHETE01]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 2
+      },
+    ]
+  },
+  [Items.WEAPON_BOW_MAKESHIFT]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.CLOTH,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.WEAPON_HATCHET_MAKESHIFT]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SCRAP,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.METAL_BAR]: {
+    filterId: FilterIds.FURNACE,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SCRAP,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.METAL_BRACKET]: {
+    filterId: FilterIds.COMPONENT,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SCRAP,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.METAL_DOOR]: {
+    filterId: FilterIds.HOUSING,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.METAL_BRACKET,
+        requiredAmount: 2
+      },
+    ]
+  },
+  [Items.METAL_DOORWAY]: {
+    filterId: FilterIds.HOUSING,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 4
+      },
+      {
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 4
+      },
+      {
+        itemDefinitionId: Items.METAL_BRACKET,
+        requiredAmount: 2
+      },
+    ]
+  },
+  [Items.METAL_GATE]: {
+    filterId: FilterIds.HOUSING,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.METAL_BRACKET,
+        requiredAmount: 2
+      },
+    ]
+  },
+  [Items.SHARD_METAL]: {
+    filterId: FilterIds.COMPONENT,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SCRAP,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.METAL_SHEET]: {
+    filterId: FilterIds.COMPONENT,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_BAR,
+        requiredAmount: 2
+      },
+    ]
+  },
+  [Items.METAL_WALL]: {
+    filterId: FilterIds.HOUSING,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 4
+      },
+      {
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 4
+      },
+    ]
+  },
+  [Items.WEAPON_AK47_MODIFIED]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_AK47,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.UPGRADE_KIT_GUN,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.WEAPON_MOLOTOV]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.CLOTH,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.MOONSHINE,
+        requiredAmount: 1
+      },
+    ]
+  },
+
+
+
+
+
+
+
+
+
+  [Items.NAIL]: {
+    filterId: FilterIds.COMPONENT,
+    components: [
+      {
+        itemDefinitionId: Items.SHARD_METAL,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.FLARE_PARACHUTE]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
+      {
+        itemDefinitionId: Items.CLOTH,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.FLARE,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.METAL_PIPE]: {
+    filterId: FilterIds.COMPONENT,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 2
+      },
+    ]
+  },
+  [Items.SHARD_PLASTIC]: {
+    filterId: FilterIds.COMPONENT,
+    components: [
+      {
+        itemDefinitionId: Items.WATER_EMPTY,
+        requiredAmount: 3
+      },
+    ]
+  },
+  [Items.ARMOR_PLATED]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
+      {
+        itemDefinitionId: Items.CLOTH,
+        requiredAmount: 10
+      },
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 6
+      },
+      {
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 6
+      },
+      {
+        itemDefinitionId: Items.DUCT_TAPE,
+        requiredAmount: 1
+      },
+    ]
+  },
+  // TODO: Implement this once it's found in itemdefinitions
+  /*
+  [Items.PUNJI_STICK_ROW]: {
+    filterId: FilterIds.,
+    components: [
+      {
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredAmount: 20
+      },
+    ]
+  },
+  */
+  [Items.PUNJI_STICKS]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
+      {
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredAmount: 8
+      },
+    ]
+  },
+  [Items.WATER_PURE]: {
+    filterId: FilterIds.COOKING,
+    components: [
+      {
+        itemDefinitionId: Items.WATER_STAGNANT,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.SANDWICH_RABBIT]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
+      {
+        itemDefinitionId: Items.STEAK_RABBIT,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.SURVIVAL_BREAD,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.STEW_RABBIT]: {
+    filterId: FilterIds.COOKING,
+    components: [
+      {
+        itemDefinitionId: Items.SALT,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.STEAK_RABBIT,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WATER_PURE,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.REPAIR_BOX]: {
+    filterId: FilterIds.HOUSING,
+    components: [
+      {
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 8
+      },
+      {
+        itemDefinitionId: Items.NAIL,
+        requiredAmount: 6
+      },
+      {
+        itemDefinitionId: Items.METAL_BRACKET,
+        requiredAmount: 6
+      },
+    ]
+  },
+  [Items.RIGGED_LIGHT]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
+      {
+        itemDefinitionId: Items.HEADLIGHTS_OFFROADER,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.BATTERY,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.CORN_ROASTED]: {
+    filterId: FilterIds.COOKING,
+    components: [
+      {
+        itemDefinitionId: Items.CORN,
+        requiredAmount: 1
+      },
+    ]
+  },
 
 
   "3": {
@@ -1035,78 +1605,6 @@ export const recipes = {
     ],
     "itemDefinitionId": 5
   },
-  "11": {
-    "unknownDword1": 0,
-    "descriptionId": 605,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 5,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 48,
-        "iconId": 20,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 26
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 47,
-        "iconId": 32,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 25
-      }
-    ],
-    "itemDefinitionId": 11
-  },
-  "14": {
-    "unknownDword1": 0,
-    "descriptionId": 1174,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 5,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 1005,
-        "iconId": 96,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1353
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 49,
-        "iconId": 22,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 23
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 1106,
-        "iconId": 92,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1386
-      }
-    ],
-    "itemDefinitionId": 14
-  },
   "18": {
     "unknownDword1": 0,
     "descriptionId": 642,
@@ -1148,110 +1646,6 @@ export const recipes = {
       }
     ],
     "itemDefinitionId": 26
-  },
-  "39": {
-    "unknownDword1": 0,
-    "descriptionId": 1028,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 4,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 2,
-        "iconId": 39,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 48
-      }
-    ],
-    "itemDefinitionId": 39
-  },
-  "46": {
-    "unknownDword1": 0,
-    "descriptionId": 606,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 8,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 54,
-        "iconId": 40,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 39
-      }
-    ],
-    "itemDefinitionId": 46
-  },
-  "47": {
-    "unknownDword1": 0,
-    "descriptionId": 607,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 8,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 57,
-        "iconId": 29,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 46
-      }
-    ],
-    "itemDefinitionId": 47
-  },
-  "74": {
-    "unknownDword1": 0,
-    "descriptionId": 1155,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 5,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 634,
-        "iconId": 86,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 114
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 57,
-        "iconId": 29,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 46
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 38,
-        "iconId": 37,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 11
-      }
-    ],
-    "itemDefinitionId": 74
   },
   "77": {
     "unknownDword1": 0,
@@ -1346,37 +1740,6 @@ export const recipes = {
     ],
     "itemDefinitionId": 81
   },
-  "83": {
-    "unknownDword1": 0,
-    "descriptionId": 588,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 5,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 629,
-        "iconId": 44,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 109
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 57,
-        "iconId": 29,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 46
-      }
-    ],
-    "itemDefinitionId": 83
-  },
   "89": {
     "unknownDword1": 0,
     "descriptionId": 591,
@@ -1417,27 +1780,6 @@ export const recipes = {
       }
     ],
     "itemDefinitionId": 89
-  },
-  "98": {
-    "unknownDword1": 0,
-    "descriptionId": 611,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 7,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 631,
-        "iconId": 77,
-        "unknownDword2": 0,
-        "requiredAmount": 8,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 111
-      }
-    ],
-    "itemDefinitionId": 98
   },
   "109": {
     "unknownDword1": 0,
@@ -1502,99 +1844,6 @@ export const recipes = {
     ],
     "itemDefinitionId": 112
   },
-  "113": {
-    "unknownDword1": 0,
-    "descriptionId": 1242,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 5,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 631,
-        "iconId": 77,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 111
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 49,
-        "iconId": 22,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 23
-      }
-    ],
-    "itemDefinitionId": 113
-  },
-  "114": {
-    "unknownDword1": 0,
-    "descriptionId": 268,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 8,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 2,
-        "iconId": 39,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 48
-      }
-    ],
-    "itemDefinitionId": 114
-  },
-  "118": {
-    "unknownDword1": 0,
-    "descriptionId": 643,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 7,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 1048,
-        "iconId": 99,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1371
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 51,
-        "iconId": 18,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 22
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 639,
-        "iconId": 13,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 116
-      }
-    ],
-    "itemDefinitionId": 118
-  },
   "122": {
     "unknownDword1": 0,
     "descriptionId": 646,
@@ -1625,151 +1874,6 @@ export const recipes = {
       }
     ],
     "itemDefinitionId": 122
-  },
-  "124": {
-    "unknownDword1": 0,
-    "descriptionId": 955,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 6,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 631,
-        "iconId": 77,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 111
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 57,
-        "iconId": 29,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 46
-      }
-    ],
-    "itemDefinitionId": 124
-  },
-  "135": {
-    "unknownDword1": 0,
-    "descriptionId": 655,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 8,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 634,
-        "iconId": 86,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 114
-      }
-    ],
-    "itemDefinitionId": 135
-  },
-  "141": {
-    "unknownDword1": 0,
-    "descriptionId": 666,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 8,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 2,
-        "iconId": 39,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 48
-      }
-    ],
-    "itemDefinitionId": 141
-  },
-  "148": {
-    "unknownDword1": 0,
-    "descriptionId": 685,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 6,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 666,
-        "iconId": 162,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 141
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 629,
-        "iconId": 44,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 109
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 57,
-        "iconId": 29,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 46
-      }
-    ],
-    "itemDefinitionId": 148
-  },
-  "149": {
-    "unknownDword1": 0,
-    "descriptionId": 686,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 6,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 629,
-        "iconId": 44,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 109
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 57,
-        "iconId": 29,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 46
-      }
-    ],
-    "itemDefinitionId": 149
   },
   "150": {
     "unknownDword1": 0,
@@ -1811,57 +1915,6 @@ export const recipes = {
       }
     ],
     "itemDefinitionId": 150
-  },
-  "153": {
-    "unknownDword1": 0,
-    "descriptionId": 687,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 6,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 666,
-        "iconId": 162,
-        "unknownDword2": 0,
-        "requiredAmount": 4,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 141
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 629,
-        "iconId": 44,
-        "unknownDword2": 0,
-        "requiredAmount": 4,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 109
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 654,
-        "iconId": 163,
-        "unknownDword2": 0,
-        "requiredAmount": 8,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 135
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 57,
-        "iconId": 29,
-        "unknownDword2": 0,
-        "requiredAmount": 4,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 46
-      }
-    ],
-    "itemDefinitionId": 153
   },
   "154": {
     "unknownDword1": 0,
@@ -1935,27 +1988,6 @@ export const recipes = {
     ],
     "itemDefinitionId": 1343
   },
-  "1371": {
-    "unknownDword1": 0,
-    "descriptionId": 1050,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 2,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 1099,
-        "iconId": 95,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1368
-      }
-    ],
-    "itemDefinitionId": 1371
-  },
   "1379": {
     "unknownDword1": 0,
     "descriptionId": 595,
@@ -1996,68 +2028,6 @@ export const recipes = {
       }
     ],
     "itemDefinitionId": 1379
-  },
-  "1383": {
-    "unknownDword1": 0,
-    "descriptionId": 1102,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 6,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 631,
-        "iconId": 77,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 111
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 634,
-        "iconId": 86,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 114
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 58,
-        "iconId": 30,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 47
-      }
-    ],
-    "itemDefinitionId": 1383
-  },
-  "1387": {
-    "unknownDword1": 0,
-    "descriptionId": 1109,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 2,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 628,
-        "iconId": 100,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 107
-      }
-    ],
-    "itemDefinitionId": 1387
   },
   "1415": {
     "unknownDword1": 0,
@@ -2255,37 +2225,6 @@ export const recipes = {
     ],
     "itemDefinitionId": 1440
   },
-  "1444": {
-    "unknownDword1": 0,
-    "descriptionId": 1205,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 7,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 634,
-        "iconId": 86,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 114
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 1048,
-        "iconId": 99,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1371
-      }
-    ],
-    "itemDefinitionId": 1444
-  },
   "1445": {
     "unknownDword1": 0,
     "descriptionId": 1000,
@@ -2389,37 +2328,6 @@ export const recipes = {
     ],
     "itemDefinitionId": 1456
   },
-  "1457": {
-    "unknownDword1": 0,
-    "descriptionId": 1109,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 7,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 640,
-        "iconId": 15,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 117
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 1251,
-        "iconId": 170,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1456
-      }
-    ],
-    "itemDefinitionId": 1457
-  },
   "1458": {
     "unknownDword1": 0,
     "descriptionId": 1109,
@@ -2450,37 +2358,6 @@ export const recipes = {
       }
     ],
     "itemDefinitionId": 1458
-  },
-  "1536": {
-    "unknownDword1": 0,
-    "descriptionId": 1472,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 6,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 631,
-        "iconId": 77,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 111
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 54,
-        "iconId": 40,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 39
-      }
-    ],
-    "itemDefinitionId": 1536
   },
   "1538": {
     "unknownDword1": 0,
@@ -2553,67 +2430,5 @@ export const recipes = {
       }
     ],
     "itemDefinitionId": 1672
-  },
-  "1697": {
-    "unknownDword1": 0,
-    "descriptionId": 1529,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 6,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 631,
-        "iconId": 77,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 111
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 634,
-        "iconId": 86,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 114
-      }
-    ],
-    "itemDefinitionId": 1697
-  },
-  "1699": {
-    "unknownDword1": 0,
-    "descriptionId": 1537,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 5,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 49,
-        "iconId": 22,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 23
-      },
-      {
-        "unknownDword1": 0,
-        "nameId": 254,
-        "iconId": 103,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 74
-      }
-    ],
-    "itemDefinitionId": 1699
   },
 }
