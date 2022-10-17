@@ -504,7 +504,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: Items.WEAPON_BAT_WOOD, count: 1 });
         break;
       case "ItemSpawner_BackpackOnGround001.adr":
-        authorizedItems.push({ id: Items.BACKPACK, count: 1 });
+        authorizedItems.push({ id: Items.BACKPACK_MILITARY_TAN, count: 1 });
         break;
       case "ItemSpawner_GasCan01.adr":
         authorizedItems.push({ id: Items.FUEL_BIOFUEL, count: 1 });
