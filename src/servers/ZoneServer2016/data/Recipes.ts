@@ -362,7 +362,7 @@ export const recipes = {
       },
     ]
   },
-  [Items.BASIC_SHACK_DOOR]: {
+  [Items.DOOR_BASIC]: {
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -1217,7 +1217,7 @@ export const recipes = {
       },
     ]
   },
-  [Items.METAL_DOOR]: {
+  [Items.DOOR_METAL]: {
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -1732,534 +1732,348 @@ export const recipes = {
       },
     ]
   },
+  [Items.GHILLIE_SUIT_TAN]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
+      {
+        itemDefinitionId: Items.CLOTH,
+        requiredAmount: 20
+      },
+      {
+        itemDefinitionId: Items.DUCT_TAPE,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.TWINE,
+        requiredAmount: 4
+      },
+    ]
+  },
+  [Items.WEAPON_TORCH]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.CLOTH,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.ANIMAL_FAT,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.WEAPON_BRANCH,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.TRAP_IGNITION_KIT]: {
+    filterId: FilterIds.COMPONENT,
+    components: [
+      {
+        itemDefinitionId: Items.GUNPOWDER,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredAmount: 5
+      },
+      {
+        itemDefinitionId: Items.SHARD_METAL,
+        requiredAmount: 12
+      },
+      {
+        itemDefinitionId: Items.TWINE,
+        requiredAmount: 2
+      },
+    ]
+  },
+  [Items.BRAIN_TREATED]: {
+    filterId: FilterIds.COMPONENT,
+    components: [
+      {
+        itemDefinitionId: Items.SYRINGE_INFECTED_BLOOD,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.VIAL_H1Z1_REDUCER,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.EMPTY_SPECIMEN_BAG,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.BRAIN_INFECTED,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.SHELTER_UPPER_LARGE]: {
+    filterId: FilterIds.HOUSING,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 6
+      },
+      {
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 8
+      },
+      {
+        itemDefinitionId: Items.NAIL,
+        requiredAmount: 16
+      },
+      {
+        itemDefinitionId: Items.METAL_BRACKET,
+        requiredAmount: 8
+      },
+    ]
+  },
+  [Items.SHELTER_UPPER]: {
+    filterId: FilterIds.HOUSING,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 6
+      },
+      {
+        itemDefinitionId: Items.NAIL,
+        requiredAmount: 16
+      },
+      {
+        itemDefinitionId: Items.METAL_BRACKET,
+        requiredAmount: 8
+      },
+    ]
+  },
+  [Items.STRUCTURE_STAIRS_UPPER]: {
+    filterId: FilterIds.HOUSING,
+    components: [
+      {
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 8
+      },
+      {
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredAmount: 8
+      },
+      {
+        itemDefinitionId: Items.NAIL,
+        requiredAmount: 8
+      },
+      {
+        itemDefinitionId: Items.METAL_BRACKET,
+        requiredAmount: 4
+      },
+    ]
+  },
+  [Items.METAL_WALL_UPPER]: {
+    filterId: FilterIds.HOUSING,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 4
+      },
+      {
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 4
+      },
+    ]
+  },
 
 
-  "3": {
-    "unknownDword1": 0,
-    "descriptionId": 588,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 5,
-    "components": [
+
+
+
+
+
+
+
+  [Items.WORKBENCH_WEAPON]: {
+    filterId: FilterIds.HOUSING,
+    components: [
       {
-        "unknownDword1": 0,
-        "nameId": 631,
-        "iconId": 77,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 111
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredAmount: 2
       },
       {
-        "unknownDword1": 0,
-        "nameId": 2,
-        "iconId": 39,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 48
-      }
-    ],
-    "itemDefinitionId": 3
-  },
-  "4": {
-    "unknownDword1": 0,
-    "descriptionId": 1029,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 7,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 47,
-        "iconId": 32,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 25
+        itemDefinitionId: Items.METAL_SCRAP,
+        requiredAmount: 4
       },
       {
-        "unknownDword1": 0,
-        "nameId": 49,
-        "iconId": 22,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 23
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 4
       },
       {
-        "unknownDword1": 0,
-        "nameId": 11,
-        "iconId": 19,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 57
-      }
-    ],
-    "itemDefinitionId": 4
+        itemDefinitionId: Items.WATER_EMPTY,
+        requiredAmount: 1
+      },
+    ]
   },
-  "5": {
-    "unknownDword1": 0,
-    "descriptionId": 592,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 7,
-    "components": [
+  [Items.SANDWICH_WOLF]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
       {
-        "unknownDword1": 0,
-        "nameId": 631,
-        "iconId": 77,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 111
+        itemDefinitionId: Items.STEAK_WOLF,
+        requiredAmount: 1
       },
       {
-        "unknownDword1": 0,
-        "nameId": 49,
-        "iconId": 22,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 23
+        itemDefinitionId: Items.SURVIVAL_BREAD,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.STEAK_WOLF]: {
+    filterId: FilterIds.COOKING,
+    components: [
+      {
+        itemDefinitionId: Items.MEAT_WOLF,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.WOOD_PLANK]: {
+    filterId: FilterIds.COMPONENT,
+    craftAmount: 2,
+    components: [
+      {
+        itemDefinitionId: Items.WOOD_LOG,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.WEAPON_SPEAR]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.SHARD_METAL,
+        requiredAmount: 1
       },
       {
-        "unknownDword1": 0,
-        "nameId": 252,
-        "iconId": 169,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 72
-      }
-    ],
-    "itemDefinitionId": 5
+        itemDefinitionId: Items.WEAPON_BRANCH,
+        requiredAmount: 1
+      },
+    ]
   },
-  "18": {
-    "unknownDword1": 0,
-    "descriptionId": 642,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 2,
-    "components": [
+  [Items.WOOD_STICK]: {
+    filterId: FilterIds.COMPONENT,
+    craftAmount: 2,
+    components: [
       {
-        "unknownDword1": 0,
-        "nameId": 44,
-        "iconId": 13,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 17
-      }
-    ],
-    "itemDefinitionId": 18
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 1
+      },
+    ]
   },
-  "26": {
-    "unknownDword1": 0,
-    "descriptionId": 1239,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 2,
-    "components": [
+  [Items.AMMO_ARROW]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
       {
-        "unknownDword1": 0,
-        "nameId": 43,
-        "iconId": 16,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 16
-      }
-    ],
-    "itemDefinitionId": 26
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredAmount: 1
+      },
+    ]
   },
-  "78": {
-    "unknownDword1": 0,
-    "descriptionId": 331,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 7,
-    "components": [
+  [Items.BARRICADE]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
       {
-        "unknownDword1": 0,
-        "nameId": 53,
-        "iconId": 21,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 24
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 2
       },
       {
-        "unknownDword1": 0,
-        "nameId": 328,
-        "iconId": 3,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 77
-      }
-    ],
-    "itemDefinitionId": 78
+        itemDefinitionId: Items.NAIL,
+        requiredAmount: 4
+      },
+    ]
   },
-  "81": {
-    "unknownDword1": 0,
-    "descriptionId": 349,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 6,
-    "components": [
+  [Items.ARMOR_WOODEN]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
       {
-        "unknownDword1": 0,
-        "nameId": 666,
-        "iconId": 162,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 141
+        itemDefinitionId: Items.CLOTH,
+        requiredAmount: 10
       },
       {
-        "unknownDword1": 0,
-        "nameId": 57,
-        "iconId": 29,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 46
-      }
-    ],
-    "itemDefinitionId": 81
-  },
-  "109": {
-    "unknownDword1": 0,
-    "descriptionId": 1026,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 8,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 43,
-        "iconId": 16,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 16
-      }
-    ],
-    "itemDefinitionId": 109
-  },
-  "111": {
-    "unknownDword1": 0,
-    "descriptionId": 1026,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 8,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 629,
-        "iconId": 44,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 109
-      }
-    ],
-    "itemDefinitionId": 111
-  },
-  "112": {
-    "unknownDword1": 0,
-    "descriptionId": 1220,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 5,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 631,
-        "iconId": 77,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 111
-      }
-    ],
-    "itemDefinitionId": 112
-  },
-  "122": {
-    "unknownDword1": 0,
-    "descriptionId": 646,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 6,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 654,
-        "iconId": 163,
-        "unknownDword2": 0,
-        "requiredAmount": 4,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 135
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 6
       },
       {
-        "unknownDword1": 0,
-        "nameId": 629,
-        "iconId": 44,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 109
-      }
-    ],
-    "itemDefinitionId": 122
+        itemDefinitionId: Items.DUCT_TAPE,
+        requiredAmount: 1
+      },
+    ]
   },
-  "1343": {
-    "unknownDword1": 0,
-    "descriptionId": 595,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 2,
-    "components": [
+  [Items.WEAPON_BOW_WOOD]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
       {
-        "unknownDword1": 0,
-        "nameId": 935,
-        "iconId": 13,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1342
-      }
-    ],
-    "itemDefinitionId": 1343
-  },
-  "1417": {
-    "unknownDword1": 0,
-    "descriptionId": 1243,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 7,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 628,
-        "iconId": 100,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 107
-      }
-    ],
-    "itemDefinitionId": 1417
-  },
-  "1435": {
-    "unknownDword1": 0,
-    "descriptionId": 1181,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 6,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 629,
-        "iconId": 44,
-        "unknownDword2": 0,
-        "requiredAmount": 4,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 109
+        itemDefinitionId: Items.CLOTH,
+        requiredAmount: 1
       },
       {
-        "unknownDword1": 0,
-        "nameId": 654,
-        "iconId": 163,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 135
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredAmount: 2
       },
       {
-        "unknownDword1": 0,
-        "nameId": 666,
-        "iconId": 162,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 141
-      }
-    ],
-    "itemDefinitionId": 1435
+        itemDefinitionId: Items.TWINE,
+        requiredAmount: 1
+      },
+    ]
   },
-  "1445": {
-    "unknownDword1": 0,
-    "descriptionId": 1000,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 7,
-    "components": [
+  [Items.DOOR_WOOD]: {
+    filterId: FilterIds.HOUSING,
+    components: [
       {
-        "unknownDword1": 0,
-        "nameId": 1184,
-        "iconId": 42,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1438
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 4
       },
       {
-        "unknownDword1": 0,
-        "nameId": 1048,
-        "iconId": 99,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1371
+        itemDefinitionId: Items.NAIL,
+        requiredAmount: 2
       },
       {
-        "unknownDword1": 0,
-        "nameId": 11,
-        "iconId": 19,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 57
-      }
-    ],
-    "itemDefinitionId": 1445
+        itemDefinitionId: Items.METAL_BRACKET,
+        requiredAmount: 2
+      },
+    ]
   },
-  "1448": {
-    "unknownDword1": 0,
-    "descriptionId": 1248,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 5,
-    "components": [
+  [Items.WORKBENCH]: {
+    filterId: FilterIds.HOUSING,
+    components: [
       {
-        "unknownDword1": 0,
-        "nameId": 54,
-        "iconId": 40,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 39
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredAmount: 4
       },
       {
-        "unknownDword1": 0,
-        "nameId": 58,
-        "iconId": 30,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 47
-      }
-    ],
-    "itemDefinitionId": 1448
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredAmount: 4
+      },
+      {
+        itemDefinitionId: Items.NAIL,
+        requiredAmount: 8
+      },
+      {
+        itemDefinitionId: Items.METAL_BRACKET,
+        requiredAmount: 4
+      },
+    ]
   },
-  "1458": {
-    "unknownDword1": 0,
-    "descriptionId": 1109,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 7,
-    "components": [
+  [Items.YEAST]: {
+    filterId: FilterIds.COMPONENT,
+    components: [
       {
-        "unknownDword1": 0,
-        "nameId": 936,
-        "iconId": 15,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1343
+        itemDefinitionId: Items.SUGAR,
+        requiredAmount: 1
       },
       {
-        "unknownDword1": 0,
-        "nameId": 1251,
-        "iconId": 170,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 1456
-      }
-    ],
-    "itemDefinitionId": 1458
-  },
-  "1538": {
-    "unknownDword1": 0,
-    "descriptionId": 1474,
-    "unknownDword2": 1,
-    "bundleCount": 0,
-    "membersOnly": false,
-    "filterId": 6,
-    "components": [
-      {
-        "unknownDword1": 0,
-        "nameId": 631,
-        "iconId": 77,
-        "unknownDword2": 0,
-        "requiredAmount": 1,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 111
+        itemDefinitionId: Items.WATER_PURE,
+        requiredAmount: 1
       },
       {
-        "unknownDword1": 0,
-        "nameId": 54,
-        "iconId": 40,
-        "unknownDword2": 0,
-        "requiredAmount": 2,
-        "unknownQword1": "0x0000000000000000",
-        "unknownDword3": 0,
-        "itemDefinitionId": 39
-      }
-    ],
-    "itemDefinitionId": 1538
+        itemDefinitionId: Items.WHEAT,
+        requiredAmount: 1
+      },
+    ]
   },
 }

@@ -1229,7 +1229,7 @@ export class ZoneServer2016 extends EventEmitter {
     switch (type) {
       case "simple":
         if (!construction.parentObjectCharacterId) return false;
-        const notProtected = [Items.METAL_WALL, Items.UPPER_METAL_WALL];
+        const notProtected = [Items.METAL_WALL, Items.METAL_WALL_UPPER];
         if (notProtected.includes(construction.itemDefinitionId)) return false;
         if (
           this._constructionFoundations[construction.parentObjectCharacterId]
@@ -1413,7 +1413,8 @@ export class ZoneServer2016 extends EventEmitter {
         ]
       : this._constructionSimple[constructionObject.parentObjectCharacterId];
     if (
-      constructionObject.itemDefinitionId == Items.METAL_DOOR ||
+      constructionObject.itemDefinitionId == Items.DOOR_WOOD ||
+      constructionObject.itemDefinitionId == Items.DOOR_METAL ||
       constructionObject.itemDefinitionId == Items.METAL_GATE ||
       constructionObject.itemDefinitionId == Items.METAL_WALL
     ) {
@@ -3799,9 +3800,10 @@ export class ZoneServer2016 extends EventEmitter {
           false
         );
         break;
-      case Items.BASIC_SHACK_DOOR:
+      case Items.DOOR_BASIC:
       case Items.METAL_GATE:
-      case Items.METAL_DOOR:
+      case Items.DOOR_WOOD:
+      case Items.DOOR_METAL:
         this.placeConstructionDoor(
           client,
           itemDefinitionId,
@@ -3988,7 +3990,9 @@ export class ZoneServer2016 extends EventEmitter {
     npc.fixedPosition = movePoint(
       npc.state.position,
       -npc.openAngle,
-      npc.itemDefinitionId == Items.METAL_DOOR ? 0.625 : 2.5
+      npc.itemDefinitionId == Items.DOOR_METAL ||
+      npc.itemDefinitionId == Items.DOOR_WOOD
+      ? 0.625 : 2.5
     );
     if (Number(parentObjectCharacterId)) {
       switch (this.getEntityType(parentObjectCharacterId)) {
