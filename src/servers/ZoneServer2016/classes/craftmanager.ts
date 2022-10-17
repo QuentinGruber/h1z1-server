@@ -92,7 +92,7 @@ export class CraftManager {
     }
     debug(`[CraftManager] Crafting ${count} of itemDefinitionId ${recipeId}`);
     const recipe = server._recipes[recipeId],
-    bundleCount = recipe?.craftAmount || 1; // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
+    bundleCount = recipe?.bundleCount || 1; // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
     if (!recipe) return false;
 
     for (const component of recipe.components) {
