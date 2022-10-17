@@ -1766,7 +1766,7 @@ export class ZoneServer2016 extends EventEmitter {
       let itemDefId = 0;
       switch (packet.data.name) {
         case "SpeedTree.Blackberry":
-          itemDefId = Items.BLACK_BERRIES;
+          itemDefId = Items.BLACKBERRY;
           if (randomIntFromInterval(1, 10) == 1) {
             this.lootItem(client, this.generateItem(Items.WEAPON_BRANCH));
           }
@@ -6063,7 +6063,7 @@ export class ZoneServer2016 extends EventEmitter {
     let givetrash = 0;
     let timeout = 1000;
     switch (item.itemDefinitionId) {
-      case Items.BLACK_BERRIES:
+      case Items.BLACKBERRY:
         drinkCount = 200;
         eatCount = 200;
         timeout = 600;
