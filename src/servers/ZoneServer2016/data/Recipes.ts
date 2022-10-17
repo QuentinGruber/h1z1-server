@@ -722,7 +722,7 @@ export const recipes = {
   },
   [Items.AMMO_ARROW_EXPLOSIVE]: {
     filterId: FilterIds.WEAPONS,
-    craftAmount: 10,
+    bundleCount: 10,
     components: [
       {
         itemDefinitionId: Items.AMMO_ARROW,
@@ -780,7 +780,7 @@ export const recipes = {
   },
   [Items.AMMO_ARROW_FLAMING]: {
     filterId: FilterIds.WEAPONS,
-    craftAmount: 10,
+    bundleCount: 10,
     components: [
       {
         itemDefinitionId: Items.CLOTH,
@@ -1257,6 +1257,7 @@ export const recipes = {
   },
   [Items.SHARD_METAL]: {
     filterId: FilterIds.COMPONENT,
+    bundleCount: 4,
     components: [
       {
         itemDefinitionId: Items.METAL_SCRAP,
@@ -1314,6 +1315,7 @@ export const recipes = {
   },
   [Items.NAIL]: {
     filterId: FilterIds.COMPONENT,
+    bundleCount: 4,
     components: [
       {
         itemDefinitionId: Items.SHARD_METAL,
@@ -1914,7 +1916,7 @@ export const recipes = {
   },
   [Items.WOOD_PLANK]: {
     filterId: FilterIds.COMPONENT,
-    craftAmount: 2,
+    bundleCount: 2,
     components: [
       {
         itemDefinitionId: Items.WOOD_LOG,
@@ -1937,7 +1939,7 @@ export const recipes = {
   },
   [Items.WOOD_STICK]: {
     filterId: FilterIds.COMPONENT,
-    craftAmount: 2,
+    bundleCount: 2,
     components: [
       {
         itemDefinitionId: Items.WOOD_PLANK,

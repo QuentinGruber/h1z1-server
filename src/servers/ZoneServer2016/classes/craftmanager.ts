@@ -79,18 +79,22 @@ export class CraftManager {
   ): Promise<boolean> {
     // if craftItem gets stuck in an infinite loop somehow, setImmediate will prevent the server from crashing
     // Scheduler.yield(); well this is not a good idea, it will make the server being overloaded, while an infinite loop will be detected and the server will be restarted
+    
+    //#region GENERATE CRAFT QUEUE
     if (!count) return true;
     this.craftLoopCount++;
     if (this.craftLoopCount > this.maxCraftLoopCount) {
       console.log(
         `CraftManager: craftItem: craftLoopCount > maxCraftLoopCount: ${this.craftLoopCount}`
       );
-      console.log("originalRecipeId: " + this.originalRecipeId);
+      console.log("OriginalRecipeId: " + this.originalRecipeId);
       return false;
     }
     debug(`[CraftManager] Crafting ${count} of itemDefinitionId ${recipeId}`);
-    const recipe = server._recipes[recipeId];
+    const recipe = server._recipes[recipeId],
+    bundleCount = recipe?.craftAmount || 1; // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
     if (!recipe) return false;
+
     for (const component of recipe.components) {
       const remainingItems = component.requiredAmount * count;
       if (!this.componentsDataSource[component.itemDefinitionId]) {
@@ -158,7 +162,9 @@ export class CraftManager {
         stackCount: count,
       };
     }
+    //#endregion
 
+    //#region CRAFTING
     await server.pUtilizeHudTimer(
       client,
       server.getItemDefinition(recipeId).NAME_ID,
@@ -198,8 +204,9 @@ export class CraftManager {
         if (!remainingItems) break;
       }
     }
-    server.lootItem(client, server.generateItem(recipeId, count));
+    server.lootItem(client, server.generateItem(recipeId, count * bundleCount));
     return true;
+    //#endregion
   }
 
   async start(

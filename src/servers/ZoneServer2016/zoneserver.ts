@@ -582,7 +582,7 @@ export class ZoneServer2016 extends EventEmitter {
         unknownDword1: 0, // idk
         descriptionId: def.DESCRIPTION_ID,
         unknownDword2: 1, // idk
-        bundleCount: recipe.craftAmount || 1,
+        bundleCount: recipe.bundleCount || 1,
         membersOnly: false, // could be used for admin-only recipes?
         filterId: recipe.filterId,
         components: recipe.components.map((component: any) => {
