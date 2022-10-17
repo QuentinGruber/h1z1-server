@@ -1194,7 +1194,7 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        const allowed = [Items.SHACK, Items.SMALL_SHACK, Items.BASIC_SHACK];
+        const allowed = [Items.SHACK, Items.SHACK_SMALL, Items.SHACK_BASIC];
         if (allowed.includes(constructionObject.itemDefinitionId)) {
           this.checkConstructionDamage(
             constructionObject.characterId,
@@ -2524,8 +2524,8 @@ export class ZoneServer2016 extends EventEmitter {
       });
       if (
         foundation.itemDefinitionId == Items.SHACK ||
-        foundation.itemDefinitionId == Items.SMALL_SHACK ||
-        foundation.itemDefinitionId == Items.BASIC_SHACK
+        foundation.itemDefinitionId == Items.SHACK_SMALL ||
+        foundation.itemDefinitionId == Items.SHACK_BASIC
       ) {
         if (this.checkInsideFoundation(foundation, client.character)) {
           if (allowed) {
@@ -2627,7 +2627,7 @@ export class ZoneServer2016 extends EventEmitter {
           foundation.state.position,
           2
         );
-      case Items.BASIC_SHACK:
+      case Items.SHACK_BASIC:
         detectRange = 1;
         return isPosInRadiusWithY(
           detectRange,
@@ -2635,7 +2635,7 @@ export class ZoneServer2016 extends EventEmitter {
           foundation.state.position,
           2
         );
-      case Items.SMALL_SHACK:
+      case Items.SHACK_SMALL:
         return isInsideWithY(
           [entity.state.position[0], entity.state.position[2]],
           foundation.securedPolygons,
@@ -2753,8 +2753,8 @@ export class ZoneServer2016 extends EventEmitter {
         client.spawnedEntities.push(npc);
         if (
           npc.itemDefinitionId == Items.SHACK ||
-          npc.itemDefinitionId == Items.SMALL_SHACK ||
-          npc.itemDefinitionId == Items.BASIC_SHACK
+          npc.itemDefinitionId == Items.SHACK_SMALL ||
+          npc.itemDefinitionId == Items.SHACK_BASIC
         ) {
           this.updateResource(
             client,
@@ -3813,7 +3813,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
         break;
       case Items.GROUND_TAMPER:
-      case Items.BASIC_SHACK:
+      case Items.SHACK_BASIC:
       case Items.SHACK:
       case Items.FOUNDATION:
         this.placeConstructionFoundation(
@@ -3825,7 +3825,7 @@ export class ZoneServer2016 extends EventEmitter {
           parentObjectCharacterId
         );
         break;
-      case Items.SMALL_SHACK:
+      case Items.SHACK_SMALL:
         this.placeConstructionFoundation(
           client,
           itemDefinitionId,
