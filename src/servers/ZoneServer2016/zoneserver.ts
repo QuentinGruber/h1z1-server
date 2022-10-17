@@ -6858,8 +6858,3 @@ if (process.env.VSCODE_DEBUG === "true") {
     2
   ).start();
 }
-
-process.on("uncaughtException", function (exception) {
-  // attempt to log exception
-  console.log(exception);
-});
