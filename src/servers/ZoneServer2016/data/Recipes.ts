@@ -157,8 +157,111 @@ export const recipes = {
       },
     ]
   },
-
-
+  [Items.WEAPON_BLAZE]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_AR15,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_MECHANISM,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_TRIGGER_ASSEMBLY,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_RECEIVER,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.WEAPON_FROSTBITE]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_AK47,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_MECHANISM,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_TRIGGER_ASSEMBLY,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_RECEIVER,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.WEAPON_NAGAFENS_RAGE]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_SHOTGUN,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_MECHANISM,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_TRIGGER_ASSEMBLY,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_RECEIVER,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.WEAPON_PURGE]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_M9,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_MECHANISM,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_TRIGGER_ASSEMBLY,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_RECEIVER,
+        requiredAmount: 1
+      },
+    ]
+  },
+  [Items.WEAPON_REAPER]: {
+    filterId: FilterIds.WEAPONS,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_308,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_MECHANISM,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_TRIGGER_ASSEMBLY,
+        requiredAmount: 1
+      },
+      {
+        itemDefinitionId: Items.PROTOTYPE_RECEIVER,
+        requiredAmount: 1
+      },
+    ]
+  },
 
 
   "3": {
