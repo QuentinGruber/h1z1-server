@@ -369,7 +369,7 @@ export class ZoneServer2015 extends EventEmitter {
     if (err) {
       console.error(err);
     } else {
-      client.pingTimer?.refresh();
+      client?.pingTimer?.refresh();
       if (
         packet.name != "KeepAlive" &&
         packet.name != "PlayerUpdateUpdatePositionClientToZone" &&

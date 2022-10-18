@@ -46,6 +46,7 @@ export class SOEServer extends EventEmitter {
   private _packetRatePerClient: number = 500;
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
+  _allowRawDataReception: boolean = true;
   constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
@@ -292,13 +293,6 @@ export class SOEServer extends EventEmitter {
       case "Ack":
         client.outputStream.ack(packet.sequence, client.unAckData);
         break;
-      case "ZonePing":
-        debug("Receive Zone Ping ");
-        /* this._sendPacket(client, "ZonePing", { respond to it is currently useless ( at least on the 2015 version )
-            PingId: result.PingId,
-            Data: result.Data,
-          });*/
-        break;
       case "FatalError":
         debug("Received fatal error from client");
         break;
@@ -422,7 +416,13 @@ export class SOEServer extends EventEmitter {
             console.error("Unmanaged packet from client", clientId, data);
           }
         } else {
-          debug("Unmanaged standalone packet from client", clientId, data);
+          if(this._allowRawDataReception) {
+            debug("Raw data received from client", clientId, data);
+            this.emit("appdata", null, client, data, true); // Unreliable + Unordered
+          }
+          else {
+            debug("Raw data received from client but raw data reception isn't enabled", clientId, data);
+          }
         }
       } catch (e) {
         console.log(e);
