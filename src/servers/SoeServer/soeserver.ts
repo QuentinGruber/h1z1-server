@@ -231,7 +231,7 @@ export class SOEServer extends EventEmitter {
         client.outputStream.setFragmentSize(client.clientUdpLength - 7); // TODO: 7? calculate this based on crc enabled / compression etc
         if (this._usePingTimeout) {
           client.lastPingTimer = setTimeout(() => {
-            this.emit("disconnect", null, client);
+            this.emit("disconnect", client);
           }, this._pingTimeoutTime);
         }
 
@@ -250,7 +250,7 @@ export class SOEServer extends EventEmitter {
         break;
       case "Disconnect":
         debug("Received disconnect from client");
-        this.emit("disconnect", null, client);
+        this.emit("disconnect", client);
         break;
       case "MultiPacket": {
         for (let i = 0; i < packet.sub_packets.length; i++) {
@@ -332,8 +332,8 @@ export class SOEServer extends EventEmitter {
           unknow_client = true;
           client = this._createClient(clientId, message.remote);
 
-          client.inputStream.on("appdata", (err: string, data: Buffer) => {
-            this.emit("appdata", null, client, data);
+          client.inputStream.on("appdata", (data: Buffer) => {
+            this.emit("appdata", client, data);
           });
 
           client.inputStream.on("error", (err: Error) => {
@@ -341,15 +341,13 @@ export class SOEServer extends EventEmitter {
             this.emit("disconnect", client);
           });
 
-          client.inputStream.on("ack", (err: string, sequence: number) => {
+          client.inputStream.on("ack", (sequence: number) => {
             client.nextAck.set(sequence);
           });
 
           client.inputStream.on(
             "outoforder",
             (
-              err: string,
-              expectedSequence: number,
               outOfOrderSequence: number
             ) => {
               client.stats.packetsOutOfOrder++;
@@ -360,7 +358,6 @@ export class SOEServer extends EventEmitter {
           client.outputStream.on(
             "data",
             (
-              err: string,
               data: Buffer,
               sequence: number,
               fragment: boolean,
@@ -382,7 +379,6 @@ export class SOEServer extends EventEmitter {
           client.outputStream.on(
             "dataResend",
             (
-              err: string,
               data: Buffer,
               sequence: number,
               fragment: boolean
@@ -423,7 +419,7 @@ export class SOEServer extends EventEmitter {
         } else {
           if(this._allowRawDataReception) {
             debug("Raw data received from client", clientId, data);
-            this.emit("appdata", null, client, data, true); // Unreliable + Unordered
+            this.emit("appdata", client, data, true); // Unreliable + Unordered
           }
           else {
             debug("Raw data received from client but raw data reception isn't enabled", clientId, data);
