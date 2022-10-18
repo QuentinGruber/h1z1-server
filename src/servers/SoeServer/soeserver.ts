@@ -336,6 +336,11 @@ export class SOEServer extends EventEmitter {
             this.emit("appdata", null, client, data);
           });
 
+          client.inputStream.on("error", (err: Error) => {
+            console.error(err);
+            this.emit("disconnect", client);
+          });
+
           client.inputStream.on("ack", (err: string, sequence: number) => {
             client.nextAck.set(sequence);
           });
