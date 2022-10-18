@@ -108,14 +108,14 @@ export class LoginServer extends EventEmitter {
     this._protocol = new LoginProtocol();
     this._protocol2016 = new LoginProtocol2016();
 
-    this._soeServer.on("disconnect", (err: string, client: Client) => {
+    this._soeServer.on("disconnect", (client: Client) => {
       debug(`Client disconnected from ${client.address}:${client.port}`);
       this.Logout(client);
     });
 
     this._soeServer.on(
       "appdata",
-      async (err: string, client: Client, data: Buffer) => {
+      async (client: Client, data: Buffer) => {
         try {
           const packet: { name: string; result: any } | null = this.parseData(
             client.protocolName,

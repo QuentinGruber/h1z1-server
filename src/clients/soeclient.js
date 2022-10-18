@@ -51,22 +51,22 @@ class SOEClient {
     let n1 = 0,
       n2 = 0;
 
-    inputStream.on("appdata", function (err, data) {
+    inputStream.on("appdata", function (data) {
       if (me._dumpData) {
         fs.writeFileSync("soeclient_apppacket_" + n2++ + ".dat", data);
       }
       me.emit("appdata", null, data);
     });
 
-    inputStream.on("ack", function (err, sequence) {
+    inputStream.on("ack", function (sequence) {
       nextAck = sequence;
     });
 
-    inputStream.on("outoforder", function (err, expected, sequence) {
+    inputStream.on("outoforder", function (sequence) {
       outOfOrderPackets.push(sequence);
     });
 
-    outputStream.on("data", function (err, data, sequence, fragment) {
+    outputStream.on("data", function (data, sequence, fragment) {
       if (fragment) {
         me._sendPacket("DataFragment", {
           sequence: sequence,
@@ -291,6 +291,7 @@ class SOEClient {
       this._protocol.pack(packetName, JSON.stringify(packet))
     );
     console.log(this._guid, "Sending " + packetName + " packet to server");
+    console.log(data)
     debug(this._guid, "Sending " + packetName + " packet to server");
     if (this._dumpData) {
       fs.writeFileSync(
