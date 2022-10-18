@@ -98,22 +98,34 @@ export function eul2quat(angle: Float32Array): Float32Array {
 
 export function quat2matrix(angle: Float32Array): any {
   // a little modified for my needs, may not work for other things than construction
-    const x = angle[0];
-    const y = angle[1];
-    const z = angle[2];
-    const w = 0;
+  const x = angle[0];
+  const y = angle[1];
+  const z = angle[2];
+  const w = 0;
 
-    const n = w * w + x * x + y * y + z * z;
-    const s = n === 0 ? 0 : 2 / n;
-    const wx = s * w * x, wy = s * w * y, wz = s * w * z;
-    const xx = s * x * x, xy = s * x * y, xz = s * x * z;
-    const yy = s * y * y, yz = s * y * z, zz = s * z * z;
+  const n = w * w + x * x + y * y + z * z;
+  const s = n === 0 ? 0 : 2 / n;
+  const wx = s * w * x,
+    wy = s * w * y,
+    wz = s * w * z;
+  const xx = s * x * x,
+    xy = s * x * y,
+    xz = s * x * z;
+  const yy = s * y * y,
+    yz = s * y * z,
+    zz = s * z * z;
 
-
-    return [
-        1 - (yy + zz), xy - wz, xz + wy,
-        xy + wz, 1 - (xx + zz), yz - wx,
-        xz - wy, yz + wx, 1 - (xx + yy)];
+  return [
+    1 - (yy + zz),
+    xy - wz,
+    xz + wy,
+    xy + wz,
+    1 - (xx + zz),
+    yz - wx,
+    xz - wy,
+    yz + wx,
+    1 - (xx + yy),
+  ];
 }
 
 export function eul2quatLegacy(angle: number[]) {
@@ -136,8 +148,17 @@ export function eul2quatLegacy(angle: number[]) {
   return [qx, qy, -qz, qw];
 }
 
-export function movePoint(position: Float32Array, angle: number, distance: number) { // angle in radians
-    return new Float32Array([position[0] + Math.cos(angle) * distance, position[1], position[2] + Math.sin(angle) * distance]);
+export function movePoint(
+  position: Float32Array,
+  angle: number,
+  distance: number
+) {
+  // angle in radians
+  return new Float32Array([
+    position[0] + Math.cos(angle) * distance,
+    position[1],
+    position[2] + Math.sin(angle) * distance,
+  ]);
 }
 
 export async function zoneShutdown(
@@ -252,33 +273,43 @@ const isBetween = (radius: number, value1: number, value2: number): boolean => {
 };
 
 export const isInside = (point: [number, number], vs: any) => {
+  const x = point[0],
+    y = point[1];
 
-    const x = point[0], y = point[1];
-
-    let inside = false;
-    for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-        const xi = vs[i][0], yi = vs[i][1],
-        xj = vs[j][0], yj = vs[j][1],
-        intersect = ((yi > y) != (yj > y))
-          && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-        if (intersect) inside = !inside;
-    }
-    return inside;
+  let inside = false;
+  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+    const xi = vs[i][0],
+      yi = vs[i][1],
+      xj = vs[j][0],
+      yj = vs[j][1],
+      intersect =
+        yi > y != yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+    if (intersect) inside = !inside;
+  }
+  return inside;
 };
 
-export const isInsideWithY = (point: [number, number], vs: any,y_pos1:number, y_pos2:number, y_radius: number) => {
+export const isInsideWithY = (
+  point: [number, number],
+  vs: any,
+  y_pos1: number,
+  y_pos2: number,
+  y_radius: number
+) => {
+  const x = point[0],
+    y = point[1];
 
-    const x = point[0], y = point[1];
-
-    let inside = false;
-    for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-        const xi = vs[i][0], yi = vs[i][1],
-            xj = vs[j][0], yj = vs[j][1],
-            intersect = ((yi > y) != (yj > y))
-                && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-        if (intersect) inside = !inside;
-    }
-    return inside && isBetween(y_radius, y_pos1, y_pos2);
+  let inside = false;
+  for (let i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+    const xi = vs[i][0],
+      yi = vs[i][1],
+      xj = vs[j][0],
+      yj = vs[j][1],
+      intersect =
+        yi > y != yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
+    if (intersect) inside = !inside;
+  }
+  return inside && isBetween(y_radius, y_pos1, y_pos2);
 };
 
 export const isPosInRadius = (
@@ -292,16 +323,16 @@ export const isPosInRadius = (
   );
 };
 export const isPosInRadiusWithY = (
-    radius: number,
-    player_position: Float32Array,
-    enemi_position: Float32Array,
-    y_radius: number,
+  radius: number,
+  player_position: Float32Array,
+  enemi_position: Float32Array,
+  y_radius: number
 ): boolean => {
-    return (
-        isBetween(radius, player_position[0], enemi_position[0]) &&
-        isBetween(radius, player_position[2], enemi_position[2]) &&
-        isBetween(y_radius, player_position[1], enemi_position[1])
-    );
+  return (
+    isBetween(radius, player_position[0], enemi_position[0]) &&
+    isBetween(radius, player_position[2], enemi_position[2]) &&
+    isBetween(y_radius, player_position[1], enemi_position[1])
+  );
 };
 
 export function getDistance(p1: Float32Array, p2: Float32Array) {
@@ -312,34 +343,59 @@ export function getDistance(p1: Float32Array, p2: Float32Array) {
 }
 
 export function createPositionUpdate(
-    position: Float32Array,
-    rotation: Float32Array,
-    gameTime: number
+  position: Float32Array,
+  rotation: Float32Array,
+  gameTime: number
 ): positionUpdate {
-    const obj: positionUpdate = {
-        flags: 4095,
-        sequenceTime: gameTime,
-        position: [...position],
-    };
-    if (rotation) {
-        obj.rotation = rotation;
-    }
-    return obj;
+  const obj: positionUpdate = {
+    flags: 4095,
+    sequenceTime: gameTime,
+    position: [...position],
+  };
+  if (rotation) {
+    obj.rotation = rotation;
+  }
+  return obj;
 }
 
 export function getRectangleCorners(
-    centerPoint: Float32Array,
-    a_len: number,
-    h_len: number,
-    angle: number
+  centerPoint: Float32Array,
+  a_len: number,
+  h_len: number,
+  angle: number
 ): any[] {
-    const middlePointA = movePoint(centerPoint, angle, h_len / 2);
-    const middlePointB = movePoint(centerPoint, angle + 180 * Math.PI / 180, h_len / 2);
-    const pointA = movePoint(middlePointA, angle + 90 * (Math.PI / 180), a_len / 2);
-    const pointB = movePoint(middlePointA, angle + 270 * (Math.PI / 180), a_len / 2);
-    const pointC = movePoint(middlePointB, angle + 270 * (Math.PI / 180), a_len / 2);
-    const pointD = movePoint(middlePointB, angle + 90 * (Math.PI / 180), a_len / 2);
-    return [[pointA[0], pointA[2]], [pointB[0], pointB[2]], [pointC[0], pointC[2]], [pointD[0], pointD[2]]]
+  const middlePointA = movePoint(centerPoint, angle, h_len / 2);
+  const middlePointB = movePoint(
+    centerPoint,
+    angle + (180 * Math.PI) / 180,
+    h_len / 2
+  );
+  const pointA = movePoint(
+    middlePointA,
+    angle + 90 * (Math.PI / 180),
+    a_len / 2
+  );
+  const pointB = movePoint(
+    middlePointA,
+    angle + 270 * (Math.PI / 180),
+    a_len / 2
+  );
+  const pointC = movePoint(
+    middlePointB,
+    angle + 270 * (Math.PI / 180),
+    a_len / 2
+  );
+  const pointD = movePoint(
+    middlePointB,
+    angle + 90 * (Math.PI / 180),
+    a_len / 2
+  );
+  return [
+    [pointA[0], pointA[2]],
+    [pointB[0], pointB[2]],
+    [pointC[0], pointC[2]],
+    [pointD[0], pointD[2]],
+  ];
 }
 
 export const toInt = (value: number) => {
@@ -371,8 +427,7 @@ export const removeCacheFullDir = function (directoryPath: string): void {
     if (file.substring(file.length - 3) === ".js") {
       delete require.cache[normalize(`${directoryPath}/${file}`)];
     }
-    }
-
+  }
 };
 
 export const generateCommandList = (
@@ -579,7 +634,8 @@ export function calculateDamageDistFallOff(
 }
 
 export function flhash(str: string) {
-  let hashvar1 = 0, hashvar2 = 0;
+  let hashvar1 = 0,
+    hashvar2 = 0;
 
   for (let i = 0; i < str.length; i++) {
     hashvar1 = hashvar2 + str.charCodeAt(i);
@@ -588,5 +644,5 @@ export function flhash(str: string) {
 
   const hash = 32769 * (((9 * hashvar2) >> 11) ^ (9 * hashvar2));
 
-  return Number(`0x${hash.toString(16).slice(-8)}`)
+  return Number(`0x${hash.toString(16).slice(-8)}`);
 }

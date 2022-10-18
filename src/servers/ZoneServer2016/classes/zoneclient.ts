@@ -26,7 +26,10 @@ export class ZoneClient2016 {
   HWID: string = "";
   posAtLastRoutine: Float32Array = new Float32Array();
   posAtLogoutStart: Float32Array = new Float32Array();
-  oldPos: { position: Float32Array, time: number} = { position: new Float32Array(), time: 0};
+  oldPos: { position: Float32Array; time: number } = {
+    position: new Float32Array(),
+    time: 0,
+  };
   speedWarnsNumber: number = 0;
   pvpStats: { shotsFired: number, shotsHit: number, head: number, spine: number, hands: number, legs: number } = { shotsFired: 0, shotsHit: 0, head: 0, spine: 0, legs: 0, hands: 0};
   clientLogs: {log: string, isSuspicious: boolean}[] = [];

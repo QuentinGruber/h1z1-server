@@ -69,7 +69,6 @@ export class SOEServer extends EventEmitter {
   }
 
   private resetPacketsSent(): void {
-    debug("Reset packets sent");
     for (const client of this._clients.values()) {
       client.packetsSentThisSec = 0;
     }

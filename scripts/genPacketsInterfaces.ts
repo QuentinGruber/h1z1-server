@@ -51,7 +51,7 @@ function getSchemaBody(schema: any) {
 }
 
 function writeInterface(packets: any, name: string) {
-  let packetsInterfaces = "";
+  let packetsInterfaces = "/* prettier-ignore */ \n";
   const packetsIntercacesNames:string[] = []
   Object.values(packets).forEach((packet: any) => {
     const { schema } = packet;

@@ -283,7 +283,11 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  sendData(client: Client, packetName: loginPacketsType, obj: LoginUdp_9packets | LoginUdp_11packets) {
+  sendData(
+    client: Client,
+    packetName: loginPacketsType,
+    obj: LoginUdp_9packets | LoginUdp_11packets
+  ) {
     let data;
     switch (client.protocolName) {
       case "LoginUdp_9": {
@@ -414,7 +418,7 @@ export class LoginServer extends EventEmitter {
 
   async TunnelAppPacketClientToServer(client: Client, packet: any) {
     const baseResponse = { serverId: packet.serverId };
-    let response:unknown;
+    let response: unknown;
     switch (packet.subPacketName) {
       case "nameValidationRequest":
         let status = 1;
@@ -455,7 +459,11 @@ export class LoginServer extends EventEmitter {
         debug(`Unhandled tunnel packet "${packet.subPacketName}"`);
         break;
     }
-    this.sendData(client, "TunnelAppPacketServerToClient", response as LoginUdp_9packets | LoginUdp_11packets);
+    this.sendData(
+      client,
+      "TunnelAppPacketServerToClient",
+      response as LoginUdp_9packets | LoginUdp_11packets
+    );
   }
 
   Logout(client: Client) {

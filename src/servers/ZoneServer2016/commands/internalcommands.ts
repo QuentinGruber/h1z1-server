@@ -12,8 +12,8 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Vehicle2016 as Vehicle} from "../classes/vehicle";
-import { ZoneClient2016 as Client} from "../classes/zoneclient";
+import { Vehicle2016 as Vehicle } from "../classes/vehicle";
+import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
 
@@ -22,13 +22,9 @@ export const internalCommands: Array<Command> = [
   {
     name: "respawn",
     permissionLevel: PermissionLevels.DEFAULT,
-    execute: (
-      server: ZoneServer2016, 
-      client: Client, 
-      packetData: any
-    ) => {
+    execute: (server: ZoneServer2016, client: Client, packetData: any) => {
       server.respawnPlayer(client);
-    }
+    },
   },
   {
     name: "spectate",
@@ -86,14 +82,10 @@ export const internalCommands: Array<Command> = [
   {
     name: "run",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: (
-      server: ZoneServer2016, 
-      client: Client, 
-      packetData: any
-    ) => {
+    execute: (server: ZoneServer2016, client: Client, packetData: any) => {
       server.sendData(client, "Command.RunSpeed", {
         runSpeed: packetData.runSpeed,
       });
-    }
+    },
   },
-]
+];

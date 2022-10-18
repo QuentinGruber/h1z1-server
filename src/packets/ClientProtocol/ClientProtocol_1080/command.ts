@@ -472,7 +472,6 @@ export const commandPackets: any = [
           ],
       },
   ],
-  ["Command.BecomeEnforcer", 0x095404, {}],
   ["Command.BecomeReferee", 0x095504, {}],
   ["Command.Profiler", 0x095604, {}],
   ["Command.WorldKickPending", 0x095704, {}],

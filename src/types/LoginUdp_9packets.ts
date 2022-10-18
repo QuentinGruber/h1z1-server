@@ -1,3 +1,4 @@
+/* prettier-ignore */ 
 export interface LoginRequest {
   sessionId: string;
   systemFingerPrint: string;

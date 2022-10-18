@@ -90,8 +90,8 @@ export class Vehicle2016 extends BaseFullCharacter {
     };
     this.vehicleId = getVehicleId(this.actorModelId);
     this.loadoutId = getVehicleLoadoutId(this.vehicleId);
-    this.isInvulnerable = 
-      this.vehicleId == VehicleIds.SPECTATE || 
+    this.isInvulnerable =
+      this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;
     switch (this.vehicleId) {
       case VehicleIds.OFFROADER:
@@ -206,7 +206,7 @@ export class Vehicle2016 extends BaseFullCharacter {
     };
   }
   getInventoryItemId(): number {
-    switch(this.loadoutId) {
+    switch (this.loadoutId) {
       case LoadoutIds.VEHICLE_OFFROADER:
         return Items.VEHICLE_CONTAINER_OFFROADER;
       case LoadoutIds.VEHICLE_PICKUP:
@@ -221,7 +221,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   }
 
   getTurboItemId(): number {
-    switch(this.loadoutId) {
+    switch (this.loadoutId) {
       case LoadoutIds.VEHICLE_OFFROADER:
         return Items.TURBO_OFFROADER;
       case LoadoutIds.VEHICLE_PICKUP:
@@ -236,7 +236,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   }
 
   getHeadlightsItemId(): number {
-    switch(this.loadoutId) {
+    switch (this.loadoutId) {
       case LoadoutIds.VEHICLE_OFFROADER:
         return Items.HEADLIGHTS_OFFROADER;
       case LoadoutIds.VEHICLE_PICKUP:
@@ -251,7 +251,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   }
 
   getMotorItemId(): number {
-    switch(this.loadoutId) {
+    switch (this.loadoutId) {
       case LoadoutIds.VEHICLE_OFFROADER:
         return Items.VEHICLE_MOTOR_OFFROADER;
       case LoadoutIds.VEHICLE_PICKUP:
