@@ -178,7 +178,14 @@ const weaponPackets: any = [
     "Weapon.ProjectileSpawnNpc",
     0x831d,
     {
-      fields: [{ name: "bytes", type: "bytes", length: 5 }],
+      fields: [
+        { name: "projectileType", type: "uint32", defaultValue: 0 },
+        { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+        { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        
+      ],
     },
   ],
   ["Weapon.FireRejected", 0x831e, {}],
@@ -231,6 +238,7 @@ const weaponPackets: any = [
         },
         { name: "unknownDword7", type: "int32", defaultValue: 0 },
         { name: "unknownWord1", type: "uint16", defaultValue: 0 },
+        { name: "unknownDword8", type: "uint32", defaultValue: 0 },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
       ],
     },

@@ -270,8 +270,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.on("data", this.onZoneDataEvent);
 
-    this.on("login", (err, client) => {
-      this.onZoneLoginEvent(err, client);
+    this.on("login", (client) => {
+      this.onZoneLoginEvent(client);
     });
 
     this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
@@ -282,7 +282,6 @@ export class ZoneServer2016 extends EventEmitter {
     this._gatewayServer.on(
       "login",
       async (
-        err: string,
         client: SOEClient,
         characterId: string,
         loginSessionId: string,
@@ -323,19 +322,19 @@ export class ZoneServer2016 extends EventEmitter {
         zoneClient.pingTimer = setTimeout(() => {
           this.timeoutClient(zoneClient);
         }, this._pingTimeoutTime);
-        this.emit("login", err, zoneClient);
+        this.emit("login", zoneClient);
       }
     );
-    this._gatewayServer.on("disconnect", (err: string, client: SOEClient) => {
+    this._gatewayServer.on("disconnect", (client: SOEClient) => {
       this.deleteClient(this._clients[client.sessionId]);
     });
 
     this._gatewayServer.on(
       "tunneldata",
-      (err: string, client: SOEClient, data: Buffer, flags: number) => {
+      (client: SOEClient, data: Buffer, flags: number) => {
         const packet = this._protocol.parse(data, flags);
         if (packet) {
-          this.emit("data", null, this._clients[client.sessionId], packet);
+          this.emit("data", this._clients[client.sessionId], packet);
         } else {
           debug("zonefailed : ", data);
         }
@@ -470,10 +469,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  onZoneLoginEvent(err: any, client: Client) {
-    if (err) {
-      console.error(err);
-    } else {
+  onZoneLoginEvent( client: Client) {
       debug("zone login");
       try {
         this.sendInitData(client);
@@ -481,13 +477,9 @@ export class ZoneServer2016 extends EventEmitter {
         debug(error);
         this.sendData(client, "LoginFailed", {});
       }
-    }
   }
 
-  onZoneDataEvent(err: any, client: Client, packet: any) {
-    if (err) {
-      console.error(err);
-    } else {
+  onZoneDataEvent(client: Client, packet: any) {
       if (!client) {
         return;
       }
@@ -506,7 +498,6 @@ export class ZoneServer2016 extends EventEmitter {
         console.error(error);
         console.error(`An error occurred while processing a packet : `, packet);
       }
-    }
   }
 
   async onCharacterCreateRequest(client: any, packet: any) {
@@ -6896,8 +6887,3 @@ if (process.env.VSCODE_DEBUG === "true") {
     2
   ).start();
 }
-
-process.on("uncaughtException", function (exception) {
-  // attempt to log exception
-  console.log(exception);
-});
