@@ -907,8 +907,8 @@ export class zonePacketHandlers {
     // only for driver seat
     server.dismountVehicle(client);
   };
-  VehicleCurrentMoveMode(server: ZoneServer2016, client: Client, packet: any) {
-    const {characterId,moveMode} = packet.data
+  VehicleCurrentMoveMode(server: ZoneServer2016, client: Client, packet: {data:VehicleCurrentMoveMode}) {
+    const { characterId, moveMode } = packet.data
     debug(`vehTransient:${server._vehicles[characterId as string].transientId} , mode: ${moveMode} from ${client.character.name} time:${Date.now()}`)
   };
   VehicleDismiss(server: ZoneServer2016, client: Client, packet: any) {
