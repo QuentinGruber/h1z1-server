@@ -44,6 +44,7 @@ import { constructionDoor } from "./classes/constructionDoor";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { AVG_PING_SECS } from "../../utils/constants";
 import { CommandHandler } from "./commands/commandhandler";
+import { VehicleCurrentMoveMode } from "types/zone2015packets";
 
 const stats = require("../../../data/2016/sampleData/stats.json");
 export class zonePacketHandlers {
@@ -2219,6 +2220,9 @@ export class zonePacketHandlers {
         break;
       case "Command.InteractCancel":
         this.CommandInteractCancel(server, client, packet);
+        break;
+      case "Vehicle.CurrentMoveMode":
+        this.vehicleCurrentMoveMode(server, client, packet);
         break;
       case "Vehicle.Dismiss":
         this.VehicleDismiss(server, client, packet);
