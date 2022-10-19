@@ -70,6 +70,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   vehicleId: number;
   destroyedState = 0;
   positionUpdateType = 1;
+  driverIsDead: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
