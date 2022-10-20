@@ -108,7 +108,7 @@ export class zonePacketHandlers {
       */
 
     server.sendData(client, "ZoneDoneSendingInitialData", {}); // Required for WaitForWorldReady
-  };
+  }
   ClientFinishedLoading(server: ZoneServer2016, client: Client, packet: any) {
     if (!server.checkHook("OnClientFinishedLoading", client)) return;
 
@@ -179,25 +179,25 @@ export class zonePacketHandlers {
         characterId: client.character.characterId,
       });
     }
-  };
+  }
   Security(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
-  };
+  }
   CommandRecipeStart(server: ZoneServer2016, client: Client, packet: any) {
     new CraftManager(client, server, packet.data.recipeId, packet.data.count);
-  };
+  }
   CommandSetInWater(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
     client.character.characterStates.inWater = true;
-  };
+  }
   CommandClearInWater(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
     client.character.characterStates.inWater = false;
-  };
+  }
   CommandFreeInteractionNpc(server: ZoneServer2016, client: Client, packet: any) {
     debug("FreeInteractionNpc");
     server.sendData(client, "Command.FreeInteractionNpc", {});
-  };
+  }
   CollisionDamage(server: ZoneServer2016, client: Client, packet: any) {
     const characterId = packet.data.characterId,
       damage = packet.data.damage,
@@ -215,12 +215,12 @@ export class zonePacketHandlers {
       server.damageVehicle(damage / 50, vehicle);
       //server.DTOhit(client, packet);
     }
-  };
+  }
   LobbyGameDefinitionDefinitionsRequest(server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "LobbyGameDefinition.DefinitionsResponse", {
       definitionsData: { data: "" },
     });
-  };
+  }
   KeepAlive(server: ZoneServer2016, client: Client, packet: any) {
     const timeDelay = 1000;
     const currentTime = Date.now();
@@ -235,10 +235,10 @@ export class zonePacketHandlers {
       client.pings.shift();
     }
     client.avgPing = toInt(_.sum(client.pings) / client.pings.length);
-  };
+  }
   ClientUpdateMonitorTimeDrift(server: ZoneServer2016, client: Client, packet: any) {
     // nothing for now
-  };
+  }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
     if (
       packet.data.file === "ClientProc.log" &&
@@ -247,13 +247,13 @@ export class zonePacketHandlers {
       client.clientLogs.push(packet.data.message);
     }
     debug(packet);
-  };
+  }
   WallOfDataUIEvent(server: ZoneServer2016, client: Client, packet: any) {
     debug("UIEvent");
-  };
+  }
   SetLocale(server: ZoneServer2016, client: Client, packet: any) {
     debug("SetLocale");
-  };
+  }
   GetContinentBattleInfo(server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "ContinentBattleInfo", {
       zones: [
@@ -271,7 +271,7 @@ export class zonePacketHandlers {
         },
       ],
     });
-  };
+  }
   ChatChat(server: ZoneServer2016, client: Client, packet: any) {
     const { channel, message } = packet.data;
     server.sendChat(client, message);
@@ -288,10 +288,10 @@ export class zonePacketHandlers {
       clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
     }
     server.deleteClient(client);
-  };
+  }
   GameTimeSync(server: ZoneServer2016, client: Client, packet: any) {
     server.sendGameTimeSync(client);
-  };
+  }
   Synchronization(server: ZoneServer2016, client: Client, packet: any) {
     const serverTime = Int64String(server.getServerTime());
     server.sendData(client, "Synchronization", {
@@ -302,7 +302,7 @@ export class zonePacketHandlers {
       serverTime2: serverTime,
       time3: packet.data.clientTime + 2,
     });
-  };
+  }
   CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: any) {
     if (
       !server.checkHook(
@@ -363,20 +363,20 @@ export class zonePacketHandlers {
     client.hudTimer = setTimeout(() => {
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
     }, timerTime);
-  };
+  }
   CharacterSelectSessionRequest(server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
     });
-  };
+  }
   ProfileStatsGetPlayerProfileStats(server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(
       client,
       "ProfileStats.PlayerProfileStats",
       require("../../../data/profilestats.json")
     );
-  };
+  }
   WallOfDataClientSystemInfo(server: ZoneServer2016, client: Client, packet: any) {
     const info = packet.data.info;
     const startPos = info.search("Device") + 9;
@@ -399,11 +399,11 @@ export class zonePacketHandlers {
         server.enforceBan(client);
       }
     }
-  };
+  }
   DtoHitSpeedTreeReport(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
     server.speedTreeUse(client, packet);
-  };
+  }
   GetRewardBuffInfo(server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "RewardBuffInfo", {
       unknownFloat1: 1,
@@ -419,7 +419,7 @@ export class zonePacketHandlers {
       unknownFloat11: 11,
       unknownFloat12: 12,
     });
-  };
+  }
   PlayerUpdateManagedPosition(server: ZoneServer2016, client: Client, packet: any) {
     const characterId: string = server._transientIds[packet.data.transientId],
       vehicle = characterId ? server._vehicles[characterId] : undefined;
@@ -477,7 +477,7 @@ export class zonePacketHandlers {
         }
       }
     }
-  };
+  }
   VehicleStateData(server: ZoneServer2016, client: Client, packet: any) {
     server.sendDataToAllOthersWithSpawnedEntity(
       server._vehicles,
@@ -488,7 +488,7 @@ export class zonePacketHandlers {
         ...packet.data,
       }
     );
-  };
+  }
   PlayerUpdateUpdatePositionClientToZone(server: ZoneServer2016, client: Client, packet: any) {
     if (client.character.tempGodMode) {
       server.setGodMode(client, false);
@@ -564,7 +564,7 @@ export class zonePacketHandlers {
         packet.data.lookAt[3],
       ]);
     }
-  };
+  }
   CharacterRespawn(server: ZoneServer2016, client: Client, packet: any) {
     this.commandHandler.executeInternalCommand(
       server,
@@ -572,7 +572,7 @@ export class zonePacketHandlers {
       "respawn",
       packet
     );
-  };
+  }
   CharacterFullCharacterDataRequest(server: ZoneServer2016, client: Client, packet: any) {
     const { characterId } = packet.data,
       entityData: BaseFullCharacter =
@@ -692,7 +692,7 @@ export class zonePacketHandlers {
       entityData.onReadyCallback(client);
       delete entityData.onReadyCallback;
     }
-  };
+  }
   CommandPlayerSelect(server: ZoneServer2016, client: Client, packet: any) {
     const { guid } = packet.data,
       entityData: BaseLightweightCharacter =
@@ -885,7 +885,7 @@ export class zonePacketHandlers {
       default:
         break;
     }
-  };
+  }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
     if (
       !client.character.currentInteractionGuid ||
@@ -902,22 +902,22 @@ export class zonePacketHandlers {
     if (doorEntity.password === packet.data.password) {
       doorEntity.grantedAccess.push(client.character.characterId);
     }
-  };
+  }
   MountDismountRequest(server: ZoneServer2016, client: Client, packet: any) {
     // only for driver seat
     server.dismountVehicle(client);
-  };
+  }
   VehicleCurrentMoveMode(server: ZoneServer2016, client: Client, packet: {data:VehicleCurrentMoveMode}) {
     const { characterId, moveMode } = packet.data
     debug(`vehTransient:${server._vehicles[characterId as string].transientId} , mode: ${moveMode} from ${client.character.name} time:${Date.now()}`)
-  };
+  }
   VehicleDismiss(server: ZoneServer2016, client: Client, packet: any) {
     const vehicleGuid = client.vehicle.mountedVehicle;
     if (vehicleGuid) {
       server.dismountVehicle(client);
       server.dismissVehicle(vehicleGuid);
     }
-  };
+  }
   CommandInteractionString(server: ZoneServer2016, client: Client, packet: any) {
     const { guid } = packet.data,
       entityData: BaseLightweightCharacter =
@@ -977,10 +977,10 @@ export class zonePacketHandlers {
       default:
         break;
     }
-  };
+  }
   MountSeatChangeRequest(server: ZoneServer2016, client: Client, packet: any) {
     server.changeSeat(client, packet);
-  };
+  }
   ConstructionPlacementFinalizeRequest(server: ZoneServer2016, client: Client, packet: any) {
     if (packet.data.itemDefinitionId === 0) return;
     const array = new Float32Array([
@@ -1018,7 +1018,7 @@ export class zonePacketHandlers {
       packet.data.parentObjectCharacterId,
       packet.data.BuildingSlot
     );
-  };
+  }
   CommandItemDefinitionRequest(server: ZoneServer2016, client: Client, packet: any) {
     debug(`ItemDefinitionRequest ID: ${packet.data.ID}`);
 
@@ -1051,7 +1051,7 @@ export class zonePacketHandlers {
       // Fixes containers missing an itemdefinition not showing in inventory
       server.updateLoadout(client.character);
     }
-  };
+  }
   CharacterWeaponStance(server: ZoneServer2016, client: Client, packet: any) {
     if (client.character.positionUpdate) {
       client.character.positionUpdate.stance = packet.data.stance;
@@ -1066,7 +1066,7 @@ export class zonePacketHandlers {
         stance: packet.data.stance,
       }
     );
-  };
+  }
   FirstTimeEvent(server: ZoneServer2016, client: Client, packet: any) {
     /*
     server.sendData(client, "FirstTimeEvent.State", {
@@ -1075,10 +1075,10 @@ export class zonePacketHandlers {
       unknownBoolean1: false,
     });
     */
-  };
+  }
   CommandSuicide(server: ZoneServer2016, client: Client, packet: any) {
     server.killCharacter(client);
-  };
+  }
   //#region ITEMS
   RequestUseItem(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet.data);
@@ -1213,7 +1213,7 @@ export class zonePacketHandlers {
           "[ERROR] ItemUseOption not mapped to a function."
         );
     }
-  };
+  }
   ConstructionPlacementRequest(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet.data);
     const modelId = server.getItemDefinition(
@@ -1489,7 +1489,7 @@ export class zonePacketHandlers {
         });
         break;
     }
-  };
+  }
   ContainerMoveItem(server: ZoneServer2016, client: Client, packet: any) {
     const {
       containerGuid,
@@ -1658,7 +1658,7 @@ export class zonePacketHandlers {
     } else {
       // from external container
     }
-  };
+  }
   LoadoutSelectSlot(server: ZoneServer2016, client: Client, packet: any) {
     const slot = client.character._loadout[packet.data.slotId];
     if (!slot) {
@@ -1666,7 +1666,7 @@ export class zonePacketHandlers {
       return;
     }
     server.switchLoadoutSlot(client, slot);
-  };
+  }
   NpcFoundationPermissionsManagerEditPermission(server: ZoneServer2016, client: Client, packet: any) {
     const foundation = server._constructionFoundations[
       packet.data.objectCharacterId
@@ -1741,7 +1741,7 @@ export class zonePacketHandlers {
         permissions: foundation.permissions,
       }
     );
-  };
+  }
   NpcFoundationPermissionsManagerAddPermission(server: ZoneServer2016, client: Client, packet: any) {
     const foundation = server._constructionFoundations[
       packet.data.objectCharacterId
@@ -1816,7 +1816,7 @@ export class zonePacketHandlers {
         permissions: foundation.permissions,
       }
     );
-  };
+  }
   Weapon(server: ZoneServer2016, client: Client, packet: any) {
     debug("Weapon.Weapon");
     if (client.character.tempGodMode) {
@@ -2123,10 +2123,10 @@ export class zonePacketHandlers {
           break;
       }
     }
-  };
+  }
   CommandRun(server: ZoneServer2016, client: Client, packet: any) {
     this.commandHandler.executeInternalCommand(server, client, "run", packet);
-  };
+  }
   CommandSpectate(server: ZoneServer2016, client: Client, packet: any) {
     this.commandHandler.executeInternalCommand(
       server,
@@ -2134,7 +2134,7 @@ export class zonePacketHandlers {
       "spectate",
       packet
     );
-  };
+  }
   //#endregion
 
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
