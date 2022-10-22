@@ -5122,6 +5122,12 @@ export class ZoneServer2016 extends EventEmitter {
     return weaponDefinition.AMMO_SLOTS[0]?.CLIP_SIZE || 0;
   }
 
+  getContainerMaxBulk(
+    container: loadoutContainer
+  ): boolean {
+    return this.getContainerDefinition(container.containerDefinitionId).MAX_BULK
+  }
+
   getContainerHasSpace(
     container: loadoutContainer,
     itemDefinitionId: number,
@@ -5714,6 +5720,22 @@ export class ZoneServer2016 extends EventEmitter {
     }
     //endregion
     this.lootItem(client, item); // TODO: SPLIT STACK IF NOT ENOUGH SPACE !
+
+
+
+
+
+
+    /*
+    - if container with most open bulk can hold full stack, lootItem normally
+    - else, if container with most open bulk can hold a single item from that stack,
+      create a new stack in that container with as many items as it can hold
+
+    - further on, iterate through all containers and try to fill them with items from the stack until
+      either the stack is gone or all containers in the inventory are full
+
+
+    */
     if (
       item.itemDefinitionId === Items.FUEL_BIOFUEL ||
       item.itemDefinitionId === Items.FUEL_ETHANOL
