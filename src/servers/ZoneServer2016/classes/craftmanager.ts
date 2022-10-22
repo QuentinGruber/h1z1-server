@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { ContainerErrors } from "../enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 as Client } from "./zoneclient";
 const debug = require("debug")("ZoneServer");
@@ -197,7 +198,7 @@ export class CraftManager {
       if (
         !this.removeCraftComponent(component.itemDefinitionId, remainingItems)
       ) {
-        server.containerError(client, 5); // slot does not contain item
+        server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return false;
       }
     }
@@ -224,20 +225,20 @@ export class CraftManager {
       let remainingItems = component.requiredAmount * recipeCount,
         stackCount = 0;
       if (!inventory[component.itemDefinitionId]) {
-        server.containerError(client, 5); // slot does not contain item
+        server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return false;
       }
       for (const item of inventory[component.itemDefinitionId]) {
         stackCount += item.stackCount;
       }
       if (remainingItems > stackCount) {
-        server.containerError(client, 5); // slot does not contain item
+        server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return false;
       }
       for (const item of inventory[component.itemDefinitionId]) {
         if (item.stackCount >= remainingItems) {
           if (!server.removeInventoryItem(client, item, remainingItems)) {
-            server.containerError(client, 5); // slot does not contain item
+            server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return false; // return if not enough items
           }
           remainingItems = 0;
@@ -245,7 +246,7 @@ export class CraftManager {
           if (server.removeInventoryItem(client, item, item.stackCount)) {
             remainingItems -= item.stackCount;
           } else {
-            server.containerError(client, 5); // slot does not contain item
+            server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return false; // return if not enough items
           }
         }

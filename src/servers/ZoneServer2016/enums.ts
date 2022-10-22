@@ -12,6 +12,17 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum ContainerErrors {
+  NONE = 0,
+  IN_USE = 1,
+  WRONG_ITEM_TYPE = 2,
+  UNKNOWN_CONTAINER = 3,
+  UNKNOWN_SLOT = 4,
+  NO_ITEM_IN_SLOT = 5,
+  INTERACTION_VALIDATION = 6,
+  UNKNOWN = 99,
+}
+
 export enum FilterIds {
   COOKING = 2,
   FURNACE = 4,

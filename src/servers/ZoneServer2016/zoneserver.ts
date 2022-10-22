@@ -30,6 +30,7 @@ import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 import {
+  ContainerErrors,
   EntityTypes,
   EquipSlots,
   ItemClasses,
@@ -4912,11 +4913,11 @@ export class ZoneServer2016 extends EventEmitter {
     const oldLoadoutItem = client.character._loadout[slotId],
       container = client.character.getItemContainer(item.itemGuid);
     if ((!oldLoadoutItem || !oldLoadoutItem.itemDefinitionId) && !container) {
-      this.containerError(client, 3); // unknown container
+      this.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
       return;
     }
     if (!this.removeContainerItem(client, item, container, 1)) {
-      this.containerError(client, 5); // slot does not contain item
+      this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
     if (oldLoadoutItem?.itemDefinitionId) {
@@ -4926,7 +4927,7 @@ export class ZoneServer2016 extends EventEmitter {
         return;
       }
       if (!this.removeLoadoutItem(client, oldLoadoutItem.slotId)) {
-        this.containerError(client, 5); // slot does not contain item
+        this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
       this.lootContainerItem(client, oldLoadoutItem, 1, false);
@@ -5666,7 +5667,7 @@ export class ZoneServer2016 extends EventEmitter {
    */
   dropItem(client: Client, item: inventoryItem, count: number = 1): void {
     if (!item) {
-      this.containerError(client, 5); // slot does not contain item
+      this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
     let dropItem;
@@ -6480,7 +6481,7 @@ export class ZoneServer2016 extends EventEmitter {
   containerError(client: Client, error: number) {
     this.sendData(client, "Container.Error", {
       characterId: client.character.characterId,
-      containerError: error, // unknown container
+      containerError: error,
     });
   }
 
