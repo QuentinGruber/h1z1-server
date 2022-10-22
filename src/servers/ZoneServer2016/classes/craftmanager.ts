@@ -41,10 +41,9 @@ function getCraftComponentsDataSource(client: Client): {
 }
 
 export class CraftManager {
-  private originalRecipeId: number;
   private craftLoopCount: number = 0;
   private maxCraftLoopCount: number = 500;
-  componentsDataSource: { [itemDefinitionId: number]: craftComponentDSEntry } =
+  private componentsDataSource: { [itemDefinitionId: number]: craftComponentDSEntry } =
     {};
   constructor(
     client: Client,
@@ -53,7 +52,6 @@ export class CraftManager {
     count: number
   ) {
     this.componentsDataSource = getCraftComponentsDataSource(client);
-    this.originalRecipeId = recipeId;
     this.start(client, server, recipeId, count);
   }
 
