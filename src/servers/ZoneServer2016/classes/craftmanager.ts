@@ -84,89 +84,130 @@ export class CraftManager {
     if (!recipeCount) return true;
     this.craftLoopCount++;
     if (this.craftLoopCount > this.maxCraftLoopCount) {
-      console.log(
-        `CraftManager: craftItem: craftLoopCount > maxCraftLoopCount: ${this.craftLoopCount}`
-      );
-      console.log("OriginalRecipeId: " + this.originalRecipeId);
       return false;
     }
     debug(`[CraftManager] Crafting ${recipeCount} of recipe ${recipeId}`);
     const recipe = server._recipes[recipeId],
     bundleCount = recipe?.bundleCount || 1, // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
     craftCount = recipeCount * bundleCount; // the actual amount of items to craft
-    console.log(`\n\n\n\n\nBUNDLECOUNT ${bundleCount}\n\n\n`)
     if (!recipe) return false;
 
     for (const component of recipe.components) {
       const remainingItems = component.requiredAmount * recipeCount;
-      console.log(`REMAININGITEMS ${remainingItems}`)
+      // if component isn't found at all
       if (!this.componentsDataSource[component.itemDefinitionId]) {
         const componentRecipe = server._recipes[component.itemDefinitionId],
-        componentBundleCount = componentRecipe.bundleCount || 1;
+        componentBundleCount = componentRecipe?.bundleCount || 1;
         if (!componentRecipe) {
+          debug(`[CraftManager] ${client.character.name} tried to craft an invalid recipe ${component.itemDefinitionId}!`);
           return false; // no valid recipe to craft component
         }
-        // if inventory doesn't have component but has materials for it
-        for (let i = 0; i < recipeCount; i++) {
+        
+        if((component.requiredAmount / componentBundleCount) < 1) {
           if (
             !(await this.craftItem(
               server,
               client,
               component.itemDefinitionId,
-              Math.ceil(component.requiredAmount / componentBundleCount)
+              Math.ceil((component.requiredAmount / componentBundleCount) * recipeCount)
             ))
           ) {
             return false; // craftItem returned some error
           }
         }
+        else {
+          for (let i = 0; i < recipeCount; i++) {
+            if (
+              !(await this.craftItem(
+                server,
+                client,
+                component.itemDefinitionId,
+                Math.ceil(component.requiredAmount / componentBundleCount)
+              ))
+            ) {
+              return false; // craftItem returned some error
+            }
+          }
+        }
+        
+      // if there is only some of the component
       } else if (
         this.componentsDataSource[component.itemDefinitionId].stackCount <
         remainingItems
       ) {
         const componentRecipe = server._recipes[component.itemDefinitionId],
-        componentBundleCount = componentRecipe.bundleCount || 1;
+        componentBundleCount = componentRecipe?.bundleCount || 1;
         if (!componentRecipe) {
+          debug(`[CraftManager] ${client.character.name} tried to craft an invalid recipe ${component.itemDefinitionId}!`);
           return false; // no valid recipe to craft component
         }
         let stackCount =
           this.componentsDataSource[component.itemDefinitionId].stackCount;
-        // if inventory has some of component but not enough
-        for (let i = 0; i < recipeCount; i++) {
-          let craftAmount = 0; // amount that needs crafted per recipe iteration
-          if (stackCount >= component.requiredAmount) {
-            // use some of stack and don't craft any component through one recipe iteration
-            stackCount -= component.requiredAmount;
-          } else {
-            // use all of stack if required component amount is greater than stackCount
-            craftAmount = component.requiredAmount - stackCount;
-            stackCount = 0;
+        if((component.requiredAmount / componentBundleCount) < 1) {
+          let craft = 0;
+          for (let i = 0; i < recipeCount; i++) {
+            let craftAmount = 0; // amount that needs crafted per recipe iteration
+            if (stackCount >= component.requiredAmount) {
+              // use some of stack and don't craft any component through one recipe iteration
+              stackCount -= Math.ceil(component.requiredAmount / componentBundleCount);
+            } else {
+              // use all of stack if required component amount is greater than stackCount
+              craftAmount = Math.ceil(component.requiredAmount / componentBundleCount) - stackCount;
+              stackCount = 0;
+            }
+            craft += Math.ceil(craftAmount / componentBundleCount);
           }
           if (
             !(await this.craftItem(
               server,
               client,
               component.itemDefinitionId,
-              Math.ceil(craftAmount / componentBundleCount)
+              craft
             ))
           ) {
             return false; // craftItem returned some error
           }
         }
+        else {
+          for (let i = 0; i < recipeCount; i++) {
+            let craftAmount = 0; // amount that needs crafted per recipe iteration
+            if (stackCount >= component.requiredAmount) {
+              // use some of stack and don't craft any component through one recipe iteration
+              stackCount -= component.requiredAmount;
+            } else {
+              // use all of stack if required component amount is greater than stackCount
+              craftAmount = component.requiredAmount - stackCount;
+              stackCount = 0;
+            }
+            if (
+              !(await this.craftItem(
+                server,
+                client,
+                component.itemDefinitionId,
+                Math.ceil(craftAmount / componentBundleCount)
+              ))
+            ) {
+              return false; // craftItem returned some error
+            }
+          }
+        }
+        
       }
 
       if (
         !this.removeCraftComponent(component.itemDefinitionId, remainingItems)
       ) {
+        server.containerError(client, 5); // slot does not contain item
         return false;
       }
     }
     // push dummy item
     if (this.componentsDataSource[recipeId]) {
-      this.componentsDataSource[recipeId].stackCount += recipeCount;
+      this.componentsDataSource[recipeId].stackCount += craftCount;
     } else {
       this.componentsDataSource[recipeId] = {
         itemDefinitionId: recipeId,
-        stackCount: recipeCount,
+        stackCount: craftCount,
       };
     }
     //#endregion
