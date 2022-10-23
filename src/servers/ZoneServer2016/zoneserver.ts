@@ -5385,10 +5385,6 @@ export class ZoneServer2016 extends EventEmitter {
   ): loadoutContainer | undefined {
     const itemDef = this.getItemDefinition(itemDefinitionId);
     for (const container of Object.values(character._containers)) {
-      const containerItemDef = this.getItemDefinition(
-          container?.itemDefinitionId
-        ),
-        containerDef = this.getContainerDefinition(containerItemDef?.PARAM1);
       if (
         container &&
         this.getContainerMaxBulk(container) >=
