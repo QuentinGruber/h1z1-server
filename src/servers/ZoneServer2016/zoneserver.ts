@@ -5124,7 +5124,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   getContainerMaxBulk(
     container: loadoutContainer
-  ): boolean {
+  ): number {
     return this.getContainerDefinition(container.containerDefinitionId).MAX_BULK
   }
 
@@ -5134,7 +5134,7 @@ export class ZoneServer2016 extends EventEmitter {
     count: number
   ): boolean {
     return !!(
-      this.getContainerDefinition(container.containerDefinitionId).MAX_BULK -
+      this.getContainerMaxBulk(container) -
         (this.getContainerBulk(container) +
           this.getItemDefinition(itemDefinitionId).BULK * count) >=
       0
@@ -5346,7 +5346,7 @@ export class ZoneServer2016 extends EventEmitter {
    * Gets the used bulk for a given container.
    * @param container The container to check.
    * @returns Returns the amount of bulk used.
-   */
+  */
   getContainerBulk(container: loadoutContainer): number {
     let bulk = 0;
     for (const item of Object.values(container.items)) {
@@ -5354,6 +5354,15 @@ export class ZoneServer2016 extends EventEmitter {
         this.getItemDefinition(item.itemDefinitionId).BULK * item.stackCount;
     }
     return bulk;
+  }
+
+  /**
+   * Gets the available bulk for a given container.
+   * @param container The container to check.
+   * @returns Returns the amount of bulk available.
+  */
+  getAvailableBulk(container: loadoutContainer): number {
+    return this.getContainerMaxBulk(container) - this.getContainerBulk(container);
   }
 
   /**
@@ -5376,7 +5385,7 @@ export class ZoneServer2016 extends EventEmitter {
         containerDef = this.getContainerDefinition(containerItemDef?.PARAM1);
       if (
         container &&
-        containerDef?.MAX_BULK >=
+        this.getContainerMaxBulk(container) >=
           this.getContainerBulk(container) + itemDef.BULK * count
       ) {
         return container;
@@ -5719,23 +5728,35 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     //endregion
-    this.lootItem(client, item); // TODO: SPLIT STACK IF NOT ENOUGH SPACE !
+    let container: loadoutContainer | undefined = undefined;
+    Object.values(client.character._containers).forEach((c)=> {
+      if(!container || this.getAvailableBulk(c) > this.getAvailableBulk(container)) {
+        container = c;
+      }
+    })
 
+  if(
+    (container && this.getContainerHasSpace(container,  item.itemDefinitionId, item.stackCount)) 
+    || item.stackCount == 1 // loadout items / items that are too big to fit in any container
+  ) {
+      this.lootItem(client, item);
+    }
+    else {
+      if(container) {
+        const availableSpace = this.getAvailableBulk(container),
+        itemBulk = this.getItemDefinition(item.itemDefinitionId).BULK,
+        lootCount = Math.floor(availableSpace / itemBulk);
+        item.stackCount -= lootCount;
+        this.lootItem(client, this.generateItem(item.itemDefinitionId, lootCount));
+      }
+      else { // if no containers are equipped
+        this.sendData(client, "Character.NoSpaceNotification", {
+          characterId: client.character.characterId,
+        });
+      }
+      return;
+    }
 
-
-
-
-
-    /*
-    - if container with most open bulk can hold full stack, lootItem normally
-    - else, if container with most open bulk can hold a single item from that stack,
-      create a new stack in that container with as many items as it can hold
-
-    - further on, iterate through all containers and try to fill them with items from the stack until
-      either the stack is gone or all containers in the inventory are full
-
-
-    */
     if (
       item.itemDefinitionId === Items.FUEL_BIOFUEL ||
       item.itemDefinitionId === Items.FUEL_ETHANOL
@@ -5833,10 +5854,10 @@ export class ZoneServer2016 extends EventEmitter {
           };
         }),
         unknownBoolean1: true, // needs to be true or bulk doesn't show up
-        maxBulk: containerDefinition.MAX_BULK,
+        maxBulk: this.getContainerMaxBulk(container),
         unknownDword4: 28,
         bulkUsed: this.getContainerBulk(container),
-        hasBulkLimit: !!containerDefinition.MAX_BULK,
+        hasBulkLimit: !!this.getContainerMaxBulk(container),
       },
     };
   }
@@ -5883,10 +5904,10 @@ export class ZoneServer2016 extends EventEmitter {
           };
         }),
         unknownBoolean1: true, // needs to be true or bulk doesn't show up
-        maxBulk: containerDefinition.MAX_BULK,
+        maxBulk: this.getContainerMaxBulk(container),
         unknownDword4: 28,
         bulkUsed: this.getContainerBulk(container),
-        hasBulkLimit: !!containerDefinition.MAX_BULK,
+        hasBulkLimit: !!this.getContainerMaxBulk(container),
       },
     });
   }
