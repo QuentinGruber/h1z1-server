@@ -2236,7 +2236,7 @@ export class zonePacketHandlers {
             const weaponAmmoId = server.getWeaponAmmoId(
                 weaponItem.itemDefinitionId
               ),
-              maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
+              maxAmmo = server.getWeaponClipSize(weaponItem.itemDefinitionId), // max clip size
               reloadTime = server.getWeaponReloadTime(
                 weaponItem.itemDefinitionId
               );

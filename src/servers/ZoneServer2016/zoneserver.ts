@@ -4935,7 +4935,7 @@ export class ZoneServer2016 extends EventEmitter {
    * loadout, and item update packets to client if true.
    * @param loadoutSlotId Optional: The loadoutSlotId to manually try to equip the item to. This will be
    * found automatically if not defined.
-   */
+  */
   equipItem(
     character: BaseFullCharacter,
     item: inventoryItem | undefined,
@@ -5072,24 +5072,44 @@ export class ZoneServer2016 extends EventEmitter {
     };
   }
 
+  /**
+   * Gets the item definition for a given itemDefinitionId
+   * @param itemDefinitionId The id of the itemdefinition to retrieve.
+  */
   getItemDefinition(itemDefinitionId: number | undefined) {
     if (!itemDefinitionId) return;
     return this._itemDefinitions[itemDefinitionId];
   }
 
+  /**
+   * Gets the weapon definition for a given weaponDefinitionId.
+   * @param weaponDefinitionId The id of the weapondefinition to retrieve.
+  */
   getWeaponDefinition(weaponDefinitionId: number) {
     if (!weaponDefinitionId) return;
     return this._weaponDefinitions[weaponDefinitionId]?.DATA;
   }
 
+  /**
+   * Gets the firegroup definition for a given firegroupId.
+   * @param firegroupId The id of the firegroupDefinition to retrieve.
+  */
   getFiregroupDefinition(firegroupId: number) {
     return this._firegroupDefinitions[firegroupId]?.DATA;
   }
 
+  /**
+   * Gets the firemode definition for a given firemodeId.
+   * @param firemodeId The id of the firemodeDefinition to retrieve.
+  */
   getFiremodeDefinition(firemodeId: number) {
     return this._firemodeDefinitions[firemodeId]?.DATA.DATA;
   }
 
+  /**
+   * Gets the ammoId for a given weapon.
+   * @param itemDefinitionId The itemDefinitionId of the weapon.
+  */
   getWeaponAmmoId(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
       weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1),
@@ -5102,6 +5122,11 @@ export class ZoneServer2016 extends EventEmitter {
 
     return firemodeDefinition?.AMMO_ITEM_ID || 0;
   }
+
+  /**
+   * Gets the reload time in ms for a given weapon.
+   * @param itemDefinitionId The itemDefinitionId of the weapon.
+  */
   getWeaponReloadTime(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
       weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1),
@@ -5115,25 +5140,44 @@ export class ZoneServer2016 extends EventEmitter {
     return firemodeDefinition?.RELOAD_TIME_MS || 0;
   }
 
-  getWeaponMaxAmmo(itemDefinitionId: number): number {
+
+  /**
+   * Gets the clip size for a given weapon.
+   * @param itemDefinitionId The itemDefinitionId of the weapon.
+  */
+  getWeaponClipSize(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
       weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1);
 
     return weaponDefinition.AMMO_SLOTS[0]?.CLIP_SIZE || 0;
   }
 
+  /**
+   * Gets the maximum bulk that a given container can hold.
+   * @param container The container object.
+  */
   getContainerMaxBulk(
     container: loadoutContainer
   ): number {
     return this.getContainerDefinition(container.containerDefinitionId).MAX_BULK
   }
 
+  /**
+   * Gets the maximum slots that a given container can hold.
+   * @param container The container object.
+  */
   getContainerMaxSlots(
     container: loadoutContainer
   ): number {
     return this.getContainerDefinition(container.containerDefinitionId).MAXIMUM_SLOTS
   }
 
+  /**
+   * Returns a boolean if a given container has enough space for a given amount of a certain item.
+   * @param container The container object.
+   * @param itemDefinitionId Tje definiton id of the item to check.
+   * @param count The amount of the item to check.
+  */
   getContainerHasSpace(
     container: loadoutContainer,
     itemDefinitionId: number,
@@ -5147,6 +5191,10 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  /**
+   * Gets the container definition for a given containerDefinitionId.
+   * @param containerDefinitionId The id of the container definition to retrieve.
+  */
   getContainerDefinition(containerDefinitionId: any) {
     if (this._containerDefinitions[containerDefinitionId]) {
       return this._containerDefinitions[containerDefinitionId];
@@ -5158,6 +5206,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  /**
+   * Generates and returns an unused itemGuid.
+  */
   generateItemGuid(): bigint {
     return ++this.lastItemGuid;
   }
