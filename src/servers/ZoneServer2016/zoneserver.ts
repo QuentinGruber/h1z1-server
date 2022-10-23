@@ -5128,6 +5128,12 @@ export class ZoneServer2016 extends EventEmitter {
     return this.getContainerDefinition(container.containerDefinitionId).MAX_BULK
   }
 
+  getContainerMaxSlots(
+    container: loadoutContainer
+  ): number {
+    return this.getContainerDefinition(container.containerDefinitionId).MAXIMUM_SLOTS
+  }
+
   getContainerHasSpace(
     container: loadoutContainer,
     itemDefinitionId: number,
@@ -5832,16 +5838,13 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   pGetContainerData(character: BaseFullCharacter, container: loadoutContainer) {
-    const containerDefinition = this.getContainerDefinition(
-      container.containerDefinitionId
-    );
     return {
       loadoutSlotId: container.slotId,
       containerData: {
         guid: container.itemGuid,
         definitionId: container.containerDefinitionId,
         associatedCharacterId: character.characterId,
-        slots: containerDefinition.MAXIMUM_SLOTS,
+        slots: this.getContainerMaxSlots(container),
         items: Object.values(container.items).map((item, idx) => {
           container.items[item.itemGuid].slotId = idx + 1;
           return {
@@ -5881,9 +5884,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   updateContainer(client: Client, container: loadoutContainer | undefined) {
     if (!container || !client.character.initialized) return;
-    const containerDefinition = this.getContainerDefinition(
-      container.containerDefinitionId
-    );
     this.sendData(client, "Container.UpdateEquippedContainer", {
       ignore: client.character.characterId,
       characterId: client.character.characterId,
@@ -5891,7 +5891,7 @@ export class ZoneServer2016 extends EventEmitter {
         guid: container.itemGuid,
         definitionId: container.containerDefinitionId,
         associatedCharacterId: client.character.characterId,
-        slots: containerDefinition.MAXIMUM_SLOTS,
+        slots: this.getContainerMaxSlots(container),
         items: Object.values(container.items).map((item, idx) => {
           container.items[item.itemGuid].slotId = idx + 1;
           return {
