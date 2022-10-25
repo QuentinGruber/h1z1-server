@@ -101,7 +101,7 @@ import { ConstructionParentEntity } from "./classes/constructionParentEntity";
 import { simpleConstruction } from "./classes/simpleConstruction";
 import { FullCharacterSaveData, ServerSaveData } from "types/savedata";
 import { WorldDataManager } from "./classes/worlddatamanager";
-import { recipes } from "./data/recipes";
+import { recipes } from "./data/Recipes";
 
 import {
   CharacterKilledBy,
