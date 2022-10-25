@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { FilterIds } from "servers/ZoneServer2016/enums";
+
 export interface npcData {
   guid: string;
   characterId: string;
@@ -214,4 +216,15 @@ export interface SpawnLocation {
   name: string;
   position: Float32Array;
   rotation: Float32Array;
+}
+
+export interface RecipeComponent {
+  itemDefinitionId: number;
+  requiredAmount: number;
+}
+
+export interface Recipe {
+  filterId: FilterIds;
+  bundleCount?: number;
+  components: Array<RecipeComponent>;
 }
