@@ -1,6 +1,7 @@
+import { Recipe } from "types/zoneserver"
 import { FilterIds, Items } from "../enums"
 
-export const recipes = {
+export const recipes: {[recipeId: number]: Recipe} = {
   [Items.AMMO_223]: {
     filterId: FilterIds.WEAPONS,
     components: [
