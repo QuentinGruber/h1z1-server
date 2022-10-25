@@ -1089,7 +1089,7 @@ export class zonePacketHandlers {
     }
     const item = client.character.getInventoryItem(itemGuid);
     if (!item) {
-      server.containerError(client, 5); // slot does not contain item
+      server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
     const loadoutSlotId = client.character.getActiveLoadoutSlot(itemGuid);
@@ -1148,12 +1148,12 @@ export class zonePacketHandlers {
             return;
           }
           if (!container) {
-            server.containerError(client, 3); // unknown container
+            server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
             return;
           }
           const item = container.items[itemGuid];
           if (!item) {
-            server.containerError(client, 5); // slot does not contain item
+            server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
           server.equipContainerItem(
@@ -1570,9 +1570,6 @@ export class zonePacketHandlers {
                 // add item to end
                 combineItemStack(oldStackCount, targetContainer, item);
               }
-            } else {
-              // invalid
-              server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
             }
           } else if (containerGuid == "0xffffffffffffffff") {
             // to loadout
@@ -1583,13 +1580,13 @@ export class zonePacketHandlers {
             }
           } else {
             // invalid
-            server.containerError(client, 3); // unknown container
+            server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
           }
         } else {
           // from loadout or invalid
           const loadoutItem = client.character.getLoadoutItem(itemGuid);
           if (!loadoutItem) {
-            server.containerError(client, 5); // slot does not contain item
+            server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
           if (targetContainer) {
@@ -1604,7 +1601,7 @@ export class zonePacketHandlers {
               return;
             }
             if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
-              server.containerError(client, 5); // slot does not contain item
+              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
             server.addContainerItem(
@@ -1638,7 +1635,7 @@ export class zonePacketHandlers {
               }
             }
             if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
-              server.containerError(client, 5); // slot does not contain item
+              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
             if (oldLoadoutItem.itemDefinitionId) {
@@ -1648,50 +1645,11 @@ export class zonePacketHandlers {
                 true,
                 loadoutItem.slotId
               );
-            } else if (containerGuid == "0xffffffffffffffff") {
-              // to loadout
-              const loadoutItem = client.character.getLoadoutItem(itemGuid),
-                oldLoadoutItem = client.character._loadout[newSlotId];
-              if (!loadoutItem) {
-                server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-                return;
-              }
-              if (
-                !server.validateLoadoutSlot(
-                  loadoutItem.itemDefinitionId,
-                  newSlotId
-                )
-              ) {
-                server.sendChatText(client, "[ERROR] Invalid loadout slot.");
-                return;
-              }
-              if (oldLoadoutItem.itemDefinitionId) {
-                if (!server.removeLoadoutItem(client, oldLoadoutItem.slotId)) {
-                  server.containerError(client, 5); // slot does not contain item
-                  return;
-                }
-              }
-              if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
-                server.containerError(client, 5); // slot does not contain item
-                return;
-              }
-              if (oldLoadoutItem.itemDefinitionId) {
-                server.equipItem(
-                  client.character,
-                  oldLoadoutItem,
-                  true,
-                  loadoutItem.slotId
-                );
-              }
-              server.equipItem(client.character, loadoutItem, true, newSlotId);
-            } else {
-              // invalid
-              server.containerError(client, 3); // unknown container
             }
             server.equipItem(client.character, loadoutItem, true, newSlotId);
           } else {
             // invalid
-            server.containerError(client, 3); // unknown container
+            server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
           }
         }
       } else {
