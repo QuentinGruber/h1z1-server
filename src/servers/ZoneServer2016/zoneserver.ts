@@ -145,7 +145,7 @@ export class ZoneServer2016 extends EventEmitter {
   private _h1emuZoneServer!: H1emuZoneServer;
   readonly _appDataFolder = getAppDataFolderPath();
   _worldId = 0;
-  readonly _clients: { [characterId: string]: Client } = {};
+  readonly _clients: { [sessionId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
   _npcs: { [characterId: string]: Npc } = {};
   _spawnedItems: { [characterId: string]: ItemObject } = {};
@@ -1046,6 +1046,12 @@ export class ZoneServer2016 extends EventEmitter {
       }
       client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
+      client.managedObjects.forEach((objectKey)=>{
+        const vehicle = this._vehicles[objectKey];
+        if(vehicle){ // if object is a vehicle
+          vehicle.driverIsDead = true;
+        }
+      })
       this.updateCharacterState(
         client,
         client.character.characterId,
@@ -4292,8 +4298,17 @@ export class ZoneServer2016 extends EventEmitter {
     }
     client.character.isRunning = false; // maybe some async stuff make this useless need to test that
     client.vehicle.mountedVehicle = vehicle.characterId;
-    const seatId = vehicle.getNextSeatId();
-    if (seatId < 0) return; // no available seats in vehicle
+    const seatId = vehicle.driverIsDead?0:vehicle.getNextSeatId(); // TODO: create an enum for seatsIds
+    if (seatId < 0 && !vehicle.driverIsDead) return; // no available seats in vehicle
+    if(vehicle.driverIsDead){
+      // dismount the driver
+      const driverCharacter = this._characters[vehicle.seats[0]];
+      if(driverCharacter){
+        // TODO: need somehow to get the client obj from that character
+        // this.dismountVehicle(driver)
+      }
+      vehicle.driverIsDead = false;
+    }
     vehicle.seats[seatId] = client.character.characterId;
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.MountResponse", {
