@@ -30,6 +30,7 @@ import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
 import { WorldObjectManager } from "./classes/worldobjectmanager";
 import {
+  ContainerErrors,
   EntityTypes,
   EquipSlots,
   ItemClasses,
@@ -100,6 +101,8 @@ import { ConstructionParentEntity } from "./classes/constructionParentEntity";
 import { simpleConstruction } from "./classes/simpleConstruction";
 import { FullCharacterSaveData, ServerSaveData } from "types/savedata";
 import { WorldDataManager } from "./classes/worlddatamanager";
+import { recipes } from "./data/Recipes";
+
 import {
   CharacterKilledBy,
   ClientUpdateDeathMetrics,
@@ -110,7 +113,6 @@ import { AsyncHooks, AsyncHookType, FunctionHookType, Hooks } from "./hooks";
 import { getCharacterModelData } from "../shared/functions";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
-  recipes = require("../../../data/2016/sampleData/recipes.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
   localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
   stats = require("../../../data/2016/sampleData/stats.json"),
@@ -559,6 +561,39 @@ export class ZoneServer2016 extends EventEmitter {
     return items;
   }
 
+  pGetRecipes(): any[] {
+    // todo: change to per-character recipe lists
+    const recipeKeys = Object.keys(this._recipes)
+    return Object.values(this._recipes).map((recipe, idx)=> {
+      const def = this.getItemDefinition(Number(recipeKeys[idx]));
+      return {
+        recipeId: def.ID,
+        itemDefinitionId: def.ID,
+        nameId: def.NAME_ID,
+        iconId: def.IMAGE_SET_ID,
+        unknownDword1: 0, // idk
+        descriptionId: def.DESCRIPTION_ID,
+        unknownDword2: 1, // idk
+        bundleCount: recipe.bundleCount || 1,
+        membersOnly: false, // could be used for admin-only recipes?
+        filterId: recipe.filterId,
+        components: recipe.components.map((component: any) => {
+          const def = this.getItemDefinition(component.itemDefinitionId);
+          return {
+            unknownDword1: 0, // idk
+            nameId: def.NAME_ID,
+            iconId: def.IMAGE_SET_ID,
+            unknownDword2: 0, // idk
+            requiredAmount: component.requiredAmount,
+            unknownQword1: "0x0", // idk
+            unknownDword3: 0, // idk
+            itemDefinitionId: def.ID
+          }
+        })
+      }
+    });
+  }
+
   async sendCharacterData(client: Client) {
     if (!this.checkHook("OnSendCharacterData", client)) return;
     if (!(await this.checkAsyncHook("OnSendCharacterData", client))) return;
@@ -581,7 +616,7 @@ export class ZoneServer2016 extends EventEmitter {
           items: this.pGetInventoryItems(client.character),
           //unknownDword1: 2355
         },
-        recipes: Object.values(this._recipes),
+        recipes: this.pGetRecipes(), // todo: change to per-character recipe lists
         stats: stats,
         loadoutSlots: client.character.pGetLoadoutSlots(),
         equipmentSlots: client.character.pGetEquipment(),
@@ -1158,7 +1193,7 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        const allowed = [Items.SHACK, Items.SMALL_SHACK, Items.BASIC_SHACK];
+        const allowed = [Items.SHACK, Items.SHACK_SMALL, Items.SHACK_BASIC];
         if (allowed.includes(constructionObject.itemDefinitionId)) {
           this.checkConstructionDamage(
             constructionObject.characterId,
@@ -1193,7 +1228,7 @@ export class ZoneServer2016 extends EventEmitter {
     switch (type) {
       case "simple":
         if (!construction.parentObjectCharacterId) return false;
-        const notProtected = [Items.METAL_WALL, Items.UPPER_METAL_WALL];
+        const notProtected = [Items.METAL_WALL, Items.METAL_WALL_UPPER];
         if (notProtected.includes(construction.itemDefinitionId)) return false;
         if (
           this._constructionFoundations[construction.parentObjectCharacterId]
@@ -1377,7 +1412,8 @@ export class ZoneServer2016 extends EventEmitter {
         ]
       : this._constructionSimple[constructionObject.parentObjectCharacterId];
     if (
-      constructionObject.itemDefinitionId == Items.METAL_DOOR ||
+      constructionObject.itemDefinitionId == Items.DOOR_WOOD ||
+      constructionObject.itemDefinitionId == Items.DOOR_METAL ||
       constructionObject.itemDefinitionId == Items.METAL_GATE ||
       constructionObject.itemDefinitionId == Items.METAL_WALL
     ) {
@@ -1730,7 +1766,7 @@ export class ZoneServer2016 extends EventEmitter {
       let itemDefId = 0;
       switch (packet.data.name) {
         case "SpeedTree.Blackberry":
-          itemDefId = Items.BLACK_BERRIES;
+          itemDefId = Items.BLACKBERRY;
           if (randomIntFromInterval(1, 10) == 1) {
             this.lootItem(client, this.generateItem(Items.WEAPON_BRANCH));
           }
@@ -2488,8 +2524,8 @@ export class ZoneServer2016 extends EventEmitter {
       });
       if (
         foundation.itemDefinitionId == Items.SHACK ||
-        foundation.itemDefinitionId == Items.SMALL_SHACK ||
-        foundation.itemDefinitionId == Items.BASIC_SHACK
+        foundation.itemDefinitionId == Items.SHACK_SMALL ||
+        foundation.itemDefinitionId == Items.SHACK_BASIC
       ) {
         if (this.checkInsideFoundation(foundation, client.character)) {
           if (allowed) {
@@ -2515,9 +2551,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const allowedIds = [
       Items.SHELTER,
-      Items.LARGE_SHELTER,
-      Items.UPPER_LEVEL_SHELTER,
-      Items.UPPER_LEVEL_LARGE_SHELER,
+      Items.SHELTER_LARGE,
+      Items.SHELTER_UPPER,
+      Items.SHELTER_UPPER_LARGE,
     ];
     for (const a in this._constructionSimple) {
       const construction = this._constructionSimple[a] as simpleConstruction;
@@ -2591,7 +2627,7 @@ export class ZoneServer2016 extends EventEmitter {
           foundation.state.position,
           2
         );
-      case Items.BASIC_SHACK:
+      case Items.SHACK_BASIC:
         detectRange = 1;
         return isPosInRadiusWithY(
           detectRange,
@@ -2599,7 +2635,7 @@ export class ZoneServer2016 extends EventEmitter {
           foundation.state.position,
           2
         );
-      case Items.SMALL_SHACK:
+      case Items.SHACK_SMALL:
         return isInsideWithY(
           [entity.state.position[0], entity.state.position[2]],
           foundation.securedPolygons,
@@ -2717,8 +2753,8 @@ export class ZoneServer2016 extends EventEmitter {
         client.spawnedEntities.push(npc);
         if (
           npc.itemDefinitionId == Items.SHACK ||
-          npc.itemDefinitionId == Items.SMALL_SHACK ||
-          npc.itemDefinitionId == Items.BASIC_SHACK
+          npc.itemDefinitionId == Items.SHACK_SMALL ||
+          npc.itemDefinitionId == Items.SHACK_BASIC
         ) {
           this.updateResource(
             client,
@@ -3763,9 +3799,10 @@ export class ZoneServer2016 extends EventEmitter {
           false
         );
         break;
-      case Items.BASIC_SHACK_DOOR:
+      case Items.DOOR_BASIC:
       case Items.METAL_GATE:
-      case Items.METAL_DOOR:
+      case Items.DOOR_WOOD:
+      case Items.DOOR_METAL:
         this.placeConstructionDoor(
           client,
           itemDefinitionId,
@@ -3777,7 +3814,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
         break;
       case Items.GROUND_TAMPER:
-      case Items.BASIC_SHACK:
+      case Items.SHACK_BASIC:
       case Items.SHACK:
       case Items.FOUNDATION:
         this.placeConstructionFoundation(
@@ -3789,7 +3826,7 @@ export class ZoneServer2016 extends EventEmitter {
           parentObjectCharacterId
         );
         break;
-      case Items.SMALL_SHACK:
+      case Items.SHACK_SMALL:
         this.placeConstructionFoundation(
           client,
           itemDefinitionId,
@@ -3876,8 +3913,8 @@ export class ZoneServer2016 extends EventEmitter {
           if (npc.eulerAngle) {
             const angle = -npc.eulerAngle;
             switch (itemDefinitionId) {
-              case Items.LARGE_SHELTER:
-              case Items.UPPER_LEVEL_LARGE_SHELER:
+              case Items.SHELTER_LARGE:
+              case Items.SHELTER_UPPER_LARGE:
                 const centerPoint = movePoint(
                   position,
                   angle + (90 * Math.PI) / 180,
@@ -3892,7 +3929,7 @@ export class ZoneServer2016 extends EventEmitter {
                 );
                 break;
               case Items.SHELTER:
-              case Items.UPPER_LEVEL_SHELTER:
+              case Items.SHELTER_UPPER:
                 npc.securedPolygons = getRectangleCorners(
                   position,
                   5,
@@ -3952,7 +3989,9 @@ export class ZoneServer2016 extends EventEmitter {
     npc.fixedPosition = movePoint(
       npc.state.position,
       -npc.openAngle,
-      npc.itemDefinitionId == Items.METAL_DOOR ? 0.625 : 2.5
+      npc.itemDefinitionId == Items.DOOR_METAL ||
+      npc.itemDefinitionId == Items.DOOR_WOOD
+      ? 0.625 : 2.5
     );
     if (Number(parentObjectCharacterId)) {
       switch (this.getEntityType(parentObjectCharacterId)) {
@@ -4889,11 +4928,11 @@ export class ZoneServer2016 extends EventEmitter {
     const oldLoadoutItem = client.character._loadout[slotId],
       container = client.character.getItemContainer(item.itemGuid);
     if ((!oldLoadoutItem || !oldLoadoutItem.itemDefinitionId) && !container) {
-      this.containerError(client, 3); // unknown container
+      this.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
       return;
     }
     if (!this.removeContainerItem(client, item, container, 1)) {
-      this.containerError(client, 5); // slot does not contain item
+      this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
     if (oldLoadoutItem?.itemDefinitionId) {
@@ -4903,7 +4942,7 @@ export class ZoneServer2016 extends EventEmitter {
         return;
       }
       if (!this.removeLoadoutItem(client, oldLoadoutItem.slotId)) {
-        this.containerError(client, 5); // slot does not contain item
+        this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
       this.lootContainerItem(client, oldLoadoutItem, 1, false);
@@ -5643,7 +5682,7 @@ export class ZoneServer2016 extends EventEmitter {
    */
   dropItem(client: Client, item: inventoryItem, count: number = 1): void {
     if (!item) {
-      this.containerError(client, 5); // slot does not contain item
+      this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
     let dropItem;
@@ -6036,7 +6075,7 @@ export class ZoneServer2016 extends EventEmitter {
     let givetrash = 0;
     let timeout = 1000;
     switch (item.itemDefinitionId) {
-      case Items.BLACK_BERRIES:
+      case Items.BLACKBERRY:
         drinkCount = 200;
         eatCount = 200;
         timeout = 600;
@@ -6457,7 +6496,7 @@ export class ZoneServer2016 extends EventEmitter {
   containerError(client: Client, error: number) {
     this.sendData(client, "Container.Error", {
       characterId: client.character.characterId,
-      containerError: error, // unknown container
+      containerError: error,
     });
   }
 

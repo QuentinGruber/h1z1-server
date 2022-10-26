@@ -20,9 +20,9 @@ function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.SHACK:
       return 4.5;
-    case Items.SMALL_SHACK:
+    case Items.SHACK_SMALL:
       return 4;
-    case Items.BASIC_SHACK:
+    case Items.SHACK_BASIC:
       return 3;
     default:
       return 4.5;
@@ -122,8 +122,8 @@ export class ConstructionParentEntity extends simpleConstruction {
           "12": new Float32Array([0, 0, 0, 0]),
         };
         break;
-      case Items.SMALL_SHACK:
-      case Items.BASIC_SHACK:
+      case Items.SHACK_SMALL:
+      case Items.SHACK_BASIC:
       case Items.SHACK:
         this.perimeters = {
           "01": new Float32Array([0, 0, 0, 0]),
@@ -582,8 +582,8 @@ export class ConstructionParentEntity extends simpleConstruction {
         this.isSecured = result;
         break;
       case Items.SHACK:
-      case Items.SMALL_SHACK:
-      case Items.BASIC_SHACK:
+      case Items.SHACK_SMALL:
+      case Items.SHACK_BASIC:
         this.isSecured =
           this.perimeters["01"].reduce(
             (accumulator, currentValue) => accumulator + currentValue
@@ -608,8 +608,8 @@ export class ConstructionParentEntity extends simpleConstruction {
     if (!slot) return;
     if (
       this.itemDefinitionId === Items.SHACK ||
-      this.itemDefinitionId === Items.SMALL_SHACK ||
-      this.itemDefinitionId === Items.BASIC_SHACK
+      this.itemDefinitionId === Items.SHACK_SMALL ||
+      this.itemDefinitionId === Items.SHACK_BASIC
     ) {
       this.perimeters["01"] = value;
       this.checkPerimeters(server);

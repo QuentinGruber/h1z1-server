@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { FilterIds } from "servers/ZoneServer2016/enums";
+
 export interface npcData {
   guid: string;
   characterId: string;
@@ -232,4 +234,15 @@ export interface LootSpawner {
 
 export interface ContainerLootSpawner extends LootSpawner{
   maxItems: number;
+}
+
+export interface RecipeComponent {
+  itemDefinitionId: number;
+  requiredAmount: number;
+}
+
+export interface Recipe {
+  filterId: FilterIds;
+  bundleCount?: number;
+  components: Array<RecipeComponent>;
 }

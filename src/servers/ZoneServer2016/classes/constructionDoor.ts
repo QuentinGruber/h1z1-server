@@ -17,8 +17,9 @@ function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_GATE:
       return 4.3;
-    case Items.METAL_DOOR:
-    case Items.BASIC_SHACK_DOOR:
+    case Items.DOOR_WOOD:
+    case Items.DOOR_METAL:
+    case Items.DOOR_BASIC:
       return 1.5;
     default:
       return 1.5;

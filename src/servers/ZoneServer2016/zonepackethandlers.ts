@@ -32,7 +32,7 @@ import { CraftManager } from "./classes/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
-import { EntityTypes, Items, ResourceIds, VehicleIds } from "./enums";
+import { ContainerErrors, EntityTypes, Items, VehicleIds } from "./enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
 import { DoorEntity } from "./classes/doorentity";
@@ -1089,7 +1089,7 @@ export class zonePacketHandlers {
     }
     const item = client.character.getInventoryItem(itemGuid);
     if (!item) {
-      server.containerError(client, 5); // slot does not contain item
+      server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
     const loadoutSlotId = client.character.getActiveLoadoutSlot(itemGuid);
@@ -1122,7 +1122,7 @@ export class zonePacketHandlers {
           if (container) {
             const item = container.items[itemGuid];
             if (!item) {
-              server.containerError(client, 5); // slot does not contain item
+              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
             if (!loadoutSlotId) {
@@ -1132,12 +1132,12 @@ export class zonePacketHandlers {
             server.equipContainerItem(client, item, loadoutSlotId);
           } else {
             if (!activeSlotId) {
-              server.containerError(client, 3); // unknown container
+              server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
               return;
             }
             const loadoutItem = client.character._loadout[activeSlotId];
             if (!loadoutItem) {
-              server.containerError(client, 5); // slot does not contain item
+              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
             server.switchLoadoutSlot(client, loadoutItem);
@@ -1148,12 +1148,12 @@ export class zonePacketHandlers {
             return;
           }
           if (!container) {
-            server.containerError(client, 3); // unknown container
+            server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
             return;
           }
           const item = container.items[itemGuid];
           if (!item) {
-            server.containerError(client, 5); // slot does not contain item
+            server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
           server.equipContainerItem(
@@ -1532,7 +1532,7 @@ export class zonePacketHandlers {
           const item = container.items[itemGuid],
             oldStackCount = item?.stackCount; // saves stack count before it gets altered
           if (!item) {
-            server.containerError(client, 5); // slot does not contain item
+            server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
           if (targetContainer) {
@@ -1549,7 +1549,7 @@ export class zonePacketHandlers {
               return;
             }
             if (!server.removeContainerItem(client, item, container, count)) {
-              server.containerError(client, 5); // slot does not contain item
+              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
             if (newSlotId == 0xffffffff) {
@@ -1580,13 +1580,13 @@ export class zonePacketHandlers {
             }
           } else {
             // invalid
-            server.containerError(client, 3); // unknown container
+            server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
           }
         } else {
           // from loadout or invalid
           const loadoutItem = client.character.getLoadoutItem(itemGuid);
           if (!loadoutItem) {
-            server.containerError(client, 5); // slot does not contain item
+            server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
           if (targetContainer) {
@@ -1601,7 +1601,7 @@ export class zonePacketHandlers {
               return;
             }
             if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
-              server.containerError(client, 5); // slot does not contain item
+              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
             server.addContainerItem(
@@ -1616,7 +1616,7 @@ export class zonePacketHandlers {
             const loadoutItem = client.character.getLoadoutItem(itemGuid),
               oldLoadoutItem = client.character._loadout[newSlotId];
             if (!loadoutItem) {
-              server.containerError(client, 5); // slot does not contain item
+              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
             if (
@@ -1630,12 +1630,12 @@ export class zonePacketHandlers {
             }
             if (oldLoadoutItem.itemDefinitionId) {
               if (!server.removeLoadoutItem(client, oldLoadoutItem.slotId)) {
-                server.containerError(client, 5); // slot does not contain item
+                server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
                 return;
               }
             }
             if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
-              server.containerError(client, 5); // slot does not contain item
+              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
             if (oldLoadoutItem.itemDefinitionId) {
@@ -1649,7 +1649,7 @@ export class zonePacketHandlers {
             server.equipItem(client.character, loadoutItem, true, newSlotId);
           } else {
             // invalid
-            server.containerError(client, 3); // unknown container
+            server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
           }
         }
       } else {
