@@ -5207,6 +5207,17 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
+   * Gets the maximum amount of ammo a clip can hold for a given weapon.
+   * @param itemDefinitionId The itemDefinitionId of the weapon.
+  */
+  getWeaponMaxAmmo(itemDefinitionId: number): number {
+    const itemDefinition = this.getItemDefinition(itemDefinitionId),
+      weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1);
+
+    return weaponDefinition.AMMO_SLOTS[0]?.CLIP_SIZE || 0;
+  }
+
+  /**
    * Gets the maximum bulk that a given container can hold.
    * @param container The container object.
   */
