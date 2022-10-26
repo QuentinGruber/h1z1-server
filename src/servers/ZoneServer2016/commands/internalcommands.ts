@@ -12,8 +12,8 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Vehicle2016 as Vehicle} from "../classes/vehicle";
-import { ZoneClient2016 as Client} from "../classes/zoneclient";
+import { Vehicle2016 as Vehicle } from "../classes/vehicle";
+import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
 
@@ -22,22 +22,14 @@ export const internalCommands: Array<Command> = [
   {
     name: "respawn",
     permissionLevel: PermissionLevels.DEFAULT,
-    execute: (
-      server: ZoneServer2016, 
-      client: Client, 
-      packetData: any
-    ) => {
+    execute: (server: ZoneServer2016, client: Client, packetData: any) => {
       server.respawnPlayer(client);
-    }
+    },
   },
   {
     name: "spectate",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: (
-      server: ZoneServer2016, 
-      client: Client, 
-      packetData: any
-    ) => {
+    execute: (server: ZoneServer2016, client: Client, packetData: any) => {
       client.character.isSpectator = true;
       const characterId = server.generateGuid();
       const vehicle = new Vehicle(
@@ -49,14 +41,14 @@ export const internalCommands: Array<Command> = [
         server.getGameTime()
       );
       for (const a in server._clients) {
-          const iteratedClient = server._clients[a]
-          if (iteratedClient.spawnedEntities.includes(client.character)) {
-              server.sendData(iteratedClient, "Character.RemovePlayer", {
-                  characterId: client.character.characterId,
-              });
-              const index = iteratedClient.spawnedEntities.indexOf(iteratedClient);
-              iteratedClient.spawnedEntities.splice(index, 1);
-          }
+        const iteratedClient = server._clients[a];
+        if (iteratedClient.spawnedEntities.includes(client.character)) {
+          server.sendData(iteratedClient, "Character.RemovePlayer", {
+            characterId: client.character.characterId,
+          });
+          const index = iteratedClient.spawnedEntities.indexOf(iteratedClient);
+          iteratedClient.spawnedEntities.splice(index, 1);
+        }
       }
       server.worldObjectManager.createVehicle(server, vehicle);
       server.sendData(client, "SpectatorBase", {});
@@ -68,27 +60,23 @@ export const internalCommands: Array<Command> = [
           actorModelId: vehicle.actorModelId,
         },
       });
-        server.sendData(client, "Mount.MountResponse", {
-            characterId: client.character.characterId,
-            vehicleGuid: vehicle.characterId, 
-            seatId: 0,
-            isDriver: 1, 
-            identity: {},
-        });
+      server.sendData(client, "Mount.MountResponse", {
+        characterId: client.character.characterId,
+        vehicleGuid: vehicle.characterId,
+        seatId: 0,
+        isDriver: 1,
+        identity: {},
+      });
       server.assignManagedObject(client, vehicle);
-    }
+    },
   },
   {
     name: "run",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: (
-      server: ZoneServer2016, 
-      client: Client, 
-      packetData: any
-    ) => {
+    execute: (server: ZoneServer2016, client: Client, packetData: any) => {
       server.sendData(client, "Command.RunSpeed", {
         runSpeed: packetData.runSpeed,
       });
-    }
+    },
   },
-]
+];

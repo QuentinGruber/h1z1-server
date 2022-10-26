@@ -1488,7 +1488,7 @@ export const remoteWeaponExtraSchema = [
       { name: "unknownBoolean2", type: "boolean", defaultValue: false },
     ],
   },
-]
+];
 
 export const fullNpcSchema = [
   {
@@ -1834,8 +1834,8 @@ export const fullNpcSchema = [
         defaultValue: {},
         fields: [
           { name: "guid", type: "uint64string", defaultValue: "" },
-          ...remoteWeaponExtraSchema
-        ]
+          ...remoteWeaponExtraSchema,
+        ],
       },
     ],
   },
@@ -2223,8 +2223,8 @@ export const fullPcSchema = [
     defaultValue: {},
     fields: [
       { name: "guid", type: "uint64string", defaultValue: "" },
-      ...remoteWeaponExtraSchema
-    ]
+      ...remoteWeaponExtraSchema,
+    ],
   },
 ];
 

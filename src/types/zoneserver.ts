@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { FilterIds } from "servers/ZoneServer2016/enums";
+
 export interface npcData {
   guid: string;
   characterId: string;
@@ -97,101 +99,6 @@ export interface loadoutItem extends inventoryItem {
 export interface loadoutContainer extends loadoutItem {
   containerDefinitionId: number;
   items: { [itemGuid: string]: inventoryItem };
-}
-
-export interface craftComponentDSEntry {
-  itemDefinitionId: number;
-  stackCount: number;
-}
-
-export interface Client {
-  currentPOI?: number;
-  firstLoading: boolean;
-  isLoading: boolean;
-  isInteracting: boolean;
-  posAtLastRoutine: Float32Array;
-  posAtLogoutStart: Float32Array;
-  timer: NodeJS.Timeout | null;
-  spawnedEntities: any[];
-  managedObjects: any[];
-  vehicle: {
-    falling: number;
-    mountedVehicle?: string;
-    mountedVehicleType?: string;
-    vehicleState: number;
-  };
-  character: {
-    characterId: string;
-    transientId: number;
-    name?: string;
-    loadouts?: any;
-    extraModel?: string;
-    isRunning: boolean;
-    resourcesUpdater?: any;
-    equipment: characterEquipment[];
-    resources: {
-      health: number;
-      stamina: number;
-      virus: number;
-      food: number;
-      water: number;
-    };
-    currentLoadoutTab?: number;
-    currentLoadoutId?: number;
-    currentLoadout?: number;
-    guid?: string;
-    inventory?: Array<any>;
-    factionId?: number;
-    spawnLocation?: string;
-    state: {
-      position: Float32Array;
-      rotation: Float32Array;
-      lookAt: Float32Array;
-      health: number;
-      shield: number;
-    };
-    // 2016 only
-    actorModelId?: number;
-    headActor?: string;
-    isRespawning?: boolean;
-    gender?: number;
-    creationDate?: string;
-    lastLoginDate?: string;
-  };
-  loginSessionId?: string;
-  sessionId: number;
-  address: string;
-  port: number;
-  crcSeed: number;
-  crcLength: number;
-  clientUdpLength: number;
-  serverUdpLength: number;
-  sequences: any;
-  compression: number;
-  useEncryption: boolean;
-  outQueue: any;
-  outOfOrderPackets: any;
-  nextAck: number;
-  lastAck: number;
-  inputStream: () => void;
-  outputStream: () => void;
-  outQueueTimer: () => void;
-  ackTimer: () => void;
-  lastPingTime: number;
-  pingTimer: NodeJS.Timeout;
-  savePositionTimer?: NodeJS.Timeout;
-  outOfOrderTimer: () => void;
-}
-
-export interface SendZoneDetailsPacket {
-  zoneName: string;
-  zoneType: number;
-  unknownBoolean1: boolean;
-  skyData: Weather;
-  zoneId1: number;
-  zoneId2: number;
-  nameId: number;
-  unknownBoolean7: boolean;
 }
 
 export interface Weather {
@@ -311,18 +218,13 @@ export interface SpawnLocation {
   rotation: Float32Array;
 }
 
-export interface SoeServer {
-  on: (arg0: string, arg1: any) => void;
-  start: (
-    compression: any,
-    crcSeed: any,
-    crcLength: any,
-    udpLength: any
-  ) => void;
-  stop: () => void;
-  _sendPacket: () => void;
-  sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
-  toggleEncryption: (arg0: Client) => void;
-  setEncryption: (arg0: boolean) => void;
-  deleteClient: (client: Client) => void;
+export interface RecipeComponent {
+  itemDefinitionId: number;
+  requiredAmount: number;
+}
+
+export interface Recipe {
+  filterId: FilterIds;
+  bundleCount?: number;
+  components: Array<RecipeComponent>;
 }

@@ -1,3 +1,4 @@
+/* prettier-ignore */ 
 export interface LoginRequest {
   characterId: string;
   ticket: string;

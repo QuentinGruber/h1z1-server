@@ -183,18 +183,21 @@ export class WorldObjectManager {
       rotation,
       itemSpawnerId || 0,
       item
+    );
+    if (
+      item.itemDefinitionId === Items.FUEL_ETHANOL ||
+      itemDef === Items.FUEL_BIOFUEL
+    ) {
+      server._spawnedItems[characterId].flags.projectileCollision = 1;
+      server._explosives[characterId] = new ExplosiveEntity(
+        characterId,
+        server.getTransientId(characterId),
+        modelId,
+        position,
+        rotation,
+        false
       );
-      if (item.itemDefinitionId === Items.FUEL_ETHANOL || itemDef === Items.FUEL_BIOFUEL) {
-          server._spawnedItems[characterId].flags.projectileCollision = 1
-          server._explosives[characterId] = new ExplosiveEntity(
-              characterId,
-              server.getTransientId(characterId),
-              modelId,
-              position,
-              rotation,
-              false
-          )
-      }
+    }
     if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;
     server._spawnedItems[characterId].creationTime = Date.now();
     return server._spawnedItems[characterId];
@@ -245,9 +248,15 @@ export class WorldObjectManager {
   createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
     // setup vehicle loadout slots, containers, etc here
     // todo: add siren and horn
-    server.equipItem(vehicle, server.generateItem(vehicle.getInventoryItemId()));
+    server.equipItem(
+      vehicle,
+      server.generateItem(vehicle.getInventoryItemId())
+    );
     server.equipItem(vehicle, server.generateItem(vehicle.getTurboItemId()));
-    server.equipItem(vehicle, server.generateItem(vehicle.getHeadlightsItemId()));
+    server.equipItem(
+      vehicle,
+      server.generateItem(vehicle.getHeadlightsItemId())
+    );
     server.equipItem(vehicle, server.generateItem(vehicle.getMotorItemId()));
     server.equipItem(vehicle, server.generateItem(Items.BATTERY));
     server.equipItem(vehicle, server.generateItem(Items.SPARKPLUGS));
@@ -495,7 +504,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: Items.WEAPON_BAT_WOOD, count: 1 });
         break;
       case "ItemSpawner_BackpackOnGround001.adr":
-        authorizedItems.push({ id: Items.BACKPACK, count: 1 });
+        authorizedItems.push({ id: Items.BACKPACK_MILITARY_TAN, count: 1 });
         break;
       case "ItemSpawner_GasCan01.adr":
         authorizedItems.push({ id: Items.FUEL_BIOFUEL, count: 1 });

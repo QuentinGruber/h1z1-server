@@ -31,7 +31,11 @@ import {
 import { packWeaponPacket, parseWeaponPacket } from "./weapon";
 
 export const basePackets: any = [
-  ["Server", 0x01, {}],
+  ["Server", 0x01, {
+    fields: [
+      { name: "pingId", type: "uint16", defaultValue: 0 },
+    ],
+  }],
   ["ClientFinishedLoading", 0x02, {}],
   [
     "SendSelfToClient",
@@ -2428,24 +2432,27 @@ export const basePackets: any = [
     },
   ],
   ["NavGen", 0xce, {}],
-  ["Locks.ShowMenu", 0xcd05,
-        {
-            fields: [
-                { name: "characterId", type: "uint64string", defaultValue: "0" },
-                { name: "unknownDword1", type: "uint32", defaultValue: 1 },
-                { name: "lockType", type: "uint32", defaultValue: 1 },// 1-lock, 2-enter password
-                { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
-            ],
-        },
-    ],
-    ["Locks.setLock", 0xcd0300,
-        {
-            fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 1 }, 
-                { name: "unknownDword2", type: "uint32", defaultValue: 1 },
-                { name: "password", type: "uint32", defaultValue: 0 },
-                
-            ],
-        },
-    ],
+  [
+    "Locks.ShowMenu",
+    0xcd05,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        { name: "lockType", type: "uint32", defaultValue: 1 }, // 1-lock, 2-enter password
+        { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
+      ],
+    },
+  ],
+  [
+    "Locks.setLock",
+    0xcd0300,
+    {
+      fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 1 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 1 },
+        { name: "password", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
 ];

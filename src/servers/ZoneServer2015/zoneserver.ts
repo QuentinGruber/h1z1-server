@@ -159,8 +159,8 @@ export class ZoneServer2015 extends EventEmitter {
     }
     this.on("data", this.onZoneDataEvent);
 
-    this.on("login", (err, client) => {
-      this.onZoneLoginEvent(err, client);
+    this.on("login", (client) => {
+      this.onZoneLoginEvent(client);
     });
 
     this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
@@ -172,14 +172,12 @@ export class ZoneServer2015 extends EventEmitter {
     this._gatewayServer.on(
       "login",
       (
-        err: string,
         client: SOEClient,
         characterId: string,
         loginSessionId: string,
         clientProtocol: string
       ) => {
         this.onGatewayLoginEvent(
-          err,
           client,
           characterId,
           loginSessionId,
@@ -194,9 +192,8 @@ export class ZoneServer2015 extends EventEmitter {
 
     this._gatewayServer.on(
       "tunneldata",
-      (err: string, client: Client, data: Buffer, flags: number) => {
+      (client: Client, data: Buffer, flags: number) => {
         this.onGatewayTunnelDataEvent(
-          err,
           this._clients[client.sessionId],
           data,
           flags
@@ -365,11 +362,8 @@ export class ZoneServer2015 extends EventEmitter {
     this._loginServerInfo.address = loginServerAddress as string;
   }
 
-  onZoneDataEvent(err: any, client: Client, packet: any) {
-    if (err) {
-      console.error(err);
-    } else {
-      client.pingTimer?.refresh();
+  onZoneDataEvent( client: Client, packet: any) {
+      client?.pingTimer?.refresh();
       if (
         packet.name != "KeepAlive" &&
         packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
@@ -383,13 +377,9 @@ export class ZoneServer2015 extends EventEmitter {
         console.error(error);
         console.error(`An error occurred while processing a packet : `, packet);
       }
-    }
   }
 
-  onZoneLoginEvent(err: any, client: Client) {
-    if (err) {
-      console.error(err);
-    } else {
+  onZoneLoginEvent(client: Client) {
       debug("zone login");
       try {
         this.sendInitData(client);
@@ -397,7 +387,6 @@ export class ZoneServer2015 extends EventEmitter {
         debug(error);
         this.sendData(client, "LoginFailed", {});
       }
-    }
   }
 
   generateTransientId(characterId: string): number {
@@ -426,7 +415,6 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   onGatewayLoginEvent(
-    err: string,
     soeClient: SOEClient,
     characterId: string,
     loginSessionId: string,
@@ -455,7 +443,7 @@ export class ZoneServer2015 extends EventEmitter {
     zoneClient.pingTimer = setTimeout(() => {
       this.timeoutClient(zoneClient);
     }, this._pingTimeoutTime);
-    this.emit("login", err, zoneClient);
+    this.emit("login", zoneClient);
   }
 
   onGatewayDisconnectEvent(err: string, client: Client) {
@@ -488,14 +476,13 @@ export class ZoneServer2015 extends EventEmitter {
   }
 
   onGatewayTunnelDataEvent(
-    err: string,
     client: Client,
     data: Buffer,
     flags: number
   ) {
     const packet = this._protocol.parse(data, flags);
     if (packet) {
-      this.emit("data", null, client, packet);
+      this.emit("data", client, packet);
     } else {
       debug("zonefailed : ", data);
     }
@@ -2518,7 +2505,11 @@ export class ZoneServer2015 extends EventEmitter {
     }
   }
 
-  sendData(client: Client, packetName: h1z1PacketsType, obj: zone2015packets): void {
+  sendData(
+    client: Client,
+    packetName: h1z1PacketsType,
+    obj: zone2015packets
+  ): void {
     if (packetName != "KeepAlive") {
       debug("send data", packetName);
     }
