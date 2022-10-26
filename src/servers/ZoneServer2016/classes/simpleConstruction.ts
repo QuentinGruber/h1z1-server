@@ -12,12 +12,12 @@ import { Items } from "../enums";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_WALL:
-    case Items.UPPER_METAL_WALL:
+    case Items.METAL_WALL_UPPER:
     case Items.SHELTER:
-    case Items.UPPER_LEVEL_SHELTER:
+    case Items.SHELTER_UPPER:
       return 4.3;
-    case Items.LARGE_SHELTER:
-    case Items.UPPER_LEVEL_LARGE_SHELER:
+    case Items.SHELTER_LARGE:
+    case Items.SHELTER_UPPER_LARGE:
       return 6.5;
     default:
       return 2;
