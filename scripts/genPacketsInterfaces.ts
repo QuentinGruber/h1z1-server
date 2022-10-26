@@ -41,7 +41,7 @@ function getSchemaBody(schema: any) {
       bodyInterfaceString += "}\n";
     } else {
       const type = typeMap[element.type];
-      const isOptionnal = element.defaultValue;
+      const isOptionnal = element.defaultValue !== undefined;
       bodyInterfaceString += `  ${element.name}${isOptionnal ? "?" : ""}: ${
         type || "any"
       };\n`;
@@ -51,7 +51,8 @@ function getSchemaBody(schema: any) {
 }
 
 function writeInterface(packets: any, name: string) {
-  let packetsInterfaces = "";
+  let packetsInterfaces = "/* prettier-ignore */ \n";
+  const packetsIntercacesNames:string[] = []
   Object.values(packets).forEach((packet: any) => {
     const { schema } = packet;
     let name;
@@ -62,11 +63,13 @@ function writeInterface(packets: any, name: string) {
     }
     let packetInterfaceString = "export interface " + name + " {\n";
     if (schema) {
+      packetsIntercacesNames.push(name);
       packetInterfaceString += getSchemaBody(schema);
       packetInterfaceString += "}\n";
       packetsInterfaces += packetInterfaceString;
     }
   });
+  packetsInterfaces += `export type ${name} = ${packetsIntercacesNames.join(" | ")};`
   fs.writeFileSync(`./src/types/${name}.ts`, packetsInterfaces);
 }
 

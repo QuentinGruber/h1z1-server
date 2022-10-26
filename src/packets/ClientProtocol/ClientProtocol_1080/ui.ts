@@ -24,15 +24,15 @@ export const uiPackets: any = [
   ["Ui.Message", 0x1a0e, {}],
   ["Ui.CinematicStartLookAt", 0x1a0f, {}],
   [
-    "Ui.WeaponHitFeedback", 
-    0x1a10, 
+    "Ui.WeaponHitFeedback",
+    0x1a10,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   ["Ui.HeadShotFeedback", 0x1a11, {}],
   ["Ui.WaypointCooldown", 0x1a14, {}],
@@ -44,8 +44,8 @@ export const uiPackets: any = [
   ["Ui.RewardNotification", 0x1a1a, {}],
   ["Ui.WarpgateRotateWarning", 0x1a1b, {}],
   [
-    "Ui.ConfirmHit", 
-    0x1a1c, 
+    "Ui.ConfirmHit",
+    0x1a1c,
     {
       fields: [
         {
@@ -63,7 +63,7 @@ export const uiPackets: any = [
             { bit: 7, name: "bit7", defaultValue: 0 },
           ],
         },
-      ]
-    }
+      ],
+    },
   ],
 ];

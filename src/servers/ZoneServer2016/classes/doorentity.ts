@@ -18,6 +18,10 @@ function getDoorSound(actorModelId: number) {
   let openSound = 5048;
   let closeSound = 5049;
   switch (actorModelId) {
+    case 49:
+      openSound = 5081;
+      closeSound = 5082;
+      break;
     case 9009:
     case 9165:
     case 9167:
@@ -73,7 +77,32 @@ function getDoorSound(actorModelId: number) {
 }
 
 export class DoorEntity extends BaseLightweightCharacter {
-  flags = { a: 0, b: 127, c: 0 };
+  flags = {
+    bit0: 0,
+    bit1: 0,
+    bit2: 0,
+    bit3: 0,
+    bit4: 0,
+    bit5: 0,
+    bit6: 0,
+    bit7: 0,
+    bit8: 0,
+    bit9: 0,
+    bit10: 0,
+    bit11: 0,
+    projectileCollision: 1,
+    bit13: 0,
+    bit14: 0,
+    bit15: 0,
+    bit16: 0,
+    bit17: 0,
+    bit18: 0,
+    bit19: 0,
+    noCollide: 0,
+    knockedOut: 0,
+    bit22: 0,
+    bit23: 0,
+  };
   spawnerId: number;
   npcRenderDistance = 150;
   openAngle: number;

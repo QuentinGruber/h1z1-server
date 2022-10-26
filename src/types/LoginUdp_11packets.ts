@@ -1,10 +1,11 @@
+/* prettier-ignore */ 
 export interface LoginRequest {
   sessionId: string;
   systemFingerPrint: string;
-  Locale: number;
-  ThirdPartyAuthTicket: number;
-  ThirdPartyUserId: number;
-  ThirdPartyId: number;
+  Locale?: number;
+  ThirdPartyAuthTicket?: number;
+  ThirdPartyUserId?: number;
+  ThirdPartyId?: number;
 }
 export interface LoginReply {
   loggedIn: boolean;
@@ -14,8 +15,10 @@ export interface LoginReply {
   namespace: string;
   ApplicationPayload: any;
 }
-export interface Logout {}
-export interface ForceDisconnect {}
+export interface Logout {
+}
+export interface ForceDisconnect {
+}
 export interface CharacterCreateRequest {
   serverId: number;
   unknown: number;
@@ -28,7 +31,7 @@ export interface CharacterCreateReply {
 export interface CharacterLoginRequest {
   characterId: string;
   serverId: number;
-  status: number;
+  status?: number;
   payload: any;
 }
 export interface CharacterLoginReply {
@@ -46,13 +49,15 @@ export interface CharacterDeleteReply {
   status: number;
   Payload: string;
 }
-export interface CharacterSelectInfoRequest {}
+export interface CharacterSelectInfoRequest {
+}
 export interface CharacterSelectInfoReply {
   status: number;
   canBypassServerLock: boolean;
   characters: any[];
 }
-export interface ServerListRequest {}
+export interface ServerListRequest {
+}
 export interface ServerListReply {
   servers: any[];
 }
@@ -68,7 +73,7 @@ export interface ServerUpdate {
   serverInfo: string;
   populationLevel: number;
   populationData: string;
-  AccessExpression: string;
+  AccessExpression?: string;
   allowedAccess: boolean;
 }
 export interface TunnelAppPacketClientToServer {
@@ -78,3 +83,4 @@ export interface TunnelAppPacketClientToServer {
 export interface TunnelAppPacketServerToClient {
   unknown1: boolean;
 }
+export type LoginUdp_11packets = LoginRequest | LoginReply | Logout | ForceDisconnect | CharacterCreateRequest | CharacterCreateReply | CharacterLoginRequest | CharacterLoginReply | CharacterDeleteRequest | CharacterDeleteReply | CharacterSelectInfoRequest | CharacterSelectInfoReply | ServerListRequest | ServerListReply | ServerUpdate | TunnelAppPacketClientToServer | TunnelAppPacketServerToClient;

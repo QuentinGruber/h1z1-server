@@ -36,7 +36,7 @@ export const clientUpdatePackets: any = [
           fields: [
             ...itemSchema,
             {
-              name: "unknownData1",
+              name: "weaponData",
               type: "custom",
               defaultValue: {},
               packer: packItemWeaponData,
@@ -338,7 +338,23 @@ export const clientUpdatePackets: any = [
   ],
   ["ClientUpdate.FileValidationRequest", 0x113600, {}],
   ["ClientUpdate.FileValidationResponse", 0x113700, {}],
-  ["ClientUpdate.DeathMetrics", 0x113800, {}],
+  [
+    "ClientUpdate.DeathMetrics",
+    0x113800,
+    {
+      fields: [
+        { name: "recipesDiscovered", type: "uint32", defaultValue: 0 },
+        { name: "unknown4", type: "uint32", defaultValue: 0 },
+        { name: "wildlifeKilled", type: "uint32", defaultValue: 0 },
+        { name: "zombiesKilled", type: "uint32", defaultValue: 0 },
+        { name: "unknown7", type: "uint32", defaultValue: 0 },
+        { name: "minutesSurvived", type: "uint32", defaultValue: 0 },
+        { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+        { name: "unknown10", type: "uint32", defaultValue: 0 },
+        { name: "unknown11", type: "boolean", defaultValue: 1 },
+      ],
+    },
+  ],
   ["ClientUpdate.ManagedObjectRequestControl", 0x113900, {}],
   [
     "ClientUpdate.ManagedObjectResponseControl",

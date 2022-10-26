@@ -56,13 +56,13 @@ async function test() {
     2
   );
   zoneServer._loginServerInfo.address = "127.0.0.1";
-    //@ts-ignore
-  zoneServer._gatewayServer._crcLength = 2;
+  //@ts-ignore
+  zoneServer._gatewayServer._waitQueueTimeMs = 0;
 
   await zoneServer.start();
 
   setTimeout(async () => {
-      //@ts-ignore
+    //@ts-ignore
     await zoneServer._db.collection("characters").insertOne(character);
     //await zoneServer._db.collection("user-sessions").insertOne(usersession);
     const client = new ZoneClient(

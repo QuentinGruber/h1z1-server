@@ -150,24 +150,11 @@ export class LoginClient extends EventEmitter {
     this._soeClient.connect();
   }
 
-  async login(fingerprint: string) {
-    async function SetupLoginRequest(
-      fingerprint: any,
-      sessionId: any,
-      protocol: any
-    ) {
-      const data = await protocol.pack("LoginRequest", {
-        sessionId: sessionId,
-        systemFingerPrint: fingerprint,
-      });
-      return data;
-    }
-
-    var data = await SetupLoginRequest(
-      fingerprint,
-      this._soeClient._sessionId.toString(),
-      this._protocol
-    );
+  login(fingerprint: string) {
+    const data = this._protocol.pack("LoginRequest", {
+      sessionId: this._soeClient._sessionId.toString(),
+      systemFingerPrint: fingerprint,
+    });
     debug("Sending login request");
     this._soeClient.sendAppData(data, true);
 

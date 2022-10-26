@@ -25,13 +25,13 @@ const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.j
 
 function getGender(actorModelId: number): number {
   switch (actorModelId) {
-      case 9510: // zombiemale
-      case 9240: // male character
-        return 1;
-      case 9634: // zombiefemale
-      case 9474: // female character
-        return 2;
-      default:
+    case 9510: // zombiemale
+    case 9240: // male character
+      return 1;
+    case 9634: // zombiefemale
+    case 9474: // female character
+      return 2;
+    default:
       return 0;
   }
 }
@@ -45,7 +45,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   loadoutId = 0;
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
-  flags = { a: 0, b: 0, c: 0 };
   gender: number;
   constructor(
     characterId: string,
@@ -67,7 +66,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       containerGuid: "0xFFFFFFFFFFFFFFFF",
       currentDurability: 0,
       stackCount: 0,
-      loadoutItemOwnerGuid: "0x0"
+      loadoutItemOwnerGuid: "0x0",
     };
   }
   setupLoadoutSlots() {
@@ -134,7 +133,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
     return undefined;
   }
-  getActiveEquipmentSlot(item: loadoutItem) {
+  getActiveEquipmentSlot(item: inventoryItem) {
     for (const equipment of Object.values(this._equipment)) {
       if (item.itemGuid == equipment.guid) {
         return equipment.slotId;
@@ -148,10 +147,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   // gets the amount of items of a specific itemDefinitionId
-  getInventoryItemAmount(
-    itemDefinitionId: number
-  ): number {
-    let items = 0
+  getInventoryItemAmount(itemDefinitionId: number): number {
+    let items = 0;
     for (const container of Object.values(this._containers)) {
       for (const item of Object.values(container.items)) {
         if (item.itemDefinitionId == itemDefinitionId) {
@@ -215,25 +212,23 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       : undefined;
   }
 
-  
   pGetAttachmentSlotsMod() {
     return Object.keys(this._equipment).map((slotId: any) => {
-      if(this.pGetAttachmentSlot(slotId)?.modelName == "Weapon_Empty.adr") {
+      if (this.pGetAttachmentSlot(slotId)?.modelName == "Weapon_Empty.adr") {
         return this.pGetAttachmentSlot(slotId);
       }
       return {
-          modelName: "",
-          textureAlias: "",
-          tintAlias: "Default",
-          decalAlias: "#",
-          slotId: slotId,
-          unknownArray1: [], // todo: test
-          unknownBool1: false
-      }
+        modelName: "",
+        textureAlias: "",
+        tintAlias: "Default",
+        decalAlias: "#",
+        slotId: slotId,
+        unknownArray1: [], // todo: test
+        unknownBool1: false,
+      };
     });
   }
-  
- 
+
   pGetEquipment() {
     return {
       characterData: {
@@ -273,6 +268,46 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
+  pGetItemData(item: inventoryItem, containerDefId: number) {
+    return {
+      itemDefinitionId: item.itemDefinitionId,
+      tintId: 0,
+      guid: item.itemGuid,
+      count: item.stackCount,
+      itemSubData: {
+        hasSubData: false,
+      },
+      containerGuid: item.containerGuid,
+      containerDefinitionId: containerDefId,
+      containerSlotId: item.slotId,
+      baseDurability: 0,
+      currentDurability: item.currentDurability,
+      maxDurabilityFromDefinition: 0,
+      unknownBoolean1: true,
+      ownerCharacterId: this.characterId,
+      unknownDword9: 1,
+      unknownBoolean2: false,
+    };
+  }
+
+  pGetInventoryItems() {
+    const items: any[] = Object.values(this._loadout)
+      .filter((slot) => {
+        if (slot.itemDefinitionId) {
+          return true;
+        }
+      })
+      .map((slot) => {
+        return this.pGetItemData(slot, 101);
+      });
+    Object.values(this._containers).forEach((container) => {
+      Object.values(container.items).forEach((item) => {
+        items.push(this.pGetItemData(item, container.containerDefinitionId));
+      });
+    });
+    return items;
+  }
+
   pGetFull() {
     return {
       transientId: this.transientId,
@@ -286,12 +321,15 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       targetData: {},
       unknownArray1: [],
       unknownArray2: [],
-      unknownArray3: { data: [] },
-      unknownArray4: { data: [] },
-      unknownArray5: { data: [] },
-      unknownArray6: { data: [] },
-      remoteWeapons: { data: [] },
-      itemsData: { data: [] },
+      unknownArray3: { data: {} },
+      unknownArray4: { data: {} },
+      unknownArray5: { data: {} },
+      unknownArray6: { data: {} },
+      remoteWeapons: { data: {} },
+      itemsData: {
+        items: this.pGetInventoryItems(),
+        unknownDword1: 0,
+      },
     };
   }
 

@@ -81,8 +81,7 @@ export class SOEInputStream extends EventEmitter {
         this.cpf_dataSize += fragment.payload.length;
 
         if (this.cpf_dataSize > this.cpf_totalSize) {
-          throw (
-            "processDataFragments: offset > totalSize: " +
+          this.emit("error", new Error( "processDataFragments: offset > totalSize: " +
             this.cpf_dataSize +
             " > " +
             this.cpf_totalSize +
@@ -90,7 +89,7 @@ export class SOEInputStream extends EventEmitter {
             fragmentSequence +
             ") (fragment length " +
             fragment.payload.length +
-            ")"
+            ")")
           );
         }
         if (this.cpf_dataSize === this.cpf_totalSize) {
@@ -151,7 +150,7 @@ export class SOEInputStream extends EventEmitter {
           data = Buffer.from(this._rc4.encrypt(data));
         }
       }
-      this.emit("appdata", null, data); // sending appdata to application
+      this.emit("appdata", data); // sending appdata to application
     }
   }
 
@@ -165,7 +164,7 @@ export class SOEInputStream extends EventEmitter {
       );
       // acknowledge that we receive this sequence but do not process it
       // until we're back in order
-      this.emit("outoforder", null, this._nextSequence.get(), sequence);
+      this.emit("outoforder", sequence);
       return false;
     } else {
       let ack = sequence;
@@ -178,11 +177,9 @@ export class SOEInputStream extends EventEmitter {
           break;
         }
       }
-      if (ack > this._lastAck.get()) {
-        this._lastAck.set(ack);
-        // all sequences behind lastAck are acknowledged
-        this.emit("ack", null, ack);
-      }
+      this._lastAck.set(ack);
+      // all sequences behind lastAck are acknowledged
+      this.emit("ack", ack);
       return true;
     }
   }

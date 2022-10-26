@@ -12,26 +12,43 @@
 // ======================================================================
 
 import { createPositionUpdate } from "../../../utils/utils";
-import { ResourceIds } from "../enums";
-import { positionUpdate, passengers } from "../../../types/zoneserver";
+import { Items, LoadoutIds, ResourceIds, VehicleIds } from "../enums";
+import { /*positionUpdate,*/ passengers } from "../../../types/zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {
-    case 7225: // offroader
-      return 1;
+    case 7225:
+      return VehicleIds.OFFROADER;
     case 9258: // pickup
-      return 2;
+      return VehicleIds.PICKUP;
     case 9301: // policecar
-      return 3;
+      return VehicleIds.POLICECAR;
     case 9588: // atv
-      return 5;
+      return VehicleIds.ATV;
     case 9374: // parachute
-      return 13;
+      return VehicleIds.PARACHUTE;
     case 9371: // spectate
-      return 1337;
+      return VehicleIds.SPECTATE;
     default:
-      return 1;
+      return VehicleIds.OFFROADER;
+  }
+}
+
+function getVehicleLoadoutId(vehicleId: number) {
+  switch (vehicleId) {
+    case VehicleIds.OFFROADER:
+      return LoadoutIds.VEHICLE_OFFROADER;
+    case VehicleIds.PICKUP:
+      return LoadoutIds.VEHICLE_PICKUP;
+    case VehicleIds.POLICECAR:
+      return LoadoutIds.VEHICLE_POLICECAR;
+    case VehicleIds.ATV:
+      return LoadoutIds.VEHICLE_ATV;
+    case VehicleIds.PARACHUTE:
+    case VehicleIds.SPECTATE:
+    default:
+      return 5; // idk if this is right but these vehicles dont have a loadout
   }
 }
 
@@ -41,7 +58,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   destroyedEffect: number = 0;
   engineOn: boolean = false;
   isLocked: number = 0;
-  positionUpdate: positionUpdate;
+  positionUpdate: any /*positionUpdate*/;
   fuelUpdater: any;
   isInvulnerable: boolean = false;
   onDismount?: any;
@@ -50,11 +67,10 @@ export class Vehicle2016 extends BaseFullCharacter {
   vehicleManager?: string;
   seats: { [seatId: string]: any } = {};
   passengers: passengers = {};
-  gameTime: number;
   vehicleId: number;
   destroyedState = 0;
   positionUpdateType = 1;
-  loadoutId = 5; // vehicle (need to confirm)
+  driverIsDead: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -74,11 +90,14 @@ export class Vehicle2016 extends BaseFullCharacter {
       lookAt: new Float32Array([0, 0, 0, 1]),
     };
     this.vehicleId = getVehicleId(this.actorModelId);
-    this.isInvulnerable = this.vehicleId == 1337 || this.vehicleId == 13;
+    this.loadoutId = getVehicleLoadoutId(this.vehicleId);
+    this.isInvulnerable =
+      this.vehicleId == VehicleIds.SPECTATE ||
+      this.vehicleId == VehicleIds.PARACHUTE;
     switch (this.vehicleId) {
-      case 1: // offroader
-      case 2: // pickup
-      case 3: // policecar
+      case VehicleIds.OFFROADER:
+      case VehicleIds.PICKUP:
+      case VehicleIds.POLICECAR:
         this.seats = {
           0: "",
           1: "",
@@ -87,7 +106,7 @@ export class Vehicle2016 extends BaseFullCharacter {
           4: "",
         };
         break;
-      case 5: // atv
+      case VehicleIds.ATV:
         this.seats = {
           0: "",
           1: "",
@@ -100,13 +119,19 @@ export class Vehicle2016 extends BaseFullCharacter {
         break;
     }
     Object.seal(this.seats); // object can't be edited, but properties can
-    this.gameTime = gameTime;
-    this.positionUpdate = createPositionUpdate(
-      this.state.position,
-      this.state.rotation,
-      this.gameTime
-    );
+    this.positionUpdate = {
+      ...createPositionUpdate(
+        this.state.position,
+        this.state.rotation,
+        gameTime
+      ),
+      vehicle: this,
+      get position() {
+        return this.vehicle.state.position;
+      },
+    };
   }
+
   getSeatCount() {
     return Object.keys(this.seats).length;
   }
@@ -180,5 +205,64 @@ export class Vehicle2016 extends BaseFullCharacter {
         },
       ],
     };
+  }
+  getInventoryItemId(): number {
+    switch (this.loadoutId) {
+      case LoadoutIds.VEHICLE_OFFROADER:
+        return Items.VEHICLE_CONTAINER_OFFROADER;
+      case LoadoutIds.VEHICLE_PICKUP:
+        return Items.VEHICLE_CONTAINER_PICKUP;
+      case LoadoutIds.VEHICLE_POLICECAR:
+        return Items.VEHICLE_CONTAINER_POLICECAR;
+      case LoadoutIds.VEHICLE_ATV:
+        return Items.VEHICLE_CONTAINER_ATV;
+      default:
+        return 0;
+    }
+  }
+
+  getTurboItemId(): number {
+    switch (this.loadoutId) {
+      case LoadoutIds.VEHICLE_OFFROADER:
+        return Items.TURBO_OFFROADER;
+      case LoadoutIds.VEHICLE_PICKUP:
+        return Items.TURBO_PICKUP;
+      case LoadoutIds.VEHICLE_POLICECAR:
+        return Items.TURBO_POLICE;
+      case LoadoutIds.VEHICLE_ATV:
+        return Items.TURBO_ATV;
+      default:
+        return 0;
+    }
+  }
+
+  getHeadlightsItemId(): number {
+    switch (this.loadoutId) {
+      case LoadoutIds.VEHICLE_OFFROADER:
+        return Items.HEADLIGHTS_OFFROADER;
+      case LoadoutIds.VEHICLE_PICKUP:
+        return Items.HEADLIGHTS_PICKUP;
+      case LoadoutIds.VEHICLE_POLICECAR:
+        return Items.HEADLIGHTS_POLICE;
+      case LoadoutIds.VEHICLE_ATV:
+        return Items.HEADLIGHTS_ATV;
+      default:
+        return 0;
+    }
+  }
+
+  getMotorItemId(): number {
+    switch (this.loadoutId) {
+      case LoadoutIds.VEHICLE_OFFROADER:
+        return Items.VEHICLE_MOTOR_OFFROADER;
+      case LoadoutIds.VEHICLE_PICKUP:
+        return Items.VEHICLE_MOTOR_PICKUP;
+      case LoadoutIds.VEHICLE_POLICECAR:
+        return Items.VEHICLE_MOTOR_POLICECAR;
+      case LoadoutIds.VEHICLE_ATV:
+        return Items.VEHICLE_MOTOR_ATV;
+      default:
+        return 0;
+    }
   }
 }

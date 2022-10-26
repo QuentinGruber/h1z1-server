@@ -21,28 +21,37 @@ export class ZoneClient2016 {
   isLoading: boolean = true;
   isInteracting: boolean = false;
   isAdmin: boolean = false;
+  banType: string = "";
+  HWID: string = "";
   posAtLastRoutine: Float32Array = new Float32Array();
   posAtLogoutStart: Float32Array = new Float32Array();
+  oldPos: { position: Float32Array; time: number } = {
+    position: new Float32Array(),
+    time: 0,
+  };
+  speedWarnsNumber: number = 0;
+  pvpStats: { shotsFired: number; shotsHit: number } = {
+    shotsFired: 0,
+    shotsHit: 0,
+  };
+  clientLogs: any[] = [];
   hudTimer?: NodeJS.Timeout | null;
   spawnedDTOs: any[] = [];
   spawnedEntities: any[] = [];
   managedObjects: string[] = [];
   vehicle: {
-    falling: number;
     mountedVehicle?: string;
-    mountedVehicleType?: string;
-    mountedVehicleSeat?: number;
-    vehicleState: number;
-    vehicleSeat: number;
-  };
+  } = {};
   npcsToSpawnTimer!: NodeJS.Timeout;
   loginSessionId: string;
   pingTimer: NodeJS.Timeout | undefined;
-  savePositionTimer: any;
   clearHudTimer: () => void;
   clearTimers: () => void;
   sessionId: number;
   soeClientId: string;
+  lastKeepAliveTime: number = 0;
+  pings: number[] = [];
+  avgPing: number = 0;
   constructor(
     sessionId: number,
     soeClientId: string,
@@ -56,11 +65,6 @@ export class ZoneClient2016 {
     this.isLoading = true;
     this.firstLoading = true;
     this.loginSessionId = loginSessionId;
-    this.vehicle = {
-      vehicleState: 0,
-      falling: -1,
-      vehicleSeat: 0,
-    };
     this.spawnedEntities = [];
     this.managedObjects = [];
     this.clearTimers = () => {

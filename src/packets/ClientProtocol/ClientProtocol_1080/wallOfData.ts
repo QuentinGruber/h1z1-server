@@ -24,7 +24,13 @@ export const wallOfDataPackets: any = [
       ],
     },
   ],
-  ["WallOfData.ClientSystemInfo", 0x9b06, {}],
+  [
+    "WallOfData.ClientSystemInfo",
+    0x9b06,
+    {
+      fields: [{ name: "info", type: "string", defaultValue: "" }],
+    },
+  ],
   ["WallOfData.VoiceChatEvent", 0x9b07, {}],
   ["WallOfData.NudgeEvent", 0x9b09, {}],
   ["WallOfData.LaunchPadFingerprint", 0x9b0a, {}],

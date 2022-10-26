@@ -34,10 +34,36 @@ export class BaseLightweightCharacter extends BaseEntity {
     rotation: Float32Array;
     lookAt: Float32Array;
   };
-  flags = { a: 0, b: 0, c: 0 };
+  flags = {
+    bit0: 0,
+    bit1: 0,
+    bit2: 0,
+    bit3: 0,
+    bit4: 0,
+    bit5: 0,
+    bit6: 0,
+    bit7: 0,
+    bit8: 0,
+    bit9: 0,
+    bit10: 0,
+    bit11: 0,
+    projectileCollision: 0,
+    bit13: 0,
+    bit14: 0,
+    bit15: 0,
+    bit16: 0,
+    bit17: 0,
+    bit18: 0,
+    bit19: 0,
+    noCollide: 0,
+    knockedOut: 0,
+    bit22: 0,
+    bit23: 0,
+  };
   isLightweight = true;
   positionUpdateType = 0;
   headActor = getHeadActor(this.actorModelId);
+  profileId: number = 0;
   constructor(
     characterId: string,
     transientId: number,
@@ -53,17 +79,28 @@ export class BaseLightweightCharacter extends BaseEntity {
     };
   }
 
+  /**
+   * Gets the lightweight npc/pc packet fields for use in sendself, addlightweightnpc, or addlightweightpc
+   */
   pGetLightweight() {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
       actorModelId: this.actorModelId,
-      position: this.state.position,
+      // fix players / vehicles spawning in ground
+      position: Array.from(this.state.position).map((pos, idx) => {
+        return idx == 1 ? pos++ : pos;
+      }),
       rotation: this.state.rotation,
       scale: this.scale,
       positionUpdateType: this.positionUpdateType,
+      profileId: this.profileId,
       isLightweight: this.isLightweight,
-      flags: this.flags,
+      flags: {
+        flags1: this.flags,
+        flags2: this.flags,
+        flags3: this.flags,
+      },
       headActor: this.headActor,
     };
   }
