@@ -1806,7 +1806,7 @@ export class ZoneServer2016 extends EventEmitter {
           return;
       }
       if (itemDefId) {
-        this.lootContainerItem(client, this.generateItem(itemDefId), count);
+        this.lootContainerItem(client, this.generateItem(itemDefId, count));
       }
       if (allowDes) {
         this.speedTreeDestroy(packet);
@@ -1988,7 +1988,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (item.currentDurability <= 0) {
       this.removeInventoryItem(client, item);
       if (this.isWeapon(item.itemDefinitionId)) {
-        this.lootContainerItem(client, this.generateItem(1354), 1, true);
+        this.lootContainerItem(client, this.generateItem(1354));
       }
       return;
     }
@@ -4945,7 +4945,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
-      this.lootContainerItem(client, oldLoadoutItem, 1, false);
+      this.lootContainerItem(client, oldLoadoutItem, undefined, false);
     }
     this.equipItem(client.character, item, true, slotId);
   }
@@ -5846,6 +5846,8 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     //endregion
+
+    /*
     let container: loadoutContainer | undefined = undefined;
     Object.values(client.character._containers).forEach((c)=> {
       if(!container || this.getAvailableBulk(c) > this.getAvailableBulk(container)) {
@@ -5874,6 +5876,9 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
+    */
+
+    this.lootItem(client, item);
 
     if (
       item.itemDefinitionId === Items.FUEL_BIOFUEL ||
@@ -5888,21 +5893,48 @@ export class ZoneServer2016 extends EventEmitter {
   lootContainerItem(
     client: Client,
     item: inventoryItem | undefined,
-    count: number,
+    count: number | undefined = undefined,
     sendUpdate: boolean = true
   ) {
     if (!item) return;
+    if(!count) count = item.stackCount;
+    if (count > item.stackCount) {
+      console.error(
+        `LootContainerItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`
+      );
+      count = item.stackCount;
+    }
+
     const itemDefId = item.itemDefinitionId,
       availableContainer = this.getAvailableContainer(
         client.character,
         itemDefId,
         count
       );
+
     if (!availableContainer) {
       // container error full
       this.sendData(client, "Character.NoSpaceNotification", {
         characterId: client.character.characterId,
       });
+
+      let container: loadoutContainer | undefined = undefined;
+      Object.values(client.character._containers).forEach((c)=> {
+        if(!container || this.getAvailableBulk(c) > this.getAvailableBulk(container)) {
+          container = c; // container with the most open bulk
+        }
+      })
+
+      if(container) {
+        const availableSpace = this.getAvailableBulk(container),
+        itemBulk = this.getItemDefinition(item.itemDefinitionId).BULK,
+        lootCount = Math.floor(availableSpace / itemBulk);
+        if(lootCount) {
+          item.stackCount -= lootCount;
+          this.lootContainerItem(client, this.generateItem(item.itemDefinitionId, lootCount));
+        }
+      }
+
       this.worldObjectManager.createLootEntity(
         this,
         item,
@@ -5911,6 +5943,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
+
     const itemStackGuid = this.getAvailableItemStack(
       availableContainer,
       itemDefId,
@@ -6106,29 +6139,29 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
   giveDefaultItems(client: Client, sendPacket: boolean) {
-    this.lootContainerItem(client, this.generateItem(Items.MAP), 1, sendPacket);
+    this.lootContainerItem(client, this.generateItem(Items.MAP), undefined, sendPacket);
     this.lootContainerItem(
       client,
       this.generateItem(Items.COMPASS),
-      1,
+      undefined,
       sendPacket
     );
     this.lootContainerItem(
       client,
-      this.generateItem(Items.GAUZE),
-      5,
+      this.generateItem(Items.GAUZE, 5),
+      undefined,
       sendPacket
     );
     this.lootContainerItem(
       client,
       this.generateItem(Items.FLARE),
-      1,
+      undefined,
       sendPacket
     );
     this.lootContainerItem(
       client,
       this.generateItem(Items.LIGHTER),
-      1,
+      undefined,
       sendPacket
     );
   }
@@ -6289,7 +6322,7 @@ export class ZoneServer2016 extends EventEmitter {
   fillPass(client: Client, item: inventoryItem) {
     if (client.character.characterStates.inWater) {
       this.removeInventoryItem(client, item);
-      this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
+      this.lootContainerItem(client, this.generateItem(1368)); // give dirty water
     } else {
       this.sendAlert(client, "There is no water source nearby");
     }
@@ -6410,7 +6443,7 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceIds.HYDRATION
     );
     if (givetrash) {
-      this.lootContainerItem(client, this.generateItem(givetrash), 1);
+      this.lootContainerItem(client, this.generateItem(givetrash));
     }
   }
 
@@ -6437,7 +6470,7 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceIds.HYDRATION
     );
     if (givetrash) {
-      this.lootContainerItem(client, this.generateItem(givetrash), 1);
+      this.lootContainerItem(client, this.generateItem(givetrash));
     }
   }
 
