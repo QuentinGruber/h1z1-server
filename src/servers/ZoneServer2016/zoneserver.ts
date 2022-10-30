@@ -1806,7 +1806,7 @@ export class ZoneServer2016 extends EventEmitter {
           return;
       }
       if (itemDefId) {
-        this.lootContainerItem(client, this.generateItem(itemDefId), count);
+        this.lootContainerItem(client, this.generateItem(itemDefId, count));
       }
       if (allowDes) {
         this.speedTreeDestroy(packet);
@@ -1988,7 +1988,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (item.currentDurability <= 0) {
       this.removeInventoryItem(client, item);
       if (this.isWeapon(item.itemDefinitionId)) {
-        this.lootContainerItem(client, this.generateItem(1354), 1, true);
+        this.lootContainerItem(client, this.generateItem(1354));
       }
       return;
     }
@@ -4945,7 +4945,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
-      this.lootContainerItem(client, oldLoadoutItem, 1, false);
+      this.lootContainerItem(client, oldLoadoutItem, undefined, false);
     }
     this.equipItem(client.character, item, true, slotId);
   }
@@ -4989,7 +4989,7 @@ export class ZoneServer2016 extends EventEmitter {
    * loadout, and item update packets to client if true.
    * @param loadoutSlotId Optional: The loadoutSlotId to manually try to equip the item to. This will be
    * found automatically if not defined.
-   */
+  */
   equipItem(
     character: BaseFullCharacter,
     item: inventoryItem | undefined,
@@ -5126,24 +5126,44 @@ export class ZoneServer2016 extends EventEmitter {
     };
   }
 
+  /**
+   * Gets the item definition for a given itemDefinitionId
+   * @param itemDefinitionId The id of the itemdefinition to retrieve.
+  */
   getItemDefinition(itemDefinitionId: number | undefined) {
     if (!itemDefinitionId) return;
     return this._itemDefinitions[itemDefinitionId];
   }
 
+  /**
+   * Gets the weapon definition for a given weaponDefinitionId.
+   * @param weaponDefinitionId The id of the weapondefinition to retrieve.
+  */
   getWeaponDefinition(weaponDefinitionId: number) {
     if (!weaponDefinitionId) return;
     return this._weaponDefinitions[weaponDefinitionId]?.DATA;
   }
 
+  /**
+   * Gets the firegroup definition for a given firegroupId.
+   * @param firegroupId The id of the firegroupDefinition to retrieve.
+  */
   getFiregroupDefinition(firegroupId: number) {
     return this._firegroupDefinitions[firegroupId]?.DATA;
   }
 
+  /**
+   * Gets the firemode definition for a given firemodeId.
+   * @param firemodeId The id of the firemodeDefinition to retrieve.
+  */
   getFiremodeDefinition(firemodeId: number) {
     return this._firemodeDefinitions[firemodeId]?.DATA.DATA;
   }
 
+  /**
+   * Gets the ammoId for a given weapon.
+   * @param itemDefinitionId The itemDefinitionId of the weapon.
+  */
   getWeaponAmmoId(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
       weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1),
@@ -5156,6 +5176,11 @@ export class ZoneServer2016 extends EventEmitter {
 
     return firemodeDefinition?.AMMO_ITEM_ID || 0;
   }
+
+  /**
+   * Gets the reload time in ms for a given weapon.
+   * @param itemDefinitionId The itemDefinitionId of the weapon.
+  */
   getWeaponReloadTime(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
       weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1),
@@ -5169,6 +5194,22 @@ export class ZoneServer2016 extends EventEmitter {
     return firemodeDefinition?.RELOAD_TIME_MS || 0;
   }
 
+
+  /**
+   * Gets the clip size for a given weapon.
+   * @param itemDefinitionId The itemDefinitionId of the weapon.
+  */
+  getWeaponClipSize(itemDefinitionId: number): number {
+    const itemDefinition = this.getItemDefinition(itemDefinitionId),
+      weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1);
+
+    return weaponDefinition.AMMO_SLOTS[0]?.CLIP_SIZE || 0;
+  }
+
+  /**
+   * Gets the maximum amount of ammo a clip can hold for a given weapon.
+   * @param itemDefinitionId The itemDefinitionId of the weapon.
+  */
   getWeaponMaxAmmo(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
       weaponDefinition = this.getWeaponDefinition(itemDefinition?.PARAM1);
@@ -5176,19 +5217,49 @@ export class ZoneServer2016 extends EventEmitter {
     return weaponDefinition.AMMO_SLOTS[0]?.CLIP_SIZE || 0;
   }
 
+  /**
+   * Gets the maximum bulk that a given container can hold.
+   * @param container The container object.
+  */
+  getContainerMaxBulk(
+    container: loadoutContainer
+  ): number {
+    return this.getContainerDefinition(container.containerDefinitionId).MAX_BULK
+  }
+
+  /**
+   * Gets the maximum slots that a given container can hold.
+   * @param container The container object.
+  */
+  getContainerMaxSlots(
+    container: loadoutContainer
+  ): number {
+    return this.getContainerDefinition(container.containerDefinitionId).MAXIMUM_SLOTS
+  }
+
+  /**
+   * Returns a boolean if a given container has enough space for a given amount of a certain item.
+   * @param container The container object.
+   * @param itemDefinitionId Tje definiton id of the item to check.
+   * @param count The amount of the item to check.
+  */
   getContainerHasSpace(
     container: loadoutContainer,
     itemDefinitionId: number,
     count: number
   ): boolean {
     return !!(
-      this.getContainerDefinition(container.containerDefinitionId).MAX_BULK -
+      this.getContainerMaxBulk(container) -
         (this.getContainerBulk(container) +
           this.getItemDefinition(itemDefinitionId).BULK * count) >=
       0
     );
   }
 
+  /**
+   * Gets the container definition for a given containerDefinitionId.
+   * @param containerDefinitionId The id of the container definition to retrieve.
+  */
   getContainerDefinition(containerDefinitionId: any) {
     if (this._containerDefinitions[containerDefinitionId]) {
       return this._containerDefinitions[containerDefinitionId];
@@ -5200,6 +5271,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  /**
+   * Generates and returns an unused itemGuid.
+  */
   generateItemGuid(): bigint {
     return ++this.lastItemGuid;
   }
@@ -5394,7 +5468,7 @@ export class ZoneServer2016 extends EventEmitter {
    * Gets the used bulk for a given container.
    * @param container The container to check.
    * @returns Returns the amount of bulk used.
-   */
+  */
   getContainerBulk(container: loadoutContainer): number {
     let bulk = 0;
     for (const item of Object.values(container.items)) {
@@ -5402,6 +5476,15 @@ export class ZoneServer2016 extends EventEmitter {
         this.getItemDefinition(item.itemDefinitionId).BULK * item.stackCount;
     }
     return bulk;
+  }
+
+  /**
+   * Gets the available bulk for a given container.
+   * @param container The container to check.
+   * @returns Returns the amount of bulk available.
+  */
+  getAvailableBulk(container: loadoutContainer): number {
+    return this.getContainerMaxBulk(container) - this.getContainerBulk(container);
   }
 
   /**
@@ -5418,13 +5501,9 @@ export class ZoneServer2016 extends EventEmitter {
   ): loadoutContainer | undefined {
     const itemDef = this.getItemDefinition(itemDefinitionId);
     for (const container of Object.values(character._containers)) {
-      const containerItemDef = this.getItemDefinition(
-          container?.itemDefinitionId
-        ),
-        containerDef = this.getContainerDefinition(containerItemDef?.PARAM1);
       if (
         container &&
-        containerDef?.MAX_BULK >=
+        this.getContainerMaxBulk(container) >=
           this.getContainerBulk(container) + itemDef.BULK * count
       ) {
         return container;
@@ -5767,7 +5846,40 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     //endregion
-    this.lootItem(client, item); // TODO: SPLIT STACK IF NOT ENOUGH SPACE !
+
+    /*
+    let container: loadoutContainer | undefined = undefined;
+    Object.values(client.character._containers).forEach((c)=> {
+      if(!container || this.getAvailableBulk(c) > this.getAvailableBulk(container)) {
+        container = c;
+      }
+    })
+
+  if(
+    (container && this.getContainerHasSpace(container,  item.itemDefinitionId, item.stackCount)) 
+    || item.stackCount == 1 // loadout items / items that are too big to fit in any container
+  ) {
+      this.lootItem(client, item);
+    }
+    else {
+      if(container) {
+        const availableSpace = this.getAvailableBulk(container),
+        itemBulk = this.getItemDefinition(item.itemDefinitionId).BULK,
+        lootCount = Math.floor(availableSpace / itemBulk);
+        item.stackCount -= lootCount;
+        this.lootItem(client, this.generateItem(item.itemDefinitionId, lootCount));
+      }
+      else { // if no containers are equipped
+        this.sendData(client, "Character.NoSpaceNotification", {
+          characterId: client.character.characterId,
+        });
+      }
+      return;
+    }
+    */
+
+    this.lootItem(client, item);
+
     if (
       item.itemDefinitionId === Items.FUEL_BIOFUEL ||
       item.itemDefinitionId === Items.FUEL_ETHANOL
@@ -5781,21 +5893,48 @@ export class ZoneServer2016 extends EventEmitter {
   lootContainerItem(
     client: Client,
     item: inventoryItem | undefined,
-    count: number,
+    count: number | undefined = undefined,
     sendUpdate: boolean = true
   ) {
     if (!item) return;
+    if(!count) count = item.stackCount;
+    if (count > item.stackCount) {
+      console.error(
+        `LootContainerItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`
+      );
+      count = item.stackCount;
+    }
+
     const itemDefId = item.itemDefinitionId,
       availableContainer = this.getAvailableContainer(
         client.character,
         itemDefId,
         count
       );
+
     if (!availableContainer) {
       // container error full
       this.sendData(client, "Character.NoSpaceNotification", {
         characterId: client.character.characterId,
       });
+
+      let container: loadoutContainer | undefined = undefined;
+      Object.values(client.character._containers).forEach((c)=> {
+        if(!container || this.getAvailableBulk(c) > this.getAvailableBulk(container)) {
+          container = c; // container with the most open bulk
+        }
+      })
+
+      if(container) {
+        const availableSpace = this.getAvailableBulk(container),
+        itemBulk = this.getItemDefinition(item.itemDefinitionId).BULK,
+        lootCount = Math.floor(availableSpace / itemBulk);
+        if(lootCount) {
+          item.stackCount -= lootCount;
+          this.lootContainerItem(client, this.generateItem(item.itemDefinitionId, lootCount));
+        }
+      }
+
       this.worldObjectManager.createLootEntity(
         this,
         item,
@@ -5804,6 +5943,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
+
     const itemStackGuid = this.getAvailableItemStack(
       availableContainer,
       itemDefId,
@@ -5843,16 +5983,13 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   pGetContainerData(character: BaseFullCharacter, container: loadoutContainer) {
-    const containerDefinition = this.getContainerDefinition(
-      container.containerDefinitionId
-    );
     return {
       loadoutSlotId: container.slotId,
       containerData: {
         guid: container.itemGuid,
         definitionId: container.containerDefinitionId,
         associatedCharacterId: character.characterId,
-        slots: containerDefinition.MAXIMUM_SLOTS,
+        slots: this.getContainerMaxSlots(container),
         items: Object.values(container.items).map((item, idx) => {
           container.items[item.itemGuid].slotId = idx + 1;
           return {
@@ -5865,10 +6002,10 @@ export class ZoneServer2016 extends EventEmitter {
           };
         }),
         unknownBoolean1: true, // needs to be true or bulk doesn't show up
-        maxBulk: containerDefinition.MAX_BULK,
+        maxBulk: this.getContainerMaxBulk(container),
         unknownDword4: 28,
         bulkUsed: this.getContainerBulk(container),
-        hasBulkLimit: !!containerDefinition.MAX_BULK,
+        hasBulkLimit: !!this.getContainerMaxBulk(container),
       },
     };
   }
@@ -5892,9 +6029,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   updateContainer(client: Client, container: loadoutContainer | undefined) {
     if (!container || !client.character.initialized) return;
-    const containerDefinition = this.getContainerDefinition(
-      container.containerDefinitionId
-    );
     this.sendData(client, "Container.UpdateEquippedContainer", {
       ignore: client.character.characterId,
       characterId: client.character.characterId,
@@ -5902,7 +6036,7 @@ export class ZoneServer2016 extends EventEmitter {
         guid: container.itemGuid,
         definitionId: container.containerDefinitionId,
         associatedCharacterId: client.character.characterId,
-        slots: containerDefinition.MAXIMUM_SLOTS,
+        slots: this.getContainerMaxSlots(container),
         items: Object.values(container.items).map((item, idx) => {
           container.items[item.itemGuid].slotId = idx + 1;
           return {
@@ -5915,10 +6049,10 @@ export class ZoneServer2016 extends EventEmitter {
           };
         }),
         unknownBoolean1: true, // needs to be true or bulk doesn't show up
-        maxBulk: containerDefinition.MAX_BULK,
+        maxBulk: this.getContainerMaxBulk(container),
         unknownDword4: 28,
         bulkUsed: this.getContainerBulk(container),
-        hasBulkLimit: !!containerDefinition.MAX_BULK,
+        hasBulkLimit: !!this.getContainerMaxBulk(container),
       },
     });
   }
@@ -6005,29 +6139,29 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
   giveDefaultItems(client: Client, sendPacket: boolean) {
-    this.lootContainerItem(client, this.generateItem(Items.MAP), 1, sendPacket);
+    this.lootContainerItem(client, this.generateItem(Items.MAP), undefined, sendPacket);
     this.lootContainerItem(
       client,
       this.generateItem(Items.COMPASS),
-      1,
+      undefined,
       sendPacket
     );
     this.lootContainerItem(
       client,
-      this.generateItem(Items.GAUZE),
-      5,
+      this.generateItem(Items.GAUZE, 5),
+      undefined,
       sendPacket
     );
     this.lootContainerItem(
       client,
       this.generateItem(Items.FLARE),
-      1,
+      undefined,
       sendPacket
     );
     this.lootContainerItem(
       client,
       this.generateItem(Items.LIGHTER),
-      1,
+      undefined,
       sendPacket
     );
   }
@@ -6188,7 +6322,7 @@ export class ZoneServer2016 extends EventEmitter {
   fillPass(client: Client, item: inventoryItem) {
     if (client.character.characterStates.inWater) {
       this.removeInventoryItem(client, item);
-      this.lootContainerItem(client, this.generateItem(1368), 1); // give dirty water
+      this.lootContainerItem(client, this.generateItem(1368)); // give dirty water
     } else {
       this.sendAlert(client, "There is no water source nearby");
     }
@@ -6309,7 +6443,7 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceIds.HYDRATION
     );
     if (givetrash) {
-      this.lootContainerItem(client, this.generateItem(givetrash), 1);
+      this.lootContainerItem(client, this.generateItem(givetrash));
     }
   }
 
@@ -6336,7 +6470,7 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceIds.HYDRATION
     );
     if (givetrash) {
-      this.lootContainerItem(client, this.generateItem(givetrash), 1);
+      this.lootContainerItem(client, this.generateItem(givetrash));
     }
   }
 
