@@ -478,12 +478,12 @@ export const commands: Array<Command> = [
     },
   },
   {
-    name: "fog",
+    name: "sfog",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
       server.sendChatText(
         client,
-        "Fog has been toggled ".concat(server.toggleFog() ? "ON" : "OFF"),
+        `Fog has been toggled ${server.toggleFog() ? "ON" : "OFF"} for the server`,
         true
       );
     },

@@ -8,8 +8,8 @@ import {
 import { loadoutContainer, loadoutItem } from "types/zoneserver";
 import { initMongo, toBigHex, _ } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
-import { Vehicle2016 } from "./vehicle";
-import { ZoneClient2016 as Client } from "./zoneclient";
+import { Vehicle2016 } from "../classes/vehicle";
+import { ZoneClient2016 as Client } from "../classes/zoneclient";
 
 const fs = require("fs");
 const debug = require("debug")("ZoneServer");

@@ -42,7 +42,7 @@ import {
   VehicleIds,
 } from "./enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
-import { changeFog } from "./workers/dynamicWeather";
+import { WeatherManager } from "./managers/weathermanager";
 
 import {
   characterEquipment,
@@ -84,7 +84,6 @@ import {
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
-import dynamicWeather from "./workers/dynamicWeather";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ItemObject } from "./classes/itemobject";
 import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
@@ -100,7 +99,7 @@ import { constructionDoor } from "./classes/constructionDoor";
 import { ConstructionParentEntity } from "./classes/constructionParentEntity";
 import { simpleConstruction } from "./classes/simpleConstruction";
 import { FullCharacterSaveData, ServerSaveData } from "types/savedata";
-import { WorldDataManager } from "./classes/worlddatamanager";
+import { WorldDataManager } from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
 
 import {
@@ -211,6 +210,7 @@ export class ZoneServer2016 extends EventEmitter {
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
   worldObjectManager: WorldObjectManager;
+  weatherManager: WeatherManager;
   worldDataManager: WorldDataManager;
   plantingManager: PlantingManager;
   _ready: boolean = false;
@@ -260,6 +260,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
+    this.weatherManager = new WeatherManager();
     this.worldDataManager = new WorldDataManager();
     this.plantingManager = new PlantingManager(null);
     this.enableWorldSaves =
@@ -795,7 +796,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (!this._dynamicWeatherEnabled) {
           return;
         }
-        this._weather2016 = dynamicWeather(
+        this._weather2016 = this.weatherManager.dynamicWeather(
           this._serverTime,
           this._startTime,
           this._timeMultiplier
@@ -7020,7 +7021,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   toggleFog() {
-    return changeFog();
+    return this.weatherManager.changeFog();
   }
 
   pSetImmediate = promisify(setImmediate);
