@@ -1047,7 +1047,7 @@ export const commands: Array<Command> = [
     },
   },
   {
-    name: "godmode",
+    name: "gm", // "god" also works
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
       server.setGodMode(client, !client.character.godMode);

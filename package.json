@@ -6,7 +6,7 @@
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "engines": {
-    "node": ">=0.16.0 <19"
+    "node": ">=0.16.0 <20"
   },
   "bin": {
     "h1z1-server-demo": "scripts/h1z1-server-demo.js",
@@ -15,7 +15,7 @@
   "dependencies": {
     "debug": "4.3.4",
     "discord-webhook-node": "1.1.8",
-    "h1emu-core": "0.9.3",
+    "h1emu-core": "1.0.0",
     "h1z1-dataschema": "1.5.12",
     "mongodb": "4.7.0",
     "typescript": "4.7.2"
