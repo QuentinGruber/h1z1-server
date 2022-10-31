@@ -28,7 +28,7 @@ import {
   quat2matrix,
 } from "../../utils/utils";
 
-import { CraftManager } from "./classes/craftmanager";
+import { CraftManager } from "./managers/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";

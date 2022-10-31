@@ -13,7 +13,7 @@
 
 import { ContainerErrors } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
-import { ZoneClient2016 as Client } from "./zoneclient";
+import { ZoneClient2016 as Client } from "../classes/zoneclient";
 const debug = require("debug")("ZoneServer");
 
 interface craftComponentDSEntry {
