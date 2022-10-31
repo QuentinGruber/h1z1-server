@@ -40,7 +40,7 @@ import {
   ResourceIds,
   ResourceTypes,
   VehicleIds,
-} from "./enums";
+} from "./models/enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
 
@@ -108,7 +108,7 @@ import {
   EquipmentSetCharacterEquipmentSlot,
   zone2016packets,
 } from "types/zone2016packets";
-import { AsyncHooks, AsyncHookType, FunctionHookType, Hooks } from "./hooks";
+import { AsyncHooks, AsyncHookType, FunctionHookType, Hooks } from "./models/hooks";
 import { getCharacterModelData } from "../shared/functions";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),

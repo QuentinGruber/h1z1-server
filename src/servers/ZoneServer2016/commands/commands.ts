@@ -19,7 +19,7 @@ import { ExplosiveEntity } from "../classes/explosiveentity";
 import { Npc } from "../classes/npc";
 import { Vehicle2016 as Vehicle } from "../classes/vehicle";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
-import { EquipSlots } from "../enums";
+import { EquipSlots } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
 

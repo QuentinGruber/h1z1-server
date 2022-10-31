@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { simpleConstruction } from "./simpleConstruction";
-import { Items } from "../enums";
+import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { getRectangleCorners } from "../../../utils/utils";
 

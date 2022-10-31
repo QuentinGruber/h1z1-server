@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { createPositionUpdate } from "../../../utils/utils";
-import { Items, LoadoutIds, ResourceIds, VehicleIds } from "../enums";
+import { Items, LoadoutIds, ResourceIds, VehicleIds } from "../models/enums";
 import { /*positionUpdate,*/ passengers } from "../../../types/zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 

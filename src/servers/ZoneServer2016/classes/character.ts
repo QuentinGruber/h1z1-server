@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { LoadoutIds, LoadoutSlots, ResourceIds } from "../enums";
+import { LoadoutIds, LoadoutSlots, ResourceIds } from "../models/enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";

@@ -25,7 +25,7 @@ import {
   isPosInRadius,
   randomIntFromInterval,
 } from "../../../utils/utils";
-import { EquipSlots, Items } from "../enums";
+import { EquipSlots, Items } from "../models/enums";
 import { Vehicle2016 } from "./../classes/vehicle";
 import { inventoryItem } from "types/zoneserver";
 import { ItemObject } from "./itemobject";

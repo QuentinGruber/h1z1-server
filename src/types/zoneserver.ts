@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { FilterIds } from "servers/ZoneServer2016/enums";
+import { FilterIds } from "servers/ZoneServer2016/models/enums";
 
 export interface npcData {
   guid: string;

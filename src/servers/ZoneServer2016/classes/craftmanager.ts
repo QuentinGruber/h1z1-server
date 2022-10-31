@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ContainerErrors } from "../enums";
+import { ContainerErrors } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 as Client } from "./zoneclient";
 const debug = require("debug")("ZoneServer");

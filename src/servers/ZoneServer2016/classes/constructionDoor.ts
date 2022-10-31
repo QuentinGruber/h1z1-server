@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { DoorEntity } from "./doorentity";
-import { Items } from "../enums";
+import { Items } from "../models/enums";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_GATE:
