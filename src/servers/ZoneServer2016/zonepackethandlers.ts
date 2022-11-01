@@ -211,14 +211,13 @@ export class zonePacketHandlers {
         }
         server.playerDamage(client, damage);
       }
-    };
     } else if (vehicle) {
       server.damageVehicle(damage / 50, vehicle);
       //server.DTOhit(client, packet);
     }
   }
   
-  this.CommandPointAndReport = function (
+  CommandPointAndReport(
       server: ZoneServer2016,
       client: Client,
       packet: any
@@ -257,7 +256,7 @@ export class zonePacketHandlers {
           server.sendDiscordHook(client, targetClient, 'Point and Click Report', 'player decided that suspect is sus :)', obj) // mas�o ma�lane
         */ // disabled for now, people use it to check if a player is nearby
     };
-    this.CommandReportLastDeath = function (
+    CommandReportLastDeath(
       server: ZoneServer2016,
       client: Client,
       packet: any
