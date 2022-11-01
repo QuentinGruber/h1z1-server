@@ -86,7 +86,7 @@ export class CommandHandler {
     delete require.cache[require.resolve("./commands")];
     delete require.cache[require.resolve("./internalCommands")];
     const commands = require("./commands").commands,
-    internalCommands = require("./internalCommands").commands;
+    internalCommands = require("./internalCommands").internalCommands;
     this.indexCommands(commands, internalCommands);
   }
 }
