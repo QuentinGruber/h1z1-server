@@ -273,8 +273,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.on("data", this.onZoneDataEvent);
 
-    this.on("login", (err, client) => {
-      this.onZoneLoginEvent(err, client);
+    this.on("login", (client) => {
+      this.onZoneLoginEvent(client);
     });
 
     this._gatewayServer._soeServer.on("fatalError", (soeClient: SOEClient) => {
@@ -285,7 +285,6 @@ export class ZoneServer2016 extends EventEmitter {
     this._gatewayServer.on(
       "login",
       async (
-        err: string,
         client: SOEClient,
         characterId: string,
         loginSessionId: string,
@@ -326,7 +325,7 @@ export class ZoneServer2016 extends EventEmitter {
         zoneClient.pingTimer = setTimeout(() => {
           this.timeoutClient(zoneClient);
         }, this._pingTimeoutTime);
-        this.emit("login", err, zoneClient);
+        this.emit("login", zoneClient);
       }
     );
     this._gatewayServer.on("disconnect", (err: string, client: SOEClient) => {
@@ -473,17 +472,13 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  onZoneLoginEvent(err: any, client: Client) {
-    if (err) {
-      console.error(err);
-    } else {
-      debug("zone login");
-      try {
-        this.sendInitData(client);
-      } catch (error) {
-        debug(error);
-        this.sendData(client, "LoginFailed", {});
-      }
+  onZoneLoginEvent(client: Client) {
+    debug("zone login");
+    try {
+      this.sendInitData(client);
+    } catch (error) {
+      debug(error);
+      this.sendData(client, "LoginFailed", {});
     }
   }
 
@@ -3504,8 +3499,9 @@ export class ZoneServer2016 extends EventEmitter {
             break;
         case Items.LANDMINE: this.placeExplosiveEntity(client, itemDefinitionId, modelId, position, eul2quat(rotation), false);
             break;
-        case Items.DOOR_BASIC:
         case Items.METAL_GATE:
+        case Items.DOOR_BASIC:
+        case Items.DOOR_WOOD:
         case Items.DOOR_METAL: this.placeConstructionDoor(client, itemDefinitionId, modelId, position, rotation, parentObjectCharacterId, BuildingSlot);
             break;
         case Items.GROUND_TAMPER:
