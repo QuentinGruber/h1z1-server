@@ -62,7 +62,6 @@ export class LoginServer extends EventEmitter {
   _protocol: LoginProtocol;
   _protocol2016: LoginProtocol2016;
   _db: any;
-  _compression: number;
   _crcSeed: number;
   _crcLength: crc_length_options;
   _udpLength: number;
@@ -84,7 +83,6 @@ export class LoginServer extends EventEmitter {
 
   constructor(serverPort: number, mongoAddress = "") {
     super();
-    this._compression = 0x0100;
     this._crcSeed = 0;
     this._crcLength = 0;
     this._udpLength = 512;
@@ -100,7 +98,7 @@ export class LoginServer extends EventEmitter {
       debug("Server in solo mode !");
     }
 
-    this._soeServer = new SOEServer("LoginUdp_9", serverPort, this._cryptoKey);
+    this._soeServer = new SOEServer(serverPort, this._cryptoKey);
     // 2016 client doesn't send a disconnect packet so we've to use that
     // But that can't be enabled on zoneserver
     this._soeServer._usePingTimeout = true;

@@ -249,7 +249,6 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     super();
     this._gatewayServer = new GatewayServer(
-      "ExternalGatewayApi_3",
       serverPort,
       gatewayKey
     );
