@@ -780,7 +780,7 @@ export class LoginServer extends EventEmitter {
             address: address,
             port: port,
             clientId: zoneConnectionString,
-            session: true,
+            serverId: 1, // TODO: that's a hack
           } as any,
           packetName,
           { reqId: reqId, ...packetObj }
