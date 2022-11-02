@@ -654,7 +654,7 @@ export class LoginServer extends EventEmitter {
     let charactersLoginInfo: CharacterLoginReply;
     const { serverId, characterId } = packet;
     if (!this._soloMode) {
-      const { serverAddress } = await this._db
+      const { serverAddress,populationNumber,maxPopulationNumber } = await this._db
         .collection("servers")
         .findOne({ serverId: serverId });
       const character = await this._db
@@ -662,13 +662,8 @@ export class LoginServer extends EventEmitter {
         .findOne({ characterId: characterId });
       const connectionStatus = Object.values(this._zoneConnections).includes(
         serverId
-      );
+      ) && (populationNumber <= maxPopulationNumber || !maxPopulationNumber);
       debug(`connectionStatus ${connectionStatus}`);
-      debug(
-        `Object.values(this._zoneConnections) ${Object.values(
-          this._zoneConnections
-        )}`
-      );
 
       if (!character) {
         console.error(
