@@ -47,7 +47,6 @@ import {
   CharacterLoginRequest,
   CharacterCreateRequest,
   LoginUdp_11packets,
-  ServerUpdate,
 } from "types/LoginUdp_11packets";
 import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
