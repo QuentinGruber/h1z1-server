@@ -13,6 +13,5 @@
 
 import SoeClient from "../SoeServer/soeclient";
 export default abstract class LoginClient extends SoeClient {
-  serverUpdateTimer: any;
   loginSessionId: string | undefined = undefined;
 }

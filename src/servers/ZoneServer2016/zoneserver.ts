@@ -342,7 +342,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     if (!this._soloMode) {
-      this._h1emuZoneServer = new H1emuZoneServer(internalServerPort); // opens local socket to connect to loginserver
+      this._h1emuZoneServer = new H1emuZoneServer(this._worldId,internalServerPort); // opens local socket to connect to loginserver
 
       this._h1emuZoneServer.on(
         "session",

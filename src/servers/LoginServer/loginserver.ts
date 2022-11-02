@@ -43,14 +43,15 @@ import {
   CharacterDeleteReply,
   CharacterLoginReply,
   CharacterCreateReply,
-  ServerUpdate,
   CharacterDeleteRequest,
   CharacterLoginRequest,
   CharacterCreateRequest,
   LoginUdp_11packets,
+  ServerUpdate,
 } from "types/LoginUdp_11packets";
 import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
+import LoginClient from "servers/LoginServer/loginclient";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -80,7 +81,7 @@ export class LoginServer extends EventEmitter {
   private _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } =
     {};
   private _soloPlayIp: string = process.env.SOLO_PLAY_IP || "127.0.0.1";
-
+  private clients: Map<string,LoginClient>;
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._crcSeed = 0;
@@ -91,6 +92,7 @@ export class LoginServer extends EventEmitter {
     this._mongoAddress = mongoAddress;
     this._appDataFolder = getAppDataFolderPath();
     this._enableHttpServer = true;
+    this.clients = new Map();
 
     // reminders
     if (!this._mongoAddress) {
@@ -200,14 +202,9 @@ export class LoginServer extends EventEmitter {
                     }
                     if (status === 1) {
                       debug(`ZoneConnection established`);
-                      client.session = true;
+                      client.serverId = serverId;
                       this._zoneConnections[client.clientId] = serverId;
-                      await this._db
-                        .collection("servers")
-                        .updateOne(
-                          { serverId: serverId },
-                          { $set: { allowedAccess: true } }
-                        );
+                      await this.updateServerStatus(serverId,true);
                     } else {
                       console.log(
                         `rejected connection serverId : ${serverId} address: ${client.address} `
@@ -256,14 +253,17 @@ export class LoginServer extends EventEmitter {
       });
       this._h1emuLoginServer.on(
         "disconnect",
-        (err: string, client: H1emuClient, reason: number) => {
+        async (err: string, client: H1emuClient, reason: number) => {
           debug(
             `ZoneConnection dropped: ${
               reason ? "Connection Lost" : "Unknown Error"
             }`
           );
           delete this._zoneConnections[client.clientId];
-        }
+          if(client.serverId){
+            await this.updateServerStatus(client.serverId,false);
+          }
+         }
       );
 
       this._h1emuLoginServer.start();
@@ -405,13 +405,8 @@ export class LoginServer extends EventEmitter {
       namespace: "soe",
       ApplicationPayload: "",
     };
+    this.clients.set(client.soeClientId,client);
     this.sendData(client, "LoginReply", loginReply);
-    if (!this._soloMode) {
-      client.serverUpdateTimer = setTimeout(async () => {
-        await this.updateServerList(client);
-        client.serverUpdateTimer.refresh();
-      }, 30000);
-    }
   }
 
   async TunnelAppPacketClientToServer(client: Client, packet: any) {
@@ -465,7 +460,7 @@ export class LoginServer extends EventEmitter {
   }
 
   Logout(client: Client) {
-    clearTimeout(client.serverUpdateTimer);
+    this.clients.delete(client.soeClientId);
     this._soeServer.deleteClient(client);
   }
 
@@ -528,6 +523,22 @@ export class LoginServer extends EventEmitter {
     debug("CharacterSelectInfoRequest");
   }
 
+  async updateServerStatus(serverId:number,status:boolean){
+     const server = await this._db.collection("servers").findOneAndUpdate(
+          { serverId: serverId },
+          {
+            $set: {
+              allowedAccess: status,
+              populationNumber: 0,
+              populationLevel: 0,
+            },
+          }
+        );
+      this.clients.forEach((client:Client)=>{
+        this.sendData(client,"ServerUpdate",{...server.value,allowedAccess:status});
+      })
+     }
+  
   async updateServersStatus(): Promise<void> {
     const servers = await this._db.collection("servers").find().toArray();
 
@@ -537,24 +548,14 @@ export class LoginServer extends EventEmitter {
         server.allowedAccess &&
         !Object.values(this._zoneConnections).includes(server.serverId)
       ) {
-        await this._db.collection("servers").updateOne(
-          { serverId: server.serverId },
-          {
-            $set: {
-              allowedAccess: false,
-              populationNumber: 0,
-              populationLevel: 0,
-            },
-          }
-        );
-      }
+        await this.updateServerStatus(server.serverId,false);
+     }
     }
   }
 
   async ServerListRequest(client: Client) {
     let servers;
     if (!this._soloMode) {
-      await this.updateServersStatus();
       servers = await this._db
         .collection("servers")
         .find({
@@ -893,37 +894,6 @@ export class LoginServer extends EventEmitter {
     this.sendData(client, "CharacterCreateReply", characterCreateReply);
   }
 
-  async updateServerList(client: Client): Promise<void> {
-    if (!this._soloMode) {
-      await this.updateServersStatus();
-      // useless if in solomode ( never get called either)
-      const servers: ServerUpdate[] = await this._db
-        .collection("servers")
-        .find({
-          serverVersionTag: this.getServerVersionTag(client.protocolName),
-        })
-        .toArray();
-      const userWhiteList = await this._db
-        .collection("servers-whitelist")
-        .find({ userId: client.loginSessionId })
-        .toArray();
-      if (userWhiteList) {
-        for (let i = 0; i < servers.length; i++) {
-          if (!servers[i].allowedAccess) {
-            for (let y = 0; y < userWhiteList.length; y++) {
-              if (servers[i].serverId == userWhiteList[y].serverId) {
-                servers[i].allowedAccess = true;
-              }
-            }
-          }
-        }
-      }
-      for (let i = 0; i < servers.length; i++) {
-        this.sendData(client, "ServerUpdate", servers[i]);
-      }
-    }
-  }
-
   async start(): Promise<void> {
     debug("Starting server");
     if (this._mongoAddress) {
@@ -949,7 +919,7 @@ export class LoginServer extends EventEmitter {
         .collection("zone-whitelist")
         .find({})
         .toArray();
-
+      this.updateServersStatus();
       setInterval(async () => {
         this._zoneWhitelist = await this._db
           .collection("zone-whitelist")
