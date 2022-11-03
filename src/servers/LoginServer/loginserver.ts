@@ -120,7 +120,7 @@ export class LoginServer extends EventEmitter {
             client.protocolName,
             data
           );
-          debug(packet);
+          console.log(packet);
           if (packet?.result) {
             // if packet parsing succeed
             switch (packet.name) {
@@ -129,10 +129,8 @@ export class LoginServer extends EventEmitter {
                 await this.LoginRequest(client, sessionId, systemFingerPrint);
                 /* 2016 client does not send CharacterSelectInfoRequest or ServerListRequest,
                   so all 3 replies need to be sent at the same time */
-                if (client.protocolName !== "LoginUdp_11") break;
               case "CharacterSelectInfoRequest":
                 await this.CharacterSelectInfoRequest(client);
-                if (client.protocolName !== "LoginUdp_11") break;
               case "ServerListRequest":
                 await this.ServerListRequest(client);
                 break;
@@ -402,7 +400,26 @@ export class LoginServer extends EventEmitter {
       isMember: true,
       isInternal: true,
       namespace: "soe",
-      ApplicationPayload: "",
+      accountFeatures: [
+        {
+          key:2,
+          accountFeature:{
+            id:2,
+            active: true,
+            remainingCount: 2,
+            rawData:"test"
+          }
+        }
+      ],
+      errorDetails: [
+        {
+          unknownDword1: 0,
+          name:"None",
+          value: "None",
+        }
+      ],
+      ipCountryCode: "US",
+      ApplicationPayload: "US",
     };
     this.clients.set(client.soeClientId,client);
     this.sendData(client, "LoginReply", loginReply);

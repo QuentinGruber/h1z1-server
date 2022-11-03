@@ -13,7 +13,10 @@ export interface LoginReply {
   isMember: boolean;
   isInternal: boolean;
   namespace: string;
+  accountFeatures: any[];
   ApplicationPayload: any;
+  errorDetails: any[];
+  ipCountryCode: string;
 }
 export interface Logout {
 }
