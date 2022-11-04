@@ -318,20 +318,11 @@ export class LoginServer extends EventEmitter {
     }
   }
 
-  getServerVersionTag(protocolName: string) {
-    switch (protocolName) {
-      case "LoginUdp_9":
-        return "2015";
-      case "LoginUdp_11":
-        return "2016";
-      default:
-        return protocolName; // can be usefull to debug this behavior
-    }
-  }
-
   async loadCharacterData(client: Client): Promise<any> {
-    if (client.protocolName == "LoginUdp_9") {
-      if (this._soloMode) {
+    if(this._soloMode){
+    switch (client.gameVersion) {
+      default:
+      case GAME_VERSIONS.H1Z1_15janv_2015:{
         try {
           // delete old character cache
           delete require.cache[
@@ -343,21 +334,8 @@ export class LoginServer extends EventEmitter {
           console.error(e);
         }
         return require(`${this._appDataFolder}/single_player_characters.json`);
-      } else {
-        // 2015 mongo
-        const charactersQuery = {
-          authKey: client.loginSessionId,
-          serverVersionTag: this.getServerVersionTag(client.protocolName),
-          status: 1,
-        };
-        return await this._db
-          .collection("characters-light")
-          .find(charactersQuery)
-          .toArray();
       }
-    } else {
-      // LoginUdp_11
-      if (this._soloMode) {
+      case GAME_VERSIONS.H1Z1_6dec_2016:{
         try {
           // delete old character cache
           delete require.cache[
@@ -369,18 +347,31 @@ export class LoginServer extends EventEmitter {
           console.error(e);
         }
         return require(`${this._appDataFolder}/single_player_characters2016.json`);
-      } else {
-        // 2016 mongo
-        const charactersQuery = {
-          authKey: client.loginSessionId,
-          serverVersionTag: this.getServerVersionTag(client.protocolName),
-          status: 1,
-        };
-        return await this._db
-          .collection("characters-light")
-          .find(charactersQuery)
-          .toArray();
       }
+      case GAME_VERSIONS.H1Z1_KOTK_PS3:{
+        try {
+          // delete old character cache
+          delete require.cache[
+            require.resolve(
+              `${this._appDataFolder}/single_player_charactersKOTK.json`
+            )
+          ];
+        } catch (e) {
+          console.error(e);
+        }
+        return require(`${this._appDataFolder}/single_player_charactersKOTK.json`);
+      }
+  }}
+  else{
+    const charactersQuery = {
+      authKey: client.loginSessionId,
+      gameVersion: client.gameVersion,
+      status: 1,
+    };
+    return await this._db
+      .collection("characters-light")
+      .find(charactersQuery)
+      .toArray();
     }
   }
 
@@ -391,7 +382,7 @@ export class LoginServer extends EventEmitter {
       const sessionIdObject = JSON.parse(sessionIdString);
       sessionId = sessionIdObject.sessionId;
       gameVersion = sessionIdObject.gameVersion;
-      if(!sessionId || !gameVersion){
+      if(sessionId ?? !gameVersion){
         throw new Error("Invalid sessionId");
       }
     }
@@ -399,22 +390,6 @@ export class LoginServer extends EventEmitter {
       sessionId = sessionIdString;
       gameVersion = client.protocolName === "LoginUdp_9"?GAME_VERSIONS.H1Z1_15janv_2015:GAME_VERSIONS.H1Z1_6dec_2016;
       console.warn("Your session id is not a valid json string, please update your launcher to avoid this warning");
-    }
-    if (client.protocolName == "LoginUdp_11" && this._soloMode) {
-      const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
-      // if character file is old, delete it
-      if (SinglePlayerCharacters[0] && SinglePlayerCharacters[0].payload) {
-        fs.writeFileSync(
-          `${this._appDataFolder}/single_player_characters2016.json`,
-          JSON.stringify([], null)
-        );
-        debug("Old character save file detected, deleting.");
-      }
-      delete require.cache[
-        require.resolve(
-          `${this._appDataFolder}/single_player_characters2016.json`
-        )
-      ];
     }
     if (this._soloMode) {
       client.loginSessionId = sessionId;
@@ -541,7 +516,7 @@ export class LoginServer extends EventEmitter {
   async CharacterSelectInfoRequest(client: Client) {
     let characters = await this.loadCharacterData(client);
     if (this._soloMode) {
-      if (client.protocolName == "LoginUdp_9") {
+      if (client.gameVersion === GAME_VERSIONS.H1Z1_15janv_2015) {
         characters = this.addDummyDataToCharacters(characters);
       } else {
         // LoginUdp_11
@@ -609,7 +584,7 @@ export class LoginServer extends EventEmitter {
       servers = await this._db
         .collection("servers")
         .find({
-          serverVersionTag: this.getServerVersionTag(client.protocolName),
+          gameVersion: client.gameVersion,
         })
         .toArray();
       const userWhiteList = await this._db
@@ -629,15 +604,23 @@ export class LoginServer extends EventEmitter {
         }
       }
     } else {
-      if (this._soloMode) {
-        if (client.protocolName == "LoginUdp_9") {
-          const SoloServer = require("../../../data/2015/sampleData/single_player_server.json");
-          servers = [SoloServer];
-        } else {
-          // LoginUdp_11
-          const SoloServer = require("../../../data/2016/sampleData/single_player_server.json");
-          servers = [SoloServer];
-        }
+        switch (client.gameVersion) {
+          default:
+          case GAME_VERSIONS.H1Z1_15janv_2015:{
+            const SoloServer = require("../../../data/2015/sampleData/single_player_server.json");
+            servers = [SoloServer];
+            break;
+          }
+          case GAME_VERSIONS.H1Z1_6dec_2016:{
+            const SoloServer = require("../../../data/2016/sampleData/single_player_server.json");
+            servers = [SoloServer];
+            break;
+          }
+          case GAME_VERSIONS.H1Z1_KOTK_PS3:{
+            const SoloServer = require("../../../data/kotk/sampleData/single_player_server.json");
+            servers = [SoloServer];
+            break;
+          }
       }
     }
     const serverListReply: ServerListReply = { servers: servers };
@@ -653,19 +636,29 @@ export class LoginServer extends EventEmitter {
         (character: any) => character.characterId === packet.characterId
       );
       SinglePlayerCharacters.splice(characterIndex, 1);
-
-      if (client.protocolName == "LoginUdp_9") {
-        fs.writeFileSync(
-          `${this._appDataFolder}/single_player_characters.json`,
-          JSON.stringify(SinglePlayerCharacters, null, "\t")
-        );
-      } else {
-        // LoginUdp_11
-        fs.writeFileSync(
-          `${this._appDataFolder}/single_player_characters2016.json`,
-          JSON.stringify(SinglePlayerCharacters, null, "\t")
-        );
-      }
+      switch (client.gameVersion) {
+        default:
+        case GAME_VERSIONS.H1Z1_15janv_2015:{
+          fs.writeFileSync(
+            `${this._appDataFolder}/single_player_characters.json`,
+            JSON.stringify(SinglePlayerCharacters, null, "\t"));
+            break;
+        }
+        case GAME_VERSIONS.H1Z1_6dec_2016:{
+          fs.writeFileSync(
+            `${this._appDataFolder}/single_player_characters2016.json`,
+            JSON.stringify(SinglePlayerCharacters, null, "\t")
+          );
+          break;
+        }
+        case GAME_VERSIONS.H1Z1_KOTK_PS3:{
+          fs.writeFileSync(
+            `${this._appDataFolder}/single_player_charactersKOTK.json`,
+            JSON.stringify(SinglePlayerCharacters, null, "\t")
+          );
+          break;
+        }
+    }
     } else {
       const characterId = packet.characterId;
       const characterQuery = { characterId: characterId };
@@ -744,17 +737,23 @@ export class LoginServer extends EventEmitter {
   async getCharactersLoginInfoSolo(client:Client,characterId:string){
     const SinglePlayerCharacters = await this.loadCharacterData(client);
     let character;
-    if (client.protocolName == "LoginUdp_9") {
-      character = SinglePlayerCharacters.find(
-        (character: any) => character.characterId === characterId
-      ); 
-      character.characterName = character.payload.name;
-    } else {
-      // LoginUdp_11
-      character = SinglePlayerCharacters.find(
-        (character: any) => character.characterId === characterId
-      );
-     }
+    switch (client.gameVersion) {
+      default:
+      case GAME_VERSIONS.H1Z1_15janv_2015:{
+        character = SinglePlayerCharacters.find(
+          (character: any) => character.characterId === characterId
+        ); 
+        character.characterName = character.payload.name;
+          break;
+      }
+      case GAME_VERSIONS.H1Z1_KOTK_PS3:
+      case GAME_VERSIONS.H1Z1_6dec_2016:{
+        character = SinglePlayerCharacters.find(
+          (character: any) => character.characterId === characterId
+        );
+        break;
+      }
+  }
      return  {
       unknownQword1: "0x0",
       unknownDword1: 0,
@@ -784,9 +783,6 @@ export class LoginServer extends EventEmitter {
         "CharacterExistRequest",
         { characterId: characterId }
       ) as number;
-      if(client.gameVersion === GAME_VERSIONS.H1Z1_KOTK_PS3){
-        charactersLoginInfo.applicationData = DataSchema.pack(applicationDataKOTK,charactersLoginInfo.applicationData).data
-        }
      }
      else { 
       charactersLoginInfo = await this.getCharactersLoginInfoSolo(client,characterId)  
@@ -844,30 +840,39 @@ export class LoginServer extends EventEmitter {
     } = packet;
     // create character object
     let sampleCharacter, newCharacter;
-    if (client.protocolName == "LoginUdp_9") {
-      sampleCharacter = require("../../../data/2015/sampleData/single_player_character.json");
+    switch (client.gameVersion) {
+      case GAME_VERSIONS.H1Z1_15janv_2015:{
+        sampleCharacter = require("../../../data/2015/sampleData/single_player_character.json");
       newCharacter = _.cloneDeep(sampleCharacter);
       newCharacter.payload.name = characterName;
-    } else {
-      // LoginUdp_11
-      sampleCharacter = require("../../../data/2016/sampleData/character.json");
+        break;
+      }
+      default:
+      case GAME_VERSIONS.H1Z1_KOTK_PS3:
+      case GAME_VERSIONS.H1Z1_6dec_2016:{
+        sampleCharacter = require("../../../data/2016/sampleData/character.json");
       newCharacter = _.cloneDeep(sampleCharacter);
       newCharacter.characterName = characterName;
+        break;
+      }
     }
     newCharacter.serverId = serverId;
     newCharacter.characterId = generateRandomGuid();
     let creationStatus = 1;
     if (this._soloMode) {
       const SinglePlayerCharacters = await this.loadCharacterData(client);
-      if (client.protocolName == "LoginUdp_9") {
-        SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
-        fs.writeFileSync(
-          `${this._appDataFolder}/single_player_characters.json`,
-          JSON.stringify(SinglePlayerCharacters, null, "\t")
-        );
-      } else {
-        // LoginUdp_11
-        const characterModelData = getCharacterModelData(payload);
+      switch (client.gameVersion) {
+        case GAME_VERSIONS.H1Z1_15janv_2015:{
+          SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
+          fs.writeFileSync(
+            `${this._appDataFolder}/single_player_characters.json`,
+            JSON.stringify(SinglePlayerCharacters, null, "\t")
+          );
+          break;
+        }
+        default:
+        case GAME_VERSIONS.H1Z1_6dec_2016:{
+          const characterModelData = getCharacterModelData(payload);
         newCharacter = {
           ...newCharacter,
           actorModelId: characterModelData.modelId,
@@ -880,6 +885,25 @@ export class LoginServer extends EventEmitter {
           `${this._appDataFolder}/single_player_characters2016.json`,
           JSON.stringify(SinglePlayerCharacters, null, "\t")
         );
+          break;
+        }
+        case GAME_VERSIONS.H1Z1_KOTK_PS3:{
+          const characterModelData = getCharacterModelData(payload);
+        newCharacter = {
+          ...newCharacter,
+          actorModelId: characterModelData.modelId,
+          headActor: characterModelData.headActor,
+          gender: payload.gender,
+          hairModel: characterModelData.hairModel,
+        };
+        SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
+        fs.writeFileSync(
+          `${this._appDataFolder}/single_player_charactersKOTK.json`,
+          JSON.stringify(SinglePlayerCharacters, null, "\t")
+        );
+        break
+        }
+
       }
     } else {
       let sessionObj;
@@ -896,16 +920,26 @@ export class LoginServer extends EventEmitter {
         };
         await this._db?.collection("user-sessions").insertOne(sessionObj);
       }
-      const newCharacterData =
-        client.protocolName == "LoginUdp_9"
-          ? { ...newCharacter, ownerId: sessionObj.guid }
-          : {
-              characterId: newCharacter.characterId,
-              serverId: newCharacter.serverId,
-              ownerId: sessionObj.guid,
-              payload: packet.payload,
-              status: 1,
-            };
+      let newCharacterData;
+      switch (client.gameVersion) {
+        case GAME_VERSIONS.H1Z1_15janv_2015:{
+          newCharacterData = { ...newCharacter, ownerId: sessionObj.guid }
+          break;
+        }
+        default:
+        case GAME_VERSIONS.H1Z1_KOTK_PS3:
+        case GAME_VERSIONS.H1Z1_6dec_2016:{
+          newCharacterData =
+             {
+                characterId: newCharacter.characterId,
+                serverId: newCharacter.serverId,
+                ownerId: sessionObj.guid,
+                payload: packet.payload,
+                status: 1,
+              };
+          break;
+        }
+      }
       creationStatus = (await this.askZone(serverId, "CharacterCreateRequest", {
         characterObjStringify: JSON.stringify(newCharacterData),
       }))
@@ -916,7 +950,7 @@ export class LoginServer extends EventEmitter {
         await this._db.collection("characters-light").insertOne({
           authKey: client.loginSessionId,
           serverId: serverId,
-          serverVersionTag: this.getServerVersionTag(client.protocolName),
+          gameVersion: client.gameVersion,
           payload: { name: characterName },
           characterId: newCharacter.characterId,
           status: 1,
