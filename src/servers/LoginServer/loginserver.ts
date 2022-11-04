@@ -787,6 +787,9 @@ export class LoginServer extends EventEmitter {
      else { 
       charactersLoginInfo = await this.getCharactersLoginInfoSolo(client,characterId)  
        }
+    if(client.gameVersion === GAME_VERSIONS.H1Z1_KOTK_PS3){
+      charactersLoginInfo.applicationData = DataSchema.pack(applicationDataKOTK,charactersLoginInfo.applicationData).data
+    }
     debug(charactersLoginInfo);
     charactersLoginInfo.status = Number(characterExistOnZone);
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
