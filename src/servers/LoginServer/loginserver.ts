@@ -583,7 +583,9 @@ export class LoginServer extends EventEmitter {
           }
         );
       this.clients.forEach((client:Client)=>{
-        this.sendData(client,"ServerUpdate",{...server.value,allowedAccess:status});
+        if(client.gameVersion === server.value.gameVersion){
+          this.sendData(client,"ServerUpdate",{...server.value,allowedAccess:status});
+        }
       })
      }
   
