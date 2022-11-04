@@ -667,108 +667,97 @@ export class LoginServer extends EventEmitter {
     };
     this.sendData(client, "CharacterDeleteReply", characterDeleteReply);
   }
+  
+  async getCharactersLoginInfo(serverId:number,characterId:string,loginSessionId:string | undefined):Promise<CharacterLoginReply>{
+    const { serverAddress,populationNumber,maxPopulationNumber } = await this._db
+      .collection("servers")
+      .findOne({ serverId: serverId });
+    const character = await this._db
+      .collection("characters-light")
+      .findOne({ characterId: characterId });
+    const connectionStatus = Object.values(this._zoneConnections).includes(
+      serverId
+    ) && (populationNumber <= maxPopulationNumber || !maxPopulationNumber);
+    debug(`connectionStatus ${connectionStatus}`);
 
+    if (!character) {
+      console.error(
+        `CharacterId "${characterId}" unfound on serverId: "${serverId}"`
+      );
+    }
+    const hiddenSession = connectionStatus
+      ? await this._db
+          .collection("user-sessions")
+          .findOne({ authKey: loginSessionId })
+      : { guid: "" };
+    return  {
+      unknownQword1: "0x0",
+      unknownDword1: 0,
+      unknownDword2: 0,
+      status: character ? Number(connectionStatus) : 0,
+      applicationData: {
+        serverAddress: serverAddress,
+        serverTicket: hiddenSession?.guid,
+        encryptionKey: this._cryptoKey,
+        guid: characterId,
+        unknownQword2: "0x0",
+        stationName: "",
+        characterName: character ? character.payload.name : "error",
+        unknownString: "",
+      },
+    };
+  }
+  
+  async getCharactersLoginInfoSolo(client:Client,characterId:string){
+    const SinglePlayerCharacters = await this.loadCharacterData(client);
+    let character;
+    if (client.protocolName == "LoginUdp_9") {
+      character = SinglePlayerCharacters.find(
+        (character: any) => character.characterId === characterId
+      ); 
+      character.characterName = character.payload.name;
+    } else {
+      // LoginUdp_11
+      character = SinglePlayerCharacters.find(
+        (character: any) => character.characterId === characterId
+      );
+     }
+     return  {
+      unknownQword1: "0x0",
+      unknownDword1: 0,
+      unknownDword2: 0,
+      status: 1,
+      applicationData: {
+        serverAddress: `${this._soloPlayIp}:1117`,
+        serverTicket: client.loginSessionId,
+        encryptionKey: this._cryptoKey,
+        guid: characterId,
+        unknownQword2: "0x0",
+        stationName: "",
+        characterName: character.characterName,
+        unknownString: "",
+        }
+     }
+  }
+  
   async CharacterLoginRequest(client: Client, packet: CharacterLoginRequest) {
     let charactersLoginInfo: CharacterLoginReply;
     const { serverId, characterId } = packet;
-    if (!this._soloMode) {
-      const { serverAddress,populationNumber,maxPopulationNumber } = await this._db
-        .collection("servers")
-        .findOne({ serverId: serverId });
-      const character = await this._db
-        .collection("characters-light")
-        .findOne({ characterId: characterId });
-      const connectionStatus = Object.values(this._zoneConnections).includes(
-        serverId
-      ) && (populationNumber <= maxPopulationNumber || !maxPopulationNumber);
-      debug(`connectionStatus ${connectionStatus}`);
-
-      if (!character) {
-        console.error(
-          `CharacterId "${characterId}" unfound on serverId: "${serverId}"`
-        );
-      }
-      const hiddenSession = connectionStatus
-        ? await this._db
-            .collection("user-sessions")
-            .findOne({ authKey: client.loginSessionId })
-        : { guid: "" };
-      charactersLoginInfo = {
-        unknownQword1: "0x0",
-        unknownDword1: 0,
-        unknownDword2: 0,
-        status: character ? Number(connectionStatus) : 0,
-        applicationData: {
-          serverAddress: serverAddress,
-          serverTicket: hiddenSession?.guid,
-          encryptionKey: this._cryptoKey,
-          guid: characterId,
-          unknownQword2: "0x0",
-          stationName: "",
-          characterName: character ? character.payload.name : "error",
-          unknownString: "",
-        },
-      };
-    } else {
-      const SinglePlayerCharacters = await this.loadCharacterData(client);
-      if (client.protocolName == "LoginUdp_9") {
-        const character = SinglePlayerCharacters.find(
-          (character: any) => character.characterId === characterId
-        );
-        charactersLoginInfo = {
-          unknownQword1: "0x0",
-          unknownDword1: 0,
-          unknownDword2: 0,
-          status: 1,
-          applicationData: {
-            serverAddress: `${this._soloPlayIp}:1117`,
-            serverTicket: client.loginSessionId,
-            encryptionKey: this._cryptoKey,
-            guid: characterId,
-            unknownQword2: "0x0",
-            stationName: "",
-            characterName: character.payload.name,
-            unknownString: "",
-          },
-        };
-      } else {
-        // LoginUdp_11
-        const character = SinglePlayerCharacters.find(
-          (character: any) => character.characterId === characterId
-        );
-        charactersLoginInfo = {
-          unknownQword1: "0x0",
-          unknownDword1: 0,
-          unknownDword2: 0,
-          status: 1,
-          applicationData: {
-            serverAddress: `${this._soloPlayIp}:1117`,
-            serverTicket: client.loginSessionId,
-            encryptionKey: this._cryptoKey,
-            guid: characterId,
-            unknownQword2: "0x0",
-            stationName: "",
-            characterName: character.characterName,
-            unknownString: "",
-          },
-        };
-      }
-    }
-    debug(charactersLoginInfo);
     let characterExistOnZone = 1;
     if (!this._soloMode) {
+     charactersLoginInfo = await this.getCharactersLoginInfo(serverId,characterId,client.loginSessionId);
       characterExistOnZone = await this.askZone(
         serverId,
         "CharacterExistRequest",
         { characterId: characterId }
       );
-    }
-    if (characterExistOnZone) {
-      this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
-    } else {
-      charactersLoginInfo.status = 0;
-      this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
-    }
+     }
+     else { 
+      charactersLoginInfo = await this.getCharactersLoginInfoSolo(client,characterId)  
+       }
+    debug(charactersLoginInfo);
+    charactersLoginInfo.status = Number(characterExistOnZone);
+    this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
     debug("CharacterLoginRequest");
   }
 
