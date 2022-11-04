@@ -51,11 +51,9 @@ import {
 import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
 import LoginClient from "servers/LoginServer/loginclient";
-/*
 import { GAME_VERSIONS } from "../../utils/enums";
 import DataSchema from "h1z1-dataschema";
 import { applicationDataKOTK } from "../../packets/LoginUdp/LoginUdp_11/loginpackets";
-*/
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -130,8 +128,8 @@ export class LoginServer extends EventEmitter {
             // if packet parsing succeed
             switch (packet.name) {
               case "LoginRequest":
-                const { sessionId, systemFingerPrint } = packet.result;
-                await this.LoginRequest(client, sessionId, systemFingerPrint);
+                const { sessionId } = packet.result;
+                await this.LoginRequest(client, sessionId);
                 break;
               case "CharacterSelectInfoRequest":
                 await this.CharacterSelectInfoRequest(client);
@@ -387,8 +385,21 @@ export class LoginServer extends EventEmitter {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async LoginRequest(client: Client, sessionId: string, fingerprint: string) {
-    // we would use fingerprint at some point, and we are on live server custom implementation
+  async LoginRequest(client: Client, sessionIdString: string) {
+    let sessionId,gameVersion;
+    try{
+      const sessionIdObject = JSON.parse(sessionIdString);
+      sessionId = sessionIdObject.sessionId;
+      gameVersion = sessionIdObject.gameVersion;
+      if(!sessionId || !gameVersion){
+        throw new Error("Invalid sessionId");
+      }
+    }
+    catch(e){
+      sessionId = sessionIdString;
+      gameVersion = client.protocolName === "LoginUdp_9"?GAME_VERSIONS.H1Z1_15janv_2015:GAME_VERSIONS.H1Z1_6dec_2016;
+      console.warn("Your session id is not a valid json string, please update your launcher to avoid this warning");
+    }
     if (client.protocolName == "LoginUdp_11" && this._soloMode) {
       const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       // if character file is old, delete it
@@ -413,6 +424,7 @@ export class LoginServer extends EventEmitter {
         .findOne({ guid: sessionId });
       client.loginSessionId = realSession ? realSession.authKey : sessionId;
     }
+    client.gameVersion = gameVersion;
     const loginReply: LoginReply = {
       loggedIn: true,
       status: 1,
@@ -770,12 +782,9 @@ export class LoginServer extends EventEmitter {
         "CharacterExistRequest",
         { characterId: characterId }
       ) as number;
-      /* disabled for now
-      const gameVersion = await this.askZone(serverId,"GameVersionRequest",{}) as GAME_VERSIONS;
-      console.log(gameVersion);
-      if(gameVersion === GAME_VERSIONS.H1Z1_KOTK_PS3){
+      if(client.gameVersion === GAME_VERSIONS.H1Z1_KOTK_PS3){
         charactersLoginInfo.applicationData = DataSchema.pack(applicationDataKOTK,charactersLoginInfo.applicationData).data
-        }*/
+        }
      }
      else { 
       charactersLoginInfo = await this.getCharactersLoginInfoSolo(client,characterId)  
