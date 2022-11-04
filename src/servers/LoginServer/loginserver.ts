@@ -52,6 +52,8 @@ import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
 import LoginClient from "servers/LoginServer/loginclient";
 import { GAME_VERSIONS } from "utils/enums";
+import DataSchema from "h1z1-dataschema";
+import { applicationDataKOTK } from "../../packets/LoginUdp/LoginUdp_11/loginpackets";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -768,6 +770,9 @@ export class LoginServer extends EventEmitter {
       ) as number;
       const gameVersion = await this.askZone(serverId,"GameVersionRequest",{}) as GAME_VERSIONS;
       console.log(gameVersion);
+      if(gameVersion === GAME_VERSIONS.H1Z1_KOTK_PS3){
+        charactersLoginInfo.applicationData = DataSchema.pack(applicationDataKOTK,charactersLoginInfo.applicationData).data
+        }
      }
      else { 
       charactersLoginInfo = await this.getCharactersLoginInfoSolo(client,characterId)  

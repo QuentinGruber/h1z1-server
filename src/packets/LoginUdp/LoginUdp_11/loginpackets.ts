@@ -29,6 +29,43 @@ const serverField: any[] = [
   { name: "allowedAccess", type: "boolean" },
 ];
 
+export const applicationDataJS2016 =
+  [
+  { name: "serverAddress", type: "string" },
+  { name: "serverTicket", type: "string" },
+  { name: "encryptionKey", type: "byteswithlength" },
+  { name: "encryptionType", type: "uint32", defaultValue: 3 },
+  { name: "guid", type: "uint64string" },
+  {
+    name: "unknownQword1",
+    type: "uint64string",
+    defaultValue: "0x0000000000000000",
+  },
+  { name: "unknownString1", type: "string", defaultValue: "" },
+  { name: "unknownString2", type: "string", defaultValue: "" },
+  { name: "unknownString3", type: "string", defaultValue: "" },
+  {
+    name: "serverFeatureBit",
+    type: "uint64string",
+    defaultValue: "0x0000000000000000",
+  },
+]
+
+export const applicationDataKOTK =
+  [
+    {
+      name: "unknownByte1",
+      type: "uint8",
+      defaultValue: 0,
+    },
+    {
+      name: "unknownByte2",
+      type: "uint8",
+      defaultValue: 0,
+    },
+  ...applicationDataJS2016
+]
+
 const packets: any[] = [
   [
     "LoginRequest",
@@ -167,26 +204,7 @@ const packets: any[] = [
         {
           name: "applicationData",
           type: "byteswithlength",
-          fields: [
-            { name: "serverAddress", type: "string" },
-            { name: "serverTicket", type: "string" },
-            { name: "encryptionKey", type: "byteswithlength" },
-            { name: "encryptionType", type: "uint32", defaultValue: 3 },
-            { name: "guid", type: "uint64string" },
-            {
-              name: "unknownQword1",
-              type: "uint64string",
-              defaultValue: "0x0000000000000000",
-            },
-            { name: "unknownString1", type: "string", defaultValue: "" },
-            { name: "unknownString2", type: "string", defaultValue: "" },
-            { name: "unknownString3", type: "string", defaultValue: "" },
-            {
-              name: "serverFeatureBit",
-              type: "uint64string",
-              defaultValue: "0x0000000000000000",
-            },
-          ],
+          fields: applicationDataJS2016, // default
         },
       ],
     },
