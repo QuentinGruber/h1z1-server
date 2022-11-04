@@ -127,26 +127,7 @@ const packets = [
         { name: "status", type: "boolean", defaultValue: 0 },
       ],
     },
-  ],
-  [
-    "GameVersionRequest",
-    0x14,
-    {
-      fields: [
-        { name: "reqId", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  ],
-  [
-    "GameVersionReply",
-    0x15,
-    {
-      fields: [
-        { name: "reqId", type: "uint32", defaultValue: 0 },
-        { name: "gameVersion", type: "uint8", defaultValue: 0 }, // see GAME_VERSIONS enum
-      ],
-    },
-  ],
+  ]
 ];
 
 export const [H1emuPacketsPacketTypes, H1emuPacketsPackets] =

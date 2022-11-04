@@ -34,10 +34,6 @@ export class H1emuLoginServer extends H1emuServer {
           this.emit("processInternalReq", packet,["status"]);
           break;
         }
-        case "GameVersionReply": {
-          this.emit("processInternalReq", packet,["gameVersion"]);
-          break;
-        }
         default:
           this.emit("data", null, client, packet);
           break;

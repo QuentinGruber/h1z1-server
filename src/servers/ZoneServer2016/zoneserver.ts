@@ -424,15 +424,6 @@ export class ZoneServer2016 extends EventEmitter {
                 }
                 break;
               }
-              case "GameVersionRequest": {
-                const { reqId } = packet.data;
-                this._h1emuZoneServer.sendData(
-                  client,
-                  "GameVersionReply",
-                  { gameVersion: this.gameVersion, reqId: reqId }
-                );
-                break;
-              }
               case "CharacterDeleteRequest": {
                 const { characterId, reqId } = packet.data;
                 try {

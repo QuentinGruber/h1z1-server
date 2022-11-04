@@ -250,15 +250,6 @@ export class ZoneServer2015 extends EventEmitter {
                 this.onCharacterCreateRequest(client, packet);
                 break;
               }
-              case "GameVersionRequest": {
-                const { reqId } = packet.data;
-                this._h1emuZoneServer.sendData(
-                  client,
-                  "GameVersionReply",
-                  { gameVersion: this.gameVersion, reqId: reqId }
-                );
-                break;
-              }
               case "CharacterExistRequest": {
                 const { characterId, reqId } = packet.data;
                 try {
