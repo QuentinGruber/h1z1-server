@@ -51,6 +51,7 @@ import {
 import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
 import LoginClient from "servers/LoginServer/loginclient";
+import { GAME_VERSIONS } from "utils/enums";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -239,12 +240,26 @@ export class LoginServer extends EventEmitter {
           }
         }
       );
-      this._h1emuLoginServer.on("processInternalReq", (packet: any) => {
-        const { reqId, status } = packet.data;
+      this._h1emuLoginServer.on("processInternalReq", (packet: any,keysToReturn:string[]) => {
+        const { reqId } = packet.data;
         clearTimeout(this._pendingInternalReqTimeouts[reqId]);
         delete this._pendingInternalReqTimeouts[reqId];
         if (this._pendingInternalReq[reqId]) {
-          this._pendingInternalReq[reqId](status);
+          let returnedData:Record<string,unknown> | number;
+          if(keysToReturn.length > 0){
+            if(keysToReturn.length === 1){
+              returnedData = packet.data[keysToReturn[0]];
+            }else{
+            returnedData = {};
+            for(const key of keysToReturn){
+              returnedData[key] = packet.data[key];
+            }
+          }
+          }
+          else{
+            returnedData = packet.data;
+          }
+          this._pendingInternalReq[reqId](returnedData);
           delete this._pendingInternalReq[reqId];
         }
       });
@@ -647,7 +662,7 @@ export class LoginServer extends EventEmitter {
           charracterToDelete.serverId,
           "CharacterDeleteRequest",
           { characterId: characterId }
-        );
+        ) as number;
         if (deletionStatus) {
           await this._db
             .collection("characters-light")
@@ -750,7 +765,9 @@ export class LoginServer extends EventEmitter {
         serverId,
         "CharacterExistRequest",
         { characterId: characterId }
-      );
+      ) as number;
+      const gameVersion = await this.askZone(serverId,"GameVersionRequest",{}) as GAME_VERSIONS;
+      console.log(gameVersion);
      }
      else { 
       charactersLoginInfo = await this.getCharactersLoginInfoSolo(client,characterId)  
@@ -765,7 +782,7 @@ export class LoginServer extends EventEmitter {
     serverId: number,
     packetName: string,
     packetObj: any
-  ): Promise<number> {
+  ): Promise<unknown> {
     const askZonePromise = await new Promise((resolve) => {
       this._internalReqCount++;
       const reqId = this._internalReqCount;

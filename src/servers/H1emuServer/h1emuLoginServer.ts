@@ -31,7 +31,11 @@ export class H1emuLoginServer extends H1emuServer {
         case "CharacterCreateReply":
         case "CharacterExistReply":
         case "CharacterDeleteReply": {
-          this.emit("processInternalReq", packet);
+          this.emit("processInternalReq", packet,["status"]);
+          break;
+        }
+        case "GameVersionReply": {
+          this.emit("processInternalReq", packet,["gameVersion"]);
           break;
         }
         default:

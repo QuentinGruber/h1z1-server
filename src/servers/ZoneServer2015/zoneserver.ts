@@ -43,6 +43,7 @@ process.env.isBin && require("./workers/dynamicWeather");
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { zone2015packets } from "types/zone2015packets";
+import { GAME_VERSIONS } from "../../utils/enums";
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
@@ -109,6 +110,7 @@ export class ZoneServer2015 extends EventEmitter {
     : [];
   _maxAllowedPing: number = 300;
   private _transientIdGenerator = generateTransientId();
+  readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_15janv_2015;
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -246,6 +248,15 @@ export class ZoneServer2015 extends EventEmitter {
             switch (packet.name) {
               case "CharacterCreateRequest": {
                 this.onCharacterCreateRequest(client, packet);
+                break;
+              }
+              case "GameVersionRequest": {
+                const { reqId } = packet.data;
+                this._h1emuZoneServer.sendData(
+                  client,
+                  "GameVersionReply",
+                  { gameVersion: this.gameVersion, reqId: reqId }
+                );
                 break;
               }
               case "CharacterExistRequest": {

@@ -102,6 +102,7 @@ import { simpleConstruction } from "./classes/simpleConstruction";
 import { FullCharacterSaveData, ServerSaveData } from "types/savedata";
 import { WorldDataManager } from "./classes/worlddatamanager";
 import { recipes } from "./data/Recipes";
+import { GAME_VERSIONS } from "../../utils/enums"
 
 import {
   CharacterKilledBy,
@@ -239,6 +240,7 @@ export class ZoneServer2016 extends EventEmitter {
   } = {};
   enableWorldSaves: boolean;
   readonly worldSaveVersion: number = 1;
+  readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
 
   constructor(
     serverPort: number,
@@ -420,6 +422,15 @@ export class ZoneServer2016 extends EventEmitter {
                     { status: 0, reqId: reqId }
                   );
                 }
+                break;
+              }
+              case "GameVersionRequest": {
+                const { reqId } = packet.data;
+                this._h1emuZoneServer.sendData(
+                  client,
+                  "GameVersionReply",
+                  { gameVersion: this.gameVersion, reqId: reqId }
+                );
                 break;
               }
               case "CharacterDeleteRequest": {
