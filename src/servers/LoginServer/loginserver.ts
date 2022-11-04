@@ -127,10 +127,10 @@ export class LoginServer extends EventEmitter {
               case "LoginRequest":
                 const { sessionId, systemFingerPrint } = packet.result;
                 await this.LoginRequest(client, sessionId, systemFingerPrint);
-                /* 2016 client does not send CharacterSelectInfoRequest or ServerListRequest,
-                  so all 3 replies need to be sent at the same time */
+                break;
               case "CharacterSelectInfoRequest":
                 await this.CharacterSelectInfoRequest(client);
+                break;
               case "ServerListRequest":
                 await this.ServerListRequest(client);
                 break;
@@ -397,6 +397,7 @@ export class LoginServer extends EventEmitter {
     const loginReply: LoginReply = {
       loggedIn: true,
       status: 1,
+      resultCode: 1,
       isMember: true,
       isInternal: true,
       namespace: "soe",
@@ -419,7 +420,7 @@ export class LoginServer extends EventEmitter {
         }
       ],
       ipCountryCode: "US",
-      ApplicationPayload: "US",
+      applicationPayload: "US",
     };
     this.clients.set(client.soeClientId,client);
     this.sendData(client, "LoginReply", loginReply);

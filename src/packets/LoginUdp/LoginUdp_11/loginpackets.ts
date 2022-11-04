@@ -51,21 +51,35 @@ const packets: any[] = [
       fields: [
         { name: "loggedIn", type: "boolean" },
         { name: "status", type: "uint32" },
+        { name: "resultCode", type: "uint32" },
         { name: "isMember", type: "boolean" },
         { name: "isInternal", type: "boolean" },
         { name: "namespace", type: "string" },
-        { name: "accountFeatures", type: "array",
+        {
+          name: "accountFeatures",
+          type: "array",
           fields: [
-            { name: "accountFeature", type: "schema", fields: [
-              { name: "id", type: "uint32" },
-              { name: "active", type: "boolean" },
-              { name: "remainingCount", type: "uint32" },
-              { name: "rawData", type: "string" },
-            ] },
+            { name: "key", type: "uint32" },
+            {
+              name: "accountFeature",
+              type: "schema",
+              fields: [
+                { name: "id", type: "uint32" },
+                { name: "active", type: "boolean" },
+                { name: "remainingCount", type: "uint32" },
+                { name: "rawData", type: "string" },
+              ],
+            },
           ],
         },
-        { name: "ApplicationPayload", type: "byteswithlength" },
-        { name: "errorDetails", type: "array",
+        {
+          name: "applicationPayload",
+          type: "byteswithlength",
+          defaultValue: 0,
+        },
+        {
+          name: "errorDetails",
+          type: "array",
           fields: [
             { name: "unknownDword1", type: "uint32" },
             { name: "name", type: "string" },
