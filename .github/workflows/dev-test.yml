@@ -17,6 +17,30 @@ jobs:
           node-version: 18.12.1
       - run: npm i
       - run: npm run lint-quiet
+  prettier:
+    name: prettier
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 18.12.1
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18.12.1
+      - run: npm i
+      - run: npm run check_prettier
+  interfaces-up-to-date:
+    name: interfaces-up-to-date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 18.12.1
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18.12.1
+      - run: npm i
+      - run: npm run gen-packets-types
+      - run: npm run gen-packets-interfaces
+      - run: git diff --exit-code
   test-npm-pack-linux:
     name: npm-pack-linux
     runs-on: ubuntu-latest
