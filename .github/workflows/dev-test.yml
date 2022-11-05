@@ -117,7 +117,7 @@ jobs:
           node-version: 18.12.1
       - run: npm i --production
       - run: npm i -g pkg@5.8.0
-      - run: pkg --compress GZip -t node18-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-${{ github.ref }}.exe
+      - run: pkg --compress GZip -t node18-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-2015-${{ github.ref }}.exe
       - run: pkg --compress GZip -t node18-win-x64 ./bin/2016/h1emuServer.js --output ./bin/h1emuServer-2016-${{ github.ref }}.exe
-      - run: ./bin/h1emuServer-${{ github.ref }}.exe --test
+      - run: ./bin/h1emuServer-2015-${{ github.ref }}.exe --test
       - run: ./bin/h1emuServer-2016-${{ github.ref }}.exe --test
