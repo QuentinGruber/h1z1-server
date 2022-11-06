@@ -123,7 +123,6 @@ export class LoginServer extends EventEmitter {
             client.protocolName,
             data
           );
-          console.log(packet);
           if (packet?.result) {
             // if packet parsing succeed
             switch (packet.name) {
@@ -392,7 +391,7 @@ export class LoginServer extends EventEmitter {
       console.warn("Your session id is not a valid json string, please update your launcher to avoid this warning");
     }
     if (this._soloMode) {
-      client.loginSessionId = sessionId;
+      client.loginSessionId = String(sessionId);
     } else {
       const realSession = await this._db
         .collection("user-sessions")
