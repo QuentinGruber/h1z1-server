@@ -10,14 +10,10 @@ export interface LoginRequest {
 export interface LoginReply {
   loggedIn: boolean;
   status: number;
-  resultCode: number;
   isMember: boolean;
   isInternal: boolean;
   namespace: string;
-  accountFeatures: any[];
-  applicationPayload?: any;
-  errorDetails: any[];
-  ipCountryCode: string;
+  ApplicationPayload: any;
 }
 export interface Logout {
 }

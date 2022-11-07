@@ -16,7 +16,7 @@
     "debug": "4.3.4",
     "discord-webhook-node": "1.1.8",
     "h1emu-core": "1.0.0",
-    "h1z1-dataschema": "1.7.0",
+    "h1z1-dataschema": "1.5.12",
     "mongodb": "4.7.0",
     "typescript": "4.7.2"
   },
@@ -62,7 +62,6 @@
     "postinstall": "npm run build",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
     "publish_release-next": "npm version prerelease && git add * && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",
-    "check_prettier": "prettier --check ./src && prettier --check ./tests && prettier --check ./benchmarks",
     "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks"
   },
   "repository": {

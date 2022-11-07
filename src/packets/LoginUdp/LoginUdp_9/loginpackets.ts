@@ -53,7 +53,7 @@ const packets: any[] = [
         { name: "isMember", type: "boolean" },
         { name: "isInternal", type: "boolean" },
         { name: "namespace", type: "string" },
-        { name: "applicationPayload", type: "byteswithlength" },
+        { name: "ApplicationPayload", type: "byteswithlength" },
       ],
     },
   ],

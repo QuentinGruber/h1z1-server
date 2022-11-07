@@ -1,16 +1,3 @@
-// ======================================================================
-//
-//   GNU GENERAL PUBLIC LICENSE
-//   Version 3, 29 June 2007
-//   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
-//
-//   https://github.com/QuentinGruber/h1z1-server
-//   https://www.npmjs.com/package/h1z1-server
-//
-//   Based on https://github.com/psemu/soe-network
-// ======================================================================
-
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { flhash } from "../../../utils/utils";
@@ -23,25 +10,10 @@ export class CommandHandler {
   readonly internalCommands: { [name: string]: Command } = {};
 
   constructor() {
-    this.indexCommands(commands, internalCommands);
+    this.indexCommands(commands);
   }
 
-  private clientHasCommandPermission(
-    server: ZoneServer2016,
-    client: Client,
-    command: Command
-  ) {
-    return (
-      command.permissionLevel == PermissionLevels.DEFAULT ||
-      client.isAdmin || // temp permissionLevel logic until isAdmin is replaced
-      server._allowedCommands.includes(command.name)
-    );
-  }
-
-  private indexCommands(
-    commands: Array<Command>,
-    internalCommands: Array<Command>
-  ) {
+  indexCommands(commands: Array<Command>) {
     commands.forEach((command) => {
       this.commands[flhash(command.name.toUpperCase())] = command;
     });
@@ -55,7 +27,13 @@ export class CommandHandler {
       args: string[] = packet.data.arguments.toLowerCase().split(" ");
     if (this.commands[hash]) {
       const command = this.commands[hash];
-      if (!this.clientHasCommandPermission(server, client, command)) {
+      // temp permissionLevel logic until isAdmin is replaced
+      if (
+        command.permissionLevel != PermissionLevels.DEFAULT &&
+        !client.isAdmin &&
+        server._allowedCommands.length > 0 &&
+        !server._allowedCommands.includes(command.name)
+      ) {
         server.sendChatText(client, "You don't have access to that.");
         return;
       }
@@ -64,9 +42,6 @@ export class CommandHandler {
       server.sendChatText(
         client,
         `Command list: \n/${Object.values(this.commands)
-          .filter((command) =>
-            this.clientHasCommandPermission(server, client, command)
-          )
           .map((command) => {
             return command.name;
           })
@@ -85,7 +60,13 @@ export class CommandHandler {
   ) {
     if (this.internalCommands[commandName]) {
       const command = this.internalCommands[commandName];
-      if (!this.clientHasCommandPermission(server, client, command)) {
+      // temp permissionLevel logic until isAdmin is replaced
+      if (
+        command.permissionLevel != PermissionLevels.DEFAULT &&
+        !client.isAdmin &&
+        server._allowedCommands.length > 0 &&
+        !server._allowedCommands.includes(command.name)
+      ) {
         server.sendChatText(client, "You don't have access to that.");
         return;
       }
@@ -97,9 +78,7 @@ export class CommandHandler {
 
   reloadCommands() {
     delete require.cache[require.resolve("./commands")];
-    delete require.cache[require.resolve("./internalCommands")];
-    const commands = require("./commands").commands,
-      internalCommands = require("./internalCommands").internalCommands;
-    this.indexCommands(commands, internalCommands);
+    const commands = require("./commands").commands;
+    this.indexCommands(commands);
   }
 }

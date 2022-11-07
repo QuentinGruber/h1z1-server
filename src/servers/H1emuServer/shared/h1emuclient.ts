@@ -17,7 +17,7 @@ export class H1emuClient {
   sessionId: number = 0;
   address: string;
   port: number;
-  serverId?: number;
+  session: boolean = false;
   clientId: string;
   lastPing: number = 0;
 

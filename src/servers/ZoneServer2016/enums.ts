@@ -29,7 +29,7 @@ export enum FilterIds {
   WEAPONS = 5,
   HOUSING = 6,
   SURVIVAL = 7,
-  COMPONENT = 8,
+  COMPONENT = 8
 }
 
 export enum ItemClasses {

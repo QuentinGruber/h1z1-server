@@ -291,7 +291,7 @@ class SOEClient {
       this._protocol.pack(packetName, JSON.stringify(packet))
     );
     console.log(this._guid, "Sending " + packetName + " packet to server");
-    console.log(data);
+    console.log(data)
     debug(this._guid, "Sending " + packetName + " packet to server");
     if (this._dumpData) {
       fs.writeFileSync(

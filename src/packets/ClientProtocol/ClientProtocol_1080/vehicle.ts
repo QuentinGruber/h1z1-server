@@ -284,16 +284,12 @@ export const vehiclePackets: any = [
   ["Vehicle.DeployResponse", 0x8924, {}],
   ["Vehicle.ExitPoints", 0x8925, {}],
   ["Vehicle.ControllerLogOut", 0x8926, {}],
-  [
-    "Vehicle.CurrentMoveMode",
-    0x8927,
-    {
-      fields: [
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "moveMode", type: "uint8", defaultValue: 0 },
-      ],
-    },
-  ],
+  ["Vehicle.CurrentMoveMode", 0x8927, {
+    fields: [
+      { name: "characterId", type: "uint64string", defaultValue: "0" },
+      { name: "moveMode", type: "uint8", defaultValue: 0 },
+    ],
+  }],
   ["Vehicle.ItemDefinitionRequest", 0x8928, {}],
   ["Vehicle.ItemDefinitionReply", 0x8929, {}],
   [

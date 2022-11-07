@@ -31,13 +31,11 @@ import {
 import { packWeaponPacket, parseWeaponPacket } from "./weapon";
 
 export const basePackets: any = [
-  [
-    "Server",
-    0x01,
-    {
-      fields: [{ name: "pingId", type: "uint16", defaultValue: 0 }],
-    },
-  ],
+  ["Server", 0x01, {
+    fields: [
+      { name: "pingId", type: "uint16", defaultValue: 0 },
+    ],
+  }],
   ["ClientFinishedLoading", 0x02, {}],
   [
     "SendSelfToClient",

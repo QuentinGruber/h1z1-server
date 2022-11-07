@@ -21,7 +21,7 @@ export class H1emuZoneServer extends H1emuServer {
   _loginConnection?: H1emuClient;
   _maxConnectionRetry: number = 0;
   _hasBeenConnectedToLogin: boolean = false;
-  constructor(serverId: number, serverPort?: number) {
+  constructor(serverPort?: number) {
     super(serverPort);
     this.messageHandler = (
       messageType: string,
@@ -45,7 +45,7 @@ export class H1emuZoneServer extends H1emuServer {
             debug(`LoginConnection refused: Unknown login address / port`);
             return;
           }
-          if (client.serverId) {
+          if (client.session) {
             // ignores sessionreplies with an already open session
             debug(
               `LoginConnection already had open session, ignoring SessionReply`
@@ -54,7 +54,7 @@ export class H1emuZoneServer extends H1emuServer {
           }
           if (packet.data.status === 1) {
             this._hasBeenConnectedToLogin = true;
-            client.serverId = serverId;
+            client.session = true;
             this._loginConnection = client;
             this.emit("session", null, client);
           } else {
@@ -69,7 +69,7 @@ export class H1emuZoneServer extends H1emuServer {
       }
     };
     this.ping = (client: H1emuClient) => {
-      if (client?.serverId) {
+      if (client?.session) {
         super.ping(client);
         if (Date.now() > client.lastPing + this._pingTimeout) {
           this.emit("disconnect", null, client, 1);
