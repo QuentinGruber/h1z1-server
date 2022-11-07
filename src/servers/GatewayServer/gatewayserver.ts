@@ -26,10 +26,7 @@ export class GatewayServer extends EventEmitter {
   private _crcLength: crc_length_options;
   private _udpLength: number;
 
-  constructor(
-    serverPort: number,
-    gatewayKey: Uint8Array
-  ) {
+  constructor(serverPort: number, gatewayKey: Uint8Array) {
     super();
     this._crcSeed = 0;
     this._crcLength = 0;
@@ -45,14 +42,9 @@ export class GatewayServer extends EventEmitter {
 
     this._soeServer.on(
       "appdata",
-      (client: SOEClient, data: Buffer, isRawData:boolean) => {
-        if(isRawData) {
-          this.emit(
-            "tunneldata",
-            client,
-            data,
-            0
-          );
+      (client: SOEClient, data: Buffer, isRawData: boolean) => {
+        if (isRawData) {
+          this.emit("tunneldata", client, data, 0);
           return;
         }
         const packet = this._protocol.parse(data);
@@ -83,12 +75,7 @@ export class GatewayServer extends EventEmitter {
               break;
             case "TunnelPacketFromExternalConnection":
               debug("TunnelPacketFromExternalConnection");
-              this.emit(
-                "tunneldata",
-                client,
-                packet.tunnelData,
-                packet.flags
-              );
+              this.emit("tunneldata", client, packet.tunnelData, packet.flags);
               break;
           }
         } else {

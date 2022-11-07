@@ -127,7 +127,7 @@ const packets = [
         { name: "status", type: "boolean", defaultValue: 0 },
       ],
     },
-  ]
+  ],
 ];
 
 export const [H1emuPacketsPacketTypes, H1emuPacketsPackets] =

@@ -29,8 +29,7 @@ const serverField: any[] = [
   { name: "allowedAccess", type: "boolean" },
 ];
 
-export const applicationDataJS2016 =
-  [
+export const applicationDataJS2016 = [
   { name: "serverAddress", type: "string" },
   { name: "serverTicket", type: "string" },
   { name: "encryptionKey", type: "byteswithlength" },
@@ -49,22 +48,21 @@ export const applicationDataJS2016 =
     type: "uint64string",
     defaultValue: "0x0000000000000000",
   },
-]
+];
 
-export const applicationDataKOTK =
-  [
-    {
-      name: "unknownByte1",
-      type: "uint8",
-      defaultValue: 0,
-    },
-    {
-      name: "unknownByte2",
-      type: "uint8",
-      defaultValue: 0,
-    },
-  ...applicationDataJS2016
-]
+export const applicationDataKOTK = [
+  {
+    name: "unknownByte1",
+    type: "uint8",
+    defaultValue: 0,
+  },
+  {
+    name: "unknownByte2",
+    type: "uint8",
+    defaultValue: 0,
+  },
+  ...applicationDataJS2016,
+];
 
 const packets: any[] = [
   [
