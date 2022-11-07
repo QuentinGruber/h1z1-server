@@ -184,7 +184,6 @@ const weaponPackets: any = [
         { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        
       ],
     },
   ],

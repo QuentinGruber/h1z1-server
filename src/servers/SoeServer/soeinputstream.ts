@@ -81,15 +81,19 @@ export class SOEInputStream extends EventEmitter {
         this.cpf_dataSize += fragment.payload.length;
 
         if (this.cpf_dataSize > this.cpf_totalSize) {
-          this.emit("error", new Error( "processDataFragments: offset > totalSize: " +
-            this.cpf_dataSize +
-            " > " +
-            this.cpf_totalSize +
-            " (sequence " +
-            fragmentSequence +
-            ") (fragment length " +
-            fragment.payload.length +
-            ")")
+          this.emit(
+            "error",
+            new Error(
+              "processDataFragments: offset > totalSize: " +
+                this.cpf_dataSize +
+                " > " +
+                this.cpf_totalSize +
+                " (sequence " +
+                fragmentSequence +
+                ") (fragment length " +
+                fragment.payload.length +
+                ")"
+            )
           );
         }
         if (this.cpf_dataSize === this.cpf_totalSize) {

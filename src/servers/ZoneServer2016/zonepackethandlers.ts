@@ -80,11 +80,7 @@ export class zonePacketHandlers {
     }); // Required for WaitForWorldReady
 
     // Required for WaitForWorldReady
-    server.sendData(
-      client,
-      "ClientUpdate.NetworkProximityUpdatesComplete",
-      {}
-    );
+    server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {});
 
     server.customizeDTO(client);
 
@@ -194,7 +190,11 @@ export class zonePacketHandlers {
     debug(packet);
     client.character.characterStates.inWater = false;
   }
-  CommandFreeInteractionNpc(server: ZoneServer2016, client: Client, packet: any) {
+  CommandFreeInteractionNpc(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     debug("FreeInteractionNpc");
     server.sendData(client, "Command.FreeInteractionNpc", {});
   }
@@ -313,7 +313,11 @@ export class zonePacketHandlers {
     }
     client.avgPing = toInt(_.sum(client.pings) / client.pings.length);
   }
-  ClientUpdateMonitorTimeDrift(server: ZoneServer2016, client: Client, packet: any) {
+  ClientUpdateMonitorTimeDrift(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
@@ -358,11 +362,15 @@ export class zonePacketHandlers {
     const { channel, message } = packet.data;
     server.sendChat(client, message);
   }
-  ClientInitializationDetails(server: ZoneServer2016, client: Client, packet: any) {
-      // just in case
-      if (packet.data.unknownDword1) {
-        debug("ClientInitializationDetails : ", packet.data.unknownDword1);
-      }
+  ClientInitializationDetails(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    // just in case
+    if (packet.data.unknownDword1) {
+      debug("ClientInitializationDetails : ", packet.data.unknownDword1);
+    }
   }
   ClientLogout(server: ZoneServer2016, client: Client, packet: any) {
     debug("ClientLogout");
@@ -424,9 +432,13 @@ export class zonePacketHandlers {
     });
   }
   CommandInteractCancel(server: ZoneServer2016, client: Client, packet: any) {
-      debug("Interaction Canceled");
+    debug("Interaction Canceled");
   }
-  CommandStartLogoutRequest(server: ZoneServer2016, client: Client, packet: any) {
+  CommandStartLogoutRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     client.posAtLogoutStart = client.character.state.position;
     if (!client.character.isAlive) {
       // Exit to menu button on respawn screen
@@ -446,20 +458,32 @@ export class zonePacketHandlers {
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
     }, timerTime);
   }
-  CharacterSelectSessionRequest(server: ZoneServer2016, client: Client, packet: any) {
+  CharacterSelectSessionRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
     });
   }
-  ProfileStatsGetPlayerProfileStats(server: ZoneServer2016, client: Client, packet: any) {
+  ProfileStatsGetPlayerProfileStats(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(
       client,
       "ProfileStats.PlayerProfileStats",
       require("../../../data/profilestats.json")
     );
   }
-  WallOfDataClientSystemInfo(server: ZoneServer2016, client: Client, packet: any) {
+  WallOfDataClientSystemInfo(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     const info = packet.data.info;
     const startPos = info.search("Device") + 9;
     const cut = info.substring(startPos, info.length);
@@ -502,7 +526,11 @@ export class zonePacketHandlers {
       unknownFloat12: 12,
     });
   }
-  PlayerUpdateManagedPosition(server: ZoneServer2016, client: Client, packet: any) {
+  PlayerUpdateManagedPosition(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     const characterId: string = server._transientIds[packet.data.transientId],
       vehicle = characterId ? server._vehicles[characterId] : undefined;
     if (!vehicle) return;
@@ -589,8 +617,7 @@ export class zonePacketHandlers {
     if (movingCharacter) {
       if (packet.data.horizontalSpeed) {
         client.character.isRunning =
-          packet.data.horizontalSpeed >
-          (client.character.isExhausted ? 5 : 6);
+          packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6);
       }
       server.sendRawToAllOthersWithSpawnedCharacter(
         client,
@@ -620,10 +647,7 @@ export class zonePacketHandlers {
         server.stopHudTimer(client);
         delete client.hudTimer;
       }
-    } else if (
-      packet.data.vehicle_position &&
-      client.vehicle.mountedVehicle
-    ) {
+    } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
       server._vehicles[client.vehicle.mountedVehicle].state.position =
         new Float32Array([
           packet.data.vehicle_position[0],
@@ -656,7 +680,11 @@ export class zonePacketHandlers {
       packet
     );
   }
-  CharacterFullCharacterDataRequest(server: ZoneServer2016, client: Client, packet: any) {
+  CharacterFullCharacterDataRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     const { characterId } = packet.data,
       entityData: BaseFullCharacter =
         server._npcs[characterId] ||
@@ -803,8 +831,7 @@ export class zonePacketHandlers {
         break;
       case EntityTypes.CONSTRUCTION_FOUNDATION:
         const foundation = entityData as ConstructionParentEntity;
-        if (foundation.ownerCharacterId != client.character.characterId)
-          return;
+        if (foundation.ownerCharacterId != client.character.characterId) return;
         server.sendData(
           client,
           "NpcFoundationPermissionsManagerBase.showPermissions",
@@ -970,10 +997,7 @@ export class zonePacketHandlers {
     }
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
-    if (
-      !client.character.currentInteractionGuid ||
-      packet.data.password === 1
-    )
+    if (!client.character.currentInteractionGuid || packet.data.password === 1)
       return;
     const doorEntity = server._constructionDoors[
       client.character.currentInteractionGuid
@@ -990,9 +1014,17 @@ export class zonePacketHandlers {
     // only for driver seat
     server.dismountVehicle(client);
   }
-  VehicleCurrentMoveMode(server: ZoneServer2016, client: Client, packet: {data:VehicleCurrentMoveMode}) {
-    const { characterId, moveMode } = packet.data
-    debug(`vehTransient:${server._vehicles[characterId as string].transientId} , mode: ${moveMode} from ${client.character.name} time:${Date.now()}`)
+  VehicleCurrentMoveMode(
+    server: ZoneServer2016,
+    client: Client,
+    packet: { data: VehicleCurrentMoveMode }
+  ) {
+    const { characterId, moveMode } = packet.data;
+    debug(
+      `vehTransient:${
+        server._vehicles[characterId as string].transientId
+      } , mode: ${moveMode} from ${client.character.name} time:${Date.now()}`
+    );
   }
   VehicleDismiss(server: ZoneServer2016, client: Client, packet: any) {
     const vehicleGuid = client.vehicle.mountedVehicle;
@@ -1001,7 +1033,11 @@ export class zonePacketHandlers {
       server.dismissVehicle(vehicleGuid);
     }
   }
-  CommandInteractionString(server: ZoneServer2016, client: Client, packet: any) {
+  CommandInteractionString(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     const { guid } = packet.data,
       entityData: BaseLightweightCharacter =
         server._spawnedItems[guid] ||
@@ -1050,8 +1086,7 @@ export class zonePacketHandlers {
         break;
       case EntityTypes.CONSTRUCTION_FOUNDATION:
         const foundation = entityData as ConstructionParentEntity;
-        if (foundation.ownerCharacterId != client.character.characterId)
-          return;
+        if (foundation.ownerCharacterId != client.character.characterId) return;
         server.sendData(client, "Command.InteractionString", {
           guid: guid,
           stringId: 12979,
@@ -1064,7 +1099,11 @@ export class zonePacketHandlers {
   MountSeatChangeRequest(server: ZoneServer2016, client: Client, packet: any) {
     server.changeSeat(client, packet);
   }
-  ConstructionPlacementFinalizeRequest(server: ZoneServer2016, client: Client, packet: any) {
+  ConstructionPlacementFinalizeRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     if (packet.data.itemDefinitionId === 0) return;
     const array = new Float32Array([
       packet.data.rotation1[3],
@@ -1102,7 +1141,11 @@ export class zonePacketHandlers {
       packet.data.BuildingSlot
     );
   }
-  CommandItemDefinitionRequest(server: ZoneServer2016, client: Client, packet: any) {
+  CommandItemDefinitionRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     debug(`ItemDefinitionRequest ID: ${packet.data.ID}`);
 
     const itemDef = server.getItemDefinition(packet.data.ID);
@@ -1277,9 +1320,7 @@ export class zonePacketHandlers {
             )
           );
           item.weapon.ammoCount = 0;
-          if (
-            client.character.getEquippedWeapon().itemGuid == item.itemGuid
-          ) {
+          if (client.character.getEquippedWeapon().itemGuid == item.itemGuid) {
             server.sendWeaponData(client, "Weapon.Reload", {
               weaponGuid: item.itemGuid,
               unknownDword1: 0,
@@ -1297,7 +1338,11 @@ export class zonePacketHandlers {
         );
     }
   }
-  ConstructionPlacementRequest(server: ZoneServer2016, client: Client, packet: any) {
+  ConstructionPlacementRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     debug(packet.data);
     const modelId = server.getItemDefinition(
       packet.data.itemDefinitionId
@@ -1656,9 +1701,7 @@ export class zonePacketHandlers {
             }
           } else if (containerGuid == "0xffffffffffffffff") {
             // to loadout
-            if (
-              server.validateLoadoutSlot(item.itemDefinitionId, newSlotId)
-            ) {
+            if (server.validateLoadoutSlot(item.itemDefinitionId, newSlotId)) {
               server.equipContainerItem(client, item, newSlotId);
             }
           } else {
@@ -1750,7 +1793,11 @@ export class zonePacketHandlers {
     }
     server.switchLoadoutSlot(client, slot);
   }
-  NpcFoundationPermissionsManagerEditPermission(server: ZoneServer2016, client: Client, packet: any) {
+  NpcFoundationPermissionsManagerEditPermission(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     const foundation = server._constructionFoundations[
       packet.data.objectCharacterId
     ] as ConstructionParentEntity;
@@ -1804,12 +1851,10 @@ export class zonePacketHandlers {
     if (push) {
       foundation.permissions.push(obj);
     }
-    server._constructionFoundations[
-      packet.data.objectCharacterId
-    ].permissions = foundation.permissions;
+    server._constructionFoundations[packet.data.objectCharacterId].permissions =
+      foundation.permissions;
     Object.values(
-      server._constructionFoundations[packet.data.objectCharacterId]
-        .expansions
+      server._constructionFoundations[packet.data.objectCharacterId].expansions
     ).forEach((objectCharacterId: string) => {
       const child = server._constructionFoundations[objectCharacterId];
       child.permissions = foundation.permissions;
@@ -1825,7 +1870,11 @@ export class zonePacketHandlers {
       }
     );
   }
-  NpcFoundationPermissionsManagerAddPermission(server: ZoneServer2016, client: Client, packet: any) {
+  NpcFoundationPermissionsManagerAddPermission(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     const foundation = server._constructionFoundations[
       packet.data.objectCharacterId
     ] as ConstructionParentEntity;
@@ -1879,12 +1928,10 @@ export class zonePacketHandlers {
     if (push) {
       foundation.permissions.push(obj);
     }
-    server._constructionFoundations[
-      packet.data.objectCharacterId
-    ].permissions = foundation.permissions;
+    server._constructionFoundations[packet.data.objectCharacterId].permissions =
+      foundation.permissions;
     Object.values(
-      server._constructionFoundations[packet.data.objectCharacterId]
-        .expansions
+      server._constructionFoundations[packet.data.objectCharacterId].expansions
     ).forEach((objectCharacterId: string) => {
       const child = server._constructionFoundations[objectCharacterId];
       child.permissions = foundation.permissions;

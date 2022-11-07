@@ -247,6 +247,14 @@ export const setupAppDataFolder = (): void => {
       JSON.stringify([])
     );
   }
+  if (
+    !fs.existsSync(`${AppDataFolderPath}/single_player_charactersKOTK.json`)
+  ) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/single_player_charactersKOTK.json`,
+      JSON.stringify([])
+    );
+  }
   if (!fs.existsSync(`${AppDataFolderPath}/worlddata`)) {
     fs.mkdirSync(`${AppDataFolderPath}/worlddata`);
   }
