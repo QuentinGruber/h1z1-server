@@ -83,7 +83,7 @@ export class LoginServer extends EventEmitter {
   private _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } =
     {};
   private _soloPlayIp: string = process.env.SOLO_PLAY_IP || "127.0.0.1";
-  private clients: Map<string,LoginClient>;
+  private clients: Map<string, LoginClient>;
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._crcSeed = 0;
@@ -115,52 +115,49 @@ export class LoginServer extends EventEmitter {
       this.Logout(client);
     });
 
-    this._soeServer.on(
-      "appdata",
-      async (client: Client, data: Buffer) => {
-        try {
-          const packet: { name: string; result: any } | null = this.parseData(
-            client.protocolName,
-            data
-          );
-          if (packet?.result) {
-            // if packet parsing succeed
-            switch (packet.name) {
-              case "LoginRequest":
-                const { sessionId } = packet.result;
-                await this.LoginRequest(client, sessionId);
-                break;
-              case "CharacterSelectInfoRequest":
-                await this.CharacterSelectInfoRequest(client);
-                break;
-              case "ServerListRequest":
-                await this.ServerListRequest(client);
-                break;
-              case "CharacterDeleteRequest":
-                await this.CharacterDeleteRequest(client, packet.result);
-                break;
-              case "CharacterLoginRequest":
-                await this.CharacterLoginRequest(client, packet.result);
-                break;
-              case "CharacterCreateRequest":
-                await this.CharacterCreateRequest(client, packet.result);
-                break;
-              case "TunnelAppPacketClientToServer": // only used for nameValidation rn
-                await this.TunnelAppPacketClientToServer(client, packet);
-                break;
-              case "Logout":
-                this.Logout(client);
-                break;
-            }
-          } else {
-            debug("Packet parsing was unsuccesful");
+    this._soeServer.on("appdata", async (client: Client, data: Buffer) => {
+      try {
+        const packet: { name: string; result: any } | null = this.parseData(
+          client.protocolName,
+          data
+        );
+        if (packet?.result) {
+          // if packet parsing succeed
+          switch (packet.name) {
+            case "LoginRequest":
+              const { sessionId } = packet.result;
+              await this.LoginRequest(client, sessionId);
+              break;
+            case "CharacterSelectInfoRequest":
+              await this.CharacterSelectInfoRequest(client);
+              break;
+            case "ServerListRequest":
+              await this.ServerListRequest(client);
+              break;
+            case "CharacterDeleteRequest":
+              await this.CharacterDeleteRequest(client, packet.result);
+              break;
+            case "CharacterLoginRequest":
+              await this.CharacterLoginRequest(client, packet.result);
+              break;
+            case "CharacterCreateRequest":
+              await this.CharacterCreateRequest(client, packet.result);
+              break;
+            case "TunnelAppPacketClientToServer": // only used for nameValidation rn
+              await this.TunnelAppPacketClientToServer(client, packet);
+              break;
+            case "Logout":
+              this.Logout(client);
+              break;
           }
-        } catch (error) {
-          console.log(error);
-          process.exitCode = 1;
+        } else {
+          debug("Packet parsing was unsuccesful");
         }
+      } catch (error) {
+        console.log(error);
+        process.exitCode = 1;
       }
-    );
+    });
 
     if (!this._soloMode) {
       this._h1emuLoginServer = new H1emuLoginServer(1110);
@@ -203,7 +200,7 @@ export class LoginServer extends EventEmitter {
                       debug(`ZoneConnection established`);
                       client.serverId = serverId;
                       this._zoneConnections[client.clientId] = serverId;
-                      await this.updateServerStatus(serverId,true);
+                      await this.updateServerStatus(serverId, true);
                     } else {
                       console.log(
                         `rejected connection serverId : ${serverId} address: ${client.address} `
@@ -241,29 +238,31 @@ export class LoginServer extends EventEmitter {
           }
         }
       );
-      this._h1emuLoginServer.on("processInternalReq", (packet: any,keysToReturn:string[]) => {
-        const { reqId } = packet.data;
-        clearTimeout(this._pendingInternalReqTimeouts[reqId]);
-        delete this._pendingInternalReqTimeouts[reqId];
-        if (this._pendingInternalReq[reqId]) {
-          let returnedData:Record<string,unknown> | number;
-          if(keysToReturn.length > 0){
-            if(keysToReturn.length === 1){
-              returnedData = packet.data[keysToReturn[0]];
-            }else{
-            returnedData = {};
-            for(const key of keysToReturn){
-              returnedData[key] = packet.data[key];
+      this._h1emuLoginServer.on(
+        "processInternalReq",
+        (packet: any, keysToReturn: string[]) => {
+          const { reqId } = packet.data;
+          clearTimeout(this._pendingInternalReqTimeouts[reqId]);
+          delete this._pendingInternalReqTimeouts[reqId];
+          if (this._pendingInternalReq[reqId]) {
+            let returnedData: Record<string, unknown> | number;
+            if (keysToReturn.length > 0) {
+              if (keysToReturn.length === 1) {
+                returnedData = packet.data[keysToReturn[0]];
+              } else {
+                returnedData = {};
+                for (const key of keysToReturn) {
+                  returnedData[key] = packet.data[key];
+                }
+              }
+            } else {
+              returnedData = packet.data;
             }
+            this._pendingInternalReq[reqId](returnedData);
+            delete this._pendingInternalReq[reqId];
           }
-          }
-          else{
-            returnedData = packet.data;
-          }
-          this._pendingInternalReq[reqId](returnedData);
-          delete this._pendingInternalReq[reqId];
         }
-      });
+      );
       this._h1emuLoginServer.on(
         "disconnect",
         async (err: string, client: H1emuClient, reason: number) => {
@@ -273,10 +272,10 @@ export class LoginServer extends EventEmitter {
             }`
           );
           delete this._zoneConnections[client.clientId];
-          if(client.serverId){
-            await this.updateServerStatus(client.serverId,false);
+          if (client.serverId) {
+            await this.updateServerStatus(client.serverId, false);
           }
-         }
+        }
       );
 
       this._h1emuLoginServer.start();
@@ -318,77 +317,81 @@ export class LoginServer extends EventEmitter {
   }
 
   async loadCharacterData(client: Client): Promise<any> {
-    if(this._soloMode){
-    switch (client.gameVersion) {
-      default:
-      case GAME_VERSIONS.H1Z1_15janv_2015:{
-        try {
-          // delete old character cache
-          delete require.cache[
-            require.resolve(
-              `${this._appDataFolder}/single_player_characters.json`
-            )
-          ];
-        } catch (e) {
-          console.error(e);
+    if (this._soloMode) {
+      switch (client.gameVersion) {
+        default:
+        case GAME_VERSIONS.H1Z1_15janv_2015: {
+          try {
+            // delete old character cache
+            delete require.cache[
+              require.resolve(
+                `${this._appDataFolder}/single_player_characters.json`
+              )
+            ];
+          } catch (e) {
+            console.error(e);
+          }
+          return require(`${this._appDataFolder}/single_player_characters.json`);
         }
-        return require(`${this._appDataFolder}/single_player_characters.json`);
-      }
-      case GAME_VERSIONS.H1Z1_6dec_2016:{
-        try {
-          // delete old character cache
-          delete require.cache[
-            require.resolve(
-              `${this._appDataFolder}/single_player_characters2016.json`
-            )
-          ];
-        } catch (e) {
-          console.error(e);
+        case GAME_VERSIONS.H1Z1_6dec_2016: {
+          try {
+            // delete old character cache
+            delete require.cache[
+              require.resolve(
+                `${this._appDataFolder}/single_player_characters2016.json`
+              )
+            ];
+          } catch (e) {
+            console.error(e);
+          }
+          return require(`${this._appDataFolder}/single_player_characters2016.json`);
         }
-        return require(`${this._appDataFolder}/single_player_characters2016.json`);
-      }
-      case GAME_VERSIONS.H1Z1_KOTK_PS3:{
-        try {
-          // delete old character cache
-          delete require.cache[
-            require.resolve(
-              `${this._appDataFolder}/single_player_charactersKOTK.json`
-            )
-          ];
-        } catch (e) {
-          console.error(e);
+        case GAME_VERSIONS.H1Z1_KOTK_PS3: {
+          try {
+            // delete old character cache
+            delete require.cache[
+              require.resolve(
+                `${this._appDataFolder}/single_player_charactersKOTK.json`
+              )
+            ];
+          } catch (e) {
+            console.error(e);
+          }
+          return require(`${this._appDataFolder}/single_player_charactersKOTK.json`);
         }
-        return require(`${this._appDataFolder}/single_player_charactersKOTK.json`);
       }
-  }}
-  else{
-    const charactersQuery = {
-      authKey: client.loginSessionId,
-      gameVersion: client.gameVersion,
-      status: 1,
-    };
-    return await this._db
-      .collection("characters-light")
-      .find(charactersQuery)
-      .toArray();
+    } else {
+      const charactersQuery = {
+        authKey: client.loginSessionId,
+        gameVersion: client.gameVersion,
+        status: 1,
+      };
+      return await this._db
+        .collection("characters-light")
+        .find(charactersQuery)
+        .toArray();
     }
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async LoginRequest(client: Client, sessionIdString: string) {
-    let sessionId,gameVersion;
-    try{
+    let sessionId, gameVersion;
+    try {
       const sessionIdObject = JSON.parse(sessionIdString);
       sessionId = sessionIdObject.sessionId;
       gameVersion = sessionIdObject.gameVersion;
-      if(sessionId ?? !gameVersion){
+      if (sessionId ?? !gameVersion) {
         throw new Error("Invalid sessionId");
       }
-    }
-    catch(e){
+    } catch (e) {
       sessionId = sessionIdString;
-      gameVersion = client.protocolName === "LoginUdp_9"?GAME_VERSIONS.H1Z1_15janv_2015:GAME_VERSIONS.H1Z1_6dec_2016;
-      console.warn("Your session id is not a valid json string, please update your launcher to avoid this warning");
+      gameVersion =
+        client.protocolName === "LoginUdp_9"
+          ? GAME_VERSIONS.H1Z1_15janv_2015
+          : GAME_VERSIONS.H1Z1_6dec_2016;
+      console.warn(
+        "Your session id is not a valid json string, please update your launcher to avoid this warning"
+      );
     }
     if (this._soloMode) {
       client.loginSessionId = String(sessionId);
@@ -408,26 +411,26 @@ export class LoginServer extends EventEmitter {
       namespace: "soe",
       accountFeatures: [
         {
-          key:2,
-          accountFeature:{
-            id:2,
+          key: 2,
+          accountFeature: {
+            id: 2,
             active: true,
             remainingCount: 2,
-            rawData:"test"
-          }
-        }
+            rawData: "test",
+          },
+        },
       ],
       errorDetails: [
         {
           unknownDword1: 0,
-          name:"None",
+          name: "None",
           value: "None",
-        }
+        },
       ],
       ipCountryCode: "US",
       applicationPayload: "US",
     };
-    this.clients.set(client.soeClientId,client);
+    this.clients.set(client.soeClientId, client);
     this.sendData(client, "LoginReply", loginReply);
   }
 
@@ -545,24 +548,27 @@ export class LoginServer extends EventEmitter {
     debug("CharacterSelectInfoRequest");
   }
 
-  async updateServerStatus(serverId:number,status:boolean){
-     const server = await this._db.collection("servers").findOneAndUpdate(
-          { serverId: serverId },
-          {
-            $set: {
-              allowedAccess: status,
-              populationNumber: 0,
-              populationLevel: 0,
-            },
-          }
-        );
-      this.clients.forEach((client:Client)=>{
-        if(client.gameVersion === server.value.gameVersion){
-          this.sendData(client,"ServerUpdate",{...server.value,allowedAccess:status});
-        }
-      })
-     }
-  
+  async updateServerStatus(serverId: number, status: boolean) {
+    const server = await this._db.collection("servers").findOneAndUpdate(
+      { serverId: serverId },
+      {
+        $set: {
+          allowedAccess: status,
+          populationNumber: 0,
+          populationLevel: 0,
+        },
+      }
+    );
+    this.clients.forEach((client: Client) => {
+      if (client.gameVersion === server.value.gameVersion) {
+        this.sendData(client, "ServerUpdate", {
+          ...server.value,
+          allowedAccess: status,
+        });
+      }
+    });
+  }
+
   async updateServersStatus(): Promise<void> {
     const servers = await this._db.collection("servers").find().toArray();
 
@@ -572,8 +578,8 @@ export class LoginServer extends EventEmitter {
         server.allowedAccess &&
         !Object.values(this._zoneConnections).includes(server.serverId)
       ) {
-        await this.updateServerStatus(server.serverId,false);
-     }
+        await this.updateServerStatus(server.serverId, false);
+      }
     }
   }
 
@@ -603,23 +609,23 @@ export class LoginServer extends EventEmitter {
         }
       }
     } else {
-        switch (client.gameVersion) {
-          default:
-          case GAME_VERSIONS.H1Z1_15janv_2015:{
-            const SoloServer = require("../../../data/2015/sampleData/single_player_server.json");
-            servers = [SoloServer];
-            break;
-          }
-          case GAME_VERSIONS.H1Z1_6dec_2016:{
-            const SoloServer = require("../../../data/2016/sampleData/single_player_server.json");
-            servers = [SoloServer];
-            break;
-          }
-          case GAME_VERSIONS.H1Z1_KOTK_PS3:{
-            const SoloServer = require("../../../data/kotk/sampleData/single_player_server.json");
-            servers = [SoloServer];
-            break;
-          }
+      switch (client.gameVersion) {
+        default:
+        case GAME_VERSIONS.H1Z1_15janv_2015: {
+          const SoloServer = require("../../../data/2015/sampleData/single_player_server.json");
+          servers = [SoloServer];
+          break;
+        }
+        case GAME_VERSIONS.H1Z1_6dec_2016: {
+          const SoloServer = require("../../../data/2016/sampleData/single_player_server.json");
+          servers = [SoloServer];
+          break;
+        }
+        case GAME_VERSIONS.H1Z1_KOTK_PS3: {
+          const SoloServer = require("../../../data/kotk/sampleData/single_player_server.json");
+          servers = [SoloServer];
+          break;
+        }
       }
     }
     const serverListReply: ServerListReply = { servers: servers };
@@ -637,27 +643,28 @@ export class LoginServer extends EventEmitter {
       SinglePlayerCharacters.splice(characterIndex, 1);
       switch (client.gameVersion) {
         default:
-        case GAME_VERSIONS.H1Z1_15janv_2015:{
+        case GAME_VERSIONS.H1Z1_15janv_2015: {
           fs.writeFileSync(
             `${this._appDataFolder}/single_player_characters.json`,
-            JSON.stringify(SinglePlayerCharacters, null, "\t"));
-            break;
+            JSON.stringify(SinglePlayerCharacters, null, "\t")
+          );
+          break;
         }
-        case GAME_VERSIONS.H1Z1_6dec_2016:{
+        case GAME_VERSIONS.H1Z1_6dec_2016: {
           fs.writeFileSync(
             `${this._appDataFolder}/single_player_characters2016.json`,
             JSON.stringify(SinglePlayerCharacters, null, "\t")
           );
           break;
         }
-        case GAME_VERSIONS.H1Z1_KOTK_PS3:{
+        case GAME_VERSIONS.H1Z1_KOTK_PS3: {
           fs.writeFileSync(
             `${this._appDataFolder}/single_player_charactersKOTK.json`,
             JSON.stringify(SinglePlayerCharacters, null, "\t")
           );
           break;
         }
-    }
+      }
     } else {
       const characterId = packet.characterId;
       const characterQuery = { characterId: characterId };
@@ -668,11 +675,11 @@ export class LoginServer extends EventEmitter {
         charracterToDelete &&
         charracterToDelete.authKey === client.loginSessionId
       ) {
-        deletionStatus = await this.askZone(
+        deletionStatus = (await this.askZone(
           charracterToDelete.serverId,
           "CharacterDeleteRequest",
           { characterId: characterId }
-        ) as number;
+        )) as number;
         if (deletionStatus) {
           await this._db
             .collection("characters-light")
@@ -692,17 +699,20 @@ export class LoginServer extends EventEmitter {
     };
     this.sendData(client, "CharacterDeleteReply", characterDeleteReply);
   }
-  
-  async getCharactersLoginInfo(serverId:number,characterId:string,loginSessionId:string | undefined):Promise<CharacterLoginReply>{
-    const { serverAddress,populationNumber,maxPopulationNumber } = await this._db
-      .collection("servers")
-      .findOne({ serverId: serverId });
+
+  async getCharactersLoginInfo(
+    serverId: number,
+    characterId: string,
+    loginSessionId: string | undefined
+  ): Promise<CharacterLoginReply> {
+    const { serverAddress, populationNumber, maxPopulationNumber } =
+      await this._db.collection("servers").findOne({ serverId: serverId });
     const character = await this._db
       .collection("characters-light")
       .findOne({ characterId: characterId });
-    const connectionStatus = Object.values(this._zoneConnections).includes(
-      serverId
-    ) && (populationNumber <= maxPopulationNumber || !maxPopulationNumber);
+    const connectionStatus =
+      Object.values(this._zoneConnections).includes(serverId) &&
+      (populationNumber <= maxPopulationNumber || !maxPopulationNumber);
     debug(`connectionStatus ${connectionStatus}`);
 
     if (!character) {
@@ -715,7 +725,7 @@ export class LoginServer extends EventEmitter {
           .collection("user-sessions")
           .findOne({ authKey: loginSessionId })
       : { guid: "" };
-    return  {
+    return {
       unknownQword1: "0x0",
       unknownDword1: 0,
       unknownDword2: 0,
@@ -732,28 +742,28 @@ export class LoginServer extends EventEmitter {
       },
     };
   }
-  
-  async getCharactersLoginInfoSolo(client:Client,characterId:string){
+
+  async getCharactersLoginInfoSolo(client: Client, characterId: string) {
     const SinglePlayerCharacters = await this.loadCharacterData(client);
     let character;
     switch (client.gameVersion) {
       default:
-      case GAME_VERSIONS.H1Z1_15janv_2015:{
+      case GAME_VERSIONS.H1Z1_15janv_2015: {
         character = SinglePlayerCharacters.find(
           (character: any) => character.characterId === characterId
-        ); 
+        );
         character.characterName = character.payload.name;
-          break;
+        break;
       }
       case GAME_VERSIONS.H1Z1_KOTK_PS3:
-      case GAME_VERSIONS.H1Z1_6dec_2016:{
+      case GAME_VERSIONS.H1Z1_6dec_2016: {
         character = SinglePlayerCharacters.find(
           (character: any) => character.characterId === characterId
         );
         break;
       }
-  }
-     return  {
+    }
+    return {
       unknownQword1: "0x0",
       unknownDword1: 0,
       unknownDword2: 0,
@@ -767,27 +777,36 @@ export class LoginServer extends EventEmitter {
         stationName: "",
         characterName: character.characterName,
         unknownString: "",
-        }
-     }
+      },
+    };
   }
-  
+
   async CharacterLoginRequest(client: Client, packet: CharacterLoginRequest) {
     let charactersLoginInfo: CharacterLoginReply;
     const { serverId, characterId } = packet;
     let characterExistOnZone = 1;
     if (!this._soloMode) {
-     charactersLoginInfo = await this.getCharactersLoginInfo(serverId,characterId,client.loginSessionId);
-      characterExistOnZone = await this.askZone(
+      charactersLoginInfo = await this.getCharactersLoginInfo(
+        serverId,
+        characterId,
+        client.loginSessionId
+      );
+      characterExistOnZone = (await this.askZone(
         serverId,
         "CharacterExistRequest",
         { characterId: characterId }
-      ) as number;
-     }
-     else { 
-      charactersLoginInfo = await this.getCharactersLoginInfoSolo(client,characterId)  
-       }
-    if(client.gameVersion === GAME_VERSIONS.H1Z1_KOTK_PS3){
-      charactersLoginInfo.applicationData = DataSchema.pack(applicationDataKOTK,charactersLoginInfo.applicationData).data
+      )) as number;
+    } else {
+      charactersLoginInfo = await this.getCharactersLoginInfoSolo(
+        client,
+        characterId
+      );
+    }
+    if (client.gameVersion === GAME_VERSIONS.H1Z1_KOTK_PS3) {
+      charactersLoginInfo.applicationData = DataSchema.pack(
+        applicationDataKOTK,
+        charactersLoginInfo.applicationData
+      ).data;
     }
     debug(charactersLoginInfo);
     charactersLoginInfo.status = Number(characterExistOnZone);
@@ -843,18 +862,18 @@ export class LoginServer extends EventEmitter {
     // create character object
     let sampleCharacter, newCharacter;
     switch (client.gameVersion) {
-      case GAME_VERSIONS.H1Z1_15janv_2015:{
+      case GAME_VERSIONS.H1Z1_15janv_2015: {
         sampleCharacter = require("../../../data/2015/sampleData/single_player_character.json");
-      newCharacter = _.cloneDeep(sampleCharacter);
-      newCharacter.payload.name = characterName;
+        newCharacter = _.cloneDeep(sampleCharacter);
+        newCharacter.payload.name = characterName;
         break;
       }
       default:
       case GAME_VERSIONS.H1Z1_KOTK_PS3:
-      case GAME_VERSIONS.H1Z1_6dec_2016:{
+      case GAME_VERSIONS.H1Z1_6dec_2016: {
         sampleCharacter = require("../../../data/2016/sampleData/character.json");
-      newCharacter = _.cloneDeep(sampleCharacter);
-      newCharacter.characterName = characterName;
+        newCharacter = _.cloneDeep(sampleCharacter);
+        newCharacter.characterName = characterName;
         break;
       }
     }
@@ -864,7 +883,7 @@ export class LoginServer extends EventEmitter {
     if (this._soloMode) {
       const SinglePlayerCharacters = await this.loadCharacterData(client);
       switch (client.gameVersion) {
-        case GAME_VERSIONS.H1Z1_15janv_2015:{
+        case GAME_VERSIONS.H1Z1_15janv_2015: {
           SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
           fs.writeFileSync(
             `${this._appDataFolder}/single_player_characters.json`,
@@ -873,39 +892,38 @@ export class LoginServer extends EventEmitter {
           break;
         }
         default:
-        case GAME_VERSIONS.H1Z1_6dec_2016:{
+        case GAME_VERSIONS.H1Z1_6dec_2016: {
           const characterModelData = getCharacterModelData(payload);
-        newCharacter = {
-          ...newCharacter,
-          actorModelId: characterModelData.modelId,
-          headActor: characterModelData.headActor,
-          gender: payload.gender,
-          hairModel: characterModelData.hairModel,
-        };
-        SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
-        fs.writeFileSync(
-          `${this._appDataFolder}/single_player_characters2016.json`,
-          JSON.stringify(SinglePlayerCharacters, null, "\t")
-        );
+          newCharacter = {
+            ...newCharacter,
+            actorModelId: characterModelData.modelId,
+            headActor: characterModelData.headActor,
+            gender: payload.gender,
+            hairModel: characterModelData.hairModel,
+          };
+          SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
+          fs.writeFileSync(
+            `${this._appDataFolder}/single_player_characters2016.json`,
+            JSON.stringify(SinglePlayerCharacters, null, "\t")
+          );
           break;
         }
-        case GAME_VERSIONS.H1Z1_KOTK_PS3:{
+        case GAME_VERSIONS.H1Z1_KOTK_PS3: {
           const characterModelData = getCharacterModelData(payload);
-        newCharacter = {
-          ...newCharacter,
-          actorModelId: characterModelData.modelId,
-          headActor: characterModelData.headActor,
-          gender: payload.gender,
-          hairModel: characterModelData.hairModel,
-        };
-        SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
-        fs.writeFileSync(
-          `${this._appDataFolder}/single_player_charactersKOTK.json`,
-          JSON.stringify(SinglePlayerCharacters, null, "\t")
-        );
-        break
+          newCharacter = {
+            ...newCharacter,
+            actorModelId: characterModelData.modelId,
+            headActor: characterModelData.headActor,
+            gender: payload.gender,
+            hairModel: characterModelData.hairModel,
+          };
+          SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
+          fs.writeFileSync(
+            `${this._appDataFolder}/single_player_charactersKOTK.json`,
+            JSON.stringify(SinglePlayerCharacters, null, "\t")
+          );
+          break;
         }
-
       }
     } else {
       let sessionObj;
@@ -924,21 +942,20 @@ export class LoginServer extends EventEmitter {
       }
       let newCharacterData;
       switch (client.gameVersion) {
-        case GAME_VERSIONS.H1Z1_15janv_2015:{
-          newCharacterData = { ...newCharacter, ownerId: sessionObj.guid }
+        case GAME_VERSIONS.H1Z1_15janv_2015: {
+          newCharacterData = { ...newCharacter, ownerId: sessionObj.guid };
           break;
         }
         default:
         case GAME_VERSIONS.H1Z1_KOTK_PS3:
-        case GAME_VERSIONS.H1Z1_6dec_2016:{
-          newCharacterData =
-             {
-                characterId: newCharacter.characterId,
-                serverId: newCharacter.serverId,
-                ownerId: sessionObj.guid,
-                payload: packet.payload,
-                status: 1,
-              };
+        case GAME_VERSIONS.H1Z1_6dec_2016: {
+          newCharacterData = {
+            characterId: newCharacter.characterId,
+            serverId: newCharacter.serverId,
+            ownerId: sessionObj.guid,
+            payload: packet.payload,
+            status: 1,
+          };
           break;
         }
       }

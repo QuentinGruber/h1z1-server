@@ -26,13 +26,22 @@ export class CommandHandler {
     this.indexCommands(commands, internalCommands);
   }
 
-  private clientHasCommandPermission(server: ZoneServer2016, client: Client, command: Command) {
-    return command.permissionLevel == PermissionLevels.DEFAULT ||
-    client.isAdmin // temp permissionLevel logic until isAdmin is replaced
-    || server._allowedCommands.includes(command.name)
+  private clientHasCommandPermission(
+    server: ZoneServer2016,
+    client: Client,
+    command: Command
+  ) {
+    return (
+      command.permissionLevel == PermissionLevels.DEFAULT ||
+      client.isAdmin || // temp permissionLevel logic until isAdmin is replaced
+      server._allowedCommands.includes(command.name)
+    );
   }
 
-  private indexCommands(commands: Array<Command>, internalCommands: Array<Command>) {
+  private indexCommands(
+    commands: Array<Command>,
+    internalCommands: Array<Command>
+  ) {
     commands.forEach((command) => {
       this.commands[flhash(command.name.toUpperCase())] = command;
     });
@@ -55,8 +64,12 @@ export class CommandHandler {
       server.sendChatText(
         client,
         `Command list: \n/${Object.values(this.commands)
-          .filter((command) => this.clientHasCommandPermission(server, client, command))
-          .map((command)=> { return command.name })
+          .filter((command) =>
+            this.clientHasCommandPermission(server, client, command)
+          )
+          .map((command) => {
+            return command.name;
+          })
           .join("\n/")}`
       );
     } else {
@@ -86,7 +99,7 @@ export class CommandHandler {
     delete require.cache[require.resolve("./commands")];
     delete require.cache[require.resolve("./internalCommands")];
     const commands = require("./commands").commands,
-    internalCommands = require("./internalCommands").internalCommands;
+      internalCommands = require("./internalCommands").internalCommands;
     this.indexCommands(commands, internalCommands);
   }
 }

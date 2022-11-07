@@ -21,7 +21,7 @@ export class H1emuZoneServer extends H1emuServer {
   _loginConnection?: H1emuClient;
   _maxConnectionRetry: number = 0;
   _hasBeenConnectedToLogin: boolean = false;
-  constructor(serverId:number,serverPort?: number) {
+  constructor(serverId: number, serverPort?: number) {
     super(serverPort);
     this.messageHandler = (
       messageType: string,
