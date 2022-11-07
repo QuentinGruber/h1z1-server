@@ -24,7 +24,6 @@ const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
 export class SOEServer extends EventEmitter {
-  _protocolName: string;
   _serverPort: number;
   _cryptoKey: Uint8Array;
   _protocol!: Soeprotocol;
@@ -47,10 +46,9 @@ export class SOEServer extends EventEmitter {
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
   _allowRawDataReception: boolean = true;
-  constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
+  constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
-    this._protocolName = protocolName;
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;

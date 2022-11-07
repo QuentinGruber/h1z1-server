@@ -11,9 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { GAME_VERSIONS } from "utils/enums";
-import SoeClient from "../SoeServer/soeclient";
-export default abstract class LoginClient extends SoeClient {
-  loginSessionId: string | undefined = undefined;
-  gameVersion!: GAME_VERSIONS;
+export enum GAME_VERSIONS {
+    H1Z1_15janv_2015 = 1,
+    H1Z1_6dec_2016 = 2,
+    H1Z1_KOTK_PS3 = 3,
 }

@@ -43,6 +43,7 @@ process.env.isBin && require("./workers/dynamicWeather");
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { zone2015packets } from "types/zone2015packets";
+import { GAME_VERSIONS } from "../../utils/enums";
 const localSpawnList = require("../../../data/2015/sampleData/spawnLocations.json");
 
 const debugName = "ZoneServer";
@@ -109,6 +110,7 @@ export class ZoneServer2015 extends EventEmitter {
     : [];
   _maxAllowedPing: number = 300;
   private _transientIdGenerator = generateTransientId();
+  readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_15janv_2015;
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -118,7 +120,6 @@ export class ZoneServer2015 extends EventEmitter {
   ) {
     super();
     this._gatewayServer = new GatewayServer(
-      "ExternalGatewayApi_3",
       serverPort,
       gatewayKey
     );
@@ -202,7 +203,7 @@ export class ZoneServer2015 extends EventEmitter {
     );
 
     if (!this._soloMode) {
-      this._h1emuZoneServer = new H1emuZoneServer(internalServerPort); // opens local socket to connect to loginserver
+      this._h1emuZoneServer = new H1emuZoneServer(this._worldId,internalServerPort); // opens local socket to connect to loginserver
 
       this._h1emuZoneServer.on(
         "session",

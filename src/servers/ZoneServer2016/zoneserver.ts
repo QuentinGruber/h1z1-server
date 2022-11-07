@@ -102,6 +102,7 @@ import { simpleConstruction } from "./classes/simpleConstruction";
 import { FullCharacterSaveData, ServerSaveData } from "types/savedata";
 import { WorldDataManager } from "./classes/worlddatamanager";
 import { recipes } from "./data/Recipes";
+import { GAME_VERSIONS } from "../../utils/enums"
 
 import {
   CharacterKilledBy,
@@ -239,6 +240,7 @@ export class ZoneServer2016 extends EventEmitter {
   } = {};
   enableWorldSaves: boolean;
   readonly worldSaveVersion: number = 1;
+  readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
 
   constructor(
     serverPort: number,
@@ -249,7 +251,6 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     super();
     this._gatewayServer = new GatewayServer(
-      "ExternalGatewayApi_3",
       serverPort,
       gatewayKey
     );
@@ -343,7 +344,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     if (!this._soloMode) {
-      this._h1emuZoneServer = new H1emuZoneServer(internalServerPort); // opens local socket to connect to loginserver
+      this._h1emuZoneServer = new H1emuZoneServer(this._worldId,internalServerPort); // opens local socket to connect to loginserver
 
       this._h1emuZoneServer.on(
         "session",

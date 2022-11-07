@@ -1,0 +1,19 @@
+{
+  "serverId": 1,
+  "serverState": 2,
+  "serverAddress": "localhost:1117",
+  "locked": false,
+  "name": "",
+  "nameId": 193,
+  "description": "",
+  "descriptionId": 193,
+  "reqFeatureId": 0,
+  "serverInfo": "<ServerInfo Region=\"CharacterCreate.RegionEu\" Subregion=\"UI.SubregionEu\" IsRecommended=\"1\" IsRecommendedVS=\"0\" IsRecommendedNC=\"0\" IsRecommendedTR=\"0\" />",
+  "populationLevel": 0,
+  "populationData": "<Population PctCap=\"0\" PingAdr=\"127.0.0.1:1117\" Rulesets=\"\" Mode=\"0\" IsLogin=\"1\" IsWL=\"0\" IsEvt=\"0\" PL=\"0\" DC=\"LVS\" PopLock=\"0\" GP=\"100\" BP=\"175\" MaxPop=\"4000\" Subregion=\"US\"><Fac IsList=\"1\"/></Population>",
+  "allowedAccess": true,
+  "populationNumber": 0,
+  "maxPopulationNumber": 100,
+  "gameVersion": 3,
+  "serverVersionTag": "KOTK"
+}
