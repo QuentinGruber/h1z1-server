@@ -326,13 +326,13 @@ export class ZoneServer2016 extends EventEmitter {
         this.emit("login", zoneClient);
       }
     );
-    this._gatewayServer.on("disconnect", (err: string, client: SOEClient) => {
+    this._gatewayServer.on("disconnect", (client: SOEClient) => {
       this.deleteClient(this._clients[client.sessionId]);
     });
 
     this._gatewayServer.on(
       "tunneldata",
-      (err: string, client: SOEClient, data: Buffer, flags: number) => {
+      (client: SOEClient, data: Buffer, flags: number) => {
         const packet = this._protocol.parse(data, flags);
         if (packet) {
           this.emit("data", null, this._clients[client.sessionId], packet);
