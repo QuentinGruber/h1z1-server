@@ -31,10 +31,22 @@ export class ZoneClient2016 {
     time: 0,
   };
   speedWarnsNumber: number = 0;
-  pvpStats: { shotsFired: number, shotsHit: number, head: number, spine: number, hands: number, legs: number } = { shotsFired: 0, shotsHit: 0, head: 0, spine: 0, legs: 0, hands: 0};
-  clientLogs: {log: string, isSuspicious: boolean}[] = [];
+  pvpStats: {
+    shotsFired: number;
+    shotsHit: number;
+    head: number;
+    spine: number;
+    hands: number;
+    legs: number;
+  } = { shotsFired: 0, shotsHit: 0, head: 0, spine: 0, legs: 0, hands: 0 };
+  clientLogs: { log: string; isSuspicious: boolean }[] = [];
   reports: number = 0;
-  lastDeathReport?: { position: Float32Array, attackerPosition: Float32Array, distance: number, attacker: Client };
+  lastDeathReport?: {
+    position: Float32Array;
+    attackerPosition: Float32Array;
+    distance: number;
+    attacker: Client;
+  };
   hudTimer?: NodeJS.Timeout | null;
   spawnedDTOs: any[] = [];
   spawnedEntities: any[] = [];

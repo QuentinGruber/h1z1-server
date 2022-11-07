@@ -1046,12 +1046,17 @@ export class ZoneServer2016 extends EventEmitter {
           killer: deathInfo.client.character.characterId,
           isCheater: deathInfo.client.character.godMode,
         } as CharacterKilledBy);
-          client.lastDeathReport = {
-              position: client.character.state.position, 
-              attackerPosition: deathInfo.client.character.state.position,
-              distance: Number(getDistance(client.character.state.position, deathInfo.client.character.state.position).toFixed(2)),
-              attacker: deathInfo.client
-            };
+        client.lastDeathReport = {
+          position: client.character.state.position,
+          attackerPosition: deathInfo.client.character.state.position,
+          distance: Number(
+            getDistance(
+              client.character.state.position,
+              deathInfo.client.character.state.position
+            ).toFixed(2)
+          ),
+          attacker: deathInfo.client,
+        };
       }
       client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
@@ -1095,177 +1100,333 @@ export class ZoneServer2016 extends EventEmitter {
     this.checkHook("OnPlayerDied", client, deathInfo);
   }
 
-  sendDiscordHook(client: Client, client2: Client, title: string, description: string, args: any) {
-    if (!this._discordWebhookUrl) return
-    const { Webhook, MessageBuilder } = require('discord-webhook-node');
+  sendDiscordHook(
+    client: Client,
+    client2: Client,
+    title: string,
+    description: string,
+    args: any
+  ) {
+    if (!this._discordWebhookUrl) return;
+    const { Webhook, MessageBuilder } = require("discord-webhook-node");
     const hook = new Webhook(this._discordWebhookUrl);
     const embed = new MessageBuilder()
-        .setTitle(title)
-        .setAuthor(`${this._serverName}`, 'https://b.thumbs.redditmedia.com/AOe74IKe0Z9ONKat9WX_Px0aIU8dPJWNR_076ViqKDU.png')
-        .setColor('#ff0000')
-        .setDescription(description)
+      .setTitle(title)
+      .setAuthor(
+        `${this._serverName}`,
+        "https://b.thumbs.redditmedia.com/AOe74IKe0Z9ONKat9WX_Px0aIU8dPJWNR_076ViqKDU.png"
+      )
+      .setColor("#ff0000")
+      .setDescription(description);
     for (const a in args) {
-            embed.addField(args[a].title, args[a].info, true)               
+      embed.addField(args[a].title, args[a].info, true);
     }
     hook.send(embed);
   }
 
-
-  async explosionDamage(position: Float32Array, npcTriggered: string, client?: Client) {
+  async explosionDamage(
+    position: Float32Array,
+    npcTriggered: string,
+    client?: Client
+  ) {
     for (const character in this._clients) {
-        const characterObj = this._clients[character];
-        if (!characterObj.character.godMode) {
-            if (isPosInRadius(8, characterObj.character.state.position, position)) {
-                const distance = getDistance(
-                    position,
-                    characterObj.character.state.position
-                );
-                const damage = 50000 / distance;
-                this.playerDamage(this._clients[character], damage);
-            }
+      const characterObj = this._clients[character];
+      if (!characterObj.character.godMode) {
+        if (isPosInRadius(8, characterObj.character.state.position, position)) {
+          const distance = getDistance(
+            position,
+            characterObj.character.state.position
+          );
+          const damage = 50000 / distance;
+          this.playerDamage(this._clients[character], damage);
         }
+      }
     }
     for (const vehicleKey in this._vehicles) {
-        const vehicle = this._vehicles[vehicleKey];
-        if (vehicle.characterId != npcTriggered) {
-            if (isPosInRadius(5, vehicle.state.position, position)) {
-                const distance = getDistance(position, vehicle.state.position);
-                const damage = 250000 / distance;
-                await Scheduler.wait(150);
-                this.damageVehicle(damage, vehicle);
-            }
+      const vehicle = this._vehicles[vehicleKey];
+      if (vehicle.characterId != npcTriggered) {
+        if (isPosInRadius(5, vehicle.state.position, position)) {
+          const distance = getDistance(position, vehicle.state.position);
+          const damage = 250000 / distance;
+          await Scheduler.wait(150);
+          this.damageVehicle(damage, vehicle);
         }
+      }
     }
 
     for (const construction in this._constructionSimple) {
-        const constructionObject = this._constructionSimple[construction] as simpleConstruction;
-        if (constructionObject.itemDefinitionId == Items.FOUNDATION_RAMP || constructionObject.itemDefinitionId == Items.FOUNDATION_STAIRS) continue;
-        if (isPosInRadius(constructionObject.damageRange, constructionObject.fixedPosition ? constructionObject.fixedPosition : constructionObject.state.position, position)) {
-            if (this.isConstructionInSecuredArea(constructionObject, "simple")) {
-                if (client) {
-                    this.sendBaseSecuredMessage(client);
-                }
-            }
-            else {
-                this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionSimple, position, constructionObject.fixedPosition ? constructionObject.fixedPosition : constructionObject.state.position)
-            }
+      const constructionObject = this._constructionSimple[
+        construction
+      ] as simpleConstruction;
+      if (
+        constructionObject.itemDefinitionId == Items.FOUNDATION_RAMP ||
+        constructionObject.itemDefinitionId == Items.FOUNDATION_STAIRS
+      )
+        continue;
+      if (
+        isPosInRadius(
+          constructionObject.damageRange,
+          constructionObject.fixedPosition
+            ? constructionObject.fixedPosition
+            : constructionObject.state.position,
+          position
+        )
+      ) {
+        if (this.isConstructionInSecuredArea(constructionObject, "simple")) {
+          if (client) {
+            this.sendBaseSecuredMessage(client);
+          }
+        } else {
+          this.checkConstructionDamage(
+            constructionObject.characterId,
+            50000,
+            this._constructionSimple,
+            position,
+            constructionObject.fixedPosition
+              ? constructionObject.fixedPosition
+              : constructionObject.state.position
+          );
         }
+      }
     }
 
     for (const construction in this._constructionDoors) {
-        const constructionObject = this._constructionDoors[construction] as constructionDoor;
-        if (isPosInRadius(constructionObject.damageRange, constructionObject.fixedPosition ? constructionObject.fixedPosition : constructionObject.state.position, position)) {
-            if (this.isConstructionInSecuredArea(constructionObject, "door")) {
-                    if (client) {
-                        this.sendBaseSecuredMessage(client);
-                    }
-                }
-                else {
-                    this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionDoors, position, constructionObject.fixedPosition ? constructionObject.fixedPosition : constructionObject.state.position)
-                }
+      const constructionObject = this._constructionDoors[
+        construction
+      ] as constructionDoor;
+      if (
+        isPosInRadius(
+          constructionObject.damageRange,
+          constructionObject.fixedPosition
+            ? constructionObject.fixedPosition
+            : constructionObject.state.position,
+          position
+        )
+      ) {
+        if (this.isConstructionInSecuredArea(constructionObject, "door")) {
+          if (client) {
+            this.sendBaseSecuredMessage(client);
+          }
+        } else {
+          this.checkConstructionDamage(
+            constructionObject.characterId,
+            50000,
+            this._constructionDoors,
+            position,
+            constructionObject.fixedPosition
+              ? constructionObject.fixedPosition
+              : constructionObject.state.position
+          );
         }
+      }
     }
 
     for (const construction in this._constructionFoundations) {
-        const constructionObject = this._constructionFoundations[construction] as ConstructionParentEntity;
-        if (isPosInRadius(constructionObject.damageRange, constructionObject.state.position, position)) {
-            const allowed = [Items.SHACK, Items.SHACK_SMALL, Items.SHACK_BASIC]
-            if (allowed.includes(constructionObject.itemDefinitionId)) {
-                this.checkConstructionDamage(constructionObject.characterId, 50000, this._constructionFoundations, position, constructionObject.state.position)
-            }
+      const constructionObject = this._constructionFoundations[
+        construction
+      ] as ConstructionParentEntity;
+      if (
+        isPosInRadius(
+          constructionObject.damageRange,
+          constructionObject.state.position,
+          position
+        )
+      ) {
+        const allowed = [Items.SHACK, Items.SHACK_SMALL, Items.SHACK_BASIC];
+        if (allowed.includes(constructionObject.itemDefinitionId)) {
+          this.checkConstructionDamage(
+            constructionObject.characterId,
+            50000,
+            this._constructionFoundations,
+            position,
+            constructionObject.state.position
+          );
         }
+      }
     }
 
     for (const explosive in this._explosives) {
-        const explosiveObj = this._explosives[explosive];
-        if (explosiveObj.characterId != npcTriggered) {
-            if (getDistance(position, explosiveObj.state.position) < 2) {
-                await Scheduler.wait(200);
-                if (this._spawnedItems[explosiveObj.characterId]) {
-                    const object = this._spawnedItems[explosiveObj.characterId];
-                    this.deleteEntity(explosiveObj.characterId, this._spawnedItems)
-                    delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
-                }
-                this.explodeExplosive(explosiveObj);
-            }
+      const explosiveObj = this._explosives[explosive];
+      if (explosiveObj.characterId != npcTriggered) {
+        if (getDistance(position, explosiveObj.state.position) < 2) {
+          await Scheduler.wait(200);
+          if (this._spawnedItems[explosiveObj.characterId]) {
+            const object = this._spawnedItems[explosiveObj.characterId];
+            this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
+            delete this.worldObjectManager._spawnedLootObjects[
+              object.spawnerId
+            ];
+          }
+          this.explodeExplosive(explosiveObj);
         }
+      }
     }
   }
 
   isConstructionInSecuredArea(construction: any, type: string) {
-      switch (type) {
-          case "simple":
-              for (const a in this._constructionFoundations) {
-                  const foundation = this._constructionFoundations[a]
-                  if (this._constructionFoundations[foundation.parentObjectCharacterId]) {
-                      if (foundation.isFullySecured && isInside([construction.state.position[0], construction.state.position[2]], foundation.securedPolygons)) return true
-                      else if (this._constructionFoundations[foundation.parentObjectCharacterId].isSecured && foundation.isSecured && isInside([construction.state.position[0], construction.state.position[2]], foundation.securedPolygons)) return true
-                      else return false
-                  }
-                  if (foundation.isSecured && isInside([construction.state.position[0], construction.state.position[2]], foundation.securedPolygons)) return true
-              }
-          case "door":
-              if (construction.itemDefinitionId == Items.METAL_GATE) return false
-              for (const a in this._constructionFoundations) {
-                  const foundation = this._constructionFoundations[a]
-                  if (this._constructionFoundations[foundation.parentObjectCharacterId]) {
-                      if (foundation.isFullySecured && isInside([construction.state.position[0], construction.state.position[2]], foundation.securedPolygons)) return true
-                      else if (this._constructionFoundations[foundation.parentObjectCharacterId].isSecured && foundation.isSecured && isInside([construction.state.position[0], construction.state.position[2]], foundation.securedPolygons)) return true
-                      else return false
-                  }
-                  if (foundation.isSecured && isInside([construction.state.position[0], construction.state.position[2]], foundation.securedPolygons)) return true
-              }
-      }
-      return false
+    switch (type) {
+      case "simple":
+        for (const a in this._constructionFoundations) {
+          const foundation = this._constructionFoundations[a];
+          if (
+            this._constructionFoundations[foundation.parentObjectCharacterId]
+          ) {
+            if (
+              foundation.isFullySecured &&
+              isInside(
+                [
+                  construction.state.position[0],
+                  construction.state.position[2],
+                ],
+                foundation.securedPolygons
+              )
+            )
+              return true;
+            else if (
+              this._constructionFoundations[foundation.parentObjectCharacterId]
+                .isSecured &&
+              foundation.isSecured &&
+              isInside(
+                [
+                  construction.state.position[0],
+                  construction.state.position[2],
+                ],
+                foundation.securedPolygons
+              )
+            )
+              return true;
+            else return false;
+          }
+          if (
+            foundation.isSecured &&
+            isInside(
+              [construction.state.position[0], construction.state.position[2]],
+              foundation.securedPolygons
+            )
+          )
+            return true;
+        }
+      case "door":
+        if (construction.itemDefinitionId == Items.METAL_GATE) return false;
+        for (const a in this._constructionFoundations) {
+          const foundation = this._constructionFoundations[a];
+          if (
+            this._constructionFoundations[foundation.parentObjectCharacterId]
+          ) {
+            if (
+              foundation.isFullySecured &&
+              isInside(
+                [
+                  construction.state.position[0],
+                  construction.state.position[2],
+                ],
+                foundation.securedPolygons
+              )
+            )
+              return true;
+            else if (
+              this._constructionFoundations[foundation.parentObjectCharacterId]
+                .isSecured &&
+              foundation.isSecured &&
+              isInside(
+                [
+                  construction.state.position[0],
+                  construction.state.position[2],
+                ],
+                foundation.securedPolygons
+              )
+            )
+              return true;
+            else return false;
+          }
+          if (
+            foundation.isSecured &&
+            isInside(
+              [construction.state.position[0], construction.state.position[2]],
+              foundation.securedPolygons
+            )
+          )
+            return true;
+        }
+    }
+    return false;
   }
 
   sendBaseSecuredMessage(client: Client) {
-      this.sendAlert(client, 'You must destroy the bases gate layer before affecting interior structures');
+    this.sendAlert(
+      client,
+      "You must destroy the bases gate layer before affecting interior structures"
+    );
   }
 
-  checkConstructionDamage(constructionCharId: string, damage: number, dictionary: any, position: Float32Array, entityPosition: Float32Array) {
-    const constructionObject: simpleConstruction | ConstructionParentEntity = dictionary[constructionCharId];
+  checkConstructionDamage(
+    constructionCharId: string,
+    damage: number,
+    dictionary: any,
+    position: Float32Array,
+    entityPosition: Float32Array
+  ) {
+    const constructionObject: simpleConstruction | ConstructionParentEntity =
+      dictionary[constructionCharId];
     const distance = getDistance(entityPosition, position);
-    constructionObject.pDamageConstruction(distance < 2 ? damage : damage / Math.sqrt(distance));
+    constructionObject.pDamageConstruction(
+      distance < 2 ? damage : damage / Math.sqrt(distance)
+    );
     this.updateResourceToAllWithSpawnedEntity(
-        constructionObject.characterId,
-        constructionObject.health,
-        ResourceIds.CONSTRUCTION_CONDITION,
-        ResourceTypes.CONDITION,
-        dictionary
-    ); 
-    this.sendDataToAllWithSpawnedEntity( // play burning effect & remove it after 15s
+      constructionObject.characterId,
+      constructionObject.health,
+      ResourceIds.CONSTRUCTION_CONDITION,
+      ResourceTypes.CONDITION,
+      dictionary
+    );
+    this.sendDataToAllWithSpawnedEntity(
+      // play burning effect & remove it after 15s
+      dictionary,
+      constructionCharId,
+      "Command.PlayDialogEffect",
+      {
+        characterId: constructionCharId,
+        effectId: 1214,
+      }
+    );
+    setTimeout(() => {
+      this.sendDataToAllWithSpawnedEntity(
         dictionary,
         constructionCharId,
         "Command.PlayDialogEffect",
         {
-            characterId: constructionCharId,
-            effectId: 1214,
+          characterId: constructionCharId,
+          effectId: 0,
         }
-    );  
-    setTimeout(() => {
-        this.sendDataToAllWithSpawnedEntity( 
-            dictionary,
-            constructionCharId,
-            "Command.PlayDialogEffect",
-            {
-                characterId: constructionCharId,
-                effectId: 0,
-            }
-        );
-    }, 15000)
-    if (constructionObject.health > 0) return
-    this.deleteEntity(constructionCharId, dictionary, 242, 3000)
-    const foundation = this._constructionFoundations[constructionObject.parentObjectCharacterId] ? this._constructionFoundations[constructionObject.parentObjectCharacterId] : this._constructionSimple[constructionObject.parentObjectCharacterId]       
+      );
+    }, 15000);
+    if (constructionObject.health > 0) return;
+    this.deleteEntity(constructionCharId, dictionary, 242, 3000);
+    const foundation = this._constructionFoundations[
+      constructionObject.parentObjectCharacterId
+    ]
+      ? this._constructionFoundations[
+          constructionObject.parentObjectCharacterId
+        ]
+      : this._constructionSimple[constructionObject.parentObjectCharacterId];
     if (!foundation) return;
-    if (constructionObject.itemDefinitionId == Items.DOOR_METAL || constructionObject.itemDefinitionId == Items.DOOR_WOOD ||constructionObject.itemDefinitionId == Items.METAL_GATE || constructionObject.itemDefinitionId == Items.METAL_WALL) {
-        foundation.changePerimeters(this, constructionObject.buildingSlot, new Float32Array([0, 0, 0, 0]));
+    if (
+      constructionObject.itemDefinitionId == Items.DOOR_METAL ||
+      constructionObject.itemDefinitionId == Items.DOOR_WOOD ||
+      constructionObject.itemDefinitionId == Items.METAL_GATE ||
+      constructionObject.itemDefinitionId == Items.METAL_WALL
+    ) {
+      foundation.changePerimeters(
+        this,
+        constructionObject.buildingSlot,
+        new Float32Array([0, 0, 0, 0])
+      );
     }
-    if (!constructionObject.slot || !constructionObject.parentObjectCharacterId) return;    
+    if (!constructionObject.slot || !constructionObject.parentObjectCharacterId)
+      return;
     const index = foundation.occupiedSlots.indexOf(constructionObject.slot);
-    foundation.occupiedSlots.splice(index, 1)
+    foundation.occupiedSlots.splice(index, 1);
     return;
-
   }
 
   damageVehicle(damage: number, vehicle: Vehicle) {
@@ -1651,67 +1812,93 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  speedFairPlayCheck(client: Client, sequenceTime: number, position: Float32Array) {
+  speedFairPlayCheck(
+    client: Client,
+    sequenceTime: number,
+    position: Float32Array
+  ) {
     if (client.isAdmin || !this._useFairPlay) return;
-    const speed = (getDistance(client.oldPos.position, position) / 1000) / (sequenceTime - client.oldPos.time) * 3600000;
-    const verticalSpeed = (getDistance(new Float32Array([0, client.oldPos.position[1], 0]), new Float32Array([0, position[1], 0])) / 1000) / (sequenceTime - client.oldPos.time) * 3600000;
+    const speed =
+      (getDistance(client.oldPos.position, position) /
+        1000 /
+        (sequenceTime - client.oldPos.time)) *
+      3600000;
+    const verticalSpeed =
+      (getDistance(
+        new Float32Array([0, client.oldPos.position[1], 0]),
+        new Float32Array([0, position[1], 0])
+      ) /
+        1000 /
+        (sequenceTime - client.oldPos.time)) *
+      3600000;
     if (speed > 35 && (verticalSpeed < 50 || verticalSpeed == Infinity)) {
-        client.speedWarnsNumber += 1
+      client.speedWarnsNumber += 1;
     } else if (client.speedWarnsNumber != 0) {
-        client.speedWarnsNumber -= 1
+      client.speedWarnsNumber -= 1;
     }
     if (client.speedWarnsNumber > 30) {
-        this.kickPlayer(client)
-        client.speedWarnsNumber = 0
-        this.sendAlertToAll(
-            `FairPlay: kicking ${client.character.name}`
-        );           
+      this.kickPlayer(client);
+      client.speedWarnsNumber = 0;
+      this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
     }
-    client.oldPos = {position: position, time: Date.now()}
+    client.oldPos = { position: position, time: Date.now() };
   }
 
-    hitMissFairPlayCheck(client: Client, hit: boolean, hitLocation: string) {
-        if (!this._useFairPlay || client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_SHOTGUN) return
-        if (hit) {
-            client.pvpStats.shotsHit += 1;
-            switch (hitLocation) {
-                case "head":
-                case "glasses":
-                case "neck":
-                    client.pvpStats.head += 1;
-                    break;
-                case "spineupper":
-                case "spinelower":
-                case "spinemiddle":
-                    client.pvpStats.spine += 1
-                    break;
-                case "l_hip":
-                case "r_hip":
-                case "l_knee":
-                case "r_knee":
-                case "l_ankle":
-                case "r_ankle":
-                    client.pvpStats.legs += 1;
-                    break;
-                case "l_elbow":
-                case "r_elbow":
-                case "r_shoulder":
-                case "l_shoulder":
-                case "r_wrist":
-                case "l_wrist":
-                    client.pvpStats.hands += 1;
-                    break;
-                default:
-                    break;
-            }
-            const hitRatio = 100 * client.pvpStats.shotsHit / client.pvpStats.shotsFired
-            if (client.pvpStats.shotsFired > 10 && hitRatio > 80) {
-                this.sendChatTextToAdmins(`FairPlay: ${client.character.name} exceeds hit/miss ratio (${hitRatio.toFixed(4)}% of ${client.pvpStats.shotsFired} shots fired)`, false)
-            }
-        } else {
-            client.pvpStats.shotsFired += 1;
-        }       
-    }  
+  hitMissFairPlayCheck(client: Client, hit: boolean, hitLocation: string) {
+    if (
+      !this._useFairPlay ||
+      client.character.getEquippedWeapon().itemDefinitionId ==
+        Items.WEAPON_SHOTGUN
+    )
+      return;
+    if (hit) {
+      client.pvpStats.shotsHit += 1;
+      switch (hitLocation) {
+        case "head":
+        case "glasses":
+        case "neck":
+          client.pvpStats.head += 1;
+          break;
+        case "spineupper":
+        case "spinelower":
+        case "spinemiddle":
+          client.pvpStats.spine += 1;
+          break;
+        case "l_hip":
+        case "r_hip":
+        case "l_knee":
+        case "r_knee":
+        case "l_ankle":
+        case "r_ankle":
+          client.pvpStats.legs += 1;
+          break;
+        case "l_elbow":
+        case "r_elbow":
+        case "r_shoulder":
+        case "l_shoulder":
+        case "r_wrist":
+        case "l_wrist":
+          client.pvpStats.hands += 1;
+          break;
+        default:
+          break;
+      }
+      const hitRatio =
+        (100 * client.pvpStats.shotsHit) / client.pvpStats.shotsFired;
+      if (client.pvpStats.shotsFired > 10 && hitRatio > 80) {
+        this.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } exceeds hit/miss ratio (${hitRatio.toFixed(4)}% of ${
+            client.pvpStats.shotsFired
+          } shots fired)`,
+          false
+        );
+      }
+    } else {
+      client.pvpStats.shotsFired += 1;
+    }
+  }
   updateResource(
     client: Client,
     entityId: string,
@@ -1930,7 +2117,7 @@ export class ZoneServer2016 extends EventEmitter {
     const characterId = packet.hitReport.characterId,
       entityType = this.getEntityType(packet.hitReport.characterId);
     let hitEntity;
-    let damageEntity;   
+    let damageEntity;
     switch (entityType) {
       case EntityTypes.NPC:
         if (
@@ -1954,7 +2141,11 @@ export class ZoneServer2016 extends EventEmitter {
         hitEntity = this._vehicles[characterId];
         break;
       case EntityTypes.PLAYER:
-        this.hitMissFairPlayCheck(client, true, packet.hitReport.hitLocation.toLowerCase())
+        this.hitMissFairPlayCheck(
+          client,
+          true,
+          packet.hitReport.hitLocation.toLowerCase()
+        );
         if (
           !this._characters[characterId] ||
           this._characters[characterId].characterStates.knockedOut
@@ -1994,19 +2185,24 @@ export class ZoneServer2016 extends EventEmitter {
         };
         hitEntity = this._characters[characterId];
         break;
-        case EntityTypes.OBJECT:
-            if (this._spawnedItems[characterId]) {
-                if (this._spawnedItems[characterId].item.itemDefinitionId === Items.FUEL_BIOFUEL || this._spawnedItems[characterId].item.itemDefinitionId === Items.FUEL_ETHANOL) {
-                    this.deleteEntity(characterId, this._spawnedItems);
-                    if (this._explosives[characterId]) {
-                        this.explodeExplosive(this._explosives[characterId]);
-                    }
-                }
-            }       
-            return;
-        case EntityTypes.EXPLOSIVE:
-            this.explodeExplosive(this._explosives[characterId]);
-            return;
+      case EntityTypes.OBJECT:
+        if (this._spawnedItems[characterId]) {
+          if (
+            this._spawnedItems[characterId].item.itemDefinitionId ===
+              Items.FUEL_BIOFUEL ||
+            this._spawnedItems[characterId].item.itemDefinitionId ===
+              Items.FUEL_ETHANOL
+          ) {
+            this.deleteEntity(characterId, this._spawnedItems);
+            if (this._explosives[characterId]) {
+              this.explodeExplosive(this._explosives[characterId]);
+            }
+          }
+        }
+        return;
+      case EntityTypes.EXPLOSIVE:
+        this.explodeExplosive(this._explosives[characterId]);
+        return;
       default:
         return;
     }
@@ -2346,137 +2542,237 @@ export class ZoneServer2016 extends EventEmitter {
 
   foundationPermissionChecker(client: Client) {
     let isInSecuredArea = false;
-      for (const a in this._constructionFoundations) {       
-          const foundation = this._constructionFoundations[a] as ConstructionParentEntity;  
-          if (foundation.itemDefinitionId == Items.FOUNDATION || foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION) {
-              if (isPosInRadiusWithY(foundation.itemDefinitionId == Items.FOUNDATION ? 6.46 : 4.9, client.character.state.position, new Float32Array([foundation.state.position[0], foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION ? foundation.state.position[1] - 2.5 : foundation.state.position[1], foundation.state.position[2], 1]), 2)) this.tpPlayerOutsideFoundation(client, foundation, true)
-          }
-          if (!foundation.isSecured) continue;
-          let allowed = false;
-          foundation.permissions.forEach((element: any) => {
-              if (element.characterId === client.character.characterId && element.visit) {
-                  allowed = true;
-              }
-          })
-          if (foundation.itemDefinitionId == Items.SHACK || foundation.itemDefinitionId == Items.SHACK_SMALL || foundation.itemDefinitionId == Items.SHACK_BASIC) {
-              if (this.checkInsideFoundation(foundation, client.character)) {
-                  if (allowed) {
-                      this.constructionHidePlayer(client, foundation.characterId, true)
-                      isInSecuredArea = true
-                  } else {this.tpPlayerOutsideFoundation(client, foundation)}
-              }
-          }
-          if (allowed) continue
-          if (this._constructionFoundations[foundation.parentObjectCharacterId]) {
-              if (!this._constructionFoundations[foundation.parentObjectCharacterId].isSecured) continue;
-          }
-          if (this.checkInsideFoundation(foundation, client.character)) {
-              this.tpPlayerOutsideFoundation(client, foundation)
-              return
-          }
+    for (const a in this._constructionFoundations) {
+      const foundation = this._constructionFoundations[
+        a
+      ] as ConstructionParentEntity;
+      if (
+        foundation.itemDefinitionId == Items.FOUNDATION ||
+        foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
+      ) {
+        if (
+          isPosInRadiusWithY(
+            foundation.itemDefinitionId == Items.FOUNDATION ? 6.46 : 4.9,
+            client.character.state.position,
+            new Float32Array([
+              foundation.state.position[0],
+              foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
+                ? foundation.state.position[1] - 2.5
+                : foundation.state.position[1],
+              foundation.state.position[2],
+              1,
+            ]),
+            2
+          )
+        )
+          this.tpPlayerOutsideFoundation(client, foundation, true);
       }
-    const allowedIds = [Items.SHELTER, Items.SHELTER_LARGE, Items.SHELTER_UPPER, Items.SHELTER_UPPER_LARGE]
-    for (const a in this._constructionSimple) {
-        const construction = this._constructionSimple[a] as simpleConstruction;
-        if (!allowedIds.includes(construction.itemDefinitionId)) continue;
-        let allowed = false;
-        if (!construction.isSecured) continue;
-        let foundation: ConstructionParentEntity | undefined;
-        if (this._constructionFoundations[construction.parentObjectCharacterId]) {
-            foundation = this._constructionFoundations[construction.parentObjectCharacterId]
-        } else if (this._constructionSimple[construction.parentObjectCharacterId] && this._constructionFoundations[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId]) {
-            foundation = this._constructionFoundations[this._constructionSimple[construction.parentObjectCharacterId].parentObjectCharacterId]
-        } else {
-            for (const a in this._constructionFoundations) {
-                const b = this._constructionFoundations[a]
-                if (!this.checkInsideFoundation(b, construction)) continue
-                foundation = b;
-            }
-        };
-        if (!foundation) continue;
-        foundation.permissions.forEach((element: any) => {
-            if (element.characterId === client.character.characterId && element.visit) {
-                allowed = true;
-            }
-        })
-        if (isInsideWithY([client.character.state.position[0], client.character.state.position[2]], construction.securedPolygons, client.character.state.position[1], construction.state.position[1], 2)) {
-            if (allowed) {
-                this.constructionHidePlayer(client, construction.characterId, true)
-                isInSecuredArea = true
-            } else { this.tpPlayerOutsideFoundation(client, foundation) }
+      if (!foundation.isSecured) continue;
+      let allowed = false;
+      foundation.permissions.forEach((element: any) => {
+        if (
+          element.characterId === client.character.characterId &&
+          element.visit
+        ) {
+          allowed = true;
         }
+      });
+      if (
+        foundation.itemDefinitionId == Items.SHACK ||
+        foundation.itemDefinitionId == Items.SHACK_SMALL ||
+        foundation.itemDefinitionId == Items.SHACK_BASIC
+      ) {
+        if (this.checkInsideFoundation(foundation, client.character)) {
+          if (allowed) {
+            this.constructionHidePlayer(client, foundation.characterId, true);
+            isInSecuredArea = true;
+          } else {
+            this.tpPlayerOutsideFoundation(client, foundation);
+          }
+        }
+      }
+      if (allowed) continue;
+      if (this._constructionFoundations[foundation.parentObjectCharacterId]) {
+        if (
+          !this._constructionFoundations[foundation.parentObjectCharacterId]
+            .isSecured
+        )
+          continue;
+      }
+      if (this.checkInsideFoundation(foundation, client.character)) {
+        this.tpPlayerOutsideFoundation(client, foundation);
+        return;
+      }
     }
-    if (!isInSecuredArea && client.character.isHidden) client.character.isHidden = "";
+    const allowedIds = [
+      Items.SHELTER,
+      Items.SHELTER_LARGE,
+      Items.SHELTER_UPPER,
+      Items.SHELTER_UPPER_LARGE,
+    ];
+    for (const a in this._constructionSimple) {
+      const construction = this._constructionSimple[a] as simpleConstruction;
+      if (!allowedIds.includes(construction.itemDefinitionId)) continue;
+      let allowed = false;
+      if (!construction.isSecured) continue;
+      let foundation: ConstructionParentEntity | undefined;
+      if (this._constructionFoundations[construction.parentObjectCharacterId]) {
+        foundation =
+          this._constructionFoundations[construction.parentObjectCharacterId];
+      } else if (
+        this._constructionSimple[construction.parentObjectCharacterId] &&
+        this._constructionFoundations[
+          this._constructionSimple[construction.parentObjectCharacterId]
+            .parentObjectCharacterId
+        ]
+      ) {
+        foundation =
+          this._constructionFoundations[
+            this._constructionSimple[construction.parentObjectCharacterId]
+              .parentObjectCharacterId
+          ];
+      } else {
+        for (const a in this._constructionFoundations) {
+          const b = this._constructionFoundations[a];
+          if (!this.checkInsideFoundation(b, construction)) continue;
+          foundation = b;
+        }
+      }
+      if (!foundation) continue;
+      foundation.permissions.forEach((element: any) => {
+        if (
+          element.characterId === client.character.characterId &&
+          element.visit
+        ) {
+          allowed = true;
+        }
+      });
+      if (
+        isInsideWithY(
+          [
+            client.character.state.position[0],
+            client.character.state.position[2],
+          ],
+          construction.securedPolygons,
+          client.character.state.position[1],
+          construction.state.position[1],
+          2
+        )
+      ) {
+        if (allowed) {
+          this.constructionHidePlayer(client, construction.characterId, true);
+          isInSecuredArea = true;
+        } else {
+          this.tpPlayerOutsideFoundation(client, foundation);
+        }
+      }
+    }
+    if (!isInSecuredArea && client.character.isHidden)
+      client.character.isHidden = "";
   }
 
   checkInsideFoundation(foundation: ConstructionParentEntity, entity: any) {
-      let detectRange = 2.39;
-      switch (foundation.itemDefinitionId) {
-          case Items.FOUNDATION:
-          case Items.FOUNDATION_EXPANSION:
-          case Items.GROUND_TAMPER:
-              return isInside([entity.state.position[0], entity.state.position[2]], foundation.securedPolygons)
-          case Items.SHACK:
-              detectRange = 2.39;
-              return isPosInRadiusWithY(detectRange, entity.state.position, foundation.state.position, 2)
-          case Items.SHACK_BASIC:
-              detectRange = 1;
-              return isPosInRadiusWithY(detectRange, entity.state.position, foundation.state.position, 2)
-          case Items.SHACK_SMALL:
-              return isInsideWithY([entity.state.position[0], entity.state.position[2]], foundation.securedPolygons, entity.state.position[1], foundation.state.position[1], 2.1)
-
-      }
-      return false
+    let detectRange = 2.39;
+    switch (foundation.itemDefinitionId) {
+      case Items.FOUNDATION:
+      case Items.FOUNDATION_EXPANSION:
+      case Items.GROUND_TAMPER:
+        return isInside(
+          [entity.state.position[0], entity.state.position[2]],
+          foundation.securedPolygons
+        );
+      case Items.SHACK:
+        detectRange = 2.39;
+        return isPosInRadiusWithY(
+          detectRange,
+          entity.state.position,
+          foundation.state.position,
+          2
+        );
+      case Items.SHACK_BASIC:
+        detectRange = 1;
+        return isPosInRadiusWithY(
+          detectRange,
+          entity.state.position,
+          foundation.state.position,
+          2
+        );
+      case Items.SHACK_SMALL:
+        return isInsideWithY(
+          [entity.state.position[0], entity.state.position[2]],
+          foundation.securedPolygons,
+          entity.state.position[1],
+          foundation.state.position[1],
+          2.1
+        );
+    }
+    return false;
   }
 
-  constructionHidePlayer(client: Client, constructionGuid: string, state: boolean) {
-      if (state) {
-          if (!client.character.isHidden) {
-              client.character.isHidden = constructionGuid;
-              for (const a in this._clients) {
-                  const iteratedClient = this._clients[a]
-                  if (iteratedClient.spawnedEntities.includes(client.character) && iteratedClient.character.isHidden != client.character.isHidden) {
-                      this.sendData(iteratedClient, "Character.RemovePlayer", {
-                          characterId: client.character.characterId,
-                      });
-                      iteratedClient.spawnedEntities.splice(iteratedClient.spawnedEntities.indexOf(client.character), 1);
-                  }
-              }
-          } else return
-      } else if (client.character.isHidden) client.character.isHidden = "";
+  constructionHidePlayer(
+    client: Client,
+    constructionGuid: string,
+    state: boolean
+  ) {
+    if (state) {
+      if (!client.character.isHidden) {
+        client.character.isHidden = constructionGuid;
+        for (const a in this._clients) {
+          const iteratedClient = this._clients[a];
+          if (
+            iteratedClient.spawnedEntities.includes(client.character) &&
+            iteratedClient.character.isHidden != client.character.isHidden
+          ) {
+            this.sendData(iteratedClient, "Character.RemovePlayer", {
+              characterId: client.character.characterId,
+            });
+            iteratedClient.spawnedEntities.splice(
+              iteratedClient.spawnedEntities.indexOf(client.character),
+              1
+            );
+          }
+        }
+      } else return;
+    } else if (client.character.isHidden) client.character.isHidden = "";
   }
 
-  tpPlayerOutsideFoundation(client: Client, foundation: ConstructionParentEntity, tpUp: boolean = false) {
-      const currentAngle = Math.atan2(client.character.state.position[2] - foundation.state.position[2], client.character.state.position[0] - foundation.state.position[0])
-      if (tpUp) {
-          this.sendChatText(client, "Construction: stuck under foundation")
-          this.sendData(client, "ClientUpdate.UpdateLocation", {
-              position: [
-                  client.character.state.position[0],
-                  client.character.state.position[1] + 2.5,
-                  client.character.state.position[2],
-                  1,
-              ],
-              unknownBool2: false
-          })
-          return;
-      }
-      const newPos = movePoint(client.character.state.position, currentAngle, 3)
-      this.sendChatText(client, "Construction: no visitor permission")
-      if (client.vehicle.mountedVehicle) {
-          this.dismountVehicle(client)
-      }
+  tpPlayerOutsideFoundation(
+    client: Client,
+    foundation: ConstructionParentEntity,
+    tpUp: boolean = false
+  ) {
+    const currentAngle = Math.atan2(
+      client.character.state.position[2] - foundation.state.position[2],
+      client.character.state.position[0] - foundation.state.position[0]
+    );
+    if (tpUp) {
+      this.sendChatText(client, "Construction: stuck under foundation");
       this.sendData(client, "ClientUpdate.UpdateLocation", {
-          position: [
-              newPos[0],
-              client.character.state.position[1] + 1,
-              newPos[2],
-              1,
-          ],
-          unknownBool2: false
-      })
+        position: [
+          client.character.state.position[0],
+          client.character.state.position[1] + 2.5,
+          client.character.state.position[2],
+          1,
+        ],
+        unknownBool2: false,
+      });
+      return;
+    }
+    const newPos = movePoint(client.character.state.position, currentAngle, 3);
+    this.sendChatText(client, "Construction: no visitor permission");
+    if (client.vehicle.mountedVehicle) {
+      this.dismountVehicle(client);
+    }
+    this.sendData(client, "ClientUpdate.UpdateLocation", {
+      position: [
+        newPos[0],
+        client.character.state.position[1] + 1,
+        newPos[2],
+        1,
+      ],
+      unknownBool2: false,
+    });
   }
-
 
   private npcManager(client: Client) {
     for (const characterId in this._npcs) {
@@ -2665,7 +2961,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId != characterObj.characterId &&
         characterObj.isReady &&
         isPosInRadius(
-          client.character.isSpectator? 1000:this._charactersRenderDistance,
+          client.character.isSpectator ? 1000 : this._charactersRenderDistance,
           client.character.state.position,
           characterObj.state.position
         ) &&
@@ -3020,79 +3316,92 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  banClient(client: Client, reason: string, banType: string, adminName: string, timestamp: number) {
+  banClient(
+    client: Client,
+    reason: string,
+    banType: string,
+    adminName: string,
+    timestamp: number
+  ) {
     const object = {
-        name: client.character.name,
-        banType: banType,
-        banReason: reason ? reason : "no reason",
-        loginSessionId: client.loginSessionId,
-        IP: "",
-        HWID: client.HWID,
-        adminName: adminName ? adminName : "",
-        expirationDate: 0,
+      name: client.character.name,
+      banType: banType,
+      banReason: reason ? reason : "no reason",
+      loginSessionId: client.loginSessionId,
+      IP: "",
+      HWID: client.HWID,
+      adminName: adminName ? adminName : "",
+      expirationDate: 0,
     };
     if (timestamp) {
-        object.expirationDate = timestamp;
+      object.expirationDate = timestamp;
     }
     this._bannedClients[client.loginSessionId] = object;
     if (banType === "normal") {
-        if (timestamp) {
-            this.sendAlert(
-                client,
-                reason ? `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(timestamp)}. REASON: ${reason}` : `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(timestamp)}`
-            );
-        } else {
-            this.sendAlert(
-                client,
-                reason ? `YOU HAVE BEEN PERMAMENTLY BANNED FROM THE SERVER REASON: ${reason}` : "YOU HAVE BEEN BANNED FROM THE SERVER."
-            );
-            this.sendGlobalChatText(
-                `${client.character.name} has been Banned from the server!`
-            );
-        }
-        setTimeout(() => {               
-            this.kickPlayer(client)
-        }, 3000)
+      if (timestamp) {
+        this.sendAlert(
+          client,
+          reason
+            ? `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
+                timestamp
+              )}. REASON: ${reason}`
+            : `YOU HAVE BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
+                timestamp
+              )}`
+        );
+      } else {
+        this.sendAlert(
+          client,
+          reason
+            ? `YOU HAVE BEEN PERMAMENTLY BANNED FROM THE SERVER REASON: ${reason}`
+            : "YOU HAVE BEEN BANNED FROM THE SERVER."
+        );
+        this.sendGlobalChatText(
+          `${client.character.name} has been Banned from the server!`
+        );
+      }
+      setTimeout(() => {
+        this.kickPlayer(client);
+      }, 3000);
     } else {
-        client.banType = banType;
-        this.enforceBan(client)         
+      client.banType = banType;
+      this.enforceBan(client);
     }
   }
 
-    enforceBan(client: Client) {
-        switch (client.banType) {
-            case "normal":
-                this.kickPlayer(client)
-                return
-            case "hiddenplayers":
-                const objectsToRemove = client.spawnedEntities.filter(
-                    (e) =>
-                        e && // in case if entity is undefined somehow
-                        !e.vehicleId && // ignore vehicles
-                        !e.item
-                );
-                client.spawnedEntities = client.spawnedEntities.filter((el) => {
-                    return !objectsToRemove.includes(el);
-                });
-                objectsToRemove.forEach((object: any) => {
-                    this.sendData(client, "Character.RemovePlayer", {
-                        characterId: object.characterId,
-                    });
-                });
-                break;
-            case "rick":
-                this.sendData(client, "ClientExitLaunchUrl", {
-                    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-                });
-                this.sendData(client, "LoginFailed", {})
-                setTimeout(() => {
-                    if (!client) return
-                    this.deleteClient(client)
-                }, 1000)
-                break;
-        } 
+  enforceBan(client: Client) {
+    switch (client.banType) {
+      case "normal":
+        this.kickPlayer(client);
+        return;
+      case "hiddenplayers":
+        const objectsToRemove = client.spawnedEntities.filter(
+          (e) =>
+            e && // in case if entity is undefined somehow
+            !e.vehicleId && // ignore vehicles
+            !e.item
+        );
+        client.spawnedEntities = client.spawnedEntities.filter((el) => {
+          return !objectsToRemove.includes(el);
+        });
+        objectsToRemove.forEach((object: any) => {
+          this.sendData(client, "Character.RemovePlayer", {
+            characterId: object.characterId,
+          });
+        });
+        break;
+      case "rick":
+        this.sendData(client, "ClientExitLaunchUrl", {
+          url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+        });
+        this.sendData(client, "LoginFailed", {});
+        setTimeout(() => {
+          if (!client) return;
+          this.deleteClient(client);
+        }, 1000);
+        break;
     }
-
+  }
 
   kickPlayer(client: Client) {
     this.sendData(client, "CharacterSelectSessionResponse", {
@@ -3418,179 +3727,336 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendRawData(client, buffer);
   }
 
-  placement(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId: string, BuildingSlot: string) {
+  placement(
+    client: Client,
+    itemDefinitionId: number,
+    modelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    parentObjectCharacterId: string,
+    BuildingSlot: string
+  ) {
     const item = client.character.getItemById(itemDefinitionId);
     if (!item) {
-        this.sendData(client, "Construction.PlacementFinalizeResponse", {
-            status: 1,
-            unknownString1: "",
-        });
-        return
+      this.sendData(client, "Construction.PlacementFinalizeResponse", {
+        status: 1,
+        unknownString1: "",
+      });
+      return;
     }
-    const allowedItems = [Items.IED, Items.LANDMINE, Items.PUNJI_STICKS, Items.SNARE]
+    const allowedItems = [
+      Items.IED,
+      Items.LANDMINE,
+      Items.PUNJI_STICKS,
+      Items.SNARE,
+    ];
 
     for (const a in this._constructionFoundations) {
-        const foundation = this._constructionFoundations[a];
-        let allowBuild = false;
-        this._constructionFoundations[a].permissions.forEach((permission: any) => {
-            if (permission.characterId === client.character.characterId && permission.build === true) {
-                allowBuild = true;
-            }
-        })
-        if (isPosInRadius(
-            foundation.actorModelId === 9180 ? 5 : 30,
-            position,
-            foundation.state.position) && allowBuild === false && !allowedItems.includes(itemDefinitionId)
-        ) {
-            this.sendChatText(client, "Placement blocked: No build permission")
-            this.sendData(client, "Construction.PlacementFinalizeResponse", {
-                status: 0,
-                unknownString1: "",
-            });
-            return;
+      const foundation = this._constructionFoundations[a];
+      let allowBuild = false;
+      this._constructionFoundations[a].permissions.forEach(
+        (permission: any) => {
+          if (
+            permission.characterId === client.character.characterId &&
+            permission.build === true
+          ) {
+            allowBuild = true;
+          }
         }
-    }
-    if (this._constructionFoundations[parentObjectCharacterId] && this._constructionFoundations[parentObjectCharacterId].occupiedSlots.includes(BuildingSlot)) {
-        this.sendChatText(client, "Placement error: construction overlap")
+      );
+      if (
+        isPosInRadius(
+          foundation.actorModelId === 9180 ? 5 : 30,
+          position,
+          foundation.state.position
+        ) &&
+        allowBuild === false &&
+        !allowedItems.includes(itemDefinitionId)
+      ) {
+        this.sendChatText(client, "Placement blocked: No build permission");
         this.sendData(client, "Construction.PlacementFinalizeResponse", {
-            status: 0,
-            unknownString1: "",
+          status: 0,
+          unknownString1: "",
         });
-        return
+        return;
+      }
     }
-    if (this._constructionSimple[parentObjectCharacterId] && this._constructionSimple[parentObjectCharacterId].occupiedSlots.includes(BuildingSlot)) {
-        this.sendChatText(client, "Placement error: construction overlap")
-        this.sendData(client, "Construction.PlacementFinalizeResponse", {
-            status: 0,
-            unknownString1: "",
-        });
-        return
+    if (
+      this._constructionFoundations[parentObjectCharacterId] &&
+      this._constructionFoundations[
+        parentObjectCharacterId
+      ].occupiedSlots.includes(BuildingSlot)
+    ) {
+      this.sendChatText(client, "Placement error: construction overlap");
+      this.sendData(client, "Construction.PlacementFinalizeResponse", {
+        status: 0,
+        unknownString1: "",
+      });
+      return;
+    }
+    if (
+      this._constructionSimple[parentObjectCharacterId] &&
+      this._constructionSimple[parentObjectCharacterId].occupiedSlots.includes(
+        BuildingSlot
+      )
+    ) {
+      this.sendChatText(client, "Placement error: construction overlap");
+      this.sendData(client, "Construction.PlacementFinalizeResponse", {
+        status: 0,
+        unknownString1: "",
+      });
+      return;
     }
     if (this._constructionFoundations[parentObjectCharacterId]) {
-        if (!isPosInRadiusWithY(this._constructionFoundations[parentObjectCharacterId].itemDefinitionId == Items.FOUNDATION? 11:15, this._constructionFoundations[parentObjectCharacterId].state.position, position, 10)) {
-            this.sendChatText(client, "Placement blocked: placement error")
-            this.sendData(client, "Construction.PlacementFinalizeResponse", {
-                status: 0,
-                unknownString1: "",
-            });
-            return;
-        }
+      if (
+        !isPosInRadiusWithY(
+          this._constructionFoundations[parentObjectCharacterId]
+            .itemDefinitionId == Items.FOUNDATION
+            ? 11
+            : 15,
+          this._constructionFoundations[parentObjectCharacterId].state.position,
+          position,
+          10
+        )
+      ) {
+        this.sendChatText(client, "Placement blocked: placement error");
+        this.sendData(client, "Construction.PlacementFinalizeResponse", {
+          status: 0,
+          unknownString1: "",
+        });
+        return;
+      }
     } else if (this._constructionSimple[parentObjectCharacterId]) {
-        if (!isPosInRadius(5, this._constructionSimple[parentObjectCharacterId].state.position, position)) {
-            this.sendChatText(client, "Placement blocked: placement error")
-            this.sendData(client, "Construction.PlacementFinalizeResponse", {
-                status: 0,
-                unknownString1: "",
-            });
-            return;
-        }
+      if (
+        !isPosInRadius(
+          5,
+          this._constructionSimple[parentObjectCharacterId].state.position,
+          position
+        )
+      ) {
+        this.sendChatText(client, "Placement blocked: placement error");
+        this.sendData(client, "Construction.PlacementFinalizeResponse", {
+          status: 0,
+          unknownString1: "",
+        });
+        return;
+      }
     }
     this.removeInventoryItem(client, item);
     this.sendData(client, "Construction.PlacementFinalizeResponse", {
-        status: 1,
-        unknownString1: "",
+      status: 1,
+      unknownString1: "",
     });
     switch (itemDefinitionId) {
-        case Items.SNARE: this.placeTrap(client, itemDefinitionId, modelId, position, rotation);
-            break;
-        case Items.PUNJI_STICKS: this.placeTrap(client, itemDefinitionId, modelId, position, rotation);
-            break;
-        case Items.FLARE: this.placeTemporaryEntity(client, itemDefinitionId, modelId, position, rotation, 900000);
-            break;
-        case Items.IED: this.placeExplosiveEntity(client, itemDefinitionId, modelId, position, eul2quat(rotation), true);
-            break;
-        case Items.LANDMINE: this.placeExplosiveEntity(client, itemDefinitionId, modelId, position, eul2quat(rotation), false);
-            break;
-        case Items.METAL_GATE:
-        case Items.DOOR_BASIC:
-        case Items.DOOR_WOOD:
-        case Items.DOOR_METAL: this.placeConstructionDoor(client, itemDefinitionId, modelId, position, rotation, parentObjectCharacterId, BuildingSlot);
-            break;
-        case Items.GROUND_TAMPER:
-        case Items.SHACK_BASIC:
-        case Items.SHACK:
-        case Items.FOUNDATION: this.placeConstructionFoundation(client, itemDefinitionId, modelId, position, eul2quat(rotation) , parentObjectCharacterId);
-            break;
-        case Items.SHACK_SMALL: this.placeConstructionFoundation(client, itemDefinitionId, modelId, position, eul2quat(rotation), parentObjectCharacterId, "", rotation[0]);
-            break;
-        case Items.FOUNDATION_EXPANSION:
-            const slot = BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();
-            this.placeConstructionFoundation(client, itemDefinitionId, modelId, position, eul2quat(rotation), parentObjectCharacterId, slot);
-            break;
-        default:
-            const characterId = this.generateGuid();
-            const transientId = this.getTransientId(characterId);
-            if (BuildingSlot.includes('PerimeterWall') || BuildingSlot === "WallStack" && Number(parentObjectCharacterId)) {
-                const slot = BuildingSlot === "WallStack"? "":BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();                   
-                const npc = new simpleConstruction(
-                    characterId,
-                    transientId,
-                    modelId,
-                    position,
-                    eul2quat(rotation),
-                    itemDefinitionId,
-                    parentObjectCharacterId,
-                    BuildingSlot,
-                    slot,
-                    rotation[0],                      
+      case Items.SNARE:
+        this.placeTrap(client, itemDefinitionId, modelId, position, rotation);
+        break;
+      case Items.PUNJI_STICKS:
+        this.placeTrap(client, itemDefinitionId, modelId, position, rotation);
+        break;
+      case Items.FLARE:
+        this.placeTemporaryEntity(
+          client,
+          itemDefinitionId,
+          modelId,
+          position,
+          rotation,
+          900000
+        );
+        break;
+      case Items.IED:
+        this.placeExplosiveEntity(
+          client,
+          itemDefinitionId,
+          modelId,
+          position,
+          eul2quat(rotation),
+          true
+        );
+        break;
+      case Items.LANDMINE:
+        this.placeExplosiveEntity(
+          client,
+          itemDefinitionId,
+          modelId,
+          position,
+          eul2quat(rotation),
+          false
+        );
+        break;
+      case Items.METAL_GATE:
+      case Items.DOOR_BASIC:
+      case Items.DOOR_WOOD:
+      case Items.DOOR_METAL:
+        this.placeConstructionDoor(
+          client,
+          itemDefinitionId,
+          modelId,
+          position,
+          rotation,
+          parentObjectCharacterId,
+          BuildingSlot
+        );
+        break;
+      case Items.GROUND_TAMPER:
+      case Items.SHACK_BASIC:
+      case Items.SHACK:
+      case Items.FOUNDATION:
+        this.placeConstructionFoundation(
+          client,
+          itemDefinitionId,
+          modelId,
+          position,
+          eul2quat(rotation),
+          parentObjectCharacterId
+        );
+        break;
+      case Items.SHACK_SMALL:
+        this.placeConstructionFoundation(
+          client,
+          itemDefinitionId,
+          modelId,
+          position,
+          eul2quat(rotation),
+          parentObjectCharacterId,
+          "",
+          rotation[0]
+        );
+        break;
+      case Items.FOUNDATION_EXPANSION:
+        const slot = BuildingSlot.substring(
+          BuildingSlot.length,
+          BuildingSlot.length - 2
+        ).toString();
+        this.placeConstructionFoundation(
+          client,
+          itemDefinitionId,
+          modelId,
+          position,
+          eul2quat(rotation),
+          parentObjectCharacterId,
+          slot
+        );
+        break;
+      default:
+        const characterId = this.generateGuid();
+        const transientId = this.getTransientId(characterId);
+        if (
+          BuildingSlot.includes("PerimeterWall") ||
+          (BuildingSlot === "WallStack" && Number(parentObjectCharacterId))
+        ) {
+          const slot =
+            BuildingSlot === "WallStack"
+              ? ""
+              : BuildingSlot.substring(
+                  BuildingSlot.length,
+                  BuildingSlot.length - 2
+                ).toString();
+          const npc = new simpleConstruction(
+            characterId,
+            transientId,
+            modelId,
+            position,
+            eul2quat(rotation),
+            itemDefinitionId,
+            parentObjectCharacterId,
+            BuildingSlot,
+            slot,
+            rotation[0]
+          );
+          if (npc.eulerAngle)
+            npc.fixedPosition = movePoint(
+              npc.state.position,
+              -(npc.eulerAngle + (90 * Math.PI) / 180),
+              2.5
+            );
+          this._constructionSimple[characterId] = npc;
+          switch (this.getEntityType(parentObjectCharacterId)) {
+            case EntityTypes.CONSTRUCTION_FOUNDATION:
+              const foundation = this._constructionFoundations[
+                parentObjectCharacterId
+              ] as ConstructionParentEntity;
+              foundation.changePerimeters(this, slot, npc.state.position);
+              break;
+          }
+        } else {
+          if (!Number(parentObjectCharacterId)) {
+            parentObjectCharacterId = "";
+          }
+          const npc = new simpleConstruction(
+            characterId,
+            transientId,
+            modelId,
+            position,
+            eul2quat(rotation),
+            itemDefinitionId,
+            parentObjectCharacterId,
+            BuildingSlot,
+            "",
+            rotation[0]
+          );
+          if (npc.eulerAngle) {
+            const angle = -npc.eulerAngle;
+            switch (itemDefinitionId) {
+              case Items.SHELTER_LARGE:
+              case Items.SHELTER_UPPER_LARGE:
+                const centerPoint = movePoint(
+                  position,
+                  angle + (90 * Math.PI) / 180,
+                  2.5
                 );
-                if (npc.eulerAngle) npc.fixedPosition = movePoint(npc.state.position, -(npc.eulerAngle + 90 * Math.PI/180 ), 2.5)                
-                this._constructionSimple[characterId] = npc;
-                switch (this.getEntityType(parentObjectCharacterId)) {
-                    case EntityTypes.CONSTRUCTION_FOUNDATION:
-                        const foundation = this._constructionFoundations[parentObjectCharacterId] as ConstructionParentEntity;
-                        foundation.changePerimeters(this, slot, npc.state.position);
-                        break;
-                }
-            } else {
-                if (!Number(parentObjectCharacterId)) {
-                    parentObjectCharacterId = ""
-                }
-                const npc = new simpleConstruction(
-                    characterId,
-                    transientId,
-                    modelId,
-                    position,
-                    eul2quat(rotation),
-                    itemDefinitionId,
-                    parentObjectCharacterId,
-                    BuildingSlot,
-                    "",
-                    rotation[0],
+                npc.fixedPosition = centerPoint;
+                npc.securedPolygons = getRectangleCorners(
+                  centerPoint,
+                  10,
+                  5,
+                  angle
                 );
-                if (npc.eulerAngle) {
-                    const angle = -(npc.eulerAngle);
-                    switch (itemDefinitionId) {
-                        case Items.SHELTER_LARGE:
-                        case Items.SHELTER_UPPER_LARGE:
-                            const centerPoint = movePoint(position, angle + 90 * Math.PI / 180, 2.5);
-                            npc.fixedPosition = centerPoint;
-                            npc.securedPolygons = getRectangleCorners(centerPoint, 10, 5, angle);
-                            break;
-                        case Items.SHELTER:
-                        case Items.SHELTER_UPPER:
-                            npc.securedPolygons = getRectangleCorners(position, 5, 5, angle);
-                            break;
-                    }
-                }
-                this._constructionSimple[characterId] = npc;
+                break;
+              case Items.SHELTER:
+              case Items.SHELTER_UPPER:
+                npc.securedPolygons = getRectangleCorners(
+                  position,
+                  5,
+                  5,
+                  angle
+                );
+                break;
             }
-            if (BuildingSlot != "" && parentObjectCharacterId) {
-                if (this._constructionFoundations[parentObjectCharacterId]) {
-                    this._constructionFoundations[parentObjectCharacterId].occupiedSlots.push(BuildingSlot);
-                } else if (this._constructionSimple[parentObjectCharacterId]) {
-                    this._constructionSimple[parentObjectCharacterId].occupiedSlots.push(BuildingSlot);
-                }
-            }
-            break;
+          }
+          this._constructionSimple[characterId] = npc;
+        }
+        if (BuildingSlot != "" && parentObjectCharacterId) {
+          if (this._constructionFoundations[parentObjectCharacterId]) {
+            this._constructionFoundations[
+              parentObjectCharacterId
+            ].occupiedSlots.push(BuildingSlot);
+          } else if (this._constructionSimple[parentObjectCharacterId]) {
+            this._constructionSimple[
+              parentObjectCharacterId
+            ].occupiedSlots.push(BuildingSlot);
+          }
+        }
+        break;
     }
-    this.spawnConstructionNpcs(client)
+    this.spawnConstructionNpcs(client);
   }
 
-  placeConstructionDoor(client: Client, itemDefinitionId: number, modelId: number, position: Float32Array, rotation: Float32Array, parentObjectCharacterId: string, BuildingSlot: string) {
+  placeConstructionDoor(
+    client: Client,
+    itemDefinitionId: number,
+    modelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    parentObjectCharacterId: string,
+    BuildingSlot: string
+  ) {
     const characterId = this.generateGuid();
     const transientId = this.getTransientId(characterId);
-    const slot = BuildingSlot.substring(BuildingSlot.length, BuildingSlot.length - 2).toString();
+    const slot = BuildingSlot.substring(
+      BuildingSlot.length,
+      BuildingSlot.length - 2
+    ).toString();
 
     const npc = new constructionDoor(
       characterId,
@@ -3614,26 +4080,34 @@ export class ZoneServer2016 extends EventEmitter {
         : 2.5
     );
     if (Number(parentObjectCharacterId)) {
-        switch (this.getEntityType(parentObjectCharacterId)) {
-            case EntityTypes.CONSTRUCTION_FOUNDATION:
-                const foundation = this._constructionFoundations[parentObjectCharacterId] as ConstructionParentEntity;
-                foundation.changePerimeters(this, slot, npc.state.position);
-                break;
-            case EntityTypes.CONSTRUCTION_SIMPLE:
-                const construction = this._constructionSimple[parentObjectCharacterId] as simpleConstruction;
-                construction.changePerimeters(this, BuildingSlot, npc.state.position);
-                break;
-        }
+      switch (this.getEntityType(parentObjectCharacterId)) {
+        case EntityTypes.CONSTRUCTION_FOUNDATION:
+          const foundation = this._constructionFoundations[
+            parentObjectCharacterId
+          ] as ConstructionParentEntity;
+          foundation.changePerimeters(this, slot, npc.state.position);
+          break;
+        case EntityTypes.CONSTRUCTION_SIMPLE:
+          const construction = this._constructionSimple[
+            parentObjectCharacterId
+          ] as simpleConstruction;
+          construction.changePerimeters(this, BuildingSlot, npc.state.position);
+          break;
+      }
     }
     if (BuildingSlot != "" && parentObjectCharacterId) {
-        if (this._constructionFoundations[parentObjectCharacterId]) {
-            this._constructionFoundations[parentObjectCharacterId].occupiedSlots.push(BuildingSlot);
-        } else if (this._constructionSimple[parentObjectCharacterId]) {
-            this._constructionSimple[parentObjectCharacterId].occupiedSlots.push(BuildingSlot);
-        }
+      if (this._constructionFoundations[parentObjectCharacterId]) {
+        this._constructionFoundations[
+          parentObjectCharacterId
+        ].occupiedSlots.push(BuildingSlot);
+      } else if (this._constructionSimple[parentObjectCharacterId]) {
+        this._constructionSimple[parentObjectCharacterId].occupiedSlots.push(
+          BuildingSlot
+        );
+      }
     }
     this._constructionDoors[characterId] = npc;
-}
+  }
 
   placeConstructionFoundation(
     client: Client,

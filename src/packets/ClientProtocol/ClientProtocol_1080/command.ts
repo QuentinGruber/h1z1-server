@@ -462,15 +462,19 @@ export const commandPackets: any = [
     },
   ],
   [
-      "Command.PointAndReport",
-      0x095400,
-      {
-          fields: [
-              { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] }, // not sure, 0-1 floats
-              { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              { name: "reportedCharacterId", type: "uint64string", defaultValue: "0x0" },
-          ],
-      },
+    "Command.PointAndReport",
+    0x095400,
+    {
+      fields: [
+        { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] }, // not sure, 0-1 floats
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        {
+          name: "reportedCharacterId",
+          type: "uint64string",
+          defaultValue: "0x0",
+        },
+      ],
+    },
   ],
   ["Command.BecomeReferee", 0x095504, {}],
   ["Command.Profiler", 0x095604, {}],

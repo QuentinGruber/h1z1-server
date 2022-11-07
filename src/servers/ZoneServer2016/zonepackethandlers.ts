@@ -216,14 +216,10 @@ export class zonePacketHandlers {
       //server.DTOhit(client, packet);
     }
   }
-  
-  CommandPointAndReport(
-      server: ZoneServer2016,
-      client: Client,
-      packet: any
-    ) {
-        debug(packet);
-        /*const targetClient = Object.values(server._clients).find((c) => {
+
+  CommandPointAndReport(server: ZoneServer2016, client: Client, packet: any) {
+    debug(packet);
+    /*const targetClient = Object.values(server._clients).find((c) => {
             if (c.character.characterId == packet.data.reportedCharacterId) {
                 return c;
             }
@@ -255,45 +251,88 @@ export class zonePacketHandlers {
           ]
           server.sendDiscordHook(client, targetClient, 'Point and Click Report', 'player decided that suspect is sus :)', obj) // mas�o ma�lane
         */ // disabled for now, people use it to check if a player is nearby
-    };
-    CommandReportLastDeath(
-      server: ZoneServer2016,
-      client: Client,
-      packet: any
-    ) {
-        const targetClient = client.lastDeathReport?.attacker;
-        if (!client.lastDeathReport) return;
-        if (!server._discordWebhookUrl) {
-            server.sendChatText(client, "Contact admin to enable discord web hooks");
-            return;
+  }
+  CommandReportLastDeath(server: ZoneServer2016, client: Client, packet: any) {
+    const targetClient = client.lastDeathReport?.attacker;
+    if (!client.lastDeathReport) return;
+    if (!server._discordWebhookUrl) {
+      server.sendChatText(client, "Contact admin to enable discord web hooks");
+      return;
+    }
+    if (!targetClient) {
+      server.sendChatText(client, "Client not found.");
+      return;
+    }
+    targetClient.reports += 1;
+    const logs: any[] = [];
+    targetClient.clientLogs.forEach(
+      (log: { log: string; isSuspicious: boolean }) => {
+        if (log.isSuspicious) {
+          logs.push(log.log);
         }
-        if (!targetClient) {
-            server.sendChatText(client, "Client not found.");
-            return;
-        }
-        targetClient.reports += 1;
-        const logs: any[] = []
-        targetClient.clientLogs.forEach((log: { log: string, isSuspicious: boolean }) => {
-            if (log.isSuspicious) {
-                logs.push(log.log)
-            }
-        })
-        const obj = [
-            { title: 'Reported player:', info: `name: ${targetClient.character.name}, id:${targetClient.loginSessionId}` },
-            { title: 'Reported player position:', info: `${targetClient.character.state.position[0]}   ${targetClient.character.state.position[1]}   ${targetClient.character.state.position[2]}` },
-            { title: 'Distance between players:', info: `${client.lastDeathReport?.distance}` },
-            { title: 'Reported player pvp stats:', info: `Shots fired:${targetClient.pvpStats.shotsFired}, shots hit:${targetClient.pvpStats.shotsHit}, overall accuracy: ${(100 * targetClient.pvpStats.shotsHit / targetClient.pvpStats.shotsFired).toFixed(2)}% | head: ${(targetClient.pvpStats.head * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}% | spine: ${(targetClient.pvpStats.spine * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}% | hands: ${(targetClient.pvpStats.hands * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}% | legs ${(targetClient.pvpStats.legs * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}%` },
-            { title: 'Reported player suspicious processes:', info: `:${logs}` },
-            { title: 'Reported by:', info: `name: ${client.character.name}, id: ${client.loginSessionId}` },
-            { title: 'Position:', info: `${client.character.state.position[0]}   ${client.character.state.position[1]}   ${client.character.state.position[2]}` },
-            { title: 'Time:', info: `${server.getDateString(Date.now())}` },
-            { title: 'Total reports this session:', info: `${targetClient.reports}` }
-        ]        
-        server.sendDiscordHook(client, targetClient, 'Death report', 'player reported his last death', obj)
-        delete client.lastDeathReport;
-    };
-  
-  LobbyGameDefinitionDefinitionsRequest(server: ZoneServer2016, client: Client, packet: any) {
+      }
+    );
+    const obj = [
+      {
+        title: "Reported player:",
+        info: `name: ${targetClient.character.name}, id:${targetClient.loginSessionId}`,
+      },
+      {
+        title: "Reported player position:",
+        info: `${targetClient.character.state.position[0]}   ${targetClient.character.state.position[1]}   ${targetClient.character.state.position[2]}`,
+      },
+      {
+        title: "Distance between players:",
+        info: `${client.lastDeathReport?.distance}`,
+      },
+      {
+        title: "Reported player pvp stats:",
+        info: `Shots fired:${targetClient.pvpStats.shotsFired}, shots hit:${
+          targetClient.pvpStats.shotsHit
+        }, overall accuracy: ${(
+          (100 * targetClient.pvpStats.shotsHit) /
+          targetClient.pvpStats.shotsFired
+        ).toFixed(2)}% | head: ${(
+          (targetClient.pvpStats.head * 100) /
+          targetClient.pvpStats.shotsHit
+        ).toFixed(0)}% | spine: ${(
+          (targetClient.pvpStats.spine * 100) /
+          targetClient.pvpStats.shotsHit
+        ).toFixed(0)}% | hands: ${(
+          (targetClient.pvpStats.hands * 100) /
+          targetClient.pvpStats.shotsHit
+        ).toFixed(0)}% | legs ${(
+          (targetClient.pvpStats.legs * 100) /
+          targetClient.pvpStats.shotsHit
+        ).toFixed(0)}%`,
+      },
+      { title: "Reported player suspicious processes:", info: `:${logs}` },
+      {
+        title: "Reported by:",
+        info: `name: ${client.character.name}, id: ${client.loginSessionId}`,
+      },
+      {
+        title: "Position:",
+        info: `${client.character.state.position[0]}   ${client.character.state.position[1]}   ${client.character.state.position[2]}`,
+      },
+      { title: "Time:", info: `${server.getDateString(Date.now())}` },
+      { title: "Total reports this session:", info: `${targetClient.reports}` },
+    ];
+    server.sendDiscordHook(
+      client,
+      targetClient,
+      "Death report",
+      "player reported his last death",
+      obj
+    );
+    delete client.lastDeathReport;
+  }
+
+  LobbyGameDefinitionDefinitionsRequest(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     server.sendData(client, "LobbyGameDefinition.DefinitionsResponse", {
       definitionsData: { data: "" },
     });
@@ -321,18 +360,35 @@ export class zonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
-    if (packet.data.file === "ClientProc.log" && !client.clientLogs.includes(packet.data.message)) {
-            const suspicious = ["cheatengine", "injector", "gameover", "processhacker"];
-            const obj = {log: packet.data.message, isSuspicious: false}
-            for (let x = 0; x < suspicious.length; x++) {
-                if (packet.data.message.toLowerCase().includes(suspicious[x])) {
-                    obj.isSuspicious = true
-                    server.sendChatTextToAdmins(`FairPlay: ${client.character.name} is using suspicious software - ${obj.log.toLowerCase().substring(obj.log.toLowerCase().lastIndexOf(suspicious[x].toLowerCase()))}`, false);
-                }
-            }
-            client.clientLogs.push(obj);          
+    if (
+      packet.data.file === "ClientProc.log" &&
+      !client.clientLogs.includes(packet.data.message)
+    ) {
+      const suspicious = [
+        "cheatengine",
+        "injector",
+        "gameover",
+        "processhacker",
+      ];
+      const obj = { log: packet.data.message, isSuspicious: false };
+      for (let x = 0; x < suspicious.length; x++) {
+        if (packet.data.message.toLowerCase().includes(suspicious[x])) {
+          obj.isSuspicious = true;
+          server.sendChatTextToAdmins(
+            `FairPlay: ${
+              client.character.name
+            } is using suspicious software - ${obj.log
+              .toLowerCase()
+              .substring(
+                obj.log.toLowerCase().lastIndexOf(suspicious[x].toLowerCase())
+              )}`,
+            false
+          );
         }
-        debug(packet);
+      }
+      client.clientLogs.push(obj);
+    }
+    debug(packet);
   }
   WallOfDataUIEvent(server: ZoneServer2016, client: Client, packet: any) {
     debug("UIEvent");
@@ -599,8 +655,12 @@ export class zonePacketHandlers {
       }
     );
   }
-  PlayerUpdateUpdatePositionClientToZone(server: ZoneServer2016, client: Client, packet: any) {
-    if (packet.data.flags == 1 && client.isLoading) client.isLoading = false
+  PlayerUpdateUpdatePositionClientToZone(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    if (packet.data.flags == 1 && client.isLoading) client.isLoading = false;
     if (client.character.tempGodMode) {
       server.setGodMode(client, false);
       client.character.tempGodMode = false;
@@ -1949,60 +2009,35 @@ export class zonePacketHandlers {
   }
   Weapon(server: ZoneServer2016, client: Client, packet: any) {
     debug("Weapon.Weapon");
-      if (client.character.tempGodMode) {
-        server.setGodMode(client, false);
-        client.character.tempGodMode = false;
-      }
-      switch (packet.data.weaponPacket.packetName) {
-        case "Weapon.MultiWeapon":
-          packet.data.weaponPacket.packet.packets.forEach((p: any) => {
-            handleWeaponPacket(p);
-          });
-          break;
-        default:
-          handleWeaponPacket(packet.data.weaponPacket);
-          break;
-      }
-      function handleWeaponPacket(p: any) {
-        const weaponItem = client.character.getEquippedWeapon();
-        if (!weaponItem.weapon) return;
-        switch (p.packetName) {
-          case "Weapon.FireStateUpdate":
-            debug("Weapon.FireStateUpdate");
-            if (p.packet.firestate == 64) {
-              // empty firestate
-              server.sendRemoteWeaponUpdateDataToAllOthers(
-                client,
-                client.character.transientId,
-                weaponItem.itemGuid,
-                "Update.Empty",
-                {}
-              );
-              server.sendRemoteWeaponUpdateDataToAllOthers(
-                client,
-                client.character.transientId,
-                weaponItem.itemGuid,
-                "Update.FireState",
-                {
-                  state: {
-                    firestate: 64,
-                    transientId: client.character.transientId,
-                    position: client.character.state.position,
-                  },
-                }
-              );
-            }
-            // prevent empty weapons from entering an active firestate
-            if (!weaponItem.weapon?.ammoCount) return;
-            if (p.packet.firestate > 0) {
-              server.sendRemoteWeaponUpdateDataToAllOthers(
-                client,
-                client.character.transientId,
-                weaponItem.itemGuid,
-                "Update.Chamber",
-                {}
-              );
-            }
+    if (client.character.tempGodMode) {
+      server.setGodMode(client, false);
+      client.character.tempGodMode = false;
+    }
+    switch (packet.data.weaponPacket.packetName) {
+      case "Weapon.MultiWeapon":
+        packet.data.weaponPacket.packet.packets.forEach((p: any) => {
+          handleWeaponPacket(p);
+        });
+        break;
+      default:
+        handleWeaponPacket(packet.data.weaponPacket);
+        break;
+    }
+    function handleWeaponPacket(p: any) {
+      const weaponItem = client.character.getEquippedWeapon();
+      if (!weaponItem.weapon) return;
+      switch (p.packetName) {
+        case "Weapon.FireStateUpdate":
+          debug("Weapon.FireStateUpdate");
+          if (p.packet.firestate == 64) {
+            // empty firestate
+            server.sendRemoteWeaponUpdateDataToAllOthers(
+              client,
+              client.character.transientId,
+              weaponItem.itemGuid,
+              "Update.Empty",
+              {}
+            );
             server.sendRemoteWeaponUpdateDataToAllOthers(
               client,
               client.character.transientId,
@@ -2010,259 +2045,282 @@ export class zonePacketHandlers {
               "Update.FireState",
               {
                 state: {
-                  firestate: p.packet.firestate,
+                  firestate: 64,
                   transientId: client.character.transientId,
                   position: client.character.state.position,
                 },
               }
             );
-            if (weaponItem.weapon.ammoCount)
-              server.damageItem(client, weaponItem, 2);
-            break;
-          case "Weapon.Fire":
-            if (weaponItem.weapon.ammoCount <= 0) return;
-            if (weaponItem.weapon.ammoCount > 0) {
-              weaponItem.weapon.ammoCount -= 1;
-            }
-            server.hitMissFairPlayCheck(client, false, "")
-            server.stopHudTimer(client);
+          }
+          // prevent empty weapons from entering an active firestate
+          if (!weaponItem.weapon?.ammoCount) return;
+          if (p.packet.firestate > 0) {
             server.sendRemoteWeaponUpdateDataToAllOthers(
               client,
               client.character.transientId,
               weaponItem.itemGuid,
-              "Update.ProjectileLaunch",
+              "Update.Chamber",
               {}
             );
-            break;
-          case "Weapon.ProjectileHitReport":
-            if (client.character.getEquippedWeapon().itemDefinitionId == 1776) {
-              if (!client.isAdmin) return;
-              const characterId = p.packet.hitReport.characterId,
-                entityType = server.getEntityType(characterId);
-              switch (entityType) {
-                  case EntityTypes.NPC:
-                      if (!server._npcs[characterId]) {
-                          return;
-                      }
-                      server.deleteEntity(characterId, server._npcs);
-                      break;
-                  case EntityTypes.VEHICLE:
-                      if (!server._vehicles[characterId]) {
-                          return;
-                      }
-                      server.deleteEntity(characterId, server._vehicles);
-                      break;
-                  case EntityTypes.OBJECT:
-                      if (!server._spawnedItems[characterId]) {
-                          return;
-                      }
-                      delete server.worldObjectManager._spawnedLootObjects[
-                          server._spawnedItems[characterId].spawnerId
-                      ];
-                      server.deleteEntity(characterId, server._spawnedItems);
-                      break;
-                  case EntityTypes.EXPLOSIVE:
-                      server.deleteEntity(characterId, server._explosives);
-                      break;
-                  case EntityTypes.CONSTRUCTION_DOOR:
-                      server.deleteEntity(characterId, server._constructionDoors);
-                      break;
-                  case EntityTypes.CONSTRUCTION_SIMPLE:
-                      server.deleteEntity(characterId, server._constructionSimple);
-                      break;
-                  case EntityTypes.CONSTRUCTION_FOUNDATION:
-                      server.deleteEntity(characterId, server._constructionFoundations);
-                      break;
-                default:
-                  return;
-              }
-              server.sendAlert(client, "Object removed.");
-              return;
+          }
+          server.sendRemoteWeaponUpdateDataToAllOthers(
+            client,
+            client.character.transientId,
+            weaponItem.itemGuid,
+            "Update.FireState",
+            {
+              state: {
+                firestate: p.packet.firestate,
+                transientId: client.character.transientId,
+                position: client.character.state.position,
+              },
             }
-            if (client.banType === "nodamage") return;
-            server.registerHit(client, p.packet);
-            debug("Weapon.ProjectileHitReport");
-            break;
-          case "Weapon.ReloadRequest":
-            if (weaponItem.weapon.reloadTimer) return;
-            // force 0 firestate so gun doesnt shoot randomly after reloading
-            server.sendRemoteWeaponUpdateDataToAllOthers(
-              client,
-              client.character.transientId,
-              weaponItem.itemGuid,
-              "Update.FireState",
-              {
-                state: {
-                  firestate: 0,
-                  transientId: client.character.transientId,
-                  position: client.character.state.position,
-                },
-              }
-            );
-            server.sendRemoteWeaponUpdateDataToAllOthers(
-              client,
-              client.character.transientId,
-              weaponItem.itemGuid,
-              "Update.Reload",
-              {}
-            );
-            const weaponAmmoId = server.getWeaponAmmoId(
-                weaponItem.itemDefinitionId
-              ),
-              maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
-              reloadTime = server.getWeaponReloadTime(
-                weaponItem.itemDefinitionId
-              );
-            //#region SHOTGUN ONLY
-            if (weaponAmmoId == Items.AMMO_12GA) {
-              weaponItem.weapon.reloadTimer = setTimeout(() => {
-                if (!weaponItem.weapon?.reloadTimer) {
-                  client.character.clearReloadTimeout();
+          );
+          if (weaponItem.weapon.ammoCount)
+            server.damageItem(client, weaponItem, 2);
+          break;
+        case "Weapon.Fire":
+          if (weaponItem.weapon.ammoCount <= 0) return;
+          if (weaponItem.weapon.ammoCount > 0) {
+            weaponItem.weapon.ammoCount -= 1;
+          }
+          server.hitMissFairPlayCheck(client, false, "");
+          server.stopHudTimer(client);
+          server.sendRemoteWeaponUpdateDataToAllOthers(
+            client,
+            client.character.transientId,
+            weaponItem.itemGuid,
+            "Update.ProjectileLaunch",
+            {}
+          );
+          break;
+        case "Weapon.ProjectileHitReport":
+          if (client.character.getEquippedWeapon().itemDefinitionId == 1776) {
+            if (!client.isAdmin) return;
+            const characterId = p.packet.hitReport.characterId,
+              entityType = server.getEntityType(characterId);
+            switch (entityType) {
+              case EntityTypes.NPC:
+                if (!server._npcs[characterId]) {
                   return;
                 }
-                const reserveAmmo = // how much ammo is in inventory
-                  client.character.getInventoryItemAmount(weaponAmmoId);
-                if (
-                  !reserveAmmo ||
-                  (weaponItem.weapon.ammoCount < maxAmmo &&
-                    !server.removeInventoryItems(client, weaponAmmoId, 1)) ||
-                  ++weaponItem.weapon.ammoCount == maxAmmo
-                ) {
-                  server.sendWeaponData(client, "Weapon.Reload", {
-                    weaponGuid: p.packet.characterId,
-                    unknownDword1: maxAmmo,
-                    ammoCount: weaponItem.weapon.ammoCount,
-                    unknownDword3: maxAmmo,
-                    currentReloadCount: toHex(
-                      ++weaponItem.weapon.currentReloadCount
-                    ),
-                  });
-                  server.sendRemoteWeaponUpdateDataToAllOthers(
-                    client,
-                    client.character.transientId,
-                    weaponItem.itemGuid,
-                    "Update.ReloadLoopEnd",
-                    {
-                      endLoop: true,
-                    }
-                  );
-                  client.character.clearReloadTimeout();
+                server.deleteEntity(characterId, server._npcs);
+                break;
+              case EntityTypes.VEHICLE:
+                if (!server._vehicles[characterId]) {
                   return;
                 }
-                if (!(reserveAmmo - 1)) {
-                  // updated reserve ammo
-                  server.sendWeaponData(client, "Weapon.Reload", {
-                    weaponGuid: p.packet.characterId,
-                    unknownDword1: maxAmmo,
-                    ammoCount: weaponItem.weapon.ammoCount,
-                    unknownDword3: maxAmmo,
-                    currentReloadCount: toHex(
-                      ++weaponItem.weapon.currentReloadCount
-                    ),
-                  });
-                  server.sendRemoteWeaponUpdateDataToAllOthers(
-                    client,
-                    client.character.transientId,
-                    weaponItem.itemGuid,
-                    "Update.ReloadLoopEnd",
-                    {
-                      endLoop: true,
-                    }
-                  );
-                  client.character.clearReloadTimeout();
+                server.deleteEntity(characterId, server._vehicles);
+                break;
+              case EntityTypes.OBJECT:
+                if (!server._spawnedItems[characterId]) {
                   return;
                 }
-                weaponItem.weapon.reloadTimer.refresh();
-              }, reloadTime);
-              return;
+                delete server.worldObjectManager._spawnedLootObjects[
+                  server._spawnedItems[characterId].spawnerId
+                ];
+                server.deleteEntity(characterId, server._spawnedItems);
+                break;
+              case EntityTypes.EXPLOSIVE:
+                server.deleteEntity(characterId, server._explosives);
+                break;
+              case EntityTypes.CONSTRUCTION_DOOR:
+                server.deleteEntity(characterId, server._constructionDoors);
+                break;
+              case EntityTypes.CONSTRUCTION_SIMPLE:
+                server.deleteEntity(characterId, server._constructionSimple);
+                break;
+              case EntityTypes.CONSTRUCTION_FOUNDATION:
+                server.deleteEntity(
+                  characterId,
+                  server._constructionFoundations
+                );
+                break;
+              default:
+                return;
             }
-            //#endregion
+            server.sendAlert(client, "Object removed.");
+            return;
+          }
+          if (client.banType === "nodamage") return;
+          server.registerHit(client, p.packet);
+          debug("Weapon.ProjectileHitReport");
+          break;
+        case "Weapon.ReloadRequest":
+          if (weaponItem.weapon.reloadTimer) return;
+          // force 0 firestate so gun doesnt shoot randomly after reloading
+          server.sendRemoteWeaponUpdateDataToAllOthers(
+            client,
+            client.character.transientId,
+            weaponItem.itemGuid,
+            "Update.FireState",
+            {
+              state: {
+                firestate: 0,
+                transientId: client.character.transientId,
+                position: client.character.state.position,
+              },
+            }
+          );
+          server.sendRemoteWeaponUpdateDataToAllOthers(
+            client,
+            client.character.transientId,
+            weaponItem.itemGuid,
+            "Update.Reload",
+            {}
+          );
+          const weaponAmmoId = server.getWeaponAmmoId(
+              weaponItem.itemDefinitionId
+            ),
+            maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
+            reloadTime = server.getWeaponReloadTime(
+              weaponItem.itemDefinitionId
+            );
+          //#region SHOTGUN ONLY
+          if (weaponAmmoId == Items.AMMO_12GA) {
             weaponItem.weapon.reloadTimer = setTimeout(() => {
-              if (
-                !weaponItem.weapon?.reloadTimer ||
-                client.character.getEquippedWeapon().itemGuid !=
-                  weaponItem.itemGuid
-              )
-                return;
-              const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
-                reserveAmmo = // how much ammo is in inventory
-                  client.character.getInventoryItemAmount(weaponAmmoId),
-                reloadAmount =
-                  reserveAmmo >= maxReloadAmount
-                    ? maxReloadAmount
-                    : reserveAmmo; // actual amount able to reload
-
-              if (
-                !server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
-              ) {
+              if (!weaponItem.weapon?.reloadTimer) {
+                client.character.clearReloadTimeout();
                 return;
               }
-              server.sendWeaponData(client, "Weapon.Reload", {
-                weaponGuid: p.packet.characterId,
-                unknownDword1: maxAmmo,
-                ammoCount: (weaponItem.weapon.ammoCount += reloadAmount),
-                unknownDword3: maxAmmo,
-                currentReloadCount: toHex(
-                  ++weaponItem.weapon.currentReloadCount
-                ),
-              });
-              client.character.clearReloadTimeout();
+              const reserveAmmo = // how much ammo is in inventory
+                client.character.getInventoryItemAmount(weaponAmmoId);
+              if (
+                !reserveAmmo ||
+                (weaponItem.weapon.ammoCount < maxAmmo &&
+                  !server.removeInventoryItems(client, weaponAmmoId, 1)) ||
+                ++weaponItem.weapon.ammoCount == maxAmmo
+              ) {
+                server.sendWeaponData(client, "Weapon.Reload", {
+                  weaponGuid: p.packet.characterId,
+                  unknownDword1: maxAmmo,
+                  ammoCount: weaponItem.weapon.ammoCount,
+                  unknownDword3: maxAmmo,
+                  currentReloadCount: toHex(
+                    ++weaponItem.weapon.currentReloadCount
+                  ),
+                });
+                server.sendRemoteWeaponUpdateDataToAllOthers(
+                  client,
+                  client.character.transientId,
+                  weaponItem.itemGuid,
+                  "Update.ReloadLoopEnd",
+                  {
+                    endLoop: true,
+                  }
+                );
+                client.character.clearReloadTimeout();
+                return;
+              }
+              if (!(reserveAmmo - 1)) {
+                // updated reserve ammo
+                server.sendWeaponData(client, "Weapon.Reload", {
+                  weaponGuid: p.packet.characterId,
+                  unknownDword1: maxAmmo,
+                  ammoCount: weaponItem.weapon.ammoCount,
+                  unknownDword3: maxAmmo,
+                  currentReloadCount: toHex(
+                    ++weaponItem.weapon.currentReloadCount
+                  ),
+                });
+                server.sendRemoteWeaponUpdateDataToAllOthers(
+                  client,
+                  client.character.transientId,
+                  weaponItem.itemGuid,
+                  "Update.ReloadLoopEnd",
+                  {
+                    endLoop: true,
+                  }
+                );
+                client.character.clearReloadTimeout();
+                return;
+              }
+              weaponItem.weapon.reloadTimer.refresh();
             }, reloadTime);
-
-            debug("Weapon.ReloadRequest");
-            break;
-          case "Weapon.ReloadInterrupt":
-            server.reloadInterrupt(client, weaponItem);
-            break;
-          case "Weapon.SwitchFireModeRequest":
-            debug("SwitchFireModeRequest");
-            // workaround so aiming in doesn't sometimes make the shooting sound
-            if (!weaponItem.weapon?.ammoCount) return;
-
-            // temp workaround to fix 308 sound while aiming
+            return;
+          }
+          //#endregion
+          weaponItem.weapon.reloadTimer = setTimeout(() => {
             if (
-              p.packet.firemodeIndex == 1 &&
-              server.getItemDefinition(weaponItem.itemDefinitionId).PARAM1 ==
-                1373
+              !weaponItem.weapon?.reloadTimer ||
+              client.character.getEquippedWeapon().itemGuid !=
+                weaponItem.itemGuid
             )
               return;
-            server.sendRemoteWeaponUpdateDataToAllOthers(
-              client,
-              client.character.transientId,
-              weaponItem.itemGuid,
-              "Update.SwitchFireMode",
-              {
-                firegroupIndex: p.packet.firegroupIndex,
-                firemodeIndex: p.packet.firemodeIndex,
-              }
-            );
-            break;
-          case "Weapon.WeaponFireHint":
-            debug("WeaponFireHint");
-            break;
-          case "Weapon.ProjectileContactReport":
-            debug("ProjectileContactReport");
-            break;
-          case "Weapon.MeleeHitMaterial":
-            debug("MeleeHitMaterial");
-            break;
-          case "Weapon.AimBlockedNotify":
-            server.sendRemoteWeaponUpdateDataToAllOthers(
-              client,
-              client.character.transientId,
-              weaponItem.itemGuid,
-              "Update.AimBlocked",
-              {
-                aimBlocked: p.packet.aimBlocked,
-              }
-            );
-            debug("AimBlockedNotify");
-            break;
-          default:
-            debug(`Unhandled weapon packet type: ${p.packetName}`);
-            break;
-        }
+            const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+              reserveAmmo = // how much ammo is in inventory
+                client.character.getInventoryItemAmount(weaponAmmoId),
+              reloadAmount =
+                reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
+
+            if (
+              !server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
+            ) {
+              return;
+            }
+            server.sendWeaponData(client, "Weapon.Reload", {
+              weaponGuid: p.packet.characterId,
+              unknownDword1: maxAmmo,
+              ammoCount: (weaponItem.weapon.ammoCount += reloadAmount),
+              unknownDword3: maxAmmo,
+              currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
+            });
+            client.character.clearReloadTimeout();
+          }, reloadTime);
+
+          debug("Weapon.ReloadRequest");
+          break;
+        case "Weapon.ReloadInterrupt":
+          server.reloadInterrupt(client, weaponItem);
+          break;
+        case "Weapon.SwitchFireModeRequest":
+          debug("SwitchFireModeRequest");
+          // workaround so aiming in doesn't sometimes make the shooting sound
+          if (!weaponItem.weapon?.ammoCount) return;
+
+          // temp workaround to fix 308 sound while aiming
+          if (
+            p.packet.firemodeIndex == 1 &&
+            server.getItemDefinition(weaponItem.itemDefinitionId).PARAM1 == 1373
+          )
+            return;
+          server.sendRemoteWeaponUpdateDataToAllOthers(
+            client,
+            client.character.transientId,
+            weaponItem.itemGuid,
+            "Update.SwitchFireMode",
+            {
+              firegroupIndex: p.packet.firegroupIndex,
+              firemodeIndex: p.packet.firemodeIndex,
+            }
+          );
+          break;
+        case "Weapon.WeaponFireHint":
+          debug("WeaponFireHint");
+          break;
+        case "Weapon.ProjectileContactReport":
+          debug("ProjectileContactReport");
+          break;
+        case "Weapon.MeleeHitMaterial":
+          debug("MeleeHitMaterial");
+          break;
+        case "Weapon.AimBlockedNotify":
+          server.sendRemoteWeaponUpdateDataToAllOthers(
+            client,
+            client.character.transientId,
+            weaponItem.itemGuid,
+            "Update.AimBlocked",
+            {
+              aimBlocked: p.packet.aimBlocked,
+            }
+          );
+          debug("AimBlockedNotify");
+          break;
+        default:
+          debug(`Unhandled weapon packet type: ${p.packetName}`);
+          break;
       }
+    }
   }
   CommandRun(server: ZoneServer2016, client: Client, packet: any) {
     this.commandHandler.executeInternalCommand(server, client, "run", packet);
@@ -2387,7 +2445,7 @@ export class zonePacketHandlers {
         this.DtoHitSpeedTreeReport(server, client, packet);
         break;
       case "Command.PointAndReport":
-        this.CommandPointAndReport (server, client, packet);
+        this.CommandPointAndReport(server, client, packet);
         break;
       case "Command.ReportLastDeath":
         this.CommandReportLastDeath(server, client, packet);
