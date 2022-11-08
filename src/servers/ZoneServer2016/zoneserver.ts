@@ -4748,7 +4748,7 @@ export class ZoneServer2016 extends EventEmitter {
         const firegroupDef = this.getFiregroupDefinition(
             firegroup.FIRE_GROUP_ID
           ),
-          firemodes = firegroupDef.FIRE_MODES;
+          firemodes = firegroupDef?.FIRE_MODES;
         return {
           firegroupId: firegroup.FIRE_GROUP_ID,
           unknownArray1: firemodes.map((firemode: any, j: number) => {
