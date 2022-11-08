@@ -4695,7 +4695,17 @@ export class ZoneServer2016 extends EventEmitter {
         const firegroupDef = this.getFiregroupDefinition(
             firegroup.FIRE_GROUP_ID
           ),
-          firemodes = firegroupDef.FIRE_MODES;
+          firemodes = firegroupDef?.FIRE_MODES;
+          if(!firemodes) {
+            const client = this.getClientByCharId(character.characterId),
+            msg = `[FATAL ERROR] PLEASE REPORT THIS - weaponDefinitionId: ${weaponDefinition.ID} firegroupId: ${firegroup.FIRE_GROUP_ID}`;
+            console.log(msg);
+            if(client) {
+              this.sendAlert(client, msg);
+              this.sendChatText(client, msg)
+            }
+            return;
+          }
         return {
           firegroupId: firegroup.FIRE_GROUP_ID,
           unknownArray1: firemodes.map((firemode: any, j: number) => {
