@@ -5034,7 +5034,24 @@ export class ZoneServer2016 extends EventEmitter {
     if (!sendPacket) return;
 
     this.updateLoadout(character);
-    if (equipmentSlotId) this.updateEquipmentSlot(character, equipmentSlotId);
+    if (equipmentSlotId) {
+      if (this.isWeapon(item.itemDefinitionId) && client) { // todo: check that the weapon has projectiles
+        this.sendRemoteWeaponDataToAllOthers(
+          client,
+          client.character.transientId,
+          "RemoteWeapon.Reset",
+          {
+            data: {
+              remoteWeapons: this.pGetRemoteWeaponsData(client.character),
+              remoteWeaponsExtra: this.pGetRemoteWeaponsExtraData(
+                client.character
+              ),
+            },
+          }
+        );
+      }
+      this.updateEquipmentSlot(character, equipmentSlotId);
+    }
   }
 
   generateRandomEquipmentsFromAnEntity(
@@ -5684,21 +5701,6 @@ export class ZoneServer2016 extends EventEmitter {
         });
       }
       this.equipItem(client.character, item);
-      if (this.isWeapon(item.itemDefinitionId)) {
-        this.sendRemoteWeaponDataToAllOthers(
-          client,
-          client.character.transientId,
-          "RemoteWeapon.Reset",
-          {
-            data: {
-              remoteWeapons: this.pGetRemoteWeaponsData(client.character),
-              remoteWeaponsExtra: this.pGetRemoteWeaponsExtraData(
-                client.character
-              ),
-            },
-          }
-        );
-      }
     } else {
       this.lootContainerItem(client, item, count);
     }
