@@ -717,6 +717,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: Items.LIGHTER, count: 1 });
         authorizedItems.push({ id: Items.WATER_EMPTY, count: 1 });
         authorizedItems.push({ id: Items.WATER_PURE, count: 1 });
+        authorizedItems.push({ id: Items.BACKPACK, count: 1 });
         authorizedItems.push({
           id: Items.AMMO_45,
           count: randomIntFromInterval(1, 5),
@@ -1104,6 +1105,7 @@ export class WorldObjectManager {
         authorizedItems.push({ id: Items.HELMET_TACTICAL, count: 1 });
         authorizedItems.push({ id: Items.RESPIRATOR, count: 1 });
         authorizedItems.push({ id: Items.FIRST_AID, count: 1 });
+        authorizedItems.push({ id: Items.BACKPACK, count: 1 });
         //ammo
         authorizedItems.push({
           id: Items.AMMO_45,
@@ -1155,12 +1157,14 @@ export class WorldObjectManager {
         authorizedItems.push({ id: Items.GUNPOWDER, count: 1 });
         authorizedItems.push({ id: Items.LANDMINE, count: 1 });
         authorizedItems.push({ id: Items.KEVLAR_DEFAULT, count: 1 });
+        authorizedItems.push({ id: Items.BACKPACK, count: 1 });
         break;
       case "ItemSpawner_Z1_MilitaryBase_MotorPool.adr": // common
         authorizedItems.push({ id: Items.WEAPON_BINOCULARS, count: 1 });
         authorizedItems.push({ id: Items.WEAPON_COMBATKNIFE, count: 1 });
         authorizedItems.push({ id: Items.FLARE, count: 1 });
         authorizedItems.push({ id: Items.METAL_SCRAP, count: 1 });
+        authorizedItems.push({ id: Items.BACKPACK, count: 1 });
         authorizedItems.push({
           id: Items.CLOTH,
           count: randomIntFromInterval(1, 5),
