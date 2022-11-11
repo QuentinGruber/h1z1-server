@@ -13,7 +13,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
-import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
+import { CharacterManagedObject, CharacterSeekTarget } from "types/zone2016packets";
 import { BaseLightweightCharacter } from "../classes/baselightweightcharacter";
 import { Npc } from "../classes/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
@@ -52,22 +52,23 @@ const dev: any = {
       client.character.state.rotation
     );
     server._npcs[characterId] = zombie;
+  },
+  zombiemove: function (server: ZoneServer2016, client: Client, args: any[]) {
+    // spawn a zombie
+    const characterId = server.generateGuid();
+    const transient = server.getTransientId(characterId);
+    const zombie = new Npc(
+      characterId,
+      transient,
+      9510,
+      client.character.state.position,
+      client.character.state.rotation
+    );
+    server._npcs[characterId] = zombie;
     setTimeout(() => {
-      const generatedGuid = `0x${server.generateItemGuid().toString(16)}`;
-
-      zombie._equipment[3] = {
-        modelName: "SurvivorFemale_Chest_Hoodie_Down.adr",
-        slotId: 3,
-        textureAlias: "Hoodie_DOA_Navy",
-        guid: generatedGuid,
-      };
-      console.log(zombie.pGetEquipmentSlotFull(3));
-
-      server.sendDataToAll(
-        "Equipment.SetCharacterEquipmentSlot",
-        zombie.pGetEquipmentSlotFull(3) as EquipmentSetCharacterEquipmentSlot
-      );
-    }, 2000);
+      server.sendData(client,"Character.ManagedObject", {characterId:client.character.characterId,objectCharacterId:characterId } as CharacterManagedObject)
+      server.sendData(client,"Character.SeekTarget",{ characterId, TargetCharacterId:client.character.characterId} as CharacterSeekTarget)
+    }, 5000);
   },
   stats: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.logStats();
