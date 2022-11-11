@@ -13,7 +13,10 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
-import { CharacterManagedObject, CharacterSeekTarget } from "types/zone2016packets";
+import {
+  CharacterManagedObject,
+  CharacterSeekTarget,
+} from "types/zone2016packets";
 import { BaseLightweightCharacter } from "../classes/baselightweightcharacter";
 import { Npc } from "../classes/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
@@ -66,8 +69,14 @@ const dev: any = {
     );
     server._npcs[characterId] = zombie;
     setTimeout(() => {
-      server.sendData(client,"Character.ManagedObject", {characterId:client.character.characterId,objectCharacterId:characterId } as CharacterManagedObject)
-      server.sendData(client,"Character.SeekTarget",{ characterId, TargetCharacterId:client.character.characterId} as CharacterSeekTarget)
+      server.sendData(client, "Character.ManagedObject", {
+        characterId: client.character.characterId,
+        objectCharacterId: characterId,
+      } as CharacterManagedObject);
+      server.sendData(client, "Character.SeekTarget", {
+        characterId,
+        TargetCharacterId: client.character.characterId,
+      } as CharacterSeekTarget);
     }, 5000);
   },
   stats: function (server: ZoneServer2016, client: Client, args: any[]) {

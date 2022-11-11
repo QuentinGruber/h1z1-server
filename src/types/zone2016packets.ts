@@ -362,7 +362,7 @@ export interface AddLightweightNpc {
   unknownDword10?: number;
   unknownQword2?: string;
   unknownDword11?: number;
-  unknownDword12?: number;
+  useCollision?: number;
   unknownDword13?: number;
   unknownDword14?: number;
   unknownDword15?: number;
@@ -408,7 +408,7 @@ export interface AddLightweightVehicle {
   unknownDword10?: number;
   unknownQword2?: string;
   unknownDword11?: number;
-  unknownDword12?: number;
+  useCollision?: number;
   unknownDword13?: number;
   unknownDword14?: number;
   unknownDword15?: number;
@@ -477,7 +477,7 @@ export interface LightweightToFullNpc {
   unknownByte2?: number;
   unknownDword18?: number;
   unknownDword19?: number;
-  unknownDword20?: number;
+  materialType?: number;
   unknownQword1?: string;
   unknownArray3?: any;
   resources?: any;
@@ -529,7 +529,7 @@ export interface LightweightToFullVehicle {
   unknownByte2?: number;
   unknownDword18?: number;
   unknownDword19?: number;
-  unknownDword20?: number;
+  materialType?: number;
   unknownQword1?: string;
   unknownArray3?: any;
   resources?: any;
