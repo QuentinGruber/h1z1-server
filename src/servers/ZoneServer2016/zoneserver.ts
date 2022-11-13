@@ -2164,7 +2164,9 @@ export class ZoneServer2016 extends EventEmitter {
             delete this.worldObjectManager._spawnedLootObjects[
               object.spawnerId
             ];
-            this.explodeExplosive(this._explosives[characterId]);
+            const explosiveEntity = new ExplosiveEntity(characterId,this.getTransientId(characterId),object.actorModelId,object.state.position,object.state.rotation,false);
+            this._explosives[characterId] = explosiveEntity;
+            this.explodeExplosive(explosiveEntity);
           }
         }
         return;
