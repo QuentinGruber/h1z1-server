@@ -4749,14 +4749,17 @@ export class ZoneServer2016 extends EventEmitter {
             firegroup.FIRE_GROUP_ID
           ),
           firemodes = firegroupDef?.FIRE_MODES;
+        if(!firemodes){
+          console.error(`firegroupDef missing for ${firegroup}`);
+        }
         return {
           firegroupId: firegroup.FIRE_GROUP_ID,
-          unknownArray1: firemodes.map((firemode: any, j: number) => {
+          unknownArray1: firegroup?firemodes.map((firemode: any, j: number) => {
             return {
               unknownDword1: j,
               unknownDword2: firemode.FIRE_MODE_ID,
             };
-          }), // probably firemodes
+          }):[], // probably firemodes
         };
       }),
     };
