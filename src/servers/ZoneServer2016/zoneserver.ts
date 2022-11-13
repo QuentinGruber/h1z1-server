@@ -2164,7 +2164,14 @@ export class ZoneServer2016 extends EventEmitter {
             delete this.worldObjectManager._spawnedLootObjects[
               object.spawnerId
             ];
-            const explosiveEntity = new ExplosiveEntity(characterId,this.getTransientId(characterId),object.actorModelId,object.state.position,object.state.rotation,false);
+            const explosiveEntity = new ExplosiveEntity(
+              characterId,
+              this.getTransientId(characterId),
+              object.actorModelId,
+              object.state.position,
+              object.state.rotation,
+              false
+            );
             this._explosives[characterId] = explosiveEntity;
             this.explodeExplosive(explosiveEntity);
           }
@@ -4751,17 +4758,19 @@ export class ZoneServer2016 extends EventEmitter {
             firegroup.FIRE_GROUP_ID
           ),
           firemodes = firegroupDef?.FIRE_MODES;
-        if(!firemodes){
+        if (!firemodes) {
           console.error(`firegroupDef missing for ${firegroup}`);
         }
         return {
           firegroupId: firegroup.FIRE_GROUP_ID,
-          unknownArray1: firegroup?firemodes.map((firemode: any, j: number) => {
-            return {
-              unknownDword1: j,
-              unknownDword2: firemode.FIRE_MODE_ID,
-            };
-          }):[], // probably firemodes
+          unknownArray1: firegroup
+            ? firemodes.map((firemode: any, j: number) => {
+                return {
+                  unknownDword1: j,
+                  unknownDword2: firemode.FIRE_MODE_ID,
+                };
+              })
+            : [], // probably firemodes
         };
       }),
     };
