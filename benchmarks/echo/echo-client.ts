@@ -43,7 +43,7 @@ export class EchoClient {
     });
   }
   genDummyData(): Uint8Array {
-    const dummy:number[] = [];
+    const dummy: number[] = [];
     for (let i = 0; i < this._benchParameters.bytesPerPacket; i++) {
       dummy.push(0xff);
     }
@@ -82,7 +82,6 @@ export class EchoClient {
     }
   }
 
-
   getPackedData() {
     const dataPacket = this._protocol.pack_data_packet(
       this._dummyData,
@@ -97,7 +96,7 @@ export class EchoClient {
 
   startTimer() {
     this._timerStartTime = Date.now();
-  } 
+  }
 
   stopTimer() {
     this._finalTime = Date.now() - this._timerStartTime;
