@@ -80,18 +80,14 @@ export class SOEServer extends EventEmitter {
   private _sendPhysicalPacket(client: Client, packet: Buffer): void {
     client.packetsSentThisSec++;
     client.stats.totalPacketSent++;
-    this._connection.postMessage(
-      {
-        type: "sendPacket",
-        data: {
-          packetData: packet,
-          length: packet.length,
-          port: client.port,
-          address: client.address,
-        },
+    this._connection.postMessage({
+      type: "sendPacket",
+      data: {
+        packetData: packet,
+        port: client.port,
+        address: client.address,
       },
-      [packet.buffer]
-    );
+    });
   }
 
   private sendOutQueue(client: Client): void {
