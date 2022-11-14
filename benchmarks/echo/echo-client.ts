@@ -24,7 +24,7 @@ export class EchoClient {
   private _isRunning: boolean = true;
   private _receivePacketsFromBundle: number = 0;
   private _lastAck: number = 0;
-  private _dummyData: number[] = [];
+  private _dummyData: Uint8Array;
   constructor(serverPort: number, benchParameters: BenchParameters) {
     this._benchParameters = benchParameters;
     this._dummyData = this.genDummyData();
@@ -42,12 +42,12 @@ export class EchoClient {
       this.receiveData(data);
     });
   }
-  genDummyData(): number[] {
+  genDummyData(): Uint8Array {
     const dummy:number[] = [];
     for (let i = 0; i < this._benchParameters.bytesPerPacket; i++) {
       dummy.push(0xff);
     }
-    return dummy;
+    return new Uint8Array(dummy);
   }
   sendSessionRequest() {
     const sessionRequestPacket = this._protocol.pack_session_request_packet(
@@ -82,14 +82,10 @@ export class EchoClient {
     }
   }
 
-  getData(): Uint8Array {
-    return new Uint8Array(this._dummyData);
-  }
 
   getPackedData() {
-    const data = this.getData();
     const dataPacket = this._protocol.pack_data_packet(
-      data,
+      this._dummyData,
       this._sequenceNumber
     );
     this._sequenceNumber++;
