@@ -29,6 +29,41 @@ const serverField: any[] = [
   { name: "allowedAccess", type: "boolean" },
 ];
 
+export const applicationDataJS2016 = [
+  { name: "serverAddress", type: "string" },
+  { name: "serverTicket", type: "string" },
+  { name: "encryptionKey", type: "byteswithlength" },
+  { name: "encryptionType", type: "uint32", defaultValue: 3 },
+  { name: "guid", type: "uint64string" },
+  {
+    name: "unknownQword1",
+    type: "uint64string",
+    defaultValue: "0x0000000000000000",
+  },
+  { name: "unknownString1", type: "string", defaultValue: "" },
+  { name: "unknownString2", type: "string", defaultValue: "" },
+  { name: "unknownString3", type: "string", defaultValue: "" },
+  {
+    name: "serverFeatureBit",
+    type: "uint64string",
+    defaultValue: "0x0000000000000000",
+  },
+];
+
+export const applicationDataKOTK = [
+  {
+    name: "unknownByte1",
+    type: "uint8",
+    defaultValue: 0,
+  },
+  {
+    name: "unknownByte2",
+    type: "uint8",
+    defaultValue: 0,
+  },
+  ...applicationDataJS2016,
+];
+
 const packets: any[] = [
   [
     "LoginRequest",
@@ -51,10 +86,42 @@ const packets: any[] = [
       fields: [
         { name: "loggedIn", type: "boolean" },
         { name: "status", type: "uint32" },
+        { name: "resultCode", type: "uint32" },
         { name: "isMember", type: "boolean" },
         { name: "isInternal", type: "boolean" },
         { name: "namespace", type: "string" },
-        { name: "ApplicationPayload", type: "byteswithlength" },
+        {
+          name: "accountFeatures",
+          type: "array",
+          fields: [
+            { name: "key", type: "uint32" },
+            {
+              name: "accountFeature",
+              type: "schema",
+              fields: [
+                { name: "id", type: "uint32" },
+                { name: "active", type: "boolean" },
+                { name: "remainingCount", type: "uint32" },
+                { name: "rawData", type: "string" },
+              ],
+            },
+          ],
+        },
+        {
+          name: "applicationPayload",
+          type: "byteswithlength",
+          defaultValue: 0,
+        },
+        {
+          name: "errorDetails",
+          type: "array",
+          fields: [
+            { name: "unknownDword1", type: "uint32" },
+            { name: "name", type: "string" },
+            { name: "value", type: "string" },
+          ],
+        },
+        { name: "ipCountryCode", type: "string" },
       ],
     },
   ],
@@ -135,26 +202,7 @@ const packets: any[] = [
         {
           name: "applicationData",
           type: "byteswithlength",
-          fields: [
-            { name: "serverAddress", type: "string" },
-            { name: "serverTicket", type: "string" },
-            { name: "encryptionKey", type: "byteswithlength" },
-            { name: "encryptionType", type: "uint32", defaultValue: 3 },
-            { name: "guid", type: "uint64string" },
-            {
-              name: "unknownQword1",
-              type: "uint64string",
-              defaultValue: "0x0000000000000000",
-            },
-            { name: "unknownString1", type: "string", defaultValue: "" },
-            { name: "unknownString2", type: "string", defaultValue: "" },
-            { name: "unknownString3", type: "string", defaultValue: "" },
-            {
-              name: "serverFeatureBit",
-              type: "uint64string",
-              defaultValue: "0x0000000000000000",
-            },
-          ],
+          fields: applicationDataJS2016, // default
         },
       ],
     },

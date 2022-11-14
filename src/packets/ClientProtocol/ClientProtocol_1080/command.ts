@@ -472,7 +472,8 @@ export const commandPackets: any = [
           defaultValue: [0, 0, 0],
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { // could be 2 dwords or something else idk -Meme
+        {
+          // could be 2 dwords or something else idk -Meme
           name: "unknownQword1",
           type: "uint64string",
           defaultValue: "0x0",
