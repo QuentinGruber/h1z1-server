@@ -107,6 +107,7 @@ import { GAME_VERSIONS } from "../../utils/enums";
 import {
   CharacterKilledBy,
   ClientUpdateDeathMetrics,
+  ClientUpdateProximateItems,
   EquipmentSetCharacterEquipmentSlot,
   zone2016packets,
 } from "types/zone2016packets";
@@ -541,7 +542,23 @@ export class ZoneServer2016 extends EventEmitter {
       });
     }
   }
-
+  
+  getProximityItems(character: BaseFullCharacter): ClientUpdateProximateItems{
+    console.time("proximity")
+    const items = Object.values(this._spawnedItems);
+    const proximityItems: ClientUpdateProximateItems = {items:[]};
+    for (let i =0;i<items.length ; i++){
+        const item = items[i];
+        if(isPosInRadius(item.npcRenderDistance,character.state.position,item.state.position)){
+          const proximityItem = {itemDefinitionId:item.item.itemDefinitionId,associatedCharacterGuid:character.characterId,itemData:item.item};
+          (proximityItems.items as any[]).push(proximityItem);
+          console.log(`Proximity: ${item.actorModelId}`)
+        }
+    }  
+    console.timeEnd("proximity")
+    return proximityItems
+  }
+  
   pGetInventoryItems(character: BaseFullCharacter): any[] {
     const items: any[] = Object.values(character._loadout)
       .filter((slot) => {
