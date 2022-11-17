@@ -369,7 +369,16 @@ export const clientUpdatePackets: any = [
   ["ClientUpdate.NpcRelevance", 0x114200, {}],
   ["ClientUpdate.InitiateNameChange", 0x114300, {}],
   ["ClientUpdate.NameChangeResult", 0x114400, {}],
-  ["ClientUpdate.MonitorTimeDrift", 0x114500, {}],
+  [
+    "ClientUpdate.MonitorTimeDrift",
+    0x114500,
+    {
+      fields: [
+        { name: "timeDrift", type: "uint32" },
+        { name: "unknownWord", type: "uint8" },
+      ],
+    },
+  ],
   ["ClientUpdate.NotifyServerOfStalledEvent", 0x114600, {}],
   ["ClientUpdate.UpdateSights", 0x114700, {}],
   ["ClientUpdate.UpdateRewardAndGrinderState", 0x114900, {}],
