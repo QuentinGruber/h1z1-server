@@ -1118,10 +1118,13 @@ export class zonePacketHandlers {
       }
     );
   }
-  FirstTimeEventInventoryAccess(server: ZoneServer2016, client: Client, packet: any) {
+  FirstTimeEventInventoryAccess(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
     const proximityItems = server.getProximityItems(client.character);
-    server.sendData(client,"ClientUpdate.ProximateItems",proximityItems)
-      
+    server.sendData(client, "ClientUpdate.ProximateItems", proximityItems);
   }
   CommandSuicide(server: ZoneServer2016, client: Client, packet: any) {
     server.killCharacter(client);

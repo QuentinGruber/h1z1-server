@@ -242,6 +242,7 @@ export class ZoneServer2016 extends EventEmitter {
   enableWorldSaves: boolean;
   readonly worldSaveVersion: number = 1;
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
+  private _proximityItemsDistance: number = 2;
 
   constructor(
     serverPort: number,
@@ -542,23 +543,31 @@ export class ZoneServer2016 extends EventEmitter {
       });
     }
   }
-  
-  getProximityItems(character: BaseFullCharacter): ClientUpdateProximateItems{
-    console.time("proximity")
+
+  getProximityItems(character: BaseFullCharacter): ClientUpdateProximateItems {
     const items = Object.values(this._spawnedItems);
-    const proximityItems: ClientUpdateProximateItems = {items:[]};
-    for (let i =0;i<items.length ; i++){
-        const item = items[i];
-        if(isPosInRadius(item.npcRenderDistance,character.state.position,item.state.position)){
-          const proximityItem = {itemDefinitionId:item.item.itemDefinitionId,associatedCharacterGuid:character.characterId,itemData:item.item};
-          (proximityItems.items as any[]).push(proximityItem);
-          console.log(`Proximity: ${item.actorModelId}`)
-        }
-    }  
-    console.timeEnd("proximity")
-    return proximityItems
+    const proximityItems: ClientUpdateProximateItems = { items: [] };
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (
+        isPosInRadiusWithY(
+          this._proximityItemsDistance,
+          character.state.position,
+          item.state.position,
+          1
+        )
+      ) {
+        const proximityItem = {
+          itemDefinitionId: item.item.itemDefinitionId,
+          associatedCharacterGuid: character.characterId,
+          itemData: item.item,
+        };
+        (proximityItems.items as any[]).push(proximityItem);
+      }
+    }
+    return proximityItems;
   }
-  
+
   pGetInventoryItems(character: BaseFullCharacter): any[] {
     const items: any[] = Object.values(character._loadout)
       .filter((slot) => {
