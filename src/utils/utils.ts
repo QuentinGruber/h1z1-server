@@ -630,11 +630,14 @@ export function flhash(str: string) {
   return Number(`0x${hash.toString(16).slice(-8)}`);
 }
 
-
 export function getCurrentHoursMs(): number {
   const currentDate = new Date();
   const utcHours = currentDate.getUTCHours();
   const utcHoursFixed = utcHours > 12 ? utcHours - 12 : utcHours;
-  const CurrentHoursMs = (utcHoursFixed * 3600000) + (currentDate.getUTCMinutes() * 60000) + (currentDate.getUTCSeconds() * 1000) + (currentDate.getUTCMilliseconds());
+  const CurrentHoursMs =
+    utcHoursFixed * 3600000 +
+    currentDate.getUTCMinutes() * 60000 +
+    currentDate.getUTCSeconds() * 1000 +
+    currentDate.getUTCMilliseconds();
   return CurrentHoursMs;
 }

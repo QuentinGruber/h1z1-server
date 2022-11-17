@@ -26,7 +26,7 @@ import {
   toInt,
   toHex,
   quat2matrix,
-  getCurrentHoursMs
+  getCurrentHoursMs,
 } from "../../utils/utils";
 
 import { CraftManager } from "./classes/craftmanager";
@@ -307,20 +307,21 @@ export class zonePacketHandlers {
     server.sendGameTimeSync(client);
   }
   Synchronization(server: ZoneServer2016, client: Client, packet: any) {
-    console.log(packet.data)
+    console.log(packet.data);
     const syncInterval = 5000;
     //const clientTime = Number(packet.data.clientTime)
-    const clientTimeHoursMs = Number(packet.data.clientHoursMs)
+    const clientTimeHoursMs = Number(packet.data.clientHoursMs);
     const currentHoursMs = getCurrentHoursMs();
-    const ping = currentHoursMs - clientTimeHoursMs - syncInterval
-    const serverTime = Int64String(Number((Date.now()/1000).toFixed(0)));
-    const reflectedPacket: Synchronization = {...packet.data,
-    serverTime: serverTime,
-    serverTime2: serverTime,
-    time3: Int64String(Number(packet.data.clientTime) +2)
-    }
-    console.log(reflectedPacket)
-    console.log(ping)
+    const ping = currentHoursMs - clientTimeHoursMs - syncInterval;
+    const serverTime = Int64String(Number((Date.now() / 1000).toFixed(0)));
+    const reflectedPacket: Synchronization = {
+      ...packet.data,
+      serverTime: serverTime,
+      serverTime2: serverTime,
+      time3: Int64String(Number(packet.data.clientTime) + 2),
+    };
+    console.log(reflectedPacket);
+    console.log(ping);
     // reflected packet isn't used correctly the clock-drift is fucked
     server.sendData(client, "Synchronization", reflectedPacket);
   }
