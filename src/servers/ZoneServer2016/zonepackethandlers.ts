@@ -255,10 +255,6 @@ export class zonePacketHandlers {
   CommandReportLastDeath(server: ZoneServer2016, client: Client, packet: any) {
     const targetClient = client.lastDeathReport?.attacker;
     if (!client.lastDeathReport) return;
-    if (!server._discordWebhookUrl) {
-      server.sendChatText(client, "Contact admin to enable discord web hooks");
-      return;
-    }
     if (!targetClient) {
       server.sendChatText(client, "Client not found.");
       return;
@@ -318,13 +314,6 @@ export class zonePacketHandlers {
       { title: "Time:", info: `${server.getDateString(Date.now())}` },
       { title: "Total reports this session:", info: `${targetClient.reports}` },
     ];
-    server.sendDiscordHook(
-      client,
-      targetClient,
-      "Death report",
-      "player reported his last death",
-      obj
-    );
     delete client.lastDeathReport;
   }
 

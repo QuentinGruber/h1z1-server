@@ -138,7 +138,6 @@ export class ZoneServer2016 extends EventEmitter {
   _db?: Db;
   _soloMode = false;
   _useFairPlay = true;
-  _discordWebhookUrl = process.env.DISCORD_WEBHOOK_URL || "";
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
@@ -1124,30 +1123,6 @@ export class ZoneServer2016 extends EventEmitter {
     character.isAlive = false;
 
     this.checkHook("OnPlayerDied", client, deathInfo);
-  }
-
-  sendDiscordHook(
-    client: Client,
-    client2: Client,
-    title: string,
-    description: string,
-    args: any
-  ) {
-    if (!this._discordWebhookUrl) return;
-    const { Webhook, MessageBuilder } = require("discord-webhook-node");
-    const hook = new Webhook(this._discordWebhookUrl);
-    const embed = new MessageBuilder()
-      .setTitle(title)
-      .setAuthor(
-        `${this._serverName}`,
-        "https://b.thumbs.redditmedia.com/AOe74IKe0Z9ONKat9WX_Px0aIU8dPJWNR_076ViqKDU.png"
-      )
-      .setColor("#ff0000")
-      .setDescription(description);
-    for (const a in args) {
-      embed.addField(args[a].title, args[a].info, true);
-    }
-    hook.send(embed);
   }
 
   async explosionDamage(
