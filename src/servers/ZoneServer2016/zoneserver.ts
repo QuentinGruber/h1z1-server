@@ -2215,10 +2215,8 @@ export class ZoneServer2016 extends EventEmitter {
         const object = this._spawnedItems[characterId];
         if (object) {
           if (
-            object.item.itemDefinitionId ===
-              Items.FUEL_BIOFUEL ||
-              object.item.itemDefinitionId ===
-              Items.FUEL_ETHANOL
+            object.item.itemDefinitionId === Items.FUEL_BIOFUEL ||
+            object.item.itemDefinitionId === Items.FUEL_ETHANOL
           ) {
             this.deleteEntity(characterId, this._spawnedItems);
             delete this.worldObjectManager._spawnedLootObjects[
