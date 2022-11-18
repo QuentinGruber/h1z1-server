@@ -46,7 +46,11 @@ export class SOEServer extends EventEmitter {
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
   _allowRawDataReception: boolean = true;
-  constructor(serverPort: number, cryptoKey: Uint8Array) {
+  constructor(
+    serverPort: number,
+    cryptoKey: Uint8Array,
+    disableAntiDdos?: boolean
+  ) {
     super();
     Buffer.poolSize = 8192 * 4;
     this._serverPort = serverPort;
@@ -55,7 +59,7 @@ export class SOEServer extends EventEmitter {
     this._connection = new Worker(
       `${__dirname}/../shared/workers/udpServerWorker.js`,
       {
-        workerData: { serverPort: serverPort },
+        workerData: { serverPort: serverPort, disableAntiDdos },
       }
     );
     setInterval(() => {
@@ -76,18 +80,14 @@ export class SOEServer extends EventEmitter {
   private _sendPhysicalPacket(client: Client, packet: Buffer): void {
     client.packetsSentThisSec++;
     client.stats.totalPacketSent++;
-    this._connection.postMessage(
-      {
-        type: "sendPacket",
-        data: {
-          packetData: packet,
-          length: packet.length,
-          port: client.port,
-          address: client.address,
-        },
+    this._connection.postMessage({
+      type: "sendPacket",
+      data: {
+        packetData: packet,
+        port: client.port,
+        address: client.address,
       },
-      [packet.buffer]
-    );
+    });
   }
 
   private sendOutQueue(client: Client): void {

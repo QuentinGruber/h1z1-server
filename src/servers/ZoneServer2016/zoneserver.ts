@@ -107,6 +107,7 @@ import { GAME_VERSIONS } from "../../utils/enums";
 import {
   CharacterKilledBy,
   ClientUpdateDeathMetrics,
+  ClientUpdateProximateItems,
   EquipmentSetCharacterEquipmentSlot,
   zone2016packets,
 } from "types/zone2016packets";
@@ -243,6 +244,7 @@ export class ZoneServer2016 extends EventEmitter {
   enableWorldSaves: boolean;
   readonly worldSaveVersion: number = 1;
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
+  private _proximityItemsDistance: number = 2;
 
   constructor(
     serverPort: number,
@@ -542,6 +544,30 @@ export class ZoneServer2016 extends EventEmitter {
         status: 0,
       });
     }
+  }
+
+  getProximityItems(character: BaseFullCharacter): ClientUpdateProximateItems {
+    const items = Object.values(this._spawnedItems);
+    const proximityItems: ClientUpdateProximateItems = { items: [] };
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (
+        isPosInRadiusWithY(
+          this._proximityItemsDistance,
+          character.state.position,
+          item.state.position,
+          1
+        )
+      ) {
+        const proximityItem = {
+          itemDefinitionId: item.item.itemDefinitionId,
+          associatedCharacterGuid: character.characterId,
+          itemData: item.item,
+        };
+        (proximityItems.items as any[]).push(proximityItem);
+      }
+    }
+    return proximityItems;
   }
 
   pGetInventoryItems(character: BaseFullCharacter): any[] {
@@ -2186,17 +2212,28 @@ export class ZoneServer2016 extends EventEmitter {
         hitEntity = this._characters[characterId];
         break;
       case EntityTypes.OBJECT:
-        if (this._spawnedItems[characterId]) {
+        const object = this._spawnedItems[characterId];
+        if (object) {
           if (
-            this._spawnedItems[characterId].item.itemDefinitionId ===
+            object.item.itemDefinitionId ===
               Items.FUEL_BIOFUEL ||
-            this._spawnedItems[characterId].item.itemDefinitionId ===
+              object.item.itemDefinitionId ===
               Items.FUEL_ETHANOL
           ) {
             this.deleteEntity(characterId, this._spawnedItems);
-            if (this._explosives[characterId]) {
-              this.explodeExplosive(this._explosives[characterId]);
-            }
+            delete this.worldObjectManager._spawnedLootObjects[
+              object.spawnerId
+            ];
+            const explosiveEntity = new ExplosiveEntity(
+              characterId,
+              this.getTransientId(characterId),
+              object.actorModelId,
+              object.state.position,
+              object.state.rotation,
+              false
+            );
+            this._explosives[characterId] = explosiveEntity;
+            this.explodeExplosive(explosiveEntity);
           }
         }
         return;
@@ -4815,15 +4852,20 @@ export class ZoneServer2016 extends EventEmitter {
         const firegroupDef = this.getFiregroupDefinition(
             firegroup.FIRE_GROUP_ID
           ),
-          firemodes = firegroupDef.FIRE_MODES;
+          firemodes = firegroupDef?.FIRE_MODES;
+        if (!firemodes) {
+          console.error(`firegroupDef missing for ${firegroup}`);
+        }
         return {
           firegroupId: firegroup.FIRE_GROUP_ID,
-          unknownArray1: firemodes.map((firemode: any, j: number) => {
-            return {
-              unknownDword1: j,
-              unknownDword2: firemode.FIRE_MODE_ID,
-            };
-          }), // probably firemodes
+          unknownArray1: firegroup
+            ? firemodes.map((firemode: any, j: number) => {
+                return {
+                  unknownDword1: j,
+                  unknownDword2: firemode.FIRE_MODE_ID,
+                };
+              })
+            : [], // probably firemodes
         };
       }),
     };

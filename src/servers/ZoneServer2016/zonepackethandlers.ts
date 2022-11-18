@@ -1253,14 +1253,13 @@ export class zonePacketHandlers {
       }
     );
   }
-  FirstTimeEvent(server: ZoneServer2016, client: Client, packet: any) {
-    /*
-    server.sendData(client, "FirstTimeEvent.State", {
-      unknownDword1: 0xffffffff,
-      unknownDword2: 1,
-      unknownBoolean1: false,
-    });
-    */
+  FirstTimeEventInventoryAccess(
+    server: ZoneServer2016,
+    client: Client,
+    packet: any
+  ) {
+    const proximityItems = server.getProximityItems(client.character);
+    server.sendData(client, "ClientUpdate.ProximateItems", proximityItems);
   }
   CommandSuicide(server: ZoneServer2016, client: Client, packet: any) {
     server.killCharacter(client);
@@ -2490,7 +2489,7 @@ export class zonePacketHandlers {
         this.CharacterWeaponStance(server, client, packet);
         break;
       case "FirstTimeEvent.Unknown1":
-        this.FirstTimeEvent(server, client, packet);
+        this.FirstTimeEventInventoryAccess(server, client, packet);
         break;
       case "Items.RequestUseItem":
         this.RequestUseItem(server, client, packet);
