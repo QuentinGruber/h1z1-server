@@ -337,7 +337,7 @@ export class ZoneServer2016 extends EventEmitter {
       (client: SOEClient, data: Buffer, flags: number) => {
         const packet = this._protocol.parse(data, flags);
         if (packet) {
-          this.emit("data", null, this._clients[client.sessionId], packet);
+          this.emit("data", this._clients[client.sessionId], packet);
         } else {
           debug("zonefailed : ", data);
         }
