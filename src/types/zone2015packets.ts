@@ -1,8 +1,14 @@
+/* prettier-ignore */ 
+export interface Server {
+  pingId?: number;
+}
 export interface SendSelfToClient {
   data: any;
 }
-export interface ClientIsReady {}
-export interface ZoneDoneSendingInitialData {}
+export interface ClientIsReady {
+}
+export interface ZoneDoneSendingInitialData {
+}
 export interface TargetClientNotOnline {
   Unknown1?: number;
   Unknown2?: number;
@@ -10,38 +16,38 @@ export interface TargetClientNotOnline {
 export interface ClientBeginZoning {
   zoneName?: string;
   zoneType?: number;
-  position?: number[];
-  rotation?: number[];
-  skyData?: {
-    unknownDword1?: number;
-    name?: string;
-    unknownDword2?: number;
-    unknownDword3?: number;
-    unknownDword4?: number;
-    fogDensity?: number;
-    fogGradient?: number;
-    fogFloor?: number;
-    unknownDword7?: number;
-    rain?: number;
-    temp?: number;
-    skyColor?: number;
-    cloudWeight0?: number;
-    cloudWeight1?: number;
-    cloudWeight2?: number;
-    cloudWeight3?: number;
-    sunAxisY?: number;
-    sunAxisX?: number;
-    sunAxisZ?: number;
-    unknownDword18?: number;
-    unknownDword19?: number;
-    unknownDword20?: number;
-    wind?: number;
-    unknownDword22?: number;
-    unknownDword23?: number;
-    unknownDword24?: number;
-    unknownDword25?: number;
-    unknownArray?: any[];
-  };
+  position?: Float32Array;
+  rotation?: Float32Array;
+  skyData? :{
+  unknownDword1?: number;
+  name?: string;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  fogDensity?: number;
+  fogGradient?: number;
+  fogFloor?: number;
+  unknownDword7?: number;
+  rain?: number;
+  temp?: number;
+  skyColor?: number;
+  cloudWeight0?: number;
+  cloudWeight1?: number;
+  cloudWeight2?: number;
+  cloudWeight3?: number;
+  sunAxisY?: number;
+  sunAxisX?: number;
+  sunAxisZ?: number;
+  unknownDword18?: number;
+  unknownDword19?: number;
+  unknownDword20?: number;
+  wind?: number;
+  unknownDword22?: number;
+  unknownDword23?: number;
+  unknownDword24?: number;
+  unknownDword25?: number;
+  unknownArray?: any[];
+}
   unknownBoolean1?: boolean;
   zoneId1?: number;
   zoneId2?: number;
@@ -54,36 +60,36 @@ export interface SendZoneDetails {
   zoneName?: string;
   zoneType?: number;
   unknownBoolean1?: boolean;
-  skyData?: {
-    unknownDword1?: number;
-    name?: string;
-    unknownDword2?: number;
-    unknownDword3?: number;
-    unknownDword4?: number;
-    fogDensity?: number;
-    fogGradient?: number;
-    fogFloor?: number;
-    unknownDword7?: number;
-    rain?: number;
-    temp?: number;
-    skyColor?: number;
-    cloudWeight0?: number;
-    cloudWeight1?: number;
-    cloudWeight2?: number;
-    cloudWeight3?: number;
-    sunAxisY?: number;
-    sunAxisX?: number;
-    sunAxisZ?: number;
-    unknownDword18?: number;
-    unknownDword19?: number;
-    unknownDword20?: number;
-    wind?: number;
-    unknownDword22?: number;
-    unknownDword23?: number;
-    unknownDword24?: number;
-    unknownDword25?: number;
-    unknownArray?: any[];
-  };
+  skyData? :{
+  unknownDword1?: number;
+  name?: string;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  fogDensity?: number;
+  fogGradient?: number;
+  fogFloor?: number;
+  unknownDword7?: number;
+  rain?: number;
+  temp?: number;
+  skyColor?: number;
+  cloudWeight0?: number;
+  cloudWeight1?: number;
+  cloudWeight2?: number;
+  cloudWeight3?: number;
+  sunAxisY?: number;
+  sunAxisX?: number;
+  sunAxisZ?: number;
+  unknownDword18?: number;
+  unknownDword19?: number;
+  unknownDword20?: number;
+  wind?: number;
+  unknownDword22?: number;
+  unknownDword23?: number;
+  unknownDword24?: number;
+  unknownDword25?: number;
+  unknownArray?: any[];
+}
   zoneId1?: number;
   zoneId2?: number;
   nameId?: number;
@@ -166,7 +172,8 @@ export interface ClientLog {
   file?: string;
   message?: string;
 }
-export interface LoginFailed {}
+export interface LoginFailed {
+}
 export interface ClientGameSettings {
   Unknown2?: number;
   interactGlowAndDist?: number;
@@ -182,7 +189,8 @@ export interface PlayerTitle {
   unknown1?: number;
   titleId?: number;
 }
-export interface Fotomat {}
+export interface Fotomat {
+}
 export interface InitializationParameters {
   environment?: string;
   serverId?: number;
@@ -219,8 +227,10 @@ export interface PlayerUpdateNetworkObjectComponents {
 export interface ContinentBattleInfo {
   zones?: any[];
 }
-export interface GetContinentBattleInfo {}
-export interface GetRespawnLocations {}
+export interface GetContinentBattleInfo {
+}
+export interface GetRespawnLocations {
+}
 export interface Security {
   code?: number;
 }
@@ -229,7 +239,8 @@ export interface ServerPopulationInfo {
   populationPercent?: any[];
   populationBuff?: any[];
 }
-export interface GetServerPopulationInfo {}
+export interface GetServerPopulationInfo {
+}
 export interface PlayerUpdateVehicleCollision {
   transientId: any;
   damage?: number;
@@ -259,8 +270,10 @@ export interface RewardBuffInfo {
   unknownFloat11?: number;
   unknownFloat12?: number;
 }
-export interface GetRewardBuffInfo {}
-export interface CharacterSelectSessionRequest {}
+export interface GetRewardBuffInfo {
+}
+export interface CharacterSelectSessionRequest {
+}
 export interface CharacterSelectSessionResponse {
   status?: number;
   sessionId?: string;
@@ -336,8 +349,8 @@ export interface CombatUpdateGrappling {
 export interface PlayerUpdateKnockback {
   characterId?: string;
   unk?: number;
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
   unk2?: number;
 }
 export interface PlayerUpdatePlayAnimation {
@@ -352,7 +365,7 @@ export interface PlayerUpdateNpcRelevance {
 }
 export interface PlayerUpdateUpdateScale {
   characterId?: string;
-  scale?: number[];
+  scale?: Float32Array;
 }
 export interface PlayerUpdateUpdateTemporaryAppearance {
   modelId?: number;
@@ -402,8 +415,8 @@ export interface PlayerUpdateSetDisposition {
 }
 export interface PlayerUpdateLootEvent {
   characterId?: string;
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
   modelFileName?: string;
 }
 export interface PlayerUpdateSlotCompositeEffectOverride {
@@ -464,7 +477,7 @@ export interface PlayerUpdateMoveOnRail {
   characterId?: string;
   unknown4?: number;
   unknown5?: number;
-  position?: number[];
+  position?: Float32Array;
 }
 export interface PlayerUpdateClearMovementRail {
   characterId?: string;
@@ -476,7 +489,7 @@ export interface PlayerUpdateMoveOnRelativeRail {
   unknown6?: number;
   unknown7?: number;
   unknown8?: number;
-  unknownVector1?: number[];
+  unknownVector1?: Float32Array;
 }
 export interface PlayerUpdateDestroyed {
   characterId?: string;
@@ -493,7 +506,7 @@ export interface PlayerUpdateSeekTarget {
   speed?: number;
   unknown8?: number;
   yRot?: number;
-  rotation?: number[];
+  rotation?: Float32Array;
 }
 export interface PlayerUpdateSeekTargetUpdate {
   characterId?: string;
@@ -504,74 +517,74 @@ export interface PlayerUpdateUpdateActiveWieldType {
   filterType?: number;
 }
 export interface PlayerUpdateLaunchProjectile {
-  projectile?: {
-    unknownQword1?: string;
-    unknownDword1?: number;
-    unknownDword2?: number;
-    unknownWord3?: boolean;
-    unknownWord4?: boolean;
-    unknownVector1?: number[];
-    unknownVector2?: number[];
-    unknownVector3?: number[];
-    unknownVector4?: number[];
-    unkstring?: string;
-    unknownVector5?: number[];
-    unknownDword6?: number;
-    unknownDword7?: number;
-    unknownDword8?: number;
-    unknownDword9?: number;
-    unknownDword10?: number;
-    unknownDword11?: number;
-    unknownDword12?: number;
-    unknownDword13?: number;
-    unknownDword14?: number;
-    unknownDword15?: number;
-    unknownDword16?: number;
-    unknownDword17?: number;
-    unkstring2?: string;
-    unknownDword18?: number;
-    unknownDword19?: number;
-    unknownDword20?: number;
-    unknownDword21?: number;
-    unknownDword22?: number;
-    unknownDword23?: number;
-    unknownDword24?: number;
-    unknownDword25?: number;
-    unknown26?: boolean;
-    unknown27?: boolean;
-    unknownDword28?: number;
-    unknownDword29?: number;
-    unknownDword30?: number;
-    unknownDword31?: number;
-    unknownDword32?: number;
-    unknownDword33?: number;
-    unknownDword34?: number;
-    unknownDword35?: number;
-    unknownDword36?: number;
-    unknown37?: number;
-    unknown38?: number;
-    unknown39?: number;
-    unknownDword40?: number;
-    unknownDword41?: number;
-    unknownQword42?: string;
-    unknownDword42?: number;
-    unknownDword43?: number;
-    unknownDword44?: number;
-    unknownDword45?: number;
-    unknownVector6?: number[];
-    unknownDword46?: number;
-    unknownDword47?: number;
-    unknownDword48?: number;
-    unknownDword49?: number;
-    unknownDword50?: number;
-    unknownDword51?: number;
-    unknownDword52?: number;
-    unknownDword53?: number;
-    unknownDword54?: number;
-    unknownDword55?: number;
-    unknownDword56?: number;
-    unknownDword57?: number;
-  };
+  projectile? :{
+  unknownQword1?: string;
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownWord3?: boolean;
+  unknownWord4?: boolean;
+  unknownVector1?: Float32Array;
+  unknownVector2?: Float32Array;
+  unknownVector3?: Float32Array;
+  unknownVector4?: Float32Array;
+  unkstring?: string;
+  unknownVector5?: Float32Array;
+  unknownDword6?: number;
+  unknownDword7?: number;
+  unknownDword8?: number;
+  unknownDword9?: number;
+  unknownDword10?: number;
+  unknownDword11?: number;
+  unknownDword12?: number;
+  unknownDword13?: number;
+  unknownDword14?: number;
+  unknownDword15?: number;
+  unknownDword16?: number;
+  unknownDword17?: number;
+  unkstring2?: string;
+  unknownDword18?: number;
+  unknownDword19?: number;
+  unknownDword20?: number;
+  unknownDword21?: number;
+  unknownDword22?: number;
+  unknownDword23?: number;
+  unknownDword24?: number;
+  unknownDword25?: number;
+  unknown26?: boolean;
+  unknown27?: boolean;
+  unknownDword28?: number;
+  unknownDword29?: number;
+  unknownDword30?: number;
+  unknownDword31?: number;
+  unknownDword32?: number;
+  unknownDword33?: number;
+  unknownDword34?: number;
+  unknownDword35?: number;
+  unknownDword36?: number;
+  unknown37?: number;
+  unknown38?: number;
+  unknown39?: number;
+  unknownDword40?: number;
+  unknownDword41?: number;
+  unknownQword42?: string;
+  unknownDword42?: number;
+  unknownDword43?: number;
+  unknownDword44?: number;
+  unknownDword45?: number;
+  unknownVector6?: Float32Array;
+  unknownDword46?: number;
+  unknownDword47?: number;
+  unknownDword48?: number;
+  unknownDword49?: number;
+  unknownDword50?: number;
+  unknownDword51?: number;
+  unknownDword52?: number;
+  unknownDword53?: number;
+  unknownDword54?: number;
+  unknownDword55?: number;
+  unknownDword56?: number;
+  unknownDword57?: number;
+}
   unknownDword1?: number;
 }
 export interface PlayerUpdateHudMessage {
@@ -597,55 +610,55 @@ export interface PlayerUpdateStartHarvest {
 }
 export interface PlayerUpdateKnockedOut {
   characterId?: string;
-  unknownData1?: {
-    unknownQword1?: string;
-    unknownDword1?: number;
-    unknownDword2?: number;
-    unknownDword3?: number;
-    unknownDword4?: number;
-    unknownDword5?: number;
-    unknownDword6?: number;
-    unknownDword7?: number;
-    unknownDword8?: number;
-    unknownDword9?: number;
-    unknownDword10?: number;
-    unknownDword11?: number;
-    unknownDword12?: number;
-  };
-  unknownData2?: {
-    unknownQword1?: string;
-    unknownDword1?: number;
-    unknownDword2?: number;
-    unknownDword3?: number;
-    unknownDword4?: number;
-    unknownDword5?: number;
-    unknownDword6?: number;
-    unknownDword7?: number;
-    unknownDword8?: number;
-    unknownDword9?: number;
-    unknownDword10?: number;
-    unknownDword11?: number;
-    unknownDword12?: number;
-  };
-  unknownData3?: {
-    unknownArray1?: any[];
-    unknownDword1?: number;
-    unknownQword1?: string;
-    unknownQword2?: string;
-    unknownQword3?: string;
-    unknownDword2?: number;
-    unknownDword3?: number;
-    unknownDword4?: number;
-    unknownDword5?: number;
-    unknownDword6?: number;
-    unknownDword7?: number;
-    unknownDword8?: number;
-    unknownVector1?: number[];
-    unknownDword9?: number;
-    unknownDword10?: number;
-    unknownDword11?: number;
-    unknownDword12?: number;
-  };
+  unknownData1? :{
+  unknownQword1?: string;
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownDword5?: number;
+  unknownDword6?: number;
+  unknownDword7?: number;
+  unknownDword8?: number;
+  unknownDword9?: number;
+  unknownDword10?: number;
+  unknownDword11?: number;
+  unknownDword12?: number;
+}
+  unknownData2? :{
+  unknownQword1?: string;
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownDword5?: number;
+  unknownDword6?: number;
+  unknownDword7?: number;
+  unknownDword8?: number;
+  unknownDword9?: number;
+  unknownDword10?: number;
+  unknownDword11?: number;
+  unknownDword12?: number;
+}
+  unknownData3? :{
+  unknownArray1?: any[];
+  unknownDword1?: number;
+  unknownQword1?: string;
+  unknownQword2?: string;
+  unknownQword3?: string;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownDword5?: number;
+  unknownDword6?: number;
+  unknownDword7?: number;
+  unknownDword8?: number;
+  unknownVector1?: Float32Array;
+  unknownDword9?: number;
+  unknownDword10?: number;
+  unknownDword11?: number;
+  unknownDword12?: number;
+}
   unknownDword1?: number;
 }
 export interface PlayerUpdateRespawn {
@@ -710,7 +723,7 @@ export interface PlayerUpdateUpdateStat {
 }
 export interface PlayerUpdatePlayWorldCompositeEffect {
   soundId?: number;
-  position?: number[];
+  position?: Float32Array;
   unk3?: number;
 }
 export interface PlayerUpdateAddLightweightPc {
@@ -724,8 +737,8 @@ export interface PlayerUpdateAddLightweightPc {
   unknownByte3?: number;
   modelId?: number;
   unknownDword5?: number;
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
   unknownFloat1?: number;
   unknownGuid1?: string;
   unknownDword6?: number;
@@ -745,13 +758,13 @@ export interface PlayerUpdateAddLightweightNpc {
   facilityId?: number;
   factionId?: number;
   modelId?: number;
-  scale?: number[];
+  scale?: Float32Array;
   texture?: string;
   string13?: string;
   unknown14?: number;
-  position?: number[];
-  rotation?: number[];
-  unknownVector?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
+  unknownVector?: Float32Array;
   unknown18?: number;
   unknown19?: number;
   extraModel?: string;
@@ -767,9 +780,9 @@ export interface PlayerUpdateAddLightweightNpc {
   MRversion?: number;
   unknown31?: number;
   unknown32?: string;
-  attachedObject?: {
-    targetObjectId?: string;
-  };
+  attachedObject? :{
+  targetObjectId?: string;
+}
   debugMode?: number;
   unknown35?: number;
   unknown37?: number;
@@ -779,48 +792,48 @@ export interface PlayerUpdateAddLightweightNpc {
   unknown40?: number;
 }
 export interface PlayerUpdateAddLightweightVehicle {
-  npcData?: {
-    characterId?: string;
-    transientId?: any;
-    string5?: string;
-    nameId?: number;
-    spawnId?: number;
-    facilityId?: number;
-    factionId?: number;
-    modelId?: number;
-    scale?: number[];
-    texture?: string;
-    string13?: string;
-    unknown14?: number;
-    position?: number[];
-    rotation?: number[];
-    unknownVector?: number[];
-    unknown18?: number;
-    unknown19?: number;
-    extraModel?: string;
-    string21?: string;
-    string22?: string;
-    vehicleId?: number;
-    unknown24?: number;
-    npcDefinitionId?: number;
-    positionUpdateType?: number;
-    profileId?: number;
-    dontRequestFullData?: boolean;
-    color?: number[];
-    MRversion?: number;
-    unknown31?: number;
-    unknown32?: string;
-    attachedObject?: {
-      targetObjectId?: string;
-    };
-    debugMode?: number;
-    unknown35?: number;
-    unknown37?: number;
-    unknown36?: string;
-    unknown38?: number;
-    unknown39?: number;
-    unknown40?: number;
-  };
+  npcData? :{
+  characterId?: string;
+  transientId?: any;
+  string5?: string;
+  nameId?: number;
+  spawnId?: number;
+  facilityId?: number;
+  factionId?: number;
+  modelId?: number;
+  scale?: Float32Array;
+  texture?: string;
+  string13?: string;
+  unknown14?: number;
+  position?: Float32Array;
+  rotation?: Float32Array;
+  unknownVector?: Float32Array;
+  unknown18?: number;
+  unknown19?: number;
+  extraModel?: string;
+  string21?: string;
+  string22?: string;
+  vehicleId?: number;
+  unknown24?: number;
+  npcDefinitionId?: number;
+  positionUpdateType?: number;
+  profileId?: number;
+  dontRequestFullData?: boolean;
+  color?: number[];
+  MRversion?: number;
+  unknown31?: number;
+  unknown32?: string;
+  attachedObject? :{
+  targetObjectId?: string;
+}
+  debugMode?: number;
+  unknown35?: number;
+  unknown37?: number;
+  unknown36?: string;
+  unknown38?: number;
+  unknown39?: number;
+  unknown40?: number;
+}
   unknownGuid1?: string;
   unknownDword1?: number;
   unknownDword2?: number;
@@ -831,8 +844,8 @@ export interface PlayerUpdateAddProxiedObject {
   characterId?: string;
   transientId: any;
   unknown5?: number;
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
   unknown6?: number;
   NetworkObjectComponent: any[];
 }
@@ -887,8 +900,8 @@ export interface PlayerUpdateLightweightToFullNpc {
   unknownDword4?: number;
   unknownFloat1?: number;
   unknownDword5?: number;
-  unknownVector1?: number[];
-  unknownVector2?: number[];
+  unknownVector1?: Float32Array;
+  unknownVector2?: Float32Array;
   unknownFloat2?: number;
   unknownDword6?: number;
   unknownDword7?: number;
@@ -899,7 +912,7 @@ export interface PlayerUpdateLightweightToFullNpc {
   unknownString4?: string;
   unknownDword10?: number;
   unknownString5?: string;
-  unknownVector3?: number[];
+  unknownVector3?: Float32Array;
   unknownDword11?: number;
   unknownDword12?: number;
   unknownDword13?: number;
@@ -908,7 +921,7 @@ export interface PlayerUpdateLightweightToFullNpc {
   characterVariables?: any[];
   unknownDword14?: number;
   unknownFloat4?: number;
-  unknownVector5?: number[];
+  unknownVector5?: Float32Array;
   unknownDword15?: number;
   unknownFloat5?: number;
   unknownFloat6?: number;
@@ -936,71 +949,71 @@ export interface PlayerUpdateLightweightToFullNpc {
   unk?: number;
 }
 export interface PlayerUpdateLightweightToFullVehicle {
-  npcData?: {
-    transientId?: any;
-    unknownDword1?: number;
-    unknownDword2?: number;
-    unknownDword3?: number;
-    attachments?: any[];
-    unknownString1?: string;
-    unknownString2?: string;
-    unknownDword4?: number;
-    unknownFloat1?: number;
-    unknownDword5?: number;
-    unknownVector1?: number[];
-    unknownVector2?: number[];
-    unknownFloat2?: number;
-    unknownDword6?: number;
-    unknownDword7?: number;
-    unknownDword8?: number;
-    effectTags?: any[];
-    unknownDword9?: number;
-    unknownString3?: string;
-    unknownString4?: string;
-    unknownDword10?: number;
-    unknownString5?: string;
-    unknownVector3?: number[];
-    unknownDword11?: number;
-    unknownDword12?: number;
-    unknownDword13?: number;
-    unknownGuid?: string;
-    unknownFloat3?: number;
-    characterVariables?: any[];
-    unknownDword14?: number;
-    unknownFloat4?: number;
-    unknownVector5?: number[];
-    unknownDword15?: number;
-    unknownFloat5?: number;
-    unknownFloat6?: number;
-    unknownFloat7?: number;
-    unknownDword16?: number;
-    unknownDword17?: number;
-    unknownDword18?: number;
-    unknownDword19?: number;
-    unknownDword21?: number;
-    unknownByte1?: number;
-    unknownByte2?: number;
-    unknownDword22?: number;
-    unknownDword23?: number;
-    unknownDword24?: number;
-    unknownGuid1?: string;
-    unknownDword25?: number;
-    unknownGuid2?: string;
-    unknownDword26?: number;
-    unknownDword27?: number;
-    unknownDword28?: number;
-    unknownDword29?: number;
-    unknownDword30?: number;
-    unknownDword31?: number;
-    unknownDword32?: number;
-    unk?: number;
-  };
+  npcData? :{
+  transientId?: any;
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  attachments?: any[];
+  unknownString1?: string;
+  unknownString2?: string;
+  unknownDword4?: number;
+  unknownFloat1?: number;
+  unknownDword5?: number;
+  unknownVector1?: Float32Array;
+  unknownVector2?: Float32Array;
+  unknownFloat2?: number;
+  unknownDword6?: number;
+  unknownDword7?: number;
+  unknownDword8?: number;
+  effectTags?: any[];
+  unknownDword9?: number;
+  unknownString3?: string;
+  unknownString4?: string;
+  unknownDword10?: number;
+  unknownString5?: string;
+  unknownVector3?: Float32Array;
+  unknownDword11?: number;
+  unknownDword12?: number;
+  unknownDword13?: number;
+  unknownGuid?: string;
+  unknownFloat3?: number;
+  characterVariables?: any[];
+  unknownDword14?: number;
+  unknownFloat4?: number;
+  unknownVector5?: Float32Array;
+  unknownDword15?: number;
+  unknownFloat5?: number;
+  unknownFloat6?: number;
+  unknownFloat7?: number;
+  unknownDword16?: number;
+  unknownDword17?: number;
+  unknownDword18?: number;
+  unknownDword19?: number;
+  unknownDword21?: number;
+  unknownByte1?: number;
+  unknownByte2?: number;
+  unknownDword22?: number;
+  unknownDword23?: number;
+  unknownDword24?: number;
+  unknownGuid1?: string;
+  unknownDword25?: number;
+  unknownGuid2?: string;
+  unknownDword26?: number;
+  unknownDword27?: number;
+  unknownDword28?: number;
+  unknownDword29?: number;
+  unknownDword30?: number;
+  unknownDword31?: number;
+  unknownDword32?: number;
+  unk?: number;
+}
   unknownByte1?: number;
   unknownDword1?: number;
   unknownArray1?: any[];
   unknownArray2?: any[];
-  unknownVector1?: number[];
-  unknownVector2?: number[];
+  unknownVector1?: Float32Array;
+  unknownVector2?: Float32Array;
   unknownByte3?: number;
   unknownArray3?: any[];
   unknownArray4?: any[];
@@ -1040,7 +1053,8 @@ export interface PlayerUpdateDroppedIemNotification {
   itemId?: number;
   quantity?: number;
 }
-export interface PlayerUpdateNoSpaceNotification {}
+export interface PlayerUpdateNoSpaceNotification {
+}
 export interface PlayerUpdateStartMultiStateDeath {
   characterId?: string;
   unknown4?: number;
@@ -1061,17 +1075,19 @@ export interface PlayerUpdateBeginCharacterAccess {
   state?: boolean;
   unk1?: number;
 }
-export interface PlayerUpdateEndCharacterAccess {}
+export interface PlayerUpdateEndCharacterAccess {
+}
 export interface PlayerUpdateUpdateMutateRights {
   unknownQword1?: string;
   unknownBoolean1?: boolean;
 }
 export interface AbilityClientMoveAndCast {
-  position?: number[];
+  position?: Float32Array;
   unk1?: number;
   unk2?: number;
 }
-export interface AbilityFailed {}
+export interface AbilityFailed {
+}
 export interface AbilityStartCasting {
   characterId?: string;
   unkGuid?: string;
@@ -1088,7 +1104,7 @@ export interface AbilityLaunch {
   unkGuid?: string;
   unk1?: number;
   weirdAskedByte?: number;
-  position?: number[];
+  position?: Float32Array;
   unkArray1?: any[];
   unk2?: number;
   unk3?: number;
@@ -1118,9 +1134,9 @@ export interface AbilityLand {
   unknown3?: bigint;
   unknown4?: number;
   weirdAskedByte?: number;
-  position?: number[];
+  position?: Float32Array;
   unknown7?: number;
-  position2?: number[];
+  position2?: Float32Array;
   unknown9?: number;
   unknown10?: number;
   unknown11?: number;
@@ -1134,7 +1150,7 @@ export interface AbilityStartChanneling {
   unknown5?: number;
   unknown6?: number;
   unknown7?: number;
-  position?: number[];
+  position?: Float32Array;
   unknown9?: number;
   unknown10?: number;
 }
@@ -1261,7 +1277,8 @@ export interface UiTaskAdd {
 export interface UiStartTimer {
   time?: number;
 }
-export interface UiResetTimer {}
+export interface UiResetTimer {
+}
 export interface UiMessage {
   stringId?: number;
 }
@@ -1284,7 +1301,8 @@ export interface AcquaintanceAdd {
   elapsedTime?: string;
   isOnline?: number;
 }
-export interface AcquaintanceRemove {}
+export interface AcquaintanceRemove {
+}
 export interface AcquaintanceOnline {
   characterId?: string;
   isOnline?: boolean;
@@ -1295,22 +1313,23 @@ export interface FriendList {
 export interface FriendMessage {
   messageType?: number;
   messageTime?: string;
-  messageData1?: {
-    unknowndDword1?: number;
-    unknowndDword2?: number;
-    unknowndDword3?: number;
-    characterName?: string;
-    unknownString1?: string;
-  };
-  messageData2?: {
-    unknowndDword1?: number;
-    unknowndDword2?: number;
-    unknowndDword3?: number;
-    characterName?: string;
-    unknownString1?: string;
-  };
+  messageData1? :{
+  unknowndDword1?: number;
+  unknowndDword2?: number;
+  unknowndDword3?: number;
+  characterName?: string;
+  unknownString1?: string;
 }
-export interface ClientPathRequest {}
+  messageData2? :{
+  unknowndDword1?: number;
+  unknowndDword2?: number;
+  unknowndDword3?: number;
+  characterName?: string;
+  unknownString1?: string;
+}
+}
+export interface ClientPathRequest {
+}
 export interface ClientPathReply {
   PathProcessingTech?: number;
   unknownDword2?: number;
@@ -1318,41 +1337,41 @@ export interface ClientPathReply {
 }
 export interface AchievementAdd {
   achievementId?: number;
-  achievementData?: {
-    objectiveId?: number;
-    nameId?: number;
-    descriptionId?: number;
-    rewardData?: {
-      unknownByte1?: boolean;
-      currency?: any[];
-      unknownDword1?: number;
-      unknownByte2?: number;
-      unknownDword2?: number;
-      unknownDword3?: number;
-      unknownDword4?: number;
-      unknownDword5?: number;
-      unknownDword6?: number;
-      time?: string;
-      characterId?: string;
-      nameId?: number;
-      unknownDword8?: number;
-      imageSetId?: number;
-      entries?: any[];
-      unknownDword10?: number;
-    };
-    unknownByte1?: number;
-    unknownDword3?: number;
-    unknownDword4?: number;
-    unknownByte2?: number;
-    unknownByte3?: number;
-    unknownData1?: {
-      unknownDword1?: number;
-      unknownDword2?: number;
-      unknownDword3?: number;
-      unknownDword4?: number;
-    };
-    unknownByte4?: number;
-  };
+  achievementData? :{
+  objectiveId?: number;
+  nameId?: number;
+  descriptionId?: number;
+  rewardData? :{
+  unknownByte1?: boolean;
+  currency?: any[];
+  unknownDword1?: number;
+  unknownByte2?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownDword5?: number;
+  unknownDword6?: number;
+  time?: string;
+  characterId?: string;
+  nameId?: number;
+  unknownDword8?: number;
+  imageSetId?: number;
+  entries?: any[];
+  unknownDword10?: number;
+}
+  unknownByte1?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownByte2?: number;
+  unknownByte3?: number;
+  unknownData1? :{
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+}
+  unknownByte4?: number;
+}
 }
 export interface AchievementInitialize {
   clientAchievements?: any[];
@@ -1368,13 +1387,13 @@ export interface MountMountResponse {
   unknownDword2?: number;
   unknownDword3?: number;
   unknownDword4?: number;
-  characterData?: {
-    unknownDword1?: number;
-    unknownDword2?: number;
-    unknownDword3?: number;
-    characterName?: string;
-    unknownString1?: string;
-  };
+  characterData? :{
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  characterName?: string;
+  unknownString1?: string;
+}
   tagString?: string;
   unknownDword5?: number;
 }
@@ -1403,25 +1422,31 @@ export interface MountSeatChangeResponse {
 }
 export interface MountSeatSwapRequest {
   characterId?: string;
-  identity?: {
-    CharacterId?: number;
-    AccountId?: number;
-    unknownDword3?: number;
-    characterFirstName?: string;
-    characterLastName?: string;
-  };
+  identity? :{
+  CharacterId?: number;
+  AccountId?: number;
+  unknownDword3?: number;
+  characterFirstName?: string;
+  characterLastName?: string;
+}
   unknownDword3?: number;
 }
-export interface TargetCharacterGuid {}
-export interface TargetLocation {}
-export interface TargetCharacterBone {}
-export interface TargetCharacterBoneId {}
+export interface TargetCharacterGuid {
+}
+export interface TargetLocation {
+}
+export interface TargetCharacterBone {
+}
+export interface TargetCharacterBoneId {
+}
 export interface TargetActorBone {
   Unk1?: number;
   unk2?: string;
 }
-export interface TargetActorBoneId {}
-export interface TargetFacility {}
+export interface TargetActorBoneId {
+}
+export interface TargetFacility {
+}
 export interface VoiceLogin {
   clientName?: string;
   sessionId?: string;
@@ -1463,14 +1488,14 @@ export interface SkillSelectSkill {
 }
 export interface SkillSetSkillPointManager {
   unknownDword1?: number;
-  unknownSchema1?: {
-    unknownQword1?: string;
-    unknownQword2?: string;
-    unknownQword3?: string;
-    unknownQword4?: string;
-    unknownQword5?: string;
-    unknownDword2?: number;
-  };
+  unknownSchema1? :{
+  unknownQword1?: string;
+  unknownQword2?: string;
+  unknownQword3?: string;
+  unknownQword4?: string;
+  unknownQword5?: string;
+  unknownDword2?: number;
+}
 }
 export interface SkillSetSkillPointProgress {
   unknown1?: number;
@@ -1527,19 +1552,19 @@ export interface VehicleOccupy {
   unknownArray1?: any[];
   passengers?: any[];
   unknownArray2?: any[];
-  unknownData1?: {
-    unknownDword1?: number;
-    unknownData1?: {
-      unknownDword1?: number;
-      unknownByte1?: number;
-    };
-    unknownString1?: string;
-    unknownDword2?: number;
-    unknownDword3?: number;
-    unknownDword4?: number;
-    unknownDword5?: number;
-    unknownArray3?: any[];
-  };
+  unknownData1? :{
+  unknownDword1?: number;
+  unknownData1? :{
+  unknownDword1?: number;
+  unknownByte1?: number;
+}
+  unknownString1?: string;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownDword5?: number;
+  unknownArray3?: any[];
+}
   unknownBytes1?: any;
   unknownBytes2?: any;
 }
@@ -1551,8 +1576,8 @@ export interface VehicleStateData {
 }
 export interface VehicleStateDamage {
   guid?: string;
-  unknownVector1?: number[];
-  unknownVector2?: number[];
+  unknownVector1?: Float32Array;
+  unknownVector2?: Float32Array;
 }
 export interface VehicleSpawn {
   vehicleId?: number;
@@ -1567,7 +1592,8 @@ export interface VehicleSetAutoDrive {
 export interface VehicleLoadVehicleDefinitionManager {
   vehicleDefinitions?: any[];
 }
-export interface VehicleDismiss {}
+export interface VehicleDismiss {
+}
 export interface VehicleAutoMount {
   guid?: string;
   unknownBoolean1?: boolean;
@@ -1593,7 +1619,8 @@ export interface VehicleCurrentMoveMode {
   characterId?: string;
   moveMode?: number;
 }
-export interface VehicleItemDefinitionRequest {}
+export interface VehicleItemDefinitionRequest {
+}
 export interface ResourceEvent {
   gameTime?: number;
   eventData: any;
@@ -1605,7 +1632,7 @@ export interface CollisionDamage {
   unknownDword1?: number;
   damage?: number;
   unknownDword2?: number;
-  position?: number[];
+  position?: Float32Array;
   unknownByte2?: number;
 }
 export interface EquipmentSetCharacterEquipment {
@@ -1631,10 +1658,10 @@ export interface EquipmentSetCharacterEquipmentSlots {
 export interface DefinitionFilterSetDefinitionVariable {
   unknownDword1?: number;
   unknownQword1?: string;
-  unknownData1?: {
-    unknownFloat1?: number;
-    unknownFloat2?: number;
-  };
+  unknownData1? :{
+  unknownFloat1?: number;
+  unknownFloat2?: number;
+}
 }
 export interface DefinitionFilterSetDefinitionIntSet {
   unknownDword1?: number;
@@ -1666,51 +1693,51 @@ export interface WallOfDataClientTransition {
   msElapsed?: number;
 }
 export interface EffectAddEffect {
-  unknownData1?: {
-    unknownDword1?: number;
-    unknownDword2?: number;
-    unknownDword3?: number;
-  };
-  unknownData2?: {
-    unknownQword1?: string;
-    unknownQword2?: string;
-  };
-  unknownData3?: {
-    unknownQword1?: string;
-    unknownQword2?: string;
-    unknownVector1?: number[];
-  };
+  unknownData1? :{
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+}
+  unknownData2? :{
+  unknownQword1?: string;
+  unknownQword2?: string;
+}
+  unknownData3? :{
+  unknownQword1?: string;
+  unknownQword2?: string;
+  unknownVector1?: Float32Array;
+}
 }
 export interface EffectUpdateEffect {
-  unknownData1?: {
-    unknownDword1?: number;
-    unknownDword2?: number;
-    unknownDword3?: number;
-  };
-  unknownData2?: {
-    unknownDword1?: number;
-    unknownQword1?: string;
-  };
-  unknownData3?: {
-    unknownQword1?: string;
-    unknownQword2?: string;
-    unknownVector1?: number[];
-  };
+  unknownData1? :{
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+}
+  unknownData2? :{
+  unknownDword1?: number;
+  unknownQword1?: string;
+}
+  unknownData3? :{
+  unknownQword1?: string;
+  unknownQword2?: string;
+  unknownVector1?: Float32Array;
+}
 }
 export interface EffectRemoveEffect {
-  unknownData1?: {
-    unknownDword1?: number;
-    unknownDword2?: number;
-    unknownDword3?: number;
-  };
-  unknownData2?: {
-    unknownQword1?: string;
-  };
-  unknownData3?: {
-    unknownQword1?: string;
-    unknownQword2?: string;
-    unknownVector1?: number[];
-  };
+  unknownData1? :{
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+}
+  unknownData2? :{
+  unknownQword1?: string;
+}
+  unknownData3? :{
+  unknownQword1?: string;
+  unknownQword2?: string;
+  unknownVector1?: Float32Array;
+}
 }
 export interface EffectAddEffectTag {
   unknownDword1?: number;
@@ -1718,37 +1745,37 @@ export interface EffectAddEffectTag {
   unknownDword3?: number;
   unknownDword4?: number;
   unknownDword5?: number;
-  unknownData1?: {
-    unknownGuid1?: string;
-    unknownGuid2?: string;
-  };
-  unknownData2?: {
-    unknownGuid1?: string;
-    unknownGuid2?: string;
-    unknownVector1?: number[];
-  };
-  unknownData3?: {
-    unknownDword1?: number;
-    unknownDword2?: number;
-    unknownDword3?: number;
-  };
+  unknownData1? :{
+  unknownGuid1?: string;
+  unknownGuid2?: string;
+}
+  unknownData2? :{
+  unknownGuid1?: string;
+  unknownGuid2?: string;
+  unknownVector1?: Float32Array;
+}
+  unknownData3? :{
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+}
   unknownDword6?: number;
   unknownByte1?: number;
 }
 export interface EffectRemoveEffectTag {
-  unknownData1?: {
-    unknownQword1?: string;
-  };
-  unknownData2?: {
-    unknownDword1?: number;
-    unknownQword1?: string;
-    unknownQword2?: string;
-  };
+  unknownData1? :{
+  unknownQword1?: string;
+}
+  unknownData2? :{
+  unknownDword1?: number;
+  unknownQword1?: string;
+  unknownQword2?: string;
+}
 }
 export interface EffectTargetBlockedEffect {
-  unknownData1?: {
-    unknownQword1?: string;
-  };
+  unknownData1? :{
+  unknownQword1?: string;
+}
 }
 export interface AbilitiesInitAbility {
   unknownDword1?: number;
@@ -1757,20 +1784,20 @@ export interface AbilitiesInitAbility {
   unknownDword4?: number;
   unknownQword1?: string;
   unknownQword2?: string;
-  unknownSchema1?: {
-    unknownQword3?: string;
-    unknownQword4?: string;
-    unknownFloatVector1?: number[];
-  };
+  unknownSchema1? :{
+  unknownQword3?: string;
+  unknownQword4?: string;
+  unknownFloatVector1?: Float32Array;
+}
   unknownWord1?: number;
-  unknownArray6?: {
-    unknownWord2?: number;
-    unknownArray1?: any[];
-    unknownArray2?: any[];
-    unknownArray3?: any[];
-    unknownArray4?: any[];
-    unknownArray5?: any[];
-  };
+  unknownArray6? :{
+  unknownWord2?: number;
+  unknownArray1?: any[];
+  unknownArray2?: any[];
+  unknownArray3?: any[];
+  unknownArray4?: any[];
+  unknownArray5?: any[];
+}
 }
 export interface AbilitiesSetActivatableAbilityManager {
   unknownArray1?: any[];
@@ -1805,7 +1832,8 @@ export interface CurrencySetCurrencyDiscount {
 export interface ZoneSettingData {
   settings?: any[];
 }
-export interface OperationClientClearMissions {}
+export interface OperationClientClearMissions {
+}
 export interface WordFilterData {
   wordFilterData: any;
 }
@@ -1816,15 +1844,16 @@ export interface ContainerInitEquippedContainers {
   Unknown2?: number;
   EquippedContainers?: any[];
 }
-export interface ConstructionPlacementRequest {}
+export interface ConstructionPlacementRequest {
+}
 export interface ConstructionPlacementResponse {
   Unknown2?: boolean;
   Unknown3?: number;
   model?: number;
 }
 export interface ConstructionPlacementFinalizeRequest {
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
 }
 export interface ConstructionPlacementFinalizeResponse {
   status?: boolean;
@@ -1857,7 +1886,7 @@ export interface ChatChat {
   characterName2?: string;
   unknown6_3?: string;
   message?: string;
-  position?: number[];
+  position?: Float32Array;
   unknownGuid?: string;
   unknown13?: number;
   color1?: number;
@@ -1882,7 +1911,8 @@ export interface CommandPlaySoundAtLocation {
 export interface CommandInteractRequest {
   guid?: string;
 }
-export interface CommandInteractCancel {}
+export interface CommandInteractCancel {
+}
 export interface CommandInteractionList {
   guid?: string;
   unknownBoolean1?: boolean;
@@ -1904,9 +1934,10 @@ export interface CommandPlayerSelect {
   characterId?: string;
   guid?: string;
 }
-export interface CommandFreeInteractionNpc {}
+export interface CommandFreeInteractionNpc {
+}
 export interface CommandMoveAndInteract {
-  position?: number[];
+  position?: Float32Array;
   guid?: string;
 }
 export interface CommandRecipeStart {
@@ -1963,7 +1994,8 @@ export interface CommandItemDefinitions {
 export interface CommandEnableCompositeEffects {
   enabled?: boolean;
 }
-export interface CommandRecipeAction {}
+export interface CommandRecipeAction {
+}
 export interface CommandRequestWeaponFireStateUpdate {
   characterId?: string;
 }
@@ -1975,7 +2007,7 @@ export interface CommandDeliveryManagerStatus {
 export interface CommandSpawnVehicle {
   vehicleId?: number;
   factionId?: number;
-  position?: number[];
+  position?: Float32Array;
   heading?: number;
   unknownDword1?: number;
   autoMount?: boolean;
@@ -2025,8 +2057,8 @@ export interface ClientUpdateCollectionRemoveEntry {
   unknownDword2?: number;
 }
 export interface ClientUpdateUpdateLocation {
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
   unknownBool1?: boolean;
   movementVersion?: number;
 }
@@ -2089,8 +2121,8 @@ export interface ClientUpdateModifyStrafeSpeed {
 }
 export interface ClientUpdateUpdateManagedLocation {
   characterId?: string;
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
   unk1?: number;
   unk2?: number;
 }
@@ -2104,7 +2136,7 @@ export interface ClientUpdateScreenEffect {
   unknown6?: boolean;
   unknown7?: number;
   unknown8?: number;
-  vector1?: number[];
+  vector1?: Float32Array;
 }
 export interface ClientUpdateMovementVersion {
   version?: number;
@@ -2135,7 +2167,8 @@ export interface ClientUpdateStartTimer {
   time?: number;
   message?: string;
 }
-export interface ClientUpdateCompleteLogoutProcess {}
+export interface ClientUpdateCompleteLogoutProcess {
+}
 export interface ClientUpdateProximateItems {
   items?: any[];
 }
@@ -2172,7 +2205,8 @@ export interface InGamePurchaseActiveSchedules {
 export interface QuickChatSendData {
   commands?: any[];
 }
-export interface LobbyGameDefinitionDefinitionsRequest {}
+export interface LobbyGameDefinitionDefinitionsRequest {
+}
 export interface LobbyGameDefinitionDefinitionsResponse {
   definitionsData: any;
 }
@@ -2227,46 +2261,47 @@ export interface ProfileStatsGetPlayerProfileStats {
   characterId?: string;
 }
 export interface ProfileStatsPlayerProfileStats {
-  unknownData1?: {
-    unknownData1?: {
-      unknownDword1?: number;
-      unknownArray1?: any[];
-      unknownDword2?: number;
-      unknownDword3?: number;
-      unknownDword4?: number;
-      unknownDword5?: number;
-      unknownDword6?: number;
-      unknownDword7?: number;
-      unknownDword8?: number;
-    };
-    unknownDword1?: number;
-    unknownArray1?: any[];
-    unknownDword2?: number;
-    characterName?: string;
-    characterId?: string;
-    battleRank?: number;
-    unknownDword4?: number;
-    unknownDword6?: number;
-    unknownDword7?: number;
-    unknownByte1?: number;
-    unknownArray2?: any[];
-    unknownDword8?: number;
-    unknownDword9?: number;
-    unknownDword10?: number;
-    unknownDword11?: number;
-    unknownDword12?: number;
-    unknownArray3?: any[];
-    unknownDword13?: number;
-    unknownArray4?: any[];
-    unknownArray5?: any[];
-  };
+  unknownData1? :{
+  unknownData1? :{
+  unknownDword1?: number;
+  unknownArray1?: any[];
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownDword5?: number;
+  unknownDword6?: number;
+  unknownDword7?: number;
+  unknownDword8?: number;
+}
+  unknownDword1?: number;
+  unknownArray1?: any[];
+  unknownDword2?: number;
+  characterName?: string;
+  characterId?: string;
+  battleRank?: number;
+  unknownDword4?: number;
+  unknownDword6?: number;
+  unknownDword7?: number;
+  unknownByte1?: number;
+  unknownArray2?: any[];
+  unknownDword8?: number;
+  unknownDword9?: number;
+  unknownDword10?: number;
+  unknownDword11?: number;
+  unknownDword12?: number;
+  unknownArray3?: any[];
+  unknownDword13?: number;
+  unknownArray4?: any[];
+  unknownArray5?: any[];
+}
   weaponStats1?: any[];
   weaponStats2?: any[];
   vehicleStats?: any[];
   facilityStats1?: any[];
   facilityStats2?: any[];
 }
-export interface DtoHitReportPacket {}
+export interface DtoHitReportPacket {
+}
 export interface DtoStateChange {
   objectId: number;
   modelName: string;
@@ -2325,338 +2360,10 @@ export interface InGamePurchaseStoreBundles {
   storeId?: number;
   unknownDword3?: number;
   unknownDword4?: number;
-  imageData?: {
-    imageSetId?: string;
-    imageTintValue?: string;
-  };
+  imageData? :{
+  imageSetId?: string;
+  imageTintValue?: string;
+}
   storeBundles?: any[];
 }
-export type zone2015packets =
-  | SendSelfToClient
-  | ClientIsReady
-  | ZoneDoneSendingInitialData
-  | TargetClientNotOnline
-  | ClientBeginZoning
-  | SendZoneDetails
-  | GameTimeSync
-  | UpdateClientSessionData
-  | WorldDisplayInfo
-  | SetLocale
-  | SetClientArea
-  | WorldShutdownNotice
-  | KeepAlive
-  | ClientExitLaunchUrl
-  | MembershipActivation
-  | ShowSystemMessage
-  | POIChangeMessage
-  | ClientMetrics
-  | ClientLog
-  | LoginFailed
-  | ClientGameSettings
-  | PlayerTitle
-  | Fotomat
-  | InitializationParameters
-  | ClientInitializationDetails
-  | ClientAreaTimer
-  | PlayerUpdateUpdatePosition
-  | Synchronization
-  | PlayerUpdateManagedPosition
-  | PlayerUpdateNetworkObjectComponents
-  | ContinentBattleInfo
-  | GetContinentBattleInfo
-  | GetRespawnLocations
-  | Security
-  | ServerPopulationInfo
-  | GetServerPopulationInfo
-  | PlayerUpdateVehicleCollision
-  | PlayerUpdateStop
-  | PlayerUpdateAttachObject
-  | ClientSettings
-  | RewardBuffInfo
-  | GetRewardBuffInfo
-  | CharacterSelectSessionRequest
-  | CharacterSelectSessionResponse
-  | SkyChanged
-  | CombatAttackTargetDamage
-  | CombatAttackAttackerMissed
-  | CombatAttackTargetDodged
-  | CombatEnableBossDisplay
-  | CombatAttackTargetBlocked
-  | CombatUpdateGrappling
-  | PlayerUpdateKnockback
-  | PlayerUpdatePlayAnimation
-  | PlayerUpdateNpcRelevance
-  | PlayerUpdateUpdateScale
-  | PlayerUpdateUpdateTemporaryAppearance
-  | PlayerUpdateRemoveTemporaryAppearance
-  | PlayerUpdatePlayCompositeEffect
-  | PlayerUpdateSetLookAt
-  | PlayerUpdateUpdateCharacterState
-  | PlayerUpdateExpectedSpeed
-  | PlayerUpdateThoughtBubble
-  | PlayerUpdateSetDisposition
-  | PlayerUpdateLootEvent
-  | PlayerUpdateSlotCompositeEffectOverride
-  | PlayerUpdateEffectPackage
-  | PlayerUpdateAddEffectTagCompositeEffect
-  | PlayerUpdateCustomizeNpc
-  | PlayerUpdateSetSpawnerActivationEffect
-  | PlayerUpdateReplaceBaseModel
-  | PlayerUpdateSetCollidable
-  | PlayerUpdateUpdateOwner
-  | PlayerUpdateWeaponStance
-  | PlayerUpdateMoveOnRail
-  | PlayerUpdateClearMovementRail
-  | PlayerUpdateMoveOnRelativeRail
-  | PlayerUpdateDestroyed
-  | PlayerUpdateSeekTarget
-  | PlayerUpdateSeekTargetUpdate
-  | PlayerUpdateUpdateActiveWieldType
-  | PlayerUpdateLaunchProjectile
-  | PlayerUpdateHudMessage
-  | PlayerUpdateCustomizationData
-  | PlayerUpdateStartHarvest
-  | PlayerUpdateKnockedOut
-  | PlayerUpdateRespawn
-  | PlayerUpdateRespawnReply
-  | PlayerUpdateSetSpotted
-  | PlayerUpdateJet
-  | PlayerUpdateSetFaction
-  | PlayerUpdateSetBattleRank
-  | PlayerUpdateManagedObject
-  | PlayerUpdateManagedObjectResponseControl
-  | PlayerUpdateMaterialTypeOverride
-  | PlayerUpdateDebrisLaunch
-  | PlayerUpdateHideCorpse
-  | PlayerUpdateCharacterStateDelta
-  | PlayerUpdateUpdateStat
-  | PlayerUpdatePlayWorldCompositeEffect
-  | PlayerUpdateAddLightweightPc
-  | PlayerUpdateAddLightweightNpc
-  | PlayerUpdateAddLightweightVehicle
-  | PlayerUpdateAddProxiedObject
-  | PlayerUpdateLightweightToFullPc
-  | PlayerUpdateLightweightToFullNpc
-  | PlayerUpdateLightweightToFullVehicle
-  | PlayerUpdateFullCharacterDataRequest
-  | PlayerUpdateInitiateNameChange
-  | PlayerUpdateNameChangeResult
-  | PlayerUpdateDeploy
-  | PlayerUpdateLowAmmoUpdate
-  | PlayerUpdateKilledBy
-  | PlayerUpdateMotorRunning
-  | PlayerUpdateDroppedIemNotification
-  | PlayerUpdateNoSpaceNotification
-  | PlayerUpdateStartMultiStateDeath
-  | PlayerUpdateAggroLevel
-  | PlayerUpdateDoorState
-  | PlayerUpdateBeginCharacterAccess
-  | PlayerUpdateEndCharacterAccess
-  | PlayerUpdateUpdateMutateRights
-  | AbilityClientMoveAndCast
-  | AbilityFailed
-  | AbilityStartCasting
-  | AbilityLaunch
-  | AbilityLand
-  | AbilityStartChanneling
-  | AbilityStopCasting
-  | AbilityStopAura
-  | AbilityAbilityDetails
-  | AbilitySetDefinition
-  | AbilityAddAbilityDefinition
-  | ReferenceDataClientProfileData
-  | ReferenceDataWeaponDefinitions
-  | ReferenceDataVehicleDefinitions
-  | UiTaskAdd
-  | UiStartTimer
-  | UiResetTimer
-  | UiMessage
-  | UiWeaponHitFeedback
-  | UiHeadShotFeedback
-  | RecipeList
-  | AcquaintanceAdd
-  | AcquaintanceRemove
-  | AcquaintanceOnline
-  | FriendList
-  | FriendMessage
-  | ClientPathRequest
-  | ClientPathReply
-  | AchievementAdd
-  | AchievementInitialize
-  | LootReply
-  | MountMountResponse
-  | MountDismountRequest
-  | MountDismountResponse
-  | MountList
-  | MountSeatChangeRequest
-  | MountSeatChangeResponse
-  | MountSeatSwapRequest
-  | TargetCharacterGuid
-  | TargetLocation
-  | TargetCharacterBone
-  | TargetCharacterBoneId
-  | TargetActorBone
-  | TargetActorBoneId
-  | TargetFacility
-  | VoiceLogin
-  | VoiceJoinChannel
-  | WeaponWeapon
-  | FacilityReferenceData
-  | FacilityFacilityData
-  | FacilityProximitySpawnCaptureUpdate
-  | FacilitySpawnCollisionChanged
-  | SkillSelectSkill
-  | SkillSetSkillPointManager
-  | SkillSetSkillPointProgress
-  | LoadoutSetCurrentLoadout
-  | LoadoutSelectSlot
-  | LoadoutSetCurrentSlot
-  | LoadoutActivateVehicleLoadoutTerminal
-  | LoadoutSetLoadouts
-  | ExperienceSetExperienceRanks
-  | ExperienceSetExperienceRateTier
-  | VehicleOwner
-  | VehicleOccupy
-  | VehicleStateData
-  | VehicleStateDamage
-  | VehicleSpawn
-  | VehicleUpdateQueuePosition
-  | VehicleSetAutoDrive
-  | VehicleLoadVehicleDefinitionManager
-  | VehicleDismiss
-  | VehicleAutoMount
-  | VehicleEngine
-  | VehicleAccessType
-  | VehicleHealthUpdateOwner
-  | VehicleExpiration
-  | VehicleCurrentMoveMode
-  | VehicleItemDefinitionRequest
-  | ResourceEvent
-  | CollisionDamage
-  | EquipmentSetCharacterEquipment
-  | EquipmentSetCharacterEquipmentSlots
-  | DefinitionFilterSetDefinitionVariable
-  | DefinitionFilterSetDefinitionIntSet
-  | DefinitionFilterUnknownWithVariable1
-  | DefinitionFilterUnknownWithVariable2
-  | WallOfDataUIEvent
-  | WallOfDataClientSystemInfo
-  | WallOfDataLaunchPadFingerprint
-  | WallOfDataClientTransition
-  | EffectAddEffect
-  | EffectUpdateEffect
-  | EffectRemoveEffect
-  | EffectAddEffectTag
-  | EffectRemoveEffectTag
-  | EffectTargetBlockedEffect
-  | AbilitiesInitAbility
-  | AbilitiesSetActivatableAbilityManager
-  | AbilitiesSetLoadoutAbilities
-  | MapRegionGlobalData
-  | MapRegionData
-  | MapRegionMapOutOfBounds
-  | MapRegionRequestContinentData
-  | ClientPcDataSpeechPackList
-  | CurrencySetCurrencyDiscount
-  | ZoneSettingData
-  | OperationClientClearMissions
-  | WordFilterData
-  | StaticFacilityInfoAllZones
-  | ContainerInitEquippedContainers
-  | ConstructionPlacementRequest
-  | ConstructionPlacementResponse
-  | ConstructionPlacementFinalizeRequest
-  | ConstructionPlacementFinalizeResponse
-  | LocksShowMenu
-  | RagdollStop
-  | ChatChat
-  | ChatChatText
-  | CommandPlaySoundAtLocation
-  | CommandInteractRequest
-  | CommandInteractCancel
-  | CommandInteractionList
-  | CommandInteractionSelect
-  | CommandSetProfile
-  | CommandPlayerSelect
-  | CommandFreeInteractionNpc
-  | CommandMoveAndInteract
-  | CommandRecipeStart
-  | CommandShowRecipeWindow
-  | CommandPlayDialogEffect
-  | CommandSetActiveVehicleGuid
-  | CommandPlaySoundIdOnTarget
-  | CommandSpotPlayerReply
-  | CommandInteractionString
-  | CommandPlayersInRadius
-  | CommandAddWorldCommand
-  | CommandAddZoneCommand
-  | CommandExecuteCommand
-  | CommandZoneExecuteCommand
-  | CommandItemDefinitions
-  | CommandEnableCompositeEffects
-  | CommandRecipeAction
-  | CommandRequestWeaponFireStateUpdate
-  | CommandDeliveryManagerStatus
-  | CommandSpawnVehicle
-  | CommandRunSpeed
-  | CommandAddItem
-  | CombatAttackProcessed
-  | ClientUpdateItemAdd
-  | ClientUpdateUpdateStat
-  | ClientUpdateCollectionAddEntry
-  | ClientUpdateCollectionRemoveEntry
-  | ClientUpdateUpdateLocation
-  | ClientUpdateMana
-  | ClientUpdateAddProfileAbilitySetApl
-  | ClientUpdateAddEffectTag
-  | ClientUpdateActivateProfile
-  | ClientUpdateNotifyPlayer
-  | ClientUpdateDoneSendingPreloadCharacters
-  | ClientUpdateDamageInfo
-  | ClientUpdateZonePopulation
-  | ClientUpdateRespawnLocations
-  | ClientUpdateModifyMovementSpeed
-  | ClientUpdateModifyTurnRate
-  | ClientUpdateModifyStrafeSpeed
-  | ClientUpdateUpdateManagedLocation
-  | ClientUpdateScreenEffect
-  | ClientUpdateMovementVersion
-  | ClientUpdateManagedMovementVersion
-  | ClientUpdateUpdateWeaponAddClips
-  | ClientUpdateDailyRibbonCount
-  | ClientUpdateDespawnNpcUpdate
-  | ClientUpdateFreeze
-  | ClientUpdateStartTimer
-  | ClientUpdateCompleteLogoutProcess
-  | ClientUpdateProximateItems
-  | ClientUpdateTextAlert
-  | InGamePurchaseStoreBundleCategories
-  | InGamePurchaseWalletInfoResponse
-  | InGamePurchaseEnableMarketplace
-  | InGamePurchaseAccountInfoRequest
-  | InGamePurchaseItemOfTheDay
-  | InGamePurchaseActiveSchedules
-  | QuickChatSendData
-  | LobbyGameDefinitionDefinitionsRequest
-  | LobbyGameDefinitionDefinitionsResponse
-  | CoinStoreItemList
-  | CoinStoreSellToClientRequest
-  | CoinStoreTransactionComplete
-  | TargetAddTarget
-  | TargetSetTarget
-  | TargetRemoveTarget
-  | TargetClearTarget
-  | ProfileStatsGetPlayerProfileStats
-  | ProfileStatsPlayerProfileStats
-  | DtoHitReportPacket
-  | DtoStateChange
-  | DtoObjectInitialData
-  | DtoHitSpeedTreeReport
-  | LockssetLock
-  | RagdollStart
-  | RagdollUpdatePose
-  | RagdollUnk2
-  | RagdollUnk
-  | PlayerUpdateRemovePlayer
-  | PlayerUpdateRemovePlayerGracefully
-  | InGamePurchaseStoreBundles;
+export type zone2015packets = Server | SendSelfToClient | ClientIsReady | ZoneDoneSendingInitialData | TargetClientNotOnline | ClientBeginZoning | SendZoneDetails | GameTimeSync | UpdateClientSessionData | WorldDisplayInfo | SetLocale | SetClientArea | WorldShutdownNotice | KeepAlive | ClientExitLaunchUrl | MembershipActivation | ShowSystemMessage | POIChangeMessage | ClientMetrics | ClientLog | LoginFailed | ClientGameSettings | PlayerTitle | Fotomat | InitializationParameters | ClientInitializationDetails | ClientAreaTimer | PlayerUpdateUpdatePosition | Synchronization | PlayerUpdateManagedPosition | PlayerUpdateNetworkObjectComponents | ContinentBattleInfo | GetContinentBattleInfo | GetRespawnLocations | Security | ServerPopulationInfo | GetServerPopulationInfo | PlayerUpdateVehicleCollision | PlayerUpdateStop | PlayerUpdateAttachObject | ClientSettings | RewardBuffInfo | GetRewardBuffInfo | CharacterSelectSessionRequest | CharacterSelectSessionResponse | SkyChanged | CombatAttackTargetDamage | CombatAttackAttackerMissed | CombatAttackTargetDodged | CombatEnableBossDisplay | CombatAttackTargetBlocked | CombatUpdateGrappling | PlayerUpdateKnockback | PlayerUpdatePlayAnimation | PlayerUpdateNpcRelevance | PlayerUpdateUpdateScale | PlayerUpdateUpdateTemporaryAppearance | PlayerUpdateRemoveTemporaryAppearance | PlayerUpdatePlayCompositeEffect | PlayerUpdateSetLookAt | PlayerUpdateUpdateCharacterState | PlayerUpdateExpectedSpeed | PlayerUpdateThoughtBubble | PlayerUpdateSetDisposition | PlayerUpdateLootEvent | PlayerUpdateSlotCompositeEffectOverride | PlayerUpdateEffectPackage | PlayerUpdateAddEffectTagCompositeEffect | PlayerUpdateCustomizeNpc | PlayerUpdateSetSpawnerActivationEffect | PlayerUpdateReplaceBaseModel | PlayerUpdateSetCollidable | PlayerUpdateUpdateOwner | PlayerUpdateWeaponStance | PlayerUpdateMoveOnRail | PlayerUpdateClearMovementRail | PlayerUpdateMoveOnRelativeRail | PlayerUpdateDestroyed | PlayerUpdateSeekTarget | PlayerUpdateSeekTargetUpdate | PlayerUpdateUpdateActiveWieldType | PlayerUpdateLaunchProjectile | PlayerUpdateHudMessage | PlayerUpdateCustomizationData | PlayerUpdateStartHarvest | PlayerUpdateKnockedOut | PlayerUpdateRespawn | PlayerUpdateRespawnReply | PlayerUpdateSetSpotted | PlayerUpdateJet | PlayerUpdateSetFaction | PlayerUpdateSetBattleRank | PlayerUpdateManagedObject | PlayerUpdateManagedObjectResponseControl | PlayerUpdateMaterialTypeOverride | PlayerUpdateDebrisLaunch | PlayerUpdateHideCorpse | PlayerUpdateCharacterStateDelta | PlayerUpdateUpdateStat | PlayerUpdatePlayWorldCompositeEffect | PlayerUpdateAddLightweightPc | PlayerUpdateAddLightweightNpc | PlayerUpdateAddLightweightVehicle | PlayerUpdateAddProxiedObject | PlayerUpdateLightweightToFullPc | PlayerUpdateLightweightToFullNpc | PlayerUpdateLightweightToFullVehicle | PlayerUpdateFullCharacterDataRequest | PlayerUpdateInitiateNameChange | PlayerUpdateNameChangeResult | PlayerUpdateDeploy | PlayerUpdateLowAmmoUpdate | PlayerUpdateKilledBy | PlayerUpdateMotorRunning | PlayerUpdateDroppedIemNotification | PlayerUpdateNoSpaceNotification | PlayerUpdateStartMultiStateDeath | PlayerUpdateAggroLevel | PlayerUpdateDoorState | PlayerUpdateBeginCharacterAccess | PlayerUpdateEndCharacterAccess | PlayerUpdateUpdateMutateRights | AbilityClientMoveAndCast | AbilityFailed | AbilityStartCasting | AbilityLaunch | AbilityLand | AbilityStartChanneling | AbilityStopCasting | AbilityStopAura | AbilityAbilityDetails | AbilitySetDefinition | AbilityAddAbilityDefinition | ReferenceDataClientProfileData | ReferenceDataWeaponDefinitions | ReferenceDataVehicleDefinitions | UiTaskAdd | UiStartTimer | UiResetTimer | UiMessage | UiWeaponHitFeedback | UiHeadShotFeedback | RecipeList | AcquaintanceAdd | AcquaintanceRemove | AcquaintanceOnline | FriendList | FriendMessage | ClientPathRequest | ClientPathReply | AchievementAdd | AchievementInitialize | LootReply | MountMountResponse | MountDismountRequest | MountDismountResponse | MountList | MountSeatChangeRequest | MountSeatChangeResponse | MountSeatSwapRequest | TargetCharacterGuid | TargetLocation | TargetCharacterBone | TargetCharacterBoneId | TargetActorBone | TargetActorBoneId | TargetFacility | VoiceLogin | VoiceJoinChannel | WeaponWeapon | FacilityReferenceData | FacilityFacilityData | FacilityProximitySpawnCaptureUpdate | FacilitySpawnCollisionChanged | SkillSelectSkill | SkillSetSkillPointManager | SkillSetSkillPointProgress | LoadoutSetCurrentLoadout | LoadoutSelectSlot | LoadoutSetCurrentSlot | LoadoutActivateVehicleLoadoutTerminal | LoadoutSetLoadouts | ExperienceSetExperienceRanks | ExperienceSetExperienceRateTier | VehicleOwner | VehicleOccupy | VehicleStateData | VehicleStateDamage | VehicleSpawn | VehicleUpdateQueuePosition | VehicleSetAutoDrive | VehicleLoadVehicleDefinitionManager | VehicleDismiss | VehicleAutoMount | VehicleEngine | VehicleAccessType | VehicleHealthUpdateOwner | VehicleExpiration | VehicleCurrentMoveMode | VehicleItemDefinitionRequest | ResourceEvent | CollisionDamage | EquipmentSetCharacterEquipment | EquipmentSetCharacterEquipmentSlots | DefinitionFilterSetDefinitionVariable | DefinitionFilterSetDefinitionIntSet | DefinitionFilterUnknownWithVariable1 | DefinitionFilterUnknownWithVariable2 | WallOfDataUIEvent | WallOfDataClientSystemInfo | WallOfDataLaunchPadFingerprint | WallOfDataClientTransition | EffectAddEffect | EffectUpdateEffect | EffectRemoveEffect | EffectAddEffectTag | EffectRemoveEffectTag | EffectTargetBlockedEffect | AbilitiesInitAbility | AbilitiesSetActivatableAbilityManager | AbilitiesSetLoadoutAbilities | MapRegionGlobalData | MapRegionData | MapRegionMapOutOfBounds | MapRegionRequestContinentData | ClientPcDataSpeechPackList | CurrencySetCurrencyDiscount | ZoneSettingData | OperationClientClearMissions | WordFilterData | StaticFacilityInfoAllZones | ContainerInitEquippedContainers | ConstructionPlacementRequest | ConstructionPlacementResponse | ConstructionPlacementFinalizeRequest | ConstructionPlacementFinalizeResponse | LocksShowMenu | RagdollStop | ChatChat | ChatChatText | CommandPlaySoundAtLocation | CommandInteractRequest | CommandInteractCancel | CommandInteractionList | CommandInteractionSelect | CommandSetProfile | CommandPlayerSelect | CommandFreeInteractionNpc | CommandMoveAndInteract | CommandRecipeStart | CommandShowRecipeWindow | CommandPlayDialogEffect | CommandSetActiveVehicleGuid | CommandPlaySoundIdOnTarget | CommandSpotPlayerReply | CommandInteractionString | CommandPlayersInRadius | CommandAddWorldCommand | CommandAddZoneCommand | CommandExecuteCommand | CommandZoneExecuteCommand | CommandItemDefinitions | CommandEnableCompositeEffects | CommandRecipeAction | CommandRequestWeaponFireStateUpdate | CommandDeliveryManagerStatus | CommandSpawnVehicle | CommandRunSpeed | CommandAddItem | CombatAttackProcessed | ClientUpdateItemAdd | ClientUpdateUpdateStat | ClientUpdateCollectionAddEntry | ClientUpdateCollectionRemoveEntry | ClientUpdateUpdateLocation | ClientUpdateMana | ClientUpdateAddProfileAbilitySetApl | ClientUpdateAddEffectTag | ClientUpdateActivateProfile | ClientUpdateNotifyPlayer | ClientUpdateDoneSendingPreloadCharacters | ClientUpdateDamageInfo | ClientUpdateZonePopulation | ClientUpdateRespawnLocations | ClientUpdateModifyMovementSpeed | ClientUpdateModifyTurnRate | ClientUpdateModifyStrafeSpeed | ClientUpdateUpdateManagedLocation | ClientUpdateScreenEffect | ClientUpdateMovementVersion | ClientUpdateManagedMovementVersion | ClientUpdateUpdateWeaponAddClips | ClientUpdateDailyRibbonCount | ClientUpdateDespawnNpcUpdate | ClientUpdateFreeze | ClientUpdateStartTimer | ClientUpdateCompleteLogoutProcess | ClientUpdateProximateItems | ClientUpdateTextAlert | InGamePurchaseStoreBundleCategories | InGamePurchaseWalletInfoResponse | InGamePurchaseEnableMarketplace | InGamePurchaseAccountInfoRequest | InGamePurchaseItemOfTheDay | InGamePurchaseActiveSchedules | QuickChatSendData | LobbyGameDefinitionDefinitionsRequest | LobbyGameDefinitionDefinitionsResponse | CoinStoreItemList | CoinStoreSellToClientRequest | CoinStoreTransactionComplete | TargetAddTarget | TargetSetTarget | TargetRemoveTarget | TargetClearTarget | ProfileStatsGetPlayerProfileStats | ProfileStatsPlayerProfileStats | DtoHitReportPacket | DtoStateChange | DtoObjectInitialData | DtoHitSpeedTreeReport | LockssetLock | RagdollStart | RagdollUpdatePose | RagdollUnk2 | RagdollUnk | PlayerUpdateRemovePlayer | PlayerUpdateRemovePlayerGracefully | InGamePurchaseStoreBundles;

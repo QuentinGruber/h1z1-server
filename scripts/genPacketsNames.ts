@@ -10,6 +10,12 @@ const packetsFiles: any = {
     ...Object.keys(h1z1packets2015.PacketTypes),
     ...Object.keys(h1z1packets2016.PacketTypes),
   ],
+  h1z1PacketsType2015: [
+    ...Object.keys(h1z1packets2015.PacketTypes),
+  ],
+  h1z1PacketsType2016: [
+    ...Object.keys(h1z1packets2016.PacketTypes),
+  ],
   loginPacketsType: [
     ...Object.keys(loginpackets2015.PacketTypes),
     ...Object.keys(loginpackets2016.PacketTypes),
@@ -17,7 +23,7 @@ const packetsFiles: any = {
 };
 
 const typePath: string = "./src/types/packets.ts";
-let steamString = ""; // should use a streamWriter but i'm lazy
+let steamString = "/* prettier-ignore */ \n"; // should use a streamWriter but i'm lazy
 Object.keys(packetsFiles).forEach((packetsFileName) => {
   const packetsFile: string[] = packetsFiles[packetsFileName];
   steamString += `export type ${packetsFileName} = `;

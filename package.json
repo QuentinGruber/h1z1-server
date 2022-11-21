@@ -1,12 +1,12 @@
 {
   "name": "h1z1-server",
-  "version": "0.22.0",
+  "version": "0.22.1",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "engines": {
-    "node": ">=0.16.0 <19"
+    "node": ">=0.16.0 <20"
   },
   "bin": {
     "h1z1-server-demo": "scripts/h1z1-server-demo.js",
@@ -14,8 +14,8 @@
   },
   "dependencies": {
     "debug": "4.3.4",
-    "h1emu-core": "0.9.3",
-    "h1z1-dataschema": "1.5.12",
+    "h1emu-core": "1.0.0",
+    "h1z1-dataschema": "1.7.0",
     "mongodb": "4.7.0",
     "typescript": "4.7.2"
   },
@@ -32,9 +32,9 @@
     "typedoc": "0.23.15"
   },
   "scripts": {
-    "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts && npx prettier -w ./src/types/packets.ts",
+    "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts",
     "gen-model-textures": "npx ts-node ./scripts/genModelTextures.ts",
-    "gen-packets-interfaces": "npx ts-node ./scripts/genPacketsInterfaces.ts",
+    "gen-packets-interfaces": "npx ts-node ./scripts/genPacketsInterfaces.ts ",
     "fix-signatures": "npx ts-node ./scripts/fixSignatures.ts && npm run prettier_sources",
     "gen-doc": "npx typedoc",
     "lint": "npx eslint src",
@@ -61,6 +61,7 @@
     "postinstall": "npm run build",
     "publish_release": "git push --tags && git push origin dev && git push origin master && git checkout dev && npm run publish_release-next",
     "publish_release-next": "npm version prerelease && git add * && git commit -m 'publish-a-next-version' && npm publish --tag next && git push origin dev",
+    "check_prettier": "prettier --check ./src && prettier --check ./tests && prettier --check ./benchmarks",
     "prettier_sources": "prettier --write ./src && prettier --write ./tests && prettier --write ./benchmarks"
   },
   "repository": {

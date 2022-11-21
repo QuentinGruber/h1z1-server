@@ -11,18 +11,42 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 16.14.2
+      - name: Use Node.js 18.12.1
         uses: actions/setup-node@v2
         with:
-          node-version: 16.14.2
+          node-version: 18.12.1
       - run: npm i
       - run: npm run lint-quiet
+  prettier:
+    name: prettier
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 18.12.1
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18.12.1
+      - run: npm i
+      - run: npm run check_prettier
+  interfaces-up-to-date:
+    name: interfaces-up-to-date
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Use Node.js 18.12.1
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18.12.1
+      - run: npm i
+      - run: npm run gen-packets-types
+      - run: npm run gen-packets-interfaces
+      - run: git diff --exit-code
   test-npm-pack-linux:
     name: npm-pack-linux
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        node-version: [16.x, 18.x]
+        node-version: [18.x, 19.x]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -38,7 +62,7 @@ jobs:
      FORCE_REDUCE_CPU_USAGE: "true"
     strategy:
       matrix:
-        node-version: [16.14.2, 16.x, 18.x]
+        node-version: [18.12.1, 18.x, 19.x]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -57,7 +81,7 @@ jobs:
      FORCE_REDUCE_CPU_USAGE: "true"
     strategy:
       matrix:
-        node-version: [16.14.2, 16.x, 18.x]
+        node-version: [18.12.1, 18.x, 19.x]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -73,7 +97,7 @@ jobs:
      FORCE_REDUCE_CPU_USAGE: "true"
     strategy:
       matrix:
-        node-version: [16.14.2, 16.x, 18.x]
+        node-version: [18.12.1, 18.x, 19.x]
     steps:
       - uses: actions/checkout@v2
       - name: Use Node.js ${{ matrix.node-version }}
@@ -87,13 +111,13 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Use Node.js 16.14.2
+      - name: Use Node.js 18.12.1
         uses: actions/setup-node@v2
         with:
-          node-version: 16.14.2
+          node-version: 18.12.1
       - run: npm i --production
-      - run: npm i -g pkg@5.6.0
-      - run: pkg --compress GZip -t node16-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-${{ github.ref }}.exe
-      - run: pkg --compress GZip -t node16-win-x64 ./bin/2016/h1emuServer.js --output ./bin/h1emuServer-2016-${{ github.ref }}.exe
-      - run: ./bin/h1emuServer-${{ github.ref }}.exe --test
+      - run: npm i -g pkg@5.8.0
+      - run: pkg --compress GZip -t node18-win-x64 ./bin/2015/h1emuServer.js --output ./bin/h1emuServer-2015-${{ github.ref }}.exe
+      - run: pkg --compress GZip -t node18-win-x64 ./bin/2016/h1emuServer.js --output ./bin/h1emuServer-2016-${{ github.ref }}.exe
+      - run: ./bin/h1emuServer-2015-${{ github.ref }}.exe --test
       - run: ./bin/h1emuServer-2016-${{ github.ref }}.exe --test

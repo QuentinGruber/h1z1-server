@@ -22,33 +22,31 @@ const debug = require("debug")("GatewayServer");
 export class GatewayServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: GatewayProtocol;
-  private _compression: number;
   private _crcSeed: number;
   private _crcLength: crc_length_options;
   private _udpLength: number;
 
-  constructor(
-    protocolName: string,
-    serverPort: number,
-    gatewayKey: Uint8Array
-  ) {
+  constructor(serverPort: number, gatewayKey: Uint8Array) {
     super();
-    this._compression = 0x0100;
     this._crcSeed = 0;
     this._crcLength = 0;
     this._udpLength = 512;
 
-    this._soeServer = new SOEServer(protocolName, serverPort, gatewayKey);
+    this._soeServer = new SOEServer(serverPort, gatewayKey);
     this._soeServer._useEncryption = false; // communication is encrypted only after loginRequest
     this._protocol = new GatewayProtocol();
-    this._soeServer.on("disconnect", (err: string, client: SOEClient) => {
+    this._soeServer.on("disconnect", (client: SOEClient) => {
       debug("Client disconnected from " + client.address + ":" + client.port);
-      this.emit("disconnect", err, client);
+      this.emit("disconnect", client);
     });
 
     this._soeServer.on(
       "appdata",
-      (err: string, client: SOEClient, data: Buffer) => {
+      (client: SOEClient, data: Buffer, isRawData: boolean) => {
+        if (isRawData) {
+          this.emit("tunneldata", client, data, 0);
+          return;
+        }
         const packet = this._protocol.parse(data);
         if (packet) {
           const result = packet.result;
@@ -64,7 +62,6 @@ export class GatewayServer extends EventEmitter {
                 }
                 this.emit(
                   "login",
-                  null,
                   client,
                   result.characterId,
                   result.ticket,
@@ -74,17 +71,11 @@ export class GatewayServer extends EventEmitter {
               break;
             case "Logout":
               debug("Logout gateway");
-              this.emit("disconnect", err, client);
+              this.emit("disconnect", client);
               break;
             case "TunnelPacketFromExternalConnection":
               debug("TunnelPacketFromExternalConnection");
-              this.emit(
-                "tunneldata",
-                null,
-                client,
-                packet.tunnelData,
-                packet.flags
-              );
+              this.emit("tunneldata", client, packet.tunnelData, packet.flags);
               break;
           }
         } else {
