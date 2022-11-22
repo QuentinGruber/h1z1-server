@@ -11,6 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { ZoneServer2016 } from "../zoneserver";
+import { ZoneClient2016 } from "./zoneclient";
+
 function getRenderDistance(actorModelId: number) {
   let range: number = 0;
   switch (actorModelId) {
@@ -71,5 +74,13 @@ export class BaseEntity {
       rotation: rotation,
     };
     this.npcRenderDistance = getRenderDistance(actorModelId);
+  }
+
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    // default: do nothing
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    // default: do nothing
   }
 }

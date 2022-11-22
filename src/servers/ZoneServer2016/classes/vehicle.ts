@@ -15,6 +15,8 @@ import { createPositionUpdate } from "../../../utils/utils";
 import { Items, LoadoutIds, ResourceIds, VehicleIds } from "../models/enums";
 import { /*positionUpdate,*/ passengers } from "../../../types/zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
+import { ZoneClient2016 } from "./zoneclient";
+import { ZoneServer2016 } from "../zoneserver";
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {
@@ -263,6 +265,21 @@ export class Vehicle2016 extends BaseFullCharacter {
         return Items.VEHICLE_MOTOR_ATV;
       default:
         return 0;
+    }
+  }
+
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    !client.vehicle.mountedVehicle
+      ? server.mountVehicle(client, this.characterId)
+      : server.dismountVehicle(client);
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (!client.vehicle.mountedVehicle) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: 15,
+      });
     }
   }
 }

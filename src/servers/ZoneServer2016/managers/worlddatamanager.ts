@@ -174,7 +174,10 @@ export class WorldDataManager {
 
   async loadCharacterData(server: ZoneServer2016, client: Client) {
     if (!server.hookManager.checkHook("OnLoadCharacterData", client)) return;
-    if (!(await server.hookManager.checkAsyncHook("OnLoadCharacterData", client))) return;
+    if (
+      !(await server.hookManager.checkAsyncHook("OnLoadCharacterData", client))
+    )
+      return;
 
     let savedCharacter: FullCharacterSaveData;
     if (server._soloMode) {

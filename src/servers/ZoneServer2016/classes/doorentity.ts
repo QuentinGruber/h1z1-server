@@ -12,7 +12,9 @@
 // ======================================================================
 
 import { eul2quat } from "../../../utils/utils";
+import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
+import { ZoneClient2016 } from "./zoneclient";
 
 function getDoorSound(actorModelId: number) {
   let openSound = 5048;
@@ -136,5 +138,47 @@ export class DoorEntity extends BaseLightweightCharacter {
     const { openSound, closeSound } = getDoorSound(this.actorModelId);
     this.openSound = openSound;
     this.closeSound = closeSound;
+  }
+
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.moving) {
+      return;
+    }
+    this.moving = true;
+    const door = this; // for setTimeout callback
+    setTimeout(function () {
+      door.moving = false;
+    }, 1000);
+    server.sendDataToAllWithSpawnedEntity(
+      server._doors,
+      this.characterId,
+      "PlayerUpdatePosition",
+      {
+        transientId: this.transientId,
+        positionUpdate: {
+          sequenceTime: 0,
+          unknown3_int8: 0,
+          position: this.state.position,
+          orientation: this.isOpen ? this.closedAngle : this.openAngle,
+        },
+      }
+    );
+    server.sendDataToAllWithSpawnedEntity(
+      server._doors,
+      this.characterId,
+      "Command.PlayDialogEffect",
+      {
+        characterId: this.characterId,
+        effectId: this.isOpen ? this.closeSound : this.openSound,
+      }
+    );
+    this.isOpen = !this.isOpen;
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    server.sendData(client, "Command.InteractionString", {
+      guid: this.characterId,
+      stringId: 78,
+    });
   }
 }

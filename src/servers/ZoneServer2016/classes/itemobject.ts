@@ -12,7 +12,9 @@
 // ======================================================================
 
 import { inventoryItem } from "types/zoneserver";
+import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
+import { ZoneClient2016 } from "./zoneclient";
 
 export class ItemObject extends BaseLightweightCharacter {
   npcRenderDistance = 25;
@@ -56,5 +58,16 @@ export class ItemObject extends BaseLightweightCharacter {
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
     (this.spawnerId = spawnerId), (this.item = item);
+  }
+
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    server.pickupItem(client, this.characterId);
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {
+    server.sendData(client, "Command.InteractionString", {
+      guid: this.characterId,
+      stringId: 29,
+    });
   }
 }
