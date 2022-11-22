@@ -328,4 +328,11 @@ export class Character2016 extends BaseFullCharacter {
       delete this.onReadyCallback;
     }
   }
+
+  resetMetrics() {
+    this.metrics.zombiesKilled = 0;
+    this.metrics.wildlifeKilled = 0;
+    this.metrics.recipesDiscovered = 0;
+    this.metrics.startedSurvivingTP = Date.now();
+  }
 }

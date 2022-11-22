@@ -1631,19 +1631,12 @@ export class ZoneServer2016 extends EventEmitter {
     }, 1000);
   }
 
-  resetCharacterMetrics(client: Client) {
-    client.character.metrics.zombiesKilled = 0;
-    client.character.metrics.wildlifeKilled = 0;
-    client.character.metrics.recipesDiscovered = 0;
-    client.character.metrics.startedSurvivingTP = Date.now();
-  }
-
   async respawnPlayer(client: Client) {
     if (!this.hookManager.checkHook("OnPlayerRespawn", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnPlayerRespawn", client)))
       return;
 
-    this.resetCharacterMetrics(client);
+    client.character.resetMetrics();
     client.character.isAlive = true;
     client.character.isRunning = false;
     client.character.isRespawning = false;
