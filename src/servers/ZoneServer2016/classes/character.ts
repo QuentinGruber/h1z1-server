@@ -16,6 +16,7 @@ import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { DamageRecord, positionUpdate } from "../../../types/zoneserver";
+const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
   invincibility?: boolean;
@@ -279,5 +280,52 @@ export class Character2016 extends BaseFullCharacter {
         characterName: this.name,
       },
     };
+  }
+
+  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
+    server.sendData(client, "LightweightToFullPc", {
+      useCompression: false,
+      fullPcData: {
+        transientId: this.transientId,
+        attachmentData: this.pGetAttachmentSlots(),
+        headActor: this.headActor,
+        hairModel: this.hairModel,
+        resources: { data: this.pGetResources() },
+        remoteWeapons: { data: server.pGetRemoteWeaponsData(this) },
+      },
+      positionUpdate: {
+        ...this.positionUpdate,
+        sequenceTime: server.getGameTime(),
+      },
+      stats: stats.map((stat: any) => {
+        return stat.statData;
+      }),
+      remoteWeaponsExtra: server.pGetRemoteWeaponsExtraData(this),
+    });
+
+    // needed so all weapons replicate reload and projectile impact
+    Object.values(this._loadout).forEach((item, i) => {
+      if (!server.isWeapon(item.itemDefinitionId)) return;
+      server.sendRemoteWeaponUpdateData(
+        client,
+        this.transientId,
+        item.itemGuid,
+        "Update.SwitchFireMode",
+        {
+          firegroupIndex: 0,
+          firemodeIndex: 0,
+        }
+      );
+    });
+
+    server.sendData(client, "Character.WeaponStance", {
+      characterId: this.characterId,
+      stance: this.positionUpdate?.stance,
+    });
+
+    if (this.onReadyCallback) {
+      this.onReadyCallback(client);
+      delete this.onReadyCallback;
+    }
   }
 }

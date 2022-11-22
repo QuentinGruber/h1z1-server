@@ -1985,28 +1985,18 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   getEntity(entityKey: string): BaseEntity | undefined {
-    switch (true) {
-      case !!this._npcs[entityKey]:
-        return this._npcs[entityKey];
-      case !!this._vehicles[entityKey]:
-        return this._vehicles[entityKey];
-      case !!this._characters[entityKey]:
-        return this._characters[entityKey];
-      case !!this._spawnedItems[entityKey]:
-        return this._spawnedItems[entityKey];
-      case !!this._doors[entityKey]:
-        return this._doors[entityKey];
-      case !!this._explosives[entityKey]:
-        return this._explosives[entityKey];
-      case !!this._constructionFoundations[entityKey]:
-        return this._constructionFoundations[entityKey];
-      case !!this._constructionDoors[entityKey]:
-        return this._constructionDoors[entityKey];
-      case !!this._constructionSimple[entityKey]:
-        return this._constructionSimple[entityKey];
-      default:
-        return;
-    }
+    return (
+      this._npcs[entityKey] ||
+      this._vehicles[entityKey] ||
+      this._characters[entityKey] ||
+      this._spawnedItems[entityKey] ||
+      this._doors[entityKey] ||
+      this._explosives[entityKey] ||
+      this._constructionFoundations[entityKey] ||
+      this._constructionDoors[entityKey] ||
+      this._constructionSimple[entityKey] ||
+      undefined
+    );
   }
 
   damageItem(client: Client, item: loadoutItem, damage: number) {

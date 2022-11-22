@@ -18,6 +18,7 @@ import {
   inventoryItem,
 } from "../../../types/zoneserver";
 import { ResourceIds, ResourceTypes } from "../models/enums";
+import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "./zoneclient";
 
@@ -372,5 +373,11 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         },
       };
     });
+  }
+
+  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
+    console.log(
+      `[ERROR] Unhandled FullCharacterDataRequest from client ${client.guid}!`
+    );
   }
 }

@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
+import { ZoneClient2016 } from "./zoneclient";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -55,5 +57,14 @@ export class Npc extends BaseFullCharacter {
     super(characterId, transientId, actorModelId, position, rotation);
     this.spawnerId = spawnerId;
     this.health = 10000;
+  }
+
+  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
+    server.sendData(client, "LightweightToFullNpc", this.pGetFull());
+
+    if (this.onReadyCallback) {
+      this.onReadyCallback(client);
+      delete this.onReadyCallback;
+    }
   }
 }

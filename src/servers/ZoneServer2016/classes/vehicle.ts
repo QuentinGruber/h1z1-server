@@ -282,4 +282,60 @@ export class Vehicle2016 extends BaseFullCharacter {
       });
     }
   }
+
+  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
+    if (
+      this.vehicleId == VehicleIds.SPECTATE ||
+      this.vehicleId == VehicleIds.PARACHUTE
+    )
+      return;
+    server.sendData(client, "LightweightToFullVehicle", this.pGetFullVehicle());
+    server.updateLoadout(this);
+    // prevents cars from spawning in under the map for other characters
+    /*
+    server.sendData(client, "PlayerUpdatePosition", {
+      transientId: vehicle.transientId,
+      positionUpdate: vehicle.positionUpdate,
+    });
+    */
+    server.sendData(client, "ResourceEvent", {
+      eventData: {
+        type: 1,
+        value: {
+          characterId: this.characterId,
+          characterResources: this.pGetResources(),
+        },
+      },
+    });
+    for (const a in this.seats) {
+      const seatId = this.getCharacterSeat(this.seats[a]);
+      if (!this.seats[a]) continue;
+      server.sendData(client, "Mount.MountResponse", {
+        // mounts character
+        characterId: this.seats[a],
+        vehicleGuid: this.characterId, // vehicle guid
+        seatId: seatId,
+        unknownDword3: seatId === "0" ? 1 : 0, //isDriver
+        identity: {},
+      });
+    }
+
+    if (this.destroyedEffect != 0) {
+      server.sendData(client, "Command.PlayDialogEffect", {
+        characterId: this.characterId,
+        effectId: this.destroyedEffect,
+      });
+    }
+    if (this.engineOn) {
+      server.sendData(client, "Vehicle.Engine", {
+        guid2: this.characterId,
+        engineOn: true,
+      });
+    }
+
+    if (this.onReadyCallback) {
+      this.onReadyCallback(client);
+      delete this.onReadyCallback;
+    }
+  }
 }

@@ -30,29 +30,16 @@ import {
 
 import { CraftManager } from "./managers/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
-import { Character2016 } from "./classes/character";
-import { Vehicle2016 } from "./classes/vehicle";
-import {
-  ContainerErrors,
-  EntityTypes,
-  Items,
-  VehicleIds,
-} from "./models/enums";
+import { ContainerErrors, EntityTypes, Items } from "./models/enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
-import { DoorEntity } from "./classes/doorentity";
-import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
-import { Npc } from "./classes/npc";
 import { ConstructionParentEntity } from "./classes/constructionParentEntity";
 import { constructionDoor } from "./classes/constructionDoor";
-import { TemporaryEntity } from "./classes/temporaryentity";
 import { AVG_PING_SECS } from "../../utils/constants";
 import { CommandHandler } from "./commands/commandhandler";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
-import { BaseEntity } from "./classes/baseentity";
 
-const stats = require("../../../data/2016/sampleData/stats.json");
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
   constructor() {
@@ -608,124 +595,16 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
-    const { characterId } = packet.data,
-      entityData: BaseFullCharacter =
-        server._npcs[characterId] ||
-        server._vehicles[characterId] ||
-        server._characters[characterId] ||
-        0,
-      entityType = server.getEntityType(characterId);
+    const entity = server.getEntity(packet.data.characterId);
 
-    if (!entityType) return;
-    switch (entityType) {
-      case EntityTypes.NPC: // npcs
-        const npc = entityData as Npc;
-        server.sendData(client, "LightweightToFullNpc", npc.pGetFull());
-        break;
-      case EntityTypes.VEHICLE: // vehicles
-        const vehicle = entityData as Vehicle2016;
-        if (
-          vehicle.vehicleId == VehicleIds.SPECTATE ||
-          vehicle.vehicleId == VehicleIds.PARACHUTE
-        )
-          return;
-        server.sendData(
-          client,
-          "LightweightToFullVehicle",
-          vehicle.pGetFullVehicle()
-        );
-        server.updateLoadout(vehicle);
-        // prevents cars from spawning in under the map for other characters
-        /*
-        server.sendData(client, "PlayerUpdatePosition", {
-          transientId: vehicle.transientId,
-          positionUpdate: vehicle.positionUpdate,
-        });
-        */
-        server.sendData(client, "ResourceEvent", {
-          eventData: {
-            type: 1,
-            value: {
-              characterId: vehicle.characterId,
-              characterResources: vehicle.pGetResources(),
-            },
-          },
-        });
-        for (const a in vehicle.seats) {
-          const seatId = vehicle.getCharacterSeat(vehicle.seats[a]);
-          if (!vehicle.seats[a]) continue;
-          server.sendData(client, "Mount.MountResponse", {
-            // mounts character
-            characterId: vehicle.seats[a],
-            vehicleGuid: vehicle.characterId, // vehicle guid
-            seatId: seatId,
-            unknownDword3: seatId === "0" ? 1 : 0, //isDriver
-            identity: {},
-          });
-        }
-
-        if (vehicle.destroyedEffect != 0) {
-          server.sendData(client, "Command.PlayDialogEffect", {
-            characterId: vehicle.characterId,
-            effectId: vehicle.destroyedEffect,
-          });
-        }
-        if (vehicle.engineOn) {
-          server.sendData(client, "Vehicle.Engine", {
-            guid2: vehicle.characterId,
-            engineOn: true,
-          });
-        }
-        break;
-      case EntityTypes.PLAYER: // characters
-        const character = entityData as Character2016;
-        server.sendData(client, "LightweightToFullPc", {
-          useCompression: false,
-          fullPcData: {
-            transientId: character.transientId,
-            attachmentData: character.pGetAttachmentSlots(),
-            headActor: character.headActor,
-            hairModel: character.hairModel,
-            resources: { data: character.pGetResources() },
-            remoteWeapons: { data: server.pGetRemoteWeaponsData(character) },
-          },
-          positionUpdate: {
-            ...character.positionUpdate,
-            sequenceTime: server.getGameTime(),
-          },
-          stats: stats.map((stat: any) => {
-            return stat.statData;
-          }),
-          remoteWeaponsExtra: server.pGetRemoteWeaponsExtraData(character),
-        });
-
-        // needed so all weapons replicate reload and projectile impact
-        Object.values(character._loadout).forEach((item, i) => {
-          if (!server.isWeapon(item.itemDefinitionId)) return;
-          server.sendRemoteWeaponUpdateData(
-            client,
-            character.transientId,
-            item.itemGuid,
-            "Update.SwitchFireMode",
-            {
-              firegroupIndex: 0,
-              firemodeIndex: 0,
-            }
-          );
-        });
-
-        server.sendData(client, "Character.WeaponStance", {
-          characterId: character.characterId,
-          stance: character.positionUpdate?.stance,
-        });
-        break;
-      default:
-        break;
+    if (!(entity instanceof BaseFullCharacter)) {
+      console.error(
+        `Client: ${client.guid} tried to request FullCharacterData from invalid FullCharacter with characterId: ${packet.data.characterId}!`
+      );
+      return;
     }
-    if (entityData.onReadyCallback) {
-      entityData.onReadyCallback(client);
-      delete entityData.onReadyCallback;
-    }
+
+    entity.OnFullCharacterDataRequest(server, client);
   }
   CommandPlayerSelect(server: ZoneServer2016, client: Client, packet: any) {
     const entity = server.getEntity(packet.data.guid);
@@ -740,6 +619,7 @@ export class zonePacketHandlers {
       )
     )
       return;
+
     entity.OnPlayerSelect(server, client);
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
