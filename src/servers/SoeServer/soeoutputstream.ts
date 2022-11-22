@@ -68,13 +68,7 @@ export class SOEOutputStream extends EventEmitter {
         const fragmentData = data.slice(i, i + this._fragmentSize);
         this.addToCache(this._sequence.get(), fragmentData, true);
 
-        this.emit(
-          "data",
-          fragmentData,
-          this._sequence.get(),
-          true,
-          unbuffered
-        );
+        this.emit("data", fragmentData, this._sequence.get(), true, unbuffered);
       }
     }
   }
