@@ -338,4 +338,12 @@ export class Vehicle2016 extends BaseFullCharacter {
       delete this.onReadyCallback;
     }
   }
+
+  OnProjectileHit(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    damage: number
+  ) {
+    server.damageVehicle(damage, this);
+  }
 }

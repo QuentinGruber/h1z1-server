@@ -83,4 +83,12 @@ export class BaseEntity {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     // default: do nothing
   }
+
+  OnProjectileHit(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    damage: number
+  ) {
+    // default: do nothing
+  }
 }

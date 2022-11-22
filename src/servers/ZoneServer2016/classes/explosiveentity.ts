@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
+import { ZoneClient2016 } from "./zoneclient";
 
 export class ExplosiveEntity extends BaseLightweightCharacter {
   isIED = false;
@@ -27,5 +29,13 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
     this.isIED = isIED;
+  }
+
+  OnProjectileHit(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    damage: number
+  ) {
+    server.detonateExplosive(this);
   }
 }

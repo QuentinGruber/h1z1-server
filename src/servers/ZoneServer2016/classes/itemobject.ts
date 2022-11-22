@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { inventoryItem } from "types/zoneserver";
+import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "./zoneclient";
@@ -69,5 +70,20 @@ export class ItemObject extends BaseLightweightCharacter {
       guid: this.characterId,
       stringId: 29,
     });
+  }
+
+  OnProjectileHit(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    damage: number
+  ) {
+    if (
+      this.item.itemDefinitionId === Items.FUEL_BIOFUEL ||
+      this.item.itemDefinitionId === Items.FUEL_ETHANOL
+    ) {
+      server.deleteEntity(this.characterId, server._spawnedItems);
+      delete server.worldObjectManager._spawnedLootObjects[this.spawnerId];
+      server.detonateExplosive(server._explosives[this.characterId]);
+    }
   }
 }

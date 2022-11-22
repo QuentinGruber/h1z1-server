@@ -995,7 +995,7 @@ export class zonePacketHandlers {
                           explosive.state.position
                         ) < 0.6
                       ) {
-                        server.explodeExplosive(explosive);
+                        server.detonateExplosive(explosive);
                         return;
                       }
                     }
@@ -1006,7 +1006,7 @@ export class zonePacketHandlers {
                           explosive.state.position
                         ) < 2.2
                       ) {
-                        server.explodeExplosive(explosive);
+                        server.detonateExplosive(explosive);
                         return;
                       }
                     }

@@ -1218,7 +1218,7 @@ export class ZoneServer2016 extends EventEmitter {
               object.spawnerId
             ];
           }
-          this.explodeExplosive(explosiveObj);
+          this.detonateExplosive(explosiveObj);
         }
       }
     }
@@ -2099,95 +2099,49 @@ export class ZoneServer2016 extends EventEmitter {
   registerHit(client: Client, packet: any) {
     if (!client.character.isAlive) return;
     const characterId = packet.hitReport.characterId,
-      entityType = this.getEntityType(packet.hitReport.characterId);
-    let hitEntity;
+      entity = this.getEntity(characterId);
+    if (!entity) return;
     let damageEntity;
-    switch (entityType) {
-      case EntityTypes.NPC:
-        if (
-          !this._npcs[characterId] ||
-          this._npcs[characterId].flags.knockedOut
-        ) {
+
+    // TODO: Move this to OnProjectileHit in Character class
+    if (
+      this._characters[characterId] &&
+      !this._characters[characterId].characterStates.knockedOut
+    ) {
+      this.hitMissFairPlayCheck(client, true);
+      damageEntity = () => {
+        const c = this.getClientByCharId(characterId);
+        if (!c) {
           return;
         }
-        damageEntity = () => {
-          this.npcDamage(client, characterId, damage);
-        };
-        hitEntity = this._npcs[characterId];
-        break;
-      case EntityTypes.VEHICLE:
-        if (!this._vehicles[characterId]) {
-          return;
+        let causeBleed: boolean = true;
+        if (canStopBleed && this.hasArmor(c.character.characterId)) {
+          causeBleed = false;
         }
-        damageEntity = () => {
-          this.damageVehicle(damage, this._vehicles[characterId]);
-        };
-        hitEntity = this._vehicles[characterId];
-        break;
-      case EntityTypes.PLAYER:
-        if (
-          !this._characters[characterId] ||
-          this._characters[characterId].characterStates.knockedOut
-        ) {
-          return;
-        }
-        this.hitMissFairPlayCheck(client, true);
-        damageEntity = () => {
-          const c = this.getClientByCharId(characterId);
-          if (!c) {
-            return;
+        this.sendDataToAllWithSpawnedEntity(
+          this._characters,
+          c.character.characterId,
+          "Character.PlayWorldCompositeEffect",
+          {
+            characterId: c.character.characterId,
+            effectId: hitEffect,
+            position: [
+              packet.hitReport.position[0] + 0.1,
+              packet.hitReport.position[1],
+              packet.hitReport.position[2] + 0.1,
+              1,
+            ],
           }
-          let causeBleed: boolean = true;
-          if (canStopBleed && this.hasArmor(c.character.characterId)) {
-            causeBleed = false;
-          }
-          this.sendDataToAllWithSpawnedEntity(
-            this._characters,
-            c.character.characterId,
-            "Character.PlayWorldCompositeEffect",
-            {
-              characterId: c.character.characterId,
-              effectId: hitEffect,
-              position: [
-                packet.hitReport.position[0] + 0.1,
-                packet.hitReport.position[1],
-                packet.hitReport.position[2] + 0.1,
-                1,
-              ],
-            }
-          );
-          this.playerDamage(
-            c,
-            damage,
-            { client: client, hitReport: packet.hitReport },
-            causeBleed
-          );
-        };
-        hitEntity = this._characters[characterId];
-        break;
-      case EntityTypes.OBJECT:
-        if (this._spawnedItems[characterId]) {
-          if (
-            this._spawnedItems[characterId].item.itemDefinitionId ===
-              Items.FUEL_BIOFUEL ||
-            this._spawnedItems[characterId].item.itemDefinitionId ===
-              Items.FUEL_ETHANOL
-          ) {
-            const object = this._spawnedItems[characterId];
-            this.deleteEntity(characterId, this._spawnedItems);
-            delete this.worldObjectManager._spawnedLootObjects[
-              object.spawnerId
-            ];
-            this.explodeExplosive(this._explosives[characterId]);
-          }
-        }
-        return;
-      case EntityTypes.EXPLOSIVE:
-        this.explodeExplosive(this._explosives[characterId]);
-        return;
-      default:
-        return;
+        );
+        this.playerDamage(
+          c,
+          damage,
+          { client: client, hitReport: packet.hitReport },
+          causeBleed
+        );
+      };
     }
+
     let damage: number,
       isHeadshot = 0,
       canStopBleed = false,
@@ -2211,10 +2165,7 @@ export class ZoneServer2016 extends EventEmitter {
         isShotgun = true;
         damage = 1200; // 1 pellet (was 1667)
         damage = calculateDamageDistFallOff(
-          getDistance(
-            client.character.state.position,
-            hitEntity.state.position
-          ),
+          getDistance(client.character.state.position, entity.state.position),
           damage,
           0.5
         );
@@ -2267,7 +2218,11 @@ export class ZoneServer2016 extends EventEmitter {
         },
       });
     }
-    damageEntity();
+
+    // TODO: Fix hitmarkers on dead entities again!
+
+    entity.OnProjectileHit(this, client, damage);
+    if (damageEntity) damageEntity();
   }
 
   playerDamage(
@@ -4291,7 +4246,7 @@ export class ZoneServer2016 extends EventEmitter {
             npc.state.position
           ) < 0.6
         ) {
-          this.explodeExplosive(npc);
+          this.detonateExplosive(npc);
           return;
         }
       }
@@ -4300,7 +4255,7 @@ export class ZoneServer2016 extends EventEmitter {
           getDistance(this._vehicles[a].state.position, npc.state.position) <
           2.2
         ) {
-          this.explodeExplosive(npc);
+          this.detonateExplosive(npc);
           return;
         }
       }
@@ -6614,11 +6569,11 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     setTimeout(() => {
-      this.explodeExplosive(IED, client);
+      this.detonateExplosive(IED, client);
     }, 10000);
   }
 
-  explodeExplosive(explosive: ExplosiveEntity, client?: Client) {
+  detonateExplosive(explosive: ExplosiveEntity, client?: Client) {
     if (!this._explosives[explosive.characterId]) {
       return;
     }
