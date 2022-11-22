@@ -2,7 +2,7 @@ FROM node:16-alpine
 LABEL maintainer="quentingruber@gmail.com"
 WORKDIR /usr/src/app
 COPY . .
-RUN npm i --production
+RUN npm i --omit=dev
 ENV NODE_ENV="production"
 # Login server port
 EXPOSE 1115/udp
