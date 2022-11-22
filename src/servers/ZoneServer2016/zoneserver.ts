@@ -5846,37 +5846,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
     //endregion
 
-    /*
-    let container: loadoutContainer | undefined = undefined;
-    Object.values(client.character._containers).forEach((c)=> {
-      if(!container || this.getAvailableBulk(c) > this.getAvailableBulk(container)) {
-        container = c;
-      }
-    })
-
-  if(
-    (container && this.getContainerHasSpace(container,  item.itemDefinitionId, item.stackCount)) 
-    || item.stackCount == 1 // loadout items / items that are too big to fit in any container
-  ) {
-      this.lootItem(client, item);
-    }
-    else {
-      if(container) {
-        const availableSpace = this.getAvailableBulk(container),
-        itemBulk = this.getItemDefinition(item.itemDefinitionId).BULK,
-        lootCount = Math.floor(availableSpace / itemBulk);
-        item.stackCount -= lootCount;
-        this.lootItem(client, this.generateItem(item.itemDefinitionId, lootCount));
-      }
-      else { // if no containers are equipped
-        this.sendData(client, "Character.NoSpaceNotification", {
-          characterId: client.character.characterId,
-        });
-      }
-      return;
-    }
-    */
-
     this.lootItem(client, item);
 
     if (
