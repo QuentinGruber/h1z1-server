@@ -22,8 +22,13 @@ interface Message {
   data: { packetData: Buffer; port: number; address: string };
 }
 
+export interface UdpServerWorkerData {
+  serverPort: number;
+  disableAntiDdos: boolean;
+}
 if (workerData) {
   const { serverPort } = workerData;
+  const remoteRate = workerData.disableAntiDdos ? Infinity : 1000;
   const connection = dgram.createSocket("udp4");
 
   connection.once("listening", () => {
@@ -46,7 +51,7 @@ if (workerData) {
   connection.on("message", (data, remote) => {
     if (remotesRate[remote.address]) {
       remotesRate[remote.address]++;
-      if (remotesRate[remote.address] > 1000) {
+      if (remotesRate[remote.address] > remoteRate) {
         return;
       }
     } else {

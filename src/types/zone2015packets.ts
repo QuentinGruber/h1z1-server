@@ -16,8 +16,8 @@ export interface TargetClientNotOnline {
 export interface ClientBeginZoning {
   zoneName?: string;
   zoneType?: number;
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
   skyData? :{
   unknownDword1?: number;
   name?: string;
@@ -349,8 +349,8 @@ export interface CombatUpdateGrappling {
 export interface PlayerUpdateKnockback {
   characterId?: string;
   unk?: number;
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
   unk2?: number;
 }
 export interface PlayerUpdatePlayAnimation {
@@ -365,7 +365,7 @@ export interface PlayerUpdateNpcRelevance {
 }
 export interface PlayerUpdateUpdateScale {
   characterId?: string;
-  scale?: number[];
+  scale?: Float32Array;
 }
 export interface PlayerUpdateUpdateTemporaryAppearance {
   modelId?: number;
@@ -415,8 +415,8 @@ export interface PlayerUpdateSetDisposition {
 }
 export interface PlayerUpdateLootEvent {
   characterId?: string;
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
   modelFileName?: string;
 }
 export interface PlayerUpdateSlotCompositeEffectOverride {
@@ -477,7 +477,7 @@ export interface PlayerUpdateMoveOnRail {
   characterId?: string;
   unknown4?: number;
   unknown5?: number;
-  position?: number[];
+  position?: Float32Array;
 }
 export interface PlayerUpdateClearMovementRail {
   characterId?: string;
@@ -489,7 +489,7 @@ export interface PlayerUpdateMoveOnRelativeRail {
   unknown6?: number;
   unknown7?: number;
   unknown8?: number;
-  unknownVector1?: number[];
+  unknownVector1?: Float32Array;
 }
 export interface PlayerUpdateDestroyed {
   characterId?: string;
@@ -506,7 +506,7 @@ export interface PlayerUpdateSeekTarget {
   speed?: number;
   unknown8?: number;
   yRot?: number;
-  rotation?: number[];
+  rotation?: Float32Array;
 }
 export interface PlayerUpdateSeekTargetUpdate {
   characterId?: string;
@@ -523,12 +523,12 @@ export interface PlayerUpdateLaunchProjectile {
   unknownDword2?: number;
   unknownWord3?: boolean;
   unknownWord4?: boolean;
-  unknownVector1?: number[];
-  unknownVector2?: number[];
-  unknownVector3?: number[];
-  unknownVector4?: number[];
+  unknownVector1?: Float32Array;
+  unknownVector2?: Float32Array;
+  unknownVector3?: Float32Array;
+  unknownVector4?: Float32Array;
   unkstring?: string;
-  unknownVector5?: number[];
+  unknownVector5?: Float32Array;
   unknownDword6?: number;
   unknownDword7?: number;
   unknownDword8?: number;
@@ -571,7 +571,7 @@ export interface PlayerUpdateLaunchProjectile {
   unknownDword43?: number;
   unknownDword44?: number;
   unknownDword45?: number;
-  unknownVector6?: number[];
+  unknownVector6?: Float32Array;
   unknownDword46?: number;
   unknownDword47?: number;
   unknownDword48?: number;
@@ -653,7 +653,7 @@ export interface PlayerUpdateKnockedOut {
   unknownDword6?: number;
   unknownDword7?: number;
   unknownDword8?: number;
-  unknownVector1?: number[];
+  unknownVector1?: Float32Array;
   unknownDword9?: number;
   unknownDword10?: number;
   unknownDword11?: number;
@@ -723,7 +723,7 @@ export interface PlayerUpdateUpdateStat {
 }
 export interface PlayerUpdatePlayWorldCompositeEffect {
   soundId?: number;
-  position?: number[];
+  position?: Float32Array;
   unk3?: number;
 }
 export interface PlayerUpdateAddLightweightPc {
@@ -737,8 +737,8 @@ export interface PlayerUpdateAddLightweightPc {
   unknownByte3?: number;
   modelId?: number;
   unknownDword5?: number;
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
   unknownFloat1?: number;
   unknownGuid1?: string;
   unknownDword6?: number;
@@ -758,13 +758,13 @@ export interface PlayerUpdateAddLightweightNpc {
   facilityId?: number;
   factionId?: number;
   modelId?: number;
-  scale?: number[];
+  scale?: Float32Array;
   texture?: string;
   string13?: string;
   unknown14?: number;
-  position?: number[];
-  rotation?: number[];
-  unknownVector?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
+  unknownVector?: Float32Array;
   unknown18?: number;
   unknown19?: number;
   extraModel?: string;
@@ -801,13 +801,13 @@ export interface PlayerUpdateAddLightweightVehicle {
   facilityId?: number;
   factionId?: number;
   modelId?: number;
-  scale?: number[];
+  scale?: Float32Array;
   texture?: string;
   string13?: string;
   unknown14?: number;
-  position?: number[];
-  rotation?: number[];
-  unknownVector?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
+  unknownVector?: Float32Array;
   unknown18?: number;
   unknown19?: number;
   extraModel?: string;
@@ -844,8 +844,8 @@ export interface PlayerUpdateAddProxiedObject {
   characterId?: string;
   transientId: any;
   unknown5?: number;
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
   unknown6?: number;
   NetworkObjectComponent: any[];
 }
@@ -900,8 +900,8 @@ export interface PlayerUpdateLightweightToFullNpc {
   unknownDword4?: number;
   unknownFloat1?: number;
   unknownDword5?: number;
-  unknownVector1?: number[];
-  unknownVector2?: number[];
+  unknownVector1?: Float32Array;
+  unknownVector2?: Float32Array;
   unknownFloat2?: number;
   unknownDword6?: number;
   unknownDword7?: number;
@@ -912,7 +912,7 @@ export interface PlayerUpdateLightweightToFullNpc {
   unknownString4?: string;
   unknownDword10?: number;
   unknownString5?: string;
-  unknownVector3?: number[];
+  unknownVector3?: Float32Array;
   unknownDword11?: number;
   unknownDword12?: number;
   unknownDword13?: number;
@@ -921,7 +921,7 @@ export interface PlayerUpdateLightweightToFullNpc {
   characterVariables?: any[];
   unknownDword14?: number;
   unknownFloat4?: number;
-  unknownVector5?: number[];
+  unknownVector5?: Float32Array;
   unknownDword15?: number;
   unknownFloat5?: number;
   unknownFloat6?: number;
@@ -960,8 +960,8 @@ export interface PlayerUpdateLightweightToFullVehicle {
   unknownDword4?: number;
   unknownFloat1?: number;
   unknownDword5?: number;
-  unknownVector1?: number[];
-  unknownVector2?: number[];
+  unknownVector1?: Float32Array;
+  unknownVector2?: Float32Array;
   unknownFloat2?: number;
   unknownDword6?: number;
   unknownDword7?: number;
@@ -972,7 +972,7 @@ export interface PlayerUpdateLightweightToFullVehicle {
   unknownString4?: string;
   unknownDword10?: number;
   unknownString5?: string;
-  unknownVector3?: number[];
+  unknownVector3?: Float32Array;
   unknownDword11?: number;
   unknownDword12?: number;
   unknownDword13?: number;
@@ -981,7 +981,7 @@ export interface PlayerUpdateLightweightToFullVehicle {
   characterVariables?: any[];
   unknownDword14?: number;
   unknownFloat4?: number;
-  unknownVector5?: number[];
+  unknownVector5?: Float32Array;
   unknownDword15?: number;
   unknownFloat5?: number;
   unknownFloat6?: number;
@@ -1012,8 +1012,8 @@ export interface PlayerUpdateLightweightToFullVehicle {
   unknownDword1?: number;
   unknownArray1?: any[];
   unknownArray2?: any[];
-  unknownVector1?: number[];
-  unknownVector2?: number[];
+  unknownVector1?: Float32Array;
+  unknownVector2?: Float32Array;
   unknownByte3?: number;
   unknownArray3?: any[];
   unknownArray4?: any[];
@@ -1082,7 +1082,7 @@ export interface PlayerUpdateUpdateMutateRights {
   unknownBoolean1?: boolean;
 }
 export interface AbilityClientMoveAndCast {
-  position?: number[];
+  position?: Float32Array;
   unk1?: number;
   unk2?: number;
 }
@@ -1104,7 +1104,7 @@ export interface AbilityLaunch {
   unkGuid?: string;
   unk1?: number;
   weirdAskedByte?: number;
-  position?: number[];
+  position?: Float32Array;
   unkArray1?: any[];
   unk2?: number;
   unk3?: number;
@@ -1134,9 +1134,9 @@ export interface AbilityLand {
   unknown3?: bigint;
   unknown4?: number;
   weirdAskedByte?: number;
-  position?: number[];
+  position?: Float32Array;
   unknown7?: number;
-  position2?: number[];
+  position2?: Float32Array;
   unknown9?: number;
   unknown10?: number;
   unknown11?: number;
@@ -1150,7 +1150,7 @@ export interface AbilityStartChanneling {
   unknown5?: number;
   unknown6?: number;
   unknown7?: number;
-  position?: number[];
+  position?: Float32Array;
   unknown9?: number;
   unknown10?: number;
 }
@@ -1576,8 +1576,8 @@ export interface VehicleStateData {
 }
 export interface VehicleStateDamage {
   guid?: string;
-  unknownVector1?: number[];
-  unknownVector2?: number[];
+  unknownVector1?: Float32Array;
+  unknownVector2?: Float32Array;
 }
 export interface VehicleSpawn {
   vehicleId?: number;
@@ -1632,7 +1632,7 @@ export interface CollisionDamage {
   unknownDword1?: number;
   damage?: number;
   unknownDword2?: number;
-  position?: number[];
+  position?: Float32Array;
   unknownByte2?: number;
 }
 export interface EquipmentSetCharacterEquipment {
@@ -1705,7 +1705,7 @@ export interface EffectAddEffect {
   unknownData3? :{
   unknownQword1?: string;
   unknownQword2?: string;
-  unknownVector1?: number[];
+  unknownVector1?: Float32Array;
 }
 }
 export interface EffectUpdateEffect {
@@ -1721,7 +1721,7 @@ export interface EffectUpdateEffect {
   unknownData3? :{
   unknownQword1?: string;
   unknownQword2?: string;
-  unknownVector1?: number[];
+  unknownVector1?: Float32Array;
 }
 }
 export interface EffectRemoveEffect {
@@ -1736,7 +1736,7 @@ export interface EffectRemoveEffect {
   unknownData3? :{
   unknownQword1?: string;
   unknownQword2?: string;
-  unknownVector1?: number[];
+  unknownVector1?: Float32Array;
 }
 }
 export interface EffectAddEffectTag {
@@ -1752,7 +1752,7 @@ export interface EffectAddEffectTag {
   unknownData2? :{
   unknownGuid1?: string;
   unknownGuid2?: string;
-  unknownVector1?: number[];
+  unknownVector1?: Float32Array;
 }
   unknownData3? :{
   unknownDword1?: number;
@@ -1787,7 +1787,7 @@ export interface AbilitiesInitAbility {
   unknownSchema1? :{
   unknownQword3?: string;
   unknownQword4?: string;
-  unknownFloatVector1?: number[];
+  unknownFloatVector1?: Float32Array;
 }
   unknownWord1?: number;
   unknownArray6? :{
@@ -1852,8 +1852,8 @@ export interface ConstructionPlacementResponse {
   model?: number;
 }
 export interface ConstructionPlacementFinalizeRequest {
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
 }
 export interface ConstructionPlacementFinalizeResponse {
   status?: boolean;
@@ -1886,7 +1886,7 @@ export interface ChatChat {
   characterName2?: string;
   unknown6_3?: string;
   message?: string;
-  position?: number[];
+  position?: Float32Array;
   unknownGuid?: string;
   unknown13?: number;
   color1?: number;
@@ -1937,7 +1937,7 @@ export interface CommandPlayerSelect {
 export interface CommandFreeInteractionNpc {
 }
 export interface CommandMoveAndInteract {
-  position?: number[];
+  position?: Float32Array;
   guid?: string;
 }
 export interface CommandRecipeStart {
@@ -2007,7 +2007,7 @@ export interface CommandDeliveryManagerStatus {
 export interface CommandSpawnVehicle {
   vehicleId?: number;
   factionId?: number;
-  position?: number[];
+  position?: Float32Array;
   heading?: number;
   unknownDword1?: number;
   autoMount?: boolean;
@@ -2057,8 +2057,8 @@ export interface ClientUpdateCollectionRemoveEntry {
   unknownDword2?: number;
 }
 export interface ClientUpdateUpdateLocation {
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
   unknownBool1?: boolean;
   movementVersion?: number;
 }
@@ -2121,8 +2121,8 @@ export interface ClientUpdateModifyStrafeSpeed {
 }
 export interface ClientUpdateUpdateManagedLocation {
   characterId?: string;
-  position?: number[];
-  rotation?: number[];
+  position?: Float32Array;
+  rotation?: Float32Array;
   unk1?: number;
   unk2?: number;
 }
@@ -2136,7 +2136,7 @@ export interface ClientUpdateScreenEffect {
   unknown6?: boolean;
   unknown7?: number;
   unknown8?: number;
-  vector1?: number[];
+  vector1?: Float32Array;
 }
 export interface ClientUpdateMovementVersion {
   version?: number;
