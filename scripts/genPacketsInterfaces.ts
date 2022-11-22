@@ -23,13 +23,12 @@ const typeMap: Record<string, string> = {
   array8: "any[]",
   int64string: "string",
   uint64string: "string",
-  floatvector3: "number[]",
-  floatvector4: "number[]",
+  floatvector3: "Float32Array",
+  floatvector4: "Float32Array",
   byteswithlength: "any", // todo
   string: "string",
   boolean: "boolean",
 };
-
 function getSchemaBody(schema: any) {
   let bodyInterfaceString = "";
   schema.forEach((element: any) => {
