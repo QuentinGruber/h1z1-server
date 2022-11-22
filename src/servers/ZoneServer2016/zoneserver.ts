@@ -109,13 +109,8 @@ import {
   EquipmentSetCharacterEquipmentSlot,
   zone2016packets,
 } from "types/zone2016packets";
-import {
-  AsyncHooks,
-  AsyncHookType,
-  FunctionHookType,
-  Hooks,
-} from "./models/hooks";
 import { getCharacterModelData } from "../shared/functions";
+import { HookManager } from "./managers/hookmanager";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -219,6 +214,7 @@ export class ZoneServer2016 extends EventEmitter {
   weatherManager: WeatherManager;
   worldDataManager: WorldDataManager;
   plantingManager: PlantingManager;
+  hookManager: HookManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _weaponDefinitions: { [weaponDefinitionId: number]: any } =
@@ -237,12 +233,6 @@ export class ZoneServer2016 extends EventEmitter {
   lastItemGuid: bigint = 0x3000000000000000n;
   private readonly _transientIdGenerator = generateTransientId();
   _packetsStats: Record<string, number> = {};
-  private readonly _hooks: {
-    [hook: string]: Array<(...args: any) => FunctionHookType>;
-  } = {};
-  private readonly _asyncHooks: {
-    [hook: string]: Array<(...args: any) => AsyncHookType>;
-  } = {};
   enableWorldSaves: boolean;
   readonly worldSaveVersion: number = 1;
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
@@ -266,6 +256,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.weatherManager = new WeatherManager();
     this.worldDataManager = new WorldDataManager();
     this.plantingManager = new PlantingManager(null);
+    this.hookManager = new HookManager();
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
 
@@ -602,8 +593,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async sendCharacterData(client: Client) {
-    if (!this.checkHook("OnSendCharacterData", client)) return;
-    if (!(await this.checkAsyncHook("OnSendCharacterData", client))) return;
+    if (!this.hookManager.checkHook("OnSendCharacterData", client)) return;
+    if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client))) return;
 
     await this.worldDataManager.loadCharacterData(this, client);
     const containers = this.pGetContainers(client.character);
@@ -641,7 +632,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.initializeContainerList(client);
 
     this._characters[client.character.characterId] = client.character; // character will spawn on other player's screen(s) at this point
-    this.checkHook("OnSentCharacterData", client);
+    this.hookManager.checkHook("OnSentCharacterData", client);
   }
   /**
    * Caches item definitons so they aren't packed every time a client logs in.
@@ -791,8 +782,8 @@ export class ZoneServer2016 extends EventEmitter {
   async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
-    if (!this.checkHook("OnServerInit")) return;
-    if (!(await this.checkAsyncHook("OnServerInit"))) return;
+    if (!this.hookManager.checkHook("OnServerInit")) return;
+    if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
     this._startTime += Date.now();
@@ -816,7 +807,7 @@ export class ZoneServer2016 extends EventEmitter {
       () => this.worldRoutine.bind(this)(),
       this.tickRate
     );
-    this.checkHook("OnServerReady");
+    this.hookManager.checkHook("OnServerReady");
   }
 
   sendInitData(client: Client) {
@@ -934,7 +925,7 @@ export class ZoneServer2016 extends EventEmitter {
   private worldRoutine() {
     debug("WORLDROUTINE");
 
-    if (!this.checkHook("OnWorldRoutine")) return;
+    if (!this.hookManager.checkHook("OnWorldRoutine")) return;
     else {
       this.executeFuncForAllReadyClients((client: Client) => {
         this.vehicleManager(client);
@@ -1037,7 +1028,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     deathInfo: { client: Client; hitReport: any } | undefined = undefined
   ) {
-    if (!this.checkHook("OnPlayerDeath", client, deathInfo)) return;
+    if (!this.hookManager.checkHook("OnPlayerDeath", client, deathInfo)) return;
 
     const character = client.character;
     if (character.isAlive) {
@@ -1090,7 +1081,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.clearMovementModifiers(client);
     character.isAlive = false;
 
-    this.checkHook("OnPlayerDied", client, deathInfo);
+    this.hookManager.checkHook("OnPlayerDied", client, deathInfo);
   }
 
   async explosionDamage(
@@ -1621,8 +1612,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async respawnPlayer(client: Client) {
-    if (!this.checkHook("OnPlayerRespawn", client)) return;
-    if (!(await this.checkAsyncHook("OnPlayerRespawn", client))) return;
+    if (!this.hookManager.checkHook("OnPlayerRespawn", client)) return;
+    if (!(await this.hookManager.checkAsyncHook("OnPlayerRespawn", client))) return;
 
     this.resetCharacterMetrics(client);
     client.character.isAlive = true;
@@ -1731,7 +1722,7 @@ export class ZoneServer2016 extends EventEmitter {
       }, 2000);
     }
 
-    this.checkHook("OnPlayerRespawned", client);
+    this.hookManager.checkHook("OnPlayerRespawned", client);
   }
 
   speedTreeDestroy(packet: any) {
@@ -6979,70 +6970,6 @@ export class ZoneServer2016 extends EventEmitter {
       debug(`Client (${client.soeClientId}) disconnected ( ping timeout )`);
       this.deleteClient(client);
     }
-  }
-
-  /**
-   * Registers a new hook to be called when the corresponding checkHook() call is executed.
-   * @param hookName The name of the hook
-   * @param hook The function to be called when the hook is executed.
-   */
-  hook(hookName: Hooks, hook: (...args: any) => FunctionHookType) {
-    if (!this._hooks[hookName]) this._hooks[hookName] = [];
-    this._hooks[hookName].push(hook);
-    return;
-  }
-
-  /**
-   * Registers a new hook to be called when the corresponding checkAsyncHook() call is executed.
-   * @param hookName The name of the async hook.
-   * @param hook The function to be called when the hook is executed.
-   */
-  hookAsync(hookName: AsyncHooks, hook: (...args: any) => AsyncHookType) {
-    if (!this._asyncHooks[hookName]) this._asyncHooks[hookName] = [];
-    this._asyncHooks[hookName].push(hook);
-    return;
-  }
-
-  /**
-   * Calls all hooks currently registered and either halts or continues the
-   * function based on the return behavior of each hook.
-   * @param hookName The name of the async hook
-   * @param hook The function to be called when the hook is executed.
-   * @returns Returns the value of the first hook to return a boolean, or true.
-   */
-  checkHook(hookName: Hooks, ...args: any): boolean {
-    if (this._hooks[hookName]?.length > 0) {
-      for (const hook of this._hooks[hookName]) {
-        switch (hook.apply(this, args)) {
-          case true:
-            return true;
-          case false:
-            return false;
-        }
-      }
-    }
-    return true;
-  }
-
-  /**
-   * Calls all async hooks currently registered and either halts or continues the
-   * function based on the return behavior of each hook.
-   * @param hookName The name of the async hook.
-   * @param hook The function to be called when the hook is executed.
-   * @returns Returns the value of the first hook to return a boolean, or true.
-   */
-  async checkAsyncHook(hookName: Hooks, ...args: any): Promise<boolean> {
-    if (this._asyncHooks[hookName]?.length > 0) {
-      for (const hook of this._asyncHooks[hookName]) {
-        switch (await hook.apply(this, args)) {
-          case true:
-            return Promise.resolve(true);
-          case false:
-            return Promise.resolve(false);
-        }
-      }
-    }
-    return Promise.resolve(true);
   }
 
   toggleFog() {

@@ -111,7 +111,7 @@ export class zonePacketHandlers {
     server.sendData(client, "ZoneDoneSendingInitialData", {}); // Required for WaitForWorldReady
   }
   ClientFinishedLoading(server: ZoneServer2016, client: Client, packet: any) {
-    if (!server.checkHook("OnClientFinishedLoading", client)) return;
+    if (!server.hookManager.checkHook("OnClientFinishedLoading", client)) return;
 
     client.character.lastLoginDate = toHex(Date.now());
     server.tempGodMode(client, 15000);
@@ -321,15 +321,6 @@ export class zonePacketHandlers {
     });
   }
   CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: any) {
-    if (
-      !server.checkHook(
-        "OnClientExecuteCommand",
-        client,
-        packet.data.commandHash,
-        packet.data.arguments
-      )
-    )
-      return;
     this.commandHandler.executeCommand(server, client, packet);
   }
   CommandInteractRequest(server: ZoneServer2016, client: Client, packet: any) {

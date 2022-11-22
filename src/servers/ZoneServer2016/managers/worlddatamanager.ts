@@ -173,8 +173,8 @@ export class WorldDataManager {
   //#region CHARACTER DATA
 
   async loadCharacterData(server: ZoneServer2016, client: Client) {
-    if (!server.checkHook("OnLoadCharacterData", client)) return;
-    if (!(await server.checkAsyncHook("OnLoadCharacterData", client))) return;
+    if (!server.hookManager.checkHook("OnLoadCharacterData", client)) return;
+    if (!(await server.hookManager.checkAsyncHook("OnLoadCharacterData", client))) return;
 
     let savedCharacter: FullCharacterSaveData;
     if (server._soloMode) {
@@ -265,7 +265,7 @@ export class WorldDataManager {
       server.generateEquipmentFromLoadout(client.character);
     }
 
-    server.checkHook("OnLoadedCharacterData", client);
+    server.hookManager.checkHook("OnLoadedCharacterData", client);
   }
 
   async saveCharacterData(

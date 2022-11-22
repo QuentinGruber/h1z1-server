@@ -51,6 +51,16 @@ export class CommandHandler {
   }
 
   executeCommand(server: ZoneServer2016, client: Client, packet: any) {
+    if (
+      !server.hookManager.checkHook(
+        "OnClientExecuteCommand",
+        client,
+        packet.data.commandHash,
+        packet.data.arguments
+      )
+    ) {
+      return;
+    }
     const hash = packet.data.commandHash,
       args: string[] = packet.data.arguments.toLowerCase().split(" ");
     if (this.commands[hash]) {
@@ -83,6 +93,16 @@ export class CommandHandler {
     commandName: string,
     packet: any
   ) {
+    if (
+      !server.hookManager.checkHook(
+        "OnClientExecuteInternalCommand",
+        client,
+        packet.data.commandHash,
+        packet.data.arguments
+      )
+    ) {
+      return;
+    }
     if (this.internalCommands[commandName]) {
       const command = this.internalCommands[commandName];
       if (!this.clientHasCommandPermission(server, client, command)) {

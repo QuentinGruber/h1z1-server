@@ -8,6 +8,7 @@ export type Hooks =
   | AsyncHooks
   | "OnClientFinishedLoading"
   | "OnClientExecuteCommand"
+  | "OnClientExecuteInternalCommand"
   | "OnServerReady"
   | "OnWorldRoutine"
   | "OnSentCharacterData"
