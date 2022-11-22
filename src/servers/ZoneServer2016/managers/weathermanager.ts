@@ -31,7 +31,7 @@ export class WeatherManager {
     this.seasonstart();
   }
 
-  seasonstart () {
+  seasonstart() {
     if (!this.seasonStarted) {
       this.seasonStarted = true;
       this.chooseWeather();
@@ -142,7 +142,7 @@ export class WeatherManager {
     const currentDate = new Date((serverTime + delta) * timeMultiplier);
     const currentHour = currentDate.getUTCHours();
     const currentMonth = currentDate.getUTCMonth();
-  
+
     switch (
       currentMonth // switch seasons 1-12 months
     ) {
@@ -169,7 +169,7 @@ export class WeatherManager {
       default:
         break;
     }
-  
+
     switch (
       currentHour // switch for enabling weather effects based by in-game time
     ) {
@@ -253,7 +253,9 @@ export class WeatherManager {
     const weather = {
       name: "sky_Z_clouds.dds",
       unknownDword1: 1,
-      fogDensity: this.fogEnabled ? Number((this.fogValue / 40000).toFixed(5)) : 0,
+      fogDensity: this.fogEnabled
+        ? Number((this.fogValue / 40000).toFixed(5))
+        : 0,
       fogFloor: 71,
       fogGradient: 0.008,
       rain: 0, //broken

@@ -32,7 +32,12 @@ import { CraftManager } from "./managers/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { Character2016 } from "./classes/character";
 import { Vehicle2016 } from "./classes/vehicle";
-import { ContainerErrors, EntityTypes, Items, VehicleIds } from "./models/enums";
+import {
+  ContainerErrors,
+  EntityTypes,
+  Items,
+  VehicleIds,
+} from "./models/enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
 import { DoorEntity } from "./classes/doorentity";

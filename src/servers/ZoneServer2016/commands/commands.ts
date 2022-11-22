@@ -483,7 +483,9 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
       server.sendChatText(
         client,
-        `Fog has been toggled ${server.toggleFog() ? "ON" : "OFF"} for the server`,
+        `Fog has been toggled ${
+          server.toggleFog() ? "ON" : "OFF"
+        } for the server`,
         true
       );
     },
