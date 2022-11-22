@@ -1218,7 +1218,7 @@ export class ZoneServer2016 extends EventEmitter {
               object.spawnerId
             ];
           }
-          this.detonateExplosive(explosiveObj);
+          explosiveObj.detonate(this);
         }
       }
     }
@@ -1358,7 +1358,7 @@ export class ZoneServer2016 extends EventEmitter {
   sendBaseSecuredMessage(client: Client) {
     this.sendAlert(
       client,
-      "You must destroy the bases gate layer before affecting interior structures"
+      "You must destroy the base's gate before affecting interior structures."
     );
   }
 
@@ -4246,7 +4246,7 @@ export class ZoneServer2016 extends EventEmitter {
             npc.state.position
           ) < 0.6
         ) {
-          this.detonateExplosive(npc);
+          npc.detonate(this);
           return;
         }
       }
@@ -4255,7 +4255,7 @@ export class ZoneServer2016 extends EventEmitter {
           getDistance(this._vehicles[a].state.position, npc.state.position) <
           2.2
         ) {
-          this.detonateExplosive(npc);
+          npc.detonate(this);
           return;
         }
       }
@@ -6469,7 +6469,7 @@ export class ZoneServer2016 extends EventEmitter {
           this._explosives[a].state.position
         )
       ) {
-        this.igniteIED(this._explosives[a], client);
+        this._explosives[a].ignite(this, client);
         return;
       }
     }
@@ -6544,53 +6544,6 @@ export class ZoneServer2016 extends EventEmitter {
     client.hudTimer = setTimeout(() => {
       callback.apply(this);
     }, timeout);
-  }
-
-  igniteIED(IED: ExplosiveEntity, client: Client) {
-    if (!IED.isIED) {
-      return;
-    }
-    this.sendDataToAllWithSpawnedEntity(
-      this._explosives,
-      IED.characterId,
-      "Command.PlayDialogEffect",
-      {
-        characterId: IED.characterId,
-        effectId: 5034,
-      }
-    );
-    this.sendDataToAllWithSpawnedEntity(
-      this._explosives,
-      IED.characterId,
-      "Command.PlayDialogEffect",
-      {
-        characterId: IED.characterId,
-        effectId: 185,
-      }
-    );
-    setTimeout(() => {
-      this.detonateExplosive(IED, client);
-    }, 10000);
-  }
-
-  detonateExplosive(explosive: ExplosiveEntity, client?: Client) {
-    if (!this._explosives[explosive.characterId]) {
-      return;
-    }
-    this.sendCompositeEffectToAllInRange(
-      600,
-      "",
-      explosive.state.position,
-      1875
-    );
-    this.deleteEntity(explosive.characterId, this._explosives);
-    client
-      ? this.explosionDamage(
-          explosive.state.position,
-          explosive.characterId,
-          client
-        )
-      : this.explosionDamage(explosive.state.position, explosive.characterId);
   }
 
   /**
