@@ -288,7 +288,6 @@ export class WeatherManager {
       AOBlackpoint: 0.2,
       unknownDword33: 0.5,
     };
-    console.log(weather);
     return weather;
   }
 }
