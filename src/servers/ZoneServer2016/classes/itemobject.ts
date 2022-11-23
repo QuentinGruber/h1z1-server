@@ -77,6 +77,7 @@ export class ItemObject extends BaseLightweightCharacter {
     client: ZoneClient2016,
     damage: number
   ) {
+    client; damage; // eslint
     if (
       this.item.itemDefinitionId === Items.FUEL_BIOFUEL ||
       this.item.itemDefinitionId === Items.FUEL_ETHANOL

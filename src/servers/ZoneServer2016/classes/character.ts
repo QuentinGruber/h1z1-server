@@ -304,7 +304,7 @@ export class Character2016 extends BaseFullCharacter {
     });
 
     // needed so all weapons replicate reload and projectile impact
-    Object.values(this._loadout).forEach((item, i) => {
+    Object.values(this._loadout).forEach((item) => {
       if (!server.isWeapon(item.itemDefinitionId)) return;
       server.sendRemoteWeaponUpdateData(
         client,

@@ -71,6 +71,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     client: ZoneClient2016,
     damage: number
   ) {
+    damage; // eslint
     this.detonate(server, client);
   }
 }

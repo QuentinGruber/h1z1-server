@@ -141,6 +141,7 @@ export class DoorEntity extends BaseLightweightCharacter {
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    client; // eslint
     if (this.moving) {
       return;
     }
