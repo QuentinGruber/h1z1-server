@@ -6927,7 +6927,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._h1emuZoneServer.sendData(
       {
         ...this._loginServerInfo,
-        session: true,
+        serverId: Infinity,
       } as any,
       "UpdateZonePopulation",
       { population: populationNumber }
