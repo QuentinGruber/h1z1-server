@@ -146,6 +146,7 @@ export class DoorEntity extends BaseLightweightCharacter {
       return;
     }
     this.moving = true;
+    // eslint-disable-next-line
     const door = this; // for setTimeout callback
     setTimeout(function () {
       door.moving = false;

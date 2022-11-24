@@ -111,6 +111,7 @@ export class constructionDoor extends DoorEntity {
       return;
     }
     this.moving = true;
+    // eslint-disable-next-line
     const door = this; // for setTimeout callback
     setTimeout(function () {
       door.moving = false;
