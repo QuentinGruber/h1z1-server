@@ -49,9 +49,7 @@ export class SOEInputStream extends EventEmitter {
     return parseChannelPacketData(dataToProcess.payload);
   }
 
-  private processFragmentedData(
-    firstPacketSequence: number
-  ): Array<Buffer> {
+  private processFragmentedData(firstPacketSequence: number): Array<Buffer> {
     // cpf == current processed fragment
     if (!this.has_cpf) {
       const firstPacket = this._fragments.get(firstPacketSequence) as Fragment; // should be always defined
@@ -73,8 +71,14 @@ export class SOEInputStream extends EventEmitter {
       if (fragment) {
         const isFirstPacket = fragmentSequence === firstPacketSequence;
         this.cpf_processedFragmentsSequences.push(fragmentSequence);
-        fragment.payload.copy(this.cpf_dataWithoutHeader, this.cpf_dataSize,isFirstPacket?DATA_HEADER_SIZE:0);
-        const fragmentDataLen = isFirstPacket ? fragment.payload.length - 4 : fragment.payload.length;
+        fragment.payload.copy(
+          this.cpf_dataWithoutHeader,
+          this.cpf_dataSize,
+          isFirstPacket ? DATA_HEADER_SIZE : 0
+        );
+        const fragmentDataLen = isFirstPacket
+          ? fragment.payload.length - 4
+          : fragment.payload.length;
         this.cpf_dataSize += fragmentDataLen;
 
         if (this.cpf_dataSize > this.cpf_totalSize) {
@@ -121,8 +125,7 @@ export class SOEInputStream extends EventEmitter {
     let appData: Array<Buffer> = [];
     if (dataToProcess) {
       if (dataToProcess.isFragment) {
-        appData = this.processFragmentedData(
-          nextFragmentSequence   );
+        appData = this.processFragmentedData(nextFragmentSequence);
       } else {
         appData = this.processSingleData(dataToProcess, nextFragmentSequence);
       }
