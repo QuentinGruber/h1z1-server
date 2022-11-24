@@ -24,7 +24,6 @@ const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
 export class SOEServer extends EventEmitter {
-  _protocolName: string;
   _serverPort: number;
   _cryptoKey: Uint8Array;
   _protocol!: Soeprotocol;
@@ -43,21 +42,24 @@ export class SOEServer extends EventEmitter {
     arg1: number
   ) => void;
   private _resendTimeout: number = 300;
-  private _packetRatePerClient: number = 500;
+  packetRatePerClient: number = 500;
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
   _allowRawDataReception: boolean = true;
-  constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
+  constructor(
+    serverPort: number,
+    cryptoKey: Uint8Array,
+    disableAntiDdos?: boolean
+  ) {
     super();
     Buffer.poolSize = 8192 * 4;
-    this._protocolName = protocolName;
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
     this._connection = new Worker(
       `${__dirname}/../shared/workers/udpServerWorker.js`,
       {
-        workerData: { serverPort: serverPort },
+        workerData: { serverPort: serverPort, disableAntiDdos },
       }
     );
     setInterval(() => {
@@ -78,23 +80,19 @@ export class SOEServer extends EventEmitter {
   private _sendPhysicalPacket(client: Client, packet: Buffer): void {
     client.packetsSentThisSec++;
     client.stats.totalPacketSent++;
-    this._connection.postMessage(
-      {
-        type: "sendPacket",
-        data: {
-          packetData: packet,
-          length: packet.length,
-          port: client.port,
-          address: client.address,
-        },
+    this._connection.postMessage({
+      type: "sendPacket",
+      data: {
+        packetData: packet,
+        port: client.port,
+        address: client.address,
       },
-      [packet.buffer]
-    );
+    });
   }
 
   private sendOutQueue(client: Client): void {
     debug("Sending out queue");
-    while (client.packetsSentThisSec < this._packetRatePerClient) {
+    while (client.packetsSentThisSec < this.packetRatePerClient) {
       const logicalPacket = client.outQueue.shift();
       if (logicalPacket) {
         // if is a reliable packet

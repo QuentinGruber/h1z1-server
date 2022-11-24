@@ -13,7 +13,7 @@ export interface LoginReply {
   isMember: boolean;
   isInternal: boolean;
   namespace: string;
-  ApplicationPayload: any;
+  applicationPayload: any;
 }
 export interface Logout {}
 export interface ForceDisconnect {
