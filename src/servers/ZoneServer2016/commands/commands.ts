@@ -441,7 +441,7 @@ export const commands: Array<Command> = [
         position: locationPosition,
         triggerLoadingScreen: true,
       });
-      server.sendWeatherUpdatePacket(client, server._weather2016);
+      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   {
@@ -677,8 +677,8 @@ export const commands: Array<Command> = [
           "Please define a weather template to use (data/2016/dataSources/weather.json)"
         );
       } else if (weatherTemplate) {
-        server._weather2016 = weatherTemplate;
-        server.sendWeatherUpdatePacket(client, server._weather2016, true);
+        server.weather = weatherTemplate;
+        server.sendWeatherUpdatePacket(client, server.weather, true);
         server.sendChatText(client, `Applied weather template: "${args[0]}"`);
       } else {
         if (args[0] === "list") {
@@ -711,7 +711,7 @@ export const commands: Array<Command> = [
       } else if (server._weatherTemplates[args[0]]) {
         server.sendChatText(client, `"${args[0]}" already exists !`);
       } else {
-        const currentWeather = server._weather2016;
+        const currentWeather = server.weather;
         if (currentWeather) {
           currentWeather.templateName = args[0];
           if (server._soloMode) {
@@ -755,8 +755,8 @@ export const commands: Array<Command> = [
         return Number(fixed ? num.toFixed(0) : num);
       }
 
-      server._weather2016 = {
-        ...server._weather2016,
+      server.weather = {
+        ...server.weather,
         //name: "sky_dome_600.dds", todo: use random template from a list
         /*
               unknownDword1: 0,
@@ -796,7 +796,7 @@ export const commands: Array<Command> = [
 
         unknownDword33: 0,
       };
-      server.sendWeatherUpdatePacket(client, server._weather2016, true);
+      server.sendWeatherUpdatePacket(client, server.weather, true);
     },
   },
   {
@@ -832,7 +832,7 @@ export const commands: Array<Command> = [
         zoneName: "Z1",
         zoneType: 4,
         unknownBoolean1: false,
-        skyData: server._weather2016,
+        skyData: server.weather,
         zoneId1: 5,
         zoneId2: 5,
         nameId: 7699,

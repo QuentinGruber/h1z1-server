@@ -51,7 +51,7 @@ import {
   loadoutContainer,
   loadoutItem,
   SpawnLocation,
-  Weather2016,
+  Weather2016 as Weather,
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
 import {
@@ -208,7 +208,7 @@ export class ZoneServer2016 extends EventEmitter {
       ];
   _interactionDistance = 4;
   _pingTimeoutTime = 120000;
-  _weather2016: Weather2016;
+  weather: Weather;
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
   worldObjectManager: WorldObjectManager;
@@ -253,7 +253,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._worldId = worldId || 0;
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
     this._weatherTemplates = localWeatherTemplates;
-    this._weather2016 = this._weatherTemplates[this._defaultWeatherTemplate];
+    this.weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
     this.weatherManager = new WeatherManager();
     this.worldDataManager = new WorldDataManager();
@@ -820,12 +820,12 @@ export class ZoneServer2016 extends EventEmitter {
         if (!this._dynamicWeatherEnabled) {
           return;
         }
-        this._weather2016 = this.weatherManager.dynamicWeather(
+        this.weather = this.weatherManager.dynamicWeather(
           this._serverTime,
           this._startTime,
           this._timeMultiplier
         );
-        this.sendDataToAll("UpdateWeatherData", this._weather2016);
+        this.sendDataToAll("UpdateWeatherData", this.weather);
         this._dynamicWeatherWorker.refresh();
       }, 360000 / this._timeMultiplier);
     }
@@ -907,7 +907,7 @@ export class ZoneServer2016 extends EventEmitter {
       zoneName: "Z1",
       zoneType: 4,
       unknownBoolean1: false,
-      skyData: this._weather2016,
+      skyData: this.weather,
       zoneId1: 5,
       zoneId2: 5,
       nameId: 7699,
@@ -930,7 +930,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "ClientBeginZoning", {
       //position: Array.from(client.character.state.position),
       //rotation: Array.from(client.character.state.rotation),
-      skyData: this._weather2016,
+      skyData: this.weather,
     });
     */
 
@@ -2409,7 +2409,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   sendWeatherUpdatePacket(
     client: Client,
-    weather: Weather2016,
+    weather: Weather,
     broadcast = false
   ) {
     if (!this._soloMode) {

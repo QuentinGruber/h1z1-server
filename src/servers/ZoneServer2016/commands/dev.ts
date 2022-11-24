@@ -342,7 +342,7 @@ const dev: any = {
       if (server._vehicles[v].actorModelId === parseInt(args[1])) {
         location.position = server._vehicles[v].state.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
-        server.sendWeatherUpdatePacket(client, server._weather2016);
+        server.sendWeatherUpdatePacket(client, server.weather);
         found = true;
         break;
       }
@@ -370,7 +370,7 @@ const dev: any = {
         console.log(server._npcs[n]);
         location.position = server._npcs[n].state.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
-        server.sendWeatherUpdatePacket(client, server._weather2016);
+        server.sendWeatherUpdatePacket(client, server.weather);
         found = true;
         break;
       }
