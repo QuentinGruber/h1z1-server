@@ -1,4 +1,4 @@
-/* prettier-ignore */
+/* prettier-ignore */ 
 export interface LoginRequest {
   sessionId: string;
   systemFingerPrint: string;
@@ -19,8 +19,10 @@ export interface LoginReply {
   errorDetails: any[];
   ipCountryCode: string;
 }
-export interface Logout {}
-export interface ForceDisconnect {}
+export interface Logout {
+}
+export interface ForceDisconnect {
+}
 export interface CharacterCreateRequest {
   serverId: number;
   unknown: number;
@@ -51,13 +53,15 @@ export interface CharacterDeleteReply {
   status: number;
   Payload: string;
 }
-export interface CharacterSelectInfoRequest {}
+export interface CharacterSelectInfoRequest {
+}
 export interface CharacterSelectInfoReply {
   status: number;
   canBypassServerLock: boolean;
   characters: any[];
 }
-export interface ServerListRequest {}
+export interface ServerListRequest {
+}
 export interface ServerListReply {
   servers: any[];
 }
@@ -83,21 +87,4 @@ export interface TunnelAppPacketClientToServer {
 export interface TunnelAppPacketServerToClient {
   unknown1: boolean;
 }
-export type LoginUdp_11packets =
-  | LoginRequest
-  | LoginReply
-  | Logout
-  | ForceDisconnect
-  | CharacterCreateRequest
-  | CharacterCreateReply
-  | CharacterLoginRequest
-  | CharacterLoginReply
-  | CharacterDeleteRequest
-  | CharacterDeleteReply
-  | CharacterSelectInfoRequest
-  | CharacterSelectInfoReply
-  | ServerListRequest
-  | ServerListReply
-  | ServerUpdate
-  | TunnelAppPacketClientToServer
-  | TunnelAppPacketServerToClient;
+export type LoginUdp_11packets = LoginRequest | LoginReply | Logout | ForceDisconnect | CharacterCreateRequest | CharacterCreateReply | CharacterLoginRequest | CharacterLoginReply | CharacterDeleteRequest | CharacterDeleteReply | CharacterSelectInfoRequest | CharacterSelectInfoReply | ServerListRequest | ServerListReply | ServerUpdate | TunnelAppPacketClientToServer | TunnelAppPacketServerToClient;
