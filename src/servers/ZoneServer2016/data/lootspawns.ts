@@ -727,6 +727,22 @@ export const lootTables: {[lootSpawner: string]: LootSpawner} = {
           max: 1
         }
       },
+      {
+        item: Items.BACKPACK,
+        weight: 100,
+        spawnCount: {
+         min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.BACKPACK_MILITARY_TAN,
+        weight: 100,
+        spawnCount: {
+         min: 1,
+          max: 1
+        }
+      },
     ],
   },
   // #endregion
@@ -1320,6 +1336,14 @@ export const lootTables: {[lootSpawner: string]: LootSpawner} = {
           max: 1
         }
       },
+      {
+        item: Items.BACKPACK_MILITARY_TAN,
+        weight: 100,
+        spawnCount: {
+         min: 1,
+          max: 1
+        }
+      },
     ],
   },
   "ItemSpawner_Z1_MilitaryBase_Tents1.adr": {
@@ -1461,6 +1485,14 @@ export const lootTables: {[lootSpawner: string]: LootSpawner} = {
           max: 1
         }
       },
+      {
+        item: Items.BACKPACK_MILITARY_TAN,
+        weight: 100,
+        spawnCount: {
+         min: 1,
+          max: 1
+        }
+      },
     ],
   },
   "ItemSpawner_Z1_MilitaryBase_Tents2.adr": {
@@ -1516,6 +1548,14 @@ export const lootTables: {[lootSpawner: string]: LootSpawner} = {
       },
       {
         item: Items.KEVLAR_DEFAULT,
+        weight: 100,
+        spawnCount: {
+         min: 1,
+          max: 1
+        }
+      },
+      {
+        item: Items.BACKPACK_MILITARY_TAN,
         weight: 100,
         spawnCount: {
          min: 1,
