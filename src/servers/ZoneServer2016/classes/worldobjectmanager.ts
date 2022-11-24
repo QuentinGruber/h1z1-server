@@ -150,7 +150,7 @@ export class WorldObjectManager {
       return;
     }
     const characterId = generateRandomGuid(),
-    modelId = itemDef.WORLD_MODEL_ID || 9;
+      modelId = itemDef.WORLD_MODEL_ID || 9;
     server._spawnedItems[characterId] = new ItemObject(
       characterId,
       server.getTransientId(characterId),
@@ -335,7 +335,7 @@ export class WorldObjectManager {
     // temp logic until item weights are added
     Z1_items.forEach((spawnerType: any) => {
       const lootTable = lootTables[spawnerType.actorDefinition];
-      if(lootTable) {
+      if (lootTable) {
         spawnerType.instances.forEach((itemInstance: any) => {
           if (this._spawnedLootObjects[itemInstance.id]) return;
           const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
@@ -344,7 +344,10 @@ export class WorldObjectManager {
             const item = getRandomItem(lootTable.items);
             this.createLootEntity(
               server,
-              server.generateItem(item.item, randomIntFromInterval(item.spawnCount.min, item.spawnCount.max)),
+              server.generateItem(
+                item.item,
+                randomIntFromInterval(item.spawnCount.min, item.spawnCount.max)
+              ),
               itemInstance.position,
               itemInstance.rotation,
               itemInstance.id

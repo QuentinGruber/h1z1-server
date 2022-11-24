@@ -113,55 +113,52 @@ export class LoginServer extends EventEmitter {
       this.Logout(client);
     });
 
-    this._soeServer.on(
-      "appdata",
-      async (client: Client, data: Buffer) => {
-        try {
-          const packet: { name: string; result: any } | null = this.parseData(
-            client.protocolName,
-            data
-          );
-          debug(packet);
-          if (packet?.result) {
-            // if packet parsing succeed
-            switch (packet.name) {
-              case "LoginRequest":
-                const { sessionId, systemFingerPrint } = packet.result;
-                await this.LoginRequest(client, sessionId, systemFingerPrint);
-                /* 2016 client does not send CharacterSelectInfoRequest or ServerListRequest,
+    this._soeServer.on("appdata", async (client: Client, data: Buffer) => {
+      try {
+        const packet: { name: string; result: any } | null = this.parseData(
+          client.protocolName,
+          data
+        );
+        debug(packet);
+        if (packet?.result) {
+          // if packet parsing succeed
+          switch (packet.name) {
+            case "LoginRequest":
+              const { sessionId, systemFingerPrint } = packet.result;
+              await this.LoginRequest(client, sessionId, systemFingerPrint);
+              /* 2016 client does not send CharacterSelectInfoRequest or ServerListRequest,
                   so all 3 replies need to be sent at the same time */
-                if (client.protocolName !== "LoginUdp_11") break;
-              case "CharacterSelectInfoRequest":
-                await this.CharacterSelectInfoRequest(client);
-                if (client.protocolName !== "LoginUdp_11") break;
-              case "ServerListRequest":
-                await this.ServerListRequest(client);
-                break;
-              case "CharacterDeleteRequest":
-                await this.CharacterDeleteRequest(client, packet.result);
-                break;
-              case "CharacterLoginRequest":
-                await this.CharacterLoginRequest(client, packet.result);
-                break;
-              case "CharacterCreateRequest":
-                await this.CharacterCreateRequest(client, packet.result);
-                break;
-              case "TunnelAppPacketClientToServer": // only used for nameValidation rn
-                await this.TunnelAppPacketClientToServer(client, packet);
-                break;
-              case "Logout":
-                this.Logout(client);
-                break;
-            }
-          } else {
-            debug("Packet parsing was unsuccesful");
+              if (client.protocolName !== "LoginUdp_11") break;
+            case "CharacterSelectInfoRequest":
+              await this.CharacterSelectInfoRequest(client);
+              if (client.protocolName !== "LoginUdp_11") break;
+            case "ServerListRequest":
+              await this.ServerListRequest(client);
+              break;
+            case "CharacterDeleteRequest":
+              await this.CharacterDeleteRequest(client, packet.result);
+              break;
+            case "CharacterLoginRequest":
+              await this.CharacterLoginRequest(client, packet.result);
+              break;
+            case "CharacterCreateRequest":
+              await this.CharacterCreateRequest(client, packet.result);
+              break;
+            case "TunnelAppPacketClientToServer": // only used for nameValidation rn
+              await this.TunnelAppPacketClientToServer(client, packet);
+              break;
+            case "Logout":
+              this.Logout(client);
+              break;
           }
-        } catch (error) {
-          console.log(error);
-          process.exitCode = 1;
+        } else {
+          debug("Packet parsing was unsuccesful");
         }
+      } catch (error) {
+        console.log(error);
+        process.exitCode = 1;
       }
-    );
+    });
 
     if (!this._soloMode) {
       this._h1emuLoginServer = new H1emuLoginServer(1110);

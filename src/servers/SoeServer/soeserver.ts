@@ -345,15 +345,10 @@ export class SOEServer extends EventEmitter {
             client.nextAck.set(sequence);
           });
 
-          client.inputStream.on(
-            "outoforder",
-            (
-              outOfOrderSequence: number
-            ) => {
-              client.stats.packetsOutOfOrder++;
-              client.outOfOrderPackets.push(outOfOrderSequence);
-            }
-          );
+          client.inputStream.on("outoforder", (outOfOrderSequence: number) => {
+            client.stats.packetsOutOfOrder++;
+            client.outOfOrderPackets.push(outOfOrderSequence);
+          });
 
           client.outputStream.on(
             "data",
@@ -378,11 +373,7 @@ export class SOEServer extends EventEmitter {
           // the only difference with the event "data" is that resended data is send via the priority queue
           client.outputStream.on(
             "dataResend",
-            (
-              data: Buffer,
-              sequence: number,
-              fragment: boolean
-            ) => {
+            (data: Buffer, sequence: number, fragment: boolean) => {
               client.stats.packetResend++;
               this._sendLogicalPacket(
                 client,
@@ -417,12 +408,15 @@ export class SOEServer extends EventEmitter {
             console.error("Unmanaged packet from client", clientId, data);
           }
         } else {
-          if(this._allowRawDataReception) {
+          if (this._allowRawDataReception) {
             debug("Raw data received from client", clientId, data);
             this.emit("appdata", client, data, true); // Unreliable + Unordered
-          }
-          else {
-            debug("Raw data received from client but raw data reception isn't enabled", clientId, data);
+          } else {
+            debug(
+              "Raw data received from client but raw data reception isn't enabled",
+              clientId,
+              data
+            );
           }
         }
       } catch (e) {

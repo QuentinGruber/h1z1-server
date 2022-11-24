@@ -232,7 +232,7 @@ export interface LootSpawner {
   items: Array<LootDefinition>;
 }
 
-export interface ContainerLootSpawner extends LootSpawner{
+export interface ContainerLootSpawner extends LootSpawner {
   maxItems: number;
 }
 

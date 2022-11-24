@@ -470,35 +470,35 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  onZoneLoginEvent( client: Client) {
-      debug("zone login");
-      try {
-        this.sendInitData(client);
-      } catch (error) {
-        debug(error);
-        this.sendData(client, "LoginFailed", {});
-      }
+  onZoneLoginEvent(client: Client) {
+    debug("zone login");
+    try {
+      this.sendInitData(client);
+    } catch (error) {
+      debug(error);
+      this.sendData(client, "LoginFailed", {});
+    }
   }
 
   onZoneDataEvent(client: Client, packet: any) {
-      if (!client) {
-        return;
-      }
-      client.pingTimer?.refresh();
-      if (
-        packet.name != "KeepAlive" &&
-        packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
-        packet.name != "PlayerUpdateManagedPosition" &&
-        packet.name != "ClientUpdate.MonitorTimeDrift"
-      ) {
-        debug(`Receive Data ${[packet.name]}`);
-      }
-      try {
-        this._packetHandlers.processPacket(this, client, packet);
-      } catch (error) {
-        console.error(error);
-        console.error(`An error occurred while processing a packet : `, packet);
-      }
+    if (!client) {
+      return;
+    }
+    client.pingTimer?.refresh();
+    if (
+      packet.name != "KeepAlive" &&
+      packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
+      packet.name != "PlayerUpdateManagedPosition" &&
+      packet.name != "ClientUpdate.MonitorTimeDrift"
+    ) {
+      debug(`Receive Data ${[packet.name]}`);
+    }
+    try {
+      this._packetHandlers.processPacket(this, client, packet);
+    } catch (error) {
+      console.error(error);
+      console.error(`An error occurred while processing a packet : `, packet);
+    }
   }
 
   async onCharacterCreateRequest(client: any, packet: any) {
@@ -563,8 +563,8 @@ export class ZoneServer2016 extends EventEmitter {
 
   pGetRecipes(): any[] {
     // todo: change to per-character recipe lists
-    const recipeKeys = Object.keys(this._recipes)
-    return Object.values(this._recipes).map((recipe, idx)=> {
+    const recipeKeys = Object.keys(this._recipes);
+    return Object.values(this._recipes).map((recipe, idx) => {
       const def = this.getItemDefinition(Number(recipeKeys[idx]));
       return {
         recipeId: def.ID,
@@ -587,10 +587,10 @@ export class ZoneServer2016 extends EventEmitter {
             requiredAmount: component.requiredAmount,
             unknownQword1: "0x0", // idk
             unknownDword3: 0, // idk
-            itemDefinitionId: def.ID
-          }
-        })
-      }
+            itemDefinitionId: def.ID,
+          };
+        }),
+      };
     });
   }
 
@@ -1046,12 +1046,13 @@ export class ZoneServer2016 extends EventEmitter {
       }
       client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
-      client.managedObjects.forEach((objectKey)=>{
+      client.managedObjects.forEach((objectKey) => {
         const vehicle = this._vehicles[objectKey];
-        if(vehicle){ // if object is a vehicle
+        if (vehicle) {
+          // if object is a vehicle
           vehicle.driverIsDead = true;
         }
-      })
+      });
       this.updateCharacterState(
         client,
         client.character.characterId,
@@ -3062,7 +3063,11 @@ export class ZoneServer2016 extends EventEmitter {
     this._sendData(client, packetName, obj, true);
   }
 
-  sendData(client: Client, packetName: h1z1PacketsType2016, obj: zone2016packets) {
+  sendData(
+    client: Client,
+    packetName: h1z1PacketsType2016,
+    obj: zone2016packets
+  ) {
     this._sendData(client, packetName, obj, false);
   }
 
@@ -3990,8 +3995,9 @@ export class ZoneServer2016 extends EventEmitter {
       npc.state.position,
       -npc.openAngle,
       npc.itemDefinitionId == Items.DOOR_METAL ||
-      npc.itemDefinitionId == Items.DOOR_WOOD
-      ? 0.625 : 2.5
+        npc.itemDefinitionId == Items.DOOR_WOOD
+        ? 0.625
+        : 2.5
     );
     if (Number(parentObjectCharacterId)) {
       switch (this.getEntityType(parentObjectCharacterId)) {
@@ -4298,12 +4304,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
     client.character.isRunning = false; // maybe some async stuff make this useless need to test that
     client.vehicle.mountedVehicle = vehicle.characterId;
-    const seatId = vehicle.driverIsDead?0:vehicle.getNextSeatId(); // TODO: create an enum for seatsIds
+    const seatId = vehicle.driverIsDead ? 0 : vehicle.getNextSeatId(); // TODO: create an enum for seatsIds
     if (seatId < 0 && !vehicle.driverIsDead) return; // no available seats in vehicle
-    if(vehicle.driverIsDead){
+    if (vehicle.driverIsDead) {
       // dismount the driver
       const driverCharacter = this._characters[vehicle.seats[0]];
-      if(driverCharacter){
+      if (driverCharacter) {
         // TODO: need somehow to get the client obj from that character
         // this.dismountVehicle(driver)
       }
@@ -4580,7 +4586,7 @@ export class ZoneServer2016 extends EventEmitter {
           vehicleGuid: vehicle.characterId,
           identity: {},
           seatId: packet.data.seatId,
-          unknownDword2: packet.data.seatId === 0 ?1:0 // if set to 1 the select character will have drive access
+          unknownDword2: packet.data.seatId === 0 ? 1 : 0, // if set to 1 the select character will have drive access
         }
       );
       vehicle.seats[oldSeatId] = "";
@@ -6714,7 +6720,10 @@ export class ZoneServer2016 extends EventEmitter {
   sendDataToAll(packetName: h1z1PacketsType2016, obj: zone2016packets) {
     this._sendDataToAll(packetName, obj, false);
   }
-  sendUnbufferedDataToAll(packetName: h1z1PacketsType2016, obj: zone2016packets) {
+  sendUnbufferedDataToAll(
+    packetName: h1z1PacketsType2016,
+    obj: zone2016packets
+  ) {
     this._sendDataToAll(packetName, obj, true);
   }
   dropVehicleManager(client: Client, vehicleGuid: string) {

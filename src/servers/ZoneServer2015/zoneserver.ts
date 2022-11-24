@@ -362,31 +362,31 @@ export class ZoneServer2015 extends EventEmitter {
     this._loginServerInfo.address = loginServerAddress as string;
   }
 
-  onZoneDataEvent( client: Client, packet: any) {
-      client?.pingTimer?.refresh();
-      if (
-        packet.name != "KeepAlive" &&
-        packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
-        packet.name != "PlayerUpdateManagedPosition"
-      ) {
-        debug(`Receive Data ${[packet.name]}`);
-      }
-      try {
-        this._packetHandlers.processPacket(this, client, packet);
-      } catch (error) {
-        console.error(error);
-        console.error(`An error occurred while processing a packet : `, packet);
-      }
+  onZoneDataEvent(client: Client, packet: any) {
+    client?.pingTimer?.refresh();
+    if (
+      packet.name != "KeepAlive" &&
+      packet.name != "PlayerUpdateUpdatePositionClientToZone" &&
+      packet.name != "PlayerUpdateManagedPosition"
+    ) {
+      debug(`Receive Data ${[packet.name]}`);
+    }
+    try {
+      this._packetHandlers.processPacket(this, client, packet);
+    } catch (error) {
+      console.error(error);
+      console.error(`An error occurred while processing a packet : `, packet);
+    }
   }
 
   onZoneLoginEvent(client: Client) {
-      debug("zone login");
-      try {
-        this.sendInitData(client);
-      } catch (error) {
-        debug(error);
-        this.sendData(client, "LoginFailed", {});
-      }
+    debug("zone login");
+    try {
+      this.sendInitData(client);
+    } catch (error) {
+      debug(error);
+      this.sendData(client, "LoginFailed", {});
+    }
   }
 
   generateTransientId(characterId: string): number {
@@ -475,11 +475,7 @@ export class ZoneServer2015 extends EventEmitter {
     }
   }
 
-  onGatewayTunnelDataEvent(
-    client: Client,
-    data: Buffer,
-    flags: number
-  ) {
+  onGatewayTunnelDataEvent(client: Client, data: Buffer, flags: number) {
     const packet = this._protocol.parse(data, flags);
     if (packet) {
       this.emit("data", client, packet);

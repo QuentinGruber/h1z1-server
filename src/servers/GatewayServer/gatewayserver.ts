@@ -48,14 +48,9 @@ export class GatewayServer extends EventEmitter {
 
     this._soeServer.on(
       "appdata",
-      (client: SOEClient, data: Buffer, isRawData:boolean) => {
-        if(isRawData) {
-          this.emit(
-            "tunneldata",
-            client,
-            data,
-            0
-          );
+      (client: SOEClient, data: Buffer, isRawData: boolean) => {
+        if (isRawData) {
+          this.emit("tunneldata", client, data, 0);
           return;
         }
         const packet = this._protocol.parse(data);
@@ -86,12 +81,7 @@ export class GatewayServer extends EventEmitter {
               break;
             case "TunnelPacketFromExternalConnection":
               debug("TunnelPacketFromExternalConnection");
-              this.emit(
-                "tunneldata",
-                client,
-                packet.tunnelData,
-                packet.flags
-              );
+              this.emit("tunneldata", client, packet.tunnelData, packet.flags);
               break;
           }
         } else {
