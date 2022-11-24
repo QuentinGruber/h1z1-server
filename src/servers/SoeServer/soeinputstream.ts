@@ -50,14 +50,14 @@ export class SOEInputStream extends EventEmitter {
   }
 
   private processFragmentedData(
-    dataToProcess: Fragment,
-    sequence: number
+    firstPacketSequence: number
   ): Array<Buffer> {
     // cpf == current processed fragment
     if (!this.has_cpf) {
+      const firstPacket = this._fragments.get(firstPacketSequence) as Fragment; // should be always defined
       // the total size is written has a uint32 at the first packet of a fragmented data
-      this.cpf_totalSize = dataToProcess.payload.readUInt32BE(0);
-      this.cpf_dataSize = dataToProcess.payload.length - DATA_HEADER_SIZE;
+      this.cpf_totalSize = firstPacket.payload.readUInt32BE(0);
+      this.cpf_dataSize = 0;
 
       this.cpf_dataWithoutHeader = Buffer.allocUnsafe(this.cpf_totalSize);
       this.cpf_processedFragmentsSequences = [];
@@ -68,17 +68,14 @@ export class SOEInputStream extends EventEmitter {
       i < this._fragments.size;
       i++
     ) {
-      const fragmentSequence = (sequence + i) % MAX_SEQUENCE;
+      const fragmentSequence = (firstPacketSequence + i) % MAX_SEQUENCE;
       const fragment = this._fragments.get(fragmentSequence);
       if (fragment) {
+        const isFirstPacket = fragmentSequence === firstPacketSequence;
         this.cpf_processedFragmentsSequences.push(fragmentSequence);
-        dataToProcess.payload.copy(
-          this.cpf_dataWithoutHeader,
-          0,
-          DATA_HEADER_SIZE
-        );
-        fragment.payload.copy(this.cpf_dataWithoutHeader, this.cpf_dataSize);
-        this.cpf_dataSize += fragment.payload.length;
+        fragment.payload.copy(this.cpf_dataWithoutHeader, this.cpf_dataSize,isFirstPacket?DATA_HEADER_SIZE:0);
+        const fragmentDataLen = isFirstPacket ? fragment.payload.length - 4 : fragment.payload.length;
+        this.cpf_dataSize += fragmentDataLen;
 
         if (this.cpf_dataSize > this.cpf_totalSize) {
           this.emit(
@@ -125,9 +122,7 @@ export class SOEInputStream extends EventEmitter {
     if (dataToProcess) {
       if (dataToProcess.isFragment) {
         appData = this.processFragmentedData(
-          dataToProcess,
-          nextFragmentSequence + 1
-        );
+          nextFragmentSequence   );
       } else {
         appData = this.processSingleData(dataToProcess, nextFragmentSequence);
       }
