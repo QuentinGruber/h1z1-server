@@ -218,6 +218,24 @@ export interface SpawnLocation {
   rotation: Float32Array;
 }
 
+export interface LootDefinition {
+  item: number;
+  weight: number;
+  spawnCount: {
+    min: number;
+    max: number;
+  };
+}
+
+export interface LootSpawner {
+  spawnChance: number;
+  items: Array<LootDefinition>;
+}
+
+export interface ContainerLootSpawner extends LootSpawner {
+  maxItems: number;
+}
+
 export interface RecipeComponent {
   itemDefinitionId: number;
   requiredAmount: number;
