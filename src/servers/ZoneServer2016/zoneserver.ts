@@ -2407,11 +2407,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  sendWeatherUpdatePacket(
-    client: Client,
-    weather: Weather,
-    broadcast = false
-  ) {
+  sendWeatherUpdatePacket(client: Client, weather: Weather, broadcast = false) {
     if (!this._soloMode) {
       this.sendDataToAll("UpdateWeatherData", weather);
       if (broadcast && client?.character?.name) {

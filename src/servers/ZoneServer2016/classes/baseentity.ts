@@ -77,12 +77,14 @@ export class BaseEntity {
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
-    server; client;
+    server;
+    client;
     // default: do nothing
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    server; client;
+    server;
+    client;
     // default: do nothing
   }
 
@@ -91,7 +93,9 @@ export class BaseEntity {
     client: ZoneClient2016,
     damage: number
   ) {
-    server; client; damage // eslint
+    server;
+    client;
+    damage; // eslint
     // default: do nothing
   }
 }
