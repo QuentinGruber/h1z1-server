@@ -52,10 +52,6 @@ function getRandomVehicleId() {
   }
 }
 
-function getRandomItemOld(authorizedItems: Array<{ id: number; count: number }>) {
-  return authorizedItems[Math.floor(Math.random() * authorizedItems.length)];
-}
-
 function getRandomItem(items: Array<LootDefinition>) {
   return items[Math.floor(Math.random() * items.length)];
 }
