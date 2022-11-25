@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { AVG_PING_HISTORY_LEN } from "../../../utils/constants";
+import { toInt, _ } from "../../../utils/utils";
 import { Character2016 } from "./character";
 
 export class ZoneClient2016 {
@@ -78,5 +80,15 @@ export class ZoneClient2016 {
       this.isInteracting = false;
     };
     this.character = new Character2016(characterId, transientId);
+  }
+  addPing(ping: number) {
+    this.pings.push(ping)
+    if(this.pings.length > AVG_PING_HISTORY_LEN){
+      this.pings.shift()
+    }
+    this.updateAvgPing();
+  }
+  updateAvgPing(){
+    this.avgPing = toInt(_.sum(this.pings) / this.pings.length)
   }
 }
