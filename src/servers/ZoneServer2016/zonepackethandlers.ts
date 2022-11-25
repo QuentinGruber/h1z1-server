@@ -226,7 +226,9 @@ export class zonePacketHandlers {
       definitionsData: { data: "" },
     });
   }
-  KeepAlive(server: ZoneServer2016, client: Client, packet: any) {}
+  KeepAlive(server: ZoneServer2016, client: Client, packet: any) {
+    //
+  }
   ClientUpdateMonitorTimeDrift(
     server: ZoneServer2016,
     client: Client,
