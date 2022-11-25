@@ -121,6 +121,7 @@ export class LoginServer extends EventEmitter {
           client.protocolName,
           data
         );
+        debug(packet);
         if (packet?.result) {
           // if packet parsing succeed
           switch (packet.name) {
