@@ -13,7 +13,6 @@
 
 import { createPositionUpdate } from "../../../utils/utils";
 import { Items, LoadoutIds, ResourceIds, VehicleIds } from "../models/enums";
-import { /*positionUpdate,*/ passengers } from "../../../types/zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
