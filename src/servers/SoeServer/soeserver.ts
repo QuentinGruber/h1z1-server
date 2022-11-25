@@ -42,7 +42,7 @@ export class SOEServer extends EventEmitter {
     arg1: number
   ) => void;
   private _resendTimeout: number = 300;
-  private _packetRatePerClient: number = 500;
+  packetRatePerClient: number = 500;
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
   _allowRawDataReception: boolean = true;
@@ -92,7 +92,7 @@ export class SOEServer extends EventEmitter {
 
   private sendOutQueue(client: Client): void {
     debug("Sending out queue");
-    while (client.packetsSentThisSec < this._packetRatePerClient) {
+    while (client.packetsSentThisSec < this.packetRatePerClient) {
       const logicalPacket = client.outQueue.shift();
       if (logicalPacket) {
         // if is a reliable packet

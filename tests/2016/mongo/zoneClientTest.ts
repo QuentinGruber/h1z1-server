@@ -86,7 +86,7 @@ async function test() {
   }, 2000);
   setTimeout(() => {
     throw new Error("Test timed out!");
-  }, 15000);
+  }, 60000);
 }
 
 const loginServer = new LoginServer(1115, "mongodb://localhost:27017/");

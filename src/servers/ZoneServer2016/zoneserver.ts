@@ -107,6 +107,7 @@ import { GAME_VERSIONS } from "../../utils/enums";
 import {
   CharacterKilledBy,
   ClientUpdateDeathMetrics,
+  ClientUpdateProximateItems,
   EquipmentSetCharacterEquipmentSlot,
   zone2016packets,
 } from "types/zone2016packets";
@@ -244,6 +245,8 @@ export class ZoneServer2016 extends EventEmitter {
   avgPingLen: number = 4;
   maxPing: number = 200;
   pingWarningsBeforeLock: number = 3;
+  private _proximityItemsDistance: number = 2;
+
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -542,6 +545,30 @@ export class ZoneServer2016 extends EventEmitter {
         status: 0,
       });
     }
+  }
+
+  getProximityItems(character: BaseFullCharacter): ClientUpdateProximateItems {
+    const items = Object.values(this._spawnedItems);
+    const proximityItems: ClientUpdateProximateItems = { items: [] };
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (
+        isPosInRadiusWithY(
+          this._proximityItemsDistance,
+          character.state.position,
+          item.state.position,
+          1
+        )
+      ) {
+        const proximityItem = {
+          itemDefinitionId: item.item.itemDefinitionId,
+          associatedCharacterGuid: character.characterId,
+          itemData: item.item,
+        };
+        (proximityItems.items as any[]).push(proximityItem);
+      }
+    }
+    return proximityItems;
   }
 
   pGetInventoryItems(character: BaseFullCharacter): any[] {
@@ -6905,7 +6932,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._h1emuZoneServer.sendData(
       {
         ...this._loginServerInfo,
-        session: true,
+        serverId: Infinity,
       } as any,
       "UpdateZonePopulation",
       { population: populationNumber }
