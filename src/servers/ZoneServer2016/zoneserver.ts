@@ -1577,12 +1577,12 @@ export class ZoneServer2016 extends EventEmitter {
           }
         }
 
-        this.updateResourceToAllWithSpawnedVehicle(
-          vehicle.passengers.passenger1,
+        this.updateResourceToAllWithSpawnedEntity(
           vehicle.characterId,
           vehicle._resources[ResourceIds.CONDITION],
           ResourceIds.CONDITION,
-          ResourceTypes.CONDITION
+          ResourceTypes.CONDITION,
+          this._vehicles
         );
       }
     }
@@ -1917,32 +1917,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendDataToAllWithSpawnedEntity(
       this._characters,
       client.character.characterId,
-      "ResourceEvent",
-      {
-        eventData: {
-          type: 3,
-          value: {
-            characterId: entityId,
-            resourceId: resourceId,
-            resourceType: resourceType,
-            initialValue: value >= 0 ? value : 0,
-          },
-        },
-      }
-    );
-  }
-
-  updateResourceToAllWithSpawnedVehicle(
-    client: Client,
-    entityId: string,
-    value: number,
-    resourceId: number,
-    resourceType: number
-  ) {
-    this.sendDataToAllOthersWithSpawnedEntity(
-      this._vehicles,
-      client,
-      entityId,
       "ResourceEvent",
       {
         eventData: {
@@ -4402,12 +4376,12 @@ export class ZoneServer2016 extends EventEmitter {
                 }
               );
             }
-            this.updateResourceToAllWithSpawnedVehicle(
-              vehicle.passengers.passenger1,
+            this.updateResourceToAllWithSpawnedEntity(
               vehicle.characterId,
               vehicle._resources[ResourceIds.FUEL],
               ResourceIds.FUEL,
-              ResourceTypes.FUEL
+              ResourceTypes.FUEL,
+              this._vehicles
             );
             this._vehicles[vehicleGuid].resourcesUpdater.refresh();
           }, 3000);
@@ -6497,12 +6471,12 @@ export class ZoneServer2016 extends EventEmitter {
     if (vehicle._resources[ResourceIds.FUEL] > 10000) {
       vehicle._resources[ResourceIds.FUEL] = 10000;
     }
-    this.updateResourceToAllWithSpawnedVehicle(
-      client,
+    this.updateResourceToAllWithSpawnedEntity(
       vehicleGuid,
       vehicle._resources[ResourceIds.FUEL],
       ResourceIds.FUEL,
-      ResourceTypes.FUEL
+      ResourceTypes.FUEL,
+      this._vehicles
     );
   }
 

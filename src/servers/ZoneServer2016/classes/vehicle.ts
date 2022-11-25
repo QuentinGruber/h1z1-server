@@ -67,8 +67,7 @@ export class Vehicle2016 extends BaseFullCharacter {
   resourcesUpdater?: any;
   damageTimeout?: any;
   vehicleManager?: string;
-  seats: { [seatId: string]: any } = {};
-  passengers: passengers = {};
+  seats: { [seatId: string]: string } = {};
   vehicleId: number;
   destroyedState = 0;
   positionUpdateType = 1;
