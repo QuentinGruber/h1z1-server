@@ -84,13 +84,13 @@ export class ZoneClient2016 {
     this.character = new Character2016(characterId, transientId);
   }
   addPing(ping: number) {
-    this.pings.push(ping)
-    if(this.pings.length > this.avgPingLen){
-      this.pings.shift()
+    this.pings.push(ping);
+    if (this.pings.length > this.avgPingLen) {
+      this.pings.shift();
     }
     this.updateAvgPing();
   }
-  updateAvgPing(){
-    this.avgPing = toInt(_.sum(this.pings) / this.pings.length)
+  updateAvgPing() {
+    this.avgPing = toInt(_.sum(this.pings) / this.pings.length);
   }
 }

@@ -226,8 +226,7 @@ export class zonePacketHandlers {
       definitionsData: { data: "" },
     });
   }
-  KeepAlive(server: ZoneServer2016, client: Client, packet: any) {
-  }
+  KeepAlive(server: ZoneServer2016, client: Client, packet: any) {}
   ClientUpdateMonitorTimeDrift(
     server: ZoneServer2016,
     client: Client,
@@ -289,15 +288,18 @@ export class zonePacketHandlers {
     }
     server.deleteClient(client);
   }
-  GameTimeSync(server: ZoneServer2016, client: Client, packet: {data:GameTimeSync}) {
-    const serverTime = Date.now()
-    const clientTime = Number(packet.data.time) * 1000
+  GameTimeSync(
+    server: ZoneServer2016,
+    client: Client,
+    packet: { data: GameTimeSync }
+  ) {
+    const serverTime = Date.now();
+    const clientTime = Number(packet.data.time) * 1000;
     const rawPing = serverTime - clientTime;
     client.addPing(rawPing);
-    if(client.avgPing > server.maxPing){
+    if (client.avgPing > server.maxPing) {
       server.warnHighPing(client);
-    }
-    else if(client.isWeaponLock && client.avgPing < server.maxPing){
+    } else if (client.isWeaponLock && client.avgPing < server.maxPing) {
       client.pingWarnings = 0;
       server.unlockWeapon(client);
     }

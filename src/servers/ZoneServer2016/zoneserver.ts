@@ -3244,7 +3244,6 @@ export class ZoneServer2016 extends EventEmitter {
     characterId: string,
     generatedTransient: number
   ) {
-    
     const client = new Client(
       sessionId,
       soeClientId,
@@ -6994,22 +6993,25 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  lockWeapon(client:Client){
+  lockWeapon(client: Client) {
     client.isWeaponLock = true;
-     this.sendAlert(client,`Weapon locked server-side :( `);
+    this.sendAlert(client, `Weapon locked server-side :( `);
   }
 
-  unlockWeapon(client:Client){
+  unlockWeapon(client: Client) {
     client.isWeaponLock = false;
-     this.sendAlert(client,`Weapon unlocked server-side :) `);
+    this.sendAlert(client, `Weapon unlocked server-side :) `);
   }
 
   warnHighPing(client: Client) {
     client.pingWarnings++;
-    if(client.pingWarnings > this.pingWarningsBeforeLock && !client.isWeaponLock){
+    if (
+      client.pingWarnings > this.pingWarningsBeforeLock &&
+      !client.isWeaponLock
+    ) {
       this.lockWeapon(client);
     }
-    this.sendAlert(client,`High Ping detected : ${client.avgPing}ms`);
+    this.sendAlert(client, `High Ping detected : ${client.avgPing}ms`);
   }
   /**
    * Registers a new hook to be called when the corresponding checkHook() call is executed.
