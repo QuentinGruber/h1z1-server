@@ -375,7 +375,6 @@ export const clientUpdatePackets: any = [
     {
       fields: [
         { name: "timeDrift", type: "uint32" },
-        { name: "unknownWord", type: "uint8" },
       ],
     },
   ],
