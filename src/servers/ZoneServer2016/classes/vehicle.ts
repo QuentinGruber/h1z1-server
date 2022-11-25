@@ -71,7 +71,6 @@ export class Vehicle2016 extends BaseFullCharacter {
   vehicleId: number;
   destroyedState = 0;
   positionUpdateType = 1;
-  driverIsDead: boolean = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -136,9 +135,11 @@ export class Vehicle2016 extends BaseFullCharacter {
   getSeatCount() {
     return Object.keys(this.seats).length;
   }
-  getNextSeatId() {
+  getNextSeatId(server: ZoneServer2016) {
     for (const seatId in this.seats) {
-      if (!this.seats[seatId]) {
+      const seat = this.seats[seatId],
+        passenger = seat ? server._characters[seat] : undefined;
+      if (!this.seats[seatId] || !passenger?.isAlive) {
         return seatId;
       }
     }

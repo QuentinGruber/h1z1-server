@@ -1071,13 +1071,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
       client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
-      client.managedObjects.forEach((objectKey) => {
-        const vehicle = this._vehicles[objectKey];
-        if (vehicle) {
-          // if object is a vehicle
-          vehicle.driverIsDead = true;
-        }
-      });
       this.updateCharacterState(
         client,
         client.character.characterId,
@@ -4263,16 +4256,14 @@ export class ZoneServer2016 extends EventEmitter {
     }
     client.character.isRunning = false; // maybe some async stuff make this useless need to test that
     client.vehicle.mountedVehicle = vehicle.characterId;
-    const seatId = vehicle.driverIsDead ? 0 : vehicle.getNextSeatId(); // TODO: create an enum for seatsIds
-    if (seatId < 0 && !vehicle.driverIsDead) return; // no available seats in vehicle
-    if (vehicle.driverIsDead) {
+    const seatId = vehicle.getNextSeatId(this),
+      seat = vehicle.seats[seatId],
+      passenger = this._characters[seat];
+    if (seatId < 0) return; // no available seats in vehicle
+    if (passenger) {
       // dismount the driver
-      const driverCharacter = this._characters[vehicle.seats[0]];
-      if (driverCharacter) {
-        // TODO: need somehow to get the client obj from that character
-        // this.dismountVehicle(driver)
-      }
-      vehicle.driverIsDead = false;
+      const client = this.getClientByCharId(passenger.characterId);
+      !client || this.dismountVehicle(client);
     }
     vehicle.seats[seatId] = client.character.characterId;
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
@@ -4531,11 +4522,18 @@ export class ZoneServer2016 extends EventEmitter {
       seatCount = vehicle.getSeatCount(),
       oldSeatId = vehicle.getCharacterSeat(client.character.characterId);
 
+    const seatId = packet.data.seatId,
+      seat = vehicle.seats[seatId],
+      passenger = this._characters[seat];
     if (
-      packet.data.seatId < seatCount &&
-      !vehicle.seats[packet.data.seatId] &&
+      seatId < seatCount &&
+      (!vehicle.seats[seatId] || !passenger?.isAlive) &&
       oldSeatId
     ) {
+      if (!passenger?.isAlive) {
+        const client = this.getClientByCharId(passenger.characterId);
+        !client || this.dismountVehicle(client);
+      }
       this.sendDataToAllWithSpawnedEntity(
         this._vehicles,
         client.vehicle.mountedVehicle,
