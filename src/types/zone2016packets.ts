@@ -1579,7 +1579,6 @@ export interface ClientUpdateManagedObjectResponseControl {
 }
 export interface ClientUpdateMonitorTimeDrift {
   timeDrift: number;
-  unknownWord: number;
 }
 export interface InGamePurchaseStoreBundleCategories {
   categories?: any[];

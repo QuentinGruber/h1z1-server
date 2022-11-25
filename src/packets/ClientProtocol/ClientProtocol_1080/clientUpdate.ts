@@ -373,9 +373,7 @@ export const clientUpdatePackets: any = [
     "ClientUpdate.MonitorTimeDrift",
     0x114500,
     {
-      fields: [
-        { name: "timeDrift", type: "uint32" },
-      ],
+      fields: [{ name: "timeDrift", type: "uint32" }],
     },
   ],
   ["ClientUpdate.NotifyServerOfStalledEvent", 0x114600, {}],
