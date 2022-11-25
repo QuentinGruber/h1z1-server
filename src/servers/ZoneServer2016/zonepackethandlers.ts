@@ -294,15 +294,16 @@ export class zonePacketHandlers {
     const clientTime = Number(packet.data.time) * 1000
     const rawPing = serverTime - clientTime;
     client.addPing(rawPing);
+    if(client.avgPing > server.maxPing){
+      server.warnHighPing(client);
+    }
+    else if(client.isWeaponLock && client.avgPing < server.maxPing){
+      client.pingWarnings = 0;
+      server.unlockWeapon(client);
+    }
     server.sendGameTimeSync(client);
   }
   Synchronization(server: ZoneServer2016, client: Client, packet: any) {
-    console.log(packet.data);
-    const syncInterval = 5000;
-    //const clientTime = Number(packet.data.clientTime)
-    const clientTimeHoursMs = Number(packet.data.clientHoursMs);
-    const currentHoursMs = getCurrentHoursMs();
-    const ping = currentHoursMs - clientTimeHoursMs - syncInterval;
     const serverTime = Int64String(Number((Date.now() / 1000).toFixed(0)));
     const reflectedPacket: Synchronization = {
       ...packet.data,
@@ -310,9 +311,6 @@ export class zonePacketHandlers {
       serverTime2: serverTime,
       time3: Int64String(Number(packet.data.clientTime) + 2),
     };
-    console.log(reflectedPacket);
-    console.log(ping);
-    // reflected packet isn't used correctly the clock-drift is fucked
     server.sendData(client, "Synchronization", reflectedPacket);
   }
   CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: any) {

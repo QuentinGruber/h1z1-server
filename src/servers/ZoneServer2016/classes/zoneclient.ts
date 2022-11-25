@@ -11,7 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { AVG_PING_HISTORY_LEN } from "../../../utils/constants";
 import { toInt, _ } from "../../../utils/utils";
 import { Character2016 } from "./character";
 
@@ -54,6 +53,9 @@ export class ZoneClient2016 {
   lastKeepAliveTime: number = 0;
   pings: number[] = [];
   avgPing: number = 0;
+  avgPingLen: number = 4;
+  pingWarnings: number = 0;
+  isWeaponLock: boolean = false;
   constructor(
     sessionId: number,
     soeClientId: string,
@@ -83,7 +85,7 @@ export class ZoneClient2016 {
   }
   addPing(ping: number) {
     this.pings.push(ping)
-    if(this.pings.length > AVG_PING_HISTORY_LEN){
+    if(this.pings.length > this.avgPingLen){
       this.pings.shift()
     }
     this.updateAvgPing();

@@ -241,7 +241,9 @@ export class ZoneServer2016 extends EventEmitter {
   enableWorldSaves: boolean;
   readonly worldSaveVersion: number = 1;
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
-
+  avgPingLen: number = 4;
+  maxPing: number = 200;
+  pingWarningsBeforeLock: number = 3;
   constructor(
     serverPort: number,
     gatewayKey: Uint8Array,
@@ -3242,13 +3244,16 @@ export class ZoneServer2016 extends EventEmitter {
     characterId: string,
     generatedTransient: number
   ) {
-    return new Client(
+    
+    const client = new Client(
       sessionId,
       soeClientId,
       loginSessionId,
       characterId,
       generatedTransient
     );
+    client.avgPingLen = this.avgPingLen;
+    return client;
   }
 
   banClient(
@@ -6989,6 +6994,23 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  lockWeapon(client:Client){
+    client.isWeaponLock = true;
+     this.sendAlert(client,`Weapon locked server-side :( `);
+  }
+
+  unlockWeapon(client:Client){
+    client.isWeaponLock = false;
+     this.sendAlert(client,`Weapon unlocked server-side :) `);
+  }
+
+  warnHighPing(client: Client) {
+    client.pingWarnings++;
+    if(client.pingWarnings > this.pingWarningsBeforeLock && !client.isWeaponLock){
+      this.lockWeapon(client);
+    }
+    this.sendAlert(client,`High Ping detected : ${client.avgPing}ms`);
+  }
   /**
    * Registers a new hook to be called when the corresponding checkHook() call is executed.
    * @param hookName The name of the hook
