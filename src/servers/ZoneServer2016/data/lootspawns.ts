@@ -1,5 +1,5 @@
 import { ContainerLootSpawner, LootSpawner } from "types/zoneserver";
-import { Items } from "../enums";
+import { Items } from "../models/enums";
 
 const carparts = [
   // NEED TO ADJUST THESE WEIGHTS

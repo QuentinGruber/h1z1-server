@@ -28,7 +28,7 @@ import { promisify } from "util";
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle } from "./classes/vehicle";
-import { WorldObjectManager } from "./classes/worldobjectmanager";
+import { WorldObjectManager } from "./managers/worldobjectmanager";
 import {
   ContainerErrors,
   EntityTypes,
