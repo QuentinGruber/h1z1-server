@@ -4537,7 +4537,7 @@ export class ZoneServer2016 extends EventEmitter {
       (!vehicle.seats[seatId] || !passenger?.isAlive) &&
       oldSeatId
     ) {
-      if (!passenger?.isAlive) {
+      if (passenger && !passenger?.isAlive) {
         const client = this.getClientByCharId(passenger.characterId);
         !client || this.dismountVehicle(client);
       }
