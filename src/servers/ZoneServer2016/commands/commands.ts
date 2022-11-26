@@ -132,10 +132,9 @@ export const commands: Array<Command> = [
       const soeClient = server.getSoeClient(client.soeClientId);
       if (soeClient) {
         const stats = soeClient.getNetworkStats();
-        if(client.avgPingReady){
+        if (client.avgPingReady) {
           stats.push(`Ping: ${client.avgPing}ms`);
-        }
-        else{
+        } else {
           stats.push(`Ping: estimates in progress`);
         }
         for (let index = 0; index < stats.length; index++) {

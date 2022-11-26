@@ -85,16 +85,15 @@ export class ZoneClient2016 {
     this.character = new Character2016(characterId, transientId);
   }
   addPing(ping: number) {
-    if(ping > 0){
+    if (ping > 0) {
       this.pings.push(ping);
     }
     if (this.pings.length > this.avgPingLen) {
       this.pings.shift();
     }
-    if(this.pings.length === this.avgPingLen){
+    if (this.pings.length === this.avgPingLen) {
       this.updateAvgPing();
-    }
-    else{
+    } else {
       this.avgPingReady = false;
     }
   }
