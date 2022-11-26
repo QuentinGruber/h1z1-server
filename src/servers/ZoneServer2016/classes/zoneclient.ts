@@ -56,6 +56,7 @@ export class ZoneClient2016 {
   avgPingLen: number = 4;
   pingWarnings: number = 0;
   isWeaponLock: boolean = false;
+  avgPingReady: boolean = false;
   constructor(
     sessionId: number,
     soeClientId: string,
@@ -84,13 +85,21 @@ export class ZoneClient2016 {
     this.character = new Character2016(characterId, transientId);
   }
   addPing(ping: number) {
-    this.pings.push(ping);
+    if(ping > 0){
+      this.pings.push(ping);
+    }
     if (this.pings.length > this.avgPingLen) {
       this.pings.shift();
     }
-    this.updateAvgPing();
+    if(this.pings.length === this.avgPingLen){
+      this.updateAvgPing();
+    }
+    else{
+      this.avgPingReady = false;
+    }
   }
   updateAvgPing() {
     this.avgPing = toInt(_.sum(this.pings) / this.pings.length);
+    this.avgPingReady = true;
   }
 }

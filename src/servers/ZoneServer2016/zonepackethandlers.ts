@@ -295,9 +295,19 @@ export class zonePacketHandlers {
     client: Client,
     packet: { data: GameTimeSync }
   ) {
-    const serverTime = Date.now();
-    const clientTime = Number(packet.data.time) * 1000;
-    const rawPing = serverTime - clientTime;
+    server.sendGameTimeSync(client);
+  }
+  Synchronization(server: ZoneServer2016, client: Client, packet: any) {
+    const fullServerTime =  Date.now();
+    const serverTime = Int64String(Number((Date.now() / 1000).toFixed(0)));
+    const reflectedPacket: Synchronization = {
+      ...packet.data,
+      serverTime: serverTime,
+      serverTime2: serverTime,
+      time3: Int64String(Number(packet.data.clientTime)),
+    };
+    const fullClientTimestamp = Number(packet.data.clientTime) *1000 + (Number(String(Number(packet.data.clientHoursMs)).slice(-3)));
+    const rawPing = fullServerTime - fullClientTimestamp;
     client.addPing(rawPing);
     if (client.avgPing > server.maxPing) {
       server.warnHighPing(client);
@@ -305,17 +315,7 @@ export class zonePacketHandlers {
       client.pingWarnings = 0;
       server.unlockWeapon(client);
     }
-    server.sendGameTimeSync(client);
-  }
-  Synchronization(server: ZoneServer2016, client: Client, packet: any) {
-    const serverTime = Int64String(Number((Date.now() / 1000).toFixed(0)));
-    const reflectedPacket: Synchronization = {
-      ...packet.data,
-      serverTime: serverTime,
-      serverTime2: serverTime,
-      time3: Int64String(Number(packet.data.clientTime) + 2),
-    };
-    server.sendData(client, "Synchronization", reflectedPacket);
+     server.sendData(client, "Synchronization", reflectedPacket);
   }
   CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: any) {
     if (
