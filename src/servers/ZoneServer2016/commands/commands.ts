@@ -964,7 +964,7 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
       const wep = server.generateItem(Items.WEAPON_REMOVER);
-      if(wep && wep.weapon) wep.weapon.ammoCount = 1000;
+      if (wep && wep.weapon) wep.weapon.ammoCount = 1000;
       server.lootItem(client, wep);
     },
   },
