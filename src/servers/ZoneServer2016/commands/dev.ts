@@ -381,22 +381,6 @@ const dev: any = {
       server.sendChatText(client, `No npcs of ID: ${args[1]} found`);
     }
   },
-
-  placement: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const modelChoosen = args[1];
-    if (!modelChoosen) {
-      server.sendChatText(client, "[ERROR] Usage /hax placement {modelId}");
-      return;
-    }
-    if (!args[2]) {
-      server.sendChatText(client, "missing 1 arg");
-      return;
-    }
-    server.sendData(client, "Construction.PlacementResponse", {
-      unknownDword1: Number(args[2]),
-      model: modelChoosen,
-    });
-  },
   stat: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[3]) {
       server.sendChatText(client, "missing statId, baseValue, modifierValue");
