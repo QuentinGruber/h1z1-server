@@ -1629,14 +1629,17 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnPlayerRespawn", client)))
       return;
 
+    if (client.vehicle.mountedVehicle) {
+      console.log("MOUNTEDVEHICLE")
+      this.dismountVehicle(client);
+    }
+    client.isLoading = true;
+
     client.character.resetMetrics();
     client.character.isAlive = true;
     client.character.isRunning = false;
     client.character.isRespawning = false;
-    if (client.vehicle.mountedVehicle) {
-      this.dismountVehicle(client);
-    }
-    client.isLoading = true;
+    
     client.character._resources[ResourceIds.HEALTH] = 10000;
     client.character._resources[ResourceIds.HUNGER] = 10000;
     client.character._resources[ResourceIds.HYDRATION] = 10000;
@@ -4438,7 +4441,12 @@ export class ZoneServer2016 extends EventEmitter {
   dismountVehicle(client: Client) {
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = this._vehicles[client.vehicle.mountedVehicle];
-    if (!vehicle) return;
+    if (!vehicle && !client.character.isAlive) {
+      this.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId,
+      });
+      return
+    };
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     if (!seatId) return;
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
@@ -4454,7 +4462,6 @@ export class ZoneServer2016 extends EventEmitter {
       client.vehicle.mountedVehicle,
       "Mount.DismountResponse",
       {
-        // dismounts character
         characterId: client.character.characterId,
       }
     );
