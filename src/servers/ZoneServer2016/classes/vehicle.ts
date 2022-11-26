@@ -207,6 +207,22 @@ export class Vehicle2016 extends BaseFullCharacter {
       ],
     };
   }
+  
+  /*
+  pGetPassengers(server: ZoneServer2016) {
+    return this.getPassengerList().map((passenger)=> {
+      return {
+        characterId: passenger,
+        identity: {
+          characterName: server._characters[passenger].name,
+        },
+        unknownString1: server._characters[passenger].name,
+        unknownByte1: 1,
+      }
+    })
+  }
+  */
+
   getInventoryItemId(): number {
     switch (this.loadoutId) {
       case LoadoutIds.VEHICLE_OFFROADER:
