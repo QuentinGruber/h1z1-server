@@ -2113,16 +2113,13 @@ export class zonePacketHandlers {
                 server.deleteEntity(characterId, server._explosives);
                 break;
               case EntityTypes.CONSTRUCTION_DOOR:
-                server.deleteEntity(characterId, server._constructionDoors);
+                server.deleteConstructionSlot(characterId, server._constructionDoors);
                 break;
               case EntityTypes.CONSTRUCTION_SIMPLE:
-                server.deleteEntity(characterId, server._constructionSimple);
+                server.deleteConstructionSlot(characterId, server._constructionSimple);
                 break;
               case EntityTypes.CONSTRUCTION_FOUNDATION:
-                server.deleteEntity(
-                  characterId,
-                  server._constructionFoundations
-                );
+                server.deleteConstructionSlot(characterId, server._constructionFoundations);
                 break;
               default:
                 return;
