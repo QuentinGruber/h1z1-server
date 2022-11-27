@@ -46,6 +46,7 @@ import { WeatherManager } from "./managers/weathermanager";
 
 import {
   characterEquipment,
+  DamageInfo,
   DamageRecord,
   inventoryItem,
   loadoutContainer,
@@ -1002,12 +1003,18 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   generateDamageRecord(
-    targetClient: Client,
-    sourceClient: Client,
+    targetCharacterId: string,
+    sourceCharacterId: string,
     hitReport: any,
     oldHealth: number,
     damage: number
   ): DamageRecord {
+    const targetEntity = this.getEntity(targetCharacterId),
+    sourceEntity = this.getEntity(sourceCharacterId),
+    targetClient = this.getClientByCharId(targetCharacterId),
+    sourceClient = this.getClientByCharId(sourceCharacterId);
+    if(!sourceClient || !targetClient) return {} as DamageRecord;
+
     const sCharacter = sourceClient.character,
       tCharacter = targetClient.character;
     return {
@@ -1053,20 +1060,21 @@ export class ZoneServer2016 extends EventEmitter {
 
   killCharacter(
     client: Client,
-    deathInfo: { client: Client; hitReport: any } | undefined = undefined
+    damageInfo: DamageInfo
   ) {
-    if (!this.hookManager.checkHook("OnPlayerDeath", client, deathInfo)) return;
+    if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo)) return;
 
-    const character = client.character;
+    const character = client.character,
+    sourceClient = this.getClientByCharId(damageInfo.entity);
     if (character.isAlive) {
       client.character.isRespawning = true;
       this.sendDeathMetrics(client);
       debug(character.name + " has died");
-      if (deathInfo?.client) {
+      if (sourceClient) {
         this.sendDataToAll("Character.KilledBy", {
           killed: client.character.characterId,
-          killer: deathInfo.client.character.characterId,
-          isCheater: deathInfo.client.character.godMode,
+          killer: sourceClient.character.characterId,
+          isCheater: sourceClient.character.godMode,
         } as CharacterKilledBy);
       }
       client.character.isRunning = false;
@@ -1100,7 +1108,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.clearMovementModifiers(client);
     character.isAlive = false;
 
-    this.hookManager.checkHook("OnPlayerDied", client, deathInfo);
+    this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
   }
 
   async explosionDamage(
@@ -1117,7 +1125,7 @@ export class ZoneServer2016 extends EventEmitter {
             characterObj.character.state.position
           );
           const damage = 50000 / distance;
-          this.playerDamage(this._clients[character], damage);
+          this.playerDamage(this._clients[character], {entity: npcTriggered, damage: damage});
         }
       }
     }
@@ -1901,31 +1909,6 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  updateResourceToAllWithSpawnedCharacter(
-    client: Client,
-    entityId: string,
-    value: number,
-    resourceId: number,
-    resourceType = resourceId // most resources have the same id and type
-  ) {
-    this.sendDataToAllWithSpawnedEntity(
-      this._characters,
-      client.character.characterId,
-      "ResourceEvent",
-      {
-        eventData: {
-          type: 3,
-          value: {
-            characterId: entityId,
-            resourceId: resourceId,
-            resourceType: resourceType,
-            initialValue: value >= 0 ? value : 0,
-          },
-        },
-      }
-    );
-  }
-
   updateResourceToAllWithSpawnedEntity(
     entityId: string,
     value: number,
@@ -2122,8 +2105,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
         this.playerDamage(
           c,
-          damage,
-          { client: client, hitReport: packet.hitReport },
+          { entity: client.character.characterId, damage: damage, hitReport: packet.hitReport },
           causeBleed
         );
       };
@@ -2214,16 +2196,15 @@ export class ZoneServer2016 extends EventEmitter {
 
   playerDamage(
     client: Client,
-    damage: number,
-    damageInfo: { client: Client; hitReport: any } | undefined = undefined,
+    damageInfo: DamageInfo,
     causeBleeding: boolean = false
   ) {
     const character = client.character,
+      damage = damageInfo.damage,
       oldHealth = character._resources[ResourceIds.HEALTH];
     if (
       !client.character.godMode &&
-      client.character.isAlive &&
-      client.character.characterId
+      client.character.isAlive
     ) {
       if (damage < 100) {
         return;
@@ -2234,11 +2215,12 @@ export class ZoneServer2016 extends EventEmitter {
           if (damage > 4000) {
             client.character._resources[ResourceIds.BLEEDING] += 41;
           }
-          this.updateResourceToAllWithSpawnedCharacter(
-            client,
+          this.updateResourceToAllWithSpawnedEntity(
             client.character.characterId,
             client.character._resources[ResourceIds.BLEEDING],
-            ResourceIds.BLEEDING
+            ResourceIds.BLEEDING,
+            ResourceTypes.BLEEDING,
+             this._characters
           );
         }
       }
@@ -2253,26 +2235,28 @@ export class ZoneServer2016 extends EventEmitter {
         character._resources[ResourceIds.HEALTH],
         ResourceIds.HEALTH
       );
-      if (!damageInfo?.client.character) {
+      const sourceClient = this.getClientByCharId(damageInfo.entity);
+      if (!sourceClient?.character) {
         return;
       }
       const damageRecord = this.generateDamageRecord(
-        client,
-        damageInfo.client,
+        character.characterId,
+        damageInfo.entity,
         damageInfo.hitReport,
         oldHealth,
         damage
       );
       client.character.addCombatlogEntry(damageRecord);
-      damageInfo.client.character.addCombatlogEntry(damageRecord);
+      sourceClient.character.addCombatlogEntry(damageRecord);
       this.combatLog(client);
-      this.combatLog(damageInfo.client);
+      this.combatLog(sourceClient);
+
       const orientation =
         Math.atan2(
           client.character.state.position[2] -
-            damageInfo?.client.character.state.position[2],
+            sourceClient.character.state.position[2],
           client.character.state.position[0] -
-            damageInfo?.client.character.state.position[0]
+            sourceClient.character.state.position[0]
         ) *
           -1 -
         1.4;
@@ -4070,7 +4054,7 @@ export class ZoneServer2016 extends EventEmitter {
               this._clients[a].character.isAlive &&
               !this._clients[a].vehicle.mountedVehicle
             ) {
-              this.playerDamage(this._clients[a], 501, undefined, true);
+              this.playerDamage(this._clients[a], {entity: npc.characterId, damage: 501}, true);
               this.sendDataToAllWithSpawnedEntity(
                 this._traps,
                 characterId,
@@ -4130,15 +4114,16 @@ export class ZoneServer2016 extends EventEmitter {
                 npc.state.position
               ) < 1
             ) {
-              this.playerDamage(this._clients[a], 2000);
+              this.playerDamage(this._clients[a], {entity: npc.characterId, damage: 2000});
               this._clients[a].character._resources[ResourceIds.BLEEDING] += 41;
-              this.updateResourceToAllWithSpawnedCharacter(
-                client,
+              this.updateResourceToAllWithSpawnedEntity(
                 client.character.characterId,
                 client.character._resources[ResourceIds.BLEEDING] > 0
                   ? client.character._resources[ResourceIds.BLEEDING]
                   : 0,
-                ResourceIds.BLEEDING
+                ResourceIds.BLEEDING,
+                ResourceTypes.BLEEDING,
+                this._characters
               );
               this.sendDataToAllWithSpawnedEntity(
                 this._traps,
@@ -6420,11 +6405,12 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client.character.healingInterval) {
       client.character.starthealingInterval(client, this);
     }
-    this.updateResourceToAllWithSpawnedCharacter(
-      client,
+    this.updateResourceToAllWithSpawnedEntity(
       client.character.characterId,
       bleeding,
-      ResourceIds.BLEEDING
+      ResourceIds.BLEEDING,
+      ResourceIds.BLEEDING,
+      this._characters
     );
     this.removeInventoryItem(client, item);
   }

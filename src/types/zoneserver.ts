@@ -246,3 +246,9 @@ export interface Recipe {
   bundleCount?: number;
   components: Array<RecipeComponent>;
 }
+
+export interface DamageInfo {
+  entity: string;
+  damage: number;
+  hitReport?: any;
+}

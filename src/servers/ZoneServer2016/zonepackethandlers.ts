@@ -194,7 +194,7 @@ export class zonePacketHandlers {
   }
   CollisionDamage(server: ZoneServer2016, client: Client, packet: any) {
     const characterId = packet.data.characterId,
-      damage = packet.data.damage,
+      damage: number = packet.data.damage,
       vehicle = server._vehicles[characterId];
     if (characterId === client.character.characterId) {
       if (!client.vehicle.mountedVehicle) {
@@ -203,7 +203,7 @@ export class zonePacketHandlers {
         if (Number(client.character.lastLoginDate) + 4000 >= Date.now()) {
           return;
         }
-        server.playerDamage(client, damage);
+        server.playerDamage(client, {entity: "", damage: damage});
       }
     } else if (vehicle) {
       server.damageVehicle(damage / 50, vehicle);
@@ -782,7 +782,7 @@ export class zonePacketHandlers {
     server.sendData(client, "ClientUpdate.ProximateItems", proximityItems);
   }
   CommandSuicide(server: ZoneServer2016, client: Client, packet: any) {
-    server.killCharacter(client);
+    server.killCharacter(client, {entity: client.character.characterId, damage: 9999});
   }
   //#region ITEMS
   RequestUseItem(server: ZoneServer2016, client: Client, packet: any) {

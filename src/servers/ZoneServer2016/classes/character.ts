@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { LoadoutIds, LoadoutSlots, ResourceIds } from "../models/enums";
+import { LoadoutIds, LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
@@ -177,8 +177,10 @@ export class Character2016 extends BaseFullCharacter {
         if (client.character._resources[ResourceIds.BLEEDING] > 0) {
           server.playerDamage(
             client,
+            {entity: "", damage: 
             Math.ceil(client.character._resources[ResourceIds.BLEEDING] / 40) *
               100
+            }
           );
         }
         if (client.character._resources[ResourceIds.BLEEDING] > 80) {
@@ -191,13 +193,13 @@ export class Character2016 extends BaseFullCharacter {
           client.character._resources[ResourceIds.HUNGER] = 10000;
         } else if (client.character._resources[ResourceIds.HUNGER] < 0) {
           client.character._resources[ResourceIds.HUNGER] = 0;
-          server.playerDamage(client, 100);
+          server.playerDamage(client, {entity: "", damage: 100});
         }
         if (client.character._resources[ResourceIds.HYDRATION] > 10000) {
           client.character._resources[ResourceIds.HYDRATION] = 10000;
         } else if (client.character._resources[ResourceIds.HYDRATION] < 0) {
           client.character._resources[ResourceIds.HYDRATION] = 0;
-          server.playerDamage(client, 100);
+          server.playerDamage(client, {entity: "", damage: 100});
         }
         if (client.character._resources[ResourceIds.HEALTH] > 10000) {
           client.character._resources[ResourceIds.HEALTH] = 10000;
@@ -206,53 +208,59 @@ export class Character2016 extends BaseFullCharacter {
         }
 
         if (client.character._resources[ResourceIds.HUNGER] != hunger) {
-          server.updateResourceToAllWithSpawnedCharacter(
-            client,
+          server.updateResourceToAllWithSpawnedEntity(
             client.character.characterId,
             client.character._resources[ResourceIds.HUNGER],
-            ResourceIds.HUNGER
+            ResourceIds.HUNGER,
+            ResourceTypes.HUNGER,
+            server._characters
           );
         }
         if (client.character._resources[ResourceIds.HYDRATION] != hydration) {
-          server.updateResourceToAllWithSpawnedCharacter(
-            client,
+          server.updateResourceToAllWithSpawnedEntity(
             client.character.characterId,
             client.character._resources[ResourceIds.HYDRATION],
-            ResourceIds.HYDRATION
+            ResourceIds.HYDRATION,
+            ResourceTypes.HYDRATION,
+            server._characters
           );
         }
         if (client.character._resources[ResourceIds.HEALTH] != health) {
-          server.updateResourceToAllWithSpawnedCharacter(
-            client,
+          server.updateResourceToAllWithSpawnedEntity(
             client.character.characterId,
             client.character._resources[ResourceIds.HEALTH],
-            ResourceIds.HEALTH
+            ResourceIds.HEALTH,
+            ResourceTypes.HEALTH,
+            server._characters
           );
         }
         if (client.character._resources[ResourceIds.VIRUS] != virus) {
-          server.updateResourceToAllWithSpawnedCharacter(
-            client,
+          server.updateResourceToAllWithSpawnedEntity(
             client.character.characterId,
             client.character._resources[ResourceIds.VIRUS],
-            ResourceIds.VIRUS
+            ResourceIds.VIRUS,
+            ResourceTypes.VIRUS,
+            server._characters
           );
         }
         if (client.character._resources[ResourceIds.STAMINA] != stamina) {
-          server.updateResourceToAllWithSpawnedCharacter(
-            client,
+          server.updateResourceToAllWithSpawnedEntity(
             client.character.characterId,
             client.character._resources[ResourceIds.STAMINA],
-            ResourceIds.STAMINA
+            ResourceIds.STAMINA,
+            ResourceTypes.STAMINA,
+            server._characters
           );
         }
         if (client.character._resources[ResourceIds.BLEEDING] != bleeding) {
-          server.updateResourceToAllWithSpawnedCharacter(
-            client,
+          server.updateResourceToAllWithSpawnedEntity(
             client.character.characterId,
             client.character._resources[ResourceIds.BLEEDING] > 0
               ? client.character._resources[ResourceIds.BLEEDING]
               : 0,
-            ResourceIds.BLEEDING
+            ResourceIds.BLEEDING,
+            ResourceTypes.BLEEDING,
+            server._characters
           );
         }
 
