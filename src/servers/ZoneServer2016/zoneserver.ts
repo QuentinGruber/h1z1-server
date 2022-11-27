@@ -1406,7 +1406,11 @@ export class ZoneServer2016 extends EventEmitter {
     this.deleteConstructionSlot(constructionCharId, dictionary, 3000);
   }
 
-  deleteConstructionSlot(constructionCharId: string, dictionary: any, destructTime = 0) {
+  deleteConstructionSlot(
+    constructionCharId: string,
+    dictionary: any,
+    destructTime = 0
+  ) {
     const constructionObject = dictionary[constructionCharId];
     this.deleteEntity(constructionCharId, dictionary, 242, destructTime);
     const foundation = this._constructionFoundations[
