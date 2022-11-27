@@ -43,7 +43,13 @@ export class Character2016 extends BaseFullCharacter {
   isBleeding = false;
   isBandaged = false;
   isExhausted = false;
-  isAlive = true;
+  static isAlive = true;
+  public set isAlive(state) {
+    this.characterStates.knockedOut = !state;
+  }
+  public get isAlive() {
+    return !this.characterStates.knockedOut;
+  }
   isSonic = false;
   isMoving = false;
   actorModelId!: number;

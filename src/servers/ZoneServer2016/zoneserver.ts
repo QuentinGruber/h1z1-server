@@ -1070,7 +1070,6 @@ export class ZoneServer2016 extends EventEmitter {
         } as CharacterKilledBy);
       }
       client.character.isRunning = false;
-      client.character.characterStates.knockedOut = true;
       this.updateCharacterState(
         client,
         client.character.characterId,
@@ -1648,7 +1647,6 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.healingTicks = 0;
     client.character.healingMaxTicks = 0;
     client.character.resourcesUpdater?.refresh();
-    client.character.characterStates.knockedOut = false;
     this.updateCharacterState(
       client,
       client.character.characterId,
@@ -2095,7 +2093,7 @@ export class ZoneServer2016 extends EventEmitter {
     // TODO: Move this to OnProjectileHit in Character class
     if (
       this._characters[characterId] &&
-      !this._characters[characterId].characterStates.knockedOut
+      this._characters[characterId].isAlive
     ) {
       this.hitMissFairPlayCheck(client, true);
       damageEntity = () => {
@@ -2846,7 +2844,7 @@ export class ZoneServer2016 extends EventEmitter {
           characterObj.state.position
         ) &&
         !client.spawnedEntities.includes(characterObj) &&
-        !characterObj.characterStates.knockedOut &&
+        characterObj.isAlive &&
         !characterObj.isSpectator &&
         characterObj.isHidden == client.character.isHidden &&
         client.banType != "hiddenplayers"
