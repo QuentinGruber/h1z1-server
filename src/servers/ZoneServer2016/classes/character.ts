@@ -20,7 +20,7 @@ import {
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
-import { DamageRecord, positionUpdate } from "../../../types/zoneserver";
+import { DamageInfo, DamageRecord, positionUpdate } from "../../../types/zoneserver";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -301,6 +301,13 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
 
+  resetMetrics() {
+    this.metrics.zombiesKilled = 0;
+    this.metrics.wildlifeKilled = 0;
+    this.metrics.recipesDiscovered = 0;
+    this.metrics.startedSurvivingTP = Date.now();
+  }
+
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "LightweightToFullPc", {
       useCompression: false,
@@ -348,10 +355,12 @@ export class Character2016 extends BaseFullCharacter {
     }
   }
 
-  resetMetrics() {
-    this.metrics.zombiesKilled = 0;
-    this.metrics.wildlifeKilled = 0;
-    this.metrics.recipesDiscovered = 0;
-    this.metrics.startedSurvivingTP = Date.now();
+  OnProjectileHit(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    damageInfo: DamageInfo
+  ) {
+    server; client; damageInfo;
+    // TODO
   }
 }

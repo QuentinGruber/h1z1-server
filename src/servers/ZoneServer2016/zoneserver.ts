@@ -1535,7 +1535,6 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.addCombatlogEntry(
       this.generateDamageRecord(vehicle.characterId, damageInfo, oldHealth)
     );
-    this.combatLog(client);
 
     if (vehicle._resources[ResourceIds.CONDITION] <= 0) {
       this.destroyVehicle(
@@ -2010,9 +2009,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   npcDamage(client: Client, characterId: string, damageInfo: DamageInfo) {
-    const damage = damageInfo.damage; // temp
-    const npc = this._npcs[characterId];
-    if ((npc.health -= damage) <= 0) {
+    const npc = this._npcs[characterId],
+    oldHealth = npc.health;
+    if ((npc.health -= damageInfo.damage) <= 0) {
       npc.flags.knockedOut = 1;
       npc.deathTime = Date.now();
       client.character.metrics.zombiesKilled++;
@@ -2025,6 +2024,13 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
     }
+
+    const damageRecord = this.generateDamageRecord(
+      npc.characterId,
+      damageInfo,
+      oldHealth
+    );
+    client.character.addCombatlogEntry(damageRecord);
   }
 
   getClientByCharId(characterId: string) {
@@ -2049,6 +2055,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkHelmet(packet: any, damage: number, helmetDamageDivder = 1): number {
+    // TODO: REDO THIS
     const c = this.getClientByCharId(packet.hitReport.characterId);
     if (!c || !this.hasHelmet(c.character.characterId)) {
       return damage;
@@ -2071,6 +2078,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkArmor(packet: any, damage: any, kevlarDamageDivider = 4): number {
+    // TODO: REDO THIS
     const c = this.getClientByCharId(packet.hitReport.characterId),
       slot = c?.character._loadout[LoadoutSlots.ARMOR],
       itemDef = this.getItemDefinition(slot?.itemDefinitionId);
@@ -2100,49 +2108,8 @@ export class ZoneServer2016 extends EventEmitter {
     const characterId = packet.hitReport.characterId,
       entity = this.getEntity(characterId);
     if (!entity) return;
-    let damageEntity;
 
     // TODO: Move this to OnProjectileHit in Character class
-    if (
-      this._characters[characterId] &&
-      this._characters[characterId].isAlive
-    ) {
-      this.hitMissFairPlayCheck(client, true);
-      damageEntity = () => {
-        const c = this.getClientByCharId(characterId);
-        if (!c) {
-          return;
-        }
-        let causeBleed: boolean = true;
-        if (canStopBleed && this.hasArmor(c.character.characterId)) {
-          causeBleed = false;
-        }
-        this.sendDataToAllWithSpawnedEntity(
-          this._characters,
-          c.character.characterId,
-          "Character.PlayWorldCompositeEffect",
-          {
-            characterId: c.character.characterId,
-            effectId: hitEffect,
-            position: [
-              packet.hitReport.position[0] + 0.1,
-              packet.hitReport.position[1],
-              packet.hitReport.position[2] + 0.1,
-              1,
-            ],
-          }
-        );
-        this.playerDamage(
-          c,
-          {
-            entity: client.character.characterId,
-            damage: damage,
-            hitReport: packet.hitReport,
-          },
-          causeBleed
-        );
-      };
-    }
 
     let damage: number,
       isHeadshot = 0,
@@ -2205,6 +2172,8 @@ export class ZoneServer2016 extends EventEmitter {
         canStopBleed = true;
         break;
     }
+
+    // TODO: Fix hitmarkers on dead entities again!
     if (packet.hitReport.hitLocation) {
       this.sendData(client, "Ui.ConfirmHit", {
         hitType: {
@@ -2221,14 +2190,52 @@ export class ZoneServer2016 extends EventEmitter {
       });
     }
 
-    // TODO: Fix hitmarkers on dead entities again!
-
+    if (
+      this._characters[characterId] &&
+      this._characters[characterId].isAlive
+    ) {
+      this.hitMissFairPlayCheck(client, true);
+        const c = this.getClientByCharId(characterId);
+        if (!c) {
+          return;
+        }
+        let causeBleed: boolean = true;
+        if (canStopBleed && this.hasArmor(c.character.characterId)) {
+          causeBleed = false;
+        }
+        this.sendDataToAllWithSpawnedEntity(
+          this._characters,
+          c.character.characterId,
+          "Character.PlayWorldCompositeEffect",
+          {
+            characterId: c.character.characterId,
+            effectId: hitEffect,
+            position: [
+              packet.hitReport.position[0] + 0.1,
+              packet.hitReport.position[1],
+              packet.hitReport.position[2] + 0.1,
+              1,
+            ],
+          }
+        );
+        this.playerDamage(
+          c,
+          {
+            entity: client.character.characterId,
+            damage: damage,
+            hitReport: packet.hitReport,
+          },
+          causeBleed
+        );
+      return;
+    }
     entity.OnProjectileHit(this, client, {
       entity: client.character.characterId,
       damage: damage,
       hitReport: packet.hitReport,
     });
-    if (damageEntity) damageEntity();
+
+    
   }
 
   playerDamage(
