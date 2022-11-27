@@ -269,7 +269,24 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
-  pGetItemData(item: inventoryItem, containerDefId: number) {
+  pGetItemData(
+    server: ZoneServer2016,
+    item: inventoryItem,
+    containerDefId: number
+  ) {
+    let durability: number = 0;
+    const isWeapon = server.isWeapon(item.itemDefinitionId);
+    switch (true) {
+      case server.isWeapon(item.itemDefinitionId):
+        durability = 2000;
+        break;
+      case server.isArmor(item.itemDefinitionId):
+        durability = 1000;
+        break;
+      case server.isHelmet(item.itemDefinitionId):
+        durability = 100;
+        break;
+    }
     return {
       itemDefinitionId: item.itemDefinitionId,
       tintId: 0,
@@ -281,17 +298,18 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       containerGuid: item.containerGuid,
       containerDefinitionId: containerDefId,
       containerSlotId: item.slotId,
-      baseDurability: 0,
-      currentDurability: item.currentDurability,
-      maxDurabilityFromDefinition: 0,
+      baseDurability: durability,
+      currentDurability: durability ? item.currentDurability : 0,
+      maxDurabilityFromDefinition: durability,
       unknownBoolean1: true,
-      ownerCharacterId: this.characterId,
+      ownerCharacterId:
+        isWeapon && item.itemDefinitionId !== 85 ? "" : this.characterId,
       unknownDword9: 1,
-      unknownBoolean2: false,
+      weaponData: server.getItemWeaponData(this, item),
     };
   }
 
-  pGetInventoryItems() {
+  pGetInventoryItems(server: ZoneServer2016) {
     const items: any[] = Object.values(this._loadout)
       .filter((slot) => {
         if (slot.itemDefinitionId) {
@@ -299,17 +317,17 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         }
       })
       .map((slot) => {
-        return this.pGetItemData(slot, 101);
+        return this.pGetItemData(server, slot, 101);
       });
     Object.values(this._containers).forEach((container) => {
       Object.values(container.items).forEach((item) => {
-        items.push(this.pGetItemData(item, container.containerDefinitionId));
+        items.push(this.pGetItemData(server, item, container.containerDefinitionId));
       });
     });
     return items;
   }
 
-  pGetFull() {
+  pGetFull(server: ZoneServer2016) {
     return {
       transientId: this.transientId,
       attachmentData: this.pGetAttachmentSlots(),
@@ -328,10 +346,44 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       unknownArray6: { data: {} },
       remoteWeapons: { data: {} },
       itemsData: {
-        items: this.pGetInventoryItems(),
+        items: this.pGetInventoryItems(server),
         unknownDword1: 0,
       },
     };
+  }
+
+  pGetContainerData(server: ZoneServer2016, container: loadoutContainer) {
+    return {
+      loadoutSlotId: container.slotId,
+      containerData: {
+        guid: container.itemGuid,
+        definitionId: container.containerDefinitionId,
+        associatedCharacterId: this.characterId,
+        slots: server.getContainerMaxSlots(container),
+        items: Object.values(container.items).map((item, idx) => {
+          container.items[item.itemGuid].slotId = idx + 1;
+          return {
+            itemDefinitionId: item.itemDefinitionId,
+            itemData: this.pGetItemData(
+              server,
+              item,
+              container.containerDefinitionId
+            ),
+          };
+        }),
+        unknownBoolean1: true, // needs to be true or bulk doesn't show up
+        maxBulk: server.getContainerMaxBulk(container),
+        unknownDword4: 28,
+        bulkUsed: server.getContainerBulk(container),
+        hasBulkLimit: !!server.getContainerMaxBulk(container),
+      },
+    };
+  }
+
+  pGetContainers(server: ZoneServer2016) {
+    return Object.values(this._containers).map((container) => {
+      return this.pGetContainerData(server, container);
+    });
   }
 
   getResourceType(resourceId: number) {

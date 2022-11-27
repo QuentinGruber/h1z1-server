@@ -405,7 +405,7 @@ const dev: any = {
   ) {
     server.sendData(client, "Container.ListAll", {
       characterId: client.character.characterId,
-      containers: server.pGetContainers(client.character),
+      containers: client.character.pGetContainers(this),
     });
   },
   shutdown: function (server: ZoneServer2016, client: Client, args: any[]) {

@@ -301,6 +301,37 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
 
+  pGetSendSelf(server: ZoneServer2016, guid = "") {
+    return {
+      ...this.pGetLightweight(),
+      guid: guid,
+      hairModel: this.hairModel,
+      isRespawning: this.isRespawning,
+      gender: this.gender,
+      creationDate: this.creationDate,
+      lastLoginDate: this.lastLoginDate,
+      identity: {
+        characterName: this.name,
+      },
+      inventory: {
+        items: this.pGetInventoryItems(server),
+        //unknownDword1: 2355
+      },
+      recipes: server.pGetRecipes(), // todo: change to per-character recipe lists
+      stats: stats,
+      loadoutSlots: this.pGetLoadoutSlots(),
+      equipmentSlots: this.pGetEquipment(),
+      characterResources: this.pGetResources(),
+      containers: this.pGetContainers(server),
+      //unknownQword1: this.characterId,
+      //unknownDword38: 1,
+      //vehicleLoadoutRelatedQword: this.characterId,
+      //unknownQword3: this.characterId,
+      //vehicleLoadoutRelatedDword: 1,
+      //unknownDword40: 1
+    }
+  }
+
   resetMetrics() {
     this.metrics.zombiesKilled = 0;
     this.metrics.wildlifeKilled = 0;

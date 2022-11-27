@@ -566,26 +566,6 @@ export class ZoneServer2016 extends EventEmitter {
     return proximityItems;
   }
 
-  pGetInventoryItems(character: BaseFullCharacter): any[] {
-    const items: any[] = Object.values(character._loadout)
-      .filter((slot) => {
-        if (slot.itemDefinitionId) {
-          return true;
-        }
-      })
-      .map((slot) => {
-        return this.pGetItemData(character, slot, 101);
-      });
-    Object.values(character._containers).forEach((container) => {
-      Object.values(container.items).forEach((item) => {
-        items.push(
-          this.pGetItemData(character, item, container.containerDefinitionId)
-        );
-      });
-    });
-    return items;
-  }
-
   pGetRecipes(): any[] {
     // todo: change to per-character recipe lists
     const recipeKeys = Object.keys(this._recipes);
@@ -625,36 +605,8 @@ export class ZoneServer2016 extends EventEmitter {
       return;
 
     await this.worldDataManager.loadCharacterData(this, client);
-    const containers = this.pGetContainers(client.character);
     this.sendData(client, "SendSelfToClient", {
-      data: {
-        ...client.character.pGetLightweight(),
-        guid: client.guid,
-        hairModel: client.character.hairModel,
-        isRespawning: client.character.isRespawning,
-        gender: client.character.gender,
-        creationDate: client.character.creationDate,
-        lastLoginDate: client.character.lastLoginDate,
-        identity: {
-          characterName: client.character.name,
-        },
-        inventory: {
-          items: this.pGetInventoryItems(client.character),
-          //unknownDword1: 2355
-        },
-        recipes: this.pGetRecipes(), // todo: change to per-character recipe lists
-        stats: stats,
-        loadoutSlots: client.character.pGetLoadoutSlots(),
-        equipmentSlots: client.character.pGetEquipment(),
-        characterResources: client.character.pGetResources(),
-        containers: containers,
-        //unknownQword1: client.character.characterId,
-        //unknownDword38: 1,
-        //vehicleLoadoutRelatedQword: client.character.characterId,
-        //unknownQword3: client.character.characterId,
-        //vehicleLoadoutRelatedDword: 1,
-        //unknownDword40: 1
-      },
+      data: client.character.pGetSendSelf(this, client.guid),
     });
     client.character.initialized = true;
     this.initializeContainerList(client);
@@ -4319,7 +4271,7 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: vehicle.characterId,
         itemsData: {
           items: Object.values(inventory).map((item) => {
-            return vehicle.pGetItemData(item, inventory.containerDefinitionId);
+            return vehicle.pGetItemData(this, item, inventory.containerDefinitionId);
           }),
           unknownDword1: inventory.containerDefinitionId,
         },
@@ -4657,45 +4609,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   //#region ********************INVENTORY********************
 
-  pGetItemData(
-    character: BaseFullCharacter,
-    item: inventoryItem,
-    containerDefId: number
-  ) {
-    let durability: number = 0;
-    const isWeapon = this.isWeapon(item.itemDefinitionId);
-    switch (true) {
-      case this.isWeapon(item.itemDefinitionId):
-        durability = 2000;
-        break;
-      case this.isArmor(item.itemDefinitionId):
-        durability = 1000;
-        break;
-      case this.isHelmet(item.itemDefinitionId):
-        durability = 100;
-        break;
-    }
-    return {
-      itemDefinitionId: item.itemDefinitionId,
-      tintId: 0,
-      guid: item.itemGuid,
-      count: item.stackCount,
-      itemSubData: {
-        hasSubData: false,
-      },
-      containerGuid: item.containerGuid,
-      containerDefinitionId: containerDefId,
-      containerSlotId: item.slotId,
-      baseDurability: durability,
-      currentDurability: durability ? item.currentDurability : 0,
-      maxDurabilityFromDefinition: durability,
-      unknownBoolean1: true,
-      ownerCharacterId:
-        isWeapon && item.itemDefinitionId !== 85 ? "" : character.characterId,
-      unknownDword9: 1,
-      weaponData: this.getItemWeaponData(character, item),
-    };
-  }
+  
 
   pGetRemoteWeaponData(character: Character, item: inventoryItem) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
@@ -4882,7 +4796,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     this.sendData(client, "ClientUpdate.ItemAdd", {
       characterId: client.character.characterId,
-      data: this.pGetItemData(character, item, containerDefinitionId),
+      data: character.pGetItemData(this, item, containerDefinitionId),
     });
   }
 
@@ -5928,40 +5842,6 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  pGetContainerData(character: BaseFullCharacter, container: loadoutContainer) {
-    return {
-      loadoutSlotId: container.slotId,
-      containerData: {
-        guid: container.itemGuid,
-        definitionId: container.containerDefinitionId,
-        associatedCharacterId: character.characterId,
-        slots: this.getContainerMaxSlots(container),
-        items: Object.values(container.items).map((item, idx) => {
-          container.items[item.itemGuid].slotId = idx + 1;
-          return {
-            itemDefinitionId: item.itemDefinitionId,
-            itemData: this.pGetItemData(
-              character,
-              item,
-              container.containerDefinitionId
-            ),
-          };
-        }),
-        unknownBoolean1: true, // needs to be true or bulk doesn't show up
-        maxBulk: this.getContainerMaxBulk(container),
-        unknownDword4: 28,
-        bulkUsed: this.getContainerBulk(container),
-        hasBulkLimit: !!this.getContainerMaxBulk(container),
-      },
-    };
-  }
-
-  pGetContainers(character: BaseFullCharacter) {
-    return Object.values(character._containers).map((container) => {
-      return this.pGetContainerData(character, container);
-    });
-  }
-
   initializeContainerList(
     client: Client,
     character: BaseFullCharacter = client.character
@@ -5969,7 +5849,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "Container.InitEquippedContainers", {
       ignore: character.characterId,
       characterId: character.characterId,
-      containers: this.pGetContainers(character),
+      containers: character.pGetContainers(this),
     });
   }
 
@@ -5987,8 +5867,8 @@ export class ZoneServer2016 extends EventEmitter {
           container.items[item.itemGuid].slotId = idx + 1;
           return {
             itemDefinitionId: item.itemDefinitionId,
-            itemData: this.pGetItemData(
-              client.character,
+            itemData: client.character.pGetItemData(
+              this,
               item,
               container.containerDefinitionId
             ),
@@ -6037,7 +5917,7 @@ export class ZoneServer2016 extends EventEmitter {
   updateLoadoutItem(client: Client, item: loadoutItem) {
     this.sendData(client, "ClientUpdate.ItemUpdate", {
       characterId: client.character.characterId,
-      data: this.pGetItemData(client.character, item, 101),
+      data: client.character.pGetItemData(this, item, 101),
     });
     //this.updateLoadout(client.character);
   }
@@ -6050,8 +5930,8 @@ export class ZoneServer2016 extends EventEmitter {
     if (!container || !client.character.initialized) return;
     this.sendData(client, "ClientUpdate.ItemUpdate", {
       characterId: client.character.characterId,
-      data: this.pGetItemData(
-        client.character,
+      data: client.character.pGetItemData(
+        this,
         item,
         container.containerDefinitionId
       ),

@@ -182,10 +182,10 @@ export class Vehicle2016 extends BaseFullCharacter {
       positionUpdate: this.positionUpdate,
     };
   }
-  pGetFullVehicle() {
+  pGetFullVehicle(server: ZoneServer2016) {
     return {
       npcData: {
-        ...this.pGetFull(),
+        ...this.pGetFull(server),
       },
       positionUpdate: this.positionUpdate,
       unknownArray1: [],
@@ -303,7 +303,7 @@ export class Vehicle2016 extends BaseFullCharacter {
       this.vehicleId == VehicleIds.PARACHUTE
     )
       return;
-    server.sendData(client, "LightweightToFullVehicle", this.pGetFullVehicle());
+    server.sendData(client, "LightweightToFullVehicle", this.pGetFullVehicle(server));
     server.updateLoadout(this);
     // prevents cars from spawning in under the map for other characters
     /*

@@ -61,7 +61,7 @@ export class Npc extends BaseFullCharacter {
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-    server.sendData(client, "LightweightToFullNpc", this.pGetFull());
+    server.sendData(client, "LightweightToFullNpc", this.pGetFull(server));
 
     if (this.onReadyCallback) {
       this.onReadyCallback(client);
