@@ -418,7 +418,7 @@ export const commands: Array<Command> = [
           locationPosition = new Float32Array([1895.4, 93.69, -2914.39, 1]);
           break;
         default:
-          if (args.length < 4) {
+          if (args.length < 3) {
             server.sendChatText(
               client,
               "Unknown set location, need 3 args to tp to exact location: x, y, z",
