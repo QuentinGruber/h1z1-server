@@ -2552,4 +2552,4 @@ export const passengerSchema = [
   },
   { name: "unknownString1", type: "string", defaultValue: "" },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-]
+];

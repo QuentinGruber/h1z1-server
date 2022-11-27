@@ -11,7 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { LoadoutIds, LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
+import {
+  LoadoutIds,
+  LoadoutSlots,
+  ResourceIds,
+  ResourceTypes,
+} from "../models/enums";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
@@ -175,13 +180,13 @@ export class Character2016 extends BaseFullCharacter {
           client.character._resources[ResourceIds.STAMINA] = 0;
         }
         if (client.character._resources[ResourceIds.BLEEDING] > 0) {
-          server.playerDamage(
-            client,
-            {entity: "", damage: 
-            Math.ceil(client.character._resources[ResourceIds.BLEEDING] / 40) *
-              100
-            }
-          );
+          server.playerDamage(client, {
+            entity: "",
+            damage:
+              Math.ceil(
+                client.character._resources[ResourceIds.BLEEDING] / 40
+              ) * 100,
+          });
         }
         if (client.character._resources[ResourceIds.BLEEDING] > 80) {
           client.character._resources[ResourceIds.BLEEDING] = 80;
@@ -193,13 +198,13 @@ export class Character2016 extends BaseFullCharacter {
           client.character._resources[ResourceIds.HUNGER] = 10000;
         } else if (client.character._resources[ResourceIds.HUNGER] < 0) {
           client.character._resources[ResourceIds.HUNGER] = 0;
-          server.playerDamage(client, {entity: "", damage: 100});
+          server.playerDamage(client, { entity: "", damage: 100 });
         }
         if (client.character._resources[ResourceIds.HYDRATION] > 10000) {
           client.character._resources[ResourceIds.HYDRATION] = 10000;
         } else if (client.character._resources[ResourceIds.HYDRATION] < 0) {
           client.character._resources[ResourceIds.HYDRATION] = 0;
-          server.playerDamage(client, {entity: "", damage: 100});
+          server.playerDamage(client, { entity: "", damage: 100 });
         }
         if (client.character._resources[ResourceIds.HEALTH] > 10000) {
           client.character._resources[ResourceIds.HEALTH] = 10000;

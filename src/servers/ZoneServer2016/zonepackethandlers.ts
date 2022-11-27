@@ -203,10 +203,10 @@ export class zonePacketHandlers {
         if (Number(client.character.lastLoginDate) + 4000 >= Date.now()) {
           return;
         }
-        server.playerDamage(client, {entity: "", damage: damage});
+        server.playerDamage(client, { entity: "", damage: damage });
       }
     } else if (vehicle) {
-      server.damageVehicle(vehicle, {entity: "", damage: damage / 50});
+      server.damageVehicle(vehicle, { entity: "", damage: damage / 50 });
       //server.DTOhit(client, packet);
     }
   }
@@ -782,7 +782,10 @@ export class zonePacketHandlers {
     server.sendData(client, "ClientUpdate.ProximateItems", proximityItems);
   }
   CommandSuicide(server: ZoneServer2016, client: Client, packet: any) {
-    server.killCharacter(client, {entity: client.character.characterId, damage: 9999});
+    server.killCharacter(client, {
+      entity: client.character.characterId,
+      damage: 9999,
+    });
   }
   //#region ITEMS
   RequestUseItem(server: ZoneServer2016, client: Client, packet: any) {

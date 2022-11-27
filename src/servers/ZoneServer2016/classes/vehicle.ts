@@ -208,9 +208,9 @@ export class Vehicle2016 extends BaseFullCharacter {
       ],
     };
   }
-  
+
   pGetPassengers(server: ZoneServer2016) {
-    return this.getPassengerList().map((passenger)=> {
+    return this.getPassengerList().map((passenger) => {
       return {
         characterId: passenger,
         identity: {
@@ -218,8 +218,8 @@ export class Vehicle2016 extends BaseFullCharacter {
         },
         unknownString1: server._characters[passenger].name,
         unknownByte1: 1,
-      }
-    })
+      };
+    });
   }
 
   getInventoryItemId(): number {
