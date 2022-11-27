@@ -48,6 +48,7 @@ import {
   characterEquipment,
   DamageInfo,
   DamageRecord,
+  HitReport,
   inventoryItem,
   loadoutContainer,
   loadoutItem,
@@ -1004,41 +1005,60 @@ export class ZoneServer2016 extends EventEmitter {
 
   generateDamageRecord(
     targetCharacterId: string,
-    sourceCharacterId: string,
-    hitReport: any,
-    oldHealth: number,
-    damage: number
+    damageInfo: DamageInfo,
+    oldHealth: number
   ): DamageRecord {
     const targetEntity = this.getEntity(targetCharacterId),
-    sourceEntity = this.getEntity(sourceCharacterId),
+    sourceEntity = this.getEntity(damageInfo.entity),
     targetClient = this.getClientByCharId(targetCharacterId),
-    sourceClient = this.getClientByCharId(sourceCharacterId);
-    if(!sourceClient || !targetClient) return {} as DamageRecord;
-
-    const sCharacter = sourceClient.character,
-      tCharacter = targetClient.character;
+    sourceClient = this.getClientByCharId(damageInfo.entity);
+    if(!sourceEntity || !targetEntity) return {} as DamageRecord;
+    
+    let sourceName = "Generic", 
+    sourcePing = 0, 
+    targetName = "Generic", 
+    targetPing = 0, 
+    weapon = "N/A";
+    if(sourceClient && !targetClient) {
+      sourceName = sourceClient.character.name || "Unknown";
+      sourcePing = sourceClient.avgPing;
+    }
+    else if (!sourceClient && targetClient) {
+      targetName = targetClient.character.name || "Unknown";
+      targetPing = targetClient.avgPing;
+    }
+    else if (sourceClient && targetClient) {
+      sourceName = sourceClient.character.name || "Unknown";
+      sourcePing = sourceClient.avgPing;
+      targetName = targetClient.character.name || "Unknown";
+      targetPing = targetClient.avgPing;
+      weapon = this.getItemDefinition(
+        sourceClient.character.getEquippedWeapon().itemDefinitionId
+      ).MODEL_NAME;
+    }
+    else {
+      return {} as DamageRecord;
+    }
     return {
       source: {
-        name: sCharacter.name || "Unknown",
-        ping: sourceClient.avgPing,
+        name: sourceName,
+        ping: sourcePing,
       },
       target: {
-        name: tCharacter.name || "Unknown",
-        ping: targetClient.avgPing,
+        name: targetName,
+        ping: targetPing,
       },
       hitInfo: {
         timestamp: Date.now(),
-        weapon: this.getItemDefinition(
-          sCharacter.getEquippedWeapon().itemDefinitionId
-        ).MODEL_NAME,
+        weapon: weapon,
         distance: getDistance(
-          sCharacter.state.position,
-          tCharacter.state.position
+          sourceEntity.state.position,
+          targetEntity.state.position
         ).toFixed(1),
-        hitLocation: hitReport?.hitLocation || "Unknown",
-        hitPosition: hitReport?.position || new Float32Array([0, 0, 0, 0]),
+        hitLocation: damageInfo.hitReport?.hitLocation || "Unknown",
+        hitPosition: damageInfo.hitReport?.position || new Float32Array([0, 0, 0, 0]),
         oldHP: oldHealth,
-        newHP: oldHealth - damage < 0 ? 0 : oldHealth - damage,
+        newHP: oldHealth - damageInfo.damage < 0 ? 0 : oldHealth - damageInfo.damage,
       },
     };
   }
@@ -1125,7 +1145,7 @@ export class ZoneServer2016 extends EventEmitter {
             characterObj.character.state.position
           );
           const damage = 50000 / distance;
-          this.playerDamage(this._clients[character], {entity: "", damage: damage});
+          this.playerDamage(this._clients[character], {entity: npcTriggered, damage: damage});
         }
       }
     }
@@ -1136,7 +1156,7 @@ export class ZoneServer2016 extends EventEmitter {
           const distance = getDistance(position, vehicle.state.position);
           const damage = 250000 / distance;
           await Scheduler.wait(150);
-          this.damageVehicle(damage, vehicle);
+          this.damageVehicle(vehicle, { entity: npcTriggered, damage: damage });
         }
       }
     }
@@ -1457,8 +1477,9 @@ export class ZoneServer2016 extends EventEmitter {
     return;
   }
 
-  damageVehicle(damage: number, vehicle: Vehicle) {
-    if (!vehicle.isInvulnerable) {
+  damageVehicle(vehicle: Vehicle, damageInfo: DamageInfo) {
+    if (vehicle.isInvulnerable) return;
+
       let destroyedVehicleEffect: number;
       let minorDamageEffect: number;
       let majorDamageEffect: number;
@@ -1507,7 +1528,18 @@ export class ZoneServer2016 extends EventEmitter {
           supercriticalDamageEffect = 5227;
           break;
       }
-      vehicle._resources[ResourceIds.CONDITION] -= damage;
+      const oldHealth = vehicle._resources[ResourceIds.CONDITION];
+      vehicle._resources[ResourceIds.CONDITION] -= damageInfo.damage;
+
+      const client = this.getClientByCharId(damageInfo.entity);
+      if(!client) return;
+      client.character.addCombatlogEntry(this.generateDamageRecord(
+        vehicle.characterId,
+        damageInfo,
+        oldHealth
+      ));
+      this.combatLog(client);
+
       if (vehicle._resources[ResourceIds.CONDITION] <= 0) {
         this.destroyVehicle(
           vehicle,
@@ -1585,7 +1617,6 @@ export class ZoneServer2016 extends EventEmitter {
           this._vehicles
         );
       }
-    }
   }
 
   destroyVehicle(
@@ -1621,7 +1652,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   startVehicleDamageDelay(vehicle: Vehicle) {
     vehicle.damageTimeout = setTimeout(() => {
-      this.damageVehicle(1000, vehicle);
+      this.damageVehicle(vehicle, { entity: "", damage: 1000 });
       if (
         vehicle._resources[ResourceIds.CONDITION] < 20000 &&
         vehicle._resources[ResourceIds.CONDITION] > 0
@@ -1981,7 +2012,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.updateLoadoutItem(client, item);
   }
 
-  npcDamage(client: Client, characterId: string, damage: number) {
+  npcDamage(client: Client, characterId: string, damageInfo: DamageInfo) {
+    const damage = damageInfo.damage; // temp
     const npc = this._npcs[characterId];
     if ((npc.health -= damage) <= 0) {
       npc.flags.knockedOut = 1;
@@ -2190,7 +2222,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     // TODO: Fix hitmarkers on dead entities again!
 
-    entity.OnProjectileHit(this, client, damage);
+    entity.OnProjectileHit(this, client, { entity: client.character.characterId, damage: damage, hitReport: packet.hitReport });
     if (damageEntity) damageEntity();
   }
 
@@ -2256,10 +2288,8 @@ export class ZoneServer2016 extends EventEmitter {
 
       const damageRecord = this.generateDamageRecord(
         character.characterId,
-        damageInfo.entity,
-        damageInfo.hitReport,
+        damageInfo,
         oldHealth,
-        damage
       );
       client.character.addCombatlogEntry(damageRecord);
       this.combatLog(client);

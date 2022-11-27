@@ -191,10 +191,20 @@ export interface Weather2016 {
   unknownDword33: number;
 }
 
+export interface HitReport {
+  sessionProjectileCount: number;
+  characterId: string;
+  position: Float32Array;
+  unknownFlag1: number;
+  hitLocation?: string;
+  totalShotCount: number;
+  unknownByte2: number;
+}
+
 export interface DamageInfo {
   entity: string;
   damage: number;
-  hitReport?: any;
+  hitReport?: HitReport;
 }
 
 export interface DamageRecord {

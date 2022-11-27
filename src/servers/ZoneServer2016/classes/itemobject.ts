@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { inventoryItem } from "types/zoneserver";
+import { DamageInfo, inventoryItem } from "types/zoneserver";
 import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
@@ -75,10 +75,10 @@ export class ItemObject extends BaseLightweightCharacter {
   OnProjectileHit(
     server: ZoneServer2016,
     client: ZoneClient2016,
-    damage: number
+    damageInfo: DamageInfo
   ) {
     client;
-    damage; // eslint
+    damageInfo; // eslint
     if (
       this.item.itemDefinitionId === Items.FUEL_BIOFUEL ||
       this.item.itemDefinitionId === Items.FUEL_ETHANOL

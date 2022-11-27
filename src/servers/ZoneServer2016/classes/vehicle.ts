@@ -16,6 +16,7 @@ import { Items, LoadoutIds, ResourceIds, VehicleIds } from "../models/enums";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import { DamageInfo } from "types/zoneserver";
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {
@@ -355,8 +356,8 @@ export class Vehicle2016 extends BaseFullCharacter {
   OnProjectileHit(
     server: ZoneServer2016,
     client: ZoneClient2016,
-    damage: number
+    damageInfo: DamageInfo
   ) {
-    server.damageVehicle(damage, this);
+    server.damageVehicle(this, damageInfo);
   }
 }
