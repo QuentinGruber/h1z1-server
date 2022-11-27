@@ -303,7 +303,11 @@ export class Vehicle2016 extends BaseFullCharacter {
       this.vehicleId == VehicleIds.PARACHUTE
     )
       return;
-    server.sendData(client, "LightweightToFullVehicle", this.pGetFullVehicle(server));
+    server.sendData(
+      client,
+      "LightweightToFullVehicle",
+      this.pGetFullVehicle(server)
+    );
     server.updateLoadout(this);
     // prevents cars from spawning in under the map for other characters
     /*

@@ -269,6 +269,61 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
+  pGetItemWeaponData(server: ZoneServer2016, slot: inventoryItem) {
+    if (slot.weapon) {
+      return {
+        isWeapon: true, // not sent to client, only used as a flag for pack function
+        unknownData1: {
+          unknownBoolean1: false,
+        },
+        unknownData2: {
+          ammoSlots: server.getWeaponAmmoId(slot.itemDefinitionId)
+            ? [{ ammoSlot: slot.weapon?.ammoCount }]
+            : [],
+          firegroups: [
+            {
+              firegroupId: server.getWeaponDefinition(
+                server.getItemDefinition(slot.itemDefinitionId).PARAM1
+              )?.FIRE_GROUPS[0]?.FIRE_GROUP_ID,
+              unknownArray1: [
+                // maybe firemodes?
+                {
+                  unknownByte1: 0,
+                  unknownDword1: 0,
+                  unknownDword2: 0,
+                  unknownDword3: 0,
+                },
+                {
+                  unknownByte1: 0,
+                  unknownDword1: 0,
+                  unknownDword2: 0,
+                  unknownDword3: 0,
+                },
+              ],
+            },
+          ],
+          equipmentSlotId: this.getActiveEquipmentSlot(slot),
+          unknownByte2: 1,
+          unknownDword1: 0,
+          unknownByte3: 0,
+          unknownByte4: -1,
+          unknownByte5: -1,
+          unknownFloat1: 0,
+          unknownByte6: 0,
+          unknownDword2: 0,
+          unknownByte7: 0,
+          unknownDword3: -1,
+        },
+        characterStats: [],
+        unknownArray1: [],
+      };
+    }
+    return {
+      isWeapon: false, // not sent to client, only used as a flag for pack function
+      unknownBoolean1: false,
+    };
+  }
+
   pGetItemData(
     server: ZoneServer2016,
     item: inventoryItem,
@@ -305,7 +360,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       ownerCharacterId:
         isWeapon && item.itemDefinitionId !== 85 ? "" : this.characterId,
       unknownDword9: 1,
-      weaponData: server.getItemWeaponData(this, item),
+      weaponData: this.pGetItemWeaponData(server, item),
     };
   }
 
@@ -321,7 +376,9 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       });
     Object.values(this._containers).forEach((container) => {
       Object.values(container.items).forEach((item) => {
-        items.push(this.pGetItemData(server, item, container.containerDefinitionId));
+        items.push(
+          this.pGetItemData(server, item, container.containerDefinitionId)
+        );
       });
     });
     return items;

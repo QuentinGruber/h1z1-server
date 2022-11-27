@@ -1962,7 +1962,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   npcDamage(client: Client, characterId: string, damageInfo: DamageInfo) {
     const npc = this._npcs[characterId],
-    oldHealth = npc.health;
+      oldHealth = npc.health;
     if ((npc.health -= damageInfo.damage) <= 0) {
       npc.flags.knockedOut = 1;
       npc.deathTime = Date.now();
@@ -2147,38 +2147,38 @@ export class ZoneServer2016 extends EventEmitter {
       this._characters[characterId].isAlive
     ) {
       this.hitMissFairPlayCheck(client, true);
-        const c = this.getClientByCharId(characterId);
-        if (!c) {
-          return;
+      const c = this.getClientByCharId(characterId);
+      if (!c) {
+        return;
+      }
+      let causeBleed: boolean = true;
+      if (canStopBleed && this.hasArmor(c.character.characterId)) {
+        causeBleed = false;
+      }
+      this.sendDataToAllWithSpawnedEntity(
+        this._characters,
+        c.character.characterId,
+        "Character.PlayWorldCompositeEffect",
+        {
+          characterId: c.character.characterId,
+          effectId: hitEffect,
+          position: [
+            packet.hitReport.position[0] + 0.1,
+            packet.hitReport.position[1],
+            packet.hitReport.position[2] + 0.1,
+            1,
+          ],
         }
-        let causeBleed: boolean = true;
-        if (canStopBleed && this.hasArmor(c.character.characterId)) {
-          causeBleed = false;
-        }
-        this.sendDataToAllWithSpawnedEntity(
-          this._characters,
-          c.character.characterId,
-          "Character.PlayWorldCompositeEffect",
-          {
-            characterId: c.character.characterId,
-            effectId: hitEffect,
-            position: [
-              packet.hitReport.position[0] + 0.1,
-              packet.hitReport.position[1],
-              packet.hitReport.position[2] + 0.1,
-              1,
-            ],
-          }
-        );
-        this.playerDamage(
-          c,
-          {
-            entity: client.character.characterId,
-            damage: damage,
-            hitReport: packet.hitReport,
-          },
-          causeBleed
-        );
+      );
+      this.playerDamage(
+        c,
+        {
+          entity: client.character.characterId,
+          damage: damage,
+          hitReport: packet.hitReport,
+        },
+        causeBleed
+      );
       return;
     }
     entity.OnProjectileHit(this, client, {
@@ -2186,8 +2186,6 @@ export class ZoneServer2016 extends EventEmitter {
       damage: damage,
       hitReport: packet.hitReport,
     });
-
-    
   }
 
   playerDamage(
@@ -4271,7 +4269,11 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: vehicle.characterId,
         itemsData: {
           items: Object.values(inventory).map((item) => {
-            return vehicle.pGetItemData(this, item, inventory.containerDefinitionId);
+            return vehicle.pGetItemData(
+              this,
+              item,
+              inventory.containerDefinitionId
+            );
           }),
           unknownDword1: inventory.containerDefinitionId,
         },
@@ -4608,142 +4610,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   //#region ********************INVENTORY********************
-
-  
-
-  pGetRemoteWeaponData(character: Character, item: inventoryItem) {
-    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
-      weaponDefinition = this.getWeaponDefinition(itemDefinition.PARAM1),
-      firegroups = weaponDefinition.FIRE_GROUPS;
-    return {
-      weaponDefinitionId: weaponDefinition.ID,
-      equipmentSlotId: character.getActiveEquipmentSlot(item),
-      firegroups: firegroups.map((firegroup: any) => {
-        const firegroupDef = this.getFiregroupDefinition(
-            firegroup.FIRE_GROUP_ID
-          ),
-          firemodes = firegroupDef?.FIRE_MODES;
-        if (!firemodes) {
-          console.error(`firegroupDef missing for ${firegroup}`);
-        }
-        return {
-          firegroupId: firegroup.FIRE_GROUP_ID,
-          unknownArray1: firegroup
-            ? firemodes.map((firemode: any, j: number) => {
-                return {
-                  unknownDword1: j,
-                  unknownDword2: firemode.FIRE_MODE_ID,
-                };
-              })
-            : [], // probably firemodes
-        };
-      }),
-    };
-  }
-
-  pGetRemoteWeaponExtraData(item: inventoryItem) {
-    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
-      weaponDefinition = this.getWeaponDefinition(itemDefinition.PARAM1),
-      firegroups = weaponDefinition.FIRE_GROUPS;
-    return {
-      guid: item.itemGuid,
-      unknownByte1: 0, // firegroupIndex (default 0)?
-      unknownByte2: 0, // MOST LIKELY firemodeIndex?
-      unknownByte3: -1,
-      unknownByte4: -1,
-      unknownByte5: 1,
-      unknownDword1: 0,
-      unknownByte6: 0,
-      unknownDword2: 0,
-      unknownArray1: firegroups.map(() => {
-        // same len as firegroups in remoteweapons
-        return {
-          // setting unknownDword1 makes the 308 sound when fullpc packet it sent
-          unknownDword1: 0, //firegroup.FIRE_GROUP_ID,
-          unknownBoolean1: false,
-          unknownBoolean2: false,
-        };
-      }),
-    };
-  }
-
-  pGetRemoteWeaponsData(character: Character) {
-    const remoteWeapons: any[] = [];
-    Object.values(character._loadout).forEach((item) => {
-      if (this.isWeapon(item.itemDefinitionId)) {
-        remoteWeapons.push({
-          guid: item.itemGuid,
-          ...this.pGetRemoteWeaponData(character, item),
-        });
-      }
-    });
-    return remoteWeapons;
-  }
-
-  pGetRemoteWeaponsExtraData(character: Character) {
-    const remoteWeaponsExtra: any[] = [];
-    Object.values(character._loadout).forEach((item) => {
-      if (this.isWeapon(item.itemDefinitionId)) {
-        remoteWeaponsExtra.push(this.pGetRemoteWeaponExtraData(item));
-      }
-    });
-    return remoteWeaponsExtra;
-  }
-
-  getItemWeaponData(charcter: BaseFullCharacter, slot: inventoryItem) {
-    if (slot.weapon) {
-      return {
-        isWeapon: true, // not sent to client, only used as a flag for pack function
-        unknownData1: {
-          unknownBoolean1: false,
-        },
-        unknownData2: {
-          ammoSlots: this.getWeaponAmmoId(slot.itemDefinitionId)
-            ? [{ ammoSlot: slot.weapon?.ammoCount }]
-            : [],
-          firegroups: [
-            {
-              firegroupId: this.getWeaponDefinition(
-                this.getItemDefinition(slot.itemDefinitionId).PARAM1
-              )?.FIRE_GROUPS[0]?.FIRE_GROUP_ID,
-              unknownArray1: [
-                // maybe firemodes?
-                {
-                  unknownByte1: 0,
-                  unknownDword1: 0,
-                  unknownDword2: 0,
-                  unknownDword3: 0,
-                },
-                {
-                  unknownByte1: 0,
-                  unknownDword1: 0,
-                  unknownDword2: 0,
-                  unknownDword3: 0,
-                },
-              ],
-            },
-          ],
-          equipmentSlotId: charcter.getActiveEquipmentSlot(slot),
-          unknownByte2: 1,
-          unknownDword1: 0,
-          unknownByte3: 0,
-          unknownByte4: -1,
-          unknownByte5: -1,
-          unknownFloat1: 0,
-          unknownByte6: 0,
-          unknownDword2: 0,
-          unknownByte7: 0,
-          unknownDword3: -1,
-        },
-        characterStats: [],
-        unknownArray1: [],
-      };
-    }
-    return {
-      isWeapon: false, // not sent to client, only used as a flag for pack function
-      unknownBoolean1: false,
-    };
-  }
 
   updateLoadout(character: BaseFullCharacter) {
     const client = this.getClientByCharId(character.characterId);
@@ -5701,10 +5567,9 @@ export class ZoneServer2016 extends EventEmitter {
           "RemoteWeapon.Reset",
           {
             data: {
-              remoteWeapons: this.pGetRemoteWeaponsData(client.character),
-              remoteWeaponsExtra: this.pGetRemoteWeaponsExtraData(
-                client.character
-              ),
+              remoteWeapons: client.character.pGetRemoteWeaponsData(this),
+              remoteWeaponsExtra:
+                client.character.pGetRemoteWeaponsExtraData(this),
             },
           }
         );

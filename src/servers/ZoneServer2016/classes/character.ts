@@ -20,7 +20,12 @@ import {
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
-import { DamageInfo, DamageRecord, positionUpdate } from "../../../types/zoneserver";
+import {
+  DamageInfo,
+  DamageRecord,
+  inventoryItem,
+  positionUpdate,
+} from "../../../types/zoneserver";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -329,7 +334,86 @@ export class Character2016 extends BaseFullCharacter {
       //unknownQword3: this.characterId,
       //vehicleLoadoutRelatedDword: 1,
       //unknownDword40: 1
-    }
+    };
+  }
+
+  pGetRemoteWeaponData(server: ZoneServer2016, item: inventoryItem) {
+    const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
+      weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
+      firegroups = weaponDefinition.FIRE_GROUPS;
+    return {
+      weaponDefinitionId: weaponDefinition.ID,
+      equipmentSlotId: this.getActiveEquipmentSlot(item),
+      firegroups: firegroups.map((firegroup: any) => {
+        const firegroupDef = server.getFiregroupDefinition(
+            firegroup.FIRE_GROUP_ID
+          ),
+          firemodes = firegroupDef?.FIRE_MODES;
+        if (!firemodes) {
+          console.error(`firegroupDef missing for ${firegroup}`);
+        }
+        return {
+          firegroupId: firegroup.FIRE_GROUP_ID,
+          unknownArray1: firegroup
+            ? firemodes.map((firemode: any, j: number) => {
+                return {
+                  unknownDword1: j,
+                  unknownDword2: firemode.FIRE_MODE_ID,
+                };
+              })
+            : [], // probably firemodes
+        };
+      }),
+    };
+  }
+
+  pGetRemoteWeaponExtraData(server: ZoneServer2016, item: inventoryItem) {
+    const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
+      weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
+      firegroups = weaponDefinition.FIRE_GROUPS;
+    return {
+      guid: item.itemGuid,
+      unknownByte1: 0, // firegroupIndex (default 0)?
+      unknownByte2: 0, // MOST LIKELY firemodeIndex?
+      unknownByte3: -1,
+      unknownByte4: -1,
+      unknownByte5: 1,
+      unknownDword1: 0,
+      unknownByte6: 0,
+      unknownDword2: 0,
+      unknownArray1: firegroups.map(() => {
+        // same len as firegroups in remoteweapons
+        return {
+          // setting unknownDword1 makes the 308 sound when fullpc packet it sent
+          unknownDword1: 0, //firegroup.FIRE_GROUP_ID,
+          unknownBoolean1: false,
+          unknownBoolean2: false,
+        };
+      }),
+    };
+  }
+
+  pGetRemoteWeaponsData(server: ZoneServer2016) {
+    const remoteWeapons: any[] = [];
+    Object.values(this._loadout).forEach((item) => {
+      if (server.isWeapon(item.itemDefinitionId)) {
+        remoteWeapons.push({
+          guid: item.itemGuid,
+          ...this.pGetRemoteWeaponData(server, item),
+        });
+      }
+    });
+    return remoteWeapons;
+  }
+
+  pGetRemoteWeaponsExtraData(server: ZoneServer2016) {
+    const remoteWeaponsExtra: any[] = [];
+    Object.values(this._loadout).forEach((item) => {
+      if (server.isWeapon(item.itemDefinitionId)) {
+        remoteWeaponsExtra.push(this.pGetRemoteWeaponExtraData(server, item));
+      }
+    });
+    return remoteWeaponsExtra;
   }
 
   resetMetrics() {
@@ -348,7 +432,7 @@ export class Character2016 extends BaseFullCharacter {
         headActor: this.headActor,
         hairModel: this.hairModel,
         resources: { data: this.pGetResources() },
-        remoteWeapons: { data: server.pGetRemoteWeaponsData(this) },
+        remoteWeapons: { data: this.pGetRemoteWeaponsData(server) },
       },
       positionUpdate: {
         ...this.positionUpdate,
@@ -357,7 +441,7 @@ export class Character2016 extends BaseFullCharacter {
       stats: stats.map((stat: any) => {
         return stat.statData;
       }),
-      remoteWeaponsExtra: server.pGetRemoteWeaponsExtraData(this),
+      remoteWeaponsExtra: this.pGetRemoteWeaponsExtraData(server),
     });
 
     // needed so all weapons replicate reload and projectile impact
@@ -391,7 +475,9 @@ export class Character2016 extends BaseFullCharacter {
     client: ZoneClient2016,
     damageInfo: DamageInfo
   ) {
-    server; client; damageInfo;
+    server;
+    client;
+    damageInfo;
     // TODO
   }
 }
