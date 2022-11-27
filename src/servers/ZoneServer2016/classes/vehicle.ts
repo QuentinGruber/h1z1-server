@@ -208,7 +208,6 @@ export class Vehicle2016 extends BaseFullCharacter {
     };
   }
   
-  /*
   pGetPassengers(server: ZoneServer2016) {
     return this.getPassengerList().map((passenger)=> {
       return {
@@ -221,7 +220,6 @@ export class Vehicle2016 extends BaseFullCharacter {
       }
     })
   }
-  */
 
   getInventoryItemId(): number {
     switch (this.loadoutId) {

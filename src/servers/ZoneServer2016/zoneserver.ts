@@ -3371,23 +3371,9 @@ export class ZoneServer2016 extends EventEmitter {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
           });
-          const passengers: any[] = [];
-          vehicle.getPassengerList().forEach((passengerCharacterId: string) => {
-            if (this._characters[passengerCharacterId]) {
-              passengers.push({
-                characterId: passengerCharacterId,
-                identity: {
-                  characterName: this._characters[passengerCharacterId].name,
-                },
-                unknownString1: this._characters[passengerCharacterId].name,
-                unknownByte1: 1,
-              });
-            }
-          });
-
           this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
-            passengers: passengers,
+            passengers: vehicle.pGetPassengers(this),
           });
           client.spawnedEntities.push(vehicle);
         }
@@ -4392,18 +4378,11 @@ export class ZoneServer2016 extends EventEmitter {
           vehicleId: vehicle.vehicleId,
           passengers: [
             {
-              passengerData: {
-                characterId: client.character.characterId,
-                characterData: {
-                  unknownDword1: 1,
-                  unknownDword2: 1,
-                  unknownDword3: 1,
-                  characterName: client.character.name,
-                  unknownString1: "",
-                },
-                unknownDword1: 1,
-                unknownString1: "",
+              characterId: client.character.characterId,
+              identity: {
+                characterName: client.character.name,
               },
+              unknownString1: "",
               unknownByte1: 1,
             },
           ],
@@ -4423,14 +4402,9 @@ export class ZoneServer2016 extends EventEmitter {
       ],
       passengers: [
         {
-          passengerData: {
-            characterId: client.character.characterId,
-            characterData: {
-              unknownDword1: 0,
-              unknownDword2: 0,
-              unknownDword3: 0,
-              characterName: client.character.name,
-            },
+          characterId: client.character.characterId,
+          identity: {
+            characterName: client.character.name,
           },
         },
       ],
@@ -4504,18 +4478,11 @@ export class ZoneServer2016 extends EventEmitter {
         vehicleId: 0,
         passengers: [
           {
-            passengerData: {
-              characterId: client.character.characterId,
-              characterData: {
-                unknownDword1: 1,
-                unknownDword2: 1,
-                unknownDword3: 1,
-                characterName: client.character.name,
-                unknownString1: "",
-              },
-              unknownDword1: 1,
-              unknownString1: "",
+            characterId: client.character.characterId,
+            identity: {
+              characterName: client.character.name,
             },
+            unknownString1: "",
             unknownByte1: 1,
           },
         ],
