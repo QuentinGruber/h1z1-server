@@ -1125,7 +1125,7 @@ export class ZoneServer2016 extends EventEmitter {
             characterObj.character.state.position
           );
           const damage = 50000 / distance;
-          this.playerDamage(this._clients[character], {entity: npcTriggered, damage: damage});
+          this.playerDamage(this._clients[character], {entity: "", damage: damage});
         }
       }
     }
@@ -2235,28 +2235,16 @@ export class ZoneServer2016 extends EventEmitter {
         character._resources[ResourceIds.HEALTH],
         ResourceIds.HEALTH
       );
-      const sourceClient = this.getClientByCharId(damageInfo.entity);
-      if (!sourceClient?.character) {
-        return;
-      }
-      const damageRecord = this.generateDamageRecord(
-        character.characterId,
-        damageInfo.entity,
-        damageInfo.hitReport,
-        oldHealth,
-        damage
-      );
-      client.character.addCombatlogEntry(damageRecord);
-      sourceClient.character.addCombatlogEntry(damageRecord);
-      this.combatLog(client);
-      this.combatLog(sourceClient);
+      
+      const sourceEntity = this.getEntity(damageInfo.entity);
+      if(!sourceEntity) return;
 
       const orientation =
         Math.atan2(
           client.character.state.position[2] -
-            sourceClient.character.state.position[2],
+            sourceEntity.state.position[2],
           client.character.state.position[0] -
-            sourceClient.character.state.position[0]
+            sourceEntity.state.position[0]
         ) *
           -1 -
         1.4;
@@ -2265,6 +2253,21 @@ export class ZoneServer2016 extends EventEmitter {
         orientationToSource: orientation,
         unknownDword2: 100,
       });
+
+      const damageRecord = this.generateDamageRecord(
+        character.characterId,
+        damageInfo.entity,
+        damageInfo.hitReport,
+        oldHealth,
+        damage
+      );
+      client.character.addCombatlogEntry(damageRecord);
+      this.combatLog(client);
+
+      const sourceClient = this.getClientByCharId(damageInfo.entity);
+      if (!sourceClient?.character) return;
+      sourceClient.character.addCombatlogEntry(damageRecord);
+      this.combatLog(sourceClient);
     }
   }
 

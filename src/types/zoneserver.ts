@@ -191,6 +191,12 @@ export interface Weather2016 {
   unknownDword33: number;
 }
 
+export interface DamageInfo {
+  entity: string;
+  damage: number;
+  hitReport?: any;
+}
+
 export interface DamageRecord {
   source: {
     name: string;
@@ -245,10 +251,4 @@ export interface Recipe {
   filterId: FilterIds;
   bundleCount?: number;
   components: Array<RecipeComponent>;
-}
-
-export interface DamageInfo {
-  entity: string;
-  damage: number;
-  hitReport?: any;
 }

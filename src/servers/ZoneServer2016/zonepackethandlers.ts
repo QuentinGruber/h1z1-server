@@ -102,12 +102,12 @@ export class zonePacketHandlers {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client))
       return;
 
-    client.character.lastLoginDate = toHex(Date.now());
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
     server.sendConstructionData(client);
     if (client.firstLoading) {
+      client.character.lastLoginDate = toHex(Date.now());
       server.setGodMode(client, false);
       setTimeout(() => {
         server.sendAlert(client, "Welcome to H1emu! :D");
