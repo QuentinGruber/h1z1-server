@@ -1078,6 +1078,7 @@ export class ZoneServer2016 extends EventEmitter {
         } as CharacterKilledBy);
       }
       client.character.isRunning = false;
+      character.isAlive = false;
       this.updateCharacterState(
         client,
         client.character.characterId,
@@ -1106,7 +1107,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     this.clearMovementModifiers(client);
-    character.isAlive = false;
 
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
   }
