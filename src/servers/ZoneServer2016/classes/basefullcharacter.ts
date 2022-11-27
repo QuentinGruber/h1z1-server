@@ -484,6 +484,26 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     });
   }
 
+  /**
+   * Gets all inventory containers as an array of items.
+   * @param character The character to check.
+   * @returns Returns an array containing all items across all containers.
+   */
+   getInventoryAsContainer(): {
+    [itemDefinitionId: number]: inventoryItem[];
+  } {
+    const inventory: { [itemDefinitionId: number]: inventoryItem[] } = {};
+    for (const container of Object.values(this._containers)) {
+      for (const item of Object.values(container.items)) {
+        if (!inventory[item.itemDefinitionId]) {
+          inventory[item.itemDefinitionId] = []; // init array
+        }
+        inventory[item.itemDefinitionId].push(item); // push new itemstack
+      }
+    }
+    return inventory;
+  }
+
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     console.log(
       `[ERROR] Unhandled FullCharacterDataRequest from client ${client.guid}!`
