@@ -489,7 +489,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
    * @param character The character to check.
    * @returns Returns an array containing all items across all containers.
    */
-   getInventoryAsContainer(): {
+  getInventoryAsContainer(): {
     [itemDefinitionId: number]: inventoryItem[];
   } {
     const inventory: { [itemDefinitionId: number]: inventoryItem[] } = {};
