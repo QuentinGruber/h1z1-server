@@ -13,6 +13,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import fs from "fs";
+import { DamageInfo } from "types/zoneserver";
 
 import {
   zoneShutdown,
@@ -27,7 +28,6 @@ import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { EquipSlots, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
-import { Items } from "../enums";
 
 function getDriveModel(model: string) {
   switch (model) {
@@ -480,7 +480,7 @@ export const commands: Array<Command> = [
         client,
         `Teleporting ${targetClient.character.name} to your location`
       );
-      server.sendWeatherUpdatePacket(client, server._weather2016);
+      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   {
@@ -513,7 +513,7 @@ export const commands: Array<Command> = [
         client,
         `Teleporting to ${targetClient.character.name}'s location`
       );
-      server.sendWeatherUpdatePacket(client, server._weather2016);
+      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   {
@@ -1120,7 +1120,11 @@ export const commands: Array<Command> = [
       server.sendGlobalChatText(
         `${targetClient.character.name} has been slain`
       );
-      server.killCharacter(targetClient);
+      const damageInfo: DamageInfo = {
+        entity: client.character.characterId,
+        damage: 999999999
+      }
+      server.killCharacter(targetClient, damageInfo);
     },
   },
   {

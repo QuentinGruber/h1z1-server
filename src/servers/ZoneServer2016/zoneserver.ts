@@ -1046,14 +1046,14 @@ export class ZoneServer2016 extends EventEmitter {
         } as CharacterKilledBy);
         client.lastDeathReport = {
           position: client.character.state.position,
-          attackerPosition: deathInfo.client.character.state.position,
+          attackerPosition: sourceClient.character.state.position,
           distance: Number(
             getDistance(
               client.character.state.position,
-              deathInfo.client.character.state.position
+              sourceClient.character.state.position
             ).toFixed(2)
           ),
-          attacker: deathInfo.client,
+          attacker: sourceClient,
         };
       }
       client.character.isRunning = false;
@@ -2159,7 +2159,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._characters[characterId] &&
       this._characters[characterId].isAlive
     ) {
-      this.hitMissFairPlayCheck(client, true);
+      this.hitMissFairPlayCheck(client, true, packet.hitReport.hitLocation.toLowerCase());
       const c = this.getClientByCharId(characterId);
       if (!c) {
         return;
@@ -6248,9 +6248,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.updateResourceToAllWithSpawnedEntity(
       client.character.characterId,
       bleeding,
-      ResourceIds.BLEEDING
       ResourceIds.BLEEDING,
-      ResourceIds.BLEEDING,
+      ResourceTypes.BLEEDING,
       this._characters
     );
     this.removeInventoryItem(client, item);
