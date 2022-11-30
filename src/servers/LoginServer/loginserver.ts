@@ -377,11 +377,13 @@ export class LoginServer extends EventEmitter {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async LoginRequest(client: Client, sessionIdString: string) {
     let sessionId, gameVersion;
+    // In case of shitty json formatting
+    sessionIdString = sessionIdString.replaceAll("\\","");
     try {
       const sessionIdObject = JSON.parse(sessionIdString);
       sessionId = sessionIdObject.sessionId;
       gameVersion = sessionIdObject.gameVersion;
-      if (sessionId ?? !gameVersion) {
+      if (!sessionId || !gameVersion) {
         throw new Error("Invalid sessionId");
       }
     } catch (e) {
