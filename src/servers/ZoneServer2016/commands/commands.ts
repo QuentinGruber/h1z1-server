@@ -1122,8 +1122,8 @@ export const commands: Array<Command> = [
       );
       const damageInfo: DamageInfo = {
         entity: client.character.characterId,
-        damage: 999999999
-      }
+        damage: 999999999,
+      };
       server.killCharacter(targetClient, damageInfo);
     },
   },

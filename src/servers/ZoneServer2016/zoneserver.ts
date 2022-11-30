@@ -2159,7 +2159,11 @@ export class ZoneServer2016 extends EventEmitter {
       this._characters[characterId] &&
       this._characters[characterId].isAlive
     ) {
-      this.hitMissFairPlayCheck(client, true, packet.hitReport.hitLocation.toLowerCase());
+      this.hitMissFairPlayCheck(
+        client,
+        true,
+        packet.hitReport.hitLocation.toLowerCase()
+      );
       const c = this.getClientByCharId(characterId);
       if (!c) {
         return;
