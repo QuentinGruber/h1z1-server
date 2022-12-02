@@ -203,10 +203,10 @@ export class zonePacketHandlers {
         if (Number(client.character.lastLoginDate) + 4000 >= Date.now()) {
           return;
         }
-        server.playerDamage(client, { entity: "", damage: damage });
+        client.character.damage(server, { entity: "", damage: damage });
       }
     } else if (vehicle) {
-      server.damageVehicle(vehicle, { entity: "", damage: damage / 50 });
+      vehicle.damage(server, { entity: "", damage: damage / 50 });
       //server.DTOhit(client, packet);
     }
   }

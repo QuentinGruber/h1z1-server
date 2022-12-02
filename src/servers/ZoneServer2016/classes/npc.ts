@@ -60,6 +60,35 @@ export class Npc extends BaseFullCharacter {
     this.health = 10000;
   }
 
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(damageInfo.entity),
+      oldHealth = this.health;
+    if ((this.health -= damageInfo.damage) <= 0) {
+      this.flags.knockedOut = 1;
+      this.deathTime = Date.now();
+      if (client) {
+        client.character.metrics.zombiesKilled++;
+      }
+      server.sendDataToAllWithSpawnedEntity(
+        server._npcs,
+        this.characterId,
+        "Character.StartMultiStateDeath",
+        {
+          characterId: this.characterId,
+        }
+      );
+    }
+
+    if (client) {
+      const damageRecord = server.generateDamageRecord(
+        this.characterId,
+        damageInfo,
+        oldHealth
+      );
+      client.character.addCombatlogEntry(damageRecord);
+    }
+  }
+
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "LightweightToFullNpc", this.pGetFull(server));
 
@@ -67,13 +96,5 @@ export class Npc extends BaseFullCharacter {
       this.onReadyCallback(client);
       delete this.onReadyCallback;
     }
-  }
-
-  OnProjectileHit(
-    server: ZoneServer2016,
-    client: ZoneClient2016,
-    damageInfo: DamageInfo
-  ) {
-    server.npcDamage(client, this.characterId, damageInfo);
   }
 }

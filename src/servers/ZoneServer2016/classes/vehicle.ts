@@ -12,7 +12,13 @@
 // ======================================================================
 
 import { createPositionUpdate } from "../../../utils/utils";
-import { Items, LoadoutIds, ResourceIds, VehicleIds } from "../models/enums";
+import {
+  Items,
+  LoadoutIds,
+  ResourceIds,
+  ResourceTypes,
+  VehicleIds,
+} from "../models/enums";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -282,6 +288,145 @@ export class Vehicle2016 extends BaseFullCharacter {
     }
   }
 
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (this.isInvulnerable) return;
+
+    let destroyedVehicleEffect: number;
+    let minorDamageEffect: number;
+    let majorDamageEffect: number;
+    let criticalDamageEffect: number;
+    let supercriticalDamageEffect: number;
+    let destroyedVehicleModel: number;
+    switch (this.vehicleId) {
+      case VehicleIds.OFFROADER:
+        destroyedVehicleEffect = 135;
+        destroyedVehicleModel = 7226;
+        minorDamageEffect = 182;
+        majorDamageEffect = 181;
+        criticalDamageEffect = 180;
+        supercriticalDamageEffect = 5227;
+        break;
+      case VehicleIds.PICKUP:
+        destroyedVehicleEffect = 326;
+        destroyedVehicleModel = 9315;
+        minorDamageEffect = 325;
+        majorDamageEffect = 324;
+        criticalDamageEffect = 323;
+        supercriticalDamageEffect = 5228;
+        break;
+      case VehicleIds.POLICECAR:
+        destroyedVehicleEffect = 286;
+        destroyedVehicleModel = 9316;
+        minorDamageEffect = 285;
+        majorDamageEffect = 284;
+        criticalDamageEffect = 283;
+        supercriticalDamageEffect = 5229;
+        break;
+      case VehicleIds.ATV:
+        destroyedVehicleEffect = 357;
+        destroyedVehicleModel = 9593;
+        minorDamageEffect = 360;
+        majorDamageEffect = 359;
+        criticalDamageEffect = 358;
+        supercriticalDamageEffect = 5226;
+        break;
+      default:
+        destroyedVehicleEffect = 135;
+        destroyedVehicleModel = 7226;
+        minorDamageEffect = 182;
+        majorDamageEffect = 181;
+        criticalDamageEffect = 180;
+        supercriticalDamageEffect = 5227;
+        break;
+    }
+    const oldHealth = this._resources[ResourceIds.CONDITION];
+    this._resources[ResourceIds.CONDITION] -= damageInfo.damage;
+
+    const client = server.getClientByCharId(damageInfo.entity);
+    if (!client) return;
+    client.character.addCombatlogEntry(
+      server.generateDamageRecord(this.characterId, damageInfo, oldHealth)
+    );
+
+    if (this._resources[ResourceIds.CONDITION] <= 0) {
+      server.destroyVehicle(
+        this,
+        destroyedVehicleEffect,
+        destroyedVehicleModel
+      );
+    } else {
+      let damageeffect = 0;
+      let allowSend = false;
+      let startDamageTimeout = false;
+      if (
+        this._resources[ResourceIds.CONDITION] <= 50000 &&
+        this._resources[ResourceIds.CONDITION] > 35000
+      ) {
+        if (this.destroyedState != 1) {
+          damageeffect = minorDamageEffect;
+          allowSend = true;
+          this.destroyedState = 1;
+        }
+      } else if (
+        this._resources[ResourceIds.CONDITION] <= 35000 &&
+        this._resources[ResourceIds.CONDITION] > 20000
+      ) {
+        if (this.destroyedState != 2) {
+          damageeffect = majorDamageEffect;
+          allowSend = true;
+          this.destroyedState = 2;
+        }
+      } else if (
+        this._resources[ResourceIds.CONDITION] <= 20000 &&
+        this._resources[ResourceIds.CONDITION] > 10000
+      ) {
+        if (this.destroyedState != 3) {
+          damageeffect = criticalDamageEffect;
+          allowSend = true;
+          startDamageTimeout = true;
+          this.destroyedState = 3;
+        }
+      } else if (this._resources[ResourceIds.CONDITION] <= 10000) {
+        if (this.destroyedState != 4) {
+          damageeffect = supercriticalDamageEffect;
+          allowSend = true;
+          startDamageTimeout = true;
+          this.destroyedState = 4;
+        }
+      } else if (
+        this._resources[ResourceIds.CONDITION] > 50000 &&
+        this.destroyedState != 0
+      ) {
+        this.destroyedState = 0;
+        server._vehicles[this.characterId].destroyedEffect = 0;
+      }
+
+      if (allowSend) {
+        server.sendDataToAllWithSpawnedEntity(
+          server._vehicles,
+          this.characterId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: this.characterId,
+            effectId: damageeffect,
+          }
+        );
+        server._vehicles[this.characterId].destroyedEffect = damageeffect;
+        if (!this.damageTimeout && startDamageTimeout) {
+          server.startVehicleDamageDelay(this);
+        }
+      }
+
+      server.updateResourceToAllWithSpawnedEntity(
+        this.characterId,
+        this._resources[ResourceIds.CONDITION],
+        ResourceIds.CONDITION,
+        ResourceTypes.CONDITION,
+        server._vehicles
+      );
+    }
+  }
+
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
     !client.vehicle.mountedVehicle
       ? server.mountVehicle(client, this.characterId)
@@ -355,13 +500,5 @@ export class Vehicle2016 extends BaseFullCharacter {
       this.onReadyCallback(client);
       delete this.onReadyCallback;
     }
-  }
-
-  OnProjectileHit(
-    server: ZoneServer2016,
-    client: ZoneClient2016,
-    damageInfo: DamageInfo
-  ) {
-    server.damageVehicle(this, damageInfo);
   }
 }

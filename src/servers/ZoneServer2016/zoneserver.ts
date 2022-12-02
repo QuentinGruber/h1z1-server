@@ -1095,16 +1095,16 @@ export class ZoneServer2016 extends EventEmitter {
     npcTriggered: string,
     client?: Client
   ) {
-    for (const character in this._clients) {
-      const characterObj = this._clients[character];
-      if (!characterObj.character.godMode) {
-        if (isPosInRadius(8, characterObj.character.state.position, position)) {
+    for (const c in this._clients) {
+      const client = this._clients[c];
+      if (!client.character.godMode) {
+        if (isPosInRadius(8, client.character.state.position, position)) {
           const distance = getDistance(
             position,
-            characterObj.character.state.position
+            client.character.state.position
           );
           const damage = 50000 / distance;
-          this.playerDamage(this._clients[character], {
+          client.character.damage(this, {
             entity: npcTriggered,
             damage: damage,
           });
@@ -1118,7 +1118,7 @@ export class ZoneServer2016 extends EventEmitter {
           const distance = getDistance(position, vehicle.state.position);
           const damage = 250000 / distance;
           await Scheduler.wait(150);
-          this.damageVehicle(vehicle, { entity: npcTriggered, damage: damage });
+          vehicle.damage(this, { entity: npcTriggered, damage: damage });
         }
       }
     }
@@ -1407,145 +1407,6 @@ export class ZoneServer2016 extends EventEmitter {
     foundation.occupiedSlots.splice(index, 1);
   }
 
-  damageVehicle(vehicle: Vehicle, damageInfo: DamageInfo) {
-    if (vehicle.isInvulnerable) return;
-
-    let destroyedVehicleEffect: number;
-    let minorDamageEffect: number;
-    let majorDamageEffect: number;
-    let criticalDamageEffect: number;
-    let supercriticalDamageEffect: number;
-    let destroyedVehicleModel: number;
-    switch (vehicle.vehicleId) {
-      case VehicleIds.OFFROADER:
-        destroyedVehicleEffect = 135;
-        destroyedVehicleModel = 7226;
-        minorDamageEffect = 182;
-        majorDamageEffect = 181;
-        criticalDamageEffect = 180;
-        supercriticalDamageEffect = 5227;
-        break;
-      case VehicleIds.PICKUP:
-        destroyedVehicleEffect = 326;
-        destroyedVehicleModel = 9315;
-        minorDamageEffect = 325;
-        majorDamageEffect = 324;
-        criticalDamageEffect = 323;
-        supercriticalDamageEffect = 5228;
-        break;
-      case VehicleIds.POLICECAR:
-        destroyedVehicleEffect = 286;
-        destroyedVehicleModel = 9316;
-        minorDamageEffect = 285;
-        majorDamageEffect = 284;
-        criticalDamageEffect = 283;
-        supercriticalDamageEffect = 5229;
-        break;
-      case VehicleIds.ATV:
-        destroyedVehicleEffect = 357;
-        destroyedVehicleModel = 9593;
-        minorDamageEffect = 360;
-        majorDamageEffect = 359;
-        criticalDamageEffect = 358;
-        supercriticalDamageEffect = 5226;
-        break;
-      default:
-        destroyedVehicleEffect = 135;
-        destroyedVehicleModel = 7226;
-        minorDamageEffect = 182;
-        majorDamageEffect = 181;
-        criticalDamageEffect = 180;
-        supercriticalDamageEffect = 5227;
-        break;
-    }
-    const oldHealth = vehicle._resources[ResourceIds.CONDITION];
-    vehicle._resources[ResourceIds.CONDITION] -= damageInfo.damage;
-
-    const client = this.getClientByCharId(damageInfo.entity);
-    if (!client) return;
-    client.character.addCombatlogEntry(
-      this.generateDamageRecord(vehicle.characterId, damageInfo, oldHealth)
-    );
-
-    if (vehicle._resources[ResourceIds.CONDITION] <= 0) {
-      this.destroyVehicle(
-        vehicle,
-        destroyedVehicleEffect,
-        destroyedVehicleModel
-      );
-    } else {
-      let damageeffect = 0;
-      let allowSend = false;
-      let startDamageTimeout = false;
-      if (
-        vehicle._resources[ResourceIds.CONDITION] <= 50000 &&
-        vehicle._resources[ResourceIds.CONDITION] > 35000
-      ) {
-        if (vehicle.destroyedState != 1) {
-          damageeffect = minorDamageEffect;
-          allowSend = true;
-          vehicle.destroyedState = 1;
-        }
-      } else if (
-        vehicle._resources[ResourceIds.CONDITION] <= 35000 &&
-        vehicle._resources[ResourceIds.CONDITION] > 20000
-      ) {
-        if (vehicle.destroyedState != 2) {
-          damageeffect = majorDamageEffect;
-          allowSend = true;
-          vehicle.destroyedState = 2;
-        }
-      } else if (
-        vehicle._resources[ResourceIds.CONDITION] <= 20000 &&
-        vehicle._resources[ResourceIds.CONDITION] > 10000
-      ) {
-        if (vehicle.destroyedState != 3) {
-          damageeffect = criticalDamageEffect;
-          allowSend = true;
-          startDamageTimeout = true;
-          vehicle.destroyedState = 3;
-        }
-      } else if (vehicle._resources[ResourceIds.CONDITION] <= 10000) {
-        if (vehicle.destroyedState != 4) {
-          damageeffect = supercriticalDamageEffect;
-          allowSend = true;
-          startDamageTimeout = true;
-          vehicle.destroyedState = 4;
-        }
-      } else if (
-        vehicle._resources[ResourceIds.CONDITION] > 50000 &&
-        vehicle.destroyedState != 0
-      ) {
-        vehicle.destroyedState = 0;
-        this._vehicles[vehicle.characterId].destroyedEffect = 0;
-      }
-
-      if (allowSend) {
-        this.sendDataToAllWithSpawnedEntity(
-          this._vehicles,
-          vehicle.characterId,
-          "Command.PlayDialogEffect",
-          {
-            characterId: vehicle.characterId,
-            effectId: damageeffect,
-          }
-        );
-        this._vehicles[vehicle.characterId].destroyedEffect = damageeffect;
-        if (!vehicle.damageTimeout && startDamageTimeout) {
-          this.startVehicleDamageDelay(vehicle);
-        }
-      }
-
-      this.updateResourceToAllWithSpawnedEntity(
-        vehicle.characterId,
-        vehicle._resources[ResourceIds.CONDITION],
-        ResourceIds.CONDITION,
-        ResourceTypes.CONDITION,
-        this._vehicles
-      );
-    }
-  }
-
   destroyVehicle(
     vehicle: Vehicle,
     destroyedVehicleEffect: number,
@@ -1579,7 +1440,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   startVehicleDamageDelay(vehicle: Vehicle) {
     vehicle.damageTimeout = setTimeout(() => {
-      this.damageVehicle(vehicle, { entity: "", damage: 1000 });
+      vehicle.damage(this, { entity: "", damage: 1000 });
       if (
         vehicle._resources[ResourceIds.CONDITION] < 20000 &&
         vehicle._resources[ResourceIds.CONDITION] > 0
@@ -1973,31 +1834,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.updateLoadoutItem(client, item);
   }
 
-  npcDamage(client: Client, characterId: string, damageInfo: DamageInfo) {
-    const npc = this._npcs[characterId],
-      oldHealth = npc.health;
-    if ((npc.health -= damageInfo.damage) <= 0) {
-      npc.flags.knockedOut = 1;
-      npc.deathTime = Date.now();
-      client.character.metrics.zombiesKilled++;
-      this.sendDataToAllWithSpawnedEntity(
-        this._npcs,
-        characterId,
-        "Character.StartMultiStateDeath",
-        {
-          characterId: characterId,
-        }
-      );
-    }
-
-    const damageRecord = this.generateDamageRecord(
-      npc.characterId,
-      damageInfo,
-      oldHealth
-    );
-    client.character.addCombatlogEntry(damageRecord);
-  }
-
   getClientByCharId(characterId: string) {
     for (const a in this._clients) {
       const c: Client = this._clients[a];
@@ -2187,15 +2023,12 @@ export class ZoneServer2016 extends EventEmitter {
           ],
         }
       );
-      this.playerDamage(
-        c,
-        {
-          entity: client.character.characterId,
-          damage: damage,
-          hitReport: packet.hitReport,
-        },
-        causeBleed
-      );
+      c.character.damage(this, {
+        entity: client.character.characterId,
+        damage: damage,
+        causeBleed: causeBleed,
+        hitReport: packet.hitReport,
+      });
       return;
     }
     entity.OnProjectileHit(this, client, {
@@ -2203,76 +2036,6 @@ export class ZoneServer2016 extends EventEmitter {
       damage: damage,
       hitReport: packet.hitReport,
     });
-  }
-
-  playerDamage(
-    client: Client,
-    damageInfo: DamageInfo,
-    causeBleeding: boolean = false
-  ) {
-    const character = client.character,
-      damage = damageInfo.damage,
-      oldHealth = character._resources[ResourceIds.HEALTH];
-    if (!client.character.godMode && client.character.isAlive) {
-      if (damage < 100) {
-        return;
-      }
-      if (causeBleeding) {
-        if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
-          client.character._resources[ResourceIds.BLEEDING] += 41;
-          if (damage > 4000) {
-            client.character._resources[ResourceIds.BLEEDING] += 41;
-          }
-          this.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            client.character._resources[ResourceIds.BLEEDING],
-            ResourceIds.BLEEDING,
-            ResourceTypes.BLEEDING,
-            this._characters
-          );
-        }
-      }
-      character._resources[ResourceIds.HEALTH] -= damage;
-      if (character._resources[ResourceIds.HEALTH] <= 0) {
-        character._resources[ResourceIds.HEALTH] = 0;
-        this.killCharacter(client, damageInfo);
-      }
-      this.updateResource(
-        client,
-        character.characterId,
-        character._resources[ResourceIds.HEALTH],
-        ResourceIds.HEALTH
-      );
-
-      const sourceEntity = this.getEntity(damageInfo.entity);
-      if (!sourceEntity) return;
-
-      const orientation =
-        Math.atan2(
-          client.character.state.position[2] - sourceEntity.state.position[2],
-          client.character.state.position[0] - sourceEntity.state.position[0]
-        ) *
-          -1 -
-        1.4;
-      this.sendData(client, "ClientUpdate.DamageInfo", {
-        transientId: 0,
-        orientationToSource: orientation,
-        unknownDword2: 100,
-      });
-
-      const damageRecord = this.generateDamageRecord(
-        character.characterId,
-        damageInfo,
-        oldHealth
-      );
-      client.character.addCombatlogEntry(damageRecord);
-      this.combatLog(client);
-
-      const sourceClient = this.getClientByCharId(damageInfo.entity);
-      if (!sourceClient?.character) return;
-      sourceClient.character.addCombatlogEntry(damageRecord);
-      this.combatLog(sourceClient);
-    }
   }
 
   setGodMode(client: Client, godMode: boolean) {
@@ -4108,11 +3871,11 @@ export class ZoneServer2016 extends EventEmitter {
               this._clients[a].character.isAlive &&
               !this._clients[a].vehicle.mountedVehicle
             ) {
-              this.playerDamage(
-                this._clients[a],
-                { entity: npc.characterId, damage: 501 },
-                true
-              );
+              this._clients[a].character.damage(this, {
+                entity: npc.characterId,
+                causeBleed: true,
+                damage: 501,
+              });
               this.sendDataToAllWithSpawnedEntity(
                 this._traps,
                 characterId,
@@ -4172,7 +3935,7 @@ export class ZoneServer2016 extends EventEmitter {
                 npc.state.position
               ) < 1
             ) {
-              this.playerDamage(this._clients[a], {
+              this._clients[a].character.damage(this, {
                 entity: npc.characterId,
                 damage: 2000,
               });

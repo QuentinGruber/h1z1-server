@@ -26,6 +26,7 @@ import {
   inventoryItem,
   positionUpdate,
 } from "../../../types/zoneserver";
+import { randomIntFromInterval } from "../../../utils/utils";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -185,7 +186,7 @@ export class Character2016 extends BaseFullCharacter {
           client.character._resources[ResourceIds.STAMINA] = 0;
         }
         if (client.character._resources[ResourceIds.BLEEDING] > 0) {
-          server.playerDamage(client, {
+          this.damage(server, {
             entity: "",
             damage:
               Math.ceil(
@@ -203,13 +204,13 @@ export class Character2016 extends BaseFullCharacter {
           client.character._resources[ResourceIds.HUNGER] = 10000;
         } else if (client.character._resources[ResourceIds.HUNGER] < 0) {
           client.character._resources[ResourceIds.HUNGER] = 0;
-          server.playerDamage(client, { entity: "", damage: 100 });
+          this.damage(server, { entity: "", damage: 100 });
         }
         if (client.character._resources[ResourceIds.HYDRATION] > 10000) {
           client.character._resources[ResourceIds.HYDRATION] = 10000;
         } else if (client.character._resources[ResourceIds.HYDRATION] < 0) {
           client.character._resources[ResourceIds.HYDRATION] = 0;
-          server.playerDamage(client, { entity: "", damage: 100 });
+          this.damage(server, { entity: "", damage: 100 });
         }
         if (client.character._resources[ResourceIds.HEALTH] > 10000) {
           client.character._resources[ResourceIds.HEALTH] = 10000;
@@ -421,6 +422,74 @@ export class Character2016 extends BaseFullCharacter {
     this.metrics.wildlifeKilled = 0;
     this.metrics.recipesDiscovered = 0;
     this.metrics.startedSurvivingTP = Date.now();
+  }
+
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    const client = server.getClientByCharId(this.characterId),
+      damage = damageInfo.damage,
+      oldHealth = this._resources[ResourceIds.HEALTH];
+    if (!client) return;
+
+    if (!this.godMode && this.isAlive) {
+      if (damage < 100) {
+        return;
+      }
+      if (damageInfo.causeBleed) {
+        if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
+          this._resources[ResourceIds.BLEEDING] += 41;
+          if (damage > 4000) {
+            this._resources[ResourceIds.BLEEDING] += 41;
+          }
+          server.updateResourceToAllWithSpawnedEntity(
+            this.characterId,
+            this._resources[ResourceIds.BLEEDING],
+            ResourceIds.BLEEDING,
+            ResourceTypes.BLEEDING,
+            server._characters
+          );
+        }
+      }
+      this._resources[ResourceIds.HEALTH] -= damage;
+      if (this._resources[ResourceIds.HEALTH] <= 0) {
+        this._resources[ResourceIds.HEALTH] = 0;
+        server.killCharacter(client, damageInfo);
+      }
+      server.updateResource(
+        client,
+        this.characterId,
+        this._resources[ResourceIds.HEALTH],
+        ResourceIds.HEALTH
+      );
+
+      const sourceEntity = server.getEntity(damageInfo.entity);
+      if (!sourceEntity) return;
+
+      const orientation =
+        Math.atan2(
+          this.state.position[2] - sourceEntity.state.position[2],
+          this.state.position[0] - sourceEntity.state.position[0]
+        ) *
+          -1 -
+        1.4;
+      server.sendData(client, "ClientUpdate.DamageInfo", {
+        transientId: 0,
+        orientationToSource: orientation,
+        unknownDword2: 100,
+      });
+
+      const damageRecord = server.generateDamageRecord(
+        this.characterId,
+        damageInfo,
+        oldHealth
+      );
+      this.addCombatlogEntry(damageRecord);
+      server.combatLog(client);
+
+      const sourceClient = server.getClientByCharId(damageInfo.entity);
+      if (!sourceClient?.character) return;
+      sourceClient.character.addCombatlogEntry(damageRecord);
+      server.combatLog(sourceClient);
+    }
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {

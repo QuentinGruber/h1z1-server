@@ -16,6 +16,7 @@ import {
   loadoutItem,
   loadoutContainer,
   inventoryItem,
+  DamageInfo,
 } from "../../../types/zoneserver";
 import { ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
@@ -504,9 +505,21 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return inventory;
   }
 
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    console.log(`[ERROR] Unhandled BaseFullCharacter damage call!`);
+  }
+
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     console.log(
       `[ERROR] Unhandled FullCharacterDataRequest from client ${client.guid}!`
     );
+  }
+
+  OnProjectileHit(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    damageInfo: DamageInfo
+  ) {
+    this.damage(server, damageInfo);
   }
 }

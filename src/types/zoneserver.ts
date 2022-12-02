@@ -204,6 +204,7 @@ export interface HitReport {
 export interface DamageInfo {
   entity: string;
   damage: number;
+  causeBleed?: boolean;
   hitReport?: HitReport;
 }
 
