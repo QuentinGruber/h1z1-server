@@ -506,6 +506,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    server; damageInfo; // eslint
     console.log(`[ERROR] Unhandled BaseFullCharacter damage call!`);
   }
 

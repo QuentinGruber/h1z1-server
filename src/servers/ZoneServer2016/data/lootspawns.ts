@@ -515,6 +515,22 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     spawnChance: 30,
     items: [
       {
+        item: Items.DUCT_TAPE,
+        weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.TWINE,
+        weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
         item: Items.SUGAR,
         weight: 100,
         spawnCount: {
@@ -892,6 +908,22 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     items: [
       ...carparts,
       {
+        item: Items.DUCT_TAPE,
+        weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.TWINE,
+        weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
         item: Items.WATER_EMPTY,
         weight: 100,
         spawnCount: {
@@ -1051,6 +1083,22 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
   "ItemSpawnerCommercial_Tier00.adr": {
     spawnChance: 30,
     items: [
+      {
+        item: Items.DUCT_TAPE,
+        weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.TWINE,
+        weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
       {
         item: Items.BATTERY,
         weight: 100,
@@ -1276,6 +1324,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     spawnChance: 50,
     items: [
       // COMMON
+      {
+        item: Items.DUCT_TAPE,
+        weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
       {
         item: Items.WEAPON_BINOCULARS,
         weight: 100,
@@ -1575,6 +1631,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     items: [
       // INDUSTRIAL
       ...carparts,
+      {
+        item: Items.DUCT_TAPE,
+        weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
       {
         item: Items.METAL_SHEET,
         weight: 100,
