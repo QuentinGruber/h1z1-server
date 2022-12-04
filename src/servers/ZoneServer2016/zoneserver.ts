@@ -969,7 +969,7 @@ export class ZoneServer2016 extends EventEmitter {
       sourcePing = 0,
       targetName = "Generic",
       targetPing = 0,
-      weapon = "N/A";
+      weapon = 0;
     if (sourceClient && !targetClient) {
       sourceName = sourceClient.character.name || "Unknown";
       sourcePing = sourceClient.avgPing;
@@ -981,9 +981,7 @@ export class ZoneServer2016 extends EventEmitter {
       sourcePing = sourceClient.avgPing;
       targetName = targetClient.character.name || "Unknown";
       targetPing = targetClient.avgPing;
-      weapon = this.getItemDefinition(
-        sourceClient.character.getEquippedWeapon().itemDefinitionId
-      ).MODEL_NAME;
+      weapon = sourceClient.character.getEquippedWeapon().itemDefinitionId;
     } else {
       return {} as DamageRecord;
     }
@@ -4415,7 +4413,7 @@ export class ZoneServer2016 extends EventEmitter {
         }ms`;
       this.sendChatText(
         client,
-        `${time} ${source} ${target} ${e.hitInfo.weapon} ${e.hitInfo.distance}m ${e.hitInfo.hitLocation} ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing}`
+        `${time} ${source} ${target} ${this.getItemDefinition(e.hitInfo.weapon).MODEL_NAME || "N/A"} ${e.hitInfo.distance}m ${e.hitInfo.hitLocation} ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing}`
       );
     });
     this.sendChatText(

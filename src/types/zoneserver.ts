@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { FilterIds } from "servers/ZoneServer2016/models/enums";
+import { FilterIds, Items } from "servers/ZoneServer2016/models/enums";
 
 export interface npcData {
   guid: string;
@@ -219,7 +219,7 @@ export interface DamageRecord {
   };
   hitInfo: {
     timestamp: number;
-    weapon: string;
+    weapon: Items;
     distance: string;
     hitLocation: string;
     hitPosition: Float32Array;
