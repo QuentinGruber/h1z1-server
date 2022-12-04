@@ -13,6 +13,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import fs from "fs";
+import { DamageInfo } from "types/zoneserver";
 
 import {
   zoneShutdown,
@@ -24,10 +25,9 @@ import { ExplosiveEntity } from "../classes/explosiveentity";
 import { Npc } from "../classes/npc";
 import { Vehicle2016 as Vehicle } from "../classes/vehicle";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
-import { EquipSlots } from "../enums";
+import { EquipSlots, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
-import { Items } from "../enums";
 
 function getDriveModel(model: string) {
   switch (model) {
@@ -424,7 +424,7 @@ export const commands: Array<Command> = [
           locationPosition = new Float32Array([1895.4, 93.69, -2914.39, 1]);
           break;
         default:
-          if (args.length < 4) {
+          if (args.length < 3) {
             server.sendChatText(
               client,
               "Unknown set location, need 3 args to tp to exact location: x, y, z",
@@ -447,7 +447,7 @@ export const commands: Array<Command> = [
         position: locationPosition,
         triggerLoadingScreen: true,
       });
-      server.sendWeatherUpdatePacket(client, server._weather2016);
+      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   {
@@ -480,7 +480,7 @@ export const commands: Array<Command> = [
         client,
         `Teleporting ${targetClient.character.name} to your location`
       );
-      server.sendWeatherUpdatePacket(client, server._weather2016);
+      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   {
@@ -513,7 +513,7 @@ export const commands: Array<Command> = [
         client,
         `Teleporting to ${targetClient.character.name}'s location`
       );
-      server.sendWeatherUpdatePacket(client, server._weather2016);
+      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   {
@@ -550,12 +550,14 @@ export const commands: Array<Command> = [
     },
   },
   {
-    name: "fog",
+    name: "sfog",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
       server.sendChatText(
         client,
-        "Fog has been toggled ".concat(server.toggleFog() ? "ON" : "OFF"),
+        `Fog has been toggled ${
+          server.toggleFog() ? "ON" : "OFF"
+        } for the server`,
         true
       );
     },
@@ -747,8 +749,8 @@ export const commands: Array<Command> = [
           "Please define a weather template to use (data/2016/dataSources/weather.json)"
         );
       } else if (weatherTemplate) {
-        server._weather2016 = weatherTemplate;
-        server.sendWeatherUpdatePacket(client, server._weather2016, true);
+        server.weather = weatherTemplate;
+        server.sendWeatherUpdatePacket(client, server.weather, true);
         server.sendChatText(client, `Applied weather template: "${args[0]}"`);
       } else {
         if (args[0] === "list") {
@@ -781,7 +783,7 @@ export const commands: Array<Command> = [
       } else if (server._weatherTemplates[args[0]]) {
         server.sendChatText(client, `"${args[0]}" already exists !`);
       } else {
-        const currentWeather = server._weather2016;
+        const currentWeather = server.weather;
         if (currentWeather) {
           currentWeather.templateName = args[0];
           if (server._soloMode) {
@@ -825,8 +827,8 @@ export const commands: Array<Command> = [
         return Number(fixed ? num.toFixed(0) : num);
       }
 
-      server._weather2016 = {
-        ...server._weather2016,
+      server.weather = {
+        ...server.weather,
         //name: "sky_dome_600.dds", todo: use random template from a list
         /*
               unknownDword1: 0,
@@ -866,7 +868,7 @@ export const commands: Array<Command> = [
 
         unknownDword33: 0,
       };
-      server.sendWeatherUpdatePacket(client, server._weather2016, true);
+      server.sendWeatherUpdatePacket(client, server.weather, true);
     },
   },
   {
@@ -944,7 +946,7 @@ export const commands: Array<Command> = [
         zoneName: "Z1",
         zoneType: 4,
         unknownBoolean1: false,
-        skyData: server._weather2016,
+        skyData: server.weather,
         zoneId1: 5,
         zoneId2: 5,
         nameId: 7699,
@@ -1075,7 +1077,9 @@ export const commands: Array<Command> = [
     name: "remover",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
-      server.lootItem(client, server.generateItem(1776));
+      const wep = server.generateItem(Items.WEAPON_REMOVER);
+      if (wep && wep.weapon) wep.weapon.ammoCount = 1000;
+      server.lootItem(client, wep);
     },
   },
   {
@@ -1116,7 +1120,11 @@ export const commands: Array<Command> = [
       server.sendGlobalChatText(
         `${targetClient.character.name} has been slain`
       );
-      server.killCharacter(targetClient);
+      const damageInfo: DamageInfo = {
+        entity: client.character.characterId,
+        damage: 999999999,
+      };
+      server.killCharacter(targetClient, damageInfo);
     },
   },
   {

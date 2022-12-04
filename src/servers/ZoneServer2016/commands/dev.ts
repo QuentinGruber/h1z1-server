@@ -342,7 +342,7 @@ const dev: any = {
       if (server._vehicles[v].actorModelId === parseInt(args[1])) {
         location.position = server._vehicles[v].state.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
-        server.sendWeatherUpdatePacket(client, server._weather2016);
+        server.sendWeatherUpdatePacket(client, server.weather);
         found = true;
         break;
       }
@@ -370,7 +370,7 @@ const dev: any = {
         console.log(server._npcs[n]);
         location.position = server._npcs[n].state.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
-        server.sendWeatherUpdatePacket(client, server._weather2016);
+        server.sendWeatherUpdatePacket(client, server.weather);
         found = true;
         break;
       }
@@ -380,22 +380,6 @@ const dev: any = {
     } else {
       server.sendChatText(client, `No npcs of ID: ${args[1]} found`);
     }
-  },
-
-  placement: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const modelChoosen = args[1];
-    if (!modelChoosen) {
-      server.sendChatText(client, "[ERROR] Usage /hax placement {modelId}");
-      return;
-    }
-    if (!args[2]) {
-      server.sendChatText(client, "missing 1 arg");
-      return;
-    }
-    server.sendData(client, "Construction.PlacementResponse", {
-      unknownDword1: Number(args[2]),
-      model: modelChoosen,
-    });
   },
   stat: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[3]) {
@@ -421,7 +405,7 @@ const dev: any = {
   ) {
     server.sendData(client, "Container.ListAll", {
       characterId: client.character.characterId,
-      containers: server.pGetContainers(client.character),
+      containers: client.character.pGetContainers(this),
     });
   },
   shutdown: function (server: ZoneServer2016, client: Client, args: any[]) {

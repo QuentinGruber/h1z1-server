@@ -16,8 +16,10 @@ import {
   loadoutItem,
   loadoutContainer,
   inventoryItem,
+  DamageInfo,
 } from "../../../types/zoneserver";
-import { ResourceIds, ResourceTypes } from "../enums";
+import { LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
+import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "./zoneclient";
 
@@ -268,7 +270,79 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
-  pGetItemData(item: inventoryItem, containerDefId: number) {
+  pGetItemWeaponData(server: ZoneServer2016, slot: inventoryItem) {
+    if (slot.weapon) {
+      return {
+        isWeapon: true, // not sent to client, only used as a flag for pack function
+        unknownData1: {
+          unknownBoolean1: false,
+        },
+        unknownData2: {
+          ammoSlots: server.getWeaponAmmoId(slot.itemDefinitionId)
+            ? [{ ammoSlot: slot.weapon?.ammoCount }]
+            : [],
+          firegroups: [
+            {
+              firegroupId: server.getWeaponDefinition(
+                server.getItemDefinition(slot.itemDefinitionId).PARAM1
+              )?.FIRE_GROUPS[0]?.FIRE_GROUP_ID,
+              unknownArray1: [
+                // maybe firemodes?
+                {
+                  unknownByte1: 0,
+                  unknownDword1: 0,
+                  unknownDword2: 0,
+                  unknownDword3: 0,
+                },
+                {
+                  unknownByte1: 0,
+                  unknownDword1: 0,
+                  unknownDword2: 0,
+                  unknownDword3: 0,
+                },
+              ],
+            },
+          ],
+          equipmentSlotId: this.getActiveEquipmentSlot(slot),
+          unknownByte2: 1,
+          unknownDword1: 0,
+          unknownByte3: 0,
+          unknownByte4: -1,
+          unknownByte5: -1,
+          unknownFloat1: 0,
+          unknownByte6: 0,
+          unknownDword2: 0,
+          unknownByte7: 0,
+          unknownDword3: -1,
+        },
+        characterStats: [],
+        unknownArray1: [],
+      };
+    }
+    return {
+      isWeapon: false, // not sent to client, only used as a flag for pack function
+      unknownBoolean1: false,
+    };
+  }
+
+  pGetItemData(
+    server: ZoneServer2016,
+    item: inventoryItem,
+    containerDefId: number
+  ) {
+    let durability: number = 0;
+    const isWeapon = server.isWeapon(item.itemDefinitionId);
+    switch (true) {
+      case server.isWeapon(item.itemDefinitionId):
+        durability = 2000;
+        break;
+      case server.isArmor(item.itemDefinitionId):
+        durability = 1000;
+        break;
+      case server.isHelmet(item.itemDefinitionId):
+        durability = 100;
+        break;
+    }
     return {
       itemDefinitionId: item.itemDefinitionId,
       tintId: 0,
@@ -280,17 +354,18 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       containerGuid: item.containerGuid,
       containerDefinitionId: containerDefId,
       containerSlotId: item.slotId,
-      baseDurability: 0,
-      currentDurability: item.currentDurability,
-      maxDurabilityFromDefinition: 0,
+      baseDurability: durability,
+      currentDurability: durability ? item.currentDurability : 0,
+      maxDurabilityFromDefinition: durability,
       unknownBoolean1: true,
-      ownerCharacterId: this.characterId,
+      ownerCharacterId:
+        isWeapon && item.itemDefinitionId !== 85 ? "" : this.characterId,
       unknownDword9: 1,
-      unknownBoolean2: false,
+      weaponData: this.pGetItemWeaponData(server, item),
     };
   }
 
-  pGetInventoryItems() {
+  pGetInventoryItems(server: ZoneServer2016) {
     const items: any[] = Object.values(this._loadout)
       .filter((slot) => {
         if (slot.itemDefinitionId) {
@@ -298,17 +373,19 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         }
       })
       .map((slot) => {
-        return this.pGetItemData(slot, 101);
+        return this.pGetItemData(server, slot, 101);
       });
     Object.values(this._containers).forEach((container) => {
       Object.values(container.items).forEach((item) => {
-        items.push(this.pGetItemData(item, container.containerDefinitionId));
+        items.push(
+          this.pGetItemData(server, item, container.containerDefinitionId)
+        );
       });
     });
     return items;
   }
 
-  pGetFull() {
+  pGetFull(server: ZoneServer2016) {
     return {
       transientId: this.transientId,
       attachmentData: this.pGetAttachmentSlots(),
@@ -327,10 +404,44 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       unknownArray6: { data: {} },
       remoteWeapons: { data: {} },
       itemsData: {
-        items: this.pGetInventoryItems(),
+        items: this.pGetInventoryItems(server),
         unknownDword1: 0,
       },
     };
+  }
+
+  pGetContainerData(server: ZoneServer2016, container: loadoutContainer) {
+    return {
+      loadoutSlotId: container.slotId,
+      containerData: {
+        guid: container.itemGuid,
+        definitionId: container.containerDefinitionId,
+        associatedCharacterId: this.characterId,
+        slots: server.getContainerMaxSlots(container),
+        items: Object.values(container.items).map((item, idx) => {
+          container.items[item.itemGuid].slotId = idx + 1;
+          return {
+            itemDefinitionId: item.itemDefinitionId,
+            itemData: this.pGetItemData(
+              server,
+              item,
+              container.containerDefinitionId
+            ),
+          };
+        }),
+        unknownBoolean1: true, // needs to be true or bulk doesn't show up
+        maxBulk: server.getContainerMaxBulk(container),
+        unknownDword4: 28,
+        bulkUsed: server.getContainerBulk(container),
+        hasBulkLimit: !!server.getContainerMaxBulk(container),
+      },
+    };
+  }
+
+  pGetContainers(server: ZoneServer2016) {
+    return Object.values(this._containers).map((container) => {
+      return this.pGetContainerData(server, container);
+    });
   }
 
   getResourceType(resourceId: number) {
@@ -372,5 +483,59 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         },
       };
     });
+  }
+
+  /**
+   * Gets all inventory containers as an array of items.
+   * @param character The character to check.
+   * @returns Returns an array containing all items across all containers.
+   */
+  getInventoryAsContainer(): {
+    [itemDefinitionId: number]: inventoryItem[];
+  } {
+    const inventory: { [itemDefinitionId: number]: inventoryItem[] } = {};
+    for (const container of Object.values(this._containers)) {
+      for (const item of Object.values(container.items)) {
+        if (!inventory[item.itemDefinitionId]) {
+          inventory[item.itemDefinitionId] = []; // init array
+        }
+        inventory[item.itemDefinitionId].push(item); // push new itemstack
+      }
+    }
+    return inventory;
+  }
+
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    server;
+    damageInfo; // eslint
+    console.log(`[ERROR] Unhandled BaseFullCharacter damage call!`);
+  }
+
+  hasHelmet(server: ZoneServer2016): boolean {
+    const slot = this._loadout[LoadoutSlots.HEAD],
+      itemDef = server.getItemDefinition(slot?.itemDefinitionId);
+    if (!slot || !itemDef) return false;
+    return (
+      slot.itemDefinitionId >= 0 &&
+      itemDef.ITEM_CLASS == 25000 &&
+      itemDef.IS_ARMOR
+    );
+  }
+
+  hasArmor(server: ZoneServer2016): boolean {
+    const slot = this._loadout[LoadoutSlots.ARMOR],
+      itemDef = server.getItemDefinition(slot?.itemDefinitionId);
+    if (!slot || !itemDef) return false;
+    return slot.itemDefinitionId >= 0 && itemDef.ITEM_CLASS == 25041;
+  }
+
+  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
+    console.log(
+      `[ERROR] Unhandled FullCharacterDataRequest from client ${client.guid}!`
+    );
+  }
+
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    this.damage(server, damageInfo);
   }
 }

@@ -25,14 +25,14 @@ import {
   isPosInRadius,
   randomIntFromInterval,
 } from "../../../utils/utils";
-import { EquipSlots, Items } from "../enums";
-import { Vehicle2016 } from "./../classes/vehicle";
+import { EquipSlots, Items } from "../models/enums";
+import { Vehicle2016 } from "../classes/vehicle";
 import { inventoryItem, LootDefinition } from "types/zoneserver";
-import { ItemObject } from "./itemobject";
-import { DoorEntity } from "./doorentity";
-import { Zombie } from "./zombie";
-import { BaseFullCharacter } from "./basefullcharacter";
-import { ExplosiveEntity } from "./explosiveentity";
+import { ItemObject } from "../classes/itemobject";
+import { DoorEntity } from "../classes/doorentity";
+import { Zombie } from "../classes/zombie";
+import { BaseFullCharacter } from "../classes/basefullcharacter";
+import { ExplosiveEntity } from "../classes/explosiveentity";
 import { lootTables } from "../data/lootspawns";
 const debug = require("debug")("ZoneServer");
 

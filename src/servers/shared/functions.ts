@@ -1,4 +1,4 @@
-import { Characters } from "../ZoneServer2016/enums";
+import { Characters } from "../ZoneServer2016/models/enums";
 
 export function getCharacterModelData(payload: any): any {
   switch (payload.headType) {

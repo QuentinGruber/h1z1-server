@@ -2541,3 +2541,15 @@ export function packTargetData(obj: any) {
   }
   return data;
 }
+
+export const passengerSchema = [
+  { name: "characterId", type: "uint64string", defaultValue: "0" },
+  {
+    name: "identity",
+    type: "schema",
+    defaultValue: {},
+    fields: identitySchema,
+  },
+  { name: "unknownString1", type: "string", defaultValue: "" },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+];

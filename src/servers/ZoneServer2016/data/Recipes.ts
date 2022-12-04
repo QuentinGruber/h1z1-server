@@ -1,5 +1,5 @@
 import { Recipe } from "types/zoneserver";
-import { FilterIds, Items } from "../enums";
+import { FilterIds, Items } from "../models/enums";
 
 export const recipes: { [recipeId: number]: Recipe } = {
   [Items.AMMO_223]: {

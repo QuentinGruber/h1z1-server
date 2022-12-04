@@ -28,25 +28,18 @@ import {
   quat2matrix,
 } from "../../utils/utils";
 
-import { CraftManager } from "./classes/craftmanager";
+import { CraftManager } from "./managers/craftmanager";
 import { inventoryItem, loadoutContainer } from "types/zoneserver";
-import { Character2016 } from "./classes/character";
-import { Vehicle2016 } from "./classes/vehicle";
-import { ContainerErrors, EntityTypes, Items, VehicleIds } from "./enums";
+import { ContainerErrors, EntityTypes, Items } from "./models/enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
-import { DoorEntity } from "./classes/doorentity";
-import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
-import { Npc } from "./classes/npc";
 import { ConstructionParentEntity } from "./classes/constructionParentEntity";
 import { constructionDoor } from "./classes/constructionDoor";
-import { TemporaryEntity } from "./classes/temporaryentity";
 import { AVG_PING_SECS } from "../../utils/constants";
 import { CommandHandler } from "./commands/commandhandler";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 
-const stats = require("../../../data/2016/sampleData/stats.json");
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
   constructor() {
@@ -106,14 +99,15 @@ export class zonePacketHandlers {
     server.sendData(client, "ZoneDoneSendingInitialData", {}); // Required for WaitForWorldReady
   }
   ClientFinishedLoading(server: ZoneServer2016, client: Client, packet: any) {
-    if (!server.checkHook("OnClientFinishedLoading", client)) return;
+    if (!server.hookManager.checkHook("OnClientFinishedLoading", client))
+      return;
 
-    client.character.lastLoginDate = toHex(Date.now());
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
     server.sendConstructionData(client);
     if (client.firstLoading) {
+      client.character.lastLoginDate = toHex(Date.now());
       server.setGodMode(client, false);
       setTimeout(() => {
         server.sendAlert(client, "Welcome to H1emu! :D");
@@ -200,7 +194,7 @@ export class zonePacketHandlers {
   }
   CollisionDamage(server: ZoneServer2016, client: Client, packet: any) {
     const characterId = packet.data.characterId,
-      damage = packet.data.damage,
+      damage: number = packet.data.damage,
       vehicle = server._vehicles[characterId];
     if (characterId === client.character.characterId) {
       if (!client.vehicle.mountedVehicle) {
@@ -209,10 +203,10 @@ export class zonePacketHandlers {
         if (Number(client.character.lastLoginDate) + 4000 >= Date.now()) {
           return;
         }
-        server.playerDamage(client, damage);
+        client.character.damage(server, { entity: "", damage: damage });
       }
     } else if (vehicle) {
-      server.damageVehicle(damage / 50, vehicle);
+      vehicle.damage(server, { entity: "", damage: damage / 50 });
       //server.DTOhit(client, packet);
     }
   }
@@ -439,15 +433,6 @@ export class zonePacketHandlers {
     });
   }
   CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: any) {
-    if (
-      !server.checkHook(
-        "OnClientExecuteCommand",
-        client,
-        packet.data.commandHash,
-        packet.data.arguments
-      )
-    )
-      return;
     this.commandHandler.executeCommand(server, client, packet);
   }
   CommandInteractRequest(server: ZoneServer2016, client: Client, packet: any) {
@@ -734,316 +719,32 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
-    const { characterId } = packet.data,
-      entityData: BaseFullCharacter =
-        server._npcs[characterId] ||
-        server._vehicles[characterId] ||
-        server._characters[characterId] ||
-        0,
-      entityType = server.getEntityType(characterId);
+    const entity = server.getEntity(packet.data.characterId);
 
-    if (!entityType) return;
-    switch (entityType) {
-      case EntityTypes.NPC: // npcs
-        const npc = entityData as Npc;
-        server.sendData(client, "LightweightToFullNpc", npc.pGetFull());
-        break;
-      case EntityTypes.VEHICLE: // vehicles
-        const vehicle = entityData as Vehicle2016;
-        if (
-          vehicle.vehicleId == VehicleIds.SPECTATE ||
-          vehicle.vehicleId == VehicleIds.PARACHUTE
-        )
-          return;
-        server.sendData(
-          client,
-          "LightweightToFullVehicle",
-          vehicle.pGetFullVehicle()
-        );
-        server.updateLoadout(vehicle);
-        // prevents cars from spawning in under the map for other characters
-        /*
-        server.sendData(client, "PlayerUpdatePosition", {
-          transientId: vehicle.transientId,
-          positionUpdate: vehicle.positionUpdate,
-        });
-        */
-        server.sendData(client, "ResourceEvent", {
-          eventData: {
-            type: 1,
-            value: {
-              characterId: vehicle.characterId,
-              characterResources: vehicle.pGetResources(),
-            },
-          },
-        });
-        for (const a in vehicle.seats) {
-          const seatId = vehicle.getCharacterSeat(vehicle.seats[a]);
-          if (!vehicle.seats[a]) continue;
-          server.sendData(client, "Mount.MountResponse", {
-            // mounts character
-            characterId: vehicle.seats[a],
-            vehicleGuid: vehicle.characterId, // vehicle guid
-            seatId: seatId,
-            unknownDword3: seatId === "0" ? 1 : 0, //isDriver
-            identity: {},
-          });
-        }
-
-        if (vehicle.destroyedEffect != 0) {
-          server.sendData(client, "Command.PlayDialogEffect", {
-            characterId: vehicle.characterId,
-            effectId: vehicle.destroyedEffect,
-          });
-        }
-        if (vehicle.engineOn) {
-          server.sendData(client, "Vehicle.Engine", {
-            guid2: vehicle.characterId,
-            engineOn: true,
-          });
-        }
-        break;
-      case EntityTypes.PLAYER: // characters
-        const character = entityData as Character2016;
-        server.sendData(client, "LightweightToFullPc", {
-          useCompression: false,
-          fullPcData: {
-            transientId: character.transientId,
-            attachmentData: character.pGetAttachmentSlots(),
-            headActor: character.headActor,
-            hairModel: character.hairModel,
-            resources: { data: character.pGetResources() },
-            remoteWeapons: { data: server.pGetRemoteWeaponsData(character) },
-          },
-          positionUpdate: {
-            ...character.positionUpdate,
-            sequenceTime: server.getGameTime(),
-          },
-          stats: stats.map((stat: any) => {
-            return stat.statData;
-          }),
-          remoteWeaponsExtra: server.pGetRemoteWeaponsExtraData(character),
-        });
-
-        // needed so all weapons replicate reload and projectile impact
-        Object.values(character._loadout).forEach((item, i) => {
-          if (!server.isWeapon(item.itemDefinitionId)) return;
-          server.sendRemoteWeaponUpdateData(
-            client,
-            character.transientId,
-            item.itemGuid,
-            "Update.SwitchFireMode",
-            {
-              firegroupIndex: 0,
-              firemodeIndex: 0,
-            }
-          );
-        });
-
-        server.sendData(client, "Character.WeaponStance", {
-          characterId: character.characterId,
-          stance: character.positionUpdate?.stance,
-        });
-        break;
-      default:
-        break;
+    if (!(entity instanceof BaseFullCharacter)) {
+      console.error(
+        `Client: ${client.guid} tried to request FullCharacterData from invalid FullCharacter with characterId: ${packet.data.characterId}!`
+      );
+      return;
     }
-    if (entityData.onReadyCallback) {
-      entityData.onReadyCallback(client);
-      delete entityData.onReadyCallback;
-    }
+
+    entity.OnFullCharacterDataRequest(server, client);
   }
   CommandPlayerSelect(server: ZoneServer2016, client: Client, packet: any) {
-    const { guid } = packet.data,
-      entityData: BaseLightweightCharacter =
-        server._spawnedItems[guid] ||
-        server._vehicles[guid] ||
-        server._doors[guid] ||
-        server._npcs[guid] ||
-        server._constructionFoundations[guid] ||
-        server._constructionDoors[guid] ||
-        0,
-      entityType = server.getEntityType(guid);
-    client.character.currentInteractionGuid = guid;
+    const entity = server.getEntity(packet.data.guid);
+    client.character.currentInteractionGuid = packet.data.guid;
+
     if (
-      !entityData ||
+      !entity ||
       !isPosInRadius(
         server._interactionDistance,
         client.character.state.position,
-        entityData.state.position
+        entity.state.position
       )
     )
       return;
-    switch (entityType) {
-      case EntityTypes.OBJECT:
-        server.pickupItem(client, guid);
-        break;
-      case EntityTypes.CONSTRUCTION_FOUNDATION:
-        const foundation = entityData as ConstructionParentEntity;
-        if (foundation.ownerCharacterId != client.character.characterId) return;
-        server.sendData(
-          client,
-          "NpcFoundationPermissionsManagerBase.showPermissions",
-          {
-            characterId: foundation.characterId,
-            characterId2: foundation.characterId,
-            permissions: foundation.permissions,
-          }
-        );
-        break;
-      case EntityTypes.VEHICLE:
-        !client.vehicle.mountedVehicle
-          ? server.mountVehicle(client, packet.data.guid)
-          : server.dismountVehicle(client);
-        break;
-      case EntityTypes.DOOR:
-        const door = entityData as DoorEntity;
-        if (door.moving) {
-          return;
-        }
-        door.moving = true;
-        setTimeout(function () {
-          door.moving = false;
-        }, 1000);
-        server.sendDataToAllWithSpawnedEntity(
-          server._doors,
-          door.characterId,
-          "PlayerUpdatePosition",
-          {
-            transientId: door.transientId,
-            positionUpdate: {
-              sequenceTime: 0,
-              unknown3_int8: 0,
-              position: door.state.position,
-              orientation: door.isOpen ? door.closedAngle : door.openAngle,
-            },
-          }
-        );
-        server.sendDataToAllWithSpawnedEntity(
-          server._doors,
-          door.characterId,
-          "Command.PlayDialogEffect",
-          {
-            characterId: door.characterId,
-            effectId: door.isOpen ? door.closeSound : door.openSound,
-          }
-        );
-        door.isOpen = !door.isOpen;
-        break;
-      case EntityTypes.NPC:
-        const npc = entityData as Npc;
-        server.sendDataToAllWithSpawnedEntity(
-          server._npcs,
-          npc.characterId,
-          "Character.StartMultiStateDeath",
-          {
-            characterId: npc.characterId,
-          }
-        );
-        break;
-      case EntityTypes.CONSTRUCTION_DOOR:
-        const doorEntity = entityData as constructionDoor;
-        if (
-          doorEntity.password != 0 &&
-          doorEntity.ownerCharacterId != client.character.characterId &&
-          !doorEntity.grantedAccess.includes(client.character.characterId)
-        ) {
-          server.sendData(client, "Locks.ShowMenu", {
-            characterId: client.character.characterId,
-            unknownDword1: 2,
-            lockType: 2,
-            objectCharacterId: doorEntity.characterId,
-          });
-          return;
-        }
-        if (
-          doorEntity.password == 0 &&
-          doorEntity.ownerCharacterId === client.character.characterId
-        ) {
-          server.sendData(client, "Locks.ShowMenu", {
-            characterId: client.character.characterId,
-            unknownDword1: 2,
-            lockType: 1,
-            objectCharacterId: doorEntity.characterId,
-          });
-          return;
-        }
-        if (doorEntity.moving) {
-          return;
-        }
-        doorEntity.moving = true;
-        setTimeout(function () {
-          doorEntity.moving = false;
-        }, 1000);
-        server.sendDataToAllWithSpawnedEntity(
-          server._constructionDoors,
-          doorEntity.characterId,
-          "PlayerUpdatePosition",
-          {
-            transientId: doorEntity.transientId,
-            positionUpdate: {
-              sequenceTime: 0,
-              unknown3_int8: 0,
-              position: doorEntity.state.position,
-              orientation: doorEntity.isOpen
-                ? doorEntity.closedAngle
-                : doorEntity.openAngle,
-            },
-          }
-        );
-        server.sendDataToAllWithSpawnedEntity(
-          server._constructionDoors,
-          doorEntity.characterId,
-          "Command.PlayDialogEffect",
-          {
-            characterId: doorEntity.characterId,
-            effectId: doorEntity.isOpen
-              ? doorEntity.closeSound
-              : doorEntity.openSound,
-          }
-        );
-        doorEntity.isOpen = !doorEntity.isOpen;
-        if (
-          server._constructionFoundations[doorEntity.parentObjectCharacterId]
-        ) {
-          doorEntity.isOpen
-            ? server._constructionFoundations[
-                doorEntity.parentObjectCharacterId
-              ].changePerimeters(
-                server,
-                doorEntity.buildingSlot,
-                new Float32Array([0, 0, 0, 0])
-              )
-            : server._constructionFoundations[
-                doorEntity.parentObjectCharacterId
-              ].changePerimeters(
-                server,
-                doorEntity.buildingSlot,
-                doorEntity.state.position
-              );
-        } else if (
-          server._constructionSimple[doorEntity.parentObjectCharacterId]
-        ) {
-          doorEntity.isOpen
-            ? server._constructionSimple[
-                doorEntity.parentObjectCharacterId
-              ].changePerimeters(
-                server,
-                "LoveShackDoor",
-                new Float32Array([0, 0, 0, 0])
-              )
-            : server._constructionSimple[
-                doorEntity.parentObjectCharacterId
-              ].changePerimeters(
-                server,
-                "LoveShackDoor",
-                doorEntity.state.position
-              );
-        }
-        break;
-      default:
-        break;
-    }
+
+    entity.OnPlayerSelect(server, client);
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
     if (!client.character.currentInteractionGuid || packet.data.password === 1)
@@ -1087,63 +788,17 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
-    const { guid } = packet.data,
-      entityData: BaseLightweightCharacter =
-        server._spawnedItems[guid] ||
-        server._vehicles[guid] ||
-        server._doors[guid] ||
-        server._constructionFoundations[guid] ||
-        server._constructionDoors[guid] ||
-        0,
-      entityType = server.getEntityType(guid);
+    const entity = server.getEntity(packet.data.guid);
     if (
-      !entityData ||
+      !entity ||
       !isPosInRadius(
         server._interactionDistance,
         client.character.state.position,
-        entityData.state.position
+        entity.state.position
       )
     )
       return;
-
-    switch (entityType) {
-      case EntityTypes.OBJECT:
-        server.sendData(client, "Command.InteractionString", {
-          guid: guid,
-          stringId: 29,
-        });
-        break;
-      case EntityTypes.VEHICLE:
-        if (!client.vehicle.mountedVehicle) {
-          server.sendData(client, "Command.InteractionString", {
-            guid: guid,
-            stringId: 15,
-          });
-        }
-        break;
-      case EntityTypes.DOOR:
-        server.sendData(client, "Command.InteractionString", {
-          guid: guid,
-          stringId: 78,
-        });
-        break;
-      case EntityTypes.CONSTRUCTION_DOOR:
-        server.sendData(client, "Command.InteractionString", {
-          guid: guid,
-          stringId: 8944,
-        });
-        break;
-      case EntityTypes.CONSTRUCTION_FOUNDATION:
-        const foundation = entityData as ConstructionParentEntity;
-        if (foundation.ownerCharacterId != client.character.characterId) return;
-        server.sendData(client, "Command.InteractionString", {
-          guid: guid,
-          stringId: 12979,
-        });
-        break;
-      default:
-        break;
-    }
+    entity.OnInteractionString(server, client);
   }
   MountSeatChangeRequest(server: ZoneServer2016, client: Client, packet: any) {
     server.changeSeat(client, packet);
@@ -1251,7 +906,10 @@ export class zonePacketHandlers {
     server.sendData(client, "ClientUpdate.ProximateItems", proximityItems);
   }
   CommandSuicide(server: ZoneServer2016, client: Client, packet: any) {
-    server.killCharacter(client);
+    server.killCharacter(client, {
+      entity: client.character.characterId,
+      damage: 9999,
+    });
   }
   //#region ITEMS
   RequestUseItem(server: ZoneServer2016, client: Client, packet: any) {
@@ -1463,7 +1121,7 @@ export class zonePacketHandlers {
                           explosive.state.position
                         ) < 0.6
                       ) {
-                        server.explodeExplosive(explosive);
+                        server.detonateExplosive(explosive);
                         return;
                       }
                     }
@@ -1474,7 +1132,7 @@ export class zonePacketHandlers {
                           explosive.state.position
                         ) < 2.2
                       ) {
-                        server.explodeExplosive(explosive);
+                        server.detonateExplosive(explosive);
                         return;
                       }
                     }
