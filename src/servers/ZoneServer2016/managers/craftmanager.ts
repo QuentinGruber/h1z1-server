@@ -11,9 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ContainerErrors } from "../enums";
+import { ContainerErrors } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
-import { ZoneClient2016 as Client } from "./zoneclient";
+import { ZoneClient2016 as Client } from "../classes/zoneclient";
 const debug = require("debug")("ZoneServer");
 
 interface craftComponentDSEntry {
@@ -227,7 +227,7 @@ export class CraftManager {
     );
     const r = server._recipes[recipeId];
     for (const component of r.components) {
-      const inventory = server.getInventoryAsContainer(client.character);
+      const inventory = client.character.getInventoryAsContainer();
       let remainingItems = component.requiredAmount * recipeCount,
         stackCount = 0;
       if (!inventory[component.itemDefinitionId]) {

@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { FilterIds } from "servers/ZoneServer2016/enums";
+import { FilterIds, Items } from "servers/ZoneServer2016/models/enums";
 
 export interface npcData {
   guid: string;
@@ -191,6 +191,24 @@ export interface Weather2016 {
   unknownDword33: number;
 }
 
+export interface HitReport {
+  sessionProjectileCount: number;
+  characterId: string;
+  position: Float32Array;
+  unknownFlag1: number;
+  hitLocation?: string;
+  totalShotCount: number;
+  unknownByte2: number;
+}
+
+export interface DamageInfo {
+  entity: string;
+  weapon?: Items;
+  damage: number;
+  causeBleed?: boolean;
+  hitReport?: HitReport;
+}
+
 export interface DamageRecord {
   source: {
     name: string;
@@ -202,7 +220,7 @@ export interface DamageRecord {
   };
   hitInfo: {
     timestamp: number;
-    weapon: string;
+    weapon?: Items;
     distance: string;
     hitLocation: string;
     hitPosition: Float32Array;
