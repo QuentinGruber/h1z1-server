@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.22.1",
+  "version": "0.22.2",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -16,20 +16,20 @@
     "debug": "4.3.4",
     "h1emu-core": "1.0.0",
     "h1z1-dataschema": "1.7.0",
-    "mongodb": "4.7.0",
-    "typescript": "4.7.2"
+    "mongodb": "4.12.0",
+    "typescript": "4.9.3"
   },
   "directories": {
     "src": "./src"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "5.27.0",
-    "@typescript-eslint/parser": "5.27.0",
-    "eslint": "8.16.0",
+    "@typescript-eslint/eslint-plugin": "5.44.0",
+    "@typescript-eslint/parser": "5.44.0",
+    "eslint": "8.28.0",
     "glob": "8.0.3",
     "prettier": "2.7.1",
-    "ts-node": "10.8.0",
-    "typedoc": "0.23.15"
+    "ts-node": "10.9.1",
+    "typedoc": "0.23.21"
   },
   "scripts": {
     "gen-packets-types": "npx ts-node ./scripts/genPacketsNames.ts",

@@ -216,6 +216,107 @@ export class zonePacketHandlers {
       //server.DTOhit(client, packet);
     }
   }
+
+  CommandPointAndReport(server: ZoneServer2016, client: Client, packet: any) {
+    debug(packet);
+    /*const targetClient = Object.values(server._clients).find((c) => {
+            if (c.character.characterId == packet.data.reportedCharacterId) {
+                return c;
+            }
+        });
+        if (!server._discordWebhookUrl) {
+            server.sendChatText(client, "Contact admin to enable discord web hooks");
+            return;
+          }
+        if (!targetClient) {
+            server.sendChatText(client, "Client not found.");
+            return;
+          }
+          targetClient.reports += 1;
+          const logs: any[] = []
+          targetClient.clientLogs.forEach((log: { log: string, isSuspicious: boolean })  => {
+              if (log.isSuspicious) {
+                  logs.push(log.log)
+              }
+          })
+          const obj = [
+              { title: 'Reported player:', info: `name: ${targetClient.character.name}, id:${targetClient.loginSessionId}`},              
+              { title: 'Reported player position:', info: `${targetClient.character.state.position[0]}   ${targetClient.character.state.position[1]}   ${targetClient.character.state.position[2]}` },
+              { title: 'Reported player pvp stats:', info: `Shots fired:${targetClient.pvpStats.shotsFired}, shots hit:${targetClient.pvpStats.shotsHit}, overall accuracy: ${(100 * targetClient.pvpStats.shotsHit / targetClient.pvpStats.shotsFired).toFixed(2)}% | head: ${(targetClient.pvpStats.head * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}% | spine: ${(targetClient.pvpStats.spine * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}% | hands: ${(targetClient.pvpStats.hands * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}% | legs ${(targetClient.pvpStats.legs * 100 / targetClient.pvpStats.shotsHit).toFixed(0)}%` },
+              { title: 'Reported player suspicious processes:', info: `:${logs}` },
+              { title: 'Reported by:', info: `name: ${client.character.name}, id: ${client.loginSessionId}` },
+              { title: 'Position:', info: `${client.character.state.position[0]}   ${client.character.state.position[1]}   ${client.character.state.position[2]}` },
+              { title: 'Time:', info: `${server.getDateString(Date.now())}` },
+              { title: 'Total reports this session:', info: `${targetClient.reports}` }
+          ]
+          server.sendDiscordHook(client, targetClient, 'Point and Click Report', 'player decided that suspect is sus :)', obj) // mas�o ma�lane
+        */ // disabled for now, people use it to check if a player is nearby
+  }
+  CommandReportLastDeath(server: ZoneServer2016, client: Client, packet: any) {
+    const targetClient = client.lastDeathReport?.attacker;
+    if (!client.lastDeathReport) return;
+    if (!targetClient) {
+      server.sendChatText(client, "Client not found.");
+      return;
+    }
+    targetClient.reports += 1;
+    const logs: any[] = [];
+    targetClient.clientLogs.forEach(
+      (log: { log: string; isSuspicious: boolean }) => {
+        if (log.isSuspicious) {
+          logs.push(log.log);
+        }
+      }
+    );
+    const obj = [
+      {
+        title: "Reported player:",
+        info: `name: ${targetClient.character.name}, id:${targetClient.loginSessionId}`,
+      },
+      {
+        title: "Reported player position:",
+        info: `${targetClient.character.state.position[0]}   ${targetClient.character.state.position[1]}   ${targetClient.character.state.position[2]}`,
+      },
+      {
+        title: "Distance between players:",
+        info: `${client.lastDeathReport?.distance}`,
+      },
+      {
+        title: "Reported player pvp stats:",
+        info: `Shots fired:${targetClient.pvpStats.shotsFired}, shots hit:${
+          targetClient.pvpStats.shotsHit
+        }, overall accuracy: ${(
+          (100 * targetClient.pvpStats.shotsHit) /
+          targetClient.pvpStats.shotsFired
+        ).toFixed(2)}% | head: ${(
+          (targetClient.pvpStats.head * 100) /
+          targetClient.pvpStats.shotsHit
+        ).toFixed(0)}% | spine: ${(
+          (targetClient.pvpStats.spine * 100) /
+          targetClient.pvpStats.shotsHit
+        ).toFixed(0)}% | hands: ${(
+          (targetClient.pvpStats.hands * 100) /
+          targetClient.pvpStats.shotsHit
+        ).toFixed(0)}% | legs ${(
+          (targetClient.pvpStats.legs * 100) /
+          targetClient.pvpStats.shotsHit
+        ).toFixed(0)}%`,
+      },
+      { title: "Reported player suspicious processes:", info: `:${logs}` },
+      {
+        title: "Reported by:",
+        info: `name: ${client.character.name}, id: ${client.loginSessionId}`,
+      },
+      {
+        title: "Position:",
+        info: `${client.character.state.position[0]}   ${client.character.state.position[1]}   ${client.character.state.position[2]}`,
+      },
+      { title: "Time:", info: `${server.getDateString(Date.now())}` },
+      { title: "Total reports this session:", info: `${targetClient.reports}` },
+    ];
+    delete client.lastDeathReport;
+  }
+
   LobbyGameDefinitionDefinitionsRequest(
     server: ZoneServer2016,
     client: Client,
@@ -252,7 +353,29 @@ export class zonePacketHandlers {
       packet.data.file === "ClientProc.log" &&
       !client.clientLogs.includes(packet.data.message)
     ) {
-      client.clientLogs.push(packet.data.message);
+      const suspicious = [
+        "cheatengine",
+        "injector",
+        "gameover",
+        "processhacker",
+      ];
+      const obj = { log: packet.data.message, isSuspicious: false };
+      for (let x = 0; x < suspicious.length; x++) {
+        if (packet.data.message.toLowerCase().includes(suspicious[x])) {
+          obj.isSuspicious = true;
+          server.sendChatTextToAdmins(
+            `FairPlay: ${
+              client.character.name
+            } is using suspicious software - ${obj.log
+              .toLowerCase()
+              .substring(
+                obj.log.toLowerCase().lastIndexOf(suspicious[x].toLowerCase())
+              )}`,
+            false
+          );
+        }
+      }
+      client.clientLogs.push(obj);
     }
     debug(packet);
   }
@@ -526,6 +649,7 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
+    if (packet.data.flags == 1 && client.isLoading) client.isLoading = false;
     if (client.character.tempGodMode) {
       server.setGodMode(client, false);
       client.character.tempGodMode = false;
@@ -1944,10 +2068,11 @@ export class zonePacketHandlers {
             server.damageItem(client, weaponItem, 2);
           break;
         case "Weapon.Fire":
-          debug("Weapon.Fire");
           if (weaponItem.weapon.ammoCount <= 0) return;
-          server.hitMissFairPlayCheck(client, false);
-          weaponItem.weapon.ammoCount -= 1;
+          if (weaponItem.weapon.ammoCount > 0) {
+            weaponItem.weapon.ammoCount -= 1;
+          }
+          server.hitMissFairPlayCheck(client, false, "");
           server.stopHudTimer(client);
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,
@@ -1986,6 +2111,24 @@ export class zonePacketHandlers {
                 break;
               case EntityTypes.EXPLOSIVE:
                 server.deleteEntity(characterId, server._explosives);
+                break;
+              case EntityTypes.CONSTRUCTION_DOOR:
+                server.deleteConstructionSlot(
+                  characterId,
+                  server._constructionDoors
+                );
+                break;
+              case EntityTypes.CONSTRUCTION_SIMPLE:
+                server.deleteConstructionSlot(
+                  characterId,
+                  server._constructionSimple
+                );
+                break;
+              case EntityTypes.CONSTRUCTION_FOUNDATION:
+                server.deleteConstructionSlot(
+                  characterId,
+                  server._constructionFoundations
+                );
                 break;
               default:
                 return;
@@ -2294,6 +2437,12 @@ export class zonePacketHandlers {
         break;
       case "DtoHitSpeedTreeReport":
         this.DtoHitSpeedTreeReport(server, client, packet);
+        break;
+      case "Command.PointAndReport":
+        this.CommandPointAndReport(server, client, packet);
+        break;
+      case "Command.ReportLastDeath":
+        this.CommandReportLastDeath(server, client, packet);
         break;
       case "GetRewardBuffInfo":
         this.GetRewardBuffInfo(server, client, packet);

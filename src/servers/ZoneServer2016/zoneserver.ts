@@ -138,6 +138,7 @@ export class ZoneServer2016 extends EventEmitter {
   _db?: Db;
   _soloMode = false;
   _useFairPlay = true;
+  _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
   _dynamicWeatherWorker: any;
@@ -147,7 +148,7 @@ export class ZoneServer2016 extends EventEmitter {
   private _h1emuZoneServer!: H1emuZoneServer;
   readonly _appDataFolder = getAppDataFolderPath();
   _worldId = 0;
-  readonly _clients: { [sessionId: string]: Client } = {};
+  readonly _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
   _npcs: { [characterId: string]: Npc } = {};
   _spawnedItems: { [characterId: string]: ItemObject } = {};
@@ -1070,6 +1071,17 @@ export class ZoneServer2016 extends EventEmitter {
           killer: deathInfo.client.character.characterId,
           isCheater: deathInfo.client.character.godMode,
         } as CharacterKilledBy);
+        client.lastDeathReport = {
+          position: client.character.state.position,
+          attackerPosition: deathInfo.client.character.state.position,
+          distance: Number(
+            getDistance(
+              client.character.state.position,
+              deathInfo.client.character.state.position
+            ).toFixed(2)
+          ),
+          attacker: deathInfo.client,
+        };
       }
       client.character.isRunning = false;
       client.character.characterStates.knockedOut = true;
@@ -1255,130 +1267,92 @@ export class ZoneServer2016 extends EventEmitter {
   isConstructionInSecuredArea(construction: any, type: string) {
     switch (type) {
       case "simple":
-        if (!construction.parentObjectCharacterId) return false;
-        const notProtected = [Items.METAL_WALL, Items.METAL_WALL_UPPER];
-        if (notProtected.includes(construction.itemDefinitionId)) return false;
-        if (
-          this._constructionFoundations[construction.parentObjectCharacterId]
-        ) {
+        for (const a in this._constructionFoundations) {
+          const foundation = this._constructionFoundations[a];
+          // Linked to #1160
+          if (!foundation) {
+            return;
+          }
           if (
-            this._constructionFoundations[
-              this._constructionFoundations[
-                construction.parentObjectCharacterId
-              ].parentObjectCharacterId
-            ]
+            this._constructionFoundations[foundation.parentObjectCharacterId]
           ) {
             if (
-              this._constructionFoundations[
-                construction.parentObjectCharacterId
-              ].isFullySecured
+              foundation.isFullySecured &&
+              isInside(
+                [
+                  construction.state.position[0],
+                  construction.state.position[2],
+                ],
+                foundation.securedPolygons
+              )
             )
               return true;
             else if (
-              this._constructionFoundations[
-                this._constructionFoundations[
-                  construction.parentObjectCharacterId
-                ].parentObjectCharacterId
-              ].isSecured &&
-              this._constructionFoundations[
-                construction.parentObjectCharacterId
-              ].isSecured
+              this._constructionFoundations[foundation.parentObjectCharacterId]
+                .isSecured &&
+              foundation.isSecured &&
+              isInside(
+                [
+                  construction.state.position[0],
+                  construction.state.position[2],
+                ],
+                foundation.securedPolygons
+              )
             )
               return true;
             else return false;
           }
           if (
-            this._constructionFoundations[
-              construction.parentObjectCharacterId
-            ] &&
-            this._constructionFoundations[construction.parentObjectCharacterId]
-              .isSecured
+            foundation.isSecured &&
+            isInside(
+              [construction.state.position[0], construction.state.position[2]],
+              foundation.securedPolygons
+            )
           )
             return true;
-        } else if (
-          this._constructionSimple[construction.parentObjectCharacterId]
-            ? this._constructionSimple[construction.parentObjectCharacterId]
-            : this._constructionSimple[
-                this._constructionSimple[construction.parentObjectCharacterId]
-                  .parentObjectCharacterId
-              ]
-        ) {
-          const parentConstruction = this._constructionSimple[
-            construction.parentObjectCharacterId
-          ]
-            ? this._constructionSimple[construction.parentObjectCharacterId]
-            : (this._constructionSimple[
-                this._constructionSimple[construction.parentObjectCharacterId]
-                  .parentObjectCharacterId
-              ] as simpleConstruction);
-          if (
-            this._constructionFoundations[
-              parentConstruction.parentObjectCharacterId
-            ]
-          ) {
-            if (
-              this._constructionFoundations[
-                this._constructionFoundations[
-                  parentConstruction.parentObjectCharacterId
-                ].parentObjectCharacterId
-              ]
-            ) {
-              if (
-                this._constructionFoundations[
-                  parentConstruction.parentObjectCharacterId
-                ].isFullySecured
-              )
-                return true;
-              else if (
-                this._constructionFoundations[
-                  this._constructionFoundations[
-                    parentConstruction.parentObjectCharacterId
-                  ].parentObjectCharacterId
-                ].isSecured &&
-                this._constructionFoundations[
-                  parentConstruction.parentObjectCharacterId
-                ].isSecured
-              )
-                return true;
-              else return false;
-            }
-            if (
-              this._constructionFoundations[
-                parentConstruction.parentObjectCharacterId
-              ] &&
-              this._constructionFoundations[
-                parentConstruction.parentObjectCharacterId
-              ].isSecured
-            )
-              return true;
-          } else return false;
         }
       case "door":
-        const foundation = this._constructionFoundations[
-          construction.parentObjectCharacterId
-        ]
-          ? this._constructionFoundations[construction.parentObjectCharacterId]
-          : this._constructionFoundations[
-              this._constructionSimple[construction.parentObjectCharacterId]
-                .parentObjectCharacterId
-            ]
-          ? this._constructionFoundations[
-              this._constructionSimple[construction.parentObjectCharacterId]
-                .parentObjectCharacterId
-            ]
-          : this._constructionFoundations[
-              this._constructionSimple[
-                this._constructionSimple[construction.parentObjectCharacterId]
-                  .parentObjectCharacterId
-              ].parentObjectCharacterId
-            ];
-        if (
-          foundation &&
-          foundation.isSecured &&
-          construction.itemDefinitionId != Items.METAL_GATE
-        )
-          return true;
-        else return false;
+        if (construction.itemDefinitionId == Items.METAL_GATE) return false;
+        for (const a in this._constructionFoundations) {
+          const foundation = this._constructionFoundations[a];
+          if (
+            this._constructionFoundations[foundation.parentObjectCharacterId]
+          ) {
+            if (
+              foundation.isFullySecured &&
+              isInside(
+                [
+                  construction.state.position[0],
+                  construction.state.position[2],
+                ],
+                foundation.securedPolygons
+              )
+            )
+              return true;
+            else if (
+              this._constructionFoundations[foundation.parentObjectCharacterId]
+                .isSecured &&
+              foundation.isSecured &&
+              isInside(
+                [
+                  construction.state.position[0],
+                  construction.state.position[2],
+                ],
+                foundation.securedPolygons
+              )
+            )
+              return true;
+            else return false;
+          }
+          if (
+            foundation.isSecured &&
+            isInside(
+              [construction.state.position[0], construction.state.position[2]],
+              foundation.securedPolygons
+            )
+          )
+            return true;
+        }
     }
     return false;
   }
@@ -1432,6 +1406,17 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }, 15000);
     if (constructionObject.health > 0) return;
+
+    this.deleteConstructionSlot(constructionCharId, dictionary, 3000);
+  }
+
+  deleteConstructionSlot(
+    constructionCharId: string,
+    dictionary: any,
+    destructTime = 0
+  ) {
+    const constructionObject = dictionary[constructionCharId];
+    this.deleteEntity(constructionCharId, dictionary, 242, destructTime);
     const foundation = this._constructionFoundations[
       constructionObject.parentObjectCharacterId
     ]
@@ -1439,9 +1424,10 @@ export class ZoneServer2016 extends EventEmitter {
           constructionObject.parentObjectCharacterId
         ]
       : this._constructionSimple[constructionObject.parentObjectCharacterId];
+    if (!foundation) return;
     if (
-      constructionObject.itemDefinitionId == Items.DOOR_WOOD ||
       constructionObject.itemDefinitionId == Items.DOOR_METAL ||
+      constructionObject.itemDefinitionId == Items.DOOR_WOOD ||
       constructionObject.itemDefinitionId == Items.METAL_GATE ||
       constructionObject.itemDefinitionId == Items.METAL_WALL
     ) {
@@ -1451,12 +1437,10 @@ export class ZoneServer2016 extends EventEmitter {
         new Float32Array([0, 0, 0, 0])
       );
     }
-    this.deleteEntity(constructionCharId, dictionary, 242, 3000);
     if (!constructionObject.slot || !constructionObject.parentObjectCharacterId)
       return;
     const index = foundation.occupiedSlots.indexOf(constructionObject.slot);
     foundation.occupiedSlots.splice(index, 1);
-    return;
   }
 
   damageVehicle(damage: number, vehicle: Vehicle) {
@@ -1861,7 +1845,7 @@ export class ZoneServer2016 extends EventEmitter {
         1000 /
         (sequenceTime - client.oldPos.time)) *
       3600000;
-    if (speed > 35 && verticalSpeed < 50) {
+    if (speed > 35 && (verticalSpeed < 50 || verticalSpeed == Infinity)) {
       client.speedWarnsNumber += 1;
     } else if (client.speedWarnsNumber != 0) {
       client.speedWarnsNumber -= 1;
@@ -1874,10 +1858,45 @@ export class ZoneServer2016 extends EventEmitter {
     client.oldPos = { position: position, time: Date.now() };
   }
 
-  hitMissFairPlayCheck(client: Client, hit: boolean) {
-    if (!this._useFairPlay) return;
+  hitMissFairPlayCheck(client: Client, hit: boolean, hitLocation: string) {
+    if (
+      !this._useFairPlay ||
+      client.character.getEquippedWeapon().itemDefinitionId ==
+        Items.WEAPON_SHOTGUN
+    )
+      return;
     if (hit) {
       client.pvpStats.shotsHit += 1;
+      switch (hitLocation) {
+        case "head":
+        case "glasses":
+        case "neck":
+          client.pvpStats.head += 1;
+          break;
+        case "spineupper":
+        case "spinelower":
+        case "spinemiddle":
+          client.pvpStats.spine += 1;
+          break;
+        case "l_hip":
+        case "r_hip":
+        case "l_knee":
+        case "r_knee":
+        case "l_ankle":
+        case "r_ankle":
+          client.pvpStats.legs += 1;
+          break;
+        case "l_elbow":
+        case "r_elbow":
+        case "r_shoulder":
+        case "l_shoulder":
+        case "r_wrist":
+        case "l_wrist":
+          client.pvpStats.hands += 1;
+          break;
+        default:
+          break;
+      }
       const hitRatio =
         (100 * client.pvpStats.shotsHit) / client.pvpStats.shotsFired;
       if (client.pvpStats.shotsFired > 10 && hitRatio > 80) {
@@ -1894,7 +1913,6 @@ export class ZoneServer2016 extends EventEmitter {
       client.pvpStats.shotsFired += 1;
     }
   }
-
   updateResource(
     client: Client,
     entityId: string,
@@ -2137,13 +2155,17 @@ export class ZoneServer2016 extends EventEmitter {
         hitEntity = this._vehicles[characterId];
         break;
       case EntityTypes.PLAYER:
+        this.hitMissFairPlayCheck(
+          client,
+          true,
+          packet.hitReport.hitLocation.toLowerCase()
+        );
         if (
           !this._characters[characterId] ||
           this._characters[characterId].characterStates.knockedOut
         ) {
           return;
         }
-        this.hitMissFairPlayCheck(client, true);
         damageEntity = () => {
           const c = this.getClientByCharId(characterId);
           if (!c) {
@@ -2178,14 +2200,12 @@ export class ZoneServer2016 extends EventEmitter {
         hitEntity = this._characters[characterId];
         break;
       case EntityTypes.OBJECT:
-        if (this._spawnedItems[characterId]) {
+        const object = this._spawnedItems[characterId];
+        if (object) {
           if (
-            this._spawnedItems[characterId].item.itemDefinitionId ===
-              Items.FUEL_BIOFUEL ||
-            this._spawnedItems[characterId].item.itemDefinitionId ===
-              Items.FUEL_ETHANOL
+            object.item.itemDefinitionId === Items.FUEL_BIOFUEL ||
+            object.item.itemDefinitionId === Items.FUEL_ETHANOL
           ) {
-            const object = this._spawnedItems[characterId];
             this.deleteEntity(characterId, this._spawnedItems);
             delete this.worldObjectManager._spawnedLootObjects[
               object.spawnerId
@@ -2549,6 +2569,27 @@ export class ZoneServer2016 extends EventEmitter {
       const foundation = this._constructionFoundations[
         a
       ] as ConstructionParentEntity;
+      if (
+        foundation.itemDefinitionId == Items.FOUNDATION ||
+        foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
+      ) {
+        if (
+          isPosInRadiusWithY(
+            foundation.itemDefinitionId == Items.FOUNDATION ? 6.46 : 4.9,
+            client.character.state.position,
+            new Float32Array([
+              foundation.state.position[0],
+              foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
+                ? foundation.state.position[1] - 2.5
+                : foundation.state.position[1],
+              foundation.state.position[2],
+              1,
+            ]),
+            2
+          )
+        )
+          this.tpPlayerOutsideFoundation(client, foundation, true);
+      }
       if (!foundation.isSecured) continue;
       let allowed = false;
       foundation.permissions.forEach((element: any) => {
@@ -2597,11 +2638,12 @@ export class ZoneServer2016 extends EventEmitter {
       if (!allowedIds.includes(construction.itemDefinitionId)) continue;
       let allowed = false;
       if (!construction.isSecured) continue;
-      let foundation: ConstructionParentEntity;
+      let foundation: ConstructionParentEntity | undefined;
       if (this._constructionFoundations[construction.parentObjectCharacterId]) {
         foundation =
           this._constructionFoundations[construction.parentObjectCharacterId];
       } else if (
+        this._constructionSimple[construction.parentObjectCharacterId] &&
         this._constructionFoundations[
           this._constructionSimple[construction.parentObjectCharacterId]
             .parentObjectCharacterId
@@ -2612,7 +2654,13 @@ export class ZoneServer2016 extends EventEmitter {
             this._constructionSimple[construction.parentObjectCharacterId]
               .parentObjectCharacterId
           ];
-      } else continue;
+      } else {
+        for (const a in this._constructionFoundations) {
+          const b = this._constructionFoundations[a];
+          if (!this.checkInsideFoundation(b, construction)) continue;
+          foundation = b;
+        }
+      }
       if (!foundation) continue;
       foundation.permissions.forEach((element: any) => {
         if (
@@ -2713,12 +2761,26 @@ export class ZoneServer2016 extends EventEmitter {
 
   tpPlayerOutsideFoundation(
     client: Client,
-    foundation: ConstructionParentEntity
+    foundation: ConstructionParentEntity,
+    tpUp: boolean = false
   ) {
     const currentAngle = Math.atan2(
       client.character.state.position[2] - foundation.state.position[2],
       client.character.state.position[0] - foundation.state.position[0]
     );
+    if (tpUp) {
+      this.sendChatText(client, "Construction: stuck under foundation");
+      this.sendData(client, "ClientUpdate.UpdateLocation", {
+        position: [
+          client.character.state.position[0],
+          client.character.state.position[1] + 2.5,
+          client.character.state.position[2],
+          1,
+        ],
+        unknownBool2: false,
+      });
+      return;
+    }
     const newPos = movePoint(client.character.state.position, currentAngle, 3);
     this.sendChatText(client, "Construction: no visitor permission");
     if (client.vehicle.mountedVehicle) {
@@ -2922,7 +2984,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId != characterObj.characterId &&
         characterObj.isReady &&
         isPosInRadius(
-          this._charactersRenderDistance,
+          client.character.isSpectator ? 1000 : this._charactersRenderDistance,
           client.character.state.position,
           characterObj.state.position
         ) &&
@@ -3356,6 +3418,10 @@ export class ZoneServer2016 extends EventEmitter {
           url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         });
         this.sendData(client, "LoginFailed", {});
+        setTimeout(() => {
+          if (!client) return;
+          this.deleteClient(client);
+        }, 1000);
         break;
     }
   }
@@ -3438,7 +3504,7 @@ export class ZoneServer2016 extends EventEmitter {
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
-      if (vehicle.vehicleId == VehicleIds.SPECTATE) continue; //ignore spectator cam
+      //if (vehicle.vehicleId == VehicleIds.SPECTATE) continue; //ignore spectator cam // shouldnt be needed anymore
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
@@ -3766,13 +3832,14 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (this._constructionFoundations[parentObjectCharacterId]) {
       if (
-        !isPosInRadius(
+        !isPosInRadiusWithY(
           this._constructionFoundations[parentObjectCharacterId]
             .itemDefinitionId == Items.FOUNDATION
             ? 11
             : 15,
           this._constructionFoundations[parentObjectCharacterId].state.position,
-          position
+          position,
+          10
         )
       ) {
         this.sendChatText(client, "Placement blocked: placement error");
@@ -3840,8 +3907,8 @@ export class ZoneServer2016 extends EventEmitter {
           false
         );
         break;
-      case Items.DOOR_BASIC:
       case Items.METAL_GATE:
+      case Items.DOOR_BASIC:
       case Items.DOOR_WOOD:
       case Items.DOOR_METAL:
         this.placeConstructionDoor(
@@ -4352,18 +4419,6 @@ export class ZoneServer2016 extends EventEmitter {
       vehicle.driverIsDead = false;
     }
     vehicle.seats[seatId] = client.character.characterId;
-    if (vehicle.vehicleId == VehicleIds.SPECTATE) {
-      this.sendData(client, "Mount.MountResponse", {
-        // mounts character
-        characterId: client.character.characterId,
-        vehicleGuid: vehicle.characterId, // vehicle guid
-        seatId: Number(seatId),
-        isDriver: seatId === "0" ? 1 : 0, //isDriver
-        identity: {},
-      });
-      return;
-    }
-    client.character.state.position = vehicle.state.position;
     this.sendDataToAllWithSpawnedEntity(
       this._vehicles,
       vehicleGuid,
@@ -6927,7 +6982,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._h1emuZoneServer.sendData(
       {
         ...this._loginServerInfo,
-        session: true,
+        serverId: Infinity,
       } as any,
       "UpdateZonePopulation",
       { population: populationNumber }
