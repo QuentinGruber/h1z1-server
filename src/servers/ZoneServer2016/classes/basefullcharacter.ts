@@ -412,35 +412,35 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
   pGetContainerData(server: ZoneServer2016, container: loadoutContainer) {
     return {
-      loadoutSlotId: container.slotId,
-      containerData: {
-        guid: container.itemGuid,
-        definitionId: container.containerDefinitionId,
-        associatedCharacterId: this.characterId,
-        slots: server.getContainerMaxSlots(container),
-        items: Object.values(container.items).map((item, idx) => {
-          container.items[item.itemGuid].slotId = idx + 1;
-          return {
-            itemDefinitionId: item.itemDefinitionId,
-            itemData: this.pGetItemData(
-              server,
-              item,
-              container.containerDefinitionId
-            ),
-          };
-        }),
-        unknownBoolean1: true, // needs to be true or bulk doesn't show up
-        maxBulk: server.getContainerMaxBulk(container),
-        unknownDword4: 28,
-        bulkUsed: server.getContainerBulk(container),
-        hasBulkLimit: !!server.getContainerMaxBulk(container),
-      },
+      guid: container.itemGuid,
+      definitionId: container.containerDefinitionId,
+      associatedCharacterId: this.characterId,
+      slots: server.getContainerMaxSlots(container),
+      items: Object.values(container.items).map((item, idx) => {
+        container.items[item.itemGuid].slotId = idx + 1;
+        return {
+          itemDefinitionId: item.itemDefinitionId,
+          itemData: this.pGetItemData(
+            server,
+            item,
+            container.containerDefinitionId
+          ),
+        };
+      }),
+      showBulk: true, // needs to be true or bulk doesn't show up
+      maxBulk: server.getContainerMaxBulk(container),
+      unknownDword1: 28,
+      bulkUsed: server.getContainerBulk(container),
+      hasBulkLimit: !!server.getContainerMaxBulk(container),
     };
   }
 
   pGetContainers(server: ZoneServer2016) {
     return Object.values(this._containers).map((container) => {
-      return this.pGetContainerData(server, container);
+      return {
+        loadoutSlotId: container.slotId,
+        containerData: this.pGetContainerData(server, container),
+      };
     });
   }
 

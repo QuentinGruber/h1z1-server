@@ -5481,28 +5481,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "Container.UpdateEquippedContainer", {
       ignore: client.character.characterId,
       characterId: client.character.characterId,
-      containerData: {
-        guid: container.itemGuid,
-        definitionId: container.containerDefinitionId,
-        associatedCharacterId: client.character.characterId,
-        slots: this.getContainerMaxSlots(container),
-        items: Object.values(container.items).map((item, idx) => {
-          container.items[item.itemGuid].slotId = idx + 1;
-          return {
-            itemDefinitionId: item.itemDefinitionId,
-            itemData: client.character.pGetItemData(
-              this,
-              item,
-              container.containerDefinitionId
-            ),
-          };
-        }),
-        unknownBoolean1: true, // needs to be true or bulk doesn't show up
-        maxBulk: this.getContainerMaxBulk(container),
-        unknownDword4: 28,
-        bulkUsed: this.getContainerBulk(container),
-        hasBulkLimit: !!this.getContainerMaxBulk(container),
-      },
+      containerData: client.character.pGetContainerData(this, container),
     });
   }
 

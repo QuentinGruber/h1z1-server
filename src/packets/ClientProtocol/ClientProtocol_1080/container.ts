@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { containerData } from "./shared";
+import { containerData, containers } from "./shared";
 
 export const containerPackets: any = [
   [
@@ -39,10 +39,7 @@ export const containerPackets: any = [
           name: "containers",
           type: "array",
           defaultValue: [],
-          fields: [
-            { name: "loadoutSlotId", type: "uint32", defaultValue: 0 },
-            { name: "containerData", type: "schema", fields: containerData },
-          ],
+          fields: containers,
         },
       ],
     },
