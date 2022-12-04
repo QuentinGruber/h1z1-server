@@ -1269,8 +1269,8 @@ export class ZoneServer2016 extends EventEmitter {
       case "simple":
         for (const a in this._constructionFoundations) {
           const foundation = this._constructionFoundations[a];
-          // Linked to #1160 
-          if(!foundation){
+          // Linked to #1160
+          if (!foundation) {
             return;
           }
           if (
