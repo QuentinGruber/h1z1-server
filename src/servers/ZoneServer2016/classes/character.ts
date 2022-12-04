@@ -572,10 +572,6 @@ export class Character2016 extends BaseFullCharacter {
         canStopBleed = true;
         break;
     }
-    let causeBleed: boolean = true;
-    if (canStopBleed && this.hasArmor(server)) {
-      causeBleed = false;
-    }
 
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
@@ -593,18 +589,19 @@ export class Character2016 extends BaseFullCharacter {
       }
     );
 
-    if (this.isAlive)
+    if (this.isAlive) {
       server.sendHitmarker(
         client,
         damageInfo.hitReport?.hitLocation,
         this.hasHelmet(server),
         this.hasArmor(server)
       );
+    }
 
     c.character.damage(server, {
       ...damageInfo,
       damage: damage,
-      causeBleed: causeBleed,
+      causeBleed: !(canStopBleed && this.hasArmor(server)),
     });
   }
 }
