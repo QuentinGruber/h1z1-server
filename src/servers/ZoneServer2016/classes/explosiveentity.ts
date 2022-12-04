@@ -67,12 +67,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
       : server.explosionDamage(this.state.position, this.characterId);
   }
 
-  OnProjectileHit(
-    server: ZoneServer2016,
-    client: ZoneClient2016,
-    damageInfo: DamageInfo
-  ) {
-    damageInfo; // eslint
-    this.detonate(server, client);
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    this.detonate(server, server.getClientByCharId(damageInfo.entity));
   }
 }

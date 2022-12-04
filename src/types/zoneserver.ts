@@ -203,6 +203,7 @@ export interface HitReport {
 
 export interface DamageInfo {
   entity: string;
+  weapon?: Items;
   damage: number;
   causeBleed?: boolean;
   hitReport?: HitReport;
@@ -219,7 +220,7 @@ export interface DamageRecord {
   };
   hitInfo: {
     timestamp: number;
-    weapon: Items;
+    weapon?: Items;
     distance: string;
     hitLocation: string;
     hitPosition: Float32Array;

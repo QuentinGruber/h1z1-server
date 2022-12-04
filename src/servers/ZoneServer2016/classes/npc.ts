@@ -47,6 +47,13 @@ export class Npc extends BaseFullCharacter {
     bit22: 0,
     bit23: 0,
   };
+  static isAlive = true;
+  public set isAlive(state) {
+    this.flags.knockedOut = state ? 0 : 1;
+  }
+  public get isAlive() {
+    return this.flags.knockedOut ? 0 : 1;
+  }
   constructor(
     characterId: string,
     transientId: number,
@@ -96,5 +103,17 @@ export class Npc extends BaseFullCharacter {
       this.onReadyCallback(client);
       delete this.onReadyCallback;
     }
+  }
+
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    this.damage(server, damageInfo);
+    const client = server.getClientByCharId(damageInfo.entity);
+    if (client && this.isAlive)
+      server.sendHitmarker(
+        client,
+        damageInfo.hitReport?.hitLocation,
+        this.hasHelmet(server),
+        this.hasArmor(server)
+      );
   }
 }

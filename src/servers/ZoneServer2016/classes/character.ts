@@ -12,6 +12,7 @@
 // ======================================================================
 
 import {
+  Items,
   LoadoutIds,
   LoadoutSlots,
   ResourceIds,
@@ -539,14 +540,70 @@ export class Character2016 extends BaseFullCharacter {
     }
   }
 
-  OnProjectileHit(
-    server: ZoneServer2016,
-    client: ZoneClient2016,
-    damageInfo: DamageInfo
-  ) {
-    server;
-    client;
-    damageInfo;
-    // TODO
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (!this.isAlive) return;
+    const client = server.getClientByCharId(damageInfo.entity), // source
+      c = server.getClientByCharId(this.characterId); // target
+    if (!client || !c || !damageInfo.hitReport) return;
+    server.hitMissFairPlayCheck(
+      client,
+      true,
+      damageInfo.hitReport?.hitLocation || ""
+    );
+    let damage = damageInfo.damage,
+      canStopBleed;
+    switch (damageInfo.hitReport?.hitLocation) {
+      case "HEAD":
+      case "GLASSES":
+      case "NECK":
+        damage *= 4;
+        damage = server.checkHelmet(
+          this.characterId,
+          damage,
+          damageInfo.weapon == Items.WEAPON_SHOTGUN ? 100 : 1
+        );
+        break;
+      default:
+        damage = server.checkArmor(
+          this.characterId,
+          damage,
+          damageInfo.weapon == Items.WEAPON_SHOTGUN ? 10 : 4
+        );
+        canStopBleed = true;
+        break;
+    }
+    let causeBleed: boolean = true;
+    if (canStopBleed && this.hasArmor(server)) {
+      causeBleed = false;
+    }
+
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      c.character.characterId,
+      "Character.PlayWorldCompositeEffect",
+      {
+        characterId: c.character.characterId,
+        effectId: server.getWeaponHitEffect(damageInfo.weapon),
+        position: [
+          damageInfo.hitReport?.position[0] + 0.1,
+          damageInfo.hitReport.position[1],
+          damageInfo.hitReport.position[2] + 0.1,
+          1,
+        ],
+      }
+    );
+
+    if (this.isAlive)
+      server.sendHitmarker(
+        client,
+        damageInfo.hitReport?.hitLocation,
+        this.hasHelmet(server),
+        this.hasArmor(server)
+      );
+
+    c.character.damage(server, {
+      ...damageInfo,
+      causeBleed: causeBleed,
+    });
   }
 }

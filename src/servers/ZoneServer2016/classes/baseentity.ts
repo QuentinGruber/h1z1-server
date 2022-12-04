@@ -89,13 +89,8 @@ export class BaseEntity {
     // default: do nothing
   }
 
-  OnProjectileHit(
-    server: ZoneServer2016,
-    client: ZoneClient2016,
-    damageInfo: DamageInfo
-  ) {
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     server;
-    client;
     damageInfo; // eslint
     // default: do nothing
   }

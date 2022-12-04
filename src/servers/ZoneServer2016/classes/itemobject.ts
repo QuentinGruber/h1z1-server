@@ -72,12 +72,7 @@ export class ItemObject extends BaseLightweightCharacter {
     });
   }
 
-  OnProjectileHit(
-    server: ZoneServer2016,
-    client: ZoneClient2016,
-    damageInfo: DamageInfo
-  ) {
-    client;
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     damageInfo; // eslint
     if (
       this.item.itemDefinitionId === Items.FUEL_BIOFUEL ||

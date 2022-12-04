@@ -968,8 +968,7 @@ export class ZoneServer2016 extends EventEmitter {
     let sourceName = "Generic",
       sourcePing = 0,
       targetName = "Generic",
-      targetPing = 0,
-      weapon = 0;
+      targetPing = 0;
     if (sourceClient && !targetClient) {
       sourceName = sourceClient.character.name || "Unknown";
       sourcePing = sourceClient.avgPing;
@@ -981,9 +980,6 @@ export class ZoneServer2016 extends EventEmitter {
       sourcePing = sourceClient.avgPing;
       targetName = targetClient.character.name || "Unknown";
       targetPing = targetClient.avgPing;
-      weapon = sourceClient.character.getEquippedWeapon().itemDefinitionId;
-    } else {
-      return {} as DamageRecord;
     }
     return {
       source: {
@@ -996,7 +992,7 @@ export class ZoneServer2016 extends EventEmitter {
       },
       hitInfo: {
         timestamp: Date.now(),
-        weapon: weapon,
+        weapon: damageInfo.weapon,
         distance: getDistance(
           sourceEntity.state.position,
           targetEntity.state.position
@@ -1694,7 +1690,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     if (hit) {
       client.pvpStats.shotsHit += 1;
-      switch (hitLocation) {
+      switch (hitLocation.toLowerCase()) {
         case "head":
         case "glasses":
         case "neck":
@@ -1841,22 +1837,14 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  hasHelmet(characterId: string): boolean {
-    const c = this.getClientByCharId(characterId),
-      slot = c?.character._loadout[LoadoutSlots.HEAD],
-      itemDef = this.getItemDefinition(slot?.itemDefinitionId);
-    if (!slot || !itemDef) return false;
-    return (
-      slot.itemDefinitionId >= 0 &&
-      itemDef.ITEM_CLASS == 25000 &&
-      itemDef.IS_ARMOR
-    );
-  }
-
-  checkHelmet(packet: any, damage: number, helmetDamageDivder = 1): number {
+  checkHelmet(
+    characterId: string,
+    damage: number,
+    helmetDamageDivder = 1
+  ): number {
     // TODO: REDO THIS
-    const c = this.getClientByCharId(packet.hitReport.characterId);
-    if (!c || !this.hasHelmet(c.character.characterId)) {
+    const c = this.getClientByCharId(characterId);
+    if (!c || !c.character.hasHelmet(this)) {
       return damage;
     }
     damage *= 0.75;
@@ -1868,17 +1856,13 @@ export class ZoneServer2016 extends EventEmitter {
     return damage;
   }
 
-  hasArmor(characterId: string): boolean {
-    const c = this.getClientByCharId(characterId),
-      slot = c?.character._loadout[LoadoutSlots.ARMOR],
-      itemDef = this.getItemDefinition(slot?.itemDefinitionId);
-    if (!slot || !itemDef) return false;
-    return slot.itemDefinitionId >= 0 && itemDef.ITEM_CLASS == 25041;
-  }
-
-  checkArmor(packet: any, damage: any, kevlarDamageDivider = 4): number {
+  checkArmor(
+    characterId: string,
+    damage: any,
+    kevlarDamageDivider = 4
+  ): number {
     // TODO: REDO THIS
-    const c = this.getClientByCharId(packet.hitReport.characterId),
+    const c = this.getClientByCharId(characterId),
       slot = c?.character._loadout[LoadoutSlots.ARMOR],
       itemDef = this.getItemDefinition(slot?.itemDefinitionId);
     if (!c || !slot || !slot.itemDefinitionId || !itemDef) {
@@ -1902,136 +1886,92 @@ export class ZoneServer2016 extends EventEmitter {
     return damage;
   }
 
-  registerHit(client: Client, packet: any) {
-    if (!client.character.isAlive) return;
-    const characterId = packet.hitReport.characterId,
-      entity = this.getEntity(characterId);
-    if (!entity) return;
+  sendHitmarker(
+    client: Client,
+    hitLocation: string = "",
+    hasHelmet?: Boolean,
+    hasArmor?: Boolean
+  ) {
+    let isHeadshot = false;
+    switch (hitLocation) {
+      case "HEAD":
+      case "GLASSES":
+      case "NECK":
+        isHeadshot = true;
+        break;
+    }
+    this.sendData(client, "Ui.ConfirmHit", {
+      hitType: {
+        isAlly: 0,
+        isHeadshot: isHeadshot,
+        damagedArmor: 0, // todo: check if kevlar broke or not
+        crackedArmor:
+          isHeadshot && hasHelmet ? 1 : 0 || (!isHeadshot && hasArmor) ? 1 : 0,
+      },
+    });
+  }
 
-    // TODO: Move this to OnProjectileHit in Character class
-
-    let damage: number,
-      isHeadshot = 0,
-      canStopBleed = false,
-      hitEffect = 0,
-      isShotgun = false;
-    switch (client.character.getEquippedWeapon().itemDefinitionId) {
+  getWeaponHitEffect(itemDefinitionId?: Items) {
+    switch (itemDefinitionId) {
+      case Items.WEAPON_SHOTGUN:
+        return 1302;
+      case Items.WEAPON_308:
+        return 5414;
       case Items.WEAPON_AR15:
       case Items.WEAPON_1911:
-        damage = 2500;
-        hitEffect = 1165;
-        break;
       case Items.WEAPON_M9:
-        damage = 1800;
-        hitEffect = 1165;
-        break;
       case Items.WEAPON_R380:
-        damage = 1500;
-        hitEffect = 1165;
-        break;
+      case Items.WEAPON_AK47:
+      case Items.WEAPON_MAGNUM:
+      default:
+        return 1165;
+    }
+  }
+
+  getProjectileDamage(
+    itemDefinitionId: Items,
+    sourcePos: Float32Array,
+    targetPos: Float32Array
+  ) {
+    switch (itemDefinitionId) {
+      case Items.WEAPON_AR15:
+      case Items.WEAPON_1911:
+        return 2500;
+      case Items.WEAPON_M9:
+        return 1800;
+      case Items.WEAPON_R380:
+        return 1500;
       case Items.WEAPON_SHOTGUN:
-        isShotgun = true;
-        damage = 1200; // 1 pellet (was 1667)
-        damage = calculateDamageDistFallOff(
-          getDistance(client.character.state.position, entity.state.position),
-          damage,
+        return calculateDamageDistFallOff(
+          getDistance(sourcePos, targetPos),
+          1200, // 1 pellet (was 1667)
           0.5
         );
-        hitEffect = 1302;
-        break;
       case Items.WEAPON_AK47:
-        damage = 2900;
-        hitEffect = 1165;
-        break;
+        return 2900;
       case Items.WEAPON_308:
-        damage = 8000;
-        hitEffect = 5414;
-        break;
+        return 8000;
       case Items.WEAPON_MAGNUM:
-        damage = 3000;
-        hitEffect = 1165;
-        break;
+        return 3000;
       default:
-        damage = 1000;
-        hitEffect = 1165;
-        break;
+        return 1000;
     }
-    const hasArmor = this.hasArmor(characterId),
-      hasHelmet = this.hasHelmet(characterId);
-    switch (packet.hitReport.hitLocation.toLowerCase()) {
-      case "head":
-      case "glasses":
-      case "neck":
-        damage *= 4;
-        isHeadshot = 1;
-        damage = this.checkHelmet(packet, damage, isShotgun ? 100 : 1);
-        break;
-      default:
-        damage = this.checkArmor(packet, damage, isShotgun ? 10 : 4);
-        canStopBleed = true;
-        break;
-    }
+  }
 
-    // TODO: Fix hitmarkers on dead entities again!
-    if (packet.hitReport.hitLocation) {
-      this.sendData(client, "Ui.ConfirmHit", {
-        hitType: {
-          isAlly: 0,
-          isHeadshot: isHeadshot,
-          damagedArmor: 0, // todo: check if kevlar broke or not
-          crackedArmor:
-            isHeadshot && hasHelmet
-              ? 1
-              : 0 || (!isHeadshot && hasArmor)
-              ? 1
-              : 0,
-        },
-      });
-    }
+  registerHit(client: Client, packet: any) {
+    if (!client.character.isAlive) return;
+    const entity = this.getEntity(packet.hitReport.characterId);
+    if (!entity) return;
 
-    if (
-      this._characters[characterId] &&
-      this._characters[characterId].isAlive
-    ) {
-      this.hitMissFairPlayCheck(
-        client,
-        true,
-        packet.hitReport.hitLocation.toLowerCase()
-      );
-      const c = this.getClientByCharId(characterId);
-      if (!c) {
-        return;
-      }
-      let causeBleed: boolean = true;
-      if (canStopBleed && this.hasArmor(c.character.characterId)) {
-        causeBleed = false;
-      }
-      this.sendDataToAllWithSpawnedEntity(
-        this._characters,
-        c.character.characterId,
-        "Character.PlayWorldCompositeEffect",
-        {
-          characterId: c.character.characterId,
-          effectId: hitEffect,
-          position: [
-            packet.hitReport.position[0] + 0.1,
-            packet.hitReport.position[1],
-            packet.hitReport.position[2] + 0.1,
-            1,
-          ],
-        }
-      );
-      c.character.damage(this, {
-        entity: client.character.characterId,
-        damage: damage,
-        causeBleed: causeBleed,
-        hitReport: packet.hitReport,
-      });
-      return;
-    }
-    entity.OnProjectileHit(this, client, {
+    entity.OnProjectileHit(this, {
       entity: client.character.characterId,
-      damage: damage,
+      // this could cause issues if a player switches their weapon before a projectile hits or a client desyncs
+      weapon: client.character.getEquippedWeapon().itemDefinitionId,
+      damage: this.getProjectileDamage(
+        client.character.getEquippedWeapon().itemDefinitionId,
+        client.character.state.position,
+        entity.state.position
+      ),
       hitReport: packet.hitReport,
     });
   }
@@ -4413,7 +4353,11 @@ export class ZoneServer2016 extends EventEmitter {
         }ms`;
       this.sendChatText(
         client,
-        `${time} ${source} ${target} ${this.getItemDefinition(e.hitInfo.weapon).MODEL_NAME || "N/A"} ${e.hitInfo.distance}m ${e.hitInfo.hitLocation} ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing}`
+        `${time} ${source} ${target} ${
+          this.getItemDefinition(e.hitInfo.weapon).MODEL_NAME || "N/A"
+        } ${e.hitInfo.distance}m ${
+          e.hitInfo.hitLocation
+        } ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing}`
       );
     });
     this.sendChatText(
@@ -4557,7 +4501,7 @@ export class ZoneServer2016 extends EventEmitter {
    */
   equipItem(
     character: BaseFullCharacter,
-    item: inventoryItem | undefined,
+    item?: inventoryItem,
     sendPacket: boolean = true,
     loadoutSlotId: number = 0
   ) {
@@ -4695,7 +4639,7 @@ export class ZoneServer2016 extends EventEmitter {
    * Gets the item definition for a given itemDefinitionId
    * @param itemDefinitionId The id of the itemdefinition to retrieve.
    */
-  getItemDefinition(itemDefinitionId: number | undefined) {
+  getItemDefinition(itemDefinitionId?: number) {
     if (!itemDefinitionId) return;
     return this._itemDefinitions[itemDefinitionId];
   }
@@ -5206,11 +5150,12 @@ export class ZoneServer2016 extends EventEmitter {
    */
   removeContainerItem(
     client: Client,
-    item: inventoryItem | undefined,
-    container: loadoutContainer | undefined,
-    count: number
+    item?: inventoryItem,
+    container?: loadoutContainer,
+    count?: number
   ): boolean {
     if (!container || !item) return false;
+    if (!count) count = item.stackCount;
     if (item.stackCount == count) {
       delete container.items[item.itemGuid];
       this.deleteItem(client, item.itemGuid);
@@ -5424,8 +5369,8 @@ export class ZoneServer2016 extends EventEmitter {
 
   lootContainerItem(
     client: Client,
-    item: inventoryItem | undefined,
-    count: number | undefined = undefined,
+    item?: inventoryItem,
+    count?: number,
     sendUpdate: boolean = true
   ) {
     if (!item) return;
@@ -5531,7 +5476,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  updateContainer(client: Client, container: loadoutContainer | undefined) {
+  updateContainer(client: Client, container?: loadoutContainer) {
     if (!container || !client.character.initialized) return;
     this.sendData(client, "Container.UpdateEquippedContainer", {
       ignore: client.character.characterId,
@@ -5603,7 +5548,7 @@ export class ZoneServer2016 extends EventEmitter {
   updateContainerItem(
     client: Client,
     item: inventoryItem,
-    container: loadoutContainer | undefined
+    container?: loadoutContainer
   ) {
     if (!container || !client.character.initialized) return;
     this.sendData(client, "ClientUpdate.ItemUpdate", {

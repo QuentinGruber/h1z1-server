@@ -18,7 +18,7 @@ import {
   inventoryItem,
   DamageInfo,
 } from "../../../types/zoneserver";
-import { ResourceIds, ResourceTypes } from "../models/enums";
+import { LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "./zoneclient";
@@ -506,8 +506,27 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    server; damageInfo; // eslint
+    server;
+    damageInfo; // eslint
     console.log(`[ERROR] Unhandled BaseFullCharacter damage call!`);
+  }
+
+  hasHelmet(server: ZoneServer2016): boolean {
+    const slot = this._loadout[LoadoutSlots.HEAD],
+      itemDef = server.getItemDefinition(slot?.itemDefinitionId);
+    if (!slot || !itemDef) return false;
+    return (
+      slot.itemDefinitionId >= 0 &&
+      itemDef.ITEM_CLASS == 25000 &&
+      itemDef.IS_ARMOR
+    );
+  }
+
+  hasArmor(server: ZoneServer2016): boolean {
+    const slot = this._loadout[LoadoutSlots.ARMOR],
+      itemDef = server.getItemDefinition(slot?.itemDefinitionId);
+    if (!slot || !itemDef) return false;
+    return slot.itemDefinitionId >= 0 && itemDef.ITEM_CLASS == 25041;
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
@@ -516,11 +535,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     );
   }
 
-  OnProjectileHit(
-    server: ZoneServer2016,
-    client: ZoneClient2016,
-    damageInfo: DamageInfo
-  ) {
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     this.damage(server, damageInfo);
   }
 }
