@@ -603,6 +603,7 @@ export class Character2016 extends BaseFullCharacter {
 
     c.character.damage(server, {
       ...damageInfo,
+      damage: damage,
       causeBleed: causeBleed,
     });
   }

@@ -1889,8 +1889,8 @@ export class ZoneServer2016 extends EventEmitter {
   sendHitmarker(
     client: Client,
     hitLocation: string = "",
-    hasHelmet?: Boolean,
-    hasArmor?: Boolean
+    hasHelmet?: boolean,
+    hasArmor?: boolean
   ) {
     let isHeadshot = false;
     switch (hitLocation) {
