@@ -1700,9 +1700,9 @@ export interface ContainerUpdateEquippedContainer {
   associatedCharacterId?: string;
   slots?: number;
   items?: any[];
-  unknownBoolean1?: boolean;
+  showBulk?: boolean;
   maxBulk?: number;
-  unknownDword4?: number;
+  unknownDword1?: number;
   bulkUsed?: number;
   hasBulkLimit?: boolean;
 }
