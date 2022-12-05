@@ -4558,14 +4558,7 @@ export class ZoneServer2016 extends EventEmitter {
       };
       character._equipment[equipmentSlotId] = equipmentData;
     }
-    const loadoutData: LoadoutItem = {
-      ...item,
-      slotId: loadoutSlotId,
-      containerGuid: "0xFFFFFFFFFFFFFFFF",
-      stackCount: 1,
-      loadoutItemOwnerGuid: character.characterId,
-    };
-    character._loadout[loadoutSlotId] = loadoutData;
+    character._loadout[loadoutSlotId] = new LoadoutItem(item, loadoutSlotId, character.characterId);
     const client = this.getClientByCharId(character.characterId);
     if (client && character._loadout[loadoutSlotId] && sendPacket) {
       this.deleteItem(
@@ -4575,16 +4568,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (def.ITEM_TYPE === 34) {
-      character._containers[loadoutSlotId] = {
-        ...character._loadout[loadoutSlotId],
-        containerDefinitionId: def.PARAM1,
-        items: {},
-      };
+      character._containers[loadoutSlotId] = new LoadoutContainer(character._loadout[loadoutSlotId], def.PARAM1);
       if (client && sendPacket) this.initializeContainerList(client);
     }
 
     // probably will need to replicate this for vehicles / maybe npcs
-    if (client && sendPacket) this.addItem(client, loadoutData, 101);
+    if (client && sendPacket) this.addItem(client, character._loadout[loadoutSlotId], 101);
 
     if (!sendPacket) return;
 
