@@ -77,6 +77,12 @@ export class BaseEntity {
     this.npcRenderDistance = getRenderDistance(actorModelId);
   }
 
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    server;
+    damageInfo; // eslint
+    // do nothing
+  }
+
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
     server;
     client;

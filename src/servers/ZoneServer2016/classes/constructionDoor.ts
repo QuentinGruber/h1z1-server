@@ -15,6 +15,7 @@ import { DoorEntity } from "./doorentity";
 import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "./zoneclient";
+import { DamageInfo } from "types/zoneserver";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_GATE:
@@ -76,8 +77,9 @@ export class constructionDoor extends DoorEntity {
       health: this.health / 10000,
     };
   }
-  pDamageConstruction(damage: number) {
-    this.health -= damage;
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    // todo: redo this
+    this.health -= damageInfo.damage;
     this.healthPercentage = this.health / 10000;
   }
 

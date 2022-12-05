@@ -9,6 +9,7 @@
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneServer2016 } from "../zoneserver";
 import { Items } from "../models/enums";
+import { DamageInfo } from "types/zoneserver";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_WALL:
@@ -24,7 +25,7 @@ function getDamageRange(definitionId: number): number {
   }
 }
 
-export class simpleConstruction extends BaseLightweightCharacter {
+export class SimpleConstruction extends BaseLightweightCharacter {
   health: number = 1000000;
   healthPercentage: number = 100;
   buildingSlot?: string;
@@ -68,8 +69,9 @@ export class simpleConstruction extends BaseLightweightCharacter {
       health: this.health / 10000,
     };
   }
-  pDamageConstruction(damage: number) {
-    this.health -= damage;
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    // todo: redo this
+    this.health -= damageInfo.damage;
     this.healthPercentage = this.health / 10000;
   }
   changePerimeters(

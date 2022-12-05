@@ -498,12 +498,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return inventory;
   }
 
-  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    server;
-    damageInfo; // eslint
-    console.log(`[ERROR] Unhandled BaseFullCharacter damage call!`);
-  }
-
   hasHelmet(server: ZoneServer2016): boolean {
     const slot = this._loadout[LoadoutSlots.HEAD],
       itemDef = server.getItemDefinition(slot?.itemDefinitionId);
