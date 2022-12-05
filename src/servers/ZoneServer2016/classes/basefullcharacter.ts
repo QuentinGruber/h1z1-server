@@ -428,10 +428,10 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         };
       }),
       showBulk: true, // needs to be true or bulk doesn't show up
-      maxBulk: server.getContainerMaxBulk(container),
+      maxBulk: container.getMaxBulk(server),
       unknownDword1: 28,
-      bulkUsed: server.getContainerBulk(container),
-      hasBulkLimit: !!server.getContainerMaxBulk(container),
+      bulkUsed: container.getUsedBulk(server),
+      hasBulkLimit: !!container.getMaxBulk(server),
     };
   }
 

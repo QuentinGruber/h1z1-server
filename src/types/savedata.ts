@@ -1,6 +1,3 @@
-import { LoadoutContainer } from "servers/ZoneServer2016/classes/loadoutContainer";
-import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
-
 interface BaseSaveData {
   serverId: number;
 }
@@ -17,9 +14,32 @@ interface BaseFullEntitySaveData
   actorModelId: number;
 }
 
+interface WeaponSaveData {
+  ammoCount: number;
+}
+
+interface ItemSaveData {
+  itemDefinitionId: number;
+  slotId: number;
+  itemGuid: string;
+  containerGuid: string;
+  currentDurability: number;
+  stackCount: number;
+  weapon?: WeaponSaveData;
+}
+
+export interface LoadoutItemSaveData extends ItemSaveData {
+  loadoutItemOwnerGuid: string;
+}
+
+export interface LoadoutContainerSaveData extends LoadoutItemSaveData {
+  containerDefinitionId: number;
+  items: { [itemGuid: string]: ItemSaveData };
+}
+
 interface BaseFullCharacterUpdateSaveData extends BaseEntityUpdateSaveData {
-  _loadout: { [loadoutSlotId: number]: LoadoutItem };
-  _containers: { [loadoutSlotId: number]: LoadoutContainer };
+  _loadout: { [loadoutSlotId: number]: LoadoutItemSaveData };
+  _containers: { [loadoutSlotId: number]: LoadoutContainerSaveData };
   _resources: { [resourceId: number]: number };
   worldSaveVersion: number;
 }

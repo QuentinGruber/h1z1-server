@@ -4716,15 +4716,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Gets the maximum bulk that a given container can hold.
-   * @param container The container object.
-   */
-  getContainerMaxBulk(container: LoadoutContainer): number {
-    return this.getContainerDefinition(container.containerDefinitionId)
-      .MAX_BULK;
-  }
-
-  /**
    * Gets the maximum slots that a given container can hold.
    * @param container The container object.
    */
@@ -4745,8 +4736,8 @@ export class ZoneServer2016 extends EventEmitter {
     count: number
   ): boolean {
     return !!(
-      this.getContainerMaxBulk(container) -
-        (this.getContainerBulk(container) +
+      container.getMaxBulk(this) -
+        (container.getUsedBulk(this) +
           this.getItemDefinition(itemDefinitionId).BULK * count) >=
       0
     );
@@ -4951,31 +4942,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Gets the used bulk for a given container.
-   * @param container The container to check.
-   * @returns Returns the amount of bulk used.
-   */
-  getContainerBulk(container: LoadoutContainer): number {
-    let bulk = 0;
-    for (const item of Object.values(container.items)) {
-      bulk +=
-        this.getItemDefinition(item.itemDefinitionId).BULK * item.stackCount;
-    }
-    return bulk;
-  }
-
-  /**
-   * Gets the available bulk for a given container.
-   * @param container The container to check.
-   * @returns Returns the amount of bulk available.
-   */
-  getAvailableBulk(container: LoadoutContainer): number {
-    return (
-      this.getContainerMaxBulk(container) - this.getContainerBulk(container)
-    );
-  }
-
-  /**
    * Returns the first container that has enough space for an item stack.
    * @param character The character to check.
    * @param itemDefinitionId The item definition ID to try to put in a container.
@@ -4991,8 +4957,8 @@ export class ZoneServer2016 extends EventEmitter {
     for (const container of Object.values(character._containers)) {
       if (
         container &&
-        this.getContainerMaxBulk(container) >=
-          this.getContainerBulk(container) + itemDef.BULK * count
+        container.getMaxBulk(this) >=
+        container.getUsedBulk(this) + itemDef.BULK * count
       ) {
         return container;
       }
@@ -5379,24 +5345,20 @@ export class ZoneServer2016 extends EventEmitter {
       Object.values(client.character._containers).forEach((c) => {
         if (
           !container ||
-          this.getAvailableBulk(c) > this.getAvailableBulk(container)
+          c.getAvailableBulk(this) > container.getAvailableBulk(this)
         ) {
-          container = c; // container with the most open bulk
-        }
-      });
-
-      if (container) {
-        const availableSpace = this.getAvailableBulk(container),
+          const availableSpace = c.getAvailableBulk(this),
           itemBulk = this.getItemDefinition(item.itemDefinitionId).BULK,
           lootCount = Math.floor(availableSpace / itemBulk);
-        if (lootCount) {
-          item.stackCount -= lootCount;
-          this.lootContainerItem(
-            client,
-            this.generateItem(item.itemDefinitionId, lootCount)
-          );
+          if (lootCount) {
+            item.stackCount -= lootCount;
+            this.lootContainerItem(
+              client,
+              this.generateItem(item.itemDefinitionId, lootCount)
+            );
+          }
         }
-      }
+      });
 
       this.worldObjectManager.createLootEntity(
         this,
