@@ -1018,25 +1018,7 @@ export class zonePacketHandlers {
         server.igniteOption(client, item);
         break;
       case 7: // unload weapon
-        if (item.weapon?.ammoCount) {
-          server.lootItem(
-            client,
-            server.generateItem(
-              server.getWeaponAmmoId(item.itemDefinitionId),
-              item.weapon.ammoCount
-            )
-          );
-          item.weapon.ammoCount = 0;
-          if (client.character.getEquippedWeapon().itemGuid == item.itemGuid) {
-            server.sendWeaponData(client, "Weapon.Reload", {
-              weaponGuid: item.itemGuid,
-              unknownDword1: 0,
-              ammoCount: 0,
-              unknownDword3: 0,
-              currentReloadCount: toHex(++item.weapon.currentReloadCount),
-            });
-          }
-        }
+        item.weapon?.unload(server, client);
         break;
       default:
         server.sendChatText(

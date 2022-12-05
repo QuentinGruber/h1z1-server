@@ -19,24 +19,58 @@ import { Weapon } from "../classes/weapon";
 const fs = require("fs");
 const debug = require("debug")("ZoneServer");
 
-function constructLoadout(savedLoadout: {[loadoutSlotId: number]: LoadoutItemSaveData}, entityLoadout: {[loadoutSlotId: number]: LoadoutItem}) {
+function constructLoadout(
+  savedLoadout: { [loadoutSlotId: number]: LoadoutItemSaveData },
+  entityLoadout: { [loadoutSlotId: number]: LoadoutItem }
+) {
   const loadout = {};
-  Object.values(savedLoadout).forEach((item)=> {
-    const loadoutItem = new LoadoutItem(new BaseItem(item.itemDefinitionId, item.itemGuid, item.currentDurability, item.stackCount), item.slotId, item.loadoutItemOwnerGuid);
-    loadoutItem.weapon = item.weapon ? new Weapon(item.weapon.ammoCount) : undefined;
+  Object.values(savedLoadout).forEach((item) => {
+    const loadoutItem = new LoadoutItem(
+      new BaseItem(
+        item.itemDefinitionId,
+        item.itemGuid,
+        item.currentDurability,
+        item.stackCount
+      ),
+      item.slotId,
+      item.loadoutItemOwnerGuid
+    );
+    loadoutItem.weapon = item.weapon
+      ? new Weapon(loadoutItem, item.weapon.ammoCount)
+      : undefined;
     entityLoadout[item.slotId] = loadoutItem;
   });
 }
 
-function constructContainers(savedContainers: {[loadoutSlotId: number]: LoadoutContainerSaveData}, entityContainers: {[loadoutSlotId: number]: LoadoutContainer}) {
+function constructContainers(
+  savedContainers: { [loadoutSlotId: number]: LoadoutContainerSaveData },
+  entityContainers: { [loadoutSlotId: number]: LoadoutContainer }
+) {
   const containers = {};
-  Object.values(savedContainers).forEach((container)=> {
-    const loadoutContainer = new LoadoutContainer(new LoadoutItem(new BaseItem(container.itemDefinitionId, container.itemGuid, container.currentDurability, container.stackCount), container.slotId, container.loadoutItemOwnerGuid), container.containerDefinitionId)
-    Object.values(container.items).forEach((item)=> {
-      const i = new BaseItem(item.itemDefinitionId, item. itemGuid, item.currentDurability, item.stackCount);
+  Object.values(savedContainers).forEach((container) => {
+    const loadoutContainer = new LoadoutContainer(
+      new LoadoutItem(
+        new BaseItem(
+          container.itemDefinitionId,
+          container.itemGuid,
+          container.currentDurability,
+          container.stackCount
+        ),
+        container.slotId,
+        container.loadoutItemOwnerGuid
+      ),
+      container.containerDefinitionId
+    );
+    Object.values(container.items).forEach((item) => {
+      const i = new BaseItem(
+        item.itemDefinitionId,
+        item.itemGuid,
+        item.currentDurability,
+        item.stackCount
+      );
       i.slotId = item.slotId;
       i.containerGuid = item.containerGuid;
-      i.weapon = item.weapon ? new Weapon(item.weapon.ammoCount) : undefined;
+      i.weapon = item.weapon ? new Weapon(i, item.weapon.ammoCount) : undefined;
       loadoutContainer.items[item.itemGuid] = i;
     });
     entityContainers[container.slotId] = loadoutContainer;
@@ -291,7 +325,10 @@ export class WorldDataManager {
         savedCharacter.rotation
       );
       constructLoadout(savedCharacter._loadout, client.character._loadout);
-      constructContainers(savedCharacter._containers, client.character._containers);
+      constructContainers(
+        savedCharacter._containers,
+        client.character._containers
+      );
       client.character._resources =
         savedCharacter._resources || client.character._resources;
       server.generateEquipmentFromLoadout(client.character);
@@ -310,7 +347,8 @@ export class WorldDataManager {
     const loadoutKeys = Object.keys(client.character._loadout),
       containerKeys = Object.keys(client.character._containers),
       loadoutSaveData: { [loadoutSlotId: number]: LoadoutItemSaveData } = {},
-      containerSaveData: { [loadoutSlotId: number]: LoadoutContainerSaveData } = {};
+      containerSaveData: { [loadoutSlotId: number]: LoadoutContainerSaveData } =
+        {};
     Object.values(client.character._loadout).forEach((item, idx) => {
       loadoutSaveData[Number(loadoutKeys[idx])] = item;
     });

@@ -3,14 +3,14 @@ import { BaseItem } from "./baseItem";
 import { LoadoutItem } from "./loadoutItem";
 
 export class LoadoutContainer extends LoadoutItem {
-    containerDefinitionId: number;
-    items: { [itemGuid: string]: BaseItem } = {};
-    constructor(item: LoadoutItem, containerDefinitionId: number) {
-        super(item, item.slotId, item.loadoutItemOwnerGuid);
-        this.containerDefinitionId = containerDefinitionId;
-    }
+  containerDefinitionId: number;
+  items: { [itemGuid: string]: BaseItem } = {};
+  constructor(item: LoadoutItem, containerDefinitionId: number) {
+    super(item, item.slotId, item.loadoutItemOwnerGuid);
+    this.containerDefinitionId = containerDefinitionId;
+  }
 
-    /**
+  /**
    * Gets the used bulk of this container.
    * @param server The ZoneServer instance.
    * @returns Returns the amount of bulk used.
@@ -28,9 +28,8 @@ export class LoadoutContainer extends LoadoutItem {
    * Gets the maximum bulk that this container can hold.
    * @param server The ZoneServer instance.
    */
-   getMaxBulk(server: ZoneServer2016): number {
-    return server.getContainerDefinition(this.containerDefinitionId)
-      .MAX_BULK;
+  getMaxBulk(server: ZoneServer2016): number {
+    return server.getContainerDefinition(this.containerDefinitionId).MAX_BULK;
   }
 
   /**
@@ -38,9 +37,7 @@ export class LoadoutContainer extends LoadoutItem {
    * @param server The ZoneServer instance.
    * @returns Returns the amount of bulk available.
    */
-   getAvailableBulk(server: ZoneServer2016): number {
-    return (
-      this.getMaxBulk(server) - this.getUsedBulk(server)
-    );
+  getAvailableBulk(server: ZoneServer2016): number {
+    return this.getMaxBulk(server) - this.getUsedBulk(server);
   }
 }

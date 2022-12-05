@@ -4559,7 +4559,11 @@ export class ZoneServer2016 extends EventEmitter {
       };
       character._equipment[equipmentSlotId] = equipmentData;
     }
-    character._loadout[loadoutSlotId] = new LoadoutItem(item, loadoutSlotId, character.characterId);
+    character._loadout[loadoutSlotId] = new LoadoutItem(
+      item,
+      loadoutSlotId,
+      character.characterId
+    );
     const client = this.getClientByCharId(character.characterId);
     if (client && character._loadout[loadoutSlotId] && sendPacket) {
       this.deleteItem(
@@ -4569,12 +4573,16 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (def.ITEM_TYPE === 34) {
-      character._containers[loadoutSlotId] = new LoadoutContainer(character._loadout[loadoutSlotId], def.PARAM1);
+      character._containers[loadoutSlotId] = new LoadoutContainer(
+        character._loadout[loadoutSlotId],
+        def.PARAM1
+      );
       if (client && sendPacket) this.initializeContainerList(client);
     }
 
     // probably will need to replicate this for vehicles / maybe npcs
-    if (client && sendPacket) this.addItem(client, character._loadout[loadoutSlotId], 101);
+    if (client && sendPacket)
+      this.addItem(client, character._loadout[loadoutSlotId], 101);
 
     if (!sendPacket) return;
 
@@ -4788,17 +4796,16 @@ export class ZoneServer2016 extends EventEmitter {
         durability = 100;
         break;
     }
-    const itemData: BaseItem = new BaseItem(itemDefinitionId, generatedGuid, durability, count);
-    let item: BaseItem;
+    const itemData: BaseItem = new BaseItem(
+      itemDefinitionId,
+      generatedGuid,
+      durability,
+      count
+    );
     if (this.isWeapon(itemDefinitionId)) {
-      item = {
-        ...itemData,
-        weapon: new Weapon()
-      };
-    } else {
-      item = itemData;
+      itemData.weapon = new Weapon(itemData);
     }
-    return item;
+    return itemData;
   }
 
   isWeapon(itemDefinitionId: number): boolean {
@@ -4958,7 +4965,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         container &&
         container.getMaxBulk(this) >=
-        container.getUsedBulk(this) + itemDef.BULK * count
+          container.getUsedBulk(this) + itemDef.BULK * count
       ) {
         return container;
       }
@@ -5348,8 +5355,8 @@ export class ZoneServer2016 extends EventEmitter {
           c.getAvailableBulk(this) > container.getAvailableBulk(this)
         ) {
           const availableSpace = c.getAvailableBulk(this),
-          itemBulk = this.getItemDefinition(item.itemDefinitionId).BULK,
-          lootCount = Math.floor(availableSpace / itemBulk);
+            itemBulk = this.getItemDefinition(item.itemDefinitionId).BULK,
+            lootCount = Math.floor(availableSpace / itemBulk);
           if (lootCount) {
             item.stackCount -= lootCount;
             this.lootContainerItem(

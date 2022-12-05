@@ -11,10 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import {
-  characterEquipment,
-  DamageInfo,
-} from "../../../types/zoneserver";
+import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
@@ -325,11 +322,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
-  pGetItemData(
-    server: ZoneServer2016,
-    item: BaseItem,
-    containerDefId: number
-  ) {
+  pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
     let durability: number = 0;
     const isWeapon = server.isWeapon(item.itemDefinitionId);
     switch (true) {
