@@ -113,6 +113,7 @@ import { HookManager } from "./managers/hookmanager";
 import { BaseItem } from "./classes/baseItem";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { LoadoutContainer } from "./classes/loadoutContainer";
+import { Weapon } from "./classes/weapon";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -4801,10 +4802,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (this.isWeapon(itemDefinitionId)) {
       item = {
         ...itemData,
-        weapon: {
-          ammoCount: 0,
-          currentReloadCount: 0,
-        },
+        weapon: new Weapon()
       };
     } else {
       item = itemData;

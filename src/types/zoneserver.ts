@@ -76,35 +76,6 @@ export interface characterEquipment {
   decalAlias?: string;
 }
 
-export interface weaponItem {
-  ammoCount: number;
-  reloadTimer?: NodeJS.Timeout;
-  currentReloadCount: number; // needed for reload packet to work every time
-}
-
-/*
-
-export interface inventoryItem {
-  itemDefinitionId: number;
-  slotId: number;
-  itemGuid: string;
-  containerGuid: string;
-  currentDurability: number;
-  stackCount: number;
-  weapon?: weaponItem;
-}
-
-export interface loadoutItem extends inventoryItem {
-  loadoutItemOwnerGuid: string;
-}
-
-export interface loadoutContainer extends loadoutItem {
-  containerDefinitionId: number;
-  items: { [itemGuid: string]: inventoryItem };
-}
-
-*/
-
 export interface Weather {
   templateName?: string;
   name: string;

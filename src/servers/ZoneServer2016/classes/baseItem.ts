@@ -1,4 +1,4 @@
-import { weaponItem } from "types/zoneserver";
+import { Weapon } from "./weapon";
 
 export class BaseItem {
     itemDefinitionId: number;
@@ -7,7 +7,7 @@ export class BaseItem {
     containerGuid = "0x0";
     currentDurability: number;
     stackCount: number;
-    weapon?: weaponItem;
+    weapon?: Weapon;
     constructor(itemDefinitionId: number, guid: string, durability: number, stackCount : number) {
         this.itemDefinitionId = itemDefinitionId;
         this.itemGuid = guid;
