@@ -23,7 +23,6 @@ function constructLoadout(
   savedLoadout: { [loadoutSlotId: number]: LoadoutItemSaveData },
   entityLoadout: { [loadoutSlotId: number]: LoadoutItem }
 ) {
-  const loadout = {};
   Object.values(savedLoadout).forEach((item) => {
     const loadoutItem = new LoadoutItem(
       new BaseItem(
@@ -46,7 +45,6 @@ function constructContainers(
   savedContainers: { [loadoutSlotId: number]: LoadoutContainerSaveData },
   entityContainers: { [loadoutSlotId: number]: LoadoutContainer }
 ) {
-  const containers = {};
   Object.values(savedContainers).forEach((container) => {
     const loadoutContainer = new LoadoutContainer(
       new LoadoutItem(

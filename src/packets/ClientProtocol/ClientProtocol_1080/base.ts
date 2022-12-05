@@ -14,7 +14,6 @@
 import {
   characterResourceData,
   collectionsSchema,
-  containerData,
   currencySchema,
   effectTagsSchema,
   equipmentSlotSchema,
@@ -22,8 +21,6 @@ import {
   fullNpcSchema,
   fullPcSchema,
   itemSchema,
-  //itemWeaponDetailSubSchema1,
-  //itemWeaponDetailSubSchema2,
   lightWeightNpcSchema,
   lightWeightPcSchema,
   loadoutSlotsSchema,
@@ -39,7 +36,6 @@ import {
 import {
   achievementSchema,
   identitySchema,
-  //profileSchema,
   profileSchema,
   rewardBundleSchema,
   skyData,

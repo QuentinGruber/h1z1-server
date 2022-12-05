@@ -34,7 +34,6 @@ export class ConstructionDoor extends DoorEntity {
   password: number = 0;
   grantedAccess: any = [];
   health: number = 1000000;
-  healthPercentage: number = 100;
   parentObjectCharacterId: string;
   buildingSlot: string;
   itemDefinitionId: number;
@@ -80,7 +79,6 @@ export class ConstructionDoor extends DoorEntity {
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     // todo: redo this
     this.health -= damageInfo.damage;
-    this.healthPercentage = this.health / 10000;
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {

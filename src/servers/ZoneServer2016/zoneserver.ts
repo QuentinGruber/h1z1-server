@@ -1090,6 +1090,8 @@ export class ZoneServer2016 extends EventEmitter {
     npcTriggered: string,
     client?: Client
   ) {
+    // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
+
     for (const c in this._clients) {
       const client = this._clients[c];
       if (!client.character.godMode) {
@@ -5349,22 +5351,16 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: client.character.characterId,
       });
 
-      let container: LoadoutContainer | undefined = undefined;
       Object.values(client.character._containers).forEach((c) => {
-        if (
-          !container ||
-          c.getAvailableBulk(this) > container.getAvailableBulk(this)
-        ) {
-          const availableSpace = c.getAvailableBulk(this),
-            itemBulk = this.getItemDefinition(item.itemDefinitionId).BULK,
-            lootCount = Math.floor(availableSpace / itemBulk);
-          if (lootCount) {
-            item.stackCount -= lootCount;
-            this.lootContainerItem(
-              client,
-              this.generateItem(item.itemDefinitionId, lootCount)
-            );
-          }
+        const availableSpace = c.getAvailableBulk(this),
+          itemBulk = this.getItemDefinition(item.itemDefinitionId).BULK,
+          lootCount = Math.floor(availableSpace / itemBulk);
+        if (lootCount) {
+          item.stackCount -= lootCount;
+          this.lootContainerItem(
+            client,
+            this.generateItem(item.itemDefinitionId, lootCount)
+          );
         }
       });
 

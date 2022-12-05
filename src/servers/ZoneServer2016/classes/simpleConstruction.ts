@@ -27,7 +27,6 @@ function getDamageRange(definitionId: number): number {
 
 export class SimpleConstruction extends BaseLightweightCharacter {
   health: number = 1000000;
-  healthPercentage: number = 100;
   buildingSlot?: string;
   perimeters: { [slot: string]: Float32Array };
   itemDefinitionId: number;
@@ -72,7 +71,6 @@ export class SimpleConstruction extends BaseLightweightCharacter {
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     // todo: redo this
     this.health -= damageInfo.damage;
-    this.healthPercentage = this.health / 10000;
   }
   changePerimeters(
     server: ZoneServer2016,
