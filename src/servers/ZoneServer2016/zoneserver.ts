@@ -93,7 +93,7 @@ import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
-import { constructionDoor } from "./classes/constructionDoor";
+import { ConstructionDoor } from "./classes/constructionDoor";
 import { ConstructionParentEntity } from "./classes/constructionParentEntity";
 import { SimpleConstruction } from "./classes/simpleConstruction";
 import { FullCharacterSaveData, ServerSaveData } from "types/savedata";
@@ -161,7 +161,7 @@ export class ZoneServer2016 extends EventEmitter {
   _constructionFoundations: {
     [characterId: string]: ConstructionParentEntity;
   } = {};
-  _constructionDoors: { [characterId: string]: constructionDoor } = {};
+  _constructionDoors: { [characterId: string]: ConstructionDoor } = {};
   _constructionSimple: { [characterId: string]: SimpleConstruction } = {};
 
   _props: any = {};
@@ -1157,7 +1157,7 @@ export class ZoneServer2016 extends EventEmitter {
     for (const construction in this._constructionDoors) {
       const constructionObject = this._constructionDoors[
         construction
-      ] as constructionDoor;
+      ] as ConstructionDoor;
       if (
         isPosInRadius(
           constructionObject.damageRange,
@@ -1333,12 +1333,10 @@ export class ZoneServer2016 extends EventEmitter {
     const constructionObject: SimpleConstruction | ConstructionParentEntity =
       dictionary[constructionCharId];
     const distance = getDistance(entityPosition, position);
-    constructionObject.damage(
-      this, {
-        entity: "",
-        damage: distance < 2 ? damage : damage / Math.sqrt(distance)
-      }
-    );
+    constructionObject.damage(this, {
+      entity: "",
+      damage: distance < 2 ? damage : damage / Math.sqrt(distance),
+    });
     this.updateResourceToAllWithSpawnedEntity(
       constructionObject.characterId,
       constructionObject.health,
@@ -3660,7 +3658,7 @@ export class ZoneServer2016 extends EventEmitter {
       BuildingSlot.length - 2
     ).toString();
 
-    const npc = new constructionDoor(
+    const npc = new ConstructionDoor(
       characterId,
       transientId,
       modelId,

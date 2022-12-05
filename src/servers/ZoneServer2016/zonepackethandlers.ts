@@ -34,7 +34,7 @@ import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ConstructionParentEntity } from "./classes/constructionParentEntity";
-import { constructionDoor } from "./classes/constructionDoor";
+import { ConstructionDoor } from "./classes/constructionDoor";
 import { AVG_PING_SECS } from "../../utils/constants";
 import { CommandHandler } from "./commands/commandhandler";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
@@ -752,7 +752,7 @@ export class zonePacketHandlers {
       return;
     const doorEntity = server._constructionDoors[
       client.character.currentInteractionGuid
-    ] as constructionDoor;
+    ] as ConstructionDoor;
     if (doorEntity.ownerCharacterId === client.character.characterId) {
       doorEntity.password = packet.data.password;
       doorEntity.grantedAccess.push(client.character.characterId);

@@ -29,7 +29,7 @@ function getDamageRange(definitionId: number): number {
   }
 }
 
-export class constructionDoor extends DoorEntity {
+export class ConstructionDoor extends DoorEntity {
   ownerCharacterId: string;
   password: number = 0;
   grantedAccess: any = [];
