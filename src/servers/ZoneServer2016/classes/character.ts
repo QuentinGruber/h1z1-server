@@ -24,10 +24,10 @@ import { BaseFullCharacter } from "./basefullcharacter";
 import {
   DamageInfo,
   DamageRecord,
-  inventoryItem,
   positionUpdate,
 } from "../../../types/zoneserver";
 import { randomIntFromInterval } from "../../../utils/utils";
+import { BaseItem } from "./baseItem";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -339,7 +339,7 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
 
-  pGetRemoteWeaponData(server: ZoneServer2016, item: inventoryItem) {
+  pGetRemoteWeaponData(server: ZoneServer2016, item: BaseItem) {
     const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
       weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
       firegroups = weaponDefinition.FIRE_GROUPS;
@@ -369,7 +369,7 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
 
-  pGetRemoteWeaponExtraData(server: ZoneServer2016, item: inventoryItem) {
+  pGetRemoteWeaponExtraData(server: ZoneServer2016, item: BaseItem) {
     const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
       weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
       firegroups = weaponDefinition.FIRE_GROUPS;

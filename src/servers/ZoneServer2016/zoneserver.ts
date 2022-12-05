@@ -48,9 +48,6 @@ import {
   characterEquipment,
   DamageInfo,
   DamageRecord,
-  inventoryItem,
-  loadoutContainer,
-  loadoutItem,
   SpawnLocation,
   Weather2016 as Weather,
 } from "../../types/zoneserver";
@@ -113,6 +110,9 @@ import {
 } from "types/zone2016packets";
 import { getCharacterModelData } from "../shared/functions";
 import { HookManager } from "./managers/hookmanager";
+import { BaseItem } from "./classes/baseItem";
+import { LoadoutItem } from "./classes/loadoutItem";
+import { LoadoutContainer } from "./classes/loadoutContainer";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -1816,7 +1816,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  damageItem(client: Client, item: loadoutItem, damage: number) {
+  damageItem(client: Client, item: LoadoutItem, damage: number) {
     item.currentDurability -= damage;
     if (item.currentDurability <= 0) {
       this.removeInventoryItem(client, item);
@@ -4295,7 +4295,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  reloadInterrupt(client: Client, weaponItem: loadoutItem) {
+  reloadInterrupt(client: Client, weaponItem: LoadoutItem) {
     if (!weaponItem.weapon?.reloadTimer) return;
     client.character.clearReloadTimeout();
     this.sendWeaponData(client, "Weapon.Reload", {
@@ -4408,7 +4408,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   addItem(
     client: Client,
-    item: inventoryItem,
+    item: BaseItem,
     containerDefinitionId: number,
     character: BaseFullCharacter = client.character
   ) {
@@ -4423,7 +4423,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  equipContainerItem(client: Client, item: inventoryItem, slotId: number) {
+  equipContainerItem(client: Client, item: BaseItem, slotId: number) {
     // equips an existing item from a container
 
     if (
@@ -4501,7 +4501,7 @@ export class ZoneServer2016 extends EventEmitter {
    */
   equipItem(
     character: BaseFullCharacter,
-    item?: inventoryItem,
+    item?: BaseItem,
     sendPacket: boolean = true,
     loadoutSlotId: number = 0
   ) {
@@ -4558,7 +4558,7 @@ export class ZoneServer2016 extends EventEmitter {
       };
       character._equipment[equipmentSlotId] = equipmentData;
     }
-    const loadoutData: loadoutItem = {
+    const loadoutData: LoadoutItem = {
       ...item,
       slotId: loadoutSlotId,
       containerGuid: "0xFFFFFFFFFFFFFFFF",
@@ -4729,7 +4729,7 @@ export class ZoneServer2016 extends EventEmitter {
    * Gets the maximum bulk that a given container can hold.
    * @param container The container object.
    */
-  getContainerMaxBulk(container: loadoutContainer): number {
+  getContainerMaxBulk(container: LoadoutContainer): number {
     return this.getContainerDefinition(container.containerDefinitionId)
       .MAX_BULK;
   }
@@ -4738,7 +4738,7 @@ export class ZoneServer2016 extends EventEmitter {
    * Gets the maximum slots that a given container can hold.
    * @param container The container object.
    */
-  getContainerMaxSlots(container: loadoutContainer): number {
+  getContainerMaxSlots(container: LoadoutContainer): number {
     return this.getContainerDefinition(container.containerDefinitionId)
       .MAXIMUM_SLOTS;
   }
@@ -4750,7 +4750,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param count The amount of the item to check.
    */
   getContainerHasSpace(
-    container: loadoutContainer,
+    container: LoadoutContainer,
     itemDefinitionId: number,
     count: number
   ): boolean {
@@ -4787,7 +4787,7 @@ export class ZoneServer2016 extends EventEmitter {
   generateItem(
     itemDefinitionId: number,
     count: number = 1
-  ): inventoryItem | undefined {
+  ): BaseItem | undefined {
     if (!this.getItemDefinition(itemDefinitionId)) {
       debug(
         `[ERROR] GenerateItem: Invalid item definition: ${itemDefinitionId}`
@@ -4807,15 +4807,8 @@ export class ZoneServer2016 extends EventEmitter {
         durability = 100;
         break;
     }
-    const itemData: inventoryItem = {
-      itemDefinitionId: itemDefinitionId,
-      slotId: 0,
-      itemGuid: generatedGuid,
-      containerGuid: "0x0",
-      currentDurability: durability,
-      stackCount: count,
-    };
-    let item: inventoryItem;
+    const itemData: BaseItem = new BaseItem(itemDefinitionId, generatedGuid, durability, count);
+    let item: BaseItem;
     if (this.isWeapon(itemDefinitionId)) {
       item = {
         ...itemData,
@@ -4975,7 +4968,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param container The container to check.
    * @returns Returns the amount of bulk used.
    */
-  getContainerBulk(container: loadoutContainer): number {
+  getContainerBulk(container: LoadoutContainer): number {
     let bulk = 0;
     for (const item of Object.values(container.items)) {
       bulk +=
@@ -4989,7 +4982,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param container The container to check.
    * @returns Returns the amount of bulk available.
    */
-  getAvailableBulk(container: loadoutContainer): number {
+  getAvailableBulk(container: LoadoutContainer): number {
     return (
       this.getContainerMaxBulk(container) - this.getContainerBulk(container)
     );
@@ -5006,7 +4999,7 @@ export class ZoneServer2016 extends EventEmitter {
     character: BaseFullCharacter,
     itemDefinitionId: number,
     count: number
-  ): loadoutContainer | undefined {
+  ): LoadoutContainer | undefined {
     const itemDef = this.getItemDefinition(itemDefinitionId);
     for (const container of Object.values(character._containers)) {
       if (
@@ -5029,7 +5022,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns Returns the itemGuid of the item stack.
    */
   getAvailableItemStack(
-    container: loadoutContainer,
+    container: LoadoutContainer,
     itemDefId: number,
     count: number,
     slotId: number = 0
@@ -5051,7 +5044,7 @@ export class ZoneServer2016 extends EventEmitter {
     return "";
   }
 
-  switchLoadoutSlot(client: Client, loadoutItem: loadoutItem) {
+  switchLoadoutSlot(client: Client, loadoutItem: LoadoutItem) {
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     this.reloadInterrupt(client, client.character._loadout[oldLoadoutSlot]);
     // remove passive equip
@@ -5150,8 +5143,8 @@ export class ZoneServer2016 extends EventEmitter {
    */
   removeContainerItem(
     client: Client,
-    item?: inventoryItem,
-    container?: loadoutContainer,
+    item?: BaseItem,
+    container?: LoadoutContainer,
     count?: number
   ): boolean {
     if (!container || !item) return false;
@@ -5179,7 +5172,7 @@ export class ZoneServer2016 extends EventEmitter {
    */
   removeInventoryItem(
     client: Client,
-    item: inventoryItem,
+    item: BaseItem,
     count: number = 1
   ): boolean {
     if (count > item.stackCount) {
@@ -5223,8 +5216,8 @@ export class ZoneServer2016 extends EventEmitter {
       return this.removeLoadoutItem(client, loadoutSlotId);
     } else {
       const removeItems: {
-        container: loadoutContainer;
-        item: inventoryItem;
+        container: LoadoutContainer;
+        item: BaseItem;
         count: number;
       }[] = [];
       for (const container of Object.values(client.character._containers)) {
@@ -5268,7 +5261,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @param item The item object.
    * @param count Optional: The number of items to drop on the ground, default 1.
    */
-  dropItem(client: Client, item: inventoryItem, count: number = 1): void {
+  dropItem(client: Client, item: BaseItem, count: number = 1): void {
     if (!item) {
       this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
@@ -5295,7 +5288,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  lootItem(client: Client, item?: inventoryItem, count?: number) {
+  lootItem(client: Client, item?: BaseItem, count?: number) {
     if (!item) return;
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
@@ -5339,7 +5332,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   pickupItem(client: Client, guid: string) {
     const object = this._spawnedItems[guid],
-      item: inventoryItem = object.item;
+      item: BaseItem = object.item;
     if (!item) {
       this.sendChatText(client, `[ERROR] Invalid item`);
       return;
@@ -5369,7 +5362,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   lootContainerItem(
     client: Client,
-    item?: inventoryItem,
+    item?: BaseItem,
     count?: number,
     sendUpdate: boolean = true
   ) {
@@ -5395,7 +5388,7 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: client.character.characterId,
       });
 
-      let container: loadoutContainer | undefined = undefined;
+      let container: LoadoutContainer | undefined = undefined;
       Object.values(client.character._containers).forEach((c) => {
         if (
           !container ||
@@ -5476,7 +5469,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  updateContainer(client: Client, container?: loadoutContainer) {
+  updateContainer(client: Client, container?: LoadoutContainer) {
     if (!container || !client.character.initialized) return;
     this.sendData(client, "Container.UpdateEquippedContainer", {
       ignore: client.character.characterId,
@@ -5487,8 +5480,8 @@ export class ZoneServer2016 extends EventEmitter {
 
   addContainerItem(
     client: Client,
-    item: inventoryItem | undefined,
-    container: loadoutContainer,
+    item: BaseItem | undefined,
+    container: LoadoutContainer,
     count: number,
     sendUpdate: boolean = true
   ) {
@@ -5516,7 +5509,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  updateLoadoutItem(client: Client, item: loadoutItem) {
+  updateLoadoutItem(client: Client, item: LoadoutItem) {
     this.sendData(client, "ClientUpdate.ItemUpdate", {
       characterId: client.character.characterId,
       data: client.character.pGetItemData(this, item, 101),
@@ -5526,8 +5519,8 @@ export class ZoneServer2016 extends EventEmitter {
 
   updateContainerItem(
     client: Client,
-    item: inventoryItem,
-    container?: loadoutContainer
+    item: BaseItem,
+    container?: LoadoutContainer
   ) {
     if (!container || !client.character.initialized) return;
     this.sendData(client, "ClientUpdate.ItemUpdate", {
@@ -5634,7 +5627,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  eatItem(client: Client, item: inventoryItem) {
+  eatItem(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let drinkCount = 0;
@@ -5667,7 +5660,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  useMedical(client: Client, item: inventoryItem) {
+  useMedical(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let timeout = 1000;
@@ -5701,7 +5694,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  igniteOption(client: Client, item: inventoryItem) {
+  igniteOption(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let timeout = 100;
@@ -5723,7 +5716,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  drinkItem(client: Client, item: inventoryItem) {
+  drinkItem(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
     let drinkCount = 2000;
@@ -5752,7 +5745,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  fillPass(client: Client, item: inventoryItem) {
+  fillPass(client: Client, item: BaseItem) {
     if (client.character.characterStates.inWater) {
       this.removeInventoryItem(client, item);
       this.lootContainerItem(client, this.generateItem(1368)); // give dirty water
@@ -5761,12 +5754,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sniffPass(client: Client, item: inventoryItem) {
+  sniffPass(client: Client, item: BaseItem) {
     this.removeInventoryItem(client, item);
     this.applyMovementModifier(client, 1.15, "swizzle");
   }
 
-  useItem(client: Client, item: inventoryItem) {
+  useItem(client: Client, item: BaseItem) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID;
     let useoption = "";
@@ -5807,7 +5800,7 @@ export class ZoneServer2016 extends EventEmitter {
         return;
     }
   }
-  refuelVehicle(client: Client, item: inventoryItem, vehicleGuid: string) {
+  refuelVehicle(client: Client, item: BaseItem, vehicleGuid: string) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID;
     const timeout = 5000;
@@ -5831,7 +5824,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  shredItem(client: Client, item: inventoryItem) {
+  shredItem(client: Client, item: BaseItem) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID,
       itemType = itemDefinition.ITEM_TYPE;
@@ -5855,7 +5848,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   drinkItemPass(
     client: Client,
-    item: inventoryItem,
+    item: BaseItem,
     eatCount: number,
     drinkCount: number,
     givetrash: number
@@ -5882,7 +5875,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   eatItemPass(
     client: Client,
-    item: inventoryItem,
+    item: BaseItem,
     eatCount: number,
     drinkCount: number,
     givetrash: number
@@ -5924,7 +5917,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   useMedicalPass(
     client: Client,
-    item: inventoryItem,
+    item: BaseItem,
     healCount: number,
     bandagingCount: number
   ) {
@@ -5946,7 +5939,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   refuelVehiclePass(
     client: Client,
-    item: inventoryItem,
+    item: BaseItem,
     vehicleGuid: string,
     fuelValue: number
   ) {
@@ -5965,7 +5958,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  shredItemPass(client: Client, item: inventoryItem, count: number) {
+  shredItemPass(client: Client, item: BaseItem, count: number) {
     this.removeInventoryItem(client, item);
     this.lootItem(client, this.generateItem(Items.CLOTH, count));
   }

@@ -1,4 +1,5 @@
-import { loadoutContainer, loadoutItem } from "./zoneserver";
+import { LoadoutContainer } from "servers/ZoneServer2016/classes/loadoutContainer";
+import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
 
 interface BaseSaveData {
   serverId: number;
@@ -17,8 +18,8 @@ interface BaseFullEntitySaveData
 }
 
 interface BaseFullCharacterUpdateSaveData extends BaseEntityUpdateSaveData {
-  _loadout: { [loadoutSlotId: number]: loadoutItem };
-  _containers: { [loadoutSlotId: number]: loadoutContainer };
+  _loadout: { [loadoutSlotId: number]: LoadoutItem };
+  _containers: { [loadoutSlotId: number]: LoadoutContainer };
   _resources: { [resourceId: number]: number };
   worldSaveVersion: number;
 }

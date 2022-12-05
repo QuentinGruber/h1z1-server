@@ -27,13 +27,14 @@ import {
 } from "../../../utils/utils";
 import { EquipSlots, Items } from "../models/enums";
 import { Vehicle2016 } from "../classes/vehicle";
-import { inventoryItem, LootDefinition } from "types/zoneserver";
+import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../classes/itemobject";
 import { DoorEntity } from "../classes/doorentity";
 import { Zombie } from "../classes/zombie";
 import { BaseFullCharacter } from "../classes/basefullcharacter";
 import { ExplosiveEntity } from "../classes/explosiveentity";
 import { lootTables } from "../data/lootspawns";
+import { BaseItem } from "../classes/baseItem";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {
@@ -133,7 +134,7 @@ export class WorldObjectManager {
 
   createLootEntity(
     server: ZoneServer2016,
-    item: inventoryItem | undefined,
+    item: BaseItem | undefined,
     position: Float32Array,
     rotation: Float32Array,
     itemSpawnerId: number = -1

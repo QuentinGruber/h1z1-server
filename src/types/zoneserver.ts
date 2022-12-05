@@ -82,6 +82,8 @@ export interface weaponItem {
   currentReloadCount: number; // needed for reload packet to work every time
 }
 
+/*
+
 export interface inventoryItem {
   itemDefinitionId: number;
   slotId: number;
@@ -100,6 +102,8 @@ export interface loadoutContainer extends loadoutItem {
   containerDefinitionId: number;
   items: { [itemGuid: string]: inventoryItem };
 }
+
+*/
 
 export interface Weather {
   templateName?: string;

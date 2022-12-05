@@ -5,11 +5,12 @@ import {
   FullVehicleSaveData,
   ServerSaveData,
 } from "types/savedata";
-import { loadoutContainer, loadoutItem } from "types/zoneserver";
 import { initMongo, toBigHex, _ } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../classes/vehicle";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
+import { LoadoutItem } from "../classes/loadoutItem";
+import { LoadoutContainer } from "../classes/loadoutContainer";
 
 const fs = require("fs");
 const debug = require("debug")("ZoneServer");
@@ -280,8 +281,8 @@ export class WorldDataManager {
     if (updateItemGuid) await this.saveServerData(server);
     const loadoutKeys = Object.keys(client.character._loadout),
       containerKeys = Object.keys(client.character._containers),
-      loadoutSaveData: { [loadoutSlotId: number]: loadoutItem } = {},
-      containerSaveData: { [loadoutSlotId: number]: loadoutContainer } = {};
+      loadoutSaveData: { [loadoutSlotId: number]: LoadoutItem } = {},
+      containerSaveData: { [loadoutSlotId: number]: LoadoutContainer } = {};
     Object.values(client.character._loadout).forEach((item, idx) => {
       loadoutSaveData[Number(loadoutKeys[idx])] = {
         ...item,

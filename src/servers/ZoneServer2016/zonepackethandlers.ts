@@ -29,7 +29,6 @@ import {
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
-import { inventoryItem, loadoutContainer } from "types/zoneserver";
 import { ContainerErrors, EntityTypes, Items } from "./models/enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
@@ -39,6 +38,8 @@ import { constructionDoor } from "./classes/constructionDoor";
 import { AVG_PING_SECS } from "../../utils/constants";
 import { CommandHandler } from "./commands/commandhandler";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
+import { LoadoutContainer } from "./classes/loadoutContainer";
+import { BaseItem } from "./classes/baseItem";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -1336,8 +1337,8 @@ export class zonePacketHandlers {
     // helper functions
     function combineItemStack(
       oldStackCount: number,
-      targetContainer: loadoutContainer,
-      item: inventoryItem
+      targetContainer: LoadoutContainer,
+      item: BaseItem
     ) {
       if (oldStackCount == count) {
         // if full stack is moved

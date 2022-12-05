@@ -13,14 +13,14 @@
 
 import {
   characterEquipment,
-  loadoutItem,
-  loadoutContainer,
-  inventoryItem,
   DamageInfo,
 } from "../../../types/zoneserver";
 import { LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
+import { BaseItem } from "./baseItem";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
+import { LoadoutContainer } from "./loadoutContainer";
+import { LoadoutItem } from "./loadoutItem";
 import { ZoneClient2016 } from "./zoneclient";
 
 const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.json");
@@ -41,9 +41,9 @@ function getGender(actorModelId: number): number {
 export class BaseFullCharacter extends BaseLightweightCharacter {
   onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
   _resources: { [resourceId: number]: number } = {};
-  _loadout: { [loadoutSlotId: number]: loadoutItem } = {};
+  _loadout: { [loadoutSlotId: number]: LoadoutItem } = {};
   _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
-  _containers: { [loadoutSlotId: number]: loadoutContainer } = {};
+  _containers: { [loadoutSlotId: number]: LoadoutContainer } = {};
   loadoutId = 0;
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
@@ -88,14 +88,14 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
     return 0;
   }
-  getLoadoutItem(itemGuid: string): loadoutItem | undefined {
+  getLoadoutItem(itemGuid: string): LoadoutItem | undefined {
     const loadoutSlotId = this.getActiveLoadoutSlot(itemGuid);
     if (this._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       return this._loadout[loadoutSlotId];
     }
     return;
   }
-  getItemContainer(itemGuid: string): loadoutContainer | undefined {
+  getItemContainer(itemGuid: string): LoadoutContainer | undefined {
     // returns the container that an item is contained in
     for (const container of Object.values(this._containers)) {
       if (container.items[itemGuid]) {
@@ -104,7 +104,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
     return;
   }
-  getInventoryItem(itemGuid: string): inventoryItem | undefined {
+  getInventoryItem(itemGuid: string): BaseItem | undefined {
     const loadoutItem = this.getLoadoutItem(itemGuid);
     if (loadoutItem) {
       return loadoutItem;
@@ -116,7 +116,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
   }
 
-  getContainerFromGuid(containerGuid: string): loadoutContainer | undefined {
+  getContainerFromGuid(containerGuid: string): LoadoutContainer | undefined {
     for (const container of Object.values(this._containers)) {
       if (container.itemGuid == containerGuid) {
         return container;
@@ -125,7 +125,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return undefined;
   }
 
-  getItemById(itemDefId: number): inventoryItem | undefined {
+  getItemById(itemDefId: number): BaseItem | undefined {
     for (const container of Object.values(this._containers)) {
       for (const item of Object.values(container.items)) {
         if (item.itemDefinitionId == itemDefId) {
@@ -135,7 +135,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
     return undefined;
   }
-  getActiveEquipmentSlot(item: inventoryItem) {
+  getActiveEquipmentSlot(item: BaseItem) {
     for (const equipment of Object.values(this._equipment)) {
       if (item.itemGuid == equipment.guid) {
         return equipment.slotId;
@@ -144,7 +144,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return 0;
   }
 
-  getEquippedWeapon(): loadoutItem {
+  getEquippedWeapon(): LoadoutItem {
     return this._loadout[this.currentLoadoutSlot];
   }
 
@@ -270,7 +270,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
-  pGetItemWeaponData(server: ZoneServer2016, slot: inventoryItem) {
+  pGetItemWeaponData(server: ZoneServer2016, slot: BaseItem) {
     if (slot.weapon) {
       return {
         isWeapon: true, // not sent to client, only used as a flag for pack function
@@ -327,7 +327,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
   pGetItemData(
     server: ZoneServer2016,
-    item: inventoryItem,
+    item: BaseItem,
     containerDefId: number
   ) {
     let durability: number = 0;
@@ -410,7 +410,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
-  pGetContainerData(server: ZoneServer2016, container: loadoutContainer) {
+  pGetContainerData(server: ZoneServer2016, container: LoadoutContainer) {
     return {
       guid: container.itemGuid,
       definitionId: container.containerDefinitionId,
@@ -491,9 +491,9 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
    * @returns Returns an array containing all items across all containers.
    */
   getInventoryAsContainer(): {
-    [itemDefinitionId: number]: inventoryItem[];
+    [itemDefinitionId: number]: BaseItem[];
   } {
-    const inventory: { [itemDefinitionId: number]: inventoryItem[] } = {};
+    const inventory: { [itemDefinitionId: number]: BaseItem[] } = {};
     for (const container of Object.values(this._containers)) {
       for (const item of Object.values(container.items)) {
         if (!inventory[item.itemDefinitionId]) {
