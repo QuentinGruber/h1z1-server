@@ -326,7 +326,6 @@ export enum Items {
   TRAP_SHOCK = 2832,
 
   BACKPACK_FRAMED = 2111,
-  BACKPACK = 1605,
   BACKPACK_SATCHEL = 1432,
   BACKPACK_MILITARY_TAN = 2124,
   HELMET_MOTORCYCLE = 2170, // TODO = expand with other default helmet colors
