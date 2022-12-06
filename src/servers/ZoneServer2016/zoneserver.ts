@@ -46,6 +46,7 @@ import { WeatherManager } from "./managers/weathermanager";
 
 import {
   characterEquipment,
+  ConstructionEntity,
   DamageInfo,
   DamageRecord,
   SpawnLocation,
@@ -93,9 +94,9 @@ import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
 import { BaseSimpleNpc } from "./classes/basesimplenpc";
 import { TemporaryEntity } from "./classes/temporaryentity";
 import { BaseEntity } from "./classes/baseentity";
-import { ConstructionDoor } from "./classes/constructionDoor";
-import { ConstructionParentEntity } from "./classes/constructionParentEntity";
-import { SimpleConstruction } from "./classes/simpleConstruction";
+import { ConstructionDoor } from "./classes/constructiondoor";
+import { ConstructionParentEntity } from "./classes/constructionparententity";
+import { ConstructionChildEntity } from "./classes/constructionchildentity";
 import { FullCharacterSaveData, ServerSaveData } from "types/savedata";
 import { WorldDataManager } from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
@@ -112,7 +113,7 @@ import { getCharacterModelData } from "../shared/functions";
 import { HookManager } from "./managers/hookmanager";
 import { BaseItem } from "./classes/baseItem";
 import { LoadoutItem } from "./classes/loadoutItem";
-import { LoadoutContainer } from "./classes/loadoutContainer";
+import { LoadoutContainer } from "./classes/loadoutcontainer";
 import { Weapon } from "./classes/weapon";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -162,7 +163,7 @@ export class ZoneServer2016 extends EventEmitter {
     [characterId: string]: ConstructionParentEntity;
   } = {};
   _constructionDoors: { [characterId: string]: ConstructionDoor } = {};
-  _constructionSimple: { [characterId: string]: SimpleConstruction } = {};
+  _constructionSimple: { [characterId: string]: ConstructionChildEntity } = {};
 
   _props: any = {};
   _speedTrees: any = {};
@@ -1092,20 +1093,18 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
 
-    for (const c in this._clients) {
-      const client = this._clients[c];
-      if (!client.character.godMode) {
-        if (isPosInRadius(8, client.character.state.position, position)) {
-          const distance = getDistance(
-            position,
-            client.character.state.position
-          );
-          const damage = 50000 / distance;
-          client.character.damage(this, {
-            entity: npcTriggered,
-            damage: damage,
-          });
-        }
+    for (const characterId in this._characters) {
+      const character = this._characters[characterId];
+      if (isPosInRadius(8, character.state.position, position)) {
+        const distance = getDistance(
+          position,
+          character.state.position
+        );
+        const damage = 50000 / distance;
+        character.damage(this, {
+          entity: npcTriggered,
+          damage: damage,
+        });
       }
     }
     for (const vehicleKey in this._vehicles) {
@@ -1123,7 +1122,7 @@ export class ZoneServer2016 extends EventEmitter {
     for (const construction in this._constructionSimple) {
       const constructionObject = this._constructionSimple[
         construction
-      ] as SimpleConstruction;
+      ] as ConstructionChildEntity;
       if (
         constructionObject.itemDefinitionId == Items.FOUNDATION_RAMP ||
         constructionObject.itemDefinitionId == Items.FOUNDATION_STAIRS
@@ -1332,7 +1331,7 @@ export class ZoneServer2016 extends EventEmitter {
     position: Float32Array,
     entityPosition: Float32Array
   ) {
-    const constructionObject: SimpleConstruction | ConstructionParentEntity =
+    const constructionObject: ConstructionEntity =
       dictionary[constructionCharId];
     const distance = getDistance(entityPosition, position);
     constructionObject.damage(this, {
@@ -2227,7 +2226,7 @@ export class ZoneServer2016 extends EventEmitter {
       Items.SHELTER_UPPER_LARGE,
     ];
     for (const a in this._constructionSimple) {
-      const construction = this._constructionSimple[a] as SimpleConstruction;
+      const construction = this._constructionSimple[a] as ConstructionChildEntity;
       if (!allowedIds.includes(construction.itemDefinitionId)) continue;
       let allowed = false;
       if (!construction.isSecured) continue;
@@ -3554,7 +3553,7 @@ export class ZoneServer2016 extends EventEmitter {
                   BuildingSlot.length,
                   BuildingSlot.length - 2
                 ).toString();
-          const npc = new SimpleConstruction(
+          const npc = new ConstructionChildEntity(
             characterId,
             transientId,
             modelId,
@@ -3585,7 +3584,7 @@ export class ZoneServer2016 extends EventEmitter {
           if (!Number(parentObjectCharacterId)) {
             parentObjectCharacterId = "";
           }
-          const npc = new SimpleConstruction(
+          const npc = new ConstructionChildEntity(
             characterId,
             transientId,
             modelId,
@@ -3692,7 +3691,7 @@ export class ZoneServer2016 extends EventEmitter {
         case EntityTypes.CONSTRUCTION_SIMPLE:
           const construction = this._constructionSimple[
             parentObjectCharacterId
-          ] as SimpleConstruction;
+          ] as ConstructionChildEntity;
           construction.changePerimeters(this, BuildingSlot, npc.state.position);
           break;
       }

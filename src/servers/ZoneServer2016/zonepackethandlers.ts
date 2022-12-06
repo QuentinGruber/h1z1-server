@@ -33,12 +33,12 @@ import { ContainerErrors, EntityTypes, Items } from "./models/enums";
 import { TrapEntity } from "./classes/trapentity";
 import { ExplosiveEntity } from "./classes/explosiveentity";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
-import { ConstructionParentEntity } from "./classes/constructionParentEntity";
-import { ConstructionDoor } from "./classes/constructionDoor";
+import { ConstructionParentEntity } from "./classes/constructionparententity";
+import { ConstructionDoor } from "./classes/constructiondoor";
 import { AVG_PING_SECS } from "../../utils/constants";
 import { CommandHandler } from "./commands/commandhandler";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
-import { LoadoutContainer } from "./classes/loadoutContainer";
+import { LoadoutContainer } from "./classes/loadoutcontainer";
 import { BaseItem } from "./classes/baseItem";
 
 export class zonePacketHandlers {

@@ -25,7 +25,7 @@ function getDamageRange(definitionId: number): number {
   }
 }
 
-export class SimpleConstruction extends BaseLightweightCharacter {
+export class ConstructionChildEntity extends BaseLightweightCharacter {
   health: number = 1000000;
   buildingSlot?: string;
   perimeters: { [slot: string]: Float32Array };

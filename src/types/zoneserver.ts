@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { ConstructionParentEntity } from "servers/ZoneServer2016/classes/constructionparententity";
+import { ConstructionChildEntity } from "servers/ZoneServer2016/classes/constructionchildentity";
 import { FilterIds, Items } from "servers/ZoneServer2016/models/enums";
 
 export interface npcData {
@@ -239,3 +241,7 @@ export interface Recipe {
   bundleCount?: number;
   components: Array<RecipeComponent>;
 }
+
+export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity;
+
+export type ConstructionEntity = SlottedConstructionEntity;

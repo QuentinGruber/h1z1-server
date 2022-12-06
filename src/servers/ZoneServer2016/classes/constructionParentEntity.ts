@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { SimpleConstruction } from "./simpleConstruction";
+import { ConstructionChildEntity } from "./constructionchildentity";
 import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { getRectangleCorners } from "../../../utils/utils";
@@ -30,7 +30,7 @@ function getDamageRange(definitionId: number): number {
   }
 }
 
-export class ConstructionParentEntity extends SimpleConstruction {
+export class ConstructionParentEntity extends ConstructionChildEntity {
   healthPercentage: number = 100;
   permissions: any;
   ownerCharacterId: string;

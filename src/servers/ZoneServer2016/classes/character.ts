@@ -431,10 +431,7 @@ export class Character2016 extends BaseFullCharacter {
       oldHealth = this._resources[ResourceIds.HEALTH];
     if (!client) return;
 
-    if (!this.godMode && this.isAlive) {
-      if (damage < 100) {
-        return;
-      }
+    if (this.godMode || !this.isAlive || damage < 100) return;
       if (damageInfo.causeBleed) {
         if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
           this._resources[ResourceIds.BLEEDING] += 41;
@@ -490,7 +487,6 @@ export class Character2016 extends BaseFullCharacter {
       if (!sourceClient?.character) return;
       sourceClient.character.addCombatlogEntry(damageRecord);
       server.combatLog(sourceClient);
-    }
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {

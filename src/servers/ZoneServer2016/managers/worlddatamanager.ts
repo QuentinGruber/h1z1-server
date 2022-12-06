@@ -12,7 +12,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../classes/vehicle";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { LoadoutItem } from "../classes/loadoutItem";
-import { LoadoutContainer } from "../classes/loadoutContainer";
+import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { BaseItem } from "../classes/baseItem";
 import { Weapon } from "../classes/weapon";
 
