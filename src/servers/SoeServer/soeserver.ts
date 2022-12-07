@@ -253,10 +253,7 @@ export class SOEServer extends EventEmitter {
       case "MultiPacket": {
         for (let i = 0; i < packet.sub_packets.length; i++) {
           const subPacket = packet.sub_packets[i];
-          switch (subPacket.name) {
-            default:
-              this.handlePacket(client, subPacket);
-          }
+          this.handlePacket(client, subPacket);
         }
         break;
       }
@@ -286,15 +283,10 @@ export class SOEServer extends EventEmitter {
         break;
       case "OutOfOrder":
         client.unAckData.delete(packet.sequence);
-        //client.outputStream.resendData(packet.sequence);
+        client.outputStream.removeFromCache(packet.sequence);
         break;
       case "Ack":
         client.outputStream.ack(packet.sequence, client.unAckData);
-        break;
-      case "FatalError":
-        debug("Received fatal error from client");
-        break;
-      case "FatalErrorReply":
         break;
       default:
         console.log(`Unknown SOE packet received from ${client.sessionId}`);
@@ -321,13 +313,11 @@ export class SOEServer extends EventEmitter {
         let client: SOEClient;
         const clientId = message.remote.address + ":" + message.remote.port;
         debug(data.length + " bytes from ", clientId);
-        let unknow_client;
         // if doesn't know the client
         if (!this._clients.has(clientId)) {
           if (data[1] !== 1) {
             return;
           }
-          unknow_client = true;
           client = this._createClient(clientId, message.remote);
 
           client.inputStream.on("appdata", (data: Buffer) => {
@@ -392,16 +382,9 @@ export class SOEServer extends EventEmitter {
             const parsed_data = JSON.parse(raw_parsed_data);
             if (parsed_data.name === "Error") {
               console.error(parsed_data.error);
+            } else {
+              this.handlePacket(client, parsed_data);
             }
-            if (!unknow_client && parsed_data.name === "SessionRequest") {
-              this.deleteClient(this._clients.get(clientId) as SOEClient);
-              debug(
-                "Delete an old session badly closed by the client (",
-                clientId,
-                ") )"
-              );
-            }
-            this.handlePacket(client, parsed_data);
           } else {
             console.error("Unmanaged packet from client", clientId, data);
           }
