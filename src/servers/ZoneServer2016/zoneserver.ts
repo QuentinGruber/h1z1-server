@@ -193,7 +193,7 @@ export class ZoneServer2016 extends EventEmitter {
     port: 1110,
   };
   worldRoutineTimer!: NodeJS.Timeout;
-  _charactersRenderDistance = 350;
+  _movingEntityRenderDistance = 350;
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
     : [
@@ -239,6 +239,8 @@ export class ZoneServer2016 extends EventEmitter {
   readonly worldSaveVersion: number = 1;
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
   private _proximityItemsDistance: number = 2;
+  private _staticEntityRenderRadius: number = 300;
+  private _staticEntityTriggerRadus: number = this._staticEntityRenderRadius * 0.5;
 
   constructor(
     serverPort: number,
@@ -908,17 +910,20 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
     else {
       this.executeFuncForAllReadyClients((client: Client) => {
-        this.vehicleManager(client);
-        this.itemManager(client);
-        this.npcManager(client);
-        this.removeOutOfDistanceEntities(client);
+        if(!isPosInRadius(this._staticEntityTriggerRadus,client.posAtLastStaticRoutine,client.character.state.position)){
+          this.itemManager(client);
+          this.removeOutOfDistanceEntities(client);
+          this.spawnDoors(client);
+          this.spawnConstructionNpcs(client);
+          this.spawnExplosives(client);
+          this.spawnTraps(client);
+          this.spawnTemporaryObjects(client);
+          this.POIManager(client);
+          client.posAtLastStaticRoutine = client.character.state.position;
+        }
         this.spawnCharacters(client);
-        this.spawnDoors(client);
-        this.spawnConstructionNpcs(client);
-        this.spawnExplosives(client);
-        this.spawnTraps(client);
-        this.spawnTemporaryObjects(client);
-        this.POIManager(client);
+        this.vehicleManager(client);
+        this.npcManager(client);
         this.foundationPermissionChecker(client);
         client.posAtLastRoutine = client.character.state.position;
       });
@@ -2433,9 +2438,7 @@ export class ZoneServer2016 extends EventEmitter {
       const npc = this._constructionFoundations[characterId];
       if (
         isPosInRadius(
-          npc.npcRenderDistance
-            ? npc.npcRenderDistance
-            : this._charactersRenderDistance,
+          this._staticEntityRenderRadius,
           client.character.state.position,
           npc.state.position
         ) &&
@@ -2463,9 +2466,7 @@ export class ZoneServer2016 extends EventEmitter {
       const npc = this._constructionDoors[characterId];
       if (
         isPosInRadius(
-          npc.npcRenderDistance
-            ? npc.npcRenderDistance
-            : this._charactersRenderDistance,
+          this._staticEntityRenderRadius,
           client.character.state.position,
           npc.state.position
         ) &&
@@ -2498,9 +2499,7 @@ export class ZoneServer2016 extends EventEmitter {
       const npc = this._constructionSimple[characterId];
       if (
         isPosInRadius(
-          npc.npcRenderDistance
-            ? npc.npcRenderDistance
-            : this._charactersRenderDistance,
+          this._staticEntityRenderRadius,
           client.character.state.position,
           npc.state.position
         ) &&
@@ -2524,7 +2523,7 @@ export class ZoneServer2016 extends EventEmitter {
       const explosive = this._explosives[characterId];
       if (
         isPosInRadius(
-          explosive.npcRenderDistance as number,
+          this._staticEntityRenderRadius,
           client.character.state.position,
           explosive.state.position
         ) &&
@@ -2541,7 +2540,7 @@ export class ZoneServer2016 extends EventEmitter {
       const trap = this._traps[characterId];
       if (
         isPosInRadius(
-          trap.npcRenderDistance as number,
+          this._staticEntityRenderRadius,
           client.character.state.position,
           trap.state.position
         ) &&
@@ -2558,7 +2557,7 @@ export class ZoneServer2016 extends EventEmitter {
       const tempObj = this._temporaryObjects[characterId];
       if (
         isPosInRadius(
-          tempObj.npcRenderDistance as number,
+          this._staticEntityRenderRadius,
           client.character.state.position,
           tempObj.state.position
         ) &&
@@ -2577,7 +2576,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId != characterObj.characterId &&
         characterObj.isReady &&
         isPosInRadius(
-          client.character.isSpectator ? 1000 : this._charactersRenderDistance,
+          client.character.isSpectator ? 1000 : this._movingEntityRenderDistance,
           client.character.state.position,
           characterObj.state.position
         ) &&
@@ -2626,7 +2625,7 @@ export class ZoneServer2016 extends EventEmitter {
       // item entity clientside spawner
       if (
         isPosInRadius(
-          itemObject.npcRenderDistance,
+          this._staticEntityRenderRadius,
           client.character.state.position,
           itemObject.state.position
         )
@@ -2656,7 +2655,7 @@ export class ZoneServer2016 extends EventEmitter {
       const door = this._doors[characterId];
       if (
         isPosInRadius(
-          door.npcRenderDistance,
+          this._staticEntityRenderRadius,
           client.character.state.position,
           door.state.position
         ) &&
@@ -3101,7 +3100,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
-          this._charactersRenderDistance,
+          this._movingEntityRenderDistance,
           client.character.state.position,
           vehicle.state.position
         )
@@ -6292,7 +6291,7 @@ export class ZoneServer2016 extends EventEmitter {
     playerPosition: Float32Array
   ): boolean {
     return !isPosInRadius(
-      element.npcRenderDistance || this._charactersRenderDistance,
+      element.npcRenderDistance || this._movingEntityRenderDistance,
       playerPosition,
       element.state.position
     );

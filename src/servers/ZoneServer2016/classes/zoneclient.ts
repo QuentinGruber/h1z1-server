@@ -64,6 +64,7 @@ export class ZoneClient2016 {
   lastKeepAliveTime: number = 0;
   pings: number[] = [];
   avgPing: number = 0;
+  posAtLastStaticRoutine: Float32Array = new Float32Array([0,0,0,0]);
   constructor(
     sessionId: number,
     soeClientId: string,
