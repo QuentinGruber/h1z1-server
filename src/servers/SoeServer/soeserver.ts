@@ -253,10 +253,7 @@ export class SOEServer extends EventEmitter {
       case "MultiPacket": {
         for (let i = 0; i < packet.sub_packets.length; i++) {
           const subPacket = packet.sub_packets[i];
-          switch (subPacket.name) {
-            default:
-              this.handlePacket(client, subPacket);
-          }
+          this.handlePacket(client, subPacket);
         }
         break;
       }
@@ -286,15 +283,10 @@ export class SOEServer extends EventEmitter {
         break;
       case "OutOfOrder":
         client.unAckData.delete(packet.sequence);
-        //client.outputStream.resendData(packet.sequence);
+        client.outputStream.removeFromCache(packet.sequence);
         break;
       case "Ack":
         client.outputStream.ack(packet.sequence, client.unAckData);
-        break;
-      case "FatalError":
-        debug("Received fatal error from client");
-        break;
-      case "FatalErrorReply":
         break;
       default:
         console.log(`Unknown SOE packet received from ${client.sessionId}`);
@@ -393,15 +385,9 @@ export class SOEServer extends EventEmitter {
             if (parsed_data.name === "Error") {
               console.error(parsed_data.error);
             }
-            if (!unknow_client && parsed_data.name === "SessionRequest") {
-              this.deleteClient(this._clients.get(clientId) as SOEClient);
-              debug(
-                "Delete an old session badly closed by the client (",
-                clientId,
-                ") )"
-              );
+            else {
+              this.handlePacket(client, parsed_data);
             }
-            this.handlePacket(client, parsed_data);
           } else {
             console.error("Unmanaged packet from client", clientId, data);
           }
