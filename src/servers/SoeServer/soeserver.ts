@@ -313,13 +313,11 @@ export class SOEServer extends EventEmitter {
         let client: SOEClient;
         const clientId = message.remote.address + ":" + message.remote.port;
         debug(data.length + " bytes from ", clientId);
-        let unknow_client;
         // if doesn't know the client
         if (!this._clients.has(clientId)) {
           if (data[1] !== 1) {
             return;
           }
-          unknow_client = true;
           client = this._createClient(clientId, message.remote);
 
           client.inputStream.on("appdata", (data: Buffer) => {
@@ -384,8 +382,7 @@ export class SOEServer extends EventEmitter {
             const parsed_data = JSON.parse(raw_parsed_data);
             if (parsed_data.name === "Error") {
               console.error(parsed_data.error);
-            }
-            else {
+            } else {
               this.handlePacket(client, parsed_data);
             }
           } else {
