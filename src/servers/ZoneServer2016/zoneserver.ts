@@ -115,6 +115,8 @@ import { BaseItem } from "./classes/baseItem";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { LoadoutContainer } from "./classes/loadoutcontainer";
 import { Weapon } from "./classes/weapon";
+import { BaseLootableEntity } from "./classes/baselootableentity";
+import { Lootbag } from "./classes/lootbag";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -158,6 +160,7 @@ export class ZoneServer2016 extends EventEmitter {
   _traps: { [characterId: string]: TrapEntity } = {};
   _temporaryObjects: { [characterId: string]: TemporaryEntity } = {};
   _vehicles: { [characterId: string]: Vehicle } = {};
+  _lootbags: { [characterId: string]: Lootbag } = {};
 
   _constructionFoundations: {
     [characterId: string]: ConstructionParentEntity;
@@ -1025,63 +1028,64 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   killCharacter(client: Client, damageInfo: DamageInfo) {
+    if (!client.character.isAlive) return;
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
       return;
 
     const character = client.character,
       sourceClient = this.getClientByCharId(damageInfo.entity);
-    if (character.isAlive) {
-      client.character.isRespawning = true;
-      this.sendDeathMetrics(client);
-      debug(character.name + " has died");
-      if (sourceClient) {
-        this.sendDataToAll("Character.KilledBy", {
-          killed: client.character.characterId,
-          killer: sourceClient.character.characterId,
-          isCheater: sourceClient.character.godMode,
-        } as CharacterKilledBy);
-        client.lastDeathReport = {
-          position: client.character.state.position,
-          attackerPosition: sourceClient.character.state.position,
-          distance: Number(
-            getDistance(
-              client.character.state.position,
-              sourceClient.character.state.position
-            ).toFixed(2)
-          ),
-          attacker: sourceClient,
-        };
-      }
-      client.character.isRunning = false;
-      character.isAlive = false;
-      this.updateCharacterState(
+    client.character.isRespawning = true;
+    this.sendDeathMetrics(client);
+    debug(character.name + " has died");
+    if (sourceClient) {
+      this.sendDataToAll("Character.KilledBy", {
+        killed: client.character.characterId,
+        killer: sourceClient.character.characterId,
+        isCheater: sourceClient.character.godMode,
+      } as CharacterKilledBy);
+      client.lastDeathReport = {
+        position: client.character.state.position,
+        attackerPosition: sourceClient.character.state.position,
+        distance: Number(
+          getDistance(
+            client.character.state.position,
+            sourceClient.character.state.position
+          ).toFixed(2)
+        ),
+        attacker: sourceClient,
+      };
+    }
+    client.character.isRunning = false;
+    character.isAlive = false;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
+    if (!client.isLoading) {
+      this.sendDataToAllWithSpawnedEntity(
+        this._characters,
+        client.character.characterId,
+        "Character.StartMultiStateDeath",
+        {
+          characterId: client.character.characterId,
+        }
+      );
+    } else {
+      this.sendDataToAllOthersWithSpawnedEntity(
+        this._characters,
         client,
         client.character.characterId,
-        client.character.characterStates,
-        false
+        "Character.StartMultiStateDeath",
+        {
+          characterId: client.character.characterId,
+        }
       );
-      if (!client.isLoading) {
-        this.sendDataToAllWithSpawnedEntity(
-          this._characters,
-          client.character.characterId,
-          "Character.StartMultiStateDeath",
-          {
-            characterId: client.character.characterId,
-          }
-        );
-      } else {
-        this.sendDataToAllOthersWithSpawnedEntity(
-          this._characters,
-          client,
-          client.character.characterId,
-          "Character.StartMultiStateDeath",
-          {
-            characterId: client.character.characterId,
-          }
-        );
-      }
     }
     this.clearMovementModifiers(client);
+
+    //this.worldObjectManager.createLootbag(this, character);
 
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
   }
@@ -1096,10 +1100,7 @@ export class ZoneServer2016 extends EventEmitter {
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
       if (isPosInRadius(8, character.state.position, position)) {
-        const distance = getDistance(
-          position,
-          character.state.position
-        );
+        const distance = getDistance(position, character.state.position);
         const damage = 50000 / distance;
         character.damage(this, {
           entity: npcTriggered,
@@ -1120,9 +1121,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     for (const construction in this._constructionSimple) {
-      const constructionObject = this._constructionSimple[
-        construction
-      ] as ConstructionChildEntity;
+      const constructionObject = this._constructionSimple[construction];
       if (
         constructionObject.itemDefinitionId == Items.FOUNDATION_RAMP ||
         constructionObject.itemDefinitionId == Items.FOUNDATION_STAIRS
@@ -2197,7 +2196,7 @@ export class ZoneServer2016 extends EventEmitter {
         foundation.itemDefinitionId == Items.SHACK_SMALL ||
         foundation.itemDefinitionId == Items.SHACK_BASIC
       ) {
-        if (this.checkInsideFoundation(foundation, client.character)) {
+        if (foundation.isInside(client.character)) {
           if (allowed) {
             this.constructionHidePlayer(client, foundation.characterId, true);
             isInSecuredArea = true;
@@ -2214,7 +2213,7 @@ export class ZoneServer2016 extends EventEmitter {
         )
           continue;
       }
-      if (this.checkInsideFoundation(foundation, client.character)) {
+      if (foundation.isInside(client.character)) {
         this.tpPlayerOutsideFoundation(client, foundation);
         return;
       }
@@ -2226,7 +2225,7 @@ export class ZoneServer2016 extends EventEmitter {
       Items.SHELTER_UPPER_LARGE,
     ];
     for (const a in this._constructionSimple) {
-      const construction = this._constructionSimple[a] as ConstructionChildEntity;
+      const construction = this._constructionSimple[a];
       if (!allowedIds.includes(construction.itemDefinitionId)) continue;
       let allowed = false;
       if (!construction.isSecured) continue;
@@ -2249,7 +2248,7 @@ export class ZoneServer2016 extends EventEmitter {
       } else {
         for (const a in this._constructionFoundations) {
           const b = this._constructionFoundations[a];
-          if (!this.checkInsideFoundation(b, construction)) continue;
+          if (!b.isInside(construction)) continue;
           foundation = b;
         }
       }
@@ -2284,44 +2283,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (!isInSecuredArea && client.character.isHidden)
       client.character.isHidden = "";
-  }
-
-  checkInsideFoundation(foundation: ConstructionParentEntity, entity: any) {
-    let detectRange = 2.39;
-    switch (foundation.itemDefinitionId) {
-      case Items.FOUNDATION:
-      case Items.FOUNDATION_EXPANSION:
-      case Items.GROUND_TAMPER:
-        return isInside(
-          [entity.state.position[0], entity.state.position[2]],
-          foundation.securedPolygons
-        );
-      case Items.SHACK:
-        detectRange = 2.39;
-        return isPosInRadiusWithY(
-          detectRange,
-          entity.state.position,
-          foundation.state.position,
-          2
-        );
-      case Items.SHACK_BASIC:
-        detectRange = 1;
-        return isPosInRadiusWithY(
-          detectRange,
-          entity.state.position,
-          foundation.state.position,
-          2
-        );
-      case Items.SHACK_SMALL:
-        return isInsideWithY(
-          [entity.state.position[0], entity.state.position[2]],
-          foundation.securedPolygons,
-          entity.state.position[1],
-          foundation.state.position[1],
-          2.1
-        );
-    }
-    return false;
   }
 
   constructionHidePlayer(
@@ -2361,7 +2322,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.state.position[0] - foundation.state.position[0]
     );
     if (tpUp) {
-      this.sendChatText(client, "Construction: stuck under foundation");
+      this.sendChatText(client, "Construction: Stuck under foundation");
       this.sendData(client, "ClientUpdate.UpdateLocation", {
         position: [
           client.character.state.position[0],
@@ -3539,6 +3500,11 @@ export class ZoneServer2016 extends EventEmitter {
           slot
         );
         break;
+
+      /*case Items.STORAGE_BOX:
+
+        break;
+      */
       default:
         const characterId = this.generateGuid();
         const transientId = this.getTransientId(characterId);
@@ -3574,9 +3540,8 @@ export class ZoneServer2016 extends EventEmitter {
           this._constructionSimple[characterId] = npc;
           switch (this.getEntityType(parentObjectCharacterId)) {
             case EntityTypes.CONSTRUCTION_FOUNDATION:
-              const foundation = this._constructionFoundations[
-                parentObjectCharacterId
-              ] as ConstructionParentEntity;
+              const foundation =
+                this._constructionFoundations[parentObjectCharacterId];
               foundation.changePerimeters(this, slot, npc.state.position);
               break;
           }
@@ -3683,15 +3648,13 @@ export class ZoneServer2016 extends EventEmitter {
     if (Number(parentObjectCharacterId)) {
       switch (this.getEntityType(parentObjectCharacterId)) {
         case EntityTypes.CONSTRUCTION_FOUNDATION:
-          const foundation = this._constructionFoundations[
-            parentObjectCharacterId
-          ] as ConstructionParentEntity;
+          const foundation =
+            this._constructionFoundations[parentObjectCharacterId];
           foundation.changePerimeters(this, slot, npc.state.position);
           break;
         case EntityTypes.CONSTRUCTION_SIMPLE:
-          const construction = this._constructionSimple[
-            parentObjectCharacterId
-          ] as ConstructionChildEntity;
+          const construction =
+            this._constructionSimple[parentObjectCharacterId];
           construction.changePerimeters(this, BuildingSlot, npc.state.position);
           break;
       }
@@ -5487,6 +5450,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   giveDefaultEquipment(client: Client, sendPacket: boolean) {
+    this.equipItem(client.character, this.generateItem(3089), sendPacket);
     if (!client.character._loadout[LoadoutSlots.FISTS]) {
       // Fists should never be removed from the inventory, however this is just in case
       this.equipItem(

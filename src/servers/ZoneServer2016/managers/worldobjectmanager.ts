@@ -35,6 +35,11 @@ import { BaseFullCharacter } from "../classes/basefullcharacter";
 import { ExplosiveEntity } from "../classes/explosiveentity";
 import { lootTables } from "../data/lootspawns";
 import { BaseItem } from "../classes/baseItem";
+import { BaseEntity } from "../classes/baseentity";
+import { Lootbag } from "../classes/lootbag";
+import { Character } from "servers/ZoneServer2015/classes/character";
+import { LoadoutContainer } from "../classes/loadoutcontainer";
+import { LoadoutItem } from "../classes/loadoutItem";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {
@@ -178,6 +183,27 @@ export class WorldObjectManager {
     if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;
     server._spawnedItems[characterId].creationTime = Date.now();
     return server._spawnedItems[characterId];
+  }
+
+  createLootbag(server: ZoneServer2016, entity: BaseEntity) {
+    const characterId = generateRandomGuid(),
+      modelId = server._characters[entity.characterId] ? 9581 : 9391,
+      item = server.generateItem(5001);
+    if (!item) {
+      debug("[ERROR] Lootbag container item could not be generated!");
+      return;
+    }
+    server._lootbags[characterId] = new Lootbag(
+      characterId,
+      server.getTransientId(characterId),
+      modelId,
+      entity.state.position,
+      entity.state.rotation,
+      new LoadoutContainer(
+        new LoadoutItem(item, server.getLoadoutSlot(item.itemDefinitionId), ""),
+        server.getItemDefinition(item.itemDefinitionId).PARAM1
+      )
+    );
   }
 
   private createDoor(

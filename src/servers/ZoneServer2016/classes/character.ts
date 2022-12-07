@@ -432,61 +432,61 @@ export class Character2016 extends BaseFullCharacter {
     if (!client) return;
 
     if (this.godMode || !this.isAlive || damage < 100) return;
-      if (damageInfo.causeBleed) {
-        if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
+    if (damageInfo.causeBleed) {
+      if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
+        this._resources[ResourceIds.BLEEDING] += 41;
+        if (damage > 4000) {
           this._resources[ResourceIds.BLEEDING] += 41;
-          if (damage > 4000) {
-            this._resources[ResourceIds.BLEEDING] += 41;
-          }
-          server.updateResourceToAllWithSpawnedEntity(
-            this.characterId,
-            this._resources[ResourceIds.BLEEDING],
-            ResourceIds.BLEEDING,
-            ResourceTypes.BLEEDING,
-            server._characters
-          );
         }
+        server.updateResourceToAllWithSpawnedEntity(
+          this.characterId,
+          this._resources[ResourceIds.BLEEDING],
+          ResourceIds.BLEEDING,
+          ResourceTypes.BLEEDING,
+          server._characters
+        );
       }
-      this._resources[ResourceIds.HEALTH] -= damage;
-      if (this._resources[ResourceIds.HEALTH] <= 0) {
-        this._resources[ResourceIds.HEALTH] = 0;
-        server.killCharacter(client, damageInfo);
-      }
-      server.updateResource(
-        client,
-        this.characterId,
-        this._resources[ResourceIds.HEALTH],
-        ResourceIds.HEALTH
-      );
+    }
+    this._resources[ResourceIds.HEALTH] -= damage;
+    if (this._resources[ResourceIds.HEALTH] <= 0) {
+      this._resources[ResourceIds.HEALTH] = 0;
+      server.killCharacter(client, damageInfo);
+    }
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.HEALTH],
+      ResourceIds.HEALTH
+    );
 
-      const sourceEntity = server.getEntity(damageInfo.entity);
-      if (!sourceEntity) return;
+    const sourceEntity = server.getEntity(damageInfo.entity);
+    if (!sourceEntity) return;
 
-      const orientation =
-        Math.atan2(
-          this.state.position[2] - sourceEntity.state.position[2],
-          this.state.position[0] - sourceEntity.state.position[0]
-        ) *
-          -1 -
-        1.4;
-      server.sendData(client, "ClientUpdate.DamageInfo", {
-        transientId: 0,
-        orientationToSource: orientation,
-        unknownDword2: 100,
-      });
+    const orientation =
+      Math.atan2(
+        this.state.position[2] - sourceEntity.state.position[2],
+        this.state.position[0] - sourceEntity.state.position[0]
+      ) *
+        -1 -
+      1.4;
+    server.sendData(client, "ClientUpdate.DamageInfo", {
+      transientId: 0,
+      orientationToSource: orientation,
+      unknownDword2: 100,
+    });
 
-      const damageRecord = server.generateDamageRecord(
-        this.characterId,
-        damageInfo,
-        oldHealth
-      );
-      this.addCombatlogEntry(damageRecord);
-      server.combatLog(client);
+    const damageRecord = server.generateDamageRecord(
+      this.characterId,
+      damageInfo,
+      oldHealth
+    );
+    this.addCombatlogEntry(damageRecord);
+    server.combatLog(client);
 
-      const sourceClient = server.getClientByCharId(damageInfo.entity);
-      if (!sourceClient?.character) return;
-      sourceClient.character.addCombatlogEntry(damageRecord);
-      server.combatLog(sourceClient);
+    const sourceClient = server.getClientByCharId(damageInfo.entity);
+    if (!sourceClient?.character) return;
+    sourceClient.character.addCombatlogEntry(damageRecord);
+    server.combatLog(sourceClient);
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
