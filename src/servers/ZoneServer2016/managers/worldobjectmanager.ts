@@ -197,15 +197,19 @@ export class WorldObjectManager {
       new LoadoutItem(item, server.getLoadoutSlot(item.itemDefinitionId), ""),
       server.getItemDefinition(item.itemDefinitionId).PARAM1
     );
-    /*
-    let items = {};
-    Object.values(entity._containers).map((slotId: any) => {
-      if(entity._containers[slotId]?.items) {
+    
+    let items: { [itemGuid: string]: BaseItem } = {};
+    Object.values(entity._containers).forEach((container: LoadoutContainer) => {
+      if(container.items) {
+        console.log(container.items)
         items = {
           ...items,
-          ...entity._containers[slotId].items
+          ...container.items
         }
       }
+    })
+    Object.values(entity._loadout).forEach((item: LoadoutItem) => {
+      items[item.itemGuid] = item
     })
     container.items = {
       ...entity._loadout,
@@ -213,7 +217,7 @@ export class WorldObjectManager {
     }
     console.log(items)
     console.log(entity._loadout)
-    */
+    
    //TODO: add items to container, create method for removing default spawn items / clothes from containers
     server._lootbags[characterId] = new Lootbag(
       characterId,

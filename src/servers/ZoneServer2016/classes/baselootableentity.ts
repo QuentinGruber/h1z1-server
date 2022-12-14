@@ -46,9 +46,13 @@ export class BaseLootableEntity extends BaseFullCharacter {
 
     server.addItem(client, this.container, 101);
 
+    Object.values(this.container.items).forEach((item)=> {
+      server.addItem(client, item, this.container.containerDefinitionId);
+    })
+
     server.sendData(client, "Loadout.SetLoadoutSlots", {
       characterId: client.character.characterId,
-      loadoutId: client.character.loadoutId, // needs to be 3
+      loadoutId: client.character.loadoutId,
       loadoutData: {
         loadoutSlots: [
           ...Object.keys(client.character._loadout).map((slotId: any) => {

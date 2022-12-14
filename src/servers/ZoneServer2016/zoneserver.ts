@@ -4057,7 +4057,8 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
 
-    this.initializeContainerList(client, vehicle);
+    // this is broken for some reason
+    /*this.initializeContainerList(client, vehicle);
 
     if (seatId === "0") {
       const inventory = Object.values(vehicle._containers)[0];
@@ -4090,7 +4091,7 @@ export class ZoneServer2016 extends EventEmitter {
         },
       });
       */
-    }
+    //}
     if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
       if (vehicle._resources[ResourceIds.FUEL] > 0) {
