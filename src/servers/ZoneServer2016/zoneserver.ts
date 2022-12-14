@@ -623,6 +623,7 @@ export class ZoneServer2016 extends EventEmitter {
    * Caches item definitons so they aren't packed every time a client logs in.
    */
   private packItemDefinitions() {
+    /*
     this.itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
       data: {
         itemDefinitions: Object.values(this._itemDefinitions).map(
@@ -644,6 +645,37 @@ export class ZoneServer2016 extends EventEmitter {
             };
           }
         ),
+      },
+    });
+    */
+
+    // temp custom logic for external container workaround
+
+    const defs: any[] = [];
+    Object.values(this._itemDefinitions).forEach((itemDef: any) => {
+      if (itemDef.ID > 5000) {
+        // custom h1emu definitons start at 5001
+        defs.push({
+          ID: itemDef.ID,
+          definitionData: {
+            ...itemDef,
+            HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
+            ITEM_TYPE_1: itemDef.ITEM_TYPE,
+            flags1: {
+              ...itemDef,
+            },
+            flags2: {
+              ...itemDef,
+            },
+            stats: [],
+          },
+        });
+      }
+    });
+
+    this.itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
+      data: {
+        itemDefinitions: defs,
       },
     });
   }
@@ -878,7 +910,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.packItemDefinitions();
     }
     // disabled since it breaks weapon inspect
-    //this.sendRawData(client, this.itemDefinitionsCache);
+    // re-enabled for just external container workaround custom definitions
+    this.sendRawData(client, this.itemDefinitionsCache);
     if (!this.weaponDefinitionsCache) {
       this.packWeaponDefinitions();
     }
@@ -925,6 +958,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.spawnTemporaryObjects(client);
         this.POIManager(client);
         this.foundationPermissionChecker(client);
+        this.lootbagManager(client);
         client.posAtLastRoutine = client.character.state.position;
       });
       if (this._ready) {
@@ -1085,7 +1119,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.clearMovementModifiers(client);
 
-    //this.worldObjectManager.createLootbag(this, character);
+    this.worldObjectManager.createLootbag(this, character);
 
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
   }
@@ -1814,6 +1848,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._constructionFoundations[entityKey] ||
       this._constructionDoors[entityKey] ||
       this._constructionSimple[entityKey] ||
+      this._lootbags[entityKey] ||
       undefined
     );
   }
@@ -2147,8 +2182,12 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", obj);
   }
 
-  addLightweightNpc(client: Client, entity: BaseLightweightCharacter) {
-    this.sendData(client, "AddLightweightNpc", entity.pGetLightweight());
+  addLightweightNpc(
+    client: Client,
+    entity: BaseLightweightCharacter,
+    nameId = 0
+  ) {
+    this.sendData(client, "AddLightweightNpc", entity.pGetLightweight(nameId));
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
@@ -2592,11 +2631,11 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (!client.spawnedEntities.includes(itemObject)) {
-          this.sendData(client, "AddLightweightNpc", {
-            ...itemObject.pGetLightweight(),
-            nameId: this.getItemDefinition(itemObject.item.itemDefinitionId)
-              .NAME_ID,
-          });
+          this.addLightweightNpc(
+            client,
+            itemObject,
+            this.getItemDefinition(itemObject.item.itemDefinitionId).NAME_ID
+          );
           client.spawnedEntities.push(itemObject);
         }
       } else {
@@ -2604,6 +2643,45 @@ export class ZoneServer2016 extends EventEmitter {
         if (index > -1) {
           this.sendData(client, "Character.RemovePlayer", {
             characterId: itemObject.characterId,
+          });
+          client.spawnedEntities.splice(index, 1);
+        }
+      }
+    }
+  }
+
+  private lootbagManager(client: Client) {
+    for (const characterId in this._lootbags) {
+      // lootbag despawner
+      const lootbag = this._lootbags[characterId];
+      if (
+        Date.now() - lootbag.creationTime >=
+        1800000 // 30 minutes for now
+      ) {
+        this.deleteEntity(lootbag.characterId, this._lootbags);
+        // TODO: dismount any characters
+      }
+      // lootbag clientside spawner
+      if (
+        isPosInRadius(
+          25, // temp render distance
+          client.character.state.position,
+          lootbag.state.position
+        )
+      ) {
+        if (!client.spawnedEntities.includes(lootbag)) {
+          this.addLightweightNpc(
+            client,
+            lootbag,
+            this.getItemDefinition(lootbag.container.itemDefinitionId).NAME_ID
+          );
+          client.spawnedEntities.push(lootbag);
+        }
+      } else {
+        const index = client.spawnedEntities.indexOf(lootbag);
+        if (index > -1) {
+          this.sendData(client, "Character.RemovePlayer", {
+            characterId: lootbag.characterId,
           });
           client.spawnedEntities.splice(index, 1);
         }
