@@ -115,8 +115,8 @@ import { BaseItem } from "./classes/baseItem";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { LoadoutContainer } from "./classes/loadoutcontainer";
 import { Weapon } from "./classes/weapon";
-import { BaseLootableEntity } from "./classes/baselootableentity";
 import { Lootbag } from "./classes/lootbag";
+import { defaultLoadout, LoadoutKit } from "./data/loadouts";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -1524,8 +1524,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     this.clearInventory(client);
-    this.giveDefaultEquipment(client, true);
-    this.giveDefaultItems(client, true);
+    this.equipLoadout(client, defaultLoadout);
     client.character.state.position =
       this._spawnLocations[randomSpawnIndex].position;
     this.updateResource(
@@ -5291,7 +5290,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  lootItem(client: Client, item?: BaseItem, count?: number) {
+  lootItem(client: Client, item?: BaseItem, count?: number, sendUpdate = true) {
     if (!item) return;
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
@@ -5306,15 +5305,15 @@ export class ZoneServer2016 extends EventEmitter {
       itemDef?.FLAG_CAN_EQUIP &&
       this.getAvailableLoadoutSlot(client.character, itemDefId)
     ) {
-      if (client.character.initialized) {
+      if (client.character.initialized && sendUpdate) {
         this.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
           count: count,
         });
       }
-      this.equipItem(client.character, item);
-      if (this.isWeapon(item.itemDefinitionId)) {
+      this.equipItem(client.character, item, sendUpdate);
+      if (this.isWeapon(item.itemDefinitionId) && sendUpdate) {
         this.sendRemoteWeaponDataToAllOthers(
           client,
           client.character.transientId,
@@ -5329,7 +5328,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }
     } else {
-      this.lootContainerItem(client, item, count);
+      this.lootContainerItem(client, item, count, sendUpdate);
     }
   }
 
@@ -5527,82 +5526,19 @@ export class ZoneServer2016 extends EventEmitter {
     this.updateContainer(client, container);
   }
 
-  giveDefaultEquipment(client: Client, sendPacket: boolean) {
-    this.equipItem(client.character, this.generateItem(3089), sendPacket);
-    if (!client.character._loadout[LoadoutSlots.FISTS]) {
-      // Fists should never be removed from the inventory, however this is just in case
-      this.equipItem(
-        client.character,
-        this.generateItem(Items.WEAPON_FISTS),
+  equipLoadout(client: Client, loadout: LoadoutKit, sendPacket = true) {
+    loadout.forEach((entry)=> {
+      if (entry.item != Items.WEAPON_FISTS || ( !client.character._loadout[LoadoutSlots.FISTS])) {
+      this.lootItem(
+        client,
+        this.generateItem(entry.item, entry.count),
+        entry.count,
         sendPacket
       );
-    }
-    this.equipItem(
-      client.character,
-      this.generateItem(Items.SHIRT_DEFAULT),
-      sendPacket
-    );
-    this.equipItem(
-      client.character,
-      this.generateItem(Items.WAIST_PACK),
-      sendPacket
-    );
-    this.equipItem(
-      client.character,
-      this.generateItem(Items.PANTS_DEFAULT),
-      sendPacket
-    );
-  }
-  giveDefaultItems(client: Client, sendPacket: boolean) {
-    this.lootContainerItem(
-      client,
-      this.generateItem(Items.MAP),
-      undefined,
-      sendPacket
-    );
-    this.lootContainerItem(
-      client,
-      this.generateItem(Items.COMPASS),
-      undefined,
-      sendPacket
-    );
-    this.lootContainerItem(
-      client,
-      this.generateItem(Items.GAUZE, 5),
-      undefined,
-      sendPacket
-    );
-    this.lootContainerItem(
-      client,
-      this.generateItem(Items.FLARE),
-      undefined,
-      sendPacket
-    );
-    this.lootContainerItem(
-      client,
-      this.generateItem(Items.LIGHTER),
-      undefined,
-      sendPacket
-    );
+      }
+    })
   }
 
-  giveKitItems(client: Client) {
-    // SHOULD NOT BE CALLED BEFORE SENDSELF IS SENT, WILL CRASH CLIENTS !
-    this.lootItem(client, this.generateItem(Items.BACKPACK_RASTA));
-    this.lootItem(client, this.generateItem(Items.WEAPON_308)); // sniper
-    this.lootItem(client, this.generateItem(Items.WEAPON_SHOTGUN)); // shotgun
-    this.lootItem(client, this.generateItem(Items.WEAPON_AR15)); // ar
-    this.lootItem(client, this.generateItem(Items.FIRST_AID, 10)); // medkit
-    this.lootItem(client, this.generateItem(Items.BANDAGE_DRESSED, 10)); // dressed bandages
-    this.lootItem(client, this.generateItem(Items.AMMO_12GA, 60)); // shotgun ammo
-    this.lootItem(client, this.generateItem(Items.AMMO_308, 50)); // 308 ammo
-    this.lootItem(client, this.generateItem(Items.AMMO_223, 120)); // ar ammo
-    this.lootItem(client, this.generateItem(Items.KEVLAR_DEFAULT)); // kevlar
-    this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE)); // helmet
-    this.lootItem(client, this.generateItem(Items.KEVLAR_DEFAULT)); // kevlar
-    this.lootItem(client, this.generateItem(Items.HELMET_MOTORCYCLE)); // helmet
-    this.lootItem(client, this.generateItem(Items.CONVEYS_BLUE)); // conveys
-  }
   /**
    * Clears all items from a character's inventory.
    * @param client The client that'll have it's character's inventory cleared.

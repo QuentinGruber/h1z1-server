@@ -185,7 +185,7 @@ export class WorldObjectManager {
     return server._spawnedItems[characterId];
   }
 
-  createLootbag(server: ZoneServer2016, entity: BaseEntity) {
+  createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
     const characterId = generateRandomGuid(),
       modelId = server._characters[entity.characterId] ? 9581 : 9391,
       item = server.generateItem(5001);
@@ -193,16 +193,35 @@ export class WorldObjectManager {
       debug("[ERROR] Lootbag container item could not be generated!");
       return;
     }
+    const container = new LoadoutContainer(
+      new LoadoutItem(item, server.getLoadoutSlot(item.itemDefinitionId), ""),
+      server.getItemDefinition(item.itemDefinitionId).PARAM1
+    );
+    /*
+    let items = {};
+    Object.values(entity._containers).map((slotId: any) => {
+      if(entity._containers[slotId]?.items) {
+        items = {
+          ...items,
+          ...entity._containers[slotId].items
+        }
+      }
+    })
+    container.items = {
+      ...entity._loadout,
+      ...items
+    }
+    console.log(items)
+    console.log(entity._loadout)
+    */
+   //TODO: add items to container, create method for removing default spawn items / clothes from containers
     server._lootbags[characterId] = new Lootbag(
       characterId,
       server.getTransientId(characterId),
       modelId,
       entity.state.position,
       entity.state.rotation,
-      new LoadoutContainer(
-        new LoadoutItem(item, server.getLoadoutSlot(item.itemDefinitionId), ""),
-        server.getItemDefinition(item.itemDefinitionId).PARAM1
-      )
+      container
     );
   }
 

@@ -1,6 +1,6 @@
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
-import { BaseSimpleNpc } from "./basesimplenpc";
+import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { LoadoutContainer } from "./loadoutcontainer";
 import { ZoneClient2016 } from "./zoneclient";
 
@@ -46,37 +46,15 @@ export class BaseLootableEntity extends BaseFullCharacter {
 
     server.addItem(client, this.container, 101);
 
-    const slots = Object.keys(client.character._loadout).map((slotId: any) => {
-      const slot = client.character._loadout[slotId];
-      return {
-        hotbarSlotId: slot.slotId, // affects Equip Item context entry packet, and Container.MoveItem
-        loadoutId: client.character.loadoutId,
-        slotId: slot.slotId,
-        loadoutItemData: {
-          itemDefinitionId: slot.itemDefinitionId,
-          loadoutItemOwnerGuid: slot.itemGuid,
-          unknownByte1: 255, // flags?
-        },
-        unknownDword4: slot.slotId,
-      };
-    });
-
     server.sendData(client, "Loadout.SetLoadoutSlots", {
       characterId: client.character.characterId,
       loadoutId: client.character.loadoutId, // needs to be 3
       loadoutData: {
         loadoutSlots: [
-          ...slots,
-          {
-            loadoutId: client.character.loadoutId,
-            slotId: this.container.slotId,
-            loadoutItemData: {
-              itemDefinitionId: this.container.itemDefinitionId,
-              loadoutItemOwnerGuid: this.container.itemGuid,
-              unknownByte1: 255, // flags?
-            },
-            unknownDword1: this.container.slotId,
-          },
+          ...Object.keys(client.character._loadout).map((slotId: any) => {
+            return client.character.pGetLoadoutSlot(client.character._loadout[slotId]);
+          }),
+          client.character.pGetLoadoutSlot(this.container)
         ],
       },
       currentSlotId: client.character.currentLoadoutSlot,
@@ -91,5 +69,9 @@ export class BaseLootableEntity extends BaseFullCharacter {
         unknownDword1: 92, // idk
       },
     });
+  }
+
+  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
+    // do nothing for now
   }
 }

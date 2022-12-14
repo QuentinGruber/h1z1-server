@@ -243,24 +243,27 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
+  pGetLoadoutSlot(slot: LoadoutItem ) {
+    return {
+      hotbarSlotId: slot.slotId, // affects Equip Item context entry packet, and Container.MoveItem
+      loadoutId: this.loadoutId,
+      slotId: slot.slotId,
+      loadoutItemData: {
+        itemDefinitionId: slot.itemDefinitionId,
+        loadoutItemOwnerGuid: slot.itemGuid,
+        unknownByte1: 255, // flags?
+      },
+      unknownDword4: slot.slotId,
+    }
+  }
+
   pGetLoadoutSlots() {
     return {
       characterId: this.characterId,
       loadoutId: this.loadoutId, // needs to be 3
       loadoutData: {
         loadoutSlots: Object.keys(this._loadout).map((slotId: any) => {
-          const slot = this._loadout[slotId];
-          return {
-            hotbarSlotId: slot.slotId, // affects Equip Item context entry packet, and Container.MoveItem
-            loadoutId: this.loadoutId,
-            slotId: slot.slotId,
-            loadoutItemData: {
-              itemDefinitionId: slot.itemDefinitionId,
-              loadoutItemOwnerGuid: slot.itemGuid,
-              unknownByte1: 255, // flags?
-            },
-            unknownDword4: slot.slotId,
-          };
+          return this.pGetLoadoutSlot(this._loadout[slotId]);
         }),
       },
       currentSlotId: this.currentLoadoutSlot,
