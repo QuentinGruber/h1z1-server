@@ -17,28 +17,30 @@ import { BaseItem } from "./baseItem";
 import { ZoneClient2016 } from "./zoneclient";
 
 export class Weapon {
-  item: BaseItem;
+  itemGuid: string;
+  itemDefinitionId: number;
   ammoCount: number;
   reloadTimer?: NodeJS.Timeout;
   currentReloadCount = 0; // needed for reload packet to work every time
   constructor(item: BaseItem, ammoCount?: number) {
-    this.item = item;
+    this.itemGuid = item.itemGuid;
+    this.itemDefinitionId = item.itemDefinitionId;
     this.ammoCount = ammoCount || 0;
   }
 
   unload(server: ZoneServer2016, client: ZoneClient2016) {
-    if (!this.item || !this.ammoCount) return;
+    if (!this.ammoCount) return;
     server.lootItem(
       client,
       server.generateItem(
-        server.getWeaponAmmoId(this.item.itemDefinitionId),
+        server.getWeaponAmmoId(this.itemDefinitionId),
         this.ammoCount
       )
     );
     this.ammoCount = 0;
-    if (client.character.getEquippedWeapon().itemGuid == this.item.itemGuid) {
+    if (client.character.getEquippedWeapon().itemGuid == this.itemGuid) {
       server.sendWeaponData(client, "Weapon.Reload", {
-        weaponGuid: this.item.itemGuid,
+        weaponGuid: this.itemGuid,
         unknownDword1: 0,
         ammoCount: 0,
         unknownDword3: 0,
