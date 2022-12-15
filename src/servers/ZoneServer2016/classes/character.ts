@@ -27,7 +27,7 @@ import {
   DamageRecord,
   positionUpdate,
 } from "../../../types/zoneserver";
-import { isPosInRadius, randomIntFromInterval } from "../../../utils/utils";
+import { isPosInRadius, randomIntFromInterval, _ } from "../../../utils/utils";
 import { BaseItem } from "./baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
 import { LoadoutContainer } from "./loadoutcontainer";
@@ -572,10 +572,16 @@ export class Character2016 extends BaseFullCharacter {
       if(!this.mountedContainer) return;
       server.deleteItem(client, item.itemGuid);
     });
+
+    if(!_.size(this.mountedContainer.container.items)) {
+      server.deleteEntity(this.mountedContainer.characterId, server._lootbags);
+    }
+
     delete this.mountedContainer.mountedCharacter;
     delete this.mountedContainer;
     server.updateLoadout(this);
     server.initializeContainerList(client);
+
   }
 
   getItemContainer(itemGuid: string): LoadoutContainer | undefined {

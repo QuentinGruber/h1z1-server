@@ -188,7 +188,7 @@ export class WorldObjectManager {
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
     const characterId = generateRandomGuid(),
-      isCharacter = !!server._characters[entity.characterId] ? 9581 : 9391,
+      isCharacter = !!server._characters[entity.characterId],
       item = server.generateItem(5001);
     if (!item) {
       debug("[ERROR] Lootbag container item could not be generated!");
@@ -210,7 +210,7 @@ export class WorldObjectManager {
       }
     })
 
-    if(!items) return; // don't spawn lootbag if inventory is empty
+    if(!_.size(items)) return; // don't spawn lootbag if inventory is empty
 
     const container = new LoadoutContainer(
       new LoadoutItem(item, server.getLoadoutSlot(item.itemDefinitionId), characterId),
