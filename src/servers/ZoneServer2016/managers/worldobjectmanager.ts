@@ -35,12 +35,9 @@ import { BaseFullCharacter } from "../classes/basefullcharacter";
 import { ExplosiveEntity } from "../classes/explosiveentity";
 import { lootTables } from "../data/lootspawns";
 import { BaseItem } from "../classes/baseItem";
-import { BaseEntity } from "../classes/baseentity";
 import { Lootbag } from "../classes/lootbag";
-import { Character } from "servers/ZoneServer2015/classes/character";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { LoadoutItem } from "../classes/loadoutItem";
-import { defaultLoadout } from "../data/loadouts";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {
@@ -196,18 +193,26 @@ export class WorldObjectManager {
     }
     
     let items: { [itemGuid: string]: BaseItem } = {};
+    Object.values(entity._loadout).forEach((item) => {
+      if(item.itemGuid != "0x0" && (!isCharacter || !server.isDefaultItem(item.itemDefinitionId))) {
+        items[item.itemGuid] = _.cloneDeep(item)
+        items[item.itemGuid].slotId = Object.keys(items).length + 1;
+      }
+    })
+
     Object.values(entity._containers).forEach((container: LoadoutContainer) => {
       Object.values(container.items).forEach( (item)=> {
         if(!isCharacter || !server.isDefaultItem(item.itemDefinitionId)) {
-          items[item.itemGuid] = item
+          for(const i of Object.values(items)) { // stack similar items
+            if(i.itemDefinitionId == item.itemDefinitionId && server.isStackable(item.itemDefinitionId)) {
+              items[i.itemGuid].stackCount += item.stackCount;
+              continue;
+            }
+          }
+          items[item.itemGuid] = _.cloneDeep(item)
+          items[item.itemGuid].slotId = Object.keys(items).length + 1;
         }
-        // TODO: Stack similar items
       })
-    })
-    Object.values(entity._loadout).forEach((item) => {
-      if(item.itemGuid != "0x0" && (!isCharacter || !server.isDefaultItem(item.itemDefinitionId))) {
-        items[item.itemGuid] = item
-      }
     })
 
     if(!_.size(items)) return; // don't spawn lootbag if inventory is empty

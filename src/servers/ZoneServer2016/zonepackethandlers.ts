@@ -1335,7 +1335,7 @@ export class zonePacketHandlers {
       count,
       newSlotId,
     } = packet.data;
-
+    console.log(client.character._loadout)
     if (characterId == client.character.characterId) {
       // from client container
       if (characterId == targetCharacterId) {

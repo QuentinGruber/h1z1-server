@@ -1487,7 +1487,6 @@ export class ZoneServer2016 extends EventEmitter {
       return;
 
     if (client.vehicle.mountedVehicle) {
-      console.log("MOUNTEDVEHICLE");
       this.dismountVehicle(client);
     }
     client.isLoading = true;
@@ -4873,6 +4872,10 @@ export class ZoneServer2016 extends EventEmitter {
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9114 ||
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945
     );
+  }
+
+  isStackable(itemDefinitionId: number): boolean {
+    return this.getItemDefinition(itemDefinitionId)?.MAX_STACK_SIZE > 1 ? true : false;
   }
 
   validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {
