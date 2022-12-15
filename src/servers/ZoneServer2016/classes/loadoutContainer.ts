@@ -14,7 +14,6 @@
 import { ContainerErrors } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
-import { BaseLootableEntity } from "./baselootableentity";
 import { LoadoutItem } from "./loadoutItem";
 import { ZoneClient2016 } from "./zoneclient";
 
@@ -45,6 +44,8 @@ function combineItemStack(
 export class LoadoutContainer extends LoadoutItem {
   containerDefinitionId: number;
   items: { [itemGuid: string]: BaseItem } = {};
+  canAcceptItems: boolean = true;
+  readonly isMutable: boolean = true;
   constructor(item: LoadoutItem, containerDefinitionId: number) {
     super(item, item.slotId, item.loadoutItemOwnerGuid);
     this.containerDefinitionId = containerDefinitionId;
@@ -96,8 +97,16 @@ export class LoadoutContainer extends LoadoutItem {
       client = server.getClientByCharId(this.loadoutItemOwnerGuid);
     }
 
-      // TODO: check if loadoutItemOwnerGuid belongs to external container, then get client from mountedCharacter
     if(!client) return;
+
+    if(!targetContainer.canAcceptItems) {
+      server.containerError(client, ContainerErrors.DOES_NOT_ACCEPT_ITEMS);
+      return;
+    }
+    if(!this.isMutable || !targetContainer.isMutable) {
+      server.containerError(client, ContainerErrors.NOT_MUTABLE);
+      return;
+    }
 
     if (
       this.containerGuid != targetContainer.containerGuid &&

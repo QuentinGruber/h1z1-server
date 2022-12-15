@@ -8,7 +8,6 @@ export class BaseLootableEntity extends BaseFullCharacter {
   container: LoadoutContainer;
   mountedCharacter?: string;
   readonly interactionDistance = 4;
-  readonly canAcceptItems: boolean = true;
   isLootbag: boolean;
   constructor(
     characterId: string,

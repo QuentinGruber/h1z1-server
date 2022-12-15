@@ -20,5 +20,6 @@ export class Lootbag extends BaseLootableEntity {
       rotation,
       container
     );
+    this.container.canAcceptItems = false;
   }
 }

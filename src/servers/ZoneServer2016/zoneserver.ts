@@ -5936,10 +5936,19 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   containerError(client: Client, error: number) {
-    this.sendData(client, "Container.Error", {
-      characterId: client.character.characterId,
-      containerError: error,
-    });
+    switch(error) {
+      case ContainerErrors.DOES_NOT_ACCEPT_ITEMS:
+        this.sendChatText(client, "Container Error: ContainerDoesNotAcceptItems");
+        break;
+      case ContainerErrors.NOT_MUTABLE:
+        this.sendChatText(client, "Container Error: ContainerIsNotMutable");
+      default:
+        this.sendData(client, "Container.Error", {
+          characterId: client.character.characterId,
+          containerError: error,
+        });
+        break;
+    }
   }
 
   clearMovementModifiers(client: Client) {

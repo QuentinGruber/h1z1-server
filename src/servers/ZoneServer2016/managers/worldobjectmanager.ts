@@ -223,7 +223,7 @@ export class WorldObjectManager {
       server.getTransientId(characterId),
       isCharacter ? 9581 : 9391,
       entity.state.position,
-      entity.state.rotation,
+      new Float32Array([0, 0, 0, 0]),
       container
     );
   }

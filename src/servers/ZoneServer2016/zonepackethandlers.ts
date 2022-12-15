@@ -957,7 +957,7 @@ export class zonePacketHandlers {
         container = mountedContainer;
       }
     }
-    
+
     switch (packet.data.itemUseOption) {
       case 4: // normal item drop option
       case 73: // battery drop option
@@ -1335,26 +1335,6 @@ export class zonePacketHandlers {
       count,
       newSlotId,
     } = packet.data;
-    // helper functions
-    function combineItemStack(
-      oldStackCount: number,
-      targetContainer: LoadoutContainer,
-      item: BaseItem
-    ) {
-      if (oldStackCount == count) {
-        // if full stack is moved
-        server.addContainerItem(client, item, targetContainer, count, false);
-        return
-      }
-      // if only partial stack is moved
-      server.addContainerItem(
-        client,
-        server.generateItem(item.itemDefinitionId),
-        targetContainer,
-        count,
-        false
-      );
-    }
 
     if (characterId == client.character.characterId) {
       // from client container
@@ -1365,8 +1345,7 @@ export class zonePacketHandlers {
             client.character.getContainerFromGuid(containerGuid);
         if (sourceContainer) {
           // from container
-          const item = sourceContainer.items[itemGuid],
-            oldStackCount = item?.stackCount; // saves stack count before it gets altered
+          const item = sourceContainer.items[itemGuid];
           if (!item) {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
