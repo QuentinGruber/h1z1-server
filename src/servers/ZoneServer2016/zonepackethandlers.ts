@@ -1332,28 +1332,28 @@ export class zonePacketHandlers {
       if (oldStackCount == count) {
         // if full stack is moved
         server.addContainerItem(client, item, targetContainer, count, false);
-      } else {
-        // if only partial stack is moved
-        server.addContainerItem(
-          client,
-          server.generateItem(item.itemDefinitionId),
-          targetContainer,
-          count,
-          false
-        );
+        return
       }
+      // if only partial stack is moved
+      server.addContainerItem(
+        client,
+        server.generateItem(item.itemDefinitionId),
+        targetContainer,
+        count,
+        false
+      );
     }
 
     if (characterId == client.character.characterId) {
       // from client container
       if (characterId == targetCharacterId) {
         // from / to client container
-        const container = client.character.getItemContainer(itemGuid),
+        const sourceContainer = client.character.getItemContainer(itemGuid),
           targetContainer =
             client.character.getContainerFromGuid(containerGuid);
-        if (container) {
+        if (sourceContainer) {
           // from container
-          const item = container.items[itemGuid],
+          const item = sourceContainer.items[itemGuid],
             oldStackCount = item?.stackCount; // saves stack count before it gets altered
           if (!item) {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
@@ -1361,40 +1361,7 @@ export class zonePacketHandlers {
           }
           if (targetContainer) {
             // to container
-            if (
-              container.containerGuid != targetContainer.containerGuid &&
-              !server.getContainerHasSpace(
-                targetContainer,
-                item.itemDefinitionId,
-                count
-              )
-            ) {
-              // allows items in the same container but different stacks to be stacked
-              return;
-            }
-            if (!server.removeContainerItem(client, item, container, count)) {
-              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-              return;
-            }
-            if (newSlotId == 0xffffffff) {
-              combineItemStack(oldStackCount, targetContainer, item);
-            } else {
-              const itemStack = server.getAvailableItemStack(
-                targetContainer,
-                item.itemDefinitionId,
-                count,
-                newSlotId
-              );
-              if (itemStack) {
-                // add to existing item stack
-                const item = targetContainer.items[itemStack];
-                item.stackCount += count;
-                server.updateContainerItem(client, item, targetContainer);
-              } else {
-                // add item to end
-                combineItemStack(oldStackCount, targetContainer, item);
-              }
-            }
+            sourceContainer.transferItem(server, targetContainer, item, newSlotId, count);
           } else if (containerGuid == "0xffffffffffffffff") {
             // to loadout
             if (server.validateLoadoutSlot(item.itemDefinitionId, newSlotId)) {
@@ -1405,7 +1372,22 @@ export class zonePacketHandlers {
             server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
           }
         } else {
-          // from loadout or invalid
+          // from loadout, mounted container, or invalid
+
+          // mounted container
+          const mountedContainerEntity = client.character.mountedContainer;
+          if(mountedContainerEntity && targetContainer) {
+            const container = mountedContainerEntity.container,
+            item = container.items[itemGuid]
+            if(!item) {
+              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+              return;
+            }
+            container.transferItem(server, targetContainer, item, newSlotId, count);
+            return;
+          }
+
+          // loadout
           const loadoutItem = client.character.getLoadoutItem(itemGuid);
           if (!loadoutItem) {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
@@ -1476,9 +1458,11 @@ export class zonePacketHandlers {
         }
       } else {
         // to external container
+        // not used for now with the external container workaround
       }
     } else {
       // from external container
+      // not used for now with the external container workaround
     }
   }
   LoadoutSelectSlot(server: ZoneServer2016, client: Client, packet: any) {

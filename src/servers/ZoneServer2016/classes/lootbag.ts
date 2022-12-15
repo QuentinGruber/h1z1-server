@@ -3,6 +3,7 @@ import { LoadoutContainer } from "./loadoutcontainer";
 
 export class Lootbag extends BaseLootableEntity {
   creationTime = Date.now();
+  canAcceptItems = false;
   constructor(
     characterId: string,
     transientId: number,

@@ -195,7 +195,7 @@ export class WorldObjectManager {
       return;
     }
     const container = new LoadoutContainer(
-      new LoadoutItem(item, server.getLoadoutSlot(item.itemDefinitionId), ""),
+      new LoadoutItem(item, server.getLoadoutSlot(item.itemDefinitionId), characterId),
       server.getItemDefinition(item.itemDefinitionId).PARAM1
     );
     

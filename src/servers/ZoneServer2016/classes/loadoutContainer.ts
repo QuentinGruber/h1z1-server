@@ -11,9 +11,36 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { ContainerErrors } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
+import { BaseLootableEntity } from "./baselootableentity";
 import { LoadoutItem } from "./loadoutItem";
+import { ZoneClient2016 } from "./zoneclient";
+
+// helper functions
+function combineItemStack(
+  server: ZoneServer2016,
+  client: ZoneClient2016,
+  oldStackCount: number,
+  targetContainer: LoadoutContainer,
+  item: BaseItem,
+  count: number
+) {
+  if (oldStackCount == count) {
+    // if full stack is moved
+    server.addContainerItem(client, item, targetContainer, count, false);
+    return
+  }
+  // if only partial stack is moved
+  server.addContainerItem(
+    client,
+    server.generateItem(item.itemDefinitionId),
+    targetContainer,
+    count,
+    false
+  );
+}
 
 export class LoadoutContainer extends LoadoutItem {
   containerDefinitionId: number;
@@ -53,4 +80,59 @@ export class LoadoutContainer extends LoadoutItem {
   getAvailableBulk(server: ZoneServer2016): number {
     return this.getMaxBulk(server) - this.getUsedBulk(server);
   }
+
+  // transfers an item from this container to another
+  transferItem(server: ZoneServer2016, targetContainer: LoadoutContainer, item: BaseItem, newSlotId: number, count?: number) {
+    if(!count) count = item.stackCount;
+    const oldStackCount = item.stackCount; // saves stack count before it gets altered
+    
+    let client;
+
+    if(server._lootbags[this.loadoutItemOwnerGuid]) {
+      const mountedCharacterId = server._lootbags[this.loadoutItemOwnerGuid].mountedCharacter;
+      if(mountedCharacterId) client = server.getClientByCharId(mountedCharacterId);
+    }
+    else {
+      client = server.getClientByCharId(this.loadoutItemOwnerGuid);
+    }
+
+      // TODO: check if loadoutItemOwnerGuid belongs to external container, then get client from mountedCharacter
+    if(!client) return;
+
+    if (
+      this.containerGuid != targetContainer.containerGuid &&
+      !server.getContainerHasSpace(
+        targetContainer,
+        item.itemDefinitionId,
+        count
+      )
+    ) {
+      // allows items in the same container but different stacks to be stacked
+      return;
+    }
+    if (!server.removeContainerItem(client, item, this, count)) {
+      server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+      return;
+    }
+    if (newSlotId == 0xffffffff) {
+      combineItemStack(server, client, oldStackCount, targetContainer, item, count);
+    } else {
+      const itemStack = server.getAvailableItemStack(
+        targetContainer,
+        item.itemDefinitionId,
+        count,
+        newSlotId
+      );
+      if (itemStack) {
+        // add to existing item stack
+        const item = targetContainer.items[itemStack];
+        item.stackCount += count;
+        server.updateContainerItem(client, item, targetContainer);
+      } else {
+        // add item to end
+        combineItemStack(server, client, oldStackCount, targetContainer, item, count);
+      }
+    }
+  }
+
 }
