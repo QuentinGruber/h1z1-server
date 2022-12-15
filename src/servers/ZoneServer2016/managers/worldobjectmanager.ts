@@ -40,6 +40,7 @@ import { Lootbag } from "../classes/lootbag";
 import { Character } from "servers/ZoneServer2015/classes/character";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { LoadoutItem } from "../classes/loadoutItem";
+import { defaultLoadout } from "../data/loadouts";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {
@@ -187,7 +188,7 @@ export class WorldObjectManager {
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
     const characterId = generateRandomGuid(),
-      modelId = server._characters[entity.characterId] ? 9581 : 9391,
+      isCharacter = !!server._characters[entity.characterId] ? 9581 : 9391,
       item = server.generateItem(5001);
     if (!item) {
       debug("[ERROR] Lootbag container item could not be generated!");
@@ -200,29 +201,27 @@ export class WorldObjectManager {
     
     let items: { [itemGuid: string]: BaseItem } = {};
     Object.values(entity._containers).forEach((container: LoadoutContainer) => {
-      if(container.items) {
-        console.log(container.items)
-        items = {
-          ...items,
-          ...container.items
+      Object.values(container.items).forEach( (item)=> {
+        if(!isCharacter || !server.isDefaultItem(item.itemDefinitionId)) {
+          items[item.itemGuid] = item
         }
-      }
+      })
     })
-    Object.values(entity._loadout).forEach((item: LoadoutItem) => {
-      items[item.itemGuid] = item
+    Object.values(entity._loadout).forEach((item) => {
+      if(!isCharacter || !server.isDefaultItem(item.itemDefinitionId)) {
+        items[item.itemGuid] = item
+      }
     })
     container.items = {
       ...entity._loadout,
       ...items
     }
-    console.log(items)
-    console.log(entity._loadout)
     
    //TODO: add items to container, create method for removing default spawn items / clothes from containers
     server._lootbags[characterId] = new Lootbag(
       characterId,
       server.getTransientId(characterId),
-      modelId,
+      isCharacter ? 9581 : 9391,
       entity.state.position,
       entity.state.rotation,
       container

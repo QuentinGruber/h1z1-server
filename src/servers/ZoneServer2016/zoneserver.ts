@@ -1120,6 +1120,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.clearMovementModifiers(client);
 
     this.worldObjectManager.createLootbag(this, character);
+    client.character.dismountContainer(this);
 
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
   }
@@ -5556,6 +5557,15 @@ export class ZoneServer2016 extends EventEmitter {
         this.removeInventoryItem(client, item, item.stackCount);
       }
     }
+  }
+
+  isDefaultItem(itemDefinitionId: number): boolean {
+    defaultLoadout.forEach((defaultItem) => {
+      if(defaultItem.item == itemDefinitionId) {
+        return true
+      }
+    })
+    return false;
   }
 
   eatItem(client: Client, item: BaseItem) {

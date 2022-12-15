@@ -477,6 +477,7 @@ export class zonePacketHandlers {
       return;
     }
     server.dismountVehicle(client);
+    client.character.dismountContainer(server);
     const timerTime = 10000;
     server.sendData(client, "ClientUpdate.StartTimer", {
       stringId: 0,
@@ -1968,6 +1969,9 @@ export class zonePacketHandlers {
       packet
     );
   }
+  EndCharacterAccess(server: ZoneServer2016, client: Client, packet: any) {
+    client.character.dismountContainer(server);
+  }
   //#endregion
 
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
@@ -2151,6 +2155,8 @@ export class zonePacketHandlers {
       case "Command.Spectate":
         this.CommandSpectate(server, client, packet);
         break;
+      case "AccessedCharacter.EndCharacterAccess":
+        this.EndCharacterAccess(server, client, packet);
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");

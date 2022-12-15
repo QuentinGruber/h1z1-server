@@ -28,6 +28,7 @@ import {
 } from "../../../types/zoneserver";
 import { randomIntFromInterval } from "../../../utils/utils";
 import { BaseItem } from "./baseItem";
+import { BaseLootableEntity } from "./baselootableentity";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -94,6 +95,7 @@ export class Character2016 extends BaseFullCharacter {
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
   currentInteractionGuid?: string;
+  mountedContainer?: BaseLootableEntity;
   constructor(characterId: string, transientId: number) {
     super(
       characterId,
@@ -487,6 +489,71 @@ export class Character2016 extends BaseFullCharacter {
     if (!sourceClient?.character) return;
     sourceClient.character.addCombatlogEntry(damageRecord);
     server.combatLog(sourceClient);
+  }
+
+  mountContainer(server: ZoneServer2016, lootableEntity: BaseLootableEntity) {
+    const client = server.getClientByCharId(this.characterId);
+    if(!client) return;
+
+    lootableEntity.mountedCharacter = this.characterId;
+    this.mountedContainer = lootableEntity;
+
+    server.sendData(client, "Container.InitEquippedContainers", {
+      ignore: this.characterId,
+      characterId: this.characterId,
+      containers: [
+        ...this.pGetContainers(server),
+        {
+          loadoutSlotId: lootableEntity.container.slotId,
+          containerData: this.pGetContainerData(
+            server,
+            lootableEntity.container
+          ),
+        },
+      ],
+    });
+
+    server.addItem(client, lootableEntity.container, 101);
+
+    Object.values(lootableEntity.container.items).forEach((item)=> {
+      server.addItem(client, item, lootableEntity.container.containerDefinitionId);
+    })
+
+    server.sendData(client, "Loadout.SetLoadoutSlots", {
+      characterId: this.characterId,
+      loadoutId: this.loadoutId,
+      loadoutData: {
+        loadoutSlots: [
+          ...Object.keys(this._loadout).map((slotId: any) => {
+            return this.pGetLoadoutSlot(this._loadout[slotId]);
+          }),
+          this.pGetLoadoutSlot(lootableEntity.container)
+        ],
+      },
+      currentSlotId: this.currentLoadoutSlot,
+    });
+
+    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+      objectCharacterId: lootableEntity.characterId,
+      containerGuid: lootableEntity.container.itemGuid,
+      unknownBool1: false,
+      itemsData: {
+        items: [],
+        unknownDword1: 92, // idk
+      },
+    });
+  }
+
+  dismountContainer(server: ZoneServer2016) {
+    const client = server.getClientByCharId(this.characterId);
+    if(!client || !this.mountedContainer) return;
+
+    server.deleteItem(client, this.mountedContainer.container.itemGuid);
+    // may need to delete all items that were inside container?
+    server.updateLoadout(this);
+    server.initializeContainerList(client);
+    delete this.mountedContainer.mountedCharacter;
+    delete this.mountedContainer;
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
