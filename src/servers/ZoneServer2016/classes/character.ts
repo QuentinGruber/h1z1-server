@@ -12,6 +12,7 @@
 // ======================================================================
 
 import {
+  ContainerErrors,
   Items,
   LoadoutIds,
   LoadoutSlots,
@@ -26,7 +27,7 @@ import {
   DamageRecord,
   positionUpdate,
 } from "../../../types/zoneserver";
-import { randomIntFromInterval } from "../../../utils/utils";
+import { isPosInRadius, randomIntFromInterval } from "../../../utils/utils";
 import { BaseItem } from "./baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
 import { LoadoutContainer } from "./loadoutcontainer";
@@ -532,6 +533,11 @@ export class Character2016 extends BaseFullCharacter {
   mountContainer(server: ZoneServer2016, lootableEntity: BaseLootableEntity) {
     const client = server.getClientByCharId(this.characterId);
     if(!client) return;
+
+    if(!isPosInRadius(lootableEntity.interactionDistance, this.state.position, lootableEntity.state.position)) {
+      server.containerError(client, ContainerErrors.INTERACTION_VALIDATION);
+      return;
+    }
 
     lootableEntity.mountedCharacter = this.characterId;
     this.mountedContainer = lootableEntity;
