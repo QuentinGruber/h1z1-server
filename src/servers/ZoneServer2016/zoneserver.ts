@@ -5560,12 +5560,13 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   isDefaultItem(itemDefinitionId: number): boolean {
+    let isDefault = false;
     defaultLoadout.forEach((defaultItem) => {
       if(defaultItem.item == itemDefinitionId) {
-        return true
+        isDefault = true
       }
     })
-    return false;
+    return isDefault;
   }
 
   eatItem(client: Client, item: BaseItem) {

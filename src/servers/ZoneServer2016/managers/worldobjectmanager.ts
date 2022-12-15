@@ -212,12 +212,8 @@ export class WorldObjectManager {
         items[item.itemGuid] = item
       }
     })
-    container.items = {
-      ...entity._loadout,
-      ...items
-    }
+    container.items = items
     
-   //TODO: add items to container, create method for removing default spawn items / clothes from containers
     server._lootbags[characterId] = new Lootbag(
       characterId,
       server.getTransientId(characterId),

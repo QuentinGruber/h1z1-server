@@ -8,6 +8,7 @@ import { ZoneClient2016 } from "./zoneclient";
 export class BaseLootableEntity extends BaseFullCharacter {
   container: LoadoutContainer;
   mountedCharacter?: string;
+  readonly interactionDistance = 4;
   constructor(
     characterId: string,
     transientId: number,

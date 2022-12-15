@@ -29,6 +29,7 @@ import {
 import { randomIntFromInterval } from "../../../utils/utils";
 import { BaseItem } from "./baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
+import { LoadoutContainer } from "./loadoutcontainer";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -420,6 +421,43 @@ export class Character2016 extends BaseFullCharacter {
     return remoteWeaponsExtra;
   }
 
+  pGetContainers(server: ZoneServer2016) {
+    if(!this.mountedContainer) return super.pGetContainers(server);
+
+    // to avoid a mounted container being dismounted if container list is updated while mounted
+    const containers = super.pGetContainers(server),
+    mountedContainer = this.mountedContainer.container
+    containers.push({
+      loadoutSlotId: mountedContainer.slotId,
+      containerData: super.pGetContainerData(
+        server,
+        mountedContainer
+      ),
+    })
+    return containers;
+  }
+
+  pGetLoadoutSlots() {
+    if(!this.mountedContainer) return super.pGetLoadoutSlots();
+
+    // to avoid a mounted container being dismounted if loadout is updated while mounted
+
+    const loadoutSlots = Object.keys(this._loadout).map((slotId: any) => {
+      return this.pGetLoadoutSlot(this._loadout[slotId]);
+    })
+
+    loadoutSlots.push(this.pGetLoadoutSlot(this.mountedContainer.container))
+
+    return {
+      characterId: this.characterId,
+      loadoutId: this.loadoutId, // needs to be 3
+      loadoutData: {
+        loadoutSlots: loadoutSlots,
+      },
+      currentSlotId: this.currentLoadoutSlot,
+    };
+  }
+
   resetMetrics() {
     this.metrics.zombiesKilled = 0;
     this.metrics.wildlifeKilled = 0;
@@ -498,40 +536,15 @@ export class Character2016 extends BaseFullCharacter {
     lootableEntity.mountedCharacter = this.characterId;
     this.mountedContainer = lootableEntity;
 
-    server.sendData(client, "Container.InitEquippedContainers", {
-      ignore: this.characterId,
-      characterId: this.characterId,
-      containers: [
-        ...this.pGetContainers(server),
-        {
-          loadoutSlotId: lootableEntity.container.slotId,
-          containerData: this.pGetContainerData(
-            server,
-            lootableEntity.container
-          ),
-        },
-      ],
-    });
+    server.initializeContainerList(client);
 
     server.addItem(client, lootableEntity.container, 101);
 
     Object.values(lootableEntity.container.items).forEach((item)=> {
       server.addItem(client, item, lootableEntity.container.containerDefinitionId);
     })
-
-    server.sendData(client, "Loadout.SetLoadoutSlots", {
-      characterId: this.characterId,
-      loadoutId: this.loadoutId,
-      loadoutData: {
-        loadoutSlots: [
-          ...Object.keys(this._loadout).map((slotId: any) => {
-            return this.pGetLoadoutSlot(this._loadout[slotId]);
-          }),
-          this.pGetLoadoutSlot(lootableEntity.container)
-        ],
-      },
-      currentSlotId: this.currentLoadoutSlot,
-    });
+    
+    server.updateLoadout(this);
 
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId: lootableEntity.characterId,
@@ -549,11 +562,14 @@ export class Character2016 extends BaseFullCharacter {
     if(!client || !this.mountedContainer) return;
 
     server.deleteItem(client, this.mountedContainer.container.itemGuid);
-    // may need to delete all items that were inside container?
-    server.updateLoadout(this);
-    server.initializeContainerList(client);
+    Object.values(this.mountedContainer.container.items).forEach(item => {
+      if(!this.mountedContainer) return;
+      server.deleteItem(client, item.itemGuid);
+    });
     delete this.mountedContainer.mountedCharacter;
     delete this.mountedContainer;
+    server.updateLoadout(this);
+    server.initializeContainerList(client);
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {

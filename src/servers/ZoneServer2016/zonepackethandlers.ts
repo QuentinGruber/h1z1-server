@@ -683,6 +683,12 @@ export class zonePacketHandlers {
         server.stopHudTimer(client);
         delete client.hudTimer;
       }
+
+      if(client.character.mountedContainer) {
+        if(!isPosInRadius(client.character.mountedContainer.interactionDistance, client.character.state.position, client.character.mountedContainer.state.position)) {
+          client.character.dismountContainer(server);
+        }
+      }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
       server._vehicles[client.vehicle.mountedVehicle].state.position =
         new Float32Array([
