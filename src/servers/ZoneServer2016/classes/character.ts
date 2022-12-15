@@ -578,6 +578,23 @@ export class Character2016 extends BaseFullCharacter {
     server.initializeContainerList(client);
   }
 
+  getItemContainer(itemGuid: string): LoadoutContainer | undefined {
+    // returns the container that an item is contained in
+    let c;
+    for (const container of Object.values(this._containers)) {
+      if (container.items[itemGuid]) {
+        c = container;
+        break;
+      }
+    }
+    // check mounted container
+    if(!c && this.mountedContainer) {
+      const container = this.mountedContainer.container;
+      if(container.items[itemGuid]) return container;
+    }
+    return c;
+  }
+
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "LightweightToFullPc", {
       useCompression: false,

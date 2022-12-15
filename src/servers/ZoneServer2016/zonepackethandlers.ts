@@ -945,6 +945,19 @@ export class zonePacketHandlers {
       );
       return;
     }
+
+    let container = client.character.getItemContainer(itemGuid);
+        
+    // check for item in mounted container
+    if(!container && client.character.mountedContainer) {
+      console.log("MOUNTEDCONTAINER 1")
+      const mountedContainer = client.character.mountedContainer.container;
+      if(mountedContainer.items[item.itemGuid]) {
+        console.log("MOUNTEDCONTAINER 2")
+        container = mountedContainer;
+      }
+    }
+    
     switch (packet.data.itemUseOption) {
       case 4: // normal item drop option
       case 73: // battery drop option
@@ -957,7 +970,6 @@ export class zonePacketHandlers {
           client.character,
           item.itemDefinitionId
         );
-        const container = client.character.getItemContainer(itemGuid);
         if (server.isWeapon(item.itemDefinitionId)) {
           if (container) {
             const item = container.items[itemGuid];

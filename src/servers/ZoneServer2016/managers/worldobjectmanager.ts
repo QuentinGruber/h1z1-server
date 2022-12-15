@@ -194,10 +194,6 @@ export class WorldObjectManager {
       debug("[ERROR] Lootbag container item could not be generated!");
       return;
     }
-    const container = new LoadoutContainer(
-      new LoadoutItem(item, server.getLoadoutSlot(item.itemDefinitionId), characterId),
-      server.getItemDefinition(item.itemDefinitionId).PARAM1
-    );
     
     let items: { [itemGuid: string]: BaseItem } = {};
     Object.values(entity._containers).forEach((container: LoadoutContainer) => {
@@ -205,15 +201,23 @@ export class WorldObjectManager {
         if(!isCharacter || !server.isDefaultItem(item.itemDefinitionId)) {
           items[item.itemGuid] = item
         }
+        // TODO: Stack similar items
       })
     })
     Object.values(entity._loadout).forEach((item) => {
-      if(!isCharacter || !server.isDefaultItem(item.itemDefinitionId)) {
+      if(item.itemGuid != "0x0" && (!isCharacter || !server.isDefaultItem(item.itemDefinitionId))) {
         items[item.itemGuid] = item
       }
     })
+
+    if(!items) return; // don't spawn lootbag if inventory is empty
+
+    const container = new LoadoutContainer(
+      new LoadoutItem(item, server.getLoadoutSlot(item.itemDefinitionId), characterId),
+      server.getItemDefinition(item.itemDefinitionId).PARAM1
+    );
     container.items = items
-    
+
     server._lootbags[characterId] = new Lootbag(
       characterId,
       server.getTransientId(characterId),

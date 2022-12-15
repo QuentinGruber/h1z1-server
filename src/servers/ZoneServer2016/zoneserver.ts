@@ -2659,7 +2659,6 @@ export class ZoneServer2016 extends EventEmitter {
         1800000 // 30 minutes for now
       ) {
         this.deleteEntity(lootbag.characterId, this._lootbags);
-        // TODO: dismount any characters
       }
       // lootbag clientside spawner
       if (
@@ -5185,6 +5184,13 @@ export class ZoneServer2016 extends EventEmitter {
       );
       count = item.stackCount;
     }
+
+    // external container
+    if(client.character.mountedContainer && client.character.mountedContainer.container.items[item.itemGuid]) {
+      return this.removeContainerItem(client, item, client.character.mountedContainer.container, count); 
+    }
+
+
     if (client.character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
       return this.removeLoadoutItem(client, item.slotId);
     } else {
