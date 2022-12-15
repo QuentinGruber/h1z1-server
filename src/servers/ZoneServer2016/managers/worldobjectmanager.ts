@@ -191,37 +191,48 @@ export class WorldObjectManager {
       debug("[ERROR] Lootbag container item could not be generated!");
       return;
     }
-    
+
     let items: { [itemGuid: string]: BaseItem } = {};
     Object.values(entity._loadout).forEach((item) => {
-      if(item.itemGuid != "0x0" && (!isCharacter || !server.isDefaultItem(item.itemDefinitionId))) {
-        items[item.itemGuid] = _.cloneDeep(item)
+      if (
+        item.itemGuid != "0x0" &&
+        (!isCharacter || !server.isDefaultItem(item.itemDefinitionId))
+      ) {
+        items[item.itemGuid] = _.cloneDeep(item);
         items[item.itemGuid].slotId = Object.keys(items).length + 1;
       }
-    })
+    });
 
     Object.values(entity._containers).forEach((container: LoadoutContainer) => {
-      Object.values(container.items).forEach( (item)=> {
-        if(!isCharacter || !server.isDefaultItem(item.itemDefinitionId)) {
-          for(const i of Object.values(items)) { // stack similar items
-            if(i.itemDefinitionId == item.itemDefinitionId && server.isStackable(item.itemDefinitionId)) {
+      Object.values(container.items).forEach((item) => {
+        if (!isCharacter || !server.isDefaultItem(item.itemDefinitionId)) {
+          for (const i of Object.values(items)) {
+            // stack similar items
+            if (
+              i.itemDefinitionId == item.itemDefinitionId &&
+              server.isStackable(item.itemDefinitionId)
+            ) {
               items[i.itemGuid].stackCount += item.stackCount;
               continue;
             }
           }
-          items[item.itemGuid] = _.cloneDeep(item)
+          items[item.itemGuid] = _.cloneDeep(item);
           items[item.itemGuid].slotId = Object.keys(items).length + 1;
         }
-      })
-    })
+      });
+    });
 
-    if(!_.size(items)) return; // don't spawn lootbag if inventory is empty
+    if (!_.size(items)) return; // don't spawn lootbag if inventory is empty
 
     const container = new LoadoutContainer(
-      new LoadoutItem(item, server.getLoadoutSlot(item.itemDefinitionId), characterId),
+      new LoadoutItem(
+        item,
+        server.getLoadoutSlot(item.itemDefinitionId),
+        characterId
+      ),
       server.getItemDefinition(item.itemDefinitionId).PARAM1
     );
-    container.items = items
+    container.items = items;
 
     server._lootbags[characterId] = new Lootbag(
       characterId,

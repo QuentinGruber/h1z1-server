@@ -29,7 +29,7 @@ function combineItemStack(
   if (oldStackCount == count) {
     // if full stack is moved
     server.addContainerItem(client, item, targetContainer, count, false);
-    return
+    return;
   }
   // if only partial stack is moved
   server.addContainerItem(
@@ -83,27 +83,34 @@ export class LoadoutContainer extends LoadoutItem {
   }
 
   // transfers an item from this container to another
-  transferItem(server: ZoneServer2016, targetContainer: LoadoutContainer, item: BaseItem, newSlotId: number, count?: number) {
-    if(!count) count = item.stackCount;
+  transferItem(
+    server: ZoneServer2016,
+    targetContainer: LoadoutContainer,
+    item: BaseItem,
+    newSlotId: number,
+    count?: number
+  ) {
+    if (!count) count = item.stackCount;
     const oldStackCount = item.stackCount; // saves stack count before it gets altered
-    
+
     let client;
 
-    if(server._lootbags[this.loadoutItemOwnerGuid]) {
-      const mountedCharacterId = server._lootbags[this.loadoutItemOwnerGuid].mountedCharacter;
-      if(mountedCharacterId) client = server.getClientByCharId(mountedCharacterId);
-    }
-    else {
+    if (server._lootbags[this.loadoutItemOwnerGuid]) {
+      const mountedCharacterId =
+        server._lootbags[this.loadoutItemOwnerGuid].mountedCharacter;
+      if (mountedCharacterId)
+        client = server.getClientByCharId(mountedCharacterId);
+    } else {
       client = server.getClientByCharId(this.loadoutItemOwnerGuid);
     }
 
-    if(!client) return;
+    if (!client) return;
 
-    if(!targetContainer.canAcceptItems) {
+    if (!targetContainer.canAcceptItems) {
       server.containerError(client, ContainerErrors.DOES_NOT_ACCEPT_ITEMS);
       return;
     }
-    if(!this.isMutable || !targetContainer.isMutable) {
+    if (!this.isMutable || !targetContainer.isMutable) {
       server.containerError(client, ContainerErrors.NOT_MUTABLE);
       return;
     }
@@ -124,7 +131,14 @@ export class LoadoutContainer extends LoadoutItem {
       return;
     }
     if (newSlotId == 0xffffffff) {
-      combineItemStack(server, client, oldStackCount, targetContainer, item, count);
+      combineItemStack(
+        server,
+        client,
+        oldStackCount,
+        targetContainer,
+        item,
+        count
+      );
     } else {
       const itemStack = server.getAvailableItemStack(
         targetContainer,
@@ -139,9 +153,15 @@ export class LoadoutContainer extends LoadoutItem {
         server.updateContainerItem(client, item, targetContainer);
       } else {
         // add item to end
-        combineItemStack(server, client, oldStackCount, targetContainer, item, count);
+        combineItemStack(
+          server,
+          client,
+          oldStackCount,
+          targetContainer,
+          item,
+          count
+        );
       }
     }
   }
-
 }

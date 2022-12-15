@@ -21,7 +21,7 @@ export enum ContainerErrors {
   NO_ITEM_IN_SLOT = 5,
   INTERACTION_VALIDATION = 6,
   UNKNOWN = 99,
-  
+
   // custom errors
   DOES_NOT_ACCEPT_ITEMS = 7,
   NOT_MUTABLE = 8,

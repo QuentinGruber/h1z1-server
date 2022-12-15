@@ -243,7 +243,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
-  pGetLoadoutSlot(slot: LoadoutItem ) {
+  pGetLoadoutSlot(slot: LoadoutItem) {
     return {
       hotbarSlotId: slot.slotId, // affects Equip Item context entry packet, and Container.MoveItem
       loadoutId: this.loadoutId,
@@ -254,7 +254,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         unknownByte1: 255, // flags?
       },
       unknownDword4: slot.slotId,
-    }
+    };
   }
 
   pGetLoadoutSlots() {

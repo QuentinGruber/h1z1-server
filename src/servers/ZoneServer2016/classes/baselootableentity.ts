@@ -30,18 +30,17 @@ export class BaseLootableEntity extends BaseFullCharacter {
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016): void {
-    if(client.character.characterId == this.mountedCharacter) {
+    if (client.character.characterId == this.mountedCharacter) {
       client.character.dismountContainer(server);
       return;
     }
 
-    if(this.mountedCharacter) {
+    if (this.mountedCharacter) {
       server.containerError(client, ContainerErrors.IN_USE);
       return;
     }
 
     client.character.mountContainer(server, this);
-
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {

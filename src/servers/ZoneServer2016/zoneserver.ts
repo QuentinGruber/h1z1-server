@@ -4875,7 +4875,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   isStackable(itemDefinitionId: number): boolean {
-    return this.getItemDefinition(itemDefinitionId)?.MAX_STACK_SIZE > 1 ? true : false;
+    return this.getItemDefinition(itemDefinitionId)?.MAX_STACK_SIZE > 1
+      ? true
+      : false;
   }
 
   validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {
@@ -5189,10 +5191,17 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     // external container
-    if(client.character.mountedContainer && client.character.mountedContainer.container.items[item.itemGuid]) {
-      return this.removeContainerItem(client, item, client.character.mountedContainer.container, count); 
+    if (
+      client.character.mountedContainer &&
+      client.character.mountedContainer.container.items[item.itemGuid]
+    ) {
+      return this.removeContainerItem(
+        client,
+        item,
+        client.character.mountedContainer.container,
+        count
+      );
     }
-
 
     if (client.character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
       return this.removeLoadoutItem(client, item.slotId);
@@ -5538,16 +5547,19 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   equipLoadout(client: Client, loadout: LoadoutKit, sendPacket = true) {
-    loadout.forEach((entry)=> {
-      if (entry.item != Items.WEAPON_FISTS || ( !client.character._loadout[LoadoutSlots.FISTS])) {
-      this.lootItem(
-        client,
-        this.generateItem(entry.item, entry.count),
-        entry.count,
-        sendPacket
-      );
+    loadout.forEach((entry) => {
+      if (
+        entry.item != Items.WEAPON_FISTS ||
+        !client.character._loadout[LoadoutSlots.FISTS]
+      ) {
+        this.lootItem(
+          client,
+          this.generateItem(entry.item, entry.count),
+          entry.count,
+          sendPacket
+        );
       }
-    })
+    });
   }
 
   /**
@@ -5571,10 +5583,10 @@ export class ZoneServer2016 extends EventEmitter {
   isDefaultItem(itemDefinitionId: number): boolean {
     let isDefault = false;
     defaultLoadout.forEach((defaultItem) => {
-      if(defaultItem.item == itemDefinitionId) {
-        isDefault = true
+      if (defaultItem.item == itemDefinitionId) {
+        isDefault = true;
       }
-    })
+    });
     return isDefault;
   }
 
@@ -5939,9 +5951,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   containerError(client: Client, error: number) {
-    switch(error) {
+    switch (error) {
       case ContainerErrors.DOES_NOT_ACCEPT_ITEMS:
-        this.sendChatText(client, "Container Error: ContainerDoesNotAcceptItems");
+        this.sendChatText(
+          client,
+          "Container Error: ContainerDoesNotAcceptItems"
+        );
         break;
       case ContainerErrors.NOT_MUTABLE:
         this.sendChatText(client, "Container Error: ContainerIsNotMutable");

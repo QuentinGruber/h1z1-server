@@ -423,31 +423,28 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   pGetContainers(server: ZoneServer2016) {
-    if(!this.mountedContainer) return super.pGetContainers(server);
+    if (!this.mountedContainer) return super.pGetContainers(server);
 
     // to avoid a mounted container being dismounted if container list is updated while mounted
     const containers = super.pGetContainers(server),
-    mountedContainer = this.mountedContainer.container
+      mountedContainer = this.mountedContainer.container;
     containers.push({
       loadoutSlotId: mountedContainer.slotId,
-      containerData: super.pGetContainerData(
-        server,
-        mountedContainer
-      ),
-    })
+      containerData: super.pGetContainerData(server, mountedContainer),
+    });
     return containers;
   }
 
   pGetLoadoutSlots() {
-    if(!this.mountedContainer) return super.pGetLoadoutSlots();
+    if (!this.mountedContainer) return super.pGetLoadoutSlots();
 
     // to avoid a mounted container being dismounted if loadout is updated while mounted
 
     const loadoutSlots = Object.keys(this._loadout).map((slotId: any) => {
       return this.pGetLoadoutSlot(this._loadout[slotId]);
-    })
+    });
 
-    loadoutSlots.push(this.pGetLoadoutSlot(this.mountedContainer.container))
+    loadoutSlots.push(this.pGetLoadoutSlot(this.mountedContainer.container));
 
     return {
       characterId: this.characterId,
@@ -532,9 +529,15 @@ export class Character2016 extends BaseFullCharacter {
 
   mountContainer(server: ZoneServer2016, lootableEntity: BaseLootableEntity) {
     const client = server.getClientByCharId(this.characterId);
-    if(!client) return;
+    if (!client) return;
 
-    if(!isPosInRadius(lootableEntity.interactionDistance, this.state.position, lootableEntity.state.position)) {
+    if (
+      !isPosInRadius(
+        lootableEntity.interactionDistance,
+        this.state.position,
+        lootableEntity.state.position
+      )
+    ) {
       server.containerError(client, ContainerErrors.INTERACTION_VALIDATION);
       return;
     }
@@ -546,10 +549,14 @@ export class Character2016 extends BaseFullCharacter {
 
     server.addItem(client, lootableEntity.container, 101);
 
-    Object.values(lootableEntity.container.items).forEach((item)=> {
-      server.addItem(client, item, lootableEntity.container.containerDefinitionId);
-    })
-    
+    Object.values(lootableEntity.container.items).forEach((item) => {
+      server.addItem(
+        client,
+        item,
+        lootableEntity.container.containerDefinitionId
+      );
+    });
+
     server.updateLoadout(this);
 
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
@@ -565,15 +572,15 @@ export class Character2016 extends BaseFullCharacter {
 
   dismountContainer(server: ZoneServer2016) {
     const client = server.getClientByCharId(this.characterId);
-    if(!client || !this.mountedContainer) return;
+    if (!client || !this.mountedContainer) return;
 
     server.deleteItem(client, this.mountedContainer.container.itemGuid);
-    Object.values(this.mountedContainer.container.items).forEach(item => {
-      if(!this.mountedContainer) return;
+    Object.values(this.mountedContainer.container.items).forEach((item) => {
+      if (!this.mountedContainer) return;
       server.deleteItem(client, item.itemGuid);
     });
 
-    if(!_.size(this.mountedContainer.container.items)) {
+    if (!_.size(this.mountedContainer.container.items)) {
       server.deleteEntity(this.mountedContainer.characterId, server._lootbags);
     }
 
@@ -581,7 +588,6 @@ export class Character2016 extends BaseFullCharacter {
     delete this.mountedContainer;
     server.updateLoadout(this);
     server.initializeContainerList(client);
-
   }
 
   getItemContainer(itemGuid: string): LoadoutContainer | undefined {
@@ -594,9 +600,9 @@ export class Character2016 extends BaseFullCharacter {
       }
     }
     // check mounted container
-    if(!c && this.mountedContainer) {
+    if (!c && this.mountedContainer) {
       const container = this.mountedContainer.container;
-      if(container.items[itemGuid]) return container;
+      if (container.items[itemGuid]) return container;
     }
     return c;
   }
@@ -608,7 +614,7 @@ export class Character2016 extends BaseFullCharacter {
         c = container;
       }
     }
-    if(!c && this.mountedContainer?.container.itemGuid == containerGuid) {
+    if (!c && this.mountedContainer?.container.itemGuid == containerGuid) {
       c = this.mountedContainer.container;
     }
     return c;

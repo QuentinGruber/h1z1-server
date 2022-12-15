@@ -684,8 +684,14 @@ export class zonePacketHandlers {
         delete client.hudTimer;
       }
 
-      if(client.character.mountedContainer) {
-        if(!isPosInRadius(client.character.mountedContainer.interactionDistance, client.character.state.position, client.character.mountedContainer.state.position)) {
+      if (client.character.mountedContainer) {
+        if (
+          !isPosInRadius(
+            client.character.mountedContainer.interactionDistance,
+            client.character.state.position,
+            client.character.mountedContainer.state.position
+          )
+        ) {
           client.character.dismountContainer(server);
         }
       }
@@ -947,13 +953,13 @@ export class zonePacketHandlers {
     }
 
     let container = client.character.getItemContainer(itemGuid);
-        
+
     // check for item in mounted container
-    if(!container && client.character.mountedContainer) {
-      console.log("MOUNTEDCONTAINER 1")
+    if (!container && client.character.mountedContainer) {
+      console.log("MOUNTEDCONTAINER 1");
       const mountedContainer = client.character.mountedContainer.container;
-      if(mountedContainer.items[item.itemGuid]) {
-        console.log("MOUNTEDCONTAINER 2")
+      if (mountedContainer.items[item.itemGuid]) {
+        console.log("MOUNTEDCONTAINER 2");
         container = mountedContainer;
       }
     }
@@ -1335,7 +1341,7 @@ export class zonePacketHandlers {
       count,
       newSlotId,
     } = packet.data;
-    console.log(client.character._loadout)
+    console.log(client.character._loadout);
     if (characterId == client.character.characterId) {
       // from client container
       if (characterId == targetCharacterId) {
@@ -1352,7 +1358,13 @@ export class zonePacketHandlers {
           }
           if (targetContainer) {
             // to container
-            sourceContainer.transferItem(server, targetContainer, item, newSlotId, count);
+            sourceContainer.transferItem(
+              server,
+              targetContainer,
+              item,
+              newSlotId,
+              count
+            );
           } else if (containerGuid == "0xffffffffffffffff") {
             // to loadout
             if (server.validateLoadoutSlot(item.itemDefinitionId, newSlotId)) {
@@ -1367,14 +1379,20 @@ export class zonePacketHandlers {
 
           // mounted container
           const mountedContainerEntity = client.character.mountedContainer;
-          if(mountedContainerEntity && targetContainer) {
+          if (mountedContainerEntity && targetContainer) {
             const container = mountedContainerEntity.container,
-            item = container.items[itemGuid]
-            if(!item) {
+              item = container.items[itemGuid];
+            if (!item) {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
-            container.transferItem(server, targetContainer, item, newSlotId, count);
+            container.transferItem(
+              server,
+              targetContainer,
+              item,
+              newSlotId,
+              count
+            );
             return;
           }
 
