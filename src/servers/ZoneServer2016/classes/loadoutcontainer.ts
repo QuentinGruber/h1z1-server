@@ -94,12 +94,12 @@ export class LoadoutContainer extends LoadoutItem {
    * @param itemDefinitionId The definiton id of the item to check.
    * @param count The amount of the item to check.
    */
-   getHasSpace(
+  getHasSpace(
     server: ZoneServer2016,
     itemDefinitionId: number,
     count: number
   ): boolean {
-    if(this.getMaxBulk(server) == 0) return true; // for external containers
+    if (this.getMaxBulk(server) == 0) return true; // for external containers
     return !!(
       this.getMaxBulk(server) -
         (this.getUsedBulk(server) +
@@ -143,11 +143,7 @@ export class LoadoutContainer extends LoadoutItem {
 
     if (
       this.containerGuid != targetContainer.containerGuid &&
-      !targetContainer.getHasSpace(
-        server,
-        item.itemDefinitionId,
-        count
-      )
+      !targetContainer.getHasSpace(server, item.itemDefinitionId, count)
     ) {
       // allows items in the same container but different stacks to be stacked
       return;

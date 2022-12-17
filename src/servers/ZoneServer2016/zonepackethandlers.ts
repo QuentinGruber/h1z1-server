@@ -1335,6 +1335,7 @@ export class zonePacketHandlers {
     }
   }
   ContainerMoveItem(server: ZoneServer2016, client: Client, packet: any) {
+    console.log(client.character._loadout)
     const {
       containerGuid,
       characterId,
@@ -1368,7 +1369,7 @@ export class zonePacketHandlers {
             );
           } else if (containerGuid == "0xffffffffffffffff") {
             // to loadout
-            if (server.validateLoadoutSlot(item.itemDefinitionId, newSlotId)) {
+            if (server.validateLoadoutSlot(item.itemDefinitionId, newSlotId, client.character.loadoutId)) {
               server.equipContainerItem(client, item, newSlotId);
             }
           } else {
@@ -1409,40 +1410,12 @@ export class zonePacketHandlers {
             );
           } else if (containerGuid == "0xffffffffffffffff") {
             // to loadout
-            const loadoutItem = client.character.getLoadoutItem(itemGuid),
-              oldLoadoutItem = client.character._loadout[newSlotId];
+            const loadoutItem = client.character.getLoadoutItem(itemGuid)
             if (!loadoutItem) {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
-            if (
-              !server.validateLoadoutSlot(
-                loadoutItem.itemDefinitionId,
-                newSlotId
-              )
-            ) {
-              server.sendChatText(client, "[ERROR] Invalid loadout slot.");
-              return;
-            }
-            if (oldLoadoutItem.itemDefinitionId) {
-              if (!server.removeLoadoutItem(client, oldLoadoutItem.slotId)) {
-                server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-                return;
-              }
-            }
-            if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
-              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-              return;
-            }
-            if (oldLoadoutItem.itemDefinitionId) {
-              server.equipItem(
-                client.character,
-                oldLoadoutItem,
-                true,
-                loadoutItem.slotId
-              );
-            }
-            server.equipItem(client.character, loadoutItem, true, newSlotId);
+            loadoutItem.transferLoadoutItem(server, targetCharacterId, newSlotId);
           } else {
             // invalid
             server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);

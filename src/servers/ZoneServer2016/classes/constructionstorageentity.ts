@@ -13,8 +13,14 @@
 
 import { BaseLootableEntity } from "./baselootableentity";
 
-export class ConstructionStorageEntity extends BaseLootableEntity{
-  constructor(characterId: string, transientId: number, actorModelId: number, position: Float32Array, rotation: Float32Array) {
-    super(characterId, transientId, actorModelId, position, rotation)
+export class ConstructionStorageEntity extends BaseLootableEntity {
+  constructor(
+    characterId: string,
+    transientId: number,
+    actorModelId: number,
+    position: Float32Array,
+    rotation: Float32Array
+  ) {
+    super(characterId, transientId, actorModelId, position, rotation);
   }
 }

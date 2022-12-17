@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { ContainerErrors } from "../models/enums";
+import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
 
 export class LoadoutItem extends BaseItem {
@@ -31,5 +33,40 @@ export class LoadoutItem extends BaseItem {
     this.stackCount = 1;
     this.weapon = item.weapon;
     this.loadoutItemOwnerGuid = loadoutItemOwnerGuid;
+  }
+
+  transferLoadoutItem(
+    server: ZoneServer2016,
+    targetCharacterId: string,
+    newSlotId: number
+  ) {
+    const client = server.getClientByCharId(targetCharacterId);
+    if (!client) return;
+    const oldLoadoutItem = client.character._loadout[newSlotId];
+    if (!server.validateLoadoutSlot(this.itemDefinitionId, newSlotId, client.character.loadoutId)) {
+      server.containerError(client, ContainerErrors.INVALID_LOADOUT_SLOT);
+      return;
+    }
+    if (oldLoadoutItem) {
+      if (!server.removeLoadoutItem(client, oldLoadoutItem.slotId)) {
+        console.log("error 1")
+        server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+        return;
+      }
+    }
+    if (!server.removeLoadoutItem(client, this.slotId)) {
+      console.log("error 2")
+      server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+      return;
+    }
+    if (oldLoadoutItem) {
+      server.equipItem(
+        client.character,
+        oldLoadoutItem,
+        true,
+        this.slotId
+      );
+    }
+    server.equipItem(client.character, this, true, newSlotId);
   }
 }

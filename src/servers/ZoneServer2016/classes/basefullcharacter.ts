@@ -57,26 +57,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
     this.gender = getGender(this.actorModelId);
-    this.setupLoadoutSlots();
-  }
-
-  clearLoadoutSlot(loadoutSlotId: number) {
-    this._loadout[loadoutSlotId] = {
-      itemDefinitionId: 0,
-      slotId: loadoutSlotId,
-      itemGuid: "0x0",
-      containerGuid: "0xFFFFFFFFFFFFFFFF",
-      currentDurability: 0,
-      stackCount: 0,
-      loadoutItemOwnerGuid: "0x0",
-    };
-  }
-  setupLoadoutSlots() {
-    for (const slot of loadoutSlots) {
-      if (slot.LOADOUT_ID == this.loadoutId && !this._loadout[slot.SLOT_ID]) {
-        this.clearLoadoutSlot(slot.SLOT_ID);
-      }
-    }
   }
 
   getActiveLoadoutSlot(itemGuid: string): number {
@@ -246,27 +226,36 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
-  pGetLoadoutSlot(slot: LoadoutItem) {
+  pGetLoadoutSlot(slotId: number) {
+    const slot = this._loadout[slotId];
     return {
-      hotbarSlotId: slot.slotId, // affects Equip Item context entry packet, and Container.MoveItem
+      hotbarSlotId: slotId, // affects Equip Item context entry packet, and Container.MoveItem
       loadoutId: this.loadoutId,
-      slotId: slot.slotId,
+      slotId: slotId,
       loadoutItemData: {
-        itemDefinitionId: slot.itemDefinitionId,
-        loadoutItemOwnerGuid: slot.itemGuid,
+        itemDefinitionId: slot?.itemDefinitionId || 0,
+        loadoutItemOwnerGuid: slot?.itemGuid || "0x0",
         unknownByte1: 255, // flags?
       },
-      unknownDword4: slot.slotId,
+      unknownDword4: slotId,
     };
+  }
+
+  getLoadoutSlots() {
+    const slots: Array<number> = [];
+    loadoutSlots.forEach((slot: any)=> {
+      if(slot.LOADOUT_ID == this.loadoutId) slots.push(slot.SLOT_ID)
+    })
+    return slots;
   }
 
   pGetLoadoutSlots() {
     return {
       characterId: this.characterId,
-      loadoutId: this.loadoutId, // needs to be 3
+      loadoutId: this.loadoutId,
       loadoutData: {
-        loadoutSlots: Object.keys(this._loadout).map((slotId: any) => {
-          return this.pGetLoadoutSlot(this._loadout[slotId]);
+        loadoutSlots: Object.keys(this.getLoadoutSlots()).map((slotId: any) => {
+          return this.pGetLoadoutSlot(slotId);
         }),
       },
       currentSlotId: this.currentLoadoutSlot,

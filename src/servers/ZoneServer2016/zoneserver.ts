@@ -116,7 +116,7 @@ import { LoadoutItem } from "./classes/loadoutItem";
 import { LoadoutContainer } from "./classes/loadoutcontainer";
 import { Weapon } from "./classes/weapon";
 import { Lootbag } from "./classes/lootbag";
-import { characterDefaultLoadout, LoadoutKit } from "./data/loadouts";
+import { LoadoutKit } from "./data/loadouts";
 import { BaseLootableEntity } from "./classes/baselootableentity";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -4582,7 +4582,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const def = this.getItemDefinition(item.itemDefinitionId);
     if (loadoutSlotId) {
-      if (!this.validateLoadoutSlot(item.itemDefinitionId, loadoutSlotId)) {
+      if (!this.validateLoadoutSlot(item.itemDefinitionId, loadoutSlotId, character.loadoutId)) {
         debug(
           `[ERROR] EquipItem: Client tried to equip item ${item.itemDefinitionId} with invalid loadoutSlotId ${loadoutSlotId}!`
         );
@@ -4908,14 +4908,15 @@ export class ZoneServer2016 extends EventEmitter {
    */
   validateLoadoutSlot(
     itemDefinitionId: number,
-    loadoutSlotId: number
+    loadoutSlotId: number,
+    loadoutId: number
   ): boolean {
     if (!this.getItemDefinition(itemDefinitionId)?.FLAG_CAN_EQUIP) return false;
     return !!loadoutSlotItemClasses.find(
       (slot: any) =>
         slot.ITEM_CLASS ===
           this.getItemDefinition(itemDefinitionId).ITEM_CLASS &&
-        loadoutSlotId === slot.SLOT
+        loadoutSlotId === slot.SLOT && slot.LOADOUT_ID == loadoutId
     );
   }
 
@@ -5124,7 +5125,7 @@ export class ZoneServer2016 extends EventEmitter {
     const item = client.character._loadout[loadoutSlotId],
       itemDefId = item?.itemDefinitionId; // save before item gets deleted
 
-    if (!item || !item.itemDefinitionId) return false;
+    if (!item || !itemDefId) return false;
 
     if (this.isWeapon(item.itemDefinitionId)) {
       this.sendRemoteWeaponDataToAllOthers(
@@ -5137,7 +5138,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     this.deleteItem(client, item.itemGuid);
-    client.character.clearLoadoutSlot(loadoutSlotId);
+    delete client.character._loadout[loadoutSlotId]
     this.updateLoadout(client.character);
     this.clearEquipmentSlot(
       client,
@@ -5993,6 +5994,8 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendChatText(client, "Container Error: ContainerNotConstructed");
       case ContainerErrors.NO_SPACE:
         this.sendChatText(client, "Container Error: ContainerHasNoSpace");
+      case ContainerErrors.INVALID_LOADOUT_SLOT:
+        this.sendChatText(client, "Container Error: InvalidLoadoutSlot");
       default:
         this.sendData(client, "Container.Error", {
           characterId: client.character.characterId,
