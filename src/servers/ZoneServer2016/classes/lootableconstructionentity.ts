@@ -13,7 +13,7 @@
 
 import { BaseLootableEntity } from "./baselootableentity";
 
-export class ConstructionStorageEntity extends BaseLootableEntity {
+export class LootableConstructionEntity extends BaseLootableEntity {
   constructor(
     characterId: string,
     transientId: number,

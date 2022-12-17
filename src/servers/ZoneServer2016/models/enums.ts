@@ -12,6 +12,13 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum MovementModifiers {
+ RESTED,
+ SWIZZLE,
+ SNARED,
+ BOOTS
+}
+
 export enum ContainerErrors {
   NONE = 0,
   IN_USE = 1,

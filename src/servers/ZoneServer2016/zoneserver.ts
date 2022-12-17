@@ -37,6 +37,7 @@ import {
   Items,
   LoadoutIds,
   LoadoutSlots,
+  MovementModifiers,
   ResourceIds,
   ResourceTypes,
   VehicleIds,
@@ -118,6 +119,7 @@ import { Weapon } from "./classes/weapon";
 import { Lootbag } from "./classes/lootbag";
 import { LoadoutKit } from "./data/loadouts";
 import { BaseLootableEntity } from "./classes/baselootableentity";
+import { LootableConstructionEntity } from "./classes/lootableconstructionentity";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -162,6 +164,7 @@ export class ZoneServer2016 extends EventEmitter {
   _temporaryObjects: { [characterId: string]: TemporaryEntity } = {};
   _vehicles: { [characterId: string]: Vehicle } = {};
   _lootbags: { [characterId: string]: Lootbag } = {};
+  _lootableConstruction: { [characterId: string]: LootableConstructionEntity } = {};
 
   _constructionFoundations: {
     [characterId: string]: ConstructionParentEntity;
@@ -3516,22 +3519,18 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case Items.IED:
         this.placeExplosiveEntity(
-          client,
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
-          true
+          eul2quat(rotation)
         );
         break;
       case Items.LANDMINE:
         this.placeExplosiveEntity(
-          client,
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
-          false
+          eul2quat(rotation)
         );
         break;
       case Items.METAL_GATE:
@@ -3588,11 +3587,11 @@ export class ZoneServer2016 extends EventEmitter {
           slot
         );
         break;
-
-      /*case Items.STORAGE_BOX:
-
+        /*
+      case Items.STORAGE_BOX:
+        this.placeLootableConstruction()
         break;
-      */
+        */
       default:
         const characterId = this.generateGuid();
         const transientId = this.getTransientId(characterId);
@@ -3952,7 +3951,7 @@ export class ZoneServer2016 extends EventEmitter {
                 }
               );
               npc.isTriggered = true;
-              this.applyMovementModifier(client, 0.4, "snared");
+              this.applyMovementModifier(client, MovementModifiers.SNARED);
             }
           }
 
@@ -3984,24 +3983,23 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   placeExplosiveEntity(
-    client: Client,
-    itemDefinitionId: number,
+    itemDefinitionId: Items,
     modelId: number,
     position: Float32Array,
-    rotation: Float32Array,
-    isIed: boolean
+    rotation: Float32Array
   ) {
-    const characterId = this.generateGuid();
-    const transientId = this.getTransientId(characterId);
-    const npc = new ExplosiveEntity(
+    const characterId = this.generateGuid(),
+    transientId = this.getTransientId(characterId),
+    isIED = itemDefinitionId == 1699 ? true : false,
+    npc = new ExplosiveEntity(
       characterId,
       transientId,
       modelId,
       position,
       rotation,
-      isIed
+      isIED
     );
-    if (isIed) {
+    if (isIED) {
       this._explosives[characterId] = npc;
       return;
     }
@@ -5749,7 +5747,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   sniffPass(client: Client, item: BaseItem) {
     this.removeInventoryItem(client, item);
-    this.applyMovementModifier(client, 1.15, "swizzle");
+    this.applyMovementModifier(client, MovementModifiers.SWIZZLE);
   }
 
   useItem(client: Client, item: BaseItem) {
@@ -6012,10 +6010,10 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  applyMovementModifier(client: Client, modifier: number, type: string) {
+  applyMovementModifier(client: Client, modifier: MovementModifiers) {
     this.multiplyMovementModifier(client, modifier);
-    switch (type) {
-      case "wellRested":
+    switch (modifier) {
+      case MovementModifiers.RESTED:
         if (client.character.timeouts["wellRested"]) {
           client.character.timeouts["wellRested"]._onTimeout();
           delete client.character.timeouts["wellRested"];
@@ -6028,7 +6026,7 @@ export class ZoneServer2016 extends EventEmitter {
           delete client.character.timeouts["wellRested"];
         }, 300000);
         break;
-      case "swizzle":
+      case MovementModifiers.SWIZZLE:
         if (client.character.timeouts["swizzle"]) {
           client.character.timeouts["swizzle"]._onTimeout();
           delete client.character.timeouts["swizzle"];
@@ -6041,7 +6039,7 @@ export class ZoneServer2016 extends EventEmitter {
           delete client.character.timeouts["swizzle"];
         }, 30000);
         break;
-      case "snared":
+      case MovementModifiers.SNARED:
         if (client.character.timeouts["snared"]) {
           client.character.timeouts["snared"]._onTimeout();
           delete client.character.timeouts["snared"];
@@ -6054,7 +6052,7 @@ export class ZoneServer2016 extends EventEmitter {
           delete client.character.timeouts["snared"];
         }, 15000);
         break;
-      case "boots":
+      case MovementModifiers.BOOTS:
         // some stuff
         break;
     }
@@ -6089,7 +6087,7 @@ export class ZoneServer2016 extends EventEmitter {
         const itemDef = this.getItemDefinition(item.itemDefinitionId);
         if (itemDef.DESCRIPTION_ID == 11895 && !character.hasConveys) {
           character.hasConveys = true;
-          this.applyMovementModifier(client, 1.15, "boots");
+          this.applyMovementModifier(client, MovementModifiers.BOOTS);
         } else if (itemDef.DESCRIPTION_ID != 11895 && character.hasConveys) {
           character.hasConveys = false;
           this.divideMovementModifier(client, 1.15);
