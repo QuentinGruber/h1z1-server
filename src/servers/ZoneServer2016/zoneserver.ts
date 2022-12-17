@@ -3501,8 +3501,6 @@ export class ZoneServer2016 extends EventEmitter {
     });
     switch (itemDefinitionId) {
       case Items.SNARE:
-        this.placeTrap(client, itemDefinitionId, modelId, position, rotation);
-        break;
       case Items.PUNJI_STICKS:
         this.placeTrap(client, itemDefinitionId, modelId, position, rotation);
         break;
