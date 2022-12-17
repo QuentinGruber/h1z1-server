@@ -52,22 +52,22 @@ export const characterKitLoadout = [
 
 export const vehicleDefaultLoadouts = {
   offroader: [
-    { item: Items.CONTAINER_VEHICLE },
+    { item: Items.CONTAINER_VEHICLE_OFFROADER },
     { item: Items.VEHICLE_MOTOR_OFFROADER },
     { item: Items.VEHICLE_HOTWIRE },
   ],
   policecar: [
-    { item: Items.CONTAINER_VEHICLE },
+    { item: Items.CONTAINER_VEHICLE_POLICECAR },
     { item: Items.VEHICLE_MOTOR_POLICECAR },
     { item: Items.VEHICLE_HOTWIRE },
   ],
   atv: [
-    { item: Items.CONTAINER_VEHICLE },
+    { item: Items.CONTAINER_VEHICLE_ATV },
     { item: Items.VEHICLE_MOTOR_ATV },
     { item: Items.VEHICLE_HOTWIRE },
   ],
   pickup: [
-    { item: Items.CONTAINER_VEHICLE },
+    { item: Items.CONTAINER_VEHICLE_PICKUP },
     { item: Items.VEHICLE_MOTOR_PICKUP },
     { item: Items.VEHICLE_HOTWIRE },
   ],
