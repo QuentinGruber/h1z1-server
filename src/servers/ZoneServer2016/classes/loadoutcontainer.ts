@@ -88,6 +88,26 @@ export class LoadoutContainer extends LoadoutItem {
     return this.getMaxBulk(server) - this.getUsedBulk(server);
   }
 
+  /**
+   * Returns a boolean if this container has enough space for a given amount of a certain item.
+   * @param server The ZoneServer instance.
+   * @param itemDefinitionId The definiton id of the item to check.
+   * @param count The amount of the item to check.
+   */
+   getHasSpace(
+    server: ZoneServer2016,
+    itemDefinitionId: number,
+    count: number
+  ): boolean {
+    if(this.getMaxBulk(server) == 0) return true; // for external containers
+    return !!(
+      this.getMaxBulk(server) -
+        (this.getUsedBulk(server) +
+          server.getItemDefinition(itemDefinitionId).BULK * count) >=
+      0
+    );
+  }
+
   // transfers an item from this container to another
   transferItem(
     server: ZoneServer2016,
@@ -123,8 +143,8 @@ export class LoadoutContainer extends LoadoutItem {
 
     if (
       this.containerGuid != targetContainer.containerGuid &&
-      !server.getContainerHasSpace(
-        targetContainer,
+      !targetContainer.getHasSpace(
+        server,
         item.itemDefinitionId,
         count
       )

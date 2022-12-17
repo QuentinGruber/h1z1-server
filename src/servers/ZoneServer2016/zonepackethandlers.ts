@@ -1387,12 +1387,13 @@ export class zonePacketHandlers {
           if (targetContainer) {
             // to container
             if (
-              !server.getContainerHasSpace(
-                targetContainer,
+              !targetContainer.getHasSpace(
+                server,
                 loadoutItem.itemDefinitionId,
                 count
               )
             ) {
+              server.sendChatText(client, "ContainerNoSpace")
               return;
             }
             if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {

@@ -4803,25 +4803,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Returns a boolean if a given container has enough space for a given amount of a certain item.
-   * @param container The container object.
-   * @param itemDefinitionId Tje definiton id of the item to check.
-   * @param count The amount of the item to check.
-   */
-  getContainerHasSpace(
-    container: LoadoutContainer,
-    itemDefinitionId: number,
-    count: number
-  ): boolean {
-    return !!(
-      container.getMaxBulk(this) -
-        (container.getUsedBulk(this) +
-          this.getItemDefinition(itemDefinitionId).BULK * count) >=
-      0
-    );
-  }
-
-  /**
    * Gets the container definition for a given containerDefinitionId.
    * @param containerDefinitionId The id of the container definition to retrieve.
    */
