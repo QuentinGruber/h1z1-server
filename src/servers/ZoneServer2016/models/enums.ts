@@ -13,10 +13,10 @@
 // ======================================================================
 
 export enum MovementModifiers {
- RESTED,
- SWIZZLE,
- SNARED,
- BOOTS
+ RESTED = 1.3,
+ SWIZZLE = 1.15,
+ SNARED = 0.4,
+ BOOTS = 1.15
 }
 
 export enum ContainerErrors {

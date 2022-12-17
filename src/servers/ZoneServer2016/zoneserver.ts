@@ -3505,7 +3505,7 @@ export class ZoneServer2016 extends EventEmitter {
     switch (itemDefinitionId) {
       case Items.SNARE:
       case Items.PUNJI_STICKS:
-        this.placeTrap(client, itemDefinitionId, modelId, position, rotation);
+        this.placeTrap(itemDefinitionId, modelId, position, rotation);
         break;
       case Items.FLARE:
         this.placeTemporaryEntity(
@@ -3831,7 +3831,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   placeTrap(
-    client: Client,
     itemDefinitionId: number,
     modelId: number,
     position: Float32Array,
@@ -3844,141 +3843,10 @@ export class ZoneServer2016 extends EventEmitter {
       transientId,
       modelId,
       position,
-      new Float32Array([0, rotation[0], 0])
+      new Float32Array([0, rotation[0], 0]),
+      itemDefinitionId
     );
-    this._traps[characterId] = npc;
-    switch (itemDefinitionId) {
-      case Items.PUNJI_STICKS:
-        npc.trapTimer = setTimeout(() => {
-          if (!this._traps[characterId]) {
-            return;
-          }
-          for (const a in this._clients) {
-            if (
-              getDistance(
-                this._clients[a].character.state.position,
-                npc.state.position
-              ) < 1.5 &&
-              this._clients[a].character.isAlive &&
-              !this._clients[a].vehicle.mountedVehicle
-            ) {
-              this._clients[a].character.damage(this, {
-                entity: npc.characterId,
-                causeBleed: true,
-                damage: 501,
-              });
-              this.sendDataToAllWithSpawnedEntity(
-                this._traps,
-                characterId,
-                "Character.PlayWorldCompositeEffect",
-                {
-                  characterId: "0x0",
-                  effectId: 5116,
-                  position: this._clients[a].character.state.position,
-                }
-              );
-
-              this.sendDataToAllWithSpawnedEntity(
-                this._traps,
-                characterId,
-                "Character.UpdateSimpleProxyHealth",
-                npc.pGetSimpleProxyHealth()
-              );
-              npc.health -= 1000;
-            }
-          }
-
-          if (npc.health > 0) {
-            npc.trapTimer?.refresh();
-          } else {
-            this.sendDataToAllWithSpawnedEntity(
-              this._traps,
-              characterId,
-              "Character.PlayWorldCompositeEffect",
-              {
-                characterId: "0x0",
-                effectId: 163,
-                position: npc.state.position,
-              }
-            );
-            this.sendDataToAllWithSpawnedEntity(
-              this._traps,
-              characterId,
-              "Character.RemovePlayer",
-              {
-                characterId: characterId,
-              }
-            );
-            delete this._traps[characterId];
-            return;
-          }
-        }, 500);
-        break;
-      case Items.SNARE:
-        npc.trapTimer = setTimeout(() => {
-          if (!this._traps[characterId]) {
-            return;
-          }
-          for (const a in this._clients) {
-            if (
-              getDistance(
-                this._clients[a].character.state.position,
-                npc.state.position
-              ) < 1
-            ) {
-              this._clients[a].character.damage(this, {
-                entity: npc.characterId,
-                damage: 2000,
-              });
-              this._clients[a].character._resources[ResourceIds.BLEEDING] += 41;
-              this.updateResourceToAllWithSpawnedEntity(
-                client.character.characterId,
-                client.character._resources[ResourceIds.BLEEDING] > 0
-                  ? client.character._resources[ResourceIds.BLEEDING]
-                  : 0,
-                ResourceIds.BLEEDING,
-                ResourceTypes.BLEEDING,
-                this._characters
-              );
-              this.sendDataToAllWithSpawnedEntity(
-                this._traps,
-                characterId,
-                "Character.PlayWorldCompositeEffect",
-                {
-                  characterId: characterId,
-                  effectId: 1630,
-                  position: this._traps[characterId].state.position,
-                }
-              );
-              npc.isTriggered = true;
-              this.applyMovementModifier(client, MovementModifiers.SNARED);
-            }
-          }
-
-          if (!npc.isTriggered) {
-            npc.trapTimer?.refresh();
-          } else {
-            this.sendDataToAllWithSpawnedEntity(
-              this._traps,
-              characterId,
-              "Character.RemovePlayer",
-              {
-                characterId: characterId,
-              }
-            );
-            npc.actorModelId = 1974;
-            this.worldObjectManager.createLootEntity(
-              this,
-              this.generateItem(1415),
-              npc.state.position,
-              npc.state.rotation,
-              15
-            );
-            delete this._traps[characterId];
-          }
-        }, 200);
-        break;
-    }
+    npc.arm(this);
     this._traps[characterId] = npc;
   }
 
