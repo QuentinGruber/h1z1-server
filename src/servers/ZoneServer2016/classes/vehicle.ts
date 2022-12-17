@@ -61,6 +61,21 @@ function getVehicleLoadoutId(vehicleId: number) {
   }
 }
 
+function getDefaultLoadout(loadoutId: number) {
+  switch (loadoutId) {
+    case LoadoutIds.VEHICLE_OFFROADER:
+      return vehicleDefaultLoadouts.offroader;
+    case LoadoutIds.VEHICLE_PICKUP:
+      return vehicleDefaultLoadouts.pickup;
+    case LoadoutIds.VEHICLE_POLICECAR:
+      return vehicleDefaultLoadouts.policecar;
+    case LoadoutIds.VEHICLE_ATV:
+      return vehicleDefaultLoadouts.atv;
+    default:
+      return [];
+  }
+}
+
 export class Vehicle2016 extends BaseLootableEntity {
   isManaged: boolean = false;
   manager?: any;
@@ -98,6 +113,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     };
     this.vehicleId = getVehicleId(this.actorModelId);
     this.loadoutId = getVehicleLoadoutId(this.vehicleId);
+    this.defaultLoadout = getDefaultLoadout(this.loadoutId);
     this.isInvulnerable =
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;
@@ -286,21 +302,6 @@ export class Vehicle2016 extends BaseLootableEntity {
         return Items.VEHICLE_MOTOR_ATV;
       default:
         return 0;
-    }
-  }
-
-  getDefaultLoadout() {
-    switch (this.loadoutId) {
-      case LoadoutIds.VEHICLE_OFFROADER:
-        return vehicleDefaultLoadouts.offroader;
-      case LoadoutIds.VEHICLE_PICKUP:
-        return vehicleDefaultLoadouts.pickup;
-      case LoadoutIds.VEHICLE_POLICECAR:
-        return vehicleDefaultLoadouts.policecar;
-      case LoadoutIds.VEHICLE_ATV:
-        return vehicleDefaultLoadouts.atv;
-      default:
-        return [];
     }
   }
 

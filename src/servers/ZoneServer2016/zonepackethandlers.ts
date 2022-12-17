@@ -1378,32 +1378,6 @@ export class zonePacketHandlers {
         } else {
           // from loadout or invalid
 
-          /*
-          server.sendChatText(client, "asdsad")
-          // mounted container
-          const mountedContainerEntity = client.character.mountedContainer;
-          if (mountedContainerEntity && targetContainer) {
-            const container = mountedContainerEntity.getContainer();
-            if(!container) {
-              server.containerError(client, ContainerErrors.NOT_CONSTRUCTED)
-              return;
-            }
-            const item = container.items[itemGuid];
-            if (!item) {
-              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-              return;
-            }
-            container.transferItem(
-              server,
-              targetContainer,
-              item,
-              newSlotId,
-              count
-            );
-            return;
-          }
-          */
-
           // loadout
           const loadoutItem = client.character.getLoadoutItem(itemGuid);
           if (!loadoutItem) {

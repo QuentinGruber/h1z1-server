@@ -191,7 +191,7 @@ export class WorldObjectManager {
     Object.values(entity._loadout).forEach((item) => {
       if (
         item.itemGuid != "0x0" &&
-        (!isCharacter || !server.isDefaultItem(item.itemDefinitionId))
+          !server.isDefaultItem(entity, item.itemDefinitionId)
       ) {
         items[item.itemGuid] = _.cloneDeep(item);
         items[item.itemGuid].slotId = Object.keys(items).length + 1;
@@ -200,7 +200,7 @@ export class WorldObjectManager {
 
     Object.values(entity._containers).forEach((container: LoadoutContainer) => {
       Object.values(container.items).forEach((item) => {
-        if (!isCharacter || !server.isDefaultItem(item.itemDefinitionId)) {
+        if (!isCharacter || !server.isDefaultItem(entity, item.itemDefinitionId)) {
           let stacked = false;
           for (const i of Object.values(items)) {
             // stack similar items
@@ -289,7 +289,7 @@ export class WorldObjectManager {
     // not used for now since workaround doesn't use it
     // vehicle.getInventoryItemId()
 
-    server.equipLoadout(vehicle, vehicle.getDefaultLoadout());
+    server.equipLoadout(vehicle);
 
     server.equipItem(vehicle, server.generateItem(vehicle.getTurboItemId()));
     server.equipItem(

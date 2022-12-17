@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
+import { LoadoutKit } from "../data/loadouts";
 import { LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
@@ -45,6 +46,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
   gender: number;
+  defaultLoadout: LoadoutKit = [];
+
   constructor(
     characterId: string,
     transientId: number,
