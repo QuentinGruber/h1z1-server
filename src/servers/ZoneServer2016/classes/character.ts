@@ -443,14 +443,13 @@ export class Character2016 extends BaseFullCharacter {
 
     // to avoid a mounted container being dismounted if loadout is updated while mounted
 
-    const loadoutSlots = Object.keys(this._loadout).map((slotId: any) => {
+    const loadoutSlots = Object.values(this.getLoadoutSlots()).map((slotId: any) => {
       return this.pGetLoadoutSlot(slotId);
     });
 
     const mountedContainer = this.mountedContainer.getContainer();
     if (mountedContainer)
       loadoutSlots.push(this.mountedContainer.pGetLoadoutSlot(mountedContainer.slotId));
-
     return {
       characterId: this.characterId,
       loadoutId: this.loadoutId, // needs to be 3

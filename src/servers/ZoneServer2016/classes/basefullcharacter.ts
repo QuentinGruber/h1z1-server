@@ -254,7 +254,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       characterId: this.characterId,
       loadoutId: this.loadoutId,
       loadoutData: {
-        loadoutSlots: Object.keys(this.getLoadoutSlots()).map((slotId: any) => {
+        loadoutSlots: Object.values(this.getLoadoutSlots()).map((slotId: any) => {
           return this.pGetLoadoutSlot(slotId);
         }),
       },
