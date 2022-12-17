@@ -30,7 +30,7 @@ import {
 import { isPosInRadius, randomIntFromInterval, _ } from "../../../utils/utils";
 import { BaseItem } from "./baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
-import { LoadoutContainer } from "./loadoutContainer";
+import { LoadoutContainer } from "./loadoutcontainer";
 import { characterDefaultLoadout } from "../data/loadouts";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 

@@ -14,7 +14,7 @@
 import { ContainerErrors } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
-import { LoadoutContainer } from "./loadoutContainer";
+import { LoadoutContainer } from "./loadoutcontainer";
 import { ZoneClient2016 } from "./zoneclient";
 
 export class BaseLootableEntity extends BaseFullCharacter {
