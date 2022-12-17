@@ -3509,8 +3509,6 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case Items.FLARE:
         this.placeTemporaryEntity(
-          client,
-          itemDefinitionId,
           modelId,
           position,
           rotation,
@@ -3518,13 +3516,6 @@ export class ZoneServer2016 extends EventEmitter {
         );
         break;
       case Items.IED:
-        this.placeExplosiveEntity(
-          itemDefinitionId,
-          modelId,
-          position,
-          eul2quat(rotation)
-        );
-        break;
       case Items.LANDMINE:
         this.placeExplosiveEntity(
           itemDefinitionId,
@@ -3704,14 +3695,9 @@ export class ZoneServer2016 extends EventEmitter {
     parentObjectCharacterId: string,
     BuildingSlot: string
   ) {
-    const characterId = this.generateGuid();
-    const transientId = this.getTransientId(characterId);
-    const slot = BuildingSlot.substring(
-      BuildingSlot.length,
-      BuildingSlot.length - 2
-    ).toString();
-
-    const npc = new ConstructionDoor(
+    const characterId = this.generateGuid(),
+    transientId = this.getTransientId(characterId),
+    npc = new ConstructionDoor(
       characterId,
       transientId,
       modelId,
@@ -3721,23 +3707,14 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefinitionId,
       client.character.characterId,
       parentObjectCharacterId,
-      slot,
-      BuildingSlot
-    );
-    npc.fixedPosition = movePoint(
-      npc.state.position,
-      -npc.openAngle,
-      npc.itemDefinitionId == Items.DOOR_METAL ||
-        npc.itemDefinitionId == Items.DOOR_WOOD
-        ? 0.625
-        : 2.5
+      BuildingSlot,
     );
     if (Number(parentObjectCharacterId)) {
       switch (this.getEntityType(parentObjectCharacterId)) {
         case EntityTypes.CONSTRUCTION_FOUNDATION:
           const foundation =
             this._constructionFoundations[parentObjectCharacterId];
-          foundation.changePerimeters(this, slot, npc.state.position);
+          foundation.changePerimeters(this, npc.buildingSlot, npc.state.position);
           break;
         case EntityTypes.CONSTRUCTION_SIMPLE:
           const construction =
@@ -3770,9 +3747,9 @@ export class ZoneServer2016 extends EventEmitter {
     BuildingSlot?: string,
     eulerAngle?: number
   ) {
-    const characterId = this.generateGuid();
-    const transientId = this.getTransientId(characterId);
-    const npc = new ConstructionParentEntity(
+    const characterId = this.generateGuid(),
+    transientId = this.getTransientId(characterId),
+    npc = new ConstructionParentEntity(
       characterId,
       transientId,
       modelId,
@@ -3800,16 +3777,14 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   placeTemporaryEntity(
-    client: Client,
-    itemDefinitionId: number,
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
     time: number
   ) {
-    const characterId = this.generateGuid();
-    const transientId = this.getTransientId(characterId);
-    const npc = new TemporaryEntity(
+    const characterId = this.generateGuid(),
+    transientId = this.getTransientId(characterId),
+    npc = new TemporaryEntity(
       characterId,
       transientId,
       modelId,
@@ -3836,9 +3811,9 @@ export class ZoneServer2016 extends EventEmitter {
     position: Float32Array,
     rotation: Float32Array
   ) {
-    const characterId = this.generateGuid();
-    const transientId = this.getTransientId(characterId);
-    const npc = new TrapEntity(
+    const characterId = this.generateGuid(),
+    transientId = this.getTransientId(characterId),
+    npc = new TrapEntity(
       characterId,
       transientId,
       modelId,
@@ -4780,9 +4755,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.getItemDefinition(itemDefinitionId)?.FLAG_CAN_EQUIP) return false;
     return !!loadoutSlotItemClasses.find(
       (slot: any) =>
-        slot.ITEM_CLASS ===
+        slot.ITEM_CLASS ==
           this.getItemDefinition(itemDefinitionId).ITEM_CLASS &&
-        loadoutSlotId === slot.SLOT && slot.LOADOUT_ID == loadoutId
+        loadoutSlotId == slot.SLOT && slot.LOADOUT_ID == loadoutId
     );
   }
 
@@ -4796,8 +4771,8 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDef = this.getItemDefinition(itemDefId),
       loadoutSlotItemClass = loadoutSlotItemClasses.find(
         (slot: any) =>
-          slot.ITEM_CLASS === itemDef.ITEM_CLASS &&
-          loadoutId === slot.LOADOUT_ID
+          slot.ITEM_CLASS == itemDef.ITEM_CLASS &&
+          loadoutId == slot.LOADOUT_ID
       );
     return loadoutSlotItemClass?.SLOT || 0;
   }
@@ -4816,8 +4791,8 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDef = this.getItemDefinition(itemDefId),
       loadoutSlotItemClass = loadoutSlotItemClasses.find(
         (slot: any) =>
-          slot.ITEM_CLASS === itemDef.ITEM_CLASS &&
-          character.loadoutId === slot.LOADOUT_ID
+          slot.ITEM_CLASS == itemDef.ITEM_CLASS &&
+          character.loadoutId == slot.LOADOUT_ID
       );
     let slot = loadoutSlotItemClass?.SLOT;
     if (!slot) return 0;

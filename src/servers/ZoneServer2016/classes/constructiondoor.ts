@@ -16,6 +16,7 @@ import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "./zoneclient";
 import { DamageInfo } from "types/zoneserver";
+import { movePoint } from "../../../utils/utils";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_GATE:
@@ -39,7 +40,7 @@ export class ConstructionDoor extends DoorEntity {
   itemDefinitionId: number;
   slot?: string;
   damageRange: number;
-  fixedPosition?: Float32Array;
+  fixedPosition: Float32Array;
   constructor(
     characterId: string,
     transientId: number,
@@ -50,8 +51,7 @@ export class ConstructionDoor extends DoorEntity {
     itemDefinitionId: number,
     ownerCharacterId: string,
     parentObjectCharacterId: string,
-    BuildingSlot: string,
-    slot: string
+    BuildingSlot: string
   ) {
     super(
       characterId,
@@ -65,10 +65,21 @@ export class ConstructionDoor extends DoorEntity {
     this.ownerCharacterId = ownerCharacterId;
     this.itemDefinitionId = itemDefinitionId;
     this.parentObjectCharacterId = parentObjectCharacterId;
-    this.buildingSlot = BuildingSlot;
-    if (slot) this.slot = slot;
+    this.buildingSlot = BuildingSlot.substring(
+      BuildingSlot.length,
+      BuildingSlot.length - 2
+    ).toString();
+    this.slot = BuildingSlot;
     this.profileId = 999; /// mark as construction
     this.damageRange = getDamageRange(this.itemDefinitionId);
+    this.fixedPosition = movePoint(
+      this.state.position,
+      -this.openAngle,
+      this.itemDefinitionId == Items.DOOR_METAL ||
+      this.itemDefinitionId == Items.DOOR_WOOD
+        ? 0.625
+        : 2.5
+    );
   }
   pGetConstructionHealth() {
     return {
