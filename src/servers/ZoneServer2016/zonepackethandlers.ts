@@ -30,16 +30,12 @@ import {
 
 import { CraftManager } from "./managers/craftmanager";
 import { ContainerErrors, EntityTypes, Items } from "./models/enums";
-import { TrapEntity } from "./classes/trapentity";
-import { ExplosiveEntity } from "./classes/explosiveentity";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ConstructionParentEntity } from "./classes/constructionparententity";
 import { ConstructionDoor } from "./classes/constructiondoor";
 import { AVG_PING_SECS } from "../../utils/constants";
 import { CommandHandler } from "./commands/commandhandler";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
-import { LoadoutContainer } from "./classes/loadoutcontainer";
-import { BaseItem } from "./classes/baseItem";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -734,11 +730,7 @@ export class zonePacketHandlers {
     packet: any
   ) {
     const entity = server.getEntity(packet.data.characterId);
-
     if (!(entity instanceof BaseFullCharacter)) {
-      console.error(
-        `Client: ${client.guid} tried to request FullCharacterData from invalid FullCharacter with characterId: ${packet.data.characterId}!`
-      );
       return;
     }
 
@@ -783,10 +775,12 @@ export class zonePacketHandlers {
     client: Client,
     packet: { data: VehicleCurrentMoveMode }
   ) {
-    const { characterId, moveMode } = packet.data;
+    const { characterId, moveMode } = packet.data,
+    vehicle = server._vehicles[characterId as string];
+    if(!vehicle) return;
     debug(
       `vehTransient:${
-        server._vehicles[characterId as string].transientId
+        vehicle.transientId
       } , mode: ${moveMode} from ${client.character.name} time:${Date.now()}`
     );
   }

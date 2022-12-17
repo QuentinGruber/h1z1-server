@@ -97,8 +97,7 @@ export class CommandHandler {
       !server.hookManager.checkHook(
         "OnClientExecuteInternalCommand",
         client,
-        packet.data.commandHash,
-        packet.data.arguments
+        packet.data
       )
     ) {
       return;
