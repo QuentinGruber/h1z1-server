@@ -228,24 +228,20 @@ export class WorldObjectManager {
 
     if (!_.size(items)) return; // don't spawn lootbag if inventory is empty
 
-    const container = new LoadoutContainer(
-      new LoadoutItem(
-        item,
-        server.getLoadoutSlot(item.itemDefinitionId),
-        characterId
-      ),
-      server.getItemDefinition(item.itemDefinitionId).PARAM1
-    );
-    container.items = items;
-
-    server._lootbags[characterId] = new Lootbag(
+    const lootbag = new Lootbag(
       characterId,
       server.getTransientId(characterId),
       isCharacter ? 9581 : 9391,
       entity.state.position,
-      new Float32Array([0, 0, 0, 0]),
-      container
+      new Float32Array([0, 0, 0, 0])
     );
+    server.equipItem(lootbag, item, false);
+    const container = lootbag.getContainer();
+    if(container) {
+      container.items = items;
+    }
+
+    server._lootbags[characterId] = lootbag;
   }
 
   private createDoor(
