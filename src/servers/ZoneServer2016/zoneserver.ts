@@ -5991,6 +5991,8 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendChatText(client, "Container Error: ContainerIsNotMutable");
       case ContainerErrors.NOT_CONSTRUCTED:
         this.sendChatText(client, "Container Error: ContainerNotConstructed");
+      case ContainerErrors.NO_SPACE:
+        this.sendChatText(client, "Container Error: ContainerHasNoSpace");
       default:
         this.sendData(client, "Container.Error", {
           characterId: client.character.characterId,

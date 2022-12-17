@@ -1393,7 +1393,7 @@ export class zonePacketHandlers {
                 count
               )
             ) {
-              server.sendChatText(client, "ContainerNoSpace")
+              server.containerError(client, ContainerErrors.NO_SPACE);
               return;
             }
             if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
