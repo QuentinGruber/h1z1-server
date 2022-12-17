@@ -1257,7 +1257,7 @@ export class ZoneServer2016 extends EventEmitter {
               object.spawnerId
             ];
           }
-          explosiveObj.detonate(this);
+          if (!explosiveObj.detonated) explosiveObj.detonate(this);
         }
       }
     }
