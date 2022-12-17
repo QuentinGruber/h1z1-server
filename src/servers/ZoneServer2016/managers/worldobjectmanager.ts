@@ -289,20 +289,15 @@ export class WorldObjectManager {
     // not used for now since workaround doesn't use it
     // vehicle.getInventoryItemId()
 
-    server.equipItem(
-      vehicle,
-      server.generateItem(Items.CONTAINER_VEHICLE),
-      false
-    );
+    server.equipLoadout(vehicle, vehicle.getDefaultLoadout());
+
     server.equipItem(vehicle, server.generateItem(vehicle.getTurboItemId()));
     server.equipItem(
       vehicle,
       server.generateItem(vehicle.getHeadlightsItemId())
     );
-    server.equipItem(vehicle, server.generateItem(vehicle.getMotorItemId()));
     server.equipItem(vehicle, server.generateItem(Items.BATTERY));
     server.equipItem(vehicle, server.generateItem(Items.SPARKPLUGS));
-    server.equipItem(vehicle, server.generateItem(Items.VEHICLE_HOTWIRE));
     server._vehicles[vehicle.characterId] = vehicle;
   }
 

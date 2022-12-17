@@ -1426,7 +1426,7 @@ export class zonePacketHandlers {
               return;
             }
             server.addContainerItem(
-              client,
+              client.character,
               loadoutItem,
               targetContainer,
               count,

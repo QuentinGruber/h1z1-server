@@ -20,7 +20,7 @@ interface LoadoutKitEntry {
   count?: number;
 }
 
-export const defaultLoadout = [
+export const characterDefaultLoadout = [
   { item: Items.WEAPON_FISTS },
   { item: Items.SHIRT_DEFAULT },
   { item: Items.WAIST_PACK },
@@ -33,7 +33,7 @@ export const defaultLoadout = [
   { item: Items.LIGHTER },
 ];
 
-export const kitLoadout = [
+export const characterKitLoadout = [
   { item: Items.BACKPACK_RASTA },
   { item: Items.WEAPON_308 },
   { item: Items.WEAPON_SHOTGUN },
@@ -49,3 +49,27 @@ export const kitLoadout = [
   { item: Items.HELMET_MOTORCYCLE },
   { item: Items.CONVEYS_BLUE },
 ];
+
+export const vehicleDefaultLoadouts = {
+  "offroader": [
+    { item: Items.CONTAINER_VEHICLE },
+    { item: Items.VEHICLE_MOTOR_OFFROADER },
+    { item: Items.VEHICLE_HOTWIRE },
+  ],
+  "policecar": [
+    { item: Items.CONTAINER_VEHICLE },
+    { item: Items.VEHICLE_MOTOR_POLICECAR },
+    { item: Items.VEHICLE_HOTWIRE },
+  ],
+  "atv": [
+    { item: Items.CONTAINER_VEHICLE },
+    { item: Items.VEHICLE_MOTOR_ATV },
+    { item: Items.VEHICLE_HOTWIRE },
+  ],
+  "pickup": [
+    { item: Items.CONTAINER_VEHICLE },
+    { item: Items.VEHICLE_MOTOR_PICKUP },
+    { item: Items.VEHICLE_HOTWIRE },
+  ]
+}
+

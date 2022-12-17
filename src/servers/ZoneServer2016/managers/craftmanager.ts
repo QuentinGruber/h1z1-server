@@ -259,7 +259,7 @@ export class CraftManager {
         if (!remainingItems) break;
       }
     }
-    server.lootItem(client, server.generateItem(recipeId, craftCount));
+    server.lootItem(client.character, server.generateItem(recipeId, craftCount));
     return true;
     //#endregion
   }

@@ -25,7 +25,7 @@ import { ExplosiveEntity } from "../classes/explosiveentity";
 import { Npc } from "../classes/npc";
 import { Vehicle2016 as Vehicle } from "../classes/vehicle";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
-import { kitLoadout } from "../data/loadouts";
+import { characterKitLoadout } from "../data/loadouts";
 import { EquipSlots, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
@@ -931,7 +931,7 @@ export const commands: Array<Command> = [
           targetClient ? targetClient.character.name : client.character.name
         }`
       );
-      server.lootItem(targetClient ? targetClient : client, item);
+      server.lootItem(targetClient ? targetClient.character : client.character, item);
     },
   },
   {
@@ -961,7 +961,7 @@ export const commands: Array<Command> = [
     name: "kit",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
-      server.equipLoadout(client, kitLoadout);
+      server.equipLoadout(client.character, characterKitLoadout);
     },
   },
   {
@@ -1080,7 +1080,7 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
       const wep = server.generateItem(Items.WEAPON_REMOVER);
       if (wep && wep.weapon) wep.weapon.ammoCount = 1000;
-      server.lootItem(client, wep);
+      server.lootItem(client.character, wep);
     },
   },
   {

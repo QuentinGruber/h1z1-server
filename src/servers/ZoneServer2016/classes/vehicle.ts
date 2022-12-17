@@ -23,6 +23,7 @@ import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { DamageInfo } from "types/zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
+import { vehicleDefaultLoadouts } from "../data/loadouts";
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {
@@ -285,6 +286,21 @@ export class Vehicle2016 extends BaseLootableEntity {
         return Items.VEHICLE_MOTOR_ATV;
       default:
         return 0;
+    }
+  }
+
+  getDefaultLoadout() {
+    switch (this.loadoutId) {
+      case LoadoutIds.VEHICLE_OFFROADER:
+        return vehicleDefaultLoadouts.offroader;
+      case LoadoutIds.VEHICLE_PICKUP:
+        return vehicleDefaultLoadouts.pickup;
+      case LoadoutIds.VEHICLE_POLICECAR:
+        return vehicleDefaultLoadouts.policecar;
+      case LoadoutIds.VEHICLE_ATV:
+        return vehicleDefaultLoadouts.atv;
+      default:
+        return [];
     }
   }
 

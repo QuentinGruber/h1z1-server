@@ -116,7 +116,7 @@ import { LoadoutItem } from "./classes/loadoutItem";
 import { LoadoutContainer } from "./classes/loadoutcontainer";
 import { Weapon } from "./classes/weapon";
 import { Lootbag } from "./classes/lootbag";
-import { defaultLoadout, LoadoutKit } from "./data/loadouts";
+import { characterDefaultLoadout, LoadoutKit } from "./data/loadouts";
 import { BaseLootableEntity } from "./classes/baselootableentity";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -1468,6 +1468,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.deleteEntity(vehicle.characterId, this._vehicles);
     this.explosionDamage(vehicle.state.position, vehicle.characterId);
+
+    this.worldObjectManager.createLootbag(this, vehicle);
   }
 
   startVehicleDamageDelay(vehicle: Vehicle) {
@@ -1525,7 +1527,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     this.clearInventory(client);
-    this.equipLoadout(client, defaultLoadout);
+    this.equipLoadout(client.character, characterDefaultLoadout);
     client.character.state.position =
       this._spawnLocations[randomSpawnIndex].position;
     this.updateResource(
@@ -1639,7 +1641,7 @@ export class ZoneServer2016 extends EventEmitter {
         case "SpeedTree.Blackberry":
           itemDefId = Items.BLACKBERRY;
           if (randomIntFromInterval(1, 10) == 1) {
-            this.lootItem(client, this.generateItem(Items.WEAPON_BRANCH));
+            this.lootItem(client.character, this.generateItem(Items.WEAPON_BRANCH));
           }
           allowDes = true;
           count = randomIntFromInterval(1, 2);
@@ -1677,7 +1679,7 @@ export class ZoneServer2016 extends EventEmitter {
           return;
       }
       if (itemDefId) {
-        this.lootContainerItem(client, this.generateItem(itemDefId, count));
+        this.lootContainerItem(client.character, this.generateItem(itemDefId, count));
       }
       if (allowDes) {
         this.speedTreeDestroy(packet);
@@ -1866,7 +1868,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (item.currentDurability <= 0) {
       this.removeInventoryItem(client, item);
       if (this.isWeapon(item.itemDefinitionId)) {
-        this.lootContainerItem(client, this.generateItem(1354));
+        this.lootContainerItem(client.character, this.generateItem(1354));
       }
       return;
     }
@@ -4178,7 +4180,9 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
 
-      client.character.mountContainer(this, vehicle);
+      if(vehicle.getContainer()) {
+        client.character.mountContainer(this, vehicle);
+      }
     }
     this.sendData(client, "Vehicle.Occupy", {
       guid: vehicle.characterId,
@@ -4279,7 +4283,7 @@ export class ZoneServer2016 extends EventEmitter {
         ],
       }
     );
-
+      
     client.character.dismountContainer(this);
   }
 
@@ -4341,7 +4345,9 @@ export class ZoneServer2016 extends EventEmitter {
           }
         );
 
-        client.character.mountContainer(this, vehicle);
+        if(vehicle.getContainer()) {
+          client.character.mountContainer(this, vehicle);
+        }
       }
     }
   }
@@ -4513,7 +4519,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
-      this.lootContainerItem(client, oldLoadoutItem, undefined, false);
+      this.lootContainerItem(client.character, oldLoadoutItem, undefined, false);
     }
     this.equipItem(client.character, item, true, slotId);
   }
@@ -5326,7 +5332,8 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  lootItem(client: Client, item?: BaseItem, count?: number, sendUpdate = true) {
+  lootItem(character: BaseFullCharacter, item?: BaseItem, count?: number, sendUpdate = true) {
+    const client = this.getClientByCharId(character.characterId);
     if (!item) return;
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
@@ -5338,18 +5345,18 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDefId = item.itemDefinitionId,
       itemDef = this.getItemDefinition(itemDefId);
     if (
-      itemDef?.FLAG_CAN_EQUIP &&
-      this.getAvailableLoadoutSlot(client.character, itemDefId)
+      //itemDef?.FLAG_CAN_EQUIP &&
+      this.getAvailableLoadoutSlot(character, itemDefId)
     ) {
-      if (client.character.initialized && sendUpdate) {
+      if (client && client.character.initialized && sendUpdate) {
         this.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
           count: count,
         });
       }
-      this.equipItem(client.character, item, sendUpdate);
-      if (this.isWeapon(item.itemDefinitionId) && sendUpdate) {
+      this.equipItem(character, item, sendUpdate);
+      if (client && this.isWeapon(item.itemDefinitionId) && sendUpdate) {
         this.sendRemoteWeaponDataToAllOthers(
           client,
           client.character.transientId,
@@ -5358,13 +5365,13 @@ export class ZoneServer2016 extends EventEmitter {
             data: {
               remoteWeapons: client.character.pGetRemoteWeaponsData(this),
               remoteWeaponsExtra:
-                client.character.pGetRemoteWeaponsExtraData(this),
+              client.character.pGetRemoteWeaponsExtraData(this),
             },
           }
         );
       }
     } else {
-      this.lootContainerItem(client, item, count, sendUpdate);
+      this.lootContainerItem(character, item, count, sendUpdate);
     }
   }
 
@@ -5386,7 +5393,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     //endregion
 
-    this.lootItem(client, item);
+    this.lootItem(client.character, item);
 
     if (
       item.itemDefinitionId === Items.FUEL_BIOFUEL ||
@@ -5399,11 +5406,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   lootContainerItem(
-    client: Client,
+    character: BaseFullCharacter,
     item?: BaseItem,
     count?: number,
     sendUpdate: boolean = true
   ) {
+    const client = this.getClientByCharId(character.characterId);
     if (!item) return;
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
@@ -5415,25 +5423,27 @@ export class ZoneServer2016 extends EventEmitter {
 
     const itemDefId = item.itemDefinitionId,
       availableContainer = this.getAvailableContainer(
-        client.character,
+        character,
         itemDefId,
         count
       );
 
     if (!availableContainer) {
       // container error full
-      this.sendData(client, "Character.NoSpaceNotification", {
-        characterId: client.character.characterId,
-      });
+      if(client) {
+        this.sendData(client, "Character.NoSpaceNotification", {
+          characterId: client.character.characterId,
+        });
+      }
 
-      Object.values(client.character._containers).forEach((c) => {
+      Object.values(character._containers).forEach((c) => {
         const availableSpace = c.getAvailableBulk(this),
           itemBulk = this.getItemDefinition(item.itemDefinitionId).BULK,
           lootCount = Math.floor(availableSpace / itemBulk);
         if (lootCount) {
           item.stackCount -= lootCount;
           this.lootContainerItem(
-            client,
+            character,
             this.generateItem(item.itemDefinitionId, lootCount)
           );
         }
@@ -5442,7 +5452,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.worldObjectManager.createLootEntity(
         this,
         item,
-        client.character.state.position,
+        character.state.position,
         new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
       );
       return;
@@ -5455,10 +5465,12 @@ export class ZoneServer2016 extends EventEmitter {
     );
     if (itemStackGuid) {
       const itemStack =
-        client.character._containers[availableContainer.slotId].items[
+        character._containers[availableContainer.slotId].items[
           itemStackGuid
         ];
       itemStack.stackCount += count;
+      if(!client) return;
+      
       this.updateContainerItem(client, itemStack, availableContainer);
       if (sendUpdate && client.character.initialized) {
         this.sendData(client, "Reward.AddNonRewardItem", {
@@ -5469,7 +5481,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     } else {
       this.addContainerItem(
-        client,
+        character,
         item,
         availableContainer,
         count,
@@ -5507,7 +5519,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   addContainerItem(
-    client: Client,
+    character: BaseFullCharacter,
     item: BaseItem | undefined,
     container: LoadoutContainer,
     count: number,
@@ -5515,13 +5527,16 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     if (!item) return;
 
-    const itemDefId = item.itemDefinitionId;
+    const itemDefId = item.itemDefinitionId,
+    client = this.getClientByCharId(character.characterId);
     container.items[item.itemGuid] = {
       ...item,
       slotId: Object.keys(container.items).length,
       containerGuid: container.itemGuid,
       stackCount: count,
     };
+
+    if(!client) return;
     this.addItem(
       client,
       container.items[item.itemGuid],
@@ -5562,14 +5577,14 @@ export class ZoneServer2016 extends EventEmitter {
     this.updateContainer(client, container);
   }
 
-  equipLoadout(client: Client, loadout: LoadoutKit, sendPacket = true) {
+  equipLoadout(character: BaseFullCharacter, loadout: LoadoutKit, sendPacket = true) {
     loadout.forEach((entry) => {
       if (
         entry.item != Items.WEAPON_FISTS ||
-        !client.character._loadout[LoadoutSlots.FISTS]
+        !character._loadout[LoadoutSlots.FISTS]
       ) {
         this.lootItem(
-          client,
+          character,
           this.generateItem(entry.item, entry.count),
           entry.count,
           sendPacket
@@ -5598,7 +5613,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   isDefaultItem(itemDefinitionId: number): boolean {
     let isDefault = false;
-    defaultLoadout.forEach((defaultItem) => {
+    characterDefaultLoadout.forEach((defaultItem) => {
       if (defaultItem.item == itemDefinitionId) {
         isDefault = true;
       }
@@ -5727,7 +5742,7 @@ export class ZoneServer2016 extends EventEmitter {
   fillPass(client: Client, item: BaseItem) {
     if (client.character.characterStates.inWater) {
       this.removeInventoryItem(client, item);
-      this.lootContainerItem(client, this.generateItem(1368)); // give dirty water
+      this.lootContainerItem(client.character, this.generateItem(1368)); // give dirty water
     } else {
       this.sendAlert(client, "There is no water source nearby");
     }
@@ -5848,7 +5863,7 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceIds.HYDRATION
     );
     if (givetrash) {
-      this.lootContainerItem(client, this.generateItem(givetrash));
+      this.lootContainerItem(client.character, this.generateItem(givetrash));
     }
   }
 
@@ -5875,7 +5890,7 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceIds.HYDRATION
     );
     if (givetrash) {
-      this.lootContainerItem(client, this.generateItem(givetrash));
+      this.lootContainerItem(client.character, this.generateItem(givetrash));
     }
   }
 
@@ -5939,7 +5954,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   shredItemPass(client: Client, item: BaseItem, count: number) {
     this.removeInventoryItem(client, item);
-    this.lootItem(client, this.generateItem(Items.CLOTH, count));
+    this.lootItem(client.character, this.generateItem(Items.CLOTH, count));
   }
 
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);

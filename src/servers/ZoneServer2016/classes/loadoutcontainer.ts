@@ -28,12 +28,12 @@ function combineItemStack(
 ) {
   if (oldStackCount == count) {
     // if full stack is moved
-    server.addContainerItem(client, item, targetContainer, count, false);
+    server.addContainerItem(client.character, item, targetContainer, count, false);
     return;
   }
   // if only partial stack is moved
   server.addContainerItem(
-    client,
+    client.character,
     server.generateItem(item.itemDefinitionId),
     targetContainer,
     count,

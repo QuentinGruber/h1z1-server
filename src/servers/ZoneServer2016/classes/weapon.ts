@@ -31,7 +31,7 @@ export class Weapon {
   unload(server: ZoneServer2016, client: ZoneClient2016) {
     if (!this.ammoCount) return;
     server.lootItem(
-      client,
+      client.character,
       server.generateItem(
         server.getWeaponAmmoId(this.itemDefinitionId),
         this.ammoCount
