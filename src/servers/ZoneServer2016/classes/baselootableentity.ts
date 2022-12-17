@@ -18,7 +18,7 @@ import { LoadoutContainer } from "./loadoutcontainer";
 import { ZoneClient2016 } from "./zoneclient";
 
 export class BaseLootableEntity extends BaseFullCharacter {
-  container: LoadoutContainer;
+  private container: LoadoutContainer;
   mountedCharacter?: string;
   readonly interactionDistance = 4;
   isLootbag: boolean;
@@ -33,6 +33,10 @@ export class BaseLootableEntity extends BaseFullCharacter {
     super(characterId, transientId, actorModelId, position, rotation);
     this.isLootbag = actorModelId == 9581 || actorModelId == 9391;
     this.container = container;
+  }
+
+  getContainer(): LoadoutContainer | undefined {
+    return this.container;
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {

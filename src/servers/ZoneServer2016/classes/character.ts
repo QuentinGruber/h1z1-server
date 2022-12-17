@@ -427,7 +427,8 @@ export class Character2016 extends BaseFullCharacter {
 
     // to avoid a mounted container being dismounted if container list is updated while mounted
     const containers = super.pGetContainers(server),
-      mountedContainer = this.mountedContainer.container;
+      mountedContainer = this.mountedContainer.getContainer();
+    if(!mountedContainer) return containers;
     containers.push({
       loadoutSlotId: mountedContainer.slotId,
       containerData: super.pGetContainerData(server, mountedContainer),
@@ -444,7 +445,8 @@ export class Character2016 extends BaseFullCharacter {
       return this.pGetLoadoutSlot(this._loadout[slotId]);
     });
 
-    loadoutSlots.push(this.pGetLoadoutSlot(this.mountedContainer.container));
+    const mountedContainer = this.mountedContainer.getContainer();
+    if(mountedContainer) loadoutSlots.push(this.pGetLoadoutSlot(mountedContainer));
 
     return {
       characterId: this.characterId,
@@ -530,6 +532,11 @@ export class Character2016 extends BaseFullCharacter {
   mountContainer(server: ZoneServer2016, lootableEntity: BaseLootableEntity) {
     const client = server.getClientByCharId(this.characterId);
     if (!client) return;
+    const container = lootableEntity.getContainer()
+    if(!container) {
+      server.containerError(client, ContainerErrors.NOT_CONSTRUCTED)
+      return;
+    }
 
     if (
       !isPosInRadius(
@@ -547,13 +554,13 @@ export class Character2016 extends BaseFullCharacter {
 
     server.initializeContainerList(client);
 
-    server.addItem(client, lootableEntity.container, 101);
+    server.addItem(client, container, 101);
 
-    Object.values(lootableEntity.container.items).forEach((item) => {
+    Object.values(container.items).forEach((item) => {
       server.addItem(
         client,
         item,
-        lootableEntity.container.containerDefinitionId
+        container.containerDefinitionId
       );
     });
 
@@ -561,7 +568,7 @@ export class Character2016 extends BaseFullCharacter {
 
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId: lootableEntity.characterId,
-      containerGuid: lootableEntity.container.itemGuid,
+      containerGuid: container.itemGuid,
       unknownBool1: false,
       itemsData: {
         items: [],
@@ -573,14 +580,19 @@ export class Character2016 extends BaseFullCharacter {
   dismountContainer(server: ZoneServer2016) {
     const client = server.getClientByCharId(this.characterId);
     if (!client || !this.mountedContainer) return;
+    const container = this.mountedContainer.getContainer()
+    if(!container) {
+      server.containerError(client, ContainerErrors.NOT_CONSTRUCTED)
+      return;
+    }
 
-    server.deleteItem(client, this.mountedContainer.container.itemGuid);
-    Object.values(this.mountedContainer.container.items).forEach((item) => {
+    server.deleteItem(client, container.itemGuid);
+    Object.values(container.items).forEach((item) => {
       if (!this.mountedContainer) return;
       server.deleteItem(client, item.itemGuid);
     });
 
-    if (!_.size(this.mountedContainer.container.items)) {
+    if (!_.size(container.items)) {
       server.deleteEntity(this.mountedContainer.characterId, server._lootbags);
     }
 
@@ -601,8 +613,8 @@ export class Character2016 extends BaseFullCharacter {
     }
     // check mounted container
     if (!c && this.mountedContainer) {
-      const container = this.mountedContainer.container;
-      if (container.items[itemGuid]) return container;
+      const container = this.mountedContainer.getContainer();
+      if (container && container.items[itemGuid]) return container;
     }
     return c;
   }
@@ -614,8 +626,8 @@ export class Character2016 extends BaseFullCharacter {
         c = container;
       }
     }
-    if (!c && this.mountedContainer?.container.itemGuid == containerGuid) {
-      c = this.mountedContainer.container;
+    if (!c && this.mountedContainer?.getContainer()?.itemGuid == containerGuid) {
+      c = this.mountedContainer.getContainer();
     }
     return c;
   }

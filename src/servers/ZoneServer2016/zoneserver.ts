@@ -2671,7 +2671,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.addLightweightNpc(
             client,
             lootbag,
-            this.getItemDefinition(lootbag.container.itemDefinitionId).NAME_ID
+            this.getItemDefinition(lootbag.getContainer()?.itemDefinitionId).NAME_ID
           );
           client.spawnedEntities.push(lootbag);
         }
@@ -5193,12 +5193,12 @@ export class ZoneServer2016 extends EventEmitter {
     // external container
     if (
       client.character.mountedContainer &&
-      client.character.mountedContainer.container.items[item.itemGuid]
+      client.character.mountedContainer.getContainer()?.items[item.itemGuid]
     ) {
       return this.removeContainerItem(
         client,
         item,
-        client.character.mountedContainer.container,
+        client.character.mountedContainer.getContainer(),
         count
       );
     }
@@ -5960,6 +5960,8 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case ContainerErrors.NOT_MUTABLE:
         this.sendChatText(client, "Container Error: ContainerIsNotMutable");
+      case ContainerErrors.NOT_CONSTRUCTED:
+        this.sendChatText(client, "Container Error: ContainerNotConstructed");
       default:
         this.sendData(client, "Container.Error", {
           characterId: client.character.characterId,

@@ -206,6 +206,7 @@ export class WorldObjectManager {
     Object.values(entity._containers).forEach((container: LoadoutContainer) => {
       Object.values(container.items).forEach((item) => {
         if (!isCharacter || !server.isDefaultItem(item.itemDefinitionId)) {
+          let stacked = false;
           for (const i of Object.values(items)) {
             // stack similar items
             if (
@@ -213,11 +214,14 @@ export class WorldObjectManager {
               server.isStackable(item.itemDefinitionId)
             ) {
               items[i.itemGuid].stackCount += item.stackCount;
-              continue;
+              stacked = true;
+              break;
             }
           }
-          items[item.itemGuid] = _.cloneDeep(item);
-          items[item.itemGuid].slotId = Object.keys(items).length + 1;
+          if(!stacked) {
+            items[item.itemGuid] = _.cloneDeep(item);
+            items[item.itemGuid].slotId = Object.keys(items).length + 1;
+          }
         }
       });
     });
@@ -289,10 +293,14 @@ export class WorldObjectManager {
   createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
     // setup vehicle loadout slots, containers, etc here
     // todo: add siren and horn
+
+    // disabled for now since workaround doesn't use it
+    /*
     server.equipItem(
       vehicle,
       server.generateItem(vehicle.getInventoryItemId())
     );
+    */
     server.equipItem(vehicle, server.generateItem(vehicle.getTurboItemId()));
     server.equipItem(
       vehicle,

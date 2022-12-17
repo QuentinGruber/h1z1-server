@@ -33,6 +33,7 @@ export class Lootbag extends BaseLootableEntity {
       rotation,
       container
     );
-    this.container.canAcceptItems = false;
+    const containers = this.getContainer();
+    if(containers) containers.canAcceptItems = false;
   }
 }

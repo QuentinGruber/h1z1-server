@@ -957,7 +957,11 @@ export class zonePacketHandlers {
     // check for item in mounted container
     if (!container && client.character.mountedContainer) {
       console.log("MOUNTEDCONTAINER 1");
-      const mountedContainer = client.character.mountedContainer.container;
+      const mountedContainer = client.character.mountedContainer.getContainer();
+      if(!mountedContainer) {
+        server.containerError(client, ContainerErrors.NOT_CONSTRUCTED)
+        return;
+      }
       if (mountedContainer.items[item.itemGuid]) {
         console.log("MOUNTEDCONTAINER 2");
         container = mountedContainer;
@@ -1380,8 +1384,12 @@ export class zonePacketHandlers {
           // mounted container
           const mountedContainerEntity = client.character.mountedContainer;
           if (mountedContainerEntity && targetContainer) {
-            const container = mountedContainerEntity.container,
-              item = container.items[itemGuid];
+            const container = mountedContainerEntity.getContainer();
+            if(!container) {
+              server.containerError(client, ContainerErrors.NOT_CONSTRUCTED)
+              return;
+            }
+            const item = container.items[itemGuid];
             if (!item) {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
