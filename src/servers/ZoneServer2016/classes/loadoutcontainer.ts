@@ -28,7 +28,13 @@ function combineItemStack(
 ) {
   if (oldStackCount == count) {
     // if full stack is moved
-    server.addContainerItem(client.character, item, targetContainer, count, false);
+    server.addContainerItem(
+      client.character,
+      item,
+      targetContainer,
+      count,
+      false
+    );
     return;
   }
   // if only partial stack is moved
@@ -97,8 +103,7 @@ export class LoadoutContainer extends LoadoutItem {
 
     const lootableEntity = server.getLootableEntity(this.loadoutItemOwnerGuid);
     if (lootableEntity) {
-      const mountedCharacterId =
-        lootableEntity.mountedCharacter;
+      const mountedCharacterId = lootableEntity.mountedCharacter;
       if (mountedCharacterId)
         client = server.getClientByCharId(mountedCharacterId);
     } else {

@@ -931,7 +931,10 @@ export const commands: Array<Command> = [
           targetClient ? targetClient.character.name : client.character.name
         }`
       );
-      server.lootItem(targetClient ? targetClient.character : client.character, item);
+      server.lootItem(
+        targetClient ? targetClient.character : client.character,
+        item
+      );
     },
   },
   {

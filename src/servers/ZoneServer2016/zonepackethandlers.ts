@@ -957,8 +957,8 @@ export class zonePacketHandlers {
     // check for item in mounted container
     if (!container && client.character.mountedContainer) {
       const mountedContainer = client.character.mountedContainer.getContainer();
-      if(!mountedContainer) {
-        server.containerError(client, ContainerErrors.NOT_CONSTRUCTED)
+      if (!mountedContainer) {
+        server.containerError(client, ContainerErrors.NOT_CONSTRUCTED);
         return;
       }
       if (mountedContainer.items[item.itemGuid]) {

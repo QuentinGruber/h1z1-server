@@ -191,7 +191,7 @@ export class WorldObjectManager {
     Object.values(entity._loadout).forEach((item) => {
       if (
         item.itemGuid != "0x0" &&
-          !server.isDefaultItem(entity, item.itemDefinitionId)
+        !server.isDefaultItem(entity, item.itemDefinitionId)
       ) {
         items[item.itemGuid] = _.cloneDeep(item);
         items[item.itemGuid].slotId = Object.keys(items).length + 1;
@@ -200,7 +200,10 @@ export class WorldObjectManager {
 
     Object.values(entity._containers).forEach((container: LoadoutContainer) => {
       Object.values(container.items).forEach((item) => {
-        if (!isCharacter || !server.isDefaultItem(entity, item.itemDefinitionId)) {
+        if (
+          !isCharacter ||
+          !server.isDefaultItem(entity, item.itemDefinitionId)
+        ) {
           let stacked = false;
           for (const i of Object.values(items)) {
             // stack similar items
@@ -213,7 +216,7 @@ export class WorldObjectManager {
               break;
             }
           }
-          if(!stacked) {
+          if (!stacked) {
             items[item.itemGuid] = _.cloneDeep(item);
             items[item.itemGuid].slotId = Object.keys(items).length + 1;
           }
@@ -231,9 +234,13 @@ export class WorldObjectManager {
       new Float32Array([0, 0, 0, 0])
     );
 
-    server.equipItem(lootbag, server.generateItem(Items.CONTAINER_DROPPED_ITEMS), false);
+    server.equipItem(
+      lootbag,
+      server.generateItem(Items.CONTAINER_DROPPED_ITEMS),
+      false
+    );
     const container = lootbag.getContainer();
-    if(container) {
+    if (container) {
       container.items = items;
     }
 

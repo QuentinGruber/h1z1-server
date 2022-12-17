@@ -23,15 +23,9 @@ export class Lootbag extends BaseLootableEntity {
     position: Float32Array,
     rotation: Float32Array
   ) {
-    super(
-      characterId,
-      transientId,
-      actorModelId,
-      position,
-      rotation
-    );
+    super(characterId, transientId, actorModelId, position, rotation);
     const container = this.getContainer();
-    if(container) container.canAcceptItems = false;
+    if (container) container.canAcceptItems = false;
     this.flags.noCollide = 1;
   }
 }

@@ -25,7 +25,7 @@ export enum ContainerErrors {
   // custom errors
   DOES_NOT_ACCEPT_ITEMS = 7,
   NOT_MUTABLE = 8,
-  NOT_CONSTRUCTED = 9
+  NOT_CONSTRUCTED = 9,
 }
 
 export enum FilterIds {

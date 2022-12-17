@@ -430,7 +430,7 @@ export class Character2016 extends BaseFullCharacter {
     // to avoid a mounted container being dismounted if container list is updated while mounted
     const containers = super.pGetContainers(server),
       mountedContainer = this.mountedContainer.getContainer();
-    if(!mountedContainer) return containers;
+    if (!mountedContainer) return containers;
     containers.push({
       loadoutSlotId: mountedContainer.slotId,
       containerData: super.pGetContainerData(server, mountedContainer),
@@ -448,7 +448,8 @@ export class Character2016 extends BaseFullCharacter {
     });
 
     const mountedContainer = this.mountedContainer.getContainer();
-    if(mountedContainer) loadoutSlots.push(this.pGetLoadoutSlot(mountedContainer));
+    if (mountedContainer)
+      loadoutSlots.push(this.pGetLoadoutSlot(mountedContainer));
 
     return {
       characterId: this.characterId,
@@ -534,9 +535,9 @@ export class Character2016 extends BaseFullCharacter {
   mountContainer(server: ZoneServer2016, lootableEntity: BaseLootableEntity) {
     const client = server.getClientByCharId(this.characterId);
     if (!client) return;
-    const container = lootableEntity.getContainer()
-    if(!container) {
-      server.containerError(client, ContainerErrors.NOT_CONSTRUCTED)
+    const container = lootableEntity.getContainer();
+    if (!container) {
+      server.containerError(client, ContainerErrors.NOT_CONSTRUCTED);
       return;
     }
 
@@ -559,11 +560,7 @@ export class Character2016 extends BaseFullCharacter {
     server.addItem(client, container, 101);
 
     Object.values(container.items).forEach((item) => {
-      server.addItem(
-        client,
-        item,
-        container.containerDefinitionId
-      );
+      server.addItem(client, item, container.containerDefinitionId);
     });
 
     server.updateLoadout(this);
@@ -582,9 +579,9 @@ export class Character2016 extends BaseFullCharacter {
   dismountContainer(server: ZoneServer2016) {
     const client = server.getClientByCharId(this.characterId);
     if (!client || !this.mountedContainer) return;
-    const container = this.mountedContainer.getContainer()
-    if(!container) {
-      server.containerError(client, ContainerErrors.NOT_CONSTRUCTED)
+    const container = this.mountedContainer.getContainer();
+    if (!container) {
+      server.containerError(client, ContainerErrors.NOT_CONSTRUCTED);
       return;
     }
 
@@ -628,7 +625,10 @@ export class Character2016 extends BaseFullCharacter {
         c = container;
       }
     }
-    if (!c && this.mountedContainer?.getContainer()?.itemGuid == containerGuid) {
+    if (
+      !c &&
+      this.mountedContainer?.getContainer()?.itemGuid == containerGuid
+    ) {
       c = this.mountedContainer.getContainer();
     }
     return c;
