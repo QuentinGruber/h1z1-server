@@ -32,7 +32,7 @@ import { CraftManager } from "./managers/craftmanager";
 import { ContainerErrors, EntityTypes, Items } from "./models/enums";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ConstructionParentEntity } from "./classes/constructionparententity";
-import { ConstructionDoor } from "./classes/constructiondoor";
+import { ConstructionDoor } from "./classes/constructionDoor";
 import { AVG_PING_SECS } from "../../utils/constants";
 import { CommandHandler } from "./commands/commandhandler";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";

@@ -17,7 +17,7 @@ import { LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
-import { LoadoutContainer } from "./loadoutcontainer";
+import { LoadoutContainer } from "./loadoutContainer";
 import { LoadoutItem } from "./loadoutItem";
 import { ZoneClient2016 } from "./zoneclient";
 
