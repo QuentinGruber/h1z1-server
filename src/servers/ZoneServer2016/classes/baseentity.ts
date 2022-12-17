@@ -77,22 +77,22 @@ export class BaseEntity {
     this.npcRenderDistance = getRenderDistance(actorModelId);
   }
 
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     // default: do nothing
   }
 
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
     // default: do nothing
   }
 
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     // default: do nothing
   }
 
-  // eslint-disable-next-line no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     // default: do nothing
   }
