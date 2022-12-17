@@ -956,14 +956,12 @@ export class zonePacketHandlers {
 
     // check for item in mounted container
     if (!container && client.character.mountedContainer) {
-      console.log("MOUNTEDCONTAINER 1");
       const mountedContainer = client.character.mountedContainer.getContainer();
       if(!mountedContainer) {
         server.containerError(client, ContainerErrors.NOT_CONSTRUCTED)
         return;
       }
       if (mountedContainer.items[item.itemGuid]) {
-        console.log("MOUNTEDCONTAINER 2");
         container = mountedContainer;
       }
     }
@@ -1345,11 +1343,10 @@ export class zonePacketHandlers {
       count,
       newSlotId,
     } = packet.data;
-    console.log(client.character._loadout);
     if (characterId == client.character.characterId) {
       // from client container
       if (characterId == targetCharacterId) {
-        // from / to client container
+        // from / to client or mounted container
         const sourceContainer = client.character.getItemContainer(itemGuid),
           targetContainer =
             client.character.getContainerFromGuid(containerGuid);
@@ -1379,8 +1376,10 @@ export class zonePacketHandlers {
             server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
           }
         } else {
-          // from loadout, mounted container, or invalid
+          // from loadout or invalid
 
+          /*
+          server.sendChatText(client, "asdsad")
           // mounted container
           const mountedContainerEntity = client.character.mountedContainer;
           if (mountedContainerEntity && targetContainer) {
@@ -1403,6 +1402,7 @@ export class zonePacketHandlers {
             );
             return;
           }
+          */
 
           // loadout
           const loadoutItem = client.character.getLoadoutItem(itemGuid);

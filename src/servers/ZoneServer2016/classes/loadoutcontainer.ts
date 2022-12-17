@@ -95,9 +95,10 @@ export class LoadoutContainer extends LoadoutItem {
 
     let client;
 
-    if (server._lootbags[this.loadoutItemOwnerGuid]) {
+    const lootableEntity = server.getLootableEntity(this.loadoutItemOwnerGuid);
+    if (lootableEntity) {
       const mountedCharacterId =
-        server._lootbags[this.loadoutItemOwnerGuid].mountedCharacter;
+        lootableEntity.mountedCharacter;
       if (mountedCharacterId)
         client = server.getClientByCharId(mountedCharacterId);
     } else {

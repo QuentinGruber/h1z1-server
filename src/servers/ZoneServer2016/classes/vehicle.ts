@@ -19,10 +19,10 @@ import {
   ResourceTypes,
   VehicleIds,
 } from "../models/enums";
-import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { DamageInfo } from "types/zoneserver";
+import { BaseLootableEntity } from "./baselootableentity";
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {
@@ -60,7 +60,7 @@ function getVehicleLoadoutId(vehicleId: number) {
   }
 }
 
-export class Vehicle2016 extends BaseFullCharacter {
+export class Vehicle2016 extends BaseLootableEntity {
   isManaged: boolean = false;
   manager?: any;
   destroyedEffect: number = 0;

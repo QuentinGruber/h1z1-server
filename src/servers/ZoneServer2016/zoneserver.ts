@@ -117,6 +117,7 @@ import { LoadoutContainer } from "./classes/loadoutcontainer";
 import { Weapon } from "./classes/weapon";
 import { Lootbag } from "./classes/lootbag";
 import { defaultLoadout, LoadoutKit } from "./data/loadouts";
+import { BaseLootableEntity } from "./classes/baselootableentity";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -1848,6 +1849,14 @@ export class ZoneServer2016 extends EventEmitter {
       this._constructionDoors[entityKey] ||
       this._constructionSimple[entityKey] ||
       this._lootbags[entityKey] ||
+      undefined
+    );
+  }
+
+  getLootableEntity(entityKey: string): BaseLootableEntity | undefined {
+    return (
+      this._lootbags[entityKey] ||
+      this._vehicles[entityKey] || 
       undefined
     );
   }
@@ -4168,6 +4177,8 @@ export class ZoneServer2016 extends EventEmitter {
           ],
         }
       );
+
+      client.character.mountContainer(this, vehicle);
     }
     this.sendData(client, "Vehicle.Occupy", {
       guid: vehicle.characterId,
@@ -4268,6 +4279,8 @@ export class ZoneServer2016 extends EventEmitter {
         ],
       }
     );
+
+    client.character.dismountContainer(this);
   }
 
   changeSeat(client: Client, packet: any) {
@@ -4313,6 +4326,7 @@ export class ZoneServer2016 extends EventEmitter {
             engineOn: false,
           }
         );
+        client.character.dismountContainer(this);
       }
       if (packet.data.seatId === 0) {
         this.takeoverManagedObject(client, vehicle);
@@ -4326,6 +4340,8 @@ export class ZoneServer2016 extends EventEmitter {
             engineOn: true,
           }
         );
+
+        client.character.mountContainer(this, vehicle);
       }
     }
   }

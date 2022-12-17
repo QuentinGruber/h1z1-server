@@ -185,12 +185,7 @@ export class WorldObjectManager {
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
     const characterId = generateRandomGuid(),
-      isCharacter = !!server._characters[entity.characterId],
-      item = server.generateItem(5001);
-    if (!item) {
-      debug("[ERROR] Lootbag container item could not be generated!");
-      return;
-    }
+      isCharacter = !!server._characters[entity.characterId];
 
     let items: { [itemGuid: string]: BaseItem } = {};
     Object.values(entity._loadout).forEach((item) => {
@@ -235,7 +230,8 @@ export class WorldObjectManager {
       entity.state.position,
       new Float32Array([0, 0, 0, 0])
     );
-    server.equipItem(lootbag, item, false);
+
+    server.equipItem(lootbag, server.generateItem(Items.CONTAINER_DROPPED_ITEMS), false);
     const container = lootbag.getContainer();
     if(container) {
       container.items = items;
@@ -290,13 +286,14 @@ export class WorldObjectManager {
     // setup vehicle loadout slots, containers, etc here
     // todo: add siren and horn
 
-    // disabled for now since workaround doesn't use it
-    /*
+    // not used for now since workaround doesn't use it
+    // vehicle.getInventoryItemId()
+
     server.equipItem(
       vehicle,
-      server.generateItem(vehicle.getInventoryItemId())
+      server.generateItem(Items.CONTAINER_VEHICLE),
+      false
     );
-    */
     server.equipItem(vehicle, server.generateItem(vehicle.getTurboItemId()));
     server.equipItem(
       vehicle,
