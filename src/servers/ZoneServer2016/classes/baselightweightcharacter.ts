@@ -82,7 +82,7 @@ export class BaseLightweightCharacter extends BaseEntity {
   /**
    * Gets the lightweight npc/pc packet fields for use in sendself, addlightweightnpc, or addlightweightpc
    */
-  pGetLightweight(nameId = 0) {
+  pGetLightweight() {
     return {
       characterId: this.characterId,
       transientId: this.transientId,
@@ -102,7 +102,6 @@ export class BaseLightweightCharacter extends BaseEntity {
         flags3: this.flags,
       },
       headActor: this.headActor,
-      nameId: nameId,
     };
   }
 }

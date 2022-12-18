@@ -2203,7 +2203,10 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseLightweightCharacter,
     nameId = 0
   ) {
-    this.sendData(client, "AddLightweightNpc", entity.pGetLightweight(nameId));
+    this.sendData(client, "AddLightweightNpc", {
+      ...entity.pGetLightweight(),
+      nameId,
+    });
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
