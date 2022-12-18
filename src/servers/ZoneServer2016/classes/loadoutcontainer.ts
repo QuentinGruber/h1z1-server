@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { MAX_UINT32 } from "utils/constants";
+import { MAX_UINT32 } from "../../../utils/constants";
 import { ContainerErrors } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
