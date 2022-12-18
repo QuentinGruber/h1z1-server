@@ -940,14 +940,14 @@ export interface LoadoutSetLoadoutSlot {
   loadoutSlot? :{
   itemDefinitionId?: number;
   slotId?: number;
-  unknownData1? :{
+  loadoutItemData? :{
   itemDefinitionId?: number;
   loadoutItemGuid?: string;
   unknownByte1?: number;
 }
   unknownDword1?: number;
 }
-  unknownDword1?: number;
+  currentSlotId?: number;
 }
 export interface LoadoutSelectSlot {
   unknownDword1?: number;

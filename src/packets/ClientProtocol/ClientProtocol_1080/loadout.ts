@@ -54,7 +54,7 @@ export const loadoutPackets: any = [
           defaultValue: {},
           fields: loadoutSlotData,
         },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "currentSlotId", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
