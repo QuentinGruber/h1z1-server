@@ -938,7 +938,7 @@ export interface LoadoutSetLoadoutSlots {
 export interface LoadoutSetLoadoutSlot {
   characterId?: string;
   loadoutSlot? :{
-  itemDefinitionId?: number;
+  loadoutId?: number;
   slotId?: number;
   loadoutItemData? :{
   itemDefinitionId?: number;
