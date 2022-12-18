@@ -74,13 +74,13 @@ import {
   getRandomFromArray,
   getRandomKeyFromAnObject,
   toBigHex,
-  calculateDamageDistFallOff,
   toHex,
   eul2quat,
   isInside,
   isInsideWithY,
   movePoint,
   getRectangleCorners,
+  calculate_falloff,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -1999,10 +1999,19 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.WEAPON_R380:
         return 1500;
       case Items.WEAPON_SHOTGUN:
+        /*
         return calculateDamageDistFallOff(
           getDistance(sourcePos, targetPos),
           1200, // 1 pellet (was 1667)
           0.5
+        );
+        */
+        return calculate_falloff(
+          getDistance(sourcePos, targetPos),
+          100,
+          1200,//1667,
+          3,
+          14
         );
       case Items.WEAPON_AK47:
         return 2900;

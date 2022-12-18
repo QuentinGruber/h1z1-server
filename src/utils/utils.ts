@@ -630,6 +630,7 @@ export const getRandomKeyFromAnObject = (object: any): string => {
   return keys[Math.floor(Math.random() * keys.length)];
 };
 
+/*
 export function calculateDamageDistFallOff(
   distance: number,
   damage: number,
@@ -637,6 +638,18 @@ export function calculateDamageDistFallOff(
 ) {
   //return damage / (distance * range);
   return damage * Math.pow(range, distance / 10);
+}
+*/
+
+export function calculate_falloff(distance: number, minDamage: number, maxDamage: number, falloffStart: number, falloffEnd: number): number {
+  if (distance < falloffStart) {
+    return maxDamage;
+  } else if (distance > falloffEnd) {
+    return minDamage;
+  } else {
+    const interpolation = (distance - falloffStart) / (falloffEnd - falloffStart);
+    return minDamage + interpolation * (maxDamage - minDamage);
+  }
 }
 
 export function flhash(str: string) {
