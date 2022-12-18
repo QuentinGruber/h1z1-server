@@ -29,7 +29,7 @@ export enum FilterIds {
   WEAPONS = 5,
   HOUSING = 6,
   SURVIVAL = 7,
-  COMPONENT = 8
+  COMPONENT = 8,
 }
 
 export enum ItemClasses {
@@ -172,6 +172,7 @@ export enum Items {
   WEAPON_HATCHET_MAKESHIFT = 1708,
   WEAPON_AK47_MODIFIED = 2399,
   WEAPON_SPEAR = 1382,
+  WEAPON_REMOVER = 1776,
   //#endregion
 
   //#region AMMO

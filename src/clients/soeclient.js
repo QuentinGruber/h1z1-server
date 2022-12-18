@@ -100,7 +100,6 @@ class SOEClient {
     function checkOutOfOrderQueue() {
       if (outOfOrderPackets.length) {
         return;
-        console.log("outoforder :))))))))))))))))");
         const packets = [];
         for (let i = 0; i < 20; i++) {
           const sequence = outOfOrderPackets.shift();
@@ -290,8 +289,6 @@ class SOEClient {
     const data = Buffer.from(
       this._protocol.pack(packetName, JSON.stringify(packet))
     );
-    console.log(this._guid, "Sending " + packetName + " packet to server");
-    console.log(data)
     debug(this._guid, "Sending " + packetName + " packet to server");
     if (this._dumpData) {
       fs.writeFileSync(

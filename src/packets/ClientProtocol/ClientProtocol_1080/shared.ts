@@ -962,7 +962,7 @@ export const lightWeightNpcSchema = [
   { name: "unknownDword10", type: "uint32", defaultValue: 0 },
   { name: "unknownQword2", type: "uint64string", defaultValue: "0x0" },
   { name: "unknownDword11", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword12", type: "uint32", defaultValue: 0 },
+  { name: "useCollision", type: "uint32", defaultValue: 0 },
   { name: "unknownDword13", type: "uint32", defaultValue: 0 },
   { name: "unknownDword14", type: "uint32", defaultValue: 0 },
   { name: "unknownDword15", type: "uint32", defaultValue: 0 },
@@ -1569,7 +1569,7 @@ export const fullNpcSchema = [
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
   { name: "unknownDword18", type: "uint32", defaultValue: 0 },
   { name: "unknownDword19", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword20", type: "uint32", defaultValue: 0 },
+  { name: "materialType", type: "uint32", defaultValue: 58 }, // MATERIAL_TYPE
   { name: "unknownQword1", type: "uint64string", defaultValue: "0x0" },
   {
     name: "unknownArray3",
@@ -2541,3 +2541,15 @@ export function packTargetData(obj: any) {
   }
   return data;
 }
+
+export const passengerSchema = [
+  { name: "characterId", type: "uint64string", defaultValue: "0" },
+  {
+    name: "identity",
+    type: "schema",
+    defaultValue: {},
+    fields: identitySchema,
+  },
+  { name: "unknownString1", type: "string", defaultValue: "" },
+  { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+];

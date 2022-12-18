@@ -12,7 +12,9 @@
 // ======================================================================
 
 import { DoorEntity } from "./doorentity";
-import { Items } from "../enums";
+import { Items } from "../models/enums";
+import { ZoneServer2016 } from "../zoneserver";
+import { ZoneClient2016 } from "./zoneclient";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_GATE:
@@ -77,5 +79,98 @@ export class constructionDoor extends DoorEntity {
   pDamageConstruction(damage: number) {
     this.health -= damage;
     this.healthPercentage = this.health / 10000;
+  }
+
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    if (
+      this.password != 0 &&
+      this.ownerCharacterId != client.character.characterId &&
+      !this.grantedAccess.includes(client.character.characterId)
+    ) {
+      server.sendData(client, "Locks.ShowMenu", {
+        characterId: client.character.characterId,
+        unknownDword1: 2,
+        lockType: 2,
+        objectCharacterId: this.characterId,
+      });
+      return;
+    }
+    if (
+      this.password == 0 &&
+      this.ownerCharacterId === client.character.characterId
+    ) {
+      server.sendData(client, "Locks.ShowMenu", {
+        characterId: client.character.characterId,
+        unknownDword1: 2,
+        lockType: 1,
+        objectCharacterId: this.characterId,
+      });
+      return;
+    }
+    if (this.moving) {
+      return;
+    }
+    this.moving = true;
+    // eslint-disable-next-line
+    const door = this; // for setTimeout callback
+    setTimeout(function () {
+      door.moving = false;
+    }, 1000);
+    server.sendDataToAllWithSpawnedEntity(
+      server._constructionDoors,
+      this.characterId,
+      "PlayerUpdatePosition",
+      {
+        transientId: this.transientId,
+        positionUpdate: {
+          sequenceTime: 0,
+          unknown3_int8: 0,
+          position: this.state.position,
+          orientation: this.isOpen ? this.closedAngle : this.openAngle,
+        },
+      }
+    );
+    server.sendDataToAllWithSpawnedEntity(
+      server._constructionDoors,
+      this.characterId,
+      "Command.PlayDialogEffect",
+      {
+        characterId: this.characterId,
+        effectId: this.isOpen ? this.closeSound : this.openSound,
+      }
+    );
+    this.isOpen = !this.isOpen;
+    if (server._constructionFoundations[this.parentObjectCharacterId]) {
+      this.isOpen
+        ? server._constructionFoundations[
+            this.parentObjectCharacterId
+          ].changePerimeters(
+            server,
+            this.buildingSlot,
+            new Float32Array([0, 0, 0, 0])
+          )
+        : server._constructionFoundations[
+            this.parentObjectCharacterId
+          ].changePerimeters(server, this.buildingSlot, this.state.position);
+    } else if (server._constructionSimple[this.parentObjectCharacterId]) {
+      this.isOpen
+        ? server._constructionSimple[
+            this.parentObjectCharacterId
+          ].changePerimeters(
+            server,
+            "LoveShackDoor",
+            new Float32Array([0, 0, 0, 0])
+          )
+        : server._constructionSimple[
+            this.parentObjectCharacterId
+          ].changePerimeters(server, "LoveShackDoor", this.state.position);
+    }
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    server.sendData(client, "Command.InteractionString", {
+      guid: this.characterId,
+      stringId: 8944,
+    });
   }
 }

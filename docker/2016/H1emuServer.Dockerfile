@@ -3,7 +3,7 @@ LABEL maintainer="quentingruber@gmail.com"
 WORKDIR /usr/src/app
 COPY . .
 ENV LOGINSERVER_IP=127.0.0.1
-RUN npm i --production
+RUN npm i --omit=dev
 ENV NODE_ENV="production"
 # Login server port
 EXPOSE 1115/udp

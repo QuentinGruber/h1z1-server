@@ -12,9 +12,10 @@
 // ======================================================================
 
 import { simpleConstruction } from "./simpleConstruction";
-import { Items } from "../enums";
+import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { getRectangleCorners } from "../../../utils/utils";
+import { ZoneClient2016 } from "./zoneclient";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
@@ -617,5 +618,26 @@ export class ConstructionParentEntity extends simpleConstruction {
     }
     this.perimeters[slot as keyof typeof this.perimeters] = value;
     this.checkPerimeters(server);
+  }
+
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.ownerCharacterId != client.character.characterId) return;
+    server.sendData(
+      client,
+      "NpcFoundationPermissionsManagerBase.showPermissions",
+      {
+        characterId: this.characterId,
+        characterId2: this.characterId,
+        permissions: this.permissions,
+      }
+    );
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.ownerCharacterId != client.character.characterId) return;
+    server.sendData(client, "Command.InteractionString", {
+      guid: this.characterId,
+      stringId: 12979,
+    });
   }
 }
