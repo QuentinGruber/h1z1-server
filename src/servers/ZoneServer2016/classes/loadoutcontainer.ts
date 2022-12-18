@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { MAX_UINT32 } from "utils/constants";
 import { ContainerErrors } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
@@ -152,7 +153,7 @@ export class LoadoutContainer extends LoadoutItem {
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
-    if (newSlotId == 0xffffffff) {
+    if (newSlotId == MAX_UINT32) {
       combineItemStack(
         server,
         client,

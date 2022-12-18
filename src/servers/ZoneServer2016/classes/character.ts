@@ -27,7 +27,12 @@ import {
   DamageRecord,
   positionUpdate,
 } from "../../../types/zoneserver";
-import { isPosInRadius, randomIntFromInterval, _ } from "../../../utils/utils";
+import {
+  calculateOrientation,
+  isPosInRadius,
+  randomIntFromInterval,
+  _,
+} from "../../../utils/utils";
 import { BaseItem } from "./baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
 import { LoadoutContainer } from "./loadoutcontainer";
@@ -508,13 +513,10 @@ export class Character2016 extends BaseFullCharacter {
     const sourceEntity = server.getEntity(damageInfo.entity);
     if (!sourceEntity) return;
 
-    const orientation =
-      Math.atan2(
-        this.state.position[2] - sourceEntity.state.position[2],
-        this.state.position[0] - sourceEntity.state.position[0]
-      ) *
-        -1 -
-      1.4;
+    const orientation = calculateOrientation(
+      this.state.position,
+      sourceEntity.state.position
+    );
     server.sendData(client, "ClientUpdate.DamageInfo", {
       transientId: 0,
       orientationToSource: orientation,
