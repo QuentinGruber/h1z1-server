@@ -11,16 +11,14 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import {
-  characterEquipment,
-  loadoutItem,
-  loadoutContainer,
-  inventoryItem,
-  DamageInfo,
-} from "../../../types/zoneserver";
+import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
+import { LoadoutKit } from "../data/loadouts";
 import { LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
+import { BaseItem } from "./baseItem";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
+import { LoadoutContainer } from "./loadoutcontainer";
+import { LoadoutItem } from "./loadoutItem";
 import { ZoneClient2016 } from "./zoneclient";
 
 const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.json");
@@ -41,13 +39,15 @@ function getGender(actorModelId: number): number {
 export class BaseFullCharacter extends BaseLightweightCharacter {
   onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
   _resources: { [resourceId: number]: number } = {};
-  _loadout: { [loadoutSlotId: number]: loadoutItem } = {};
+  _loadout: { [loadoutSlotId: number]: LoadoutItem } = {};
   _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
-  _containers: { [loadoutSlotId: number]: loadoutContainer } = {};
+  _containers: { [loadoutSlotId: number]: LoadoutContainer } = {};
   loadoutId = 0;
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
   gender: number;
+  defaultLoadout: LoadoutKit = [];
+
   constructor(
     characterId: string,
     transientId: number,
@@ -57,26 +57,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
     this.gender = getGender(this.actorModelId);
-    this.setupLoadoutSlots();
-  }
-
-  clearLoadoutSlot(loadoutSlotId: number) {
-    this._loadout[loadoutSlotId] = {
-      itemDefinitionId: 0,
-      slotId: loadoutSlotId,
-      itemGuid: "0x0",
-      containerGuid: "0xFFFFFFFFFFFFFFFF",
-      currentDurability: 0,
-      stackCount: 0,
-      loadoutItemOwnerGuid: "0x0",
-    };
-  }
-  setupLoadoutSlots() {
-    for (const slot of loadoutSlots) {
-      if (slot.LOADOUT_ID == this.loadoutId && !this._loadout[slot.SLOT_ID]) {
-        this.clearLoadoutSlot(slot.SLOT_ID);
-      }
-    }
   }
 
   getActiveLoadoutSlot(itemGuid: string): number {
@@ -88,14 +68,14 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
     return 0;
   }
-  getLoadoutItem(itemGuid: string): loadoutItem | undefined {
+  getLoadoutItem(itemGuid: string): LoadoutItem | undefined {
     const loadoutSlotId = this.getActiveLoadoutSlot(itemGuid);
     if (this._loadout[loadoutSlotId]?.itemGuid == itemGuid) {
       return this._loadout[loadoutSlotId];
     }
     return;
   }
-  getItemContainer(itemGuid: string): loadoutContainer | undefined {
+  getItemContainer(itemGuid: string): LoadoutContainer | undefined {
     // returns the container that an item is contained in
     for (const container of Object.values(this._containers)) {
       if (container.items[itemGuid]) {
@@ -104,7 +84,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
     return;
   }
-  getInventoryItem(itemGuid: string): inventoryItem | undefined {
+  getInventoryItem(itemGuid: string): BaseItem | undefined {
     const loadoutItem = this.getLoadoutItem(itemGuid);
     if (loadoutItem) {
       return loadoutItem;
@@ -116,7 +96,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
   }
 
-  getContainerFromGuid(containerGuid: string): loadoutContainer | undefined {
+  getContainerFromGuid(containerGuid: string): LoadoutContainer | undefined {
     for (const container of Object.values(this._containers)) {
       if (container.itemGuid == containerGuid) {
         return container;
@@ -125,7 +105,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return undefined;
   }
 
-  getItemById(itemDefId: number): inventoryItem | undefined {
+  getItemById(itemDefId: number): BaseItem | undefined {
     for (const container of Object.values(this._containers)) {
       for (const item of Object.values(container.items)) {
         if (item.itemDefinitionId == itemDefId) {
@@ -135,7 +115,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
     return undefined;
   }
-  getActiveEquipmentSlot(item: inventoryItem) {
+  getActiveEquipmentSlot(item: BaseItem) {
     for (const equipment of Object.values(this._equipment)) {
       if (item.itemGuid == equipment.guid) {
         return equipment.slotId;
@@ -144,7 +124,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return 0;
   }
 
-  getEquippedWeapon(): loadoutItem {
+  getEquippedWeapon(): LoadoutItem {
     return this._loadout[this.currentLoadoutSlot];
   }
 
@@ -246,31 +226,45 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
+  pGetLoadoutSlot(slotId: number) {
+    const slot = this._loadout[slotId];
+    return {
+      hotbarSlotId: slotId, // affects Equip Item context entry packet, and Container.MoveItem
+      loadoutId: this.loadoutId,
+      slotId: slotId,
+      loadoutItemData: {
+        itemDefinitionId: slot?.itemDefinitionId || 0,
+        loadoutItemGuid: slot?.itemGuid || "0x0",
+        unknownByte1: 255, // flags?
+      },
+      unknownDword1: slotId,
+    };
+  }
+
+  getLoadoutSlots() {
+    const slots: Array<number> = [];
+    loadoutSlots.forEach((slot: any) => {
+      if (slot.LOADOUT_ID == this.loadoutId) slots.push(slot.SLOT_ID);
+    });
+    return slots;
+  }
+
   pGetLoadoutSlots() {
     return {
       characterId: this.characterId,
-      loadoutId: this.loadoutId, // needs to be 3
+      loadoutId: this.loadoutId,
       loadoutData: {
-        loadoutSlots: Object.keys(this._loadout).map((slotId: any) => {
-          const slot = this._loadout[slotId];
-          return {
-            hotbarSlotId: slot.slotId, // affects Equip Item context entry packet, and Container.MoveItem
-            loadoutId: this.loadoutId,
-            slotId: slot.slotId,
-            loadoutItemData: {
-              itemDefinitionId: slot.itemDefinitionId,
-              loadoutItemOwnerGuid: slot.itemGuid,
-              unknownByte1: 255, // flags?
-            },
-            unknownDword4: slot.slotId,
-          };
-        }),
+        loadoutSlots: Object.values(this.getLoadoutSlots()).map(
+          (slotId: any) => {
+            return this.pGetLoadoutSlot(slotId);
+          }
+        ),
       },
       currentSlotId: this.currentLoadoutSlot,
     };
   }
 
-  pGetItemWeaponData(server: ZoneServer2016, slot: inventoryItem) {
+  pGetItemWeaponData(server: ZoneServer2016, slot: BaseItem) {
     if (slot.weapon) {
       return {
         isWeapon: true, // not sent to client, only used as a flag for pack function
@@ -325,11 +319,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
-  pGetItemData(
-    server: ZoneServer2016,
-    item: inventoryItem,
-    containerDefId: number
-  ) {
+  pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
     let durability: number = 0;
     const isWeapon = server.isWeapon(item.itemDefinitionId);
     switch (true) {
@@ -410,37 +400,37 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     };
   }
 
-  pGetContainerData(server: ZoneServer2016, container: loadoutContainer) {
+  pGetContainerData(server: ZoneServer2016, container: LoadoutContainer) {
     return {
-      loadoutSlotId: container.slotId,
-      containerData: {
-        guid: container.itemGuid,
-        definitionId: container.containerDefinitionId,
-        associatedCharacterId: this.characterId,
-        slots: server.getContainerMaxSlots(container),
-        items: Object.values(container.items).map((item, idx) => {
-          container.items[item.itemGuid].slotId = idx + 1;
-          return {
-            itemDefinitionId: item.itemDefinitionId,
-            itemData: this.pGetItemData(
-              server,
-              item,
-              container.containerDefinitionId
-            ),
-          };
-        }),
-        unknownBoolean1: true, // needs to be true or bulk doesn't show up
-        maxBulk: server.getContainerMaxBulk(container),
-        unknownDword4: 28,
-        bulkUsed: server.getContainerBulk(container),
-        hasBulkLimit: !!server.getContainerMaxBulk(container),
-      },
+      guid: container.itemGuid,
+      definitionId: container.containerDefinitionId,
+      associatedCharacterId: this.characterId,
+      slots: server.getContainerMaxSlots(container),
+      items: Object.values(container.items).map((item, idx) => {
+        container.items[item.itemGuid].slotId = idx + 1;
+        return {
+          itemDefinitionId: item.itemDefinitionId,
+          itemData: this.pGetItemData(
+            server,
+            item,
+            container.containerDefinitionId
+          ),
+        };
+      }),
+      showBulk: true, // needs to be true or bulk doesn't show up
+      maxBulk: container.getMaxBulk(server),
+      unknownDword1: 28,
+      bulkUsed: container.getUsedBulk(server),
+      hasBulkLimit: !!container.getMaxBulk(server),
     };
   }
 
   pGetContainers(server: ZoneServer2016) {
     return Object.values(this._containers).map((container) => {
-      return this.pGetContainerData(server, container);
+      return {
+        loadoutSlotId: container.slotId,
+        containerData: this.pGetContainerData(server, container),
+      };
     });
   }
 
@@ -491,9 +481,9 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
    * @returns Returns an array containing all items across all containers.
    */
   getInventoryAsContainer(): {
-    [itemDefinitionId: number]: inventoryItem[];
+    [itemDefinitionId: number]: BaseItem[];
   } {
-    const inventory: { [itemDefinitionId: number]: inventoryItem[] } = {};
+    const inventory: { [itemDefinitionId: number]: BaseItem[] } = {};
     for (const container of Object.values(this._containers)) {
       for (const item of Object.values(container.items)) {
         if (!inventory[item.itemDefinitionId]) {
@@ -503,12 +493,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       }
     }
     return inventory;
-  }
-
-  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
-    server;
-    damageInfo; // eslint
-    console.log(`[ERROR] Unhandled BaseFullCharacter damage call!`);
   }
 
   hasHelmet(server: ZoneServer2016): boolean {

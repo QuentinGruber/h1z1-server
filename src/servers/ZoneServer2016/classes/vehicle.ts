@@ -19,10 +19,11 @@ import {
   ResourceTypes,
   VehicleIds,
 } from "../models/enums";
-import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "./zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { DamageInfo } from "types/zoneserver";
+import { BaseLootableEntity } from "./baselootableentity";
+import { vehicleDefaultLoadouts } from "../data/loadouts";
 
 function getVehicleId(ModelId: number) {
   switch (ModelId) {
@@ -60,7 +61,22 @@ function getVehicleLoadoutId(vehicleId: number) {
   }
 }
 
-export class Vehicle2016 extends BaseFullCharacter {
+function getDefaultLoadout(loadoutId: number) {
+  switch (loadoutId) {
+    case LoadoutIds.VEHICLE_OFFROADER:
+      return vehicleDefaultLoadouts.offroader;
+    case LoadoutIds.VEHICLE_PICKUP:
+      return vehicleDefaultLoadouts.pickup;
+    case LoadoutIds.VEHICLE_POLICECAR:
+      return vehicleDefaultLoadouts.policecar;
+    case LoadoutIds.VEHICLE_ATV:
+      return vehicleDefaultLoadouts.atv;
+    default:
+      return [];
+  }
+}
+
+export class Vehicle2016 extends BaseLootableEntity {
   isManaged: boolean = false;
   manager?: any;
   destroyedEffect: number = 0;
@@ -97,6 +113,7 @@ export class Vehicle2016 extends BaseFullCharacter {
     };
     this.vehicleId = getVehicleId(this.actorModelId);
     this.loadoutId = getVehicleLoadoutId(this.vehicleId);
+    this.defaultLoadout = getDefaultLoadout(this.loadoutId);
     this.isInvulnerable =
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;

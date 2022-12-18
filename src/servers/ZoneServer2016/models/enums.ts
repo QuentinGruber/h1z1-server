@@ -12,6 +12,13 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum MovementModifiers {
+  RESTED = 1.3,
+  SWIZZLE = 1.15,
+  SNARED = 0.4,
+  BOOTS = 1.15,
+}
+
 export enum ContainerErrors {
   NONE = 0,
   IN_USE = 1,
@@ -21,6 +28,13 @@ export enum ContainerErrors {
   NO_ITEM_IN_SLOT = 5,
   INTERACTION_VALIDATION = 6,
   UNKNOWN = 99,
+
+  // custom errors
+  DOES_NOT_ACCEPT_ITEMS = 7,
+  NOT_MUTABLE = 8,
+  NOT_CONSTRUCTED = 9,
+  NO_SPACE = 10,
+  INVALID_LOADOUT_SLOT = 11,
 }
 
 export enum FilterIds {
@@ -267,7 +281,7 @@ export enum Items {
   METAL_DOORWAY = 1969,
   REPAIR_BOX = 2792,
   SLEEPING_MAT = 51,
-  STORAGE_BOX = 89,
+  STORAGE_BOX = 1982,
   STRUCTURE_STAIRS = 154,
   STRUCTURE_STAIRS_UPPER = 1900,
   WORKBENCH = 1891,
@@ -326,7 +340,6 @@ export enum Items {
   TRAP_SHOCK = 2832,
 
   BACKPACK_FRAMED = 2111,
-  BACKPACK = 1605,
   BACKPACK_SATCHEL = 1432,
   BACKPACK_MILITARY_TAN = 2124,
   HELMET_MOTORCYCLE = 2170, // TODO = expand with other default helmet colors
@@ -405,8 +418,17 @@ export enum Items {
   VEHICLE_MOTOR_PICKUP = 1712,
   VEHICLE_MOTOR_POLICECAR = 1722,
   VEHICLE_MOTOR_ATV = 2594,
+
+  // NOT USED FOR NOW
   VEHICLE_CONTAINER_OFFROADER = 1541,
   VEHICLE_CONTAINER_PICKUP = 1783,
   VEHICLE_CONTAINER_POLICECAR = 1723,
   VEHICLE_CONTAINER_ATV = 2728,
+
+  CONTAINER_DROPPED_ITEMS = 5001,
+  CONTAINER_VEHICLE_OFFROADER = 5002,
+  CONTAINER_VEHICLE_PICKUP = 5003,
+  CONTAINER_VEHICLE_POLICECAR = 5004,
+  CONTAINER_VEHICLE_ATV = 5005,
+  CONTAINER_STORAGE = 5003,
 }

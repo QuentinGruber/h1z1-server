@@ -17,7 +17,7 @@ import { GrowingManager } from "./Manager/GrowingManager";
 import { ZoneServer2016 } from "../../zoneserver";
 import { Furrows, Seed, SeedType } from "./Model/DataModels";
 import { PlantingSetting } from "./Model/TypeModels";
-import { inventoryItem } from "../../../../types/zoneserver";
+import { BaseItem } from "../baseItem";
 
 const debug = require("debug")("PlantingManager");
 
@@ -134,7 +134,7 @@ export class PlantingManager {
   }
 
   public TriggerPicking = (
-    item: inventoryItem | undefined,
+    item: BaseItem | undefined,
     client: Client,
     server: ZoneServer2016
   ): boolean => {

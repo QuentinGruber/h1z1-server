@@ -12,6 +12,7 @@
 // ======================================================================
 
 import {
+  ContainerErrors,
   Items,
   LoadoutIds,
   LoadoutSlots,
@@ -24,10 +25,18 @@ import { BaseFullCharacter } from "./basefullcharacter";
 import {
   DamageInfo,
   DamageRecord,
-  inventoryItem,
   positionUpdate,
 } from "../../../types/zoneserver";
-import { randomIntFromInterval } from "../../../utils/utils";
+import {
+  calculateOrientation,
+  isPosInRadius,
+  randomIntFromInterval,
+  _,
+} from "../../../utils/utils";
+import { BaseItem } from "./baseItem";
+import { BaseLootableEntity } from "./baselootableentity";
+import { LoadoutContainer } from "./loadoutcontainer";
+import { characterDefaultLoadout } from "../data/loadouts";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -94,6 +103,8 @@ export class Character2016 extends BaseFullCharacter {
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
   currentInteractionGuid?: string;
+  mountedContainer?: BaseLootableEntity;
+  defaultLoadout = characterDefaultLoadout;
   constructor(characterId: string, transientId: number) {
     super(
       characterId,
@@ -339,7 +350,7 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
 
-  pGetRemoteWeaponData(server: ZoneServer2016, item: inventoryItem) {
+  pGetRemoteWeaponData(server: ZoneServer2016, item: BaseItem) {
     const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
       weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
       firegroups = weaponDefinition.FIRE_GROUPS;
@@ -369,7 +380,7 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
 
-  pGetRemoteWeaponExtraData(server: ZoneServer2016, item: inventoryItem) {
+  pGetRemoteWeaponExtraData(server: ZoneServer2016, item: BaseItem) {
     const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
       weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
       firegroups = weaponDefinition.FIRE_GROUPS;
@@ -418,6 +429,46 @@ export class Character2016 extends BaseFullCharacter {
     return remoteWeaponsExtra;
   }
 
+  pGetContainers(server: ZoneServer2016) {
+    if (!this.mountedContainer) return super.pGetContainers(server);
+
+    // to avoid a mounted container being dismounted if container list is updated while mounted
+    const containers = super.pGetContainers(server),
+      mountedContainer = this.mountedContainer.getContainer();
+    if (!mountedContainer) return containers;
+    containers.push({
+      loadoutSlotId: mountedContainer.slotId,
+      containerData: super.pGetContainerData(server, mountedContainer),
+    });
+    return containers;
+  }
+
+  pGetLoadoutSlots() {
+    if (!this.mountedContainer) return super.pGetLoadoutSlots();
+
+    // to avoid a mounted container being dismounted if loadout is updated while mounted
+
+    const loadoutSlots = Object.values(this.getLoadoutSlots()).map(
+      (slotId: any) => {
+        return this.pGetLoadoutSlot(slotId);
+      }
+    );
+
+    const mountedContainer = this.mountedContainer.getContainer();
+    if (mountedContainer)
+      loadoutSlots.push(
+        this.mountedContainer.pGetLoadoutSlot(mountedContainer.slotId)
+      );
+    return {
+      characterId: this.characterId,
+      loadoutId: this.loadoutId, // needs to be 3
+      loadoutData: {
+        loadoutSlots: loadoutSlots,
+      },
+      currentSlotId: this.currentLoadoutSlot,
+    };
+  }
+
   resetMetrics() {
     this.metrics.zombiesKilled = 0;
     this.metrics.wildlifeKilled = 0;
@@ -431,66 +482,161 @@ export class Character2016 extends BaseFullCharacter {
       oldHealth = this._resources[ResourceIds.HEALTH];
     if (!client) return;
 
-    if (!this.godMode && this.isAlive) {
-      if (damage < 100) {
-        return;
-      }
-      if (damageInfo.causeBleed) {
-        if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
+    if (this.godMode || !this.isAlive || damage < 100) return;
+    if (damageInfo.causeBleed) {
+      if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
+        this._resources[ResourceIds.BLEEDING] += 41;
+        if (damage > 4000) {
           this._resources[ResourceIds.BLEEDING] += 41;
-          if (damage > 4000) {
-            this._resources[ResourceIds.BLEEDING] += 41;
-          }
-          server.updateResourceToAllWithSpawnedEntity(
-            this.characterId,
-            this._resources[ResourceIds.BLEEDING],
-            ResourceIds.BLEEDING,
-            ResourceTypes.BLEEDING,
-            server._characters
-          );
         }
+        server.updateResourceToAllWithSpawnedEntity(
+          this.characterId,
+          this._resources[ResourceIds.BLEEDING],
+          ResourceIds.BLEEDING,
+          ResourceTypes.BLEEDING,
+          server._characters
+        );
       }
-      this._resources[ResourceIds.HEALTH] -= damage;
-      if (this._resources[ResourceIds.HEALTH] <= 0) {
-        this._resources[ResourceIds.HEALTH] = 0;
-        server.killCharacter(client, damageInfo);
-      }
-      server.updateResource(
-        client,
-        this.characterId,
-        this._resources[ResourceIds.HEALTH],
-        ResourceIds.HEALTH
-      );
-
-      const sourceEntity = server.getEntity(damageInfo.entity);
-      if (!sourceEntity) return;
-
-      const orientation =
-        Math.atan2(
-          this.state.position[2] - sourceEntity.state.position[2],
-          this.state.position[0] - sourceEntity.state.position[0]
-        ) *
-          -1 -
-        1.4;
-      server.sendData(client, "ClientUpdate.DamageInfo", {
-        transientId: 0,
-        orientationToSource: orientation,
-        unknownDword2: 100,
-      });
-
-      const damageRecord = server.generateDamageRecord(
-        this.characterId,
-        damageInfo,
-        oldHealth
-      );
-      this.addCombatlogEntry(damageRecord);
-      server.combatLog(client);
-
-      const sourceClient = server.getClientByCharId(damageInfo.entity);
-      if (!sourceClient?.character) return;
-      sourceClient.character.addCombatlogEntry(damageRecord);
-      server.combatLog(sourceClient);
     }
+    this._resources[ResourceIds.HEALTH] -= damage;
+    if (this._resources[ResourceIds.HEALTH] <= 0) {
+      this._resources[ResourceIds.HEALTH] = 0;
+      server.killCharacter(client, damageInfo);
+    }
+    server.updateResource(
+      client,
+      this.characterId,
+      this._resources[ResourceIds.HEALTH],
+      ResourceIds.HEALTH
+    );
+
+    const sourceEntity = server.getEntity(damageInfo.entity);
+    if (!sourceEntity) return;
+
+    const orientation = calculateOrientation(
+      this.state.position,
+      sourceEntity.state.position
+    );
+    server.sendData(client, "ClientUpdate.DamageInfo", {
+      transientId: 0,
+      orientationToSource: orientation,
+      unknownDword2: 100,
+    });
+
+    const damageRecord = server.generateDamageRecord(
+      this.characterId,
+      damageInfo,
+      oldHealth
+    );
+    this.addCombatlogEntry(damageRecord);
+    server.combatLog(client);
+
+    const sourceClient = server.getClientByCharId(damageInfo.entity);
+    if (!sourceClient?.character) return;
+    sourceClient.character.addCombatlogEntry(damageRecord);
+    server.combatLog(sourceClient);
+  }
+
+  mountContainer(server: ZoneServer2016, lootableEntity: BaseLootableEntity) {
+    const client = server.getClientByCharId(this.characterId);
+    if (!client) return;
+    const container = lootableEntity.getContainer();
+    if (!container) {
+      server.containerError(client, ContainerErrors.NOT_CONSTRUCTED);
+      return;
+    }
+
+    if (
+      !isPosInRadius(
+        lootableEntity.interactionDistance,
+        this.state.position,
+        lootableEntity.state.position
+      )
+    ) {
+      server.containerError(client, ContainerErrors.INTERACTION_VALIDATION);
+      return;
+    }
+
+    lootableEntity.mountedCharacter = this.characterId;
+    this.mountedContainer = lootableEntity;
+
+    server.initializeContainerList(client);
+
+    server.addItem(client, container, 101);
+
+    Object.values(container.items).forEach((item) => {
+      server.addItem(client, item, container.containerDefinitionId);
+    });
+
+    server.updateLoadout(this);
+
+    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+      objectCharacterId: lootableEntity.characterId,
+      containerGuid: container.itemGuid,
+      unknownBool1: false,
+      itemsData: {
+        items: [],
+        unknownDword1: 92, // idk
+      },
+    });
+  }
+
+  dismountContainer(server: ZoneServer2016) {
+    const client = server.getClientByCharId(this.characterId);
+    if (!client || !this.mountedContainer) return;
+    const container = this.mountedContainer.getContainer();
+    if (!container) {
+      server.containerError(client, ContainerErrors.NOT_CONSTRUCTED);
+      return;
+    }
+
+    server.deleteItem(client, container.itemGuid);
+    Object.values(container.items).forEach((item) => {
+      if (!this.mountedContainer) return;
+      server.deleteItem(client, item.itemGuid);
+    });
+
+    if (!_.size(container.items)) {
+      server.deleteEntity(this.mountedContainer.characterId, server._lootbags);
+    }
+
+    delete this.mountedContainer.mountedCharacter;
+    delete this.mountedContainer;
+    server.updateLoadout(this);
+    server.initializeContainerList(client);
+  }
+
+  getItemContainer(itemGuid: string): LoadoutContainer | undefined {
+    // returns the container that an item is contained in
+    let c;
+    for (const container of Object.values(this._containers)) {
+      if (container.items[itemGuid]) {
+        c = container;
+        break;
+      }
+    }
+    // check mounted container
+    if (!c && this.mountedContainer) {
+      const container = this.mountedContainer.getContainer();
+      if (container && container.items[itemGuid]) return container;
+    }
+    return c;
+  }
+
+  getContainerFromGuid(containerGuid: string): LoadoutContainer | undefined {
+    let c;
+    for (const container of Object.values(this._containers)) {
+      if (container.itemGuid == containerGuid) {
+        c = container;
+      }
+    }
+    if (
+      !c &&
+      this.mountedContainer?.getContainer()?.itemGuid == containerGuid
+    ) {
+      c = this.mountedContainer.getContainer();
+    }
+    return c;
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
@@ -572,10 +718,6 @@ export class Character2016 extends BaseFullCharacter {
         canStopBleed = true;
         break;
     }
-    let causeBleed: boolean = true;
-    if (canStopBleed && this.hasArmor(server)) {
-      causeBleed = false;
-    }
 
     server.sendDataToAllWithSpawnedEntity(
       server._characters,
@@ -593,18 +735,19 @@ export class Character2016 extends BaseFullCharacter {
       }
     );
 
-    if (this.isAlive)
+    if (this.isAlive) {
       server.sendHitmarker(
         client,
         damageInfo.hitReport?.hitLocation,
         this.hasHelmet(server),
         this.hasArmor(server)
       );
+    }
 
     c.character.damage(server, {
       ...damageInfo,
       damage: damage,
-      causeBleed: causeBleed,
+      causeBleed: !(canStopBleed && this.hasArmor(server)),
     });
   }
 }

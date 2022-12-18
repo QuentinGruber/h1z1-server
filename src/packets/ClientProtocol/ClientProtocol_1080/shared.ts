@@ -2272,11 +2272,21 @@ export const containerData = [
       { name: "itemData", type: "schema", fields: itemSchema },
     ],
   },
-  { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+  { name: "showBulk", type: "boolean", defaultValue: true },
   { name: "maxBulk", type: "uint32", defaultValue: 0 },
-  { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "bulkUsed", type: "uint32", defaultValue: 0 },
   { name: "hasBulkLimit", type: "boolean", defaultValue: true },
+];
+
+export const containers = [
+  { name: "loadoutSlotId", type: "uint32", defaultValue: 0 },
+  {
+    name: "containerData",
+    type: "schema",
+    defaultValue: {},
+    fields: containerData,
+  },
 ];
 
 export const skyData = [
@@ -2479,6 +2489,25 @@ export const itemDefinitionSchema: any[] = [
   },
 ];
 
+export const loadoutSlotData = [
+  { name: "loadoutId", type: "uint32", defaultValue: 0 },
+  { name: "slotId", type: "uint32", defaultValue: 0 },
+  {
+    name: "loadoutItemData",
+    type: "schema",
+    fields: [
+      { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
+      {
+        name: "loadoutItemGuid",
+        type: "uint64string",
+        defaultValue: "0",
+      },
+      { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+    ],
+  },
+  { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+];
+
 export const loadoutSlotsSchema = [
   { name: "loadoutId", type: "uint32", defaultValue: 3 },
   {
@@ -2491,26 +2520,7 @@ export const loadoutSlotsSchema = [
         defaultValue: [],
         fields: [
           { name: "hotbarSlotId", type: "uint32", defaultValue: 0 },
-          { name: "loadoutId", type: "uint32", defaultValue: 0 },
-          { name: "slotId", type: "uint32", defaultValue: 0 },
-          {
-            name: "loadoutItemData",
-            type: "schema",
-            fields: [
-              {
-                name: "itemDefinitionId",
-                type: "uint32",
-                defaultValue: 0,
-              },
-              {
-                name: "loadoutItemGuid",
-                type: "uint64string",
-                defaultValue: "0",
-              },
-              { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-            ],
-          },
-          { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+          ...loadoutSlotData,
         ],
       },
     ],

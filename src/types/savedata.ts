@@ -1,4 +1,15 @@
-import { loadoutContainer, loadoutItem } from "./zoneserver";
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
 
 interface BaseSaveData {
   serverId: number;
@@ -16,9 +27,32 @@ interface BaseFullEntitySaveData
   actorModelId: number;
 }
 
+interface WeaponSaveData {
+  ammoCount: number;
+}
+
+interface ItemSaveData {
+  itemDefinitionId: number;
+  slotId: number;
+  itemGuid: string;
+  containerGuid: string;
+  currentDurability: number;
+  stackCount: number;
+  weapon?: WeaponSaveData;
+}
+
+export interface LoadoutItemSaveData extends ItemSaveData {
+  loadoutItemOwnerGuid: string;
+}
+
+export interface LoadoutContainerSaveData extends LoadoutItemSaveData {
+  containerDefinitionId: number;
+  items: { [itemGuid: string]: ItemSaveData };
+}
+
 interface BaseFullCharacterUpdateSaveData extends BaseEntityUpdateSaveData {
-  _loadout: { [loadoutSlotId: number]: loadoutItem };
-  _containers: { [loadoutSlotId: number]: loadoutContainer };
+  _loadout: { [loadoutSlotId: number]: LoadoutItemSaveData };
+  _containers: { [loadoutSlotId: number]: LoadoutContainerSaveData };
   _resources: { [resourceId: number]: number };
   worldSaveVersion: number;
 }

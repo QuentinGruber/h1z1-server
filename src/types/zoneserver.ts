@@ -11,7 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { ConstructionParentEntity } from "servers/ZoneServer2016/classes/constructionparententity";
+import { ConstructionChildEntity } from "servers/ZoneServer2016/classes/constructionchildentity";
 import { FilterIds, Items } from "servers/ZoneServer2016/models/enums";
+import { ConstructionDoor } from "servers/ZoneServer2016/classes/constructiondoor";
 
 export interface npcData {
   guid: string;
@@ -74,31 +77,6 @@ export interface characterEquipment {
   textureAlias?: string;
   tintAlias?: string;
   decalAlias?: string;
-}
-
-export interface weaponItem {
-  ammoCount: number;
-  reloadTimer?: NodeJS.Timeout;
-  currentReloadCount: number; // needed for reload packet to work every time
-}
-
-export interface inventoryItem {
-  itemDefinitionId: number;
-  slotId: number;
-  itemGuid: string;
-  containerGuid: string;
-  currentDurability: number;
-  stackCount: number;
-  weapon?: weaponItem;
-}
-
-export interface loadoutItem extends inventoryItem {
-  loadoutItemOwnerGuid: string;
-}
-
-export interface loadoutContainer extends loadoutItem {
-  containerDefinitionId: number;
-  items: { [itemGuid: string]: inventoryItem };
 }
 
 export interface Weather {
@@ -264,3 +242,7 @@ export interface Recipe {
   bundleCount?: number;
   components: Array<RecipeComponent>;
 }
+
+export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
+
+export type ConstructionEntity = SlottedConstructionEntity;

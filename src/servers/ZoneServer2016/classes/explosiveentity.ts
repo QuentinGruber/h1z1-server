@@ -20,6 +20,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   isIED = false;
   mineTimer?: NodeJS.Timeout;
   npcRenderDistance = 300;
+  detonated = false;
   constructor(
     characterId: string,
     transientId: number,
@@ -60,6 +61,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   }
 
   detonate(server: ZoneServer2016, client?: ZoneClient2016) {
+    this.detonated = true;
     server.sendCompositeEffectToAllInRange(600, "", this.state.position, 1875);
     server.deleteEntity(this.characterId, server._explosives);
     client

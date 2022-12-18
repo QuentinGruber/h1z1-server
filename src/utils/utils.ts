@@ -652,3 +652,10 @@ export function flhash(str: string) {
 
   return Number(`0x${hash.toString(16).slice(-8)}`);
 }
+
+export function calculateOrientation(
+  pos1: Float32Array,
+  pos2: Float32Array
+): number {
+  return Math.atan2(pos1[2] - pos2[2], pos1[0] - pos2[0]) * -1 - 1.4;
+}

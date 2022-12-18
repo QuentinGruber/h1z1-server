@@ -938,16 +938,16 @@ export interface LoadoutSetLoadoutSlots {
 export interface LoadoutSetLoadoutSlot {
   characterId?: string;
   loadoutSlot? :{
-  itemDefinitionId?: number;
+  loadoutId?: number;
   slotId?: number;
-  unknownData1? :{
+  loadoutItemData? :{
   itemDefinitionId?: number;
   loadoutItemGuid?: string;
   unknownByte1?: number;
 }
   unknownDword1?: number;
 }
-  unknownDword1?: number;
+  currentSlotId?: number;
 }
 export interface LoadoutSelectSlot {
   unknownDword1?: number;
@@ -1700,9 +1700,9 @@ export interface ContainerUpdateEquippedContainer {
   associatedCharacterId?: string;
   slots?: number;
   items?: any[];
-  unknownBoolean1?: boolean;
+  showBulk?: boolean;
   maxBulk?: number;
-  unknownDword4?: number;
+  unknownDword1?: number;
   bulkUsed?: number;
   hasBulkLimit?: boolean;
 }
