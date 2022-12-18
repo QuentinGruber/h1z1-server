@@ -234,7 +234,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       slotId: slotId,
       loadoutItemData: {
         itemDefinitionId: slot?.itemDefinitionId || 0,
-        loadoutItemOwnerGuid: slot?.itemGuid || "0x0",
+        loadoutItemGuid: slot?.itemGuid || "0x0",
         unknownByte1: 255, // flags?
       },
       unknownDword1: slotId,
