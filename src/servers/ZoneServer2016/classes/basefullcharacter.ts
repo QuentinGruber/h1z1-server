@@ -243,9 +243,9 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
   getLoadoutSlots() {
     const slots: Array<number> = [];
-    loadoutSlots.forEach((slot: any)=> {
-      if(slot.LOADOUT_ID == this.loadoutId) slots.push(slot.SLOT_ID)
-    })
+    loadoutSlots.forEach((slot: any) => {
+      if (slot.LOADOUT_ID == this.loadoutId) slots.push(slot.SLOT_ID);
+    });
     return slots;
   }
 
@@ -254,9 +254,11 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       characterId: this.characterId,
       loadoutId: this.loadoutId,
       loadoutData: {
-        loadoutSlots: Object.values(this.getLoadoutSlots()).map((slotId: any) => {
-          return this.pGetLoadoutSlot(slotId);
-        }),
+        loadoutSlots: Object.values(this.getLoadoutSlots()).map(
+          (slotId: any) => {
+            return this.pGetLoadoutSlot(slotId);
+          }
+        ),
       },
       currentSlotId: this.currentLoadoutSlot,
     };

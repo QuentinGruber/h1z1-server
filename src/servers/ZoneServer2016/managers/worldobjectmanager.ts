@@ -37,7 +37,6 @@ import { lootTables } from "../data/lootspawns";
 import { BaseItem } from "../classes/baseItem";
 import { Lootbag } from "../classes/lootbag";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
-import { LoadoutItem } from "../classes/loadoutItem";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {
@@ -187,7 +186,7 @@ export class WorldObjectManager {
     const characterId = generateRandomGuid(),
       isCharacter = !!server._characters[entity.characterId];
 
-    let items: { [itemGuid: string]: BaseItem } = {};
+    const items: { [itemGuid: string]: BaseItem } = {};
     Object.values(entity._loadout).forEach((item) => {
       if (
         item.itemGuid != "0x0" &&

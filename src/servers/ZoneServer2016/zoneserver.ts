@@ -164,7 +164,8 @@ export class ZoneServer2016 extends EventEmitter {
   _temporaryObjects: { [characterId: string]: TemporaryEntity } = {};
   _vehicles: { [characterId: string]: Vehicle } = {};
   _lootbags: { [characterId: string]: Lootbag } = {};
-  _lootableConstruction: { [characterId: string]: LootableConstructionEntity } = {};
+  _lootableConstruction: { [characterId: string]: LootableConstructionEntity } =
+    {};
 
   _constructionFoundations: {
     [characterId: string]: ConstructionParentEntity;
@@ -3508,12 +3509,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.placeTrap(itemDefinitionId, modelId, position, rotation);
         break;
       case Items.FLARE:
-        this.placeTemporaryEntity(
-          modelId,
-          position,
-          rotation,
-          900000
-        );
+        this.placeTemporaryEntity(modelId, position, rotation, 900000);
         break;
       case Items.IED:
       case Items.LANDMINE:
@@ -3578,7 +3574,7 @@ export class ZoneServer2016 extends EventEmitter {
           slot
         );
         break;
-        /*
+      /*
       case Items.STORAGE_BOX:
         this.placeLootableConstruction()
         break;
@@ -3696,25 +3692,29 @@ export class ZoneServer2016 extends EventEmitter {
     BuildingSlot: string
   ) {
     const characterId = this.generateGuid(),
-    transientId = this.getTransientId(characterId),
-    npc = new ConstructionDoor(
-      characterId,
-      transientId,
-      modelId,
-      position,
-      rotation,
-      new Float32Array([1, 1, 1, 1]),
-      itemDefinitionId,
-      client.character.characterId,
-      parentObjectCharacterId,
-      BuildingSlot,
-    );
+      transientId = this.getTransientId(characterId),
+      npc = new ConstructionDoor(
+        characterId,
+        transientId,
+        modelId,
+        position,
+        rotation,
+        new Float32Array([1, 1, 1, 1]),
+        itemDefinitionId,
+        client.character.characterId,
+        parentObjectCharacterId,
+        BuildingSlot
+      );
     if (Number(parentObjectCharacterId)) {
       switch (this.getEntityType(parentObjectCharacterId)) {
         case EntityTypes.CONSTRUCTION_FOUNDATION:
           const foundation =
             this._constructionFoundations[parentObjectCharacterId];
-          foundation.changePerimeters(this, npc.buildingSlot, npc.state.position);
+          foundation.changePerimeters(
+            this,
+            npc.buildingSlot,
+            npc.state.position
+          );
           break;
         case EntityTypes.CONSTRUCTION_SIMPLE:
           const construction =
@@ -3748,20 +3748,20 @@ export class ZoneServer2016 extends EventEmitter {
     eulerAngle?: number
   ) {
     const characterId = this.generateGuid(),
-    transientId = this.getTransientId(characterId),
-    npc = new ConstructionParentEntity(
-      characterId,
-      transientId,
-      modelId,
-      position,
-      rotation,
-      itemDefinitionId,
-      client.character.characterId,
-      client.character.name,
-      parentObjectCharacterId,
-      BuildingSlot,
-      eulerAngle
-    );
+      transientId = this.getTransientId(characterId),
+      npc = new ConstructionParentEntity(
+        characterId,
+        transientId,
+        modelId,
+        position,
+        rotation,
+        itemDefinitionId,
+        client.character.characterId,
+        client.character.name,
+        parentObjectCharacterId,
+        BuildingSlot,
+        eulerAngle
+      );
     if (
       itemDefinitionId === Items.FOUNDATION_EXPANSION &&
       parentObjectCharacterId &&
@@ -3783,14 +3783,14 @@ export class ZoneServer2016 extends EventEmitter {
     time: number
   ) {
     const characterId = this.generateGuid(),
-    transientId = this.getTransientId(characterId),
-    npc = new TemporaryEntity(
-      characterId,
-      transientId,
-      modelId,
-      position,
-      rotation
-    );
+      transientId = this.getTransientId(characterId),
+      npc = new TemporaryEntity(
+        characterId,
+        transientId,
+        modelId,
+        position,
+        rotation
+      );
     npc.disappearTimer = setTimeout(() => {
       this.sendDataToAllWithSpawnedEntity(
         this._temporaryObjects,
@@ -3812,15 +3812,15 @@ export class ZoneServer2016 extends EventEmitter {
     rotation: Float32Array
   ) {
     const characterId = this.generateGuid(),
-    transientId = this.getTransientId(characterId),
-    npc = new TrapEntity(
-      characterId,
-      transientId,
-      modelId,
-      position,
-      new Float32Array([0, rotation[0], 0]),
-      itemDefinitionId
-    );
+      transientId = this.getTransientId(characterId),
+      npc = new TrapEntity(
+        characterId,
+        transientId,
+        modelId,
+        position,
+        new Float32Array([0, rotation[0], 0]),
+        itemDefinitionId
+      );
     npc.arm(this);
     this._traps[characterId] = npc;
   }
@@ -3832,16 +3832,16 @@ export class ZoneServer2016 extends EventEmitter {
     rotation: Float32Array
   ) {
     const characterId = this.generateGuid(),
-    transientId = this.getTransientId(characterId),
-    isIED = itemDefinitionId == 1699 ? true : false,
-    npc = new ExplosiveEntity(
-      characterId,
-      transientId,
-      modelId,
-      position,
-      rotation,
-      isIED
-    );
+      transientId = this.getTransientId(characterId),
+      isIED = itemDefinitionId == 1699 ? true : false,
+      npc = new ExplosiveEntity(
+        characterId,
+        transientId,
+        modelId,
+        position,
+        rotation,
+        isIED
+      );
     if (isIED) {
       this._explosives[characterId] = npc;
       return;
@@ -4423,7 +4423,13 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const def = this.getItemDefinition(item.itemDefinitionId);
     if (loadoutSlotId) {
-      if (!this.validateLoadoutSlot(item.itemDefinitionId, loadoutSlotId, character.loadoutId)) {
+      if (
+        !this.validateLoadoutSlot(
+          item.itemDefinitionId,
+          loadoutSlotId,
+          character.loadoutId
+        )
+      ) {
         debug(
           `[ERROR] EquipItem: Client tried to equip item ${item.itemDefinitionId} with invalid loadoutSlotId ${loadoutSlotId}!`
         );
@@ -4757,7 +4763,8 @@ export class ZoneServer2016 extends EventEmitter {
       (slot: any) =>
         slot.ITEM_CLASS ==
           this.getItemDefinition(itemDefinitionId).ITEM_CLASS &&
-        loadoutSlotId == slot.SLOT && slot.LOADOUT_ID == loadoutId
+        loadoutSlotId == slot.SLOT &&
+        slot.LOADOUT_ID == loadoutId
     );
   }
 
@@ -4771,8 +4778,7 @@ export class ZoneServer2016 extends EventEmitter {
     const itemDef = this.getItemDefinition(itemDefId),
       loadoutSlotItemClass = loadoutSlotItemClasses.find(
         (slot: any) =>
-          slot.ITEM_CLASS == itemDef.ITEM_CLASS &&
-          loadoutId == slot.LOADOUT_ID
+          slot.ITEM_CLASS == itemDef.ITEM_CLASS && loadoutId == slot.LOADOUT_ID
       );
     return loadoutSlotItemClass?.SLOT || 0;
   }
@@ -4979,7 +4985,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     this.deleteItem(client, item.itemGuid);
-    delete client.character._loadout[loadoutSlotId]
+    delete client.character._loadout[loadoutSlotId];
     this.updateLoadout(client.character);
     this.clearEquipmentSlot(
       client,
@@ -5176,12 +5182,8 @@ export class ZoneServer2016 extends EventEmitter {
       );
       count = item.stackCount;
     }
-    const itemDefId = item.itemDefinitionId,
-      itemDef = this.getItemDefinition(itemDefId);
-    if (
-      //itemDef?.FLAG_CAN_EQUIP &&
-      this.getAvailableLoadoutSlot(character, itemDefId)
-    ) {
+    const itemDefId = item.itemDefinitionId;
+    if (this.getAvailableLoadoutSlot(character, itemDefId)) {
       if (client && client.character.initialized && sendUpdate) {
         this.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,

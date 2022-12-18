@@ -776,12 +776,12 @@ export class zonePacketHandlers {
     packet: { data: VehicleCurrentMoveMode }
   ) {
     const { characterId, moveMode } = packet.data,
-    vehicle = server._vehicles[characterId as string];
-    if(!vehicle) return;
+      vehicle = server._vehicles[characterId as string];
+    if (!vehicle) return;
     debug(
-      `vehTransient:${
-        vehicle.transientId
-      } , mode: ${moveMode} from ${client.character.name} time:${Date.now()}`
+      `vehTransient:${vehicle.transientId} , mode: ${moveMode} from ${
+        client.character.name
+      } time:${Date.now()}`
     );
   }
   VehicleDismiss(server: ZoneServer2016, client: Client, packet: any) {
@@ -1128,7 +1128,13 @@ export class zonePacketHandlers {
             );
           } else if (containerGuid == "0xffffffffffffffff") {
             // to loadout
-            if (server.validateLoadoutSlot(item.itemDefinitionId, newSlotId, client.character.loadoutId)) {
+            if (
+              server.validateLoadoutSlot(
+                item.itemDefinitionId,
+                newSlotId,
+                client.character.loadoutId
+              )
+            ) {
               server.equipContainerItem(client, item, newSlotId);
             }
           } else {
@@ -1169,12 +1175,16 @@ export class zonePacketHandlers {
             );
           } else if (containerGuid == "0xffffffffffffffff") {
             // to loadout
-            const loadoutItem = client.character.getLoadoutItem(itemGuid)
+            const loadoutItem = client.character.getLoadoutItem(itemGuid);
             if (!loadoutItem) {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
-            loadoutItem.transferLoadoutItem(server, targetCharacterId, newSlotId);
+            loadoutItem.transferLoadoutItem(
+              server,
+              targetCharacterId,
+              newSlotId
+            );
           } else {
             // invalid
             server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);

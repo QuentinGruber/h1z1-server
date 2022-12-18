@@ -57,6 +57,7 @@ export class BaseLootableEntity extends BaseFullCharacter {
     client.character.mountContainer(server, this);
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     // do nothing for now
   }

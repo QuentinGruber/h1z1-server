@@ -76,7 +76,7 @@ export class ConstructionDoor extends DoorEntity {
       this.state.position,
       -this.openAngle,
       this.itemDefinitionId == Items.DOOR_METAL ||
-      this.itemDefinitionId == Items.DOOR_WOOD
+        this.itemDefinitionId == Items.DOOR_WOOD
         ? 0.625
         : 2.5
     );

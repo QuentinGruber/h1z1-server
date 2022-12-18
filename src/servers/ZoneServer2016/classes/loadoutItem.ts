@@ -43,29 +43,30 @@ export class LoadoutItem extends BaseItem {
     const client = server.getClientByCharId(targetCharacterId);
     if (!client) return;
     const oldLoadoutItem = client.character._loadout[newSlotId];
-    if (!server.validateLoadoutSlot(this.itemDefinitionId, newSlotId, client.character.loadoutId)) {
+    if (
+      !server.validateLoadoutSlot(
+        this.itemDefinitionId,
+        newSlotId,
+        client.character.loadoutId
+      )
+    ) {
       server.containerError(client, ContainerErrors.INVALID_LOADOUT_SLOT);
       return;
     }
     if (oldLoadoutItem) {
       if (!server.removeLoadoutItem(client, oldLoadoutItem.slotId)) {
-        console.log("error 1")
+        console.log("error 1");
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
     }
     if (!server.removeLoadoutItem(client, this.slotId)) {
-      console.log("error 2")
+      console.log("error 2");
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
     if (oldLoadoutItem) {
-      server.equipItem(
-        client.character,
-        oldLoadoutItem,
-        true,
-        this.slotId
-      );
+      server.equipItem(client.character, oldLoadoutItem, true, this.slotId);
     }
     server.equipItem(client.character, this, true, newSlotId);
   }

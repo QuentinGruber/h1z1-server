@@ -12,7 +12,12 @@
 // ======================================================================
 
 import { getDistance } from "../../../utils/utils";
-import { Items, MovementModifiers, ResourceIds, ResourceTypes } from "../models/enums";
+import {
+  Items,
+  MovementModifiers,
+  ResourceIds,
+  ResourceTypes,
+} from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
 
