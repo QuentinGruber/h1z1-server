@@ -512,7 +512,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region RESIDENTIAL
   "ItemSpawnerResidential_Tier00.adr": {
-    spawnChance: 30,
+    spawnChance: 50,
     items: [
       {
         item: Items.DUCT_TAPE,
