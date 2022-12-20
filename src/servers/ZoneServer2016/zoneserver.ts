@@ -4512,17 +4512,17 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.updateLoadout(character);
     if (equipmentSlotId) {
-      if (this.isWeapon(item.itemDefinitionId) && client) { // todo: check that the weapon has projectiles
+      if (this.isWeapon(item.itemDefinitionId) && client) {
+        // todo: check that the weapon has projectiles
         this.sendRemoteWeaponDataToAllOthers(
           client,
           client.character.transientId,
           "RemoteWeapon.Reset",
           {
             data: {
-              remoteWeapons: this.pGetRemoteWeaponsData(client.character),
-              remoteWeaponsExtra: this.pGetRemoteWeaponsExtraData(
-                client.character
-              ),
+              remoteWeapons: client.character.pGetRemoteWeaponsData(this),
+              remoteWeaponsExtra:
+                client.character.pGetRemoteWeaponsExtraData(this),
             },
           }
         );
@@ -5215,28 +5215,7 @@ export class ZoneServer2016 extends EventEmitter {
           count: count,
         });
       }
-      // fix this shit
-      /*
-<<<-<<<< 1111-typeerror-cannot-read-properties-of-undefined-reading-fire_modes
-      this.equipItem(client.character, item);
-=======
       this.equipItem(character, item, sendUpdate);
-      if (client && this.isWeapon(item.itemDefinitionId) && sendUpdate) {
-        this.sendRemoteWeaponDataToAllOthers(
-          client,
-          client.character.transientId,
-          "RemoteWeapon.Reset",
-          {
-            data: {
-              remoteWeapons: client.character.pGetRemoteWeaponsData(this),
-              remoteWeaponsExtra:
-                client.character.pGetRemoteWeaponsExtraData(this),
-            },
-          }
-        );
-      }
->>->>>>> dev
-*/
     } else {
       this.lootContainerItem(character, item, count, sendUpdate);
     }

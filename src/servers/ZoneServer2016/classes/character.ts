@@ -363,7 +363,14 @@ export class Character2016 extends BaseFullCharacter {
           ),
           firemodes = firegroupDef?.FIRE_MODES;
         if (!firemodes) {
-          console.error(`firegroupDef missing for ${firegroup}`);
+          const client = server.getClientByCharId(this.characterId),
+            msg = `[FATAL ERROR] PLEASE REPORT THIS - weaponDefinitionId: ${weaponDefinition.ID} firegroupId: ${firegroup.FIRE_GROUP_ID}`;
+          console.error(msg);
+          if (client) {
+            server.sendAlert(client, msg);
+            server.sendChatText(client, msg);
+          }
+          return;
         }
         return {
           firegroupId: firegroup.FIRE_GROUP_ID,
