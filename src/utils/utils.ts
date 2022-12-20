@@ -659,3 +659,8 @@ export function calculateOrientation(
 ): number {
   return Math.atan2(pos1[2] - pos2[2], pos1[0] - pos2[0]) * -1 - 1.4;
 }
+
+export function isArraySumZero(array: Float32Array) {
+  if(!array || array.length == 0) return false;
+  return array.reduce((accumulator, currentValue) => accumulator + currentValue) == 0;
+}
