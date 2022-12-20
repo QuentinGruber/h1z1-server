@@ -58,7 +58,7 @@ export class SOEOutputStream extends EventEmitter {
     if (data.length <= this._fragmentSize) {
       this._sequence.increment();
       this.addToCache(this._sequence.get(), data, false);
-      this.emit("data", null, data, this._sequence.get(), false, unbuffered);
+      this.emit("data", data, this._sequence.get(), false, unbuffered);
     } else {
       const header = Buffer.allocUnsafe(4);
       header.writeUInt32BE(data.length, 0);
@@ -68,14 +68,7 @@ export class SOEOutputStream extends EventEmitter {
         const fragmentData = data.slice(i, i + this._fragmentSize);
         this.addToCache(this._sequence.get(), fragmentData, true);
 
-        this.emit(
-          "data",
-          null,
-          fragmentData,
-          this._sequence.get(),
-          true,
-          unbuffered
-        );
+        this.emit("data", fragmentData, this._sequence.get(), true, unbuffered);
       }
     }
   }
@@ -94,7 +87,6 @@ export class SOEOutputStream extends EventEmitter {
     if (this._cache[sequence]) {
       this.emit(
         "dataResend",
-        null,
         this._cache[sequence].data,
         sequence,
         this._cache[sequence].fragment

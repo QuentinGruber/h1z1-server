@@ -24,7 +24,6 @@ const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
 export class SOEServer extends EventEmitter {
-  _protocolName: string;
   _serverPort: number;
   _cryptoKey: Uint8Array;
   _protocol!: Soeprotocol;
@@ -43,20 +42,24 @@ export class SOEServer extends EventEmitter {
     arg1: number
   ) => void;
   private _resendTimeout: number = 300;
-  private _packetRatePerClient: number = 500;
+  packetRatePerClient: number = 500;
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
-  constructor(protocolName: string, serverPort: number, cryptoKey: Uint8Array) {
+  _allowRawDataReception: boolean = true;
+  constructor(
+    serverPort: number,
+    cryptoKey: Uint8Array,
+    disableAntiDdos?: boolean
+  ) {
     super();
     Buffer.poolSize = 8192 * 4;
-    this._protocolName = protocolName;
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
     this._connection = new Worker(
       `${__dirname}/../shared/workers/udpServerWorker.js`,
       {
-        workerData: { serverPort: serverPort },
+        workerData: { serverPort: serverPort, disableAntiDdos },
       }
     );
     setInterval(() => {
@@ -69,7 +72,6 @@ export class SOEServer extends EventEmitter {
   }
 
   private resetPacketsSent(): void {
-    debug("Reset packets sent");
     for (const client of this._clients.values()) {
       client.packetsSentThisSec = 0;
     }
@@ -78,23 +80,19 @@ export class SOEServer extends EventEmitter {
   private _sendPhysicalPacket(client: Client, packet: Buffer): void {
     client.packetsSentThisSec++;
     client.stats.totalPacketSent++;
-    this._connection.postMessage(
-      {
-        type: "sendPacket",
-        data: {
-          packetData: packet,
-          length: packet.length,
-          port: client.port,
-          address: client.address,
-        },
+    this._connection.postMessage({
+      type: "sendPacket",
+      data: {
+        packetData: packet,
+        port: client.port,
+        address: client.address,
       },
-      [packet.buffer]
-    );
+    });
   }
 
   private sendOutQueue(client: Client): void {
     debug("Sending out queue");
-    while (client.packetsSentThisSec < this._packetRatePerClient) {
+    while (client.packetsSentThisSec < this.packetRatePerClient) {
       const logicalPacket = client.outQueue.shift();
       if (logicalPacket) {
         // if is a reliable packet
@@ -231,7 +229,7 @@ export class SOEServer extends EventEmitter {
         client.outputStream.setFragmentSize(client.clientUdpLength - 7); // TODO: 7? calculate this based on crc enabled / compression etc
         if (this._usePingTimeout) {
           client.lastPingTimer = setTimeout(() => {
-            this.emit("disconnect", null, client);
+            this.emit("disconnect", client);
           }, this._pingTimeoutTime);
         }
 
@@ -250,15 +248,12 @@ export class SOEServer extends EventEmitter {
         break;
       case "Disconnect":
         debug("Received disconnect from client");
-        this.emit("disconnect", null, client);
+        this.emit("disconnect", client);
         break;
       case "MultiPacket": {
         for (let i = 0; i < packet.sub_packets.length; i++) {
           const subPacket = packet.sub_packets[i];
-          switch (subPacket.name) {
-            default:
-              this.handlePacket(client, subPacket);
-          }
+          this.handlePacket(client, subPacket);
         }
         break;
       }
@@ -288,22 +283,10 @@ export class SOEServer extends EventEmitter {
         break;
       case "OutOfOrder":
         client.unAckData.delete(packet.sequence);
-        //client.outputStream.resendData(packet.sequence);
+        client.outputStream.removeFromCache(packet.sequence);
         break;
       case "Ack":
         client.outputStream.ack(packet.sequence, client.unAckData);
-        break;
-      case "ZonePing":
-        debug("Receive Zone Ping ");
-        /* this._sendPacket(client, "ZonePing", { respond to it is currently useless ( at least on the 2015 version )
-            PingId: result.PingId,
-            Data: result.Data,
-          });*/
-        break;
-      case "FatalError":
-        debug("Received fatal error from client");
-        break;
-      case "FatalErrorReply":
         break;
       default:
         console.log(`Unknown SOE packet received from ${client.sessionId}`);
@@ -330,39 +313,34 @@ export class SOEServer extends EventEmitter {
         let client: SOEClient;
         const clientId = message.remote.address + ":" + message.remote.port;
         debug(data.length + " bytes from ", clientId);
-        let unknow_client;
         // if doesn't know the client
         if (!this._clients.has(clientId)) {
           if (data[1] !== 1) {
             return;
           }
-          unknow_client = true;
           client = this._createClient(clientId, message.remote);
 
-          client.inputStream.on("appdata", (err: string, data: Buffer) => {
-            this.emit("appdata", null, client, data);
+          client.inputStream.on("appdata", (data: Buffer) => {
+            this.emit("appdata", client, data);
           });
 
-          client.inputStream.on("ack", (err: string, sequence: number) => {
+          client.inputStream.on("error", (err: Error) => {
+            console.error(err);
+            this.emit("disconnect", client);
+          });
+
+          client.inputStream.on("ack", (sequence: number) => {
             client.nextAck.set(sequence);
           });
 
-          client.inputStream.on(
-            "outoforder",
-            (
-              err: string,
-              expectedSequence: number,
-              outOfOrderSequence: number
-            ) => {
-              client.stats.packetsOutOfOrder++;
-              client.outOfOrderPackets.push(outOfOrderSequence);
-            }
-          );
+          client.inputStream.on("outoforder", (outOfOrderSequence: number) => {
+            client.stats.packetsOutOfOrder++;
+            client.outOfOrderPackets.push(outOfOrderSequence);
+          });
 
           client.outputStream.on(
             "data",
             (
-              err: string,
               data: Buffer,
               sequence: number,
               fragment: boolean,
@@ -383,12 +361,7 @@ export class SOEServer extends EventEmitter {
           // the only difference with the event "data" is that resended data is send via the priority queue
           client.outputStream.on(
             "dataResend",
-            (
-              err: string,
-              data: Buffer,
-              sequence: number,
-              fragment: boolean
-            ) => {
+            (data: Buffer, sequence: number, fragment: boolean) => {
               client.stats.packetResend++;
               this._sendLogicalPacket(
                 client,
@@ -409,21 +382,23 @@ export class SOEServer extends EventEmitter {
             const parsed_data = JSON.parse(raw_parsed_data);
             if (parsed_data.name === "Error") {
               console.error(parsed_data.error);
+            } else {
+              this.handlePacket(client, parsed_data);
             }
-            if (!unknow_client && parsed_data.name === "SessionRequest") {
-              this.deleteClient(this._clients.get(clientId) as SOEClient);
-              debug(
-                "Delete an old session badly closed by the client (",
-                clientId,
-                ") )"
-              );
-            }
-            this.handlePacket(client, parsed_data);
           } else {
             console.error("Unmanaged packet from client", clientId, data);
           }
         } else {
-          debug("Unmanaged standalone packet from client", clientId, data);
+          if (this._allowRawDataReception) {
+            debug("Raw data received from client", clientId, data);
+            this.emit("appdata", client, data, true); // Unreliable + Unordered
+          } else {
+            debug(
+              "Raw data received from client but raw data reception isn't enabled",
+              clientId,
+              data
+            );
+          }
         }
       } catch (e) {
         console.log(e);

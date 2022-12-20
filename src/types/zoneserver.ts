@@ -11,6 +11,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { ConstructionParentEntity } from "servers/ZoneServer2016/classes/constructionparententity";
+import { ConstructionChildEntity } from "servers/ZoneServer2016/classes/constructionchildentity";
+import { FilterIds, Items } from "servers/ZoneServer2016/models/enums";
+import { ConstructionDoor } from "servers/ZoneServer2016/classes/constructiondoor";
+
 export interface npcData {
   guid: string;
   characterId: string;
@@ -72,126 +77,6 @@ export interface characterEquipment {
   textureAlias?: string;
   tintAlias?: string;
   decalAlias?: string;
-}
-
-export interface weaponItem {
-  ammoCount: number;
-  reloadTimer?: NodeJS.Timeout;
-  currentReloadCount: number; // needed for reload packet to work every time
-}
-
-export interface inventoryItem {
-  itemDefinitionId: number;
-  slotId: number;
-  itemGuid: string;
-  containerGuid: string;
-  currentDurability: number;
-  stackCount: number;
-  weapon?: weaponItem;
-}
-
-export interface loadoutItem extends inventoryItem {
-  loadoutItemOwnerGuid: string;
-}
-
-export interface loadoutContainer extends loadoutItem {
-  containerDefinitionId: number;
-  items: { [itemGuid: string]: inventoryItem };
-}
-
-export interface craftComponentDSEntry {
-  itemDefinitionId: number;
-  stackCount: number;
-}
-
-export interface Client {
-  currentPOI?: number;
-  firstLoading: boolean;
-  isLoading: boolean;
-  isInteracting: boolean;
-  posAtLastRoutine: Float32Array;
-  posAtLogoutStart: Float32Array;
-  timer: NodeJS.Timeout | null;
-  spawnedEntities: any[];
-  managedObjects: any[];
-  vehicle: {
-    falling: number;
-    mountedVehicle?: string;
-    mountedVehicleType?: string;
-    vehicleState: number;
-  };
-  character: {
-    characterId: string;
-    transientId: number;
-    name?: string;
-    loadouts?: any;
-    extraModel?: string;
-    isRunning: boolean;
-    resourcesUpdater?: any;
-    equipment: characterEquipment[];
-    resources: {
-      health: number;
-      stamina: number;
-      virus: number;
-      food: number;
-      water: number;
-    };
-    currentLoadoutTab?: number;
-    currentLoadoutId?: number;
-    currentLoadout?: number;
-    guid?: string;
-    inventory?: Array<any>;
-    factionId?: number;
-    spawnLocation?: string;
-    state: {
-      position: Float32Array;
-      rotation: Float32Array;
-      lookAt: Float32Array;
-      health: number;
-      shield: number;
-    };
-    // 2016 only
-    actorModelId?: number;
-    headActor?: string;
-    isRespawning?: boolean;
-    gender?: number;
-    creationDate?: string;
-    lastLoginDate?: string;
-  };
-  loginSessionId?: string;
-  sessionId: number;
-  address: string;
-  port: number;
-  crcSeed: number;
-  crcLength: number;
-  clientUdpLength: number;
-  serverUdpLength: number;
-  sequences: any;
-  compression: number;
-  useEncryption: boolean;
-  outQueue: any;
-  outOfOrderPackets: any;
-  nextAck: number;
-  lastAck: number;
-  inputStream: () => void;
-  outputStream: () => void;
-  outQueueTimer: () => void;
-  ackTimer: () => void;
-  lastPingTime: number;
-  pingTimer: NodeJS.Timeout;
-  savePositionTimer?: NodeJS.Timeout;
-  outOfOrderTimer: () => void;
-}
-
-export interface SendZoneDetailsPacket {
-  zoneName: string;
-  zoneType: number;
-  unknownBoolean1: boolean;
-  skyData: Weather;
-  zoneId1: number;
-  zoneId2: number;
-  nameId: number;
-  unknownBoolean7: boolean;
 }
 
 export interface Weather {
@@ -284,6 +169,24 @@ export interface Weather2016 {
   unknownDword33: number;
 }
 
+export interface HitReport {
+  sessionProjectileCount: number;
+  characterId: string;
+  position: Float32Array;
+  unknownFlag1: number;
+  hitLocation?: string;
+  totalShotCount: number;
+  unknownByte2: number;
+}
+
+export interface DamageInfo {
+  entity: string;
+  weapon?: Items;
+  damage: number;
+  causeBleed?: boolean;
+  hitReport?: HitReport;
+}
+
 export interface DamageRecord {
   source: {
     name: string;
@@ -295,7 +198,7 @@ export interface DamageRecord {
   };
   hitInfo: {
     timestamp: number;
-    weapon: string;
+    weapon?: Items;
     distance: string;
     hitLocation: string;
     hitPosition: Float32Array;
@@ -311,18 +214,35 @@ export interface SpawnLocation {
   rotation: Float32Array;
 }
 
-export interface SoeServer {
-  on: (arg0: string, arg1: any) => void;
-  start: (
-    compression: any,
-    crcSeed: any,
-    crcLength: any,
-    udpLength: any
-  ) => void;
-  stop: () => void;
-  _sendPacket: () => void;
-  sendAppData: (arg0: Client, arg1: any, arg2: undefined | any) => void;
-  toggleEncryption: (arg0: Client) => void;
-  setEncryption: (arg0: boolean) => void;
-  deleteClient: (client: Client) => void;
+export interface LootDefinition {
+  item: number;
+  weight: number;
+  spawnCount: {
+    min: number;
+    max: number;
+  };
 }
+
+export interface LootSpawner {
+  spawnChance: number;
+  items: Array<LootDefinition>;
+}
+
+export interface ContainerLootSpawner extends LootSpawner {
+  maxItems: number;
+}
+
+export interface RecipeComponent {
+  itemDefinitionId: number;
+  requiredAmount: number;
+}
+
+export interface Recipe {
+  filterId: FilterIds;
+  bundleCount?: number;
+  components: Array<RecipeComponent>;
+}
+
+export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
+
+export type ConstructionEntity = SlottedConstructionEntity;

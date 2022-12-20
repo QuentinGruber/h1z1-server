@@ -1,4 +1,3 @@
-process.env.DEBUG = "ZoneServer";
 const H1Z1servers = require("../../h1z1-server");
 var Zone = new H1Z1servers.ZoneServer2016(
   1117,

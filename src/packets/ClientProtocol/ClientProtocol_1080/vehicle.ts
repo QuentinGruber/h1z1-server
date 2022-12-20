@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { identitySchema, itemSchema } from "./shared";
+import { itemSchema, passengerSchema } from "./shared";
 
 export const vehiclePackets: any = [
   [
@@ -27,37 +27,7 @@ export const vehiclePackets: any = [
           name: "passengers",
           type: "array",
           defaultValue: [{}],
-          fields: [
-            {
-              name: "passengerData",
-              type: "schema",
-              fields: [
-                {
-                  name: "characterId",
-                  type: "uint64string",
-                  defaultValue: "0",
-                },
-                {
-                  name: "characterData",
-                  type: "schema",
-                  fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                    { name: "characterName", type: "string", defaultValue: "" },
-                    {
-                      name: "unknownString1",
-                      type: "string",
-                      defaultValue: "",
-                    },
-                  ],
-                },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownString1", type: "string", defaultValue: "" },
-              ],
-            },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-          ],
+          fields: passengerSchema,
         },
       ],
     },
@@ -84,26 +54,7 @@ export const vehiclePackets: any = [
           name: "passengers",
           type: "array",
           defaultValue: [],
-          fields: [
-            {
-              name: "passengerData",
-              type: "schema",
-              fields: [
-                {
-                  name: "characterId",
-                  type: "uint64string",
-                  defaultValue: "0",
-                },
-                {
-                  name: "characterData",
-                  type: "schema",
-                  fields: identitySchema,
-                },
-                { name: "unknownString1", type: "string", defaultValue: "" },
-              ],
-            },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-          ],
+          fields: passengerSchema,
         },
         {
           name: "unknownArray2",
@@ -256,17 +207,7 @@ export const vehiclePackets: any = [
           name: "passengers",
           type: "array",
           defaultValue: [],
-          fields: [
-            { name: "characterId", type: "uint64string", defaultValue: "0" },
-            {
-              name: "identity",
-              type: "schema",
-              defaultValue: {},
-              fields: identitySchema,
-            },
-            { name: "unknownString1", type: "string", defaultValue: "" },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-          ],
+          fields: passengerSchema,
         },
       ],
     },
@@ -284,7 +225,16 @@ export const vehiclePackets: any = [
   ["Vehicle.DeployResponse", 0x8924, {}],
   ["Vehicle.ExitPoints", 0x8925, {}],
   ["Vehicle.ControllerLogOut", 0x8926, {}],
-  ["Vehicle.CurrentMoveMode", 0x8927, {}],
+  [
+    "Vehicle.CurrentMoveMode",
+    0x8927,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "moveMode", type: "uint8", defaultValue: 0 },
+      ],
+    },
+  ],
   ["Vehicle.ItemDefinitionRequest", 0x8928, {}],
   ["Vehicle.ItemDefinitionReply", 0x8929, {}],
   [

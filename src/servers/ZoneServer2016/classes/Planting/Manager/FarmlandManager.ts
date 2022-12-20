@@ -24,7 +24,7 @@ import { Furrows, Hole, Seed } from "../Model/DataModels";
 import { TemporaryEntity } from "../../temporaryentity";
 import { generateRandomGuid } from "../../../../../utils/utils";
 import { ItemObject } from "../../itemobject";
-import { inventoryItem } from "../../../../../types/zoneserver";
+import { BaseItem } from "../../baseItem";
 
 const debug = require("debug")("PlantingManager");
 
@@ -209,7 +209,7 @@ export class FarmlandManager {
     hole: Hole,
     seed: Seed,
     server: ZoneServer2016
-  ): inventoryItem | null => {
+  ): BaseItem | null => {
     const seedQU = Euler2Quaternion(
       hole.Rotation.Yaw,
       hole.Rotation.Pitch,

@@ -8,25 +8,25 @@
 
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneServer2016 } from "../zoneserver";
-import { Items } from "../enums";
+import { Items } from "../models/enums";
+import { DamageInfo } from "types/zoneserver";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_WALL:
-    case Items.UPPER_METAL_WALL:
+    case Items.METAL_WALL_UPPER:
     case Items.SHELTER:
-    case Items.UPPER_LEVEL_SHELTER:
+    case Items.SHELTER_UPPER:
       return 4.3;
-    case Items.LARGE_SHELTER:
-    case Items.UPPER_LEVEL_LARGE_SHELER:
+    case Items.SHELTER_LARGE:
+    case Items.SHELTER_UPPER_LARGE:
       return 6.5;
     default:
       return 2;
   }
 }
 
-export class simpleConstruction extends BaseLightweightCharacter {
+export class ConstructionChildEntity extends BaseLightweightCharacter {
   health: number = 1000000;
-  healthPercentage: number = 100;
   buildingSlot?: string;
   perimeters: { [slot: string]: Float32Array };
   itemDefinitionId: number;
@@ -68,9 +68,9 @@ export class simpleConstruction extends BaseLightweightCharacter {
       health: this.health / 10000,
     };
   }
-  pDamageConstruction(damage: number) {
-    this.health -= damage;
-    this.healthPercentage = this.health / 10000;
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    // todo: redo this
+    this.health -= damageInfo.damage;
   }
   changePerimeters(
     server: ZoneServer2016,

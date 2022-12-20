@@ -49,15 +49,13 @@ export class SOEInputStream extends EventEmitter {
     return parseChannelPacketData(dataToProcess.payload);
   }
 
-  private processFragmentedData(
-    dataToProcess: Fragment,
-    sequence: number
-  ): Array<Buffer> {
+  private processFragmentedData(firstPacketSequence: number): Array<Buffer> {
     // cpf == current processed fragment
     if (!this.has_cpf) {
+      const firstPacket = this._fragments.get(firstPacketSequence) as Fragment; // should be always defined
       // the total size is written has a uint32 at the first packet of a fragmented data
-      this.cpf_totalSize = dataToProcess.payload.readUInt32BE(0);
-      this.cpf_dataSize = dataToProcess.payload.length - DATA_HEADER_SIZE;
+      this.cpf_totalSize = firstPacket.payload.readUInt32BE(0);
+      this.cpf_dataSize = 0;
 
       this.cpf_dataWithoutHeader = Buffer.allocUnsafe(this.cpf_totalSize);
       this.cpf_processedFragmentsSequences = [];
@@ -68,29 +66,35 @@ export class SOEInputStream extends EventEmitter {
       i < this._fragments.size;
       i++
     ) {
-      const fragmentSequence = (sequence + i) % MAX_SEQUENCE;
+      const fragmentSequence = (firstPacketSequence + i) % MAX_SEQUENCE;
       const fragment = this._fragments.get(fragmentSequence);
       if (fragment) {
+        const isFirstPacket = fragmentSequence === firstPacketSequence;
         this.cpf_processedFragmentsSequences.push(fragmentSequence);
-        dataToProcess.payload.copy(
+        fragment.payload.copy(
           this.cpf_dataWithoutHeader,
-          0,
-          DATA_HEADER_SIZE
+          this.cpf_dataSize,
+          isFirstPacket ? DATA_HEADER_SIZE : 0
         );
-        fragment.payload.copy(this.cpf_dataWithoutHeader, this.cpf_dataSize);
-        this.cpf_dataSize += fragment.payload.length;
+        const fragmentDataLen = isFirstPacket
+          ? fragment.payload.length - 4
+          : fragment.payload.length;
+        this.cpf_dataSize += fragmentDataLen;
 
         if (this.cpf_dataSize > this.cpf_totalSize) {
-          throw (
-            "processDataFragments: offset > totalSize: " +
-            this.cpf_dataSize +
-            " > " +
-            this.cpf_totalSize +
-            " (sequence " +
-            fragmentSequence +
-            ") (fragment length " +
-            fragment.payload.length +
-            ")"
+          this.emit(
+            "error",
+            new Error(
+              "processDataFragments: offset > totalSize: " +
+                this.cpf_dataSize +
+                " > " +
+                this.cpf_totalSize +
+                " (sequence " +
+                fragmentSequence +
+                ") (fragment length " +
+                fragment.payload.length +
+                ")"
+            )
           );
         }
         if (this.cpf_dataSize === this.cpf_totalSize) {
@@ -121,10 +125,7 @@ export class SOEInputStream extends EventEmitter {
     let appData: Array<Buffer> = [];
     if (dataToProcess) {
       if (dataToProcess.isFragment) {
-        appData = this.processFragmentedData(
-          dataToProcess,
-          nextFragmentSequence + 1
-        );
+        appData = this.processFragmentedData(nextFragmentSequence);
       } else {
         appData = this.processSingleData(dataToProcess, nextFragmentSequence);
       }
@@ -151,7 +152,7 @@ export class SOEInputStream extends EventEmitter {
           data = Buffer.from(this._rc4.encrypt(data));
         }
       }
-      this.emit("appdata", null, data); // sending appdata to application
+      this.emit("appdata", data); // sending appdata to application
     }
   }
 
@@ -165,7 +166,7 @@ export class SOEInputStream extends EventEmitter {
       );
       // acknowledge that we receive this sequence but do not process it
       // until we're back in order
-      this.emit("outoforder", null, this._nextSequence.get(), sequence);
+      this.emit("outoforder", sequence);
       return false;
     } else {
       let ack = sequence;
@@ -180,7 +181,7 @@ export class SOEInputStream extends EventEmitter {
       }
       this._lastAck.set(ack);
       // all sequences behind lastAck are acknowledged
-      this.emit("ack", null, ack);
+      this.emit("ack", ack);
       return true;
     }
   }

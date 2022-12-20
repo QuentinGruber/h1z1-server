@@ -11,25 +11,32 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { simpleConstruction } from "./simpleConstruction";
-import { Items } from "../enums";
+import { ConstructionChildEntity } from "./constructionchildentity";
+import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
-import { getRectangleCorners } from "../../../utils/utils";
+import {
+  getRectangleCorners,
+  isInside,
+  isInsideWithY,
+  isPosInRadiusWithY,
+} from "../../../utils/utils";
+import { ZoneClient2016 } from "./zoneclient";
+import { BaseEntity } from "./baseentity";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.SHACK:
       return 4.5;
-    case Items.SMALL_SHACK:
+    case Items.SHACK_SMALL:
       return 4;
-    case Items.BASIC_SHACK:
+    case Items.SHACK_BASIC:
       return 3;
     default:
       return 4.5;
   }
 }
 
-export class ConstructionParentEntity extends simpleConstruction {
+export class ConstructionParentEntity extends ConstructionChildEntity {
   healthPercentage: number = 100;
   permissions: any;
   ownerCharacterId: string;
@@ -122,8 +129,8 @@ export class ConstructionParentEntity extends simpleConstruction {
           "12": new Float32Array([0, 0, 0, 0]),
         };
         break;
-      case Items.SMALL_SHACK:
-      case Items.BASIC_SHACK:
+      case Items.SHACK_SMALL:
+      case Items.SHACK_BASIC:
       case Items.SHACK:
         this.perimeters = {
           "01": new Float32Array([0, 0, 0, 0]),
@@ -582,8 +589,8 @@ export class ConstructionParentEntity extends simpleConstruction {
         this.isSecured = result;
         break;
       case Items.SHACK:
-      case Items.SMALL_SHACK:
-      case Items.BASIC_SHACK:
+      case Items.SHACK_SMALL:
+      case Items.SHACK_BASIC:
         this.isSecured =
           this.perimeters["01"].reduce(
             (accumulator, currentValue) => accumulator + currentValue
@@ -608,8 +615,8 @@ export class ConstructionParentEntity extends simpleConstruction {
     if (!slot) return;
     if (
       this.itemDefinitionId === Items.SHACK ||
-      this.itemDefinitionId === Items.SMALL_SHACK ||
-      this.itemDefinitionId === Items.BASIC_SHACK
+      this.itemDefinitionId === Items.SHACK_SMALL ||
+      this.itemDefinitionId === Items.SHACK_BASIC
     ) {
       this.perimeters["01"] = value;
       this.checkPerimeters(server);
@@ -617,5 +624,62 @@ export class ConstructionParentEntity extends simpleConstruction {
     }
     this.perimeters[slot as keyof typeof this.perimeters] = value;
     this.checkPerimeters(server);
+  }
+
+  isInside(entity: BaseEntity) {
+    switch (this.itemDefinitionId) {
+      case Items.FOUNDATION:
+      case Items.FOUNDATION_EXPANSION:
+      case Items.GROUND_TAMPER:
+        return isInside(
+          [entity.state.position[0], entity.state.position[2]],
+          this.securedPolygons
+        );
+      case Items.SHACK:
+        return isPosInRadiusWithY(
+          2.39,
+          entity.state.position,
+          this.state.position,
+          2
+        );
+      case Items.SHACK_BASIC:
+        return isPosInRadiusWithY(
+          1,
+          entity.state.position,
+          this.state.position,
+          2
+        );
+      case Items.SHACK_SMALL:
+        return isInsideWithY(
+          [entity.state.position[0], entity.state.position[2]],
+          this.securedPolygons,
+          entity.state.position[1],
+          this.state.position[1],
+          2.1
+        );
+      default:
+        return false;
+    }
+  }
+
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.ownerCharacterId != client.character.characterId) return;
+    server.sendData(
+      client,
+      "NpcFoundationPermissionsManagerBase.showPermissions",
+      {
+        characterId: this.characterId,
+        characterId2: this.characterId,
+        permissions: this.permissions,
+      }
+    );
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.ownerCharacterId != client.character.characterId) return;
+    server.sendData(client, "Command.InteractionString", {
+      guid: this.characterId,
+      stringId: 12979,
+    });
   }
 }

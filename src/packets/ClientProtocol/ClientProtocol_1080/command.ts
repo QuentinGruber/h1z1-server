@@ -461,7 +461,21 @@ export const commandPackets: any = [
       fields: [],
     },
   ],
-  ["Command.BecomeEnforcer", 0x095404, {}],
+  [
+    "Command.PointAndReport",
+    0x095400,
+    {
+      fields: [
+        { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] }, // not sure, 0-1 floats
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        {
+          name: "reportedCharacterId",
+          type: "uint64string",
+          defaultValue: "0x0",
+        },
+      ],
+    },
+  ],
   ["Command.BecomeReferee", 0x095504, {}],
   ["Command.Profiler", 0x095604, {}],
   ["Command.WorldKickPending", 0x095704, {}],

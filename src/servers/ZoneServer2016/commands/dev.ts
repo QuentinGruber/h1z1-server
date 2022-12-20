@@ -13,7 +13,10 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
-import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
+import {
+  CharacterManagedObject,
+  CharacterSeekTarget,
+} from "types/zone2016packets";
 import { BaseLightweightCharacter } from "../classes/baselightweightcharacter";
 import { Npc } from "../classes/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
@@ -52,22 +55,29 @@ const dev: any = {
       client.character.state.rotation
     );
     server._npcs[characterId] = zombie;
+  },
+  zombiemove: function (server: ZoneServer2016, client: Client, args: any[]) {
+    // spawn a zombie
+    const characterId = server.generateGuid();
+    const transient = server.getTransientId(characterId);
+    const zombie = new Npc(
+      characterId,
+      transient,
+      9510,
+      client.character.state.position,
+      client.character.state.rotation
+    );
+    server._npcs[characterId] = zombie;
     setTimeout(() => {
-      const generatedGuid = `0x${server.generateItemGuid().toString(16)}`;
-
-      zombie._equipment[3] = {
-        modelName: "SurvivorFemale_Chest_Hoodie_Down.adr",
-        slotId: 3,
-        textureAlias: "Hoodie_DOA_Navy",
-        guid: generatedGuid,
-      };
-      console.log(zombie.pGetEquipmentSlotFull(3));
-
-      server.sendDataToAll(
-        "Equipment.SetCharacterEquipmentSlot",
-        zombie.pGetEquipmentSlotFull(3) as EquipmentSetCharacterEquipmentSlot
-      );
-    }, 2000);
+      server.sendData(client, "Character.ManagedObject", {
+        characterId: client.character.characterId,
+        objectCharacterId: characterId,
+      } as CharacterManagedObject);
+      server.sendData(client, "Character.SeekTarget", {
+        characterId,
+        TargetCharacterId: client.character.characterId,
+      } as CharacterSeekTarget);
+    }, 5000);
   },
   stats: function (server: ZoneServer2016, client: Client, args: any[]) {
     server.logStats();
@@ -332,7 +342,7 @@ const dev: any = {
       if (server._vehicles[v].actorModelId === parseInt(args[1])) {
         location.position = server._vehicles[v].state.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
-        server.sendWeatherUpdatePacket(client, server._weather2016);
+        server.sendWeatherUpdatePacket(client, server.weather);
         found = true;
         break;
       }
@@ -360,7 +370,7 @@ const dev: any = {
         console.log(server._npcs[n]);
         location.position = server._npcs[n].state.position;
         server.sendData(client, "ClientUpdate.UpdateLocation", location);
-        server.sendWeatherUpdatePacket(client, server._weather2016);
+        server.sendWeatherUpdatePacket(client, server.weather);
         found = true;
         break;
       }
@@ -370,22 +380,6 @@ const dev: any = {
     } else {
       server.sendChatText(client, `No npcs of ID: ${args[1]} found`);
     }
-  },
-
-  placement: function (server: ZoneServer2016, client: Client, args: any[]) {
-    const modelChoosen = args[1];
-    if (!modelChoosen) {
-      server.sendChatText(client, "[ERROR] Usage /hax placement {modelId}");
-      return;
-    }
-    if (!args[2]) {
-      server.sendChatText(client, "missing 1 arg");
-      return;
-    }
-    server.sendData(client, "Construction.PlacementResponse", {
-      unknownDword1: Number(args[2]),
-      model: modelChoosen,
-    });
   },
   stat: function (server: ZoneServer2016, client: Client, args: any[]) {
     if (!args[3]) {
@@ -411,7 +405,7 @@ const dev: any = {
   ) {
     server.sendData(client, "Container.ListAll", {
       characterId: client.character.characterId,
-      containers: server.pGetContainers(client.character),
+      containers: client.character.pGetContainers(this),
     });
   },
   shutdown: function (server: ZoneServer2016, client: Client, args: any[]) {
