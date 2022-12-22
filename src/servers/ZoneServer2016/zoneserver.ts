@@ -964,6 +964,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.POIManager(client);
         this.foundationPermissionChecker(client);
         this.lootbagManager(client);
+        this.lootableConstructionManager(client);
         client.posAtLastRoutine = client.character.state.position;
       });
       if (this._ready) {
@@ -2712,6 +2713,27 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  private lootableConstructionManager(client: Client) {
+    for (const characterId in this._lootableConstruction) {
+      const obj = this._lootableConstruction[characterId];
+      if (
+        isPosInRadius(
+          obj.npcRenderDistance,
+          client.character.state.position,
+          obj.state.position
+        ) &&
+        !client.spawnedEntities.includes(obj)
+      ) {
+        this.addLightweightNpc(
+          client,
+          obj,
+          this.getItemDefinition(obj.getContainer()?.itemDefinitionId).NAME_ID
+        );
+        client.spawnedEntities.push(obj);
+      }
+    }
+  }
+
   private spawnDoors(client: Client) {
     for (const characterId in this._doors) {
       const door = this._doors[characterId];
@@ -3581,11 +3603,15 @@ export class ZoneServer2016 extends EventEmitter {
           slot
         );
         break;
-      /*
       case Items.STORAGE_BOX:
-        this.placeLootableConstruction()
+        this.placeLootableConstruction(
+          client,
+          itemDefinitionId,
+          modelId,
+          position,
+          rotation
+        );
         break;
-        */
       default:
         const characterId = this.generateGuid();
         const transientId = this.getTransientId(characterId);
@@ -3883,6 +3909,31 @@ export class ZoneServer2016 extends EventEmitter {
     }, 90);
     this._explosives[characterId] = npc;
   }
+
+  placeLootableConstruction(
+    client: Client,
+    itemDefinitionId: number,
+    modelId: number,
+    position: Float32Array,
+    rotation: Float32Array
+  ) {
+    const characterId = this.generateGuid(),
+      transientId = this.getTransientId(characterId);
+    /*
+      TODO:
+        - set container parent to foundation for permissions
+    */
+
+    const obj = new LootableConstructionEntity(
+      characterId,
+      transientId,
+      modelId,
+      position,
+      rotation
+    );
+    this._lootableConstruction[characterId] = obj;
+  }
+
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;

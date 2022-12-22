@@ -14,6 +14,7 @@
 import { BaseLootableEntity } from "./baselootableentity";
 
 export class LootableConstructionEntity extends BaseLootableEntity {
+  npcRenderDistance = 15;
   constructor(
     characterId: string,
     transientId: number,
