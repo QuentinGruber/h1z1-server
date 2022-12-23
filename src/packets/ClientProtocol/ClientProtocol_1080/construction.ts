@@ -78,7 +78,7 @@ export const constructionPackets: any = [
           name: "unknownArray2",
           type: "array",
           defaultValue: [],
-          fields: [{ name: "unknownDword2", type: "uint32", defaultValue: 0 }],
+          fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
         },
       ],
     },

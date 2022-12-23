@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { DamageInfo } from "types/zoneserver";
-import { getDistance } from "utils/utils";
+import { getDistance } from "../../../utils/utils";
 import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
