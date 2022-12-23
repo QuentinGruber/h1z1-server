@@ -658,7 +658,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     const defs: any[] = [];
     Object.values(this._itemDefinitions).forEach((itemDef: any) => {
-      if (itemDef.ID > 5000) {
+      if (itemDef.ID > 5000 || itemDef.ID == 1) {
         // custom h1emu definitons start at 5001
         defs.push({
           ID: itemDef.ID,
@@ -957,12 +957,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.removeOutOfDistanceEntities(client);
         this.spawnCharacters(client);
         this.spawnDoors(client);
-        this.spawnConstructionNpcs(client);
+        this.constructionManager(client);
         this.spawnExplosives(client);
         this.spawnTraps(client);
         this.spawnTemporaryObjects(client);
         this.POIManager(client);
-        this.foundationPermissionChecker(client);
         this.lootbagManager(client);
         client.posAtLastRoutine = client.character.state.position;
       });
@@ -2216,12 +2215,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
-  foundationPermissionChecker(client: Client) {
+  checkFoundationPermission(client: Client, foundation: ConstructionParentEntity) {
     let isInSecuredArea = false;
-    for (const a in this._constructionFoundations) {
-      const foundation = this._constructionFoundations[
-        a
-      ] as ConstructionParentEntity;
       if (
         foundation.itemDefinitionId == Items.FOUNDATION ||
         foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
@@ -2243,7 +2238,7 @@ export class ZoneServer2016 extends EventEmitter {
         )
           this.tpPlayerOutsideFoundation(client, foundation, true);
       }
-      if (!foundation.isSecured) continue;
+      if (!foundation.isSecured) return;
       let allowed = false;
       foundation.permissions.forEach((element: any) => {
         if (
@@ -2267,30 +2262,34 @@ export class ZoneServer2016 extends EventEmitter {
           }
         }
       }
-      if (allowed) continue;
+      if (allowed) return;
       if (this._constructionFoundations[foundation.parentObjectCharacterId]) {
         if (
           !this._constructionFoundations[foundation.parentObjectCharacterId]
             .isSecured
         )
-          continue;
+          return;
       }
       if (foundation.isInside(client.character)) {
         this.tpPlayerOutsideFoundation(client, foundation);
         return;
       }
-    }
+
+    if (!isInSecuredArea && client.character.isHidden)
+      client.character.isHidden = "";
+  }
+
+  checkConstructionChildEntityPermission(client: Client, construction: ConstructionChildEntity) {
+    let isInSecuredArea = false;
     const allowedIds = [
       Items.SHELTER,
       Items.SHELTER_LARGE,
       Items.SHELTER_UPPER,
       Items.SHELTER_UPPER_LARGE,
     ];
-    for (const a in this._constructionSimple) {
-      const construction = this._constructionSimple[a];
-      if (!allowedIds.includes(construction.itemDefinitionId)) continue;
+      if (!allowedIds.includes(construction.itemDefinitionId)) return;
       let allowed = false;
-      if (!construction.isSecured) continue;
+      if (!construction.isSecured) return;
       let foundation: ConstructionParentEntity | undefined;
       if (this._constructionFoundations[construction.parentObjectCharacterId]) {
         foundation =
@@ -2314,7 +2313,7 @@ export class ZoneServer2016 extends EventEmitter {
           foundation = b;
         }
       }
-      if (!foundation) continue;
+      if (!foundation) return;
       foundation.permissions.forEach((element: any) => {
         if (
           element.characterId === client.character.characterId &&
@@ -2342,8 +2341,8 @@ export class ZoneServer2016 extends EventEmitter {
           this.tpPlayerOutsideFoundation(client, foundation);
         }
       }
-    }
-    if (!isInSecuredArea && client.character.isHidden)
+
+      if (!isInSecuredArea && client.character.isHidden)
       client.character.isHidden = "";
   }
 
@@ -2450,7 +2449,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnConstructionNpcs(client: Client) {
+  private constructionManager(client: Client) {
     for (const characterId in this._constructionFoundations) {
       const npc = this._constructionFoundations[characterId];
       if (
@@ -2479,6 +2478,7 @@ export class ZoneServer2016 extends EventEmitter {
           );
         }
       }
+      this.checkFoundationPermission(client, npc);
     }
 
     for (const characterId in this._constructionDoors) {
@@ -2538,6 +2538,7 @@ export class ZoneServer2016 extends EventEmitter {
           ResourceTypes.CONDITION
         );
       }
+      this.checkConstructionChildEntityPermission(client, npc);
     }
   }
 
@@ -3684,7 +3685,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
         break;
     }
-    this.spawnConstructionNpcs(client);
+    this.constructionManager(client);
   }
 
   placeConstructionDoor(
