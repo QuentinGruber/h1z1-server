@@ -10,6 +10,9 @@ import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneServer2016 } from "../zoneserver";
 import { Items } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
+import { isArraySumZero } from "utils/utils";
+import { ZoneClient2016 } from "./zoneclient";
+import { ConstructionParentEntity } from "./constructionparententity";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_WALL:
@@ -38,6 +41,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   isSecured = false;
   damageRange: number;
   fixedPosition?: Float32Array;
+  placementTime = Date.now();
   constructor(
     characterId: string,
     transientId: number,
@@ -62,6 +66,15 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     };
     this.damageRange = getDamageRange(this.itemDefinitionId);
   }
+
+  getParent(server: ZoneServer2016): ConstructionParentEntity | undefined {
+    return server._constructionFoundations[this.parentObjectCharacterId];
+  }
+
+  getPlacementOwner(server: ZoneServer2016): string {
+    return this.getParent(server)?.ownerCharacterId || "";
+  }
+
   pGetConstructionHealth() {
     return {
       characterId: this.characterId,
@@ -79,10 +92,17 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   ) {
     this.perimeters["LoveShackDoor"] = value;
     if (
-      value.reduce((accumulator, currentValue) => accumulator + currentValue) !=
-      0
+      !isArraySumZero(value)
     ) {
       this.isSecured = true;
     } else this.isSecured = false;
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if(client.character.characterId != this.getPlacementOwner(server) || Date.now() > this.placementTime + 900000) {
+      return;
+    }
+
+    // placement undo interaction string
   }
 }

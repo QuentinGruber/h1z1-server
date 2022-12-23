@@ -12,6 +12,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum StringIds {
+  UNDO_PLACEMENT = 12001
+}
+
 export enum MovementModifiers {
   RESTED = 1.3,
   SWIZZLE = 1.15,

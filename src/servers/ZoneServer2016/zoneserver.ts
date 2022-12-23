@@ -658,7 +658,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     const defs: any[] = [];
     Object.values(this._itemDefinitions).forEach((itemDef: any) => {
-      if (itemDef.ID > 5000 || itemDef.ID == 1) {
+      if (itemDef.ID > 5000 || itemDef.ID == Items.FANNY_PACK_DEV) {
         // custom h1emu definitons start at 5001
         defs.push({
           ID: itemDef.ID,
