@@ -1866,12 +1866,13 @@ export class ZoneServer2016 extends EventEmitter {
       this._constructionDoors[entityKey] ||
       this._constructionSimple[entityKey] ||
       this._lootbags[entityKey] ||
+      this._lootableConstruction[entityKey] ||
       undefined
     );
   }
 
   getLootableEntity(entityKey: string): BaseLootableEntity | undefined {
-    return this._lootbags[entityKey] || this._vehicles[entityKey] || undefined;
+    return this._lootbags[entityKey] || this._vehicles[entityKey] || this._lootableConstruction[entityKey]||undefined;
   }
 
   damageItem(client: Client, item: LoadoutItem, damage: number) {
@@ -2696,8 +2697,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.addLightweightNpc(
             client,
             lootbag,
-            this.getItemDefinition(lootbag.getContainer()?.itemDefinitionId)
-              .NAME_ID
+            this.getItemDefinition(lootbag.getContainer()?.itemDefinitionId)?.NAME_ID
           );
           client.spawnedEntities.push(lootbag);
         }
@@ -2727,7 +2727,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.addLightweightNpc(
           client,
           obj,
-          this.getItemDefinition(obj.getContainer()?.itemDefinitionId).NAME_ID
+          this.getItemDefinition(obj.getContainer()?.itemDefinitionId)?.NAME_ID
         );
         client.spawnedEntities.push(obj);
       }
@@ -3609,7 +3609,7 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinitionId,
           modelId,
           position,
-          rotation
+          eul2quat(rotation)
         );
         break;
       default:
@@ -3932,6 +3932,11 @@ export class ZoneServer2016 extends EventEmitter {
       rotation
     );
     this._lootableConstruction[characterId] = obj;
+    this.equipItem(
+      obj,
+      this.generateItem(Items.CONTAINER_STORAGE),
+      false
+    );
   }
 
   mountVehicle(client: Client, vehicleGuid: string) {
