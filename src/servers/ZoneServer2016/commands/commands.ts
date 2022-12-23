@@ -666,7 +666,7 @@ export const commands: Array<Command> = [
             1,
           ]),
           client.character.state.lookAt,
-          true
+          Items.IED
         ); // save explosive
       });
     },

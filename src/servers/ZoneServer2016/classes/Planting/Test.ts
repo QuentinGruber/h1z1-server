@@ -817,7 +817,8 @@ export namespace NormanTest {
           tid,
           mid,
           pos.ToFloat32ArrayZYXW(),
-          new Float32Array([0, 0, 0])
+          new Float32Array([0, 0, 0]),
+          0
         );
 
         // setTimeout(()=>

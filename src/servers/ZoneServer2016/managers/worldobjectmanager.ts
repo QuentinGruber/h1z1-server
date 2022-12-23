@@ -174,7 +174,7 @@ export class WorldObjectManager {
         modelId,
         position,
         rotation,
-        false
+        item.itemDefinitionId
       );
     }
     if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;

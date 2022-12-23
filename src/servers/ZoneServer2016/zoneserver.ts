@@ -3798,17 +3798,7 @@ export class ZoneServer2016 extends EventEmitter {
         position,
         rotation
       );
-    npc.disappearTimer = setTimeout(() => {
-      this.sendDataToAllWithSpawnedEntity(
-        this._temporaryObjects,
-        characterId,
-        "Character.RemovePlayer",
-        {
-          characterId: characterId,
-        }
-      );
-      delete this._temporaryObjects[characterId];
-    }, time);
+    npc.setDespawnTimer(this, time);
     this._temporaryObjects[characterId] = npc;
   }
 
@@ -3840,49 +3830,20 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
-      isIED = itemDefinitionId == 1699 ? true : false,
       npc = new ExplosiveEntity(
         characterId,
         transientId,
         modelId,
         position,
         rotation,
-        isIED
+        itemDefinitionId
       );
-    if (isIED) {
-      this._explosives[characterId] = npc;
-      return;
+    if (npc.isLandmine()) {
+      npc.arm(this);
     }
-    npc.mineTimer = setTimeout(() => {
-      if (!this._explosives[characterId]) {
-        return;
-      }
-      for (const a in this._clients) {
-        if (
-          getDistance(
-            this._clients[a].character.state.position,
-            npc.state.position
-          ) < 0.6
-        ) {
-          npc.detonate(this);
-          return;
-        }
-      }
-      for (const a in this._vehicles) {
-        if (
-          getDistance(this._vehicles[a].state.position, npc.state.position) <
-          2.2
-        ) {
-          npc.detonate(this);
-          return;
-        }
-      }
-      if (this._explosives[characterId]) {
-        npc.mineTimer?.refresh();
-      }
-    }, 90);
     this._explosives[characterId] = npc;
   }
+  
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
