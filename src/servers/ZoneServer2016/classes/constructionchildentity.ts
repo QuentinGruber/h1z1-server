@@ -107,6 +107,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       guid: this.characterId,
       stringId: StringIds.UNDO_PLACEMENT,
     });
+    server.undoPlacementInteractionString(this, client);
     // placement undo interaction string
   }
 }

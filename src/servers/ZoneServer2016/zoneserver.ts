@@ -39,6 +39,7 @@ import {
   MovementModifiers,
   ResourceIds,
   ResourceTypes,
+  StringIds,
   VehicleIds,
 } from "./models/enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
@@ -3852,6 +3853,20 @@ export class ZoneServer2016 extends EventEmitter {
       npc.arm(this);
     }
     this._explosives[characterId] = npc;
+  }
+
+  // used by multiple construction classes that don't extend each other
+  undoPlacementInteractionString(entity: ConstructionEntity, client: Client) {
+    if (
+      client.character.characterId != entity.getPlacementOwner(this) ||
+      Date.now() > entity.placementTime + 900000
+    ) {
+      return;
+    }
+    this.sendData(client, "Command.InteractionString", {
+      guid: entity.characterId,
+      stringId: StringIds.UNDO_PLACEMENT,
+    });
   }
 
   mountVehicle(client: Client, vehicleGuid: string) {

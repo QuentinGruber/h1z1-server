@@ -41,6 +41,7 @@ export class ConstructionDoor extends DoorEntity {
   slot?: string;
   damageRange: number;
   fixedPosition: Float32Array;
+  placementTime = Date.now();
   constructor(
     characterId: string,
     transientId: number,
@@ -80,6 +81,9 @@ export class ConstructionDoor extends DoorEntity {
         ? 0.625
         : 2.5
     );
+  }
+  getPlacementOwner(server: ZoneServer2016): string {
+    return this.ownerCharacterId || "";
   }
   pGetConstructionHealth() {
     return {

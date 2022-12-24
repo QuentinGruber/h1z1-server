@@ -15,6 +15,7 @@ import { ConstructionParentEntity } from "servers/ZoneServer2016/classes/constru
 import { ConstructionChildEntity } from "servers/ZoneServer2016/classes/constructionchildentity";
 import { FilterIds, Items } from "servers/ZoneServer2016/models/enums";
 import { ConstructionDoor } from "servers/ZoneServer2016/classes/constructiondoor";
+import { LootableConstructionEntity } from "servers/ZoneServer2016/classes/lootableconstructionentity";
 
 export interface npcData {
   guid: string;
@@ -245,4 +246,4 @@ export interface Recipe {
 
 export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
 
-export type ConstructionEntity = SlottedConstructionEntity;
+export type ConstructionEntity = SlottedConstructionEntity | LootableConstructionEntity;

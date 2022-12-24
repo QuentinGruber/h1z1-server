@@ -11,9 +11,21 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { ResourceIds } from "../models/enums";
+import { ZoneServer2016 } from "../zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
+import { ConstructionChildEntity } from "./constructionchildentity";
+import { ConstructionParentEntity } from "./constructionparententity";
 
 export class LootableConstructionEntity extends BaseLootableEntity {
+  get health() {
+    return this._resources[ResourceIds.CONSTRUCTION_CONDITION]
+  }
+  set health(health: number) {
+    this._resources[ResourceIds.CONSTRUCTION_CONDITION] = health;
+  }
+  placementTime = Date.now();
+  parentObjectCharacterId = "";
   constructor(
     characterId: string,
     transientId: number,
@@ -22,5 +34,18 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     rotation: Float32Array
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
+  }
+  getParent(server: ZoneServer2016): ConstructionParentEntity | ConstructionChildEntity {
+    return server._constructionFoundations[this.parentObjectCharacterId];
+  }
+
+  getPlacementOwner(server: ZoneServer2016): string {
+    const parent = this.getParent(server);
+    if(!parent) return "";
+    if(parent instanceof ConstructionParentEntity) {
+
+      return parent.ownerCharacterId;
+    }
+    return parent.getPlacementOwner(server);
   }
 }
