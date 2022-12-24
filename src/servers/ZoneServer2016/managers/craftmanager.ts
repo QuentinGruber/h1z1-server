@@ -259,8 +259,8 @@ export class CraftManager {
         if (!remainingItems) break;
       }
     }
-    server.lootItem(
-      client.character,
+    client.character.lootItem(
+      server,
       server.generateItem(recipeId, craftCount)
     );
     return true;

@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
 
 export class TemporaryEntity extends BaseSimpleNpc {
@@ -24,5 +25,19 @@ export class TemporaryEntity extends BaseSimpleNpc {
     rotation: Float32Array
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
+  }
+
+  setDespawnTimer(server: ZoneServer2016, time: number) {
+    this.disappearTimer = setTimeout(() => {
+      server.sendDataToAllWithSpawnedEntity(
+        server._temporaryObjects,
+        this.characterId,
+        "Character.RemovePlayer",
+        {
+          characterId: this.characterId,
+        }
+      );
+      delete server._temporaryObjects[this.characterId];
+    }, time);
   }
 }

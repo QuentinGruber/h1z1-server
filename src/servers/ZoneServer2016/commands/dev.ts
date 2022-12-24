@@ -429,7 +429,7 @@ const dev: any = {
       );
     const item = server.generateItem(1504);
     npc.loadoutId = 5;
-    server.equipItem(npc, item);
+    npc.equipItem(server, item);
     npc.onReadyCallback = () => {
       if (!item) return;
       server.addItem(client, item, 101, npc);

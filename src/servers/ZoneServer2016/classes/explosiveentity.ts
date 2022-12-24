@@ -12,12 +12,14 @@
 // ======================================================================
 
 import { DamageInfo } from "types/zoneserver";
+import { getDistance } from "../../../utils/utils";
+import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "./zoneclient";
 
 export class ExplosiveEntity extends BaseLightweightCharacter {
-  isIED = false;
+  itemDefinitionId: number;
   mineTimer?: NodeJS.Timeout;
   npcRenderDistance = 300;
   detonated = false;
@@ -27,14 +29,22 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
-    isIED: boolean = false
+    itemDefinitionId: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
-    this.isIED = isIED;
+    this.itemDefinitionId = itemDefinitionId;
+  }
+
+  isIED() {
+    return this.itemDefinitionId == Items.IED;
+  }
+
+  isLandmine() {
+    return this.itemDefinitionId == Items.LANDMINE;
   }
 
   ignite(server: ZoneServer2016, client: ZoneClient2016) {
-    if (!this.isIED) {
+    if (!this.isIED()) {
       return;
     }
     server.sendDataToAllWithSpawnedEntity(
@@ -67,6 +77,37 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     client
       ? server.explosionDamage(this.state.position, this.characterId, client)
       : server.explosionDamage(this.state.position, this.characterId);
+  }
+
+  arm(server: ZoneServer2016) {
+    this.mineTimer = setTimeout(() => {
+      if (!server._explosives[this.characterId]) {
+        return;
+      }
+      for (const a in server._clients) {
+        if (
+          getDistance(
+            server._clients[a].character.state.position,
+            this.state.position
+          ) < 0.6
+        ) {
+          this.detonate(server);
+          return;
+        }
+      }
+      for (const a in server._vehicles) {
+        if (
+          getDistance(server._vehicles[a].state.position, this.state.position) <
+          2.2
+        ) {
+          this.detonate(server);
+          return;
+        }
+      }
+      if (server._explosives[this.characterId]) {
+        this.mineTimer?.refresh();
+      }
+    }, 90);
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {

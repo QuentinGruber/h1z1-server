@@ -12,10 +12,11 @@
 // ======================================================================
 
 import { ConstructionChildEntity } from "./constructionchildentity";
-import { Items } from "../models/enums";
+import { Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
   getRectangleCorners,
+  isArraySumZero,
   isInside,
   isInsideWithY,
   isPosInRadiusWithY,
@@ -147,6 +148,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         break;
     }
   }
+
+  getPlacementOwner(): string {
+    return this.ownerCharacterId;
+  }
+
   checkPerimeters(server: ZoneServer2016) {
     const temporaryPolygons = [];
     this.securedPolygons = [];
@@ -178,11 +184,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           ]);
           if (
             server._constructionFoundations[this.expansions["04"]] &&
-            server._constructionFoundations[this.expansions["04"]].perimeters[
-              "01"
-            ].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0
+            !isArraySumZero(
+              server._constructionFoundations[this.expansions["04"]].perimeters[
+                "01"
+              ]
+            )
           ) {
             tempExpansionPolygons.push([
               server._constructionFoundations[this.expansions["04"]].perimeters[
@@ -205,29 +211,17 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           ]);
           side01 = true;
           if (
-            this.perimeters["04"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["05"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["06"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0
+            !isArraySumZero(this.perimeters["04"]) &&
+            !isArraySumZero(this.perimeters["05"]) &&
+            !isArraySumZero(this.perimeters["06"])
           ) {
             expansion.isFullySecured = true;
           } else expansion.isFullySecured = false;
         } else {
           if (
-            this.perimeters["04"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["05"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["06"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0
+            !isArraySumZero(this.perimeters["04"]) &&
+            !isArraySumZero(this.perimeters["05"]) &&
+            !isArraySumZero(this.perimeters["06"])
           ) {
             temporaryPolygons.push([
               this.perimeters["04"][0],
@@ -272,11 +266,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           ]);
           if (
             server._constructionFoundations[this.expansions["01"]] &&
-            server._constructionFoundations[this.expansions["01"]].perimeters[
-              "01"
-            ].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0
+            !isArraySumZero(
+              server._constructionFoundations[this.expansions["01"]].perimeters[
+                "01"
+              ]
+            )
           ) {
             tempExpansionPolygons.push([
               server._constructionFoundations[this.expansions["01"]].perimeters[
@@ -299,29 +293,17 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           ]);
           side02 = true;
           if (
-            this.perimeters["01"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["02"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["03"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0
+            !isArraySumZero(this.perimeters["01"]) &&
+            !isArraySumZero(this.perimeters["02"]) &&
+            !isArraySumZero(this.perimeters["03"])
           ) {
             expansion.isFullySecured = true;
           } else expansion.isFullySecured = false;
         } else {
           if (
-            this.perimeters["01"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["02"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["03"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0
+            !isArraySumZero(this.perimeters["01"]) &&
+            !isArraySumZero(this.perimeters["02"]) &&
+            !isArraySumZero(this.perimeters["03"])
           ) {
             temporaryPolygons.push([
               this.perimeters["01"][0],
@@ -366,11 +348,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           ]);
           if (
             server._constructionFoundations[this.expansions["02"]] &&
-            server._constructionFoundations[this.expansions["02"]].perimeters[
-              "01"
-            ].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0
+            !isArraySumZero(
+              server._constructionFoundations[this.expansions["02"]].perimeters[
+                "01"
+              ]
+            )
           ) {
             tempExpansionPolygons.push([
               server._constructionFoundations[this.expansions["02"]].perimeters[
@@ -393,29 +375,17 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           ]);
           side03 = true;
           if (
-            this.perimeters["10"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["11"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["12"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0
+            !isArraySumZero(this.perimeters["10"]) &&
+            !isArraySumZero(this.perimeters["11"]) &&
+            !isArraySumZero(this.perimeters["12"])
           ) {
             expansion.isFullySecured = true;
           } else expansion.isFullySecured = false;
         } else {
           if (
-            this.perimeters["10"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["11"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["12"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0
+            !isArraySumZero(this.perimeters["10"]) &&
+            !isArraySumZero(this.perimeters["11"]) &&
+            !isArraySumZero(this.perimeters["12"])
           ) {
             temporaryPolygons.push([
               this.perimeters["10"][0],
@@ -460,11 +430,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           ]);
           if (
             server._constructionFoundations[this.expansions["03"]] &&
-            server._constructionFoundations[this.expansions["03"]].perimeters[
-              "01"
-            ].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0
+            !isArraySumZero(
+              server._constructionFoundations[this.expansions["03"]].perimeters[
+                "01"
+              ]
+            )
           ) {
             tempExpansionPolygons.push([
               server._constructionFoundations[this.expansions["03"]].perimeters[
@@ -487,29 +457,17 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           ]);
           side04 = true;
           if (
-            this.perimeters["07"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["08"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["09"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0
+            !isArraySumZero(this.perimeters["07"]) &&
+            !isArraySumZero(this.perimeters["08"]) &&
+            !isArraySumZero(this.perimeters["09"])
           ) {
             expansion.isFullySecured = true;
           } else expansion.isFullySecured = false;
         } else {
           if (
-            this.perimeters["07"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["08"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0 &&
-            this.perimeters["09"].reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            ) != 0
+            !isArraySumZero(this.perimeters["07"]) &&
+            !isArraySumZero(this.perimeters["08"]) &&
+            !isArraySumZero(this.perimeters["09"])
           ) {
             temporaryPolygons.push([
               this.perimeters["07"][0],
@@ -591,12 +549,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.SHACK:
       case Items.SHACK_SMALL:
       case Items.SHACK_BASIC:
-        this.isSecured =
-          this.perimeters["01"].reduce(
-            (accumulator, currentValue) => accumulator + currentValue
-          ) === 0
-            ? false
-            : true;
+        this.isSecured = isArraySumZero(this.perimeters["01"]) ? false : true;
         if (this.eulerAngle)
           this.securedPolygons = getRectangleCorners(
             this.state.position,
@@ -679,7 +632,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     if (this.ownerCharacterId != client.character.characterId) return;
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: 12979,
+      stringId: StringIds.PERMISSIONS,
     });
   }
 }

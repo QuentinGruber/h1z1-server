@@ -12,6 +12,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum StringIds {
+  TAKE_ITEM = 29,
+  UNDO_PLACEMENT = 12001,
+  PERMISSIONS = 12979,
+}
+
 export enum MovementModifiers {
   RESTED = 1.3,
   SWIZZLE = 1.15,
@@ -392,6 +398,7 @@ export enum Items {
   FLARE_SMOKE = 1672,
   BACKPACK_RASTA = 2393,
   WAIST_PACK = 1803,
+  FANNY_PACK_DEV = 1,
   VEHICLE_KEY = 3460,
   CODED_MESSAGE = 2722,
   AIRDROP_CODE = 2675,
@@ -418,6 +425,10 @@ export enum Items {
   VEHICLE_MOTOR_PICKUP = 1712,
   VEHICLE_MOTOR_POLICECAR = 1722,
   VEHICLE_MOTOR_ATV = 2594,
+
+  VEHICLE_HORN = 1858,
+  VEHICLE_HORN_POLICECAR = 1735,
+  VEHICLE_SIREN_POLICECAR = 1732,
 
   // NOT USED FOR NOW
   VEHICLE_CONTAINER_OFFROADER = 1541,

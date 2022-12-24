@@ -174,7 +174,7 @@ export class WorldObjectManager {
         modelId,
         position,
         rotation,
-        false
+        item.itemDefinitionId
       );
     }
     if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;
@@ -190,7 +190,7 @@ export class WorldObjectManager {
     Object.values(entity._loadout).forEach((item) => {
       if (
         item.itemGuid != "0x0" &&
-        !server.isDefaultItem(entity, item.itemDefinitionId)
+        !entity.isDefaultItem(item.itemDefinitionId)
       ) {
         items[item.itemGuid] = _.cloneDeep(item);
         items[item.itemGuid].slotId = Object.keys(items).length + 1;
@@ -199,10 +199,7 @@ export class WorldObjectManager {
 
     Object.values(entity._containers).forEach((container: LoadoutContainer) => {
       Object.values(container.items).forEach((item) => {
-        if (
-          !isCharacter ||
-          !server.isDefaultItem(entity, item.itemDefinitionId)
-        ) {
+        if (!isCharacter || !entity.isDefaultItem(item.itemDefinitionId)) {
           let stacked = false;
           for (const i of Object.values(items)) {
             // stack similar items
@@ -233,8 +230,8 @@ export class WorldObjectManager {
       new Float32Array([0, 0, 0, 0])
     );
 
-    server.equipItem(
-      lootbag,
+    lootbag.equipItem(
+      server,
       server.generateItem(Items.CONTAINER_DROPPED_ITEMS),
       false
     );
@@ -289,21 +286,16 @@ export class WorldObjectManager {
   }
 
   createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
-    // setup vehicle loadout slots, containers, etc here
-    // todo: add siren and horn
+    vehicle.equipLoadout(server);
 
-    // not used for now since workaround doesn't use it
-    // vehicle.getInventoryItemId()
-
-    server.equipLoadout(vehicle);
-
-    server.equipItem(vehicle, server.generateItem(vehicle.getTurboItemId()));
-    server.equipItem(
-      vehicle,
+    // TODO - Randomize these
+    vehicle.equipItem(server, server.generateItem(vehicle.getTurboItemId()));
+    vehicle.equipItem(
+      server,
       server.generateItem(vehicle.getHeadlightsItemId())
     );
-    server.equipItem(vehicle, server.generateItem(Items.BATTERY));
-    server.equipItem(vehicle, server.generateItem(Items.SPARKPLUGS));
+    vehicle.equipItem(server, server.generateItem(Items.BATTERY));
+    vehicle.equipItem(server, server.generateItem(Items.SPARKPLUGS));
     server._vehicles[vehicle.characterId] = vehicle;
   }
 

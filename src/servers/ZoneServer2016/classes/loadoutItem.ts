@@ -66,8 +66,8 @@ export class LoadoutItem extends BaseItem {
       return;
     }
     if (oldLoadoutItem) {
-      server.equipItem(client.character, oldLoadoutItem, true, this.slotId);
+      client.character.equipItem(server, oldLoadoutItem, true, this.slotId);
     }
-    server.equipItem(client.character, this, true, newSlotId);
+    client.character.equipItem(server, this, true, newSlotId);
   }
 }

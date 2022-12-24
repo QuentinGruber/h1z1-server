@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { DamageInfo } from "types/zoneserver";
-import { Items } from "../models/enums";
+import { Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
@@ -69,7 +69,7 @@ export class ItemObject extends BaseLightweightCharacter {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: 29,
+      stringId: StringIds.TAKE_ITEM,
     });
   }
 
