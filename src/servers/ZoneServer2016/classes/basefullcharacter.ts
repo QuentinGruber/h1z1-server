@@ -21,6 +21,9 @@ import { LoadoutContainer } from "./loadoutcontainer";
 import { LoadoutItem } from "./loadoutItem";
 import { ZoneClient2016 } from "./zoneclient";
 
+const debugName = "ZoneServer",
+  debug = require("debug")(debugName);
+
 const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.json");
 
 function getGender(actorModelId: number): number {
@@ -139,6 +142,111 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       }
     }
     return items;
+  }
+
+  /**
+   * Equips an item to a BaseFullCharacter.
+   * @param server The ZoneServer instance.
+   * @param item The item to equip.
+   * @param sendPacket Optional: Only used if character param belongs to a client. Sends equipment,
+   * loadout, and item update packets to client if true.
+   * @param loadoutSlotId Optional: The loadoutSlotId to manually try to equip the item to. This will be
+   * found automatically if not defined.
+   */
+  equipItem(
+    server: ZoneServer2016,
+    item?: BaseItem,
+    sendPacket: boolean = true,
+    loadoutSlotId: number = 0
+  ) {
+    if (!item) {
+      debug("[ERROR] EquipItem: Invalid item!");
+      return;
+    }
+    const def = server.getItemDefinition(item.itemDefinitionId);
+    if (loadoutSlotId) {
+      if (
+        !server.validateLoadoutSlot(
+          item.itemDefinitionId,
+          loadoutSlotId,
+          this.loadoutId
+        )
+      ) {
+        debug(
+          `[ERROR] EquipItem: Client tried to equip item ${item.itemDefinitionId} with invalid loadoutSlotId ${loadoutSlotId}!`
+        );
+        return;
+      }
+    } else {
+      loadoutSlotId = server.getAvailableLoadoutSlot(
+        this,
+        item.itemDefinitionId
+      );
+      if (!loadoutSlotId) {
+        loadoutSlotId = server.getLoadoutSlot(item.itemDefinitionId);
+      }
+    }
+    if (!loadoutSlotId) {
+      debug(
+        `[ERROR] EquipItem: Tried to equip item with itemDefinitionId: ${item.itemDefinitionId} with an invalid loadoutSlotId!`
+      );
+      return;
+    }
+
+    let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
+    if (server.isWeapon(item.itemDefinitionId)) {
+      if (loadoutSlotId == this.currentLoadoutSlot) {
+        equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
+      } else {
+        equipmentSlotId = server.getAvailablePassiveEquipmentSlot(
+          this,
+          item.itemDefinitionId
+        );
+      }
+    }
+
+    if (equipmentSlotId) {
+      const equipmentData: characterEquipment = {
+        modelName: def.MODEL_NAME.replace(
+          "<gender>",
+          this.gender == 1 ? "Male" : "Female"
+        ),
+        slotId: equipmentSlotId,
+        guid: item.itemGuid,
+        textureAlias: def.TEXTURE_ALIAS || "default0",
+        tintAlias: "",
+      };
+      this._equipment[equipmentSlotId] = equipmentData;
+    }
+    this._loadout[loadoutSlotId] = new LoadoutItem(
+      item,
+      loadoutSlotId,
+      this.characterId
+    );
+    const client = server.getClientByCharId(this.characterId);
+    if (client && this._loadout[loadoutSlotId] && sendPacket) {
+      server.deleteItem(
+        client,
+        client.character._loadout[loadoutSlotId].itemGuid
+      );
+    }
+
+    if (def.ITEM_TYPE === 34) {
+      this._containers[loadoutSlotId] = new LoadoutContainer(
+        this._loadout[loadoutSlotId],
+        def.PARAM1
+      );
+      if (client && sendPacket) server.initializeContainerList(client);
+    }
+
+    // probably will need to replicate server for vehicles / maybe npcs
+    if (client && sendPacket)
+      server.addItem(client, this._loadout[loadoutSlotId], 101);
+
+    if (!sendPacket) return;
+
+    server.updateLoadout(this);
+    if (equipmentSlotId) server.updateEquipmentSlot(this, equipmentSlotId);
   }
 
   pGetEquipmentSlot(slotId: number) {

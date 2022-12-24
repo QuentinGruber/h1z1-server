@@ -233,8 +233,8 @@ export class WorldObjectManager {
       new Float32Array([0, 0, 0, 0])
     );
 
-    server.equipItem(
-      lootbag,
+    lootbag.equipItem(
+      server,
       server.generateItem(Items.CONTAINER_DROPPED_ITEMS),
       false
     );
@@ -297,13 +297,13 @@ export class WorldObjectManager {
 
     server.equipLoadout(vehicle);
 
-    server.equipItem(vehicle, server.generateItem(vehicle.getTurboItemId()));
-    server.equipItem(
-      vehicle,
+    vehicle.equipItem(server, server.generateItem(vehicle.getTurboItemId()));
+    vehicle.equipItem(
+      server,
       server.generateItem(vehicle.getHeadlightsItemId())
     );
-    server.equipItem(vehicle, server.generateItem(Items.BATTERY));
-    server.equipItem(vehicle, server.generateItem(Items.SPARKPLUGS));
+    vehicle.equipItem(server, server.generateItem(Items.BATTERY));
+    vehicle.equipItem(server, server.generateItem(Items.SPARKPLUGS));
     server._vehicles[vehicle.characterId] = vehicle;
   }
 

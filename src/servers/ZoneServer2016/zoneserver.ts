@@ -4340,7 +4340,7 @@ export class ZoneServer2016 extends EventEmitter {
         false
       );
     }
-    this.equipItem(client.character, item, true, slotId);
+    client.character.equipItem(this, item, true, slotId);
   }
 
   generateEquipmentFromLoadout(character: Character) {
@@ -4372,111 +4372,6 @@ export class ZoneServer2016 extends EventEmitter {
         character._equipment[equipmentSlotId] = equipmentData;
       }
     }
-  }
-
-  /**
-   * Equips an item to a BaseFullCharacter.
-   * @param character The character to equip the item to.
-   * @param item The item to equip.
-   * @param sendPacket Optional: Only used if character param belongs to a client. Sends equipment,
-   * loadout, and item update packets to client if true.
-   * @param loadoutSlotId Optional: The loadoutSlotId to manually try to equip the item to. This will be
-   * found automatically if not defined.
-   */
-  equipItem(
-    character: BaseFullCharacter,
-    item?: BaseItem,
-    sendPacket: boolean = true,
-    loadoutSlotId: number = 0
-  ) {
-    if (!item) {
-      debug("[ERROR] EquipItem: Invalid item!");
-      return;
-    }
-    const def = this.getItemDefinition(item.itemDefinitionId);
-    if (loadoutSlotId) {
-      if (
-        !this.validateLoadoutSlot(
-          item.itemDefinitionId,
-          loadoutSlotId,
-          character.loadoutId
-        )
-      ) {
-        debug(
-          `[ERROR] EquipItem: Client tried to equip item ${item.itemDefinitionId} with invalid loadoutSlotId ${loadoutSlotId}!`
-        );
-        return;
-      }
-    } else {
-      loadoutSlotId = this.getAvailableLoadoutSlot(
-        character,
-        item.itemDefinitionId
-      );
-      if (!loadoutSlotId) {
-        loadoutSlotId = this.getLoadoutSlot(item.itemDefinitionId);
-      }
-    }
-    if (!loadoutSlotId) {
-      debug(
-        `[ERROR] EquipItem: Tried to equip item with itemDefinitionId: ${item.itemDefinitionId} with an invalid loadoutSlotId!`
-      );
-      return;
-    }
-
-    let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
-    if (this.isWeapon(item.itemDefinitionId)) {
-      if (loadoutSlotId == character.currentLoadoutSlot) {
-        equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
-      } else {
-        equipmentSlotId = this.getAvailablePassiveEquipmentSlot(
-          character,
-          item.itemDefinitionId
-        );
-      }
-    }
-
-    if (equipmentSlotId) {
-      const equipmentData: characterEquipment = {
-        modelName: def.MODEL_NAME.replace(
-          "<gender>",
-          character.gender == 1 ? "Male" : "Female"
-        ),
-        slotId: equipmentSlotId,
-        guid: item.itemGuid,
-        textureAlias: def.TEXTURE_ALIAS || "default0",
-        tintAlias: "",
-      };
-      character._equipment[equipmentSlotId] = equipmentData;
-    }
-    character._loadout[loadoutSlotId] = new LoadoutItem(
-      item,
-      loadoutSlotId,
-      character.characterId
-    );
-    const client = this.getClientByCharId(character.characterId);
-    if (client && character._loadout[loadoutSlotId] && sendPacket) {
-      this.deleteItem(
-        client,
-        client.character._loadout[loadoutSlotId].itemGuid
-      );
-    }
-
-    if (def.ITEM_TYPE === 34) {
-      character._containers[loadoutSlotId] = new LoadoutContainer(
-        character._loadout[loadoutSlotId],
-        def.PARAM1
-      );
-      if (client && sendPacket) this.initializeContainerList(client);
-    }
-
-    // probably will need to replicate this for vehicles / maybe npcs
-    if (client && sendPacket)
-      this.addItem(client, character._loadout[loadoutSlotId], 101);
-
-    if (!sendPacket) return;
-
-    this.updateLoadout(character);
-    if (equipmentSlotId) this.updateEquipmentSlot(character, equipmentSlotId);
   }
 
   generateRandomEquipmentsFromAnEntity(
@@ -4890,11 +4785,11 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.getActiveEquipmentSlot(loadoutItem)
     );
     client.character.currentLoadoutSlot = loadoutItem.slotId;
-    this.equipItem(client.character, loadoutItem, true, loadoutItem.slotId);
+    client.character.equipItem(this, loadoutItem, true, loadoutItem.slotId);
 
     // equip passive slot
-    this.equipItem(
-      client.character,
+    client.character.equipItem(
+      this,
       client.character._loadout[oldLoadoutSlot],
       true,
       oldLoadoutSlot
@@ -4926,8 +4821,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (equipmentSlotId === EquipSlots.RHAND) {
       client.character.currentLoadoutSlot = LoadoutSlots.FISTS;
-      this.equipItem(
-        client.character,
+      client.character.equipItem(
+        this,
         client.character._loadout[LoadoutSlots.FISTS]
       ); //equip fists
     }
@@ -5163,7 +5058,7 @@ export class ZoneServer2016 extends EventEmitter {
           count: count,
         });
       }
-      this.equipItem(character, item, sendUpdate);
+      character.equipItem(this, item, sendUpdate);
       if (client && this.isWeapon(item.itemDefinitionId) && sendUpdate) {
         this.sendRemoteWeaponDataToAllOthers(
           client,
