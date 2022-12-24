@@ -4745,37 +4745,6 @@ export class ZoneServer2016 extends EventEmitter {
     return;
   }
 
-  /**
-   * Gets an item stack in a container that has space for a specified item.
-   * @param container The container to check.
-   * @param itemDefId The item definition ID of the item stack to check.
-   * @param count The amount of items to fit into the stack.
-   * @param slotId Optional: The slotId of a specific item stack to check.
-   * @returns Returns the itemGuid of the item stack.
-   */
-  getAvailableItemStack(
-    container: LoadoutContainer,
-    itemDefId: number,
-    count: number,
-    slotId: number = 0
-  ): string {
-    //
-    // if slotId is defined, then only an item with the same slotId will be returned
-    if (this.getItemDefinition(itemDefId).MAX_STACK_SIZE == 1) return "";
-    for (const item of Object.values(container.items)) {
-      if (
-        item.itemDefinitionId == itemDefId &&
-        this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE >=
-          item.stackCount + count
-      ) {
-        if (!slotId || slotId == item.slotId) {
-          return item.itemGuid;
-        }
-      }
-    }
-    return "";
-  }
-
   switchLoadoutSlot(client: Client, loadoutItem: LoadoutItem) {
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     this.reloadInterrupt(client, client.character._loadout[oldLoadoutSlot]);
@@ -5161,8 +5130,8 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
-    const itemStackGuid = this.getAvailableItemStack(
-      availableContainer,
+    const itemStackGuid = availableContainer.getAvailableItemStack(
+      this,
       itemDefId,
       count
     );

@@ -109,6 +109,37 @@ export class LoadoutContainer extends LoadoutItem {
     );
   }
 
+  /**
+   * Gets an item stack in a container that has space for a specified item.
+   * @param server The ZoneServer instance.
+   * @param itemDefId The item definition ID of the item stack to check.
+   * @param count The amount of items to fit into the stack.
+   * @param slotId Optional: The slotId of a specific item stack to check.
+   * @returns Returns the itemGuid of the item stack.
+   */
+  getAvailableItemStack(
+    server: ZoneServer2016,
+    itemDefId: number,
+    count: number,
+    slotId: number = 0
+  ): string {
+    //
+    // if slotId is defined, then only an item with the same slotId will be returned
+    if (server.getItemDefinition(itemDefId).MAX_STACK_SIZE == 1) return "";
+    for (const item of Object.values(this.items)) {
+      if (
+        item.itemDefinitionId == itemDefId &&
+        server.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE >=
+          item.stackCount + count
+      ) {
+        if (!slotId || slotId == item.slotId) {
+          return item.itemGuid;
+        }
+      }
+    }
+    return "";
+  }
+
   // transfers an item from this container to another
   transferItem(
     server: ZoneServer2016,
@@ -163,8 +194,8 @@ export class LoadoutContainer extends LoadoutItem {
         count
       );
     } else {
-      const itemStack = server.getAvailableItemStack(
-        targetContainer,
+      const itemStack = targetContainer.getAvailableItemStack(
+        server,
         item.itemDefinitionId,
         count,
         newSlotId
