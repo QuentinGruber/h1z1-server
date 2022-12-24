@@ -8,9 +8,9 @@
 
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneServer2016 } from "../zoneserver";
-import { Items } from "../models/enums";
+import { Items, StringIds } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
-import { isArraySumZero } from "utils/utils";
+import { isArraySumZero } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
 import { ConstructionParentEntity } from "./constructionparententity";
 function getDamageRange(definitionId: number): number {
@@ -102,7 +102,10 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     if(client.character.characterId != this.getPlacementOwner(server) || Date.now() > this.placementTime + 900000) {
       return;
     }
-
+    server.sendData(client, "Command.InteractionString", {
+      guid: this.characterId,
+      stringId: StringIds.UNDO_PLACEMENT,
+    });
     // placement undo interaction string
   }
 }

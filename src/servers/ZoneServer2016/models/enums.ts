@@ -13,7 +13,9 @@
 // ======================================================================
 
 export enum StringIds {
-  UNDO_PLACEMENT = 12001
+  TAKE_ITEM = 29,
+  UNDO_PLACEMENT = 12001,
+  PERMISSIONS = 12979
 }
 
 export enum MovementModifiers {

@@ -24,7 +24,7 @@ export const constructionPackets: any = [
     0xca0200,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
         { name: "model", type: "uint32", defaultValue: 55 },
       ],
     },

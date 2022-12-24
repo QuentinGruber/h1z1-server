@@ -3376,6 +3376,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendConstructionData(client: Client) {
+    
     const unknownArray1 = [46, 45, 47, 48, 49, 50, 12, 7, 15],
     unknownArray2 = [...unknownArray1, 5, 10, 44, 57, 27, 2, 55, 56];
    
@@ -3383,7 +3384,11 @@ export class ZoneServer2016 extends EventEmitter {
       unknownArray1: unknownArray1.map((value)=> {
         return {unknownDword1: value}
       }),
-      unkownArray2: unknownArray2.map((value)=> {
+
+      /* this array affects certain items placed on direct
+      ground ex. punji sticks, furnace, flare, etc
+      */
+      unknownArray2: unknownArray2.map((value)=> {
         return {unknownDword1: value}
       })
     });
@@ -3515,7 +3520,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.placeTrap(itemDefinitionId, modelId, position, rotation);
         break;
       case Items.FLARE:
-        this.placeTemporaryEntity(modelId, position, rotation, 900000);
+        this.placeTemporaryEntity(modelId, position, eul2quat(rotation), 900000);
         break;
       case Items.IED:
       case Items.LANDMINE:

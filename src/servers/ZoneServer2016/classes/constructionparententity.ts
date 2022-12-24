@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { ConstructionChildEntity } from "./constructionchildentity";
-import { Items } from "../models/enums";
+import { Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
   getRectangleCorners,
@@ -148,6 +148,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         break;
     }
   }
+
+  getPlacementOwner(): string {
+    return this.ownerCharacterId;
+  }
+
   checkPerimeters(server: ZoneServer2016) {
     const temporaryPolygons = [];
     this.securedPolygons = [];
@@ -622,7 +627,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     if (this.ownerCharacterId != client.character.characterId) return;
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: 12979,
+      stringId: StringIds.PERMISSIONS,
     });
   }
 }
