@@ -4986,19 +4986,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  isDefaultItem(
-    character: BaseFullCharacter,
-    itemDefinitionId: number
-  ): boolean {
-    let isDefault = false;
-    character.defaultLoadout.forEach((defaultItem) => {
-      if (defaultItem.item == itemDefinitionId) {
-        isDefault = true;
-      }
-    });
-    return isDefault;
-  }
-
   eatItem(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;

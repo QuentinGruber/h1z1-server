@@ -448,6 +448,18 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
   }
 
+  isDefaultItem(
+    itemDefinitionId: number
+  ): boolean {
+    let isDefault = false;
+    this.defaultLoadout.forEach((defaultItem) => {
+      if (defaultItem.item == itemDefinitionId) {
+        isDefault = true;
+      }
+    });
+    return isDefault;
+  }
+
   pGetEquipmentSlot(slotId: number) {
     const slot = this._equipment[slotId];
     return slot

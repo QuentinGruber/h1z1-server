@@ -190,7 +190,7 @@ export class WorldObjectManager {
     Object.values(entity._loadout).forEach((item) => {
       if (
         item.itemGuid != "0x0" &&
-        !server.isDefaultItem(entity, item.itemDefinitionId)
+        !entity.isDefaultItem(item.itemDefinitionId)
       ) {
         items[item.itemGuid] = _.cloneDeep(item);
         items[item.itemGuid].slotId = Object.keys(items).length + 1;
@@ -201,7 +201,7 @@ export class WorldObjectManager {
       Object.values(container.items).forEach((item) => {
         if (
           !isCharacter ||
-          !server.isDefaultItem(entity, item.itemDefinitionId)
+          !entity.isDefaultItem(item.itemDefinitionId)
         ) {
           let stacked = false;
           for (const i of Object.values(items)) {
