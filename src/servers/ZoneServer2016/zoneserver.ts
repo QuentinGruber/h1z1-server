@@ -960,6 +960,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.spawnTemporaryObjects(client);
         this.POIManager(client);
         this.lootbagManager(client);
+        this.lootableConstructionManager(client);
         client.posAtLastRoutine = client.character.state.position;
       });
       if (this._ready) {
@@ -1861,12 +1862,13 @@ export class ZoneServer2016 extends EventEmitter {
       this._constructionDoors[entityKey] ||
       this._constructionSimple[entityKey] ||
       this._lootbags[entityKey] ||
+      this._lootableConstruction[entityKey] ||
       undefined
     );
   }
 
   getLootableEntity(entityKey: string): BaseLootableEntity | undefined {
-    return this._lootbags[entityKey] || this._vehicles[entityKey] || undefined;
+    return this._lootbags[entityKey] || this._vehicles[entityKey] || this._lootableConstruction[entityKey]||undefined;
   }
 
   damageItem(client: Client, item: LoadoutItem, damage: number) {
@@ -2699,8 +2701,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.addLightweightNpc(
             client,
             lootbag,
-            this.getItemDefinition(lootbag.getContainer()?.itemDefinitionId)
-              .NAME_ID
+            this.getItemDefinition(lootbag.getContainer()?.itemDefinitionId)?.NAME_ID
           );
           client.spawnedEntities.push(lootbag);
         }
@@ -2712,6 +2713,27 @@ export class ZoneServer2016 extends EventEmitter {
           });
           client.spawnedEntities.splice(index, 1);
         }
+      }
+    }
+  }
+
+  private lootableConstructionManager(client: Client) {
+    for (const characterId in this._lootableConstruction) {
+      const obj = this._lootableConstruction[characterId];
+      if (
+        isPosInRadius(
+          obj.npcRenderDistance,
+          client.character.state.position,
+          obj.state.position
+        ) &&
+        !client.spawnedEntities.includes(obj)
+      ) {
+        this.addLightweightNpc(
+          client,
+          obj,
+          this.getItemDefinition(obj.getContainer()?.itemDefinitionId)?.NAME_ID
+        );
+        client.spawnedEntities.push(obj);
       }
     }
   }
@@ -3592,11 +3614,15 @@ export class ZoneServer2016 extends EventEmitter {
           slot
         );
         break;
-      /*
       case Items.STORAGE_BOX:
-        this.placeLootableConstruction()
+        this.placeLootableConstruction(
+          client,
+          itemDefinitionId,
+          modelId,
+          position,
+          eul2quat(rotation)
+        );
         break;
-        */
       default:
         const characterId = this.generateGuid();
         const transientId = this.getTransientId(characterId);
@@ -3867,6 +3893,35 @@ export class ZoneServer2016 extends EventEmitter {
       guid: entity.characterId,
       stringId: StringIds.UNDO_PLACEMENT,
     });
+  }
+  
+  placeLootableConstruction(
+    client: Client,
+    itemDefinitionId: number,
+    modelId: number,
+    position: Float32Array,
+    rotation: Float32Array
+  ) {
+    const characterId = this.generateGuid(),
+      transientId = this.getTransientId(characterId);
+    /*
+      TODO:
+        - set container parent to foundation for permissions
+    */
+
+    const obj = new LootableConstructionEntity(
+      characterId,
+      transientId,
+      modelId,
+      position,
+      rotation
+    );
+    this._lootableConstruction[characterId] = obj;
+    this.equipItem(
+      obj,
+      this.generateItem(Items.CONTAINER_STORAGE),
+      false
+    );
   }
 
   mountVehicle(client: Client, vehicleGuid: string) {

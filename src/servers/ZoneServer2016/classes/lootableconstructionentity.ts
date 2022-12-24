@@ -26,6 +26,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
   placementTime = Date.now();
   parentObjectCharacterId = "";
+  npcRenderDistance = 15;
+  loadoutId = 5;
   constructor(
     characterId: string,
     transientId: number,
