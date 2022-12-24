@@ -3917,8 +3917,8 @@ export class ZoneServer2016 extends EventEmitter {
       rotation
     );
     this._lootableConstruction[characterId] = obj;
-    this.equipItem(
-      obj,
+    obj.equipItem(
+      this,
       this.generateItem(Items.CONTAINER_STORAGE),
       false
     );
