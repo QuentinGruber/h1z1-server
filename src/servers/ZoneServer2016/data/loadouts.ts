@@ -62,7 +62,7 @@ export const vehicleDefaultLoadouts = {
     { item: Items.VEHICLE_MOTOR_POLICECAR },
     { item: Items.VEHICLE_HOTWIRE },
     { item: Items.VEHICLE_HORN_POLICECAR },
-    { item: Items.VEHICLE_SIREN_POLICECAR}
+    { item: Items.VEHICLE_SIREN_POLICECAR },
   ],
   atv: [
     { item: Items.CONTAINER_VEHICLE_ATV },

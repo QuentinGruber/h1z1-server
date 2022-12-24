@@ -661,6 +661,8 @@ export function calculateOrientation(
 }
 
 export function isArraySumZero(array: Float32Array) {
-  if(!array || array.length == 0) return false;
-  return array.reduce((accumulator, currentValue) => accumulator + currentValue) == 0;
+  if (!array || array.length == 0) return false;
+  return (
+    array.reduce((accumulator, currentValue) => accumulator + currentValue) == 0
+  );
 }

@@ -14,7 +14,13 @@
 import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
 import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
-import { ItemClasses, Items, LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
+import {
+  ItemClasses,
+  Items,
+  LoadoutSlots,
+  ResourceIds,
+  ResourceTypes,
+} from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
@@ -26,7 +32,7 @@ const debugName = "ZoneServer",
   debug = require("debug")(debugName);
 
 const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.json"),
-loadoutSlotItemClasses = require("./../../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
+  loadoutSlotItemClasses = require("./../../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../../data/2016/dataSources/EquipSlotItemClasses.json");
 
 function getGender(actorModelId: number): number {
@@ -179,9 +185,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       server._characters,
       this.characterId,
       "Equipment.SetCharacterEquipmentSlot",
-      this.pGetEquipmentSlotFull(
-        slotId
-      ) as EquipmentSetCharacterEquipmentSlot
+      this.pGetEquipmentSlotFull(slotId) as EquipmentSetCharacterEquipmentSlot
     );
   }
 
@@ -382,11 +386,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
 
     const itemDefId = item.itemDefinitionId,
-      availableContainer = this.getAvailableContainer(
-        server,
-        itemDefId,
-        count
-      );
+      availableContainer = this.getAvailableContainer(server, itemDefId, count);
 
     if (!availableContainer) {
       // container error full
@@ -425,7 +425,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     );
     if (itemStackGuid) {
       const itemStack =
-      this._containers[availableContainer.slotId].items[itemStackGuid];
+        this._containers[availableContainer.slotId].items[itemStackGuid];
       itemStack.stackCount += count;
       if (!client) return;
 
@@ -448,9 +448,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
   }
 
-  isDefaultItem(
-    itemDefinitionId: number
-  ): boolean {
+  isDefaultItem(itemDefinitionId: number): boolean {
     let isDefault = false;
     this.defaultLoadout.forEach((defaultItem) => {
       if (defaultItem.item == itemDefinitionId) {
@@ -595,10 +593,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
    * @param itemDefId The definition ID of an item to try to find a slot for.
    * @returns Returns the ID of an available loadout slot.
    */
-  getAvailableLoadoutSlot(
-    server: ZoneServer2016,
-    itemDefId: number
-  ): number {
+  getAvailableLoadoutSlot(server: ZoneServer2016, itemDefId: number): number {
     // gets an open loadoutslot for a specified itemDefinitionId
     const itemDef = server.getItemDefinition(itemDefId),
       loadoutSlotItemClass = loadoutSlotItemClasses.find(

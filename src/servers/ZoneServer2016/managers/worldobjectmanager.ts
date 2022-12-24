@@ -199,10 +199,7 @@ export class WorldObjectManager {
 
     Object.values(entity._containers).forEach((container: LoadoutContainer) => {
       Object.values(container.items).forEach((item) => {
-        if (
-          !isCharacter ||
-          !entity.isDefaultItem(item.itemDefinitionId)
-        ) {
+        if (!isCharacter || !entity.isDefaultItem(item.itemDefinitionId)) {
           let stacked = false;
           for (const i of Object.values(items)) {
             // stack similar items

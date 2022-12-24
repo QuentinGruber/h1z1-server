@@ -40,7 +40,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   }
 
   isLandmine() {
-    return this.itemDefinitionId == Items.LANDMINE
+    return this.itemDefinitionId == Items.LANDMINE;
   }
 
   ignite(server: ZoneServer2016, client: ZoneClient2016) {

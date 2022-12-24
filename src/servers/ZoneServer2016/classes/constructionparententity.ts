@@ -184,9 +184,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           ]);
           if (
             server._constructionFoundations[this.expansions["04"]] &&
-            !isArraySumZero(server._constructionFoundations[this.expansions["04"]].perimeters[
-              "01"
-            ])
+            !isArraySumZero(
+              server._constructionFoundations[this.expansions["04"]].perimeters[
+                "01"
+              ]
+            )
           ) {
             tempExpansionPolygons.push([
               server._constructionFoundations[this.expansions["04"]].perimeters[
@@ -264,9 +266,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           ]);
           if (
             server._constructionFoundations[this.expansions["01"]] &&
-            !isArraySumZero(server._constructionFoundations[this.expansions["01"]].perimeters[
-              "01"
-            ])
+            !isArraySumZero(
+              server._constructionFoundations[this.expansions["01"]].perimeters[
+                "01"
+              ]
+            )
           ) {
             tempExpansionPolygons.push([
               server._constructionFoundations[this.expansions["01"]].perimeters[
@@ -344,9 +348,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           ]);
           if (
             server._constructionFoundations[this.expansions["02"]] &&
-            !isArraySumZero(server._constructionFoundations[this.expansions["02"]].perimeters[
-              "01"
-            ])
+            !isArraySumZero(
+              server._constructionFoundations[this.expansions["02"]].perimeters[
+                "01"
+              ]
+            )
           ) {
             tempExpansionPolygons.push([
               server._constructionFoundations[this.expansions["02"]].perimeters[
@@ -424,9 +430,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           ]);
           if (
             server._constructionFoundations[this.expansions["03"]] &&
-            !isArraySumZero(server._constructionFoundations[this.expansions["03"]].perimeters[
-              "01"
-            ])
+            !isArraySumZero(
+              server._constructionFoundations[this.expansions["03"]].perimeters[
+                "01"
+              ]
+            )
           ) {
             tempExpansionPolygons.push([
               server._constructionFoundations[this.expansions["03"]].perimeters[
@@ -541,10 +549,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.SHACK:
       case Items.SHACK_SMALL:
       case Items.SHACK_BASIC:
-        this.isSecured =
-          isArraySumZero(this.perimeters["01"])
-            ? false
-            : true;
+        this.isSecured = isArraySumZero(this.perimeters["01"]) ? false : true;
         if (this.eulerAngle)
           this.securedPolygons = getRectangleCorners(
             this.state.position,

@@ -806,7 +806,7 @@ export class zonePacketHandlers {
       )
     )
       return;
-    
+
     entity.OnInteractionString(server, client);
   }
   MountSeatChangeRequest(server: ZoneServer2016, client: Client, packet: any) {
@@ -1058,8 +1058,11 @@ export class zonePacketHandlers {
     const modelId = server.getItemDefinition(
       packet.data.itemDefinitionId
     ).PLACEMENT_MODEL_ID;
-    if(!modelId) {
-      server.sendChatText(client, `No PLACEMENT_MODEL_ID found for itemDefinitionId ${packet.data.itemDefinitionId}`)
+    if (!modelId) {
+      server.sendChatText(
+        client,
+        `No PLACEMENT_MODEL_ID found for itemDefinitionId ${packet.data.itemDefinitionId}`
+      );
       return;
     }
     server.sendData(client, "Construction.PlacementResponse", {

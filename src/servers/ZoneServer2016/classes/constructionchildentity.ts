@@ -91,15 +91,16 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     value: Float32Array
   ) {
     this.perimeters["LoveShackDoor"] = value;
-    if (
-      !isArraySumZero(value)
-    ) {
+    if (!isArraySumZero(value)) {
       this.isSecured = true;
     } else this.isSecured = false;
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    if(client.character.characterId != this.getPlacementOwner(server) || Date.now() > this.placementTime + 900000) {
+    if (
+      client.character.characterId != this.getPlacementOwner(server) ||
+      Date.now() > this.placementTime + 900000
+    ) {
       return;
     }
     server.sendData(client, "Command.InteractionString", {

@@ -33,7 +33,6 @@ import {
   ContainerErrors,
   EntityTypes,
   EquipSlots,
-  ItemClasses,
   Items,
   LoadoutIds,
   LoadoutSlots,
@@ -46,7 +45,6 @@ import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
 
 import {
-  characterEquipment,
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
@@ -107,7 +105,6 @@ import {
   CharacterKilledBy,
   ClientUpdateDeathMetrics,
   ClientUpdateProximateItems,
-  EquipmentSetCharacterEquipmentSlot,
   zone2016packets,
 } from "types/zone2016packets";
 import { getCharacterModelData } from "../shared/functions";
@@ -117,7 +114,6 @@ import { LoadoutItem } from "./classes/loadoutItem";
 import { LoadoutContainer } from "./classes/loadoutcontainer";
 import { Weapon } from "./classes/weapon";
 import { Lootbag } from "./classes/lootbag";
-import { LoadoutKit } from "./data/loadouts";
 import { BaseLootableEntity } from "./classes/baselootableentity";
 import { LootableConstructionEntity } from "./classes/lootableconstructionentity";
 
@@ -2215,71 +2211,77 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
-  checkFoundationPermission(client: Client, foundation: ConstructionParentEntity) {
+  checkFoundationPermission(
+    client: Client,
+    foundation: ConstructionParentEntity
+  ) {
     let isInSecuredArea = false;
+    if (
+      foundation.itemDefinitionId == Items.FOUNDATION ||
+      foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
+    ) {
       if (
-        foundation.itemDefinitionId == Items.FOUNDATION ||
-        foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
-      ) {
-        if (
-          isPosInRadiusWithY(
-            foundation.itemDefinitionId == Items.FOUNDATION ? 6.46 : 4.9,
-            client.character.state.position,
-            new Float32Array([
-              foundation.state.position[0],
-              foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
-                ? foundation.state.position[1] - 2.5
-                : foundation.state.position[1],
-              foundation.state.position[2],
-              1,
-            ]),
-            2
-          )
+        isPosInRadiusWithY(
+          foundation.itemDefinitionId == Items.FOUNDATION ? 6.46 : 4.9,
+          client.character.state.position,
+          new Float32Array([
+            foundation.state.position[0],
+            foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
+              ? foundation.state.position[1] - 2.5
+              : foundation.state.position[1],
+            foundation.state.position[2],
+            1,
+          ]),
+          2
         )
-          this.tpPlayerOutsideFoundation(client, foundation, true);
-      }
-      if (!foundation.isSecured) return;
-      let allowed = false;
-      foundation.permissions.forEach((element: any) => {
-        if (
-          element.characterId === client.character.characterId &&
-          element.visit
-        ) {
-          allowed = true;
-        }
-      });
+      )
+        this.tpPlayerOutsideFoundation(client, foundation, true);
+    }
+    if (!foundation.isSecured) return;
+    let allowed = false;
+    foundation.permissions.forEach((element: any) => {
       if (
-        foundation.itemDefinitionId == Items.SHACK ||
-        foundation.itemDefinitionId == Items.SHACK_SMALL ||
-        foundation.itemDefinitionId == Items.SHACK_BASIC
+        element.characterId === client.character.characterId &&
+        element.visit
       ) {
-        if (foundation.isInside(client.character)) {
-          if (allowed) {
-            this.constructionHidePlayer(client, foundation.characterId, true);
-            isInSecuredArea = true;
-          } else {
-            this.tpPlayerOutsideFoundation(client, foundation);
-          }
-        }
+        allowed = true;
       }
-      if (allowed) return;
-      if (this._constructionFoundations[foundation.parentObjectCharacterId]) {
-        if (
-          !this._constructionFoundations[foundation.parentObjectCharacterId]
-            .isSecured
-        )
-          return;
-      }
+    });
+    if (
+      foundation.itemDefinitionId == Items.SHACK ||
+      foundation.itemDefinitionId == Items.SHACK_SMALL ||
+      foundation.itemDefinitionId == Items.SHACK_BASIC
+    ) {
       if (foundation.isInside(client.character)) {
-        this.tpPlayerOutsideFoundation(client, foundation);
-        return;
+        if (allowed) {
+          this.constructionHidePlayer(client, foundation.characterId, true);
+          isInSecuredArea = true;
+        } else {
+          this.tpPlayerOutsideFoundation(client, foundation);
+        }
       }
+    }
+    if (allowed) return;
+    if (this._constructionFoundations[foundation.parentObjectCharacterId]) {
+      if (
+        !this._constructionFoundations[foundation.parentObjectCharacterId]
+          .isSecured
+      )
+        return;
+    }
+    if (foundation.isInside(client.character)) {
+      this.tpPlayerOutsideFoundation(client, foundation);
+      return;
+    }
 
     if (!isInSecuredArea && client.character.isHidden)
       client.character.isHidden = "";
   }
 
-  checkConstructionChildEntityPermission(client: Client, construction: ConstructionChildEntity) {
+  checkConstructionChildEntityPermission(
+    client: Client,
+    construction: ConstructionChildEntity
+  ) {
     let isInSecuredArea = false;
     const allowedIds = [
       Items.SHELTER,
@@ -2287,62 +2289,62 @@ export class ZoneServer2016 extends EventEmitter {
       Items.SHELTER_UPPER,
       Items.SHELTER_UPPER_LARGE,
     ];
-      if (!allowedIds.includes(construction.itemDefinitionId)) return;
-      let allowed = false;
-      if (!construction.isSecured) return;
-      let foundation: ConstructionParentEntity | undefined;
-      if (this._constructionFoundations[construction.parentObjectCharacterId]) {
-        foundation =
-          this._constructionFoundations[construction.parentObjectCharacterId];
-      } else if (
-        this._constructionSimple[construction.parentObjectCharacterId] &&
+    if (!allowedIds.includes(construction.itemDefinitionId)) return;
+    let allowed = false;
+    if (!construction.isSecured) return;
+    let foundation: ConstructionParentEntity | undefined;
+    if (this._constructionFoundations[construction.parentObjectCharacterId]) {
+      foundation =
+        this._constructionFoundations[construction.parentObjectCharacterId];
+    } else if (
+      this._constructionSimple[construction.parentObjectCharacterId] &&
+      this._constructionFoundations[
+        this._constructionSimple[construction.parentObjectCharacterId]
+          .parentObjectCharacterId
+      ]
+    ) {
+      foundation =
         this._constructionFoundations[
           this._constructionSimple[construction.parentObjectCharacterId]
             .parentObjectCharacterId
-        ]
-      ) {
-        foundation =
-          this._constructionFoundations[
-            this._constructionSimple[construction.parentObjectCharacterId]
-              .parentObjectCharacterId
-          ];
-      } else {
-        for (const a in this._constructionFoundations) {
-          const b = this._constructionFoundations[a];
-          if (!b.isInside(construction)) continue;
-          foundation = b;
-        }
+        ];
+    } else {
+      for (const a in this._constructionFoundations) {
+        const b = this._constructionFoundations[a];
+        if (!b.isInside(construction)) continue;
+        foundation = b;
       }
-      if (!foundation) return;
-      foundation.permissions.forEach((element: any) => {
-        if (
-          element.characterId === client.character.characterId &&
-          element.visit
-        ) {
-          allowed = true;
-        }
-      });
+    }
+    if (!foundation) return;
+    foundation.permissions.forEach((element: any) => {
       if (
-        isInsideWithY(
-          [
-            client.character.state.position[0],
-            client.character.state.position[2],
-          ],
-          construction.securedPolygons,
-          client.character.state.position[1],
-          construction.state.position[1],
-          2
-        )
+        element.characterId === client.character.characterId &&
+        element.visit
       ) {
-        if (allowed) {
-          this.constructionHidePlayer(client, construction.characterId, true);
-          isInSecuredArea = true;
-        } else {
-          this.tpPlayerOutsideFoundation(client, foundation);
-        }
+        allowed = true;
       }
+    });
+    if (
+      isInsideWithY(
+        [
+          client.character.state.position[0],
+          client.character.state.position[2],
+        ],
+        construction.securedPolygons,
+        client.character.state.position[1],
+        construction.state.position[1],
+        2
+      )
+    ) {
+      if (allowed) {
+        this.constructionHidePlayer(client, construction.characterId, true);
+        isInSecuredArea = true;
+      } else {
+        this.tpPlayerOutsideFoundation(client, foundation);
+      }
+    }
 
-      if (!isInSecuredArea && client.character.isHidden)
+    if (!isInSecuredArea && client.character.isHidden)
       client.character.isHidden = "";
   }
 
@@ -3376,21 +3378,20 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendConstructionData(client: Client) {
-    
     const unknownArray1 = [46, 45, 47, 48, 49, 50, 12, 7, 15],
-    unknownArray2 = [...unknownArray1, 5, 10, 44, 57, 27, 2, 55, 56];
-   
+      unknownArray2 = [...unknownArray1, 5, 10, 44, 57, 27, 2, 55, 56];
+
     this.sendData(client, "Construction.Unknown", {
-      unknownArray1: unknownArray1.map((value)=> {
-        return {unknownDword1: value}
+      unknownArray1: unknownArray1.map((value) => {
+        return { unknownDword1: value };
       }),
 
       /* this array affects certain items placed on direct
       ground ex. punji sticks, furnace, flare, etc
       */
-      unknownArray2: unknownArray2.map((value)=> {
-        return {unknownDword1: value}
-      })
+      unknownArray2: unknownArray2.map((value) => {
+        return { unknownDword1: value };
+      }),
     });
   }
 
@@ -3520,7 +3521,12 @@ export class ZoneServer2016 extends EventEmitter {
         this.placeTrap(itemDefinitionId, modelId, position, rotation);
         break;
       case Items.FLARE:
-        this.placeTemporaryEntity(modelId, position, eul2quat(rotation), 900000);
+        this.placeTemporaryEntity(
+          modelId,
+          position,
+          eul2quat(rotation),
+          900000
+        );
         break;
       case Items.IED:
       case Items.LANDMINE:
@@ -3847,7 +3853,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this._explosives[characterId] = npc;
   }
-  
+
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
