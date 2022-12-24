@@ -470,7 +470,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       "LightweightToFullVehicle",
       this.pGetFullVehicle(server)
     );
-    server.updateLoadout(this);
+    this.updateLoadout(server);
     // prevents cars from spawning in under the map for other characters
     /*
     server.sendData(client, "PlayerUpdatePosition", {

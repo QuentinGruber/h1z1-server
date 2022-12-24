@@ -1648,8 +1648,8 @@ export class ZoneServer2016 extends EventEmitter {
         case "SpeedTree.Blackberry":
           itemDefId = Items.BLACKBERRY;
           if (randomIntFromInterval(1, 10) == 1) {
-            this.lootItem(
-              client.character,
+            client.character.lootItem(
+              this,
               this.generateItem(Items.WEAPON_BRANCH)
             );
           }
@@ -1689,8 +1689,8 @@ export class ZoneServer2016 extends EventEmitter {
           return;
       }
       if (itemDefId) {
-        this.lootContainerItem(
-          client.character,
+        client.character.lootContainerItem(
+          this,
           this.generateItem(itemDefId, count)
         );
       }
@@ -1877,7 +1877,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (item.currentDurability <= 0) {
       this.removeInventoryItem(client, item);
       if (this.isWeapon(item.itemDefinitionId)) {
-        this.lootContainerItem(client.character, this.generateItem(1354));
+        client.character.lootContainerItem(this, this.generateItem(1354));
       }
       return;
     }
@@ -2434,7 +2434,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (!client.spawnedEntities.includes(npc)) {
           this.addLightweightNpc(client, npc);
-          this.updateEquipment(npc); // TODO: maybe we can already add the equipment to the npc?
+          npc.updateEquipment(this); // TODO: maybe we can already add the equipment to the npc?
           client.spawnedEntities.push(npc);
         }
       } else {
@@ -4247,44 +4247,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   //#region ********************INVENTORY********************
 
-  updateLoadout(character: BaseFullCharacter) {
-    const client = this.getClientByCharId(character.characterId);
-    if (client) {
-      if (!client.character.initialized) return;
-      this.checkConveys(client);
-    }
-    this.sendDataToAllWithSpawnedEntity(
-      this._characters,
-      character.characterId,
-      "Loadout.SetLoadoutSlots",
-      character.pGetLoadoutSlots()
-    );
-  }
-
-  updateEquipment(character: BaseFullCharacter) {
-    if (!this.getClientByCharId(character.characterId)?.character.initialized)
-      return;
-    this.sendDataToAllWithSpawnedEntity(
-      this._characters,
-      character.characterId,
-      "Equipment.SetCharacterEquipment",
-      character.pGetEquipment()
-    );
-  }
-
-  updateEquipmentSlot(character: BaseFullCharacter, slotId: number) {
-    if (!this.getClientByCharId(character.characterId)?.character.initialized)
-      return;
-    this.sendDataToAllWithSpawnedEntity(
-      this._characters,
-      character.characterId,
-      "Equipment.SetCharacterEquipmentSlot",
-      character.pGetEquipmentSlotFull(
-        slotId
-      ) as EquipmentSetCharacterEquipmentSlot
-    );
-  }
-
   addItem(
     client: Client,
     item: BaseItem,
@@ -4333,45 +4295,14 @@ export class ZoneServer2016 extends EventEmitter {
         this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
-      this.lootContainerItem(
-        client.character,
+      client.character.lootContainerItem(
+        this,
         oldLoadoutItem,
         undefined,
         false
       );
     }
     client.character.equipItem(this, item, true, slotId);
-  }
-
-  generateEquipmentFromLoadout(character: Character) {
-    for (const slot of Object.values(character._loadout)) {
-      if (!slot.itemDefinitionId) continue;
-      const def = this.getItemDefinition(slot.itemDefinitionId);
-      let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
-      if (this.isWeapon(slot.itemDefinitionId)) {
-        if (slot.slotId == character.currentLoadoutSlot) {
-          equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
-        } else {
-          equipmentSlotId = this.getAvailablePassiveEquipmentSlot(
-            character,
-            slot.itemDefinitionId
-          );
-        }
-      }
-      if (equipmentSlotId) {
-        const equipmentData: characterEquipment = {
-          modelName: def.MODEL_NAME.replace(
-            "<gender>",
-            character.gender == 1 ? "Male" : "Female"
-          ),
-          slotId: equipmentSlotId,
-          guid: slot.itemGuid,
-          textureAlias: def.TEXTURE_ALIAS || "default0",
-          tintAlias: "",
-        };
-        character._equipment[equipmentSlotId] = equipmentData;
-      }
-    }
   }
 
   generateRandomEquipmentsFromAnEntity(
@@ -4508,15 +4439,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Gets the maximum slots that a given container can hold.
-   * @param container The container object.
-   */
-  getContainerMaxSlots(container: LoadoutContainer): number {
-    return this.getContainerDefinition(container.containerDefinitionId)
-      .MAXIMUM_SLOTS;
-  }
-
-  /**
    * Gets the container definition for a given containerDefinitionId.
    * @param containerDefinitionId The id of the container definition to retrieve.
    */
@@ -4650,101 +4572,6 @@ export class ZoneServer2016 extends EventEmitter {
     return loadoutSlotItemClass?.SLOT || 0;
   }
 
-  /**
-   * Gets the first available loadout slot for a given item.
-   * @param character The character to check.
-   * @param itemDefId The definition ID of an item to try to find a slot for.
-   * @returns Returns the ID of an available loadout slot.
-   */
-  getAvailableLoadoutSlot(
-    character: BaseFullCharacter,
-    itemDefId: number
-  ): number {
-    // gets an open loadoutslot for a specified itemDefinitionId
-    const itemDef = this.getItemDefinition(itemDefId),
-      loadoutSlotItemClass = loadoutSlotItemClasses.find(
-        (slot: any) =>
-          slot.ITEM_CLASS == itemDef.ITEM_CLASS &&
-          character.loadoutId == slot.LOADOUT_ID
-      );
-    let slot = loadoutSlotItemClass?.SLOT;
-    if (!slot) return 0;
-    switch (itemDef.ITEM_CLASS) {
-      case ItemClasses.WEAPONS_LONG:
-      case ItemClasses.WEAPONS_PISTOL:
-      case ItemClasses.WEAPONS_MELEES:
-      case ItemClasses.WEAPONS_MELEES0:
-        if (character._loadout[slot]?.itemDefinitionId) {
-          // primary
-          slot = LoadoutSlots.SECONDARY;
-        }
-        if (
-          slot == LoadoutSlots.SECONDARY &&
-          character._loadout[slot]?.itemDefinitionId
-        ) {
-          // secondary
-          slot = LoadoutSlots.TERTIARY;
-        }
-        break;
-      case ItemClasses.WEAPONS_GENERIC: // item1/item2 slots
-        if (character._loadout[slot]?.itemDefinitionId) {
-          slot = LoadoutSlots.ITEM2;
-        }
-        break;
-    }
-    if (character._loadout[slot]?.itemDefinitionId) return 0;
-    return slot;
-  }
-
-  /**
-   * Gets the first available passive equipment slot for a given item.
-   * @param character The character to check.
-   * @param itemDefId The definition ID of an item to try to find a slot for.
-   * @returns Returns the ID of an available passive equipment slot.
-   */
-  getAvailablePassiveEquipmentSlot(
-    character: BaseFullCharacter,
-    itemDefId: number
-  ): number {
-    const itemDef = this.getItemDefinition(itemDefId),
-      itemClass = itemDef?.ITEM_CLASS;
-    if (!itemDef || !itemClass || !this.isWeapon(itemDefId)) return 0;
-    for (const slot of equipSlotItemClasses) {
-      if (
-        slot.ITEM_CLASS == itemDef.ITEM_CLASS &&
-        !character._equipment[slot.EQUIP_SLOT_ID]
-      ) {
-        return slot.EQUIP_SLOT_ID;
-      }
-    }
-    return 0;
-  }
-
-  /**
-   * Returns the first container that has enough space for an item stack.
-   * @param character The character to check.
-   * @param itemDefinitionId The item definition ID to try to put in a container.
-   * @param count The amount of items to try and fit in a container.
-   * @returns Returns a container with available space, or undefined.
-   */
-  getAvailableContainer(
-    character: BaseFullCharacter,
-    itemDefinitionId: number,
-    count: number
-  ): LoadoutContainer | undefined {
-    const itemDef = this.getItemDefinition(itemDefinitionId);
-    for (const container of Object.values(character._containers)) {
-      if (
-        container &&
-        container.getMaxBulk(this) >=
-          container.getUsedBulk(this) + itemDef.BULK * count
-      ) {
-        return container;
-      }
-    }
-    return;
-  }
-
   switchLoadoutSlot(client: Client, loadoutItem: LoadoutItem) {
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     this.reloadInterrupt(client, client.character._loadout[oldLoadoutSlot]);
@@ -4822,7 +4649,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.deleteItem(client, item.itemGuid);
     delete client.character._loadout[loadoutSlotId];
-    this.updateLoadout(client.character);
+    client.character.updateLoadout(this);
     this.clearEquipmentSlot(
       client,
       client.character.getActiveEquipmentSlot(item)
@@ -5003,50 +4830,6 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  lootItem(
-    character: BaseFullCharacter,
-    item?: BaseItem,
-    count?: number,
-    sendUpdate = true
-  ) {
-    const client = this.getClientByCharId(character.characterId);
-    if (!item) return;
-    if (!count) count = item.stackCount;
-    if (count > item.stackCount) {
-      console.error(
-        `LootItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`
-      );
-      count = item.stackCount;
-    }
-    const itemDefId = item.itemDefinitionId;
-    if (this.getAvailableLoadoutSlot(character, itemDefId)) {
-      if (client && client.character.initialized && sendUpdate) {
-        this.sendData(client, "Reward.AddNonRewardItem", {
-          itemDefId: itemDefId,
-          iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
-          count: count,
-        });
-      }
-      character.equipItem(this, item, sendUpdate);
-      if (client && this.isWeapon(item.itemDefinitionId) && sendUpdate) {
-        this.sendRemoteWeaponDataToAllOthers(
-          client,
-          client.character.transientId,
-          "RemoteWeapon.Reset",
-          {
-            data: {
-              remoteWeapons: client.character.pGetRemoteWeaponsData(this),
-              remoteWeaponsExtra:
-                client.character.pGetRemoteWeaponsExtraData(this),
-            },
-          }
-        );
-      }
-    } else {
-      this.lootContainerItem(character, item, count, sendUpdate);
-    }
-  }
-
   pickupItem(client: Client, guid: string) {
     const object = this._spawnedItems[guid],
       item: BaseItem = object.item;
@@ -5065,7 +4848,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     //endregion
 
-    this.lootItem(client.character, item);
+    client.character.lootItem(this, item);
 
     if (
       item.itemDefinitionId === Items.FUEL_BIOFUEL ||
@@ -5075,89 +4858,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.deleteEntity(guid, this._spawnedItems);
     delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
-  }
-
-  lootContainerItem(
-    character: BaseFullCharacter,
-    item?: BaseItem,
-    count?: number,
-    sendUpdate: boolean = true
-  ) {
-    const client = this.getClientByCharId(character.characterId);
-    if (!item) return;
-    if (!count) count = item.stackCount;
-    if (count > item.stackCount) {
-      console.error(
-        `LootContainerItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`
-      );
-      count = item.stackCount;
-    }
-
-    const itemDefId = item.itemDefinitionId,
-      availableContainer = this.getAvailableContainer(
-        character,
-        itemDefId,
-        count
-      );
-
-    if (!availableContainer) {
-      // container error full
-      if (client) {
-        this.sendData(client, "Character.NoSpaceNotification", {
-          characterId: client.character.characterId,
-        });
-      }
-
-      Object.values(character._containers).forEach((c) => {
-        const availableSpace = c.getAvailableBulk(this),
-          itemBulk = this.getItemDefinition(item.itemDefinitionId).BULK,
-          lootCount = Math.floor(availableSpace / itemBulk);
-        if (lootCount) {
-          item.stackCount -= lootCount;
-          this.lootContainerItem(
-            character,
-            this.generateItem(item.itemDefinitionId, lootCount)
-          );
-        }
-      });
-
-      this.worldObjectManager.createLootEntity(
-        this,
-        item,
-        character.state.position,
-        new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
-      );
-      return;
-    }
-
-    const itemStackGuid = availableContainer.getAvailableItemStack(
-      this,
-      itemDefId,
-      count
-    );
-    if (itemStackGuid) {
-      const itemStack =
-        character._containers[availableContainer.slotId].items[itemStackGuid];
-      itemStack.stackCount += count;
-      if (!client) return;
-
-      this.updateContainerItem(client, itemStack, availableContainer);
-      if (sendUpdate && client.character.initialized) {
-        this.sendData(client, "Reward.AddNonRewardItem", {
-          itemDefId: itemDefId,
-          iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
-          count: count,
-        });
-      }
-    } else {
-      this.addContainerItem(
-        character,
-        item,
-        availableContainer,
-        count,
-        sendUpdate
-      );
-    }
   }
 
   deleteItem(client: Client, itemGuid: string) {
@@ -5258,8 +4958,8 @@ export class ZoneServer2016 extends EventEmitter {
         entry.item != Items.WEAPON_FISTS ||
         !character._loadout[LoadoutSlots.FISTS]
       ) {
-        this.lootItem(
-          character,
+        character.lootItem(
+          this,
           this.generateItem(entry.item, entry.count),
           entry.count,
           sendPacket
@@ -5420,7 +5120,7 @@ export class ZoneServer2016 extends EventEmitter {
   fillPass(client: Client, item: BaseItem) {
     if (client.character.characterStates.inWater) {
       this.removeInventoryItem(client, item);
-      this.lootContainerItem(client.character, this.generateItem(1368)); // give dirty water
+      client.character.lootContainerItem(this, this.generateItem(1368)); // give dirty water
     } else {
       this.sendAlert(client, "There is no water source nearby");
     }
@@ -5541,7 +5241,7 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceIds.HYDRATION
     );
     if (givetrash) {
-      this.lootContainerItem(client.character, this.generateItem(givetrash));
+      client.character.lootContainerItem(this, this.generateItem(givetrash));
     }
   }
 
@@ -5568,7 +5268,7 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceIds.HYDRATION
     );
     if (givetrash) {
-      this.lootContainerItem(client.character, this.generateItem(givetrash));
+      client.character.lootContainerItem(this, this.generateItem(givetrash));
     }
   }
 
@@ -5632,7 +5332,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   shredItemPass(client: Client, item: BaseItem, count: number) {
     this.removeInventoryItem(client, item);
-    this.lootItem(client.character, this.generateItem(Items.CLOTH, count));
+    client.character.lootItem(this, this.generateItem(Items.CLOTH, count));
   }
 
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);

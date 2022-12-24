@@ -147,8 +147,8 @@ export class zonePacketHandlers {
         characterId: client.character.characterId,
         stance: 1,
       });
-      server.updateEquipment(client.character); // needed or third person character will be invisible
-      server.updateLoadout(client.character); // needed or all loadout context menu entries aren't shown
+      client.character.updateEquipment(server); // needed or third person character will be invisible
+      client.character.updateLoadout(server); // needed or all loadout context menu entries aren't shown
       if (!server._soloMode) {
         server.sendZonePopulationUpdate();
       }
@@ -888,7 +888,7 @@ export class zonePacketHandlers {
     });
     if (server.isContainer(itemDef.ID)) {
       // Fixes containers missing an itemdefinition not showing in inventory
-      server.updateLoadout(client.character);
+      client.character.updateLoadout(server);
     }
   }
   CharacterWeaponStance(server: ZoneServer2016, client: Client, packet: any) {
@@ -969,8 +969,8 @@ export class zonePacketHandlers {
         break;
       case 60: //equip item
         const activeSlotId = client.character.getActiveLoadoutSlot(itemGuid);
-        let loadoutSlotId = server.getAvailableLoadoutSlot(
-          client.character,
+        let loadoutSlotId = client.character.getAvailableLoadoutSlot(
+          server,
           item.itemDefinitionId
         );
         if (server.isWeapon(item.itemDefinitionId)) {

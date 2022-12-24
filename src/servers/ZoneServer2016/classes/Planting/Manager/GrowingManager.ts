@@ -222,8 +222,8 @@ export class GrowingManager {
             lootAbleProduct.ItemDefinitionId,
             lootAbleProduct.Count
           );
-          server.lootItem(
-            client.character,
+          client.character.lootItem(
+            server,
             randomOutcomeItemByScript,
             lootAbleProduct.Count
           );

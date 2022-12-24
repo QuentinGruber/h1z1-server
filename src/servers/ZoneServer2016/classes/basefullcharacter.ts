@@ -11,9 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
 import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
-import { LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
+import { ItemClasses, LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
@@ -24,7 +25,9 @@ import { ZoneClient2016 } from "./zoneclient";
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
 
-const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.json");
+const loadoutSlots = require("./../../../../data/2016/dataSources/LoadoutSlots.json"),
+loadoutSlotItemClasses = require("./../../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
+  equipSlotItemClasses = require("./../../../../data/2016/dataSources/EquipSlotItemClasses.json");
 
 function getGender(actorModelId: number): number {
   switch (actorModelId) {
@@ -144,6 +147,44 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return items;
   }
 
+  updateLoadout(server: ZoneServer2016) {
+    const client = server.getClientByCharId(this.characterId);
+    if (client) {
+      if (!client.character.initialized) return;
+      server.checkConveys(client);
+    }
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      this.characterId,
+      "Loadout.SetLoadoutSlots",
+      this.pGetLoadoutSlots()
+    );
+  }
+
+  updateEquipment(server: ZoneServer2016) {
+    if (!server.getClientByCharId(this.characterId)?.character.initialized)
+      return;
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      this.characterId,
+      "Equipment.SetCharacterEquipment",
+      this.pGetEquipment()
+    );
+  }
+
+  updateEquipmentSlot(server: ZoneServer2016, slotId: number) {
+    if (!server.getClientByCharId(this.characterId)?.character.initialized)
+      return;
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      this.characterId,
+      "Equipment.SetCharacterEquipmentSlot",
+      this.pGetEquipmentSlotFull(
+        slotId
+      ) as EquipmentSetCharacterEquipmentSlot
+    );
+  }
+
   /**
    * Equips an item to a BaseFullCharacter.
    * @param server The ZoneServer instance.
@@ -178,8 +219,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         return;
       }
     } else {
-      loadoutSlotId = server.getAvailableLoadoutSlot(
-        this,
+      loadoutSlotId = this.getAvailableLoadoutSlot(
+        server,
         item.itemDefinitionId
       );
       if (!loadoutSlotId) {
@@ -198,8 +239,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       if (loadoutSlotId == this.currentLoadoutSlot) {
         equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
       } else {
-        equipmentSlotId = server.getAvailablePassiveEquipmentSlot(
-          this,
+        equipmentSlotId = this.getAvailablePassiveEquipmentSlot(
+          server,
           item.itemDefinitionId
         );
       }
@@ -245,8 +286,166 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
     if (!sendPacket) return;
 
-    server.updateLoadout(this);
-    if (equipmentSlotId) server.updateEquipmentSlot(this, equipmentSlotId);
+    this.updateLoadout(server);
+    if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
+  }
+
+  generateEquipmentFromLoadout(server: ZoneServer2016) {
+    for (const slot of Object.values(this._loadout)) {
+      if (!slot.itemDefinitionId) continue;
+      const def = server.getItemDefinition(slot.itemDefinitionId);
+      let equipmentSlotId = def.PASSIVE_EQUIP_SLOT_ID; // default for any equipment
+      if (server.isWeapon(slot.itemDefinitionId)) {
+        if (slot.slotId == this.currentLoadoutSlot) {
+          equipmentSlotId = def.ACTIVE_EQUIP_SLOT_ID;
+        } else {
+          equipmentSlotId = this.getAvailablePassiveEquipmentSlot(
+            server,
+            slot.itemDefinitionId
+          );
+        }
+      }
+      if (equipmentSlotId) {
+        const equipmentData: characterEquipment = {
+          modelName: def.MODEL_NAME.replace(
+            "<gender>",
+            this.gender == 1 ? "Male" : "Female"
+          ),
+          slotId: equipmentSlotId,
+          guid: slot.itemGuid,
+          textureAlias: def.TEXTURE_ALIAS || "default0",
+          tintAlias: "",
+        };
+        this._equipment[equipmentSlotId] = equipmentData;
+      }
+    }
+  }
+
+  lootItem(
+    server: ZoneServer2016,
+    item?: BaseItem,
+    count?: number,
+    sendUpdate = true
+  ) {
+    const client = server.getClientByCharId(this.characterId);
+    if (!item) return;
+    if (!count) count = item.stackCount;
+    if (count > item.stackCount) {
+      console.error(
+        `LootItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`
+      );
+      count = item.stackCount;
+    }
+    const itemDefId = item.itemDefinitionId;
+    if (this.getAvailableLoadoutSlot(server, itemDefId)) {
+      if (client && client.character.initialized && sendUpdate) {
+        server.sendData(client, "Reward.AddNonRewardItem", {
+          itemDefId: itemDefId,
+          iconId: server.getItemDefinition(itemDefId).IMAGE_SET_ID,
+          count: count,
+        });
+      }
+      this.equipItem(server, item, sendUpdate);
+      if (client && server.isWeapon(item.itemDefinitionId) && sendUpdate) {
+        server.sendRemoteWeaponDataToAllOthers(
+          client,
+          client.character.transientId,
+          "RemoteWeapon.Reset",
+          {
+            data: {
+              remoteWeapons: client.character.pGetRemoteWeaponsData(server),
+              remoteWeaponsExtra:
+                client.character.pGetRemoteWeaponsExtraData(server),
+            },
+          }
+        );
+      }
+    } else {
+      this.lootContainerItem(server, item, count, sendUpdate);
+    }
+  }
+
+  lootContainerItem(
+    server: ZoneServer2016,
+    item?: BaseItem,
+    count?: number,
+    sendUpdate: boolean = true
+  ) {
+    const client = server.getClientByCharId(this.characterId);
+    if (!item) return;
+    if (!count) count = item.stackCount;
+    if (count > item.stackCount) {
+      console.error(
+        `LootContainerItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`
+      );
+      count = item.stackCount;
+    }
+
+    const itemDefId = item.itemDefinitionId,
+      availableContainer = this.getAvailableContainer(
+        server,
+        itemDefId,
+        count
+      );
+
+    if (!availableContainer) {
+      // container error full
+      if (client) {
+        server.sendData(client, "Character.NoSpaceNotification", {
+          characterId: client.character.characterId,
+        });
+      }
+
+      Object.values(this._containers).forEach((c) => {
+        const availableSpace = c.getAvailableBulk(server),
+          itemBulk = server.getItemDefinition(item.itemDefinitionId).BULK,
+          lootCount = Math.floor(availableSpace / itemBulk);
+        if (lootCount) {
+          item.stackCount -= lootCount;
+          this.lootContainerItem(
+            server,
+            server.generateItem(item.itemDefinitionId, lootCount)
+          );
+        }
+      });
+
+      server.worldObjectManager.createLootEntity(
+        server,
+        item,
+        this.state.position,
+        new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
+      );
+      return;
+    }
+
+    const itemStackGuid = availableContainer.getAvailableItemStack(
+      server,
+      itemDefId,
+      count
+    );
+    if (itemStackGuid) {
+      const itemStack =
+      this._containers[availableContainer.slotId].items[itemStackGuid];
+      itemStack.stackCount += count;
+      if (!client) return;
+
+      server.updateContainerItem(client, itemStack, availableContainer);
+      if (sendUpdate && client.character.initialized) {
+        server.sendData(client, "Reward.AddNonRewardItem", {
+          itemDefId: itemDefId,
+          iconId: server.getItemDefinition(itemDefId).IMAGE_SET_ID,
+          count: count,
+        });
+      }
+    } else {
+      server.addContainerItem(
+        this,
+        item,
+        availableContainer,
+        count,
+        sendUpdate
+      );
+    }
   }
 
   pGetEquipmentSlot(slotId: number) {
@@ -355,6 +554,101 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       if (slot.LOADOUT_ID == this.loadoutId) slots.push(slot.SLOT_ID);
     });
     return slots;
+  }
+
+  /**
+   * Gets the first available loadout slot for a given item.
+   * @param server The ZoneServer instance.
+   * @param itemDefId The definition ID of an item to try to find a slot for.
+   * @returns Returns the ID of an available loadout slot.
+   */
+  getAvailableLoadoutSlot(
+    server: ZoneServer2016,
+    itemDefId: number
+  ): number {
+    // gets an open loadoutslot for a specified itemDefinitionId
+    const itemDef = server.getItemDefinition(itemDefId),
+      loadoutSlotItemClass = loadoutSlotItemClasses.find(
+        (slot: any) =>
+          slot.ITEM_CLASS == itemDef.ITEM_CLASS &&
+          this.loadoutId == slot.LOADOUT_ID
+      );
+    let slot = loadoutSlotItemClass?.SLOT;
+    if (!slot) return 0;
+    switch (itemDef.ITEM_CLASS) {
+      case ItemClasses.WEAPONS_LONG:
+      case ItemClasses.WEAPONS_PISTOL:
+      case ItemClasses.WEAPONS_MELEES:
+      case ItemClasses.WEAPONS_MELEES0:
+        if (this._loadout[slot]?.itemDefinitionId) {
+          // primary
+          slot = LoadoutSlots.SECONDARY;
+        }
+        if (
+          slot == LoadoutSlots.SECONDARY &&
+          this._loadout[slot]?.itemDefinitionId
+        ) {
+          // secondary
+          slot = LoadoutSlots.TERTIARY;
+        }
+        break;
+      case ItemClasses.WEAPONS_GENERIC: // item1/item2 slots
+        if (this._loadout[slot]?.itemDefinitionId) {
+          slot = LoadoutSlots.ITEM2;
+        }
+        break;
+    }
+    if (this._loadout[slot]?.itemDefinitionId) return 0;
+    return slot;
+  }
+
+  /**
+   * Gets the first available passive equipment slot for a given item.
+   * @param server The ZoneServer instance.
+   * @param itemDefId The definition ID of an item to try to find a slot for.
+   * @returns Returns the ID of an available passive equipment slot.
+   */
+  getAvailablePassiveEquipmentSlot(
+    server: ZoneServer2016,
+    itemDefId: number
+  ): number {
+    const itemDef = server.getItemDefinition(itemDefId),
+      itemClass = itemDef?.ITEM_CLASS;
+    if (!itemDef || !itemClass || !server.isWeapon(itemDefId)) return 0;
+    for (const slot of equipSlotItemClasses) {
+      if (
+        slot.ITEM_CLASS == itemDef.ITEM_CLASS &&
+        !this._equipment[slot.EQUIP_SLOT_ID]
+      ) {
+        return slot.EQUIP_SLOT_ID;
+      }
+    }
+    return 0;
+  }
+
+  /**
+   * Returns the first container that has enough space for an item stack.
+   * @param server The ZoneServer instance.
+   * @param itemDefinitionId The item definition ID to try to put in a container.
+   * @param count The amount of items to try and fit in a container.
+   * @returns Returns a container with available space, or undefined.
+   */
+  getAvailableContainer(
+    server: ZoneServer2016,
+    itemDefinitionId: number,
+    count: number
+  ): LoadoutContainer | undefined {
+    const itemDef = server.getItemDefinition(itemDefinitionId);
+    for (const container of Object.values(this._containers)) {
+      if (
+        container &&
+        container.getMaxBulk(server) >=
+          container.getUsedBulk(server) + itemDef.BULK * count
+      ) {
+        return container;
+      }
+    }
+    return;
   }
 
   pGetLoadoutSlots() {
@@ -513,7 +807,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       guid: container.itemGuid,
       definitionId: container.containerDefinitionId,
       associatedCharacterId: this.characterId,
-      slots: server.getContainerMaxSlots(container),
+      slots: container.getMaxSlots(server),
       items: Object.values(container.items).map((item, idx) => {
         container.items[item.itemGuid].slotId = idx + 1;
         return {
@@ -525,7 +819,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           ),
         };
       }),
-      showBulk: true, // needs to be true or bulk doesn't show up
+      showBulk: true,
       maxBulk: container.getMaxBulk(server),
       unknownDword1: 28,
       bulkUsed: container.getUsedBulk(server),

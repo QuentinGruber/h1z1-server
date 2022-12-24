@@ -195,7 +195,7 @@ export const commands: Array<Command> = [
               "Down",
               "Up"
             ));
-        server.updateEquipmentSlot(client.character, EquipSlots.CHEST);
+        client.character.updateEquipmentSlot(server, EquipSlots.CHEST);
       }
     },
   },
@@ -931,8 +931,8 @@ export const commands: Array<Command> = [
           targetClient ? targetClient.character.name : client.character.name
         }`
       );
-      server.lootItem(
-        targetClient ? targetClient.character : client.character,
+      (targetClient ? targetClient.character : client.character).lootItem(
+        server,
         item
       );
     },
@@ -1083,7 +1083,7 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
       const wep = server.generateItem(Items.WEAPON_REMOVER);
       if (wep && wep.weapon) wep.weapon.ammoCount = 1000;
-      server.lootItem(client.character, wep);
+      client.character.lootItem(server, wep);
     },
   },
   {

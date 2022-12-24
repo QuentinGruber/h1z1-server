@@ -342,7 +342,7 @@ export class WorldDataManager {
       );
       client.character._resources =
         savedCharacter._resources || client.character._resources;
-      server.generateEquipmentFromLoadout(client.character);
+      client.character.generateEquipmentFromLoadout(server);
     }
 
     server.hookManager.checkHook("OnLoadedCharacterData", client);

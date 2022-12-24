@@ -140,6 +140,15 @@ export class LoadoutContainer extends LoadoutItem {
     return "";
   }
 
+  /**
+   * Gets the maximum slots that this container can hold.
+   * @param server The ZoneServer instance.
+   */
+  getMaxSlots(server: ZoneServer2016) {
+    return server.getContainerDefinition(this.containerDefinitionId)
+      .MAXIMUM_SLOTS;
+  }
+
   // transfers an item from this container to another
   transferItem(
     server: ZoneServer2016,

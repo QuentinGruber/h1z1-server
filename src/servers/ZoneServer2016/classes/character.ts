@@ -568,7 +568,7 @@ export class Character2016 extends BaseFullCharacter {
       server.addItem(client, item, container.containerDefinitionId);
     });
 
-    server.updateLoadout(this);
+    this.updateLoadout(server);
 
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId: lootableEntity.characterId,
@@ -602,7 +602,7 @@ export class Character2016 extends BaseFullCharacter {
 
     delete this.mountedContainer.mountedCharacter;
     delete this.mountedContainer;
-    server.updateLoadout(this);
+    this.updateLoadout(server);
     server.initializeContainerList(client);
   }
 
