@@ -964,7 +964,7 @@ export const commands: Array<Command> = [
     name: "kit",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
-      server.equipLoadout(client.character, characterKitLoadout);
+      client.character.equipLoadout(server, characterKitLoadout);
     },
   },
   {

@@ -14,7 +14,7 @@
 import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
 import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
-import { ItemClasses, LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
+import { ItemClasses, Items, LoadoutSlots, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
@@ -458,6 +458,27 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       }
     });
     return isDefault;
+  }
+
+  equipLoadout(
+    server: ZoneServer2016,
+    loadout?: LoadoutKit,
+    sendPacket = true
+  ) {
+    const l = loadout ? loadout : this.defaultLoadout;
+    l.forEach((entry) => {
+      if (
+        entry.item != Items.WEAPON_FISTS ||
+        !this._loadout[LoadoutSlots.FISTS]
+      ) {
+        this.lootItem(
+          server,
+          server.generateItem(entry.item, entry.count),
+          entry.count,
+          sendPacket
+        );
+      }
+    });
   }
 
   pGetEquipmentSlot(slotId: number) {

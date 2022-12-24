@@ -1534,7 +1534,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     this.clearInventory(client);
-    this.equipLoadout(client.character);
+    client.character.equipLoadout(this);
     client.character.state.position =
       this._spawnLocations[randomSpawnIndex].position;
     this.updateResource(
@@ -4945,27 +4945,6 @@ export class ZoneServer2016 extends EventEmitter {
       ),
     });
     this.updateContainer(client, container);
-  }
-
-  equipLoadout(
-    character: BaseFullCharacter,
-    loadout?: LoadoutKit,
-    sendPacket = true
-  ) {
-    const l = loadout ? loadout : character.defaultLoadout;
-    l.forEach((entry) => {
-      if (
-        entry.item != Items.WEAPON_FISTS ||
-        !character._loadout[LoadoutSlots.FISTS]
-      ) {
-        character.lootItem(
-          this,
-          this.generateItem(entry.item, entry.count),
-          entry.count,
-          sendPacket
-        );
-      }
-    });
   }
 
   /**

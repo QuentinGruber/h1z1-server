@@ -289,14 +289,9 @@ export class WorldObjectManager {
   }
 
   createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
-    // setup vehicle loadout slots, containers, etc here
-    // todo: add siren and horn
+    vehicle.equipLoadout(server);
 
-    // not used for now since workaround doesn't use it
-    // vehicle.getInventoryItemId()
-
-    server.equipLoadout(vehicle);
-
+    // TODO - Randomize these
     vehicle.equipItem(server, server.generateItem(vehicle.getTurboItemId()));
     vehicle.equipItem(
       server,
