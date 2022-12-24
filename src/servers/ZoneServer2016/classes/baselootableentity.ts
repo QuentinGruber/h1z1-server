@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ContainerErrors } from "../models/enums";
+import { ContainerErrors, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { LoadoutContainer } from "./loadoutcontainer";
@@ -39,7 +39,7 @@ export class BaseLootableEntity extends BaseFullCharacter {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: 31,
+      stringId: StringIds.OPEN,
     });
   }
 

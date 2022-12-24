@@ -14,8 +14,11 @@
 
 export enum StringIds {
   TAKE_ITEM = 29,
+  OPEN = 31,
   UNDO_PLACEMENT = 12001,
+  OPEN_TARGET = 12156,
   PERMISSIONS = 12979,
+  PERMISSIONS_TARGET = 12982
 }
 
 export enum MovementModifiers {

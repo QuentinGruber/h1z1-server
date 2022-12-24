@@ -96,18 +96,16 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     } else this.isSecured = false;
   }
 
+  canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
+    return client.character.characterId == this.getPlacementOwner(server) &&
+    Date.now() < this.placementTime + 120000 && 
+    client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
+  }
+
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    if (
-      client.character.characterId != this.getPlacementOwner(server) ||
-      Date.now() > this.placementTime + 900000
-    ) {
+    if (this.canUndoPlacement(server, client)) {
+      server.undoPlacementInteractionString(this, client);
       return;
     }
-    server.sendData(client, "Command.InteractionString", {
-      guid: this.characterId,
-      stringId: StringIds.UNDO_PLACEMENT,
-    });
-    server.undoPlacementInteractionString(this, client);
-    // placement undo interaction string
   }
 }

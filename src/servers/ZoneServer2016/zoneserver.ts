@@ -2467,7 +2467,7 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(npc)
       ) {
-        this.addLightweightNpc(client, npc);
+        this.addLightweightNpc(client, npc, this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID);
         client.spawnedEntities.push(npc);
         if (
           npc.itemDefinitionId == Items.SHACK ||
@@ -2498,7 +2498,7 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(npc)
       ) {
-        this.addLightweightNpc(client, npc);
+        this.addLightweightNpc(client, npc, this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID);
         client.spawnedEntities.push(npc);
         this.updateResource(
           client,
@@ -2533,7 +2533,7 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(npc)
       ) {
-        this.addLightweightNpc(client, npc);
+        this.addLightweightNpc(client, npc, this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID);
         client.spawnedEntities.push(npc);
         this.updateResource(
           client,
@@ -2663,7 +2663,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.addLightweightNpc(
             client,
             itemObject,
-            this.getItemDefinition(itemObject.item.itemDefinitionId).NAME_ID
+            this.getItemDefinition(itemObject.item.itemDefinitionId)?.NAME_ID
           );
           client.spawnedEntities.push(itemObject);
         }
@@ -2700,8 +2700,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (!client.spawnedEntities.includes(lootbag)) {
           this.addLightweightNpc(
             client,
-            lootbag,
-            this.getItemDefinition(lootbag.getContainer()?.itemDefinitionId)?.NAME_ID
+            lootbag
           );
           client.spawnedEntities.push(lootbag);
         }
@@ -2731,7 +2730,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.addLightweightNpc(
           client,
           obj,
-          this.getItemDefinition(obj.getContainer()?.itemDefinitionId)?.NAME_ID
+          this.getItemDefinition(obj.itemDefinitionId)?.NAME_ID
         );
         client.spawnedEntities.push(obj);
       }
@@ -3620,7 +3619,8 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation)
+          eul2quat(rotation),
+          parentObjectCharacterId
         );
         break;
       default:
@@ -3883,15 +3883,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   // used by multiple construction classes that don't extend each other
   undoPlacementInteractionString(entity: ConstructionEntity, client: Client) {
-    if (
-      client.character.characterId != entity.getPlacementOwner(this) ||
-      Date.now() > entity.placementTime + 900000
-    ) {
-      return;
-    }
     this.sendData(client, "Command.InteractionString", {
       guid: entity.characterId,
-      stringId: StringIds.UNDO_PLACEMENT,
+      stringId: StringIds.UNDO_PLACEMENT
     });
   }
   
@@ -3900,21 +3894,20 @@ export class ZoneServer2016 extends EventEmitter {
     itemDefinitionId: number,
     modelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    parentObjectCharacterId: string
   ) {
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId);
-    /*
-      TODO:
-        - set container parent to foundation for permissions
-    */
 
     const obj = new LootableConstructionEntity(
       characterId,
       transientId,
       modelId,
       position,
-      rotation
+      rotation,
+      parentObjectCharacterId,
+      itemDefinitionId
     );
     this._lootableConstruction[characterId] = obj;
     obj.equipItem(

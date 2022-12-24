@@ -11,11 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ResourceIds } from "../models/enums";
+import { Items, ResourceIds, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
+import { ZoneClient2016 } from "./zoneclient";
 
 export class LootableConstructionEntity extends BaseLootableEntity {
   get health() {
@@ -25,17 +26,22 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     this._resources[ResourceIds.CONSTRUCTION_CONDITION] = health;
   }
   placementTime = Date.now();
-  parentObjectCharacterId = "";
+  parentObjectCharacterId: string;
   npcRenderDistance = 15;
   loadoutId = 5;
+  itemDefinitionId: number;
   constructor(
     characterId: string,
     transientId: number,
     actorModelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    parentObjectCharacterId: string,
+    itemDefinitionId: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
+    this.parentObjectCharacterId = parentObjectCharacterId;
+    this.itemDefinitionId = itemDefinitionId;
   }
   getParent(server: ZoneServer2016): ConstructionParentEntity | ConstructionChildEntity {
     return server._constructionFoundations[this.parentObjectCharacterId];
@@ -45,9 +51,25 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     const parent = this.getParent(server);
     if(!parent) return "";
     if(parent instanceof ConstructionParentEntity) {
-
       return parent.ownerCharacterId;
     }
     return parent.getPlacementOwner(server);
+  }
+
+  canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
+    return client.character.characterId == this.getPlacementOwner(server) &&
+    Date.now() < this.placementTime + 120000 && 
+    client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.canUndoPlacement(server, client)) {
+      server.undoPlacementInteractionString(this, client);
+      return;
+    }
+    server.sendData(client, "Command.InteractionString", {
+      guid: this.characterId,
+      stringId: StringIds.OPEN_TARGET,
+    });
   }
 }

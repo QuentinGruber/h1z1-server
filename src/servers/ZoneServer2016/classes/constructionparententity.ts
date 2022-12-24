@@ -628,7 +628,21 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     );
   }
 
+  canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
+    return client.character.characterId == this.getPlacementOwner() &&
+    Date.now() < this.placementTime + 120000 && 
+    client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
+  
+    // TODO - CHECK IF ALL SLOTS ARE EMPTY
+  
+  }
+
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.canUndoPlacement(server, client)) {
+      server.undoPlacementInteractionString(this, client);
+      return;
+    }
+
     if (this.ownerCharacterId != client.character.characterId) return;
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
