@@ -596,7 +596,7 @@ export class Character2016 extends BaseFullCharacter {
       server.deleteItem(client, item.itemGuid);
     });
 
-    if (!_.size(container.items)) {
+    if (this.mountedContainer.isLootbag && !_.size(container.items)) {
       server.deleteEntity(this.mountedContainer.characterId, server._lootbags);
     }
 
