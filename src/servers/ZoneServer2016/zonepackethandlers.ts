@@ -1425,7 +1425,7 @@ export class zonePacketHandlers {
           );
           break;
         case "Weapon.ProjectileHitReport":
-          if (client.character.getEquippedWeapon().itemDefinitionId == 1776) {
+          if (client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_REMOVER)  {
             if (!client.isAdmin) return;
             const characterId = p.packet.hitReport.characterId,
               entityType = server.getEntityType(characterId);
@@ -1455,22 +1455,12 @@ export class zonePacketHandlers {
                 server.deleteEntity(characterId, server._explosives);
                 break;
               case EntityTypes.CONSTRUCTION_DOOR:
-                server.deleteConstructionSlot(
-                  characterId,
-                  server._constructionDoors
-                );
-                break;
               case EntityTypes.CONSTRUCTION_SIMPLE:
-                server.deleteConstructionSlot(
-                  characterId,
-                  server._constructionSimple
-                );
-                break;
               case EntityTypes.CONSTRUCTION_FOUNDATION:
-                server.deleteConstructionSlot(
-                  characterId,
-                  server._constructionFoundations
-                );
+              case EntityTypes.LOOTABLE_CONSTRUCTION:
+                const entity = server.getConstructionEntity(characterId);
+                if(!entity) return;
+                entity.destroy(server);
                 break;
               default:
                 return;

@@ -615,6 +615,31 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
   }
 
+  destroy(server: ZoneServer2016, destructTime = 0) {
+    server.deleteEntity(this.characterId, server._constructionFoundations, 242, destructTime);
+    const foundation = server._constructionFoundations[
+      this.parentObjectCharacterId
+    ]
+      ? server._constructionFoundations[
+        this.parentObjectCharacterId
+        ]
+      : server._constructionSimple[this.parentObjectCharacterId];
+    if (!foundation) return;
+    if (
+      this.itemDefinitionId == Items.METAL_WALL
+    ) {
+      foundation.changePerimeters(
+        server,
+        this.buildingSlot,
+        new Float32Array([0, 0, 0, 0])
+      );
+    }
+    if (!this.slot || !this.parentObjectCharacterId)
+      return;
+    const index = foundation.occupiedSlots.indexOf(this.slot);
+    foundation.occupiedSlots.splice(index, 1);
+  }
+
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.ownerCharacterId != client.character.characterId) return;
     server.sendData(

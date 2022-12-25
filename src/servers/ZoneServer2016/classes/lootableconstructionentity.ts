@@ -62,6 +62,11 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
   }
 
+  destroy(server: ZoneServer2016, destructTime = 0) {
+    server.deleteEntity(this.characterId, server._lootableConstruction, 242, destructTime);
+    // TODO: drop any items into a lootbag, need to take destructTime into account
+  }
+
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.canUndoPlacement(server, client)) {
       server.undoPlacementInteractionString(this, client);
@@ -69,7 +74,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     }
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: StringIds.OPEN_TARGET,
+      stringId: StringIds.OPEN,
     });
   }
 }

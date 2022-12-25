@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { DoorEntity } from "./doorentity";
-import { Items } from "../models/enums";
+import { Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "./zoneclient";
 import { DamageInfo } from "types/zoneserver";
@@ -96,7 +96,46 @@ export class ConstructionDoor extends DoorEntity {
     this.health -= damageInfo.damage;
   }
 
+  destroy(server: ZoneServer2016, destructTime = 0) {
+    server.deleteEntity(this.characterId, server._constructionDoors, 242, destructTime);
+    const foundation = server._constructionFoundations[
+      this.parentObjectCharacterId
+    ]
+      ? server._constructionFoundations[
+        this.parentObjectCharacterId
+        ]
+      : server._constructionSimple[this.parentObjectCharacterId];
+    if (!foundation) return;
+    if (
+      this.itemDefinitionId == Items.DOOR_METAL ||
+      this.itemDefinitionId == Items.DOOR_WOOD ||
+      this.itemDefinitionId == Items.METAL_GATE
+    ) {
+      foundation.changePerimeters(
+        server,
+        this.buildingSlot,
+        new Float32Array([0, 0, 0, 0])
+      );
+    }
+    if (!this.slot || !this.parentObjectCharacterId)
+      return;
+    const index = foundation.occupiedSlots.indexOf(this.slot);
+    foundation.occupiedSlots.splice(index, 1);
+  }
+
+  canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
+    return client.character.characterId == this.getPlacementOwner(server) &&
+    Date.now() < this.placementTime + 120000 && 
+    client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
+  }
+
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    if(this.canUndoPlacement(server, client)) {
+      this.destroy(server);
+      // TODO - give back item
+      return;
+    }
+
     if (
       this.password != 0 &&
       this.ownerCharacterId != client.character.characterId &&
@@ -182,12 +221,6 @@ export class ConstructionDoor extends DoorEntity {
     }
   }
 
-  canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
-    return client.character.characterId == this.getPlacementOwner(server) &&
-    Date.now() < this.placementTime + 120000 && 
-    client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
-  }
-
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.canUndoPlacement(server, client)) {
       server.undoPlacementInteractionString(this, client);
@@ -195,7 +228,7 @@ export class ConstructionDoor extends DoorEntity {
     }
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: 8944,
+      stringId: StringIds.OPEN_AND_LOCK,
     });
   }
 }

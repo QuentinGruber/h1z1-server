@@ -85,6 +85,32 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     // todo: redo this
     this.health -= damageInfo.damage;
   }
+
+  destroy(server: ZoneServer2016, destructTime = 0) {
+    server.deleteEntity(this.characterId, server._constructionSimple, 242, destructTime);
+    const foundation = server._constructionFoundations[
+      this.parentObjectCharacterId
+    ]
+      ? server._constructionFoundations[
+        this.parentObjectCharacterId
+        ]
+      : server._constructionSimple[this.parentObjectCharacterId];
+    if (!foundation) return;
+    if (
+      this.itemDefinitionId == Items.METAL_WALL
+    ) {
+      foundation.changePerimeters(
+        server,
+        this.buildingSlot,
+        new Float32Array([0, 0, 0, 0])
+      );
+    }
+    if (!this.slot || !this.parentObjectCharacterId)
+      return;
+    const index = foundation.occupiedSlots.indexOf(this.slot);
+    foundation.occupiedSlots.splice(index, 1);
+  }
+
   changePerimeters(
     server: ZoneServer2016,
     slot: string | undefined,

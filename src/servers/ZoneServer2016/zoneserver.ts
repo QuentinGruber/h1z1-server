@@ -1408,41 +1408,9 @@ export class ZoneServer2016 extends EventEmitter {
     }, 15000);
     if (constructionObject.health > 0) return;
 
-    this.deleteConstructionSlot(constructionCharId, dictionary, 3000);
+    constructionObject.destroy(this, 3000);
   }
 
-  deleteConstructionSlot(
-    constructionCharId: string,
-    dictionary: any,
-    destructTime = 0
-  ) {
-    const constructionObject = dictionary[constructionCharId];
-    this.deleteEntity(constructionCharId, dictionary, 242, destructTime);
-    const foundation = this._constructionFoundations[
-      constructionObject.parentObjectCharacterId
-    ]
-      ? this._constructionFoundations[
-          constructionObject.parentObjectCharacterId
-        ]
-      : this._constructionSimple[constructionObject.parentObjectCharacterId];
-    if (!foundation) return;
-    if (
-      constructionObject.itemDefinitionId == Items.DOOR_METAL ||
-      constructionObject.itemDefinitionId == Items.DOOR_WOOD ||
-      constructionObject.itemDefinitionId == Items.METAL_GATE ||
-      constructionObject.itemDefinitionId == Items.METAL_WALL
-    ) {
-      foundation.changePerimeters(
-        this,
-        constructionObject.buildingSlot,
-        new Float32Array([0, 0, 0, 0])
-      );
-    }
-    if (!constructionObject.slot || !constructionObject.parentObjectCharacterId)
-      return;
-    const index = foundation.occupiedSlots.indexOf(constructionObject.slot);
-    foundation.occupiedSlots.splice(index, 1);
-  }
 
   destroyVehicle(
     vehicle: Vehicle,
@@ -1845,9 +1813,30 @@ export class ZoneServer2016 extends EventEmitter {
         return EntityTypes.CONSTRUCTION_DOOR;
       case !!this._constructionSimple[entityKey]:
         return EntityTypes.CONSTRUCTION_SIMPLE;
+      case !!this._lootableConstruction[entityKey]:
+        return EntityTypes.LOOTABLE_CONSTRUCTION;
       default:
         return EntityTypes.INVALID;
     }
+  }
+
+  getLootableEntity(entityKey: string): BaseLootableEntity | undefined {
+    return (
+      this._lootbags[entityKey] || 
+      this._vehicles[entityKey] || 
+      this._lootableConstruction[entityKey] || 
+      undefined
+    );
+  }
+
+  getConstructionEntity(entityKey: string): ConstructionEntity | undefined {
+    return (
+      this._constructionFoundations[entityKey] || 
+      this._constructionSimple[entityKey] || 
+      this._lootableConstruction[entityKey] || 
+      this._constructionDoors[entityKey] || 
+      undefined
+    );
   }
 
   getEntity(entityKey: string): BaseEntity | undefined {
@@ -1867,8 +1856,17 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  getLootableEntity(entityKey: string): BaseLootableEntity | undefined {
-    return this._lootbags[entityKey] || this._vehicles[entityKey] || this._lootableConstruction[entityKey]||undefined;
+  getEntityDictionary(entity: BaseEntity) {
+    switch(true) {
+      case !!this._constructionSimple[entity.characterId]:
+        return this._constructionSimple;
+      case !!this._constructionFoundations[entity.characterId]:
+        return this._constructionFoundations;
+      case !!this._constructionDoors[entity.characterId]:
+        return this._constructionDoors;
+      case !!this._lootableConstruction[entity.characterId]:
+        return this._lootableConstruction;
+    }
   }
 
   damageItem(client: Client, item: LoadoutItem, damage: number) {
@@ -1972,12 +1970,6 @@ export class ZoneServer2016 extends EventEmitter {
         return 1302;
       case Items.WEAPON_308:
         return 5414;
-      case Items.WEAPON_AR15:
-      case Items.WEAPON_1911:
-      case Items.WEAPON_M9:
-      case Items.WEAPON_R380:
-      case Items.WEAPON_AK47:
-      case Items.WEAPON_MAGNUM:
       default:
         return 1165;
     }
