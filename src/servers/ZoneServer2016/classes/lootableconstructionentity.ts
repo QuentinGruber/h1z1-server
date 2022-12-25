@@ -20,7 +20,7 @@ import { ZoneClient2016 } from "./zoneclient";
 
 export class LootableConstructionEntity extends BaseLootableEntity {
   get health() {
-    return this._resources[ResourceIds.CONSTRUCTION_CONDITION]
+    return this._resources[ResourceIds.CONSTRUCTION_CONDITION];
   }
   set health(health: number) {
     this._resources[ResourceIds.CONSTRUCTION_CONDITION] = health;
@@ -43,34 +43,47 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     this.parentObjectCharacterId = parentObjectCharacterId;
     this.itemDefinitionId = itemDefinitionId;
   }
-  getParent(server: ZoneServer2016): ConstructionParentEntity | ConstructionChildEntity {
+  getParent(
+    server: ZoneServer2016
+  ): ConstructionParentEntity | ConstructionChildEntity {
     return server._constructionFoundations[this.parentObjectCharacterId];
   }
 
   getPlacementOwner(server: ZoneServer2016): string {
     const parent = this.getParent(server);
-    if(!parent) return "";
-    if(parent instanceof ConstructionParentEntity) {
+    if (!parent) return "";
+    if (parent instanceof ConstructionParentEntity) {
       return parent.ownerCharacterId;
     }
     return parent.getPlacementOwner(server);
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
-    return client.character.characterId == this.getPlacementOwner(server) &&
-    Date.now() < this.placementTime + 120000 && 
-    client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
+    return (
+      client.character.characterId == this.getPlacementOwner(server) &&
+      Date.now() < this.placementTime + 120000 &&
+      client.character.getEquippedWeapon().itemDefinitionId ==
+        Items.WEAPON_HAMMER_DEMOLITION
+    );
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {
-    server.deleteEntity(this.characterId, server._lootableConstruction, 242, destructTime);
+    server.deleteEntity(
+      this.characterId,
+      server._lootableConstruction,
+      242,
+      destructTime
+    );
     // TODO: drop any items into a lootbag, need to take destructTime into account
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
-    if(this.canUndoPlacement(server, client)) {
+    if (this.canUndoPlacement(server, client)) {
       this.destroy(server);
-      client.character.lootItem(server, server.generateItem(this.itemDefinitionId))
+      client.character.lootItem(
+        server,
+        server.generateItem(this.itemDefinitionId)
+      );
       return;
     }
 

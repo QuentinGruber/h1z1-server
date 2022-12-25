@@ -561,9 +561,9 @@ export class zonePacketHandlers {
   ) {
     const characterId: string = server._transientIds[packet.data.transientId],
       vehicle = characterId ? server._vehicles[characterId] : undefined;
-    
+
     if (!vehicle) return;
-    
+
     //if (!server._soloMode) {
     server.sendDataToAllOthersWithSpawnedEntity(
       server._vehicles,
@@ -682,7 +682,10 @@ export class zonePacketHandlers {
         delete client.hudTimer;
       }
 
-      if (client.character.mountedContainer && !server._vehicles[client.character.mountedContainer.characterId]) {
+      if (
+        client.character.mountedContainer &&
+        !server._vehicles[client.character.mountedContainer.characterId]
+      ) {
         if (
           !isPosInRadius(
             client.character.mountedContainer.interactionDistance,
@@ -751,7 +754,7 @@ export class zonePacketHandlers {
       )
     )
       return;
-    
+
     entity.OnPlayerSelect(server, client);
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
@@ -1427,7 +1430,10 @@ export class zonePacketHandlers {
           );
           break;
         case "Weapon.ProjectileHitReport":
-          if (client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_REMOVER)  {
+          if (
+            client.character.getEquippedWeapon().itemDefinitionId ==
+            Items.WEAPON_REMOVER
+          ) {
             if (!client.isAdmin) return;
             const characterId = p.packet.hitReport.characterId,
               entityType = server.getEntityType(characterId);
@@ -1461,7 +1467,7 @@ export class zonePacketHandlers {
               case EntityTypes.CONSTRUCTION_FOUNDATION:
               case EntityTypes.LOOTABLE_CONSTRUCTION:
                 const entity = server.getConstructionEntity(characterId);
-                if(!entity) return;
+                if (!entity) return;
                 entity.destroy(server);
                 break;
               default:

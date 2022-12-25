@@ -82,7 +82,7 @@ export class ConstructionDoor extends DoorEntity {
         : 2.5
     );
   }
-  getPlacementOwner(server: ZoneServer2016): string {
+  getPlacementOwner(): string {
     return this.ownerCharacterId || "";
   }
   pGetConstructionHealth() {
@@ -97,13 +97,16 @@ export class ConstructionDoor extends DoorEntity {
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {
-    server.deleteEntity(this.characterId, server._constructionDoors, 242, destructTime);
+    server.deleteEntity(
+      this.characterId,
+      server._constructionDoors,
+      242,
+      destructTime
+    );
     const foundation = server._constructionFoundations[
       this.parentObjectCharacterId
     ]
-      ? server._constructionFoundations[
-        this.parentObjectCharacterId
-        ]
+      ? server._constructionFoundations[this.parentObjectCharacterId]
       : server._constructionSimple[this.parentObjectCharacterId];
     if (!foundation) return;
     if (
@@ -117,22 +120,27 @@ export class ConstructionDoor extends DoorEntity {
         new Float32Array([0, 0, 0, 0])
       );
     }
-    if (!this.slot || !this.parentObjectCharacterId)
-      return;
+    if (!this.slot || !this.parentObjectCharacterId) return;
     const index = foundation.occupiedSlots.indexOf(this.slot);
     foundation.occupiedSlots.splice(index, 1);
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
-    return client.character.characterId == this.getPlacementOwner(server) &&
-    Date.now() < this.placementTime + 120000 && 
-    client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
+    return (
+      client.character.characterId == this.getPlacementOwner() &&
+      Date.now() < this.placementTime + 120000 &&
+      client.character.getEquippedWeapon().itemDefinitionId ==
+        Items.WEAPON_HAMMER_DEMOLITION
+    );
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
-    if(this.canUndoPlacement(server, client)) {
+    if (this.canUndoPlacement(server, client)) {
       this.destroy(server);
-      client.character.lootItem(server, server.generateItem(this.itemDefinitionId))
+      client.character.lootItem(
+        server,
+        server.generateItem(this.itemDefinitionId)
+      );
       return;
     }
 

@@ -1411,7 +1411,6 @@ export class ZoneServer2016 extends EventEmitter {
     constructionObject.destroy(this, 3000);
   }
 
-
   destroyVehicle(
     vehicle: Vehicle,
     destroyedVehicleEffect: number,
@@ -1822,19 +1821,19 @@ export class ZoneServer2016 extends EventEmitter {
 
   getLootableEntity(entityKey: string): BaseLootableEntity | undefined {
     return (
-      this._lootbags[entityKey] || 
-      this._vehicles[entityKey] || 
-      this._lootableConstruction[entityKey] || 
+      this._lootbags[entityKey] ||
+      this._vehicles[entityKey] ||
+      this._lootableConstruction[entityKey] ||
       undefined
     );
   }
 
   getConstructionEntity(entityKey: string): ConstructionEntity | undefined {
     return (
-      this._constructionFoundations[entityKey] || 
-      this._constructionSimple[entityKey] || 
-      this._lootableConstruction[entityKey] || 
-      this._constructionDoors[entityKey] || 
+      this._constructionFoundations[entityKey] ||
+      this._constructionSimple[entityKey] ||
+      this._lootableConstruction[entityKey] ||
+      this._constructionDoors[entityKey] ||
       undefined
     );
   }
@@ -2446,7 +2445,11 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(npc)
       ) {
-        this.addLightweightNpc(client, npc, this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID);
+        this.addLightweightNpc(
+          client,
+          npc,
+          this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID
+        );
         client.spawnedEntities.push(npc);
         if (
           npc.itemDefinitionId == Items.SHACK ||
@@ -2477,7 +2480,11 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(npc)
       ) {
-        this.addLightweightNpc(client, npc, this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID);
+        this.addLightweightNpc(
+          client,
+          npc,
+          this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID
+        );
         client.spawnedEntities.push(npc);
         this.updateResource(
           client,
@@ -2512,7 +2519,11 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(npc)
       ) {
-        this.addLightweightNpc(client, npc, this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID);
+        this.addLightweightNpc(
+          client,
+          npc,
+          this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID
+        );
         client.spawnedEntities.push(npc);
         this.updateResource(
           client,
@@ -2677,10 +2688,7 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (!client.spawnedEntities.includes(lootbag)) {
-          this.addLightweightNpc(
-            client,
-            lootbag
-          );
+          this.addLightweightNpc(client, lootbag);
           client.spawnedEntities.push(lootbag);
         }
       } else {
@@ -3635,7 +3643,7 @@ export class ZoneServer2016 extends EventEmitter {
               2.5
             );
           this._constructionSimple[characterId] = npc;
-          if(this._constructionFoundations[parentObjectCharacterId]) {
+          if (this._constructionFoundations[parentObjectCharacterId]) {
             const foundation =
               this._constructionFoundations[parentObjectCharacterId];
             foundation.changePerimeters(this, slot, npc.state.position);
@@ -3862,10 +3870,10 @@ export class ZoneServer2016 extends EventEmitter {
   undoPlacementInteractionString(entity: ConstructionEntity, client: Client) {
     this.sendData(client, "Command.InteractionString", {
       guid: entity.characterId,
-      stringId: StringIds.UNDO_PLACEMENT
+      stringId: StringIds.UNDO_PLACEMENT,
     });
   }
-  
+
   placeLootableConstruction(
     client: Client,
     itemDefinitionId: number,
@@ -3887,11 +3895,7 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefinitionId
     );
     this._lootableConstruction[characterId] = obj;
-    obj.equipItem(
-      this,
-      this.generateItem(Items.CONTAINER_STORAGE),
-      false
-    );
+    obj.equipItem(this, this.generateItem(Items.CONTAINER_STORAGE), false);
   }
 
   mountVehicle(client: Client, vehicleGuid: string) {

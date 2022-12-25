@@ -616,54 +616,56 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {
-    server.deleteEntity(this.characterId, server._constructionFoundations, 242, destructTime);
+    server.deleteEntity(
+      this.characterId,
+      server._constructionFoundations,
+      242,
+      destructTime
+    );
     const foundation = server._constructionFoundations[
       this.parentObjectCharacterId
     ]
-      ? server._constructionFoundations[
-        this.parentObjectCharacterId
-        ]
+      ? server._constructionFoundations[this.parentObjectCharacterId]
       : server._constructionSimple[this.parentObjectCharacterId];
     if (!foundation) return;
-    if (
-      this.itemDefinitionId == Items.METAL_WALL
-    ) {
+    if (this.itemDefinitionId == Items.METAL_WALL) {
       foundation.changePerimeters(
         server,
         this.buildingSlot,
         new Float32Array([0, 0, 0, 0])
       );
     }
-    if (!this.slot || !this.parentObjectCharacterId)
-      return;
+    if (!this.slot || !this.parentObjectCharacterId) return;
     const index = foundation.occupiedSlots.indexOf(this.slot);
     foundation.occupiedSlots.splice(index, 1);
   }
 
   isPerimeterEmpty() {
-    for(const perimeter of Object.values(this.perimeters)) {
-      if(!isArraySumZero(perimeter)) return false;
+    for (const perimeter of Object.values(this.perimeters)) {
+      if (!isArraySumZero(perimeter)) return false;
     }
     return true;
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
-
-    return false; // temp
-    /*
-    return client.character.characterId == this.getPlacementOwner() &&
-    Date.now() < this.placementTime + 120000 && 
-    client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION &&
-    this.isPerimeterEmpty()
-    */
+    return (
+      client.character.characterId == this.getPlacementOwner() &&
+      Date.now() < this.placementTime + 120000 &&
+      client.character.getEquippedWeapon().itemDefinitionId ==
+        Items.WEAPON_HAMMER_DEMOLITION &&
+      this.isPerimeterEmpty() &&
+      false
+    ); // temp
     // TODO - CHECK IF ALL SLOTS ARE EMPTY
-  
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
-    if(this.canUndoPlacement(server, client)) {
+    if (this.canUndoPlacement(server, client)) {
       this.destroy(server);
-      client.character.lootItem(server, server.generateItem(this.itemDefinitionId))
+      client.character.lootItem(
+        server,
+        server.generateItem(this.itemDefinitionId)
+      );
       return;
     }
 

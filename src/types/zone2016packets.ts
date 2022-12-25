@@ -1711,7 +1711,7 @@ export interface ConstructionPlacementRequest {
   itemDefinitionId?: number;
 }
 export interface ConstructionPlacementResponse {
-  unknownDword1?: number;
+  itemDefinitionId?: number;
   model?: number;
 }
 export interface ConstructionPlacementFinalizeRequest {
