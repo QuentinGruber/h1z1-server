@@ -128,6 +128,14 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     client.character.getEquippedWeapon().itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
   }
 
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    if(this.canUndoPlacement(server, client)) {
+      this.destroy(server);
+      client.character.lootItem(server, server.generateItem(this.itemDefinitionId))
+      return;
+    }
+  }
+
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.canUndoPlacement(server, client)) {
       server.undoPlacementInteractionString(this, client);

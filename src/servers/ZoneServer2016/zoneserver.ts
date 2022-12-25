@@ -929,7 +929,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.sendData(client, "ClientGameSettings", {
       Unknown2: 0,
-      interactGlowAndDist: 3, // 3
+      interactGlowAndDist: 3,
       unknownBoolean1: true,
       timescale: 1.0,
       enableWeapons: 1,
@@ -1854,19 +1854,6 @@ export class ZoneServer2016 extends EventEmitter {
       this._lootableConstruction[entityKey] ||
       undefined
     );
-  }
-
-  getEntityDictionary(entity: BaseEntity) {
-    switch(true) {
-      case !!this._constructionSimple[entity.characterId]:
-        return this._constructionSimple;
-      case !!this._constructionFoundations[entity.characterId]:
-        return this._constructionFoundations;
-      case !!this._constructionDoors[entity.characterId]:
-        return this._constructionDoors;
-      case !!this._lootableConstruction[entity.characterId]:
-        return this._lootableConstruction;
-    }
   }
 
   damageItem(client: Client, item: LoadoutItem, damage: number) {
@@ -3648,12 +3635,10 @@ export class ZoneServer2016 extends EventEmitter {
               2.5
             );
           this._constructionSimple[characterId] = npc;
-          switch (this.getEntityType(parentObjectCharacterId)) {
-            case EntityTypes.CONSTRUCTION_FOUNDATION:
-              const foundation =
-                this._constructionFoundations[parentObjectCharacterId];
-              foundation.changePerimeters(this, slot, npc.state.position);
-              break;
+          if(this._constructionFoundations[parentObjectCharacterId]) {
+            const foundation =
+              this._constructionFoundations[parentObjectCharacterId];
+            foundation.changePerimeters(this, slot, npc.state.position);
           }
         } else {
           if (!Number(parentObjectCharacterId)) {

@@ -67,6 +67,16 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     // TODO: drop any items into a lootbag, need to take destructTime into account
   }
 
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    if(this.canUndoPlacement(server, client)) {
+      this.destroy(server);
+      client.character.lootItem(server, server.generateItem(this.itemDefinitionId))
+      return;
+    }
+
+    super.OnPlayerSelect(server, client);
+  }
+
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.canUndoPlacement(server, client)) {
       server.undoPlacementInteractionString(this, client);

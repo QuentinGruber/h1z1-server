@@ -132,7 +132,7 @@ export class ConstructionDoor extends DoorEntity {
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
     if(this.canUndoPlacement(server, client)) {
       this.destroy(server);
-      // TODO - give back item
+      client.character.lootItem(server, server.generateItem(this.itemDefinitionId))
       return;
     }
 
