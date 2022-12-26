@@ -40,7 +40,7 @@ function getDamageRange(definitionId: number): number {
 
 export class ConstructionParentEntity extends ConstructionChildEntity {
   healthPercentage: number = 100;
-  permissions: { [characterId: string]: ConstructionPermissions} = {};
+  permissions: { [characterId: string]: ConstructionPermissions } = {};
   ownerCharacterId: string;
   perimeters: { [slot: string]: Float32Array };
   itemDefinitionId: number;
@@ -615,9 +615,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       242,
       destructTime
     );
-    const foundation = server._constructionFoundations[
-      this.parentObjectCharacterId
-    ];
+    const foundation =
+      server._constructionFoundations[this.parentObjectCharacterId];
     if (!foundation) return;
     if (this.itemDefinitionId == Items.METAL_WALL) {
       foundation.changePerimeters(
@@ -639,7 +638,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   isSlotsEmpty() {
-    return this.occupiedSlots.length == 0
+    return this.occupiedSlots.length == 0;
   }
 
   isExpansionSlotsEmpty() {
@@ -653,7 +652,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
     return (
-      this.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.BUILD) &&
+      this.getHasPermission(
+        server,
+        client.character.characterId,
+        ConstructionPermissionIds.BUILD
+      ) &&
       Date.now() < this.placementTime + 120000 &&
       client.character.getEquippedWeapon().itemDefinitionId ==
         Items.WEAPON_HAMMER_DEMOLITION &&
@@ -662,7 +665,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     );
   }
 
-  getHasPermission(server: ZoneServer2016, characterId: string, permission: ConstructionPermissionIds) {
+  getHasPermission(
+    server: ZoneServer2016,
+    characterId: string,
+    permission: ConstructionPermissionIds
+  ) {
     switch (permission) {
       case ConstructionPermissionIds.BUILD:
         return this.permissions[characterId]?.build;

@@ -11,7 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ConstructionPermissionIds, Items, ResourceIds, StringIds } from "../models/enums";
+import {
+  ConstructionPermissionIds,
+  Items,
+  ResourceIds,
+  StringIds,
+} from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
 import { ConstructionChildEntity } from "./constructionchildentity";
@@ -46,21 +51,33 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   getParent(
     server: ZoneServer2016
   ): ConstructionParentEntity | ConstructionChildEntity | undefined {
-    return server._constructionFoundations[this.parentObjectCharacterId] || server._constructionSimple[this.parentObjectCharacterId] || undefined;
+    return (
+      server._constructionFoundations[this.parentObjectCharacterId] ||
+      server._constructionSimple[this.parentObjectCharacterId] ||
+      undefined
+    );
   }
 
-  getParentFoundation(server: ZoneServer2016): ConstructionParentEntity | undefined{
+  getParentFoundation(
+    server: ZoneServer2016
+  ): ConstructionParentEntity | undefined {
     const parent = this.getParent(server);
-    if(!parent) return;
-    if(server._constructionSimple[parent.characterId]) {
-      return server._constructionSimple[parent.characterId].getParentFoundation(server);
+    if (!parent) return;
+    if (server._constructionSimple[parent.characterId]) {
+      return server._constructionSimple[parent.characterId].getParentFoundation(
+        server
+      );
     }
     return server._constructionFoundations[parent.characterId];
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
     return (
-      this.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.BUILD) &&
+      this.getHasPermission(
+        server,
+        client.character.characterId,
+        ConstructionPermissionIds.BUILD
+      ) &&
       Date.now() < this.placementTime + 120000 &&
       client.character.getEquippedWeapon().itemDefinitionId ==
         Items.WEAPON_HAMMER_DEMOLITION
@@ -77,8 +94,18 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     // TODO: drop any items into a lootbag, need to take destructTime into account
   }
 
-  getHasPermission(server: ZoneServer2016, characterId: string, permission: ConstructionPermissionIds) {
-    return this.getParentFoundation(server)?.getHasPermission(server, characterId, permission) || false;
+  getHasPermission(
+    server: ZoneServer2016,
+    characterId: string,
+    permission: ConstructionPermissionIds
+  ) {
+    return (
+      this.getParentFoundation(server)?.getHasPermission(
+        server,
+        characterId,
+        permission
+      ) || false
+    );
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {

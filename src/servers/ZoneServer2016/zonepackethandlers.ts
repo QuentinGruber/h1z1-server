@@ -29,7 +29,12 @@ import {
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
-import { ConstructionPermissionIds, ContainerErrors, EntityTypes, Items } from "./models/enums";
+import {
+  ConstructionPermissionIds,
+  ContainerErrors,
+  EntityTypes,
+  Items,
+} from "./models/enums";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ConstructionParentEntity } from "./classes/constructionparententity";
 import { ConstructionDoor } from "./classes/constructiondoor";
@@ -698,7 +703,10 @@ export class zonePacketHandlers {
         }
       }
 
-      if(client.character.currentInteractionGuid && client.character.lastInteractionTime + 1100 > Date.now()) {
+      if (
+        client.character.currentInteractionGuid &&
+        client.character.lastInteractionTime + 1100 > Date.now()
+      ) {
         client.character.currentInteractionGuid = "";
         client.character.lastInteractionTime = 0;
       }
@@ -816,7 +824,7 @@ export class zonePacketHandlers {
       )
     )
       return;
-    
+
     client.character.currentInteractionGuid = packet.data.guid;
     client.character.lastInteractionTime = Date.now();
     entity.OnInteractionString(server, client);
@@ -1214,7 +1222,9 @@ export class zonePacketHandlers {
     if (!characterId) {
       return;
     }
-    let obj: ConstructionPermissions = foundation.permissions[characterId] || {
+    const obj: ConstructionPermissions = foundation.permissions[
+      characterId
+    ] || {
       characterId: characterId,
       characterName: packet.data.characterName,
       useContainers: false,
@@ -1275,9 +1285,11 @@ export class zonePacketHandlers {
       }
     }
 
-    if(!characterId) return;
+    if (!characterId) return;
 
-    let obj: ConstructionPermissions = foundation.permissions[characterId] || {
+    const obj: ConstructionPermissions = foundation.permissions[
+      characterId
+    ] || {
       characterId: characterId,
       characterName: packet.data.characterName,
       useContainers: false,
@@ -1342,11 +1354,27 @@ export class zonePacketHandlers {
           debug("Weapon.FireStateUpdate");
 
           // demolition hammer workaround
-          if(weaponItem.itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION && client.character.currentInteractionGuid) {
-            const entity = server.getConstructionEntity(client.character.currentInteractionGuid);
-            if(entity && !(entity instanceof ConstructionParentEntity) && entity.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.DEMOLISH)) {
+          if (
+            weaponItem.itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION &&
+            client.character.currentInteractionGuid
+          ) {
+            const entity = server.getConstructionEntity(
+              client.character.currentInteractionGuid
+            );
+            if (
+              entity &&
+              !(entity instanceof ConstructionParentEntity) &&
+              entity.getHasPermission(
+                server,
+                client.character.characterId,
+                ConstructionPermissionIds.DEMOLISH
+              )
+            ) {
               entity.destroy(server);
-              client.character.lootItem(server, server.generateItem(entity.itemDefinitionId));
+              client.character.lootItem(
+                server,
+                server.generateItem(entity.itemDefinitionId)
+              );
             }
           }
 

@@ -2221,7 +2221,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!foundation.isSecured) return;
     let allowed = false;
     const permissions = foundation.permissions[client.character.characterId];
-    if(permissions && permissions.visit) allowed = true;
+    if (permissions && permissions.visit) allowed = true;
     if (
       foundation.itemDefinitionId == Items.SHACK ||
       foundation.itemDefinitionId == Items.SHACK_SMALL ||
@@ -2292,7 +2292,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (!foundation) return;
     const permissions = foundation.permissions[client.character.characterId];
-    if(permissions && permissions.visit) allowed = true;
+    if (permissions && permissions.visit) allowed = true;
     if (
       isInsideWithY(
         [
@@ -3417,13 +3417,13 @@ export class ZoneServer2016 extends EventEmitter {
     ];
 
     // for construction entities that don't have a parentObjectCharacterId from the client
-    let freeplaceParentCharacterId = "";
+    const freeplaceParentCharacterId = "";
 
     for (const a in this._constructionFoundations) {
       const foundation = this._constructionFoundations[a];
       let allowBuild = false;
       const permissions = foundation.permissions[client.character.characterId];
-      if(permissions && permissions.build) allowBuild = true;
+      if (permissions && permissions.build) allowBuild = true;
       if (
         isPosInRadius(
           foundation.actorModelId === 9180 ? 5 : 30,
@@ -3451,7 +3451,7 @@ export class ZoneServer2016 extends EventEmitter {
         freeplaceParentCharacterId = foundation.characterId;
       }
       */
-     /* 
+      /* 
       TODO - Create method to get foundation / shack bounds without them being secured
        then check if storage container is inside
       */
@@ -3775,7 +3775,12 @@ export class ZoneServer2016 extends EventEmitter {
     BuildingSlot?: string,
     eulerAngle?: number
   ) {
-    if(BuildingSlot && this._constructionFoundations[parentObjectCharacterId]?.expansions[BuildingSlot]) {
+    if (
+      BuildingSlot &&
+      this._constructionFoundations[parentObjectCharacterId]?.expansions[
+        BuildingSlot
+      ]
+    ) {
       client.character.lootItem(this, this.generateItem(itemDefinitionId));
       this.sendChatText(client, "PlacementError: Expansion Overlap");
       return;

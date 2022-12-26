@@ -71,7 +71,7 @@ export const characterBuildKitLoadout = [
   { item: Items.METAL_GATE, count: 25 },
   { item: Items.METAL_WALL, count: 10 },
   { item: Items.METAL_WALL_UPPER, count: 10 },
-]
+];
 
 export const vehicleDefaultLoadouts = {
   offroader: [
