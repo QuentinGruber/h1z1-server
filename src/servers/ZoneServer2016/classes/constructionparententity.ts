@@ -497,11 +497,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         break;
       case Items.FOUNDATION_EXPANSION:
         Object.values(this.perimeters).forEach((value: Float32Array) => {
-          if (
-            !value.reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            )
-          ) {
+          if (!isArraySumZero(value)) {
             result = false;
           }
         });
@@ -621,9 +617,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     );
     const foundation = server._constructionFoundations[
       this.parentObjectCharacterId
-    ]
-      ? server._constructionFoundations[this.parentObjectCharacterId]
-      : server._constructionSimple[this.parentObjectCharacterId];
+    ];
     if (!foundation) return;
     if (this.itemDefinitionId == Items.METAL_WALL) {
       foundation.changePerimeters(
@@ -632,11 +626,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         new Float32Array([0, 0, 0, 0])
       );
     }
-    if (!this.slot || !this.parentObjectCharacterId) return;
-    const index = foundation.occupiedSlots.indexOf(this.slot);
-    foundation.occupiedSlots.splice(index, 1);
+    if (!this.buildingSlot || !this.parentObjectCharacterId) return;
+    delete foundation.expansions[this.buildingSlot];
   }
 
+  // may no longer be needed
   isPerimeterEmpty() {
     for (const perimeter of Object.values(this.perimeters)) {
       if (!isArraySumZero(perimeter)) return false;
@@ -648,14 +642,23 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     return this.occupiedSlots.length == 0
   }
 
+  isExpansionSlotsEmpty() {
+    return (
+      !this.expansions["01"] &&
+      !this.expansions["02"] &&
+      !this.expansions["03"] &&
+      !this.expansions["04"]
+    );
+  }
+
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
     return (
       this.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.BUILD) &&
       Date.now() < this.placementTime + 120000 &&
       client.character.getEquippedWeapon().itemDefinitionId ==
         Items.WEAPON_HAMMER_DEMOLITION &&
-      //this.isPerimeterEmpty() &&
-      this.isSlotsEmpty()
+      this.isSlotsEmpty() &&
+      this.isExpansionSlotsEmpty()
     );
   }
 
