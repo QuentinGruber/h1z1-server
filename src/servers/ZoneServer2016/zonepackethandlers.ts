@@ -1346,6 +1346,7 @@ export class zonePacketHandlers {
             const entity = server.getConstructionEntity(client.character.currentInteractionGuid);
             if(entity && !(entity instanceof ConstructionParentEntity) && entity.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.DEMOLISH)) {
               entity.destroy(server);
+              client.character.lootItem(server, server.generateItem(entity.itemDefinitionId));
             }
           }
 

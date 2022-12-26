@@ -644,16 +644,19 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     return true;
   }
 
+  isSlotsEmpty() {
+    return this.occupiedSlots.length == 0
+  }
+
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
     return (
       this.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.BUILD) &&
       Date.now() < this.placementTime + 120000 &&
       client.character.getEquippedWeapon().itemDefinitionId ==
         Items.WEAPON_HAMMER_DEMOLITION &&
-      this.isPerimeterEmpty() &&
-      false
-    ); // temp
-    // TODO - CHECK IF ALL SLOTS ARE EMPTY
+      //this.isPerimeterEmpty() &&
+      this.isSlotsEmpty()
+    );
   }
 
   getHasPermission(server: ZoneServer2016, characterId: string, permission: ConstructionPermissionIds) {

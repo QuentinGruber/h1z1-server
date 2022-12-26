@@ -137,7 +137,7 @@ export class ConstructionDoor extends DoorEntity {
   getParent(
     server: ZoneServer2016
   ): ConstructionChildEntity | undefined {
-    return server._constructionSimple[this.parentObjectCharacterId];
+    return server._constructionSimple[this.parentObjectCharacterId] || server._constructionFoundations[this.parentObjectCharacterId];
   }
 
   getParentFoundation(server: ZoneServer2016): ConstructionParentEntity | undefined{
