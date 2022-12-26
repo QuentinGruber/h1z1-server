@@ -3517,6 +3517,7 @@ export class ZoneServer2016 extends EventEmitter {
         return;
       }
     }
+    // should check if item placed correctly first before removing item (ex. foundation expansion)
     this.removeInventoryItem(client, item);
     this.sendData(client, "Construction.PlacementFinalizeResponse", {
       status: 1,
@@ -3774,6 +3775,12 @@ export class ZoneServer2016 extends EventEmitter {
     BuildingSlot?: string,
     eulerAngle?: number
   ) {
+    if(BuildingSlot && this._constructionFoundations[parentObjectCharacterId]?.expansions[BuildingSlot]) {
+      client.character.lootItem(this, this.generateItem(itemDefinitionId));
+      this.sendChatText(client, "PlacementError: Expansion Overlap");
+      return;
+    }
+
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       npc = new ConstructionParentEntity(
