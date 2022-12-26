@@ -103,6 +103,7 @@ export class Character2016 extends BaseFullCharacter {
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
   currentInteractionGuid?: string;
+  lastInteractionTime = 0;
   mountedContainer?: BaseLootableEntity;
   defaultLoadout = characterDefaultLoadout;
   constructor(characterId: string, transientId: number) {

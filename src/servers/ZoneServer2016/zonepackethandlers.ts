@@ -29,13 +29,14 @@ import {
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
-import { ContainerErrors, EntityTypes, Items } from "./models/enums";
+import { ConstructionPermissionIds, ContainerErrors, EntityTypes, Items } from "./models/enums";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ConstructionParentEntity } from "./classes/constructionparententity";
 import { ConstructionDoor } from "./classes/constructiondoor";
 import { AVG_PING_SECS } from "../../utils/constants";
 import { CommandHandler } from "./commands/commandhandler";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
+import { ConstructionPermissions } from "types/zoneserver";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -696,6 +697,11 @@ export class zonePacketHandlers {
           client.character.dismountContainer(server);
         }
       }
+
+      if(client.character.currentInteractionGuid && client.character.lastInteractionTime + 1100 > Date.now()) {
+        client.character.currentInteractionGuid = "";
+        client.character.lastInteractionTime = 0;
+      }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
       server._vehicles[client.vehicle.mountedVehicle].state.position =
         new Float32Array([
@@ -743,7 +749,6 @@ export class zonePacketHandlers {
   }
   CommandPlayerSelect(server: ZoneServer2016, client: Client, packet: any) {
     const entity = server.getEntity(packet.data.guid);
-    client.character.currentInteractionGuid = packet.data.guid;
 
     if (
       !entity ||
@@ -811,7 +816,9 @@ export class zonePacketHandlers {
       )
     )
       return;
-
+    
+    client.character.currentInteractionGuid = packet.data.guid;
+    client.character.lastInteractionTime = Date.now();
     entity.OnInteractionString(server, client);
   }
   MountSeatChangeRequest(server: ZoneServer2016, client: Client, packet: any) {
@@ -1197,14 +1204,17 @@ export class zonePacketHandlers {
       packet.data.objectCharacterId
     ] as ConstructionParentEntity;
     if (foundation.ownerCharacterId != client.character.characterId) return;
-    let characterId: number | string = 0;
+    let characterId = "";
     for (const a in server._characters) {
       const character = server._characters[a];
       if (character.name === packet.data.characterName) {
         characterId = character.characterId;
       }
     }
-    let obj = {
+    if (!characterId) {
+      return;
+    }
+    let obj: ConstructionPermissions = foundation.permissions[characterId] || {
       characterId: characterId,
       characterName: packet.data.characterName,
       useContainers: false,
@@ -1212,14 +1222,6 @@ export class zonePacketHandlers {
       demolish: false,
       visit: false,
     };
-    if (!characterId) {
-      return;
-    }
-    foundation.permissions.forEach((entry: any) => {
-      if (entry.characterId === characterId) {
-        obj = entry;
-      }
-    });
     switch (packet.data.permissionSlot) {
       case 1:
         obj.build = !obj.build;
@@ -1234,20 +1236,10 @@ export class zonePacketHandlers {
         obj.visit = !obj.visit;
         break;
     }
-    let push = true;
-    for (let x = 0; x < foundation.permissions.length; x++) {
-      if (
-        foundation.permissions[x].characterName === packet.data.characterName
-      ) {
-        foundation.permissions[x] = obj;
-        push = false;
-      }
-    }
-    if (push) {
-      foundation.permissions.push(obj);
-    }
-    server._constructionFoundations[packet.data.objectCharacterId].permissions =
-      foundation.permissions;
+    // update permissions
+    foundation.permissions[characterId] == obj;
+
+    // update child expansion permissions
     Object.values(
       server._constructionFoundations[packet.data.objectCharacterId].expansions
     ).forEach((objectCharacterId: string) => {
@@ -1255,13 +1247,14 @@ export class zonePacketHandlers {
       child.permissions = foundation.permissions;
     });
 
+    // update permissions list
     server.sendData(
       client,
       "NpcFoundationPermissionsManagerBase.showPermissions",
       {
         characterId: foundation.characterId,
         characterId2: foundation.characterId,
-        permissions: foundation.permissions,
+        permissions: Object.values(foundation.permissions),
       }
     );
   }
@@ -1274,14 +1267,17 @@ export class zonePacketHandlers {
       packet.data.objectCharacterId
     ] as ConstructionParentEntity;
     if (foundation.ownerCharacterId != client.character.characterId) return;
-    let characterId: number | string = 0;
+    let characterId = "";
     for (const a in server._characters) {
       const character = server._characters[a];
       if (character.name === packet.data.characterName) {
         characterId = character.characterId;
       }
     }
-    let obj = {
+
+    if(!characterId) return;
+
+    let obj: ConstructionPermissions = foundation.permissions[characterId] || {
       characterId: characterId,
       characterName: packet.data.characterName,
       useContainers: false,
@@ -1289,42 +1285,22 @@ export class zonePacketHandlers {
       demolish: false,
       visit: false,
     };
-    if (!characterId) {
-      return;
-    }
-    foundation.permissions.forEach((entry: any) => {
-      if (entry.characterId === characterId) {
-        obj = entry;
-      }
-    });
     switch (packet.data.permissionSlot) {
-      case 1:
+      case ConstructionPermissionIds.BUILD:
         obj.build = !obj.build;
         break;
-      case 2:
+      case ConstructionPermissionIds.DEMOLISH:
         obj.demolish = !obj.demolish;
         break;
-      case 3:
+      case ConstructionPermissionIds.CONTAINERS:
         obj.useContainers = !obj.useContainers;
         break;
-      case 4:
+      case ConstructionPermissionIds.VISIT:
         obj.visit = !obj.visit;
         break;
     }
-    let push = true;
-    for (let x = 0; x < foundation.permissions.length; x++) {
-      if (
-        foundation.permissions[x].characterName === packet.data.characterName
-      ) {
-        foundation.permissions[x] = obj;
-        push = false;
-      }
-    }
-    if (push) {
-      foundation.permissions.push(obj);
-    }
-    server._constructionFoundations[packet.data.objectCharacterId].permissions =
-      foundation.permissions;
+    // update permissions
+    foundation.permissions[characterId] == obj;
     Object.values(
       server._constructionFoundations[packet.data.objectCharacterId].expansions
     ).forEach((objectCharacterId: string) => {
@@ -1338,7 +1314,7 @@ export class zonePacketHandlers {
       {
         characterId: foundation.characterId,
         characterId2: foundation.characterId,
-        permissions: foundation.permissions,
+        permissions: Object.values(foundation.permissions),
       }
     );
   }
@@ -1364,6 +1340,15 @@ export class zonePacketHandlers {
       switch (p.packetName) {
         case "Weapon.FireStateUpdate":
           debug("Weapon.FireStateUpdate");
+
+          // demolition hammer workaround
+          if(weaponItem.itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION && client.character.currentInteractionGuid) {
+            const entity = server.getConstructionEntity(client.character.currentInteractionGuid);
+            if(entity && !(entity instanceof ConstructionParentEntity) && entity.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.DEMOLISH)) {
+              entity.destroy(server);
+            }
+          }
+
           if (p.packet.firestate == 64) {
             // empty firestate
             server.sendRemoteWeaponUpdateDataToAllOthers(

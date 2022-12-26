@@ -12,6 +12,13 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum ConstructionPermissionIds {
+  BUILD = 1,
+  DEMOLISH = 2,
+  CONTAINERS = 3,
+  VISIT = 4
+}
+
 export enum StringIds {
   TAKE_ITEM = 29,
   OPEN = 31,

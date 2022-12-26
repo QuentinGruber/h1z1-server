@@ -2220,14 +2220,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (!foundation.isSecured) return;
     let allowed = false;
-    foundation.permissions.forEach((element: any) => {
-      if (
-        element.characterId === client.character.characterId &&
-        element.visit
-      ) {
-        allowed = true;
-      }
-    });
+    const permissions = foundation.permissions[client.character.characterId];
+    if(permissions && permissions.visit) allowed = true;
     if (
       foundation.itemDefinitionId == Items.SHACK ||
       foundation.itemDefinitionId == Items.SHACK_SMALL ||
@@ -2297,14 +2291,8 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     if (!foundation) return;
-    foundation.permissions.forEach((element: any) => {
-      if (
-        element.characterId === client.character.characterId &&
-        element.visit
-      ) {
-        allowed = true;
-      }
-    });
+    const permissions = foundation.permissions[client.character.characterId];
+    if(permissions && permissions.visit) allowed = true;
     if (
       isInsideWithY(
         [
@@ -3428,19 +3416,14 @@ export class ZoneServer2016 extends EventEmitter {
       Items.SNARE,
     ];
 
+    // for construction entities that don't have a parentObjectCharacterId from the client
+    let freeplaceParentCharacterId = "";
+
     for (const a in this._constructionFoundations) {
       const foundation = this._constructionFoundations[a];
       let allowBuild = false;
-      this._constructionFoundations[a].permissions.forEach(
-        (permission: any) => {
-          if (
-            permission.characterId === client.character.characterId &&
-            permission.build === true
-          ) {
-            allowBuild = true;
-          }
-        }
-      );
+      const permissions = foundation.permissions[client.character.characterId];
+      if(permissions && permissions.build) allowBuild = true;
       if (
         isPosInRadius(
           foundation.actorModelId === 9180 ? 5 : 30,
@@ -3457,6 +3440,21 @@ export class ZoneServer2016 extends EventEmitter {
         });
         return;
       }
+
+      // for construction entities that don't have a parentObjectCharacterId from the client
+      // (containers)
+      /*
+      if(!Number(parentObjectCharacterId) && isInside(
+        [position[0], position[2]],
+        foundation.securedPolygons
+      )) {
+        freeplaceParentCharacterId = foundation.characterId;
+      }
+      */
+     /* 
+      TODO - Create method to get foundation / shack bounds without them being secured
+       then check if storage container is inside
+      */
     }
     if (
       this._constructionFoundations[parentObjectCharacterId] &&
@@ -3607,7 +3605,7 @@ export class ZoneServer2016 extends EventEmitter {
           modelId,
           position,
           eul2quat(rotation),
-          parentObjectCharacterId
+          freeplaceParentCharacterId
         );
         break;
       default:
@@ -3786,7 +3784,7 @@ export class ZoneServer2016 extends EventEmitter {
         rotation,
         itemDefinitionId,
         client.character.characterId,
-        client.character.name,
+        client.character.name || "",
         parentObjectCharacterId,
         BuildingSlot,
         eulerAngle
@@ -3884,7 +3882,7 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId);
-
+    console.log(parentObjectCharacterId);
     const obj = new LootableConstructionEntity(
       characterId,
       transientId,

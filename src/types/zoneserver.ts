@@ -247,3 +247,12 @@ export interface Recipe {
 export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
 
 export type ConstructionEntity = SlottedConstructionEntity | LootableConstructionEntity;
+
+export interface ConstructionPermissions {
+  characterId: string;
+  characterName: string;
+  useContainers: boolean;
+  build: boolean;
+  demolish: boolean;
+  visit: boolean;
+}

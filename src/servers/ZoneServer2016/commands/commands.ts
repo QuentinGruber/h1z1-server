@@ -25,7 +25,7 @@ import { ExplosiveEntity } from "../classes/explosiveentity";
 import { Npc } from "../classes/npc";
 import { Vehicle2016 as Vehicle } from "../classes/vehicle";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
-import { characterKitLoadout } from "../data/loadouts";
+import { characterBuildKitLoadout, characterKitLoadout } from "../data/loadouts";
 import { EquipSlots, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
@@ -1448,6 +1448,18 @@ export const commands: Array<Command> = [
       server.sendChatText(
         client,
         `Removed all constructions in range of ${Number(args[0])}`
+      );
+    },
+  },
+  {
+    name: "build",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (server: ZoneServer2016, client: Client, args: any[]) => {
+      client.character.equipItem(server, server.generateItem(Items.FANNY_PACK_DEV));
+      client.character.equipLoadout(server, characterBuildKitLoadout)
+      server.sendChatText(
+        client,
+        `Build kit given`
       );
     },
   },

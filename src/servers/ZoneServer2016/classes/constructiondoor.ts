@@ -12,11 +12,13 @@
 // ======================================================================
 
 import { DoorEntity } from "./doorentity";
-import { Items, StringIds } from "../models/enums";
+import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "./zoneclient";
 import { DamageInfo } from "types/zoneserver";
 import { movePoint } from "../../../utils/utils";
+import { ConstructionParentEntity } from "./constructionparententity";
+import { ConstructionChildEntity } from "./constructionchildentity";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_GATE:
@@ -82,9 +84,7 @@ export class ConstructionDoor extends DoorEntity {
         : 2.5
     );
   }
-  getPlacementOwner(): string {
-    return this.ownerCharacterId || "";
-  }
+
   pGetConstructionHealth() {
     return {
       characterId: this.characterId,
@@ -127,11 +127,30 @@ export class ConstructionDoor extends DoorEntity {
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
     return (
-      client.character.characterId == this.getPlacementOwner() &&
+      this.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.BUILD) &&
       Date.now() < this.placementTime + 120000 &&
       client.character.getEquippedWeapon().itemDefinitionId ==
         Items.WEAPON_HAMMER_DEMOLITION
     );
+  }
+
+  getParent(
+    server: ZoneServer2016
+  ): ConstructionChildEntity | undefined {
+    return server._constructionSimple[this.parentObjectCharacterId];
+  }
+
+  getParentFoundation(server: ZoneServer2016): ConstructionParentEntity | undefined{
+    const parent = this.getParent(server);
+    if(!parent) return;
+    if(server._constructionSimple[parent.characterId]) {
+      return server._constructionSimple[parent.characterId].getParentFoundation(server);
+    }
+    return server._constructionFoundations[parent.characterId];
+  }
+
+  getHasPermission(server: ZoneServer2016, characterId: string, permission: ConstructionPermissionIds) {
+    return this.getParentFoundation(server)?.getHasPermission(server, characterId, permission) || false;
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {

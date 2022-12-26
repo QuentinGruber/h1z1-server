@@ -8,7 +8,7 @@
 
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneServer2016 } from "../zoneserver";
-import { Items } from "../models/enums";
+import { ConstructionPermissionIds, Items } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
 import { isArraySumZero } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
@@ -67,14 +67,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.damageRange = getDamageRange(this.itemDefinitionId);
   }
 
-  getParent(server: ZoneServer2016): ConstructionParentEntity | undefined {
-    return server._constructionFoundations[this.parentObjectCharacterId];
-  }
-
-  getPlacementOwner(server: ZoneServer2016): string {
-    return this.getParent(server)?.ownerCharacterId || "";
-  }
-
   pGetConstructionHealth() {
     return {
       characterId: this.characterId,
@@ -122,13 +114,31 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     } else this.isSecured = false;
   }
 
+  getParent(server: ZoneServer2016): ConstructionParentEntity | undefined {
+    return server._constructionFoundations[this.parentObjectCharacterId] || server._constructionSimple[this.parentObjectCharacterId];
+  }
+
+
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
     return (
-      client.character.characterId == this.getPlacementOwner(server) &&
+      this.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.BUILD) &&
       Date.now() < this.placementTime + 120000 &&
       client.character.getEquippedWeapon().itemDefinitionId ==
         Items.WEAPON_HAMMER_DEMOLITION
     );
+  }
+
+  getHasPermission(server: ZoneServer2016, characterId: string, permission: ConstructionPermissionIds) {
+    return this.getParentFoundation(server)?.getHasPermission(server, characterId, permission) || false;
+  }
+
+  getParentFoundation(server: ZoneServer2016): ConstructionParentEntity | undefined{
+    const parent = this.getParent(server);
+    if(!parent) return;
+    if(server._constructionSimple[parent.characterId]) {
+      return server._constructionSimple[parent.characterId].getParentFoundation(server);
+    }
+    return server._constructionFoundations[parent.characterId];
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {

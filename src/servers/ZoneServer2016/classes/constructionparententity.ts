@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { ConstructionChildEntity } from "./constructionchildentity";
-import { Items, StringIds } from "../models/enums";
+import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
   getRectangleCorners,
@@ -23,6 +23,7 @@ import {
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
 import { BaseEntity } from "./baseentity";
+import { ConstructionPermissions } from "types/zoneserver";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
@@ -39,7 +40,7 @@ function getDamageRange(definitionId: number): number {
 
 export class ConstructionParentEntity extends ConstructionChildEntity {
   healthPercentage: number = 100;
-  permissions: any;
+  permissions: { [characterId: string]: ConstructionPermissions} = {};
   ownerCharacterId: string;
   perimeters: { [slot: string]: Float32Array };
   itemDefinitionId: number;
@@ -61,7 +62,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     rotation: Float32Array,
     itemDefinitionId: number,
     ownerCharacterId: string,
-    ownerName: string | undefined,
+    ownerName: string,
     parentObjectCharacterId: string,
     BuildingSlot?: string,
     eulerAngle?: number
@@ -77,7 +78,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     );
     this.health = 1000000;
     this.ownerCharacterId = ownerCharacterId;
-    const ownerPermission = {
+    const ownerPermission: ConstructionPermissions = {
       characterId: ownerCharacterId,
       characterName: ownerName,
       useContainers: true,
@@ -87,7 +88,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     };
     if (eulerAngle) this.eulerAngle = eulerAngle;
     this.itemDefinitionId = itemDefinitionId;
-    this.permissions = [ownerPermission];
+    this.permissions[ownerPermission.characterId] = ownerPermission;
     this.parentObjectCharacterId = parentObjectCharacterId;
     if (BuildingSlot) this.buildingSlot = BuildingSlot;
     this.securedPolygons = [];
@@ -147,10 +148,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         };
         break;
     }
-  }
-
-  getPlacementOwner(): string {
-    return this.ownerCharacterId;
   }
 
   checkPerimeters(server: ZoneServer2016) {
@@ -649,7 +646,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
     return (
-      client.character.characterId == this.getPlacementOwner() &&
+      this.getHasPermission(server, client.character.characterId, ConstructionPermissionIds.BUILD) &&
       Date.now() < this.placementTime + 120000 &&
       client.character.getEquippedWeapon().itemDefinitionId ==
         Items.WEAPON_HAMMER_DEMOLITION &&
@@ -657,6 +654,19 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       false
     ); // temp
     // TODO - CHECK IF ALL SLOTS ARE EMPTY
+  }
+
+  getHasPermission(server: ZoneServer2016, characterId: string, permission: ConstructionPermissionIds) {
+    switch (permission) {
+      case ConstructionPermissionIds.BUILD:
+        return this.permissions[characterId]?.build;
+      case ConstructionPermissionIds.DEMOLISH:
+        return this.permissions[characterId]?.demolish;
+      case ConstructionPermissionIds.CONTAINERS:
+        return this.permissions[characterId]?.useContainers;
+      case ConstructionPermissionIds.VISIT:
+        return this.permissions[characterId]?.visit;
+    }
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
@@ -676,7 +686,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       {
         characterId: this.characterId,
         characterId2: this.characterId,
-        permissions: this.permissions,
+        permissions: Object.values(this.permissions),
       }
     );
   }

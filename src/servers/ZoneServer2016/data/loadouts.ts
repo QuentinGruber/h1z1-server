@@ -50,6 +50,29 @@ export const characterKitLoadout = [
   { item: Items.CONVEYS_BLUE },
 ];
 
+export const characterBuildKitLoadout = [
+  { item: Items.FOUNDATION, count: 2 },
+  { item: Items.FOUNDATION_EXPANSION, count: 8 },
+  { item: Items.SHELTER, count: 10 },
+  { item: Items.SHELTER_LARGE, count: 10 },
+  { item: Items.SHELTER_UPPER, count: 10 },
+  { item: Items.SHELTER_UPPER_LARGE, count: 10 },
+  { item: Items.DOOR_METAL, count: 10 },
+  { item: Items.DOOR_WOOD, count: 10 },
+  { item: Items.DOOR_BASIC, count: 10 },
+  { item: Items.SHACK, count: 2 },
+  { item: Items.SHACK_SMALL, count: 2 },
+  { item: Items.STRUCTURE_STAIRS, count: 5 },
+  { item: Items.STRUCTURE_STAIRS_UPPER, count: 5 },
+  { item: Items.FOUNDATION_RAMP, count: 4 },
+  { item: Items.FURNACE, count: 10 },
+  { item: Items.STORAGE_BOX, count: 10 },
+  { item: Items.LOOKOUT_TOWER, count: 4 },
+  { item: Items.METAL_GATE, count: 25 },
+  { item: Items.METAL_WALL, count: 10 },
+  { item: Items.METAL_WALL_UPPER, count: 10 },
+]
+
 export const vehicleDefaultLoadouts = {
   offroader: [
     { item: Items.CONTAINER_VEHICLE_OFFROADER },
