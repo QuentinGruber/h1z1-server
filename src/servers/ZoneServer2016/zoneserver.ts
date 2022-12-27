@@ -83,7 +83,7 @@ import {
   getRectangleCorners,
 } from "../../utils/utils";
 
-import { Db } from "mongodb";
+import { Db, Timestamp } from "mongodb";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ItemObject } from "./classes/itemobject";
 import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
@@ -3720,9 +3720,21 @@ export class ZoneServer2016 extends EventEmitter {
     parentObjectCharacterId: string,
     BuildingSlot: string
   ) {
+    const parentFoundation = this._constructionFoundations[parentObjectCharacterId],
+    parentShelter = this._constructionSimple[parentObjectCharacterId];
+    if(!Number(parentObjectCharacterId) || !(!!parentFoundation || !!parentShelter)) {
+      this.placementError(client, PlacementErrors.UNKNOWN_PARENT)
+      return false;
+    }
+
+    if(parentFoundation && !parentFoundation.isWallSlotValid(Number(BuildingSlot))) {
+      this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
+      return false;
+    }
+
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
-      npc = new ConstructionDoor(
+      door = new ConstructionDoor(
         characterId,
         transientId,
         modelId,
@@ -3734,25 +3746,21 @@ export class ZoneServer2016 extends EventEmitter {
         parentObjectCharacterId,
         BuildingSlot
       );
-    if (Number(parentObjectCharacterId)) {
-      switch (this.getEntityType(parentObjectCharacterId)) {
-        case EntityTypes.CONSTRUCTION_FOUNDATION:
-          const foundation =
-            this._constructionFoundations[parentObjectCharacterId];
-          foundation.changePerimeters(
-            this,
-            npc.buildingSlot,
-            npc.state.position
-          );
-          break;
-        case EntityTypes.CONSTRUCTION_SIMPLE:
-          const construction =
-            this._constructionSimple[parentObjectCharacterId];
-          construction.changePerimeters(this, BuildingSlot, npc.state.position);
-          break;
-      }
+    
+    if(parentFoundation) {
+      parentFoundation.setWallSlot(this, Number(BuildingSlot), door);
+      parentFoundation.changePerimeters(
+        this,
+        door.buildingSlot,
+        door.state.position
+      );
     }
-    if (BuildingSlot != "" && parentObjectCharacterId) {
+    if(parentShelter) {
+      //parentShelter.setDoorSlot(this, door);
+      parentShelter.changePerimeters(this, BuildingSlot, door.state.position);
+    }
+
+    if (BuildingSlot) {
       if (this._constructionFoundations[parentObjectCharacterId]) {
         this._constructionFoundations[
           parentObjectCharacterId
@@ -3763,7 +3771,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }
     }
-    this._constructionDoors[characterId] = npc;
+    this._constructionDoors[characterId] = door;
   }
 
   placeConstructionFoundation(
@@ -5419,6 +5427,12 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case PlacementErrors.PERMISSION:
         errorMsg = "No build permission";
+        break;
+      case PlacementErrors.UNKNOWN_PARENT:
+        errorMsg = "Unknown parent";
+        break;
+      case PlacementErrors.UNKNOWN_SLOT:
+        errorMsg = "Unknown slot";
         break;
     }
     this.sendAlert(client, `Placement Error: ${errorMsg}`);

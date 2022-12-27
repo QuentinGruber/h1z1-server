@@ -667,9 +667,22 @@ export function isArraySumZero(array: Float32Array) {
   );
 }
 
-export function getOffsetPosition(x: number, y: number, offset: number, rotation: number) {
-  const angle = rotation * (Math.PI / 180);  // convert rotation to radians
-  const dx = offset * Math.cos(angle);  // calculate x offset
-  const dy = offset * Math.sin(angle);  // calculate y offset
-  return [x + dx, y + dy];  // return corner position
+export function getPointOn2DObject(position: Float32Array, rotation: Float32Array, offset: number, angle: number) {
+  // Convert angle to radians
+  const radians = angle * (Math.PI / 180);
+
+  // Calculate x and y offsets using trigonometry
+  const dx = offset * Math.cos(radians);
+  const dy = offset * Math.sin(radians);
+
+  // Rotate offsets by object rotation
+  const rotationRadians = rotation[1] * (Math.PI / 180);
+  const rx = (dx * Math.cos(rotationRadians)) - (dy * Math.sin(rotationRadians));
+  const ry = (dx * Math.sin(rotationRadians)) + (dy * Math.cos(rotationRadians));
+
+  // Return new point
+  return {
+    x: position[0] + rx,
+    y: position[2] + ry
+  };
 }

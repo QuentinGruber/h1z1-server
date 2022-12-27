@@ -24,6 +24,7 @@ import {
 import { ZoneClient2016 } from "./zoneclient";
 import { BaseEntity } from "./baseentity";
 import { ConstructionPermissions } from "types/zoneserver";
+import { ConstructionDoor } from "./constructiondoor";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
@@ -39,7 +40,6 @@ function getDamageRange(definitionId: number): number {
 }
 
 export class ConstructionParentEntity extends ConstructionChildEntity {
-  healthPercentage: number = 100;
   permissions: { [characterId: string]: ConstructionPermissions } = {};
   ownerCharacterId: string;
   perimeters: { [slot: string]: Float32Array };
@@ -51,9 +51,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   occupiedSlots: string[] = [];
   buildingSlot?: string;
   securedPolygons: any[];
-  eulerAngle?: number;
-  damageRange: number;
-  fixedPosition?: Float32Array;
+  readonly wallSlots: number;
+  occupiedWallSlots: { [slot: string]: ConstructionChildEntity | ConstructionDoor } = {};
   constructor(
     characterId: string,
     transientId: number,
@@ -114,6 +113,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           "15": new Float32Array([0, 0, 0, 0]),
           "16": new Float32Array([0, 0, 0, 0]),
         };
+        this.wallSlots = 16;
         break;
       case Items.FOUNDATION:
         this.perimeters = {
@@ -130,13 +130,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           "11": new Float32Array([0, 0, 0, 0]),
           "12": new Float32Array([0, 0, 0, 0]),
         };
-        break;
-      case Items.SHACK_SMALL:
-      case Items.SHACK_BASIC:
-      case Items.SHACK:
-        this.perimeters = {
-          "01": new Float32Array([0, 0, 0, 0]),
-        };
+        this.wallSlots = 12;
         break;
       case Items.FOUNDATION_EXPANSION:
         this.perimeters = {
@@ -146,6 +140,16 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           "04": new Float32Array([0, 0, 0, 0]),
           "05": new Float32Array([0, 0, 0, 0]),
         };
+        this.wallSlots = 5;
+        break;
+      case Items.SHACK_SMALL:
+      case Items.SHACK_BASIC:
+      case Items.SHACK:
+      default:
+        this.perimeters = {
+          "01": new Float32Array([0, 0, 0, 0]),
+        };
+        this.wallSlots = 0;
         break;
     }
     Object.seal(this.perimeters);
@@ -155,8 +159,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
    * Returns an array containing the parent foundation walls that a given expansion depends on to be secured.
    * @param expansion The expansion to check.
   */
-  getExpansionDependentWalls(expansion: "01" | "02" | "03" | "04") {
-    switch(expansion) {
+  getDependentWalls(): Array<string> {
+    switch(this.buildingSlot) {
       case "01":
         return ["04", "05", "06"];
       case "02":
@@ -166,29 +170,56 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case "04":
         return ["07", "08", "09"];
     }
+    return [];
   }
 
-  isSecure() {
-    // temp logic until major refactor
-    for(const perimeter of Object.values(this.perimeters)){
-      if(isArraySumZero(perimeter)) return false;
-    };
+  updateSecuredState(server: ZoneServer2016) {
     /*
-    switch(this.itemDefinitionId) {
-      case Items.GROUND_TAMPER:
-        break;
-      case Items.FOUNDATION:
-        for(const perimeter of Object.values(this.perimeters)){
-          if(isArraySumZero(perimeter)) return false;
-        };
-        return true;
-      case Items.FOUNDATION_EXPANSION:
-        break;
-      default:
-        // shacks
-        break;
-    }
+      TODO: If a deck is open on one side but has an expansion
+      with completed walls, that should probably count as both
+      the deck and expansion being secure 
+      (same for any other expansions)
     */
+
+
+
+    const wallSlots = Object.values(this.occupiedWallSlots);
+    // check if all wall slots are occupied
+    if(wallSlots.length != this.wallSlots) {
+      this.isSecured = false;
+      return;
+    }
+    // check if any walls are gates / if they're open
+    for(const wall of wallSlots) {
+      if(wall instanceof ConstructionDoor && wall.isOpen) {
+        this.isSecured = false;
+        return;
+      }
+    }
+    
+    // if this is an expansion, check dependent parent foundation walls
+    const parent = server._constructionFoundations[this.parentObjectCharacterId]
+    if(parent) {
+      for(const slot of Object.values(this.getDependentWalls())) {
+        const wall = this.occupiedWallSlots[Number(slot)];
+        if(!wall || (wall instanceof ConstructionDoor && wall.isOpen)) {
+          this.isSecured = false;
+          return;
+        }
+      }
+    }
+    this.isSecured = true;
+  }
+
+  isWallSlotValid(slot: number) {
+    return !(slot > this.wallSlots || 0 >= slot);
+  }
+
+  setWallSlot(server: ZoneServer2016, slot: number, wall: ConstructionChildEntity | ConstructionDoor): boolean {
+    if(!this.isWallSlotValid(slot)) return false;
+    this.occupiedWallSlots[slot] = wall;
+    this.updateSecuredState(server);
+    return true;
   }
 
   checkPerimeters(server: ZoneServer2016) {
@@ -552,9 +583,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.GROUND_TAMPER:
         Object.values(this.perimeters).forEach((value: Float32Array) => {
           if (
-            !value.reduce(
-              (accumulator, currentValue) => accumulator + currentValue
-            )
+            !isArraySumZero(value)
           ) {
             result = false;
           }
