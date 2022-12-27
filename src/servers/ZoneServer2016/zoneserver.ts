@@ -37,6 +37,7 @@ import {
   LoadoutIds,
   LoadoutSlots,
   MovementModifiers,
+  PlacementErrors,
   ResourceIds,
   ResourceTypes,
   StringIds,
@@ -3433,7 +3434,7 @@ export class ZoneServer2016 extends EventEmitter {
         allowBuild === false &&
         !allowedItems.includes(itemDefinitionId)
       ) {
-        this.sendChatText(client, "Placement blocked: No build permission");
+        this.placementError(client, PlacementErrors.PERMISSION);
         this.sendData(client, "Construction.PlacementFinalizeResponse", {
           status: 0,
           unknownString1: "",
@@ -3462,7 +3463,7 @@ export class ZoneServer2016 extends EventEmitter {
         parentObjectCharacterId
       ].occupiedSlots.includes(BuildingSlot)
     ) {
-      this.sendChatText(client, "Placement error: construction overlap");
+      this.placementError(client, PlacementErrors.OVERLAP);
       this.sendData(client, "Construction.PlacementFinalizeResponse", {
         status: 0,
         unknownString1: "",
@@ -3475,7 +3476,7 @@ export class ZoneServer2016 extends EventEmitter {
         BuildingSlot
       )
     ) {
-      this.sendChatText(client, "Placement error: construction overlap");
+      this.placementError(client, PlacementErrors.OVERLAP);
       this.sendData(client, "Construction.PlacementFinalizeResponse", {
         status: 0,
         unknownString1: "",
@@ -3494,7 +3495,7 @@ export class ZoneServer2016 extends EventEmitter {
           10
         )
       ) {
-        this.sendChatText(client, "Placement blocked: placement error");
+        this.placementError(client, PlacementErrors.UNKNOWN);
         this.sendData(client, "Construction.PlacementFinalizeResponse", {
           status: 0,
           unknownString1: "",
@@ -3509,7 +3510,7 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        this.sendChatText(client, "Placement blocked: placement error");
+        this.placementError(client, PlacementErrors.UNKNOWN);
         this.sendData(client, "Construction.PlacementFinalizeResponse", {
           status: 0,
           unknownString1: "",
@@ -3782,7 +3783,7 @@ export class ZoneServer2016 extends EventEmitter {
       ]
     ) {
       client.character.lootItem(this, this.generateItem(itemDefinitionId));
-      this.sendChatText(client, "PlacementError: Expansion Overlap");
+      this.placementError(client, PlacementErrors.OVERLAP);
       return;
     }
 
@@ -5385,7 +5386,7 @@ export class ZoneServer2016 extends EventEmitter {
     }, timeout);
   }
 
-  containerError(client: Client, error: number) {
+  containerError(client: Client, error: ContainerErrors) {
     switch (error) {
       case ContainerErrors.DOES_NOT_ACCEPT_ITEMS:
         this.sendChatText(
@@ -5408,6 +5409,20 @@ export class ZoneServer2016 extends EventEmitter {
         });
         break;
     }
+  }
+
+  placementError(client: Client, error: PlacementErrors) {
+    let errorMsg = "Unknown";
+    switch (error) {
+      case PlacementErrors.OVERLAP:
+        errorMsg = "Construction overlap";
+        break;
+      case PlacementErrors.PERMISSION:
+        errorMsg = "No build permission";
+        break;
+    }
+    this.sendAlert(client, `Placement Error: ${errorMsg}`);
+    this.sendChatText(client, `Placement Error: ${errorMsg}`);
   }
 
   clearMovementModifiers(client: Client) {

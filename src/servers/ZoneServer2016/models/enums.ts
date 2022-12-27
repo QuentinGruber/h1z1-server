@@ -12,6 +12,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum PlacementErrors {
+  UNKNOWN,
+  OVERLAP,
+  PERMISSION
+}
+
 export enum ConstructionPermissionIds {
   BUILD = 1,
   DEMOLISH = 2,

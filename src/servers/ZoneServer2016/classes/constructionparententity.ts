@@ -148,6 +148,47 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         };
         break;
     }
+    Object.seal(this.perimeters);
+  }
+
+  /**
+   * Returns an array containing the parent foundation walls that a given expansion depends on to be secured.
+   * @param expansion The expansion to check.
+  */
+  getExpansionDependentWalls(expansion: "01" | "02" | "03" | "04") {
+    switch(expansion) {
+      case "01":
+        return ["04", "05", "06"];
+      case "02":
+        return ["01", "02", "03"];
+      case "03":
+        return ["10", "11", "12"];
+      case "04":
+        return ["07", "08", "09"];
+    }
+  }
+
+  isSecure() {
+    // temp logic until major refactor
+    for(const perimeter of Object.values(this.perimeters)){
+      if(isArraySumZero(perimeter)) return false;
+    };
+    /*
+    switch(this.itemDefinitionId) {
+      case Items.GROUND_TAMPER:
+        break;
+      case Items.FOUNDATION:
+        for(const perimeter of Object.values(this.perimeters)){
+          if(isArraySumZero(perimeter)) return false;
+        };
+        return true;
+      case Items.FOUNDATION_EXPANSION:
+        break;
+      default:
+        // shacks
+        break;
+    }
+    */
   }
 
   checkPerimeters(server: ZoneServer2016) {

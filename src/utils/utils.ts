@@ -666,3 +666,10 @@ export function isArraySumZero(array: Float32Array) {
     array.reduce((accumulator, currentValue) => accumulator + currentValue) == 0
   );
 }
+
+export function getOffsetPosition(x: number, y: number, offset: number, rotation: number) {
+  const angle = rotation * (Math.PI / 180);  // convert rotation to radians
+  const dx = offset * Math.cos(angle);  // calculate x offset
+  const dy = offset * Math.sin(angle);  // calculate y offset
+  return [x + dx, y + dy];  // return corner position
+}
