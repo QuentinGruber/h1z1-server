@@ -36,7 +36,7 @@ export class SOEServer extends EventEmitter {
   _waitQueueTimeMs: number = 50;
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean = false;
-  private _maxMultiBufferSize: number;
+  private readonly _maxMultiBufferSize: number;
   private _soeClientRoutineLoopMethod!: (
     arg0: () => void,
     arg1: number

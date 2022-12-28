@@ -68,10 +68,10 @@ export class LoginServer extends EventEmitter {
   _crcSeed: number;
   _crcLength: crc_length_options;
   _udpLength: number;
-  private _cryptoKey: Uint8Array;
-  private _mongoAddress: string;
-  private _soloMode: boolean;
-  private _appDataFolder: string;
+  private readonly _cryptoKey: Uint8Array;
+  private readonly _mongoAddress: string;
+  private readonly _soloMode: boolean;
+  private readonly _appDataFolder: string;
   private _httpServer!: Worker;
   _enableHttpServer: boolean;
   _httpServerPort: number = 80;
