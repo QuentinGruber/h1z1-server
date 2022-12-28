@@ -667,22 +667,10 @@ export function isArraySumZero(array: Float32Array) {
   );
 }
 
-export function getPointOn2DObject(position: Float32Array, rotation: Float32Array, offset: number, angle: number) {
-  // Convert angle to radians
-  const radians = angle * (Math.PI / 180);
+export function quat2Eul(q: Float32Array): Float32Array {
+  const pitch = Math.atan2(2 * (q[3] * q[0] + q[1] * q[2]), 1 - 2 * (q[0] * q[0] + q[1] * q[1])) * (180 / Math.PI);
+  const yaw = Math.atan2(2 * (q[3] * q[2] + q[0] * q[1]), 1 - 2 * (q[1] * q[1] + q[2] * q[2])) * (180 / Math.PI);
+  const roll = Math.asin(2 * (q[3] * q[1] - q[0] * q[2])) * (180 / Math.PI);
 
-  // Calculate x and y offsets using trigonometry
-  const dx = offset * Math.cos(radians);
-  const dy = offset * Math.sin(radians);
-
-  // Rotate offsets by object rotation
-  const rotationRadians = rotation[1] * (Math.PI / 180);
-  const rx = (dx * Math.cos(rotationRadians)) - (dy * Math.sin(rotationRadians));
-  const ry = (dx * Math.sin(rotationRadians)) + (dy * Math.cos(rotationRadians));
-
-  // Return new point
-  return {
-    x: position[0] + rx,
-    y: position[2] + ry
-  };
+  return new Float32Array([pitch, yaw, roll]);
 }

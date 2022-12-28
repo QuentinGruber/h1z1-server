@@ -51,7 +51,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   occupiedSlots: string[] = [];
   buildingSlot?: string;
   securedPolygons: any[];
-  readonly wallSlots: number;
+  readonly wallSlots: { [slot: number]: {position: Float32Array, rotation: Float32Array} } = {};
   occupiedWallSlots: { [slot: string]: ConstructionChildEntity | ConstructionDoor } = {};
   constructor(
     characterId: string,
@@ -93,6 +93,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     this.securedPolygons = [];
     this.perimeters = {};
     this.damageRange = getDamageRange(this.itemDefinitionId);
+    let yOffset = 0,
+      offsets: Array<number> = [],
+      angles: Array<number> = [];
     switch (this.itemDefinitionId) {
       case Items.GROUND_TAMPER:
         this.perimeters = {
@@ -113,9 +116,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           "15": new Float32Array([0, 0, 0, 0]),
           "16": new Float32Array([0, 0, 0, 0]),
         };
-        this.wallSlots = 16;
         break;
       case Items.FOUNDATION:
+        yOffset = 2.13,
+        offsets = []
+        angles = []
         this.perimeters = {
           "01": new Float32Array([0, 0, 0, 0]),
           "02": new Float32Array([0, 0, 0, 0]),
@@ -130,9 +135,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           "11": new Float32Array([0, 0, 0, 0]),
           "12": new Float32Array([0, 0, 0, 0]),
         };
-        this.wallSlots = 12;
         break;
       case Items.FOUNDATION_EXPANSION:
+        yOffset = 0.003,
+        offsets = [],
+        angles = []
         this.perimeters = {
           "01": new Float32Array([0, 0, 0, 0]),
           "02": new Float32Array([0, 0, 0, 0]),
@@ -140,7 +147,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           "04": new Float32Array([0, 0, 0, 0]),
           "05": new Float32Array([0, 0, 0, 0]),
         };
-        this.wallSlots = 5;
         break;
       case Items.SHACK_SMALL:
       case Items.SHACK_BASIC:
@@ -149,10 +155,39 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         this.perimeters = {
           "01": new Float32Array([0, 0, 0, 0]),
         };
-        this.wallSlots = 0;
         break;
     }
+    /*
+    Object.keys(offsets).forEach((key: string) => {
+      const i = Number(key),
+      point = getPointOn2DObject(this.state.position, this.state.rotation, offsets[i], angles[i]);
+      this.wallSlots[i + 1] = {
+        position: new Float32Array([point.x, this.state.position[1]+yOffset, point.y, 1]),
+        rotation: new Float32Array([0, 0, 0, 1])
+      }
+    })
+    */
     Object.seal(this.perimeters);
+    Object.seal(this.wallSlots);
+  }
+
+  getWallSlotPosition(buildingSlot: string) {
+    const slot = Number(buildingSlot.substring(
+      buildingSlot.length,
+      buildingSlot.length - 2
+    ).toString())
+    return this.wallSlots[slot];
+  }
+
+  getWallSlotRotation(slot: number) {
+    if(!this.isWallSlotValid(slot)) return;
+    let angles = [];
+    switch(this.itemDefinitionId) {
+      case Items.FOUNDATION:
+        return new Float32Array([]);
+      default:
+        return;
+    }
   }
 
   /**
@@ -181,11 +216,12 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       (same for any other expansions)
     */
 
+    // NEED TO CHECK FOR DOORWAYS WITH AN OPEN DOOR
 
 
     const wallSlots = Object.values(this.occupiedWallSlots);
     // check if all wall slots are occupied
-    if(wallSlots.length != this.wallSlots) {
+    if(wallSlots.length != Object.values(this.wallSlots).length) {
       this.isSecured = false;
       return;
     }
@@ -211,8 +247,15 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     this.isSecured = true;
   }
 
-  isWallSlotValid(slot: number) {
-    return !(slot > this.wallSlots || 0 >= slot);
+  isWallSlotValid(buildingSlot: number | string) {
+    let slot = 0;
+    if(typeof buildingSlot == "string") {
+      slot = Number(buildingSlot.substring(
+        buildingSlot.length,
+        buildingSlot.length - 2
+      ))
+    }
+    return !!this.wallSlots[slot];
   }
 
   setWallSlot(server: ZoneServer2016, slot: number, wall: ConstructionChildEntity | ConstructionDoor): boolean {

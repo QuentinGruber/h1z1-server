@@ -3727,10 +3727,34 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    if(parentFoundation && !parentFoundation.isWallSlotValid(Number(BuildingSlot))) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
-      return false;
-    }
+    //if(parentFoundation && !parentFoundation.isWallSlotValid(BuildingSlot)) {
+    //  this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
+    //  return false;
+    //}
+
+    /*
+    // all calculations done in euler
+    console.log(rotation)
+    // temp debugging
+    console.log(BuildingSlot)
+    console.log(parentFoundation?.state.position)
+    console.log(position)
+
+    
+    const fPos = parentFoundation?.state.position,
+    fRot = quat2Eul(parentFoundation?.state.rotation)//,
+
+    const point = getAngleAndDistanceToPoint(fPos, fRot, position)
+    console.log(point);
+    console.log(getPointOn2DObject(fPos, fRot, point.angle, point.distance))
+
+
+    console.log(`F-ROT ${fRot}`)
+    const pos = position//parentFoundation.getWallSlotPosition(BuildingSlot)
+
+    if(!pos) return;
+    //console.log(pos)
+    */
 
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
