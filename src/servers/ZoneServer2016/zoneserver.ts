@@ -81,6 +81,8 @@ import {
   isInsideWithY,
   movePoint,
   getRectangleCorners,
+  getOffsetPoint,
+  getAngleAndDistance,
 } from "../../utils/utils";
 
 import { Db, Timestamp } from "mongodb";
@@ -3569,7 +3571,7 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
+          rotation,
           parentObjectCharacterId
         );
         break;
@@ -3579,10 +3581,8 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
-          parentObjectCharacterId,
-          "",
-          rotation[0]
+          rotation,
+          parentObjectCharacterId
         );
         break;
       case Items.FOUNDATION_EXPANSION:
@@ -3595,7 +3595,7 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
+          rotation,
           parentObjectCharacterId,
           slot
         );
@@ -3606,7 +3606,7 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
+          rotation,
           freeplaceParentCharacterId
         );
         break;
@@ -3629,14 +3629,12 @@ export class ZoneServer2016 extends EventEmitter {
             transientId,
             modelId,
             position,
-            eul2quat(rotation),
+            rotation,
             itemDefinitionId,
             parentObjectCharacterId,
             BuildingSlot,
-            slot,
-            rotation[0]
+            slot
           );
-          if (npc.eulerAngle)
             npc.fixedPosition = movePoint(
               npc.state.position,
               -(npc.eulerAngle + (90 * Math.PI) / 180),
@@ -3657,14 +3655,12 @@ export class ZoneServer2016 extends EventEmitter {
             transientId,
             modelId,
             position,
-            eul2quat(rotation),
+            rotation,
             itemDefinitionId,
             parentObjectCharacterId,
             BuildingSlot,
-            "",
-            rotation[0]
+            ""
           );
-          if (npc.eulerAngle) {
             const angle = -npc.eulerAngle;
             switch (itemDefinitionId) {
               case Items.SHELTER_LARGE:
@@ -3692,7 +3688,7 @@ export class ZoneServer2016 extends EventEmitter {
                 );
                 break;
             }
-          }
+          
           this._constructionSimple[characterId] = npc;
         }
         if (BuildingSlot != "" && parentObjectCharacterId) {
@@ -3732,38 +3728,30 @@ export class ZoneServer2016 extends EventEmitter {
     //  return false;
     //}
 
-    /*
-    // all calculations done in euler
-    console.log(rotation)
-    // temp debugging
+    const fPos = parentFoundation?.state.position;
+    const coord = {angle: 126.69501286509166, distance: 2.0476291673987674}
+
+    console.log(parentFoundation.eulerAngle)
+
+    const offset = getAngleAndDistance(fPos, position);
+
+    const point = getOffsetPoint(fPos, parentFoundation.eulerAngle, coord.angle, coord.distance);
+    console.log(point)
+    const yOffset = position[1] - fPos[1];
+    point[1] = fPos[1] + yOffset;
     console.log(BuildingSlot)
-    console.log(parentFoundation?.state.position)
-    console.log(position)
-
-    
-    const fPos = parentFoundation?.state.position,
-    fRot = quat2Eul(parentFoundation?.state.rotation)//,
-
-    const point = getAngleAndDistanceToPoint(fPos, fRot, position)
-    console.log(point);
-    console.log(getPointOn2DObject(fPos, fRot, point.angle, point.distance))
-
-
-    console.log(`F-ROT ${fRot}`)
-    const pos = position//parentFoundation.getWallSlotPosition(BuildingSlot)
-
-    if(!pos) return;
-    //console.log(pos)
-    */
-
+    console.log(`angle ${offset.angle.toFixed(4)} distance ${offset.distance.toFixed(4)} yOffset ${yOffset.toFixed(4)}`)
+    console.log(`parentRot ${parentFoundation.eulerAngle}, rot ${rotation[0].toFixed(4)}`)
+    const rotationOffset = Math.abs(parentFoundation.eulerAngle) - Math.abs(rotation[0]);
+    console.log(`rotationOffset ${rotationOffset}`)
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       door = new ConstructionDoor(
         characterId,
         transientId,
         modelId,
-        position,
-        rotation,
+        point,
+        new Float32Array([parentFoundation.eulerAngle + rotationOffset, 0, 0]),
         new Float32Array([1, 1, 1, 1]),
         itemDefinitionId,
         client.character.characterId,
@@ -3805,8 +3793,7 @@ export class ZoneServer2016 extends EventEmitter {
     position: Float32Array,
     rotation: Float32Array,
     parentObjectCharacterId: string,
-    BuildingSlot?: string,
-    eulerAngle?: number
+    BuildingSlot?: string
   ) {
     if (
       BuildingSlot &&
@@ -3826,13 +3813,12 @@ export class ZoneServer2016 extends EventEmitter {
         transientId,
         modelId,
         position,
-        rotation,
+        new Float32Array([0, 0, 0]),
         itemDefinitionId,
         client.character.characterId,
         client.character.name || "",
         parentObjectCharacterId,
-        BuildingSlot,
-        eulerAngle
+        BuildingSlot
       );
     if (
       itemDefinitionId === Items.FOUNDATION_EXPANSION &&

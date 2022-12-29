@@ -667,10 +667,14 @@ export function isArraySumZero(array: Float32Array) {
   );
 }
 
-export function quat2Eul(q: Float32Array): Float32Array {
-  const pitch = Math.atan2(2 * (q[3] * q[0] + q[1] * q[2]), 1 - 2 * (q[0] * q[0] + q[1] * q[1])) * (180 / Math.PI);
-  const yaw = Math.atan2(2 * (q[3] * q[2] + q[0] * q[1]), 1 - 2 * (q[1] * q[1] + q[2] * q[2])) * (180 / Math.PI);
-  const roll = Math.asin(2 * (q[3] * q[1] - q[0] * q[2])) * (180 / Math.PI);
+export function getOffsetPoint(position: Float32Array, rotation: number, angle: number, distance: number) {
+  return movePoint(position, -rotation + (angle * Math.PI) / 180, distance);
+}
 
-  return new Float32Array([pitch, yaw, roll]);
+export function getAngleAndDistance(p1: Float32Array, p2: Float32Array): { angle: number, distance: number } {
+  const dx = p2[0] - p1[0];
+  const dy = p2[2] - p1[2];
+  const angle = Math.atan2(dy, dx) * 180 / Math.PI;  // Angle of rotation in degrees
+  const distance = Math.sqrt(dx ** 2 + dy ** 2);  // Distance between the points
+  return { angle, distance };
 }

@@ -13,6 +13,7 @@ import { DamageInfo } from "types/zoneserver";
 import { isArraySumZero } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
 import { ConstructionParentEntity } from "./constructionparententity";
+import { eul2quat } from "h1emu-core";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_WALL:
@@ -34,7 +35,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   perimeters: { [slot: string]: Float32Array };
   itemDefinitionId: number;
   parentObjectCharacterId: string;
-  eulerAngle?: number;
+  eulerAngle: number;
   slot?: string;
   occupiedSlots: string[] = [];
   securedPolygons?: any;
@@ -51,14 +52,14 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     itemDefinitionId: number,
     parentObjectCharacterId: string,
     slot?: string,
-    BuildingSlot?: string,
-    eulerAngle?: number
+    BuildingSlot?: string
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
+    this.state.rotation = eul2quat(rotation);
+    this.eulerAngle = rotation[0];
     this.itemDefinitionId = itemDefinitionId;
     if (BuildingSlot) this.buildingSlot = BuildingSlot;
     this.parentObjectCharacterId = parentObjectCharacterId;
-    if (eulerAngle) this.eulerAngle = eulerAngle;
     if (slot) this.slot = slot;
     this.profileId = 999; /// mark as construction
     this.perimeters = {

@@ -63,8 +63,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     ownerCharacterId: string,
     ownerName: string,
     parentObjectCharacterId: string,
-    BuildingSlot?: string,
-    eulerAngle?: number
+    BuildingSlot?: string
   ) {
     super(
       characterId,
@@ -85,7 +84,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       demolish: true,
       visit: true,
     };
-    if (eulerAngle) this.eulerAngle = eulerAngle;
     this.itemDefinitionId = itemDefinitionId;
     this.permissions[ownerPermission.characterId] = ownerPermission;
     this.parentObjectCharacterId = parentObjectCharacterId;
@@ -95,7 +93,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     this.damageRange = getDamageRange(this.itemDefinitionId);
     let yOffset = 0,
       offsets: Array<number> = [],
-      angles: Array<number> = [];
+      angles: Array<number> = [],
+      rotationOffsets: Array<number> = [];
     switch (this.itemDefinitionId) {
       case Items.GROUND_TAMPER:
         this.perimeters = {
@@ -118,9 +117,10 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         };
         break;
       case Items.FOUNDATION:
-        yOffset = 2.13,
-        offsets = []
-        angles = []
+        yOffset = 2.1342,
+        offsets = [10.4945, 7.7551, 7.7555, 10.4955, 7.8577, 7.9580, 10.7199, 8.0566, 8.0562, 10.7189, 7.9566, 7.8563]
+        angles = [134.3902, 161.1994, -161.1892, -134.3846, -107.3354, -70.4827, -44.4030, -18.0830, 18.0731, 44.3974, 70.4792, 107.3386]
+        rotationOffsets = [0, 0, 0, -1.5708, -1.5708, -1.5708, 3.1416, 3.1416, 3.1416, 1.5708, 1.5708, 1.5708]
         this.perimeters = {
           "01": new Float32Array([0, 0, 0, 0]),
           "02": new Float32Array([0, 0, 0, 0]),
@@ -137,7 +137,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         };
         break;
       case Items.FOUNDATION_EXPANSION:
-        yOffset = 0.003,
+        yOffset = 0,
         offsets = [],
         angles = []
         this.perimeters = {
@@ -149,8 +149,32 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         };
         break;
       case Items.SHACK_SMALL:
+        yOffset = 0.8809
+        offsets = [2.0476]
+        angles = [126.6950]
+        rotationOffsets = [0]
+        this.perimeters = {
+          "01": new Float32Array([0, 0, 0, 0]),
+        };
+        break;
       case Items.SHACK_BASIC:
+        yOffset = -0.0126
+        offsets = [0.9520]
+        angles = [-173.1957]
+        rotationOffsets = [0]
+        this.perimeters = {
+          "01": new Float32Array([0, 0, 0, 0]),
+        };
+        break;
       case Items.SHACK:
+        yOffset = 0.8792
+        offsets = [2.6662]
+        angles = [154.4392]
+        rotationOffsets = [0]
+        this.perimeters = {
+          "01": new Float32Array([0, 0, 0, 0]),
+        };
+        break;
       default:
         this.perimeters = {
           "01": new Float32Array([0, 0, 0, 0]),
