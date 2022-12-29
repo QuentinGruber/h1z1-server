@@ -277,7 +277,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     return !!this.wallSlots[slot];
   }
 
-  setWallSlot(server: ZoneServer2016, slot: number, wall: ConstructionChildEntity | ConstructionDoor): boolean {
+  setWallSlot(server: ZoneServer2016, wall: ConstructionChildEntity | ConstructionDoor): boolean {
+    const slot = wall.getSlotNumber();
     if(!this.isWallSlotValid(slot)) return false;
     this.occupiedWallSlots[slot] = wall;
     this.updateSecuredState(server);

@@ -172,6 +172,14 @@ export class ConstructionDoor extends DoorEntity {
     );
   }
 
+  getSlotNumber() {
+    if(!this.buildingSlot) return 0;
+    return Number(this.buildingSlot.substring(
+      this.buildingSlot.length,
+      this.buildingSlot.length - 2
+    ))
+  }
+
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.canUndoPlacement(server, client)) {
       this.destroy(server);

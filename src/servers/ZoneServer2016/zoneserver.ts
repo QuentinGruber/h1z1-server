@@ -3763,7 +3763,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     
     if(parentFoundation) {
-      parentFoundation.setWallSlot(this, Number(BuildingSlot), door);
+      parentFoundation.setWallSlot(this, door);
       parentFoundation.changePerimeters(
         this,
         door.buildingSlot,
