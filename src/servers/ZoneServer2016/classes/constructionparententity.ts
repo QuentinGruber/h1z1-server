@@ -15,6 +15,7 @@ import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
+  getOffsetPoint,
   getRectangleCorners,
   isArraySumZero,
   isInside,
@@ -181,16 +182,13 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         };
         break;
     }
-    /*
-    Object.keys(offsets).forEach((key: string) => {
-      const i = Number(key),
-      point = getPointOn2DObject(this.state.position, this.state.rotation, offsets[i], angles[i]);
+    offsets.forEach((offset: number, i: number) => {
+      const point = getOffsetPoint(this.state.position, this.eulerAngle, angles[i], offsets[i]);
       this.wallSlots[i + 1] = {
-        position: new Float32Array([point.x, this.state.position[1]+yOffset, point.y, 1]),
-        rotation: new Float32Array([0, 0, 0, 1])
+        position: new Float32Array([point[0], this.state.position[1]+yOffset, point[2], 1]),
+        rotation: new Float32Array([this.eulerAngle + rotationOffsets[i], 0, 0])
       }
     })
-    */
     Object.seal(this.perimeters);
     Object.seal(this.wallSlots);
   }
@@ -200,18 +198,15 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       buildingSlot.length,
       buildingSlot.length - 2
     ).toString())
-    return this.wallSlots[slot];
+    return this.wallSlots[slot].position;
   }
 
-  getWallSlotRotation(slot: number) {
-    if(!this.isWallSlotValid(slot)) return;
-    let angles = [];
-    switch(this.itemDefinitionId) {
-      case Items.FOUNDATION:
-        return new Float32Array([]);
-      default:
-        return;
-    }
+  getWallSlotRotation(buildingSlot: string) {
+    const slot = Number(buildingSlot.substring(
+      buildingSlot.length,
+      buildingSlot.length - 2
+    ).toString())
+    return this.wallSlots[slot].rotation;
   }
 
   /**

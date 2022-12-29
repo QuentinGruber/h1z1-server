@@ -3729,29 +3729,32 @@ export class ZoneServer2016 extends EventEmitter {
     //}
 
     const fPos = parentFoundation?.state.position;
-    const coord = {angle: 126.69501286509166, distance: 2.0476291673987674}
 
     console.log(parentFoundation.eulerAngle)
 
     const offset = getAngleAndDistance(fPos, position);
 
-    const point = getOffsetPoint(fPos, parentFoundation.eulerAngle, coord.angle, coord.distance);
-    console.log(point)
     const yOffset = position[1] - fPos[1];
-    point[1] = fPos[1] + yOffset;
     console.log(BuildingSlot)
     console.log(`angle ${offset.angle.toFixed(4)} distance ${offset.distance.toFixed(4)} yOffset ${yOffset.toFixed(4)}`)
     console.log(`parentRot ${parentFoundation.eulerAngle}, rot ${rotation[0].toFixed(4)}`)
-    const rotationOffset = Math.abs(parentFoundation.eulerAngle) - Math.abs(rotation[0]);
-    console.log(`rotationOffset ${rotationOffset}`)
+
+    console.log(`expected pos`)
+    console.log(getOffsetPoint(fPos, parentFoundation.eulerAngle, offset.angle, offset.distance))
+
+    console.log(`pos`)
+    console.log(parentFoundation.getWallSlotPosition(BuildingSlot))
+    console.log(`rot`)
+    console.log(parentFoundation.getWallSlotRotation(BuildingSlot))
+
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       door = new ConstructionDoor(
         characterId,
         transientId,
         modelId,
-        point,
-        new Float32Array([parentFoundation.eulerAngle + rotationOffset, 0, 0]),
+        parentFoundation.getWallSlotPosition(BuildingSlot),
+        parentFoundation.getWallSlotRotation(BuildingSlot),
         new Float32Array([1, 1, 1, 1]),
         itemDefinitionId,
         client.character.characterId,
@@ -3813,7 +3816,7 @@ export class ZoneServer2016 extends EventEmitter {
         transientId,
         modelId,
         position,
-        new Float32Array([0, 0, 0]),
+        rotation, //new Float32Array([0, 0, 0]),
         itemDefinitionId,
         client.character.characterId,
         client.character.name || "",
