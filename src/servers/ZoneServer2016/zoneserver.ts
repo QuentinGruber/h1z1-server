@@ -3566,25 +3566,7 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.SHACK_BASIC:
       case Items.SHACK:
       case Items.FOUNDATION:
-        this.placeConstructionFoundation(
-          client,
-          itemDefinitionId,
-          modelId,
-          position,
-          rotation,
-          parentObjectCharacterId
-        );
-        break;
       case Items.SHACK_SMALL:
-        this.placeConstructionFoundation(
-          client,
-          itemDefinitionId,
-          modelId,
-          position,
-          rotation,
-          parentObjectCharacterId
-        );
-        break;
       case Items.FOUNDATION_EXPANSION:
         this.placeConstructionFoundation(
           client,
@@ -3723,7 +3705,8 @@ export class ZoneServer2016 extends EventEmitter {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
       return false;
     }
-    
+
+    // bypass check until ALL simple construction door slots are mapped
     /*
     if(parentSimple && !parentSimple.isDoorSlotValid(BuildingSlot)) {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
@@ -3732,13 +3715,14 @@ export class ZoneServer2016 extends EventEmitter {
     */
 
     if(parentFoundation) {
+      /*
       const fPos = parentFoundation?.state.position,
       offset = getAngleAndDistance(fPos, position),
       yOffset = position[1] - fPos[1];
       console.log(BuildingSlot)
       console.log(`angle ${offset.angle.toFixed(4)} distance ${offset.distance.toFixed(4)} yOffset ${yOffset.toFixed(4)}`)
       console.log(`rot ${rotation[0].toFixed(4)}`)
-      
+      */
       const pos = parentFoundation.getSlotPosition(BuildingSlot, parentFoundation.wallSlots),
       rot = parentFoundation.getSlotRotation(BuildingSlot, parentFoundation.wallSlots);
       if(!pos || !rot) {
