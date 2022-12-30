@@ -256,3 +256,5 @@ export interface ConstructionPermissions {
   demolish: boolean;
   visit: boolean;
 }
+
+export type ConstructionSlotPositionMap = { [slot: number]: {position: Float32Array, rotation: Float32Array} };

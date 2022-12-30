@@ -10,7 +10,7 @@ import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneServer2016 } from "../zoneserver";
 import { ConstructionPermissionIds, Items } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
-import { isArraySumZero } from "../../../utils/utils";
+import { getConstructionSlotId, isArraySumZero } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { eul2quat } from "h1emu-core";
@@ -164,10 +164,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   getSlotNumber() {
     if(!this.buildingSlot) return 0;
-    return Number(this.buildingSlot.substring(
-      this.buildingSlot.length,
-      this.buildingSlot.length - 2
-    ))
+    return getConstructionSlotId(this.buildingSlot);
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {

@@ -15,17 +15,20 @@ import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
+  getConstructionSlotId,
   getOffsetPoint,
   getRectangleCorners,
   isArraySumZero,
   isInside,
   isInsideWithY,
   isPosInRadiusWithY,
+  registerConstructionSlots,
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
 import { BaseEntity } from "./baseentity";
-import { ConstructionPermissions } from "types/zoneserver";
+import { ConstructionPermissions, ConstructionSlotPositionMap } from "types/zoneserver";
 import { ConstructionDoor } from "./constructiondoor";
+import { foundationExpansionSlotDefinitions, foundationWallSlotDefinitions } from "../data/constructionslots";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
@@ -52,8 +55,10 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   occupiedSlots: string[] = [];
   buildingSlot?: string;
   securedPolygons: any[];
-  readonly wallSlots: { [slot: number]: {position: Float32Array, rotation: Float32Array} } = {};
+  readonly wallSlots: ConstructionSlotPositionMap = {};
   occupiedWallSlots: { [slot: string]: ConstructionChildEntity | ConstructionDoor } = {};
+  readonly expansionSlots:  ConstructionSlotPositionMap = {};
+  occupiedExpansionSlots: { [slot: string]: ConstructionParentEntity } = {};
   constructor(
     characterId: string,
     transientId: number,
@@ -92,10 +97,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     this.securedPolygons = [];
     this.perimeters = {};
     this.damageRange = getDamageRange(this.itemDefinitionId);
-    let yOffset = 0,
-      offsets: Array<number> = [],
-      angles: Array<number> = [],
-      rotationOffsets: Array<number> = [];
     switch (this.itemDefinitionId) {
       case Items.GROUND_TAMPER:
         this.perimeters = {
@@ -118,10 +119,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         };
         break;
       case Items.FOUNDATION:
-        yOffset = 2.1342,
-        offsets = [10.4945, 7.7551, 7.7555, 10.4955, 7.8577, 7.9580, 10.7199, 8.0566, 8.0562, 10.7189, 7.9566, 7.8563]
-        angles = [134.3902, 161.1994, -161.1892, -134.3846, -107.3354, -70.4827, -44.4030, -18.0830, 18.0731, 44.3974, 70.4792, 107.3386]
-        rotationOffsets = [0, 0, 0, -1.5708, -1.5708, -1.5708, 3.1416, 3.1416, 3.1416, 1.5708, 1.5708, 1.5708]
         this.perimeters = {
           "01": new Float32Array([0, 0, 0, 0]),
           "02": new Float32Array([0, 0, 0, 0]),
@@ -138,9 +135,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         };
         break;
       case Items.FOUNDATION_EXPANSION:
-        yOffset = 0,
-        offsets = [],
-        angles = []
         this.perimeters = {
           "01": new Float32Array([0, 0, 0, 0]),
           "02": new Float32Array([0, 0, 0, 0]),
@@ -150,28 +144,16 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         };
         break;
       case Items.SHACK_SMALL:
-        yOffset = 0.8809
-        offsets = [2.0476]
-        angles = [126.6950]
-        rotationOffsets = [0]
         this.perimeters = {
           "01": new Float32Array([0, 0, 0, 0]),
         };
         break;
       case Items.SHACK_BASIC:
-        yOffset = -0.0126
-        offsets = [0.9520]
-        angles = [-173.1957]
-        rotationOffsets = [0]
         this.perimeters = {
           "01": new Float32Array([0, 0, 0, 0]),
         };
         break;
       case Items.SHACK:
-        yOffset = 0.8792
-        offsets = [2.6662]
-        angles = [154.4392]
-        rotationOffsets = [0]
         this.perimeters = {
           "01": new Float32Array([0, 0, 0, 0]),
         };
@@ -182,31 +164,20 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         };
         break;
     }
-    offsets.forEach((offset: number, i: number) => {
-      const point = getOffsetPoint(this.state.position, this.eulerAngle, angles[i], offsets[i]);
-      this.wallSlots[i + 1] = {
-        position: new Float32Array([point[0], this.state.position[1]+yOffset, point[2], 1]),
-        rotation: new Float32Array([this.eulerAngle + rotationOffsets[i], 0, 0])
-      }
-    })
-    Object.seal(this.perimeters);
+    registerConstructionSlots(this, this.wallSlots, foundationWallSlotDefinitions);
     Object.seal(this.wallSlots);
+    registerConstructionSlots(this, this.expansionSlots, foundationExpansionSlotDefinitions);
+    Object.seal(this.expansionSlots);
   }
 
-  getWallSlotPosition(buildingSlot: string) {
-    const slot = Number(buildingSlot.substring(
-      buildingSlot.length,
-      buildingSlot.length - 2
-    ).toString())
-    return this.wallSlots[slot].position;
+  getSlotPosition(buildingSlot: string, slots: ConstructionSlotPositionMap): Float32Array | undefined {
+    const slot = getConstructionSlotId(buildingSlot);
+    return slots[slot]?.position || undefined;
   }
 
-  getWallSlotRotation(buildingSlot: string) {
-    const slot = Number(buildingSlot.substring(
-      buildingSlot.length,
-      buildingSlot.length - 2
-    ).toString())
-    return this.wallSlots[slot].rotation;
+  getSlotRotation(buildingSlot: string, slots: ConstructionSlotPositionMap): Float32Array | undefined {
+    const slot = getConstructionSlotId(buildingSlot);
+    return slots[slot]?.rotation || undefined;
   }
 
   /**
@@ -266,24 +237,48 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     this.isSecured = true;
   }
 
-  isWallSlotValid(buildingSlot: number | string) {
+  isWallSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
+    const slots = foundationWallSlotDefinitions[this.itemDefinitionId];
+    if(!slots.authorizedItems.includes(itemDefinitionId)) {
+      return false;
+    }
+    
     let slot = 0;
     if(typeof buildingSlot == "string") {
-      slot = Number(buildingSlot.substring(
-        buildingSlot.length,
-        buildingSlot.length - 2
-      ))
+      slot = getConstructionSlotId(buildingSlot);
     }
     return !!this.wallSlots[slot];
   }
 
   setWallSlot(server: ZoneServer2016, wall: ConstructionChildEntity | ConstructionDoor): boolean {
     const slot = wall.getSlotNumber();
-    if(!this.isWallSlotValid(slot)) return false;
+    if(!this.isWallSlotValid(slot, wall.itemDefinitionId)) return false;
     this.occupiedWallSlots[slot] = wall;
     this.updateSecuredState(server);
     return true;
   }
+
+  isExpansionSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
+    const slots = foundationExpansionSlotDefinitions[this.itemDefinitionId];
+    if(!slots.authorizedItems.includes(itemDefinitionId)) {
+      return false;
+    }
+    
+    let slot = 0;
+    if(typeof buildingSlot == "string") {
+      slot = getConstructionSlotId(buildingSlot);
+    }
+    return !!this.expansionSlots[slot];
+  }
+
+  setExpansionSlot(expansion: ConstructionParentEntity): boolean {
+    const slot = expansion.getSlotNumber();
+    if(!this.isExpansionSlotValid(slot, expansion.itemDefinitionId)) return false;
+    this.occupiedExpansionSlots[slot] = expansion;
+    return true;
+  }
+
+  
 
   checkPerimeters(server: ZoneServer2016) {
     const temporaryPolygons = [];

@@ -16,7 +16,7 @@ import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "./zoneclient";
 import { DamageInfo } from "types/zoneserver";
-import { movePoint } from "../../../utils/utils";
+import { getConstructionSlotId, movePoint } from "../../../utils/utils";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ConstructionChildEntity } from "./constructionchildentity";
 function getDamageRange(definitionId: number): number {
@@ -174,10 +174,7 @@ export class ConstructionDoor extends DoorEntity {
 
   getSlotNumber() {
     if(!this.buildingSlot) return 0;
-    return Number(this.buildingSlot.substring(
-      this.buildingSlot.length,
-      this.buildingSlot.length - 2
-    ))
+    return getConstructionSlotId(this.buildingSlot);
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {

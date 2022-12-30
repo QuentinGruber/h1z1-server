@@ -3717,35 +3717,39 @@ export class ZoneServer2016 extends EventEmitter {
     BuildingSlot: string
   ) {
     const parentFoundation = this._constructionFoundations[parentObjectCharacterId],
-    parentShelter = this._constructionSimple[parentObjectCharacterId];
-    if(!Number(parentObjectCharacterId) || !(!!parentFoundation || !!parentShelter)) {
+    parentSimple = this._constructionSimple[parentObjectCharacterId];
+    if(!Number(parentObjectCharacterId) || !(!!parentFoundation || !!parentSimple)) {
       this.placementError(client, PlacementErrors.UNKNOWN_PARENT)
       return false;
     }
 
-    //if(parentFoundation && !parentFoundation.isWallSlotValid(BuildingSlot)) {
-    //  this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
-    //  return false;
-    //}
+    if(parentFoundation && !parentFoundation.isWallSlotValid(BuildingSlot, itemDefinitionId)) {
+      this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
+      return false;
+    }
+    
+    /*
+    if(parentSimple && !parentSimple.isDoorSlotValid(BuildingSlot)) {
+      this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
+      return false;
+    }
+    */
 
-    const fPos = parentFoundation?.state.position;
-
-    console.log(parentFoundation.eulerAngle)
-
-    const offset = getAngleAndDistance(fPos, position);
-
-    const yOffset = position[1] - fPos[1];
+    const fPos = parentFoundation?.state.position,
+    offset = getAngleAndDistance(fPos, position),
+    yOffset = position[1] - fPos[1];
     console.log(BuildingSlot)
     console.log(`angle ${offset.angle.toFixed(4)} distance ${offset.distance.toFixed(4)} yOffset ${yOffset.toFixed(4)}`)
-    console.log(`parentRot ${parentFoundation.eulerAngle}, rot ${rotation[0].toFixed(4)}`)
+    console.log(`rot ${rotation[0].toFixed(4)}`)
 
-    console.log(`expected pos`)
-    console.log(getOffsetPoint(fPos, parentFoundation.eulerAngle, offset.angle, offset.distance))
 
-    console.log(`pos`)
-    console.log(parentFoundation.getWallSlotPosition(BuildingSlot))
-    console.log(`rot`)
-    console.log(parentFoundation.getWallSlotRotation(BuildingSlot))
+    const pos = parentFoundation.getSlotPosition(BuildingSlot, parentFoundation.wallSlots),
+    rot = parentFoundation.getSlotRotation(BuildingSlot, parentFoundation.wallSlots);
+
+    if(!pos || !rot) {
+      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      return;
+    }
 
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
@@ -3753,8 +3757,8 @@ export class ZoneServer2016 extends EventEmitter {
         characterId,
         transientId,
         modelId,
-        parentFoundation.getWallSlotPosition(BuildingSlot),
-        parentFoundation.getWallSlotRotation(BuildingSlot),
+        pos,
+        rot,
         new Float32Array([1, 1, 1, 1]),
         itemDefinitionId,
         client.character.characterId,
@@ -3770,9 +3774,9 @@ export class ZoneServer2016 extends EventEmitter {
         door.state.position
       );
     }
-    if(parentShelter) {
-      //parentShelter.setDoorSlot(this, door);
-      parentShelter.changePerimeters(this, BuildingSlot, door.state.position);
+    if(parentSimple) {
+      //parentSimple.setDoorSlot(this, door);
+      parentSimple.changePerimeters(this, BuildingSlot, door.state.position);
     }
 
     if (BuildingSlot) {
@@ -3809,6 +3813,27 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
+    const parentFoundation = this._constructionFoundations[parentObjectCharacterId];
+    if(Number(parentObjectCharacterId) && !parentFoundation) {
+      this.placementError(client, PlacementErrors.UNKNOWN_PARENT)
+      return false;
+    }
+
+    if(parentFoundation && BuildingSlot) {
+      if(!parentFoundation.isExpansionSlotValid(BuildingSlot, itemDefinitionId)) {
+        this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
+        return false;
+      }
+      const pos = parentFoundation.getSlotPosition(BuildingSlot || "", parentFoundation.expansionSlots),
+      rot = parentFoundation.getSlotRotation(BuildingSlot || "", parentFoundation.expansionSlots);
+      if(!pos || !rot) {
+        this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+        return;
+      }
+      position = pos;
+      rotation = rot;
+    }
+
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       npc = new ConstructionParentEntity(
@@ -3816,7 +3841,7 @@ export class ZoneServer2016 extends EventEmitter {
         transientId,
         modelId,
         position,
-        rotation, //new Float32Array([0, 0, 0]),
+        rotation,
         itemDefinitionId,
         client.character.characterId,
         client.character.name || "",
@@ -3828,6 +3853,7 @@ export class ZoneServer2016 extends EventEmitter {
       parentObjectCharacterId &&
       BuildingSlot
     ) {
+      parentFoundation.setExpansionSlot(npc);
       this._constructionFoundations[parentObjectCharacterId].expansions[
         BuildingSlot
       ] = characterId;

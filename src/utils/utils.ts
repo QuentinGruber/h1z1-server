@@ -24,7 +24,9 @@ import { MongoClient } from "mongodb";
 import { MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
-import { positionUpdate } from "types/zoneserver";
+import { ConstructionSlotPositionMap, positionUpdate } from "types/zoneserver";
+import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots";
+import { ConstructionParentEntity } from "servers/ZoneServer2016/classes/constructionparententity";
 
 export class customLodash {
   sum(pings: number[]): number {
@@ -677,4 +679,24 @@ export function getAngleAndDistance(p1: Float32Array, p2: Float32Array): { angle
   const angle = Math.atan2(dy, dx) * 180 / Math.PI;  // Angle of rotation in degrees
   const distance = Math.sqrt(dx ** 2 + dy ** 2);  // Distance between the points
   return { angle, distance };
+}
+
+export function getConstructionSlotId(buildingSlot: string) {
+  return Number(buildingSlot.substring(
+    buildingSlot.length,
+    buildingSlot.length - 2
+  ))
+}
+
+export function registerConstructionSlots(construction: ConstructionParentEntity, setSlots: ConstructionSlotPositionMap, slotDefinitions: ConstructionSlots) {
+  const slots = slotDefinitions[construction.itemDefinitionId];
+    if(slots) {
+      slots.offsets.forEach((offset: number, i: number) => {
+        const point = getOffsetPoint(construction.state.position, construction.eulerAngle, slots.angles[i], slots.offsets[i]);
+        setSlots[i + 1] = {
+          position: new Float32Array([point[0], construction.state.position[1]+slots.yOffset, point[2], 1]),
+          rotation: new Float32Array([construction.eulerAngle + slots.rotationOffsets[i], 0, 0])
+        }
+      })
+    }
 }
