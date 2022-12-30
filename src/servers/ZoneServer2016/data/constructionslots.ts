@@ -13,6 +13,13 @@ export type ConstructionSlots = { [itemDefId: number]: SlotOffsets };
 
 
 export const foundationWallSlotDefinitions: ConstructionSlots = {
+    [Items.GROUND_TAMPER]: {
+        yOffset: 0,
+        authorizedItems: [Items.METAL_WALL, Items.METAL_GATE, Items.METAL_DOORWAY],
+        offsets: [],
+        angles: [],
+        rotationOffsets: []
+    },
     [Items.FOUNDATION]: {
         yOffset: 2.1342,
         authorizedItems: [Items.METAL_WALL, Items.METAL_GATE, Items.METAL_DOORWAY],

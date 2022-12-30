@@ -3586,10 +3586,6 @@ export class ZoneServer2016 extends EventEmitter {
         );
         break;
       case Items.FOUNDATION_EXPANSION:
-        const slot = BuildingSlot.substring(
-          BuildingSlot.length,
-          BuildingSlot.length - 2
-        ).toString();
         this.placeConstructionFoundation(
           client,
           itemDefinitionId,
@@ -3597,7 +3593,7 @@ export class ZoneServer2016 extends EventEmitter {
           position,
           rotation,
           parentObjectCharacterId,
-          slot
+          BuildingSlot
         );
         break;
       case Items.STORAGE_BOX:
@@ -3735,20 +3731,22 @@ export class ZoneServer2016 extends EventEmitter {
     }
     */
 
-    const fPos = parentFoundation?.state.position,
-    offset = getAngleAndDistance(fPos, position),
-    yOffset = position[1] - fPos[1];
-    console.log(BuildingSlot)
-    console.log(`angle ${offset.angle.toFixed(4)} distance ${offset.distance.toFixed(4)} yOffset ${yOffset.toFixed(4)}`)
-    console.log(`rot ${rotation[0].toFixed(4)}`)
-
-
-    const pos = parentFoundation.getSlotPosition(BuildingSlot, parentFoundation.wallSlots),
-    rot = parentFoundation.getSlotRotation(BuildingSlot, parentFoundation.wallSlots);
-
-    if(!pos || !rot) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
-      return;
+    if(parentFoundation) {
+      const fPos = parentFoundation?.state.position,
+      offset = getAngleAndDistance(fPos, position),
+      yOffset = position[1] - fPos[1];
+      console.log(BuildingSlot)
+      console.log(`angle ${offset.angle.toFixed(4)} distance ${offset.distance.toFixed(4)} yOffset ${yOffset.toFixed(4)}`)
+      console.log(`rot ${rotation[0].toFixed(4)}`)
+      
+      const pos = parentFoundation.getSlotPosition(BuildingSlot, parentFoundation.wallSlots),
+      rot = parentFoundation.getSlotRotation(BuildingSlot, parentFoundation.wallSlots);
+      if(!pos || !rot) {
+        this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+        return;
+      }
+      position = pos;
+      rotation = rot;
     }
 
     const characterId = this.generateGuid(),
@@ -3757,8 +3755,8 @@ export class ZoneServer2016 extends EventEmitter {
         characterId,
         transientId,
         modelId,
-        pos,
-        rot,
+        position,
+        rotation,
         new Float32Array([1, 1, 1, 1]),
         itemDefinitionId,
         client.character.characterId,
