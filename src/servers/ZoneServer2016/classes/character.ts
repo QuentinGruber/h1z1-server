@@ -354,7 +354,7 @@ export class Character2016 extends BaseFullCharacter {
   pGetRemoteWeaponData(server: ZoneServer2016, item: BaseItem) {
     const itemDefinition = server.getItemDefinition(item.itemDefinitionId),
       weaponDefinition = server.getWeaponDefinition(itemDefinition.PARAM1),
-      firegroups = weaponDefinition.FIRE_GROUPS;
+      firegroups: Array<any> = weaponDefinition.FIRE_GROUPS || [];
     return {
       weaponDefinitionId: weaponDefinition.ID,
       equipmentSlotId: this.getActiveEquipmentSlot(item),
@@ -362,9 +362,10 @@ export class Character2016 extends BaseFullCharacter {
         const firegroupDef = server.getFiregroupDefinition(
             firegroup.FIRE_GROUP_ID
           ),
-          firemodes = firegroupDef?.FIRE_MODES;
+        firemodes = firegroupDef?.FIRE_MODES || [];
         if (!firemodes) {
-          console.error(`firegroupDef missing for ${firegroup}`);
+          console.error(`firegroupDef missing for`);
+          console.log(firegroup)
         }
         return {
           firegroupId: firegroup.FIRE_GROUP_ID,
