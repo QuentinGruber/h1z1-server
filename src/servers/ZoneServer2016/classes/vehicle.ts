@@ -360,10 +360,11 @@ export class Vehicle2016 extends BaseLootableEntity {
     this._resources[ResourceIds.CONDITION] -= damageInfo.damage;
 
     const client = server.getClientByCharId(damageInfo.entity);
-    if (!client) return;
-    client.character.addCombatlogEntry(
-      server.generateDamageRecord(this.characterId, damageInfo, oldHealth)
-    );
+    if (client) {
+      client.character.addCombatlogEntry(
+        server.generateDamageRecord(this.characterId, damageInfo, oldHealth)
+      );
+    }
 
     if (this._resources[ResourceIds.CONDITION] <= 0) {
       server.destroyVehicle(

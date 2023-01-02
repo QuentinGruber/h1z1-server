@@ -5055,6 +5055,18 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  isAdminItem(
+    itemDefinitionId: Items
+  ): boolean {
+    switch(itemDefinitionId) {
+      case Items.WEAPON_REMOVER:
+      case Items.FANNY_PACK_DEV:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   eatItem(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
