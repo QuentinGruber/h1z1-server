@@ -26,9 +26,9 @@ import {
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
 import { BaseEntity } from "./baseentity";
-import { ConstructionPermissions, ConstructionSlotPositionMap } from "types/zoneserver";
+import { ConstructionPermissions, ConstructionSlotPositionMap, SlottedConstructionEntity } from "types/zoneserver";
 import { ConstructionDoor } from "./constructiondoor";
-import { foundationExpansionSlotDefinitions, foundationWallSlotDefinitions } from "../data/constructionslots";
+import { ConstructionSlots, foundationExpansionSlotDefinitions, foundationRampSlotDefinitions, foundationStairSlotDefinition, foundationWallSlotDefinitions } from "../data/constructionslots";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
@@ -59,6 +59,10 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   occupiedWallSlots: { [slot: string]: ConstructionChildEntity | ConstructionDoor } = {};
   readonly expansionSlots:  ConstructionSlotPositionMap = {};
   occupiedExpansionSlots: { [slot: string]: ConstructionParentEntity } = {};
+  readonly rampSlots:  ConstructionSlotPositionMap = {};
+  occupiedRampSlots: { [slot: string]: ConstructionChildEntity } = {};
+  readonly stairSlots:  ConstructionSlotPositionMap = {};
+  occupiedStairSlots: { [slot: string]: ConstructionChildEntity } = {};
   constructor(
     characterId: string,
     transientId: number,
@@ -168,6 +172,10 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     Object.seal(this.wallSlots);
     registerConstructionSlots(this, this.expansionSlots, foundationExpansionSlotDefinitions);
     Object.seal(this.expansionSlots);
+    registerConstructionSlots(this, this.rampSlots, foundationRampSlotDefinitions);
+    Object.seal(this.rampSlots);
+    registerConstructionSlots(this, this.stairSlots, foundationStairSlotDefinition);
+    Object.seal(this.stairSlots);
   }
 
   getSlotPosition(buildingSlot: string, slots: ConstructionSlotPositionMap): Float32Array | undefined {
@@ -237,45 +245,69 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     this.isSecured = true;
   }
 
-  isWallSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
-    const slots = foundationWallSlotDefinitions[this.itemDefinitionId];
-    if(!slots.authorizedItems.includes(itemDefinitionId)) {
+  private isSlotValid(slot: number, definitions: ConstructionSlots, slotMap: ConstructionSlotPositionMap, itemDefinitionId: number) {
+    const slots = definitions[this.itemDefinitionId];
+    if(!slots || !slots.authorizedItems.includes(itemDefinitionId)) {
       return false;
     }
-    
+    return !!slotMap[slot];
+  }
+
+  private setSlot(entity: SlottedConstructionEntity, occupiedSlots: {[slot: string]: SlottedConstructionEntity}) {
+    const slot = entity.getSlotNumber();
+    if(!this.isWallSlotValid(slot, entity.itemDefinitionId)) return false;
+    occupiedSlots[slot] = entity;
+    return true;
+  }
+
+  isWallSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
     let slot = 0;
     if(typeof buildingSlot == "string") {
       slot = getConstructionSlotId(buildingSlot);
     }
-    return !!this.wallSlots[slot];
+    return this.isSlotValid(slot, foundationWallSlotDefinitions, this.wallSlots, itemDefinitionId);
   }
 
   setWallSlot(server: ZoneServer2016, wall: ConstructionChildEntity | ConstructionDoor): boolean {
-    const slot = wall.getSlotNumber();
-    if(!this.isWallSlotValid(slot, wall.itemDefinitionId)) return false;
-    this.occupiedWallSlots[slot] = wall;
-    this.updateSecuredState(server);
-    return true;
+    const set = this.setSlot(wall, this.occupiedWallSlots);
+    if(set) this.updateSecuredState(server);
+    return set;
   }
 
   isExpansionSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
-    const slots = foundationExpansionSlotDefinitions[this.itemDefinitionId];
-    if(!slots.authorizedItems.includes(itemDefinitionId)) {
-      return false;
-    }
-    
     let slot = 0;
     if(typeof buildingSlot == "string") {
       slot = getConstructionSlotId(buildingSlot);
     }
-    return !!this.expansionSlots[slot];
+    return this.isSlotValid(slot, foundationExpansionSlotDefinitions, this.expansionSlots, itemDefinitionId);
   }
 
   setExpansionSlot(expansion: ConstructionParentEntity): boolean {
-    const slot = expansion.getSlotNumber();
-    if(!this.isExpansionSlotValid(slot, expansion.itemDefinitionId)) return false;
-    this.occupiedExpansionSlots[slot] = expansion;
-    return true;
+    return this.setSlot(expansion, this.occupiedExpansionSlots);
+  }
+
+  isRampSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
+    let slot = 0;
+    if(typeof buildingSlot == "string") {
+      slot = getConstructionSlotId(buildingSlot);
+    }
+    return this.isSlotValid(slot, foundationRampSlotDefinitions, this.rampSlots, itemDefinitionId);
+  }
+
+  setRampSlot(ramp: ConstructionChildEntity): boolean {
+    return this.setSlot(ramp, this.occupiedRampSlots);
+  }
+
+  isStairSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
+    let slot = 0;
+    if(typeof buildingSlot == "string") {
+      slot = getConstructionSlotId(buildingSlot);
+    }
+    return this.isSlotValid(slot, foundationStairSlotDefinition, this.stairSlots, itemDefinitionId);
+  }
+
+  setStairSlot(ramp: ConstructionChildEntity): boolean {
+    return this.setSlot(ramp, this.occupiedStairSlots);
   }
 
   

@@ -66,6 +66,7 @@ export const characterBuildKitLoadout = [
   { item: Items.STRUCTURE_STAIRS, count: 50 },
   { item: Items.STRUCTURE_STAIRS_UPPER, count: 50 },
   { item: Items.FOUNDATION_RAMP, count: 40 },
+  { item: Items.FOUNDATION_STAIRS, count: 40 },
   { item: Items.FURNACE, count: 50 },
   { item: Items.STORAGE_BOX, count: 50 },
   { item: Items.LOOKOUT_TOWER, count: 50 },
