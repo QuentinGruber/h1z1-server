@@ -3603,7 +3603,7 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinitionId,
           modelId,
           position,
-          rotation,
+          eul2quat(rotation),
           freeplaceParentCharacterId
         );
         break;

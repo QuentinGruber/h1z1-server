@@ -257,6 +257,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   isWallSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
+    console.log(buildingSlot)
     let slot = 0;
     if(typeof buildingSlot == "string") {
       slot = getConstructionSlotId(buildingSlot);

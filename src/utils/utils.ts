@@ -682,10 +682,16 @@ export function getAngleAndDistance(p1: Float32Array, p2: Float32Array): { angle
 }
 
 export function getConstructionSlotId(buildingSlot: string) {
-  return Number(buildingSlot.substring(
-    buildingSlot.length,
-    buildingSlot.length - 2
-  ))
+  switch(buildingSlot) {
+    case "LoveShackDoor":
+    case "WoodShackDoor":
+      return 1;
+    default:
+      return Number(buildingSlot.substring(
+        buildingSlot.length,
+        buildingSlot.length - 2
+      ))
+  }
 }
 
 export function registerConstructionSlots(construction: ConstructionParentEntity, setSlots: ConstructionSlotPositionMap, slotDefinitions: ConstructionSlots) {
