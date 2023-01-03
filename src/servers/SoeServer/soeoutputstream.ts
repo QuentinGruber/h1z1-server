@@ -32,7 +32,7 @@ export class SOEOutputStream extends EventEmitter {
     this._rc4 = new RC4(cryptoKey);
   }
 
-  addToCache(sequence: number, data: Buffer, isFragment: boolean) {
+  addToCache(sequence: number, data: Uint8Array, isFragment: boolean) {
     this._cache[sequence] = {
       data: data,
       fragment: isFragment,
@@ -45,7 +45,7 @@ export class SOEOutputStream extends EventEmitter {
     }
   }
 
-  write(data: Buffer, unbuffered: boolean = false): void {
+  write(data: Uint8Array, unbuffered: boolean = false): void {
     if (this._useEncryption) {
       data = Buffer.from(this._rc4.encrypt(data));
 

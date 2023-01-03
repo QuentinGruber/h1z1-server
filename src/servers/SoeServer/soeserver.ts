@@ -77,7 +77,7 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  private _sendPhysicalPacket(client: Client, packet: Buffer): void {
+  private _sendPhysicalPacket(client: Client, packet: Uint8Array): void {
     client.packetsSentThisSec++;
     client.stats.totalPacketSent++;
     this._connection.postMessage({
@@ -540,7 +540,7 @@ export class SOEServer extends EventEmitter {
   }
 
   // Called by the application to send data to a client
-  sendAppData(client: Client, data: Buffer): void {
+  sendAppData(client: Client, data: Uint8Array): void {
     if (client.outputStream.isUsingEncryption()) {
       debug("Sending app data: " + data.length + " bytes with encryption");
     } else {
@@ -549,7 +549,7 @@ export class SOEServer extends EventEmitter {
     client.outputStream.write(data);
   }
 
-  sendUnbufferedAppData(client: Client, data: Buffer): void {
+  sendUnbufferedAppData(client: Client, data: Uint8Array): void {
     if (client.outputStream.isUsingEncryption()) {
       debug(
         "Sending unbuffered app data: " + data.length + " bytes with encryption"
