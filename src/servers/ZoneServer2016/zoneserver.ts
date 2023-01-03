@@ -3592,7 +3592,6 @@ export class ZoneServer2016 extends EventEmitter {
           client,
           itemDefinitionId,
           modelId,
-          position,
           rotation,
           parentObjectCharacterId,
           BuildingSlot
@@ -3752,7 +3751,6 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     itemDefinitionId: number,
     modelId: number,
-    position: Float32Array,
     rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
@@ -3762,29 +3760,20 @@ export class ZoneServer2016 extends EventEmitter {
       this.placementError(client, PlacementErrors.UNKNOWN_PARENT)
       return false;
     }
-
-    const fPos = parentFoundation.state.position,
-      offset = getAngleAndDistance(fPos, position),
-      yOffset = position[1] - fPos[1];
-      console.log(BuildingSlot)
-      console.log(`angle ${offset.angle.toFixed(4)} distance ${offset.distance.toFixed(4)} rot ${rotation[0].toFixed(4)} yOffset ${yOffset.toFixed(4)}`)
-
-    /*
-    if(!parentFoundation.isStairSlotValid(BuildingSlot, itemDefinitionId)) {
+    
+    if(!parentFoundation.isRampSlotValid(BuildingSlot, itemDefinitionId)) {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
       return false;
     }
-    */
-    /*
-    const pos = parentFoundation.getSlotPosition(BuildingSlot, parentFoundation.stairSlots),
-      rot = parentFoundation.getSlotRotation(BuildingSlot, parentFoundation.stairSlots);
-    if(!pos || !rot) {
+    
+    
+    const position = parentFoundation.getSlotPosition(BuildingSlot, parentFoundation.rampSlots);
+    if(!position) {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
       return;
     }
-    position = pos;
-    rotation = rot;
-    */
+    
+    // rotation is not slot-locked yet
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       stairs = new ConstructionChildEntity(
@@ -3792,14 +3781,14 @@ export class ZoneServer2016 extends EventEmitter {
         transientId,
         modelId,
         position,
-        rotation,
+        new Float32Array([rotation[0], 0, 0]),
         itemDefinitionId,
         parentObjectCharacterId,
         BuildingSlot,
         ""
       );
 
-    parentFoundation.setStairSlot(stairs);
+    parentFoundation.setRampSlot(stairs);
     this._constructionSimple[characterId] = stairs;
   }
   
@@ -3941,7 +3930,7 @@ export class ZoneServer2016 extends EventEmitter {
         transientId,
         modelId,
         position,
-        new Float32Array([0, 0, 0 ,0]),//rotation,
+        rotation,
         itemDefinitionId,
         client.character.characterId,
         client.character.name || "",

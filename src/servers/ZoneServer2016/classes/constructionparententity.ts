@@ -28,7 +28,7 @@ import { ZoneClient2016 } from "./zoneclient";
 import { BaseEntity } from "./baseentity";
 import { ConstructionPermissions, ConstructionSlotPositionMap, SlottedConstructionEntity } from "types/zoneserver";
 import { ConstructionDoor } from "./constructiondoor";
-import { ConstructionSlots, foundationExpansionSlotDefinitions, foundationRampSlotDefinitions, foundationStairSlotDefinition, foundationWallSlotDefinitions } from "../data/constructionslots";
+import { ConstructionSlots, foundationExpansionSlotDefinitions, foundationRampSlotDefinitions, foundationWallSlotDefinitions } from "../data/constructionslots";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
@@ -61,8 +61,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   occupiedExpansionSlots: { [slot: string]: ConstructionParentEntity } = {};
   readonly rampSlots:  ConstructionSlotPositionMap = {};
   occupiedRampSlots: { [slot: string]: ConstructionChildEntity } = {};
-  readonly stairSlots:  ConstructionSlotPositionMap = {};
-  occupiedStairSlots: { [slot: string]: ConstructionChildEntity } = {};
   constructor(
     characterId: string,
     transientId: number,
@@ -174,8 +172,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     Object.seal(this.expansionSlots);
     registerConstructionSlots(this, this.rampSlots, foundationRampSlotDefinitions);
     Object.seal(this.rampSlots);
-    registerConstructionSlots(this, this.stairSlots, foundationStairSlotDefinition);
-    Object.seal(this.stairSlots);
   }
 
   getSlotPosition(buildingSlot: string, slots: ConstructionSlotPositionMap): Float32Array | undefined {
@@ -298,19 +294,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     return this.setSlot(ramp, this.occupiedRampSlots);
   }
 
-  isStairSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
-    let slot = 0;
-    if(typeof buildingSlot == "string") {
-      slot = getConstructionSlotId(buildingSlot);
-    }
-    return this.isSlotValid(slot, foundationStairSlotDefinition, this.stairSlots, itemDefinitionId);
-  }
-
-  setStairSlot(ramp: ConstructionChildEntity): boolean {
-    return this.setSlot(ramp, this.occupiedStairSlots);
-  }
-
-  
 
   checkPerimeters(server: ZoneServer2016) {
     const temporaryPolygons = [];

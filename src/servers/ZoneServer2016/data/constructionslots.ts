@@ -75,26 +75,16 @@ export const foundationExpansionSlotDefinitions: ConstructionSlots = {
 export const foundationRampSlotDefinitions: ConstructionSlots = {
     [Items.FOUNDATION]: {
         yOffset: 2.1286,
-        authorizedItems: [Items.FOUNDATION_RAMP],
+        authorizedItems: [Items.FOUNDATION_RAMP, Items.FOUNDATION_STAIRS],
         offsets: [9.7044, 8.2095, 9.5351, 9.4750, 8.0488, 9.4759, 9.5286, 8.2186, 9.6937, 9.7424, 8.3611, 9.7417],
         angles: [57.7581, 88.8907, 120.5914, 148.1549, -179.9948, -148.1461, -120.5363, -88.8906, -57.8478, -30.8835, -0.0050, 30.8761],
         rotationOffsets: [-1.5708, -1.5708, -1.5708, 3.1416, 3.1416, 3.1416, 1.5708, 1.5708, 1.5708, 0, 0, 0]
     },
     [Items.FOUNDATION_EXPANSION]: {
         yOffset: 0.0003,
-        authorizedItems: [Items.FOUNDATION_RAMP],
+        authorizedItems: [Items.FOUNDATION_RAMP, Items.FOUNDATION_STAIRS],
         offsets: [8.5891, 7.6693, 5.6941, 7.6692, 8.5894],
         angles: [162.6863, 132.0595, 90.0025, 47.9419, 17.3132],
         rotationOffsets: [3.1416, -1.5708, -1.5708, -1.5708, 0]
-    }
-}
-
-export const foundationStairSlotDefinition: ConstructionSlots = {
-    [Items.FOUNDATION]: {
-        yOffset: 0,
-        authorizedItems: [Items.FOUNDATION_STAIRS],
-        offsets: [],
-        angles: [],
-        rotationOffsets: []
     }
 }
