@@ -1,4 +1,3 @@
-import { ConstructorDeclaration } from "typescript";
 import { Items } from "../models/enums";
 
 interface SlotOffsets {
@@ -13,7 +12,9 @@ interface SlotOffsets {
 export type ConstructionSlots = { [itemDefId: number]: SlotOffsets };
 
 
-export const foundationWallSlotDefinitions: ConstructionSlots = {
+// ALL DOOR SLOTS ARE TREATED AS WALL SLOTS INTERNALLY FOR SIMPLICITY
+export const wallSlotDefinitions: ConstructionSlots = {
+    // #region FOUNDATION
     [Items.GROUND_TAMPER]: {
         yOffset: 0.6542,
         authorizedItems: [Items.METAL_WALL, Items.METAL_GATE, Items.METAL_DOORWAY],
@@ -55,11 +56,121 @@ export const foundationWallSlotDefinitions: ConstructionSlots = {
         offsets: [0.9520],
         angles: [-173.1957],
         rotationOffsets: [0]
+    },
+
+    // #endregion
+    // #region SIMPLE
+    [Items.SHELTER]: {
+        yOffset: 0.0123,
+        authorizedItems: [Items.DOOR_METAL, Items.DOOR_WOOD],
+        offsets: [2.6534],
+        angles: [154.2955],
+        rotationOffsets: [0]
+    },
+    [Items.SHELTER_UPPER]: {
+        yOffset: 0.0123,
+        authorizedItems: [Items.DOOR_METAL, Items.DOOR_WOOD],
+        offsets: [2.6534],
+        angles: [154.2955],
+        rotationOffsets: [0]
+    },
+    [Items.SHELTER_LARGE]: {
+        yOffset: 0.0232,
+        authorizedItems: [Items.DOOR_METAL, Items.DOOR_WOOD],
+        offsets: [2.6821],
+        angles: [153.6215],
+        rotationOffsets: [0]
+    },
+    [Items.SHELTER_UPPER_LARGE]: {
+        yOffset: 0.0232,
+        authorizedItems: [Items.DOOR_METAL, Items.DOOR_WOOD],
+        offsets: [2.6821],
+        angles: [153.6215],
+        rotationOffsets: [0]
+    },
+    [Items.LOOKOUT_TOWER]: {
+        yOffset: 4.6086,
+        authorizedItems: [Items.DOOR_METAL, Items.DOOR_WOOD],
+        offsets: [0.6936],
+        angles: [-47.5391],
+        rotationOffsets: [1.5708]
+    },
+    [Items.METAL_DOORWAY]: {
+        yOffset: 0.0030,
+        authorizedItems: [Items.DOOR_METAL, Items.DOOR_WOOD],
+        offsets: [1.9911],
+        angles: [-92.4737],
+        rotationOffsets: [0]
+    },
+
+    // #endregion
+    // #region UPPER SLOTS
+    /*
+    [Items.METAL_DOORWAY]: {
+        yOffset: 0.0030,
+        authorizedItems: [Items.DOOR_METAL, Items.DOOR_WOOD],
+        offsets: [1.9911],
+        angles: [-92.4737],
+        rotationOffsets: [0]
+    }
+    */
+    // #endregion
+}
+
+export const upperWallSlots: ConstructionSlots = {
+    [Items.METAL_WALL]: {
+        yOffset: 2.3817,
+        authorizedItems: [Items.METAL_WALL_UPPER],
+        offsets: [0],
+        angles: [0],
+        rotationOffsets: [0]
+    },
+    [Items.METAL_DOORWAY]: {
+        yOffset: 2.3817,
+        authorizedItems: [Items.METAL_WALL_UPPER],
+        offsets: [0],
+        angles: [0],
+        rotationOffsets: [0]
     }
 }
 
-export const foundationShelterSlotDefinitions: ConstructionSlots = {
-
+// TODO 
+export const shelterSlotDefinitions: ConstructionSlots = {
+    [Items.GROUND_TAMPER]: {
+        yOffset: 0,
+        authorizedItems: [Items.SHELTER, Items.SHELTER_LARGE, Items.STRUCTURE_STAIRS, Items.LOOKOUT_TOWER],
+        offsets: [],
+        angles: [],
+        rotationOffsets: []
+    },
+    [Items.FOUNDATION]: {
+        yOffset: 0,
+        authorizedItems: [Items.SHELTER, Items.SHELTER_LARGE, Items.STRUCTURE_STAIRS, Items.LOOKOUT_TOWER],
+        offsets: [],
+        angles: [],
+        rotationOffsets: []
+    },
+    [Items.FOUNDATION_EXPANSION]: {
+        yOffset: 0,
+        authorizedItems: [Items.SHELTER, Items.SHELTER_LARGE, Items.STRUCTURE_STAIRS, Items.LOOKOUT_TOWER],
+        offsets: [],
+        angles: [],
+        rotationOffsets: []
+    },
+    [Items.SHELTER]: {
+        yOffset: 2.5410,
+        authorizedItems: [Items.SHELTER_UPPER, Items.SHELTER_UPPER_LARGE, Items.STRUCTURE_STAIRS_UPPER],
+        offsets: [0],
+        angles: [0],
+        rotationOffsets: [0]
+    },
+    [Items.SHELTER_LARGE]: {
+        yOffset: 2.5410,
+        authorizedItems: [Items.SHELTER_UPPER, Items.SHELTER_UPPER_LARGE, Items.STRUCTURE_STAIRS_UPPER],
+        offsets: [0, 4.9703],
+        angles: [0, 90],
+        rotationOffsets: [0, 0]
+    },
 }
 
 export const foundationExpansionSlotDefinitions: ConstructionSlots = {
@@ -87,4 +198,13 @@ export const foundationRampSlotDefinitions: ConstructionSlots = {
         angles: [162.6863, 132.0595, 90.0025, 47.9419, 17.3132],
         rotationOffsets: [3.1416, -1.5708, -1.5708, -1.5708, 0]
     }
+}
+
+export const shelterUpperSlotDefinitions: ConstructionSlots = {
+
+}
+
+
+export const wallUpperSlotDefinitions: ConstructionSlots = {
+
 }

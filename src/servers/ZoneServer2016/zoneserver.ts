@@ -3608,6 +3608,8 @@ export class ZoneServer2016 extends EventEmitter {
         );
         break;
       default:
+      console.log(`rot ${rotation[0].toFixed(4)}`)
+        rotation = new Float32Array([0, 0, 0]);
         const characterId = this.generateGuid();
         const transientId = this.getTransientId(characterId);
         if (
@@ -3697,6 +3699,13 @@ export class ZoneServer2016 extends EventEmitter {
             this._constructionSimple[
               parentObjectCharacterId
             ].occupiedSlots.push(BuildingSlot);
+            const fPos = this._constructionSimple[
+              parentObjectCharacterId
+            ]?.state.position,
+      offset = getAngleAndDistance(fPos, position),
+      yOffset = position[1] - fPos[1];
+      console.log(BuildingSlot)
+      console.log(`angle ${offset.angle.toFixed(4)} distance ${offset.distance.toFixed(4)} yOffset ${yOffset.toFixed(4)}`)
           }
         }
         break;
@@ -3839,6 +3848,13 @@ export class ZoneServer2016 extends EventEmitter {
       position = pos;
       rotation = rot;
     }
+
+    const fPos = parentSimple?.state.position,
+      offset = getAngleAndDistance(fPos, position),
+      yOffset = position[1] - fPos[1];
+      console.log(BuildingSlot)
+      console.log(`angle ${offset.angle.toFixed(4)} distance ${offset.distance.toFixed(4)} yOffset ${yOffset.toFixed(4)}`)
+      console.log(`rot ${rotation[0].toFixed(4)}`)
 
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),

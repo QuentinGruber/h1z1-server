@@ -28,7 +28,7 @@ import { ZoneClient2016 } from "./zoneclient";
 import { BaseEntity } from "./baseentity";
 import { ConstructionPermissions, ConstructionSlotPositionMap, SlottedConstructionEntity } from "types/zoneserver";
 import { ConstructionDoor } from "./constructiondoor";
-import { ConstructionSlots, foundationExpansionSlotDefinitions, foundationRampSlotDefinitions, foundationWallSlotDefinitions } from "../data/constructionslots";
+import { ConstructionSlots, foundationExpansionSlotDefinitions, foundationRampSlotDefinitions, wallSlotDefinitions } from "../data/constructionslots";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
@@ -166,7 +166,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         };
         break;
     }
-    registerConstructionSlots(this, this.wallSlots, foundationWallSlotDefinitions);
+    registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
     Object.seal(this.wallSlots);
     registerConstructionSlots(this, this.expansionSlots, foundationExpansionSlotDefinitions);
     Object.seal(this.expansionSlots);
@@ -262,7 +262,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     if(typeof buildingSlot == "string") {
       slot = getConstructionSlotId(buildingSlot);
     }
-    return this.isSlotValid(slot, foundationWallSlotDefinitions, this.wallSlots, itemDefinitionId);
+    return this.isSlotValid(slot, wallSlotDefinitions, this.wallSlots, itemDefinitionId);
   }
 
   setWallSlot(server: ZoneServer2016, wall: ConstructionChildEntity | ConstructionDoor): boolean {
