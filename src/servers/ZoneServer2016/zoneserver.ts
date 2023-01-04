@@ -3556,8 +3556,6 @@ export class ZoneServer2016 extends EventEmitter {
           client,
           itemDefinitionId,
           modelId,
-          position,
-          rotation,
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -3775,7 +3773,6 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
     
-    
     const position = parentFoundation.getSlotPosition(BuildingSlot, parentFoundation.rampSlots);
     if(!position) {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
@@ -3805,56 +3802,39 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     itemDefinitionId: number,
     modelId: number,
-    position: Float32Array,
-    rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
   ) {
-    const parentFoundation = this._constructionFoundations[parentObjectCharacterId],
-    parentSimple = this._constructionSimple[parentObjectCharacterId];
-    if(!Number(parentObjectCharacterId) || !(!!parentFoundation || !!parentSimple)) {
+    const parentFoundation = this._constructionFoundations[parentObjectCharacterId];
+    const parentSimple = this._constructionSimple[parentObjectCharacterId];
+
+    const parent = this._constructionFoundations[parentObjectCharacterId] || 
+      this._constructionSimple[parentObjectCharacterId];
+    if(!Number(parentObjectCharacterId) || !parent) {
       this.placementError(client, PlacementErrors.UNKNOWN_PARENT)
       return false;
     }
 
-    if(parentFoundation && !parentFoundation.isWallSlotValid(BuildingSlot, itemDefinitionId)) {
+    if(!parent.isWallSlotValid(BuildingSlot, itemDefinitionId)) {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
       return false;
     }
 
-    // bypass check until ALL simple construction door slots are mapped
+    const position = parent.getSlotPosition(BuildingSlot, parent.wallSlots),
+    rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
+    if(!position || !rotation) {
+      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      return false;
+    }
+
     /*
-    if(parentSimple && !parentSimple.isDoorSlotValid(BuildingSlot)) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
-      return false;
-    }
-    */
-
-    if(parentFoundation) {
-      /*
-      const fPos = parentFoundation?.state.position,
-      offset = getAngleAndDistance(fPos, position),
-      yOffset = position[1] - fPos[1];
-      console.log(BuildingSlot)
-      console.log(`angle ${offset.angle.toFixed(4)} distance ${offset.distance.toFixed(4)} yOffset ${yOffset.toFixed(4)}`)
-      console.log(`rot ${rotation[0].toFixed(4)}`)
-      */
-      const pos = parentFoundation.getSlotPosition(BuildingSlot, parentFoundation.wallSlots),
-      rot = parentFoundation.getSlotRotation(BuildingSlot, parentFoundation.wallSlots);
-      if(!pos || !rot) {
-        this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
-        return;
-      }
-      position = pos;
-      rotation = rot;
-    }
-
     const fPos = parentSimple?.state.position,
       offset = getAngleAndDistance(fPos, position),
       yOffset = position[1] - fPos[1];
       console.log(BuildingSlot)
       console.log(`angle ${offset.angle.toFixed(4)} distance ${offset.distance.toFixed(4)} yOffset ${yOffset.toFixed(4)}`)
       console.log(`rot ${rotation[0].toFixed(4)}`)
+    */
 
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
@@ -3871,8 +3851,9 @@ export class ZoneServer2016 extends EventEmitter {
         BuildingSlot
       );
     
+    parent.setWallSlot(this, door);
+
     if(parentFoundation) {
-      parentFoundation.setWallSlot(this, door);
       parentFoundation.changePerimeters(
         this,
         door.buildingSlot,
@@ -3880,7 +3861,6 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     if(parentSimple) {
-      //parentSimple.setDoorSlot(this, door);
       parentSimple.changePerimeters(this, BuildingSlot, door.state.position);
     }
 

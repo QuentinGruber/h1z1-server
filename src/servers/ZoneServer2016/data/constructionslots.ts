@@ -155,7 +155,7 @@ export const shelterSlotDefinitions: ConstructionSlots = {
         authorizedItems: [Items.SHELTER, Items.SHELTER_LARGE, Items.STRUCTURE_STAIRS, Items.LOOKOUT_TOWER],
         offsets: [],
         angles: [],
-        rotationOffsets: []
+        rotationOffsets: [0, 0, 0]
     },
     [Items.SHELTER]: {
         yOffset: 2.5410,
@@ -198,13 +198,4 @@ export const foundationRampSlotDefinitions: ConstructionSlots = {
         angles: [162.6863, 132.0595, 90.0025, 47.9419, 17.3132],
         rotationOffsets: [3.1416, -1.5708, -1.5708, -1.5708, 0]
     }
-}
-
-export const shelterUpperSlotDefinitions: ConstructionSlots = {
-
-}
-
-
-export const wallUpperSlotDefinitions: ConstructionSlots = {
-
 }

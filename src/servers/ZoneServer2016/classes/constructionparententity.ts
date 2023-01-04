@@ -55,8 +55,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   occupiedSlots: string[] = [];
   buildingSlot?: string;
   securedPolygons: any[];
-  readonly wallSlots: ConstructionSlotPositionMap = {};
-  occupiedWallSlots: { [slot: string]: ConstructionChildEntity | ConstructionDoor } = {};
   readonly expansionSlots:  ConstructionSlotPositionMap = {};
   occupiedExpansionSlots: { [slot: string]: ConstructionParentEntity } = {};
   readonly rampSlots:  ConstructionSlotPositionMap = {};
@@ -174,16 +172,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     Object.seal(this.rampSlots);
   }
 
-  getSlotPosition(buildingSlot: string, slots: ConstructionSlotPositionMap): Float32Array | undefined {
-    const slot = getConstructionSlotId(buildingSlot);
-    return slots[slot]?.position || undefined;
-  }
-
-  getSlotRotation(buildingSlot: string, slots: ConstructionSlotPositionMap): Float32Array | undefined {
-    const slot = getConstructionSlotId(buildingSlot);
-    return slots[slot]?.rotation || undefined;
-  }
-
   /**
    * Returns an array containing the parent foundation walls that a given expansion depends on to be secured.
    * @param expansion The expansion to check.
@@ -239,36 +227,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       }
     }
     this.isSecured = true;
-  }
-
-  private isSlotValid(slot: number, definitions: ConstructionSlots, slotMap: ConstructionSlotPositionMap, itemDefinitionId: number) {
-    const slots = definitions[this.itemDefinitionId];
-    if(!slots || !slots.authorizedItems.includes(itemDefinitionId)) {
-      return false;
-    }
-    return !!slotMap[slot];
-  }
-
-  private setSlot(entity: SlottedConstructionEntity, occupiedSlots: {[slot: string]: SlottedConstructionEntity}) {
-    const slot = entity.getSlotNumber();
-    if(!this.isWallSlotValid(slot, entity.itemDefinitionId)) return false;
-    occupiedSlots[slot] = entity;
-    return true;
-  }
-
-  isWallSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
-    console.log(buildingSlot)
-    let slot = 0;
-    if(typeof buildingSlot == "string") {
-      slot = getConstructionSlotId(buildingSlot);
-    }
-    return this.isSlotValid(slot, wallSlotDefinitions, this.wallSlots, itemDefinitionId);
-  }
-
-  setWallSlot(server: ZoneServer2016, wall: ConstructionChildEntity | ConstructionDoor): boolean {
-    const set = this.setSlot(wall, this.occupiedWallSlots);
-    if(set) this.updateSecuredState(server);
-    return set;
   }
 
   isExpansionSlotValid(buildingSlot: number | string, itemDefinitionId: number) {

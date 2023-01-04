@@ -27,6 +27,7 @@ import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import { ConstructionSlotPositionMap, positionUpdate } from "types/zoneserver";
 import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots";
 import { ConstructionParentEntity } from "servers/ZoneServer2016/classes/constructionparententity";
+import { ConstructionChildEntity } from "servers/ZoneServer2016/classes/constructionchildentity";
 
 export class customLodash {
   sum(pings: number[]): number {
@@ -694,7 +695,7 @@ export function getConstructionSlotId(buildingSlot: string) {
   }
 }
 
-export function registerConstructionSlots(construction: ConstructionParentEntity, setSlots: ConstructionSlotPositionMap, slotDefinitions: ConstructionSlots) {
+export function registerConstructionSlots(construction: ConstructionParentEntity | ConstructionChildEntity, setSlots: ConstructionSlotPositionMap, slotDefinitions: ConstructionSlots) {
   const slots = slotDefinitions[construction.itemDefinitionId];
     if(slots) {
       slots.offsets.forEach((offset: number, i: number) => {

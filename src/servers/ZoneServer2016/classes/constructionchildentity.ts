@@ -9,11 +9,13 @@
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneServer2016 } from "../zoneserver";
 import { ConstructionPermissionIds, Items } from "../models/enums";
-import { DamageInfo } from "types/zoneserver";
-import { getConstructionSlotId, isArraySumZero } from "../../../utils/utils";
+import { ConstructionSlotPositionMap, DamageInfo, SlottedConstructionEntity } from "types/zoneserver";
+import { getConstructionSlotId, isArraySumZero, registerConstructionSlots } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { eul2quat } from "h1emu-core";
+import { ConstructionSlots, wallSlotDefinitions } from "../data/constructionslots";
+import { ConstructionDoor } from "./constructiondoor";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_WALL:
@@ -43,6 +45,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   damageRange: number;
   fixedPosition?: Float32Array;
   placementTime = Date.now();
+  readonly wallSlots: ConstructionSlotPositionMap = {};
+  occupiedWallSlots: { [slot: string]: ConstructionChildEntity | ConstructionDoor } = {};
   constructor(
     characterId: string,
     transientId: number,
@@ -66,6 +70,54 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       LoveShackDoor: new Float32Array([0, 0, 0, 0]),
     };
     this.damageRange = getDamageRange(this.itemDefinitionId);
+
+    registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
+    Object.seal(this.wallSlots);
+  }
+
+  getSlotPosition(buildingSlot: string, slots: ConstructionSlotPositionMap): Float32Array | undefined {
+    const slot = getConstructionSlotId(buildingSlot);
+    return slots[slot]?.position || undefined;
+  }
+
+  getSlotRotation(buildingSlot: string, slots: ConstructionSlotPositionMap): Float32Array | undefined {
+    const slot = getConstructionSlotId(buildingSlot);
+    return slots[slot]?.rotation || undefined;
+  }
+
+  updateSecuredState(server: ZoneServer2016) {
+    // TODO:
+    // ONLY NEED SECURED LOGIC FOR SHELTERS
+  }
+
+  protected isSlotValid(slot: number, definitions: ConstructionSlots, slotMap: ConstructionSlotPositionMap, itemDefinitionId: number) {
+    const slots = definitions[this.itemDefinitionId];
+    if(!slots || !slots.authorizedItems.includes(itemDefinitionId)) {
+      return false;
+    }
+    return !!slotMap[slot];
+  }
+
+  protected setSlot(entity: SlottedConstructionEntity, occupiedSlots: {[slot: string]: SlottedConstructionEntity}) {
+    const slot = entity.getSlotNumber();
+    if(!this.isWallSlotValid(slot, entity.itemDefinitionId)) return false;
+    occupiedSlots[slot] = entity;
+    return true;
+  }
+
+  isWallSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
+    console.log(buildingSlot)
+    let slot = 0;
+    if(typeof buildingSlot == "string") {
+      slot = getConstructionSlotId(buildingSlot);
+    }
+    return this.isSlotValid(slot, wallSlotDefinitions, this.wallSlots, itemDefinitionId);
+  }
+
+  setWallSlot(server: ZoneServer2016, wall: ConstructionChildEntity | ConstructionDoor): boolean {
+    const set = this.setSlot(wall, this.occupiedWallSlots);
+    if(set) this.updateSecuredState(server);
+    return set;
   }
 
   pGetConstructionHealth() {
