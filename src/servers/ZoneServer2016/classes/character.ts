@@ -362,10 +362,10 @@ export class Character2016 extends BaseFullCharacter {
         const firegroupDef = server.getFiregroupDefinition(
             firegroup.FIRE_GROUP_ID
           ),
-        firemodes = firegroupDef?.FIRE_MODES || [];
+          firemodes = firegroupDef?.FIRE_MODES || [];
         if (!firemodes) {
           console.error(`firegroupDef missing for`);
-          console.log(firegroup)
+          console.log(firegroup);
         }
         return {
           firegroupId: firegroup.FIRE_GROUP_ID,

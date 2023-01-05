@@ -85,7 +85,7 @@ import {
   getAngleAndDistance,
 } from "../../utils/utils";
 
-import { Db, Timestamp } from "mongodb";
+import { Db } from "mongodb";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ItemObject } from "./classes/itemobject";
 import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
@@ -3605,110 +3605,180 @@ export class ZoneServer2016 extends EventEmitter {
           freeplaceParentCharacterId
         );
         break;
-      default:
-      console.log(`rot ${rotation[0].toFixed(4)}`)
-        rotation = new Float32Array([0, 0, 0]);
-        const characterId = this.generateGuid();
-        const transientId = this.getTransientId(characterId);
-        if (
-          BuildingSlot.includes("PerimeterWall") ||
-          (BuildingSlot === "WallStack" && Number(parentObjectCharacterId))
-        ) {
-          const slot =
-            BuildingSlot === "WallStack"
-              ? ""
-              : BuildingSlot.substring(
-                  BuildingSlot.length,
-                  BuildingSlot.length - 2
-                ).toString();
-          const npc = new ConstructionChildEntity(
-            characterId,
-            transientId,
-            modelId,
-            position,
-            rotation,
-            itemDefinitionId,
-            parentObjectCharacterId,
-            BuildingSlot,
-            slot
-          );
-            npc.fixedPosition = movePoint(
-              npc.state.position,
-              -(npc.eulerAngle + (90 * Math.PI) / 180),
-              2.5
-            );
-          this._constructionSimple[characterId] = npc;
-          if (this._constructionFoundations[parentObjectCharacterId]) {
-            const foundation =
-              this._constructionFoundations[parentObjectCharacterId];
-            foundation.changePerimeters(this, slot, npc.state.position);
-          }
-        } else {
-          if (!Number(parentObjectCharacterId)) {
-            parentObjectCharacterId = "";
-          }
-          const npc = new ConstructionChildEntity(
-            characterId,
-            transientId,
-            modelId,
-            position,
-            rotation,
-            itemDefinitionId,
-            parentObjectCharacterId,
-            BuildingSlot,
-            ""
-          );
-            const angle = -npc.eulerAngle;
-            switch (itemDefinitionId) {
-              case Items.SHELTER_LARGE:
-              case Items.SHELTER_UPPER_LARGE:
-                const centerPoint = movePoint(
-                  position,
-                  angle + (90 * Math.PI) / 180,
-                  2.5
-                );
-                npc.fixedPosition = centerPoint;
-                npc.securedPolygons = getRectangleCorners(
-                  centerPoint,
-                  10,
-                  5,
-                  angle
-                );
-                break;
-              case Items.SHELTER:
-              case Items.SHELTER_UPPER:
-                npc.securedPolygons = getRectangleCorners(
-                  position,
-                  5,
-                  5,
-                  angle
-                );
-                break;
-            }
-          
-          this._constructionSimple[characterId] = npc;
-        }
-        if (BuildingSlot != "" && parentObjectCharacterId) {
-          if (this._constructionFoundations[parentObjectCharacterId]) {
-            this._constructionFoundations[
-              parentObjectCharacterId
-            ].occupiedSlots.push(BuildingSlot);
-          } else if (this._constructionSimple[parentObjectCharacterId]) {
-            this._constructionSimple[
-              parentObjectCharacterId
-            ].occupiedSlots.push(BuildingSlot);
-            const fPos = this._constructionSimple[
-              parentObjectCharacterId
-            ]?.state.position,
-      offset = getAngleAndDistance(fPos, position),
-      yOffset = position[1] - fPos[1];
-      console.log(BuildingSlot)
-      console.log(`angle ${offset.angle.toFixed(4)} distance ${offset.distance.toFixed(4)} yOffset ${yOffset.toFixed(4)}`)
-          }
-        }
+      case Items.METAL_WALL:
+      case Items.METAL_WALL_UPPER:
+      case Items.METAL_DOORWAY:
+        this.placeConstructionWall(
+          client,
+          itemDefinitionId,
+          modelId,
+          parentObjectCharacterId,
+          BuildingSlot
+        );
         break;
+      default:
+        this.placementError(client, PlacementErrors.UNKNOWN_CONSTRUCTION);
+        return;
     }
     this.constructionManager(client);
+  }
+
+  placeConstructionShelter(
+    client: Client,
+    itemDefinitionId: number,
+    modelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    parentObjectCharacterId: string,
+    BuildingSlot: string
+  ) {
+    console.log(`rot ${rotation[0].toFixed(4)}`);
+    rotation = new Float32Array([0, 0, 0]);
+    const characterId = this.generateGuid(),
+      transientId = this.getTransientId(characterId);
+    if (!Number(parentObjectCharacterId)) {
+      parentObjectCharacterId = "";
+    }
+    const npc = new ConstructionChildEntity(
+      characterId,
+      transientId,
+      modelId,
+      position,
+      rotation,
+      itemDefinitionId,
+      parentObjectCharacterId,
+      BuildingSlot,
+      ""
+    );
+    const angle = -npc.eulerAngle;
+    switch (itemDefinitionId) {
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER_LARGE:
+        const centerPoint = movePoint(
+          position,
+          angle + (90 * Math.PI) / 180,
+          2.5
+        );
+        npc.fixedPosition = centerPoint;
+        npc.securedPolygons = getRectangleCorners(
+          centerPoint,
+          10,
+          5,
+          angle
+        );
+        break;
+      case Items.SHELTER:
+      case Items.SHELTER_UPPER:
+        npc.securedPolygons = getRectangleCorners(position, 5, 5, angle);
+        break;
+    }
+
+    this._constructionSimple[characterId] = npc;
+    if (BuildingSlot != "" && parentObjectCharacterId) {
+      if (this._constructionFoundations[parentObjectCharacterId]) {
+        this._constructionFoundations[
+          parentObjectCharacterId
+        ].occupiedSlots.push(BuildingSlot);
+      } else if (this._constructionSimple[parentObjectCharacterId]) {
+        this._constructionSimple[
+          parentObjectCharacterId
+        ].occupiedSlots.push(BuildingSlot);
+        const fPos =
+            this._constructionSimple[parentObjectCharacterId]?.state
+              .position,
+          offset = getAngleAndDistance(fPos, position),
+          yOffset = position[1] - fPos[1];
+        console.log(BuildingSlot);
+        console.log(
+          `angle ${offset.angle.toFixed(
+            4
+          )} distance ${offset.distance.toFixed(
+            4
+          )} yOffset ${yOffset.toFixed(4)}`
+        );
+      }
+    }
+  }
+
+  placeConstructionWall(
+    client: Client,
+    itemDefinitionId: number,
+    modelId: number,
+    parentObjectCharacterId: string,
+    BuildingSlot: string
+  ) {
+    const parentFoundation =
+      this._constructionFoundations[parentObjectCharacterId];
+    const parentSimple = this._constructionSimple[parentObjectCharacterId];
+
+    const parent =
+      this._constructionFoundations[parentObjectCharacterId] ||
+      this._constructionSimple[parentObjectCharacterId];
+    if (!Number(parentObjectCharacterId) || !parent) {
+      this.placementError(client, PlacementErrors.UNKNOWN_PARENT);
+      return false;
+    }
+
+    if (!parent.isWallSlotValid(BuildingSlot, itemDefinitionId)) {
+      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      return false;
+    }
+
+    let position, rotation;
+    if (itemDefinitionId == Items.METAL_WALL_UPPER) {
+      (position = parent.getSlotPosition(BuildingSlot, parent.upperWallSlots)),
+        (rotation = parent.getSlotRotation(
+          BuildingSlot,
+          parent.upperWallSlots
+        ));
+    } else {
+      (position = parent.getSlotPosition(BuildingSlot, parent.wallSlots)),
+        (rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots));
+    }
+    if (!position || !rotation) {
+      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      return false;
+    }
+
+    const characterId = this.generateGuid(),
+      transientId = this.getTransientId(characterId),
+      wall = new ConstructionChildEntity(
+        characterId,
+        transientId,
+        modelId,
+        position,
+        rotation,
+        itemDefinitionId,
+        parentObjectCharacterId,
+        BuildingSlot,
+        ""
+      );
+
+    parent.setWallSlot(this, wall);
+
+    if (parentFoundation) {
+      parentFoundation.changePerimeters(
+        this,
+        wall.buildingSlot,
+        wall.state.position
+      );
+    }
+    if (parentSimple) {
+      parentSimple.changePerimeters(this, BuildingSlot, wall.state.position);
+    }
+
+    if (BuildingSlot) {
+      if (this._constructionFoundations[parentObjectCharacterId]) {
+        this._constructionFoundations[
+          parentObjectCharacterId
+        ].occupiedSlots.push(BuildingSlot);
+      } else if (this._constructionSimple[parentObjectCharacterId]) {
+        this._constructionSimple[parentObjectCharacterId].occupiedSlots.push(
+          BuildingSlot
+        );
+      }
+    }
+    this._constructionSimple[characterId] = wall;
   }
 
   placeConstructionRamp(
@@ -3717,25 +3787,32 @@ export class ZoneServer2016 extends EventEmitter {
     modelId: number,
     parentObjectCharacterId: string,
     BuildingSlot: string
-  ){
-    const parentFoundation = this._constructionFoundations[parentObjectCharacterId];
-    if(!Number(parentObjectCharacterId) || !parentFoundation) {
-      this.placementError(client, PlacementErrors.UNKNOWN_PARENT)
+  ) {
+    const parentFoundation =
+      this._constructionFoundations[parentObjectCharacterId];
+    if (!Number(parentObjectCharacterId) || !parentFoundation) {
+      this.placementError(client, PlacementErrors.UNKNOWN_PARENT);
       return false;
     }
-    
-    if(!parentFoundation.isRampSlotValid(BuildingSlot, itemDefinitionId)) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
+
+    if (!parentFoundation.isRampSlotValid(BuildingSlot, itemDefinitionId)) {
+      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
       return false;
     }
-    
-    const position = parentFoundation.getSlotPosition(BuildingSlot, parentFoundation.rampSlots),
-    rotation = parentFoundation.getSlotRotation(BuildingSlot, parentFoundation.rampSlots);
-    if(!position || !rotation) {
+
+    const position = parentFoundation.getSlotPosition(
+        BuildingSlot,
+        parentFoundation.rampSlots
+      ),
+      rotation = parentFoundation.getSlotRotation(
+        BuildingSlot,
+        parentFoundation.rampSlots
+      );
+    if (!position || !rotation) {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
       return;
     }
-    
+
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       ramp = new ConstructionChildEntity(
@@ -3761,24 +3838,28 @@ export class ZoneServer2016 extends EventEmitter {
     rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
-  ){
-    const parentFoundation = this._constructionFoundations[parentObjectCharacterId];
-    if(!Number(parentObjectCharacterId) || !parentFoundation) {
-      this.placementError(client, PlacementErrors.UNKNOWN_PARENT)
+  ) {
+    const parentFoundation =
+      this._constructionFoundations[parentObjectCharacterId];
+    if (!Number(parentObjectCharacterId) || !parentFoundation) {
+      this.placementError(client, PlacementErrors.UNKNOWN_PARENT);
       return false;
     }
-    
-    if(!parentFoundation.isRampSlotValid(BuildingSlot, itemDefinitionId)) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
+
+    if (!parentFoundation.isRampSlotValid(BuildingSlot, itemDefinitionId)) {
+      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
       return false;
     }
-    
-    const position = parentFoundation.getSlotPosition(BuildingSlot, parentFoundation.rampSlots);
-    if(!position) {
+
+    const position = parentFoundation.getSlotPosition(
+      BuildingSlot,
+      parentFoundation.rampSlots
+    );
+    if (!position) {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
       return;
     }
-    
+
     // rotation is not slot-locked yet
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
@@ -3797,7 +3878,7 @@ export class ZoneServer2016 extends EventEmitter {
     parentFoundation.setRampSlot(stairs);
     this._constructionSimple[characterId] = stairs;
   }
-  
+
   placeConstructionDoor(
     client: Client,
     itemDefinitionId: number,
@@ -3805,24 +3886,26 @@ export class ZoneServer2016 extends EventEmitter {
     parentObjectCharacterId: string,
     BuildingSlot: string
   ) {
-    const parentFoundation = this._constructionFoundations[parentObjectCharacterId];
+    const parentFoundation =
+      this._constructionFoundations[parentObjectCharacterId];
     const parentSimple = this._constructionSimple[parentObjectCharacterId];
 
-    const parent = this._constructionFoundations[parentObjectCharacterId] || 
+    const parent =
+      this._constructionFoundations[parentObjectCharacterId] ||
       this._constructionSimple[parentObjectCharacterId];
-    if(!Number(parentObjectCharacterId) || !parent) {
-      this.placementError(client, PlacementErrors.UNKNOWN_PARENT)
+    if (!Number(parentObjectCharacterId) || !parent) {
+      this.placementError(client, PlacementErrors.UNKNOWN_PARENT);
       return false;
     }
 
-    if(!parent.isWallSlotValid(BuildingSlot, itemDefinitionId)) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
+    if (!parent.isWallSlotValid(BuildingSlot, itemDefinitionId)) {
+      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
       return false;
     }
 
     const position = parent.getSlotPosition(BuildingSlot, parent.wallSlots),
-    rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
-    if(!position || !rotation) {
+      rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
+    if (!position || !rotation) {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
       return false;
     }
@@ -3850,17 +3933,17 @@ export class ZoneServer2016 extends EventEmitter {
         parentObjectCharacterId,
         BuildingSlot
       );
-    
+
     parent.setWallSlot(this, door);
 
-    if(parentFoundation) {
+    if (parentFoundation) {
       parentFoundation.changePerimeters(
         this,
         door.buildingSlot,
         door.state.position
       );
     }
-    if(parentSimple) {
+    if (parentSimple) {
       parentSimple.changePerimeters(this, BuildingSlot, door.state.position);
     }
 
@@ -3898,20 +3981,29 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
 
-    const parentFoundation = this._constructionFoundations[parentObjectCharacterId];
-    if(Number(parentObjectCharacterId) && !parentFoundation) {
-      this.placementError(client, PlacementErrors.UNKNOWN_PARENT)
+    const parentFoundation =
+      this._constructionFoundations[parentObjectCharacterId];
+    if (Number(parentObjectCharacterId) && !parentFoundation) {
+      this.placementError(client, PlacementErrors.UNKNOWN_PARENT);
       return false;
     }
 
-    if(parentFoundation && BuildingSlot) {
-      if(!parentFoundation.isExpansionSlotValid(BuildingSlot, itemDefinitionId)) {
-        this.placementError(client, PlacementErrors.UNKNOWN_SLOT)
+    if (parentFoundation && BuildingSlot) {
+      if (
+        !parentFoundation.isExpansionSlotValid(BuildingSlot, itemDefinitionId)
+      ) {
+        this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
         return false;
       }
-      const pos = parentFoundation.getSlotPosition(BuildingSlot || "", parentFoundation.expansionSlots),
-      rot = parentFoundation.getSlotRotation(BuildingSlot || "", parentFoundation.expansionSlots);
-      if(!pos || !rot) {
+      const pos = parentFoundation.getSlotPosition(
+          BuildingSlot || "",
+          parentFoundation.expansionSlots
+        ),
+        rot = parentFoundation.getSlotRotation(
+          BuildingSlot || "",
+          parentFoundation.expansionSlots
+        );
+      if (!pos || !rot) {
         this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
         return;
       }
@@ -5158,10 +5250,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  isAdminItem(
-    itemDefinitionId: Items
-  ): boolean {
-    switch(itemDefinitionId) {
+  isAdminItem(itemDefinitionId: Items): boolean {
+    switch (itemDefinitionId) {
       case Items.WEAPON_REMOVER:
       case Items.FANNY_PACK_DEV:
         return true;
@@ -5569,6 +5659,9 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case PlacementErrors.UNKNOWN_SLOT:
         errorMsg = "Unknown slot";
+        break;
+      case PlacementErrors.UNKNOWN_CONSTRUCTION:
+        errorMsg = "Unknown construction item";
         break;
     }
     this.sendAlert(client, `Placement Error: ${errorMsg}`);

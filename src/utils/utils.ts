@@ -670,40 +670,67 @@ export function isArraySumZero(array: Float32Array) {
   );
 }
 
-export function getOffsetPoint(position: Float32Array, rotation: number, angle: number, distance: number) {
+export function getOffsetPoint(
+  position: Float32Array,
+  rotation: number,
+  angle: number,
+  distance: number
+) {
   return movePoint(position, -rotation + (angle * Math.PI) / 180, distance);
 }
 
-export function getAngleAndDistance(p1: Float32Array, p2: Float32Array): { angle: number, distance: number } {
+export function getAngleAndDistance(
+  p1: Float32Array,
+  p2: Float32Array
+): { angle: number; distance: number } {
   const dx = p2[0] - p1[0];
   const dy = p2[2] - p1[2];
-  const angle = Math.atan2(dy, dx) * 180 / Math.PI;  // Angle of rotation in degrees
-  const distance = Math.sqrt(dx ** 2 + dy ** 2);  // Distance between the points
+  const angle = (Math.atan2(dy, dx) * 180) / Math.PI; // Angle of rotation in degrees
+  const distance = Math.sqrt(dx ** 2 + dy ** 2); // Distance between the points
   return { angle, distance };
 }
 
 export function getConstructionSlotId(buildingSlot: string) {
-  switch(buildingSlot) {
+  switch (buildingSlot) {
     case "LoveShackDoor":
     case "WoodShackDoor":
       return 1;
+    case "WallStack":
+      return 101;
     default:
-      return Number(buildingSlot.substring(
-        buildingSlot.length,
-        buildingSlot.length - 2
-      ))
+      return Number(
+        buildingSlot.substring(buildingSlot.length, buildingSlot.length - 2)
+      );
   }
 }
 
-export function registerConstructionSlots(construction: ConstructionParentEntity | ConstructionChildEntity, setSlots: ConstructionSlotPositionMap, slotDefinitions: ConstructionSlots) {
+export function registerConstructionSlots(
+  construction: ConstructionParentEntity | ConstructionChildEntity,
+  setSlots: ConstructionSlotPositionMap,
+  slotDefinitions: ConstructionSlots
+) {
   const slots = slotDefinitions[construction.itemDefinitionId];
-    if(slots) {
-      slots.offsets.forEach((offset: number, i: number) => {
-        const point = getOffsetPoint(construction.state.position, construction.eulerAngle, slots.angles[i], slots.offsets[i]);
-        setSlots[i + 1] = {
-          position: new Float32Array([point[0], construction.state.position[1]+slots.yOffset, point[2], 1]),
-          rotation: new Float32Array([construction.eulerAngle + slots.rotationOffsets[i], 0, 0])
-        }
-      })
-    }
+  if (slots) {
+    slots.offsets.forEach((offset: number, i: number) => {
+      const point = getOffsetPoint(
+        construction.state.position,
+        construction.eulerAngle,
+        slots.angles[i],
+        slots.offsets[i]
+      );
+      setSlots[i + 1] = {
+        position: new Float32Array([
+          point[0],
+          construction.state.position[1] + slots.yOffset,
+          point[2],
+          1,
+        ]),
+        rotation: new Float32Array([
+          construction.eulerAngle + slots.rotationOffsets[i],
+          0,
+          0,
+        ]),
+      };
+    });
+  }
 }

@@ -9,12 +9,24 @@
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneServer2016 } from "../zoneserver";
 import { ConstructionPermissionIds, Items } from "../models/enums";
-import { ConstructionSlotPositionMap, DamageInfo, SlottedConstructionEntity } from "types/zoneserver";
-import { getConstructionSlotId, isArraySumZero, registerConstructionSlots } from "../../../utils/utils";
+import {
+  ConstructionSlotPositionMap,
+  DamageInfo,
+  SlottedConstructionEntity,
+} from "types/zoneserver";
+import {
+  getConstructionSlotId,
+  isArraySumZero,
+  registerConstructionSlots,
+} from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { eul2quat } from "h1emu-core";
-import { ConstructionSlots, wallSlotDefinitions } from "../data/constructionslots";
+import {
+  ConstructionSlots,
+  upperWallSlotDefinitions,
+  wallSlotDefinitions,
+} from "../data/constructionslots";
 import { ConstructionDoor } from "./constructiondoor";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
@@ -45,8 +57,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   damageRange: number;
   fixedPosition?: Float32Array;
   placementTime = Date.now();
+  // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
   readonly wallSlots: ConstructionSlotPositionMap = {};
-  occupiedWallSlots: { [slot: string]: ConstructionChildEntity | ConstructionDoor } = {};
+  occupiedWallSlots: { [slot: string]: ConstructionDoor } = {};
+
+  // FOR UPPER WALL ON WALLS / DOORWAYS
+  readonly upperWallSlots: ConstructionSlotPositionMap = {};
+  occupiedUpperWallSlots: { [slot: string]: ConstructionChildEntity } = {};
   constructor(
     characterId: string,
     transientId: number,
@@ -73,15 +90,29 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
     Object.seal(this.wallSlots);
+    registerConstructionSlots(
+      this,
+      this.upperWallSlots,
+      upperWallSlotDefinitions
+    );
+    Object.seal(this.upperWallSlots);
   }
 
-  getSlotPosition(buildingSlot: string, slots: ConstructionSlotPositionMap): Float32Array | undefined {
-    const slot = getConstructionSlotId(buildingSlot);
+  getSlotPosition(
+    buildingSlot: string,
+    slots: ConstructionSlotPositionMap
+  ): Float32Array | undefined {
+    let slot = getConstructionSlotId(buildingSlot);
+    if (slot == 101) slot = 1; // upper wall slot
     return slots[slot]?.position || undefined;
   }
 
-  getSlotRotation(buildingSlot: string, slots: ConstructionSlotPositionMap): Float32Array | undefined {
-    const slot = getConstructionSlotId(buildingSlot);
+  getSlotRotation(
+    buildingSlot: string,
+    slots: ConstructionSlotPositionMap
+  ): Float32Array | undefined {
+    let slot = getConstructionSlotId(buildingSlot);
+    if (slot == 101) slot = 1; // upper wall slot
     return slots[slot]?.rotation || undefined;
   }
 
@@ -90,33 +121,61 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     // ONLY NEED SECURED LOGIC FOR SHELTERS
   }
 
-  protected isSlotValid(slot: number, definitions: ConstructionSlots, slotMap: ConstructionSlotPositionMap, itemDefinitionId: number) {
+  protected isSlotValid(
+    slot: number,
+    definitions: ConstructionSlots,
+    slotMap: ConstructionSlotPositionMap,
+    itemDefinitionId: number
+  ) {
     const slots = definitions[this.itemDefinitionId];
-    if(!slots || !slots.authorizedItems.includes(itemDefinitionId)) {
+    if (!slots || !slots.authorizedItems.includes(itemDefinitionId)) {
       return false;
     }
     return !!slotMap[slot];
   }
 
-  protected setSlot(entity: SlottedConstructionEntity, occupiedSlots: {[slot: string]: SlottedConstructionEntity}) {
+  protected setSlot(
+    entity: SlottedConstructionEntity,
+    occupiedSlots: { [slot: string]: SlottedConstructionEntity }
+  ) {
     const slot = entity.getSlotNumber();
-    if(!this.isWallSlotValid(slot, entity.itemDefinitionId)) return false;
+    if (!this.isWallSlotValid(slot, entity.itemDefinitionId)) return false;
     occupiedSlots[slot] = entity;
     return true;
   }
 
   isWallSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
-    console.log(buildingSlot)
+    console.log(buildingSlot);
     let slot = 0;
-    if(typeof buildingSlot == "string") {
+    if (typeof buildingSlot == "string") {
       slot = getConstructionSlotId(buildingSlot);
     }
-    return this.isSlotValid(slot, wallSlotDefinitions, this.wallSlots, itemDefinitionId);
+    if (slot == 101) {
+      // UPPER WALLS
+      return this.isSlotValid(
+        1,
+        upperWallSlotDefinitions,
+        this.upperWallSlots,
+        itemDefinitionId
+      );
+    }
+    return this.isSlotValid(
+      slot,
+      wallSlotDefinitions,
+      this.wallSlots,
+      itemDefinitionId
+    );
   }
 
-  setWallSlot(server: ZoneServer2016, wall: ConstructionChildEntity | ConstructionDoor): boolean {
+  setWallSlot(
+    server: ZoneServer2016,
+    wall: ConstructionChildEntity | ConstructionDoor
+  ): boolean {
+    if (wall.itemDefinitionId == Items.METAL_WALL_UPPER) {
+      return this.setSlot(wall, this.occupiedUpperWallSlots);
+    }
     const set = this.setSlot(wall, this.occupiedWallSlots);
-    if(set) this.updateSecuredState(server);
+    if (set) this.updateSecuredState(server);
     return set;
   }
 
@@ -138,22 +197,20 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       242,
       destructTime
     );
-    const foundation = server._constructionFoundations[
-      this.parentObjectCharacterId
-    ]
-      ? server._constructionFoundations[this.parentObjectCharacterId]
-      : server._constructionSimple[this.parentObjectCharacterId];
-    if (!foundation) return;
+    const parent =
+      server._constructionFoundations[this.parentObjectCharacterId] ||
+      server._constructionSimple[this.parentObjectCharacterId];
+    if (!parent) return;
     if (this.itemDefinitionId == Items.METAL_WALL) {
-      foundation.changePerimeters(
+      parent.changePerimeters(
         server,
         this.buildingSlot,
         new Float32Array([0, 0, 0, 0])
       );
     }
     if (!this.slot || !this.parentObjectCharacterId) return;
-    const index = foundation.occupiedSlots.indexOf(this.slot);
-    foundation.occupiedSlots.splice(index, 1);
+    const index = parent.occupiedSlots.indexOf(this.slot);
+    parent.occupiedSlots.splice(index, 1);
   }
 
   changePerimeters(
@@ -215,7 +272,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   getSlotNumber() {
-    if(!this.buildingSlot) return 0;
+    if (!this.buildingSlot) return 0;
     return getConstructionSlotId(this.buildingSlot);
   }
 

@@ -190,8 +190,8 @@ export class WorldObjectManager {
     Object.values(entity._loadout).forEach((item) => {
       if (
         item.itemGuid != "0x0" &&
-        !entity.isDefaultItem(item.itemDefinitionId)
-        && !server.isAdminItem(item.itemDefinitionId)
+        !entity.isDefaultItem(item.itemDefinitionId) &&
+        !server.isAdminItem(item.itemDefinitionId)
       ) {
         items[item.itemGuid] = _.cloneDeep(item);
         items[item.itemGuid].slotId = Object.keys(items).length + 1;

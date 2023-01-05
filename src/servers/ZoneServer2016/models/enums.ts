@@ -17,7 +17,8 @@ export enum PlacementErrors {
   OVERLAP,
   PERMISSION,
   UNKNOWN_PARENT,
-  UNKNOWN_SLOT
+  UNKNOWN_SLOT,
+  UNKNOWN_CONSTRUCTION,
 }
 
 export enum ConstructionPermissionIds {

@@ -26,9 +26,18 @@ import {
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
 import { BaseEntity } from "./baseentity";
-import { ConstructionPermissions, ConstructionSlotPositionMap, SlottedConstructionEntity } from "types/zoneserver";
+import {
+  ConstructionPermissions,
+  ConstructionSlotPositionMap,
+  SlottedConstructionEntity,
+} from "types/zoneserver";
 import { ConstructionDoor } from "./constructiondoor";
-import { ConstructionSlots, foundationExpansionSlotDefinitions, foundationRampSlotDefinitions, wallSlotDefinitions } from "../data/constructionslots";
+import {
+  ConstructionSlots,
+  foundationExpansionSlotDefinitions,
+  foundationRampSlotDefinitions,
+  wallSlotDefinitions,
+} from "../data/constructionslots";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
@@ -55,9 +64,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   occupiedSlots: string[] = [];
   buildingSlot?: string;
   securedPolygons: any[];
-  readonly expansionSlots:  ConstructionSlotPositionMap = {};
+  readonly expansionSlots: ConstructionSlotPositionMap = {};
   occupiedExpansionSlots: { [slot: string]: ConstructionParentEntity } = {};
-  readonly rampSlots:  ConstructionSlotPositionMap = {};
+  readonly rampSlots: ConstructionSlotPositionMap = {};
   occupiedRampSlots: { [slot: string]: ConstructionChildEntity } = {};
   constructor(
     characterId: string,
@@ -166,18 +175,26 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
     Object.seal(this.wallSlots);
-    registerConstructionSlots(this, this.expansionSlots, foundationExpansionSlotDefinitions);
+    registerConstructionSlots(
+      this,
+      this.expansionSlots,
+      foundationExpansionSlotDefinitions
+    );
     Object.seal(this.expansionSlots);
-    registerConstructionSlots(this, this.rampSlots, foundationRampSlotDefinitions);
+    registerConstructionSlots(
+      this,
+      this.rampSlots,
+      foundationRampSlotDefinitions
+    );
     Object.seal(this.rampSlots);
   }
 
   /**
    * Returns an array containing the parent foundation walls that a given expansion depends on to be secured.
    * @param expansion The expansion to check.
-  */
+   */
   getDependentWalls(): Array<string> {
-    switch(this.buildingSlot) {
+    switch (this.buildingSlot) {
       case "01":
         return ["04", "05", "06"];
       case "02":
@@ -200,27 +217,27 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
     // NEED TO CHECK FOR DOORWAYS WITH AN OPEN DOOR
 
-
     const wallSlots = Object.values(this.occupiedWallSlots);
     // check if all wall slots are occupied
-    if(wallSlots.length != Object.values(this.wallSlots).length) {
+    if (wallSlots.length != Object.values(this.wallSlots).length) {
       this.isSecured = false;
       return;
     }
     // check if any walls are gates / if they're open
-    for(const wall of wallSlots) {
-      if(wall instanceof ConstructionDoor && wall.isOpen) {
+    for (const wall of wallSlots) {
+      if (wall instanceof ConstructionDoor && wall.isOpen) {
         this.isSecured = false;
         return;
       }
     }
-    
+
     // if this is an expansion, check dependent parent foundation walls
-    const parent = server._constructionFoundations[this.parentObjectCharacterId]
-    if(parent) {
-      for(const slot of Object.values(this.getDependentWalls())) {
+    const parent =
+      server._constructionFoundations[this.parentObjectCharacterId];
+    if (parent) {
+      for (const slot of Object.values(this.getDependentWalls())) {
         const wall = this.occupiedWallSlots[Number(slot)];
-        if(!wall || (wall instanceof ConstructionDoor && wall.isOpen)) {
+        if (!wall || (wall instanceof ConstructionDoor && wall.isOpen)) {
           this.isSecured = false;
           return;
         }
@@ -229,12 +246,20 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     this.isSecured = true;
   }
 
-  isExpansionSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
+  isExpansionSlotValid(
+    buildingSlot: number | string,
+    itemDefinitionId: number
+  ) {
     let slot = 0;
-    if(typeof buildingSlot == "string") {
+    if (typeof buildingSlot == "string") {
       slot = getConstructionSlotId(buildingSlot);
     }
-    return this.isSlotValid(slot, foundationExpansionSlotDefinitions, this.expansionSlots, itemDefinitionId);
+    return this.isSlotValid(
+      slot,
+      foundationExpansionSlotDefinitions,
+      this.expansionSlots,
+      itemDefinitionId
+    );
   }
 
   setExpansionSlot(expansion: ConstructionParentEntity): boolean {
@@ -243,16 +268,20 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
   isRampSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
     let slot = 0;
-    if(typeof buildingSlot == "string") {
+    if (typeof buildingSlot == "string") {
       slot = getConstructionSlotId(buildingSlot);
     }
-    return this.isSlotValid(slot, foundationRampSlotDefinitions, this.rampSlots, itemDefinitionId);
+    return this.isSlotValid(
+      slot,
+      foundationRampSlotDefinitions,
+      this.rampSlots,
+      itemDefinitionId
+    );
   }
 
   setRampSlot(ramp: ConstructionChildEntity): boolean {
     return this.setSlot(ramp, this.occupiedRampSlots);
   }
-
 
   checkPerimeters(server: ZoneServer2016) {
     const temporaryPolygons = [];
@@ -614,9 +643,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         break;
       case Items.GROUND_TAMPER:
         Object.values(this.perimeters).forEach((value: Float32Array) => {
-          if (
-            !isArraySumZero(value)
-          ) {
+          if (!isArraySumZero(value)) {
             result = false;
           }
         });
@@ -717,18 +744,18 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       242,
       destructTime
     );
-    const foundation =
+    const parent =
       server._constructionFoundations[this.parentObjectCharacterId];
-    if (!foundation) return;
+    if (!parent) return;
     if (this.itemDefinitionId == Items.METAL_WALL) {
-      foundation.changePerimeters(
+      parent.changePerimeters(
         server,
         this.buildingSlot,
         new Float32Array([0, 0, 0, 0])
       );
     }
     if (!this.buildingSlot || !this.parentObjectCharacterId) return;
-    delete foundation.expansions[this.buildingSlot];
+    delete parent.expansions[this.buildingSlot];
   }
 
   // may no longer be needed

@@ -173,7 +173,7 @@ export class ConstructionDoor extends DoorEntity {
   }
 
   getSlotNumber() {
-    if(!this.buildingSlot) return 0;
+    if (!this.buildingSlot) return 0;
     return getConstructionSlotId(this.buildingSlot);
   }
 
