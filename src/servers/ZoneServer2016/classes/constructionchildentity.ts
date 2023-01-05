@@ -24,6 +24,7 @@ import { ConstructionParentEntity } from "./constructionparententity";
 import { eul2quat } from "h1emu-core";
 import {
   ConstructionSlots,
+  shelterSlotDefinitions,
   upperWallSlotDefinitions,
   wallSlotDefinitions,
 } from "../data/constructionslots";
@@ -64,6 +65,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   // FOR UPPER WALL ON WALLS / DOORWAYS
   readonly upperWallSlots: ConstructionSlotPositionMap = {};
   occupiedUpperWallSlots: { [slot: string]: ConstructionChildEntity } = {};
+  
+  readonly shelterSlots: ConstructionSlotPositionMap = {};
+  occupiedShelterSlots: { [slot: string]: ConstructionDoor } = {};
   constructor(
     characterId: string,
     transientId: number,
@@ -96,14 +100,46 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       upperWallSlotDefinitions
     );
     Object.seal(this.upperWallSlots);
+    registerConstructionSlots(
+      this,
+      this.shelterSlots,
+      shelterSlotDefinitions
+    );
+    Object.seal(this.shelterSlots);
   }
 
   getSlotPosition(
     buildingSlot: string,
-    slots: ConstructionSlotPositionMap
+    slots: ConstructionSlotPositionMap,
+    isShelter?: boolean
   ): Float32Array | undefined {
     let slot = getConstructionSlotId(buildingSlot);
     if (slot == 101) slot = 1; // upper wall slot
+    if(isShelter) {
+      if(this.itemDefinitionId == Items.GROUND_TAMPER) {
+        switch (true) {
+          case slot >= 11 && slot <= 14:
+            slot = slot - 6
+            break
+          case slot >= 21 && slot <= 24:
+            slot = slot - 12
+            break
+          case slot >= 31 && slot <= 34:
+            slot = slot - 18
+            break
+        }
+      }
+      else if(this.itemDefinitionId == Items.FOUNDATION) {
+        switch (true) {
+          case slot >= 11 && slot <= 13:
+            slot = slot - 6
+            break
+          case slot >= 21 && slot <= 23:
+            slot = slot - 12
+            break
+        }
+      }
+    }
     return slots[slot]?.position || undefined;
   }
 
@@ -175,6 +211,52 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       return this.setSlot(wall, this.occupiedUpperWallSlots);
     }
     const set = this.setSlot(wall, this.occupiedWallSlots);
+    if (set) this.updateSecuredState(server);
+    return set;
+  }
+
+  isShelterSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
+    console.log(buildingSlot);
+    let slot = 0;
+    if (typeof buildingSlot == "string") {
+      slot = getConstructionSlotId(buildingSlot);
+    }
+    if(this.itemDefinitionId == Items.GROUND_TAMPER) {
+      switch (true) {
+        case slot >= 11 && slot <= 14:
+          slot = slot - 6
+          break
+        case slot >= 21 && slot <= 24:
+          slot = slot - 12
+          break
+        case slot >= 31 && slot <= 34:
+          slot = slot - 18
+          break
+      }
+    }
+    else if(this.itemDefinitionId == Items.FOUNDATION) {
+      switch (true) {
+        case slot >= 11 && slot <= 13:
+          slot = slot - 6
+          break
+        case slot >= 21 && slot <= 23:
+          slot = slot - 12
+          break
+      }
+    }
+    return this.isSlotValid(
+      slot,
+      shelterSlotDefinitions,
+      this.shelterSlots,
+      itemDefinitionId
+    );
+  }
+
+  setShelterSlot(
+    server: ZoneServer2016,
+    shelter: ConstructionChildEntity
+  ): boolean {
+    const set = this.setSlot(shelter, this.occupiedShelterSlots);
     if (set) this.updateSecuredState(server);
     return set;
   }

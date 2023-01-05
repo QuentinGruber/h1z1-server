@@ -3571,7 +3571,7 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinitionId,
           modelId,
           position,
-          rotation,
+          new Float32Array([0,0,0]),// rotation,
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -3616,6 +3616,15 @@ export class ZoneServer2016 extends EventEmitter {
           BuildingSlot
         );
         break;
+      case Items.SHELTER:
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER:
+      case Items.SHELTER_UPPER_LARGE:
+      case Items.STRUCTURE_STAIRS:
+      case Items.STRUCTURE_STAIRS_UPPER:
+      case Items.LOOKOUT_TOWER:
+        this.placeConstructionShelter(client, itemDefinitionId, modelId, rotation, parentObjectCharacterId, BuildingSlot);
+        break;
       default:
         this.placementError(client, PlacementErrors.UNKNOWN_CONSTRUCTION);
         return;
@@ -3627,13 +3636,29 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     itemDefinitionId: number,
     modelId: number,
-    position: Float32Array,
     rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
   ) {
-    console.log(`rot ${rotation[0].toFixed(4)}`);
-    rotation = new Float32Array([0, 0, 0]);
+    const parent =
+      this._constructionFoundations[parentObjectCharacterId] ||
+      this._constructionSimple[parentObjectCharacterId];
+    if (!Number(parentObjectCharacterId) || !parent) {
+      this.placementError(client, PlacementErrors.UNKNOWN_PARENT);
+      return false;
+    }
+
+    if (!parent.isShelterSlotValid(BuildingSlot, itemDefinitionId)) {
+      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      return false;
+    }
+
+    const position = parent.getSlotPosition(BuildingSlot, parent.shelterSlots, true);
+    if (!position) {
+      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      return false;
+    }
+
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId);
     if (!Number(parentObjectCharacterId)) {
@@ -3683,19 +3708,6 @@ export class ZoneServer2016 extends EventEmitter {
         this._constructionSimple[
           parentObjectCharacterId
         ].occupiedSlots.push(BuildingSlot);
-        const fPos =
-            this._constructionSimple[parentObjectCharacterId]?.state
-              .position,
-          offset = getAngleAndDistance(fPos, position),
-          yOffset = position[1] - fPos[1];
-        console.log(BuildingSlot);
-        console.log(
-          `angle ${offset.angle.toFixed(
-            4
-          )} distance ${offset.distance.toFixed(
-            4
-          )} yOffset ${yOffset.toFixed(4)}`
-        );
       }
     }
   }

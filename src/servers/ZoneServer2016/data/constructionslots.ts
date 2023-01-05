@@ -118,18 +118,6 @@ export const wallSlotDefinitions: ConstructionSlots = {
     angles: [-92.4737],
     rotationOffsets: [0],
   },
-
-  // #endregion
-  // #region UPPER SLOTS
-  /*
-    [Items.METAL_DOORWAY]: {
-        yOffset: 0.0030,
-        authorizedItems: [Items.DOOR_METAL, Items.DOOR_WOOD],
-        offsets: [1.9911],
-        angles: [-92.4737],
-        rotationOffsets: [0]
-    }
-    */
   // #endregion
 };
 
@@ -153,39 +141,39 @@ export const upperWallSlotDefinitions: ConstructionSlots = {
 // TODO
 export const shelterSlotDefinitions: ConstructionSlots = {
   [Items.GROUND_TAMPER]: {
-    yOffset: 0,
+    yOffset: 0.6542,
     authorizedItems: [
       Items.SHELTER,
       Items.SHELTER_LARGE,
       Items.STRUCTURE_STAIRS,
       Items.LOOKOUT_TOWER,
     ],
-    offsets: [],
-    angles: [],
-    rotationOffsets: [],
+    offsets: [10.6066, 7.9057, 7.9057, 10.6066, 7.9057, 3.5355, 3.5355, 7.9057, 7.9057, 3.5355, 3.5355, 7.9057, 10.6066, 7.9057, 7.9057, 10.6066],
+    angles: [135.0000, 161.5651, -161.5651, -135.0000, 108.4349, 135.0000, -135.0000, -108.4349, 71.5651, 45.0000, -45.0000, -71.5651, 45.0000, 18.4349, -18.4349, -45.0000],
+    rotationOffsets: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
   },
   [Items.FOUNDATION]: {
-    yOffset: 0,
+    yOffset: 2.1342,
     authorizedItems: [
       Items.SHELTER,
       Items.SHELTER_LARGE,
       Items.STRUCTURE_STAIRS,
       Items.LOOKOUT_TOWER,
     ],
-    offsets: [],
-    angles: [],
-    rotationOffsets: [],
+    offsets: [6.9603, 4.8413, 6.9592, 5.0032, 0.1587, 5.0018, 7.1847, 5.1587, 7.1836],
+    angles: [-134.0720, -179.9913, 134.0804, -88.1824, -0.2644, 88.1819, -44.1092, -0.0081, 44.1008],
+    rotationOffsets: [0, 0, 0, 0, 0, 0, 0, 0, 0],
   },
   [Items.FOUNDATION_EXPANSION]: {
-    yOffset: 0,
+    yOffset: 0.0055,
     authorizedItems: [
       Items.SHELTER,
       Items.SHELTER_LARGE,
       Items.STRUCTURE_STAIRS,
       Items.LOOKOUT_TOWER,
     ],
-    offsets: [],
-    angles: [],
+    offsets: [5.5897, 2.4994, 5.5902],
+    angles: [-63.4394, 0.0056, 63.4405],
     rotationOffsets: [0, 0, 0],
   },
   [Items.SHELTER]: {

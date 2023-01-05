@@ -36,6 +36,7 @@ import {
   ConstructionSlots,
   foundationExpansionSlotDefinitions,
   foundationRampSlotDefinitions,
+  shelterSlotDefinitions,
   wallSlotDefinitions,
 } from "../data/constructionslots";
 
@@ -187,6 +188,12 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       foundationRampSlotDefinitions
     );
     Object.seal(this.rampSlots);
+    registerConstructionSlots(
+      this,
+      this.shelterSlots,
+      shelterSlotDefinitions
+    );
+    Object.seal(this.shelterSlots);
   }
 
   /**
