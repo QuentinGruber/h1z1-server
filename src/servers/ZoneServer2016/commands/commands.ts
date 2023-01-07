@@ -1455,9 +1455,9 @@ export const commands: Array<Command> = [
     name: "respawnloot",
     permissionLevel: PermissionLevels.ADMIN,
     execute: async (server: ZoneServer2016, client: Client, args: any[]) => {
-      for(const characterId in server._spawnedItems) {
+      for (const characterId in server._spawnedItems) {
         const item = server._spawnedItems[characterId];
-        if(item.spawnerId > 0) {
+        if (item.spawnerId > 0) {
           if (
             item.item.itemDefinitionId === Items.FUEL_BIOFUEL ||
             item.item.itemDefinitionId === Items.FUEL_ETHANOL
@@ -1471,10 +1471,10 @@ export const commands: Array<Command> = [
 
       delete require.cache[require.resolve("../data/lootspawns")];
       const loottables = require("../data/lootspawns").lootTables;
-      console.log(loottables)
+      console.log(loottables);
       server.worldObjectManager.createLoot(server, loottables);
       server.sendChatText(client, `Respawned loot`);
-    }
+    },
   },
 
   //#endregion
