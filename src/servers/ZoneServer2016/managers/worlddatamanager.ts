@@ -1,18 +1,92 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2022 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import { MongoClient } from "mongodb";
 import {
   CharacterUpdateSaveData,
   FullCharacterSaveData,
   FullVehicleSaveData,
+  LoadoutContainerSaveData,
+  LoadoutItemSaveData,
   ServerSaveData,
 } from "types/savedata";
-import { loadoutContainer, loadoutItem } from "types/zoneserver";
 import { initMongo, toBigHex, _ } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
-import { Vehicle2016 } from "./vehicle";
-import { ZoneClient2016 as Client } from "./zoneclient";
+import { Vehicle2016 } from "../classes/vehicle";
+import { ZoneClient2016 as Client } from "../classes/zoneclient";
+import { LoadoutItem } from "../classes/loadoutItem";
+import { LoadoutContainer } from "../classes/loadoutcontainer";
+import { BaseItem } from "../classes/baseItem";
+import { Weapon } from "../classes/weapon";
 
 const fs = require("fs");
 const debug = require("debug")("ZoneServer");
+
+function constructLoadout(
+  savedLoadout: { [loadoutSlotId: number]: LoadoutItemSaveData },
+  entityLoadout: { [loadoutSlotId: number]: LoadoutItem }
+) {
+  Object.values(savedLoadout).forEach((item) => {
+    const loadoutItem = new LoadoutItem(
+      new BaseItem(
+        item.itemDefinitionId,
+        item.itemGuid,
+        item.currentDurability,
+        item.stackCount
+      ),
+      item.slotId,
+      item.loadoutItemOwnerGuid
+    );
+    loadoutItem.weapon = item.weapon
+      ? new Weapon(loadoutItem, item.weapon.ammoCount)
+      : undefined;
+    entityLoadout[item.slotId] = loadoutItem;
+  });
+}
+
+function constructContainers(
+  savedContainers: { [loadoutSlotId: number]: LoadoutContainerSaveData },
+  entityContainers: { [loadoutSlotId: number]: LoadoutContainer }
+) {
+  Object.values(savedContainers).forEach((container) => {
+    const loadoutContainer = new LoadoutContainer(
+      new LoadoutItem(
+        new BaseItem(
+          container.itemDefinitionId,
+          container.itemGuid,
+          container.currentDurability,
+          container.stackCount
+        ),
+        container.slotId,
+        container.loadoutItemOwnerGuid
+      ),
+      container.containerDefinitionId
+    );
+    Object.values(container.items).forEach((item) => {
+      const i = new BaseItem(
+        item.itemDefinitionId,
+        item.itemGuid,
+        item.currentDurability,
+        item.stackCount
+      );
+      i.slotId = item.slotId;
+      i.containerGuid = item.containerGuid;
+      i.weapon = item.weapon ? new Weapon(i, item.weapon.ammoCount) : undefined;
+      loadoutContainer.items[item.itemGuid] = i;
+    });
+    entityContainers[container.slotId] = loadoutContainer;
+  });
+}
 
 export class WorldDataManager {
   lastSaveTime = 0;
@@ -173,8 +247,11 @@ export class WorldDataManager {
   //#region CHARACTER DATA
 
   async loadCharacterData(server: ZoneServer2016, client: Client) {
-    if (!server.checkHook("OnLoadCharacterData", client)) return;
-    if (!(await server.checkAsyncHook("OnLoadCharacterData", client))) return;
+    if (!server.hookManager.checkHook("OnLoadCharacterData", client)) return;
+    if (
+      !(await server.hookManager.checkAsyncHook("OnLoadCharacterData", client))
+    )
+      return;
 
     let savedCharacter: FullCharacterSaveData;
     if (server._soloMode) {
@@ -258,14 +335,17 @@ export class WorldDataManager {
       client.character.state.rotation = new Float32Array(
         savedCharacter.rotation
       );
-      client.character._loadout = savedCharacter._loadout || {};
-      client.character._containers = savedCharacter._containers || {};
+      constructLoadout(savedCharacter._loadout, client.character._loadout);
+      constructContainers(
+        savedCharacter._containers,
+        client.character._containers
+      );
       client.character._resources =
         savedCharacter._resources || client.character._resources;
       server.generateEquipmentFromLoadout(client.character);
     }
 
-    server.checkHook("OnLoadedCharacterData", client);
+    server.hookManager.checkHook("OnLoadedCharacterData", client);
   }
 
   async saveCharacterData(
@@ -277,31 +357,14 @@ export class WorldDataManager {
     if (updateItemGuid) await this.saveServerData(server);
     const loadoutKeys = Object.keys(client.character._loadout),
       containerKeys = Object.keys(client.character._containers),
-      loadoutSaveData: { [loadoutSlotId: number]: loadoutItem } = {},
-      containerSaveData: { [loadoutSlotId: number]: loadoutContainer } = {};
+      loadoutSaveData: { [loadoutSlotId: number]: LoadoutItemSaveData } = {},
+      containerSaveData: { [loadoutSlotId: number]: LoadoutContainerSaveData } =
+        {};
     Object.values(client.character._loadout).forEach((item, idx) => {
-      loadoutSaveData[Number(loadoutKeys[idx])] = {
-        ...item,
-        weapon:
-          item.weapon == undefined
-            ? undefined
-            : {
-                ...item.weapon,
-                reloadTimer: undefined, // force this to undefined to fix BSONError: cyclic dependency
-              },
-      };
+      loadoutSaveData[Number(loadoutKeys[idx])] = item;
     });
     Object.values(client.character._containers).forEach((item, idx) => {
-      containerSaveData[Number(containerKeys[idx])] = {
-        ...item,
-        weapon:
-          item.weapon == undefined
-            ? undefined
-            : {
-                ...item.weapon,
-                reloadTimer: undefined, // force this to undefined to fix BSONError: cyclic dependency
-              },
-      };
+      containerSaveData[Number(containerKeys[idx])] = item;
     });
 
     const saveData: CharacterUpdateSaveData = {
@@ -393,9 +456,9 @@ export class WorldDataManager {
         new Float32Array(vehicle.rotation),
         server._gameTime
       );
-      (vehicleData._loadout = vehicle._loadout),
-        (vehicleData._containers = vehicle._containers),
-        (vehicleData._resources = vehicle._resources);
+      constructLoadout(vehicle._loadout, vehicleData._loadout);
+      constructContainers(vehicle._containers, vehicleData._containers);
+      vehicleData._resources = vehicle._resources;
       server.worldObjectManager.createVehicle(server, vehicleData);
     });
   }

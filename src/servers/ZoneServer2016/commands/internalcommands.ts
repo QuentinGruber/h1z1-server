@@ -46,11 +46,12 @@ export const internalCommands: Array<Command> = [
           server.sendData(iteratedClient, "Character.RemovePlayer", {
             characterId: client.character.characterId,
           });
-          const index = iteratedClient.spawnedEntities.indexOf(iteratedClient);
-          iteratedClient.spawnedEntities.splice(index, 1);
+          iteratedClient.spawnedEntities.splice(
+            iteratedClient.spawnedEntities.indexOf(client.character),
+            1
+          );
         }
       }
-      server.worldObjectManager.createVehicle(server, vehicle);
       server.sendData(client, "SpectatorBase", {});
       server.sendData(client, "AddLightweightVehicle", {
         ...vehicle,
@@ -67,7 +68,14 @@ export const internalCommands: Array<Command> = [
         isDriver: 1,
         identity: {},
       });
-      server.assignManagedObject(client, vehicle);
+      server.sendData(client, "Character.ManagedObject", {
+        objectCharacterId: vehicle.characterId,
+        characterId: client.character.characterId,
+      });
+      server.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
+        control: true,
+        objectCharacterId: vehicle.characterId,
+      });
     },
   },
   {

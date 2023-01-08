@@ -14,7 +14,6 @@
 import {
   characterResourceData,
   collectionsSchema,
-  containerData,
   currencySchema,
   effectTagsSchema,
   equipmentSlotSchema,
@@ -22,8 +21,6 @@ import {
   fullNpcSchema,
   fullPcSchema,
   itemSchema,
-  //itemWeaponDetailSubSchema1,
-  //itemWeaponDetailSubSchema2,
   lightWeightNpcSchema,
   lightWeightPcSchema,
   loadoutSlotsSchema,
@@ -34,11 +31,11 @@ import {
   readUnsignedIntWith2bitLengthValue,
   recipeData,
   packItemWeaponData,
+  containers,
 } from "./shared";
 import {
   achievementSchema,
   identitySchema,
-  //profileSchema,
   profileSchema,
   rewardBundleSchema,
   skyData,
@@ -2236,15 +2233,7 @@ export const basePackets: any = [
               name: "containers",
               type: "array",
               defaultValue: [],
-              fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 }, // containerType?
-                {
-                  name: "containerData",
-                  type: "schema",
-                  defaultValue: {},
-                  fields: containerData,
-                },
-              ],
+              fields: containers,
             },
             {
               name: "unknownArray28",

@@ -11,10 +11,17 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { simpleConstruction } from "./simpleConstruction";
-import { Items } from "../enums";
+import { ConstructionChildEntity } from "./constructionchildentity";
+import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
-import { getRectangleCorners } from "../../../utils/utils";
+import {
+  getRectangleCorners,
+  isInside,
+  isInsideWithY,
+  isPosInRadiusWithY,
+} from "../../../utils/utils";
+import { ZoneClient2016 } from "./zoneclient";
+import { BaseEntity } from "./baseentity";
 
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
@@ -29,7 +36,7 @@ function getDamageRange(definitionId: number): number {
   }
 }
 
-export class ConstructionParentEntity extends simpleConstruction {
+export class ConstructionParentEntity extends ConstructionChildEntity {
   healthPercentage: number = 100;
   permissions: any;
   ownerCharacterId: string;
@@ -617,5 +624,62 @@ export class ConstructionParentEntity extends simpleConstruction {
     }
     this.perimeters[slot as keyof typeof this.perimeters] = value;
     this.checkPerimeters(server);
+  }
+
+  isInside(entity: BaseEntity) {
+    switch (this.itemDefinitionId) {
+      case Items.FOUNDATION:
+      case Items.FOUNDATION_EXPANSION:
+      case Items.GROUND_TAMPER:
+        return isInside(
+          [entity.state.position[0], entity.state.position[2]],
+          this.securedPolygons
+        );
+      case Items.SHACK:
+        return isPosInRadiusWithY(
+          2.39,
+          entity.state.position,
+          this.state.position,
+          2
+        );
+      case Items.SHACK_BASIC:
+        return isPosInRadiusWithY(
+          1,
+          entity.state.position,
+          this.state.position,
+          2
+        );
+      case Items.SHACK_SMALL:
+        return isInsideWithY(
+          [entity.state.position[0], entity.state.position[2]],
+          this.securedPolygons,
+          entity.state.position[1],
+          this.state.position[1],
+          2.1
+        );
+      default:
+        return false;
+    }
+  }
+
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.ownerCharacterId != client.character.characterId) return;
+    server.sendData(
+      client,
+      "NpcFoundationPermissionsManagerBase.showPermissions",
+      {
+        characterId: this.characterId,
+        characterId2: this.characterId,
+        permissions: this.permissions,
+      }
+    );
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.ownerCharacterId != client.character.characterId) return;
+    server.sendData(client, "Command.InteractionString", {
+      guid: this.characterId,
+      stringId: 12979,
+    });
   }
 }

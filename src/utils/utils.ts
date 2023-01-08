@@ -193,6 +193,29 @@ export async function zoneShutdown(
   }
 }
 
+export function getDifference(s1: string, s2: string) {
+  s1 = s1.toLowerCase();
+  s2 = s2.toLowerCase();
+  const costs: any[] = [];
+  for (let i = 0; i <= s1.length; i++) {
+    let lastValue = i;
+    for (let j = 0; j <= s2.length; j++) {
+      if (i == 0) costs[j] = j;
+      else {
+        if (j > 0) {
+          let newValue = costs[j - 1];
+          if (s1.charAt(i - 1) != s2.charAt(j - 1))
+            newValue = Math.min(Math.min(newValue, lastValue), costs[j]) + 1;
+          costs[j - 1] = lastValue;
+          lastValue = newValue;
+        }
+      }
+    }
+    if (i > 0) costs[s2.length] = lastValue;
+  }
+  return costs[s2.length];
+}
+
 export const randomIntFromInterval = (min: number, max: number) => {
   // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min);
@@ -630,14 +653,9 @@ export function flhash(str: string) {
   return Number(`0x${hash.toString(16).slice(-8)}`);
 }
 
-export function getCurrentHoursMs(): number {
-  const currentDate = new Date();
-  const utcHours = currentDate.getUTCHours();
-  const utcHoursFixed = utcHours > 12 ? utcHours - 12 : utcHours;
-  const CurrentHoursMs =
-    utcHoursFixed * 3600000 +
-    currentDate.getUTCMinutes() * 60000 +
-    currentDate.getUTCSeconds() * 1000 +
-    currentDate.getUTCMilliseconds();
-  return CurrentHoursMs;
+export function calculateOrientation(
+  pos1: Float32Array,
+  pos2: Float32Array
+): number {
+  return Math.atan2(pos1[2] - pos2[2], pos1[0] - pos2[0]) * -1 - 1.4;
 }

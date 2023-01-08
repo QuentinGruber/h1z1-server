@@ -11,6 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { DamageInfo } from "types/zoneserver";
+import { ZoneServer2016 } from "../zoneserver";
+import { ZoneClient2016 } from "./zoneclient";
+
 function getRenderDistance(actorModelId: number) {
   let range: number = 0;
   switch (actorModelId) {
@@ -71,5 +75,25 @@ export class BaseEntity {
       rotation: rotation,
     };
     this.npcRenderDistance = getRenderDistance(actorModelId);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    // default: do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+    // default: do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    // default: do nothing
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    // default: do nothing
   }
 }
