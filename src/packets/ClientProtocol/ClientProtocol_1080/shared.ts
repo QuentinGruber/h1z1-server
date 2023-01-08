@@ -1920,7 +1920,7 @@ export const fullPcSchema = [
       { name: "unknownDword11", type: "uint32", defaultValue: 0 },
       { name: "unknownDword12", type: "uint32", defaultValue: 0 },
       { name: "unknownDword13", type: "uint32", defaultValue: 0 },
-      { name: "unknownDword14", type: "uint32", defaultValue: 0 },
+      { name: "materialType", type: "uint32", defaultValue: 3 },
       { name: "unknownBool1", type: "boolean", defaultValue: false },
       { name: "unknownBool2", type: "boolean", defaultValue: false },
       { name: "unknownBool3", type: "boolean", defaultValue: false },
