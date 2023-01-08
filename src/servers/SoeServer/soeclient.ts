@@ -77,7 +77,7 @@ export default class SOEClient {
     return [
       `Packet loss rate ${packetLossRate}%`,
       `Packet outOfOrder rate ${packetOutOfOrderRate}%`,
-      `Avg ping ${this.avgPing}%`,
+      `Avg ping ${this.avgPing}ms`,
     ];
   }
   addPing(ping: number) {

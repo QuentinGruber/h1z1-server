@@ -285,9 +285,8 @@ export class SOEServer extends EventEmitter {
         );
         break;
       case "OutOfOrder":
-        // TODO: test this
-        // client.outputStream.removeFromCache(packet.sequence);
         client.addPing(Date.now()+ this._waitQueueTimeMs - (client.unAckData.get(packet.sequence) as number))
+        client.outputStream.removeFromCache(packet.sequence);
         client.unAckData.delete(packet.sequence);
         break;
       case "Ack":
