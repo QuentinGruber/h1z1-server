@@ -17,10 +17,10 @@ export enum GAME_VERSIONS {
   H1Z1_KOTK_PS3 = 3,
 }
 
-export enum NAME_VALIDATION_STATUS{
+export enum NAME_VALIDATION_STATUS {
   AVAILABLE = 1,
   TAKEN = 2,
-  INVALID= 3,
+  INVALID = 3,
   PROFANE = 4,
   RESERVED = 5,
 }

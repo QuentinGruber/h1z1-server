@@ -662,16 +662,18 @@ export function calculateOrientation(
 }
 
 // thx GPT i'm not writing regex myself :)
-export function isValidCharacterName(characterName:string) {
+export function isValidCharacterName(characterName: string) {
   // Regular expression that matches all special characters
   const specialCharRegex = /[^\w\s]/gi;
 
   // Check if the string is only made up of blank characters
-  const onlyBlankChars = characterName.replace(/\s/g, '').length === 0;
+  const onlyBlankChars = characterName.replace(/\s/g, "").length === 0;
 
   // Check if the string contains any special characters
   const hasSpecialChars = specialCharRegex.test(characterName);
 
   // Return false if the string is only made up of blank characters or contains special characters
-  return !onlyBlankChars && !hasSpecialChars?NAME_VALIDATION_STATUS.AVAILABLE:NAME_VALIDATION_STATUS.INVALID;
+  return !onlyBlankChars && !hasSpecialChars
+    ? NAME_VALIDATION_STATUS.AVAILABLE
+    : NAME_VALIDATION_STATUS.INVALID;
 }
