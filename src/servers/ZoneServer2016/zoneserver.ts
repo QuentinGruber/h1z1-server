@@ -4058,7 +4058,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   dismountVehicle(client: Client) {
-    if (!client.vehicle.mountedVehicle) return;
+    console.log(client.vehicle.mountedVehicle)
+    if (client.vehicle.mountedVehicle) {
     const vehicle = this._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle && !client.character.isAlive) {
       this.sendData(client, "Mount.DismountResponse", {
@@ -4135,6 +4136,14 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     client.character.dismountContainer(this);
+    }
+    else if(client.character.isSpectator){
+      console.log("dismount spec")
+      client.character.isSpectator = false;
+      this.sendData(client, "Mount.DismountResponse", {
+        characterId: client.character.characterId,
+      });
+    }
   }
 
   changeSeat(client: Client, packet: any) {

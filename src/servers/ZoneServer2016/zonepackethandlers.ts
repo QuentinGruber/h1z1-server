@@ -762,6 +762,7 @@ export class zonePacketHandlers {
   }
   MountDismountRequest(server: ZoneServer2016, client: Client, packet: any) {
     // only for driver seat
+    console.log("dismount req");
     server.dismountVehicle(client);
   }
   VehicleCurrentMoveMode(
