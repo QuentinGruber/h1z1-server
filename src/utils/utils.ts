@@ -25,6 +25,7 @@ import { MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import { positionUpdate } from "types/zoneserver";
+import { NAME_VALIDATION_STATUS } from "./enums";
 
 export class customLodash {
   sum(pings: number[]): number {
@@ -658,4 +659,19 @@ export function calculateOrientation(
   pos2: Float32Array
 ): number {
   return Math.atan2(pos1[2] - pos2[2], pos1[0] - pos2[0]) * -1 - 1.4;
+}
+
+// thx GPT i'm not writing regex myself :)
+export function isValidCharacterName(characterName:string) {
+  // Regular expression that matches all special characters
+  const specialCharRegex = /[^\w\s]/gi;
+
+  // Check if the string is only made up of blank characters
+  const onlyBlankChars = characterName.replace(/\s/g, '').length === 0;
+
+  // Check if the string contains any special characters
+  const hasSpecialChars = specialCharRegex.test(characterName);
+
+  // Return false if the string is only made up of blank characters or contains special characters
+  return !onlyBlankChars && !hasSpecialChars?NAME_VALIDATION_STATUS.AVAILABLE:NAME_VALIDATION_STATUS.INVALID;
 }
