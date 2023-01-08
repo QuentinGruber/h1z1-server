@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { RemoteInfo } from "dgram";
-import { wrappedUint16 } from "../../utils/utils";
+import { toInt, wrappedUint16, _ } from "../../utils/utils";
 import { soePacket } from "../../types/soeserver";
 import { SOEInputStream } from "./soeinputstream";
 import { SOEOutputStream } from "./soeoutputstream";
@@ -57,6 +57,9 @@ export default class SOEClient {
     packetResend: 0,
   };
   lastAckTime: number = 0;
+  avgPing: number = 0;
+  pings: number[] = [];
+  avgPingLen: number = 6;
   constructor(remote: RemoteInfo, crcSeed: number, cryptoKey: Uint8Array) {
     this.soeClientId = remote.address + ":" + remote.port;
     this.address = remote.address;
@@ -74,6 +77,19 @@ export default class SOEClient {
     return [
       `Packet loss rate ${packetLossRate}%`,
       `Packet outOfOrder rate ${packetOutOfOrderRate}%`,
+      `Avg ping ${this.avgPing}ms`,
     ];
+  }
+  addPing(ping: number) {
+    if (ping > 0) {
+      this.pings.push(ping);
+    }
+    if (this.pings.length > this.avgPingLen) {
+      this.pings.shift();
+    }
+    this.updateAvgPing();
+  }
+  updateAvgPing() {
+    this.avgPing = toInt(_.sum(this.pings) / this.pings.length);
   }
 }

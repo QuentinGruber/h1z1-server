@@ -139,7 +139,6 @@ export const commands: Array<Command> = [
       const soeClient = server.getSoeClient(client.soeClientId);
       if (soeClient) {
         const stats = soeClient.getNetworkStats();
-        stats.push(`Ping: ${client.avgPing}ms`);
         for (let index = 0; index < stats.length; index++) {
           const stat = stats[index];
           server.sendChatText(client, stat, index == 0);

@@ -31,11 +31,13 @@ import {
 import { CraftManager } from "./managers/craftmanager";
 import { ContainerErrors, EntityTypes, Items } from "./models/enums";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
+import { Npc } from "./classes/npc";
 import { ConstructionParentEntity } from "./classes/constructionparententity";
 import { ConstructionDoor } from "./classes/constructiondoor";
-import { AVG_PING_SECS } from "../../utils/constants";
 import { CommandHandler } from "./commands/commandhandler";
+import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
+import { GameTimeSync } from "types/zone2016packets";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -318,19 +320,7 @@ export class zonePacketHandlers {
     });
   }
   KeepAlive(server: ZoneServer2016, client: Client, packet: any) {
-    const timeDelay = 1000;
-    const currentTime = Date.now();
-    if (!client.lastKeepAliveTime) {
-      client.lastKeepAliveTime = currentTime;
-      return;
-    }
-    const ping = toInt(currentTime - client.lastKeepAliveTime - timeDelay);
-    client.lastKeepAliveTime = Date.now();
-    client.pings.push(ping);
-    if (client.pings.length > AVG_PING_SECS) {
-      client.pings.shift();
-    }
-    client.avgPing = toInt(_.sum(client.pings) / client.pings.length);
+    //
   }
   ClientUpdateMonitorTimeDrift(
     server: ZoneServer2016,
@@ -415,19 +405,23 @@ export class zonePacketHandlers {
     }
     server.deleteClient(client);
   }
-  GameTimeSync(server: ZoneServer2016, client: Client, packet: any) {
+  GameTimeSync(
+    server: ZoneServer2016,
+    client: Client,
+    packet: { data: GameTimeSync }
+  ) {
     server.sendGameTimeSync(client);
   }
   Synchronization(server: ZoneServer2016, client: Client, packet: any) {
-    const serverTime = Int64String(server.getServerTime());
-    server.sendData(client, "Synchronization", {
-      time1: packet.data.time1,
-      time2: packet.data.time2,
-      clientTime: packet.data.clientTime,
-      serverTime: serverTime,
-      serverTime2: serverTime,
-      time3: packet.data.clientTime + 2,
-    });
+    const serverTime = Number((Date.now() / 1000).toFixed(0));
+    const serverTimeString = Int64String(serverTime);
+    const reflectedPacket: Synchronization = {
+      ...packet.data,
+      serverTime: serverTimeString,
+      serverTime2: serverTimeString,
+      time3: Int64String(Number(packet.data.clientTime)),
+    };
+    server.sendData(client, "Synchronization", reflectedPacket);
   }
   CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: any) {
     this.commandHandler.executeCommand(server, client, packet);

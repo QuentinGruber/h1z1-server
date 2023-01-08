@@ -41,7 +41,7 @@ export class SOEServer extends EventEmitter {
     arg0: () => void,
     arg1: number
   ) => void;
-  private _resendTimeout: number = 300;
+  private _resendTimeout: number = 500;
   packetRatePerClient: number = 500;
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
@@ -282,10 +282,23 @@ export class SOEServer extends EventEmitter {
         );
         break;
       case "OutOfOrder":
-        client.unAckData.delete(packet.sequence);
+        client.addPing(
+          Date.now() +
+            this._waitQueueTimeMs -
+            (client.unAckData.get(packet.sequence) as number)
+        );
         client.outputStream.removeFromCache(packet.sequence);
+        client.unAckData.delete(packet.sequence);
         break;
       case "Ack":
+        const mostWaitedPacketTime = client.unAckData.get(
+          client.outputStream.lastAck.get()
+        ) as number;
+        if (mostWaitedPacketTime) {
+          client.addPing(
+            Date.now() + this._waitQueueTimeMs - mostWaitedPacketTime
+          );
+        }
         client.outputStream.ack(packet.sequence, client.unAckData);
         break;
       default:

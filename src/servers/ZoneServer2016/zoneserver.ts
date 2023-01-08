@@ -2984,13 +2984,14 @@ export class ZoneServer2016 extends EventEmitter {
     characterId: string,
     generatedTransient: number
   ) {
-    return new Client(
+    const client = new Client(
       sessionId,
       soeClientId,
       loginSessionId,
       characterId,
       generatedTransient
     );
+    return client;
   }
 
   banClient(

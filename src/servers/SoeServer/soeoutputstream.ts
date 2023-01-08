@@ -22,7 +22,7 @@ export class SOEOutputStream extends EventEmitter {
   private _useEncryption: boolean = false;
   private _fragmentSize: number = 0;
   private _sequence: wrappedUint16 = new wrappedUint16(-1);
-  private _lastAck: wrappedUint16 = new wrappedUint16(-1);
+  lastAck: wrappedUint16 = new wrappedUint16(-1);
   private _cache: dataCache = {};
 
   private _rc4: RC4;
@@ -75,11 +75,11 @@ export class SOEOutputStream extends EventEmitter {
 
   ack(sequence: number, unAckData: Map<number, number>): void {
     // delete all data / timers cached for the sequences behind the given ack sequence
-    while (this._lastAck.get() !== wrappedUint16.wrap(sequence + 1)) {
-      const lastAck = this._lastAck.get();
+    while (this.lastAck.get() !== wrappedUint16.wrap(sequence + 1)) {
+      const lastAck = this.lastAck.get();
       this.removeFromCache(lastAck);
       unAckData.delete(lastAck);
-      this._lastAck.increment();
+      this.lastAck.increment();
     }
   }
 
