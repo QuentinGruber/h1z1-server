@@ -990,7 +990,7 @@ export const commands: Array<Command> = [
     },
   },
   {
-    name: "respawnloot",
+    name: "spawnloot",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
       server.worldObjectManager.createLoot(server);
@@ -1450,6 +1450,32 @@ export const commands: Array<Command> = [
       );
     },
   },
+  {
+    name: "respawnloot",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (server: ZoneServer2016, client: Client, args: any[]) => {
+      for (const characterId in server._spawnedItems) {
+        const item = server._spawnedItems[characterId];
+        if (item.spawnerId > 0) {
+          if (
+            item.item.itemDefinitionId === Items.FUEL_BIOFUEL ||
+            item.item.itemDefinitionId === Items.FUEL_ETHANOL
+          ) {
+            server.deleteEntity(characterId, server._explosives);
+          }
+          server.deleteEntity(characterId, server._spawnedItems);
+          delete server.worldObjectManager._spawnedLootObjects[item.spawnerId];
+        }
+      }
+
+      delete require.cache[require.resolve("../data/lootspawns")];
+      const loottables = require("../data/lootspawns").lootTables;
+      console.log(loottables);
+      server.worldObjectManager.createLoot(server, loottables);
+      server.sendChatText(client, `Respawned loot`);
+    },
+  },
+
   //#endregion
 
   // depreciation messages
