@@ -248,9 +248,6 @@ export class ZoneServer2016 extends EventEmitter {
   enableWorldSaves: boolean;
   readonly worldSaveVersion: number = 1;
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
-  avgPingLen: number = 4;
-  maxPing: number = 200;
-  pingWarningsBeforeLock: number = 3;
   private _proximityItemsDistance: number = 2;
 
   constructor(
@@ -2994,7 +2991,6 @@ export class ZoneServer2016 extends EventEmitter {
       characterId,
       generatedTransient
     );
-    client.avgPingLen = this.avgPingLen;
     return client;
   }
 
