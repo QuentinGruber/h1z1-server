@@ -378,7 +378,7 @@ export class LoginServer extends EventEmitter {
   async LoginRequest(client: Client, sessionIdString: string) {
     let sessionId, gameVersion;
     // In case of shitty json formatting
-    sessionIdString = sessionIdString.replaceAll("\\","");
+    sessionIdString = sessionIdString.replaceAll("\\", "");
     try {
       const sessionIdObject = JSON.parse(sessionIdString);
       sessionId = sessionIdObject.sessionId;

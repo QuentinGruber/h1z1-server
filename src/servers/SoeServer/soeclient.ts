@@ -88,8 +88,8 @@ export default class SOEClient {
     if (this.pings.length > this.avgPingLen) {
       this.pings.shift();
     }
-      this.updateAvgPing();
-    } 
+    this.updateAvgPing();
+  }
   updateAvgPing() {
     this.avgPing = toInt(_.sum(this.pings) / this.pings.length);
   }
