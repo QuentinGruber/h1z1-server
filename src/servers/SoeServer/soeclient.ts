@@ -81,7 +81,6 @@ export default class SOEClient {
     ];
   }
   addPing(ping: number) {
-    console.log(ping);
     if (ping > 0) {
       this.pings.push(ping);
     }
