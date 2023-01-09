@@ -142,7 +142,7 @@ export class zonePacketHandlers {
       server.sendData(client, "Synchronization", {
         serverTime: Int64String(server.getServerTime()),
         serverTime2: Int64String(server.getServerTime()),
-      });
+      } as Synchronization);
 
       server.sendData(client, "Character.WeaponStance", {
         // activates weaponstance key
@@ -413,13 +413,12 @@ export class zonePacketHandlers {
     server.sendGameTimeSync(client);
   }
   Synchronization(server: ZoneServer2016, client: Client, packet: any) {
-    const serverTime = Number((Date.now() / 1000).toFixed(0));
-    const serverTimeString = Int64String(serverTime);
+    const serverTime = Int64String(server.getServerTime());
     const reflectedPacket: Synchronization = {
       ...packet.data,
-      serverTime: serverTimeString,
-      serverTime2: serverTimeString,
-      time3: Int64String(Number(packet.data.clientTime)),
+      serverTime: serverTime,
+      serverTime2: serverTime,
+      time3: Int64String(Number(packet.data.clientTime)) + 2,
     };
     server.sendData(client, "Synchronization", reflectedPacket);
   }
