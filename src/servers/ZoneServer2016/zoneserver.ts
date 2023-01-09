@@ -83,6 +83,7 @@ import {
   getRectangleCorners,
   getOffsetPoint,
   getAngleAndDistance,
+  getConstructionSlotId,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -3459,11 +3460,11 @@ export class ZoneServer2016 extends EventEmitter {
        then check if storage container is inside
       */
     }
+    const parent = this._constructionFoundations[parentObjectCharacterId] || 
+      this._constructionSimple[parentObjectCharacterId];
     if (
-      this._constructionFoundations[parentObjectCharacterId] &&
-      this._constructionFoundations[
-        parentObjectCharacterId
-      ].occupiedSlots.includes(BuildingSlot)
+      parent &&
+      parent.isSlotOccupied(getConstructionSlotId(BuildingSlot))
     ) {
       this.placementError(client, PlacementErrors.OVERLAP);
       this.sendData(client, "Construction.PlacementFinalizeResponse", {
@@ -3472,121 +3473,88 @@ export class ZoneServer2016 extends EventEmitter {
       });
       return;
     }
-    if (
-      this._constructionSimple[parentObjectCharacterId] &&
-      this._constructionSimple[parentObjectCharacterId].occupiedSlots.includes(
-        BuildingSlot
-      )
-    ) {
-      this.placementError(client, PlacementErrors.OVERLAP);
+
+    if(!this.handleConstructionPlacement(client, itemDefinitionId, modelId, position, rotation, parentObjectCharacterId, BuildingSlot, freeplaceParentCharacterId)) {
       this.sendData(client, "Construction.PlacementFinalizeResponse", {
         status: 0,
         unknownString1: "",
       });
       return;
     }
-    if (this._constructionFoundations[parentObjectCharacterId]) {
-      if (
-        !isPosInRadiusWithY(
-          this._constructionFoundations[parentObjectCharacterId]
-            .itemDefinitionId == Items.FOUNDATION
-            ? 11
-            : 15,
-          this._constructionFoundations[parentObjectCharacterId].state.position,
-          position,
-          10
-        )
-      ) {
-        this.placementError(client, PlacementErrors.UNKNOWN);
-        this.sendData(client, "Construction.PlacementFinalizeResponse", {
-          status: 0,
-          unknownString1: "",
-        });
-        return;
-      }
-    } else if (this._constructionSimple[parentObjectCharacterId]) {
-      if (
-        !isPosInRadius(
-          5,
-          this._constructionSimple[parentObjectCharacterId].state.position,
-          position
-        )
-      ) {
-        this.placementError(client, PlacementErrors.UNKNOWN);
-        this.sendData(client, "Construction.PlacementFinalizeResponse", {
-          status: 0,
-          unknownString1: "",
-        });
-        return;
-      }
-    }
-    // should check if item placed correctly first before removing item (ex. foundation expansion)
+
     this.removeInventoryItem(client, item);
     this.sendData(client, "Construction.PlacementFinalizeResponse", {
       status: 1,
       unknownString1: "",
     });
+    this.constructionManager(client);
+  }
+
+  handleConstructionPlacement(
+    client: Client,
+    itemDefinitionId: number,
+    modelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    parentObjectCharacterId: string,
+    BuildingSlot: string,
+    freeplaceParentCharacterId?: string
+  ): boolean {
     switch (itemDefinitionId) {
       case Items.SNARE:
       case Items.PUNJI_STICKS:
-        this.placeTrap(itemDefinitionId, modelId, position, rotation);
-        break;
+        return this.placeTrap(itemDefinitionId, modelId, position, rotation);
       case Items.FLARE:
-        this.placeTemporaryEntity(
+        return this.placeTemporaryEntity(
           modelId,
           position,
           eul2quat(rotation),
           900000
         );
-        break;
       case Items.IED:
       case Items.LANDMINE:
-        this.placeExplosiveEntity(
+        return this.placeExplosiveEntity(
           itemDefinitionId,
           modelId,
           position,
           eul2quat(rotation)
         );
-        break;
       case Items.METAL_GATE:
       case Items.DOOR_BASIC:
       case Items.DOOR_WOOD:
       case Items.DOOR_METAL:
-        this.placeConstructionDoor(
+        return this.placeConstructionDoor(
           client,
           itemDefinitionId,
           modelId,
           parentObjectCharacterId,
           BuildingSlot
         );
-        break;
       case Items.GROUND_TAMPER:
       case Items.SHACK_BASIC:
       case Items.SHACK:
       case Items.FOUNDATION:
       case Items.SHACK_SMALL:
       case Items.FOUNDATION_EXPANSION:
-        this.placeConstructionFoundation(
+        return this.placeConstructionFoundation(
           client,
           itemDefinitionId,
           modelId,
           position,
-          new Float32Array([0,0,0]),// rotation,
+          rotation,
           parentObjectCharacterId,
           BuildingSlot
         );
-        break;
       case Items.FOUNDATION_RAMP:
-        this.placeConstructionRamp(
+        return this.placeConstructionRamp(
           client,
           itemDefinitionId,
           modelId,
           parentObjectCharacterId,
           BuildingSlot
         );
-        break;
       case Items.FOUNDATION_STAIRS:
-        this.placeConstructionStairs(
+        return this.placeConstructionStairs(
           client,
           itemDefinitionId,
           modelId,
@@ -3594,9 +3562,8 @@ export class ZoneServer2016 extends EventEmitter {
           parentObjectCharacterId,
           BuildingSlot
         );
-        break;
       case Items.STORAGE_BOX:
-        this.placeLootableConstruction(
+        return this.placeLootableConstruction(
           client,
           itemDefinitionId,
           modelId,
@@ -3604,18 +3571,16 @@ export class ZoneServer2016 extends EventEmitter {
           eul2quat(rotation),
           freeplaceParentCharacterId
         );
-        break;
       case Items.METAL_WALL:
       case Items.METAL_WALL_UPPER:
       case Items.METAL_DOORWAY:
-        this.placeConstructionWall(
+        return this.placeConstructionWall(
           client,
           itemDefinitionId,
           modelId,
           parentObjectCharacterId,
           BuildingSlot
         );
-        break;
       case Items.SHELTER:
       case Items.SHELTER_LARGE:
       case Items.SHELTER_UPPER:
@@ -3623,13 +3588,11 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.STRUCTURE_STAIRS:
       case Items.STRUCTURE_STAIRS_UPPER:
       case Items.LOOKOUT_TOWER:
-        this.placeConstructionShelter(client, itemDefinitionId, modelId, rotation, parentObjectCharacterId, BuildingSlot);
-        break;
+        return this.placeConstructionShelter(client, itemDefinitionId, modelId, rotation, parentObjectCharacterId, BuildingSlot);
       default:
         this.placementError(client, PlacementErrors.UNKNOWN_CONSTRUCTION);
-        return;
+        return false;
     }
-    this.constructionManager(client);
   }
 
   placeConstructionShelter(
@@ -3639,7 +3602,7 @@ export class ZoneServer2016 extends EventEmitter {
     rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
-  ) {
+  ): boolean {
     const parent =
       this._constructionFoundations[parentObjectCharacterId] ||
       this._constructionSimple[parentObjectCharacterId];
@@ -3699,17 +3662,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     this._constructionSimple[characterId] = npc;
-    if (BuildingSlot != "" && parentObjectCharacterId) {
-      if (this._constructionFoundations[parentObjectCharacterId]) {
-        this._constructionFoundations[
-          parentObjectCharacterId
-        ].occupiedSlots.push(BuildingSlot);
-      } else if (this._constructionSimple[parentObjectCharacterId]) {
-        this._constructionSimple[
-          parentObjectCharacterId
-        ].occupiedSlots.push(BuildingSlot);
-      }
-    }
+    return true;
   }
 
   placeConstructionWall(
@@ -3718,7 +3671,7 @@ export class ZoneServer2016 extends EventEmitter {
     modelId: number,
     parentObjectCharacterId: string,
     BuildingSlot: string
-  ) {
+  ): boolean {
     const parentFoundation =
       this._constructionFoundations[parentObjectCharacterId];
     const parentSimple = this._constructionSimple[parentObjectCharacterId];
@@ -3778,19 +3731,8 @@ export class ZoneServer2016 extends EventEmitter {
     if (parentSimple) {
       parentSimple.changePerimeters(this, BuildingSlot, wall.state.position);
     }
-
-    if (BuildingSlot) {
-      if (this._constructionFoundations[parentObjectCharacterId]) {
-        this._constructionFoundations[
-          parentObjectCharacterId
-        ].occupiedSlots.push(BuildingSlot);
-      } else if (this._constructionSimple[parentObjectCharacterId]) {
-        this._constructionSimple[parentObjectCharacterId].occupiedSlots.push(
-          BuildingSlot
-        );
-      }
-    }
     this._constructionSimple[characterId] = wall;
+    return true;
   }
 
   placeConstructionRamp(
@@ -3799,7 +3741,7 @@ export class ZoneServer2016 extends EventEmitter {
     modelId: number,
     parentObjectCharacterId: string,
     BuildingSlot: string
-  ) {
+  ): boolean {
     const parentFoundation =
       this._constructionFoundations[parentObjectCharacterId];
     if (!Number(parentObjectCharacterId) || !parentFoundation) {
@@ -3822,7 +3764,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     if (!position || !rotation) {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
-      return;
+      return false;
     }
 
     const characterId = this.generateGuid(),
@@ -3841,6 +3783,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     parentFoundation.setRampSlot(ramp);
     this._constructionSimple[characterId] = ramp;
+    return true;
   }
 
   placeConstructionStairs(
@@ -3850,7 +3793,7 @@ export class ZoneServer2016 extends EventEmitter {
     rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
-  ) {
+  ): boolean {
     const parentFoundation =
       this._constructionFoundations[parentObjectCharacterId];
     if (!Number(parentObjectCharacterId) || !parentFoundation) {
@@ -3869,7 +3812,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     if (!position) {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
-      return;
+      return false;
     }
 
     // rotation is not slot-locked yet
@@ -3889,6 +3832,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     parentFoundation.setRampSlot(stairs);
     this._constructionSimple[characterId] = stairs;
+    return true;
   }
 
   placeConstructionDoor(
@@ -3897,7 +3841,7 @@ export class ZoneServer2016 extends EventEmitter {
     modelId: number,
     parentObjectCharacterId: string,
     BuildingSlot: string
-  ) {
+  ): boolean {
     const parentFoundation =
       this._constructionFoundations[parentObjectCharacterId];
     const parentSimple = this._constructionSimple[parentObjectCharacterId];
@@ -3959,18 +3903,8 @@ export class ZoneServer2016 extends EventEmitter {
       parentSimple.changePerimeters(this, BuildingSlot, door.state.position);
     }
 
-    if (BuildingSlot) {
-      if (this._constructionFoundations[parentObjectCharacterId]) {
-        this._constructionFoundations[
-          parentObjectCharacterId
-        ].occupiedSlots.push(BuildingSlot);
-      } else if (this._constructionSimple[parentObjectCharacterId]) {
-        this._constructionSimple[parentObjectCharacterId].occupiedSlots.push(
-          BuildingSlot
-        );
-      }
-    }
     this._constructionDoors[characterId] = door;
+    return true;
   }
 
   placeConstructionFoundation(
@@ -3981,7 +3915,7 @@ export class ZoneServer2016 extends EventEmitter {
     rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot?: string
-  ) {
+  ): boolean {
     if (
       BuildingSlot &&
       this._constructionFoundations[parentObjectCharacterId]?.expansions[
@@ -3990,7 +3924,7 @@ export class ZoneServer2016 extends EventEmitter {
     ) {
       client.character.lootItem(this, this.generateItem(itemDefinitionId));
       this.placementError(client, PlacementErrors.OVERLAP);
-      return;
+      return false;
     }
 
     const parentFoundation =
@@ -4017,7 +3951,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
       if (!pos || !rot) {
         this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
-        return;
+        return false;
       }
       position = pos;
       rotation = rot;
@@ -4038,7 +3972,7 @@ export class ZoneServer2016 extends EventEmitter {
         BuildingSlot
       );
     if (
-      itemDefinitionId === Items.FOUNDATION_EXPANSION &&
+      itemDefinitionId == Items.FOUNDATION_EXPANSION &&
       parentObjectCharacterId &&
       BuildingSlot
     ) {
@@ -4050,6 +3984,7 @@ export class ZoneServer2016 extends EventEmitter {
         this._constructionFoundations[parentObjectCharacterId].permissions;
     }
     this._constructionFoundations[characterId] = npc;
+    return true;
   }
 
   placeTemporaryEntity(
@@ -4057,7 +3992,7 @@ export class ZoneServer2016 extends EventEmitter {
     position: Float32Array,
     rotation: Float32Array,
     time: number
-  ) {
+  ): boolean {
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       npc = new TemporaryEntity(
@@ -4069,6 +4004,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     npc.setDespawnTimer(this, time);
     this._temporaryObjects[characterId] = npc;
+    return true;
   }
 
   placeTrap(
@@ -4076,7 +4012,7 @@ export class ZoneServer2016 extends EventEmitter {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array
-  ) {
+  ): boolean {
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       npc = new TrapEntity(
@@ -4089,6 +4025,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
     npc.arm(this);
     this._traps[characterId] = npc;
+    return true;
   }
 
   placeExplosiveEntity(
@@ -4096,7 +4033,7 @@ export class ZoneServer2016 extends EventEmitter {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array
-  ) {
+  ): boolean {
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       npc = new ExplosiveEntity(
@@ -4111,6 +4048,7 @@ export class ZoneServer2016 extends EventEmitter {
       npc.arm(this);
     }
     this._explosives[characterId] = npc;
+    return true;
   }
 
   // used by multiple construction classes that don't extend each other
@@ -4127,8 +4065,8 @@ export class ZoneServer2016 extends EventEmitter {
     modelId: number,
     position: Float32Array,
     rotation: Float32Array,
-    parentObjectCharacterId: string
-  ) {
+    parentObjectCharacterId?: string
+  ): boolean {
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId);
     console.log(parentObjectCharacterId);
@@ -4138,11 +4076,12 @@ export class ZoneServer2016 extends EventEmitter {
       modelId,
       position,
       rotation,
-      parentObjectCharacterId,
-      itemDefinitionId
+      itemDefinitionId,
+      parentObjectCharacterId
     );
     this._lootableConstruction[characterId] = obj;
     obj.equipItem(this, this.generateItem(Items.CONTAINER_STORAGE), false);
+    return true;
   }
 
   mountVehicle(client: Client, vehicleGuid: string) {

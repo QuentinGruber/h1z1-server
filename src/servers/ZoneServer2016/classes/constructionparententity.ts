@@ -29,11 +29,9 @@ import { BaseEntity } from "./baseentity";
 import {
   ConstructionPermissions,
   ConstructionSlotPositionMap,
-  SlottedConstructionEntity,
 } from "types/zoneserver";
 import { ConstructionDoor } from "./constructiondoor";
 import {
-  ConstructionSlots,
   foundationExpansionSlotDefinitions,
   foundationRampSlotDefinitions,
   shelterSlotDefinitions,
@@ -56,19 +54,14 @@ function getDamageRange(definitionId: number): number {
 export class ConstructionParentEntity extends ConstructionChildEntity {
   permissions: { [characterId: string]: ConstructionPermissions } = {};
   ownerCharacterId: string;
-  perimeters: { [slot: string]: Float32Array };
-  itemDefinitionId: number;
   expansions: { [slot: string]: string } = {};
-  isSecured: boolean = false;
   isFullySecured: boolean = true;
-  parentObjectCharacterId: string;
-  occupiedSlots: string[] = [];
   buildingSlot?: string;
   securedPolygons: any[];
   readonly expansionSlots: ConstructionSlotPositionMap = {};
-  occupiedExpansionSlots: { [slot: string]: ConstructionParentEntity } = {};
+  occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
   readonly rampSlots: ConstructionSlotPositionMap = {};
-  occupiedRampSlots: { [slot: string]: ConstructionChildEntity } = {};
+  occupiedRampSlots: { [slot: number]: ConstructionChildEntity } = {};
   constructor(
     characterId: string,
     transientId: number,
@@ -196,6 +189,16 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     Object.seal(this.shelterSlots);
   }
 
+  isSlotOccupied(slot: number):boolean {
+    console.log(this.occupiedExpansionSlots[slot]?.characterId)
+    console.log(!!this.occupiedExpansionSlots[slot])
+    console.log(this.occupiedRampSlots[slot]?.characterId)
+    console.log(!!this.occupiedRampSlots[slot])
+    return super.isSlotOccupied(slot) || 
+    !!this.occupiedExpansionSlots[slot] || 
+    !!this.occupiedRampSlots[slot];
+  }
+
   /**
    * Returns an array containing the parent foundation walls that a given expansion depends on to be secured.
    * @param expansion The expansion to check.
@@ -270,7 +273,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   setExpansionSlot(expansion: ConstructionParentEntity): boolean {
-    return this.setSlot(expansion, this.occupiedExpansionSlots);
+    return this.setSlot(expansion, foundationExpansionSlotDefinitions,
+      this.expansionSlots, this.occupiedExpansionSlots);
   }
 
   isRampSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
@@ -287,7 +291,12 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   setRampSlot(ramp: ConstructionChildEntity): boolean {
-    return this.setSlot(ramp, this.occupiedRampSlots);
+    return this.setSlot(ramp, foundationRampSlotDefinitions,
+      this.rampSlots, this.occupiedRampSlots);
+  }
+
+  clearSlot() {
+    
   }
 
   checkPerimeters(server: ZoneServer2016) {
@@ -773,17 +782,14 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     return true;
   }
 
-  isSlotsEmpty() {
-    return this.occupiedSlots.length == 0;
+  isExpansionSlotsEmpty() {
+    return Object.values(this.occupiedExpansionSlots).length == 0
   }
 
-  isExpansionSlotsEmpty() {
-    return (
-      !this.expansions["01"] &&
-      !this.expansions["02"] &&
-      !this.expansions["03"] &&
-      !this.expansions["04"]
-    );
+  isSlotsEmpty() {
+    return super.isSlotsEmpty() &&
+    this.isExpansionSlotsEmpty() &&
+    (Object.values(this.occupiedRampSlots).length == 0)
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
@@ -796,8 +802,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       Date.now() < this.placementTime + 120000 &&
       client.character.getEquippedWeapon().itemDefinitionId ==
         Items.WEAPON_HAMMER_DEMOLITION &&
-      this.isSlotsEmpty() &&
-      this.isExpansionSlotsEmpty()
+      this.isSlotsEmpty()
     );
   }
 

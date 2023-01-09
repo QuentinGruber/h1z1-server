@@ -121,8 +121,6 @@ export class ConstructionDoor extends DoorEntity {
       );
     }
     if (!this.slot || !this.parentObjectCharacterId) return;
-    const index = foundation.occupiedSlots.indexOf(this.slot);
-    foundation.occupiedSlots.splice(index, 1);
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
@@ -173,8 +171,8 @@ export class ConstructionDoor extends DoorEntity {
   }
 
   getSlotNumber() {
-    if (!this.buildingSlot) return 0;
-    return getConstructionSlotId(this.buildingSlot);
+    if (!this.slot) return 0;
+    return getConstructionSlotId(this.slot);
   }
 
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
