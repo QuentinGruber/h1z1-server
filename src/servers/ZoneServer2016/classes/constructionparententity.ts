@@ -29,6 +29,7 @@ import { BaseEntity } from "./baseentity";
 import {
   ConstructionPermissions,
   ConstructionSlotPositionMap,
+  OccupiedSlotMap,
 } from "types/zoneserver";
 import { ConstructionDoor } from "./constructiondoor";
 import {
@@ -293,10 +294,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   setRampSlot(ramp: ConstructionChildEntity): boolean {
     return this.setSlot(ramp, foundationRampSlotDefinitions,
       this.rampSlots, this.occupiedRampSlots);
-  }
-
-  clearSlot() {
-    
   }
 
   checkPerimeters(server: ZoneServer2016) {
@@ -763,14 +760,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     const parent =
       server._constructionFoundations[this.parentObjectCharacterId];
     if (!parent) return;
-    if (this.itemDefinitionId == Items.METAL_WALL) {
-      parent.changePerimeters(
-        server,
-        this.buildingSlot,
-        new Float32Array([0, 0, 0, 0])
-      );
-    }
     if (!this.buildingSlot || !this.parentObjectCharacterId) return;
+    parent.clearSlot(this.getSlotNumber(), parent.occupiedExpansionSlots);
     delete parent.expansions[this.buildingSlot];
   }
 

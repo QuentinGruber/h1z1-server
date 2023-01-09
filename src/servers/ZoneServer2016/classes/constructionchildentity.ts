@@ -12,6 +12,7 @@ import { ConstructionPermissionIds, Items } from "../models/enums";
 import {
   ConstructionSlotPositionMap,
   DamageInfo,
+  OccupiedSlotMap,
   SlottedConstructionEntity,
 } from "types/zoneserver";
 import {
@@ -193,13 +194,17 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     entity: SlottedConstructionEntity,
     definitions: ConstructionSlots,
     slotMap: ConstructionSlotPositionMap,
-    occupiedSlots: { [slot: string]: SlottedConstructionEntity }
+    occupiedSlots: OccupiedSlotMap
   ) {
     console.log(`SETSLOT ${entity.getSlotNumber()}`)
     const slot = entity.getSlotNumber();
     if (!this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId)) return false;
     occupiedSlots[slot] = entity;
     return true;
+  }
+
+  protected clearSlot(slot: number, occupiedSlots: OccupiedSlotMap) {
+    delete occupiedSlots[slot];
   }
 
   isWallSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
@@ -315,9 +320,37 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         new Float32Array([0, 0, 0, 0])
       );
     }
+    let slotMap: OccupiedSlotMap | undefined,
+    updateSecured = false;
     switch(this.itemDefinitionId) {
-
+      case Items.METAL_GATE:
+      case Items.DOOR_BASIC:
+      case Items.DOOR_WOOD:
+      case Items.DOOR_METAL:
+      case Items.METAL_WALL:
+      case Items.METAL_DOORWAY:
+        slotMap = parent.occupiedWallSlots;
+        updateSecured = true;
+        break;
+      case Items.METAL_WALL_UPPER:
+        slotMap = parent.occupiedUpperWallSlots;
+        break;
+      case Items.SHELTER:
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER:
+      case Items.SHELTER_UPPER_LARGE:
+      case Items.STRUCTURE_STAIRS:
+      case Items.STRUCTURE_STAIRS_UPPER:
+      case Items.LOOKOUT_TOWER:
+        slotMap = parent.occupiedShelterSlots;
+        break;
+      case Items.FOUNDATION_RAMP:
+      case Items.FOUNDATION_STAIRS:
+        slotMap = parent.occupiedRampSlots;
+        break;
     }
+    if(slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
+    if(updateSecured) parent.updateSecuredState(server);
   }
 
   changePerimeters(
