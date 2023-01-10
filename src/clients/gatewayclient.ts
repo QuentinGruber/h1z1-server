@@ -14,7 +14,7 @@
 const  debug = require("debug")("GatewayClient");
 import { EventEmitter } from "events"
 import { GatewayProtocol } from "h1emu-core"
-import { SOEClient } from "h1z1-server/out/clients/soeclient";
+import { SOEClient } from "./soeclient";
 
 export class GatewayClient extends EventEmitter {
   private _protocol: GatewayProtocol;
