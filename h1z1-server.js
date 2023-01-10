@@ -52,7 +52,7 @@ h1z1Server.__defineGetter__("LoginProtocol", function () {
 });  
 
 h1z1Server.__defineGetter__("GatewayProtocol", function () {
-  return require("./out/protocols/gatewayprotocol.js").GatewayProtocol;
+  return require("h1emu-core").GatewayProtocol;
 });  
 
 h1z1Server.__defineGetter__("H1Z1Protocol", function () {
