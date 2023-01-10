@@ -71,7 +71,12 @@ export class GatewayServer extends EventEmitter {
               this.emit("disconnect", client);
               break;
             case "TunnelPacket":
-              this.emit("tunneldata", client, Buffer.from(packet.tunnel_data), packet.flags);
+              this.emit(
+                "tunneldata",
+                client,
+                Buffer.from(packet.tunnel_data),
+                packet.flags
+              );
               break;
           }
         } else {
@@ -92,7 +97,7 @@ export class GatewayServer extends EventEmitter {
     unbuffered: boolean
   ) {
     debug("Sending tunnel data to client");
-    const data = this._protocol.pack_tunnel_data_packet_for_client(tunnelData)
+    const data = this._protocol.pack_tunnel_data_packet_for_client(tunnelData);
     if (data) {
       if (unbuffered) {
         this._soeServer.sendUnbufferedAppData(client, data);
