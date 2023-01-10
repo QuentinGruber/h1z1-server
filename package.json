@@ -37,6 +37,7 @@
     "gen-packets-interfaces": "npx ts-node ./scripts/genPacketsInterfaces.ts ",
     "fix-signatures": "npx ts-node ./scripts/fixSignatures.ts && npm run prettier_sources",
     "gen-doc": "npx typedoc",
+    "start": "node ./scripts/h1z1-server-demo-2016.js",
     "lint": "npx eslint src",
     "lint-quiet": "npx eslint --quiet src",
     "build": "npm run build-all",

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -369,7 +369,13 @@ export const clientUpdatePackets: any = [
   ["ClientUpdate.NpcRelevance", 0x114200, {}],
   ["ClientUpdate.InitiateNameChange", 0x114300, {}],
   ["ClientUpdate.NameChangeResult", 0x114400, {}],
-  ["ClientUpdate.MonitorTimeDrift", 0x114500, {}],
+  [
+    "ClientUpdate.MonitorTimeDrift",
+    0x114500,
+    {
+      fields: [{ name: "timeDrift", type: "uint32" }],
+    },
+  ],
   ["ClientUpdate.NotifyServerOfStalledEvent", 0x114600, {}],
   ["ClientUpdate.UpdateSights", 0x114700, {}],
   ["ClientUpdate.UpdateRewardAndGrinderState", 0x114900, {}],
