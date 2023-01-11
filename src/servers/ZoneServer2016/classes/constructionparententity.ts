@@ -82,7 +82,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       position,
       rotation,
       itemDefinitionId,
-      parentObjectCharacterId
+      parentObjectCharacterId,
+      ""
     );
     this.health = 1000000;
     this.ownerCharacterId = ownerCharacterId;
@@ -97,7 +98,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     this.itemDefinitionId = itemDefinitionId;
     this.permissions[ownerPermission.characterId] = ownerPermission;
     this.parentObjectCharacterId = parentObjectCharacterId;
-    if (BuildingSlot) this.buildingSlot = BuildingSlot;
+    if (BuildingSlot) {
+      this.slot = BuildingSlot;
+    }
     this.securedPolygons = [];
     this.perimeters = {};
     this.damageRange = getDamageRange(this.itemDefinitionId);
@@ -190,29 +193,19 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     Object.seal(this.shelterSlots);
   }
 
-  isSlotOccupied(slot: number):boolean {
-    console.log(this.occupiedExpansionSlots[slot]?.characterId)
-    console.log(!!this.occupiedExpansionSlots[slot])
-    console.log(this.occupiedRampSlots[slot]?.characterId)
-    console.log(!!this.occupiedRampSlots[slot])
-    return super.isSlotOccupied(slot) || 
-    !!this.occupiedExpansionSlots[slot] || 
-    !!this.occupiedRampSlots[slot];
-  }
-
   /**
    * Returns an array containing the parent foundation walls that a given expansion depends on to be secured.
    * @param expansion The expansion to check.
    */
   getDependentWalls(): Array<string> {
-    switch (this.buildingSlot) {
-      case "01":
+    switch (this.getSlotNumber()) {
+      case 1:
         return ["04", "05", "06"];
-      case "02":
+      case 2:
         return ["01", "02", "03"];
-      case "03":
+      case 3:
         return ["10", "11", "12"];
-      case "04":
+      case 4:
         return ["07", "08", "09"];
     }
     return [];
@@ -760,9 +753,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     const parent =
       server._constructionFoundations[this.parentObjectCharacterId];
     if (!parent) return;
-    if (!this.buildingSlot || !this.parentObjectCharacterId) return;
+    if (!this.slot || !this.parentObjectCharacterId) return;
     parent.clearSlot(this.getSlotNumber(), parent.occupiedExpansionSlots);
-    delete parent.expansions[this.buildingSlot];
+    delete parent.expansions[this.slot];
   }
 
   // may no longer be needed
@@ -778,6 +771,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   isSlotsEmpty() {
+    console.log(`parent slots ${Object.values(this.occupiedExpansionSlots).length}`)
+    console.log(`parent slots ${Object.values(this.occupiedRampSlots).length}`)
     return super.isSlotsEmpty() &&
     this.isExpansionSlotsEmpty() &&
     (Object.values(this.occupiedRampSlots).length == 0)

@@ -47,12 +47,11 @@ function getDamageRange(definitionId: number): number {
 
 export class ConstructionChildEntity extends BaseLightweightCharacter {
   health: number = 1000000;
-  buildingSlot?: string;
   perimeters: { [slot: string]: Float32Array };
   itemDefinitionId: number;
   parentObjectCharacterId: string;
   eulerAngle: number;
-  slot?: string;
+  slot: string;
   securedPolygons?: any;
   isSecured = false;
   damageRange: number;
@@ -76,16 +75,14 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     rotation: Float32Array,
     itemDefinitionId: number,
     parentObjectCharacterId: string,
-    slot?: string,
-    BuildingSlot?: string
+    slot: string
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
     this.state.rotation = eul2quat(rotation);
     this.eulerAngle = rotation[0];
     this.itemDefinitionId = itemDefinitionId;
-    if (BuildingSlot) this.buildingSlot = BuildingSlot;
     this.parentObjectCharacterId = parentObjectCharacterId;
-    if (slot) this.slot = slot;
+    this.slot = slot;
     this.profileId = 999; /// mark as construction
     this.perimeters = {
       LoveShackDoor: new Float32Array([0, 0, 0, 0]),
@@ -157,21 +154,14 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     // ONLY NEED SECURED LOGIC FOR SHELTERS
   }
 
-  isSlotOccupied(slot: number):boolean {
-    console.log(slot)
-    console.log(this.occupiedShelterSlots[slot]?.characterId)
-    console.log(!!this.occupiedShelterSlots[slot])
-    console.log(this.occupiedUpperWallSlots[slot]?.characterId)
-    console.log(!!this.occupiedUpperWallSlots[slot])
-    console.log(this.occupiedWallSlots[slot]?.characterId)
-    console.log(!!this.occupiedWallSlots[slot])
-    if(slot == 101) slot = 1;
-    return !!this.occupiedShelterSlots[slot] || 
-    !!this.occupiedUpperWallSlots[slot] || 
-    !!this.occupiedWallSlots[slot];
+  isSlotOccupied(slotMap: OccupiedSlotMap, slot: number):boolean {
+    return !!slotMap[slot];
   }
 
   isSlotsEmpty() {
+    console.log(`child slots ${Object.values(this.occupiedShelterSlots).length}`)
+    console.log(`child slots ${Object.values(this.occupiedUpperWallSlots).length}`)
+    console.log(`child slots ${Object.values(this.occupiedWallSlots).length}`)
     return Object.values(this.occupiedShelterSlots).length +
     Object.values(this.occupiedUpperWallSlots).length +
     Object.values(this.occupiedWallSlots).length == 0
@@ -316,7 +306,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     if (this.itemDefinitionId == Items.METAL_WALL) {
       parent.changePerimeters(
         server,
-        this.buildingSlot,
+        this.slot,
         new Float32Array([0, 0, 0, 0])
       );
     }
