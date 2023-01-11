@@ -1813,7 +1813,7 @@ export const containerLootSpawners: {
   // TODO WHEN CONTAINERS WORK
   "Wrecked Car": {
     spawnChance: 100,
-    maxItems: 2, // cant be higher than length of items array below
+    maxItems: 3, // cant be higher than length of items array below
     items: [
       {
         item: Items.METAL_SCRAP,
@@ -1829,13 +1829,21 @@ export const containerLootSpawners: {
         spawnCount: {
           min: 1,
           max: 2,
+        },
+      },
+      {
+        item: Items.METAL_PIPE,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
       },
     ],
   },
   "Wrecked Van": {
     spawnChance: 100,
-    maxItems: 2,
+    maxItems: 3,
     items: [
       {
         item: Items.METAL_SCRAP,
@@ -1853,11 +1861,19 @@ export const containerLootSpawners: {
           max: 2,
         },
       },
+      {
+        item: Items.METAL_PIPE,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
     ],
   },
   "Wrecked Truck": {
     spawnChance: 100,
-    maxItems: 3,
+    maxItems: 4,
     items: [
       {
         item: Items.METAL_SCRAP,
@@ -1883,6 +1899,14 @@ export const containerLootSpawners: {
           max: 1,
         },
       },
+      {
+        item: Items.METAL_PIPE,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
     ],
   },
   "Weapons Locker": {
@@ -1899,7 +1923,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.AMMO_223,
-        weight: 50,
+        weight: 25,
         spawnCount: {
           min: 3,
           max: 11,
@@ -2051,7 +2075,7 @@ export const containerLootSpawners: {
   },
   "Cabinets Bathroom": {
     spawnChance: 100,
-    maxItems: 2,
+    maxItems: 3,
     items: [
       {
         item: Items.ANTIBIOTICS,
@@ -2072,6 +2096,14 @@ export const containerLootSpawners: {
       {
         item: Items.BANDAGE,
         weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.FIRST_AID,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2127,7 +2159,7 @@ export const containerLootSpawners: {
   },
   "Dumpster": {
     spawnChance: 100,
-    maxItems: 2,
+    maxItems: 3,
     items: [
       {
         item: Items.CLOTH,
@@ -2138,21 +2170,67 @@ export const containerLootSpawners: {
         },
       },
       {
-        item: Items.AMMO_380,
+        item: Items.TWINE,
         weight: 25,
         spawnCount: {
           min: 1,
-          max: 2,
+          max: 1,
         },
       },
       {
-        item: Items.AMMO_44,
+        item: Items.FERTILIZER,
         weight: 25,
         spawnCount: {
           min: 1,
-          max: 2,
+          max: 1,
         },
+      },
+      {
+        item: Items.CHARCOAL,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
+      },
+    ],
+  },
+  "Garbage Can": {
+    spawnChance: 100,
+    maxItems: 3,
+    items: [
+      {
+        item: Items.CLOTH,
+        weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 3,
+        },
+      },
+      {
+        item: Items.TWINE,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.FERTILIZER,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.CHARCOAL,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
     ],
   },
   "File Cabinet": {
