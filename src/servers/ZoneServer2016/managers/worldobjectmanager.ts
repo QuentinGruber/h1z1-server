@@ -280,6 +280,7 @@ export class WorldObjectManager {
                 server._lootableProps[characterId] = obj
                 obj.equipItem(server, server.generateItem(obj.containerId), false);
                 obj._containers['31'].canAcceptItems = false;
+                obj.nameId = server.getItemDefinition(obj.containerId).NAME_ID
             });
         });
         debug("All props created");

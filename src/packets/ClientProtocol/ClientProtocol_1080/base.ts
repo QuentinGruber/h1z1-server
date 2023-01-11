@@ -28,6 +28,7 @@ import {
   packPositionUpdateData,
   packUnsignedIntWith2bitLengthValue,
   packInteractionComponent,
+  packNpcComponent,
   readPositionUpdateData,
   readUnsignedIntWith2bitLengthValue,
   recipeData,
@@ -3427,9 +3428,10 @@ export const basePackets: any = [
   ["Ps4PlayGoBase", 0xe8, {}],
   ["SynchronizedTeleportBase", 0xe9, {}],
   ["StaticViewBase", 0xea, {}],
-  ["ReplicationBase", 0xeb04,
+  ["Replication.InteractionComponent", 0xeb,
     {
       fields: [
+        { name: "opcode", type: "uint8", defaultValue: 4 },
         {
                 name: "transientId",
                 type: "custom",
@@ -3442,6 +3444,38 @@ export const basePackets: any = [
                 parser: packInteractionComponent,
                 packer: packInteractionComponent,
                 defaultValue: packInteractionComponent
+        },
+      ],
+    },
+  ],
+  ["Replication.NpcComponent", 0xeb04,
+    {
+      fields: [
+        {
+                name: "transientId",
+                type: "custom",
+                parser: readUnsignedIntWith2bitLengthValue,
+                packer: packUnsignedIntWith2bitLengthValue,
+        },
+        { name: "stringLength", type: "uint16", defaultValue: 18 },
+        { name: "componentName", type: "fixedlengthstring", defaultValue: "ClientNpcComponent" },
+        { name: "unkByte1", type: "uint8", defaultValue: 0 },
+        { name: "unkDword1", type: "uint32", defaultValue: 0 },
+        { name: "unkDword2", type: "uint32", defaultValue: 1 },
+        { name: "unkDword3", type: "uint32", defaultValue: 124 },
+        { name: "unkDword4", type: "uint32", defaultValue: 4136351497 },
+        { name: "unkByte2", type: "uint8", defaultValue: 0 },
+        { name: "unkDword5", type: "uint32", defaultValue: 82 },
+        { name: "unkDword6", type: "uint32", defaultValue: 2126 },
+        { name: "unkDword6", type: "uint32", defaultValue: 718 },
+        { name: "unkDword7", type: "uint32", defaultValue: 0 },
+        { name: "nameId", type: "uint32", defaultValue: 0 },
+        {
+                name: "rawComponent",
+                type: "custom",
+                parser: packNpcComponent,
+                packer: packNpcComponent,
+                defaultValue: packNpcComponent
         },
       ],
     },

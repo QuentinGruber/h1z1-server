@@ -143,6 +143,10 @@ function getContainerAndTime(entity: LootableProp) {
     }
 }
 
+function getNameId(server: ZoneServer2016, entity: LootableProp) {
+    return server.getItemDefinition(entity._containers['31'].itemDefinitionId)
+}
+
 export class LootableProp extends BaseLootableEntity {
     spawnerId: number;
     npcRenderDistance = 150;
@@ -150,6 +154,7 @@ export class LootableProp extends BaseLootableEntity {
     containerId: number = Items.CONTAINER_STORAGE;
     lootSpawner: string = "Wrecked Car";
     searchTime: number = 1000;
+    nameId: number = 0;
     constructor(
         characterId: string,
         transientId: number,
