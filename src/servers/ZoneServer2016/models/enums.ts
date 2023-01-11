@@ -4,7 +4,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -12,10 +12,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export enum PlacementErrors {
+export enum ConstructionErrors {
   UNKNOWN,
   OVERLAP,
-  PERMISSION,
+  BUILD_PERMISSION,
+  DEMOLISH_PERMISSION,
   UNKNOWN_PARENT,
   UNKNOWN_SLOT,
   UNKNOWN_CONSTRUCTION,
@@ -62,6 +63,7 @@ export enum ContainerErrors {
   NOT_CONSTRUCTED = 9,
   NO_SPACE = 10,
   INVALID_LOADOUT_SLOT = 11,
+  NO_PERMISSION = 12,
 }
 
 export enum FilterIds {

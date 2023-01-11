@@ -1,4 +1,4 @@
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -14,10 +14,13 @@ import {
   DamageInfo,
   OccupiedSlotMap,
   SlottedConstructionEntity,
+  SquareBounds,
 } from "types/zoneserver";
 import {
   getConstructionSlotId,
-  isArraySumZero,
+  getRectangleCorners,
+  isInsideCube,
+  movePoint,
   registerConstructionSlots,
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
@@ -30,6 +33,7 @@ import {
   wallSlotDefinitions,
 } from "../data/constructionslots";
 import { ConstructionDoor } from "./constructiondoor";
+import { LootableConstructionEntity } from "./lootableconstructionentity";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_WALL:
@@ -47,27 +51,32 @@ function getDamageRange(definitionId: number): number {
 
 export class ConstructionChildEntity extends BaseLightweightCharacter {
   health: number = 1000000;
-  buildingSlot?: string;
-  perimeters: { [slot: string]: Float32Array };
   itemDefinitionId: number;
   parentObjectCharacterId: string;
   eulerAngle: number;
-  slot?: string;
-  securedPolygons?: any;
+  slot: string;
   isSecured = false;
   damageRange: number;
   fixedPosition?: Float32Array;
   placementTime = Date.now();
+  bounds?: SquareBounds;
+
   // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
   readonly wallSlots: ConstructionSlotPositionMap = {};
-  occupiedWallSlots: { [slot: number]: ConstructionDoor } = {};
+  occupiedWallSlots: {
+    [slot: number]: ConstructionDoor | ConstructionChildEntity;
+  } = {};
 
   // FOR UPPER WALL ON WALLS / DOORWAYS
   readonly upperWallSlots: ConstructionSlotPositionMap = {};
   occupiedUpperWallSlots: { [slot: number]: ConstructionChildEntity } = {};
-  
   readonly shelterSlots: ConstructionSlotPositionMap = {};
-  occupiedShelterSlots: { [slot: number]: ConstructionDoor } = {};
+  occupiedShelterSlots: {
+    [slot: number]: ConstructionDoor | ConstructionChildEntity;
+  } = {};
+
+  freeplaceEntities: {[characterId: string]: ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity} = {};
+
   constructor(
     characterId: string,
     transientId: number,
@@ -76,20 +85,15 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     rotation: Float32Array,
     itemDefinitionId: number,
     parentObjectCharacterId: string,
-    slot?: string,
-    BuildingSlot?: string
+    slot: string
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
     this.state.rotation = eul2quat(rotation);
     this.eulerAngle = rotation[0];
     this.itemDefinitionId = itemDefinitionId;
-    if (BuildingSlot) this.buildingSlot = BuildingSlot;
     this.parentObjectCharacterId = parentObjectCharacterId;
-    if (slot) this.slot = slot;
+    this.slot = slot;
     this.profileId = 999; /// mark as construction
-    this.perimeters = {
-      LoveShackDoor: new Float32Array([0, 0, 0, 0]),
-    };
     this.damageRange = getDamageRange(this.itemDefinitionId);
 
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
@@ -100,46 +104,36 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       upperWallSlotDefinitions
     );
     Object.seal(this.upperWallSlots);
-    registerConstructionSlots(
-      this,
-      this.shelterSlots,
-      shelterSlotDefinitions
-    );
+    registerConstructionSlots(this, this.shelterSlots, shelterSlotDefinitions);
     Object.seal(this.shelterSlots);
+
+    const angle = -this.eulerAngle;
+    switch (itemDefinitionId) {
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER_LARGE:
+        const centerPoint = movePoint(
+          position,
+          angle + (90 * Math.PI) / 180,
+          2.5
+        );
+        this.fixedPosition = centerPoint;
+        this.bounds = getRectangleCorners(centerPoint, 10, 5, angle);
+        break;
+      case Items.SHELTER:
+      case Items.SHELTER_UPPER:
+        this.bounds = getRectangleCorners(position, 5, 5, angle);
+        break;
+    }
   }
 
   getSlotPosition(
-    buildingSlot: string,
-    slots: ConstructionSlotPositionMap,
-    isShelter?: boolean
+    slot: string | number,
+    slots: ConstructionSlotPositionMap
   ): Float32Array | undefined {
-    let slot = getConstructionSlotId(buildingSlot);
-    if (slot == 101) slot = 1; // upper wall slot
-    if(isShelter) {
-      if(this.itemDefinitionId == Items.GROUND_TAMPER) {
-        switch (true) {
-          case slot >= 11 && slot <= 14:
-            slot = slot - 6
-            break
-          case slot >= 21 && slot <= 24:
-            slot = slot - 12
-            break
-          case slot >= 31 && slot <= 34:
-            slot = slot - 18
-            break
-        }
-      }
-      else if(this.itemDefinitionId == Items.FOUNDATION) {
-        switch (true) {
-          case slot >= 11 && slot <= 13:
-            slot = slot - 7
-            break
-          case slot >= 21 && slot <= 23:
-            slot = slot - 14
-            break
-        }
-      }
+    if (typeof slot == "string") {
+      slot = getConstructionSlotId(slot);
     }
+    if (slot == 101) slot = 1; // upper wall slot
     return slots[slot]?.position || undefined;
   }
 
@@ -153,28 +147,41 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   updateSecuredState(server: ZoneServer2016) {
-    // TODO:
-    // ONLY NEED SECURED LOGIC FOR SHELTERS
+    switch (this.itemDefinitionId) {
+      case Items.METAL_DOORWAY: // for parent foundation
+        const parent = this.getParentFoundation(server);
+        if (!parent) return;
+        parent.updateSecuredState(server);
+        break;
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER_LARGE:
+      case Items.SHELTER:
+      case Items.SHELTER_UPPER:
+        const doorslot = this.occupiedWallSlots[1];
+        if (
+          !doorslot ||
+          !(doorslot instanceof ConstructionDoor) ||
+          doorslot.isOpen
+        ) {
+          this.isSecured = false;
+          return;
+        }
+        this.isSecured = true;
+        break;
+    }
   }
 
-  isSlotOccupied(slot: number):boolean {
-    console.log(slot)
-    console.log(this.occupiedShelterSlots[slot]?.characterId)
-    console.log(!!this.occupiedShelterSlots[slot])
-    console.log(this.occupiedUpperWallSlots[slot]?.characterId)
-    console.log(!!this.occupiedUpperWallSlots[slot])
-    console.log(this.occupiedWallSlots[slot]?.characterId)
-    console.log(!!this.occupiedWallSlots[slot])
-    if(slot == 101) slot = 1;
-    return !!this.occupiedShelterSlots[slot] || 
-    !!this.occupiedUpperWallSlots[slot] || 
-    !!this.occupiedWallSlots[slot];
+  isSlotOccupied(slotMap: OccupiedSlotMap, slot: number): boolean {
+    return !!slotMap[slot];
   }
 
   isSlotsEmpty() {
-    return Object.values(this.occupiedShelterSlots).length +
-    Object.values(this.occupiedUpperWallSlots).length +
-    Object.values(this.occupiedWallSlots).length == 0
+    return (
+      Object.values(this.occupiedShelterSlots).length +
+        Object.values(this.occupiedUpperWallSlots).length +
+        Object.values(this.occupiedWallSlots).length ==
+      0
+    );
   }
 
   protected isSlotValid(
@@ -196,19 +203,18 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     slotMap: ConstructionSlotPositionMap,
     occupiedSlots: OccupiedSlotMap
   ) {
-    console.log(`SETSLOT ${entity.getSlotNumber()}`)
     const slot = entity.getSlotNumber();
-    if (!this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId)) return false;
+    if (!this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId))
+      return false;
     occupiedSlots[slot] = entity;
     return true;
   }
 
-  protected clearSlot(slot: number, occupiedSlots: OccupiedSlotMap) {
+  clearSlot(slot: number, occupiedSlots: OccupiedSlotMap) {
     delete occupiedSlots[slot];
   }
 
   isWallSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
-    console.log(buildingSlot);
     let slot = 0;
     if (typeof buildingSlot == "string") {
       slot = getConstructionSlotId(buildingSlot);
@@ -235,43 +241,27 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     wall: ConstructionChildEntity | ConstructionDoor
   ): boolean {
     if (wall.itemDefinitionId == Items.METAL_WALL_UPPER) {
-      return this.setSlot(wall, upperWallSlotDefinitions,
-        this.upperWallSlots,this.occupiedUpperWallSlots);
+      return this.setSlot(
+        wall,
+        upperWallSlotDefinitions,
+        this.upperWallSlots,
+        this.occupiedUpperWallSlots
+      );
     }
-    const set = this.setSlot(wall, wallSlotDefinitions,
-      this.wallSlots, this.occupiedWallSlots);
+    const set = this.setSlot(
+      wall,
+      wallSlotDefinitions,
+      this.wallSlots,
+      this.occupiedWallSlots
+    );
     if (set) this.updateSecuredState(server);
     return set;
   }
 
   isShelterSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
-    console.log(buildingSlot);
     let slot = 0;
     if (typeof buildingSlot == "string") {
       slot = getConstructionSlotId(buildingSlot);
-    }
-    if(this.itemDefinitionId == Items.GROUND_TAMPER) {
-      switch (true) {
-        case slot >= 11 && slot <= 14:
-          slot = slot - 6
-          break
-        case slot >= 21 && slot <= 24:
-          slot = slot - 12
-          break
-        case slot >= 31 && slot <= 34:
-          slot = slot - 18
-          break
-      }
-    }
-    else if(this.itemDefinitionId == Items.FOUNDATION) {
-      switch (true) {
-        case slot >= 11 && slot <= 13:
-          slot = slot - 7
-          break
-        case slot >= 21 && slot <= 23:
-          slot = slot - 14
-          break
-      }
     }
     return this.isSlotValid(
       slot,
@@ -285,10 +275,18 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     server: ZoneServer2016,
     shelter: ConstructionChildEntity
   ): boolean {
-    const set = this.setSlot(shelter, shelterSlotDefinitions,
-      this.shelterSlots, this.occupiedShelterSlots);
+    const set = this.setSlot(
+      shelter,
+      shelterSlotDefinitions,
+      this.shelterSlots,
+      this.occupiedShelterSlots
+    );
     if (set) this.updateSecuredState(server);
     return set;
+  }
+
+  addFreeplaceConstruction(entity: ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity) {
+    this.freeplaceEntities[entity.characterId] = entity;
   }
 
   pGetConstructionHealth() {
@@ -302,6 +300,31 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.health -= damageInfo.damage;
   }
 
+  isInside(position: Float32Array) {
+    if (!this.bounds) {
+      console.error(
+        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+      );
+      return false; // this should never occur
+    }
+
+    switch (this.itemDefinitionId) {
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER_LARGE:
+      case Items.SHELTER:
+      case Items.SHELTER_UPPER:
+        return isInsideCube(
+          [position[0], position[2]],
+          this.bounds,
+          position[1],
+          this.state.position[1],
+          2
+        );
+      default:
+        return false;
+    }
+  }
+
   destroy(server: ZoneServer2016, destructTime = 0) {
     server.deleteEntity(
       this.characterId,
@@ -309,26 +332,21 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       242,
       destructTime
     );
-    const parent =
-      server._constructionFoundations[this.parentObjectCharacterId] ||
-      server._constructionSimple[this.parentObjectCharacterId];
+    const parent = this.getParent(server);
     if (!parent) return;
-    if (this.itemDefinitionId == Items.METAL_WALL) {
-      parent.changePerimeters(
-        server,
-        this.buildingSlot,
-        new Float32Array([0, 0, 0, 0])
-      );
-    }
+
     let slotMap: OccupiedSlotMap | undefined,
-    updateSecured = false;
-    switch(this.itemDefinitionId) {
+      updateSecured = false;
+    let freeplace: Array<ConstructionChildEntity | ConstructionDoor> = [];
+    switch (this.itemDefinitionId) {
       case Items.METAL_GATE:
       case Items.DOOR_BASIC:
       case Items.DOOR_WOOD:
       case Items.DOOR_METAL:
       case Items.METAL_WALL:
       case Items.METAL_DOORWAY:
+        freeplace = [...Object.values(this.occupiedWallSlots)];
+        freeplace = [...freeplace, ...Object.values(this.occupiedUpperWallSlots)];
         slotMap = parent.occupiedWallSlots;
         updateSecured = true;
         break;
@@ -342,6 +360,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.STRUCTURE_STAIRS:
       case Items.STRUCTURE_STAIRS_UPPER:
       case Items.LOOKOUT_TOWER:
+        freeplace = [...Object.values(this.occupiedShelterSlots)];
         slotMap = parent.occupiedShelterSlots;
         break;
       case Items.FOUNDATION_RAMP:
@@ -349,19 +368,18 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         slotMap = parent.occupiedRampSlots;
         break;
     }
-    if(slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
-    if(updateSecured) parent.updateSecuredState(server);
-  }
+    if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
+    if (updateSecured) parent.updateSecuredState(server);
 
-  changePerimeters(
-    server: ZoneServer2016,
-    slot: string | undefined,
-    value: Float32Array
-  ) {
-    this.perimeters["LoveShackDoor"] = value;
-    if (!isArraySumZero(value)) {
-      this.isSecured = true;
-    } else this.isSecured = false;
+    // re-register now disconnected slotted entities as freeplace entities
+    const parentFoundation = this.getParentFoundation(server);
+    if(parentFoundation) {
+      freeplace.forEach((entity) => {
+        entity.parentObjectCharacterId = parentFoundation.characterId;
+        parentFoundation.freeplaceEntities[entity.characterId] = entity;
+      })
+      parentFoundation.freeplaceEntities = {...parentFoundation.freeplaceEntities, ...this.freeplaceEntities}
+    }
   }
 
   getParent(server: ZoneServer2016): ConstructionParentEntity | undefined {
@@ -413,7 +431,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   getSlotNumber(): number {
     if (!this.slot) return 0;
-    console.log(this.slot);
     return getConstructionSlotId(this.slot);
   }
 

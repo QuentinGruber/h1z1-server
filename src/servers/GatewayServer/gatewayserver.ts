@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -13,7 +13,7 @@
 
 import { EventEmitter } from "events";
 import { SOEServer } from "../SoeServer/soeserver";
-import { GatewayProtocol } from "../../protocols/gatewayprotocol";
+import { GatewayProtocol } from "h1emu-core";
 import SOEClient from "../SoeServer/soeclient";
 import { crc_length_options } from "../../types/soeserver";
 
@@ -42,30 +42,27 @@ export class GatewayServer extends EventEmitter {
 
     this._soeServer.on(
       "appdata",
-      (client: SOEClient, data: Buffer, isRawData: boolean) => {
+      (client: SOEClient, data: Uint8Array, isRawData: boolean) => {
         if (isRawData) {
           this.emit("tunneldata", client, data, 0);
           return;
         }
-        const packet = this._protocol.parse(data);
+        const packet = JSON.parse(this._protocol.parse(data));
         if (packet) {
-          const result = packet.result;
           switch (packet.name) {
             case "LoginRequest":
-              if (result && result.characterId) {
+              if (packet.character_id) {
                 this._soeServer.toggleEncryption(client);
-                const appData = this._protocol.pack("LoginReply", {
-                  loggedIn: true,
-                });
+                const appData = this._protocol.pack_login_reply_packet(true);
                 if (appData) {
                   this._soeServer.sendAppData(client, appData);
                 }
                 this.emit(
                   "login",
                   client,
-                  result.characterId,
-                  result.ticket,
-                  result.clientProtocol
+                  packet.character_id,
+                  packet.ticket,
+                  packet.client_protocol
                 );
               }
               break;
@@ -73,9 +70,13 @@ export class GatewayServer extends EventEmitter {
               debug("Logout gateway");
               this.emit("disconnect", client);
               break;
-            case "TunnelPacketFromExternalConnection":
-              debug("TunnelPacketFromExternalConnection");
-              this.emit("tunneldata", client, packet.tunnelData, packet.flags);
+            case "TunnelPacket":
+              this.emit(
+                "tunneldata",
+                client,
+                Buffer.from(packet.tunnel_data),
+                packet.flags
+              );
               break;
           }
         } else {
@@ -96,10 +97,7 @@ export class GatewayServer extends EventEmitter {
     unbuffered: boolean
   ) {
     debug("Sending tunnel data to client");
-    const data = this._protocol.pack("TunnelPacketToExternalConnection", {
-      channel: 0,
-      tunnelData: tunnelData,
-    });
+    const data = this._protocol.pack_tunnel_data_packet_for_client(tunnelData);
     if (data) {
       if (unbuffered) {
         this._soeServer.sendUnbufferedAppData(client, data);

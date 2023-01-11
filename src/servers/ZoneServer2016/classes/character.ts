@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -12,6 +12,7 @@
 // ======================================================================
 
 import {
+  ConstructionPermissionIds,
   ContainerErrors,
   Items,
   LoadoutIds,
@@ -557,6 +558,25 @@ export class Character2016 extends BaseFullCharacter {
     ) {
       server.containerError(client, ContainerErrors.INTERACTION_VALIDATION);
       return;
+    }
+
+    // construction container permissions
+    const lootableConstruction =
+      server._lootableConstruction[lootableEntity.characterId];
+    if (lootableConstruction && lootableConstruction.parentObjectCharacterId) {
+      const parent = lootableConstruction.getParent(server);
+      if (
+        parent &&
+        parent.isSecured &&
+        !parent.getHasPermission(
+          server,
+          this.characterId,
+          ConstructionPermissionIds.CONTAINERS
+        )
+      ) {
+        server.containerError(client, ContainerErrors.NO_PERMISSION);
+        return;
+      }
     }
 
     lootableEntity.mountedCharacter = this.characterId;

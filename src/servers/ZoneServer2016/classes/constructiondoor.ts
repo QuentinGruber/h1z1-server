@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -15,7 +15,7 @@ import { DoorEntity } from "./doorentity";
 import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "./zoneclient";
-import { DamageInfo } from "types/zoneserver";
+import { DamageInfo, OccupiedSlotMap } from "types/zoneserver";
 import { getConstructionSlotId, movePoint } from "../../../utils/utils";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ConstructionChildEntity } from "./constructionchildentity";
@@ -38,9 +38,8 @@ export class ConstructionDoor extends DoorEntity {
   grantedAccess: any = [];
   health: number = 1000000;
   parentObjectCharacterId: string;
-  buildingSlot: string;
   itemDefinitionId: number;
-  slot?: string;
+  slot: string;
   damageRange: number;
   fixedPosition: Float32Array;
   placementTime = Date.now();
@@ -54,7 +53,7 @@ export class ConstructionDoor extends DoorEntity {
     itemDefinitionId: number,
     ownerCharacterId: string,
     parentObjectCharacterId: string,
-    BuildingSlot: string
+    slot: string
   ) {
     super(
       characterId,
@@ -68,11 +67,7 @@ export class ConstructionDoor extends DoorEntity {
     this.ownerCharacterId = ownerCharacterId;
     this.itemDefinitionId = itemDefinitionId;
     this.parentObjectCharacterId = parentObjectCharacterId;
-    this.buildingSlot = BuildingSlot.substring(
-      BuildingSlot.length,
-      BuildingSlot.length - 2
-    ).toString();
-    this.slot = BuildingSlot;
+    this.slot = slot;
     this.profileId = 999; /// mark as construction
     this.damageRange = getDamageRange(this.itemDefinitionId);
     this.fixedPosition = movePoint(
@@ -103,24 +98,21 @@ export class ConstructionDoor extends DoorEntity {
       242,
       destructTime
     );
-    const foundation = server._constructionFoundations[
-      this.parentObjectCharacterId
-    ]
-      ? server._constructionFoundations[this.parentObjectCharacterId]
-      : server._constructionSimple[this.parentObjectCharacterId];
-    if (!foundation) return;
-    if (
-      this.itemDefinitionId == Items.DOOR_METAL ||
-      this.itemDefinitionId == Items.DOOR_WOOD ||
-      this.itemDefinitionId == Items.METAL_GATE
-    ) {
-      foundation.changePerimeters(
-        server,
-        this.buildingSlot,
-        new Float32Array([0, 0, 0, 0])
-      );
+    const parent = this.getParent(server);
+    if (!parent) return;
+    let slotMap: OccupiedSlotMap | undefined,
+      updateSecured = false;
+    switch (this.itemDefinitionId) {
+      case Items.METAL_GATE:
+      case Items.DOOR_BASIC:
+      case Items.DOOR_WOOD:
+      case Items.DOOR_METAL:
+        slotMap = parent.occupiedWallSlots;
+        updateSecured = true;
+        break;
     }
-    if (!this.slot || !this.parentObjectCharacterId) return;
+    if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
+    if (updateSecured) parent.updateSecuredState(server);
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
@@ -243,30 +235,10 @@ export class ConstructionDoor extends DoorEntity {
       }
     );
     this.isOpen = !this.isOpen;
-    if (server._constructionFoundations[this.parentObjectCharacterId]) {
-      this.isOpen
-        ? server._constructionFoundations[
-            this.parentObjectCharacterId
-          ].changePerimeters(
-            server,
-            this.buildingSlot,
-            new Float32Array([0, 0, 0, 0])
-          )
-        : server._constructionFoundations[
-            this.parentObjectCharacterId
-          ].changePerimeters(server, this.buildingSlot, this.state.position);
-    } else if (server._constructionSimple[this.parentObjectCharacterId]) {
-      this.isOpen
-        ? server._constructionSimple[
-            this.parentObjectCharacterId
-          ].changePerimeters(
-            server,
-            "LoveShackDoor",
-            new Float32Array([0, 0, 0, 0])
-          )
-        : server._constructionSimple[
-            this.parentObjectCharacterId
-          ].changePerimeters(server, "LoveShackDoor", this.state.position);
+
+    const parent = this.getParent(server);
+    if (parent) {
+      parent.updateSecuredState(server);
     }
   }
 

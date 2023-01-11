@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -142,7 +142,6 @@ export const commands: Array<Command> = [
       const soeClient = server.getSoeClient(client.soeClientId);
       if (soeClient) {
         const stats = soeClient.getNetworkStats();
-        stats.push(`Ping: ${client.avgPing}ms`);
         for (let index = 0; index < stats.length; index++) {
           const stat = stats[index];
           server.sendChatText(client, stat, index == 0);
@@ -994,7 +993,7 @@ export const commands: Array<Command> = [
     },
   },
   {
-    name: "respawnloot",
+    name: "spawnloot",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
       server.worldObjectManager.createLoot(server);
@@ -1464,6 +1463,31 @@ export const commands: Array<Command> = [
       );
       client.character.equipLoadout(server, characterBuildKitLoadout);
       server.sendChatText(client, `Build kit given`);
+    },
+  },
+  {
+    name: "respawnloot",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (server: ZoneServer2016, client: Client, args: any[]) => {
+      for (const characterId in server._spawnedItems) {
+        const item = server._spawnedItems[characterId];
+        if (item.spawnerId > 0) {
+          if (
+            item.item.itemDefinitionId === Items.FUEL_BIOFUEL ||
+            item.item.itemDefinitionId === Items.FUEL_ETHANOL
+          ) {
+            server.deleteEntity(characterId, server._explosives);
+          }
+          server.deleteEntity(characterId, server._spawnedItems);
+          delete server.worldObjectManager._spawnedLootObjects[item.spawnerId];
+        }
+      }
+
+      delete require.cache[require.resolve("../data/lootspawns")];
+      const loottables = require("../data/lootspawns").lootTables;
+      console.log(loottables);
+      server.worldObjectManager.createLoot(server, loottables);
+      server.sendChatText(client, `Respawned loot`);
     },
   },
   //#endregion

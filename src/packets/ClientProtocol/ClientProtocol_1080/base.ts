@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -2810,12 +2810,12 @@ export const basePackets: any = [
     0x8d,
     {
       fields: [
-        { name: "time1", type: "uint64string", defaultValue: "0" },
-        { name: "time2", type: "uint64string", defaultValue: "0" },
+        { name: "clientHoursMs", type: "uint64string", defaultValue: "0" }, // seems like hours since a 12h trip in ms UTC time
+        { name: "clientHoursMs2", type: "uint64string", defaultValue: "0" },
         { name: "clientTime", type: "uint64string", defaultValue: "0" },
         { name: "serverTime", type: "uint64string", defaultValue: "0" },
         { name: "serverTime2", type: "uint64string", defaultValue: "0" },
-        { name: "time3", type: "uint64string", defaultValue: "0" },
+        { name: "time3", type: "uint64string", defaultValue: "0" }, // maybe drift ?
       ],
     },
   ],

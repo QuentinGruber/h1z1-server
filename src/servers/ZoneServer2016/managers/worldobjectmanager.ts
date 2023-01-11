@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -59,7 +59,22 @@ function getRandomVehicleId() {
 }
 
 function getRandomItem(items: Array<LootDefinition>) {
-  return items[Math.floor(Math.random() * items.length)];
+  //return items[Math.floor(Math.random() * items.length)];
+  //items[0].
+
+  const totalWeight = items.reduce((total, item) => total + item.weight, 0),
+    randomWeight = Math.random() * totalWeight;
+  let currentWeight = 0;
+
+  for (let i = 0; i < items.length; i++) {
+    currentWeight += items[i].weight;
+    if (currentWeight > randomWeight) {
+      return items[i];
+    }
+  }
+
+  // This line should never be reached, but is included for type safety
+  return;
 }
 
 export class WorldObjectManager {
@@ -417,10 +432,10 @@ export class WorldObjectManager {
     debug("All npcs objects created");
   }
 
-  createLoot(server: ZoneServer2016) {
+  createLoot(server: ZoneServer2016, lTables = lootTables) {
     // temp logic until item weights are added
     Z1_items.forEach((spawnerType: any) => {
-      const lootTable = lootTables[spawnerType.actorDefinition];
+      const lootTable = lTables[spawnerType.actorDefinition];
       if (lootTable) {
         spawnerType.instances.forEach((itemInstance: any) => {
           if (this._spawnedLootObjects[itemInstance.id]) return;
@@ -428,16 +443,21 @@ export class WorldObjectManager {
           if (chance <= lootTable.spawnChance) {
             // temporary spawnchance
             const item = getRandomItem(lootTable.items);
-            this.createLootEntity(
-              server,
-              server.generateItem(
-                item.item,
-                randomIntFromInterval(item.spawnCount.min, item.spawnCount.max)
-              ),
-              itemInstance.position,
-              itemInstance.rotation,
-              itemInstance.id
-            );
+            if (item) {
+              this.createLootEntity(
+                server,
+                server.generateItem(
+                  item.item,
+                  randomIntFromInterval(
+                    item.spawnCount.min,
+                    item.spawnCount.max
+                  )
+                ),
+                itemInstance.position,
+                itemInstance.rotation,
+                itemInstance.id
+              );
+            }
           }
         });
       }

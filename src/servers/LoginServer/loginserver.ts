@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -25,6 +25,7 @@ import {
   initMongo,
   setupAppDataFolder,
   validateVersion,
+  isValidCharacterName,
 } from "../../utils/utils";
 import { GameServer } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
@@ -51,7 +52,7 @@ import {
 import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
 import LoginClient from "servers/LoginServer/loginclient";
-import { GAME_VERSIONS } from "../../utils/enums";
+import { GAME_VERSIONS, NAME_VALIDATION_STATUS } from "../../utils/enums";
 import DataSchema from "h1z1-dataschema";
 import { applicationDataKOTK } from "../../packets/LoginUdp/LoginUdp_11/loginpackets";
 
@@ -68,10 +69,10 @@ export class LoginServer extends EventEmitter {
   _crcSeed: number;
   _crcLength: crc_length_options;
   _udpLength: number;
-  private _cryptoKey: Uint8Array;
-  private _mongoAddress: string;
-  private _soloMode: boolean;
-  private _appDataFolder: string;
+  private readonly _cryptoKey: Uint8Array;
+  private readonly _mongoAddress: string;
+  private readonly _soloMode: boolean;
+  private readonly _appDataFolder: string;
   private _httpServer!: Worker;
   _enableHttpServer: boolean;
   _httpServerPort: number = 80;
@@ -442,8 +443,8 @@ export class LoginServer extends EventEmitter {
     let response: unknown;
     switch (packet.subPacketName) {
       case "nameValidationRequest":
-        let status = 1;
         const characterName = packet.result.characterName;
+        let status = isValidCharacterName(characterName);
         if (!this._soloMode) {
           const blackListedEntry = await this._db
             .collection("blackListEntries")
@@ -452,9 +453,9 @@ export class LoginServer extends EventEmitter {
             });
           if (blackListedEntry) {
             if (blackListedEntry.FILTER_TYPE === 3) {
-              status = 5;
+              status = NAME_VALIDATION_STATUS.RESERVED;
             } else {
-              status = 4;
+              status = NAME_VALIDATION_STATUS.PROFANE;
             }
           } else {
             const duplicateCharacter = await this._db
@@ -465,7 +466,7 @@ export class LoginServer extends EventEmitter {
                 status: 1,
               });
             if (duplicateCharacter) {
-              status = 2;
+              status = NAME_VALIDATION_STATUS.TAKEN;
             }
           }
         }
