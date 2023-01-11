@@ -58,6 +58,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
   readonly rampSlots: ConstructionSlotPositionMap = {};
   occupiedRampSlots: { [slot: number]: ConstructionChildEntity } = {};
+  occupiedShelterSlots: { [slot: number]: ConstructionChildEntity } = {};
+
   constructor(
     characterId: string,
     transientId: number,
@@ -128,7 +130,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           3.5,
           2.5,
           -this.eulerAngle
-        )
+        );
         break;
     }
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
@@ -152,7 +154,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   private getSquareBounds(
     slots: [number, number, number, number]
   ): SquareBounds {
-    let bounds: SquareBounds = [
+    const bounds: SquareBounds = [
       [0, 0],
       [0, 0],
       [0, 0],
@@ -163,6 +165,33 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       if (pos) bounds[idx] = [pos[0], pos[2]];
     });
     return bounds;
+  }
+
+  getAdjustedShelterSlotId(buildingSlot: string) {
+    let slot = getConstructionSlotId(buildingSlot);
+    if (this.itemDefinitionId == Items.GROUND_TAMPER) {
+      switch (true) {
+        case slot >= 11 && slot <= 14:
+          slot = slot - 6;
+          break;
+        case slot >= 21 && slot <= 24:
+          slot = slot - 12;
+          break;
+        case slot >= 31 && slot <= 34:
+          slot = slot - 18;
+          break;
+      }
+    } else if (this.itemDefinitionId == Items.FOUNDATION) {
+      switch (true) {
+        case slot >= 11 && slot <= 13:
+          slot = slot - 7;
+          break;
+        case slot >= 21 && slot <= 23:
+          slot = slot - 14;
+          break;
+      }
+    }
+    return `Structure${slot > 9 ? slot.toString() : `0${slot.toString()}`}`;
   }
 
   /**
@@ -185,11 +214,13 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
   updateSecuredState(server: ZoneServer2016) {
     // move this
-    function isWallSecure(wall: ConstructionChildEntity | ConstructionDoor): boolean {
-      if(wall instanceof ConstructionChildEntity) {
+    function isWallSecure(
+      wall: ConstructionChildEntity | ConstructionDoor
+    ): boolean {
+      if (wall instanceof ConstructionChildEntity) {
         const door = wall.occupiedWallSlots[1];
-        if(!door) return false; // no door
-        if(door instanceof ConstructionDoor && door.isOpen) return false;
+        if (!door) return false; // no door
+        if (door instanceof ConstructionDoor && door.isOpen) return false;
         return true;
       }
       return !wall.isOpen;
@@ -277,7 +308,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     );
   }
 
-  isInside(entity: BaseEntity) {
+  isInside(position: Float32Array) {
     if (!this.bounds) {
       console.error(
         `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
@@ -289,29 +320,16 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.FOUNDATION:
       case Items.FOUNDATION_EXPANSION:
       case Items.GROUND_TAMPER:
-        return isInsideSquare(
-          [entity.state.position[0], entity.state.position[2]],
-          this.bounds
-        );
+        return isInsideSquare([position[0], position[2]], this.bounds);
       case Items.SHACK:
-        return isPosInRadiusWithY(
-          2.39,
-          entity.state.position,
-          this.state.position,
-          2
-        );
+        return isPosInRadiusWithY(2.39, position, this.state.position, 2);
       case Items.SHACK_BASIC:
-        return isPosInRadiusWithY(
-          1,
-          entity.state.position,
-          this.state.position,
-          2
-        );
+        return isPosInRadiusWithY(1, position, this.state.position, 2);
       case Items.SHACK_SMALL:
         return isInsideCube(
-          [entity.state.position[0], entity.state.position[2]],
+          [position[0], position[2]],
           this.bounds,
-          entity.state.position[1],
+          position[1],
           this.state.position[1],
           2.1
         );

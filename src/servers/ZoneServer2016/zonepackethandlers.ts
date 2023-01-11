@@ -36,7 +36,6 @@ import {
   Items,
 } from "./models/enums";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
-import { Npc } from "./classes/npc";
 import { ConstructionParentEntity } from "./classes/constructionparententity";
 import { ConstructionDoor } from "./classes/constructiondoor";
 import { CommandHandler } from "./commands/commandhandler";

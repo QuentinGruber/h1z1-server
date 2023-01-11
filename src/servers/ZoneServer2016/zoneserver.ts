@@ -50,6 +50,7 @@ import {
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
+  SlottedConstructionEntity,
   SpawnLocation,
   Weather2016 as Weather,
 } from "../../types/zoneserver";
@@ -77,7 +78,6 @@ import {
   calculateDamageDistFallOff,
   toHex,
   eul2quat,
-  isInsideCube,
   movePoint,
   getConstructionSlotId,
 } from "../../utils/utils";
@@ -1264,7 +1264,10 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  isConstructionInSecuredArea(construction: any, type: string) {
+  isConstructionInSecuredArea(
+    construction: SlottedConstructionEntity,
+    type: string
+  ) {
     switch (type) {
       case "simple":
         for (const a in this._constructionFoundations) {
@@ -1278,21 +1281,14 @@ export class ZoneServer2016 extends EventEmitter {
           ) {
             if (
               foundation.isSecured &&
-              foundation.isInside(construction)
-            )
-              return true;
-            else if (
-              this._constructionFoundations[foundation.parentObjectCharacterId]
-                .isSecured &&
-              foundation.isSecured &&
-              foundation.isInside(construction)
+              foundation.isInside(construction.state.position)
             )
               return true;
             else return false;
           }
           if (
             foundation.isSecured &&
-            foundation.isInside(construction)
+            foundation.isInside(construction.state.position)
           )
             return true;
         }
@@ -1305,21 +1301,14 @@ export class ZoneServer2016 extends EventEmitter {
           ) {
             if (
               foundation.isSecured &&
-              foundation.isInside(construction)
-            )
-              return true;
-            else if (
-              this._constructionFoundations[foundation.parentObjectCharacterId]
-                .isSecured &&
-              foundation.isSecured &&
-              foundation.isInside(construction)
+              foundation.isInside(construction.state.position)
             )
               return true;
             else return false;
           }
           if (
             foundation.isSecured &&
-            foundation.isInside(construction)
+            foundation.isInside(construction.state.position)
           )
             return true;
         }
@@ -2199,7 +2188,7 @@ export class ZoneServer2016 extends EventEmitter {
       foundation.itemDefinitionId == Items.SHACK_SMALL ||
       foundation.itemDefinitionId == Items.SHACK_BASIC
     ) {
-      if (foundation.isInside(client.character)) {
+      if (foundation.isInside(client.character.state.position)) {
         if (allowed) {
           this.constructionHidePlayer(client, foundation.characterId, true);
           isInSecuredArea = true;
@@ -2209,16 +2198,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     if (allowed) return;
-    /*
-    if (this._constructionFoundations[foundation.parentObjectCharacterId]) {
-      if (
-        !this._constructionFoundations[foundation.parentObjectCharacterId]
-          .isSecured
-      )
-        return;
-    }
-    */
-    if (foundation.isInside(client.character)) {
+    if (foundation.isInside(client.character.state.position)) {
       this.tpPlayerOutsideFoundation(client, foundation);
       return;
     }
@@ -2260,26 +2240,14 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       for (const a in this._constructionFoundations) {
         const b = this._constructionFoundations[a];
-        if (!b.isInside(construction)) continue;
+        if (!b.isInside(construction.state.position)) continue;
         foundation = b;
       }
     }
     if (!foundation) return;
     const permissions = foundation.permissions[client.character.characterId];
     if (permissions && permissions.visit) allowed = true;
-    if (
-      construction.bounds &&
-      isInsideCube(
-        [
-          client.character.state.position[0],
-          client.character.state.position[2],
-        ],
-        construction.bounds,
-        client.character.state.position[1],
-        construction.state.position[1],
-        2
-      )
-    ) {
+    if (construction.isInside(client.character.state.position)) {
       if (allowed) {
         this.constructionHidePlayer(client, construction.characterId, true);
         isInSecuredArea = true;
@@ -3393,7 +3361,7 @@ export class ZoneServer2016 extends EventEmitter {
     ];
 
     // for construction entities that don't have a parentObjectCharacterId from the client
-    const freeplaceParentCharacterId = "";
+    let freeplaceParentCharacterId = "";
 
     for (const a in this._constructionFoundations) {
       const foundation = this._constructionFoundations[a];
@@ -3418,19 +3386,15 @@ export class ZoneServer2016 extends EventEmitter {
       }
 
       // for construction entities that don't have a parentObjectCharacterId from the client
-      // (containers)
-      /*
-      if(!Number(parentObjectCharacterId) && isInside(
-        [position[0], position[2]],
-        foundation.securedPolygons
-      )) {
+      if (!Number(parentObjectCharacterId) && foundation.isInside(position)) {
         freeplaceParentCharacterId = foundation.characterId;
+        // check if object is inside a shelter
+        Object.values(foundation.occupiedShelterSlots).forEach((shelter) => {
+          if (shelter.isInside(position)) {
+            freeplaceParentCharacterId = shelter.characterId;
+          }
+        });
       }
-      */
-      /* 
-      TODO - Create method to get foundation / shack bounds without them being secured
-       then check if storage container is inside
-      */
     }
 
     if (
@@ -3571,17 +3535,17 @@ export class ZoneServer2016 extends EventEmitter {
 
         // need to add all valid construction eventually
         const characterId = this.generateGuid(),
-        transientId = this.getTransientId(characterId),
-        construction = new ConstructionChildEntity(
-          characterId,
-          transientId,
-          modelId,
-          position,
-          rotation,
-          itemDefinitionId,
-          "",
-          ""
-        );
+          transientId = this.getTransientId(characterId),
+          construction = new ConstructionChildEntity(
+            characterId,
+            transientId,
+            modelId,
+            position,
+            rotation,
+            itemDefinitionId,
+            "",
+            ""
+          );
         this._constructionSimple[characterId] = construction;
         return false;
     }
@@ -3603,6 +3567,8 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
+    BuildingSlot = parent.getAdjustedShelterSlotId(BuildingSlot);
+
     if (
       parent &&
       parent.isSlotOccupied(
@@ -3619,31 +3585,24 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    const position = parent.getSlotPosition(
-      BuildingSlot,
-      parent.shelterSlots,
-      true
-    );
+    const position = parent.getSlotPosition(BuildingSlot, parent.shelterSlots);
     if (!position) {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
       return false;
     }
 
     const characterId = this.generateGuid(),
-      transientId = this.getTransientId(characterId);
-    if (!Number(parentObjectCharacterId)) {
-      parentObjectCharacterId = "";
-    }
-    const shelter = new ConstructionChildEntity(
-      characterId,
-      transientId,
-      modelId,
-      position,
-      rotation,
-      itemDefinitionId,
-      parentObjectCharacterId,
-      BuildingSlot
-    );
+      transientId = this.getTransientId(characterId),
+      shelter = new ConstructionChildEntity(
+        characterId,
+        transientId,
+        modelId,
+        position,
+        rotation,
+        itemDefinitionId,
+        parentObjectCharacterId,
+        BuildingSlot
+      );
 
     this._constructionSimple[characterId] = shelter;
     parent.setShelterSlot(this, shelter);
@@ -4068,7 +4027,6 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId);
-    console.log(parentObjectCharacterId);
     const obj = new LootableConstructionEntity(
       characterId,
       transientId,
@@ -5580,12 +5538,19 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case ContainerErrors.NOT_MUTABLE:
         this.sendChatText(client, "Container Error: ContainerIsNotMutable");
+        break;
       case ContainerErrors.NOT_CONSTRUCTED:
         this.sendChatText(client, "Container Error: ContainerNotConstructed");
+        break;
       case ContainerErrors.NO_SPACE:
         this.sendChatText(client, "Container Error: ContainerHasNoSpace");
+        break;
       case ContainerErrors.INVALID_LOADOUT_SLOT:
         this.sendChatText(client, "Container Error: InvalidLoadoutSlot");
+        break;
+      case ContainerErrors.NO_PERMISSION:
+        this.sendChatText(client, "Container Error: NoPermission");
+        break;
       default:
         this.sendData(client, "Container.Error", {
           characterId: client.character.characterId,
