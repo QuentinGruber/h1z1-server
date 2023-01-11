@@ -67,7 +67,7 @@ export class ConstructionDoor extends DoorEntity {
     this.ownerCharacterId = ownerCharacterId;
     this.itemDefinitionId = itemDefinitionId;
     this.parentObjectCharacterId = parentObjectCharacterId;
-    this.slot = slot
+    this.slot = slot;
     this.profileId = 999; /// mark as construction
     this.damageRange = getDamageRange(this.itemDefinitionId);
     this.fixedPosition = movePoint(
@@ -103,8 +103,8 @@ export class ConstructionDoor extends DoorEntity {
       server._constructionSimple[this.parentObjectCharacterId];
     if (!parent) return;
     let slotMap: OccupiedSlotMap | undefined,
-    updateSecured = false;
-    switch(this.itemDefinitionId) {
+      updateSecured = false;
+    switch (this.itemDefinitionId) {
       case Items.METAL_GATE:
       case Items.DOOR_BASIC:
       case Items.DOOR_WOOD:
@@ -113,8 +113,8 @@ export class ConstructionDoor extends DoorEntity {
         updateSecured = true;
         break;
     }
-    if(slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
-    if(updateSecured) parent.updateSecuredState(server);
+    if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
+    if (updateSecured) parent.updateSecuredState(server);
 
     if (
       this.itemDefinitionId == Items.DOOR_METAL ||
@@ -253,11 +253,7 @@ export class ConstructionDoor extends DoorEntity {
       this.isOpen
         ? server._constructionFoundations[
             this.parentObjectCharacterId
-          ].changePerimeters(
-            server,
-            this.slot,
-            new Float32Array([0, 0, 0, 0])
-          )
+          ].changePerimeters(server, this.slot, new Float32Array([0, 0, 0, 0]))
         : server._constructionFoundations[
             this.parentObjectCharacterId
           ].changePerimeters(server, this.slot, this.state.position);
@@ -273,6 +269,13 @@ export class ConstructionDoor extends DoorEntity {
         : server._constructionSimple[
             this.parentObjectCharacterId
           ].changePerimeters(server, "LoveShackDoor", this.state.position);
+    }
+
+    const parent =
+      server._constructionFoundations[this.parentObjectCharacterId] ||
+      server._constructionSimple[this.parentObjectCharacterId];
+    if (parent) {
+      parent.updateSecuredState(server);
     }
   }
 

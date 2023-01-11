@@ -77,8 +77,8 @@ import {
   calculateDamageDistFallOff,
   toHex,
   eul2quat,
-  isInside,
-  isInsideWithY,
+  isInsideSquare,
+  isInsideCube,
   movePoint,
   getRectangleCorners,
   getOffsetPoint,
@@ -1281,8 +1281,8 @@ export class ZoneServer2016 extends EventEmitter {
             this._constructionFoundations[foundation.parentObjectCharacterId]
           ) {
             if (
-              foundation.isFullySecured &&
-              isInside(
+              foundation.isSecured &&
+              isInsideSquare(
                 [
                   construction.state.position[0],
                   construction.state.position[2],
@@ -1295,7 +1295,7 @@ export class ZoneServer2016 extends EventEmitter {
               this._constructionFoundations[foundation.parentObjectCharacterId]
                 .isSecured &&
               foundation.isSecured &&
-              isInside(
+              isInsideSquare(
                 [
                   construction.state.position[0],
                   construction.state.position[2],
@@ -1308,7 +1308,7 @@ export class ZoneServer2016 extends EventEmitter {
           }
           if (
             foundation.isSecured &&
-            isInside(
+            isInsideSquare(
               [construction.state.position[0], construction.state.position[2]],
               foundation.securedPolygons
             )
@@ -1323,8 +1323,8 @@ export class ZoneServer2016 extends EventEmitter {
             this._constructionFoundations[foundation.parentObjectCharacterId]
           ) {
             if (
-              foundation.isFullySecured &&
-              isInside(
+              foundation.isSecured &&
+              isInsideSquare(
                 [
                   construction.state.position[0],
                   construction.state.position[2],
@@ -1337,7 +1337,7 @@ export class ZoneServer2016 extends EventEmitter {
               this._constructionFoundations[foundation.parentObjectCharacterId]
                 .isSecured &&
               foundation.isSecured &&
-              isInside(
+              isInsideSquare(
                 [
                   construction.state.position[0],
                   construction.state.position[2],
@@ -1350,7 +1350,7 @@ export class ZoneServer2016 extends EventEmitter {
           }
           if (
             foundation.isSecured &&
-            isInside(
+            isInsideSquare(
               [construction.state.position[0], construction.state.position[2]],
               foundation.securedPolygons
             )
@@ -2201,6 +2201,8 @@ export class ZoneServer2016 extends EventEmitter {
     foundation: ConstructionParentEntity
   ) {
     let isInSecuredArea = false;
+
+    // under foundation check
     if (
       foundation.itemDefinitionId == Items.FOUNDATION ||
       foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
@@ -2241,6 +2243,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     if (allowed) return;
+    /*
     if (this._constructionFoundations[foundation.parentObjectCharacterId]) {
       if (
         !this._constructionFoundations[foundation.parentObjectCharacterId]
@@ -2248,6 +2251,7 @@ export class ZoneServer2016 extends EventEmitter {
       )
         return;
     }
+    */
     if (foundation.isInside(client.character)) {
       this.tpPlayerOutsideFoundation(client, foundation);
       return;
@@ -2298,7 +2302,7 @@ export class ZoneServer2016 extends EventEmitter {
     const permissions = foundation.permissions[client.character.characterId];
     if (permissions && permissions.visit) allowed = true;
     if (
-      isInsideWithY(
+      isInsideCube(
         [
           client.character.state.position[0],
           client.character.state.position[2],
@@ -3461,7 +3465,18 @@ export class ZoneServer2016 extends EventEmitter {
       */
     }
 
-    if(!this.handleConstructionPlacement(client, itemDefinitionId, modelId, position, rotation, parentObjectCharacterId, BuildingSlot, freeplaceParentCharacterId)) {
+    if (
+      !this.handleConstructionPlacement(
+        client,
+        itemDefinitionId,
+        modelId,
+        position,
+        rotation,
+        parentObjectCharacterId,
+        BuildingSlot,
+        freeplaceParentCharacterId
+      )
+    ) {
       this.sendData(client, "Construction.PlacementFinalizeResponse", {
         status: 0,
         unknownString1: "",
@@ -3575,7 +3590,14 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.STRUCTURE_STAIRS:
       case Items.STRUCTURE_STAIRS_UPPER:
       case Items.LOOKOUT_TOWER:
-        return this.placeConstructionShelter(client, itemDefinitionId, modelId, rotation, parentObjectCharacterId, BuildingSlot);
+        return this.placeConstructionShelter(
+          client,
+          itemDefinitionId,
+          modelId,
+          rotation,
+          parentObjectCharacterId,
+          BuildingSlot
+        );
       default:
         this.placementError(client, PlacementErrors.UNKNOWN_CONSTRUCTION);
         return false;
@@ -3600,7 +3622,10 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (
       parent &&
-      parent.isSlotOccupied(parent.occupiedShelterSlots, getConstructionSlotId(BuildingSlot))
+      parent.isSlotOccupied(
+        parent.occupiedShelterSlots,
+        getConstructionSlotId(BuildingSlot)
+      )
     ) {
       this.placementError(client, PlacementErrors.OVERLAP);
       return false;
@@ -3611,7 +3636,11 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    const position = parent.getSlotPosition(BuildingSlot, parent.shelterSlots, true);
+    const position = parent.getSlotPosition(
+      BuildingSlot,
+      parent.shelterSlots,
+      true
+    );
     if (!position) {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
       return false;
@@ -3656,7 +3685,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     this._constructionSimple[characterId] = shelter;
-    parent.setShelterSlot(this, shelter)
+    parent.setShelterSlot(this, shelter);
     return true;
   }
 
@@ -3688,7 +3717,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (itemDefinitionId == Items.METAL_WALL_UPPER) {
       if (
         parent &&
-        parent.isSlotOccupied(parent.occupiedUpperWallSlots, getConstructionSlotId(BuildingSlot))
+        parent.isSlotOccupied(
+          parent.occupiedUpperWallSlots,
+          getConstructionSlotId(BuildingSlot)
+        )
       ) {
         this.placementError(client, PlacementErrors.OVERLAP);
         return false;
@@ -3701,7 +3733,10 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       if (
         parent &&
-        parent.isSlotOccupied(parent.occupiedWallSlots, getConstructionSlotId(BuildingSlot))
+        parent.isSlotOccupied(
+          parent.occupiedWallSlots,
+          getConstructionSlotId(BuildingSlot)
+        )
       ) {
         this.placementError(client, PlacementErrors.OVERLAP);
         return false;
@@ -3730,11 +3765,7 @@ export class ZoneServer2016 extends EventEmitter {
     parent.setWallSlot(this, wall);
 
     if (parentFoundation) {
-      parentFoundation.changePerimeters(
-        this,
-        wall.slot,
-        wall.state.position
-      );
+      parentFoundation.changePerimeters(this, wall.slot, wall.state.position);
     }
     if (parentSimple) {
       parentSimple.changePerimeters(this, BuildingSlot, wall.state.position);
@@ -3759,7 +3790,10 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (
       parentFoundation &&
-      parentFoundation.isSlotOccupied(parentFoundation.occupiedRampSlots, getConstructionSlotId(BuildingSlot))
+      parentFoundation.isSlotOccupied(
+        parentFoundation.occupiedRampSlots,
+        getConstructionSlotId(BuildingSlot)
+      )
     ) {
       this.placementError(client, PlacementErrors.OVERLAP);
       return false;
@@ -3818,7 +3852,10 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (
       parentFoundation &&
-      parentFoundation.isSlotOccupied(parentFoundation.occupiedRampSlots, getConstructionSlotId(BuildingSlot))
+      parentFoundation.isSlotOccupied(
+        parentFoundation.occupiedRampSlots,
+        getConstructionSlotId(BuildingSlot)
+      )
     ) {
       this.placementError(client, PlacementErrors.OVERLAP);
       return false;
@@ -3878,7 +3915,10 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (
       parent &&
-      parent.isSlotOccupied(parent.occupiedWallSlots, getConstructionSlotId(BuildingSlot))
+      parent.isSlotOccupied(
+        parent.occupiedWallSlots,
+        getConstructionSlotId(BuildingSlot)
+      )
     ) {
       this.placementError(client, PlacementErrors.OVERLAP);
       return false;
@@ -3923,11 +3963,7 @@ export class ZoneServer2016 extends EventEmitter {
     parent.setWallSlot(this, door);
 
     if (parentFoundation) {
-      parentFoundation.changePerimeters(
-        this,
-        door.slot,
-        door.state.position
-      );
+      parentFoundation.changePerimeters(this, door.slot, door.state.position);
     }
     if (parentSimple) {
       parentSimple.changePerimeters(this, BuildingSlot, door.state.position);
@@ -3948,9 +3984,8 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     if (
       BuildingSlot &&
-      this._constructionFoundations[parentObjectCharacterId]?.occupiedExpansionSlots[
-        getConstructionSlotId(BuildingSlot)
-      ]
+      this._constructionFoundations[parentObjectCharacterId]
+        ?.occupiedExpansionSlots[getConstructionSlotId(BuildingSlot)]
     ) {
       this.placementError(client, PlacementErrors.OVERLAP);
       return false;
@@ -3966,7 +4001,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (parentFoundation && BuildingSlot) {
       if (
         parentFoundation &&
-        parentFoundation.isSlotOccupied(parentFoundation.occupiedExpansionSlots, getConstructionSlotId(BuildingSlot))
+        parentFoundation.isSlotOccupied(
+          parentFoundation.occupiedExpansionSlots,
+          getConstructionSlotId(BuildingSlot)
+        )
       ) {
         this.placementError(client, PlacementErrors.OVERLAP);
         return false;
@@ -4006,12 +4044,12 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId,
         client.character.name || "",
         parentObjectCharacterId,
-        BuildingSlot
+        BuildingSlot,
+        this
       );
     if (parentFoundation && BuildingSlot) {
       parentFoundation.setExpansionSlot(npc);
-      npc.permissions =
-      parentFoundation.permissions;
+      npc.permissions = parentFoundation.permissions;
     }
     this._constructionFoundations[characterId] = npc;
     return true;

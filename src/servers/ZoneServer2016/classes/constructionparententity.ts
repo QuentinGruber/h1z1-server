@@ -18,8 +18,8 @@ import {
   getConstructionSlotId,
   getRectangleCorners,
   isArraySumZero,
-  isInside,
-  isInsideWithY,
+  isInsideSquare,
+  isInsideCube,
   isPosInRadiusWithY,
   registerConstructionSlots,
 } from "../../../utils/utils";
@@ -28,7 +28,7 @@ import { BaseEntity } from "./baseentity";
 import {
   ConstructionPermissions,
   ConstructionSlotPositionMap,
-  OccupiedSlotMap,
+  SquareBounds,
 } from "types/zoneserver";
 import { ConstructionDoor } from "./constructiondoor";
 import {
@@ -54,10 +54,10 @@ function getDamageRange(definitionId: number): number {
 export class ConstructionParentEntity extends ConstructionChildEntity {
   permissions: { [characterId: string]: ConstructionPermissions } = {};
   ownerCharacterId: string;
+  bounds?: SquareBounds;
 
   // to be deprecated
-  isFullySecured: boolean = true;
-  securedPolygons: any[];
+  securedPolygons: Array<Array<number>>;
 
   readonly expansionSlots: ConstructionSlotPositionMap = {};
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
@@ -73,7 +73,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     ownerCharacterId: string,
     ownerName: string,
     parentObjectCharacterId: string,
-    BuildingSlot?: string
+    BuildingSlot: string | undefined,
+    server: ZoneServer2016
   ) {
     super(
       characterId,
@@ -124,6 +125,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           "15": new Float32Array([0, 0, 0, 0]),
           "16": new Float32Array([0, 0, 0, 0]),
         };
+        this.bounds = this.getSquareBounds([1, 5, 9, 13]);
         break;
       case Items.FOUNDATION:
         this.perimeters = {
@@ -140,8 +142,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           "11": new Float32Array([0, 0, 0, 0]),
           "12": new Float32Array([0, 0, 0, 0]),
         };
+        this.bounds = this.getSquareBounds([1, 4, 7, 10]);
         break;
-      case Items.FOUNDATION_EXPANSION:
+      case Items.FOUNDATION_EXPANSION: // 1, 2, 5, 3RD dependent foundation wall
         this.perimeters = {
           "01": new Float32Array([0, 0, 0, 0]),
           "02": new Float32Array([0, 0, 0, 0]),
@@ -149,6 +152,22 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           "04": new Float32Array([0, 0, 0, 0]),
           "05": new Float32Array([0, 0, 0, 0]),
         };
+        const bounds = this.getSquareBounds([1, 2, 5, 0]),
+          parent = this.getParentFoundation(server);
+        console.log("BOUNDS");
+        if (parent) {
+          // get 3rd dependent foundation wall pos
+          console.log("PARENT");
+          const dependentWallPos = parent.getSlotPosition(
+            this.getDependentWalls()[2],
+            parent.wallSlots
+          );
+          if (dependentWallPos) {
+            console.log("DEPENDENTWALLPOS");
+            bounds[3] = [dependentWallPos[0], dependentWallPos[2]];
+            this.bounds = bounds;
+          }
+        }
         break;
       case Items.SHACK_SMALL:
         this.perimeters = {
@@ -185,41 +204,61 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       foundationRampSlotDefinitions
     );
     Object.seal(this.rampSlots);
-    registerConstructionSlots(
-      this,
-      this.shelterSlots,
-      shelterSlotDefinitions
-    );
+    registerConstructionSlots(this, this.shelterSlots, shelterSlotDefinitions);
     Object.seal(this.shelterSlots);
+  }
+
+  private getSquareBounds(
+    slots: [number, number, number, number]
+  ): SquareBounds {
+    let bounds: SquareBounds = [
+      [0, 0],
+      [0, 0],
+      [0, 0],
+      [0, 0],
+    ];
+    slots.forEach((slot, idx) => {
+      const pos = this.getSlotPosition(slot, this.wallSlots);
+      if (pos) bounds[idx] = [pos[0], pos[2]];
+    });
+    return bounds;
   }
 
   /**
    * Returns an array containing the parent foundation walls that a given expansion depends on to be secured.
    * @param expansion The expansion to check.
    */
-  getDependentWalls(): Array<string> {
+  getDependentWalls(): Array<number> {
     switch (this.getSlotNumber()) {
       case 1:
-        return ["04", "05", "06"];
+        return [4, 5, 5];
       case 2:
-        return ["01", "02", "03"];
+        return [1, 2, 3];
       case 3:
-        return ["10", "11", "12"];
+        return [10, 11, 12];
       case 4:
-        return ["07", "08", "09"];
+        return [7, 8, 9];
     }
     return [];
   }
 
   updateSecuredState(server: ZoneServer2016) {
-    /*
-      TODO: If a deck is open on one side but has an expansion
-      with completed walls, that should probably count as both
-      the deck and expansion being secure 
-      (same for any other expansions)
-    */
+    // move this
+    function isWallSecure(wall: ConstructionChildEntity | ConstructionDoor): boolean {
+      if(wall instanceof ConstructionChildEntity) {
+        const door = wall.occupiedWallSlots[1];
+        if(!door) return false; // no door
+        if(door instanceof ConstructionDoor && door.isOpen) return false;
+        return true;
+      }
+      return !wall.isOpen;
+    }
 
-    // NEED TO CHECK FOR DOORWAYS WITH AN OPEN DOOR
+    if (this.itemDefinitionId == Items.FOUNDATION) {
+      for (const expansion of Object.values(this.occupiedExpansionSlots)) {
+        expansion.updateSecuredState(server);
+      }
+    }
 
     const wallSlots = Object.values(this.occupiedWallSlots);
     // check if all wall slots are occupied
@@ -229,7 +268,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
     // check if any walls are gates / if they're open
     for (const wall of wallSlots) {
-      if (wall instanceof ConstructionDoor && wall.isOpen) {
+      if (!isWallSecure(wall)) {
         this.isSecured = false;
         return;
       }
@@ -239,9 +278,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     const parent =
       server._constructionFoundations[this.parentObjectCharacterId];
     if (parent) {
-      for (const slot of Object.values(this.getDependentWalls())) {
-        const wall = this.occupiedWallSlots[Number(slot)];
-        if (!wall || (wall instanceof ConstructionDoor && wall.isOpen)) {
+      for (const slot of this.getDependentWalls()) {
+        const wall = parent.occupiedWallSlots[slot];
+        if (!wall || !isWallSecure(wall)) {
           this.isSecured = false;
           return;
         }
@@ -267,8 +306,12 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   setExpansionSlot(expansion: ConstructionParentEntity): boolean {
-    return this.setSlot(expansion, foundationExpansionSlotDefinitions,
-      this.expansionSlots, this.occupiedExpansionSlots);
+    return this.setSlot(
+      expansion,
+      foundationExpansionSlotDefinitions,
+      this.expansionSlots,
+      this.occupiedExpansionSlots
+    );
   }
 
   isRampSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
@@ -285,372 +328,17 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   setRampSlot(ramp: ConstructionChildEntity): boolean {
-    return this.setSlot(ramp, foundationRampSlotDefinitions,
-      this.rampSlots, this.occupiedRampSlots);
+    return this.setSlot(
+      ramp,
+      foundationRampSlotDefinitions,
+      this.rampSlots,
+      this.occupiedRampSlots
+    );
   }
 
   checkPerimeters(server: ZoneServer2016) {
-    const temporaryPolygons = [];
     this.securedPolygons = [];
-    let result = true;
-    let side01: boolean = false;
-    let side02: boolean = false;
-    let side03: boolean = false;
-    let side04: boolean = false;
     switch (this.itemDefinitionId) {
-      case Items.FOUNDATION:
-        const expansionSlots = [
-          this.occupiedExpansionSlots[1],
-          this.occupiedExpansionSlots[2],
-          this.occupiedExpansionSlots[3],
-          this.occupiedExpansionSlots[4]
-        ]
-        if (
-          expansionSlots[1]?.isSecured
-        ) {
-          const expansion = expansionSlots[1];
-          const tempExpansionPolygons: any[] = [];
-          tempExpansionPolygons.push([
-            expansion.perimeters["01"][0],
-            expansion.perimeters["01"][2],
-          ]);
-          tempExpansionPolygons.push([
-            expansion.perimeters["02"][0],
-            expansion.perimeters["02"][2],
-          ]);
-          tempExpansionPolygons.push([
-            expansion.perimeters["05"][0],
-            expansion.perimeters["05"][2],
-          ]);
-          if (
-            expansionSlots[4] &&
-            !isArraySumZero(
-              expansionSlots[4].perimeters[
-                "01"
-              ]
-            )
-          ) {
-            tempExpansionPolygons.push([
-              expansionSlots[4].perimeters[
-                "01"
-              ][0],
-              expansionSlots[4].perimeters[
-                "01"
-              ][2],
-            ]);
-          } else {
-            tempExpansionPolygons.push([
-              this.perimeters["07"][0],
-              this.perimeters["07"][2],
-            ]);
-          }
-          expansion.securedPolygons = tempExpansionPolygons;
-          temporaryPolygons.push([
-            expansion.perimeters["01"][0],
-            expansion.perimeters["01"][2],
-          ]);
-          side01 = true;
-          if (
-            !isArraySumZero(this.perimeters["04"]) &&
-            !isArraySumZero(this.perimeters["05"]) &&
-            !isArraySumZero(this.perimeters["06"])
-          ) {
-            expansion.isFullySecured = true;
-          } else expansion.isFullySecured = false;
-        } else {
-          if (
-            !isArraySumZero(this.perimeters["04"]) &&
-            !isArraySumZero(this.perimeters["05"]) &&
-            !isArraySumZero(this.perimeters["06"])
-          ) {
-            temporaryPolygons.push([
-              this.perimeters["04"][0],
-              this.perimeters["04"][2],
-            ]);
-            side01 = true;
-            if (
-              expansionSlots[1]
-            )
-            expansionSlots[1].isFullySecured = true;
-          } else {
-            if (
-              expansionSlots[1]
-            )
-            expansionSlots[1].isFullySecured = false;
-          }
-        }
-        if (
-          expansionSlots[2]?.isSecured
-        ) {
-          const expansion =
-            expansionSlots[2];
-          const tempExpansionPolygons: any[] = [];
-          tempExpansionPolygons.push([
-            expansion.perimeters["01"][0],
-            expansion.perimeters["01"][2],
-          ]);
-          tempExpansionPolygons.push([
-            expansion.perimeters["02"][0],
-            expansion.perimeters["02"][2],
-          ]);
-          tempExpansionPolygons.push([
-            expansion.perimeters["05"][0],
-            expansion.perimeters["05"][2],
-          ]);
-          if (
-            expansionSlots[1] &&
-            !isArraySumZero(
-              expansionSlots[1].perimeters[
-                "01"
-              ]
-            )
-          ) {
-            tempExpansionPolygons.push([
-              expansionSlots[1].perimeters[
-                "01"
-              ][0],
-              expansionSlots[1].perimeters[
-                "01"
-              ][2],
-            ]);
-          } else {
-            tempExpansionPolygons.push([
-              this.perimeters["04"][0],
-              this.perimeters["04"][2],
-            ]);
-          }
-          expansion.securedPolygons = tempExpansionPolygons;
-          temporaryPolygons.push([
-            expansion.perimeters["01"][0],
-            expansion.perimeters["01"][2],
-          ]);
-          side02 = true;
-          if (
-            !isArraySumZero(this.perimeters["01"]) &&
-            !isArraySumZero(this.perimeters["02"]) &&
-            !isArraySumZero(this.perimeters["03"])
-          ) {
-            expansion.isFullySecured = true;
-          } else expansion.isFullySecured = false;
-        } else {
-          if (
-            !isArraySumZero(this.perimeters["01"]) &&
-            !isArraySumZero(this.perimeters["02"]) &&
-            !isArraySumZero(this.perimeters["03"])
-          ) {
-            temporaryPolygons.push([
-              this.perimeters["01"][0],
-              this.perimeters["01"][2],
-            ]);
-            side02 = true;
-            if (
-              expansionSlots[2]
-            )
-            expansionSlots[2].isFullySecured = true;
-          } else {
-            if (
-              expansionSlots[2]
-            )
-            expansionSlots[2].isFullySecured = false;
-          }
-        }
-        if (
-          expansionSlots[3]?.isSecured
-        ) {
-          const expansion =
-            expansionSlots[3];
-          const tempExpansionPolygons: any[] = [];
-          tempExpansionPolygons.push([
-            expansion.perimeters["01"][0],
-            expansion.perimeters["01"][2],
-          ]);
-          tempExpansionPolygons.push([
-            expansion.perimeters["02"][0],
-            expansion.perimeters["02"][2],
-          ]);
-          tempExpansionPolygons.push([
-            expansion.perimeters["05"][0],
-            expansion.perimeters["05"][2],
-          ]);
-          if (
-            expansionSlots[2] &&
-            !isArraySumZero(
-              expansionSlots[2].perimeters[
-                "01"
-              ]
-            )
-          ) {
-            tempExpansionPolygons.push([
-              expansionSlots[2].perimeters[
-                "01"
-              ][0],
-              expansionSlots[2].perimeters[
-                "01"
-              ][2],
-            ]);
-          } else {
-            tempExpansionPolygons.push([
-              this.perimeters["01"][0],
-              this.perimeters["01"][2],
-            ]);
-          }
-          expansion.securedPolygons = tempExpansionPolygons;
-          temporaryPolygons.push([
-            expansion.perimeters["01"][0],
-            expansion.perimeters["01"][2],
-          ]);
-          side03 = true;
-          if (
-            !isArraySumZero(this.perimeters["10"]) &&
-            !isArraySumZero(this.perimeters["11"]) &&
-            !isArraySumZero(this.perimeters["12"])
-          ) {
-            expansion.isFullySecured = true;
-          } else expansion.isFullySecured = false;
-        } else {
-          if (
-            !isArraySumZero(this.perimeters["10"]) &&
-            !isArraySumZero(this.perimeters["11"]) &&
-            !isArraySumZero(this.perimeters["12"])
-          ) {
-            temporaryPolygons.push([
-              this.perimeters["10"][0],
-              this.perimeters["10"][2],
-            ]);
-            side03 = true;
-            if (
-              expansionSlots[3]
-            )
-            expansionSlots[3].isFullySecured = true;
-          } else {
-            if (
-              expansionSlots[3]
-            )
-            expansionSlots[3].isFullySecured = false;
-          }
-        }
-        if (
-          expansionSlots[4]?.isSecured
-        ) {
-          const expansion =
-            expansionSlots[4];
-          const tempExpansionPolygons: any[] = [];
-          tempExpansionPolygons.push([
-            expansion.perimeters["01"][0],
-            expansion.perimeters["01"][2],
-          ]);
-          tempExpansionPolygons.push([
-            expansion.perimeters["02"][0],
-            expansion.perimeters["02"][2],
-          ]);
-          tempExpansionPolygons.push([
-            expansion.perimeters["05"][0],
-            expansion.perimeters["05"][2],
-          ]);
-          if (
-            expansionSlots[3] &&
-            !isArraySumZero(
-              expansionSlots[3].perimeters[
-                "01"
-              ]
-            )
-          ) {
-            tempExpansionPolygons.push([
-              expansionSlots[3].perimeters[
-                "01"
-              ][0],
-              expansionSlots[3].perimeters[
-                "01"
-              ][2],
-            ]);
-          } else {
-            tempExpansionPolygons.push([
-              this.perimeters["10"][0],
-              this.perimeters["10"][2],
-            ]);
-          }
-          expansion.securedPolygons = tempExpansionPolygons;
-          temporaryPolygons.push([
-            expansion.perimeters["01"][0],
-            expansion.perimeters["01"][2],
-          ]);
-          side04 = true;
-          if (
-            !isArraySumZero(this.perimeters["07"]) &&
-            !isArraySumZero(this.perimeters["08"]) &&
-            !isArraySumZero(this.perimeters["09"])
-          ) {
-            expansion.isFullySecured = true;
-          } else expansion.isFullySecured = false;
-        } else {
-          if (
-            !isArraySumZero(this.perimeters["07"]) &&
-            !isArraySumZero(this.perimeters["08"]) &&
-            !isArraySumZero(this.perimeters["09"])
-          ) {
-            temporaryPolygons.push([
-              this.perimeters["07"][0],
-              this.perimeters["07"][2],
-            ]);
-            side04 = true;
-            if (
-              expansionSlots[4]
-            )
-            expansionSlots[4].isFullySecured = true;
-          } else {
-            if (
-              expansionSlots[4]
-            )
-            expansionSlots[4].isFullySecured = false;
-          }
-        }
-        if (side01 && side02 && side03 && side04) {
-          this.isSecured = true;
-          this.securedPolygons = temporaryPolygons;
-        } else {
-          this.isSecured = false;
-        }
-        break;
-      case Items.FOUNDATION_EXPANSION:
-        Object.values(this.perimeters).forEach((value: Float32Array) => {
-          if (!isArraySumZero(value)) {
-            result = false;
-          }
-        });
-        this.isSecured = result;
-        if (this.parentObjectCharacterId) {
-          server._constructionFoundations[
-            this.parentObjectCharacterId
-          ].checkPerimeters(server);
-        }
-        break;
-      case Items.GROUND_TAMPER:
-        Object.values(this.perimeters).forEach((value: Float32Array) => {
-          if (!isArraySumZero(value)) {
-            result = false;
-          }
-        });
-        if (result) {
-          temporaryPolygons.push([
-            this.perimeters["13"][0],
-            this.perimeters["13"][2],
-          ]);
-          temporaryPolygons.push([
-            this.perimeters["09"][0],
-            this.perimeters["09"][2],
-          ]);
-          temporaryPolygons.push([
-            this.perimeters["05"][0],
-            this.perimeters["05"][2],
-          ]);
-          temporaryPolygons.push([
-            this.perimeters["01"][0],
-            this.perimeters["01"][2],
-          ]);
-          this.securedPolygons = temporaryPolygons;
-        }
-        this.isSecured = result;
-        break;
       case Items.SHACK:
       case Items.SHACK_SMALL:
       case Items.SHACK_BASIC:
@@ -665,11 +353,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         break;
     }
   }
-  changePerimeters(
-    server: ZoneServer2016,
-    slot: string,
-    value: Float32Array
-  ) {
+  changePerimeters(server: ZoneServer2016, slot: string, value: Float32Array) {
     if (!slot) return;
     slot = getConstructionSlotId(slot).toString();
     if (
@@ -686,13 +370,29 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   isInside(entity: BaseEntity) {
+    if (!this.bounds) {
+      console.error(
+        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+      );
+      return false; // this should never occur
+    }
+
+    console.log(`IS INSIDE RUN`);
     switch (this.itemDefinitionId) {
       case Items.FOUNDATION:
       case Items.FOUNDATION_EXPANSION:
       case Items.GROUND_TAMPER:
-        return isInside(
+        console.log(`FOUNDATION`);
+        console.log(
+          isInsideSquare(
+            [entity.state.position[0], entity.state.position[2]],
+            this.bounds
+          )
+        );
+        console.log(`ISSECURE ${this.isSecured}`);
+        return isInsideSquare(
           [entity.state.position[0], entity.state.position[2]],
-          this.securedPolygons
+          this.bounds
         );
       case Items.SHACK:
         return isPosInRadiusWithY(
@@ -709,7 +409,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           2
         );
       case Items.SHACK_SMALL:
-        return isInsideWithY(
+        return isInsideCube(
           [entity.state.position[0], entity.state.position[2]],
           this.securedPolygons,
           entity.state.position[1],
@@ -744,15 +444,19 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   isExpansionSlotsEmpty() {
-    return Object.values(this.occupiedExpansionSlots).length == 0
+    return Object.values(this.occupiedExpansionSlots).length == 0;
   }
 
   isSlotsEmpty() {
-    console.log(`parent slots ${Object.values(this.occupiedExpansionSlots).length}`)
-    console.log(`parent slots ${Object.values(this.occupiedRampSlots).length}`)
-    return super.isSlotsEmpty() &&
-    this.isExpansionSlotsEmpty() &&
-    (Object.values(this.occupiedRampSlots).length == 0)
+    console.log(
+      `parent slots ${Object.values(this.occupiedExpansionSlots).length}`
+    );
+    console.log(`parent slots ${Object.values(this.occupiedRampSlots).length}`);
+    return (
+      super.isSlotsEmpty() &&
+      this.isExpansionSlotsEmpty() &&
+      Object.values(this.occupiedRampSlots).length == 0
+    );
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {

@@ -260,3 +260,7 @@ export interface ConstructionPermissions {
 export type ConstructionSlotPositionMap = { [slot: number]: {position: Float32Array, rotation: Float32Array} };
 
 export type OccupiedSlotMap = { [slot: string]: SlottedConstructionEntity };
+
+type Point2D = [number, number];
+
+export type SquareBounds = [Point2D, Point2D, Point2D, Point2D];

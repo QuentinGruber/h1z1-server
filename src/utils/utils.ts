@@ -24,7 +24,11 @@ import { MongoClient } from "mongodb";
 import { MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
-import { ConstructionSlotPositionMap, positionUpdate } from "types/zoneserver";
+import {
+  ConstructionSlotPositionMap,
+  positionUpdate,
+  SquareBounds,
+} from "types/zoneserver";
 import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots";
 import { ConstructionParentEntity } from "servers/ZoneServer2016/classes/constructionparententity";
 import { ConstructionChildEntity } from "servers/ZoneServer2016/classes/constructionchildentity";
@@ -281,7 +285,10 @@ const isBetween = (radius: number, value1: number, value2: number): boolean => {
   return value1 <= value2 + radius && value1 >= value2 - radius;
 };
 
-export const isInside = (point: [number, number], vs: any) => {
+export const isInsideSquare = (
+  point: [number, number],
+  vs: SquareBounds | number[][]
+) => {
   const x = point[0],
     y = point[1];
 
@@ -298,7 +305,7 @@ export const isInside = (point: [number, number], vs: any) => {
   return inside;
 };
 
-export const isInsideWithY = (
+export const isInsideCube = (
   point: [number, number],
   vs: any,
   y_pos1: number,
@@ -369,35 +376,35 @@ export function createPositionUpdate(
 
 export function getRectangleCorners(
   centerPoint: Float32Array,
-  a_len: number,
-  h_len: number,
-  angle: number
-): any[] {
-  const middlePointA = movePoint(centerPoint, angle, h_len / 2);
+  angle: number,
+  offset: number,
+  eulerRot: number
+): SquareBounds {
+  const middlePointA = movePoint(centerPoint, eulerRot, offset / 2);
   const middlePointB = movePoint(
     centerPoint,
-    angle + (180 * Math.PI) / 180,
-    h_len / 2
+    eulerRot + (180 * Math.PI) / 180,
+    offset / 2
   );
   const pointA = movePoint(
     middlePointA,
-    angle + 90 * (Math.PI / 180),
-    a_len / 2
+    eulerRot + 90 * (Math.PI / 180),
+    angle / 2
   );
   const pointB = movePoint(
     middlePointA,
-    angle + 270 * (Math.PI / 180),
-    a_len / 2
+    eulerRot + 270 * (Math.PI / 180),
+    angle / 2
   );
   const pointC = movePoint(
     middlePointB,
-    angle + 270 * (Math.PI / 180),
-    a_len / 2
+    eulerRot + 270 * (Math.PI / 180),
+    angle / 2
   );
   const pointD = movePoint(
     middlePointB,
-    angle + 90 * (Math.PI / 180),
-    a_len / 2
+    eulerRot + 90 * (Math.PI / 180),
+    angle / 2
   );
   return [
     [pointA[0], pointA[2]],

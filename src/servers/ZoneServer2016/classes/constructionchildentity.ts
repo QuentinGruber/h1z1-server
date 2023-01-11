@@ -56,18 +56,22 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   fixedPosition?: Float32Array;
   placementTime = Date.now();
 
+  //bounds:
+
   // to be deprecated
   perimeters: { [slot: string]: Float32Array };
   securedPolygons?: any;
 
   // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
   readonly wallSlots: ConstructionSlotPositionMap = {};
-  occupiedWallSlots: { [slot: number]: ConstructionDoor } = {};
+  occupiedWallSlots: {
+    [slot: number]: ConstructionDoor | ConstructionChildEntity;
+  } = {};
 
   // FOR UPPER WALL ON WALLS / DOORWAYS
   readonly upperWallSlots: ConstructionSlotPositionMap = {};
   occupiedUpperWallSlots: { [slot: number]: ConstructionChildEntity } = {};
-  
+
   readonly shelterSlots: ConstructionSlotPositionMap = {};
   occupiedShelterSlots: { [slot: number]: ConstructionDoor } = {};
   constructor(
@@ -100,43 +104,40 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       upperWallSlotDefinitions
     );
     Object.seal(this.upperWallSlots);
-    registerConstructionSlots(
-      this,
-      this.shelterSlots,
-      shelterSlotDefinitions
-    );
+    registerConstructionSlots(this, this.shelterSlots, shelterSlotDefinitions);
     Object.seal(this.shelterSlots);
   }
 
   getSlotPosition(
-    buildingSlot: string,
+    slot: string | number,
     slots: ConstructionSlotPositionMap,
     isShelter?: boolean
   ): Float32Array | undefined {
-    let slot = getConstructionSlotId(buildingSlot);
+    if (typeof slot == "string") {
+      slot = getConstructionSlotId(slot);
+    }
     if (slot == 101) slot = 1; // upper wall slot
-    if(isShelter) {
-      if(this.itemDefinitionId == Items.GROUND_TAMPER) {
+    if (isShelter) {
+      if (this.itemDefinitionId == Items.GROUND_TAMPER) {
         switch (true) {
           case slot >= 11 && slot <= 14:
-            slot = slot - 6
-            break
+            slot = slot - 6;
+            break;
           case slot >= 21 && slot <= 24:
-            slot = slot - 12
-            break
+            slot = slot - 12;
+            break;
           case slot >= 31 && slot <= 34:
-            slot = slot - 18
-            break
+            slot = slot - 18;
+            break;
         }
-      }
-      else if(this.itemDefinitionId == Items.FOUNDATION) {
+      } else if (this.itemDefinitionId == Items.FOUNDATION) {
         switch (true) {
           case slot >= 11 && slot <= 13:
-            slot = slot - 7
-            break
+            slot = slot - 7;
+            break;
           case slot >= 21 && slot <= 23:
-            slot = slot - 14
-            break
+            slot = slot - 14;
+            break;
         }
       }
     }
@@ -153,21 +154,33 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   updateSecuredState(server: ZoneServer2016) {
+    if (this.itemDefinitionId == Items.METAL_DOORWAY) {
+      const parent = this.getParentFoundation(server);
+      if (!parent) return;
+      parent.updateSecuredState(server);
+    }
     // TODO:
     // ONLY NEED SECURED LOGIC FOR SHELTERS
   }
 
-  isSlotOccupied(slotMap: OccupiedSlotMap, slot: number):boolean {
+  isSlotOccupied(slotMap: OccupiedSlotMap, slot: number): boolean {
     return !!slotMap[slot];
   }
 
   isSlotsEmpty() {
-    console.log(`child slots ${Object.values(this.occupiedShelterSlots).length}`)
-    console.log(`child slots ${Object.values(this.occupiedUpperWallSlots).length}`)
-    console.log(`child slots ${Object.values(this.occupiedWallSlots).length}`)
-    return Object.values(this.occupiedShelterSlots).length +
-    Object.values(this.occupiedUpperWallSlots).length +
-    Object.values(this.occupiedWallSlots).length == 0
+    console.log(
+      `child slots ${Object.values(this.occupiedShelterSlots).length}`
+    );
+    console.log(
+      `child slots ${Object.values(this.occupiedUpperWallSlots).length}`
+    );
+    console.log(`child slots ${Object.values(this.occupiedWallSlots).length}`);
+    return (
+      Object.values(this.occupiedShelterSlots).length +
+        Object.values(this.occupiedUpperWallSlots).length +
+        Object.values(this.occupiedWallSlots).length ==
+      0
+    );
   }
 
   protected isSlotValid(
@@ -189,9 +202,10 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     slotMap: ConstructionSlotPositionMap,
     occupiedSlots: OccupiedSlotMap
   ) {
-    console.log(`SETSLOT ${entity.getSlotNumber()}`)
+    console.log(`SETSLOT ${entity.getSlotNumber()}`);
     const slot = entity.getSlotNumber();
-    if (!this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId)) return false;
+    if (!this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId))
+      return false;
     occupiedSlots[slot] = entity;
     return true;
   }
@@ -228,11 +242,19 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     wall: ConstructionChildEntity | ConstructionDoor
   ): boolean {
     if (wall.itemDefinitionId == Items.METAL_WALL_UPPER) {
-      return this.setSlot(wall, upperWallSlotDefinitions,
-        this.upperWallSlots,this.occupiedUpperWallSlots);
+      return this.setSlot(
+        wall,
+        upperWallSlotDefinitions,
+        this.upperWallSlots,
+        this.occupiedUpperWallSlots
+      );
     }
-    const set = this.setSlot(wall, wallSlotDefinitions,
-      this.wallSlots, this.occupiedWallSlots);
+    const set = this.setSlot(
+      wall,
+      wallSlotDefinitions,
+      this.wallSlots,
+      this.occupiedWallSlots
+    );
     if (set) this.updateSecuredState(server);
     return set;
   }
@@ -243,27 +265,26 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     if (typeof buildingSlot == "string") {
       slot = getConstructionSlotId(buildingSlot);
     }
-    if(this.itemDefinitionId == Items.GROUND_TAMPER) {
+    if (this.itemDefinitionId == Items.GROUND_TAMPER) {
       switch (true) {
         case slot >= 11 && slot <= 14:
-          slot = slot - 6
-          break
+          slot = slot - 6;
+          break;
         case slot >= 21 && slot <= 24:
-          slot = slot - 12
-          break
+          slot = slot - 12;
+          break;
         case slot >= 31 && slot <= 34:
-          slot = slot - 18
-          break
+          slot = slot - 18;
+          break;
       }
-    }
-    else if(this.itemDefinitionId == Items.FOUNDATION) {
+    } else if (this.itemDefinitionId == Items.FOUNDATION) {
       switch (true) {
         case slot >= 11 && slot <= 13:
-          slot = slot - 7
-          break
+          slot = slot - 7;
+          break;
         case slot >= 21 && slot <= 23:
-          slot = slot - 14
-          break
+          slot = slot - 14;
+          break;
       }
     }
     return this.isSlotValid(
@@ -278,8 +299,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     server: ZoneServer2016,
     shelter: ConstructionChildEntity
   ): boolean {
-    const set = this.setSlot(shelter, shelterSlotDefinitions,
-      this.shelterSlots, this.occupiedShelterSlots);
+    const set = this.setSlot(
+      shelter,
+      shelterSlotDefinitions,
+      this.shelterSlots,
+      this.occupiedShelterSlots
+    );
     if (set) this.updateSecuredState(server);
     return set;
   }
@@ -314,8 +339,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       );
     }
     let slotMap: OccupiedSlotMap | undefined,
-    updateSecured = false;
-    switch(this.itemDefinitionId) {
+      updateSecured = false;
+    switch (this.itemDefinitionId) {
       case Items.METAL_GATE:
       case Items.DOOR_BASIC:
       case Items.DOOR_WOOD:
@@ -342,15 +367,11 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         slotMap = parent.occupiedRampSlots;
         break;
     }
-    if(slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
-    if(updateSecured) parent.updateSecuredState(server);
+    if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
+    if (updateSecured) parent.updateSecuredState(server);
   }
 
-  changePerimeters(
-    server: ZoneServer2016,
-    slot: string,
-    value: Float32Array
-  ) {
+  changePerimeters(server: ZoneServer2016, slot: string, value: Float32Array) {
     this.perimeters["LoveShackDoor"] = value;
     if (!isArraySumZero(value)) {
       this.isSecured = true;
