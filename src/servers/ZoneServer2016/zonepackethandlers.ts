@@ -35,6 +35,7 @@ import {
   EntityTypes,
   Items,
   ConstructionErrors,
+  ResourceIds,
 } from "./models/enums";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ConstructionParentEntity } from "./classes/constructionparententity";
@@ -45,6 +46,7 @@ import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import { ConstructionPermissions } from "types/zoneserver";
 import { GameTimeSync } from "types/zone2016packets";
 import { LootableProp } from "./classes/lootableprop";
+import { Vehicle2016 } from "./classes/vehicle";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -1345,16 +1347,41 @@ export class zonePacketHandlers {
       if (!weaponItem.weapon) return;
       switch (p.packetName) {
         case "Weapon.FireStateUpdate":
-          debug("Weapon.FireStateUpdate");
+        debug("Weapon.FireStateUpdate");
+        // wrench workaround
+        if (weaponItem.itemDefinitionId == Items.WEAPON_WRENCH && client.character.currentInteractionGuid) {
+            if (!client.character.temporaryScrapTimeout && server.getEntityType(client.character.currentInteractionGuid) == EntityTypes.VEHICLE) {
+                const vehicle = server.getEntity(client.character.currentInteractionGuid) as Vehicle2016
+                if (!client.character.temporaryScrapSoundTimeout) {
+                    server.sendCompositeEffectToAllInRange(15, client.character.characterId, vehicle.state.position, 1605)
+                    client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+                        delete client.character.temporaryScrapSoundTimeout
+                    }, 1000)
+                }
+                if (vehicle && vehicle._resources[ResourceIds.CONDITION] < 100000) {
+                    vehicle.damage(server, { entity: "", damage: -2000 })
+                    server.damageItem(client, weaponItem, 40)
+                    client.character.temporaryScrapTimeout = setTimeout(() => {
+                        delete client.character.temporaryScrapTimeout
+                    }, 300)
+                }
+            }
+          }
           // crowbar workaround
           if (weaponItem.itemDefinitionId == Items.WEAPON_CROWBAR && client.character.currentInteractionGuid) {
               const entity = server.getLootableEntity(client.character.currentInteractionGuid) as LootableProp
               if (entity) {
                   const allowedSpawners = ["Wrecked Van", "Wrecked Car", "Wrecked Truck",]
+                  if (!client.character.temporaryScrapSoundTimeout) {
+                      server.sendCompositeEffectToAllInRange(15, client.character.characterId, entity.state.position, 1605)
+                      client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+                          delete client.character.temporaryScrapSoundTimeout
+                      }, 1000)
+                  }
                   if (allowedSpawners.includes(entity.lootSpawner) && !client.character.temporaryScrapTimeout) {
                       const chance = Math.floor(Math.random() * 100) + 1
                       if (chance <= 60) {
-                          client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP))
+                          client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP))                         
                           server.damageItem(client, weaponItem, 50)
                       }
                       client.character.temporaryScrapTimeout = setTimeout(() => {

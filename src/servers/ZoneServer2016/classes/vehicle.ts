@@ -417,6 +417,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       ) {
         this.destroyedState = 0;
         server._vehicles[this.characterId].destroyedEffect = 0;
+        allowSend = true;
       }
 
       if (allowSend) {
