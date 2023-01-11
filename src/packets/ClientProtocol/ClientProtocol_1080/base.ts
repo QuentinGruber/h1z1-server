@@ -27,6 +27,7 @@ import {
   objectiveSchema,
   packPositionUpdateData,
   packUnsignedIntWith2bitLengthValue,
+  packInteractionComponent,
   readPositionUpdateData,
   readUnsignedIntWith2bitLengthValue,
   recipeData,
@@ -3426,7 +3427,25 @@ export const basePackets: any = [
   ["Ps4PlayGoBase", 0xe8, {}],
   ["SynchronizedTeleportBase", 0xe9, {}],
   ["StaticViewBase", 0xea, {}],
-  ["ReplicationBase", 0xeb, {}],
+  ["ReplicationBase", 0xeb04,
+    {
+      fields: [
+        {
+                name: "transientId",
+                type: "custom",
+                parser: readUnsignedIntWith2bitLengthValue,
+                packer: packUnsignedIntWith2bitLengthValue,
+        },
+        {
+                name: "rawComponent",
+                type: "custom",
+                parser: packInteractionComponent,
+                packer: packInteractionComponent,
+                defaultValue: packInteractionComponent
+        },
+      ],
+    },
+  ],
   ["DatasheetsBase", 0xec, {}],
   ["PlayerWorldTransferRequest", 0xed, {}],
   ["PlayerWorldTransferReply", 0xee, {}],

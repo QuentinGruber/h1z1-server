@@ -269,7 +269,7 @@ export class WorldObjectManager {
                 const characterId = generateRandomGuid();
                 const obj = new LootableProp(
                     characterId,
-                    1, // is transient even used for anything else than pos upd packets? // setting to 0 seems to crash client alot
+                    server.getTransientId(characterId), // need transient generated for Interaction Replication
                     propInstance.modelId,
                     propInstance.position,
                     propInstance.rotation,

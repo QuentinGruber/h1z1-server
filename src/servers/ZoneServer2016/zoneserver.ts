@@ -2431,6 +2431,9 @@ export class ZoneServer2016 extends EventEmitter {
           npc,
           this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID
         );
+        this.sendData(client, "ReplicationBase", {
+             transientId: npc.transientId,
+          })
         client.spawnedEntities.push(npc);
         this.updateResource(
           client,
@@ -2601,6 +2604,9 @@ export class ZoneServer2016 extends EventEmitter {
             itemObject,
             this.getItemDefinition(itemObject.item.itemDefinitionId)?.NAME_ID
           );
+          this.sendData(client, "ReplicationBase", {
+             transientId: itemObject.transientId,
+          })
           client.spawnedEntities.push(itemObject);
         }
       } else {
@@ -2635,6 +2641,9 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (!client.spawnedEntities.includes(lootbag)) {
           this.addLightweightNpc(client, lootbag);
+          this.sendData(client, "ReplicationBase", {
+             transientId: lootbag.transientId,
+          })
           client.spawnedEntities.push(lootbag);
         }
       } else {
@@ -2665,6 +2674,9 @@ export class ZoneServer2016 extends EventEmitter {
           obj,
           this.getItemDefinition(obj.itemDefinitionId)?.NAME_ID
         );
+        this.sendData(client, "ReplicationBase", {
+             transientId: obj.transientId,
+          })
         client.spawnedEntities.push(obj);
       }
     }
@@ -2682,6 +2694,9 @@ export class ZoneServer2016 extends EventEmitter {
                 !client.spawnedEntities.includes(prop)
             ) {
                 this.addLightweightNpc(client, prop);
+                this.sendData(client, "ReplicationBase", {
+                    transientId: prop.transientId,
+                })
                 client.spawnedEntities.push(prop);
             }
         }
@@ -2699,6 +2714,9 @@ export class ZoneServer2016 extends EventEmitter {
         !client.spawnedEntities.includes(door)
       ) {
         this.addLightweightNpc(client, door);
+        this.sendData(client, "ReplicationBase", {
+             transientId: door.transientId,
+          })
         client.spawnedEntities.push(door);
         if (door.isOpen) {
           this.sendData(client, "PlayerUpdatePosition", {
@@ -3148,6 +3166,9 @@ export class ZoneServer2016 extends EventEmitter {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
           });
+          this.sendData(client, "ReplicationBase", {
+             transientId: vehicle.transientId,
+          })
           this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
             passengers: vehicle.pGetPassengers(this),
