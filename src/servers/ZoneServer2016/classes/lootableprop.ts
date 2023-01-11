@@ -143,10 +143,6 @@ function getContainerAndTime(entity: LootableProp) {
     }
 }
 
-function getNameId(server: ZoneServer2016, entity: LootableProp) {
-    return server.getItemDefinition(entity._containers['31'].itemDefinitionId)
-}
-
 export class LootableProp extends BaseLootableEntity {
     spawnerId: number;
     npcRenderDistance = 150;
