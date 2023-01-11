@@ -172,13 +172,24 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   updateSecuredState(server: ZoneServer2016) {
-    if (this.itemDefinitionId == Items.METAL_DOORWAY) {
-      const parent = this.getParentFoundation(server);
-      if (!parent) return;
-      parent.updateSecuredState(server);
+    switch(this.itemDefinitionId) {
+      case Items.METAL_DOORWAY: // for parent foundation
+        const parent = this.getParentFoundation(server);
+        if (!parent) return;
+        parent.updateSecuredState(server);
+        break;
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER_LARGE:
+      case Items.SHELTER:
+      case Items.SHELTER_UPPER:
+        const doorslot = this.occupiedWallSlots[1];
+        if(!doorslot || !(doorslot instanceof ConstructionDoor) || doorslot.isOpen) {
+          this.isSecured = false;
+          return;
+        }
+        this.isSecured = true;
+        break;
     }
-    // TODO:
-    // ONLY NEED SECURED LOGIC FOR SHELTERS
   }
 
   isSlotOccupied(slotMap: OccupiedSlotMap, slot: number): boolean {
@@ -186,13 +197,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   isSlotsEmpty() {
-    console.log(
-      `child slots ${Object.values(this.occupiedShelterSlots).length}`
-    );
-    console.log(
-      `child slots ${Object.values(this.occupiedUpperWallSlots).length}`
-    );
-    console.log(`child slots ${Object.values(this.occupiedWallSlots).length}`);
     return (
       Object.values(this.occupiedShelterSlots).length +
         Object.values(this.occupiedUpperWallSlots).length +
@@ -220,7 +224,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     slotMap: ConstructionSlotPositionMap,
     occupiedSlots: OccupiedSlotMap
   ) {
-    console.log(`SETSLOT ${entity.getSlotNumber()}`);
     const slot = entity.getSlotNumber();
     if (!this.isSlotValid(slot, definitions, slotMap, entity.itemDefinitionId))
       return false;
@@ -233,7 +236,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   isWallSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
-    console.log(buildingSlot);
     let slot = 0;
     if (typeof buildingSlot == "string") {
       slot = getConstructionSlotId(buildingSlot);
@@ -278,7 +280,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   isShelterSlotValid(buildingSlot: number | string, itemDefinitionId: number) {
-    console.log(buildingSlot);
     let slot = 0;
     if (typeof buildingSlot == "string") {
       slot = getConstructionSlotId(buildingSlot);
@@ -430,7 +431,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   getSlotNumber(): number {
     if (!this.slot) return 0;
-    console.log(this.slot);
     return getConstructionSlotId(this.slot);
   }
 

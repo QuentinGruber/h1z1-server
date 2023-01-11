@@ -77,12 +77,8 @@ import {
   calculateDamageDistFallOff,
   toHex,
   eul2quat,
-  isInsideSquare,
   isInsideCube,
   movePoint,
-  getRectangleCorners,
-  getOffsetPoint,
-  getAngleAndDistance,
   getConstructionSlotId,
 } from "../../utils/utils";
 
@@ -3885,15 +3881,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
       return false;
     }
-
-    /*
-    const fPos = parentSimple?.state.position,
-      offset = getAngleAndDistance(fPos, position),
-      yOffset = position[1] - fPos[1];
-      console.log(BuildingSlot)
-      console.log(`angle ${offset.angle.toFixed(4)} distance ${offset.distance.toFixed(4)} yOffset ${yOffset.toFixed(4)}`)
-      console.log(`rot ${rotation[0].toFixed(4)}`)
-    */
 
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),

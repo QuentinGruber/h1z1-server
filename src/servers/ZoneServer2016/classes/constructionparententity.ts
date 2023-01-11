@@ -108,16 +108,13 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.FOUNDATION_EXPANSION: // 1, 2, 5, 3RD dependent foundation wall
         const bounds = this.getSquareBounds([1, 2, 5, 0]),
           parent = this.getParentFoundation(server);
-        console.log("BOUNDS");
         if (parent) {
           // get 3rd dependent foundation wall pos
-          console.log("PARENT");
           const dependentWallPos = parent.getSlotPosition(
             this.getDependentWalls()[2],
             parent.wallSlots
           );
           if (dependentWallPos) {
-            console.log("DEPENDENTWALLPOS");
             bounds[3] = [dependentWallPos[0], dependentWallPos[2]];
             this.bounds = bounds;
           }
@@ -288,19 +285,10 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       return false; // this should never occur
     }
 
-    console.log(`IS INSIDE RUN`);
     switch (this.itemDefinitionId) {
       case Items.FOUNDATION:
       case Items.FOUNDATION_EXPANSION:
       case Items.GROUND_TAMPER:
-        console.log(`FOUNDATION`);
-        console.log(
-          isInsideSquare(
-            [entity.state.position[0], entity.state.position[2]],
-            this.bounds
-          )
-        );
-        console.log(`ISSECURE ${this.isSecured}`);
         return isInsideSquare(
           [entity.state.position[0], entity.state.position[2]],
           this.bounds
@@ -351,10 +339,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   isSlotsEmpty() {
-    console.log(
-      `parent slots ${Object.values(this.occupiedExpansionSlots).length}`
-    );
-    console.log(`parent slots ${Object.values(this.occupiedRampSlots).length}`);
     return (
       super.isSlotsEmpty() &&
       this.isExpansionSlotsEmpty() &&
