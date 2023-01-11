@@ -32,7 +32,6 @@ import {
 import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots";
 import { ConstructionParentEntity } from "servers/ZoneServer2016/classes/constructionparententity";
 import { ConstructionChildEntity } from "servers/ZoneServer2016/classes/constructionchildentity";
-import { positionUpdate } from "types/zoneserver";
 import { NAME_VALIDATION_STATUS } from "./enums";
 
 export class customLodash {

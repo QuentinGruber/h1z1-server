@@ -138,7 +138,6 @@ export const upperWallSlotDefinitions: ConstructionSlots = {
   },
 };
 
-// TODO
 export const shelterSlotDefinitions: ConstructionSlots = {
   [Items.GROUND_TAMPER]: {
     yOffset: 0.6542,
