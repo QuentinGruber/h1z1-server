@@ -64,6 +64,7 @@ export class BaseLightweightCharacter extends BaseEntity {
   positionUpdateType = 0;
   headActor = getHeadActor(this.actorModelId);
   profileId: number = 0;
+  nameId: number = 0;
   constructor(
     characterId: string,
     transientId: number,

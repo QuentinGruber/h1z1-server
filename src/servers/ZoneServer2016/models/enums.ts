@@ -38,6 +38,10 @@ export enum StringIds {
   OPEN_TARGET = 12156,
   PERMISSIONS = 12979,
   PERMISSIONS_TARGET = 12982,
+  OFFROADER = 16,
+  PICKUP_TRUCK = 12537,
+  ATV = 12552,
+  POLICE_CAR = 12538,
 }
 
 export enum MovementModifiers {

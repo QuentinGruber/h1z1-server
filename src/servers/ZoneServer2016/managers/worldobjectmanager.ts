@@ -182,6 +182,7 @@ export class WorldObjectManager {
       itemSpawnerId || 0,
       item
     );
+      server._spawnedItems[characterId].nameId = itemDef.NAME_ID;
     if (
       item.itemDefinitionId === Items.FUEL_ETHANOL ||
       item.itemDefinitionId === Items.FUEL_BIOFUEL

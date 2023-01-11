@@ -2607,6 +2607,10 @@ export class ZoneServer2016 extends EventEmitter {
             this.sendData(client, "Replication.InteractionComponent", {
              transientId: itemObject.transientId,
           })
+          this.sendData(client, "Replication.NpcComponent", {
+                    transientId: itemObject.transientId,
+                    nameId: itemObject.nameId
+                })
           client.spawnedEntities.push(itemObject);
         }
       } else {
@@ -3173,6 +3177,10 @@ export class ZoneServer2016 extends EventEmitter {
             this.sendData(client, "Replication.InteractionComponent", {
              transientId: vehicle.transientId,
           })
+            this.sendData(client, "Replication.NpcComponent", {
+                transientId: vehicle.transientId,
+                nameId: vehicle.nameId
+            })
           this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
             passengers: vehicle.pGetPassengers(this),
