@@ -15,7 +15,7 @@ import { DoorEntity } from "./doorentity";
 import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "./zoneclient";
-import { DamageInfo } from "types/zoneserver";
+import { DamageInfo, OccupiedSlotMap } from "types/zoneserver";
 import { getConstructionSlotId, movePoint } from "../../../utils/utils";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ConstructionChildEntity } from "./constructionchildentity";
@@ -98,24 +98,35 @@ export class ConstructionDoor extends DoorEntity {
       242,
       destructTime
     );
-    const foundation = server._constructionFoundations[
-      this.parentObjectCharacterId
-    ]
-      ? server._constructionFoundations[this.parentObjectCharacterId]
-      : server._constructionSimple[this.parentObjectCharacterId];
-    if (!foundation) return;
+    const parent =
+      server._constructionFoundations[this.parentObjectCharacterId] ||
+      server._constructionSimple[this.parentObjectCharacterId];
+    if (!parent) return;
+    let slotMap: OccupiedSlotMap | undefined,
+    updateSecured = false;
+    switch(this.itemDefinitionId) {
+      case Items.METAL_GATE:
+      case Items.DOOR_BASIC:
+      case Items.DOOR_WOOD:
+      case Items.DOOR_METAL:
+        slotMap = parent.occupiedWallSlots;
+        updateSecured = true;
+        break;
+    }
+    if(slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
+    if(updateSecured) parent.updateSecuredState(server);
+
     if (
       this.itemDefinitionId == Items.DOOR_METAL ||
       this.itemDefinitionId == Items.DOOR_WOOD ||
       this.itemDefinitionId == Items.METAL_GATE
     ) {
-      foundation.changePerimeters(
+      parent.changePerimeters(
         server,
         this.slot,
         new Float32Array([0, 0, 0, 0])
       );
     }
-    if (!this.slot || !this.parentObjectCharacterId) return;
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {

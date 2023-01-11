@@ -196,7 +196,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     return true;
   }
 
-  protected clearSlot(slot: number, occupiedSlots: OccupiedSlotMap) {
+  clearSlot(slot: number, occupiedSlots: OccupiedSlotMap) {
     delete occupiedSlots[slot];
   }
 
