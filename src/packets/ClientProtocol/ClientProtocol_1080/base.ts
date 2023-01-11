@@ -3428,39 +3428,51 @@ export const basePackets: any = [
   ["Ps4PlayGoBase", 0xe8, {}],
   ["SynchronizedTeleportBase", 0xe9, {}],
   ["StaticViewBase", 0xea, {}],
-  ["Replication.InteractionComponent", 0xeb,
+  [
+    "Replication.InteractionComponent",
+    0xeb,
     {
       fields: [
         { name: "opcode", type: "uint8", defaultValue: 4 },
         {
-                name: "transientId",
-                type: "custom",
-                parser: readUnsignedIntWith2bitLengthValue,
-                packer: packUnsignedIntWith2bitLengthValue,
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
         },
         {
-                name: "rawComponent",
-                type: "custom",
-                parser: packInteractionComponent,
-                packer: packInteractionComponent,
-                defaultValue: packInteractionComponent
+          name: "rawComponent",
+          type: "custom",
+          parser: packInteractionComponent,
+          packer: packInteractionComponent,
+          defaultValue: packInteractionComponent,
         },
       ],
     },
   ],
-  ["Replication.NpcComponent", 0xeb04,
+  [
+    "Replication.NpcComponent",
+    0xeb04,
     {
       fields: [
         {
-                name: "transientId",
-                type: "custom",
-                parser: readUnsignedIntWith2bitLengthValue,
-                packer: packUnsignedIntWith2bitLengthValue,
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
         },
         { name: "stringLength", type: "uint16", defaultValue: 18 },
         //{ name: "componentName", type: "fixedlengthstring", defaultValue: "ClientNpcComponent" }, avoid test errors
-        { name: "componentName", type: "uint64string", defaultValue: "0x704E746E65696C43" },
-        { name: "componentName2", type: "uint64string", defaultValue: "0x656E6F706D6F4363" },
+        {
+          name: "componentName",
+          type: "uint64string",
+          defaultValue: "0x704E746E65696C43",
+        },
+        {
+          name: "componentName2",
+          type: "uint64string",
+          defaultValue: "0x656E6F706D6F4363",
+        },
         { name: "componentName3", type: "uint16", defaultValue: 29806 },
         { name: "unkByte1", type: "uint8", defaultValue: 0 },
         { name: "unkDword1", type: "uint32", defaultValue: 0 },
@@ -3474,11 +3486,11 @@ export const basePackets: any = [
         { name: "unkDword8", type: "uint32", defaultValue: 0 },
         { name: "nameId", type: "uint32", defaultValue: 0 },
         {
-                name: "rawComponent",
-                type: "custom",
-                parser: packNpcComponent,
-                packer: packNpcComponent,
-                defaultValue: packNpcComponent
+          name: "rawComponent",
+          type: "custom",
+          parser: packNpcComponent,
+          packer: packNpcComponent,
+          defaultValue: packNpcComponent,
         },
       ],
     },

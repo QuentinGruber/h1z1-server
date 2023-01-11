@@ -1347,48 +1347,85 @@ export class zonePacketHandlers {
       if (!weaponItem.weapon) return;
       switch (p.packetName) {
         case "Weapon.FireStateUpdate":
-        debug("Weapon.FireStateUpdate");
-        // wrench workaround
-        if (weaponItem.itemDefinitionId == Items.WEAPON_WRENCH && client.character.currentInteractionGuid) {
-            if (!client.character.temporaryScrapTimeout && server.getEntityType(client.character.currentInteractionGuid) == EntityTypes.VEHICLE) {
-                const vehicle = server.getEntity(client.character.currentInteractionGuid) as Vehicle2016
-                if (!client.character.temporaryScrapSoundTimeout) {
-                    server.sendCompositeEffectToAllInRange(15, client.character.characterId, vehicle.state.position, 1605)
-                    client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-                        delete client.character.temporaryScrapSoundTimeout
-                    }, 1000)
-                }
-                if (vehicle && vehicle._resources[ResourceIds.CONDITION] < 100000) {
-                    vehicle.damage(server, { entity: "", damage: -2000 })
-                    server.damageItem(client, weaponItem, 40)
-                    client.character.temporaryScrapTimeout = setTimeout(() => {
-                        delete client.character.temporaryScrapTimeout
-                    }, 300)
-                }
+          debug("Weapon.FireStateUpdate");
+          // wrench workaround
+          if (
+            weaponItem.itemDefinitionId == Items.WEAPON_WRENCH &&
+            client.character.currentInteractionGuid
+          ) {
+            if (
+              !client.character.temporaryScrapTimeout &&
+              server.getEntityType(client.character.currentInteractionGuid) ==
+                EntityTypes.VEHICLE
+            ) {
+              const vehicle = server.getEntity(
+                client.character.currentInteractionGuid
+              ) as Vehicle2016;
+              if (!client.character.temporaryScrapSoundTimeout) {
+                server.sendCompositeEffectToAllInRange(
+                  15,
+                  client.character.characterId,
+                  vehicle.state.position,
+                  1605
+                );
+                client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+                  delete client.character.temporaryScrapSoundTimeout;
+                }, 1000);
+              }
+              if (
+                vehicle &&
+                vehicle._resources[ResourceIds.CONDITION] < 100000
+              ) {
+                vehicle.damage(server, { entity: "", damage: -2000 });
+                server.damageItem(client, weaponItem, 40);
+                client.character.temporaryScrapTimeout = setTimeout(() => {
+                  delete client.character.temporaryScrapTimeout;
+                }, 300);
+              }
             }
           }
           // crowbar workaround
-          if (weaponItem.itemDefinitionId == Items.WEAPON_CROWBAR && client.character.currentInteractionGuid) {
-              const entity = server.getLootableEntity(client.character.currentInteractionGuid) as LootableProp
-              if (entity) {
-                  const allowedSpawners = ["Wrecked Van", "Wrecked Car", "Wrecked Truck",]
-                  if (!client.character.temporaryScrapSoundTimeout) {
-                      server.sendCompositeEffectToAllInRange(15, client.character.characterId, entity.state.position, 1605)
-                      client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-                          delete client.character.temporaryScrapSoundTimeout
-                      }, 1000)
-                  }
-                  if (allowedSpawners.includes(entity.lootSpawner) && !client.character.temporaryScrapTimeout) {
-                      const chance = Math.floor(Math.random() * 100) + 1
-                      if (chance <= 60) {
-                          client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP))                         
-                          server.damageItem(client, weaponItem, 50)
-                      }
-                      client.character.temporaryScrapTimeout = setTimeout(() => {
-                          delete client.character.temporaryScrapTimeout
-                      }, Math.floor(Math.random() * (12000 - 1300 + 1) + 1300))
-                  }
+          if (
+            weaponItem.itemDefinitionId == Items.WEAPON_CROWBAR &&
+            client.character.currentInteractionGuid
+          ) {
+            const entity = server.getLootableEntity(
+              client.character.currentInteractionGuid
+            ) as LootableProp;
+            if (entity) {
+              const allowedSpawners = [
+                "Wrecked Van",
+                "Wrecked Car",
+                "Wrecked Truck",
+              ];
+              if (!client.character.temporaryScrapSoundTimeout) {
+                server.sendCompositeEffectToAllInRange(
+                  15,
+                  client.character.characterId,
+                  entity.state.position,
+                  1605
+                );
+                client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+                  delete client.character.temporaryScrapSoundTimeout;
+                }, 1000);
               }
+              if (
+                allowedSpawners.includes(entity.lootSpawner) &&
+                !client.character.temporaryScrapTimeout
+              ) {
+                const chance = Math.floor(Math.random() * 100) + 1;
+                if (chance <= 60) {
+                  client.character.lootItem(
+                    server,
+                    server.generateItem(Items.METAL_SCRAP)
+                  );
+                  server.damageItem(client, weaponItem, 50);
+                }
+                client.character.temporaryScrapTimeout = setTimeout(() => {
+                  delete client.character.temporaryScrapTimeout;
+                }, Math.floor(Math.random() * (12000 - 1300 + 1) + 1300));
+              }
+            }
           }
           // demolition hammer workaround
           if (
@@ -1396,26 +1433,25 @@ export class zonePacketHandlers {
             client.character.currentInteractionGuid
           ) {
             const entity = server.getConstructionEntity(
-              client.character.currentInteractionGuid
-            ),
-            permission = entity?.getHasPermission(
-              server,
-              client.character.characterId,
-              ConstructionPermissionIds.DEMOLISH
-            );
-            if (
-              entity &&
-              !(entity instanceof ConstructionParentEntity)
-            ) {
-              if(permission) {
+                client.character.currentInteractionGuid
+              ),
+              permission = entity?.getHasPermission(
+                server,
+                client.character.characterId,
+                ConstructionPermissionIds.DEMOLISH
+              );
+            if (entity && !(entity instanceof ConstructionParentEntity)) {
+              if (permission) {
                 entity.destroy(server);
                 client.character.lootItem(
                   server,
                   server.generateItem(entity.itemDefinitionId)
                 );
-              }
-              else {
-                server.placementError(client, ConstructionErrors.DEMOLISH_PERMISSION);
+              } else {
+                server.placementError(
+                  client,
+                  ConstructionErrors.DEMOLISH_PERMISSION
+                );
               }
             }
           }

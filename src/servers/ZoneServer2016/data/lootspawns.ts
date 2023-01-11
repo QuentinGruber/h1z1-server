@@ -1931,7 +1931,7 @@ export const containerLootSpawners: {
       },
     ],
   },
-  "Locker": {
+  Locker: {
     spawnChance: 100,
     maxItems: 1,
     items: [
@@ -1961,7 +1961,7 @@ export const containerLootSpawners: {
       },
     ],
   },
-  "Desk": {
+  Desk: {
     spawnChance: 100,
     maxItems: 2,
     items: [
@@ -1983,7 +1983,7 @@ export const containerLootSpawners: {
       },
     ],
   },
-  "Cabinets": {
+  Cabinets: {
     spawnChance: 100,
     maxItems: 2,
     items: [
@@ -2146,7 +2146,7 @@ export const containerLootSpawners: {
           min: 1,
           max: 1,
         },
-        },
+      },
       {
         item: Items.WEAPON_WRENCH,
         weight: 40,
@@ -2165,7 +2165,7 @@ export const containerLootSpawners: {
       },
     ],
   },
-  "Dumpster": {
+  Dumpster: {
     spawnChance: 100,
     maxItems: 3,
     items: [
@@ -2268,10 +2268,10 @@ export const containerLootSpawners: {
           min: 1,
           max: 2,
         },
-        },
+      },
     ],
-    },
-  "Fridge": {
+  },
+  Fridge: {
     spawnChance: 100,
     maxItems: 2,
     items: [
@@ -2301,7 +2301,7 @@ export const containerLootSpawners: {
       },
     ],
   },
-  "Ottoman": {
+  Ottoman: {
     spawnChance: 100,
     maxItems: 3,
     items: [
@@ -2355,7 +2355,7 @@ export const containerLootSpawners: {
       },
     ],
   },
-  "Dresser": {
+  Dresser: {
     spawnChance: 100,
     maxItems: 3,
     items: [
@@ -2401,7 +2401,7 @@ export const containerLootSpawners: {
       },
     ],
   },
-  "Armoire": {
+  Armoire: {
     spawnChance: 100,
     maxItems: 3,
     items: [

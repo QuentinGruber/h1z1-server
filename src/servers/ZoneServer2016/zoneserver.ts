@@ -171,7 +171,7 @@ export class ZoneServer2016 extends EventEmitter {
   _constructionDoors: { [characterId: string]: ConstructionDoor } = {};
   _constructionSimple: { [characterId: string]: ConstructionChildEntity } = {};
 
-  _lootableProps: {[characterId: string]: LootableProp} = {};
+  _lootableProps: { [characterId: string]: LootableProp } = {};
   _speedTrees: any = {};
   _speedTreesCounter: any = {};
   _gameTime: any;
@@ -1776,7 +1776,7 @@ export class ZoneServer2016 extends EventEmitter {
         return EntityTypes.CONSTRUCTION_SIMPLE;
       case !!this._lootableConstruction[entityKey]:
         return EntityTypes.LOOTABLE_CONSTRUCTION;
-        case !!this._lootableProps[entityKey]:
+      case !!this._lootableProps[entityKey]:
         return EntityTypes.LOOTABLE_PROP;
       default:
         return EntityTypes.INVALID;
@@ -2045,13 +2045,13 @@ export class ZoneServer2016 extends EventEmitter {
   customizeDTO(client: Client) {
     const DTOArray: any = [];
     for (const object in this._lootableProps) {
-            const prop = this._lootableProps[object];
-            const propInstance = {
-                objectId: prop.spawnerId,
-                unknownString1: "Weapon_Empty.adr",
-            };
-            DTOArray.push(propInstance);
-        }
+      const prop = this._lootableProps[object];
+      const propInstance = {
+        objectId: prop.spawnerId,
+        unknownString1: "Weapon_Empty.adr",
+      };
+      DTOArray.push(propInstance);
+    }
     for (const object in this._speedTrees) {
       const DTO = this._speedTrees[object];
       const DTOinstance = {
@@ -2431,9 +2431,9 @@ export class ZoneServer2016 extends EventEmitter {
           npc,
           this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID
         );
-          this.sendData(client, "Replication.InteractionComponent", {
-             transientId: npc.transientId,
-          })
+        this.sendData(client, "Replication.InteractionComponent", {
+          transientId: npc.transientId,
+        });
         client.spawnedEntities.push(npc);
         this.updateResource(
           client,
@@ -2604,13 +2604,13 @@ export class ZoneServer2016 extends EventEmitter {
             itemObject,
             this.getItemDefinition(itemObject.item.itemDefinitionId)?.NAME_ID
           );
-            this.sendData(client, "Replication.InteractionComponent", {
-             transientId: itemObject.transientId,
-          })
+          this.sendData(client, "Replication.InteractionComponent", {
+            transientId: itemObject.transientId,
+          });
           this.sendData(client, "Replication.NpcComponent", {
-                    transientId: itemObject.transientId,
-                    nameId: itemObject.nameId
-                })
+            transientId: itemObject.transientId,
+            nameId: itemObject.nameId,
+          });
           client.spawnedEntities.push(itemObject);
         }
       } else {
@@ -2646,8 +2646,8 @@ export class ZoneServer2016 extends EventEmitter {
         if (!client.spawnedEntities.includes(lootbag)) {
           this.addLightweightNpc(client, lootbag);
           this.sendData(client, "Replication.InteractionComponent", {
-             transientId: lootbag.transientId,
-          })
+            transientId: lootbag.transientId,
+          });
           client.spawnedEntities.push(lootbag);
         }
       } else {
@@ -2678,37 +2678,37 @@ export class ZoneServer2016 extends EventEmitter {
           obj,
           this.getItemDefinition(obj.itemDefinitionId)?.NAME_ID
         );
-          this.sendData(client, "Replication.InteractionComponent", {
-             transientId: obj.transientId,
-          })
+        this.sendData(client, "Replication.InteractionComponent", {
+          transientId: obj.transientId,
+        });
         client.spawnedEntities.push(obj);
       }
     }
   }
 
   private spawnProps(client: Client) {
-        for (const characterId in this._lootableProps) {
-            const prop = this._lootableProps[characterId];
-            if (
-                isPosInRadius(
-                    prop.npcRenderDistance as number,
-                    client.character.state.position,
-                    prop.state.position
-                ) &&
-                !client.spawnedEntities.includes(prop)
-            ) {
-                this.addLightweightNpc(client, prop);
-                this.sendData(client, "Replication.InteractionComponent", {
-                    transientId: prop.transientId,
-                })
-                this.sendData(client, "Replication.NpcComponent", {
-                    transientId: prop.transientId,
-                    nameId: prop.nameId
-                })
-                client.spawnedEntities.push(prop);
-            }
-        }
+    for (const characterId in this._lootableProps) {
+      const prop = this._lootableProps[characterId];
+      if (
+        isPosInRadius(
+          prop.npcRenderDistance as number,
+          client.character.state.position,
+          prop.state.position
+        ) &&
+        !client.spawnedEntities.includes(prop)
+      ) {
+        this.addLightweightNpc(client, prop);
+        this.sendData(client, "Replication.InteractionComponent", {
+          transientId: prop.transientId,
+        });
+        this.sendData(client, "Replication.NpcComponent", {
+          transientId: prop.transientId,
+          nameId: prop.nameId,
+        });
+        client.spawnedEntities.push(prop);
+      }
     }
+  }
 
   private spawnDoors(client: Client) {
     for (const characterId in this._doors) {
@@ -2722,9 +2722,9 @@ export class ZoneServer2016 extends EventEmitter {
         !client.spawnedEntities.includes(door)
       ) {
         this.addLightweightNpc(client, door);
-          this.sendData(client, "Replication.InteractionComponent", {
-             transientId: door.transientId,
-          })
+        this.sendData(client, "Replication.InteractionComponent", {
+          transientId: door.transientId,
+        });
         client.spawnedEntities.push(door);
         if (door.isOpen) {
           this.sendData(client, "PlayerUpdatePosition", {
@@ -3174,13 +3174,13 @@ export class ZoneServer2016 extends EventEmitter {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
           });
-            this.sendData(client, "Replication.InteractionComponent", {
-             transientId: vehicle.transientId,
-          })
-            this.sendData(client, "Replication.NpcComponent", {
-                transientId: vehicle.transientId,
-                nameId: vehicle.nameId
-            })
+          this.sendData(client, "Replication.InteractionComponent", {
+            transientId: vehicle.transientId,
+          });
+          this.sendData(client, "Replication.NpcComponent", {
+            transientId: vehicle.transientId,
+            nameId: vehicle.nameId,
+          });
           this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
             passengers: vehicle.pGetPassengers(this),
@@ -3613,8 +3613,8 @@ export class ZoneServer2016 extends EventEmitter {
           );
         this._constructionSimple[characterId] = construction;
         const parent = construction.getParent(this);
-        if(parent) parent.addFreeplaceConstruction(construction);
-        
+        if (parent) parent.addFreeplaceConstruction(construction);
+
         return true;
     }
   }
@@ -3635,7 +3635,7 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    if(parent instanceof ConstructionParentEntity) {
+    if (parent instanceof ConstructionParentEntity) {
       BuildingSlot = parent.getAdjustedShelterSlotId(BuildingSlot);
     }
 
@@ -4110,7 +4110,7 @@ export class ZoneServer2016 extends EventEmitter {
     obj.equipItem(this, this.generateItem(Items.CONTAINER_STORAGE), false);
 
     const parent = obj.getParent(this);
-    if(parent) parent.addFreeplaceConstruction(obj);
+    if (parent) parent.addFreeplaceConstruction(obj);
 
     return true;
   }

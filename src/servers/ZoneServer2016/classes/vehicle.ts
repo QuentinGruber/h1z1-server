@@ -46,18 +46,18 @@ function getVehicleId(ModelId: number) {
 }
 
 function getVehicleName(ModelId: number) {
-    switch (ModelId) {
-        case 7225:
-            return StringIds.OFFROADER;
-        case 9258: // pickup
-            return StringIds.PICKUP_TRUCK;
-        case 9301: // policecar
-            return StringIds.POLICE_CAR;
-        case 9588: // atv
-            return StringIds.ATV;
-        default:
-            return StringIds.OFFROADER;
-    }
+  switch (ModelId) {
+    case 7225:
+      return StringIds.OFFROADER;
+    case 9258: // pickup
+      return StringIds.PICKUP_TRUCK;
+    case 9301: // policecar
+      return StringIds.POLICE_CAR;
+    case 9588: // atv
+      return StringIds.ATV;
+    default:
+      return StringIds.OFFROADER;
+  }
 }
 
 function getVehicleLoadoutId(vehicleId: number) {
@@ -169,7 +169,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         return this.vehicle.state.position;
       },
     };
-    this.nameId = getVehicleName(this.actorModelId)
+    this.nameId = getVehicleName(this.actorModelId);
   }
 
   getSeatCount() {

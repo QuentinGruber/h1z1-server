@@ -149,7 +149,7 @@ export enum EntityTypes {
   CONSTRUCTION_DOOR,
   CONSTRUCTION_SIMPLE,
   LOOTABLE_CONSTRUCTION,
-  LOOTABLE_PROP
+  LOOTABLE_PROP,
 }
 
 export enum ResourceIds {
@@ -239,7 +239,7 @@ export enum Items {
   //#endregion
 
   //#region PERISHABLE
-  ANTIBIOTICS =  1388,
+  ANTIBIOTICS = 1388,
   VITAMINS = 1512,
   FIRST_AID = 2424,
   BANDAGE = 24,

@@ -75,7 +75,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     [slot: number]: ConstructionDoor | ConstructionChildEntity;
   } = {};
 
-  freeplaceEntities: {[characterId: string]: ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity} = {};
+  freeplaceEntities: {
+    [characterId: string]:
+      | ConstructionChildEntity
+      | ConstructionDoor
+      | LootableConstructionEntity;
+  } = {};
 
   constructor(
     characterId: string,
@@ -285,7 +290,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     return set;
   }
 
-  addFreeplaceConstruction(entity: ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity) {
+  addFreeplaceConstruction(
+    entity:
+      | ConstructionChildEntity
+      | ConstructionDoor
+      | LootableConstructionEntity
+  ) {
     this.freeplaceEntities[entity.characterId] = entity;
   }
 
@@ -346,7 +356,10 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.METAL_WALL:
       case Items.METAL_DOORWAY:
         freeplace = [...Object.values(this.occupiedWallSlots)];
-        freeplace = [...freeplace, ...Object.values(this.occupiedUpperWallSlots)];
+        freeplace = [
+          ...freeplace,
+          ...Object.values(this.occupiedUpperWallSlots),
+        ];
         slotMap = parent.occupiedWallSlots;
         updateSecured = true;
         break;
@@ -373,12 +386,15 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
     // re-register now disconnected slotted entities as freeplace entities
     const parentFoundation = this.getParentFoundation(server);
-    if(parentFoundation) {
+    if (parentFoundation) {
       freeplace.forEach((entity) => {
         entity.parentObjectCharacterId = parentFoundation.characterId;
         parentFoundation.freeplaceEntities[entity.characterId] = entity;
-      })
-      parentFoundation.freeplaceEntities = {...parentFoundation.freeplaceEntities, ...this.freeplaceEntities}
+      });
+      parentFoundation.freeplaceEntities = {
+        ...parentFoundation.freeplaceEntities,
+        ...this.freeplaceEntities,
+      };
     }
   }
 

@@ -84,7 +84,9 @@ export class customLodash {
 export const _ = new customLodash();
 
 export function isQuat(rotation: Float32Array) {
-    return (rotation[1] != 0 && rotation[2] != 0 && rotation[3] != 0) ? rotation : eul2quat(rotation);
+  return rotation[1] != 0 && rotation[2] != 0 && rotation[3] != 0
+    ? rotation
+    : eul2quat(rotation);
 }
 
 // Original code from GuinnessRules
