@@ -16,12 +16,11 @@ import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
   getConstructionSlotId,
-  getRectangleCorners,
-  isArraySumZero,
   isInsideSquare,
   isInsideCube,
   isPosInRadiusWithY,
   registerConstructionSlots,
+  getRectangleCorners,
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
 import { BaseEntity } from "./baseentity";
@@ -54,10 +53,6 @@ function getDamageRange(definitionId: number): number {
 export class ConstructionParentEntity extends ConstructionChildEntity {
   permissions: { [characterId: string]: ConstructionPermissions } = {};
   ownerCharacterId: string;
-  bounds?: SquareBounds;
-
-  // to be deprecated
-  securedPolygons: Array<Array<number>>;
 
   readonly expansionSlots: ConstructionSlotPositionMap = {};
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
@@ -102,56 +97,15 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     if (BuildingSlot) {
       this.slot = BuildingSlot;
     }
-    this.securedPolygons = [];
-    this.perimeters = {};
     this.damageRange = getDamageRange(this.itemDefinitionId);
     switch (this.itemDefinitionId) {
       case Items.GROUND_TAMPER:
-        this.perimeters = {
-          "01": new Float32Array([0, 0, 0, 0]),
-          "02": new Float32Array([0, 0, 0, 0]),
-          "03": new Float32Array([0, 0, 0, 0]),
-          "04": new Float32Array([0, 0, 0, 0]),
-          "05": new Float32Array([0, 0, 0, 0]),
-          "06": new Float32Array([0, 0, 0, 0]),
-          "07": new Float32Array([0, 0, 0, 0]),
-          "08": new Float32Array([0, 0, 0, 0]),
-          "09": new Float32Array([0, 0, 0, 0]),
-          "10": new Float32Array([0, 0, 0, 0]),
-          "11": new Float32Array([0, 0, 0, 0]),
-          "12": new Float32Array([0, 0, 0, 0]),
-          "13": new Float32Array([0, 0, 0, 0]),
-          "14": new Float32Array([0, 0, 0, 0]),
-          "15": new Float32Array([0, 0, 0, 0]),
-          "16": new Float32Array([0, 0, 0, 0]),
-        };
         this.bounds = this.getSquareBounds([1, 5, 9, 13]);
         break;
       case Items.FOUNDATION:
-        this.perimeters = {
-          "01": new Float32Array([0, 0, 0, 0]),
-          "02": new Float32Array([0, 0, 0, 0]),
-          "03": new Float32Array([0, 0, 0, 0]),
-          "04": new Float32Array([0, 0, 0, 0]),
-          "05": new Float32Array([0, 0, 0, 0]),
-          "06": new Float32Array([0, 0, 0, 0]),
-          "07": new Float32Array([0, 0, 0, 0]),
-          "08": new Float32Array([0, 0, 0, 0]),
-          "09": new Float32Array([0, 0, 0, 0]),
-          "10": new Float32Array([0, 0, 0, 0]),
-          "11": new Float32Array([0, 0, 0, 0]),
-          "12": new Float32Array([0, 0, 0, 0]),
-        };
         this.bounds = this.getSquareBounds([1, 4, 7, 10]);
         break;
       case Items.FOUNDATION_EXPANSION: // 1, 2, 5, 3RD dependent foundation wall
-        this.perimeters = {
-          "01": new Float32Array([0, 0, 0, 0]),
-          "02": new Float32Array([0, 0, 0, 0]),
-          "03": new Float32Array([0, 0, 0, 0]),
-          "04": new Float32Array([0, 0, 0, 0]),
-          "05": new Float32Array([0, 0, 0, 0]),
-        };
         const bounds = this.getSquareBounds([1, 2, 5, 0]),
           parent = this.getParentFoundation(server);
         console.log("BOUNDS");
@@ -169,25 +123,15 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           }
         }
         break;
-      case Items.SHACK_SMALL:
-        this.perimeters = {
-          "01": new Float32Array([0, 0, 0, 0]),
-        };
-        break;
-      case Items.SHACK_BASIC:
-        this.perimeters = {
-          "01": new Float32Array([0, 0, 0, 0]),
-        };
-        break;
       case Items.SHACK:
-        this.perimeters = {
-          "01": new Float32Array([0, 0, 0, 0]),
-        };
-        break;
-      default:
-        this.perimeters = {
-          "01": new Float32Array([0, 0, 0, 0]),
-        };
+      case Items.SHACK_SMALL:
+      case Items.SHACK_BASIC:
+        this.bounds = getRectangleCorners(
+          this.state.position,
+          3.5,
+          2.5,
+          -this.eulerAngle
+        )
         break;
     }
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
@@ -336,39 +280,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     );
   }
 
-  checkPerimeters(server: ZoneServer2016) {
-    this.securedPolygons = [];
-    switch (this.itemDefinitionId) {
-      case Items.SHACK:
-      case Items.SHACK_SMALL:
-      case Items.SHACK_BASIC:
-        this.isSecured = isArraySumZero(this.perimeters["01"]) ? false : true;
-        if (this.eulerAngle)
-          this.securedPolygons = getRectangleCorners(
-            this.state.position,
-            3.5,
-            2.5,
-            -this.eulerAngle
-          );
-        break;
-    }
-  }
-  changePerimeters(server: ZoneServer2016, slot: string, value: Float32Array) {
-    if (!slot) return;
-    slot = getConstructionSlotId(slot).toString();
-    if (
-      this.itemDefinitionId === Items.SHACK ||
-      this.itemDefinitionId === Items.SHACK_SMALL ||
-      this.itemDefinitionId === Items.SHACK_BASIC
-    ) {
-      this.perimeters["01"] = value;
-      this.checkPerimeters(server);
-      return;
-    }
-    this.perimeters[slot as keyof typeof this.perimeters] = value;
-    this.checkPerimeters(server);
-  }
-
   isInside(entity: BaseEntity) {
     if (!this.bounds) {
       console.error(
@@ -411,7 +322,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.SHACK_SMALL:
         return isInsideCube(
           [entity.state.position[0], entity.state.position[2]],
-          this.securedPolygons,
+          this.bounds,
           entity.state.position[1],
           this.state.position[1],
           2.1
@@ -433,14 +344,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     if (!parent) return;
     if (!this.slot || !this.parentObjectCharacterId) return;
     parent.clearSlot(this.getSlotNumber(), parent.occupiedExpansionSlots);
-  }
-
-  // may no longer be needed
-  isPerimeterEmpty() {
-    for (const perimeter of Object.values(this.perimeters)) {
-      if (!isArraySumZero(perimeter)) return false;
-    }
-    return true;
   }
 
   isExpansionSlotsEmpty() {

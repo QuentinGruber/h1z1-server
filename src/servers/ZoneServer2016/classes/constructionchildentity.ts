@@ -14,10 +14,13 @@ import {
   DamageInfo,
   OccupiedSlotMap,
   SlottedConstructionEntity,
+  SquareBounds,
 } from "types/zoneserver";
 import {
   getConstructionSlotId,
+  getRectangleCorners,
   isArraySumZero,
+  movePoint,
   registerConstructionSlots,
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
@@ -55,12 +58,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   damageRange: number;
   fixedPosition?: Float32Array;
   placementTime = Date.now();
-
-  //bounds:
-
-  // to be deprecated
-  perimeters: { [slot: string]: Float32Array };
-  securedPolygons?: any;
+  bounds?: SquareBounds;
 
   // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
   readonly wallSlots: ConstructionSlotPositionMap = {};
@@ -91,9 +89,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.parentObjectCharacterId = parentObjectCharacterId;
     this.slot = slot;
     this.profileId = 999; /// mark as construction
-    this.perimeters = {
-      LoveShackDoor: new Float32Array([0, 0, 0, 0]),
-    };
     this.damageRange = getDamageRange(this.itemDefinitionId);
 
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
@@ -106,6 +101,29 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     Object.seal(this.upperWallSlots);
     registerConstructionSlots(this, this.shelterSlots, shelterSlotDefinitions);
     Object.seal(this.shelterSlots);
+
+    const angle = -this.eulerAngle;
+    switch (itemDefinitionId) {
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER_LARGE:
+        const centerPoint = movePoint(
+          position,
+          angle + (90 * Math.PI) / 180,
+          2.5
+        );
+        this.fixedPosition = centerPoint;
+        this.bounds = getRectangleCorners(
+          centerPoint,
+          10,
+          5,
+          angle
+        );
+        break;
+      case Items.SHELTER:
+      case Items.SHELTER_UPPER:
+        this.bounds = getRectangleCorners(position, 5, 5, angle);
+        break;
+    }
   }
 
   getSlotPosition(
@@ -327,17 +345,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       242,
       destructTime
     );
-    const parent =
-      server._constructionFoundations[this.parentObjectCharacterId] ||
-      server._constructionSimple[this.parentObjectCharacterId];
+    const parent = this.getParent(server);
     if (!parent) return;
-    if (this.itemDefinitionId == Items.METAL_WALL) {
-      parent.changePerimeters(
-        server,
-        this.slot,
-        new Float32Array([0, 0, 0, 0])
-      );
-    }
+
     let slotMap: OccupiedSlotMap | undefined,
       updateSecured = false;
     switch (this.itemDefinitionId) {
@@ -369,13 +379,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     }
     if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
     if (updateSecured) parent.updateSecuredState(server);
-  }
-
-  changePerimeters(server: ZoneServer2016, slot: string, value: Float32Array) {
-    this.perimeters["LoveShackDoor"] = value;
-    if (!isArraySumZero(value)) {
-      this.isSecured = true;
-    } else this.isSecured = false;
   }
 
   getParent(server: ZoneServer2016): ConstructionParentEntity | undefined {

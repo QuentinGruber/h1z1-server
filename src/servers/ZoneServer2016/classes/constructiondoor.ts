@@ -98,9 +98,7 @@ export class ConstructionDoor extends DoorEntity {
       242,
       destructTime
     );
-    const parent =
-      server._constructionFoundations[this.parentObjectCharacterId] ||
-      server._constructionSimple[this.parentObjectCharacterId];
+    const parent = this.getParent(server);
     if (!parent) return;
     let slotMap: OccupiedSlotMap | undefined,
       updateSecured = false;
@@ -115,18 +113,6 @@ export class ConstructionDoor extends DoorEntity {
     }
     if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
     if (updateSecured) parent.updateSecuredState(server);
-
-    if (
-      this.itemDefinitionId == Items.DOOR_METAL ||
-      this.itemDefinitionId == Items.DOOR_WOOD ||
-      this.itemDefinitionId == Items.METAL_GATE
-    ) {
-      parent.changePerimeters(
-        server,
-        this.slot,
-        new Float32Array([0, 0, 0, 0])
-      );
-    }
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
@@ -249,31 +235,8 @@ export class ConstructionDoor extends DoorEntity {
       }
     );
     this.isOpen = !this.isOpen;
-    if (server._constructionFoundations[this.parentObjectCharacterId]) {
-      this.isOpen
-        ? server._constructionFoundations[
-            this.parentObjectCharacterId
-          ].changePerimeters(server, this.slot, new Float32Array([0, 0, 0, 0]))
-        : server._constructionFoundations[
-            this.parentObjectCharacterId
-          ].changePerimeters(server, this.slot, this.state.position);
-    } else if (server._constructionSimple[this.parentObjectCharacterId]) {
-      this.isOpen
-        ? server._constructionSimple[
-            this.parentObjectCharacterId
-          ].changePerimeters(
-            server,
-            "LoveShackDoor",
-            new Float32Array([0, 0, 0, 0])
-          )
-        : server._constructionSimple[
-            this.parentObjectCharacterId
-          ].changePerimeters(server, "LoveShackDoor", this.state.position);
-    }
 
-    const parent =
-      server._constructionFoundations[this.parentObjectCharacterId] ||
-      server._constructionSimple[this.parentObjectCharacterId];
+    const parent = this.getParent(server);
     if (parent) {
       parent.updateSecuredState(server);
     }
