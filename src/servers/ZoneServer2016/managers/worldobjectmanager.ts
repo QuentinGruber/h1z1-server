@@ -471,6 +471,7 @@ export class WorldObjectManager {
             if (lootTable) {
                 for (var x = 0; x < lootTable.maxItems; x++) {
                     const item = getRandomItem(lootTable.items);
+                    if (!item) continue
                     const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
                     let allow = true;
                     Object.values(prop._containers['31'].items).forEach((spawnedItem: BaseItem) => {
