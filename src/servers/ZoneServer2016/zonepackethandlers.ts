@@ -1251,10 +1251,9 @@ export class zonePacketHandlers {
 
     // update child expansion permissions
     Object.values(
-      server._constructionFoundations[packet.data.objectCharacterId].expansions
-    ).forEach((objectCharacterId: string) => {
-      const child = server._constructionFoundations[objectCharacterId];
-      child.permissions = foundation.permissions;
+      server._constructionFoundations[packet.data.objectCharacterId].occupiedExpansionSlots
+    ).forEach((expansion) => {
+      expansion.permissions = foundation.permissions;
     });
 
     // update permissions list
@@ -1311,13 +1310,12 @@ export class zonePacketHandlers {
         obj.visit = !obj.visit;
         break;
     }
-    // update permissions
-    foundation.permissions[characterId] == obj;
+    
+    // update child expansion permissions
     Object.values(
-      server._constructionFoundations[packet.data.objectCharacterId].expansions
-    ).forEach((objectCharacterId: string) => {
-      const child = server._constructionFoundations[objectCharacterId];
-      child.permissions = foundation.permissions;
+      server._constructionFoundations[packet.data.objectCharacterId].occupiedExpansionSlots
+    ).forEach((expansion) => {
+      expansion.permissions = foundation.permissions;
     });
 
     server.sendData(

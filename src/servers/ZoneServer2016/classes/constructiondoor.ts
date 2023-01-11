@@ -38,9 +38,8 @@ export class ConstructionDoor extends DoorEntity {
   grantedAccess: any = [];
   health: number = 1000000;
   parentObjectCharacterId: string;
-  buildingSlot: string;
   itemDefinitionId: number;
-  slot?: string;
+  slot: string;
   damageRange: number;
   fixedPosition: Float32Array;
   placementTime = Date.now();
@@ -54,7 +53,7 @@ export class ConstructionDoor extends DoorEntity {
     itemDefinitionId: number,
     ownerCharacterId: string,
     parentObjectCharacterId: string,
-    BuildingSlot: string
+    slot: string
   ) {
     super(
       characterId,
@@ -68,11 +67,7 @@ export class ConstructionDoor extends DoorEntity {
     this.ownerCharacterId = ownerCharacterId;
     this.itemDefinitionId = itemDefinitionId;
     this.parentObjectCharacterId = parentObjectCharacterId;
-    this.buildingSlot = BuildingSlot.substring(
-      BuildingSlot.length,
-      BuildingSlot.length - 2
-    ).toString();
-    this.slot = BuildingSlot;
+    this.slot = slot
     this.profileId = 999; /// mark as construction
     this.damageRange = getDamageRange(this.itemDefinitionId);
     this.fixedPosition = movePoint(
@@ -116,7 +111,7 @@ export class ConstructionDoor extends DoorEntity {
     ) {
       foundation.changePerimeters(
         server,
-        this.buildingSlot,
+        this.slot,
         new Float32Array([0, 0, 0, 0])
       );
     }
@@ -249,12 +244,12 @@ export class ConstructionDoor extends DoorEntity {
             this.parentObjectCharacterId
           ].changePerimeters(
             server,
-            this.buildingSlot,
+            this.slot,
             new Float32Array([0, 0, 0, 0])
           )
         : server._constructionFoundations[
             this.parentObjectCharacterId
-          ].changePerimeters(server, this.buildingSlot, this.state.position);
+          ].changePerimeters(server, this.slot, this.state.position);
     } else if (server._constructionSimple[this.parentObjectCharacterId]) {
       this.isOpen
         ? server._constructionSimple[

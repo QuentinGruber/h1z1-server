@@ -3925,7 +3925,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (parentFoundation) {
       parentFoundation.changePerimeters(
         this,
-        door.buildingSlot,
+        door.slot,
         door.state.position
       );
     }
@@ -3948,11 +3948,10 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     if (
       BuildingSlot &&
-      this._constructionFoundations[parentObjectCharacterId]?.expansions[
-        BuildingSlot
+      this._constructionFoundations[parentObjectCharacterId]?.occupiedExpansionSlots[
+        getConstructionSlotId(BuildingSlot)
       ]
     ) {
-      client.character.lootItem(this, this.generateItem(itemDefinitionId));
       this.placementError(client, PlacementErrors.OVERLAP);
       return false;
     }
@@ -4011,9 +4010,6 @@ export class ZoneServer2016 extends EventEmitter {
       );
     if (parentFoundation && BuildingSlot) {
       parentFoundation.setExpansionSlot(npc);
-      parentFoundation.expansions[
-        BuildingSlot
-      ] = characterId;
       npc.permissions =
       parentFoundation.permissions;
     }

@@ -47,16 +47,19 @@ function getDamageRange(definitionId: number): number {
 
 export class ConstructionChildEntity extends BaseLightweightCharacter {
   health: number = 1000000;
-  perimeters: { [slot: string]: Float32Array };
   itemDefinitionId: number;
   parentObjectCharacterId: string;
   eulerAngle: number;
   slot: string;
-  securedPolygons?: any;
   isSecured = false;
   damageRange: number;
   fixedPosition?: Float32Array;
   placementTime = Date.now();
+
+  // to be deprecated
+  perimeters: { [slot: string]: Float32Array };
+  securedPolygons?: any;
+
   // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
   readonly wallSlots: ConstructionSlotPositionMap = {};
   occupiedWallSlots: { [slot: number]: ConstructionDoor } = {};
@@ -345,7 +348,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   changePerimeters(
     server: ZoneServer2016,
-    slot: string | undefined,
+    slot: string,
     value: Float32Array
   ) {
     this.perimeters["LoveShackDoor"] = value;
