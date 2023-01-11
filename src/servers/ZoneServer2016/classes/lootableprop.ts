@@ -10,7 +10,7 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-import { eul2quat } from "../../../utils/utils";
+import { isQuat } from "../../../utils/utils";
 import { BaseLootableEntity } from "./baselootableentity";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "./zoneclient";
@@ -136,10 +136,6 @@ function getContainerAndTime(entity: LootableProp) {
             entity.searchTime = 500
             return 
     }
-}
-
-function isQuat(rotation: Float32Array) {
-    return (rotation[1] != 0 && rotation[2] != 0 && rotation[3] != 0) ? rotation : eul2quat(rotation);
 }
 
 export class LootableProp extends BaseLootableEntity {
