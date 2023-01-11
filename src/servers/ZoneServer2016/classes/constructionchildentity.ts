@@ -337,6 +337,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
     let slotMap: OccupiedSlotMap | undefined,
       updateSecured = false;
+    let freeplace: Array<ConstructionChildEntity | ConstructionDoor> = [];
     switch (this.itemDefinitionId) {
       case Items.METAL_GATE:
       case Items.DOOR_BASIC:
@@ -344,6 +345,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.DOOR_METAL:
       case Items.METAL_WALL:
       case Items.METAL_DOORWAY:
+        freeplace = [...Object.values(this.occupiedWallSlots)];
+        freeplace = [...freeplace, ...Object.values(this.occupiedUpperWallSlots)];
         slotMap = parent.occupiedWallSlots;
         updateSecured = true;
         break;
@@ -357,6 +360,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.STRUCTURE_STAIRS:
       case Items.STRUCTURE_STAIRS_UPPER:
       case Items.LOOKOUT_TOWER:
+        freeplace = [...Object.values(this.occupiedShelterSlots)];
         slotMap = parent.occupiedShelterSlots;
         break;
       case Items.FOUNDATION_RAMP:
@@ -366,6 +370,16 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     }
     if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
     if (updateSecured) parent.updateSecuredState(server);
+
+    // re-register now disconnected slotted entities as freeplace entities
+    const parentFoundation = this.getParentFoundation(server);
+    if(parentFoundation) {
+      freeplace.forEach((entity) => {
+        entity.parentObjectCharacterId = parentFoundation.characterId;
+        parentFoundation.freeplaceEntities[entity.characterId] = entity;
+      })
+      parentFoundation.freeplaceEntities = {...parentFoundation.freeplaceEntities, ...this.freeplaceEntities}
+    }
   }
 
   getParent(server: ZoneServer2016): ConstructionParentEntity | undefined {

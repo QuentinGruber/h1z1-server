@@ -3570,7 +3570,9 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    BuildingSlot = parent.getAdjustedShelterSlotId(BuildingSlot);
+    if(parent instanceof ConstructionParentEntity) {
+      BuildingSlot = parent.getAdjustedShelterSlotId(BuildingSlot);
+    }
 
     if (
       parent &&
