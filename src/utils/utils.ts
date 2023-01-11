@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -32,6 +32,8 @@ import {
 import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots";
 import { ConstructionParentEntity } from "servers/ZoneServer2016/classes/constructionparententity";
 import { ConstructionChildEntity } from "servers/ZoneServer2016/classes/constructionchildentity";
+import { positionUpdate } from "types/zoneserver";
+import { NAME_VALIDATION_STATUS } from "./enums";
 
 export class customLodash {
   sum(pings: number[]): number {
@@ -740,4 +742,20 @@ export function registerConstructionSlots(
       };
     });
   }
+}
+// thx GPT i'm not writing regex myself :)
+export function isValidCharacterName(characterName: string) {
+  // Regular expression that matches all special characters
+  const specialCharRegex = /[^\w\s]/gi;
+
+  // Check if the string is only made up of blank characters
+  const onlyBlankChars = characterName.replace(/\s/g, "").length === 0;
+
+  // Check if the string contains any special characters
+  const hasSpecialChars = specialCharRegex.test(characterName);
+
+  // Return false if the string is only made up of blank characters or contains special characters
+  return !onlyBlankChars && !hasSpecialChars
+    ? NAME_VALIDATION_STATUS.AVAILABLE
+    : NAME_VALIDATION_STATUS.INVALID;
 }

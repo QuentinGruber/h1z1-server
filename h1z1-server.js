@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -52,7 +52,7 @@ h1z1Server.__defineGetter__("LoginProtocol", function () {
 });  
 
 h1z1Server.__defineGetter__("GatewayProtocol", function () {
-  return require("./out/protocols/gatewayprotocol.js").GatewayProtocol;
+  return require("h1emu-core").GatewayProtocol;
 });  
 
 h1z1Server.__defineGetter__("H1Z1Protocol", function () {

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -36,12 +36,14 @@ import {
   Items,
 } from "./models/enums";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
+import { Npc } from "./classes/npc";
 import { ConstructionParentEntity } from "./classes/constructionparententity";
 import { ConstructionDoor } from "./classes/constructiondoor";
-import { AVG_PING_SECS } from "../../utils/constants";
 import { CommandHandler } from "./commands/commandhandler";
+import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import { ConstructionPermissions } from "types/zoneserver";
+import { GameTimeSync } from "types/zone2016packets";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -146,7 +148,7 @@ export class zonePacketHandlers {
       server.sendData(client, "Synchronization", {
         serverTime: Int64String(server.getServerTime()),
         serverTime2: Int64String(server.getServerTime()),
-      });
+      } as Synchronization);
 
       server.sendData(client, "Character.WeaponStance", {
         // activates weaponstance key
@@ -324,19 +326,7 @@ export class zonePacketHandlers {
     });
   }
   KeepAlive(server: ZoneServer2016, client: Client, packet: any) {
-    const timeDelay = 1000;
-    const currentTime = Date.now();
-    if (!client.lastKeepAliveTime) {
-      client.lastKeepAliveTime = currentTime;
-      return;
-    }
-    const ping = toInt(currentTime - client.lastKeepAliveTime - timeDelay);
-    client.lastKeepAliveTime = Date.now();
-    client.pings.push(ping);
-    if (client.pings.length > AVG_PING_SECS) {
-      client.pings.shift();
-    }
-    client.avgPing = toInt(_.sum(client.pings) / client.pings.length);
+    //
   }
   ClientUpdateMonitorTimeDrift(
     server: ZoneServer2016,
@@ -421,19 +411,22 @@ export class zonePacketHandlers {
     }
     server.deleteClient(client);
   }
-  GameTimeSync(server: ZoneServer2016, client: Client, packet: any) {
+  GameTimeSync(
+    server: ZoneServer2016,
+    client: Client,
+    packet: { data: GameTimeSync }
+  ) {
     server.sendGameTimeSync(client);
   }
   Synchronization(server: ZoneServer2016, client: Client, packet: any) {
     const serverTime = Int64String(server.getServerTime());
-    server.sendData(client, "Synchronization", {
-      time1: packet.data.time1,
-      time2: packet.data.time2,
-      clientTime: packet.data.clientTime,
+    const reflectedPacket: Synchronization = {
+      ...packet.data,
       serverTime: serverTime,
       serverTime2: serverTime,
-      time3: packet.data.clientTime + 2,
-    });
+      time3: Int64String(Number(packet.data.clientTime)) + 2,
+    };
+    server.sendData(client, "Synchronization", reflectedPacket);
   }
   CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: any) {
     this.commandHandler.executeCommand(server, client, packet);
