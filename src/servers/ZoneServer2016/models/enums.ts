@@ -375,6 +375,7 @@ export enum Items {
   BACKPACK_FRAMED = 2111,
   BACKPACK_SATCHEL = 1432,
   BACKPACK_MILITARY_TAN = 2124,
+  BACKPACK_BLUE_ORANGE = 2038,
   HELMET_MOTORCYCLE = 2170, // TODO = expand with other default helmet colors
   HAT_CAP = 12, // TODO = expand with other cap colors
   SHIRT_DEFAULT = 2088, // TODO = expand with other default shirts

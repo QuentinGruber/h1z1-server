@@ -1937,7 +1937,15 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.BACKPACK_MILITARY_TAN,
-        weight: 40,
+        weight: 35,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.BACKPACK_BLUE_ORANGE,
+        weight: 35,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1945,7 +1953,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.KEVLAR_DEFAULT,
-        weight: 40,
+        weight: 35,
         spawnCount: {
           min: 1,
           max: 1,
