@@ -44,7 +44,7 @@ import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import { ConstructionPermissions } from "types/zoneserver";
 import { GameTimeSync } from "types/zone2016packets";
-import { LootableProp } from "h1z1-server/src/servers/ZoneServer2016/classes/lootableprop";
+import { LootableProp } from "./classes/lootableprop";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
