@@ -3458,7 +3458,10 @@ export const basePackets: any = [
                 packer: packUnsignedIntWith2bitLengthValue,
         },
         { name: "stringLength", type: "uint16", defaultValue: 18 },
-        { name: "componentName", type: "fixedlengthstring", defaultValue: "ClientNpcComponent" },
+        //{ name: "componentName", type: "fixedlengthstring", defaultValue: "ClientNpcComponent" }, avoid test errors
+        { name: "componentName", type: "uint64string", defaultValue: "0x704E746E65696C43" },
+        { name: "componentName2", type: "uint64string", defaultValue: "0x656E6F706D6F4363" },
+        { name: "componentName3", type: "uint16", defaultValue: 29806 },
         { name: "unkByte1", type: "uint8", defaultValue: 0 },
         { name: "unkDword1", type: "uint32", defaultValue: 0 },
         { name: "unkDword2", type: "uint32", defaultValue: 1 },
@@ -3467,8 +3470,8 @@ export const basePackets: any = [
         { name: "unkByte2", type: "uint8", defaultValue: 0 },
         { name: "unkDword5", type: "uint32", defaultValue: 82 },
         { name: "unkDword6", type: "uint32", defaultValue: 2126 },
-        { name: "unkDword6", type: "uint32", defaultValue: 718 },
-        { name: "unkDword7", type: "uint32", defaultValue: 0 },
+        { name: "unkDword7", type: "uint32", defaultValue: 718 },
+        { name: "unkDword8", type: "uint32", defaultValue: 0 },
         { name: "nameId", type: "uint32", defaultValue: 0 },
         {
                 name: "rawComponent",
