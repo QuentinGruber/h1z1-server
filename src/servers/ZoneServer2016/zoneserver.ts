@@ -37,7 +37,7 @@ import {
   LoadoutIds,
   LoadoutSlots,
   MovementModifiers,
-  PlacementErrors,
+  ConstructionErrors,
   ResourceIds,
   ResourceTypes,
   StringIds,
@@ -3377,7 +3377,7 @@ export class ZoneServer2016 extends EventEmitter {
         allowBuild === false &&
         !allowedItems.includes(itemDefinitionId)
       ) {
-        this.placementError(client, PlacementErrors.PERMISSION);
+        this.placementError(client, ConstructionErrors.BUILD_PERMISSION);
         this.sendData(client, "Construction.PlacementFinalizeResponse", {
           status: 0,
           unknownString1: "",
@@ -3531,7 +3531,7 @@ export class ZoneServer2016 extends EventEmitter {
           BuildingSlot
         );
       default:
-        //this.placementError(client, PlacementErrors.UNKNOWN_CONSTRUCTION);
+        //this.placementError(client, ConstructionErrors.UNKNOWN_CONSTRUCTION);
 
         // need to add all valid construction eventually
         const characterId = this.generateGuid(),
@@ -3543,11 +3543,14 @@ export class ZoneServer2016 extends EventEmitter {
             position,
             rotation,
             itemDefinitionId,
-            "",
+            freeplaceParentCharacterId || "",
             ""
           );
         this._constructionSimple[characterId] = construction;
-        return false;
+        const parent = construction.getParent(this);
+        if(parent) parent.addFreeplaceConstruction(construction);
+        
+        return true;
     }
   }
 
@@ -3563,7 +3566,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._constructionFoundations[parentObjectCharacterId] ||
       this._constructionSimple[parentObjectCharacterId];
     if (!Number(parentObjectCharacterId) || !parent) {
-      this.placementError(client, PlacementErrors.UNKNOWN_PARENT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_PARENT);
       return false;
     }
 
@@ -3576,18 +3579,18 @@ export class ZoneServer2016 extends EventEmitter {
         getConstructionSlotId(BuildingSlot)
       )
     ) {
-      this.placementError(client, PlacementErrors.OVERLAP);
+      this.placementError(client, ConstructionErrors.OVERLAP);
       return false;
     }
 
     if (!parent.isShelterSlotValid(BuildingSlot, itemDefinitionId)) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
     }
 
     const position = parent.getSlotPosition(BuildingSlot, parent.shelterSlots);
     if (!position) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
     }
 
@@ -3620,12 +3623,12 @@ export class ZoneServer2016 extends EventEmitter {
       this._constructionFoundations[parentObjectCharacterId] ||
       this._constructionSimple[parentObjectCharacterId];
     if (!Number(parentObjectCharacterId) || !parent) {
-      this.placementError(client, PlacementErrors.UNKNOWN_PARENT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_PARENT);
       return false;
     }
 
     if (!parent.isWallSlotValid(BuildingSlot, itemDefinitionId)) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
     }
 
@@ -3638,7 +3641,7 @@ export class ZoneServer2016 extends EventEmitter {
           getConstructionSlotId(BuildingSlot)
         )
       ) {
-        this.placementError(client, PlacementErrors.OVERLAP);
+        this.placementError(client, ConstructionErrors.OVERLAP);
         return false;
       }
       (position = parent.getSlotPosition(BuildingSlot, parent.upperWallSlots)),
@@ -3654,14 +3657,14 @@ export class ZoneServer2016 extends EventEmitter {
           getConstructionSlotId(BuildingSlot)
         )
       ) {
-        this.placementError(client, PlacementErrors.OVERLAP);
+        this.placementError(client, ConstructionErrors.OVERLAP);
         return false;
       }
       (position = parent.getSlotPosition(BuildingSlot, parent.wallSlots)),
         (rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots));
     }
     if (!position || !rotation) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
     }
 
@@ -3694,7 +3697,7 @@ export class ZoneServer2016 extends EventEmitter {
     const parentFoundation =
       this._constructionFoundations[parentObjectCharacterId];
     if (!Number(parentObjectCharacterId) || !parentFoundation) {
-      this.placementError(client, PlacementErrors.UNKNOWN_PARENT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_PARENT);
       return false;
     }
 
@@ -3705,12 +3708,12 @@ export class ZoneServer2016 extends EventEmitter {
         getConstructionSlotId(BuildingSlot)
       )
     ) {
-      this.placementError(client, PlacementErrors.OVERLAP);
+      this.placementError(client, ConstructionErrors.OVERLAP);
       return false;
     }
 
     if (!parentFoundation.isRampSlotValid(BuildingSlot, itemDefinitionId)) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
     }
 
@@ -3723,7 +3726,7 @@ export class ZoneServer2016 extends EventEmitter {
         parentFoundation.rampSlots
       );
     if (!position || !rotation) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
     }
 
@@ -3756,7 +3759,7 @@ export class ZoneServer2016 extends EventEmitter {
     const parentFoundation =
       this._constructionFoundations[parentObjectCharacterId];
     if (!Number(parentObjectCharacterId) || !parentFoundation) {
-      this.placementError(client, PlacementErrors.UNKNOWN_PARENT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_PARENT);
       return false;
     }
 
@@ -3767,12 +3770,12 @@ export class ZoneServer2016 extends EventEmitter {
         getConstructionSlotId(BuildingSlot)
       )
     ) {
-      this.placementError(client, PlacementErrors.OVERLAP);
+      this.placementError(client, ConstructionErrors.OVERLAP);
       return false;
     }
 
     if (!parentFoundation.isRampSlotValid(BuildingSlot, itemDefinitionId)) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
     }
 
@@ -3781,7 +3784,7 @@ export class ZoneServer2016 extends EventEmitter {
       parentFoundation.rampSlots
     );
     if (!position) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
     }
 
@@ -3815,7 +3818,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._constructionFoundations[parentObjectCharacterId] ||
       this._constructionSimple[parentObjectCharacterId];
     if (!Number(parentObjectCharacterId) || !parent) {
-      this.placementError(client, PlacementErrors.UNKNOWN_PARENT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_PARENT);
       return false;
     }
 
@@ -3826,19 +3829,19 @@ export class ZoneServer2016 extends EventEmitter {
         getConstructionSlotId(BuildingSlot)
       )
     ) {
-      this.placementError(client, PlacementErrors.OVERLAP);
+      this.placementError(client, ConstructionErrors.OVERLAP);
       return false;
     }
 
     if (!parent.isWallSlotValid(BuildingSlot, itemDefinitionId)) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
     }
 
     const position = parent.getSlotPosition(BuildingSlot, parent.wallSlots),
       rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
     if (!position || !rotation) {
-      this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
     }
 
@@ -3877,14 +3880,14 @@ export class ZoneServer2016 extends EventEmitter {
       this._constructionFoundations[parentObjectCharacterId]
         ?.occupiedExpansionSlots[getConstructionSlotId(BuildingSlot)]
     ) {
-      this.placementError(client, PlacementErrors.OVERLAP);
+      this.placementError(client, ConstructionErrors.OVERLAP);
       return false;
     }
 
     const parentFoundation =
       this._constructionFoundations[parentObjectCharacterId];
     if (Number(parentObjectCharacterId) && !parentFoundation) {
-      this.placementError(client, PlacementErrors.UNKNOWN_PARENT);
+      this.placementError(client, ConstructionErrors.UNKNOWN_PARENT);
       return false;
     }
 
@@ -3896,14 +3899,14 @@ export class ZoneServer2016 extends EventEmitter {
           getConstructionSlotId(BuildingSlot)
         )
       ) {
-        this.placementError(client, PlacementErrors.OVERLAP);
+        this.placementError(client, ConstructionErrors.OVERLAP);
         return false;
       }
 
       if (
         !parentFoundation.isExpansionSlotValid(BuildingSlot, itemDefinitionId)
       ) {
-        this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+        this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
         return false;
       }
       const pos = parentFoundation.getSlotPosition(
@@ -3915,7 +3918,7 @@ export class ZoneServer2016 extends EventEmitter {
           parentFoundation.expansionSlots
         );
       if (!pos || !rot) {
-        this.placementError(client, PlacementErrors.UNKNOWN_SLOT);
+        this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
         return false;
       }
       position = pos;
@@ -4038,6 +4041,10 @@ export class ZoneServer2016 extends EventEmitter {
     );
     this._lootableConstruction[characterId] = obj;
     obj.equipItem(this, this.generateItem(Items.CONTAINER_STORAGE), false);
+
+    const parent = obj.getParent(this);
+    if(parent) parent.addFreeplaceConstruction(obj);
+
     return true;
   }
 
@@ -5560,27 +5567,30 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  placementError(client: Client, error: PlacementErrors) {
+  placementError(client: Client, error: ConstructionErrors) {
     let errorMsg = "Unknown";
     switch (error) {
-      case PlacementErrors.OVERLAP:
+      case ConstructionErrors.OVERLAP:
         errorMsg = "Construction overlap";
         break;
-      case PlacementErrors.PERMISSION:
+      case ConstructionErrors.BUILD_PERMISSION:
         errorMsg = "No build permission";
         break;
-      case PlacementErrors.UNKNOWN_PARENT:
+      case ConstructionErrors.DEMOLISH_PERMISSION:
+        errorMsg = "No demolish permission";
+        break;
+      case ConstructionErrors.UNKNOWN_PARENT:
         errorMsg = "Unknown parent";
         break;
-      case PlacementErrors.UNKNOWN_SLOT:
+      case ConstructionErrors.UNKNOWN_SLOT:
         errorMsg = "Unknown slot";
         break;
-      case PlacementErrors.UNKNOWN_CONSTRUCTION:
+      case ConstructionErrors.UNKNOWN_CONSTRUCTION:
         errorMsg = "Unknown construction item";
         break;
     }
-    this.sendAlert(client, `Placement Error: ${errorMsg}`);
-    this.sendChatText(client, `Placement Error: ${errorMsg}`);
+    this.sendAlert(client, `Construction Error: ${errorMsg}`);
+    this.sendChatText(client, `Construction Error: ${errorMsg}`);
   }
 
   clearMovementModifiers(client: Client) {

@@ -34,6 +34,7 @@ import {
   ContainerErrors,
   EntityTypes,
   Items,
+  ConstructionErrors,
 } from "./models/enums";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ConstructionParentEntity } from "./classes/constructionparententity";
@@ -1352,21 +1353,26 @@ export class zonePacketHandlers {
           ) {
             const entity = server.getConstructionEntity(
               client.character.currentInteractionGuid
+            ),
+            permission = entity?.getHasPermission(
+              server,
+              client.character.characterId,
+              ConstructionPermissionIds.DEMOLISH
             );
             if (
               entity &&
-              !(entity instanceof ConstructionParentEntity) &&
-              entity.getHasPermission(
-                server,
-                client.character.characterId,
-                ConstructionPermissionIds.DEMOLISH
-              )
+              !(entity instanceof ConstructionParentEntity)
             ) {
-              entity.destroy(server);
-              client.character.lootItem(
-                server,
-                server.generateItem(entity.itemDefinitionId)
-              );
+              if(permission) {
+                entity.destroy(server);
+                client.character.lootItem(
+                  server,
+                  server.generateItem(entity.itemDefinitionId)
+                );
+              }
+              else {
+                server.placementError(client, ConstructionErrors.DEMOLISH_PERMISSION);
+              }
             }
           }
 

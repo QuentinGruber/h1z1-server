@@ -33,6 +33,7 @@ import {
   wallSlotDefinitions,
 } from "../data/constructionslots";
 import { ConstructionDoor } from "./constructiondoor";
+import { LootableConstructionEntity } from "./lootableconstructionentity";
 function getDamageRange(definitionId: number): number {
   switch (definitionId) {
     case Items.METAL_WALL:
@@ -73,6 +74,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   occupiedShelterSlots: {
     [slot: number]: ConstructionDoor | ConstructionChildEntity;
   } = {};
+
+  freeplaceEntities: {[characterId: string]: ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity} = {};
 
   constructor(
     characterId: string,
@@ -280,6 +283,10 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     );
     if (set) this.updateSecuredState(server);
     return set;
+  }
+
+  addFreeplaceConstruction(entity: ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity) {
+    this.freeplaceEntities[entity.characterId] = entity;
   }
 
   pGetConstructionHealth() {

@@ -23,7 +23,6 @@ import {
   getRectangleCorners,
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
-import { BaseEntity } from "./baseentity";
 import {
   ConstructionPermissions,
   ConstructionSlotPositionMap,
