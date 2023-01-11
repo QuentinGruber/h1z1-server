@@ -469,7 +469,7 @@ export class WorldObjectManager {
             if (!!Object.keys(prop._containers['31'].items).length) continue; // skip if container is not empty
             const lootTable = containerLootSpawners[prop.lootSpawner];
             if (lootTable) {
-                for (var x = 0; x < lootTable.maxItems; x++) {
+                for (let x = 0; x < lootTable.maxItems; x++) {
                     const item = getRandomItem(lootTable.items);
                     if (!item) continue
                     const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
