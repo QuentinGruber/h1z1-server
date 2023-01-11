@@ -44,6 +44,7 @@ import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import { ConstructionPermissions } from "types/zoneserver";
 import { GameTimeSync } from "types/zone2016packets";
+import { LootableProp } from "h1z1-server/src/servers/ZoneServer2016/classes/lootableprop";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -1345,7 +1346,23 @@ export class zonePacketHandlers {
       switch (p.packetName) {
         case "Weapon.FireStateUpdate":
           debug("Weapon.FireStateUpdate");
-
+          // crowbar workaround
+          if (weaponItem.itemDefinitionId == Items.WEAPON_CROWBAR && client.character.currentInteractionGuid) {
+              const entity = server.getLootableEntity(client.character.currentInteractionGuid) as LootableProp
+              if (entity) {
+                  const allowedSpawners = ["Wrecked Van", "Wrecked Car", "Wrecked Truck",]
+                  if (allowedSpawners.includes(entity.lootSpawner) && !client.character.temporaryScrapTimeout) {
+                      const chance = Math.floor(Math.random() * 100) + 1
+                      if (chance <= 60) {
+                          client.character.lootItem(server, server.generateItem(Items.METAL_SCRAP))
+                          server.damageItem(client, weaponItem, 50)
+                      }
+                      client.character.temporaryScrapTimeout = setTimeout(() => {
+                          delete client.character.temporaryScrapTimeout
+                      }, Math.floor(Math.random() * (12000 - 1300 + 1) + 1300))
+                  }
+              }
+          }
           // demolition hammer workaround
           if (
             weaponItem.itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION &&

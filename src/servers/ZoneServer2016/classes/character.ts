@@ -65,6 +65,7 @@ export class Character2016 extends BaseFullCharacter {
   isBleeding = false;
   isBandaged = false;
   isExhausted = false;
+  temporaryScrapTimeout: NodeJS.Timeout | undefined;
   static isAlive = true;
   public set isAlive(state) {
     this.characterStates.knockedOut = !state;
