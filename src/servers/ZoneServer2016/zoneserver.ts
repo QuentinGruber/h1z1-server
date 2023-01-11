@@ -121,6 +121,7 @@ import { Weapon } from "./classes/weapon";
 import { Lootbag } from "./classes/lootbag";
 import { BaseLootableEntity } from "./classes/baselootableentity";
 import { LootableConstructionEntity } from "./classes/lootableconstructionentity";
+import { LootableProp } from "h1z1-server/src/servers/ZoneServer2016/classes/lootableprop";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -174,7 +175,7 @@ export class ZoneServer2016 extends EventEmitter {
   _constructionDoors: { [characterId: string]: ConstructionDoor } = {};
   _constructionSimple: { [characterId: string]: ConstructionChildEntity } = {};
 
-  _props: any = {};
+  _lootableProps: {[characterId: string]: LootableProp} = {};
   _speedTrees: any = {};
   _speedTreesCounter: any = {};
   _gameTime: any;
@@ -794,6 +795,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.packProjectileDefinitions();
     this.packProfileDefinitions();
     this.worldObjectManager.createDoors(this);
+    this.worldObjectManager.createProps(this);
 
     this._ready = true;
     console.log(
@@ -958,6 +960,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.removeOutOfDistanceEntities(client);
         this.spawnCharacters(client);
         this.spawnDoors(client);
+        this.spawnProps(client);
         this.constructionManager(client);
         this.spawnExplosives(client);
         this.spawnTraps(client);
@@ -1818,6 +1821,8 @@ export class ZoneServer2016 extends EventEmitter {
         return EntityTypes.CONSTRUCTION_SIMPLE;
       case !!this._lootableConstruction[entityKey]:
         return EntityTypes.LOOTABLE_CONSTRUCTION;
+        case !!this._lootableProps[entityKey]:
+        return EntityTypes.LOOTABLE_PROP;
       default:
         return EntityTypes.INVALID;
     }
@@ -1828,6 +1833,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._lootbags[entityKey] ||
       this._vehicles[entityKey] ||
       this._lootableConstruction[entityKey] ||
+      this._lootableProps[entityKey] ||
       undefined
     );
   }
@@ -1855,6 +1861,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._constructionSimple[entityKey] ||
       this._lootbags[entityKey] ||
       this._lootableConstruction[entityKey] ||
+      this._lootableProps[entityKey] ||
       undefined
     );
   }
@@ -2082,6 +2089,14 @@ export class ZoneServer2016 extends EventEmitter {
 
   customizeDTO(client: Client) {
     const DTOArray: any = [];
+    for (const object in this._lootableProps) {
+            const prop = this._lootableProps[object];
+            const propInstance = {
+                objectId: prop.spawnerId,
+                unknownString1: "Weapon_Empty.adr",
+            };
+            DTOArray.push(propInstance);
+        }
     for (const object in this._speedTrees) {
       const DTO = this._speedTrees[object];
       const DTOinstance = {
@@ -2093,7 +2108,7 @@ export class ZoneServer2016 extends EventEmitter {
     deprecatedDoors.forEach((door: number) => {
       const DTOinstance = {
         objectId: door,
-        unknownString1: "Hospital_Door01_Placer.adr",
+        unknownString1: "Weapon_Empty.adr",
       };
       DTOArray.push(DTOinstance);
     });
@@ -2715,6 +2730,23 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
+
+  private spawnProps(client: Client) {
+        for (const characterId in this._lootableProps) {
+            const prop = this._lootableProps[characterId];
+            if (
+                isPosInRadius(
+                    prop.npcRenderDistance as number,
+                    client.character.state.position,
+                    prop.state.position
+                ) &&
+                !client.spawnedEntities.includes(prop)
+            ) {
+                this.addLightweightNpc(client, prop);
+                client.spawnedEntities.push(prop);
+            }
+        }
+    }
 
   private spawnDoors(client: Client) {
     for (const characterId in this._doors) {
@@ -5773,8 +5805,8 @@ export class ZoneServer2016 extends EventEmitter {
       const door = this._doors[key];
       allTransient[door.transientId] = key;
     }
-    for (const key in this._props) {
-      const prop = this._props[key];
+    for (const key in this._lootableProps) {
+      const prop = this._lootableProps[key];
       allTransient[prop.transientId] = key;
     }
     for (const key in this._vehicles) {

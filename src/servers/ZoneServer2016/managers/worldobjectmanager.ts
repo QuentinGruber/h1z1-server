@@ -16,6 +16,7 @@ const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
+const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
@@ -33,10 +34,12 @@ import { DoorEntity } from "../classes/doorentity";
 import { Zombie } from "../classes/zombie";
 import { BaseFullCharacter } from "../classes/basefullcharacter";
 import { ExplosiveEntity } from "../classes/explosiveentity";
-import { lootTables } from "../data/lootspawns";
+import { lootTables, containerLootSpawners } from "../data/lootspawns";
 import { BaseItem } from "../classes/baseItem";
 import { Lootbag } from "../classes/lootbag";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
+import { LootableProp } from "../classes/lootableprop";
+import { ZoneClient2016 } from "h1z1-server/src/servers/ZoneServer2016/classes/zoneclient";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {
@@ -94,6 +97,7 @@ export class WorldObjectManager {
     if (this.lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
       //this.createLootOld(server);
       this.createLoot(server);
+      this.createContainerLoot(server)
       this.lastLootRespawnTime = Date.now();
     }
     if (this.lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
@@ -243,6 +247,28 @@ export class WorldObjectManager {
 
     server._lootbags[characterId] = lootbag;
   }
+
+  createProps(server: ZoneServer2016) {
+      Z1_lootableProps.forEach((propType: any) => {
+            propType.instances.forEach((propInstance: any) => {
+                const characterId = generateRandomGuid();
+                const obj = new LootableProp(
+                    characterId,
+                    1, // is transient even used for anything else than pos upd packets? // setting to 0 seems to crash client alot
+                    propInstance.modelId,
+                    propInstance.position,
+                    propInstance.rotation,
+                    propInstance.scale,
+                    propInstance.id,
+                    propType.renderDistance,
+                );
+                server._lootableProps[characterId] = obj
+                obj.equipItem(server, server.generateItem(obj.containerId), false);
+                obj._containers['31'].canAcceptItems = false;
+            });
+        });
+        debug("All props created");
+    }
 
   private createDoor(
     server: ZoneServer2016,
@@ -417,4 +443,45 @@ export class WorldObjectManager {
       }
     });
   }
+    createContainerLoot(server: ZoneServer2016) {
+        for (const a in server._lootableProps) {
+            const prop = server._lootableProps[a] as LootableProp;
+            if (!!Object.keys(prop._containers['31'].items).length) continue; // skip if container is not empty
+            const lootTable = containerLootSpawners[prop.lootSpawner];
+            if (lootTable) {
+                for (var x = 0; x < lootTable.maxItems; x++) {
+                    const item = getRandomItem(lootTable.items);
+                    const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+                    let allow = true;
+                    Object.values(prop._containers['31'].items).forEach((spawnedItem: BaseItem) => {
+                        if (item.item == spawnedItem.itemDefinitionId) allow = false // dont allow the same item to be added twice
+                    });
+                    if (allow) {
+                        if (chance <= item.weight) {
+                            const count = Math.floor(Math.random() * (item.spawnCount.max - item.spawnCount.min + 1) + item.spawnCount.min)
+                            // temporary spawnchance                       
+                            server.addContainerItem(
+                                prop,
+                                server.generateItem(item.item),
+                                prop._containers['31'],
+                                count,
+                                false
+                            );
+                        }
+                    } else {
+                        x--;
+                    }
+                }
+            }
+            if (Object.keys(prop._containers['31'].items).length != 0) { // mark prop as unsearched for clients
+                Object.values(server._clients).forEach((client: ZoneClient2016) => {
+                        const index = client.searchedProps.indexOf(prop);
+                        if (index > -1) {
+                            client.searchedProps.splice(index, 1);
+                        }
+                })
+            }
+        }
+  }
+
 }

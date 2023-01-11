@@ -13,6 +13,7 @@
 
 import { Character2016 } from "./character";
 import { ZoneClient2016 as Client } from "./zoneclient";
+import { LootableProp } from "./lootableprop";
 
 export class ZoneClient2016 {
   guid?: string;
@@ -50,6 +51,7 @@ export class ZoneClient2016 {
   hudTimer?: NodeJS.Timeout | null;
   spawnedDTOs: any[] = [];
   spawnedEntities: any[] = [];
+  searchedProps: LootableProp[] = [];
   managedObjects: string[] = [];
   vehicle: {
     mountedVehicle?: string;

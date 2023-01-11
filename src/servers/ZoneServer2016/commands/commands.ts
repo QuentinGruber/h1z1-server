@@ -94,7 +94,7 @@ export const commands: Array<Command> = [
           _spawnedItems: objects,
           _vehicles: vehicles,
           _doors: doors,
-          _props: props,
+          _lootableProps: props,
         } = server;
         const serverVersion = require("../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
@@ -367,7 +367,7 @@ export const commands: Array<Command> = [
         server.despawnEntity(object.characterId);
       });
       client.spawnedEntities = [];
-      server._props = {};
+      server._lootableProps = {};
       server._npcs = {};
       server._spawnedItems = {};
       server._vehicles = {};
