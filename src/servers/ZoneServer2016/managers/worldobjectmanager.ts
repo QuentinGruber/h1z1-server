@@ -39,7 +39,7 @@ import { BaseItem } from "../classes/baseItem";
 import { Lootbag } from "../classes/lootbag";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { LootableProp } from "../classes/lootableprop";
-import { ZoneClient2016 } from "h1z1-server/src/servers/ZoneServer2016/classes/zoneclient";
+import { ZoneClient2016 } from "../classes/zoneclient";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {

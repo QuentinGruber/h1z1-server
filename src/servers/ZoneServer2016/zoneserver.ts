@@ -117,7 +117,7 @@ import { Weapon } from "./classes/weapon";
 import { Lootbag } from "./classes/lootbag";
 import { BaseLootableEntity } from "./classes/baselootableentity";
 import { LootableConstructionEntity } from "./classes/lootableconstructionentity";
-import { LootableProp } from "h1z1-server/src/servers/ZoneServer2016/classes/lootableprop";
+import { LootableProp } from "./classes/lootableprop";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
