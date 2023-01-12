@@ -1124,8 +1124,18 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.clearMovementModifiers(client);
 
-    this.worldObjectManager.createLootbag(this, character);
     client.character.dismountContainer(this);
+    
+    if(client.vehicle.mountedVehicle) {
+      const vehicle = this._vehicles[client.vehicle.mountedVehicle],
+        container = vehicle?.getContainer();
+      if(vehicle && container) {
+        container.items = {...container.items, ...client.character.getDeathItems(this)}
+      }
+    }
+    else {
+      this.worldObjectManager.createLootbag(this, character);
+    }
 
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
   }

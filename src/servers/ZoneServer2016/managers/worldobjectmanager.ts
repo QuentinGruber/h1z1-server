@@ -204,42 +204,8 @@ export class WorldObjectManager {
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
     const characterId = generateRandomGuid(),
-      isCharacter = !!server._characters[entity.characterId];
-
-    const items: { [itemGuid: string]: BaseItem } = {};
-    Object.values(entity._loadout).forEach((item) => {
-      if (
-        item.itemGuid != "0x0" &&
-        !entity.isDefaultItem(item.itemDefinitionId) &&
-        !server.isAdminItem(item.itemDefinitionId)
-      ) {
-        items[item.itemGuid] = _.cloneDeep(item);
-        items[item.itemGuid].slotId = Object.keys(items).length + 1;
-      }
-    });
-
-    Object.values(entity._containers).forEach((container: LoadoutContainer) => {
-      Object.values(container.items).forEach((item) => {
-        if (!isCharacter || !entity.isDefaultItem(item.itemDefinitionId)) {
-          let stacked = false;
-          for (const i of Object.values(items)) {
-            // stack similar items
-            if (
-              i.itemDefinitionId == item.itemDefinitionId &&
-              server.isStackable(item.itemDefinitionId)
-            ) {
-              items[i.itemGuid].stackCount += item.stackCount;
-              stacked = true;
-              break;
-            }
-          }
-          if (!stacked) {
-            items[item.itemGuid] = _.cloneDeep(item);
-            items[item.itemGuid].slotId = Object.keys(items).length + 1;
-          }
-        }
-      });
-    });
+    isCharacter = !!server._characters[entity.characterId],
+    items = entity.getDeathItems(server);
 
     if (!_.size(items)) return; // don't spawn lootbag if inventory is empty
 

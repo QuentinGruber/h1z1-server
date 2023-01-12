@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
+import { _ } from "./../../../utils/utils";
 import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
 import {
@@ -477,6 +478,46 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         );
       }
     });
+  }
+
+  getDeathItems(server: ZoneServer2016) {
+    const isCharacter = !!server._characters[this.characterId],
+    items: { [itemGuid: string]: BaseItem } = {};
+    Object.values(this._loadout).forEach((item) => {
+      if (
+        item.itemGuid != "0x0" &&
+        !this.isDefaultItem(item.itemDefinitionId) &&
+        !server.isAdminItem(item.itemDefinitionId)
+      ) {
+        items[item.itemGuid] = _.cloneDeep(item);
+        items[item.itemGuid].slotId = Object.keys(items).length + 1;
+      }
+    });
+
+    Object.values(this._containers).forEach((container: LoadoutContainer) => {
+      Object.values(container.items).forEach((item) => {
+        if (!isCharacter || !this.isDefaultItem(item.itemDefinitionId)) {
+          let stacked = false;
+          for (const i of Object.values(items)) {
+            // stack similar items
+            if (
+              i.itemDefinitionId == item.itemDefinitionId &&
+              server.isStackable(item.itemDefinitionId)
+            ) {
+              items[i.itemGuid].stackCount += item.stackCount;
+              stacked = true;
+              break;
+            }
+          }
+          if (!stacked) {
+            items[item.itemGuid] = _.cloneDeep(item);
+            items[item.itemGuid].slotId = Object.keys(items).length + 1;
+          }
+        }
+      });
+    });
+
+    return items;
   }
 
   pGetEquipmentSlot(slotId: number) {
