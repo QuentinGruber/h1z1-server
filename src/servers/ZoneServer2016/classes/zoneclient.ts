@@ -71,6 +71,7 @@ export class ZoneClient2016 {
   pingWarnings: number = 0;
   isWeaponLock: boolean = false;
   avgPingReady: boolean = false;
+  xsSecurityTimeout?: NodeJS.Timeout;
   constructor(
     sessionId: number,
     soeClientId: string,
