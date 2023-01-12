@@ -244,6 +244,12 @@ export interface Recipe {
   components: Array<RecipeComponent>;
 }
 
+export interface smeltRecipe {
+    filterId: FilterIds;
+    rewardId: number;
+    components: Array<RecipeComponent>;
+}
+
 export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
 
 export type ConstructionEntity = SlottedConstructionEntity | LootableConstructionEntity;

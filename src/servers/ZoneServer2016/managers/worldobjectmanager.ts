@@ -204,8 +204,8 @@ export class WorldObjectManager {
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
     const characterId = generateRandomGuid(),
-    isCharacter = !!server._characters[entity.characterId],
-    items = entity.getDeathItems(server);
+      isCharacter = !!server._characters[entity.characterId],
+      items = entity.getDeathItems(server);
 
     if (!_.size(items)) return; // don't spawn lootbag if inventory is empty
 
@@ -455,12 +455,11 @@ export class WorldObjectManager {
                   item.spawnCount.min
               );
               // temporary spawnchance
-              server.addContainerItem(
-                prop,
+              server.addContainerItemExternal(
+                prop.mountedCharacter ? prop.mountedCharacter : "",
                 server.generateItem(item.item),
                 prop._containers["31"],
-                count,
-                false
+                count
               );
             }
           } else {

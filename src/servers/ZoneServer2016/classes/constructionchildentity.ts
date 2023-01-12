@@ -133,7 +133,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     }
 
     const itemDefinition = server.getItemDefinition(this.itemDefinitionId);
-    if(itemDefinition) this.nameId = itemDefinition.NAME_ID;
+    if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
   }
 
   getSlotPosition(
@@ -163,8 +163,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         if (!door) this.isSecured = false;
         if (door instanceof ConstructionDoor && door.isOpen) {
           this.isSecured = false;
-        }
-        else {
+        } else {
           this.isSecured = true;
         }
         const parent = this.getParentFoundation(server);

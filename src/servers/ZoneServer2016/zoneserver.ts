@@ -117,6 +117,7 @@ import { Weapon } from "./classes/weapon";
 import { Lootbag } from "./classes/lootbag";
 import { BaseLootableEntity } from "./classes/baselootableentity";
 import { LootableConstructionEntity } from "./classes/lootableconstructionentity";
+import { smeltingEntity } from "./classes/smeltingentity";
 import { LootableProp } from "./classes/lootableprop";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -1125,15 +1126,17 @@ export class ZoneServer2016 extends EventEmitter {
     this.clearMovementModifiers(client);
 
     client.character.dismountContainer(this);
-    
-    if(client.vehicle.mountedVehicle) {
+
+    if (client.vehicle.mountedVehicle) {
       const vehicle = this._vehicles[client.vehicle.mountedVehicle],
         container = vehicle?.getContainer();
-      if(vehicle && container) {
-        container.items = {...container.items, ...client.character.getDeathItems(this)}
+      if (vehicle && container) {
+        container.items = {
+          ...container.items,
+          ...client.character.getDeathItems(this),
+        };
       }
-    }
-    else {
+    } else {
       this.worldObjectManager.createLootbag(this, character);
     }
 
@@ -3596,6 +3599,33 @@ export class ZoneServer2016 extends EventEmitter {
           eul2quat(rotation),
           freeplaceParentCharacterId
         );
+      case Items.FURNACE:
+        return this.placeSmeltingEntity(
+          client,
+          itemDefinitionId,
+          modelId,
+          position,
+          eul2quat(rotation),
+          freeplaceParentCharacterId
+        );
+      case Items.BARBEQUE:
+        return this.placeSmeltingEntity(
+          client,
+          itemDefinitionId,
+          modelId,
+          position,
+          eul2quat(rotation),
+          freeplaceParentCharacterId
+        );
+      case Items.CAMPFIRE:
+        return this.placeSmeltingEntity(
+          client,
+          itemDefinitionId,
+          modelId,
+          position,
+          eul2quat(rotation),
+          freeplaceParentCharacterId
+        );
       case Items.METAL_WALL:
       case Items.METAL_WALL_UPPER:
       case Items.METAL_DOORWAY:
@@ -4141,6 +4171,34 @@ export class ZoneServer2016 extends EventEmitter {
     );
     this._lootableConstruction[characterId] = obj;
     obj.equipItem(this, this.generateItem(Items.CONTAINER_STORAGE), false);
+    const parent = obj.getParent(this);
+    if (parent) parent.addFreeplaceConstruction(obj);
+
+    return true;
+  }
+
+  placeSmeltingEntity(
+    client: Client,
+    itemDefinitionId: number,
+    modelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    parentObjectCharacterId?: string
+  ): boolean {
+    const characterId = this.generateGuid(),
+      transientId = this.getTransientId(characterId);
+    const obj = new smeltingEntity(
+      characterId,
+      transientId,
+      modelId,
+      position,
+      rotation,
+      itemDefinitionId,
+      parentObjectCharacterId || "",
+      this
+    );
+    this._lootableConstruction[characterId] = obj;
+    obj.startSmelting(this);
 
     const parent = obj.getParent(this);
     if (parent) parent.addFreeplaceConstruction(obj);
@@ -4991,6 +5049,43 @@ export class ZoneServer2016 extends EventEmitter {
     return true;
   }
 
+  removeContainerItemNoClient(
+    item?: BaseItem,
+    entity?: smeltingEntity,
+    count?: number
+  ): boolean {
+    if (!entity || !item) return false;
+    if (!count) count = item.stackCount;
+    const container = entity._containers["31"];
+    if (item.stackCount == count) {
+      delete container.items[item.itemGuid];
+      if (entity.mountedCharacter) {
+        const client = this.getClientByCharId(entity.mountedCharacter);
+        if (client) {
+          this.deleteItem(client, item.itemGuid);
+        }
+      }
+    } else if (item.stackCount > count) {
+      item.stackCount -= count;
+      if (entity.mountedCharacter) {
+        const client = this.getClientByCharId(entity.mountedCharacter);
+        if (client) {
+          this.updateContainerItem(client, item, container);
+        }
+      }
+    } else {
+      // if count > removeItem.stackCount
+      return false;
+    }
+    if (entity.mountedCharacter) {
+      const client = this.getClientByCharId(entity.mountedCharacter);
+      if (client) {
+        this.updateContainer(client, container);
+      }
+    }
+    return true;
+  }
+
   /**
    * Removes items from an specific item stack in the inventory, including containers and loadout.
    * @param client The client to have their items removed.
@@ -5228,6 +5323,69 @@ export class ZoneServer2016 extends EventEmitter {
       data: client.character.pGetItemData(this, item, 101),
     });
     //this.updateLoadout(client.character);
+  }
+
+  addContainerItemExternal(
+    characterId: string,
+    item: BaseItem | undefined,
+    container: LoadoutContainer,
+    count: number
+  ) {
+      if (!item) return;
+      let addItem = false
+      let itemAssigned = false
+      const client = this.getClientByCharId(characterId);
+      Object.values(container.items).forEach((containerItem: BaseItem) => { // item stacking
+          if (itemAssigned) return
+          if (containerItem.itemDefinitionId == item.itemDefinitionId) {
+              const addedValue = containerItem.stackCount + item.stackCount;
+              if (addedValue > this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE) {
+                  containerItem.stackCount = this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE
+                  container.items[item.itemGuid] = {
+                      ...item,
+                      slotId: Object.keys(container.items).length,
+                      containerGuid: container.itemGuid,
+                      stackCount: addedValue - this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE,
+                  };
+                  addItem = true;
+                  itemAssigned = true
+                  if (!client) return
+                  this.updateContainerItem(
+                      client,
+                      containerItem,
+                      container
+                  );
+              } else {
+                  containerItem.stackCount = addedValue;
+                  itemAssigned = true
+                  if (!client) return
+                  this.updateContainerItem(
+                      client,
+                      containerItem,
+                      container
+                  );
+              }
+          }
+          
+      })
+      if (!itemAssigned) {
+          container.items[item.itemGuid] = {
+              ...item,
+              slotId: Object.keys(container.items).length,
+              containerGuid: container.itemGuid,
+              stackCount: count,
+          };
+      }
+    
+    if (!client) return;
+      if (addItem || !itemAssigned) {
+          this.addItem(
+              client,
+              container.items[item.itemGuid],
+              container.containerDefinitionId
+          );
+      }
+    this.updateContainer(client, container);
   }
 
   updateContainerItem(
@@ -5559,6 +5717,22 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         this._explosives[a].ignite(this, client);
         return;
+      }
+    }
+    for (const a in this._lootableConstruction) {
+      const smeltable = this._lootableConstruction[a];
+      if (
+        isPosInRadius(
+          1,
+          client.character.state.position,
+          smeltable.state.position
+        )
+      ) {
+        if (smeltable instanceof smeltingEntity) {
+          if (smeltable.isBurning) return;
+          smeltable.startBurning(this);
+          return;
+        }
       }
     }
   }

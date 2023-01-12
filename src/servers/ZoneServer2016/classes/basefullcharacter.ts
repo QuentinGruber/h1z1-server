@@ -482,7 +482,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
   getDeathItems(server: ZoneServer2016) {
     const isCharacter = !!server._characters[this.characterId],
-    items: { [itemGuid: string]: BaseItem } = {};
+      items: { [itemGuid: string]: BaseItem } = {};
     Object.values(this._loadout).forEach((item) => {
       if (
         item.itemGuid != "0x0" &&

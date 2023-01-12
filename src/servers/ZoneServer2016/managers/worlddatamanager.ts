@@ -363,10 +363,10 @@ export class WorldDataManager {
     Object.values(client.character._loadout).forEach((item, idx) => {
       let saveItem: LoadoutItemSaveData = item;
       // prevent reloadTimer from causing cyclic dependency error
-      if(item.weapon) {
+      if (item.weapon) {
         saveItem.weapon = {
-          ammoCount: item.weapon.ammoCount
-        }
+          ammoCount: item.weapon.ammoCount,
+        };
       }
       loadoutSaveData[Number(loadoutKeys[idx])] = saveItem;
     });

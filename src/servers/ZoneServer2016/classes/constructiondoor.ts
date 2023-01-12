@@ -81,7 +81,7 @@ export class ConstructionDoor extends DoorEntity {
         : 2.5
     );
     const itemDefinition = server.getItemDefinition(this.itemDefinitionId);
-    if(itemDefinition) this.nameId = itemDefinition.NAME_ID;
+    if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
   }
 
   pGetConstructionHealth() {

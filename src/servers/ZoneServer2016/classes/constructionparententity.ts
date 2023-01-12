@@ -149,9 +149,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     Object.seal(this.rampSlots);
     registerConstructionSlots(this, this.shelterSlots, shelterSlotDefinitions);
     Object.seal(this.shelterSlots);
-    
+
     const itemDefinition = server.getItemDefinition(this.itemDefinitionId);
-    if(itemDefinition) this.nameId = itemDefinition.NAME_ID;
+    if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
   }
 
   private getSquareBounds(
@@ -242,7 +242,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
 
     */
-
 
     // if this is an expansion, check dependent parent foundation walls
     const parent =
