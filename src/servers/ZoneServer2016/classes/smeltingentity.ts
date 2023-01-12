@@ -51,7 +51,7 @@ function getBurningTime(itemDefinitionId: number): number {
     case Items.WOOD_STICK:
       return 30000;
     default:
-          return 30000;
+      return 30000;
   }
 }
 
@@ -129,33 +129,34 @@ export class smeltingEntity extends LootableConstructionEntity {
   startBurning(server: ZoneServer2016) {
     if (!this._containers["31"]) return;
     if (JSON.stringify(this._containers["31"].items) === "{}") {
-        if (this.isBurning) {
-            server.sendDataToAllWithSpawnedEntity(
-                server._lootableConstruction,
-                this.characterId,
-                "Command.PlayDialogEffect",
-                {
-                    characterId: this.characterId,
-                    effectId: 0,
-                }
-            );
-            this.isBurning = false
-        }
-        return;
+      if (this.isBurning) {
+        server.sendDataToAllWithSpawnedEntity(
+          server._lootableConstruction,
+          this.characterId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: this.characterId,
+            effectId: 0,
+          }
+        );
+        this.isBurning = false;
+      }
+      return;
     }
     let allowBurn = false;
     Object.values(this._containers["31"].items).forEach((item: BaseItem) => {
-      if (allowBurn) return
+      if (allowBurn) return;
       if (this.allowedFuel.includes(item.itemDefinitionId)) {
         server.removeContainerItemNoClient(item, this, 1);
-          if (item.itemDefinitionId == Items.WOOD_LOG) { // give charcoal if wood log was burned
-              server.addContainerItemExternal(
-                  this.mountedCharacter ? this.mountedCharacter : "",
-                  server.generateItem(Items.CHARCOAL),
-                  this._containers["31"],
-                  1
-              );
-          }
+        if (item.itemDefinitionId == Items.WOOD_LOG) {
+          // give charcoal if wood log was burned
+          server.addContainerItemExternal(
+            this.mountedCharacter ? this.mountedCharacter : "",
+            server.generateItem(Items.CHARCOAL),
+            this._containers["31"],
+            1
+          );
+        }
         if (!this.isBurning) {
           server.sendDataToAllWithSpawnedEntity(
             server._lootableConstruction,
@@ -205,7 +206,7 @@ export class smeltingEntity extends LootableConstructionEntity {
     Object.keys(smeltingData).forEach((data: string) => {
       if (passed) return;
       const recipe = smeltingData[Number(data)];
-        if (recipe.filterId == this.filterId) {
+      if (recipe.filterId == this.filterId) {
         let fulfilledComponents: RecipeComponent[] = [];
         let itemsToRemove: { item: BaseItem; count: number }[] = [];
         recipe.components.forEach((component: RecipeComponent) => {
@@ -213,9 +214,9 @@ export class smeltingEntity extends LootableConstructionEntity {
           let requiredAmount = component.requiredAmount;
           Object.values(this._containers["31"].items).forEach(
             (item: BaseItem) => {
-                  if (passed) return;
-                  if (!fulfilledComponents.includes(component)) {
-                  if (component.itemDefinitionId == item.itemDefinitionId) {
+              if (passed) return;
+              if (!fulfilledComponents.includes(component)) {
+                if (component.itemDefinitionId == item.itemDefinitionId) {
                   if (requiredAmount > item.stackCount) {
                     requiredAmount -= item.stackCount;
                     itemsToRemove.push({ item: item, count: item.stackCount });
