@@ -28,7 +28,6 @@ import {
   ConstructionSlotPositionMap,
   SquareBounds,
 } from "types/zoneserver";
-import { ConstructionDoor } from "./constructiondoor";
 import {
   foundationExpansionSlotDefinitions,
   foundationRampSlotDefinitions,

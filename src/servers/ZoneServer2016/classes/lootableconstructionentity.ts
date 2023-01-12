@@ -48,6 +48,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     super(characterId, transientId, actorModelId, position, rotation);
     this.parentObjectCharacterId = parentObjectCharacterId || "";
     this.itemDefinitionId = itemDefinitionId;
+    const itemDefinition = server.getItemDefinition(itemDefinitionId);
+    if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
   }
   getParent(
     server: ZoneServer2016

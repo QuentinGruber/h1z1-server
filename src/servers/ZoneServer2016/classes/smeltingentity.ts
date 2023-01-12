@@ -207,8 +207,8 @@ export class smeltingEntity extends LootableConstructionEntity {
       if (passed) return;
       const recipe = smeltingData[Number(data)];
       if (recipe.filterId == this.filterId) {
-        let fulfilledComponents: RecipeComponent[] = [];
-        let itemsToRemove: { item: BaseItem; count: number }[] = [];
+        const fulfilledComponents: RecipeComponent[] = [];
+        const itemsToRemove: { item: BaseItem; count: number }[] = [];
         recipe.components.forEach((component: RecipeComponent) => {
           if (passed) return;
           let requiredAmount = component.requiredAmount;

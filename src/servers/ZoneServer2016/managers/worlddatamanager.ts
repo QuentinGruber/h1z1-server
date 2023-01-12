@@ -361,7 +361,7 @@ export class WorldDataManager {
       containerSaveData: { [loadoutSlotId: number]: LoadoutContainerSaveData } =
         {};
     Object.values(client.character._loadout).forEach((item, idx) => {
-      let saveItem: LoadoutItemSaveData = item;
+      const saveItem: LoadoutItemSaveData = item;
       // prevent reloadTimer from causing cyclic dependency error
       if (item.weapon) {
         saveItem.weapon = {

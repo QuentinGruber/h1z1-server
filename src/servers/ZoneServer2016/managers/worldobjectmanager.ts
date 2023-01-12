@@ -37,7 +37,6 @@ import { ExplosiveEntity } from "../classes/explosiveentity";
 import { lootTables, containerLootSpawners } from "../data/lootspawns";
 import { BaseItem } from "../classes/baseItem";
 import { Lootbag } from "../classes/lootbag";
-import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { LootableProp } from "../classes/lootableprop";
 import { ZoneClient2016 } from "../classes/zoneclient";
 const debug = require("debug")("ZoneServer");
