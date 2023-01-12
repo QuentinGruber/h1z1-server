@@ -90,7 +90,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     rotation: Float32Array,
     itemDefinitionId: number,
     parentObjectCharacterId: string,
-    slot: string
+    slot: string,
+    server: ZoneServer2016
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
     this.state.rotation = eul2quat(rotation);
@@ -129,6 +130,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         this.bounds = getRectangleCorners(position, 5, 5, angle);
         break;
     }
+
+    const itemDefinition = server.getItemDefinition(this.itemDefinitionId);
+    if(itemDefinition) this.nameId = itemDefinition.NAME_ID;
   }
 
   getSlotPosition(

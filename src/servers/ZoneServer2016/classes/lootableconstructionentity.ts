@@ -42,7 +42,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     position: Float32Array,
     rotation: Float32Array,
     itemDefinitionId: number,
-    parentObjectCharacterId?: string
+    parentObjectCharacterId: string,
+    server: ZoneServer2016
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
     this.parentObjectCharacterId = parentObjectCharacterId || "";
