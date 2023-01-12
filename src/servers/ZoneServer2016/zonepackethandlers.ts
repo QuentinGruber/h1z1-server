@@ -636,6 +636,25 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
+      if (packet.data.flags == 1 && packet.data.stance == 1105) {
+          client.xsSecurityTimeout = setTimeout(() => {
+              delete client.xsSecurityTimeout;
+          }, 500)
+      }
+      if (packet.data.flags == 1 && packet.data.stance == 525393) {
+          
+          
+          if (client.xsSecurityTimeout) {
+              const pos = client.character.state.position
+              server.sendChatTextToAdmins(`FairPlay: Possible XS glitching detected by ${client.character.name}`)
+              setTimeout(() => {
+                  server.sendData(client, "ClientUpdate.UpdateLocation", {
+                      position: pos,
+                      unknownBool2: false,
+                  });                
+              }, 1000)
+          }
+      }
     if (packet.data.flags == 1 && client.isLoading) client.isLoading = false;
     if (client.character.tempGodMode) {
       server.setGodMode(client, false);
