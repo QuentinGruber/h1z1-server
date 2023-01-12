@@ -55,7 +55,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   parentObjectCharacterId: string;
   eulerAngle: number;
   slot: string;
-  isSecured = false;
+  isSecured: boolean;
   damageRange: number;
   fixedPosition?: Float32Array;
   placementTime = Date.now();
@@ -101,6 +101,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.slot = slot;
     this.profileId = 999; /// mark as construction
     this.damageRange = getDamageRange(this.itemDefinitionId);
+    this.isSecured = this.itemDefinitionId == Items.METAL_WALL ? true : false;
 
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
     Object.seal(this.wallSlots);
@@ -158,6 +159,14 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   updateSecuredState(server: ZoneServer2016) {
     switch (this.itemDefinitionId) {
       case Items.METAL_DOORWAY: // for parent foundation
+        const door = this.occupiedWallSlots[1];
+        if (!door) this.isSecured = false;
+        if (door instanceof ConstructionDoor && door.isOpen) {
+          this.isSecured = false;
+        }
+        else {
+          this.isSecured = true;
+        }
         const parent = this.getParentFoundation(server);
         if (!parent) return;
         parent.updateSecuredState(server);
@@ -175,6 +184,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           this.isSecured = false;
           return;
         }
+        this.isSecured = true;
+        break;
+      case Items.METAL_WALL:
         this.isSecured = true;
         break;
     }

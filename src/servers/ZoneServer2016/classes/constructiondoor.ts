@@ -43,6 +43,7 @@ export class ConstructionDoor extends DoorEntity {
   damageRange: number;
   fixedPosition: Float32Array;
   placementTime = Date.now();
+  isSecured = true;
   constructor(
     characterId: string,
     transientId: number,
@@ -238,6 +239,7 @@ export class ConstructionDoor extends DoorEntity {
       }
     );
     this.isOpen = !this.isOpen;
+    this.isSecured = !this.isOpen;
 
     const parent = this.getParent(server);
     if (parent) {

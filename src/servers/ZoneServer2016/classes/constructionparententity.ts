@@ -204,7 +204,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   getDependentWalls(): Array<number> {
     switch (this.getSlotNumber()) {
       case 1:
-        return [4, 5, 5];
+        return [4, 5, 6];
       case 2:
         return [1, 2, 3];
       case 3:
@@ -216,19 +216,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   updateSecuredState(server: ZoneServer2016) {
-    // move this
-    function isWallSecure(
-      wall: ConstructionChildEntity | ConstructionDoor
-    ): boolean {
-      if (wall instanceof ConstructionChildEntity) {
-        const door = wall.occupiedWallSlots[1];
-        if (!door) return false; // no door
-        if (door instanceof ConstructionDoor && door.isOpen) return false;
-        return true;
-      }
-      return !wall.isOpen;
-    }
-
+    // update secured state for all attached expansions
     if (this.itemDefinitionId == Items.FOUNDATION) {
       for (const expansion of Object.values(this.occupiedExpansionSlots)) {
         expansion.updateSecuredState(server);
@@ -243,11 +231,18 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
     // check if any walls are gates / if they're open
     for (const wall of wallSlots) {
-      if (!isWallSecure(wall)) {
+      if (!wall.isSecured) {
         this.isSecured = false;
         return;
       }
     }
+
+    /* TODO: for deck foundations ONLY, need to check each side to see if it's secure,
+    and if not, check if the expansion is secure (without checking for dependent deck walls)
+
+
+    */
+
 
     // if this is an expansion, check dependent parent foundation walls
     const parent =
@@ -255,7 +250,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     if (parent) {
       for (const slot of this.getDependentWalls()) {
         const wall = parent.occupiedWallSlots[slot];
-        if (!wall || !isWallSecure(wall)) {
+        if (!wall || !wall.isSecured) {
           this.isSecured = false;
           return;
         }
