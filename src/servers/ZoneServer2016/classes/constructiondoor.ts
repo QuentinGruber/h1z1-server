@@ -53,7 +53,8 @@ export class ConstructionDoor extends DoorEntity {
     itemDefinitionId: number,
     ownerCharacterId: string,
     parentObjectCharacterId: string,
-    slot: string
+    slot: string,
+    server: ZoneServer2016
   ) {
     super(
       characterId,
@@ -78,6 +79,8 @@ export class ConstructionDoor extends DoorEntity {
         ? 0.625
         : 2.5
     );
+    const itemDefinition = server.getItemDefinition(this.itemDefinitionId);
+    if(itemDefinition) this.nameId = itemDefinition.NAME_ID;
   }
 
   pGetConstructionHealth() {

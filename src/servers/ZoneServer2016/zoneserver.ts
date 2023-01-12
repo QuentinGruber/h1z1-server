@@ -2396,6 +2396,10 @@ export class ZoneServer2016 extends EventEmitter {
           npc,
           this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID
         );
+        this.sendData(client, "Replication.NpcComponent", {
+          transientId: npc.transientId,
+          nameId: npc.nameId,
+        });
         client.spawnedEntities.push(npc);
         if (
           npc.itemDefinitionId == Items.SHACK ||
@@ -2433,6 +2437,10 @@ export class ZoneServer2016 extends EventEmitter {
         );
         this.sendData(client, "Replication.InteractionComponent", {
           transientId: npc.transientId,
+        });
+        this.sendData(client, "Replication.NpcComponent", {
+          transientId: npc.transientId,
+          nameId: npc.nameId,
         });
         client.spawnedEntities.push(npc);
         this.updateResource(
@@ -2473,6 +2481,10 @@ export class ZoneServer2016 extends EventEmitter {
           npc,
           this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID
         );
+        this.sendData(client, "Replication.NpcComponent", {
+          transientId: npc.transientId,
+          nameId: npc.nameId,
+        });
         client.spawnedEntities.push(npc);
         this.updateResource(
           client,
@@ -2680,6 +2692,10 @@ export class ZoneServer2016 extends EventEmitter {
         );
         this.sendData(client, "Replication.InteractionComponent", {
           transientId: obj.transientId,
+        });
+        this.sendData(client, "Replication.NpcComponent", {
+          transientId: obj.transientId,
+          nameId: obj.nameId,
         });
         client.spawnedEntities.push(obj);
       }
@@ -3609,7 +3625,8 @@ export class ZoneServer2016 extends EventEmitter {
             rotation,
             itemDefinitionId,
             freeplaceParentCharacterId || "",
-            ""
+            "",
+            this
           );
         this._constructionSimple[characterId] = construction;
         const parent = construction.getParent(this);
@@ -3671,7 +3688,8 @@ export class ZoneServer2016 extends EventEmitter {
         rotation,
         itemDefinitionId,
         parentObjectCharacterId,
-        BuildingSlot
+        BuildingSlot,
+        this
       );
 
     this._constructionSimple[characterId] = shelter;
@@ -3745,7 +3763,8 @@ export class ZoneServer2016 extends EventEmitter {
         rotation,
         itemDefinitionId,
         parentObjectCharacterId,
-        BuildingSlot
+        BuildingSlot,
+        this
       );
 
     parent.setWallSlot(this, wall);
@@ -3807,7 +3826,8 @@ export class ZoneServer2016 extends EventEmitter {
         rotation,
         itemDefinitionId,
         parentObjectCharacterId,
-        BuildingSlot
+        BuildingSlot,
+        this
       );
 
     parentFoundation.setRampSlot(ramp);
@@ -3866,7 +3886,8 @@ export class ZoneServer2016 extends EventEmitter {
         new Float32Array([rotation[0], 0, 0]),
         itemDefinitionId,
         parentObjectCharacterId,
-        BuildingSlot
+        BuildingSlot,
+        this
       );
 
     parentFoundation.setRampSlot(stairs);
@@ -3924,7 +3945,8 @@ export class ZoneServer2016 extends EventEmitter {
         itemDefinitionId,
         client.character.characterId,
         parentObjectCharacterId,
-        BuildingSlot
+        BuildingSlot,
+        this
       );
 
     parent.setWallSlot(this, door);
@@ -4104,7 +4126,8 @@ export class ZoneServer2016 extends EventEmitter {
       position,
       rotation,
       itemDefinitionId,
-      parentObjectCharacterId
+      parentObjectCharacterId || "",
+      this
     );
     this._lootableConstruction[characterId] = obj;
     obj.equipItem(this, this.generateItem(Items.CONTAINER_STORAGE), false);
