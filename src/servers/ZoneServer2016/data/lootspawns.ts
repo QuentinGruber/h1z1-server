@@ -2094,6 +2094,14 @@ export const containerLootSpawners: {
         },
       },
       {
+        item: Items.IMMUNITY_BOOSTERS,
+        weight: 45,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+      {
         item: Items.VITAMINS,
         weight: 45,
         spawnCount: {
