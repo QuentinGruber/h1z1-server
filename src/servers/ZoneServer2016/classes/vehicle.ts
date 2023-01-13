@@ -219,7 +219,10 @@ export class Vehicle2016 extends BaseLootableEntity {
         position: this.positionUpdate.position || this.state.position,
         vehicleId: this.vehicleId,
       },
-      positionUpdate: this.positionUpdate,
+      positionUpdate: {
+        ...this.positionUpdate,
+        position: this.state.position // trying to fix invisible characters/vehicles until they move
+      },
     };
   }
   pGetFullVehicle(server: ZoneServer2016) {
@@ -227,7 +230,11 @@ export class Vehicle2016 extends BaseLootableEntity {
       npcData: {
         ...this.pGetFull(server),
       },
-      positionUpdate: this.positionUpdate,
+      positionUpdate: {
+        ...this.positionUpdate,
+        sequenceTime: server.getGameTime(),
+        position: this.state.position // trying to fix invisible characters/vehicles until they move
+      },
       unknownArray1: [],
       unknownArray2: [],
       unknownArray3: [],

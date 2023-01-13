@@ -677,6 +677,7 @@ export class Character2016 extends BaseFullCharacter {
       positionUpdate: {
         ...this.positionUpdate,
         sequenceTime: server.getGameTime(),
+        position: this.state.position // trying to fix invisible characters/vehicles until they move
       },
       stats: stats.map((stat: any) => {
         return stat.statData;
