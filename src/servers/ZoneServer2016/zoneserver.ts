@@ -572,6 +572,27 @@ export class ZoneServer2016 extends EventEmitter {
         (proximityItems.items as any[]).push(proximityItem);
       }
     }
+    for (const a in this._lootableConstruction) {
+        const construction = this._lootableConstruction[a]
+        if (
+            isPosInRadiusWithY(
+                2,
+                character.state.position,
+                construction.state.position,
+                1
+            )
+        ) {
+            Object.values(construction._containers['31'].items).forEach((item: BaseItem) => {
+                const proximityItem = {
+                    itemDefinitionId: item.itemDefinitionId,
+                    associatedCharacterGuid: character.characterId,
+                    itemData: item,
+                };
+                (proximityItems.items as any[]).push(proximityItem);
+            })
+            
+        }
+    }
     return proximityItems;
   }
 
