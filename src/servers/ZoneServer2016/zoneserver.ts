@@ -4253,55 +4253,6 @@ export class ZoneServer2016 extends EventEmitter {
       !client || this.dismountVehicle(client);
     }
     vehicle.seats[seatId] = client.character.characterId;
-    this.sendDataToAllWithSpawnedEntity(
-      this._vehicles,
-      vehicleGuid,
-      "Mount.MountResponse",
-      {
-        // mounts character
-        characterId: client.character.characterId,
-        vehicleGuid: vehicle.characterId, // vehicle guid
-        seatId: Number(seatId),
-        isDriver: seatId === "0" ? 1 : 0, //isDriver
-        identity: {},
-      }
-    );
-
-    // this is broken for some reason
-    /*this.initializeContainerList(client, vehicle);
-
-    if (seatId === "0") {
-      const inventory = Object.values(vehicle._containers)[0];
-      this.sendData(client, "Vehicle.InventoryItems", {
-        characterId: vehicle.characterId,
-        itemsData: {
-          items: Object.values(inventory).map((item) => {
-            return vehicle.pGetItemData(
-              this,
-              item,
-              inventory.containerDefinitionId
-            );
-          }),
-          unknownDword1: inventory.containerDefinitionId,
-        },
-      });
-      /*
-      this.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-        objectCharacterId: vehicle.characterId,
-        containerGuid: inventory?.itemGuid,
-        unknownBool1: false,
-        itemsData: {
-          items: Object.values(inventory).map((item) => {
-            return vehicle.pGetItemData(
-              item,
-              inventory.containerDefinitionId
-            )
-          }),
-          unknownDword1: inventory.containerDefinitionId,
-        },
-      });
-      */
-    //}
     if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
       if (vehicle._resources[ResourceIds.FUEL] > 0) {
@@ -4384,6 +4335,56 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.mountContainer(this, vehicle);
       }
     }
+    this.sendDataToAllWithSpawnedEntity(
+      this._vehicles,
+      vehicleGuid,
+      "Mount.MountResponse",
+      {
+        // mounts character
+        characterId: client.character.characterId,
+        vehicleGuid: vehicle.characterId, // vehicle guid
+        seatId: Number(seatId),
+        isDriver: seatId === "0" ? 1 : 0, //isDriver
+        identity: {},
+      }
+    );
+
+    // this is broken for some reason
+    /*this.initializeContainerList(client, vehicle);
+
+    if (seatId === "0") {
+      const inventory = Object.values(vehicle._containers)[0];
+      this.sendData(client, "Vehicle.InventoryItems", {
+        characterId: vehicle.characterId,
+        itemsData: {
+          items: Object.values(inventory).map((item) => {
+            return vehicle.pGetItemData(
+              this,
+              item,
+              inventory.containerDefinitionId
+            );
+          }),
+          unknownDword1: inventory.containerDefinitionId,
+        },
+      });
+      /*
+      this.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+        objectCharacterId: vehicle.characterId,
+        containerGuid: inventory?.itemGuid,
+        unknownBool1: false,
+        itemsData: {
+          items: Object.values(inventory).map((item) => {
+            return vehicle.pGetItemData(
+              item,
+              inventory.containerDefinitionId
+            )
+          }),
+          unknownDword1: inventory.containerDefinitionId,
+        },
+      });
+      */
+    //}
+    
     this.sendData(client, "Vehicle.Occupy", {
       guid: vehicle.characterId,
       characterId: client.character.characterId,
