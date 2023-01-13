@@ -646,7 +646,7 @@ export class zonePacketHandlers {
       if (client.xsSecurityTimeout) {
         const pos = client.character.state.position;
         server.sendChatTextToAdmins(
-          `FairPlay: Possible XS glitching detected by ${client.character.name}`
+          `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
         );
         setTimeout(() => {
           server.sendData(client, "ClientUpdate.UpdateLocation", {
