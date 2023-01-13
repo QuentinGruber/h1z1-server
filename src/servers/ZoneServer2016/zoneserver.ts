@@ -81,7 +81,7 @@ import {
   eul2quat,
   movePoint,
   getConstructionSlotId,
-  checkConstructionInRange
+  checkConstructionInRange,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -575,25 +575,30 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     for (const a in this._lootableConstruction) {
-        const construction = this._lootableConstruction[a]
-        if (
-            isPosInRadiusWithY(
-                2,
-                character.state.position,
-                construction.state.position,
-                1
-            )
-        ) {
-            Object.values(construction._containers['31'].items).forEach((item: BaseItem) => {
-                const proximityItem = {
-                    itemDefinitionId: item.itemDefinitionId,
-                    associatedCharacterGuid: character.characterId,
-                    itemData: construction.pGetItemData(this, item, construction._containers['31'].containerDefinitionId),
-                };
-                (proximityItems.items as any[]).push(proximityItem);
-            })
-            
-        }
+      const construction = this._lootableConstruction[a];
+      if (
+        isPosInRadiusWithY(
+          2,
+          character.state.position,
+          construction.state.position,
+          1
+        )
+      ) {
+        Object.values(construction._containers["31"].items).forEach(
+          (item: BaseItem) => {
+            const proximityItem = {
+              itemDefinitionId: item.itemDefinitionId,
+              associatedCharacterGuid: character.characterId,
+              itemData: construction.pGetItemData(
+                this,
+                item,
+                construction._containers["31"].containerDefinitionId
+              ),
+            };
+            (proximityItems.items as any[]).push(proximityItem);
+          }
+        );
+      }
     }
     return proximityItems;
   }
@@ -5679,24 +5684,46 @@ export class ZoneServer2016 extends EventEmitter {
       nameId = itemDefinition.NAME_ID;
     const timeout = 2000;
     const allowedItems = [
-        Items.AMMO_12GA, Items.AMMO_223, Items.AMMO_308, Items.AMMO_380,
-        Items.AMMO_44, Items.AMMO_45, Items.AMMO_762, Items.AMMO_9MM
-    ]
+      Items.AMMO_12GA,
+      Items.AMMO_223,
+      Items.AMMO_308,
+      Items.AMMO_380,
+      Items.AMMO_44,
+      Items.AMMO_45,
+      Items.AMMO_762,
+      Items.AMMO_9MM,
+    ];
     if (!allowedItems.includes(item.itemDefinitionId)) {
-        this.sendAlert(client, `[ERROR] Salvage option not mapped to item definition ${item.itemDefinitionId}`);
-        return
+      this.sendAlert(
+        client,
+        `[ERROR] Salvage option not mapped to item definition ${item.itemDefinitionId}`
+      );
+      return;
     }
-      if (!checkConstructionInRange(this._constructionSimple, client.character.state.position, 1.5, Items.WORKBENCH_WEAPON)) {
-          this.sendAlert(client, "You must be near a weapon workbench to complete this recipe");
-          return;
-      }
-          const count = item.itemDefinitionId == Items.AMMO_12GA ||
-              item.itemDefinitionId == Items.AMMO_762 ||
-              item.itemDefinitionId == Items.AMMO_308 ||
-              item.itemDefinitionId == Items.AMMO_44 ? 2 : 1
-          this.utilizeHudTimer(client, nameId, timeout, () => {
-              this.salvageItemPass(client, item, count);
-          });  
+    if (
+      !checkConstructionInRange(
+        this._constructionSimple,
+        client.character.state.position,
+        1.5,
+        Items.WORKBENCH_WEAPON
+      )
+    ) {
+      this.sendAlert(
+        client,
+        "You must be near a weapon workbench to complete this recipe"
+      );
+      return;
+    }
+    const count =
+      item.itemDefinitionId == Items.AMMO_12GA ||
+      item.itemDefinitionId == Items.AMMO_762 ||
+      item.itemDefinitionId == Items.AMMO_308 ||
+      item.itemDefinitionId == Items.AMMO_44
+        ? 2
+        : 1;
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.salvageItemPass(client, item, count);
+    });
   }
 
   drinkItemPass(
@@ -5836,7 +5863,10 @@ export class ZoneServer2016 extends EventEmitter {
     this.removeInventoryItem(client, item);
     client.character.lootItem(this, this.generateItem(Items.ALLOY_LEAD, count));
     client.character.lootItem(this, this.generateItem(Items.SHARD_BRASS, 1));
-    client.character.lootItem(this, this.generateItem(Items.GUNPOWDER_REFINED, 1));
+    client.character.lootItem(
+      this,
+      this.generateItem(Items.GUNPOWDER_REFINED, 1)
+    );
   }
 
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);
