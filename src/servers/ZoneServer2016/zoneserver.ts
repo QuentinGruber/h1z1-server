@@ -567,7 +567,7 @@ export class ZoneServer2016 extends EventEmitter {
         const proximityItem = {
           itemDefinitionId: item.item.itemDefinitionId,
           associatedCharacterGuid: character.characterId,
-          itemData: item.item,
+          itemData: item.item, // should change to it use getItemData method later
         };
         (proximityItems.items as any[]).push(proximityItem);
       }
@@ -586,7 +586,7 @@ export class ZoneServer2016 extends EventEmitter {
                 const proximityItem = {
                     itemDefinitionId: item.itemDefinitionId,
                     associatedCharacterGuid: character.characterId,
-                    itemData: item,
+                    itemData: construction.pGetItemData(this, item, construction._containers['31'].containerDefinitionId),
                 };
                 (proximityItems.items as any[]).push(proximityItem);
             })
