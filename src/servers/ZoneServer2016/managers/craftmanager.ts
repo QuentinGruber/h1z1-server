@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ContainerErrors } from "../models/enums";
+import { ContainerErrors, FilterIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 const debug = require("debug")("ZoneServer");
@@ -91,6 +91,13 @@ export class CraftManager {
       bundleCount = recipe?.bundleCount || 1, // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
       craftCount = recipeCount * bundleCount; // the actual amount of items to craft
     if (!recipe) return false;
+    switch(recipe.filterId) {
+      case FilterIds.COOKING:
+      case FilterIds.FURNACE:
+        const msg = "This recipe requires a furnace, barbeque, or campfire to craft."
+        server.sendAlert(client, msg);
+        return false;
+    }
 
     for (const component of recipe.components) {
       const remainingItems = component.requiredAmount * recipeCount;

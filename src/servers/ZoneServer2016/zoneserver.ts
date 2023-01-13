@@ -50,6 +50,7 @@ import {
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
+  Recipe,
   SlottedConstructionEntity,
   SpawnLocation,
   Weather2016 as Weather,
@@ -240,7 +241,7 @@ export class ZoneServer2016 extends EventEmitter {
   profileDefinitionsCache: any;
   _containerDefinitions: { [containerDefinitionId: number]: any } =
     containerDefinitions;
-  _recipes: { [recipeId: number]: any } = recipes;
+  _recipes: { [recipeId: number]: Recipe } = recipes;
   lastItemGuid: bigint = 0x3000000000000000n;
   private readonly _transientIdGenerator = generateTransientId();
   _packetsStats: Record<string, number> = {};
@@ -5863,7 +5864,6 @@ export class ZoneServer2016 extends EventEmitter {
         break;
     }
     this.sendAlert(client, `Construction Error: ${errorMsg}`);
-    this.sendChatText(client, `Construction Error: ${errorMsg}`);
   }
 
   clearMovementModifiers(client: Client) {
