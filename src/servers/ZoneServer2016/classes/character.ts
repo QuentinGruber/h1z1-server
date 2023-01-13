@@ -186,16 +186,16 @@ export class Character2016 extends BaseFullCharacter {
           (client.vehicle.mountedVehicle == "" ||
             !client.vehicle.mountedVehicle)
         ) {
-          client.character._resources[ResourceIds.STAMINA] -= 15;
+          client.character._resources[ResourceIds.STAMINA] -= 2;
           client.character.isExhausted =
             client.character._resources[ResourceIds.STAMINA] < 120;
         } else if (!client.character.isBleeding || !client.character.isMoving) {
-          client.character._resources[ResourceIds.STAMINA] += 30;
+          client.character._resources[ResourceIds.STAMINA] += 4;
         }
 
         // todo: modify sprint stat
-        client.character._resources[ResourceIds.HUNGER] -= 10;
-        client.character._resources[ResourceIds.HYDRATION] -= 20;
+        client.character._resources[ResourceIds.HUNGER] -= 2;
+        client.character._resources[ResourceIds.HYDRATION] -= 4;
         if (client.character._resources[ResourceIds.STAMINA] > 600) {
           client.character._resources[ResourceIds.STAMINA] = 600;
         } else if (client.character._resources[ResourceIds.STAMINA] < 0) {
@@ -677,7 +677,8 @@ export class Character2016 extends BaseFullCharacter {
       positionUpdate: {
         ...this.positionUpdate,
         sequenceTime: server.getGameTime(),
-        position: this.state.position // trying to fix invisible characters/vehicles until they move
+        position: this.state.position, // trying to fix invisible characters/vehicles until they move
+          stance: 66561
       },
       stats: stats.map((stat: any) => {
         return stat.statData;

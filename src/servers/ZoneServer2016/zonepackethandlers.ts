@@ -36,7 +36,9 @@ import {
   Items,
   ConstructionErrors,
   ResourceIds,
+  ResourceTypes,
   ItemUseOptions,
+  Stances
 } from "./models/enums";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ConstructionParentEntity } from "./classes/constructionparententity";
@@ -637,25 +639,6 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
-    if (packet.data.flags == 1 && packet.data.stance == 1105) {
-      client.xsSecurityTimeout = setTimeout(() => {
-        delete client.xsSecurityTimeout;
-      }, 500);
-    }
-    if (packet.data.flags == 1 && packet.data.stance == 525393) {
-      if (client.xsSecurityTimeout) {
-        const pos = client.character.state.position;
-        server.sendChatTextToAdmins(
-          `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
-        );
-        setTimeout(() => {
-          server.sendData(client, "ClientUpdate.UpdateLocation", {
-            position: pos,
-            unknownBool2: false,
-          });
-        }, 1000);
-      }
-    }
     if (packet.data.flags == 1 && client.isLoading) client.isLoading = false;
     if (client.character.tempGodMode) {
       server.setGodMode(client, false);
@@ -669,12 +652,47 @@ export class zonePacketHandlers {
     if (packet.data.flags === 510) {
       // falling flag, ignore for now
     }
+      if (packet.data.stance) {
+          if (packet.data.stance == Stances.JUMPING_STANDING) {
+              client.xsSecurityTimeout = setTimeout(() => {
+                  delete client.xsSecurityTimeout;
+              }, 500);
+          }
+          if (packet.data.stance == Stances.STANCE_XS) {
+              if (client.xsSecurityTimeout) {
+                  const pos = client.character.state.position;
+                  server.sendChatTextToAdmins(
+                      `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
+                  );
+                  setTimeout(() => {
+                      server.sendData(client, "ClientUpdate.UpdateLocation", {
+                          position: pos,
+                          unknownBool2: false,
+                      });
+                  }, 1000);
+              }
+          }
+          client.character.isRunning = packet.data.stance == Stances.MOVE_STANDING_SPRINTING ? true : false;
+          const penaltiedStances = [
+              Stances.JUMPING_BACKWARDS, Stances.JUMPING_BACKWARDS_LEFT, Stances.JUMPING_BACKWARDS_RIGHT,
+              Stances.JUMPING_FORWARD_LEFT, Stances.JUMPING_FORWARD_RIGHT, Stances.JUMPING_FORWARD_SPRINTING,
+              Stances.JUMPING_LEFT, Stances.JUMPING_RIGHT, Stances.JUMPING_STANDING, Stances.JUMPING_WORWARD,
+              Stances.JUMPING_FORWARD_LEFT_SPRINTING, Stances.JUMPING_FORWARD_RIGHT_SPRINTING
+          ]
+          if (penaltiedStances.includes(packet.data.stance)) {
+              client.character._resources[ResourceIds.STAMINA] -= 12 // 2% stamina jump penalty
+              if (client.character._resources[ResourceIds.STAMINA] < 0) client.character._resources[ResourceIds.STAMINA] = 0
+              server.updateResourceToAllWithSpawnedEntity(
+                  client.character.characterId,
+                  client.character._resources[ResourceIds.STAMINA],
+                  ResourceIds.STAMINA,
+                  ResourceTypes.STAMINA,
+                  server._characters
+              );
+          }
+      }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter) {
-        if (packet.data.horizontalSpeed) {
-        client.character.isRunning =
-          packet.data.horizontalSpeed > (client.character.isExhausted ? 4 : 4.8);
-      }
       server.sendRawToAllOthersWithSpawnedCharacter(
         client,
         movingCharacter.characterId,
