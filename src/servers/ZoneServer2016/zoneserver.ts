@@ -1935,8 +1935,10 @@ export class ZoneServer2016 extends EventEmitter {
   sendHitmarker(
     client: Client,
     hitLocation: string = "",
-    hasHelmet?: boolean,
-    hasArmor?: boolean
+    hasHelmet: boolean,
+    hasArmor: boolean,
+    hasHelmetBefore: boolean,
+    hasArmorBefore: boolean
   ) {
     let isHeadshot = false;
     switch (hitLocation) {
@@ -1945,16 +1947,15 @@ export class ZoneServer2016 extends EventEmitter {
       case "NECK":
         isHeadshot = true;
         break;
-    }
-    this.sendData(client, "Ui.ConfirmHit", {
-      hitType: {
-        isAlly: 0,
-        isHeadshot: isHeadshot,
-        damagedArmor: 0, // todo: check if kevlar broke or not
-        crackedArmor:
-          isHeadshot && hasHelmet ? 1 : 0 || (!isHeadshot && hasArmor) ? 1 : 0,
-      },
-    });
+      }
+      this.sendData(client, "Ui.ConfirmHit", {
+          hitType: {
+              isAlly: 0,
+              isHeadshot: isHeadshot,
+              damagedArmor: isHeadshot && hasHelmetBefore && hasHelmet || !isHeadshot && hasArmorBefore && hasArmor ? 1 : 0,
+              crackedArmor: isHeadshot && hasHelmetBefore && !hasHelmet ? 1 : 0 || (!isHeadshot && hasArmorBefore && !hasArmor) ? 1 : 0,
+          },
+      });
   }
 
   getWeaponHitEffect(itemDefinitionId?: Items) {
@@ -3300,15 +3301,15 @@ export class ZoneServer2016 extends EventEmitter {
       if (client.vehicle.mountedVehicle == vehicle.characterId){
         this.sendData(client, "Mount.DismountResponse", {
           characterId: client.character.characterId,
-        });
+      });
         vehicle.droppedManagedClient = client;
       }
       this.sendData(
         client,
         "Character.RemovePlayer",
-        {
+            {
           characterId: vehicle.characterId,
-        }
+                }
       );
 
       this.sendData(client, "AddLightweightVehicle", {

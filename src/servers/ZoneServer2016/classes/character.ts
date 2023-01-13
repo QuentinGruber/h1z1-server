@@ -722,6 +722,8 @@ export class Character2016 extends BaseFullCharacter {
       true,
       damageInfo.hitReport?.hitLocation || ""
     );
+    const hasHelmetBefore = this.hasHelmet(server)
+    const hasArmorBefore = this.hasArmor(server)
     let damage = damageInfo.damage,
       canStopBleed;
     switch (damageInfo.hitReport?.hitLocation) {
@@ -745,28 +747,14 @@ export class Character2016 extends BaseFullCharacter {
         break;
     }
 
-    server.sendDataToAllWithSpawnedEntity(
-      server._characters,
-      c.character.characterId,
-      "Character.PlayWorldCompositeEffect",
-      {
-        characterId: c.character.characterId,
-        effectId: server.getWeaponHitEffect(damageInfo.weapon),
-        position: [
-          damageInfo.hitReport?.position[0] + 0.1,
-          damageInfo.hitReport.position[1],
-          damageInfo.hitReport.position[2] + 0.1,
-          1,
-        ],
-      }
-    );
-
     if (this.isAlive) {
       server.sendHitmarker(
         client,
         damageInfo.hitReport?.hitLocation,
         this.hasHelmet(server),
-        this.hasArmor(server)
+        this.hasArmor(server),
+        hasHelmetBefore,
+        hasArmorBefore
       );
     }
 
