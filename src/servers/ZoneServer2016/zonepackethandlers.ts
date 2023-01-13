@@ -671,9 +671,9 @@ export class zonePacketHandlers {
     }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter) {
-      if (packet.data.horizontalSpeed) {
+        if (packet.data.horizontalSpeed) {
         client.character.isRunning =
-          packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6);
+          packet.data.horizontalSpeed > (client.character.isExhausted ? 4 : 4.8);
       }
       server.sendRawToAllOthersWithSpawnedCharacter(
         client,
