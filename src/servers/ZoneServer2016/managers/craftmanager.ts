@@ -94,7 +94,7 @@ export class CraftManager {
     switch(recipe.filterId) {
       case FilterIds.COOKING:
       case FilterIds.FURNACE:
-        const msg = "This recipe requires a furnace, barbeque, or campfire to craft."
+        const msg = "This recipe requires a furnace, barbeque, or campfire to craft"
         server.sendAlert(client, msg);
         return false;
     }

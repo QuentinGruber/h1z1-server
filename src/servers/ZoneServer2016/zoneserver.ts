@@ -5687,7 +5687,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     for (const a in this._constructionSimple) {
         const construction = this._constructionSimple[a] as ConstructionChildEntity;
-        if (construction.itemDefinitionId != Items.WORKBENCH) continue
+        if (construction.itemDefinitionId != Items.WORKBENCH_WEAPON) continue
         if(
             isPosInRadius(
                 1.5,
@@ -5705,7 +5705,7 @@ export class ZoneServer2016 extends EventEmitter {
             return;
         }
     }
-    this.sendAlert(client, "You need to be near a workbench to complete this recipe");
+    this.sendAlert(client, "You must be near a weapon workbench to complete this recipe");
   }
 
   drinkItemPass(
