@@ -11,9 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ContainerErrors, FilterIds } from "../models/enums";
+import { ContainerErrors, FilterIds, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
+import { checkConstructionInRange } from "../../../utils/utils";
 const debug = require("debug")("ZoneServer");
 
 interface craftComponentDSEntry {
@@ -98,7 +99,12 @@ export class CraftManager {
         server.sendAlert(client, msg);
         return false;
     }
-
+      if (recipe.requireWorkbench) {
+        if (!checkConstructionInRange(server._constructionSimple, client.character.state.position, 1.5, Items.WORKBENCH)) {
+            server.sendAlert(client, "You must be near a workbench to complete this recipe");
+            return false;
+        }
+    }
     for (const component of recipe.components) {
       const remainingItems = component.requiredAmount * recipeCount;
       // if component isn't found at all

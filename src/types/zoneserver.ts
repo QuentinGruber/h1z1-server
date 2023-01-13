@@ -242,6 +242,7 @@ export interface Recipe {
   filterId: FilterIds;
   bundleCount?: number;
   components: Array<RecipeComponent>;
+  requireWorkbench?: boolean
 }
 
 export interface smeltRecipe {

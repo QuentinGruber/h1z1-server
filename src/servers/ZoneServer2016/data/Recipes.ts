@@ -1015,6 +1015,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 1,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.STEAK_RABBIT]: {
     filterId: FilterIds.COOKING,
@@ -1533,6 +1534,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 1,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.COMPASS_IMPROVISED]: {
     filterId: FilterIds.SURVIVAL,
@@ -1576,6 +1578,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 1,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.SHELTER_LARGE]: {
     filterId: FilterIds.HOUSING,
@@ -1627,6 +1630,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 2,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.WEAPON_BOW_MAKESHIFT]: {
     filterId: FilterIds.WEAPONS,
@@ -1737,6 +1741,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 2,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.METAL_WALL]: {
     filterId: FilterIds.HOUSING,
@@ -1808,6 +1813,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 2,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.SHARD_PLASTIC]: {
     filterId: FilterIds.COMPONENT,
@@ -2079,6 +2085,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 8,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.STORAGE_BOX]: {
     filterId: FilterIds.HOUSING,

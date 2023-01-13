@@ -81,6 +81,7 @@ import {
   eul2quat,
   movePoint,
   getConstructionSlotId,
+  checkConstructionInRange
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -5685,27 +5686,17 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendAlert(client, `[ERROR] Salvage option not mapped to item definition ${item.itemDefinitionId}`);
         return
     }
-    for (const a in this._constructionSimple) {
-        const construction = this._constructionSimple[a] as ConstructionChildEntity;
-        if (construction.itemDefinitionId != Items.WORKBENCH_WEAPON) continue
-        if(
-            isPosInRadius(
-                1.5,
-                client.character.state.position,
-                construction.state.position
-            )
-        ) {
-            const count = item.itemDefinitionId == Items.AMMO_12GA ||
-                item.itemDefinitionId == Items.AMMO_762 ||
-                item.itemDefinitionId == Items.AMMO_308 ||
-                item.itemDefinitionId == Items.AMMO_44 ? 2 : 1 
-            this.utilizeHudTimer(client, nameId, timeout, () => {
-                this.salvageItemPass(client, item, count);
-            });
-            return;
-        }
-    }
-    this.sendAlert(client, "You must be near a weapon workbench to complete this recipe");
+      if (!checkConstructionInRange(this._constructionSimple, client.character.state.position, 1.5, Items.WORKBENCH_WEAPON)) {
+          this.sendAlert(client, "You must be near a weapon workbench to complete this recipe");
+          return;
+      }
+          const count = item.itemDefinitionId == Items.AMMO_12GA ||
+              item.itemDefinitionId == Items.AMMO_762 ||
+              item.itemDefinitionId == Items.AMMO_308 ||
+              item.itemDefinitionId == Items.AMMO_44 ? 2 : 1
+          this.utilizeHudTimer(client, nameId, timeout, () => {
+              this.salvageItemPass(client, item, count);
+          });  
   }
 
   drinkItemPass(
