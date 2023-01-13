@@ -5481,6 +5481,9 @@ export class ZoneServer2016 extends EventEmitter {
         eatCount = 6000;
         drinkCount = 6000;
         break;
+      case Items.MEAT_ROTTEN:
+        eatCount = 1000;
+        break;
       default:
         this.sendChatText(
           client,
@@ -5775,6 +5778,13 @@ export class ZoneServer2016 extends EventEmitter {
       client.character._resources[ResourceIds.HYDRATION],
       ResourceIds.HYDRATION
     );
+    if (item.itemDefinitionId == Items.MEAT_ROTTEN) {
+        const damageInfo: DamageInfo = {
+            entity: "",
+            damage: 1000
+          }
+      client.character.damage(this, damageInfo)
+    }
     if (givetrash) {
       client.character.lootContainerItem(this, this.generateItem(givetrash));
     }
