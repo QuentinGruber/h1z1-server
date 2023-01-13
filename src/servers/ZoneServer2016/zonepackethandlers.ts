@@ -36,6 +36,7 @@ import {
   Items,
   ConstructionErrors,
   ResourceIds,
+  ItemUseOptions,
 } from "./models/enums";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ConstructionParentEntity } from "./classes/constructionparententity";
@@ -997,12 +998,12 @@ export class zonePacketHandlers {
     }
 
     switch (packet.data.itemUseOption) {
-      case 4: // normal item drop option
-      case 73: // battery drop option
-      case 79: // sparks drop option
+      case ItemUseOptions.DROP:
+      case ItemUseOptions.DROP_BATTERY:
+      case ItemUseOptions.DROP_SPARKS:
         server.dropItem(client, item, packet.data.itemSubData?.count);
         break;
-      case 60: //equip item
+      case ItemUseOptions.EQUIP:
         const activeSlotId = client.character.getActiveLoadoutSlot(itemGuid);
         let loadoutSlotId = client.character.getAvailableLoadoutSlot(
           server,
@@ -1053,31 +1054,31 @@ export class zonePacketHandlers {
           );
         }
         break;
-      case 6: // shred
+      case ItemUseOptions.SHRED:
         server.shredItem(client, item);
         break;
-      case 1: //eat
+      case ItemUseOptions.EAT:
         server.eatItem(client, item);
         break;
-      case 2: //drink
+      case ItemUseOptions.DRINK:
         server.drinkItem(client, item);
         break;
-      case 3: //use
+      case ItemUseOptions.USE:
         server.useItem(client, item);
         break;
-      case 17: //refuel
+      case ItemUseOptions.REFUEL:
         server.refuelVehicle(client, item, packet.data.characterId2);
         break;
-      case 52: //use medical
+      case ItemUseOptions.USE_MEDICAL:
         server.useMedical(client, item);
         break;
-      case 11: //ignite
+      case ItemUseOptions.IGNITE:
         server.igniteOption(client, item);
         break;
-      case 7: // unload weapon
+      case ItemUseOptions.UNLOAD:
         item.weapon?.unload(server, client);
         break;
-      case 87: // salvage ammo
+      case ItemUseOptions.SALVAGE:
         server.salvageAmmo(client, item);
         break;
       default:

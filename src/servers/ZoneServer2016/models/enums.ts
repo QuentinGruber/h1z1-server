@@ -12,6 +12,22 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+export enum ItemUseOptions {
+  EAT = 1,
+  DRINK = 2,
+  USE = 3,
+  DROP = 4,
+  SHRED = 6,
+  UNLOAD = 7,
+  IGNITE = 11,
+  REFUEL = 17,
+  USE_MEDICAL = 52,
+  EQUIP = 60,
+  DROP_BATTERY = 73,
+  DROP_SPARKS = 79,
+  SALVAGE = 87,
+}
+
 export enum ConstructionErrors {
   UNKNOWN,
   OVERLAP,
