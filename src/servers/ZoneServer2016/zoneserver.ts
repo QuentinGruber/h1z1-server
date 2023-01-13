@@ -1687,7 +1687,7 @@ export class ZoneServer2016 extends EventEmitter {
         1000 /
         (sequenceTime - client.oldPos.time)) *
       3600000;
-    if (speed > 35 && (verticalSpeed < 50 || verticalSpeed == Infinity)) {
+    if (speed > 28 && (verticalSpeed < 50 || verticalSpeed == Infinity)) {
       client.speedWarnsNumber += 1;
     } else if (client.speedWarnsNumber != 0) {
       client.speedWarnsNumber -= 1;
