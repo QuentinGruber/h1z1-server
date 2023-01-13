@@ -1697,7 +1697,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.speedWarnsNumber = 0;
       this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
     }
-    client.oldPos = { position: position, time: Date.now() };
+    client.oldPos = { position: position, time: sequenceTime };
   }
 
   hitMissFairPlayCheck(client: Client, hit: boolean, hitLocation: string) {

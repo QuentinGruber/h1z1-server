@@ -703,7 +703,7 @@ export class zonePacketHandlers {
       );
     }
     if (packet.data.position) {
-      server.speedFairPlayCheck(client, Date.now(), packet.data.position);
+      server.speedFairPlayCheck(client, packet.data.sequenceTime, packet.data.position);
       client.character.state.position = new Float32Array([
         packet.data.position[0],
         packet.data.position[1],
