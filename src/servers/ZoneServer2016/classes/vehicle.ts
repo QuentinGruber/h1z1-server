@@ -109,6 +109,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   vehicleId: number;
   destroyedState = 0;
   positionUpdateType = 1;
+  droppedManagedClient?: ZoneClient2016; // for temporary fix
   constructor(
     characterId: string,
     transientId: number,
@@ -497,6 +498,20 @@ export class Vehicle2016 extends BaseLootableEntity {
       this.pGetFullVehicle(server)
     );
     this.updateLoadout(server);
+    // fix seat change crash related to our managed object workaround
+    if (this.droppedManagedClient == client) {
+        const seatId = this.getCharacterSeat(client.character.characterId)
+        server.sendData(client, "Mount.MountResponse",
+            {
+                characterId: client.character.characterId,
+                vehicleGuid: this.characterId, // vehicle guid
+                seatId: seatId,
+                isDriver: seatId === "0" ? 1 : 0, //isDriver
+                identity: {},
+            }
+        );
+        delete this.droppedManagedClient
+    }
     // prevents cars from spawning in under the map for other characters
     /*
     server.sendData(client, "PlayerUpdatePosition", {

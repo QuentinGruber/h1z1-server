@@ -3296,8 +3296,14 @@ export class ZoneServer2016 extends EventEmitter {
         objectCharacterId: vehicle.characterId,
       });*/ // dont work :/
 
+      // workaround for managed object issue
+      if (client.vehicle.mountedVehicle == vehicle.characterId){
+        this.sendData(client, "Mount.DismountResponse", {
+          characterId: client.character.characterId,
+        });
+        vehicle.droppedManagedClient = client;
+      }
       this.sendData(
-        // temp workaround
         client,
         "Character.RemovePlayer",
         {
