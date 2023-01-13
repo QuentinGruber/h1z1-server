@@ -1077,6 +1077,9 @@ export class zonePacketHandlers {
       case 7: // unload weapon
         item.weapon?.unload(server, client);
         break;
+      case 87: // salvage ammo
+        server.salvageAmmo(client, item);
+        break;
       default:
         server.sendChatText(
           client,

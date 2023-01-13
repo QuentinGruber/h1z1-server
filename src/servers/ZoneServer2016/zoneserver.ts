@@ -5651,6 +5651,41 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  salvageAmmo(client: Client, item: BaseItem) {
+    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
+      nameId = itemDefinition.NAME_ID;
+    const timeout = 2000;
+    const allowedItems = [
+        Items.AMMO_12GA, Items.AMMO_223, Items.AMMO_308, Items.AMMO_380,
+        Items.AMMO_44, Items.AMMO_45, Items.AMMO_762, Items.AMMO_9MM
+    ]
+    if (!allowedItems.includes(item.itemDefinitionId)) {
+        this.sendAlert(client, `[ERROR] Salvage option not mapped to item definition ${item.itemDefinitionId}`);
+        return
+    }
+    for (const a in this._constructionSimple) {
+        const construction = this._constructionSimple[a] as ConstructionChildEntity;
+        if (construction.itemDefinitionId != Items.WORKBENCH) continue
+        if(
+            isPosInRadius(
+                1.5,
+                client.character.state.position,
+                construction.state.position
+            )
+        ) {
+            const count = item.itemDefinitionId == Items.AMMO_12GA ||
+                item.itemDefinitionId == Items.AMMO_762 ||
+                item.itemDefinitionId == Items.AMMO_308 ||
+                item.itemDefinitionId == Items.AMMO_44 ? 2 : 1 
+            this.utilizeHudTimer(client, nameId, timeout, () => {
+                this.salvageItemPass(client, item, count);
+            });
+            return;
+        }
+    }
+    this.sendAlert(client, "You need to be near a workbench to complete this recipe");
+  }
+
   drinkItemPass(
     client: Client,
     item: BaseItem,
@@ -5782,6 +5817,13 @@ export class ZoneServer2016 extends EventEmitter {
   shredItemPass(client: Client, item: BaseItem, count: number) {
     this.removeInventoryItem(client, item);
     client.character.lootItem(this, this.generateItem(Items.CLOTH, count));
+  }
+
+  salvageItemPass(client: Client, item: BaseItem, count: number) {
+    this.removeInventoryItem(client, item);
+    client.character.lootItem(this, this.generateItem(Items.ALLOY_LEAD, count));
+    client.character.lootItem(this, this.generateItem(Items.SHARD_BRASS, 1));
+    client.character.lootItem(this, this.generateItem(Items.GUNPOWDER_REFINED, 1));
   }
 
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);
