@@ -267,8 +267,8 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknown1", type: "uint32", defaultValue: 0 },
-        { name: "unknown2", type: "uint32", defaultValue: 0 },
+        { name: "destroyedEffect", type: "uint32", defaultValue: 0 },
+        { name: "destroyedModel", type: "uint32", defaultValue: 0 },
         { name: "unknown3", type: "uint32", defaultValue: 0 },
         { name: "disableWeirdPhysic", type: "boolean", defaultValue: 0 },
         { name: "unknown4", type: "uint32", defaultValue: 0 },

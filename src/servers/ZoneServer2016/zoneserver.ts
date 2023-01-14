@@ -1414,51 +1414,6 @@ export class ZoneServer2016 extends EventEmitter {
     constructionObject.destroy(this, 3000);
   }
 
-  destroyVehicle(
-    vehicle: Vehicle,
-    destroyedVehicleEffect: number,
-    destroyedVehicleModel: number
-  ) {
-    vehicle._resources[ResourceIds.CONDITION] = 0;
-    if (!this._vehicles[vehicle.characterId]) return;
-    this.sendDataToAllWithSpawnedEntity(
-      this._vehicles,
-      vehicle.characterId,
-      "Character.Destroyed",
-      {
-        characterId: vehicle.characterId,
-        unknown1: destroyedVehicleEffect,
-        unknown2: destroyedVehicleModel,
-        unknown3: 0,
-        disableWeirdPhysics: false,
-      }
-    );
-    for (const c in this._clients) {
-      if (
-        vehicle.characterId === this._clients[c].vehicle.mountedVehicle &&
-        !this._clients[c].character.isAlive
-      ) {
-        this.dismountVehicle(this._clients[c]);
-      }
-    }
-    this.deleteEntity(vehicle.characterId, this._vehicles);
-    this.explosionDamage(vehicle.state.position, vehicle.characterId);
-
-    this.worldObjectManager.createLootbag(this, vehicle);
-  }
-
-  startVehicleDamageDelay(vehicle: Vehicle) {
-    vehicle.damageTimeout = setTimeout(() => {
-      vehicle.damage(this, { entity: "", damage: 1000 });
-      if (
-        vehicle._resources[ResourceIds.CONDITION] < 20000 &&
-        vehicle._resources[ResourceIds.CONDITION] > 0
-      ) {
-        vehicle.damageTimeout.refresh();
-      }
-    }, 1000);
-  }
-
   async respawnPlayer(client: Client) {
     if (!this.hookManager.checkHook("OnPlayerRespawn", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnPlayerRespawn", client)))
