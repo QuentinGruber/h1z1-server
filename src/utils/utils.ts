@@ -314,7 +314,7 @@ export const isInsideSquare = (
 
 export const isInsideCube = (
   point: [number, number],
-  vs: any,
+  vs: SquareBounds,
   y_pos1: number,
   y_pos2: number,
   y_radius: number

@@ -51,15 +51,15 @@ function getDamageRange(definitionId: number): number {
 
 export class ConstructionChildEntity extends BaseLightweightCharacter {
   health: number = 1000000;
-  itemDefinitionId: number;
+  readonly itemDefinitionId: number;
   parentObjectCharacterId: string;
-  eulerAngle: number;
-  slot: string;
+  readonly eulerAngle: number;
+  readonly slot: string;
   isSecured: boolean;
-  damageRange: number;
-  fixedPosition?: Float32Array;
-  placementTime = Date.now();
-  bounds?: SquareBounds;
+  readonly damageRange: number;
+  readonly fixedPosition?: Float32Array;
+  readonly placementTime = Date.now();
+  readonly bounds?: SquareBounds;
 
   // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
   readonly wallSlots: ConstructionSlotPositionMap = {};
@@ -71,9 +71,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly upperWallSlots: ConstructionSlotPositionMap = {};
   occupiedUpperWallSlots: { [slot: number]: ConstructionChildEntity } = {};
   readonly shelterSlots: ConstructionSlotPositionMap = {};
-  occupiedShelterSlots: {
-    [slot: number]: ConstructionDoor | ConstructionChildEntity;
-  } = {};
+  occupiedShelterSlots: { [slot: number]: ConstructionChildEntity } = {};
 
   freeplaceEntities: {
     [characterId: string]:

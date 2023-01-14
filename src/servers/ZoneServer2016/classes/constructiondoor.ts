@@ -34,15 +34,15 @@ function getDamageRange(definitionId: number): number {
 
 export class ConstructionDoor extends DoorEntity {
   ownerCharacterId: string;
-  password: number = 0;
-  grantedAccess: any = [];
+  passwordHash: number = 0;
+  grantedAccess: Array<string> = [];
   health: number = 1000000;
   parentObjectCharacterId: string;
-  itemDefinitionId: number;
-  slot: string;
+  readonly itemDefinitionId: number;
+  readonly slot: string;
   damageRange: number;
-  fixedPosition: Float32Array;
-  placementTime = Date.now();
+  readonly fixedPosition: Float32Array;
+  readonly placementTime = Date.now();
   isSecured = true;
   constructor(
     characterId: string,
@@ -182,7 +182,7 @@ export class ConstructionDoor extends DoorEntity {
     }
 
     if (
-      this.password != 0 &&
+      this.passwordHash != 0 &&
       this.ownerCharacterId != client.character.characterId &&
       !this.grantedAccess.includes(client.character.characterId)
     ) {
@@ -195,7 +195,7 @@ export class ConstructionDoor extends DoorEntity {
       return;
     }
     if (
-      this.password == 0 &&
+      this.passwordHash == 0 &&
       this.ownerCharacterId === client.character.characterId
     ) {
       server.sendData(client, "Locks.ShowMenu", {
