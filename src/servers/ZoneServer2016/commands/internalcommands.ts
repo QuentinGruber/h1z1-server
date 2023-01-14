@@ -12,6 +12,7 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
+import { VehicleIds } from "../models/enums";
 import { Vehicle2016 as Vehicle } from "../classes/vehicle";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -38,7 +39,8 @@ export const internalCommands: Array<Command> = [
         9371,
         client.character.state.position,
         client.character.state.lookAt,
-        server.getGameTime()
+        server.getGameTime(),
+        VehicleIds.SPECTATE
       );
       for (const a in server._clients) {
         const iteratedClient = server._clients[a];

@@ -26,23 +26,23 @@ import { DamageInfo } from "types/zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
 import { vehicleDefaultLoadouts } from "../data/loadouts";
 
-function getVehicleId(ModelId: number) {
-  switch (ModelId) {
-    case 7225:
-      return VehicleIds.OFFROADER;
-    case 9258: // pickup
-      return VehicleIds.PICKUP;
-    case 9301: // policecar
-      return VehicleIds.POLICECAR;
-    case 9588: // atv
-      return VehicleIds.ATV;
-    case 9374: // parachute
-      return VehicleIds.PARACHUTE;
-    case 9371: // spectate
-      return VehicleIds.SPECTATE;
-    default:
-      return VehicleIds.OFFROADER;
-  }
+function getActorModelId(vehicleId: number) {
+    switch (vehicleId) {
+        case VehicleIds.OFFROADER:
+            return 7225;
+        case VehicleIds.PICKUP:
+            return 9258;
+        case VehicleIds.POLICECAR:
+            return 9301;
+        case VehicleIds.ATV:
+            return 9588;
+        case VehicleIds.PARACHUTE:
+            return 9374;
+        case VehicleIds.SPECTATE: 
+            return 9371;
+        default:
+            return 7225;
+    }
 }
 
 function getVehicleName(ModelId: number) {
@@ -122,7 +122,8 @@ export class Vehicle2016 extends BaseLootableEntity {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
-    gameTime: number
+    gameTime: number,
+    vehicleId: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation);
     this._resources = {
@@ -134,7 +135,8 @@ export class Vehicle2016 extends BaseLootableEntity {
       rotation: rotation,
       lookAt: new Float32Array([0, 0, 0, 1]),
     };
-    this.vehicleId = getVehicleId(this.actorModelId);
+    this.vehicleId = vehicleId;
+    if (!this.actorModelId) this.actorModelId = getActorModelId(this.vehicleId)
     this.loadoutId = getVehicleLoadoutId(this.vehicleId);
     this.defaultLoadout = getDefaultLoadout(this.loadoutId);
     this.isInvulnerable =

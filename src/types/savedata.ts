@@ -77,7 +77,9 @@ export interface FullCharacterSaveData
 
 export interface FullVehicleSaveData
   extends BaseFullCharacterUpdateSaveData,
-    BaseFullEntitySaveData {}
+    BaseFullEntitySaveData {
+    vehicleId: number
+}
 
 export interface ServerSaveData extends BaseSaveData {
   lastItemGuid: string;

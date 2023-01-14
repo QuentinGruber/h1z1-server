@@ -460,10 +460,11 @@ export class WorldDataManager {
       const vehicleData = new Vehicle2016(
         vehicle.characterId,
         transientId,
-        vehicle.actorModelId,
+        0,
         new Float32Array(vehicle.position),
         new Float32Array(vehicle.rotation),
-        server._gameTime
+        server._gameTime,
+        vehicle.vehicleId
       );
       constructLoadout(vehicle._loadout, vehicleData._loadout);
       constructContainers(vehicle._containers, vehicleData._containers);
@@ -487,6 +488,7 @@ export class WorldDataManager {
         _containers: vehicle._containers,
         _resources: vehicle._resources,
         worldSaveVersion: server.worldSaveVersion,
+        vehicleId: vehicle.vehicleId,
       };
     });
     if (server._soloMode) {

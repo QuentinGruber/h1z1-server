@@ -240,7 +240,7 @@ export const commands: Array<Command> = [
       */
     },
   },
-  {
+  /*{
     name: "drive",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
@@ -276,7 +276,7 @@ export const commands: Array<Command> = [
       server.worldObjectManager.createVehicle(server, vehicleData);
       client.character.ownedVehicle = vehicleData.characterId;
     },
-  },
+  },*/
   {
     name: "d",
     permissionLevel: PermissionLevels.ADMIN,
@@ -331,7 +331,7 @@ export const commands: Array<Command> = [
       server.sendChatText(client, "Back to normal size");
     },
   },
-  {
+  /*{
     name: "spamvehicle",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
@@ -357,7 +357,7 @@ export const commands: Array<Command> = [
         server.worldObjectManager.createVehicle(server, vehicle);
       }
     },
-  },
+  },*/
   {
     name: "despawnobjects",
     permissionLevel: PermissionLevels.ADMIN,
@@ -692,30 +692,6 @@ export const commands: Array<Command> = [
         client.character.state.lookAt
       );
       server._npcs[characterId] = npc; // save npc
-    },
-  },
-  {
-    name: "spawnvehicle",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: any[]) => {
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          "[ERROR] Usage /spawnvehicle offroader/pickup/policecar/atv"
-        );
-        return;
-      }
-      const characterId = server.generateGuid();
-      const vehicle = new Vehicle(
-        characterId,
-        server.getTransientId(characterId),
-        getDriveModel(args[0]),
-        client.character.state.position,
-        client.character.state.lookAt,
-        server.getGameTime()
-      );
-      server.worldObjectManager.createVehicle(server, vehicle);
-      client.character.ownedVehicle = vehicle.characterId;
     },
   },
   {

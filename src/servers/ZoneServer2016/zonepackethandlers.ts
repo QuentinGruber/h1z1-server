@@ -38,7 +38,8 @@ import {
   ResourceIds,
   ResourceTypes,
   ItemUseOptions,
-  Stances
+  Stances,
+  VehicleIds,
 } from "./models/enums";
 import { BaseFullCharacter } from "./classes/basefullcharacter";
 import { ConstructionParentEntity } from "./classes/constructionparententity";
@@ -188,6 +189,30 @@ export class zonePacketHandlers {
   }
   CommandRecipeStart(server: ZoneServer2016, client: Client, packet: any) {
     new CraftManager(client, server, packet.data.recipeId, packet.data.count);
+  }
+  CommandSpawnVehicle(server: ZoneServer2016, client: Client, packet: any) {
+      if (!client.isAdmin) {
+          server.sendChatText(client, "You don't have access to that");
+          return
+      }
+      const allowedIds = [VehicleIds.POLICECAR, VehicleIds.PICKUP, VehicleIds.ATV, VehicleIds.OFFROADER]
+      if (!allowedIds.includes(packet.data.vehicleId)) {
+          server.sendChatText(client, "[ERROR] Invalid vehicleId, please choose one of listed below:");
+          server.sendChatText(client, `OFFROADER: ${VehicleIds.OFFROADER}, PICKUP: ${VehicleIds.PICKUP}, POLICECAR: ${VehicleIds.POLICECAR}, ATV: ${VehicleIds.ATV}`);
+          return;
+      }
+      const characterId = server.generateGuid();
+      const vehicle = new Vehicle2016(
+          characterId,
+          server.getTransientId(characterId),
+          0,
+          packet.data.position,
+          client.character.state.lookAt,
+          server.getGameTime(),
+          packet.data.vehicleId
+      );
+      server.worldObjectManager.createVehicle(server, vehicle);
+      client.character.ownedVehicle = vehicle.characterId;
   }
   CommandSetInWater(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
@@ -1824,6 +1849,8 @@ export class zonePacketHandlers {
       case "Command.RecipeStart":
         this.CommandRecipeStart(server, client, packet);
         break;
+      case "Command.SpawnVehicle":
+        this.CommandSpawnVehicle(server, client, packet);
       case "Command.FreeInteractionNpc":
         this.CommandFreeInteractionNpc(server, client, packet);
         break;
