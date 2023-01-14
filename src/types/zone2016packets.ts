@@ -611,8 +611,8 @@ export interface CharacterMoveOnRelativeRail {
 }
 export interface CharacterDestroyed {
   characterId?: string;
-  unknown1?: number;
-  unknown2?: number;
+  destroyedEffect?: number;
+  destroyedModel?: number;
   unknown3?: number;
   disableWeirdPhysic?: boolean;
   unknown4?: number;
