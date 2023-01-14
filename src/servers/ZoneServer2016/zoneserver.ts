@@ -5494,7 +5494,6 @@ export class ZoneServer2016 extends EventEmitter {
     let healCount = 9;
     let bandagingCount = 40;
     switch (item.itemDefinitionId) {
-      case Items.WEAPON_FIRST_AID:
       case Items.FIRST_AID:
         healCount = 99;
         timeout = 5000;
