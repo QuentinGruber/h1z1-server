@@ -114,6 +114,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   vehicleId: number;
   destroyedState = 0;
   positionUpdateType = 1;
+  currentDamageEffect: number = 0;
   droppedManagedClient?: ZoneClient2016; // for temporary fix
   constructor(
     characterId: string,
@@ -444,9 +445,9 @@ export class Vehicle2016 extends BaseLootableEntity {
         this.destroyedState = 0;
         server._vehicles[this.characterId].destroyedEffect = 0;
         allowSend = true;
-      }
-
+      }    
       if (allowSend) {
+        this.currentDamageEffect = damageeffect
         server.sendDataToAllWithSpawnedEntity(
           server._vehicles,
           this.characterId,
@@ -545,7 +546,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (this.destroyedEffect != 0) {
       server.sendData(client, "Command.PlayDialogEffect", {
         characterId: this.characterId,
-        effectId: this.destroyedEffect,
+        effectId: this.currentDamageEffect,
       });
     }
     if (this.engineOn) {
