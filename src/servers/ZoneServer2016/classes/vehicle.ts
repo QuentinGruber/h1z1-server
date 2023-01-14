@@ -109,6 +109,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   vehicleId: number;
   destroyedState = 0;
   positionUpdateType = 1;
+  droppedManagedClient?: ZoneClient2016; // for temporary fix
   constructor(
     characterId: string,
     transientId: number,
@@ -219,7 +220,10 @@ export class Vehicle2016 extends BaseLootableEntity {
         position: this.positionUpdate.position || this.state.position,
         vehicleId: this.vehicleId,
       },
-      positionUpdate: this.positionUpdate,
+      positionUpdate: {
+        ...this.positionUpdate,
+        position: this.state.position // trying to fix invisible characters/vehicles until they move
+      },
     };
   }
   pGetFullVehicle(server: ZoneServer2016) {
@@ -227,7 +231,11 @@ export class Vehicle2016 extends BaseLootableEntity {
       npcData: {
         ...this.pGetFull(server),
       },
-      positionUpdate: this.positionUpdate,
+      positionUpdate: {
+        ...this.positionUpdate,
+        sequenceTime: server.getGameTime(),
+        position: this.state.position // trying to fix invisible characters/vehicles until they move
+      },
       unknownArray1: [],
       unknownArray2: [],
       unknownArray3: [],
@@ -490,6 +498,20 @@ export class Vehicle2016 extends BaseLootableEntity {
       this.pGetFullVehicle(server)
     );
     this.updateLoadout(server);
+    // fix seat change crash related to our managed object workaround
+    if (this.droppedManagedClient == client) {
+        const seatId = this.getCharacterSeat(client.character.characterId)
+        server.sendData(client, "Mount.MountResponse",
+            {
+                characterId: client.character.characterId,
+                vehicleGuid: this.characterId, // vehicle guid
+                seatId: seatId,
+                isDriver: seatId === "0" ? 1 : 0, //isDriver
+                identity: {},
+            }
+        );
+        delete this.droppedManagedClient
+    }
     // prevents cars from spawning in under the map for other characters
     /*
     server.sendData(client, "PlayerUpdatePosition", {

@@ -365,6 +365,22 @@ export function getDistance(p1: Float32Array, p2: Float32Array) {
   return Math.sqrt(a * a + b * b + c * c);
 }
 
+export function checkConstructionInRange(
+  dictionary: any,
+  position: Float32Array,
+  range: number,
+  itemDefinitionId: number
+): boolean {
+  for (const a in dictionary) {
+    const construction = dictionary[a];
+    if (construction.itemDefinitionId != itemDefinitionId) continue;
+    if (isPosInRadius(range, position, construction.state.position)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function createPositionUpdate(
   position: Float32Array,
   rotation: Float32Array,

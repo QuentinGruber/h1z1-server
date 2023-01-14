@@ -2037,11 +2037,11 @@ export const containerLootSpawners: {
   },
   "Cabinets Kitchen": {
     spawnChance: 100,
-    maxItems: 4,
+    maxItems: 2,
     items: [
       {
         item: Items.SALT,
-        weight: 35,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2049,15 +2049,15 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SUGAR,
-        weight: 45,
+        weight: 15,
         spawnCount: {
           min: 1,
-          max: 2,
+          max: 1,
         },
       },
       {
         item: Items.GROUND_COFFEE,
-        weight: 45,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2065,20 +2065,12 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CANNED_FOOD01,
-        weight: 45,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1,
         },
-      },
-      {
-        item: Items.WATER_EMPTY,
-        weight: 45,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
+      },  
     ],
   },
   "Cabinets Bathroom": {
@@ -2209,6 +2201,14 @@ export const containerLootSpawners: {
           max: 1,
         },
       },
+      {
+        item: Items.WATER_EMPTY,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
     ],
   },
   "Garbage Can": {
@@ -2247,15 +2247,23 @@ export const containerLootSpawners: {
           max: 1,
         },
       },
+      {
+        item: Items.WATER_EMPTY,
+        weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
     ],
   },
   "File Cabinet": {
     spawnChance: 100,
-    maxItems: 2,
+    maxItems: 5,
     items: [
       {
         item: Items.SUGAR,
-        weight: 50,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 2,
@@ -2263,7 +2271,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.AMMO_380,
-        weight: 25,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 2,
@@ -2271,10 +2279,42 @@ export const containerLootSpawners: {
       },
       {
         item: Items.AMMO_44,
-        weight: 25,
+        weight: 15,
         spawnCount: {
           min: 1,
-          max: 2,
+          max: 1,
+        },
+      },
+      {
+        item: Items.LOCKER_KEY_F1,
+        weight: 3,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.LOCKER_KEY_F2,
+        weight: 3,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.LOCKER_KEY_F3,
+        weight: 3,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.LOCKER_KEY_F4,
+        weight: 3,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
       },
     ],
@@ -2301,6 +2341,14 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WATER_STAGNANT,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.MEAT_ROTTEN,
         weight: 25,
         spawnCount: {
           min: 1,
