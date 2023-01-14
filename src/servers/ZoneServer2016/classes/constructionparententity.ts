@@ -56,7 +56,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
   readonly rampSlots: ConstructionSlotPositionMap = {};
   occupiedRampSlots: { [slot: number]: ConstructionChildEntity } = {};
-  occupiedShelterSlots: { [slot: number]: ConstructionChildEntity } = {};
+
+  readonly itemDefinitionId: number;
+  readonly slot: string;
+  readonly damageRange: number;
+  readonly bounds?: SquareBounds;
 
   constructor(
     characterId: string,
@@ -95,9 +99,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     this.itemDefinitionId = itemDefinitionId;
     this.permissions[ownerPermission.characterId] = ownerPermission;
     this.parentObjectCharacterId = parentObjectCharacterId;
-    if (BuildingSlot) {
-      this.slot = BuildingSlot;
-    }
+    this.slot = BuildingSlot || "";
     this.damageRange = getDamageRange(this.itemDefinitionId);
     switch (this.itemDefinitionId) {
       case Items.GROUND_TAMPER:

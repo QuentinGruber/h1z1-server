@@ -96,6 +96,11 @@ export class Vehicle2016 extends BaseLootableEntity {
   isManaged: boolean = false;
   manager?: any;
   destroyedEffect: number = 0;
+  destroyedModel: number = 0;
+  minorDamageEffect: number = 0;
+  majorDamageEffect: number = 0;
+  criticalDamageEffect: number = 0;
+  supercriticalDamageEffect: number = 0;
   engineOn: boolean = false;
   isLocked: number = 0;
   positionUpdate: any /*positionUpdate*/;
@@ -171,6 +176,42 @@ export class Vehicle2016 extends BaseLootableEntity {
       },
     };
     this.nameId = getVehicleName(this.actorModelId);
+    
+    switch (this.vehicleId) {
+      case VehicleIds.PICKUP:
+        this.destroyedEffect = 326;
+        this.destroyedModel = 9315;
+        this.minorDamageEffect = 325;
+        this.majorDamageEffect = 324;
+        this.criticalDamageEffect = 323;
+        this.supercriticalDamageEffect = 5228;
+        break;
+      case VehicleIds.POLICECAR:
+        this.destroyedEffect = 286;
+        this.destroyedModel = 9316;
+        this.minorDamageEffect = 285;
+        this.majorDamageEffect = 284;
+        this.criticalDamageEffect = 283;
+        this.supercriticalDamageEffect = 5229;
+        break;
+      case VehicleIds.ATV:
+        this.destroyedEffect = 357;
+        this.destroyedModel = 9593;
+        this.minorDamageEffect = 360;
+        this.majorDamageEffect = 359;
+        this.criticalDamageEffect = 358;
+        this.supercriticalDamageEffect = 5226;
+        break;
+      case VehicleIds.OFFROADER:
+      default:
+        this.destroyedEffect = 135;
+        this.destroyedModel = 7226;
+        this.minorDamageEffect = 182;
+        this.majorDamageEffect = 181;
+        this.criticalDamageEffect = 180;
+        this.supercriticalDamageEffect = 5227;
+        break;
+    }
   }
 
   getSeatCount() {
@@ -330,57 +371,21 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
   }
 
+  startDamageDelay(server: ZoneServer2016) {
+    this.damageTimeout = setTimeout(() => {
+      this.damage(server, { entity: "", damage: 1000 });
+      if (
+        this._resources[ResourceIds.CONDITION] < 20000 &&
+        this._resources[ResourceIds.CONDITION] > 0
+      ) {
+        this.damageTimeout.refresh();
+      }
+    }, 1000);
+  }
+
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (this.isInvulnerable) return;
 
-    let destroyedVehicleEffect: number;
-    let minorDamageEffect: number;
-    let majorDamageEffect: number;
-    let criticalDamageEffect: number;
-    let supercriticalDamageEffect: number;
-    let destroyedVehicleModel: number;
-    switch (this.vehicleId) {
-      case VehicleIds.OFFROADER:
-        destroyedVehicleEffect = 135;
-        destroyedVehicleModel = 7226;
-        minorDamageEffect = 182;
-        majorDamageEffect = 181;
-        criticalDamageEffect = 180;
-        supercriticalDamageEffect = 5227;
-        break;
-      case VehicleIds.PICKUP:
-        destroyedVehicleEffect = 326;
-        destroyedVehicleModel = 9315;
-        minorDamageEffect = 325;
-        majorDamageEffect = 324;
-        criticalDamageEffect = 323;
-        supercriticalDamageEffect = 5228;
-        break;
-      case VehicleIds.POLICECAR:
-        destroyedVehicleEffect = 286;
-        destroyedVehicleModel = 9316;
-        minorDamageEffect = 285;
-        majorDamageEffect = 284;
-        criticalDamageEffect = 283;
-        supercriticalDamageEffect = 5229;
-        break;
-      case VehicleIds.ATV:
-        destroyedVehicleEffect = 357;
-        destroyedVehicleModel = 9593;
-        minorDamageEffect = 360;
-        majorDamageEffect = 359;
-        criticalDamageEffect = 358;
-        supercriticalDamageEffect = 5226;
-        break;
-      default:
-        destroyedVehicleEffect = 135;
-        destroyedVehicleModel = 7226;
-        minorDamageEffect = 182;
-        majorDamageEffect = 181;
-        criticalDamageEffect = 180;
-        supercriticalDamageEffect = 5227;
-        break;
-    }
     const oldHealth = this._resources[ResourceIds.CONDITION];
     this._resources[ResourceIds.CONDITION] -= damageInfo.damage;
 
@@ -392,11 +397,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
 
     if (this._resources[ResourceIds.CONDITION] <= 0) {
-      server.destroyVehicle(
-        this,
-        destroyedVehicleEffect,
-        destroyedVehicleModel
-      );
+      this.destroy(server);
     } else {
       let damageeffect = 0;
       let allowSend = false;
@@ -406,7 +407,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         this._resources[ResourceIds.CONDITION] > 35000
       ) {
         if (this.destroyedState != 1) {
-          damageeffect = minorDamageEffect;
+          damageeffect = this.minorDamageEffect;
           allowSend = true;
           this.destroyedState = 1;
         }
@@ -415,7 +416,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         this._resources[ResourceIds.CONDITION] > 20000
       ) {
         if (this.destroyedState != 2) {
-          damageeffect = majorDamageEffect;
+          damageeffect = this.majorDamageEffect;
           allowSend = true;
           this.destroyedState = 2;
         }
@@ -424,14 +425,14 @@ export class Vehicle2016 extends BaseLootableEntity {
         this._resources[ResourceIds.CONDITION] > 10000
       ) {
         if (this.destroyedState != 3) {
-          damageeffect = criticalDamageEffect;
+          damageeffect = this.criticalDamageEffect;
           allowSend = true;
           startDamageTimeout = true;
           this.destroyedState = 3;
         }
       } else if (this._resources[ResourceIds.CONDITION] <= 10000) {
         if (this.destroyedState != 4) {
-          damageeffect = supercriticalDamageEffect;
+          damageeffect = this.supercriticalDamageEffect;
           allowSend = true;
           startDamageTimeout = true;
           this.destroyedState = 4;
@@ -457,7 +458,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         );
         server._vehicles[this.characterId].destroyedEffect = damageeffect;
         if (!this.damageTimeout && startDamageTimeout) {
-          server.startVehicleDamageDelay(this);
+          this.startDamageDelay(server);
         }
       }
 
@@ -558,5 +559,32 @@ export class Vehicle2016 extends BaseLootableEntity {
       this.onReadyCallback(client);
       delete this.onReadyCallback;
     }
+  }
+  destroy(server: ZoneServer2016) {
+    this._resources[ResourceIds.CONDITION] = 0;
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      this.characterId,
+      "Character.Destroyed",
+      {
+        characterId: this.characterId,
+        destroyedEffect: this.destroyedEffect,
+        destroyedModel: this.destroyedModel,
+        unknown3: 0,
+        disableWeirdPhysics: false,
+      }
+    );
+    for (const c in server._clients) {
+      if (
+        this.characterId === server._clients[c].vehicle.mountedVehicle &&
+        !server._clients[c].character.isAlive
+      ) {
+        server.dismountVehicle(server._clients[c]);
+      }
+    }
+    server.deleteEntity(this.characterId, server._vehicles);
+    server.explosionDamage(this.state.position, this.characterId);
+
+    server.worldObjectManager.createLootbag(server, this);
   }
 }

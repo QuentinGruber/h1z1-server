@@ -816,10 +816,10 @@ export class zonePacketHandlers {
       client.character.currentInteractionGuid
     ] as ConstructionDoor;
     if (doorEntity.ownerCharacterId === client.character.characterId) {
-      doorEntity.password = packet.data.password;
+      doorEntity.passwordHash = packet.data.password;
       doorEntity.grantedAccess.push(client.character.characterId);
     }
-    if (doorEntity.password === packet.data.password) {
+    if (doorEntity.passwordHash === packet.data.password) {
       doorEntity.grantedAccess.push(client.character.characterId);
     }
   }
