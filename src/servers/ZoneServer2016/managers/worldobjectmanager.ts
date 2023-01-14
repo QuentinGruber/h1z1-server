@@ -26,7 +26,7 @@ import {
   isPosInRadius,
   randomIntFromInterval,
 } from "../../../utils/utils";
-import { EquipSlots, Items } from "../models/enums";
+import { EquipSlots, Items, VehicleIds } from "../models/enums";
 import { Vehicle2016 } from "../classes/vehicle";
 import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../classes/itemobject";
@@ -44,16 +44,16 @@ const debug = require("debug")("ZoneServer");
 function getRandomVehicleId() {
   switch (Math.floor(Math.random() * 4)) {
     case 0: // offroader
-      return 7225;
+      return VehicleIds.OFFROADER;
     case 1: // policecar
-      return 9301;
+      return VehicleIds.POLICECAR;
     case 2: // pickup
-      return 9258;
+      return VehicleIds.PICKUP;
     case 3: // atv
-      return 9588;
+      return VehicleIds.ATV;
     default:
       // pickup
-      return 9258;
+      return VehicleIds.PICKUP;
   }
 }
 
@@ -331,10 +331,11 @@ export class WorldObjectManager {
         vehicleData = new Vehicle2016(
           characterId,
           server.getTransientId(characterId),
-          getRandomVehicleId(),
+          0,
           new Float32Array(vehicle.position),
           new Float32Array(vehicle.rotation),
-          server.getGameTime()
+          server.getGameTime(),
+          getRandomVehicleId(),
         );
 
       this.createVehicle(server, vehicleData); // save vehicle

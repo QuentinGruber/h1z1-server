@@ -1290,6 +1290,37 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
 
+      for (const construction in this._lootableConstruction) {
+          const constructionObject = this._lootableConstruction[
+              construction
+          ] as LootableConstructionEntity;
+          if (
+              isPosInRadius(
+                  2,
+                  constructionObject.state.position,
+                  position
+              )
+          ) {
+              const parent = constructionObject.getParent(this)
+              if (
+                  parent &&
+                  parent.isSecured
+              ) {
+                  if (client) {
+                      this.sendBaseSecuredMessage(client);
+                  }
+                  continue
+              }
+                  this.checkConstructionDamage(
+                      constructionObject.characterId,
+                      50000,
+                      this._lootableConstruction,
+                      position,
+                      constructionObject.state.position
+                  );
+              }
+    }
+
     for (const explosive in this._explosives) {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
@@ -2694,6 +2725,13 @@ export class ZoneServer2016 extends EventEmitter {
           transientId: obj.transientId,
           nameId: obj.nameId,
         });
+        this.updateResource(
+          client,
+          obj.characterId,
+          obj.health,
+          ResourceIds.CONSTRUCTION_CONDITION,
+          ResourceTypes.CONDITION
+        );
         client.spawnedEntities.push(obj);
       }
     }
@@ -6114,6 +6152,24 @@ export class ZoneServer2016 extends EventEmitter {
         callback(clientObj);
       }
     }
+  }
+
+  executeWorlRoutine(client: any) {
+      this.vehicleManager(client);
+      this.itemManager(client);
+      this.npcManager(client);
+      this.removeOutOfDistanceEntities(client);
+      this.spawnCharacters(client);
+      this.spawnDoors(client);
+      this.spawnProps(client);
+      this.constructionManager(client);
+      this.spawnExplosives(client);
+      this.spawnTraps(client);
+      this.spawnTemporaryObjects(client);
+      this.POIManager(client);
+      this.lootbagManager(client);
+      this.lootableConstructionManager(client);
+      client.posAtLastRoutine = client.character.state.position;
   }
 
   private _sendDataToAll(

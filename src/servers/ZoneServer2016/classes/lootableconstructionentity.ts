@@ -17,6 +17,7 @@ import {
   ResourceIds,
   StringIds,
 } from "../models/enums";
+import { DamageInfo } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
 import { ConstructionChildEntity } from "./constructionchildentity";
@@ -50,6 +51,12 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     this.itemDefinitionId = itemDefinitionId;
     const itemDefinition = server.getItemDefinition(itemDefinitionId);
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
+    this.profileId = 999; /// mark as construction
+    this.health = 1000000;
+  }
+  damage(server: ZoneServer2016, damageInfo: DamageInfo) {
+    // todo: redo this
+    this.health -= damageInfo.damage;
   }
   getParent(
     server: ZoneServer2016
