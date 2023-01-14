@@ -6162,6 +6162,24 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  executeWorlRoutine(client: any) {
+      this.vehicleManager(client);
+      this.itemManager(client);
+      this.npcManager(client);
+      this.removeOutOfDistanceEntities(client);
+      this.spawnCharacters(client);
+      this.spawnDoors(client);
+      this.spawnProps(client);
+      this.constructionManager(client);
+      this.spawnExplosives(client);
+      this.spawnTraps(client);
+      this.spawnTemporaryObjects(client);
+      this.POIManager(client);
+      this.lootbagManager(client);
+      this.lootableConstructionManager(client);
+      client.posAtLastRoutine = client.character.state.position;
+  }
+
   private _sendDataToAll(
     packetName: h1z1PacketsType2016,
     obj: zone2016packets,

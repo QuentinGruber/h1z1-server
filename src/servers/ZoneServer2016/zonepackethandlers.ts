@@ -173,8 +173,8 @@ export class zonePacketHandlers {
       client.character.isReady = true;
     }
     // if somehow posUpdate doesnt trigger this
-    setTimeout(() => {
-        if (client.isLoading) client.isLoading = false;
+    setTimeout(()=> {
+        if (client.isLoading) client.isLoading = false
     }, 10000)
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
@@ -344,6 +344,10 @@ export class zonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
+    if (client.isLoading && packet.data.message.includes('BaseClient::WaitForTeleport - releasing local player')) {
+        client.isLoading = false;
+        server.executeWorlRoutine(client)
+    }
     if (
       packet.data.file === "ClientProc.log" &&
       !client.clientLogs.includes(packet.data.message)
@@ -641,7 +645,6 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
-    if ((packet.data.flags == 1 || packet.data.flags == 1022) && client.isLoading) client.isLoading = false;
     if (client.character.tempGodMode) {
       server.setGodMode(client, false);
       client.character.tempGodMode = false;
