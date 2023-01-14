@@ -363,9 +363,9 @@ export class WorldDataManager {
     Object.values(client.character._loadout).forEach((item, idx) => {
       loadoutSaveData[Number(loadoutKeys[idx])] = {
         itemDefinitionId: item.itemDefinitionId,
-        slotId: item.itemDefinitionId,
+        slotId: item.slotId,
         itemGuid: item.itemGuid,
-        containerGuid: item.itemGuid,
+        containerGuid: item.containerGuid,
         currentDurability: item.currentDurability,
         stackCount: item.stackCount,
         weapon: item.weapon? {ammoCount: item.weapon.ammoCount} : undefined,
