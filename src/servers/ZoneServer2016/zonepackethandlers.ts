@@ -173,7 +173,12 @@ export class zonePacketHandlers {
       });
       client.character.isReady = true;
     }
-    // if somehow posUpdate doesnt trigger this
+    setTimeout(() => {
+      if (client.isLoading) { 
+        client.isLoading = false
+        server.executeWorlRoutine(client)
+      }
+    }, 1500);
     setTimeout(()=> {
         if (client.isLoading) client.isLoading = false
     }, 10000)
@@ -369,10 +374,6 @@ export class zonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
-    if (client.isLoading && packet.data.message.includes('BaseClient::WaitForTeleport - releasing local player')) {
-        client.isLoading = false;
-        server.executeWorlRoutine(client)
-    }
     if (
       packet.data.file === "ClientProc.log" &&
       !client.clientLogs.includes(packet.data.message)
@@ -1525,6 +1526,34 @@ export class zonePacketHandlers {
                 );
               }
             }
+          }
+
+          // hammer workaround
+          if (
+            weaponItem.itemDefinitionId == Items.WEAPON_HAMMER &&
+            client.character.currentInteractionGuid
+          ) {
+              const entity = server.getConstructionEntity(
+                  client.character.currentInteractionGuid
+              );
+              if (!entity) return
+              if (!client.character.temporaryScrapSoundTimeout) {
+                  server.sendCompositeEffectToAllInRange(
+                      15,
+                      client.character.characterId,
+                      entity.state.position,
+                      1605
+                  );
+                  server.damageItem(client, weaponItem, 50);
+                  const damageInfo = {
+                      entity: "",
+                      damage: -100000
+                  }
+                  entity.damage(server, damageInfo);
+                  client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+                      delete client.character.temporaryScrapSoundTimeout;
+                  }, 1000);
+              }
           }
 
           if (p.packet.firestate == 64) {
