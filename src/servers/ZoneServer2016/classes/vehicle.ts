@@ -382,6 +382,8 @@ export class Vehicle2016 extends BaseLootableEntity {
         this._resources[ResourceIds.CONDITION] > 0
       ) {
         this.damageTimeout.refresh();
+      } else {
+            delete this.damageTimeout
       }
     }, 1000);
   }
@@ -444,8 +446,9 @@ export class Vehicle2016 extends BaseLootableEntity {
         this._resources[ResourceIds.CONDITION] > 50000 &&
         this.destroyedState != 0
       ) {
-        this.destroyedState = 0;
-        server._vehicles[this.characterId].destroyedEffect = 0;
+        this.destroyedState = 0
+        damageeffect = 0;
+        this.currentDamageEffect = 0;
         allowSend = true;
       }    
       if (allowSend) {
@@ -459,7 +462,6 @@ export class Vehicle2016 extends BaseLootableEntity {
             effectId: damageeffect,
           }
         );
-        server._vehicles[this.characterId].destroyedEffect = damageeffect;
         if (!this.damageTimeout && startDamageTimeout) {
           this.startDamageDelay(server);
         }
@@ -545,7 +547,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       });
     }
 
-    if (this.destroyedEffect != 0) {
+    if (this.currentDamageEffect != 0) {
       server.sendData(client, "Command.PlayDialogEffect", {
         characterId: this.characterId,
         effectId: this.currentDamageEffect,
