@@ -2433,7 +2433,22 @@ export class ZoneServer2016 extends EventEmitter {
       });
       return;
     }
-    const newPos = movePoint(client.character.state.position, currentAngle, 3);
+    let protectedRadius: number;
+      switch (foundation.itemDefinitionId) {
+          case Items.FOUNDATION:
+              protectedRadius = 14;
+              break;
+          case Items.FOUNDATION_EXPANSION:
+              protectedRadius = 9.2;
+              break;
+          case Items.GROUND_TAMPER:
+              protectedRadius = 16;
+              break;
+          default:
+              protectedRadius = 14
+      }
+    const distance = protectedRadius - getDistance(foundation.state.position, client.character.state.position)
+    const newPos = movePoint(client.character.state.position, currentAngle, distance);
     this.sendChatText(client, "Construction: no visitor permission");
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
