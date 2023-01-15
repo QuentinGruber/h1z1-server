@@ -176,12 +176,11 @@ export class zonePacketHandlers {
     setTimeout(() => {
       if (client.isLoading) { 
         client.isLoading = false
-        server.executeWorlRoutine(client)
+        if (client.routineInterval) return;
+        server.executeRoutine(client)
+        server.startClientRoutine(client)
       }
     }, 1500);
-    setTimeout(()=> {
-        if (client.isLoading) client.isLoading = false
-    }, 10000)
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
       server.sendData(client, "Character.StartMultiStateDeath", {

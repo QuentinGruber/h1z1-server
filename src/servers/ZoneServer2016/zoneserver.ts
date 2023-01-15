@@ -193,7 +193,7 @@ export class ZoneServer2016 extends EventEmitter {
   _timeMultiplier = 72;
   _cycleSpeed = 100;
   _frozeCycle = false;
-  tickRate = 500;
+  tickRate = 2000;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
   _bannedClients: {
@@ -983,9 +983,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private divideMapIntoGrid(mapWidth: number, mapHeight: number, gridCellSize: number) {
-    var grid = [];
-    for (var i = -mapWidth/2; i < mapWidth/2; i += gridCellSize) {
-        for (var j = -mapHeight/2; j < mapHeight/2; j += gridCellSize) {
+    const grid = [];
+    for (let i = -mapWidth/2; i < mapWidth/2; i += gridCellSize) {
+        for (let j = -mapHeight/2; j < mapHeight/2; j += gridCellSize) {
             const cell = new GridCell(
                 i,
                 j,
@@ -1008,8 +1008,8 @@ export class ZoneServer2016 extends EventEmitter {
           this._constructionSimple[obj.characterId] ||
           this._constructionFoundations[obj.characterId]
         ) return // dont push objects that can change its position
-        for (var i = 0; i < this._grid.length; i++) {
-            var gridCell = this._grid[i];         
+        for (let i = 0; i < this._grid.length; i++) {
+            let gridCell = this._grid[i];         
             if (obj.state.position[0] >= gridCell.position[0] && obj.state.position[0] <= gridCell.position[0] + gridCell.width && obj.state.position[2] >= gridCell.position[2] && obj.state.position[2] <= gridCell.position[2] + gridCell.height) {
                 if (gridCell.objects.includes(obj)) {
                     return
@@ -1020,31 +1020,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
   private worldRoutine() {
-    debug("WORLDROUTINE");
-
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
-    else {
-      this.itemManager();
-      this.executeFuncForAllReadyClients((client: Client) => {
-        const date1 = new Date().getTime()
-        this.vehicleManager(client);
-        this.npcManager(client);
-        this.removeOutOfDistanceEntities(client);
-        this.spawnCharacters(client);
-        //this.spawnDoors(client);
-        this.spawnGridObjects(client);
-        this.constructionManager(client);
-        this.worldConstructionManager(client);
-        //this.spawnExplosives(client);
-        //this.spawnTraps(client);
-        //this.spawnTemporaryObjects(client);
-        this.POIManager(client);
-        this.lootbagManager();
-        client.posAtLastRoutine = client.character.state.position;
-        const date2 = new Date().getTime()
-      console.log(date2 - date1)
-      });
+    else {  
       if (this._ready) {
+        this.npcDespawner();
+        this.lootbagDespawner();
+        this.itemDespawner();
         this.worldObjectManager.run(this);
         if (this.enableWorldSaves) this.worldDataManager.run(this);
       }
@@ -2472,16 +2453,6 @@ export class ZoneServer2016 extends EventEmitter {
   private npcManager(client: Client) {
     for (const characterId in this._npcs) {
       const npc = this._npcs[characterId];
-      // dead npc despawner
-      if (
-        npc.flags.knockedOut &&
-        Date.now() - npc.deathTime >=
-          this.worldObjectManager.deadNpcDespawnTimer
-      ) {
-        this.deleteEntity(npc.characterId, this._npcs);
-        continue;
-      }
-
       // npc clientside spawner
       if (
         isPosInRadius(
@@ -2505,6 +2476,20 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
+  }
+
+  private npcDespawner() {
+      for (const characterId in this._npcs) {
+          const npc = this._npcs[characterId];
+          // dead npc despawner
+          if (
+              npc.flags.knockedOut &&
+              Date.now() - npc.deathTime >=
+              this.worldObjectManager.deadNpcDespawnTimer
+          ) {
+              this.deleteEntity(npc.characterId, this._npcs);
+          }
+      }
   }
 
   private spawnConstructionFreeplace(client: Client, parentEntity: ConstructionParentEntity | ConstructionChildEntity) {
@@ -2855,7 +2840,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private itemManager() {
+  private itemDespawner() {
     for (const characterId in this._spawnedItems) {
       const itemObject = this._spawnedItems[characterId];
       // dropped item despawner
@@ -2878,7 +2863,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private lootbagManager() {
+  private lootbagDespawner() {
     for (const characterId in this._lootbags) {
       // lootbag despawner
       const lootbag = this._lootbags[characterId];
@@ -6334,9 +6319,34 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  executeWorlRoutine(client: any) {
-    this.vehicleManager(client);
-      this.itemManager();
+  startClientRoutine(client: Client) {  
+      client.routineInterval = setTimeout(() => {
+          if (!client) return;
+          if (!client.isLoading) {
+              this.vehicleManager(client);
+              this.npcManager(client);
+              this.removeOutOfDistanceEntities(client);
+              this.spawnCharacters(client);
+              //this.spawnDoors(client);
+              this.spawnGridObjects(client);
+              this.constructionManager(client);
+              this.worldConstructionManager(client);
+              //this.spawnExplosives(client);
+              //this.spawnTraps(client);
+              //this.spawnTemporaryObjects(client);
+              this.POIManager(client);
+              client.posAtLastRoutine = client.character.state.position;
+          }
+          if (client.isLoading) {
+              delete client.routineInterval;
+              return
+          }
+          client.routineInterval?.refresh()
+      }, this.tickRate)
+  }
+
+  executeRoutine(client: Client) {
+      this.vehicleManager(client);
       this.npcManager(client);
       this.removeOutOfDistanceEntities(client);
       this.spawnCharacters(client);
@@ -6348,7 +6358,6 @@ export class ZoneServer2016 extends EventEmitter {
       //this.spawnTraps(client);
       //this.spawnTemporaryObjects(client);
       this.POIManager(client);
-      this.lootbagManager();
       client.posAtLastRoutine = client.character.state.position;
   }
 
