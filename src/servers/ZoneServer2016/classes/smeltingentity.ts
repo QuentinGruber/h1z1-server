@@ -127,8 +127,9 @@ export class smeltingEntity extends LootableConstructionEntity {
   }
 
   startBurning(server: ZoneServer2016) {
-    if (!this._containers["31"]) return;
-    if (JSON.stringify(this._containers["31"].items) === "{}") {
+    const container = this.getContainer()
+    if (!container) return;
+    if (JSON.stringify(container.items) === "{}") {
       if (this.isBurning) {
         server.sendDataToAllWithSpawnedEntity(
           server._lootableConstruction,
@@ -144,7 +145,7 @@ export class smeltingEntity extends LootableConstructionEntity {
       return;
     }
     let allowBurn = false;
-    Object.values(this._containers["31"].items).forEach((item: BaseItem) => {
+    Object.values(container.items).forEach((item: BaseItem) => {
       if (allowBurn) return;
       if (this.allowedFuel.includes(item.itemDefinitionId)) {
         server.removeContainerItemNoClient(item, this, 1);
@@ -153,7 +154,7 @@ export class smeltingEntity extends LootableConstructionEntity {
           server.addContainerItemExternal(
             this.mountedCharacter ? this.mountedCharacter : "",
             server.generateItem(Items.CHARCOAL),
-            this._containers["31"],
+            container,
             1
           );
         }
@@ -199,8 +200,9 @@ export class smeltingEntity extends LootableConstructionEntity {
       this.isSmelting = false;
       return;
     }
-    if (!this._containers["31"]) return;
-    if (JSON.stringify(this._containers["31"].items) === "{}") return;
+    const container = this.getContainer();
+    if (!container) return;
+    if (JSON.stringify(container.items) === "{}") return;
     this.isSmelting = true;
     let passed = false;
     Object.keys(smeltingData).forEach((data: string) => {
@@ -212,7 +214,7 @@ export class smeltingEntity extends LootableConstructionEntity {
         recipe.components.forEach((component: RecipeComponent) => {
           if (passed) return;
           let requiredAmount = component.requiredAmount;
-          Object.values(this._containers["31"].items).forEach(
+          Object.values(container.items).forEach(
             (item: BaseItem) => {
               if (passed) return;
               if (!fulfilledComponents.includes(component)) {
@@ -238,7 +240,7 @@ export class smeltingEntity extends LootableConstructionEntity {
                     server.addContainerItemExternal(
                       this.mountedCharacter ? this.mountedCharacter : "",
                       server.generateItem(recipe.rewardId),
-                      this._containers["31"],
+                      container,
                       1
                     );
                     return;
