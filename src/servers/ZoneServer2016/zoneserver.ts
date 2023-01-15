@@ -1445,6 +1445,18 @@ export class ZoneServer2016 extends EventEmitter {
     constructionObject.destroy(this, 3000);
   }
 
+  createProjectileNpc(client: Client, data: any) {
+      const iD = client.character.getEquippedWeapon().itemDefinitionId
+      if (iD == Items.WEAPON_BOW_MAKESHIFT || iD == Items.WEAPON_BOW_RECURVE) {
+          this.worldObjectManager.createLootEntity(
+              this,
+              this.generateItem(Items.AMMO_ARROW),
+              data.position,
+              data.rotation,
+          );
+      }
+  }
+
   async respawnPlayer(client: Client) {
     if (!this.hookManager.checkHook("OnPlayerRespawn", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnPlayerRespawn", client)))
@@ -1979,6 +1991,10 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.WEAPON_308:
         return 8000;
       case Items.WEAPON_MAGNUM:
+        return 3000;
+      case Items.WEAPON_BOW_MAKESHIFT:
+        return 2500;
+      case Items.WEAPON_BOW_RECURVE:
         return 3000;
       default:
         return 1000;

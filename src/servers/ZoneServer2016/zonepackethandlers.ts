@@ -1580,7 +1580,7 @@ export class zonePacketHandlers {
             );
           }
           // prevent empty weapons from entering an active firestate
-          if (!weaponItem.weapon?.ammoCount) return;
+          if (!weaponItem.weapon?.ammoCount && weaponItem.itemDefinitionId != Items.WEAPON_BOW_MAKESHIFT && weaponItem.itemDefinitionId != Items.WEAPON_BOW_RECURVE) return;
           if (p.packet.firestate > 0) {
             server.sendRemoteWeaponUpdateDataToAllOthers(
               client,
@@ -1702,6 +1702,29 @@ export class zonePacketHandlers {
             reloadTime = server.getWeaponReloadTime(
               weaponItem.itemDefinitionId
             );
+          
+          if (weaponItem.itemDefinitionId == Items.WEAPON_BOW_MAKESHIFT || weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE) {
+              if (client.character.getEquippedWeapon().itemGuid != weaponItem.itemGuid) return;
+              const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+                  reserveAmmo = // how much ammo is in inventory
+                      client.character.getInventoryItemAmount(weaponAmmoId),
+                  reloadAmount =
+                      reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
+
+              if (
+                  !server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
+              ) {
+                  return;
+              }
+              server.sendWeaponData(client, "Weapon.Reload", {
+                  weaponGuid: p.packet.characterId,
+                  unknownDword1: maxAmmo,
+                  ammoCount: (weaponItem.weapon.ammoCount += reloadAmount),
+                  unknownDword3: maxAmmo,
+                  currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
+              });
+              return
+          }      
           //#region SHOTGUN ONLY
           if (weaponAmmoId == Items.AMMO_12GA) {
             weaponItem.weapon.reloadTimer = setTimeout(() => {
@@ -1841,6 +1864,13 @@ export class zonePacketHandlers {
             }
           );
           debug("AimBlockedNotify");
+          break;
+        case "Weapon.ProjectileSpawnNpc":
+          server.createProjectileNpc(client, p.packet)
+          debug("Weapon.ProjectileSpawnNpc");
+          break;
+        case "Weapon.ProjectileSpawnAttachedNpc":
+          debug("Weapon.ProjectileSpawnAttachedNpc");
           break;
         default:
           debug(`Unhandled weapon packet type: ${p.packetName}`);
