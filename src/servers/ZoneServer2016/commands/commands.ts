@@ -128,11 +128,9 @@ export const commands: Array<Command> = [
     name: "spawninfo",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
-      server.sendChatText(
-        client,
-        `You spawned at "${client.character.spawnLocation}"`,
-        true
-      );
+        Object.values(server._lootableProps).forEach((obj: any) => {
+            server.pushToGridCell(obj)
+        })
     },
   },
   {
@@ -668,7 +666,8 @@ export const commands: Array<Command> = [
             1,
           ]),
           client.character.state.lookAt,
-          Items.IED
+          server,
+          Items.IED,
         ); // save explosive
       });
     },
@@ -689,7 +688,8 @@ export const commands: Array<Command> = [
         transientId,
         Number(args[0]),
         client.character.state.position,
-        client.character.state.lookAt
+        client.character.state.lookAt,
+        server,
       );
       server._npcs[characterId] = npc; // save npc
     },

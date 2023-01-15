@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
 
 function getHeadActor(modelId: number): string {
@@ -70,9 +71,10 @@ export class BaseLightweightCharacter extends BaseEntity {
     transientId: number,
     actorModelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    server: ZoneServer2016
   ) {
-    super(characterId, transientId, actorModelId, position, rotation);
+    super(characterId, transientId, actorModelId, position, rotation, server);
     this.state = {
       position: position,
       rotation: rotation,

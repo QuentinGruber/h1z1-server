@@ -26,9 +26,10 @@ export class BaseLootableEntity extends BaseFullCharacter {
     transientId: number,
     actorModelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    server: ZoneServer2016
   ) {
-    super(characterId, transientId, actorModelId, position, rotation);
+    super(characterId, transientId, actorModelId, position, rotation, server);
     this.isLootbag = actorModelId == 9581 || actorModelId == 9391;
   }
 

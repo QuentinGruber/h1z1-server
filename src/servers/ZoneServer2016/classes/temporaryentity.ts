@@ -22,9 +22,10 @@ export class TemporaryEntity extends BaseSimpleNpc {
     transientId: number,
     actorModelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    server: ZoneServer2016,
   ) {
-    super(characterId, transientId, actorModelId, position, rotation);
+    super(characterId, transientId, actorModelId, position, rotation, server);
   }
 
   setDespawnTimer(server: ZoneServer2016, time: number) {

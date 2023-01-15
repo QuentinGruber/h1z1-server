@@ -156,11 +156,12 @@ export class LootableProp extends BaseLootableEntity {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    server: ZoneServer2016,
     scale: Float32Array,
     spawnerId: number,
     renderDistance: number
   ) {
-    super(characterId, transientId, actorModelId, position, rotation);
+    super(characterId, transientId, actorModelId, position, rotation, server);
     this.scale = new Float32Array(scale);
     this.spawnerId = spawnerId;
     this.npcRenderDistance = renderDistance;

@@ -330,7 +330,7 @@ export namespace NormanTest {
       2
     );
     // server.start();
-    const client = new ZoneClient2016(0, "", "", "norman", 888);
+    const client = new ZoneClient2016(0, "", "", "norman", 888, server);
     //z y x / N E sky
     client.character.state.position = new Float32Array([0, 0, 2]);
     //quaternion i am not use
@@ -380,7 +380,8 @@ export namespace NormanTest {
       server.getTransientId(cid),
       1,
       p,
-      rot
+      rot,
+      server,
       // new Float32Array([0,0,0])
     );
     // server.sendDataToAll("AddLightweightNpc", flare);
@@ -403,7 +404,8 @@ export namespace NormanTest {
       server.getTransientId(cid),
       10004,
       p,
-      rot
+      rot,
+      server,
       // new Float32Array([0,0,0])
     );
     // server.sendDataToAll("AddLightweightNpc", flare);
@@ -497,7 +499,8 @@ export namespace NormanTest {
       transientId,
       modelId,
       pos.ToFloat32ArrayZYXW(),
-      Euler.ToH1Z1ClientRotFormat(rot)
+      Euler.ToH1Z1ClientRotFormat(rot),
+      server,
     );
   };
 
@@ -727,6 +730,7 @@ export namespace NormanTest {
             2,
             pos.ToFloat32ArrayZYXW(),
             new Float32Array([0, 0, 0, 0]),
+            server,
             Date.now(),
             iItem
           );
@@ -818,7 +822,8 @@ export namespace NormanTest {
           mid,
           pos.ToFloat32ArrayZYXW(),
           new Float32Array([0, 0, 0]),
-          0
+          server,
+          0,
         );
 
         // setTimeout(()=>

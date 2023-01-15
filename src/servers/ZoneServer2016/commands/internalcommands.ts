@@ -39,6 +39,7 @@ export const internalCommands: Array<Command> = [
         9371,
         client.character.state.position,
         client.character.state.lookAt,
+        server,
         server.getGameTime(),
         VehicleIds.SPECTATE
       );

@@ -65,7 +65,8 @@ export class BaseEntity {
     transientId: number,
     actorModelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    server: ZoneServer2016
   ) {
     this.characterId = characterId;
     this.transientId = transientId;
@@ -75,6 +76,7 @@ export class BaseEntity {
       rotation: rotation,
     };
     this.npcRenderDistance = getRenderDistance(actorModelId);
+    server.pushToGridCell(this)
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

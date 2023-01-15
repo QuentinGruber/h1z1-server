@@ -32,9 +32,10 @@ export class TrapEntity extends BaseSimpleNpc {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    server: ZoneServer2016,
     itemDefinitionId: Items
   ) {
-    super(characterId, transientId, actorModelId, position, rotation);
+    super(characterId, transientId, actorModelId, position, rotation, server);
     this.itemDefinitionId = itemDefinitionId;
   }
 

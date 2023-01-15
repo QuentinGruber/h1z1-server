@@ -33,7 +33,8 @@ const dev: any = {
       server.getTransientId(characterId),
       9510,
       client.character.state.position,
-      client.character.state.rotation
+      client.character.state.rotation,
+      server
     );
     server.addLightweightNpc(client, npc);
     setTimeout(() => {
@@ -52,7 +53,8 @@ const dev: any = {
       transient,
       9510,
       client.character.state.position,
-      client.character.state.rotation
+      client.character.state.rotation,
+      server,
     );
     server._npcs[characterId] = zombie;
   },
@@ -65,7 +67,8 @@ const dev: any = {
       transient,
       9510,
       client.character.state.position,
-      client.character.state.rotation
+      client.character.state.rotation,
+      server,
     );
     server._npcs[characterId] = zombie;
     setTimeout(() => {
@@ -425,7 +428,8 @@ const dev: any = {
         server.getTransientId(objectCharacterId),
         9034,
         client.character.state.position,
-        client.character.state.lookAt
+        client.character.state.lookAt,
+        server,
       );
     const item = server.generateItem(1504);
     npc.loadoutId = 5;

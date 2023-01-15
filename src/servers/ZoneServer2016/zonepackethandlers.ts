@@ -213,6 +213,7 @@ export class zonePacketHandlers {
           0,
           packet.data.position,
           client.character.state.lookAt,
+          server,
           server.getGameTime(),
           packet.data.vehicleId
       );

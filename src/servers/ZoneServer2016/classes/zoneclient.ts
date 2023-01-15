@@ -15,6 +15,7 @@ import { toInt, _ } from "../../../utils/utils";
 import { Character2016 } from "./character";
 import { ZoneClient2016 as Client } from "./zoneclient";
 import { LootableProp } from "./lootableprop";
+import { ZoneServer2016 } from "../zoneserver";
 
 export class ZoneClient2016 {
   guid?: string;
@@ -77,7 +78,8 @@ export class ZoneClient2016 {
     soeClientId: string,
     loginSessionId: string,
     characterId: string,
-    transientId: number
+    transientId: number,
+    server: ZoneServer2016
   ) {
     this.sessionId = sessionId;
     this.soeClientId = soeClientId;
@@ -97,7 +99,8 @@ export class ZoneClient2016 {
       this.hudTimer = null;
       this.isInteracting = false;
     };
-    this.character = new Character2016(characterId, transientId);
+    
+    this.character = new Character2016(characterId, transientId, server);
   }
   addPing(ping: number) {
     if (ping > 0) {

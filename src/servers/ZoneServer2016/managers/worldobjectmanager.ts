@@ -145,6 +145,7 @@ export class WorldObjectManager {
       modelId,
       position,
       rotation,
+      server,
       spawnerId
     );
     this.equipRandomSkins(server, zombie, this.zombieSlots, bannedZombieModels);
@@ -178,6 +179,7 @@ export class WorldObjectManager {
       modelId,
       position,
       rotation,
+      server,
       itemSpawnerId || 0,
       item
     );
@@ -193,6 +195,7 @@ export class WorldObjectManager {
         modelId,
         position,
         rotation,
+        server,
         item.itemDefinitionId
       );
     }
@@ -213,7 +216,8 @@ export class WorldObjectManager {
       server.getTransientId(characterId),
       isCharacter ? 9581 : 9391,
       entity.state.position,
-      new Float32Array([0, 0, 0, 0])
+      new Float32Array([0, 0, 0, 0]),
+      server,
     );
 
     lootbag.equipItem(
@@ -239,6 +243,7 @@ export class WorldObjectManager {
           propInstance.modelId,
           propInstance.position,
           propInstance.rotation,
+          server,
           propInstance.scale,
           propInstance.id,
           propType.renderDistance
@@ -267,8 +272,9 @@ export class WorldObjectManager {
       modelID,
       position,
       rotation,
+      server,
       scale,
-      spawnerId
+      spawnerId,
     );
   }
 
@@ -334,6 +340,7 @@ export class WorldObjectManager {
           0,
           new Float32Array(vehicle.position),
           new Float32Array(vehicle.rotation),
+          server,
           server.getGameTime(),
           getRandomVehicleId(),
         );

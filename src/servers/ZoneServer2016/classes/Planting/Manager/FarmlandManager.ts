@@ -226,6 +226,7 @@ export class FarmlandManager {
       hole.Position.ToFloat32ArrayZYXW(),
       // Euler.ToH1Z1ClientRotFormat(hole.Rotation),
       seedQU.ToFloat32ArrayZYXW(),
+      server,
       hole.CreateTime,
       objInHole
     );
@@ -373,7 +374,8 @@ export class FarmlandManager {
       62,
       furrows.Position.ToFloat32ArrayZYXW(),
       // rotQU.ToFloat32ArrayZYXW()
-      Euler.ToH1Z1ClientRotFormat(furrows.Rotation)
+      Euler.ToH1Z1ClientRotFormat(furrows.Rotation),
+      server,
     );
   };
 

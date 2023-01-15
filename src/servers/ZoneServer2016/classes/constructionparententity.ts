@@ -69,12 +69,12 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    server: ZoneServer2016,
     itemDefinitionId: number,
     ownerCharacterId: string,
     ownerName: string,
     parentObjectCharacterId: string,
     BuildingSlot: string | undefined,
-    server: ZoneServer2016
   ) {
     super(
       characterId,
@@ -82,10 +82,10 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       actorModelId,
       position,
       rotation,
+      server,
       itemDefinitionId,
       parentObjectCharacterId,
       "",
-      server
     );
     this.health = 1000000;
     this.ownerCharacterId = ownerCharacterId;

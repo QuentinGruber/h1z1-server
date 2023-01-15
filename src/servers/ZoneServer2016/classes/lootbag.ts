@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { BaseLootableEntity } from "./baselootableentity";
+import { ZoneServer2016 } from "../zoneserver";
 
 export class Lootbag extends BaseLootableEntity {
   creationTime = Date.now();
@@ -21,9 +22,10 @@ export class Lootbag extends BaseLootableEntity {
     transientId: number,
     actorModelId: number,
     position: Float32Array,
-    rotation: Float32Array
+    rotation: Float32Array,
+    server: ZoneServer2016,
   ) {
-    super(characterId, transientId, actorModelId, position, rotation);
+    super(characterId, transientId, actorModelId, position, rotation, server);
     const container = this.getContainer();
     if (container) container.canAcceptItems = false;
     this.flags.noCollide = 1;

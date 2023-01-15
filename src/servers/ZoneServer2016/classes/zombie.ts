@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { Npc } from "./npc";
+import { ZoneServer2016 } from "../zoneserver";
 
 export class Zombie extends Npc {
   constructor(
@@ -20,6 +21,7 @@ export class Zombie extends Npc {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    server: ZoneServer2016,
     spawnerId: number = 0
   ) {
     super(
@@ -28,7 +30,8 @@ export class Zombie extends Npc {
       actorModelId,
       position,
       rotation,
-      spawnerId
+      server,
+      spawnerId,
     );
   }
 }

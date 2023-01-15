@@ -105,9 +105,9 @@ export class smeltingEntity extends LootableConstructionEntity {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    server: ZoneServer2016,
     itemDefinitionId: number,
     parentObjectCharacterId: string,
-    server: ZoneServer2016
   ) {
     super(
       characterId,
@@ -115,9 +115,9 @@ export class smeltingEntity extends LootableConstructionEntity {
       actorModelId,
       position,
       rotation,
+      server,
       itemDefinitionId,
       parentObjectCharacterId,
-      server
     );
     this.parentObjectCharacterId = parentObjectCharacterId || "";
     this.itemDefinitionId = itemDefinitionId;

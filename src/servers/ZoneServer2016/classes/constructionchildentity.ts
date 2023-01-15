@@ -86,12 +86,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    server: ZoneServer2016,
     itemDefinitionId: number,
     parentObjectCharacterId: string,
     slot: string,
-    server: ZoneServer2016
   ) {
-    super(characterId, transientId, actorModelId, position, rotation);
+    super(characterId, transientId, actorModelId, position, rotation, server);
     this.state.rotation = eul2quat(rotation);
     this.eulerAngle = rotation[0];
     this.itemDefinitionId = itemDefinitionId;

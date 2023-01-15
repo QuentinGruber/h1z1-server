@@ -463,6 +463,7 @@ export class WorldDataManager {
         0,
         new Float32Array(vehicle.position),
         new Float32Array(vehicle.rotation),
+        server,
         server._gameTime,
         vehicle.vehicleId
       );

@@ -60,9 +60,10 @@ export class Npc extends BaseFullCharacter {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    server: ZoneServer2016,
     spawnerId: number = 0
   ) {
-    super(characterId, transientId, actorModelId, position, rotation);
+    super(characterId, transientId, actorModelId, position, rotation, server);
     this.spawnerId = spawnerId;
     this.health = 10000;
   }

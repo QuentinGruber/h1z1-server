@@ -55,10 +55,11 @@ export class ItemObject extends BaseLightweightCharacter {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    server: ZoneServer2016,
     spawnerId: number,
     item: BaseItem
   ) {
-    super(characterId, transientId, actorModelId, position, rotation);
+    super(characterId, transientId, actorModelId, position, rotation, server);
     (this.spawnerId = spawnerId), (this.item = item);
   }
 

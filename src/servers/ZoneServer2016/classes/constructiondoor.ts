@@ -50,12 +50,12 @@ export class ConstructionDoor extends DoorEntity {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    server: ZoneServer2016,
     scale: Float32Array,
     itemDefinitionId: number,
     ownerCharacterId: string,
     parentObjectCharacterId: string,
     slot: string,
-    server: ZoneServer2016
   ) {
     super(
       characterId,
@@ -63,8 +63,9 @@ export class ConstructionDoor extends DoorEntity {
       actorModelId,
       position,
       rotation,
+      server,
       new Float32Array(scale),
-      0
+      0,
     );
     this.ownerCharacterId = ownerCharacterId;
     this.itemDefinitionId = itemDefinitionId;

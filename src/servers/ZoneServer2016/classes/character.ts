@@ -109,13 +109,14 @@ export class Character2016 extends BaseFullCharacter {
   lastInteractionTime = 0;
   mountedContainer?: BaseLootableEntity;
   defaultLoadout = characterDefaultLoadout;
-  constructor(characterId: string, transientId: number) {
+  constructor(characterId: string, transientId: number, server:ZoneServer2016) {
     super(
       characterId,
       transientId,
       0,
       new Float32Array([0, 0, 0, 1]),
-      new Float32Array([0, 0, 0, 1])
+      new Float32Array([0, 0, 0, 1]),
+      server
     );
     this.healingTicks = 0;
     this.healingMaxTicks = 0;

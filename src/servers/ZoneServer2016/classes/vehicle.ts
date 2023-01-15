@@ -122,10 +122,11 @@ export class Vehicle2016 extends BaseLootableEntity {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
+    server: ZoneServer2016,
     gameTime: number,
-    vehicleId: number
+    vehicleId: number,
   ) {
-    super(characterId, transientId, actorModelId, position, rotation);
+    super(characterId, transientId, actorModelId, position, rotation, server);
     this._resources = {
       [ResourceIds.CONDITION]: 100000,
       [ResourceIds.FUEL]: 7590,
