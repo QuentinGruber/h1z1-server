@@ -1004,9 +1004,8 @@ export class ZoneServer2016 extends EventEmitter {
           obj instanceof Vehicle || 
           obj instanceof Character || 
           obj instanceof Npc || 
-          this._lootableConstruction[obj.characterId] ||
-          this._constructionSimple[obj.characterId] ||
-          this._constructionFoundations[obj.characterId]
+          (obj instanceof ConstructionChildEntity && !obj.getParent(this)) ||
+          (obj instanceof LootableConstructionEntity && !obj.getParent(this))
         ) return // dont push objects that can change its position
         for (let i = 0; i < this._grid.length; i++) {
             let gridCell = this._grid[i];         
@@ -2504,7 +2503,6 @@ export class ZoneServer2016 extends EventEmitter {
         entity instanceof LootableConstructionEntity &&
         !this.constructionShouldHideEntity(client, entity)
         ) {
-        console.log(`***********************************${parentEntity.characterId}`)
         this.spawnLootableConstruction(client, entity);
       }
     }
@@ -2608,7 +2606,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private spawnLootableConstruction(client: Client, entity: LootableConstructionEntity) {
-    console.log("SPAWNLOOTABLECONSTRUCTION")
     if(client.spawnedEntities.includes(entity)) return;
     this.addLightweightNpc(
       client,
@@ -2635,7 +2632,6 @@ export class ZoneServer2016 extends EventEmitter {
   private spawnConstructionTree(client: Client, parentEntity: ConstructionParentEntity | ConstructionChildEntity) {
     for(const slotMap of parentEntity.getOccupiedSlotMaps()) {
       for(const entity of Object.values(slotMap)) {
-        console.log(entity.characterId)
         if(isPosInRadius(
           entity.npcRenderDistance
             ? entity.npcRenderDistance
@@ -2644,7 +2640,6 @@ export class ZoneServer2016 extends EventEmitter {
           entity.state.position
         )
         ) {
-          console.log("iteration")
           if (entity instanceof ConstructionChildEntity) {
             this.spawnSimpleConstruction(client, entity);
           }
@@ -2672,56 +2667,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
       this.checkFoundationPermission(client, npc);
     }
-
-    for (const characterId in this._constructionDoors) {
-      const npc = this._constructionDoors[characterId];
-      if (
-        isPosInRadius(
-          npc.npcRenderDistance
-            ? npc.npcRenderDistance
-            : this._charactersRenderDistance,
-          client.character.state.position,
-          npc.state.position
-        ) &&
-        !client.spawnedEntities.includes(npc)
-      ) {
-        this.spawnConstructionDoor(client, npc);
-      }
-    }
-
-    /*
-
-    for (const characterId in this._constructionSimple) {
-      const npc = this._constructionSimple[characterId];
-      if (
-        isPosInRadius(
-          npc.npcRenderDistance
-            ? npc.npcRenderDistance
-            : this._charactersRenderDistance,
-          client.character.state.position,
-          npc.state.position
-        ) &&
-        !client.spawnedEntities.includes(npc)
-      ) {
-        this.spawnSimpleConstruction(client, npc);
-      }
-      this.checkConstructionChildEntityPermission(client, npc);
-    }
-
-    for (const characterId in this._lootableConstruction) {
-      const obj = this._lootableConstruction[characterId];
-      if (
-        isPosInRadius(
-          obj.npcRenderDistance,
-          client.character.state.position,
-          obj.state.position
-        ) &&
-        !client.spawnedEntities.includes(obj)
-      ) {
-        this.spawnLootableConstruction(client, obj);
-      }
-    }
-    */
   }
   
 
@@ -2879,19 +2824,22 @@ export class ZoneServer2016 extends EventEmitter {
     private spawnGridObjects(client: Client) {
         this._grid.forEach((gridCell: GridCell) => {
             if (isPosInRadius(400, gridCell.position, client.character.state.position)) {
-                gridCell.objects.forEach((object: any) => {
+                gridCell.objects.forEach((object) => {
                     if (isPosInRadius(
                         object.npcRenderDistance as number,
                         client.character.state.position,
                         object.state.position
                     ) && !client.spawnedEntities.includes(object)) {
                         if (object instanceof TrapEntity || object instanceof TemporaryEntity) {
-                            this.addSimpleNpc(client, object)
-                        } else {
-                            this.addLightweightNpc(client, object);
+                          this.addSimpleNpc(client, object)
+                        } else if(object instanceof BaseLightweightCharacter) {
+                          this.addLightweightNpc(client, object);
                         }
                         // send other required packets if neccesary
-                        if (typeof object.OnInteractionString !== "undefined") {
+                        if (
+                          typeof object.OnInteractionString !== "undefined" &&
+                          object instanceof BaseLightweightCharacter
+                        ) {
                             this.sendData(client, "Replication.InteractionComponent", {
                                 transientId: object.transientId,
                             });
