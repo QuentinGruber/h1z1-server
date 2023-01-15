@@ -27,7 +27,7 @@ import { Resolver } from "dns";
 import { promisify } from "util";
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
-import { Vehicle2016 as Vehicle } from "./classes/vehicle";
+import { Vehicle2016 as Vehicle, Vehicle2016 } from "./classes/vehicle";
 import { GridCell } from "./classes/gridcell";
 import { WorldObjectManager } from "./managers/worldobjectmanager";
 import {
@@ -43,6 +43,7 @@ import {
   ResourceTypes,
   StringIds,
   VehicleIds,
+  ConstructionPermissionIds,
 } from "./models/enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
@@ -997,9 +998,16 @@ export class ZoneServer2016 extends EventEmitter {
     return grid;
 }
 
-    pushToGridCell(obj: any) {
+    pushToGridCell(obj: BaseEntity) {
         if (this._grid.length == 0) this._grid = this.divideMapIntoGrid(8000, 8000, 250)
-        if (obj instanceof Vehicle || obj instanceof Character || obj instanceof Npc) return // dont push objects that can change its position
+        if (
+          obj instanceof Vehicle || 
+          obj instanceof Character || 
+          obj instanceof Npc || 
+          this._lootableConstruction[obj.characterId] ||
+          this._constructionSimple[obj.characterId] ||
+          this._constructionFoundations[obj.characterId]
+        ) return // dont push objects that can change its position
         for (var i = 0; i < this._grid.length; i++) {
             var gridCell = this._grid[i];         
             if (obj.state.position[0] >= gridCell.position[0] && obj.state.position[0] <= gridCell.position[0] + gridCell.width && obj.state.position[2] >= gridCell.position[2] && obj.state.position[2] <= gridCell.position[2] + gridCell.height) {
@@ -1016,10 +1024,10 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
     else {
+      this.itemManager();
       this.executeFuncForAllReadyClients((client: Client) => {
         const date1 = new Date().getTime()
         this.vehicleManager(client);
-        this.itemManager();
         this.npcManager(client);
         this.removeOutOfDistanceEntities(client);
         this.spawnCharacters(client);
@@ -2190,14 +2198,37 @@ export class ZoneServer2016 extends EventEmitter {
     this._gameTime = Date.now();
   }
 
+  private constructionShouldHideEntity(client: Client, entity: BaseEntity): boolean {
+    if(!(entity instanceof LootableConstructionEntity)) {
+        return false;
+    }
+    const parent = entity.getParent(this);
+    if(!parent) return false;
+    const parentSecured = parent.isSecured,
+    hasVisitPermission = parent.getHasPermission(this, client.character.characterId, ConstructionPermissionIds.VISIT),
+    isInside = parent.isInside(entity.state.position);
+    
+    return (
+      parentSecured &&
+      isInside &&
+      !hasVisitPermission
+    )
+    // TODO: check if character is in secured shelter / shack
+  }
+
+  private shouldRemoveEntity(client: Client, entity: BaseEntity): boolean {
+    return entity && // in case if entity is undefined somehow
+    !(entity instanceof Vehicle2016) && // ignore vehicles
+    !(entity instanceof Npc) && // ignore npcs
+    (this.filterOutOfDistance(entity, client.character.state.position) ||
+    this.constructionShouldHideEntity(client, entity))
+  }
+
   private removeOutOfDistanceEntities(client: Client) {
     // does not include vehicles
     const objectsToRemove = client.spawnedEntities.filter(
       (e) =>
-        e && // in case if entity is undefined somehow
-        !e.vehicleId && // ignore vehicles
-        !e.deathTime && // ignore npcs
-        this.filterOutOfDistance(e, client.character.state.position)
+        this.shouldRemoveEntity(client, e)
     );
     client.spawnedEntities = client.spawnedEntities.filter((el) => {
       return !objectsToRemove.includes(el);
@@ -2484,7 +2515,11 @@ export class ZoneServer2016 extends EventEmitter {
       else if (entity instanceof ConstructionDoor) {
         this.spawnConstructionDoor(client, entity);
       }
-      else if (entity instanceof LootableConstructionEntity) {
+      else if (
+        entity instanceof LootableConstructionEntity &&
+        !this.constructionShouldHideEntity(client, entity)
+        ) {
+        console.log(`***********************************${parentEntity.characterId}`)
         this.spawnLootableConstruction(client, entity);
       }
     }
@@ -2588,6 +2623,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private spawnLootableConstruction(client: Client, entity: LootableConstructionEntity) {
+    console.log("SPAWNLOOTABLECONSTRUCTION")
     if(client.spawnedEntities.includes(entity)) return;
     this.addLightweightNpc(
       client,
