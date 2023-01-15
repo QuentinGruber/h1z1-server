@@ -984,7 +984,7 @@ export class ZoneServer2016 extends EventEmitter {
   private divideMapIntoGrid(mapWidth: number, mapHeight: number, gridCellSize: number) {
     const grid = [];
     for (let i = -mapWidth/2; i < mapWidth/2; i += gridCellSize) {
-        for (var j = -mapHeight/2; j < mapHeight/2; j += gridCellSize) {
+        for (let j = -mapHeight/2; j < mapHeight/2; j += gridCellSize) {
             const cell = new GridCell(
                 i,
                 j,
