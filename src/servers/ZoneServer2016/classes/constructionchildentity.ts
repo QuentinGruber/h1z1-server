@@ -134,6 +134,14 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
   }
 
+  getOccupiedSlotMaps(): Array<OccupiedSlotMap> {
+    return [
+      this.occupiedWallSlots,
+      this.occupiedUpperWallSlots,
+      this.occupiedShelterSlots
+    ]
+  }
+
   getSlotPosition(
     slot: string | number,
     slots: ConstructionSlotPositionMap
@@ -351,7 +359,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   destroy(server: ZoneServer2016, destructTime = 0) {
     server.deleteEntity(
       this.characterId,
-      server._constructionSimple,
+      server._constructionSimple[this.characterId] ? server._constructionSimple : server._worldSimpleConstruction,
       242,
       destructTime
     );

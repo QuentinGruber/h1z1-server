@@ -26,6 +26,7 @@ import { ZoneClient2016 } from "./zoneclient";
 import {
   ConstructionPermissions,
   ConstructionSlotPositionMap,
+  OccupiedSlotMap,
   SquareBounds,
 } from "types/zoneserver";
 import {
@@ -153,6 +154,14 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
     const itemDefinition = server.getItemDefinition(this.itemDefinitionId);
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
+  }
+
+  getOccupiedSlotMaps(): Array<OccupiedSlotMap> {
+    return [
+      ...super.getOccupiedSlotMaps(),
+      this.occupiedExpansionSlots,
+      this.occupiedRampSlots
+    ]
   }
 
   private getSquareBounds(

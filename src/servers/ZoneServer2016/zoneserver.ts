@@ -175,6 +175,12 @@ export class ZoneServer2016 extends EventEmitter {
   _constructionSimple: { [characterId: string]: ConstructionChildEntity } = {};
 
   _lootableProps: { [characterId: string]: LootableProp } = {};
+
+  _worldLootableConstruction: { [characterId: string]: LootableConstructionEntity } =
+    {};
+  _worldSimpleConstruction: { [characterId: string]: ConstructionChildEntity } =
+    {};
+
   _speedTrees: any = {};
   _speedTreesCounter: any = {};
   _gameTime: any;
@@ -987,12 +993,12 @@ export class ZoneServer2016 extends EventEmitter {
         this.spawnDoors(client);
         this.spawnProps(client);
         this.constructionManager(client);
+        this.worldConstructionManager(client);
         this.spawnExplosives(client);
         this.spawnTraps(client);
         this.spawnTemporaryObjects(client);
         this.POIManager(client);
         this.lootbagManager(client);
-        this.lootableConstructionManager(client);
         client.posAtLastRoutine = client.character.state.position;
       });
       if (this._ready) {
@@ -1817,6 +1823,10 @@ export class ZoneServer2016 extends EventEmitter {
         return EntityTypes.LOOTABLE_CONSTRUCTION;
       case !!this._lootableProps[entityKey]:
         return EntityTypes.LOOTABLE_PROP;
+      case !!this._worldLootableConstruction[entityKey]:
+        return EntityTypes.WORLD_LOOTABLE_CONSTRUCTION;
+      case !!this._worldSimpleConstruction[entityKey]:
+        return EntityTypes.WORLD_CONSTRUCTION_SIMPLE;
       default:
         return EntityTypes.INVALID;
     }
@@ -1856,6 +1866,8 @@ export class ZoneServer2016 extends EventEmitter {
       this._lootbags[entityKey] ||
       this._lootableConstruction[entityKey] ||
       this._lootableProps[entityKey] ||
+      this._worldLootableConstruction[entityKey] ||
+      this._worldSimpleConstruction[entityKey] ||
       undefined
     );
   }
@@ -2422,6 +2434,165 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  private spawnConstructionFreeplace(client: Client, parentEntity: ConstructionParentEntity | ConstructionChildEntity) {
+    for(const entity of Object.values(parentEntity.freeplaceEntities)) {
+      if(entity instanceof ConstructionChildEntity) {
+        this.spawnSimpleConstruction(client, entity);
+      }
+      else if (entity instanceof ConstructionDoor) {
+        this.spawnConstructionDoor(client, entity);
+      }
+      else if (entity instanceof LootableConstructionEntity) {
+        this.spawnLootableConstruction(client, entity);
+      }
+    }
+  }
+
+  private spawnConstructionParent(client: Client, entity: ConstructionParentEntity) {
+    if(!client.spawnedEntities.includes(entity)) {
+      this.addLightweightNpc(
+        client,
+        entity,
+        this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
+      );
+      this.sendData(client, "Replication.NpcComponent", {
+        transientId: entity.transientId,
+        nameId: entity.nameId,
+      });
+      client.spawnedEntities.push(entity);
+      if (
+        entity.itemDefinitionId == Items.SHACK ||
+        entity.itemDefinitionId == Items.SHACK_SMALL ||
+        entity.itemDefinitionId == Items.SHACK_BASIC
+      ) {
+        this.updateResource(
+          client,
+          entity.characterId,
+          entity.health,
+          ResourceIds.CONSTRUCTION_CONDITION,
+          ResourceTypes.CONDITION
+        );
+      }
+    }
+    // slotted construction spawning
+    this.spawnConstructionTree(client, entity);
+
+    // freeplace construction spawning
+    this.spawnConstructionFreeplace(client, entity);
+  }
+
+  private spawnConstructionDoor(client: Client, entity: ConstructionDoor) {
+    if(client.spawnedEntities.includes(entity)) return;
+    this.addLightweightNpc(
+      client,
+      entity,
+      this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
+    );
+    this.sendData(client, "Replication.InteractionComponent", {
+      transientId: entity.transientId,
+    });
+    this.sendData(client, "Replication.NpcComponent", {
+      transientId: entity.transientId,
+      nameId: entity.nameId,
+    });
+    client.spawnedEntities.push(entity);
+    this.updateResource(
+      client,
+      entity.characterId,
+      entity.health,
+      ResourceIds.CONSTRUCTION_CONDITION,
+      ResourceTypes.CONDITION
+    );
+    if (entity.isOpen) {
+      this.sendData(client, "PlayerUpdatePosition", {
+        transientId: entity.transientId,
+        positionUpdate: {
+          sequenceTime: 0,
+          unknown3_int8: 0,
+          position: entity.state.position,
+          orientation: entity.openAngle,
+        },
+      });
+    }
+  }
+
+  private spawnSimpleConstruction(client: Client, entity: ConstructionChildEntity, spawnTree = true) {
+    if(!client.spawnedEntities.includes(entity)) {
+      this.addLightweightNpc(
+        client,
+        entity,
+        this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
+      );
+      this.sendData(client, "Replication.NpcComponent", {
+        transientId: entity.transientId,
+        nameId: entity.nameId,
+      });
+      client.spawnedEntities.push(entity);
+      this.updateResource(
+        client,
+        entity.characterId,
+        entity.health,
+        ResourceIds.CONSTRUCTION_CONDITION,
+        ResourceTypes.CONDITION
+      );
+    }
+
+    if(!spawnTree) return;
+    // slotted construction spawning
+    this.spawnConstructionTree(client, entity);
+
+    // freeplace construction spawning
+    this.spawnConstructionFreeplace(client, entity);
+  }
+
+  private spawnLootableConstruction(client: Client, entity: LootableConstructionEntity) {
+    if(client.spawnedEntities.includes(entity)) return;
+    this.addLightweightNpc(
+      client,
+      entity,
+      this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
+    );
+    this.sendData(client, "Replication.InteractionComponent", {
+      transientId: entity.transientId,
+    });
+    this.sendData(client, "Replication.NpcComponent", {
+      transientId: entity.transientId,
+      nameId: entity.nameId,
+    });
+    this.updateResource(
+      client,
+      entity.characterId,
+      entity.health,
+      ResourceIds.CONSTRUCTION_CONDITION,
+      ResourceTypes.CONDITION
+    );
+    client.spawnedEntities.push(entity);
+  }
+
+  private spawnConstructionTree(client: Client, parentEntity: ConstructionParentEntity | ConstructionChildEntity) {
+    for(const slotMap of parentEntity.getOccupiedSlotMaps()) {
+      for(const entity of Object.values(slotMap)) {
+        console.log(entity.characterId)
+        if(isPosInRadius(
+          entity.npcRenderDistance
+            ? entity.npcRenderDistance
+            : this._charactersRenderDistance,
+          client.character.state.position,
+          entity.state.position
+        )
+        ) {
+          console.log("iteration")
+          if (entity instanceof ConstructionChildEntity) {
+            this.spawnSimpleConstruction(client, entity);
+          }
+          else if (entity instanceof ConstructionDoor) {
+            this.spawnConstructionDoor(client, entity);
+          }
+        }
+      }
+    }
+  }
+
   private constructionManager(client: Client) {
     for (const characterId in this._constructionFoundations) {
       const npc = this._constructionFoundations[characterId];
@@ -2432,32 +2603,9 @@ export class ZoneServer2016 extends EventEmitter {
             : this._charactersRenderDistance,
           client.character.state.position,
           npc.state.position
-        ) &&
-        !client.spawnedEntities.includes(npc)
+        )
       ) {
-        this.addLightweightNpc(
-          client,
-          npc,
-          this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID
-        );
-        this.sendData(client, "Replication.NpcComponent", {
-          transientId: npc.transientId,
-          nameId: npc.nameId,
-        });
-        client.spawnedEntities.push(npc);
-        if (
-          npc.itemDefinitionId == Items.SHACK ||
-          npc.itemDefinitionId == Items.SHACK_SMALL ||
-          npc.itemDefinitionId == Items.SHACK_BASIC
-        ) {
-          this.updateResource(
-            client,
-            npc.characterId,
-            npc.health,
-            ResourceIds.CONSTRUCTION_CONDITION,
-            ResourceTypes.CONDITION
-          );
-        }
+        this.spawnConstructionParent(client, npc);
       }
       this.checkFoundationPermission(client, npc);
     }
@@ -2474,39 +2622,11 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(npc)
       ) {
-        this.addLightweightNpc(
-          client,
-          npc,
-          this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID
-        );
-        this.sendData(client, "Replication.InteractionComponent", {
-          transientId: npc.transientId,
-        });
-        this.sendData(client, "Replication.NpcComponent", {
-          transientId: npc.transientId,
-          nameId: npc.nameId,
-        });
-        client.spawnedEntities.push(npc);
-        this.updateResource(
-          client,
-          npc.characterId,
-          npc.health,
-          ResourceIds.CONSTRUCTION_CONDITION,
-          ResourceTypes.CONDITION
-        );
-        if (npc.isOpen) {
-          this.sendData(client, "PlayerUpdatePosition", {
-            transientId: npc.transientId,
-            positionUpdate: {
-              sequenceTime: 0,
-              unknown3_int8: 0,
-              position: npc.state.position,
-              orientation: npc.openAngle,
-            },
-          });
-        }
+        this.spawnConstructionDoor(client, npc);
       }
     }
+
+    /*
 
     for (const characterId in this._constructionSimple) {
       const npc = this._constructionSimple[characterId];
@@ -2520,25 +2640,56 @@ export class ZoneServer2016 extends EventEmitter {
         ) &&
         !client.spawnedEntities.includes(npc)
       ) {
-        this.addLightweightNpc(
-          client,
-          npc,
-          this.getItemDefinition(npc.itemDefinitionId)?.NAME_ID
-        );
-        this.sendData(client, "Replication.NpcComponent", {
-          transientId: npc.transientId,
-          nameId: npc.nameId,
-        });
-        client.spawnedEntities.push(npc);
-        this.updateResource(
-          client,
-          npc.characterId,
-          npc.health,
-          ResourceIds.CONSTRUCTION_CONDITION,
-          ResourceTypes.CONDITION
-        );
+        this.spawnSimpleConstruction(client, npc);
       }
       this.checkConstructionChildEntityPermission(client, npc);
+    }
+
+    for (const characterId in this._lootableConstruction) {
+      const obj = this._lootableConstruction[characterId];
+      if (
+        isPosInRadius(
+          obj.npcRenderDistance,
+          client.character.state.position,
+          obj.state.position
+        ) &&
+        !client.spawnedEntities.includes(obj)
+      ) {
+        this.spawnLootableConstruction(client, obj);
+      }
+    }
+    */
+  }
+  
+
+  /**
+   * Manages the spawning of WORLD parented free-place construction entities, such as storage containers placed directly on the ground.
+   * 
+   */
+  private worldConstructionManager(client: Client) {
+    for (const characterId in this._worldSimpleConstruction) {
+      const entity = this._worldSimpleConstruction[characterId];
+      if (
+        isPosInRadius(
+          entity.npcRenderDistance as number,
+          client.character.state.position,
+          entity.state.position
+        )
+      ) {
+        this.spawnSimpleConstruction(client, entity, false);
+      }
+    }
+    for (const characterId in this._worldLootableConstruction) {
+      const entity = this._worldLootableConstruction[characterId];
+      if (
+        isPosInRadius(
+          entity.npcRenderDistance as number,
+          client.character.state.position,
+          entity.state.position
+        )
+      ) {
+        this.spawnLootableConstruction(client, entity);
+      }
     }
   }
 
@@ -2714,41 +2865,6 @@ export class ZoneServer2016 extends EventEmitter {
           });
           client.spawnedEntities.splice(index, 1);
         }
-      }
-    }
-  }
-
-  private lootableConstructionManager(client: Client) {
-    for (const characterId in this._lootableConstruction) {
-      const obj = this._lootableConstruction[characterId];
-      if (
-        isPosInRadius(
-          obj.npcRenderDistance,
-          client.character.state.position,
-          obj.state.position
-        ) &&
-        !client.spawnedEntities.includes(obj)
-      ) {
-        this.addLightweightNpc(
-          client,
-          obj,
-          this.getItemDefinition(obj.itemDefinitionId)?.NAME_ID
-        );
-        this.sendData(client, "Replication.InteractionComponent", {
-          transientId: obj.transientId,
-        });
-        this.sendData(client, "Replication.NpcComponent", {
-          transientId: obj.transientId,
-          nameId: obj.nameId,
-        });
-        this.updateResource(
-          client,
-          obj.characterId,
-          obj.health,
-          ResourceIds.CONSTRUCTION_CONDITION,
-          ResourceTypes.CONDITION
-        );
-        client.spawnedEntities.push(obj);
       }
     }
   }
@@ -3644,23 +3760,7 @@ export class ZoneServer2016 extends EventEmitter {
           freeplaceParentCharacterId
         );
       case Items.FURNACE:
-        return this.placeSmeltingEntity(
-          client,
-          itemDefinitionId,
-          modelId,
-          position,
-          eul2quat(rotation),
-          freeplaceParentCharacterId
-        );
       case Items.BARBEQUE:
-        return this.placeSmeltingEntity(
-          client,
-          itemDefinitionId,
-          modelId,
-          position,
-          eul2quat(rotation),
-          freeplaceParentCharacterId
-        );
       case Items.CAMPFIRE:
         return this.placeSmeltingEntity(
           client,
@@ -3712,9 +3812,15 @@ export class ZoneServer2016 extends EventEmitter {
             "",
             this
           );
-        this._constructionSimple[characterId] = construction;
+        
         const parent = construction.getParent(this);
-        if (parent) parent.addFreeplaceConstruction(construction);
+        if (parent) {
+          this._constructionSimple[characterId] = construction;
+          parent.addFreeplaceConstruction(construction); 
+        }
+        else {
+          this._worldSimpleConstruction[characterId] = construction;
+        }
 
         return true;
     }
@@ -4213,10 +4319,17 @@ export class ZoneServer2016 extends EventEmitter {
       parentObjectCharacterId || "",
       this
     );
-    this._lootableConstruction[characterId] = obj;
-    obj.equipItem(this, this.generateItem(Items.CONTAINER_STORAGE), false);
+    
+    
     const parent = obj.getParent(this);
-    if (parent) parent.addFreeplaceConstruction(obj);
+    if (parent) {
+      this._lootableConstruction[characterId] = obj;
+      parent.addFreeplaceConstruction(obj);
+    }
+    else {
+      this._worldLootableConstruction[characterId] = obj;
+    }
+    obj.equipItem(this, this.generateItem(Items.CONTAINER_STORAGE), false);
 
     return true;
   }
@@ -4241,11 +4354,16 @@ export class ZoneServer2016 extends EventEmitter {
       parentObjectCharacterId || "",
       this
     );
-    this._lootableConstruction[characterId] = obj;
-    obj.startSmelting(this);
 
     const parent = obj.getParent(this);
-    if (parent) parent.addFreeplaceConstruction(obj);
+    if (parent) {
+      this._lootableConstruction[characterId] = obj;
+      parent.addFreeplaceConstruction(obj);
+    }
+    else {
+      this._worldLootableConstruction[characterId] = obj;
+    }
+    obj.startSmelting(this);
 
     return true;
   }
@@ -6179,12 +6297,12 @@ export class ZoneServer2016 extends EventEmitter {
       this.spawnDoors(client);
       this.spawnProps(client);
       this.constructionManager(client);
+      this.worldConstructionManager(client);
       this.spawnExplosives(client);
       this.spawnTraps(client);
       this.spawnTemporaryObjects(client);
       this.POIManager(client);
       this.lootbagManager(client);
-      this.lootableConstructionManager(client);
       client.posAtLastRoutine = client.character.state.position;
   }
 

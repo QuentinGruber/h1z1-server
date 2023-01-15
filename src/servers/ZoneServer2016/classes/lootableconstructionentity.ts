@@ -97,7 +97,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   destroy(server: ZoneServer2016, destructTime = 0) {
     server.deleteEntity(
       this.characterId,
-      server._lootableConstruction,
+      server._lootableConstruction[this.characterId] ? server._lootableConstruction : server._worldLootableConstruction,
       242,
       destructTime
     );
