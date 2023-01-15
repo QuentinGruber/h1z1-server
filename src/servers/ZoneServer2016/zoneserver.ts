@@ -982,8 +982,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private divideMapIntoGrid(mapWidth: number, mapHeight: number, gridCellSize: number) {
-    var grid = [];
-    for (var i = -mapWidth/2; i < mapWidth/2; i += gridCellSize) {
+    const grid = [];
+    for (let i = -mapWidth/2; i < mapWidth/2; i += gridCellSize) {
         for (var j = -mapHeight/2; j < mapHeight/2; j += gridCellSize) {
             const cell = new GridCell(
                 i,
@@ -1000,8 +1000,8 @@ export class ZoneServer2016 extends EventEmitter {
     pushToGridCell(obj: any) {
         if (this._grid.length == 0) this._grid = this.divideMapIntoGrid(8000, 8000, 250)
         if (obj instanceof Vehicle || obj instanceof Character || obj instanceof Npc) return // dont push objects that can change its position
-        for (var i = 0; i < this._grid.length; i++) {
-            var gridCell = this._grid[i];         
+        for (let i = 0; i < this._grid.length; i++) {
+            const gridCell = this._grid[i];         
             if (obj.state.position[0] >= gridCell.position[0] && obj.state.position[0] <= gridCell.position[0] + gridCell.width && obj.state.position[2] >= gridCell.position[2] && obj.state.position[2] <= gridCell.position[2] + gridCell.height) {
                 if (gridCell.objects.includes(obj)) {
                     return
