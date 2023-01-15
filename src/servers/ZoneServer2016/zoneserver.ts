@@ -1015,6 +1015,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
     else {  
       if (this._ready) {
+        this.npcDespawner();
+        this.lootbagDespawner();
+        this.itemDespawner();
         this.worldObjectManager.run(this);
         if (this.enableWorldSaves) this.worldDataManager.run(this);
       }
@@ -2419,16 +2422,6 @@ export class ZoneServer2016 extends EventEmitter {
   private npcManager(client: Client) {
     for (const characterId in this._npcs) {
       const npc = this._npcs[characterId];
-      // dead npc despawner
-      if (
-        npc.flags.knockedOut &&
-        Date.now() - npc.deathTime >=
-          this.worldObjectManager.deadNpcDespawnTimer
-      ) {
-        this.deleteEntity(npc.characterId, this._npcs);
-        continue;
-      }
-
       // npc clientside spawner
       if (
         isPosInRadius(
@@ -2452,6 +2445,20 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
+  }
+
+  private npcDespawner() {
+      for (const characterId in this._npcs) {
+          const npc = this._npcs[characterId];
+          // dead npc despawner
+          if (
+              npc.flags.knockedOut &&
+              Date.now() - npc.deathTime >=
+              this.worldObjectManager.deadNpcDespawnTimer
+          ) {
+              this.deleteEntity(npc.characterId, this._npcs);
+          }
+      }
   }
 
   private spawnConstructionFreeplace(client: Client, parentEntity: ConstructionParentEntity | ConstructionChildEntity) {
@@ -2797,7 +2804,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private itemManager() {
+  private itemDespawner() {
     for (const characterId in this._spawnedItems) {
       const itemObject = this._spawnedItems[characterId];
       // dropped item despawner
@@ -2820,7 +2827,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private lootbagManager() {
+  private lootbagDespawner() {
     for (const characterId in this._lootbags) {
       // lootbag despawner
       const lootbag = this._lootbags[characterId];
@@ -6281,7 +6288,6 @@ export class ZoneServer2016 extends EventEmitter {
           if (!client) return;
           if (!client.isLoading) {
               this.vehicleManager(client);
-              this.itemManager();
               this.npcManager(client);
               this.removeOutOfDistanceEntities(client);
               this.spawnCharacters(client);
@@ -6293,7 +6299,6 @@ export class ZoneServer2016 extends EventEmitter {
               //this.spawnTraps(client);
               //this.spawnTemporaryObjects(client);
               this.POIManager(client);
-              this.lootbagManager();
               client.posAtLastRoutine = client.character.state.position;
           }
           if (client.isLoading) {
@@ -6306,7 +6311,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   executeRoutine(client: Client) {
       this.vehicleManager(client);
-      this.itemManager();
       this.npcManager(client);
       this.removeOutOfDistanceEntities(client);
       this.spawnCharacters(client);
@@ -6318,7 +6322,6 @@ export class ZoneServer2016 extends EventEmitter {
       //this.spawnTraps(client);
       //this.spawnTemporaryObjects(client);
       this.POIManager(client);
-      this.lootbagManager();
       client.posAtLastRoutine = client.character.state.position;
   }
 
