@@ -192,7 +192,7 @@ export class ZoneServer2016 extends EventEmitter {
   _timeMultiplier = 72;
   _cycleSpeed = 100;
   _frozeCycle = false;
-  tickRate = 500;
+  tickRate = 2000;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
   _bannedClients: {
@@ -1012,30 +1012,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
   private worldRoutine() {
-    debug("WORLDROUTINE");
-
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
-    else {
-      this.executeFuncForAllReadyClients((client: Client) => {
-        const date1 = new Date().getTime()
-        this.vehicleManager(client);
-        this.itemManager();
-        this.npcManager(client);
-        this.removeOutOfDistanceEntities(client);
-        this.spawnCharacters(client);
-        //this.spawnDoors(client);
-        this.spawnGridObjects(client);
-        this.constructionManager(client);
-        this.worldConstructionManager(client);
-        //this.spawnExplosives(client);
-        //this.spawnTraps(client);
-        //this.spawnTemporaryObjects(client);
-        this.POIManager(client);
-        this.lootbagManager();
-        client.posAtLastRoutine = client.character.state.position;
-        const date2 = new Date().getTime()
-      console.log(date2 - date1)
-      });
+    else {  
       if (this._ready) {
         this.worldObjectManager.run(this);
         if (this.enableWorldSaves) this.worldDataManager.run(this);
@@ -6298,8 +6276,36 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  executeWorlRoutine(client: any) {
-    this.vehicleManager(client);
+  startClientRoutine(client: Client) {  
+      client.routineInterval = setTimeout(() => {
+          if (!client) return;
+          if (!client.isLoading) {
+              this.vehicleManager(client);
+              this.itemManager();
+              this.npcManager(client);
+              this.removeOutOfDistanceEntities(client);
+              this.spawnCharacters(client);
+              //this.spawnDoors(client);
+              this.spawnGridObjects(client);
+              this.constructionManager(client);
+              this.worldConstructionManager(client);
+              //this.spawnExplosives(client);
+              //this.spawnTraps(client);
+              //this.spawnTemporaryObjects(client);
+              this.POIManager(client);
+              this.lootbagManager();
+              client.posAtLastRoutine = client.character.state.position;
+          }
+          if (client.isLoading) {
+              delete client.routineInterval;
+              return
+          }
+          client.routineInterval?.refresh()
+      }, this.tickRate)
+  }
+
+  executeRoutine(client: Client) {
+      this.vehicleManager(client);
       this.itemManager();
       this.npcManager(client);
       this.removeOutOfDistanceEntities(client);
