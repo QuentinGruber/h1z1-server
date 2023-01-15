@@ -13,12 +13,19 @@
 
 import { MongoClient } from "mongodb";
 import {
+  BaseEntityUpdateSaveData,
+  BaseFullCharacterUpdateSaveData,
+  BaseFullEntitySaveData,
+  BaseSaveData,
   CharacterUpdateSaveData,
+  ConstructionParentSaveData,
   FullCharacterSaveData,
   FullVehicleSaveData,
+  ItemSaveData,
   LoadoutContainerSaveData,
   LoadoutItemSaveData,
   ServerSaveData,
+  WeaponSaveData,
 } from "types/savedata";
 import { initMongo, toBigHex, _ } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
@@ -28,6 +35,8 @@ import { LoadoutItem } from "../classes/loadoutItem";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { BaseItem } from "../classes/baseItem";
 import { Weapon } from "../classes/weapon";
+import { BaseEntity } from "../classes/baseentity";
+import { BaseFullCharacter } from "../classes/basefullcharacter";
 
 const fs = require("fs");
 const debug = require("debug")("ZoneServer");
@@ -195,6 +204,96 @@ export class WorldDataManager {
     debug("World saved!");
   }
 
+  //#region DATA GETTER HELPER FUNCTIONS
+  
+  private getBaseSaveData(server: ZoneServer2016): BaseSaveData {
+    return {
+      serverId: server._worldId,
+      worldSaveVersion: server.worldSaveVersion
+    }
+  }
+
+  private getBaseEntityUpdateSaveData(server: ZoneServer2016, entity: BaseEntity): BaseEntityUpdateSaveData {
+    return {
+      ...this.getBaseSaveData(server),
+      position: Array.from(entity.state.position),
+      rotation: Array.from(entity.state.rotation)
+    }
+  }
+
+  private getBaseFullEntitySaveData(server: ZoneServer2016, entity: BaseEntity): BaseFullEntitySaveData {
+    return {
+      ...this.getBaseEntityUpdateSaveData(server, entity),
+      ...this.getBaseSaveData(server),
+      characterId: entity.characterId,
+      actorModelId: entity.actorModelId
+    }
+  }
+
+  private getWeaponSaveData(server: ZoneServer2016, weapon: Weapon): WeaponSaveData {
+    return {
+      ammoCount: weapon.ammoCount
+    }
+  }
+
+  private getItemSaveData(server: ZoneServer2016, item: BaseItem): ItemSaveData {
+    return {
+      itemDefinitionId: item.itemDefinitionId,
+      slotId: item.slotId,
+      itemGuid: item.itemGuid,
+      containerGuid: item.containerGuid,
+      currentDurability: item.currentDurability,
+      stackCount: item.stackCount,
+      weapon: item.weapon? this.getWeaponSaveData(server, item.weapon): undefined
+    }
+  }
+
+  private getLoadoutItemSaveData(server: ZoneServer2016, item: LoadoutItem): LoadoutItemSaveData {
+    return {
+      ...this.getItemSaveData(server, item),
+      loadoutItemOwnerGuid: item.loadoutItemOwnerGuid
+    }
+  }
+
+  private getLoadoutContainerSaveData(server: ZoneServer2016, container: LoadoutContainer): LoadoutContainerSaveData {
+    const items: { [itemGuid: string]: ItemSaveData } = {};
+    Object.values(container.items).forEach((item) => {
+      items[item.itemGuid] = {
+        ...this.getItemSaveData(server, item)
+      }
+    })
+    
+    return {
+      ...this.getLoadoutItemSaveData(server, container),
+      containerDefinitionId: container.containerDefinitionId,
+      items: items
+    }
+  }
+
+  private getBaseFullCharacterUpdateSaveData(server: ZoneServer2016, entity: BaseFullCharacter): BaseFullCharacterUpdateSaveData {
+    const loadout: { [loadoutSlotId: number]: LoadoutItemSaveData } = {},
+    containers: { [loadoutSlotId: number]: LoadoutContainerSaveData } = {}
+    Object.values(entity._loadout).forEach((item) => {
+      loadout[item.slotId] = {
+        ...this.getLoadoutItemSaveData(server, item)
+      }
+    })
+    Object.values(entity._containers).forEach((container) => {
+      containers[container.slotId] = {
+        ...this.getLoadoutContainerSaveData(server, container)
+      }
+    })
+    
+    return {
+      ...this.getBaseFullEntitySaveData(server, entity),
+      _loadout: loadout,
+      _containers: containers,
+      _resources: entity._resources,
+    }
+  }
+
+  //#endregion
+
   //#region SERVER DATA
 
   private async loadServerData(server: ZoneServer2016) {
@@ -355,35 +454,10 @@ export class WorldDataManager {
   ) {
     if (!server.enableWorldSaves) return;
     if (updateItemGuid) await this.saveServerData(server);
-    const loadoutKeys = Object.keys(client.character._loadout),
-      containerKeys = Object.keys(client.character._containers),
-      loadoutSaveData: { [loadoutSlotId: number]: LoadoutItemSaveData } = {},
-      containerSaveData: { [loadoutSlotId: number]: LoadoutContainerSaveData } =
-        {};
-    Object.values(client.character._loadout).forEach((item, idx) => {
-      loadoutSaveData[Number(loadoutKeys[idx])] = {
-        itemDefinitionId: item.itemDefinitionId,
-        slotId: item.slotId,
-        itemGuid: item.itemGuid,
-        containerGuid: item.containerGuid,
-        currentDurability: item.currentDurability,
-        stackCount: item.stackCount,
-        weapon: item.weapon? {ammoCount: item.weapon.ammoCount} : undefined,
-        loadoutItemOwnerGuid: item.loadoutItemOwnerGuid
-      };
-    });
-    Object.values(client.character._containers).forEach((item, idx) => {
-      containerSaveData[Number(containerKeys[idx])] = item;
-    });
 
     const saveData: CharacterUpdateSaveData = {
-      position: Array.from(client.character.state.position),
-      rotation: Array.from(client.character.state.lookAt),
+      ...this.getBaseFullCharacterUpdateSaveData(server, client.character),
       isRespawning: client.character.isRespawning,
-      _loadout: loadoutSaveData,
-      _containers: containerSaveData,
-      _resources: client.character._resources,
-      worldSaveVersion: server.worldSaveVersion,
     };
     if (server._soloMode) {
       const singlePlayerCharacters = require(`${server._appDataFolder}/single_player_characters2016.json`);
@@ -480,15 +554,9 @@ export class WorldDataManager {
       server._vehicles
     ).map((vehicle) => {
       return {
-        serverId: server._worldId,
+        ...this.getBaseFullCharacterUpdateSaveData(server, vehicle),
         characterId: vehicle.characterId,
         actorModelId: vehicle.actorModelId,
-        position: Array.from(vehicle.state.position),
-        rotation: Array.from(vehicle.state.rotation),
-        _loadout: vehicle._loadout,
-        _containers: vehicle._containers,
-        _resources: vehicle._resources,
-        worldSaveVersion: server.worldSaveVersion,
         vehicleId: vehicle.vehicleId,
       };
     });
@@ -503,10 +571,28 @@ export class WorldDataManager {
       collection?.insertMany(vehicles);
     }
   }
+  //#endregion
+
+  //#region CONSTRUCTION DATA
+  async loadConstructionData(server: ZoneServer2016) {
+    if (!server.enableWorldSaves) return;
+
+  }
+
+  /*
+
+  async saveConstructionData(server: ZoneServer2016) {
+    if (!server.enableWorldSaves) return;
+    const construction: Array<ConstructionParentSaveData> = Object.values(
+      server._constructionFoundations
+    ).map((parent) => {
+      return {
+
+      };
+    });
+  }
+
+  */
+ 
+  //#endregion
 }
-
-//#endregion
-
-//#region CONSTRUCTION DATA
-
-//#endregion

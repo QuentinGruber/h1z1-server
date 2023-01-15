@@ -11,27 +11,30 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-interface BaseSaveData {
+import { ConstructionPermissions } from "./zoneserver";
+
+export interface BaseSaveData {
   serverId: number;
+  worldSaveVersion: number;
 }
 
-interface BaseEntityUpdateSaveData {
+export interface BaseEntityUpdateSaveData 
+  extends BaseSaveData {
   position: Array<number>;
   rotation: Array<number>;
 }
 
-interface BaseFullEntitySaveData
-  extends BaseEntityUpdateSaveData,
-    BaseSaveData {
+export interface BaseFullEntitySaveData
+  extends BaseEntityUpdateSaveData {
   characterId: string;
   actorModelId: number;
 }
 
-interface WeaponSaveData {
+export interface WeaponSaveData {
   ammoCount: number;
 }
 
-interface ItemSaveData {
+export interface ItemSaveData {
   itemDefinitionId: number;
   slotId: number;
   itemGuid: string;
@@ -50,11 +53,10 @@ export interface LoadoutContainerSaveData extends LoadoutItemSaveData {
   items: { [itemGuid: string]: ItemSaveData };
 }
 
-interface BaseFullCharacterUpdateSaveData extends BaseEntityUpdateSaveData {
+export interface BaseFullCharacterUpdateSaveData extends BaseEntityUpdateSaveData {
   _loadout: { [loadoutSlotId: number]: LoadoutItemSaveData };
   _containers: { [loadoutSlotId: number]: LoadoutContainerSaveData };
   _resources: { [resourceId: number]: number };
-  worldSaveVersion: number;
 }
 
 export interface CharacterUpdateSaveData
@@ -80,6 +82,22 @@ export interface FullVehicleSaveData
     BaseFullEntitySaveData {
     vehicleId: number
 }
+
+export interface ConstructionChildSaveData
+  extends BaseFullCharacterUpdateSaveData,
+  BaseFullEntitySaveData {
+    health: number;
+    
+}
+
+export interface ConstructionParentSaveData
+  extends ConstructionChildSaveData {
+    permissions: { [characterId: string]: ConstructionPermissions };
+    ownerCharacterId: string;
+    occupiedExpansionSlots: { [slot: number]: ConstructionParentSaveData };
+    occupiedRampSlots: { [slot: number]: ConstructionChildSaveData }
+}
+
 
 export interface ServerSaveData extends BaseSaveData {
   lastItemGuid: string;

@@ -51,8 +51,13 @@ export class BaseLootableEntity extends BaseFullCharacter {
     }
 
     if (this.mountedCharacter) {
-      server.containerError(client, ContainerErrors.IN_USE);
-      return;
+      if(!server.getClientByCharId(this.mountedCharacter)) {
+        delete this.mountedCharacter;
+      }
+      else {
+        server.containerError(client, ContainerErrors.IN_USE);
+        return;
+      }
     }
 
     client.character.mountContainer(server, this);
