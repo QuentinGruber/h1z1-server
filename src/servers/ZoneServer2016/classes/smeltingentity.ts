@@ -98,7 +98,7 @@ export class smeltingEntity {
       } else this.dictionary = server._lootableConstruction
   }
 
-  startBurning(server: ZoneServer2016, parentObject: LootableConstructionEntity) {
+  startBurning(server: ZoneServer2016) {
     if (!parentObject._containers["31"]) return;
     if (JSON.stringify(parentObject._containers["31"].items) === "{}") {
       if (this.isBurning) {

@@ -53,7 +53,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   health: number = 1000000;
   readonly itemDefinitionId: number;
   parentObjectCharacterId: string;
-  readonly eulerAngle: number;
+  eulerAngle: number;
   readonly slot: string;
   isSecured: boolean;
   readonly damageRange: number;
