@@ -201,44 +201,54 @@ export class WorldDataManager {
     //await this.saveVehicles(server);
     await this.saveServerData(server);
     await this.saveCharacters(server);
-    await this.saveConstructionData(server);
     debug("World saved!");
   }
 
   //#region DATA GETTER HELPER FUNCTIONS
-  
+
   private getBaseSaveData(server: ZoneServer2016): BaseSaveData {
-    console.log(server._worldId)
+    console.log(server._worldId);
     return {
       serverId: server._worldId,
-      worldSaveVersion: server.worldSaveVersion
-    }
+    };
   }
 
-  private getBaseEntityUpdateSaveData(server: ZoneServer2016, entity: BaseEntity): BaseEntityUpdateSaveData {
+  private getBaseEntityUpdateSaveData(
+    server: ZoneServer2016,
+    entity: BaseEntity
+  ): BaseEntityUpdateSaveData {
     return {
-      ...this.getBaseSaveData(server),
       position: Array.from(entity.state.position),
-      rotation: Array.from(entity.state.rotation)
-    }
+      rotation: Array.from(entity.state.rotation),
+    };
   }
 
-  private getBaseFullEntitySaveData(server: ZoneServer2016, entity: BaseEntity): BaseFullEntitySaveData {
+
+  private getBaseFullEntitySaveData(
+    server: ZoneServer2016,
+    entity: BaseEntity
+  ): BaseFullEntitySaveData {
     return {
       ...this.getBaseEntityUpdateSaveData(server, entity),
       ...this.getBaseSaveData(server),
       characterId: entity.characterId,
-      actorModelId: entity.actorModelId
-    }
+      actorModelId: entity.actorModelId,
+    };
   }
 
-  private getWeaponSaveData(server: ZoneServer2016, weapon: Weapon): WeaponSaveData {
+  private getWeaponSaveData(
+    server: ZoneServer2016,
+    weapon: Weapon
+  ): WeaponSaveData {
     return {
-      ammoCount: weapon.ammoCount
-    }
+      ammoCount: weapon.ammoCount,
+    };
   }
 
-  private getItemSaveData(server: ZoneServer2016, item: BaseItem): ItemSaveData {
+  private getItemSaveData(
+    server: ZoneServer2016,
+    item: BaseItem
+  ): ItemSaveData {
     return {
       itemDefinitionId: item.itemDefinitionId,
       slotId: item.slotId,
@@ -246,52 +256,64 @@ export class WorldDataManager {
       containerGuid: item.containerGuid,
       currentDurability: item.currentDurability,
       stackCount: item.stackCount,
-      weapon: item.weapon? this.getWeaponSaveData(server, item.weapon): undefined
-    }
+      weapon: item.weapon
+        ? this.getWeaponSaveData(server, item.weapon)
+        : undefined,
+    };
   }
 
-  private getLoadoutItemSaveData(server: ZoneServer2016, item: LoadoutItem): LoadoutItemSaveData {
+  private getLoadoutItemSaveData(
+    server: ZoneServer2016,
+    item: LoadoutItem
+  ): LoadoutItemSaveData {
     return {
       ...this.getItemSaveData(server, item),
-      loadoutItemOwnerGuid: item.loadoutItemOwnerGuid
-    }
+      loadoutItemOwnerGuid: item.loadoutItemOwnerGuid,
+    };
   }
 
-  private getLoadoutContainerSaveData(server: ZoneServer2016, container: LoadoutContainer): LoadoutContainerSaveData {
+  private getLoadoutContainerSaveData(
+    server: ZoneServer2016,
+    container: LoadoutContainer
+  ): LoadoutContainerSaveData {
     const items: { [itemGuid: string]: ItemSaveData } = {};
     Object.values(container.items).forEach((item) => {
       items[item.itemGuid] = {
-        ...this.getItemSaveData(server, item)
-      }
-    })
-    
+        ...this.getItemSaveData(server, item),
+      };
+    });
+
     return {
       ...this.getLoadoutItemSaveData(server, container),
       containerDefinitionId: container.containerDefinitionId,
-      items: items
-    }
+      items: items,
+    };
   }
 
-  private getBaseFullCharacterUpdateSaveData(server: ZoneServer2016, entity: BaseFullCharacter): BaseFullCharacterUpdateSaveData {
+  private getBaseFullCharacterUpdateSaveData(
+    server: ZoneServer2016,
+    entity: BaseFullCharacter
+  ): BaseFullCharacterUpdateSaveData {
     const loadout: { [loadoutSlotId: number]: LoadoutItemSaveData } = {},
-    containers: { [loadoutSlotId: number]: LoadoutContainerSaveData } = {}
+      containers: { [loadoutSlotId: number]: LoadoutContainerSaveData } = {};
     Object.values(entity._loadout).forEach((item) => {
       loadout[item.slotId] = {
-        ...this.getLoadoutItemSaveData(server, item)
-      }
-    })
+        ...this.getLoadoutItemSaveData(server, item),
+      };
+    });
     Object.values(entity._containers).forEach((container) => {
       containers[container.slotId] = {
-        ...this.getLoadoutContainerSaveData(server, container)
-      }
-    })
-    
+        ...this.getLoadoutContainerSaveData(server, container),
+      };
+    });
+
     return {
-      ...this.getBaseFullEntitySaveData(server, entity),
+      ...this.getBaseEntityUpdateSaveData(server, entity),
       _loadout: loadout,
       _containers: containers,
       _resources: entity._resources,
-    }
+      worldSaveVersion: server.worldSaveVersion
+    };
   }
 
   //#endregion
@@ -322,8 +344,9 @@ export class WorldDataManager {
   private async saveServerData(server: ZoneServer2016) {
     if (!server.enableWorldSaves) return;
     const saveData: ServerSaveData = {
-      ...this.getBaseSaveData(server),
+      serverId: server._worldId,
       lastItemGuid: toBigHex(server.lastItemGuid),
+      worldSaveVersion: server.worldSaveVersion,
     };
     if (server._soloMode) {
       fs.writeFileSync(
@@ -402,7 +425,7 @@ export class WorldDataManager {
         worldSaveVersion: server.worldSaveVersion,
       };
     }
-    client.guid = "0x665a2bff2b44c034"; // unused
+    client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
     client.character.name = savedCharacter.characterName;
     client.character.actorModelId = savedCharacter.actorModelId;
     client.character.headActor = savedCharacter.headActor;
@@ -458,6 +481,7 @@ export class WorldDataManager {
 
     const saveData: CharacterUpdateSaveData = {
       ...this.getBaseFullCharacterUpdateSaveData(server, client.character),
+      rotation: Array.from(client.character.state.lookAt),
       isRespawning: client.character.isRespawning,
     };
     if (server._soloMode) {
@@ -556,9 +580,11 @@ export class WorldDataManager {
     ).map((vehicle) => {
       return {
         ...this.getBaseFullCharacterUpdateSaveData(server, vehicle),
+        ...this.getBaseFullEntitySaveData(server, vehicle),
         characterId: vehicle.characterId,
         actorModelId: vehicle.actorModelId,
         vehicleId: vehicle.vehicleId,
+        worldSaveVersion: server.worldSaveVersion
       };
     });
     if (server._soloMode) {
@@ -577,9 +603,7 @@ export class WorldDataManager {
   //#region CONSTRUCTION DATA
   async loadConstructionData(server: ZoneServer2016) {
     if (!server.enableWorldSaves) return;
-
   }
-
 
   async saveConstructionData(server: ZoneServer2016) {
     if (!server.enableWorldSaves) return;
@@ -594,26 +618,14 @@ export class WorldDataManager {
         itemDefinitionId: entity.itemDefinitionId,
         eulerAngle: entity.eulerAngle,
         slot: entity.slot,
-        occupiedWallSlots: {
-
-        },
-        occupiedUpperWallSlots: {
-
-        },
-        occupiedShelterSlots: {
-          
-        },
-        freeplaceEntities: {
-
-        },
+        occupiedWallSlots: {},
+        occupiedUpperWallSlots: {},
+        occupiedShelterSlots: {},
+        freeplaceEntities: {},
         permissions: entity.permissions,
         ownerCharacterId: entity.ownerCharacterId,
-        occupiedExpansionSlots: {
-
-        },
-        occupiedRampSlots: {
-
-        }
+        occupiedExpansionSlots: {},
+        occupiedRampSlots: {},
       };
     });
     if (server._soloMode) {
