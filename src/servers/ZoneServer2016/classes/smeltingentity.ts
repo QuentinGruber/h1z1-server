@@ -98,9 +98,10 @@ export class smeltingEntity {
       } else this.dictionary = server._lootableConstruction
   }
 
-  startBurning(server: ZoneServer2016) {
-    if (!parentObject._containers["31"]) return;
-    if (JSON.stringify(parentObject._containers["31"].items) === "{}") {
+  startBurning(server: ZoneServer2016, parentObject: LootableConstructionEntity) {
+    const container = parentObject.getContainer();
+    if (!container) return;
+    if (JSON.stringify(container.items) === "{}") {
       if (this.isBurning) {
         server.sendDataToAllWithSpawnedEntity(
           this.dictionary,
@@ -116,7 +117,7 @@ export class smeltingEntity {
       return;
     }
     let allowBurn = false;
-    Object.values(parentObject._containers["31"].items).forEach((item: BaseItem) => {
+    Object.values(container.items).forEach((item: BaseItem) => {
       if (allowBurn) return;
       if (this.allowedFuel.includes(item.itemDefinitionId)) {
         server.removeContainerItemNoClient(item, parentObject, 1);
@@ -125,7 +126,7 @@ export class smeltingEntity {
           server.addContainerItemExternal(
             parentObject.mountedCharacter ? parentObject.mountedCharacter : "",
             server.generateItem(Items.CHARCOAL),
-            parentObject._containers["31"],
+            container,
             1
           );
         }
@@ -171,8 +172,9 @@ export class smeltingEntity {
       this.isSmelting = false;
       return;
     }
-    if (!parentObject._containers["31"]) return;
-    if (JSON.stringify(parentObject._containers["31"].items) === "{}") return;
+    const container = parentObject.getContainer();
+    if (!container) return;
+    if (JSON.stringify(container.items) === "{}") return;
     this.isSmelting = true;
     let passed = false;
     Object.keys(smeltingData).forEach((data: string) => {
@@ -184,7 +186,7 @@ export class smeltingEntity {
         recipe.components.forEach((component: RecipeComponent) => {
           if (passed) return;
           let requiredAmount = component.requiredAmount;
-          Object.values(parentObject._containers["31"].items).forEach(
+          Object.values(container.items).forEach(
             (item: BaseItem) => {
               if (passed) return;
               if (!fulfilledComponents.includes(component)) {
@@ -210,7 +212,7 @@ export class smeltingEntity {
                     server.addContainerItemExternal(
                       parentObject.mountedCharacter ? parentObject.mountedCharacter : "",
                       server.generateItem(recipe.rewardId),
-                      parentObject._containers["31"],
+                      container,
                       1
                     );
                     return;
