@@ -228,7 +228,7 @@ export class ZoneServer2016 extends EventEmitter {
         "kit",
       ];
   _interactionDistance = 4;
-  _pingTimeoutTime = 120000;
+  _pingTimeoutTime = 30000;
   weather: Weather;
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
