@@ -23,6 +23,7 @@ import { BaseLootableEntity } from "./baselootableentity";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ZoneClient2016 } from "./zoneclient";
+import { smeltingEntity } from "./smeltingentity";
 
 export class LootableConstructionEntity extends BaseLootableEntity {
   get health() {
@@ -36,6 +37,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   npcRenderDistance = 15;
   loadoutId = 5;
   itemDefinitionId: number;
+  smeltingEntity?: smeltingEntity
   constructor(
     characterId: string,
     transientId: number,
@@ -45,6 +47,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     server: ZoneServer2016,
     itemDefinitionId: number,
     parentObjectCharacterId: string,
+    isSmeltable: boolean
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.parentObjectCharacterId = parentObjectCharacterId || "";
@@ -53,6 +56,9 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
     this.profileId = 999; /// mark as construction
     this.health = 1000000;
+    if (isSmeltable) {
+        this.smeltingEntity = new smeltingEntity(this, server)
+    }
   }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     // todo: redo this
@@ -140,5 +146,13 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       guid: this.characterId,
       stringId: StringIds.OPEN,
     });
+  }
+  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
+      if (this.smeltingEntity && this.smeltingEntity.isBurning) {
+          server.sendData(client, "Command.PlayDialogEffect", {
+              characterId: this.characterId,
+              effectId: this.smeltingEntity.smeltingEffect,
+          });
+      }
   }
 }

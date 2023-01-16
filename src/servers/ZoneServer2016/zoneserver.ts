@@ -609,6 +609,32 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }
     }
+    for (const a in this._worldLootableConstruction) {
+      const construction = this._worldLootableConstruction[a];
+      if (
+        isPosInRadiusWithY(
+          2,
+          character.state.position,
+          construction.state.position,
+          1
+        )
+      ) {
+        Object.values(construction._containers["31"].items).forEach(
+          (item: BaseItem) => {
+            const proximityItem = {
+              itemDefinitionId: item.itemDefinitionId,
+              associatedCharacterGuid: character.characterId,
+              itemData: construction.pGetItemData(
+                this,
+                item,
+                construction._containers["31"].containerDefinitionId
+              ),
+            };
+            (proximityItems.items as any[]).push(proximityItem);
+          }
+        );
+      }
+    }
     return proximityItems;
   }
 
@@ -1860,6 +1886,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._lootbags[entityKey] ||
       this._vehicles[entityKey] ||
       this._lootableConstruction[entityKey] ||
+      this._worldLootableConstruction[entityKey] ||
       this._lootableProps[entityKey] ||
       undefined
     );
@@ -4311,7 +4338,8 @@ export class ZoneServer2016 extends EventEmitter {
       rotation,
       this,
       itemDefinitionId,
-      parentObjectCharacterId || ""
+      parentObjectCharacterId || "",
+      false
     );
     
     
@@ -4338,7 +4366,7 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId);
-    const obj = new smeltingEntity(
+    const obj = new LootableConstructionEntity(
       characterId,
       transientId,
       modelId,
@@ -4347,6 +4375,7 @@ export class ZoneServer2016 extends EventEmitter {
       this,
       itemDefinitionId,
       parentObjectCharacterId || "",
+      true
     );
 
     const parent = obj.getParent(this);
@@ -4357,7 +4386,7 @@ export class ZoneServer2016 extends EventEmitter {
     else {
       this._worldLootableConstruction[characterId] = obj;
     }
-    obj.startSmelting(this);
+    obj.smeltingEntity?.startSmelting(this, obj);
 
     return true;
   }
@@ -5208,7 +5237,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   removeContainerItemNoClient(
     item?: BaseItem,
-    entity?: smeltingEntity,
+    entity?: LootableConstructionEntity,
     count?: number
   ): boolean {
     if (!entity || !item) return false;
@@ -5940,9 +5969,25 @@ export class ZoneServer2016 extends EventEmitter {
           smeltable.state.position
         )
       ) {
-        if (smeltable instanceof smeltingEntity) {
-          if (smeltable.isBurning) return;
-          smeltable.startBurning(this);
+        if (smeltable instanceof LootableConstructionEntity) {
+          if (smeltable.smeltingEntity?.isBurning) return;
+          smeltable.smeltingEntity?.startBurning(this, smeltable);
+          return;
+        }
+      }
+    }
+    for (const a in this._worldLootableConstruction) {
+        const smeltable = this._worldLootableConstruction[a];
+      if (
+        isPosInRadius(
+          1,
+          client.character.state.position,
+          smeltable.state.position
+        )
+      ) {
+          if (smeltable instanceof LootableConstructionEntity) {
+          if (smeltable.smeltingEntity?.isBurning) return;
+          smeltable.smeltingEntity?.startBurning(this, smeltable);
           return;
         }
       }

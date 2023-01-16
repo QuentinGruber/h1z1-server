@@ -1121,7 +1121,7 @@ export class zonePacketHandlers {
       case ItemUseOptions.USE_MEDICAL:
         server.useMedical(client, item);
         break;
-      case ItemUseOptions.IGNITE:
+        case ItemUseOptions.IGNITE:
         server.igniteOption(client, item);
         break;
       case ItemUseOptions.UNLOAD:
