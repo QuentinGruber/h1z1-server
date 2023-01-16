@@ -3848,7 +3848,7 @@ export class ZoneServer2016 extends EventEmitter {
 
         // need to add all valid construction eventually
         const characterId = this.generateGuid(),
-          transientId = 0, // dont think its needed
+          transientId = 1, // dont think its needed
           construction = new ConstructionChildEntity(
             characterId,
             transientId,
@@ -3918,7 +3918,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     const characterId = this.generateGuid(),
-      transientId = 0, // dont think its needed
+      transientId = 1, // dont think its needed
       shelter = new ConstructionChildEntity(
         characterId,
         transientId,
@@ -3996,7 +3996,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     const characterId = this.generateGuid(),
-      transientId = 0, // dont think its needed
+      transientId = 1, // dont think its needed
       wall = new ConstructionChildEntity(
         characterId,
         transientId,
@@ -4062,7 +4062,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     const characterId = this.generateGuid(),
-      transientId = 0, // dont think its needed
+      transientId = 1, // dont think its needed
       ramp = new ConstructionChildEntity(
         characterId,
         transientId,
@@ -4125,7 +4125,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     // rotation is not slot-locked yet
     const characterId = this.generateGuid(),
-      transientId = 0, // dont think its needed
+      transientId = 1, // dont think its needed
       stairs = new ConstructionChildEntity(
         characterId,
         transientId,
@@ -4301,7 +4301,7 @@ export class ZoneServer2016 extends EventEmitter {
     time: number
   ): boolean {
     const characterId = this.generateGuid(),
-      transientId = 0, // dont think its needed
+      transientId = 1, // dont think its needed
       npc = new TemporaryEntity(
         characterId,
         transientId,
@@ -4322,7 +4322,7 @@ export class ZoneServer2016 extends EventEmitter {
     rotation: Float32Array
   ): boolean {
     const characterId = this.generateGuid(),
-      transientId = 0, // dont think its needed here
+      transientId = 1, // dont think its needed here
       npc = new TrapEntity(
         characterId,
         transientId,
@@ -4344,7 +4344,7 @@ export class ZoneServer2016 extends EventEmitter {
     rotation: Float32Array
   ): boolean {
     const characterId = this.generateGuid(),
-      transientId = 0, // dont think its needed
+      transientId = 1, // dont think its needed
       npc = new ExplosiveEntity(
         characterId,
         transientId,

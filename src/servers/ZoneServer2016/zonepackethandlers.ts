@@ -173,14 +173,12 @@ export class zonePacketHandlers {
       });
       client.character.isReady = true;
     }
-    setTimeout(() => {
       if (client.isLoading) {
         client.isLoading = false;
-        if (client.routineInterval) return;
+        if (client.routineInterval || !client.characterReleased) return;
         server.executeRoutine(client);
         server.startClientRoutine(client);
       }
-    }, 1500);
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
       server.sendData(client, "Character.StartMultiStateDeath", {
@@ -385,10 +383,20 @@ export class zonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
+    if (packet.data.file == "ClientSynchronizedTeleport.log") {
+        if (packet.data.message.includes('releasing local player')) {
+            if (!client.characterReleased) {
+                client.characterReleased = true;
+                if (client.routineInterval || client.isLoading) return;
+                server.executeRoutine(client);
+                server.startClientRoutine(client);
+            }
+        }
+    }
     if (
       packet.data.file === "ClientProc.log" &&
       !client.clientLogs.includes(packet.data.message)
-    ) {
+    ) {      
       const suspicious = [
         "cheatengine",
         "injector",

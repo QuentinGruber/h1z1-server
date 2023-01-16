@@ -376,7 +376,6 @@ export const commands: Array<Command> = [
     name: "tp",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
-      client.isLoading = true;
       let locationPosition;
       switch (args[0]) {
         case "farm":
@@ -443,7 +442,8 @@ export const commands: Array<Command> = [
       }
 
       client.character.state.position = locationPosition;
-
+      client.isLoading = true;
+      client.characterReleased = false
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: locationPosition,
         triggerLoadingScreen: true,
