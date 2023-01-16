@@ -123,7 +123,7 @@ export class DoorEntity extends BaseLightweightCharacter {
     rotation: Float32Array,
     server: ZoneServer2016,
     scale: Float32Array,
-    spawnerId: number,
+    spawnerId: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.scale = new Float32Array(scale);

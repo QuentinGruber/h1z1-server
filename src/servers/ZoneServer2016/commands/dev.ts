@@ -54,7 +54,7 @@ const dev: any = {
       9510,
       client.character.state.position,
       client.character.state.rotation,
-      server,
+      server
     );
     server._npcs[characterId] = zombie;
   },
@@ -68,7 +68,7 @@ const dev: any = {
       9510,
       client.character.state.position,
       client.character.state.rotation,
-      server,
+      server
     );
     server._npcs[characterId] = zombie;
     setTimeout(() => {
@@ -429,7 +429,7 @@ const dev: any = {
         9034,
         client.character.state.position,
         client.character.state.lookAt,
-        server,
+        server
       );
     const item = server.generateItem(1504);
     npc.loadoutId = 5;

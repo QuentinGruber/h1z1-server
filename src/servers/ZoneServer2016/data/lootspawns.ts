@@ -2070,7 +2070,7 @@ export const containerLootSpawners: {
           min: 1,
           max: 1,
         },
-      },  
+      },
     ],
   },
   "Cabinets Bathroom": {

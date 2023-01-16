@@ -375,7 +375,7 @@ export class FarmlandManager {
       furrows.Position.ToFloat32ArrayZYXW(),
       // rotQU.ToFloat32ArrayZYXW()
       Euler.ToH1Z1ClientRotFormat(furrows.Rotation),
-      server,
+      server
     );
   };
 

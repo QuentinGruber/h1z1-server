@@ -27,22 +27,22 @@ import { BaseLootableEntity } from "./baselootableentity";
 import { vehicleDefaultLoadouts } from "../data/loadouts";
 
 function getActorModelId(vehicleId: number) {
-    switch (vehicleId) {
-        case VehicleIds.OFFROADER:
-            return 7225;
-        case VehicleIds.PICKUP:
-            return 9258;
-        case VehicleIds.POLICECAR:
-            return 9301;
-        case VehicleIds.ATV:
-            return 9588;
-        case VehicleIds.PARACHUTE:
-            return 9374;
-        case VehicleIds.SPECTATE: 
-            return 9371;
-        default:
-            return 7225;
-    }
+  switch (vehicleId) {
+    case VehicleIds.OFFROADER:
+      return 7225;
+    case VehicleIds.PICKUP:
+      return 9258;
+    case VehicleIds.POLICECAR:
+      return 9301;
+    case VehicleIds.ATV:
+      return 9588;
+    case VehicleIds.PARACHUTE:
+      return 9374;
+    case VehicleIds.SPECTATE:
+      return 9371;
+    default:
+      return 7225;
+  }
 }
 
 function getVehicleName(ModelId: number) {
@@ -124,7 +124,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     rotation: Float32Array,
     server: ZoneServer2016,
     gameTime: number,
-    vehicleId: number,
+    vehicleId: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this._resources = {
@@ -137,7 +137,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       lookAt: new Float32Array([0, 0, 0, 1]),
     };
     this.vehicleId = vehicleId;
-    if (!this.actorModelId) this.actorModelId = getActorModelId(this.vehicleId)
+    if (!this.actorModelId) this.actorModelId = getActorModelId(this.vehicleId);
     this.loadoutId = getVehicleLoadoutId(this.vehicleId);
     this.defaultLoadout = getDefaultLoadout(this.loadoutId);
     this.isInvulnerable =
@@ -180,7 +180,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       },
     };
     this.nameId = getVehicleName(this.actorModelId);
-    
+
     switch (this.vehicleId) {
       case VehicleIds.PICKUP:
         this.destroyedEffect = 326;
@@ -267,7 +267,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       },
       positionUpdate: {
         ...this.positionUpdate,
-        position: this.state.position // trying to fix invisible characters/vehicles until they move
+        position: this.state.position, // trying to fix invisible characters/vehicles until they move
       },
     };
   }
@@ -279,7 +279,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       positionUpdate: {
         ...this.positionUpdate,
         sequenceTime: server.getGameTime(),
-        position: this.state.position // trying to fix invisible characters/vehicles until they move
+        position: this.state.position, // trying to fix invisible characters/vehicles until they move
       },
       unknownArray1: [],
       unknownArray2: [],
@@ -384,7 +384,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       ) {
         this.damageTimeout.refresh();
       } else {
-            delete this.damageTimeout
+        delete this.damageTimeout;
       }
     }, 1000);
   }
@@ -447,13 +447,13 @@ export class Vehicle2016 extends BaseLootableEntity {
         this._resources[ResourceIds.CONDITION] > 50000 &&
         this.destroyedState != 0
       ) {
-        this.destroyedState = 0
+        this.destroyedState = 0;
         damageeffect = 0;
         this.currentDamageEffect = 0;
         allowSend = true;
-      }    
+      }
       if (allowSend) {
-        this.currentDamageEffect = damageeffect
+        this.currentDamageEffect = damageeffect;
         server.sendDataToAllWithSpawnedEntity(
           server._vehicles,
           this.characterId,
@@ -507,17 +507,15 @@ export class Vehicle2016 extends BaseLootableEntity {
     this.updateLoadout(server);
     // fix seat change crash related to our managed object workaround
     if (this.droppedManagedClient == client) {
-        const seatId = this.getCharacterSeat(client.character.characterId)
-        server.sendData(client, "Mount.MountResponse",
-            {
-                characterId: client.character.characterId,
-                vehicleGuid: this.characterId, // vehicle guid
-                seatId: seatId,
-                isDriver: seatId === "0" ? 1 : 0, //isDriver
-                identity: {},
-            }
-        );
-        delete this.droppedManagedClient
+      const seatId = this.getCharacterSeat(client.character.characterId);
+      server.sendData(client, "Mount.MountResponse", {
+        characterId: client.character.characterId,
+        vehicleGuid: this.characterId, // vehicle guid
+        seatId: seatId,
+        isDriver: seatId === "0" ? 1 : 0, //isDriver
+        identity: {},
+      });
+      delete this.droppedManagedClient;
     }
     // prevents cars from spawning in under the map for other characters
     /*

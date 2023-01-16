@@ -37,7 +37,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   npcRenderDistance = 15;
   loadoutId = 5;
   itemDefinitionId: number;
-  smeltingEntity?: smeltingEntity
+  smeltingEntity?: smeltingEntity;
   constructor(
     characterId: string,
     transientId: number,
@@ -57,7 +57,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     this.profileId = 999; /// mark as construction
     this.health = 1000000;
     if (isSmeltable) {
-        this.smeltingEntity = new smeltingEntity(this, server)
+      this.smeltingEntity = new smeltingEntity(this, server);
     }
   }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -103,7 +103,9 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   destroy(server: ZoneServer2016, destructTime = 0) {
     server.deleteEntity(
       this.characterId,
-      server._lootableConstruction[this.characterId] ? server._lootableConstruction : server._worldLootableConstruction,
+      server._lootableConstruction[this.characterId]
+        ? server._lootableConstruction
+        : server._worldLootableConstruction,
       242,
       destructTime
     );
@@ -148,11 +150,11 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     });
   }
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-      if (this.smeltingEntity && this.smeltingEntity.isBurning) {
-          server.sendData(client, "Command.PlayDialogEffect", {
-              characterId: this.characterId,
-              effectId: this.smeltingEntity.smeltingEffect,
-          });
-      }
+    if (this.smeltingEntity && this.smeltingEntity.isBurning) {
+      server.sendData(client, "Command.PlayDialogEffect", {
+        characterId: this.characterId,
+        effectId: this.smeltingEntity.smeltingEffect,
+      });
+    }
   }
 }

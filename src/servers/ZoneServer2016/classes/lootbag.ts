@@ -23,7 +23,7 @@ export class Lootbag extends BaseLootableEntity {
     actorModelId: number,
     position: Float32Array,
     rotation: Float32Array,
-    server: ZoneServer2016,
+    server: ZoneServer2016
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     const container = this.getContainer();

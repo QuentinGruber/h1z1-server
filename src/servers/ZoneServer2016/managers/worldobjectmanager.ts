@@ -217,7 +217,7 @@ export class WorldObjectManager {
       isCharacter ? 9581 : 9391,
       entity.state.position,
       new Float32Array([0, 0, 0, 0]),
-      server,
+      server
     );
 
     lootbag.equipItem(
@@ -274,7 +274,7 @@ export class WorldObjectManager {
       rotation,
       server,
       scale,
-      spawnerId,
+      spawnerId
     );
   }
 
@@ -342,7 +342,7 @@ export class WorldObjectManager {
           new Float32Array(vehicle.rotation),
           server,
           server.getGameTime(),
-          getRandomVehicleId(),
+          getRandomVehicleId()
         );
 
       this.createVehicle(server, vehicleData); // save vehicle

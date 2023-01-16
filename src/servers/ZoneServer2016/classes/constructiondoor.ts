@@ -55,7 +55,7 @@ export class ConstructionDoor extends DoorEntity {
     itemDefinitionId: number,
     ownerCharacterId: string,
     parentObjectCharacterId: string,
-    slot: string,
+    slot: string
   ) {
     super(
       characterId,
@@ -65,7 +65,7 @@ export class ConstructionDoor extends DoorEntity {
       rotation,
       server,
       new Float32Array(scale),
-      0,
+      0
     );
     this.ownerCharacterId = ownerCharacterId;
     this.itemDefinitionId = itemDefinitionId;

@@ -95,7 +95,10 @@ export class CraftManager {
     switch (recipe.filterId) {
       case FilterIds.COOKING:
       case FilterIds.FURNACE:
-        server.sendAlert(client, "This recipe requires a furnace, barbeque, or campfire to craft");
+        server.sendAlert(
+          client,
+          "This recipe requires a furnace, barbeque, or campfire to craft"
+        );
         return false;
     }
     if (recipe.requireWorkbench) {

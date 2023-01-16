@@ -11,10 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import {
-  Items,
-  FilterIds,
-} from "../models/enums";
+import { Items, FilterIds } from "../models/enums";
 import { RecipeComponent } from "types/zoneserver";
 import { smeltingData } from "../data/Recipes";
 import { ZoneServer2016 } from "../zoneserver";
@@ -28,7 +25,12 @@ function getAllowedFuel(itemDefinitionId: number): number[] {
     case Items.BARBEQUE:
       return [Items.WOOD_STICK, Items.WOOD_PLANK, Items.CHARCOAL];
     case Items.CAMPFIRE:
-      return [Items.WOOD_LOG, Items.WOOD_PLANK, Items.WOOD_STICK, Items.CHARCOAL];
+      return [
+        Items.WOOD_LOG,
+        Items.WOOD_PLANK,
+        Items.WOOD_STICK,
+        Items.CHARCOAL,
+      ];
     default:
       return [Items.WOOD_LOG, Items.WOOD_PLANK, Items.CHARCOAL];
   }
@@ -49,7 +51,10 @@ function getBurningTime(itemDefinitionId: number): number {
   }
 }
 
-function getSmeltingEntityData(entity: LootableConstructionEntity, child: smeltingEntity) {
+function getSmeltingEntityData(
+  entity: LootableConstructionEntity,
+  child: smeltingEntity
+) {
   switch (entity.itemDefinitionId) {
     case Items.FURNACE:
       child.filterId = FilterIds.FURNACE;
@@ -75,7 +80,7 @@ function getSmeltingEntityData(entity: LootableConstructionEntity, child: smelti
 }
 
 export class smeltingEntity {
-  parentObject: LootableConstructionEntity
+  parentObject: LootableConstructionEntity;
   containerId: number = Items.FURNACE;
   allowedFuel: number[];
   filterId: number = FilterIds.FURNACE;
@@ -83,22 +88,28 @@ export class smeltingEntity {
   isBurning: boolean = false;
   isSmelting: boolean = false;
   smeltingTime: number = 60000;
-  dictionary: any
+  dictionary: any;
   constructor(
     parentObject: LootableConstructionEntity,
     server: ZoneServer2016
   ) {
-    this.parentObject = parentObject
+    this.parentObject = parentObject;
     this.allowedFuel = getAllowedFuel(parentObject.itemDefinitionId);
     getSmeltingEntityData(parentObject, this);
-    parentObject.equipItem(server, server.generateItem(this.containerId), false);
-      if (!parentObject.getParent(server)) {
-        this.dictionary = server._worldLootableConstruction
-        
-      } else this.dictionary = server._lootableConstruction
+    parentObject.equipItem(
+      server,
+      server.generateItem(this.containerId),
+      false
+    );
+    if (!parentObject.getParent(server)) {
+      this.dictionary = server._worldLootableConstruction;
+    } else this.dictionary = server._lootableConstruction;
   }
 
-  startBurning(server: ZoneServer2016, parentObject: LootableConstructionEntity) {
+  startBurning(
+    server: ZoneServer2016,
+    parentObject: LootableConstructionEntity
+  ) {
     const container = parentObject.getContainer();
     if (!container) return;
     if (JSON.stringify(container.items) === "{}") {
@@ -167,7 +178,10 @@ export class smeltingEntity {
     );
   }
 
-  startSmelting(server: ZoneServer2016, parentObject: LootableConstructionEntity) {
+  startSmelting(
+    server: ZoneServer2016,
+    parentObject: LootableConstructionEntity
+  ) {
     if (!this.isBurning) {
       this.isSmelting = false;
       return;
@@ -186,41 +200,41 @@ export class smeltingEntity {
         recipe.components.forEach((component: RecipeComponent) => {
           if (passed) return;
           let requiredAmount = component.requiredAmount;
-          Object.values(container.items).forEach(
-            (item: BaseItem) => {
-              if (passed) return;
-              if (!fulfilledComponents.includes(component)) {
-                if (component.itemDefinitionId == item.itemDefinitionId) {
-                  if (requiredAmount > item.stackCount) {
-                    requiredAmount -= item.stackCount;
-                    itemsToRemove.push({ item: item, count: item.stackCount });
-                  } else {
-                    fulfilledComponents.push(component);
-                    itemsToRemove.push({ item: item, count: requiredAmount });
-                  }
-                  if (fulfilledComponents.length == recipe.components.length) {
-                    itemsToRemove.forEach(
-                      (item: { item: BaseItem; count: number }) => {
-                        server.removeContainerItemNoClient(
-                          item.item,
-                          parentObject,
-                          item.count
-                        );
-                      }
-                    );
-                    passed = true;
-                    server.addContainerItemExternal(
-                      parentObject.mountedCharacter ? parentObject.mountedCharacter : "",
-                      server.generateItem(recipe.rewardId),
-                      container,
-                      1
-                    );
-                    return;
-                  }
+          Object.values(container.items).forEach((item: BaseItem) => {
+            if (passed) return;
+            if (!fulfilledComponents.includes(component)) {
+              if (component.itemDefinitionId == item.itemDefinitionId) {
+                if (requiredAmount > item.stackCount) {
+                  requiredAmount -= item.stackCount;
+                  itemsToRemove.push({ item: item, count: item.stackCount });
+                } else {
+                  fulfilledComponents.push(component);
+                  itemsToRemove.push({ item: item, count: requiredAmount });
+                }
+                if (fulfilledComponents.length == recipe.components.length) {
+                  itemsToRemove.forEach(
+                    (item: { item: BaseItem; count: number }) => {
+                      server.removeContainerItemNoClient(
+                        item.item,
+                        parentObject,
+                        item.count
+                      );
+                    }
+                  );
+                  passed = true;
+                  server.addContainerItemExternal(
+                    parentObject.mountedCharacter
+                      ? parentObject.mountedCharacter
+                      : "",
+                    server.generateItem(recipe.rewardId),
+                    container,
+                    1
+                  );
+                  return;
                 }
               }
             }
-          );
+          });
         });
       }
     });

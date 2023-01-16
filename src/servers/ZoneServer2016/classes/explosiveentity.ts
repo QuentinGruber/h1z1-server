@@ -30,7 +30,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
     position: Float32Array,
     rotation: Float32Array,
     server: ZoneServer2016,
-    itemDefinitionId: number,
+    itemDefinitionId: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.itemDefinitionId = itemDefinitionId;

@@ -381,7 +381,7 @@ export namespace NormanTest {
       1,
       p,
       rot,
-      server,
+      server
       // new Float32Array([0,0,0])
     );
     // server.sendDataToAll("AddLightweightNpc", flare);
@@ -405,7 +405,7 @@ export namespace NormanTest {
       10004,
       p,
       rot,
-      server,
+      server
       // new Float32Array([0,0,0])
     );
     // server.sendDataToAll("AddLightweightNpc", flare);
@@ -500,7 +500,7 @@ export namespace NormanTest {
       modelId,
       pos.ToFloat32ArrayZYXW(),
       Euler.ToH1Z1ClientRotFormat(rot),
-      server,
+      server
     );
   };
 
@@ -823,7 +823,7 @@ export namespace NormanTest {
           pos.ToFloat32ArrayZYXW(),
           new Float32Array([0, 0, 0]),
           server,
-          0,
+          0
         );
 
         // setTimeout(()=>

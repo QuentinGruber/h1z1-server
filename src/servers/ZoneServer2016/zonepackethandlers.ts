@@ -174,11 +174,11 @@ export class zonePacketHandlers {
       client.character.isReady = true;
     }
     setTimeout(() => {
-      if (client.isLoading) { 
-        client.isLoading = false
+      if (client.isLoading) {
+        client.isLoading = false;
         if (client.routineInterval) return;
-        server.executeRoutine(client)
-        server.startClientRoutine(client)
+        server.executeRoutine(client);
+        server.startClientRoutine(client);
       }
     }, 1500);
     if (!client.character.isAlive || client.character.isRespawning) {
@@ -195,29 +195,40 @@ export class zonePacketHandlers {
     new CraftManager(client, server, packet.data.recipeId, packet.data.count);
   }
   CommandSpawnVehicle(server: ZoneServer2016, client: Client, packet: any) {
-      if (!client.isAdmin) {
-          server.sendChatText(client, "You don't have access to that");
-          return
-      }
-      const allowedIds = [VehicleIds.POLICECAR, VehicleIds.PICKUP, VehicleIds.ATV, VehicleIds.OFFROADER]
-      if (!allowedIds.includes(packet.data.vehicleId)) {
-          server.sendChatText(client, "[ERROR] Invalid vehicleId, please choose one of listed below:");
-          server.sendChatText(client, `OFFROADER: ${VehicleIds.OFFROADER}, PICKUP: ${VehicleIds.PICKUP}, POLICECAR: ${VehicleIds.POLICECAR}, ATV: ${VehicleIds.ATV}`);
-          return;
-      }
-      const characterId = server.generateGuid();
-      const vehicle = new Vehicle2016(
-          characterId,
-          server.getTransientId(characterId),
-          0,
-          packet.data.position,
-          client.character.state.lookAt,
-          server,
-          server.getGameTime(),
-          packet.data.vehicleId
+    if (!client.isAdmin) {
+      server.sendChatText(client, "You don't have access to that");
+      return;
+    }
+    const allowedIds = [
+      VehicleIds.POLICECAR,
+      VehicleIds.PICKUP,
+      VehicleIds.ATV,
+      VehicleIds.OFFROADER,
+    ];
+    if (!allowedIds.includes(packet.data.vehicleId)) {
+      server.sendChatText(
+        client,
+        "[ERROR] Invalid vehicleId, please choose one of listed below:"
       );
-      server.worldObjectManager.createVehicle(server, vehicle);
-      client.character.ownedVehicle = vehicle.characterId;
+      server.sendChatText(
+        client,
+        `OFFROADER: ${VehicleIds.OFFROADER}, PICKUP: ${VehicleIds.PICKUP}, POLICECAR: ${VehicleIds.POLICECAR}, ATV: ${VehicleIds.ATV}`
+      );
+      return;
+    }
+    const characterId = server.generateGuid();
+    const vehicle = new Vehicle2016(
+      characterId,
+      server.getTransientId(characterId),
+      0,
+      packet.data.position,
+      client.character.state.lookAt,
+      server,
+      server.getGameTime(),
+      packet.data.vehicleId
+    );
+    server.worldObjectManager.createVehicle(server, vehicle);
+    client.character.ownedVehicle = vehicle.characterId;
   }
   CommandSetInWater(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
@@ -683,45 +694,55 @@ export class zonePacketHandlers {
     if (packet.data.flags === 510) {
       // falling flag, ignore for now
     }
-      if (packet.data.stance) {
-          if (packet.data.stance == Stances.JUMPING_STANDING) {
-              client.xsSecurityTimeout = setTimeout(() => {
-                  delete client.xsSecurityTimeout;
-              }, 500);
-          }
-          if (packet.data.stance == Stances.STANCE_XS) {
-              if (client.xsSecurityTimeout) {
-                  const pos = client.character.state.position;
-                  server.sendChatTextToAdmins(
-                      `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
-                  );
-                  setTimeout(() => {
-                      server.sendData(client, "ClientUpdate.UpdateLocation", {
-                          position: pos,
-                          unknownBool2: false,
-                      });
-                  }, 1000);
-              }
-          }
-          client.character.isRunning = packet.data.stance == Stances.MOVE_STANDING_SPRINTING ? true : false;
-          const penaltiedStances = [
-              Stances.JUMPING_BACKWARDS, Stances.JUMPING_BACKWARDS_LEFT, Stances.JUMPING_BACKWARDS_RIGHT,
-              Stances.JUMPING_FORWARD_LEFT, Stances.JUMPING_FORWARD_RIGHT, Stances.JUMPING_FORWARD_SPRINTING,
-              Stances.JUMPING_LEFT, Stances.JUMPING_RIGHT, Stances.JUMPING_STANDING, Stances.JUMPING_WORWARD,
-              Stances.JUMPING_FORWARD_LEFT_SPRINTING, Stances.JUMPING_FORWARD_RIGHT_SPRINTING
-          ]
-          if (penaltiedStances.includes(packet.data.stance)) {
-              client.character._resources[ResourceIds.STAMINA] -= 12 // 2% stamina jump penalty
-              if (client.character._resources[ResourceIds.STAMINA] < 0) client.character._resources[ResourceIds.STAMINA] = 0
-              server.updateResourceToAllWithSpawnedEntity(
-                  client.character.characterId,
-                  client.character._resources[ResourceIds.STAMINA],
-                  ResourceIds.STAMINA,
-                  ResourceTypes.STAMINA,
-                  server._characters
-              );
-          }
+    if (packet.data.stance) {
+      if (packet.data.stance == Stances.JUMPING_STANDING) {
+        client.xsSecurityTimeout = setTimeout(() => {
+          delete client.xsSecurityTimeout;
+        }, 500);
       }
+      if (packet.data.stance == Stances.STANCE_XS) {
+        if (client.xsSecurityTimeout) {
+          const pos = client.character.state.position;
+          server.sendChatTextToAdmins(
+            `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
+          );
+          setTimeout(() => {
+            server.sendData(client, "ClientUpdate.UpdateLocation", {
+              position: pos,
+              unknownBool2: false,
+            });
+          }, 1000);
+        }
+      }
+      client.character.isRunning =
+        packet.data.stance == Stances.MOVE_STANDING_SPRINTING ? true : false;
+      const penaltiedStances = [
+        Stances.JUMPING_BACKWARDS,
+        Stances.JUMPING_BACKWARDS_LEFT,
+        Stances.JUMPING_BACKWARDS_RIGHT,
+        Stances.JUMPING_FORWARD_LEFT,
+        Stances.JUMPING_FORWARD_RIGHT,
+        Stances.JUMPING_FORWARD_SPRINTING,
+        Stances.JUMPING_LEFT,
+        Stances.JUMPING_RIGHT,
+        Stances.JUMPING_STANDING,
+        Stances.JUMPING_WORWARD,
+        Stances.JUMPING_FORWARD_LEFT_SPRINTING,
+        Stances.JUMPING_FORWARD_RIGHT_SPRINTING,
+      ];
+      if (penaltiedStances.includes(packet.data.stance)) {
+        client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
+        if (client.character._resources[ResourceIds.STAMINA] < 0)
+          client.character._resources[ResourceIds.STAMINA] = 0;
+        server.updateResourceToAllWithSpawnedEntity(
+          client.character.characterId,
+          client.character._resources[ResourceIds.STAMINA],
+          ResourceIds.STAMINA,
+          ResourceTypes.STAMINA,
+          server._characters
+        );
+      }
+    }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter) {
       server.sendRawToAllOthersWithSpawnedCharacter(
@@ -734,7 +755,11 @@ export class zonePacketHandlers {
       );
     }
     if (packet.data.position) {
-      server.speedFairPlayCheck(client, packet.data.sequenceTime, packet.data.position);
+      server.speedFairPlayCheck(
+        client,
+        packet.data.sequenceTime,
+        packet.data.position
+      );
       client.character.state.position = new Float32Array([
         packet.data.position[0],
         packet.data.position[1],
@@ -1121,7 +1146,7 @@ export class zonePacketHandlers {
       case ItemUseOptions.USE_MEDICAL:
         server.useMedical(client, item);
         break;
-        case ItemUseOptions.IGNITE:
+      case ItemUseOptions.IGNITE:
         server.igniteOption(client, item);
         break;
       case ItemUseOptions.UNLOAD:
@@ -1533,27 +1558,27 @@ export class zonePacketHandlers {
             weaponItem.itemDefinitionId == Items.WEAPON_HAMMER &&
             client.character.currentInteractionGuid
           ) {
-              const entity = server.getConstructionEntity(
-                  client.character.currentInteractionGuid
+            const entity = server.getConstructionEntity(
+              client.character.currentInteractionGuid
+            );
+            if (!entity) return;
+            if (!client.character.temporaryScrapSoundTimeout) {
+              server.sendCompositeEffectToAllInRange(
+                15,
+                client.character.characterId,
+                entity.state.position,
+                1605
               );
-              if (!entity) return
-              if (!client.character.temporaryScrapSoundTimeout) {
-                  server.sendCompositeEffectToAllInRange(
-                      15,
-                      client.character.characterId,
-                      entity.state.position,
-                      1605
-                  );
-                  server.damageItem(client, weaponItem, 50);
-                  const damageInfo = {
-                      entity: "",
-                      damage: -100000
-                  }
-                  entity.damage(server, damageInfo);
-                  client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-                      delete client.character.temporaryScrapSoundTimeout;
-                  }, 1000);
-              }
+              server.damageItem(client, weaponItem, 50);
+              const damageInfo = {
+                entity: "",
+                damage: -100000,
+              };
+              entity.damage(server, damageInfo);
+              client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+                delete client.character.temporaryScrapSoundTimeout;
+              }, 1000);
+            }
           }
 
           if (p.packet.firestate == 64) {
@@ -1580,7 +1605,12 @@ export class zonePacketHandlers {
             );
           }
           // prevent empty weapons from entering an active firestate
-          if (!weaponItem.weapon?.ammoCount && weaponItem.itemDefinitionId != Items.WEAPON_BOW_MAKESHIFT && weaponItem.itemDefinitionId != Items.WEAPON_BOW_RECURVE) return;
+          if (
+            !weaponItem.weapon?.ammoCount &&
+            weaponItem.itemDefinitionId != Items.WEAPON_BOW_MAKESHIFT &&
+            weaponItem.itemDefinitionId != Items.WEAPON_BOW_RECURVE
+          )
+            return;
           if (p.packet.firestate > 0) {
             server.sendRemoteWeaponUpdateDataToAllOthers(
               client,
@@ -1702,29 +1732,36 @@ export class zonePacketHandlers {
             reloadTime = server.getWeaponReloadTime(
               weaponItem.itemDefinitionId
             );
-          
-          if (weaponItem.itemDefinitionId == Items.WEAPON_BOW_MAKESHIFT || weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE) {
-              if (client.character.getEquippedWeapon().itemGuid != weaponItem.itemGuid) return;
-              const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
-                  reserveAmmo = // how much ammo is in inventory
-                      client.character.getInventoryItemAmount(weaponAmmoId),
-                  reloadAmount =
-                      reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
 
-              if (
-                  !server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
-              ) {
-                  return;
-              }
-              server.sendWeaponData(client, "Weapon.Reload", {
-                  weaponGuid: p.packet.characterId,
-                  unknownDword1: maxAmmo,
-                  ammoCount: (weaponItem.weapon.ammoCount += reloadAmount),
-                  unknownDword3: maxAmmo,
-                  currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
-              });
-              return
-          }      
+          if (
+            weaponItem.itemDefinitionId == Items.WEAPON_BOW_MAKESHIFT ||
+            weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE
+          ) {
+            if (
+              client.character.getEquippedWeapon().itemGuid !=
+              weaponItem.itemGuid
+            )
+              return;
+            const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
+              reserveAmmo = // how much ammo is in inventory
+                client.character.getInventoryItemAmount(weaponAmmoId),
+              reloadAmount =
+                reserveAmmo >= maxReloadAmount ? maxReloadAmount : reserveAmmo; // actual amount able to reload
+
+            if (
+              !server.removeInventoryItems(client, weaponAmmoId, reloadAmount)
+            ) {
+              return;
+            }
+            server.sendWeaponData(client, "Weapon.Reload", {
+              weaponGuid: p.packet.characterId,
+              unknownDword1: maxAmmo,
+              ammoCount: (weaponItem.weapon.ammoCount += reloadAmount),
+              unknownDword3: maxAmmo,
+              currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
+            });
+            return;
+          }
           //#region SHOTGUN ONLY
           if (weaponAmmoId == Items.AMMO_12GA) {
             weaponItem.weapon.reloadTimer = setTimeout(() => {
@@ -1866,7 +1903,7 @@ export class zonePacketHandlers {
           debug("AimBlockedNotify");
           break;
         case "Weapon.ProjectileSpawnNpc":
-          server.createProjectileNpc(client, p.packet)
+          server.createProjectileNpc(client, p.packet);
           debug("Weapon.ProjectileSpawnNpc");
           break;
         case "Weapon.ProjectileSpawnAttachedNpc":

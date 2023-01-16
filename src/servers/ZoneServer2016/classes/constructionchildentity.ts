@@ -89,7 +89,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     server: ZoneServer2016,
     itemDefinitionId: number,
     parentObjectCharacterId: string,
-    slot: string,
+    slot: string
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.state.rotation = eul2quat(rotation);
@@ -138,8 +138,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     return [
       this.occupiedWallSlots,
       this.occupiedUpperWallSlots,
-      this.occupiedShelterSlots
-    ]
+      this.occupiedShelterSlots,
+    ];
   }
 
   getSlotPosition(
@@ -359,7 +359,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   destroy(server: ZoneServer2016, destructTime = 0) {
     server.deleteEntity(
       this.characterId,
-      server._constructionSimple[this.characterId] ? server._constructionSimple : server._worldSimpleConstruction,
+      server._constructionSimple[this.characterId]
+        ? server._constructionSimple
+        : server._worldSimpleConstruction,
       242,
       destructTime
     );
