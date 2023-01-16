@@ -201,7 +201,6 @@ export class WorldDataManager {
     //await this.saveVehicles(server);
     await this.saveServerData(server);
     await this.saveCharacters(server);
-    await this.saveConstructionData(server);
     debug("World saved!");
   }
 
@@ -211,7 +210,6 @@ export class WorldDataManager {
     console.log(server._worldId);
     return {
       serverId: server._worldId,
-      worldSaveVersion: server.worldSaveVersion,
     };
   }
 
@@ -220,7 +218,6 @@ export class WorldDataManager {
     entity: BaseEntity
   ): BaseEntityUpdateSaveData {
     return {
-      ...this.getBaseSaveData(server),
       position: Array.from(entity.state.position),
       rotation: Array.from(entity.state.rotation),
     };
@@ -310,10 +307,11 @@ export class WorldDataManager {
     });
 
     return {
-      ...this.getBaseFullEntitySaveData(server, entity),
+      ...this.getBaseEntityUpdateSaveData(server, entity),
       _loadout: loadout,
       _containers: containers,
       _resources: entity._resources,
+      worldSaveVersion: server.worldSaveVersion
     };
   }
 
@@ -345,8 +343,9 @@ export class WorldDataManager {
   private async saveServerData(server: ZoneServer2016) {
     if (!server.enableWorldSaves) return;
     const saveData: ServerSaveData = {
-      ...this.getBaseSaveData(server),
+      serverId: server._worldId,
       lastItemGuid: toBigHex(server.lastItemGuid),
+      worldSaveVersion: server.worldSaveVersion,
     };
     if (server._soloMode) {
       fs.writeFileSync(
@@ -425,7 +424,7 @@ export class WorldDataManager {
         worldSaveVersion: server.worldSaveVersion,
       };
     }
-    client.guid = "0x665a2bff2b44c034"; // unused
+    client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
     client.character.name = savedCharacter.characterName;
     client.character.actorModelId = savedCharacter.actorModelId;
     client.character.headActor = savedCharacter.headActor;
@@ -481,6 +480,7 @@ export class WorldDataManager {
 
     const saveData: CharacterUpdateSaveData = {
       ...this.getBaseFullCharacterUpdateSaveData(server, client.character),
+      rotation: Array.from(client.character.state.lookAt),
       isRespawning: client.character.isRespawning,
     };
     if (server._soloMode) {
@@ -579,9 +579,11 @@ export class WorldDataManager {
     ).map((vehicle) => {
       return {
         ...this.getBaseFullCharacterUpdateSaveData(server, vehicle),
+        ...this.getBaseFullEntitySaveData(server, vehicle),
         characterId: vehicle.characterId,
         actorModelId: vehicle.actorModelId,
         vehicleId: vehicle.vehicleId,
+        worldSaveVersion: server.worldSaveVersion
       };
     });
     if (server._soloMode) {

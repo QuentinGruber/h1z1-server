@@ -15,17 +15,16 @@ import { ConstructionPermissions } from "./zoneserver";
 
 export interface BaseSaveData {
   serverId: number;
-  worldSaveVersion: number;
 }
 
-export interface BaseEntityUpdateSaveData 
-  extends BaseSaveData {
+export interface BaseEntityUpdateSaveData {
   position: Array<number>;
   rotation: Array<number>;
 }
 
 export interface BaseFullEntitySaveData
-  extends BaseEntityUpdateSaveData {
+  extends BaseEntityUpdateSaveData,
+  BaseSaveData {
   characterId: string;
   actorModelId: number;
 }
@@ -57,6 +56,7 @@ export interface BaseFullCharacterUpdateSaveData extends BaseEntityUpdateSaveDat
   _loadout: { [loadoutSlotId: number]: LoadoutItemSaveData };
   _containers: { [loadoutSlotId: number]: LoadoutContainerSaveData };
   _resources: { [resourceId: number]: number };
+  worldSaveVersion: number;
 }
 
 export interface CharacterUpdateSaveData
@@ -130,4 +130,5 @@ export interface ConstructionParentSaveData
 
 export interface ServerSaveData extends BaseSaveData {
   lastItemGuid: string;
+  worldSaveVersion: number;
 }
