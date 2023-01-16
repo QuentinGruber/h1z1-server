@@ -74,7 +74,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     ownerCharacterId: string,
     ownerName: string,
     parentObjectCharacterId: string,
-    BuildingSlot: string | undefined,
+    BuildingSlot: string | undefined
   ) {
     super(
       characterId,
@@ -85,7 +85,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       server,
       itemDefinitionId,
       parentObjectCharacterId,
-      "",
+      ""
     );
     this.health = 1000000;
     this.ownerCharacterId = ownerCharacterId;
@@ -160,8 +160,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     return [
       ...super.getOccupiedSlotMaps(),
       this.occupiedExpansionSlots,
-      this.occupiedRampSlots
-    ]
+      this.occupiedRampSlots,
+    ];
   }
 
   private getSquareBounds(

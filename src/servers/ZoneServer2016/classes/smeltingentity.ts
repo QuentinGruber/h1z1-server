@@ -11,20 +11,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import {
-  ConstructionPermissionIds,
-  Items,
-  ResourceIds,
-  StringIds,
-  FilterIds,
-} from "../models/enums";
+import { Items, FilterIds } from "../models/enums";
 import { RecipeComponent } from "types/zoneserver";
 import { smeltingData } from "../data/Recipes";
 import { ZoneServer2016 } from "../zoneserver";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
-import { ConstructionChildEntity } from "./constructionchildentity";
-import { ConstructionParentEntity } from "./constructionparententity";
-import { ZoneClient2016 } from "./zoneclient";
 import { BaseItem } from "./baseItem";
 
 function getAllowedFuel(itemDefinitionId: number): number[] {
@@ -32,9 +23,14 @@ function getAllowedFuel(itemDefinitionId: number): number[] {
     case Items.FURNACE:
       return [Items.WOOD_LOG, Items.WOOD_PLANK, Items.CHARCOAL];
     case Items.BARBEQUE:
-      return [Items.WOOD_STICK, Items.WOOD_PLANK];
+      return [Items.WOOD_STICK, Items.WOOD_PLANK, Items.CHARCOAL];
     case Items.CAMPFIRE:
-      return [Items.WOOD_LOG, Items.WOOD_PLANK, Items.WOOD_STICK];
+      return [
+        Items.WOOD_LOG,
+        Items.WOOD_PLANK,
+        Items.WOOD_STICK,
+        Items.CHARCOAL,
+      ];
     default:
       return [Items.WOOD_LOG, Items.WOOD_PLANK, Items.CHARCOAL];
   }
@@ -55,43 +51,36 @@ function getBurningTime(itemDefinitionId: number): number {
   }
 }
 
-function getSmeltingEntityData(entity: smeltingEntity) {
+function getSmeltingEntityData(
+  entity: LootableConstructionEntity,
+  child: smeltingEntity
+) {
   switch (entity.itemDefinitionId) {
     case Items.FURNACE:
-      entity.filterId = FilterIds.FURNACE;
-      entity.containerId = Items.CONTAINER_FURNACE;
-      entity.smeltingEffect = 5028;
+      child.filterId = FilterIds.FURNACE;
+      child.containerId = Items.CONTAINER_FURNACE;
+      child.smeltingEffect = 5028;
       break;
     case Items.CAMPFIRE:
-      entity.filterId = FilterIds.COOKING;
-      entity.containerId = Items.CONTAINER_CAMPFIRE;
-      entity.smeltingEffect = 1207;
+      child.filterId = FilterIds.COOKING;
+      child.containerId = Items.CONTAINER_CAMPFIRE;
+      child.smeltingEffect = 1207;
       break;
     case Items.BARBEQUE:
-      entity.filterId = FilterIds.COOKING;
-      entity.containerId = Items.CONTAINER_BARBEQUE;
-      entity.smeltingEffect = 5044;
+      child.filterId = FilterIds.COOKING;
+      child.containerId = Items.CONTAINER_BARBEQUE;
+      child.smeltingEffect = 5044;
       break;
     default:
-      entity.filterId = FilterIds.FURNACE;
-      entity.containerId = Items.CONTAINER_FURNACE;
-      entity.smeltingEffect = 5028;
+      child.filterId = FilterIds.FURNACE;
+      child.containerId = Items.CONTAINER_FURNACE;
+      child.smeltingEffect = 5028;
       break;
   }
 }
 
-export class smeltingEntity extends LootableConstructionEntity {
-  get health() {
-    return this._resources[ResourceIds.CONSTRUCTION_CONDITION];
-  }
-  set health(health: number) {
-    this._resources[ResourceIds.CONSTRUCTION_CONDITION] = health;
-  }
-  placementTime = Date.now();
-  parentObjectCharacterId: string;
-  npcRenderDistance = 15;
-  loadoutId = 5;
-  itemDefinitionId: number;
+export class smeltingEntity {
+  parentObject: LootableConstructionEntity;
   containerId: number = Items.FURNACE;
   allowedFuel: number[];
   filterId: number = FilterIds.FURNACE;
@@ -99,44 +88,38 @@ export class smeltingEntity extends LootableConstructionEntity {
   isBurning: boolean = false;
   isSmelting: boolean = false;
   smeltingTime: number = 60000;
+  dictionary: any;
   constructor(
-    characterId: string,
-    transientId: number,
-    actorModelId: number,
-    position: Float32Array,
-    rotation: Float32Array,
-    server: ZoneServer2016,
-    itemDefinitionId: number,
-    parentObjectCharacterId: string,
+    parentObject: LootableConstructionEntity,
+    server: ZoneServer2016
   ) {
-    super(
-      characterId,
-      transientId,
-      actorModelId,
-      position,
-      rotation,
+    this.parentObject = parentObject;
+    this.allowedFuel = getAllowedFuel(parentObject.itemDefinitionId);
+    getSmeltingEntityData(parentObject, this);
+    parentObject.equipItem(
       server,
-      itemDefinitionId,
-      parentObjectCharacterId,
+      server.generateItem(this.containerId),
+      false
     );
-    this.parentObjectCharacterId = parentObjectCharacterId || "";
-    this.itemDefinitionId = itemDefinitionId;
-    this.allowedFuel = getAllowedFuel(this.itemDefinitionId);
-    getSmeltingEntityData(this);
-    this.equipItem(server, server.generateItem(this.containerId), false);
+    if (!parentObject.getParent(server)) {
+      this.dictionary = server._worldLootableConstruction;
+    } else this.dictionary = server._lootableConstruction;
   }
 
-  startBurning(server: ZoneServer2016) {
-    const container = this.getContainer()
+  startBurning(
+    server: ZoneServer2016,
+    parentObject: LootableConstructionEntity
+  ) {
+    const container = parentObject.getContainer();
     if (!container) return;
     if (JSON.stringify(container.items) === "{}") {
       if (this.isBurning) {
         server.sendDataToAllWithSpawnedEntity(
-          server._lootableConstruction,
-          this.characterId,
+          this.dictionary,
+          parentObject.characterId,
           "Command.PlayDialogEffect",
           {
-            characterId: this.characterId,
+            characterId: parentObject.characterId,
             effectId: 0,
           }
         );
@@ -148,11 +131,11 @@ export class smeltingEntity extends LootableConstructionEntity {
     Object.values(container.items).forEach((item: BaseItem) => {
       if (allowBurn) return;
       if (this.allowedFuel.includes(item.itemDefinitionId)) {
-        server.removeContainerItemNoClient(item, this, 1);
+        server.removeContainerItemNoClient(item, parentObject, 1);
         if (item.itemDefinitionId == Items.WOOD_LOG) {
           // give charcoal if wood log was burned
           server.addContainerItemExternal(
-            this.mountedCharacter ? this.mountedCharacter : "",
+            parentObject.mountedCharacter ? parentObject.mountedCharacter : "",
             server.generateItem(Items.CHARCOAL),
             container,
             1
@@ -160,11 +143,11 @@ export class smeltingEntity extends LootableConstructionEntity {
         }
         if (!this.isBurning) {
           server.sendDataToAllWithSpawnedEntity(
-            server._lootableConstruction,
-            this.characterId,
+            this.dictionary,
+            parentObject.characterId,
             "Command.PlayDialogEffect",
             {
-              characterId: this.characterId,
+              characterId: parentObject.characterId,
               effectId: this.smeltingEffect,
             }
           );
@@ -173,11 +156,11 @@ export class smeltingEntity extends LootableConstructionEntity {
         allowBurn = true;
         setTimeout(() => {
           if (!this.isSmelting) {
-            this.startSmelting(server);
+            this.startSmelting(server, parentObject);
           }
         }, this.smeltingTime);
         setTimeout(() => {
-          this.startBurning(server);
+          this.startBurning(server, parentObject);
         }, getBurningTime(item.itemDefinitionId));
         return;
       }
@@ -185,22 +168,25 @@ export class smeltingEntity extends LootableConstructionEntity {
     if (allowBurn) return;
     this.isBurning = false;
     server.sendDataToAllWithSpawnedEntity(
-      server._lootableConstruction,
-      this.characterId,
+      this.dictionary,
+      parentObject.characterId,
       "Command.PlayDialogEffect",
       {
-        characterId: this.characterId,
+        characterId: parentObject.characterId,
         effectId: 0,
       }
     );
   }
 
-  startSmelting(server: ZoneServer2016) {
+  startSmelting(
+    server: ZoneServer2016,
+    parentObject: LootableConstructionEntity
+  ) {
     if (!this.isBurning) {
       this.isSmelting = false;
       return;
     }
-    const container = this.getContainer();
+    const container = parentObject.getContainer();
     if (!container) return;
     if (JSON.stringify(container.items) === "{}") return;
     this.isSmelting = true;
@@ -214,98 +200,46 @@ export class smeltingEntity extends LootableConstructionEntity {
         recipe.components.forEach((component: RecipeComponent) => {
           if (passed) return;
           let requiredAmount = component.requiredAmount;
-          Object.values(container.items).forEach(
-            (item: BaseItem) => {
-              if (passed) return;
-              if (!fulfilledComponents.includes(component)) {
-                if (component.itemDefinitionId == item.itemDefinitionId) {
-                  if (requiredAmount > item.stackCount) {
-                    requiredAmount -= item.stackCount;
-                    itemsToRemove.push({ item: item, count: item.stackCount });
-                  } else {
-                    fulfilledComponents.push(component);
-                    itemsToRemove.push({ item: item, count: requiredAmount });
-                  }
-                  if (fulfilledComponents.length == recipe.components.length) {
-                    itemsToRemove.forEach(
-                      (item: { item: BaseItem; count: number }) => {
-                        server.removeContainerItemNoClient(
-                          item.item,
-                          this,
-                          item.count
-                        );
-                      }
-                    );
-                    passed = true;
-                    server.addContainerItemExternal(
-                      this.mountedCharacter ? this.mountedCharacter : "",
-                      server.generateItem(recipe.rewardId),
-                      container,
-                      1
-                    );
-                    return;
-                  }
+          Object.values(container.items).forEach((item: BaseItem) => {
+            if (passed) return;
+            if (!fulfilledComponents.includes(component)) {
+              if (component.itemDefinitionId == item.itemDefinitionId) {
+                if (requiredAmount > item.stackCount) {
+                  requiredAmount -= item.stackCount;
+                  itemsToRemove.push({ item: item, count: item.stackCount });
+                } else {
+                  fulfilledComponents.push(component);
+                  itemsToRemove.push({ item: item, count: requiredAmount });
+                }
+                if (fulfilledComponents.length == recipe.components.length) {
+                  itemsToRemove.forEach(
+                    (item: { item: BaseItem; count: number }) => {
+                      server.removeContainerItemNoClient(
+                        item.item,
+                        parentObject,
+                        item.count
+                      );
+                    }
+                  );
+                  passed = true;
+                  server.addContainerItemExternal(
+                    parentObject.mountedCharacter
+                      ? parentObject.mountedCharacter
+                      : "",
+                    server.generateItem(recipe.rewardId),
+                    container,
+                    1
+                  );
+                  return;
                 }
               }
             }
-          );
+          });
         });
       }
     });
     setTimeout(() => {
-      this.startSmelting(server);
+      this.startSmelting(server, parentObject);
     }, this.smeltingTime);
-  }
-
-  getParent(
-    server: ZoneServer2016
-  ): ConstructionParentEntity | ConstructionChildEntity | undefined {
-    return super.getParent(server);
-  }
-
-  getParentFoundation(
-    server: ZoneServer2016
-  ): ConstructionParentEntity | undefined {
-    return super.getParentFoundation(server);
-  }
-
-  canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
-    return super.canUndoPlacement(server, client);
-  }
-
-  destroy(server: ZoneServer2016, destructTime = 0) {
-    super.destroy(server, destructTime);
-    // TODO: drop any items into a lootbag, need to take destructTime into account
-  }
-
-  getHasPermission(
-    server: ZoneServer2016,
-    characterId: string,
-    permission: ConstructionPermissionIds
-  ) {
-    return super.getHasPermission(server, characterId, permission);
-  }
-
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
-    super.OnPlayerSelect(server, client);
-  }
-
-  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-    if (!this.isBurning) return;
-    server.sendData(client, "Command.PlayDialogEffect", {
-      characterId: this.characterId,
-      effectId: this.smeltingEffect,
-    });
-  }
-
-  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
-    if (this.canUndoPlacement(server, client)) {
-      server.undoPlacementInteractionString(this, client);
-      return;
-    }
-    server.sendData(client, "Command.InteractionString", {
-      guid: this.characterId,
-      stringId: StringIds.OPEN,
-    });
   }
 }

@@ -223,7 +223,6 @@ export class WorldDataManager {
     };
   }
 
-
   private getBaseFullEntitySaveData(
     server: ZoneServer2016,
     entity: BaseEntity

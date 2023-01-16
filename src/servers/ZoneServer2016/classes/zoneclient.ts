@@ -100,7 +100,7 @@ export class ZoneClient2016 {
       this.hudTimer = null;
       this.isInteracting = false;
     };
-    
+
     this.character = new Character2016(characterId, transientId, server);
   }
   addPing(ping: number) {

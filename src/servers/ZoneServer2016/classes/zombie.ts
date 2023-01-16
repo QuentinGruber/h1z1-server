@@ -31,7 +31,7 @@ export class Zombie extends Npc {
       position,
       rotation,
       server,
-      spawnerId,
+      spawnerId
     );
   }
 }

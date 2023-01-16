@@ -76,7 +76,7 @@ export class BaseEntity {
       rotation: rotation,
     };
     this.npcRenderDistance = getRenderDistance(actorModelId);
-    server.pushToGridCell(this)
+    server.pushToGridCell(this);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars

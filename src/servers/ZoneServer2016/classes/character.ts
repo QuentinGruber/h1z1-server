@@ -109,7 +109,11 @@ export class Character2016 extends BaseFullCharacter {
   lastInteractionTime = 0;
   mountedContainer?: BaseLootableEntity;
   defaultLoadout = characterDefaultLoadout;
-  constructor(characterId: string, transientId: number, server:ZoneServer2016) {
+  constructor(
+    characterId: string,
+    transientId: number,
+    server: ZoneServer2016
+  ) {
     super(
       characterId,
       transientId,
@@ -679,7 +683,7 @@ export class Character2016 extends BaseFullCharacter {
         ...this.positionUpdate,
         sequenceTime: server.getGameTime(),
         position: this.state.position, // trying to fix invisible characters/vehicles until they move
-          stance: 66561
+        stance: 66561,
       },
       stats: stats.map((stat: any) => {
         return stat.statData;
@@ -723,8 +727,8 @@ export class Character2016 extends BaseFullCharacter {
       true,
       damageInfo.hitReport?.hitLocation || ""
     );
-    const hasHelmetBefore = this.hasHelmet(server)
-    const hasArmorBefore = this.hasArmor(server)
+    const hasHelmetBefore = this.hasHelmet(server);
+    const hasArmorBefore = this.hasArmor(server);
     let damage = damageInfo.damage,
       canStopBleed;
     switch (damageInfo.hitReport?.hitLocation) {

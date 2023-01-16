@@ -128,9 +128,9 @@ export const commands: Array<Command> = [
     name: "spawninfo",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
-        Object.values(server._lootableProps).forEach((obj: any) => {
-            server.pushToGridCell(obj)
-        })
+      Object.values(server._lootableProps).forEach((obj: any) => {
+        server.pushToGridCell(obj);
+      });
     },
   },
   {
@@ -667,7 +667,7 @@ export const commands: Array<Command> = [
           ]),
           client.character.state.lookAt,
           server,
-          Items.IED,
+          Items.IED
         ); // save explosive
       });
     },
@@ -689,7 +689,7 @@ export const commands: Array<Command> = [
         Number(args[0]),
         client.character.state.position,
         client.character.state.lookAt,
-        server,
+        server
       );
       server._npcs[characterId] = npc; // save npc
     },
