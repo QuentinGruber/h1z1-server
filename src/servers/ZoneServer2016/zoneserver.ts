@@ -2962,7 +2962,7 @@ export class ZoneServer2016 extends EventEmitter {
         gridCell.objects.forEach((object) => {
           if (
             isPosInRadius(
-              object.npcRenderDistance as number,
+              object.npcRenderDistance as number || this._charactersRenderDistance,
               client.character.state.position,
               object.state.position
             )

@@ -29,5 +29,6 @@ export class Lootbag extends BaseLootableEntity {
     const container = this.getContainer();
     if (container) container.canAcceptItems = false;
     this.flags.noCollide = 1;
+    this.npcRenderDistance = 50;
   }
 }
