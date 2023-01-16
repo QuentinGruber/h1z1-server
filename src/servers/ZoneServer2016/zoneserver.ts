@@ -1029,11 +1029,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   divideLargeCells(threshold: number) {
     const grid = this._grid
-    for (var i = 0; i < grid.length; i++) {
-        var gridCell: GridCell = grid[i];
+    for (let i = 0; i < grid.length; i++) {
+        const gridCell: GridCell = grid[i];
         if (gridCell.objects.length > threshold) {
-            var newGridCellWidth = gridCell.width / 2;
-            var newGridCellHeight = gridCell.height / 2;
+            const newGridCellWidth = gridCell.width / 2;
+            const newGridCellHeight = gridCell.height / 2;
             // 4 cells made of 1
             const newGridCell1 = new GridCell(
                 gridCell.position[0],
