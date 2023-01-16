@@ -26,6 +26,7 @@ import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import { positionUpdate } from "types/zoneserver";
 import { NAME_VALIDATION_STATUS } from "./enums";
+import { Resolver } from "dns";
 
 export class customLodash {
   sum(pings: number[]): number {
@@ -521,12 +522,6 @@ export const initMongo = async function (
   await mongoClient.db(dbName).createCollection("servers");
   const servers = require("../../data/defaultDatabase/shared/servers.json");
   await mongoClient.db(dbName).collection("servers").insertMany(servers);
-  await mongoClient.db(dbName).createCollection("zone-whitelist");
-  const zoneWhitelist = require("../../data/defaultDatabase/shared/zone-whitelist.json");
-  await mongoClient
-    .db(dbName)
-    .collection("zone-whitelist")
-    .insertMany(zoneWhitelist);
   debug("h1server database was missing... created one with samples.");
 };
 
@@ -676,4 +671,20 @@ export function isValidCharacterName(characterName: string) {
   return !onlyBlankChars && !hasSpecialChars
     ? NAME_VALIDATION_STATUS.AVAILABLE
     : NAME_VALIDATION_STATUS.INVALID;
+}
+
+export async function resolveHostAddress(
+  resolver: Resolver,
+  hostName: string
+): Promise<string[]> {
+  const resolvedAddress = await new Promise((resolve) => {
+    resolver.resolve4(hostName, (err, addresses) => {
+      if (!err) {
+        resolve(addresses);
+      } else {
+        throw err;
+      }
+    });
+  });
+  return resolvedAddress as string;
 }
