@@ -872,6 +872,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
+      setTimeout(() => {
+          this.divideLargeCells(800) // divide all cells that have more than 800 objects         
+      },10000)
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
@@ -1024,6 +1027,54 @@ export class ZoneServer2016 extends EventEmitter {
     return grid;
   }
 
+  divideLargeCells(threshold: number) {
+    const grid = this._grid
+    for (var i = 0; i < grid.length; i++) {
+        var gridCell: GridCell = grid[i];
+        if (gridCell.objects.length > threshold) {
+            var newGridCellWidth = gridCell.width / 2;
+            var newGridCellHeight = gridCell.height / 2;
+            // 4 cells made of 1
+            const newGridCell1 = new GridCell(
+                gridCell.position[0],
+                gridCell.position[2],
+                newGridCellWidth,
+                newGridCellHeight
+            );
+            const newGridCell2 = new GridCell(
+                gridCell.position[0] + newGridCellWidth,
+                gridCell.position[2],
+                newGridCellWidth,
+                newGridCellHeight
+            );
+            const newGridCell3 = new GridCell(
+                gridCell.position[0],
+                gridCell.position[2] + newGridCellHeight,
+                newGridCellWidth,
+                newGridCellHeight
+            );
+            const newGridCell4 = new GridCell(
+                gridCell.position[0] + newGridCellWidth,
+                gridCell.position[2] + newGridCellHeight,
+                newGridCellWidth,
+                newGridCellHeight
+            );
+            // remove old grid cell
+            const objects = this._grid[i].objects
+            this._grid.splice(i, 1);
+            i--;
+
+            this._grid.push(newGridCell1);
+            this._grid.push(newGridCell2);
+            this._grid.push(newGridCell3);
+            this._grid.push(newGridCell4);
+            objects.forEach((object: BaseEntity) => {
+                this.pushToGridCell(object)
+            })
+        }
+    }
+}
+
   pushToGridCell(obj: BaseEntity) {
     if (this._grid.length == 0)
       this._grid = this.divideMapIntoGrid(8000, 8000, 250);
@@ -1053,10 +1104,32 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+    assignChunkRenderDistances() {
+        for (const a in this._clients) {
+            let lowerRenderDistance = false
+            const character = this._clients[a].character
+            for (let i = 0; i < this._grid.length; i++) {
+                const gridCell: GridCell = this._grid[i];
+
+                if (
+                    character.state.position[0] >= gridCell.position[0] &&
+                    character.state.position[0] <= gridCell.position[0] + gridCell.width &&
+                    character.state.position[2] >= gridCell.position[2] &&
+                    character.state.position[2] <= gridCell.position[2] + gridCell.height &&
+                    gridCell.height < 250
+                ) {
+                    lowerRenderDistance = true
+                }
+            }
+            this._clients[a].chunkRenderDistance = lowerRenderDistance ? 200 : 400
+        }
+    }
+
   private worldRoutine() {
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
     else {
       if (this._ready) {
+        this.assignChunkRenderDistances()
         this.npcDespawner();
         this.lootbagDespawner();
         this.itemDespawner();
@@ -2884,7 +2957,7 @@ export class ZoneServer2016 extends EventEmitter {
   private spawnGridObjects(client: Client) {
     this._grid.forEach((gridCell: GridCell) => {
       if (
-        isPosInRadius(400, gridCell.position, client.character.state.position)
+        isPosInRadius(client.chunkRenderDistance, gridCell.position, client.character.state.position)
       ) {
         gridCell.objects.forEach((object) => {
           if (
@@ -6402,6 +6475,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   startClientRoutine(client: Client) {
     client.routineInterval = setTimeout(() => {
+      const date1 = new Date().getTime()
       if (!client) return;
       if (!client.isLoading) {
         this.vehicleManager(client);
@@ -6417,6 +6491,8 @@ export class ZoneServer2016 extends EventEmitter {
         //this.spawnTemporaryObjects(client);
         this.POIManager(client);
         client.posAtLastRoutine = client.character.state.position;
+        const date2 = new Date().getTime()
+        console.log(date2 - date1)
       }
       if (client.isLoading) {
         delete client.routineInterval;

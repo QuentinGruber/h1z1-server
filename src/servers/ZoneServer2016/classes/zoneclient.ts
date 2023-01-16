@@ -73,6 +73,7 @@ export class ZoneClient2016 {
   pingWarnings: number = 0;
   isWeaponLock: boolean = false;
   avgPingReady: boolean = false;
+  chunkRenderDistance: number = 400;
   routineInterval?: NodeJS.Timeout;
   xsSecurityTimeout?: NodeJS.Timeout;
   constructor(
