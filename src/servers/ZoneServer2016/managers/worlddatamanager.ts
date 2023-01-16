@@ -201,12 +201,14 @@ export class WorldDataManager {
     //await this.saveVehicles(server);
     await this.saveServerData(server);
     await this.saveCharacters(server);
+    await this.saveConstructionData(server);
     debug("World saved!");
   }
 
   //#region DATA GETTER HELPER FUNCTIONS
   
   private getBaseSaveData(server: ZoneServer2016): BaseSaveData {
+    console.log(server._worldId)
     return {
       serverId: server._worldId,
       worldSaveVersion: server.worldSaveVersion
@@ -320,9 +322,8 @@ export class WorldDataManager {
   private async saveServerData(server: ZoneServer2016) {
     if (!server.enableWorldSaves) return;
     const saveData: ServerSaveData = {
-      serverId: server._worldId,
+      ...this.getBaseSaveData(server),
       lastItemGuid: toBigHex(server.lastItemGuid),
-      worldSaveVersion: server.worldSaveVersion,
     };
     if (server._soloMode) {
       fs.writeFileSync(
@@ -401,7 +402,7 @@ export class WorldDataManager {
         worldSaveVersion: server.worldSaveVersion,
       };
     }
-    client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
+    client.guid = "0x665a2bff2b44c034"; // unused
     client.character.name = savedCharacter.characterName;
     client.character.actorModelId = savedCharacter.actorModelId;
     client.character.headActor = savedCharacter.headActor;
@@ -579,20 +580,53 @@ export class WorldDataManager {
 
   }
 
-  /*
 
   async saveConstructionData(server: ZoneServer2016) {
     if (!server.enableWorldSaves) return;
     const construction: Array<ConstructionParentSaveData> = Object.values(
       server._constructionFoundations
-    ).map((parent) => {
+    ).map((entity) => {
       return {
+        ...this.getBaseFullEntitySaveData(server, entity),
+        health: entity.health,
+        placementTime: entity.placementTime,
+        parentObjectCharacterId: entity.parentObjectCharacterId,
+        itemDefinitionId: entity.itemDefinitionId,
+        eulerAngle: entity.eulerAngle,
+        slot: entity.slot,
+        occupiedWallSlots: {
 
+        },
+        occupiedUpperWallSlots: {
+
+        },
+        occupiedShelterSlots: {
+          
+        },
+        freeplaceEntities: {
+
+        },
+        permissions: entity.permissions,
+        ownerCharacterId: entity.ownerCharacterId,
+        occupiedExpansionSlots: {
+
+        },
+        occupiedRampSlots: {
+
+        }
       };
     });
+    if (server._soloMode) {
+      fs.writeFileSync(
+        `${server._appDataFolder}/worlddata/construction.json`,
+        JSON.stringify(construction, null, 2)
+      );
+    } else {
+      const collection = server._db?.collection("construction");
+      collection?.deleteMany({ serverId: server._worldId });
+      collection?.insertMany(construction);
+    }
   }
 
-  */
- 
   //#endregion
 }

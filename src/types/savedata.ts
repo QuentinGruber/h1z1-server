@@ -83,11 +83,40 @@ export interface FullVehicleSaveData
     vehicleId: number
 }
 
-export interface ConstructionChildSaveData
-  extends BaseFullCharacterUpdateSaveData,
-  BaseFullEntitySaveData {
+export interface BaseConstructionSaveData
+  extends BaseFullEntitySaveData {
     health: number;
-    
+    placementTime: number;
+    parentObjectCharacterId: string;
+    itemDefinitionId: number;
+}
+
+export interface ConstructionDoorSaveData
+  extends BaseConstructionSaveData {
+
+}
+
+export interface LootableConstructionSaveData
+  extends BaseConstructionSaveData {
+
+}
+
+export interface ConstructionChildSaveData
+  extends BaseConstructionSaveData {
+    eulerAngle: number;
+    slot: string;
+
+    occupiedWallSlots: {
+      [slot: number]: ConstructionDoorSaveData | ConstructionChildSaveData;
+    }
+    occupiedUpperWallSlots: { [slot: number]: ConstructionChildSaveData }
+    occupiedShelterSlots: { [slot: number]: ConstructionChildSaveData }
+    freeplaceEntities: {
+      [characterId: string]:
+        | ConstructionChildSaveData
+        | ConstructionDoorSaveData
+        | LootableConstructionSaveData;
+    }
 }
 
 export interface ConstructionParentSaveData
@@ -101,5 +130,4 @@ export interface ConstructionParentSaveData
 
 export interface ServerSaveData extends BaseSaveData {
   lastItemGuid: string;
-  worldSaveVersion: number;
 }

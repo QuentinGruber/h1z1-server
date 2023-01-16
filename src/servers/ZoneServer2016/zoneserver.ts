@@ -836,6 +836,7 @@ export class ZoneServer2016 extends EventEmitter {
       `Server saving ${this.enableWorldSaves ? "enabled" : "disabled"}.`
     );
     debug("Server ready");
+    console.log(this._worldId)
   }
 
   async start(): Promise<void> {
