@@ -686,5 +686,5 @@ export async function resolveHostAddress(
       }
     });
   });
-  return resolvedAddress as string;
+  return resolvedAddress as string[];
 }
