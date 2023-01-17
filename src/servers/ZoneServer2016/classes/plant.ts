@@ -41,6 +41,7 @@ export class Plant extends ItemObject {
         this.npcRenderDistance = 30;
         this.parentObjectCharacterId = parentObjectCharacterId;
         this.slot = slot;
+        this.isLightweight = false;
         if (!server._temporaryObjects[parentObjectCharacterId]) return
         const parent = server._temporaryObjects[parentObjectCharacterId] as PlantingDiameter
         if (parent.isFertilized) this.isFertilized = true;
@@ -123,4 +124,14 @@ export class Plant extends ItemObject {
             stringId: StringIds.TAKE_ITEM,
         });
     }
+
+    OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016): void {
+        if (!this.isFertilized) return;
+        server.sendData(client, "Command.PlayDialogEffect",
+            {
+                characterId: this.characterId,
+                effectId: 5056,
+            }
+        );
+    };
 }

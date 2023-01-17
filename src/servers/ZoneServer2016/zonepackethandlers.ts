@@ -51,6 +51,7 @@ import { ConstructionPermissions } from "types/zoneserver";
 import { GameTimeSync } from "types/zone2016packets";
 import { LootableProp } from "./classes/lootableprop";
 import { Vehicle2016 } from "./classes/vehicle";
+import { Plant } from "./classes/plant";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -853,10 +854,9 @@ export class zonePacketHandlers {
     packet: any
   ) {
     const entity = server.getEntity(packet.data.characterId);
-    if (!(entity instanceof BaseFullCharacter)) {
+    if (!(entity instanceof BaseFullCharacter) && !(entity instanceof Plant)) {
       return;
-    }
-
+      }
     entity.OnFullCharacterDataRequest(server, client);
   }
   CommandPlayerSelect(server: ZoneServer2016, client: Client, packet: any) {
