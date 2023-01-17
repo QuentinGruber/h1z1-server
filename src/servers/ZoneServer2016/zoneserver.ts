@@ -839,7 +839,7 @@ export class ZoneServer2016 extends EventEmitter {
     const loadedWorld = await this.worldDataManager.getServerData(this);
     if (loadedWorld) {
       if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
-        console.log("World save version mismatch, deleting world data");
+        console.log(`World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`);
         await this.worldDataManager.deleteWorld(this);
         await this.worldDataManager.insertWorld(this);
         await this.worldDataManager.saveWorld(this);

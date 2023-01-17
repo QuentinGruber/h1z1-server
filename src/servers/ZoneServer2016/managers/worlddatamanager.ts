@@ -344,7 +344,7 @@ export class WorldDataManager {
       serverData = <any>(
         await server._db
           ?.collection("worlds")
-          .find({ worldId: server._worldId })
+          .findOne({ worldId: server._worldId })
       );
     }
     return serverData;
@@ -693,7 +693,7 @@ export class WorldDataManager {
       constructionParents = <any>(
         await server._db
           ?.collection("construction")
-          .find({ worldId: server._worldId })
+          .find({ serverId: server._worldId })
           .toArray()
       );
     }
