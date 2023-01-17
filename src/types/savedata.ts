@@ -89,6 +89,7 @@ export interface BaseConstructionSaveData
     placementTime: number;
     parentObjectCharacterId: string;
     itemDefinitionId: number;
+    slot: string;
 }
 
 export interface ConstructionDoorSaveData
@@ -104,7 +105,6 @@ export interface LootableConstructionSaveData
 export interface ConstructionChildSaveData
   extends BaseConstructionSaveData {
     eulerAngle: number;
-    slot: string;
 
     occupiedWallSlots: {
       [slot: number]: ConstructionDoorSaveData | ConstructionChildSaveData;

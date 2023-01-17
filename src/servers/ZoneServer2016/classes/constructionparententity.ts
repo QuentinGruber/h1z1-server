@@ -74,7 +74,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     ownerCharacterId: string,
     ownerName: string,
     parentObjectCharacterId: string,
-    BuildingSlot: string | undefined
+    BuildingSlot: string | undefined,
+    overrideEulerAngle?: number,
   ) {
     super(
       characterId,
@@ -85,7 +86,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       server,
       itemDefinitionId,
       parentObjectCharacterId,
-      ""
+      "",
+      overrideEulerAngle
     );
     this.health = 1000000;
     this.ownerCharacterId = ownerCharacterId;

@@ -830,21 +830,21 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!this._soloMode) {
       await this.worldDataManager.initializeDatabase(this);
-      const loadedWorld = (await this._db
-        ?.collection("worlds")
-        .findOne({ worldId: this._worldId })) as unknown as ServerSaveData;
-      if (loadedWorld) {
-        if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
-          console.log("World save version mismatch, deleting world data");
-          await this.worldDataManager.deleteWorld(this);
-          await this.worldDataManager.insertWorld(this);
-          await this.worldDataManager.saveWorld(this);
-        }
-        await this.worldDataManager.fetchWorldData(this);
-      } else {
+    }
+    const loadedWorld = await this.worldDataManager.getServerData(this);
+    if (loadedWorld) {
+      if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
+        console.log("World save version mismatch, deleting world data");
+        await this.worldDataManager.deleteWorld(this);
         await this.worldDataManager.insertWorld(this);
         await this.worldDataManager.saveWorld(this);
       }
+    } else {
+      await this.worldDataManager.insertWorld(this);
+      await this.worldDataManager.saveWorld(this);
+    }
+    await this.worldDataManager.fetchWorldData(this);
+    if (!this._soloMode) {
       this.initializeLoginServerConnection();
     }
 

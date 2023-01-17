@@ -58,7 +58,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   isSecured: boolean;
   readonly damageRange: number;
   readonly fixedPosition?: Float32Array;
-  readonly placementTime = Date.now();
+  placementTime = Date.now();
   readonly bounds?: SquareBounds;
 
   // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
@@ -89,11 +89,19 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     server: ZoneServer2016,
     itemDefinitionId: number,
     parentObjectCharacterId: string,
-    slot: string
+    slot: string,
+    overrideEulerAngle?: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
-    this.state.rotation = eul2quat(rotation);
-    this.eulerAngle = rotation[0];
+    
+    if(overrideEulerAngle) {
+      this.state.rotation = rotation;
+      this.eulerAngle = overrideEulerAngle;
+    }
+    else {
+      this.state.rotation = eul2quat(rotation);
+      this.eulerAngle = rotation[0];
+    }
     this.itemDefinitionId = itemDefinitionId;
     this.parentObjectCharacterId = parentObjectCharacterId;
     this.slot = slot;

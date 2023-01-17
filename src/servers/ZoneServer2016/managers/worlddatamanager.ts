@@ -13,17 +13,21 @@
 
 import { MongoClient } from "mongodb";
 import {
+  BaseConstructionSaveData,
   BaseEntityUpdateSaveData,
   BaseFullCharacterUpdateSaveData,
   BaseFullEntitySaveData,
   BaseSaveData,
   CharacterUpdateSaveData,
+  ConstructionChildSaveData,
+  ConstructionDoorSaveData,
   ConstructionParentSaveData,
   FullCharacterSaveData,
   FullVehicleSaveData,
   ItemSaveData,
   LoadoutContainerSaveData,
   LoadoutItemSaveData,
+  LootableConstructionSaveData,
   ServerSaveData,
   WeaponSaveData,
 } from "types/savedata";
@@ -37,6 +41,12 @@ import { BaseItem } from "../classes/baseItem";
 import { Weapon } from "../classes/weapon";
 import { BaseEntity } from "../classes/baseentity";
 import { BaseFullCharacter } from "../classes/basefullcharacter";
+import { ConstructionEntity } from "types/zoneserver";
+import { ConstructionChildEntity } from "../classes/constructionchildentity";
+import { ConstructionParentEntity } from "../classes/constructionparententity";
+import { LootableConstructionEntity } from "../classes/lootableconstructionentity";
+import { ConstructionDoor } from "../classes/constructiondoor";
+import { Items } from "../models/enums";
 
 const fs = require("fs");
 const debug = require("debug")("ZoneServer");
@@ -134,6 +144,7 @@ export class WorldDataManager {
   }
 
   async insertWorld(server: ZoneServer2016) {
+    if(server._soloMode) return;
     if (!server._worldId) {
       const worldCount: number =
         (await server._db?.collection("worlds").countDocuments()) || 0;
@@ -157,6 +168,7 @@ export class WorldDataManager {
     if (!server.enableWorldSaves) return;
     //await this.loadVehicleData(server);
     await this.loadServerData(server);
+    await this.loadConstructionData(server);
     server._transientIds = server.getAllCurrentUsedTransientId();
     debug("World fetched!");
   }
@@ -201,13 +213,13 @@ export class WorldDataManager {
     //await this.saveVehicles(server);
     await this.saveServerData(server);
     await this.saveCharacters(server);
+    await this.saveConstructionData(server);
     debug("World saved!");
   }
 
   //#region DATA GETTER HELPER FUNCTIONS
 
   private getBaseSaveData(server: ZoneServer2016): BaseSaveData {
-    console.log(server._worldId);
     return {
       serverId: server._worldId,
     };
@@ -319,7 +331,7 @@ export class WorldDataManager {
 
   //#region SERVER DATA
 
-  private async loadServerData(server: ZoneServer2016) {
+  async getServerData(server: ZoneServer2016): Promise<ServerSaveData | undefined> {
     if (!server.enableWorldSaves) return;
     let serverData: ServerSaveData;
     if (server._soloMode) {
@@ -335,6 +347,14 @@ export class WorldDataManager {
           .find({ worldId: server._worldId })
       );
     }
+    return serverData;
+  }
+
+  private async loadServerData(server: ZoneServer2016) {
+    if (!server.enableWorldSaves) return;
+    const serverData = await this.getServerData(server);
+    if(!serverData) return;
+
     server.lastItemGuid = BigInt(
       serverData.lastItemGuid || server.lastItemGuid
     );
@@ -600,8 +620,162 @@ export class WorldDataManager {
   //#endregion
 
   //#region CONSTRUCTION DATA
+
+  loadConstructionChildEntity(server: ZoneServer2016, entityData: ConstructionChildSaveData) {
+    const transientId = server.getTransientId(entityData.characterId),
+      entity = new ConstructionChildEntity(
+        entityData.characterId, 
+        transientId,
+        entityData.actorModelId,
+        new Float32Array(entityData.position),
+        new Float32Array(entityData.rotation),
+        server,
+        entityData.itemDefinitionId,
+        entityData.parentObjectCharacterId,
+        entityData.slot,
+        entityData.eulerAngle
+      )
+      entity.health = entityData.health;
+      entity.placementTime = entityData.placementTime;
+    server._constructionSimple[entity.characterId] = entity;
+  }
+
+  loadConstructionParentEntity(server: ZoneServer2016, entityData: ConstructionParentSaveData) {
+    console.log("ASDSADADASDASD")
+    const transientId = server.getTransientId(entityData.characterId),
+      foundation = new ConstructionParentEntity(
+        entityData.characterId, 
+        transientId,
+        entityData.actorModelId,
+        new Float32Array(entityData.position),
+        new Float32Array(entityData.rotation),
+        server,
+        entityData.itemDefinitionId,
+        entityData.ownerCharacterId,
+        "",
+        entityData.parentObjectCharacterId,
+        entityData.slot,
+        entityData.eulerAngle
+      )
+      foundation.health = entityData.health;
+      foundation.placementTime = entityData.placementTime;
+      foundation.permissions = entityData.permissions;
+    server._constructionFoundations[foundation.characterId] = foundation;
+
+    const parent = foundation.getParent(server)
+    if(parent) {
+      parent.setExpansionSlot(foundation);
+    }
+
+    /*
+    Object.values(entityData.occupiedWallSlots).forEach((wall) => {
+      if("occupiedWallSlots" in wall) {
+        this.loadConstructionChildEntity(server, wall);
+      }
+      else {
+        
+      }
+    });
+    */
+  }
+
   async loadConstructionData(server: ZoneServer2016) {
+    console.log("LOADCONSTRUCTIONDATA")
     if (!server.enableWorldSaves) return;
+    let constructionParents: Array<ConstructionParentSaveData> = [];
+    if (server._soloMode) {
+      constructionParents = require(`${server._appDataFolder}/worlddata/construction.json`);
+      if (!constructionParents) {
+        debug("Construction data not found in file, aborting.");
+        return;
+      }
+    } else {
+      constructionParents = <any>(
+        await server._db
+          ?.collection("construction")
+          .find({ worldId: server._worldId })
+          .toArray()
+      );
+    }
+    console.log(constructionParents)
+    constructionParents.forEach((parent)=> {
+      this.loadConstructionParentEntity(server, parent);
+    });
+  }
+
+  getBaseConstructionSaveData(server: ZoneServer2016, entity: ConstructionEntity): BaseConstructionSaveData {
+    return {
+      ...this.getBaseFullEntitySaveData(server, entity),
+      health: entity.health,
+      placementTime: entity.placementTime,
+      parentObjectCharacterId: entity.parentObjectCharacterId,
+      itemDefinitionId: entity.itemDefinitionId,
+      slot: entity instanceof LootableConstructionEntity ? "" : entity.slot
+    }
+  }
+
+  getConstructionChildSaveData(server: ZoneServer2016, entity: ConstructionChildEntity): ConstructionChildSaveData {
+    const wallSlots: { [slot: number]: ConstructionChildSaveData | ConstructionDoorSaveData } = {},
+    upperWallSlots: { [slot: number]: ConstructionChildSaveData } = {},
+    shelterSlots: { [slot: number]: ConstructionChildSaveData } = {},
+    freePlaceEntities: {
+      [characterId: string]:
+        | ConstructionChildSaveData
+        | ConstructionDoorSaveData
+        | LootableConstructionSaveData;
+    } = {};
+    Object.values(entity.occupiedWallSlots).forEach((wall)=> {
+      if(wall instanceof ConstructionDoor) {
+        wallSlots[wall.getSlotNumber()] = this.getBaseConstructionSaveData(server, wall);
+      }
+      else {
+        wallSlots[wall.getSlotNumber()] = this.getConstructionChildSaveData(server, wall);
+      }
+    })
+    Object.values(entity.occupiedUpperWallSlots).forEach((wall)=> {
+      upperWallSlots[wall.getSlotNumber()] = this.getConstructionChildSaveData(server, wall);
+    })
+    Object.values(entity.occupiedShelterSlots).forEach((shelter)=> {
+      shelterSlots[shelter.getSlotNumber()] = this.getConstructionChildSaveData(server, shelter);
+    })
+    Object.values(entity.freeplaceEntities).forEach((entity)=> {
+      if(entity instanceof ConstructionDoor) {
+        freePlaceEntities[entity.characterId] = this.getBaseConstructionSaveData(server, entity);
+      }
+      else if(entity instanceof LootableConstructionEntity) {
+        freePlaceEntities[entity.characterId] = this.getBaseConstructionSaveData(server, entity);
+      }
+      else {
+        freePlaceEntities[entity.characterId] = this.getConstructionChildSaveData(server, entity);
+      }
+    })
+    
+    return {
+      ...this.getBaseConstructionSaveData(server, entity),
+      eulerAngle: entity.eulerAngle,
+        occupiedWallSlots: wallSlots,
+        occupiedUpperWallSlots: upperWallSlots,
+        occupiedShelterSlots: shelterSlots,
+        freeplaceEntities: freePlaceEntities,
+    }
+  }
+
+  getConstructionParentSaveData(server: ZoneServer2016, entity: ConstructionParentEntity): ConstructionParentSaveData {
+    const expansionSlots: { [slot: number]: ConstructionParentSaveData } = {},
+    rampSlots: { [slot: number]: ConstructionChildSaveData } = {};
+    Object.values(entity.occupiedExpansionSlots).forEach((expansion)=> {
+      expansionSlots[expansion.getSlotNumber()] = this.getConstructionParentSaveData(server, expansion);
+    })
+    Object.values(entity.occupiedRampSlots).forEach((ramp)=> {
+      rampSlots[ramp.getSlotNumber()] = this.getConstructionChildSaveData(server, ramp);
+    })
+    return {
+      ...this.getConstructionChildSaveData(server, entity),
+      permissions: entity.permissions,
+      ownerCharacterId: entity.ownerCharacterId,
+      occupiedExpansionSlots: expansionSlots,
+      occupiedRampSlots: rampSlots,
+    }
   }
 
   async saveConstructionData(server: ZoneServer2016) {
@@ -609,23 +783,7 @@ export class WorldDataManager {
     const construction: Array<ConstructionParentSaveData> = Object.values(
       server._constructionFoundations
     ).map((entity) => {
-      return {
-        ...this.getBaseFullEntitySaveData(server, entity),
-        health: entity.health,
-        placementTime: entity.placementTime,
-        parentObjectCharacterId: entity.parentObjectCharacterId,
-        itemDefinitionId: entity.itemDefinitionId,
-        eulerAngle: entity.eulerAngle,
-        slot: entity.slot,
-        occupiedWallSlots: {},
-        occupiedUpperWallSlots: {},
-        occupiedShelterSlots: {},
-        freeplaceEntities: {},
-        permissions: entity.permissions,
-        ownerCharacterId: entity.ownerCharacterId,
-        occupiedExpansionSlots: {},
-        occupiedRampSlots: {},
-      };
+      return this.getConstructionParentSaveData(server, entity);
     });
     if (server._soloMode) {
       fs.writeFileSync(
