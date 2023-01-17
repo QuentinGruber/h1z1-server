@@ -26,6 +26,7 @@ import {
   setupAppDataFolder,
   validateVersion,
   isValidCharacterName,
+  resolveHostAddress,
 } from "../../utils/utils";
 import { GameServer } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
@@ -55,6 +56,7 @@ import LoginClient from "servers/LoginServer/loginclient";
 import { GAME_VERSIONS, NAME_VALIDATION_STATUS } from "../../utils/enums";
 import DataSchema from "h1z1-dataschema";
 import { applicationDataKOTK } from "../../packets/LoginUdp/LoginUdp_11/loginpackets";
+import { Resolver } from "dns";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);
@@ -78,13 +80,14 @@ export class LoginServer extends EventEmitter {
   _httpServerPort: number = 80;
   private _h1emuLoginServer!: H1emuLoginServer;
   private _zoneConnections: { [h1emuClientId: string]: number } = {};
-  private _zoneWhitelist!: any[];
+  private _serverList!: any[];
   private _internalReqCount: number = 0;
   private _pendingInternalReq: { [requestId: number]: any } = {};
   private _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } =
     {};
   private _soloPlayIp: string = process.env.SOLO_PLAY_IP || "127.0.0.1";
   private clients: Map<string, LoginClient>;
+  private _resolver = new Resolver();
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._crcSeed = 0;
@@ -180,11 +183,20 @@ export class LoginServer extends EventEmitter {
                     debug(
                       `Received session request from ${client.address}:${client.port}`
                     );
-                    let status =
-                      this._zoneWhitelist.find((e) => e.serverId === serverId)
-                        ?.address === client.address
-                        ? 1
-                        : 0;
+                    let status = 0;
+
+                    const serverAddress = this._serverList
+                      .find((e) => e.serverId === serverId)
+                      ?.serverAddress.split(":")[0];
+                    if (serverAddress) {
+                      const resolvedServerAddress = await resolveHostAddress(
+                        this._resolver,
+                        serverAddress
+                      );
+                      if (resolvedServerAddress.includes(client.address)) {
+                        status = 1;
+                      }
+                    }
                     if (
                       status &&
                       process.env.H1Z1_SERVER_VERSION &&
@@ -1009,14 +1021,14 @@ export class LoginServer extends EventEmitter {
         await initMongo(mongoClient, debugName);
       }
       this._db = mongoClient.db("h1server");
-      this._zoneWhitelist = await this._db
-        .collection("zone-whitelist")
+      this._serverList = await this._db
+        .collection("servers")
         .find({})
         .toArray();
       this.updateServersStatus();
       setInterval(async () => {
-        this._zoneWhitelist = await this._db
-          .collection("zone-whitelist")
+        this._serverList = await this._db
+          .collection("servers")
           .find({})
           .toArray();
       }, 60000);

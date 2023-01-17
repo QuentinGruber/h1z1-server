@@ -23,7 +23,6 @@ import {
 } from "../../../utils/utils";
 import { ExplosiveEntity } from "../classes/explosiveentity";
 import { Npc } from "../classes/npc";
-import { Vehicle2016 as Vehicle } from "../classes/vehicle";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import {
   characterBuildKitLoadout,
@@ -128,9 +127,11 @@ export const commands: Array<Command> = [
     name: "spawninfo",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
-      Object.values(server._lootableProps).forEach((obj: any) => {
-        server.pushToGridCell(obj);
-      });
+      server.sendChatText(
+        client,
+        `You spawned at "${client.character.spawnLocation}"`,
+        true
+      );
     },
   },
   {
@@ -376,7 +377,6 @@ export const commands: Array<Command> = [
     name: "tp",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: any[]) => {
-      client.isLoading = true;
       let locationPosition;
       switch (args[0]) {
         case "farm":
@@ -443,7 +443,8 @@ export const commands: Array<Command> = [
       }
 
       client.character.state.position = locationPosition;
-
+      client.isLoading = true;
+      client.characterReleased = false
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: locationPosition,
         triggerLoadingScreen: true,

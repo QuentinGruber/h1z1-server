@@ -421,7 +421,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       {
         characterId: this.characterId,
         characterId2: this.characterId,
-        permissions: Object.values(this.permissions),
+        permissions: Object.values(this.permissions).filter((perm: ConstructionPermissions) => perm.characterId != this.ownerCharacterId),
       }
     );
   }

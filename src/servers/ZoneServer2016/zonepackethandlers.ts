@@ -173,14 +173,18 @@ export class zonePacketHandlers {
       });
       client.character.isReady = true;
     }
-    setTimeout(() => {
+      setTimeout(() => {
+              if (client.routineInterval) return;
+              server.executeRoutine(client);
+              server.startClientRoutine(client);
+              // idk sometimes it conditions below arent matched
+      }, 5000)
       if (client.isLoading) {
         client.isLoading = false;
-        if (client.routineInterval) return;
+        if (client.routineInterval || !client.characterReleased) return;
         server.executeRoutine(client);
         server.startClientRoutine(client);
       }
-    }, 1500);
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
       server.sendData(client, "Character.StartMultiStateDeath", {
@@ -385,10 +389,20 @@ export class zonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
+    if (packet.data.file == "ClientSynchronizedTeleport.log") {
+        if (packet.data.message.includes('releasing local player')) {
+            if (!client.characterReleased) {
+                client.characterReleased = true;
+                if (client.routineInterval || client.isLoading) return;
+                server.executeRoutine(client);
+                server.startClientRoutine(client);
+            }
+        }
+    }
     if (
       packet.data.file === "ClientProc.log" &&
       !client.clientLogs.includes(packet.data.message)
-    ) {
+    ) {      
       const suspicious = [
         "cheatengine",
         "injector",
@@ -1304,7 +1318,7 @@ export class zonePacketHandlers {
     const foundation = server._constructionFoundations[
       packet.data.objectCharacterId
     ] as ConstructionParentEntity;
-    if (foundation.ownerCharacterId != client.character.characterId) return;
+      if (foundation.ownerCharacterId != client.character.characterId) return;
     let characterId = "";
     for (const a in server._characters) {
       const character = server._characters[a];
@@ -1315,16 +1329,8 @@ export class zonePacketHandlers {
     if (!characterId) {
       return;
     }
-    const obj: ConstructionPermissions = foundation.permissions[
-      characterId
-    ] || {
-      characterId: characterId,
-      characterName: packet.data.characterName,
-      useContainers: false,
-      build: false,
-      demolish: false,
-      visit: false,
-    };
+    if (characterId == foundation.ownerCharacterId) return;
+    const obj: ConstructionPermissions = foundation.permissions[characterId]
     switch (packet.data.permissionSlot) {
       case 1:
         obj.build = !obj.build;
@@ -1340,7 +1346,11 @@ export class zonePacketHandlers {
         break;
     }
     // update permissions
-    foundation.permissions[characterId] == obj;
+    if (!obj.build && !obj.demolish && !obj.useContainers && !obj.visit){
+        delete foundation.permissions[characterId]
+    } else {
+        foundation.permissions[characterId] == obj;
+    }
 
     // update child expansion permissions
     Object.values(
@@ -1357,7 +1367,7 @@ export class zonePacketHandlers {
       {
         characterId: foundation.characterId,
         characterId2: foundation.characterId,
-        permissions: Object.values(foundation.permissions),
+        permissions: Object.values(foundation.permissions).filter((perm: ConstructionPermissions) => perm.characterId != foundation.ownerCharacterId),
       }
     );
   }
@@ -1369,7 +1379,7 @@ export class zonePacketHandlers {
     const foundation = server._constructionFoundations[
       packet.data.objectCharacterId
     ] as ConstructionParentEntity;
-    if (foundation.ownerCharacterId != client.character.characterId) return;
+      if (foundation.ownerCharacterId != client.character.characterId) return;
     let characterId = "";
     for (const a in server._characters) {
       const character = server._characters[a];
@@ -1379,17 +1389,17 @@ export class zonePacketHandlers {
     }
 
     if (!characterId) return;
-
-    const obj: ConstructionPermissions = foundation.permissions[
-      characterId
-    ] || {
-      characterId: characterId,
-      characterName: packet.data.characterName,
-      useContainers: false,
-      build: false,
-      demolish: false,
-      visit: false,
-    };
+    let obj: ConstructionPermissions = foundation.permissions[characterId]
+      if (!obj) {
+          obj = {
+              characterId: characterId,
+              characterName: packet.data.characterName,
+              useContainers: false,
+              build: false,
+              demolish: false,
+              visit: false,
+          };
+      }
     switch (packet.data.permissionSlot) {
       case ConstructionPermissionIds.BUILD:
         obj.build = !obj.build;
@@ -1404,7 +1414,8 @@ export class zonePacketHandlers {
         obj.visit = !obj.visit;
         break;
     }
-
+    foundation.permissions[characterId] = obj
+      
     // update child expansion permissions
     Object.values(
       server._constructionFoundations[packet.data.objectCharacterId]
@@ -1419,7 +1430,7 @@ export class zonePacketHandlers {
       {
         characterId: foundation.characterId,
         characterId2: foundation.characterId,
-        permissions: Object.values(foundation.permissions),
+        permissions: Object.values(foundation.permissions).filter((perm: ConstructionPermissions) => perm.characterId != foundation.ownerCharacterId),
       }
     );
   }
