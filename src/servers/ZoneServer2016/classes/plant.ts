@@ -15,7 +15,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { ItemObject } from "./itemobject";
 import { BaseItem } from "./baseItem";
 import { ZoneClient2016 } from "./zoneclient";
-import { plantingDiameter } from "./plantingdiameter";
+import { PlantingDiameter } from "./plantingdiameter";
 
 import { Items, StringIds } from "../models/enums";
 
@@ -42,7 +42,7 @@ export class Plant extends ItemObject {
         this.parentObjectCharacterId = parentObjectCharacterId;
         this.slot = slot;
         if (!server._temporaryObjects[parentObjectCharacterId]) return
-        const parent = server._temporaryObjects[parentObjectCharacterId] as plantingDiameter
+        const parent = server._temporaryObjects[parentObjectCharacterId] as PlantingDiameter
         if (parent.isFertilized) this.isFertilized = true;
         if (this.item.itemDefinitionId == Items.SEED_CORN) {
             this.nameId = StringIds.CORN
@@ -99,7 +99,7 @@ export class Plant extends ItemObject {
             server.deleteEntity(this.characterId, server._plants)
             return
         }
-        const parent = server._temporaryObjects[this.parentObjectCharacterId] as plantingDiameter
+        const parent = server._temporaryObjects[this.parentObjectCharacterId] as PlantingDiameter
         delete parent.seedSlots[this.slot]
 
         switch (this.item.itemDefinitionId) {

@@ -14,7 +14,7 @@
 import { TemporaryEntity } from "./temporaryentity";
 import { ZoneServer2016 } from "../zoneserver";
 
-export class plantingDiameter extends TemporaryEntity {
+export class PlantingDiameter extends TemporaryEntity {
     seedSlots: { [id: string]: string; } = {}
     disappearTimestamp: number = new Date().getTime() + 86400000 // + 1 day
     isFertilized: boolean = false;

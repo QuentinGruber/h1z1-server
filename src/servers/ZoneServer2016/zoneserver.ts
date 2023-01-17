@@ -124,7 +124,7 @@ import { Lootbag } from "./classes/lootbag";
 import { BaseLootableEntity } from "./classes/baselootableentity";
 import { LootableConstructionEntity } from "./classes/lootableconstructionentity";
 import { LootableProp } from "./classes/lootableprop";
-import { plantingDiameter } from "./classes/plantingdiameter";
+import { PlantingDiameter } from "./classes/plantingdiameter";
 import { Plant } from "./classes/plant";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
@@ -169,7 +169,7 @@ export class ZoneServer2016 extends EventEmitter {
   _doors: { [characterId: string]: DoorEntity } = {};
   _explosives: { [characterId: string]: ExplosiveEntity } = {};
   _traps: { [characterId: string]: TrapEntity } = {};
-  _temporaryObjects: { [characterId: string]: TemporaryEntity | plantingDiameter } = {};
+  _temporaryObjects: { [characterId: string]: TemporaryEntity | PlantingDiameter } = {};
   _vehicles: { [characterId: string]: Vehicle } = {};
   _lootbags: { [characterId: string]: Lootbag } = {};
   _lootableConstruction: { [characterId: string]: LootableConstructionEntity } =
@@ -2633,8 +2633,8 @@ export class ZoneServer2016 extends EventEmitter {
   private plantManager() {
     const date = new Date().getTime();
     for (const characterId in this._temporaryObjects) {
-        const object = this._temporaryObjects[characterId] as plantingDiameter
-        if (object instanceof plantingDiameter) {
+        const object = this._temporaryObjects[characterId] as PlantingDiameter
+        if (object instanceof PlantingDiameter) {
             if (object.disappearTimestamp < date && Object.values(object.seedSlots).length === 0) {
                 this.deleteEntity(object.characterId, this._temporaryObjects)
             } else if (object.disappearTimestamp < date) object.disappearTimestamp = date + 86400000;
@@ -4568,7 +4568,7 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     const characterId = this.generateGuid(),
       transientId = 1;
-    const obj = new plantingDiameter(
+    const obj = new PlantingDiameter(
       characterId,
       transientId,
       modelId,
@@ -4593,7 +4593,7 @@ export class ZoneServer2016 extends EventEmitter {
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId);
     if (!this._temporaryObjects[parentObjectCharacterId]) return false
-    const parent = this._temporaryObjects[parentObjectCharacterId] as plantingDiameter
+    const parent = this._temporaryObjects[parentObjectCharacterId] as PlantingDiameter
       if (parent.seedSlots[slot]) {
           return false
       }
@@ -5980,7 +5980,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.removeInventoryItem(client, item)) return
     for (const characterId in this._temporaryObjects) {
         const object = this._temporaryObjects[characterId]
-        if (object instanceof plantingDiameter && isPosInRadius(1, object.state.position, client.character.state.position)) {
+        if (object instanceof PlantingDiameter && isPosInRadius(1, object.state.position, client.character.state.position)) {
             object.isFertilized = true;
             object.fertilizedTimestamp = new Date().getTime() + 86400000 // + 1 day
             Object.values(object.seedSlots).forEach((slot: string) => {
