@@ -5987,8 +5987,7 @@ export class ZoneServer2016 extends EventEmitter {
                 const plant = this._plants[slot] as Plant
                 if (plant.isFertilized) return
                 plant.isFertilized = true
-                const date = new Date().getTime() + 28800000
-                const roz = (date - new Date().getTime()) / 2
+                const roz = (plant.nextStateTime - new Date().getTime()) / 2
                 plant.nextStateTime = new Date().getTime() + roz
             })
             this.sendData(client, "Character.PlayWorldCompositeEffect",
