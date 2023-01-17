@@ -22,6 +22,7 @@ interface LoadoutKitEntry {
 
 export const characterDefaultLoadout = [
   { item: Items.WEAPON_FISTS },
+  { item: Items.WEAPON_FLASHLIGHT },
   { item: Items.SHIRT_DEFAULT },
   { item: Items.WAIST_PACK },
   { item: Items.PANTS_DEFAULT },
@@ -29,8 +30,6 @@ export const characterDefaultLoadout = [
   { item: Items.MAP },
   { item: Items.COMPASS },
   { item: Items.GAUZE, count: 5 },
-  { item: Items.FLARE },
-  { item: Items.LIGHTER },
 ];
 
 export const characterKitLoadout = [
