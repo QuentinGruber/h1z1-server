@@ -404,7 +404,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     ],
   },
   "ItemSpawner_AmmoBox02_308Rifle.adr": {
-    spawnChance: 20,
+    spawnChance: 30,
     items: [
       {
         item: Items.AMMO_308,

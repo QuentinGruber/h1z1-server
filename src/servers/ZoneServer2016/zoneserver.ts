@@ -1615,7 +1615,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   createProjectileNpc(client: Client, data: any) {
     const iD = client.character.getEquippedWeapon().itemDefinitionId;
-    if (iD == Items.WEAPON_BOW_MAKESHIFT || iD == Items.WEAPON_BOW_RECURVE) {
+      if (iD == Items.WEAPON_BOW_MAKESHIFT ||
+          iD == Items.WEAPON_BOW_RECURVE ||
+          iD == Items.WEAPON_CROSSBOW
+      ) {
       this.worldObjectManager.createLootEntity(
         this,
         this.generateItem(Items.AMMO_ARROW),
@@ -2182,7 +2185,9 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.WEAPON_BOW_MAKESHIFT:
         return 2500;
       case Items.WEAPON_BOW_RECURVE:
-        return 3000;
+        return 2500;
+      case Items.WEAPON_CROSSBOW:
+        return 2500;
       default:
         return 1000;
     }
