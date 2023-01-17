@@ -614,7 +614,7 @@ export class WorldDataManager {
     } else {
       const collection = server._db?.collection("vehicles");
       collection?.deleteMany({ serverId: server._worldId }); // clear vehicles
-      collection?.insertMany(vehicles);
+      if(vehicles.length) collection?.insertMany(vehicles);
     }
   }
   //#endregion
@@ -793,7 +793,7 @@ export class WorldDataManager {
     } else {
       const collection = server._db?.collection("construction");
       collection?.deleteMany({ serverId: server._worldId });
-      collection?.insertMany(construction);
+      if(construction.length) collection?.insertMany(construction);
     }
   }
 
