@@ -29,16 +29,9 @@ export class TemporaryEntity extends BaseSimpleNpc {
   }
 
   setDespawnTimer(server: ZoneServer2016, time: number) {
+    if (this.disappearTimer) this.disappearTimer.refresh()
     this.disappearTimer = setTimeout(() => {
-      server.sendDataToAllWithSpawnedEntity(
-        server._temporaryObjects,
-        this.characterId,
-        "Character.RemovePlayer",
-        {
-          characterId: this.characterId,
-        }
-      );
-      delete server._temporaryObjects[this.characterId];
+      server.deleteEntity(this.characterId, server._temporaryObjects)
     }, time);
   }
 }

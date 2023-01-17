@@ -173,6 +173,12 @@ export class zonePacketHandlers {
       });
       client.character.isReady = true;
     }
+      setTimeout(() => {
+              if (client.routineInterval) return;
+              server.executeRoutine(client);
+              server.startClientRoutine(client);
+              // idk sometimes it conditions below arent matched
+      }, 5000)
       if (client.isLoading) {
         client.isLoading = false;
         if (client.routineInterval || !client.characterReleased) return;

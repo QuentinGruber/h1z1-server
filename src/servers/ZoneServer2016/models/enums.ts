@@ -95,6 +95,8 @@ export enum StringIds {
   PICKUP_TRUCK = 12537,
   ATV = 12552,
   POLICE_CAR = 12538,
+  CORN = 628,
+  WHEAT = 1184,
 }
 
 export enum MovementModifiers {
@@ -205,6 +207,7 @@ export enum EntityTypes {
   LOOTABLE_PROP,
   WORLD_LOOTABLE_CONSTRUCTION,
   WORLD_CONSTRUCTION_SIMPLE,
+  PLANT
 }
 
 export enum ResourceIds {
