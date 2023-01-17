@@ -94,12 +94,14 @@ export interface BaseConstructionSaveData
 
 export interface ConstructionDoorSaveData
   extends BaseConstructionSaveData {
-
+    ownerCharacterId: string;
+    passwordHash: number;
+    grantedAccess: Array<string>;
 }
 
 export interface LootableConstructionSaveData
   extends BaseConstructionSaveData {
-
+    container?: LoadoutContainerSaveData
 }
 
 export interface ConstructionChildSaveData

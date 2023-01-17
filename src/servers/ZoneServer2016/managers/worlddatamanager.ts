@@ -73,37 +73,41 @@ function constructLoadout(
   });
 }
 
+function constructContainer(container: LoadoutContainerSaveData): LoadoutContainer {
+  const loadoutContainer = new LoadoutContainer(
+    new LoadoutItem(
+      new BaseItem(
+        container.itemDefinitionId,
+        container.itemGuid,
+        container.currentDurability,
+        container.stackCount
+      ),
+      container.slotId,
+      container.loadoutItemOwnerGuid
+    ),
+    container.containerDefinitionId
+  );
+  Object.values(container.items).forEach((item) => {
+    const i = new BaseItem(
+      item.itemDefinitionId,
+      item.itemGuid,
+      item.currentDurability,
+      item.stackCount
+    );
+    i.slotId = item.slotId;
+    i.containerGuid = item.containerGuid;
+    i.weapon = item.weapon ? new Weapon(i, item.weapon.ammoCount) : undefined;
+    loadoutContainer.items[item.itemGuid] = i;
+  });
+  return loadoutContainer;
+}
+
 function constructContainers(
   savedContainers: { [loadoutSlotId: number]: LoadoutContainerSaveData },
   entityContainers: { [loadoutSlotId: number]: LoadoutContainer }
 ) {
   Object.values(savedContainers).forEach((container) => {
-    const loadoutContainer = new LoadoutContainer(
-      new LoadoutItem(
-        new BaseItem(
-          container.itemDefinitionId,
-          container.itemGuid,
-          container.currentDurability,
-          container.stackCount
-        ),
-        container.slotId,
-        container.loadoutItemOwnerGuid
-      ),
-      container.containerDefinitionId
-    );
-    Object.values(container.items).forEach((item) => {
-      const i = new BaseItem(
-        item.itemDefinitionId,
-        item.itemGuid,
-        item.currentDurability,
-        item.stackCount
-      );
-      i.slotId = item.slotId;
-      i.containerGuid = item.containerGuid;
-      i.weapon = item.weapon ? new Weapon(i, item.weapon.ammoCount) : undefined;
-      loadoutContainer.items[item.itemGuid] = i;
-    });
-    entityContainers[container.slotId] = loadoutContainer;
+    entityContainers[container.slotId] = constructContainer(container);
   });
 }
 
@@ -621,6 +625,90 @@ export class WorldDataManager {
 
   //#region CONSTRUCTION DATA
 
+  loadConstructionDoorEntity(server: ZoneServer2016, entityData: ConstructionDoorSaveData): ConstructionDoor {
+    const transientId = server.getTransientId(entityData.characterId),
+      entity = new ConstructionDoor(
+        entityData.characterId, 
+        transientId,
+        entityData.actorModelId,
+        new Float32Array(entityData.position),
+        new Float32Array(entityData.rotation),
+        server,
+        entityData.itemDefinitionId,
+        entityData.ownerCharacterId,
+        entityData.parentObjectCharacterId,
+        entityData.slot
+      )
+    
+    entity.passwordHash = entityData.passwordHash;
+    entity.grantedAccess = entityData.grantedAccess;
+
+    server._constructionDoors[entity.characterId] = entity;
+
+    return entity;
+  }
+
+  loadLootableConstructionEntity(server: ZoneServer2016, entityData: LootableConstructionSaveData): LootableConstructionEntity {
+    const transientId = server.getTransientId(entityData.characterId),
+      entity = new LootableConstructionEntity(
+        entityData.characterId, 
+        transientId,
+        entityData.actorModelId,
+        new Float32Array(entityData.position),
+        new Float32Array(entityData.rotation),
+        server,
+        entityData.itemDefinitionId,
+        entityData.parentObjectCharacterId,
+        false // TEMPORARY UNTIL FURNACES GET SAVED CORRECTLY
+      )
+    
+    entity.placementTime = entityData.placementTime;
+
+    if(entityData.container) {
+      const container = constructContainer(entityData.container);
+      entity._loadout["31"] = container;
+      entity._containers["31"] = container;
+    }
+
+    server._lootableConstruction[entity.characterId] = entity;
+
+    return entity;
+  }
+
+  loadConstructionChildSlots(server: ZoneServer2016, parent: ConstructionChildEntity, entityData: ConstructionChildSaveData) {
+    Object.values(entityData.occupiedWallSlots).forEach((wallData) => {
+      let wall: ConstructionChildEntity | ConstructionDoor;
+      if("occupiedWallSlots" in wallData) {
+        wall = this.loadConstructionChildEntity(server, wallData);
+      }
+      else {
+        wall = this.loadConstructionDoorEntity(server, wallData);
+      }
+      parent.setWallSlot(server, wall);
+    });
+    Object.values(entityData.occupiedUpperWallSlots).forEach((wallData) => {
+      const wall = this.loadConstructionChildEntity(server, wallData);
+      parent.setWallSlot(server, wall);
+    });
+    Object.values(entityData.occupiedShelterSlots).forEach((shelterData) => {
+      const shelter = this.loadConstructionChildEntity(server, shelterData);
+      parent.setShelterSlot(server, shelter);
+    });
+    Object.values(entityData.freeplaceEntities).forEach((freeplaceData) => {
+      let freeplace: ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity;
+      if("occupiedWallSlots" in freeplaceData) {
+        freeplace = this.loadConstructionChildEntity(server, freeplaceData);
+      }
+      else if("ownerCharacterId" in freeplaceData) {
+        freeplace = this.loadConstructionDoorEntity(server, freeplaceData);
+      }
+      else {
+        freeplace = this.loadLootableConstructionEntity(server, freeplaceData);
+      }
+      parent.addFreeplaceConstruction(freeplace);
+    });
+  }
+
   loadConstructionChildEntity(server: ZoneServer2016, entityData: ConstructionChildSaveData) {
     const transientId = server.getTransientId(entityData.characterId),
       entity = new ConstructionChildEntity(
@@ -638,9 +726,13 @@ export class WorldDataManager {
       entity.health = entityData.health;
       entity.placementTime = entityData.placementTime;
     server._constructionSimple[entity.characterId] = entity;
+
+    this.loadConstructionChildSlots(server, entity, entityData);
+
+    return entity;
   }
 
-  loadConstructionParentEntity(server: ZoneServer2016, entityData: ConstructionParentSaveData) {
+  loadConstructionParentEntity(server: ZoneServer2016, entityData: ConstructionParentSaveData): ConstructionParentEntity {
     console.log("ASDSADADASDASD")
     const transientId = server.getTransientId(entityData.characterId),
       foundation = new ConstructionParentEntity(
@@ -662,21 +754,18 @@ export class WorldDataManager {
       foundation.permissions = entityData.permissions;
     server._constructionFoundations[foundation.characterId] = foundation;
 
-    const parent = foundation.getParent(server)
-    if(parent) {
-      parent.setExpansionSlot(foundation);
-    }
+    this.loadConstructionChildSlots(server, foundation, entityData);
 
-    /*
-    Object.values(entityData.occupiedWallSlots).forEach((wall) => {
-      if("occupiedWallSlots" in wall) {
-        this.loadConstructionChildEntity(server, wall);
-      }
-      else {
-        
-      }
+    Object.values(entityData.occupiedExpansionSlots).forEach((expansionData) => {
+      const expansion = this.loadConstructionParentEntity(server, expansionData);
+      foundation.setExpansionSlot(expansion);
     });
-    */
+
+    Object.values(entityData.occupiedRampSlots).forEach((rampData) => {
+      this.loadConstructionChildEntity(server, rampData);
+    });
+
+    return foundation;
   }
 
   async loadConstructionData(server: ZoneServer2016) {
@@ -714,6 +803,23 @@ export class WorldDataManager {
     }
   }
 
+  getConstructionDoorSaveData(server: ZoneServer2016, entity: ConstructionDoor): ConstructionDoorSaveData {
+    return {
+      ...this.getBaseConstructionSaveData(server, entity),
+      ownerCharacterId: entity.ownerCharacterId,
+      passwordHash: entity.passwordHash,
+      grantedAccess: entity.grantedAccess,
+      rotation: Array.from(entity.startRot) // override quaternion rotation
+    }
+  }
+
+  getLootableConstructionSaveData(server: ZoneServer2016, entity: LootableConstructionEntity): LootableConstructionSaveData {
+    return {
+      ...this.getBaseConstructionSaveData(server, entity),
+      container: entity.getContainer()
+    }
+  }
+
   getConstructionChildSaveData(server: ZoneServer2016, entity: ConstructionChildEntity): ConstructionChildSaveData {
     const wallSlots: { [slot: number]: ConstructionChildSaveData | ConstructionDoorSaveData } = {},
     upperWallSlots: { [slot: number]: ConstructionChildSaveData } = {},
@@ -726,7 +832,7 @@ export class WorldDataManager {
     } = {};
     Object.values(entity.occupiedWallSlots).forEach((wall)=> {
       if(wall instanceof ConstructionDoor) {
-        wallSlots[wall.getSlotNumber()] = this.getBaseConstructionSaveData(server, wall);
+        wallSlots[wall.getSlotNumber()] = this.getConstructionDoorSaveData(server, wall);
       }
       else {
         wallSlots[wall.getSlotNumber()] = this.getConstructionChildSaveData(server, wall);
@@ -740,10 +846,10 @@ export class WorldDataManager {
     })
     Object.values(entity.freeplaceEntities).forEach((entity)=> {
       if(entity instanceof ConstructionDoor) {
-        freePlaceEntities[entity.characterId] = this.getBaseConstructionSaveData(server, entity);
+        freePlaceEntities[entity.characterId] = this.getConstructionDoorSaveData(server, entity);
       }
       else if(entity instanceof LootableConstructionEntity) {
-        freePlaceEntities[entity.characterId] = this.getBaseConstructionSaveData(server, entity);
+        freePlaceEntities[entity.characterId] = this.getLootableConstructionSaveData(server, entity);
       }
       else {
         freePlaceEntities[entity.characterId] = this.getConstructionChildSaveData(server, entity);
@@ -780,10 +886,14 @@ export class WorldDataManager {
 
   async saveConstructionData(server: ZoneServer2016) {
     if (!server.enableWorldSaves) return;
-    const construction: Array<ConstructionParentSaveData> = Object.values(
+    const construction: Array<ConstructionParentSaveData> = [];
+    
+    Object.values(
       server._constructionFoundations
-    ).map((entity) => {
-      return this.getConstructionParentSaveData(server, entity);
+    ).forEach((entity) => {
+      if(entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
+        construction.push(this.getConstructionParentSaveData(server, entity));
+      }
     });
     if (server._soloMode) {
       fs.writeFileSync(

@@ -109,7 +109,12 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       242,
       destructTime
     );
-    // TODO: drop any items into a lootbag, need to take destructTime into account
+    if(!destructTime) {
+      server.worldObjectManager.createLootbag(server, this);
+    }
+    setTimeout(() => {
+      server.worldObjectManager.createLootbag(server, this);
+    }, destructTime);
   }
 
   getHasPermission(

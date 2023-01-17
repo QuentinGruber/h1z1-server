@@ -598,20 +598,24 @@ export class ZoneServer2016 extends EventEmitter {
           1
         )
       ) {
-        Object.values(construction._containers["31"].items).forEach(
-          (item: BaseItem) => {
-            const proximityItem = {
-              itemDefinitionId: item.itemDefinitionId,
-              associatedCharacterGuid: character.characterId,
-              itemData: construction.pGetItemData(
-                this,
-                item,
-                construction._containers["31"].containerDefinitionId
-              ),
-            };
-            (proximityItems.items as any[]).push(proximityItem);
-          }
-        );
+        const container = construction.getContainer();
+        if(container) {
+          Object.values(container.items).forEach(
+            (item: BaseItem) => {
+              const proximityItem = {
+                itemDefinitionId: item.itemDefinitionId,
+                associatedCharacterGuid: character.characterId,
+                itemData: construction.pGetItemData(
+                  this,
+                  item,
+                  container.containerDefinitionId
+                ),
+              };
+              (proximityItems.items as any[]).push(proximityItem);
+            }
+          );
+        }
+        
       }
     }
     for (const a in this._worldLootableConstruction) {
@@ -624,20 +628,23 @@ export class ZoneServer2016 extends EventEmitter {
           1
         )
       ) {
-        Object.values(construction._containers["31"].items).forEach(
-          (item: BaseItem) => {
-            const proximityItem = {
-              itemDefinitionId: item.itemDefinitionId,
-              associatedCharacterGuid: character.characterId,
-              itemData: construction.pGetItemData(
-                this,
-                item,
-                construction._containers["31"].containerDefinitionId
-              ),
-            };
-            (proximityItems.items as any[]).push(proximityItem);
-          }
-        );
+        const container = construction.getContainer();
+        if(container) {
+          Object.values(container.items).forEach(
+            (item: BaseItem) => {
+              const proximityItem = {
+                itemDefinitionId: item.itemDefinitionId,
+                associatedCharacterGuid: character.characterId,
+                itemData: construction.pGetItemData(
+                  this,
+                  item,
+                  container.containerDefinitionId
+                ),
+              };
+              (proximityItems.items as any[]).push(proximityItem);
+            }
+          );
+        }
       }
     }
     return proximityItems;
@@ -4300,6 +4307,7 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
+    console.log(rotation)
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       door = new ConstructionDoor(
@@ -4309,7 +4317,6 @@ export class ZoneServer2016 extends EventEmitter {
         position,
         rotation,
         this,
-        new Float32Array([1, 1, 1, 1]),
         itemDefinitionId,
         client.character.characterId,
         parentObjectCharacterId,
@@ -5466,7 +5473,8 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     if (!entity || !item) return false;
     if (!count) count = item.stackCount;
-    const container = entity._containers["31"];
+    const container = entity.getContainer();
+    if(!container) return false;
     if (item.stackCount == count) {
       delete container.items[item.itemGuid];
       if (entity.mountedCharacter) {
