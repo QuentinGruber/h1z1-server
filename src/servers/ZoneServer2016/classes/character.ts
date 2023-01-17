@@ -521,17 +521,16 @@ export class Character2016 extends BaseFullCharacter {
     );
 
     const sourceEntity = server.getEntity(damageInfo.entity);
-    if (!sourceEntity) return;
-
     const orientation = calculateOrientation(
       this.state.position,
-      sourceEntity.state.position
+      sourceEntity?.state.position || this.state.position // send damaged screen effect during falling/hunger etc
     );
     server.sendData(client, "ClientUpdate.DamageInfo", {
       transientId: 0,
       orientationToSource: orientation,
       unknownDword2: 100,
     });
+    if (!sourceEntity) return;
 
     const damageRecord = server.generateDamageRecord(
       this.characterId,
