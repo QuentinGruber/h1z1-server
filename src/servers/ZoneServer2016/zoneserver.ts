@@ -6664,6 +6664,7 @@ export class ZoneServer2016 extends EventEmitter {
   startClientRoutine(client: Client) {
     client.routineInterval = setTimeout(() => {
       const date1 = new Date().getTime()
+      console.log('xd')
       if (!client) return;
       if (!client.isLoading) {
         this.plantManager()

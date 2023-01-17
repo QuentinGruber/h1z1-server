@@ -52,6 +52,7 @@ import { GameTimeSync } from "types/zone2016packets";
 import { LootableProp } from "./classes/lootableprop";
 import { Vehicle2016 } from "./classes/vehicle";
 import { Plant } from "./classes/plant";
+import { ConstructionChildEntity } from "./classes/constructionchildentity";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -174,18 +175,6 @@ export class zonePacketHandlers {
       });
       client.character.isReady = true;
     }
-      setTimeout(() => {
-              if (client.routineInterval) return;
-              server.executeRoutine(client);
-              server.startClientRoutine(client);
-              // idk sometimes it conditions below arent matched
-      }, 5000)
-      if (client.isLoading) {
-        client.isLoading = false;
-        if (client.routineInterval || !client.characterReleased) return;
-        server.executeRoutine(client);
-        server.startClientRoutine(client);
-      }
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
       server.sendData(client, "Character.StartMultiStateDeath", {
@@ -380,7 +369,12 @@ export class zonePacketHandlers {
     });
   }
   KeepAlive(server: ZoneServer2016, client: Client, packet: any) {
-    //
+      if (client.isLoading && client.characterReleased) {
+          client.isLoading = false;
+          if (client.routineInterval || !client.characterReleased) return;
+          server.executeRoutine(client);
+          server.startClientRoutine(client);
+      }
   }
   ClientUpdateMonitorTimeDrift(
     server: ZoneServer2016,
@@ -390,16 +384,6 @@ export class zonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
-    if (packet.data.file == "ClientSynchronizedTeleport.log") {
-        if (packet.data.message.includes('releasing local player')) {
-            if (!client.characterReleased) {
-                client.characterReleased = true;
-                if (client.routineInterval || client.isLoading) return;
-                server.executeRoutine(client);
-                server.startClientRoutine(client);
-            }
-        }
-    }
     if (
       packet.data.file === "ClientProc.log" &&
       !client.clientLogs.includes(packet.data.message)
@@ -770,6 +754,9 @@ export class zonePacketHandlers {
       );
     }
     if (packet.data.position) {
+            if (!client.characterReleased) {
+                client.characterReleased = true;
+            }
       server.speedFairPlayCheck(
         client,
         packet.data.sequenceTime,
@@ -861,13 +848,12 @@ export class zonePacketHandlers {
   }
   CommandPlayerSelect(server: ZoneServer2016, client: Client, packet: any) {
     const entity = server.getEntity(packet.data.guid);
-
-    if (
-      !entity ||
-      !isPosInRadius(
-        server._interactionDistance,
+    if (!entity) return
+    const isConstruction = (entity instanceof ConstructionParentEntity || entity instanceof ConstructionDoor);
+    if (!isPosInRadius(
+        isConstruction ? 4 : server._interactionDistance,
         client.character.state.position,
-        entity.state.position
+        isConstruction ? (entity.fixedPosition || entity.state.position) : entity.state.position
       )
     )
       return;
@@ -919,12 +905,12 @@ export class zonePacketHandlers {
     packet: any
   ) {
     const entity = server.getEntity(packet.data.guid);
-    if (
-      !entity ||
-      !isPosInRadius(
-        server._interactionDistance,
+    if (!entity) return
+    const isConstruction = (entity instanceof ConstructionParentEntity || entity instanceof ConstructionDoor);
+    if (!isPosInRadius(
+        isConstruction ? 4 : server._interactionDistance,
         client.character.state.position,
-        entity.state.position
+        isConstruction ? (entity.fixedPosition || entity.state.position) : entity.state.position
       )
     )
       return;
