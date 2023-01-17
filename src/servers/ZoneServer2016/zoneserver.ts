@@ -84,6 +84,8 @@ import {
   movePoint,
   getConstructionSlotId,
   checkConstructionInRange,
+  getRectangleCorners,
+  resolveHostAddress,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -6560,16 +6562,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
   private async fetchLoginInfo() {
     const resolver = new Resolver();
-    const loginServerAddress = await new Promise((resolve) => {
-      resolver.resolve4("loginserver.h1emu.com", (err, addresses) => {
-        if (!err) {
-          resolve(addresses[0]);
-        } else {
-          throw err;
-        }
-      });
-    });
-    this._loginServerInfo.address = loginServerAddress as string;
+    const loginServerAddress = await resolveHostAddress(
+      resolver,
+      "loginserver.h1emu.com"
+    );
+    this._loginServerInfo.address = loginServerAddress[0] as string;
   }
   executeFuncForAllReadyClients(callback: (client: Client) => void) {
     for (const client in this._clients) {
