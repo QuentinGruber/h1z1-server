@@ -3833,7 +3833,28 @@ export class ZoneServer2016 extends EventEmitter {
         });
       }
     }
-
+    // block building in cities
+    const allowedPoiPlacement = [Items.LANDMINE, Items.IED, Items.PUNJI_STICKS, Items.SNARE]
+    if (!allowedPoiPlacement.includes(itemDefinitionId)) {
+      let isInPoi = false
+      Z1_POIs.forEach((point: any) => {
+          if (
+              isPosInRadius(
+                  point.range,
+                  position,
+                  point.position
+              )
+          ) isInPoi = true
+      });
+        if (isInPoi) {
+            this.sendData(client, "Construction.PlacementFinalizeResponse", {
+                status: 0,
+                unknownString1: "",
+            });
+            this.sendAlert(client, "You may not place this object this close to a town or point of interest.")
+            return;
+        }
+    }
     if (
       !this.handleConstructionPlacement(
         client,

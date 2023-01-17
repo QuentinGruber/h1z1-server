@@ -1142,11 +1142,11 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region FARM
   "ItemSpawnerFarm.adr": {
-    spawnChance: 20,
+    spawnChance: 30,
     items: [
       {
         item: Items.FERTILIZER,
-        weight: 10,
+        weight: 60,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1154,7 +1154,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_AXE_WOOD,
-        weight: 20,
+        weight: 50,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1162,7 +1162,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.SEED_CORN,
-        weight: 80,
+        weight: 100,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1170,7 +1170,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.SEED_WHEAT,
-        weight: 80,
+        weight: 100,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1178,7 +1178,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_HATCHET,
-        weight: 20,
+        weight: 50,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1186,7 +1186,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 20,
+        weight: 50,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1194,7 +1194,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.GROUND_TILLER,
-        weight: 20,
+        weight: 50,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1986,7 +1986,7 @@ export const containerLootSpawners: {
           min: 1,
           max: 1,
         },
-      },
+      },      
     ],
   },
   "Cabinets Cube": {
@@ -2034,6 +2034,22 @@ export const containerLootSpawners: {
       {
         item: Items.CANNED_FOOD01,
         weight: 30,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.SEED_CORN,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.SEED_WHEAT,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2280,6 +2296,14 @@ export const containerLootSpawners: {
       {
         item: Items.LOCKER_KEY_F4,
         weight: 3,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.CODED_MESSAGE,
+        weight: 1,
         spawnCount: {
           min: 1,
           max: 1,
