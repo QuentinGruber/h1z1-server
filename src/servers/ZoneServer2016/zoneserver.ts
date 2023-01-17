@@ -689,6 +689,34 @@ export class ZoneServer2016 extends EventEmitter {
       return;
 
     await this.worldDataManager.loadCharacterData(this, client);
+    // to help identify broken character saves
+      Object.values(client.character._loadout).forEach((item: LoadoutItem) => {
+          if (item.stackCount < 1) {
+              debug("\n\n\n");
+              debug(`Deprecated character loadout detected ${client.character.name}`);
+              debug(item);
+              debug("\n\n\n");
+              item.stackCount
+          }
+      })
+      Object.values(client.character._containers).forEach((container: LoadoutContainer) => {
+          if (container.stackCount < 1) {
+              debug("\n\n\n");
+              debug(`Deprecated character containers detected ${client.character.name}`);
+              debug(container);
+              debug("\n\n\n");
+              container.stackCount = 1
+          }
+          Object.values(container.items).forEach((item: BaseItem) => {
+              if (item.stackCount < 1) {
+                  debug("\n\n\n");
+                  debug(`Deprecated character items detected ${client.character.name}`);
+                  debug(item);
+                  item.stackCount = 1;
+                  debug("\n\n\n");
+              }
+          })
+      })
     this.sendData(client, "SendSelfToClient", {
       data: client.character.pGetSendSelf(this, client.guid),
     });
