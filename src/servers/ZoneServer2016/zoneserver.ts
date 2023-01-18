@@ -83,6 +83,7 @@ import {
   getConstructionSlotId,
   checkConstructionInRange,
   resolveHostAddress,
+  isInsideSquare,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -3774,8 +3775,18 @@ export class ZoneServer2016 extends EventEmitter {
     ];
     if (!allowedPoiPlacement.includes(itemDefinitionId)) {
       let isInPoi = false;
+      let useRange = true
       Z1_POIs.forEach((point: any) => {
-        if (isPosInRadius(point.range, position, point.position))
+          if (point.bounds) {
+            useRange = false;
+                    point.bounds.forEach((bound: any) => {
+                        if (isInsideSquare([position[0], position[2]], bound)) {
+                            isInPoi = true
+                            return
+                        }
+                    })
+        }
+        if (useRange && isPosInRadius(point.range, position, point.position))
           isInPoi = true;
       });
       if (isInPoi) {
