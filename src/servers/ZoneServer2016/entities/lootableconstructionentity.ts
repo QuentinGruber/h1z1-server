@@ -23,7 +23,7 @@ import { BaseLootableEntity } from "./baselootableentity";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ZoneClient2016 } from "../classes/zoneclient";
-import { smeltingEntity } from "../classes/smeltingentity";
+import { SmeltingEntity } from "../classes/smeltingentity";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { CollectingEntity } from "../classes/collectingentity";
 
@@ -39,7 +39,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   npcRenderDistance = 15;
   loadoutId = 5;
   itemDefinitionId: number;
-  subEntity?: smeltingEntity | CollectingEntity;
+  subEntity?: SmeltingEntity | CollectingEntity;
   constructor(
     characterId: string,
     transientId: number,
@@ -60,7 +60,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     this.health = 1000000;
     this.defaultLoadout = lootableContainerDefaultLoadouts.storage;
     if (subEntityType === "SmeltingEntity") {
-      this.subEntity = new smeltingEntity(this, server);
+      this.subEntity = new SmeltingEntity(this, server);
     } else if (subEntityType === "CollectingEntity") {
       this.subEntity = new CollectingEntity(this, server);
     }

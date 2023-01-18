@@ -123,7 +123,7 @@ import { LootableConstructionEntity } from "./entities/lootableconstructionentit
 import { LootableProp } from "./entities/lootableprop";
 import { PlantingDiameter } from "./entities/plantingdiameter";
 import { Plant } from "./entities/plant";
-import { smeltingEntity } from "./classes/smeltingentity";
+import { SmeltingEntity } from "./classes/smeltingentity";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -2908,57 +2908,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private spawnExplosives(client: Client) {
-    for (const characterId in this._explosives) {
-      const explosive = this._explosives[characterId];
-      if (
-        isPosInRadius(
-          explosive.npcRenderDistance as number,
-          client.character.state.position,
-          explosive.state.position
-        ) &&
-        !client.spawnedEntities.includes(explosive)
-      ) {
-        this.addLightweightNpc(client, explosive);
-        client.spawnedEntities.push(explosive);
-      }
-    }
-  }
-
-  private spawnTraps(client: Client) {
-    for (const characterId in this._traps) {
-      const trap = this._traps[characterId];
-      if (
-        isPosInRadius(
-          trap.npcRenderDistance as number,
-          client.character.state.position,
-          trap.state.position
-        ) &&
-        !client.spawnedEntities.includes(trap)
-      ) {
-        this.addSimpleNpc(client, trap);
-        client.spawnedEntities.push(trap);
-      }
-    }
-  }
-
-  private spawnTemporaryObjects(client: Client) {
-    for (const characterId in this._temporaryObjects) {
-      const tempObj = this._temporaryObjects[characterId];
-      if (
-        isPosInRadius(
-          tempObj.npcRenderDistance as number,
-          client.character.state.position,
-          tempObj.state.position
-        ) &&
-        !client.spawnedEntities.includes(tempObj)
-      ) {
-        this.addSimpleNpc(client, tempObj);
-        client.spawnedEntities.push(tempObj);
-      }
-    }
-  }
-
   spawnCharacters(client: Client) {
     for (const c in this._clients) {
       const characterObj: Character = this._clients[c].character;
@@ -3088,37 +3037,6 @@ export class ZoneServer2016 extends EventEmitter {
             }
           }
           client.spawnedEntities.push(object);
-        }
-      }
-    }
-  }
-
-  private spawnDoors(client: Client) {
-    for (const characterId in this._doors) {
-      const door = this._doors[characterId];
-      if (
-        isPosInRadius(
-          door.npcRenderDistance,
-          client.character.state.position,
-          door.state.position
-        ) &&
-        !client.spawnedEntities.includes(door)
-      ) {
-        this.addLightweightNpc(client, door);
-        this.sendData(client, "Replication.InteractionComponent", {
-          transientId: door.transientId,
-        });
-        client.spawnedEntities.push(door);
-        if (door.isOpen) {
-          this.sendData(client, "PlayerUpdatePosition", {
-            transientId: door.transientId,
-            positionUpdate: {
-              sequenceTime: 0,
-              unknown3_int8: 0,
-              position: door.state.position,
-              orientation: door.openAngle,
-            },
-          });
         }
       }
     }
@@ -4672,19 +4590,6 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     obj.equipLoadout(this);
-    obj.subEntity?.startWorking(this, obj);
-    const container = obj.getContainer();
-    switch (obj.itemDefinitionId) {
-      case Items.ANIMAL_TRAP:
-        if (container) {
-          container.canAcceptItems = false;
-        }
-        break;
-      case Items.DEW_COLLECTOR:
-        if (container) {
-          container.acceptedItems = [Items.WATER_EMPTY];
-        }
-    }
 
     this.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnLootableConstruction(client, obj);
@@ -6362,7 +6267,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
           if (
-            smeltable.subEntity instanceof smeltingEntity &&
+            smeltable.subEntity instanceof SmeltingEntity &&
             smeltable.subEntity?.isWorking
           )
             return;
@@ -6382,7 +6287,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
           if (
-            smeltable.subEntity instanceof smeltingEntity &&
+            smeltable.subEntity instanceof SmeltingEntity &&
             smeltable.subEntity?.isWorking
           )
             return;
@@ -6752,13 +6657,9 @@ export class ZoneServer2016 extends EventEmitter {
         this.npcManager(client);
         this.removeOutOfDistanceEntities(client);
         this.spawnCharacters(client);
-        //this.spawnDoors(client);
         this.spawnGridObjects(client);
         this.constructionManager(client);
         this.worldConstructionManager(client);
-        //this.spawnExplosives(client);
-        //this.spawnTraps(client);
-        //this.spawnTemporaryObjects(client);
         this.POIManager(client);
         client.posAtLastRoutine = client.character.state.position;
         const date2 = new Date().getTime();
@@ -6777,13 +6678,9 @@ export class ZoneServer2016 extends EventEmitter {
     this.npcManager(client);
     this.removeOutOfDistanceEntities(client);
     this.spawnCharacters(client);
-    //this.spawnDoors(client);
     this.spawnGridObjects(client);
     this.constructionManager(client);
     this.worldConstructionManager(client);
-    //this.spawnExplosives(client);
-    //this.spawnTraps(client);
-    //this.spawnTemporaryObjects(client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;
   }

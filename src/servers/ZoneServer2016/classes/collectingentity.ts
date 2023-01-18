@@ -53,6 +53,21 @@ export class CollectingEntity {
       this.dictionary = server._worldLootableConstruction;
     } else this.dictionary = server._lootableConstruction;
       getSubEntityData(parentObject, this);
+
+    this.startWorking(server, parentObject);
+
+    const container = parentObject.getContainer();
+      switch (parentObject.itemDefinitionId) {
+        case Items.ANIMAL_TRAP:
+          if (container) {
+            container.canAcceptItems = false;
+          }
+          break;
+      case Items.DEW_COLLECTOR:
+        if (container) {
+          container.acceptedItems = [Items.WATER_EMPTY];
+      }
+    }
   }
 
   startWorking(

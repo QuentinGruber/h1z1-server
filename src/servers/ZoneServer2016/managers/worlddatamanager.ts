@@ -676,7 +676,7 @@ export class WorldDataManager {
         server,
         entityData.itemDefinitionId,
         entityData.parentObjectCharacterId,
-        "" // TEMPORARY UNTIL FURNACES GET SAVED CORRECTLY
+        entityData.subEntityType
       );
 
     entity.placementTime = entityData.placementTime;
@@ -856,6 +856,7 @@ export class WorldDataManager {
     return {
       ...this.getBaseConstructionSaveData(server, entity),
       container: entity.getContainer(),
+      subEntityType: entity.subEntity?.subType || ""
     };
   }
 

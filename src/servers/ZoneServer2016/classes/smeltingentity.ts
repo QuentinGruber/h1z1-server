@@ -56,7 +56,7 @@ function getBurningTime(itemDefinitionId: number): number {
 
 function getSmeltingEntityData(
   entity: LootableConstructionEntity,
-  child: smeltingEntity
+  child: SmeltingEntity
 ) {
   switch (entity.itemDefinitionId) {
     case Items.FURNACE:
@@ -82,7 +82,7 @@ function getSmeltingEntityData(
   }
 }
 
-export class smeltingEntity {
+export class SmeltingEntity {
   parentObject: LootableConstructionEntity;
   allowedFuel: number[];
   filterId: number = FilterIds.FURNACE;
@@ -91,7 +91,7 @@ export class smeltingEntity {
   isSmelting: boolean = false;
   smeltingTime: number = 60000;
   dictionary: { [characterId: string]: BaseEntity };
-  subType: string = "smeltingEntity"; // for saving identification
+  subType: string = "SmeltingEntity"; // for saving identification
   constructor(
     parentObject: LootableConstructionEntity,
     server: ZoneServer2016

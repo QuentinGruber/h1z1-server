@@ -102,6 +102,7 @@ export interface ConstructionDoorSaveData
 export interface LootableConstructionSaveData
   extends BaseConstructionSaveData {
     container?: LoadoutContainerSaveData
+    subEntityType: string;
 }
 
 export interface ConstructionChildSaveData
