@@ -22,7 +22,7 @@ import { Items, StringIds } from "../models/enums";
 export class Plant extends ItemObject {
   growState: number = 0;
   nextStateTime: number; 
-  readonly growTime = 6000//28800000 // 8h;
+  readonly growTime = 28800000 // 8h;
   parentObjectCharacterId: string;
   slot: string;
   isFertilized: boolean = false;
@@ -62,7 +62,6 @@ export class Plant extends ItemObject {
       this.nameId = StringIds.CORN;
     } else this.nameId = StringIds.WHEAT;
 
-    console.log(this)
   }
 
   grow(server: ZoneServer2016) {
