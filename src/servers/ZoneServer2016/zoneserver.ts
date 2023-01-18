@@ -232,7 +232,7 @@ export class ZoneServer2016 extends EventEmitter {
         "hood",
         "kit",
       ];
-  _interactionDistance = 2;
+  _interactionDistance = 3;
   _pingTimeoutTime = 30000;
   weather: Weather;
   _packetHandlers: zonePacketHandlers;
@@ -5149,7 +5149,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  //#region ********************INVENTORY********************   }
+  //#region ********************INVENTORY********************   } }
 
   addItem(
     client: Client,

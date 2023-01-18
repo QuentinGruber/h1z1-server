@@ -161,6 +161,10 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       server.undoPlacementInteractionString(this, client);
       return;
     }
+    if (this.subEntity) {
+        this.subEntity.OnInteractionString(server, client);
+        return
+    }
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
       stringId: StringIds.OPEN,
@@ -168,11 +172,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.subEntity) {
-      if (!(this.subEntity instanceof smeltingEntity) || !this.subEntity.isWorking) return
-      server.sendData(client, "Command.PlayDialogEffect", {
-        characterId: this.characterId,
-        effectId: this.subEntity.workingEffect,
-      });
+      this.subEntity.OnFullCharacterDataRequest(server, client)
     }
   }
 }

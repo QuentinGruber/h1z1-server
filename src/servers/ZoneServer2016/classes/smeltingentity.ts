@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Items, FilterIds } from "../models/enums";
+import { Items, FilterIds, StringIds } from "../models/enums";
 import { RecipeComponent } from "types/zoneserver";
 import { smeltingData } from "../data/Recipes";
 import { ZoneServer2016 } from "../zoneserver";
@@ -19,6 +19,7 @@ import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { BaseItem } from "./baseItem";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { BaseEntity } from "./baseentity";
+import { ZoneClient2016 } from "h1z1-server/src/servers/ZoneServer2016/classes/zoneclient";
 
 function getAllowedFuel(itemDefinitionId: number): number[] {
   switch (itemDefinitionId) {
@@ -238,5 +239,20 @@ export class smeltingEntity {
     setTimeout(() => {
       this.startSmelting(server, parentObject);
     }, this.smeltingTime);
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    server.sendData(client, "Command.InteractionString", {
+      guid: this.parentObject.characterId,
+      stringId: StringIds.USE_IGNITABLE,
+    });
+  }
+
+  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
+      if (!this.isWorking) return
+      server.sendData(client, "Command.PlayDialogEffect", {
+          characterId: this.parentObject.characterId,
+          effectId: this.workingEffect,
+      });
   }
 }

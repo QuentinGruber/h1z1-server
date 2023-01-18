@@ -97,6 +97,7 @@ export enum StringIds {
   POLICE_CAR = 12538,
   CORN = 628,
   WHEAT = 1184,
+  USE_IGNITABLE = 9224,
 }
 
 export enum MovementModifiers {

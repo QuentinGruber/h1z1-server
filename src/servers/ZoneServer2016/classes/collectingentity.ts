@@ -11,12 +11,13 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Items } from "../models/enums";
+import { Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { BaseItem } from "./baseItem";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { BaseEntity } from "./baseentity";
+import { ZoneClient2016 } from "./zoneclient";
 
 function getSubEntityData(
     entity: LootableConstructionEntity,
@@ -126,5 +127,13 @@ export class CollectingEntity {
         }, this.tickTime);
         return;
     }
+  }
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    server.sendData(client, "Command.InteractionString", {
+      guid: this.parentObject.characterId,
+      stringId: StringIds.OPEN,
+    });
+  }
+  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
   }
 }
