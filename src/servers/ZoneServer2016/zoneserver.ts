@@ -3021,68 +3021,70 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private spawnGridObjects(client: Client) {
-    this._grid.forEach((gridCell: GridCell) => {
-      if (
-        isPosInRadius(client.chunkRenderDistance, gridCell.position, client.character.state.position)
-      ) {
-        gridCell.objects.forEach((object) => {
-          if (
-            isPosInRadius(
-              object.npcRenderDistance as number || this._charactersRenderDistance,
-              client.character.state.position,
-              object.state.position
+    private spawnGridObjects(client: Client) {
+        const position = client.character.state.position;
+        for (const gridCell of this._grid) {
+            if (
+                !isPosInRadius(client.chunkRenderDistance, gridCell.position, position)
             )
-          ) {
-            if (object instanceof ConstructionParentEntity) {
-              this.spawnConstructionParent(client, object);
-            }
-            if (!client.spawnedEntities.includes(object)) {
-              if (
-                object instanceof TrapEntity ||
-                object instanceof TemporaryEntity
-              ) {
-                this.addSimpleNpc(client, object);
-              } else if (object instanceof BaseLightweightCharacter) {
-                this.addLightweightNpc(client, object);
-              }
-
-              // send other required packets if neccesary
-              if (
-                typeof object.OnInteractionString !== "undefined" &&
-                object instanceof BaseLightweightCharacter
-              ) {
-                this.sendData(client, "Replication.InteractionComponent", {
-                  transientId: object.transientId,
-                });
-                this.sendData(client, "Replication.NpcComponent", {
-                  transientId: object.transientId,
-                  nameId: object.nameId,
-                });
-              }
-              if (
-                object instanceof DoorEntity ||
-                object instanceof ConstructionDoor
-              ) {
-                if (object.isOpen) {
-                  this.sendData(client, "PlayerUpdatePosition", {
-                    transientId: object.transientId,
-                    positionUpdate: {
-                      sequenceTime: 0,
-                      unknown3_int8: 0,
-                      position: object.state.position,
-                      orientation: object.openAngle,
-                    },
-                  });
+                continue;
+            for (const object of gridCell.objects) {
+                if (
+                    !isPosInRadius(
+                        (object.npcRenderDistance as number) ||
+                        this._charactersRenderDistance,
+                        position,
+                        object.state.position
+                    )
+                )
+                    continue;
+                if (object instanceof ConstructionParentEntity) {
+                    this.spawnConstructionParent(client, object);
                 }
-              }
-              client.spawnedEntities.push(object);
+                if (!client.spawnedEntities.includes(object)) {
+                    if (
+                        object instanceof TrapEntity ||
+                        object instanceof TemporaryEntity
+                    ) {
+                        this.addSimpleNpc(client, object);
+                    } else if (object instanceof BaseLightweightCharacter) {
+                        this.addLightweightNpc(client, object);
+                    }
+
+                    // send other required packets if neccesary
+                    if (
+                        typeof object.OnInteractionString !== "undefined" &&
+                        object instanceof BaseLightweightCharacter
+                    ) {
+                        this.sendData(client, "Replication.InteractionComponent", {
+                            transientId: object.transientId,
+                        });
+                        this.sendData(client, "Replication.NpcComponent", {
+                            transientId: object.transientId,
+                            nameId: object.nameId,
+                        });
+                    }
+                    if (
+                        object instanceof DoorEntity ||
+                        object instanceof ConstructionDoor
+                    ) {
+                        if (object.isOpen) {
+                            this.sendData(client, "PlayerUpdatePosition", {
+                                transientId: object.transientId,
+                                positionUpdate: {
+                                    sequenceTime: 0,
+                                    unknown3_int8: 0,
+                                    position: object.state.position,
+                                    orientation: object.openAngle,
+                                },
+                            });
+                        }
+                    }
+                    client.spawnedEntities.push(object);
+                }
             }
-          }
-        });
-      }
-    });
-  }
+        }
+    }
 
   private spawnDoors(client: Client) {
     for (const characterId in this._doors) {
