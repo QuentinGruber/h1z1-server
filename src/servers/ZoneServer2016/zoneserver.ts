@@ -2579,10 +2579,12 @@ export class ZoneServer2016 extends EventEmitter {
     );
     if (tpUp) {
       this.sendChatText(client, "Construction: Stuck under foundation");
+      const foundationY = foundation.state.position[1],
+      yOffset = foundation.itemDefinitionId == Items.FOUNDATION ? 2.2 : 0.1;
       this.sendData(client, "ClientUpdate.UpdateLocation", {
         position: [
           client.character.state.position[0],
-          client.character.state.position[1] + 2.5,
+          foundationY + yOffset,
           client.character.state.position[2],
           1,
         ],
