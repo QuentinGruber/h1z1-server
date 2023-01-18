@@ -52,6 +52,7 @@ export class LoadoutContainer extends LoadoutItem {
   containerDefinitionId: number;
   items: { [itemGuid: string]: BaseItem } = {};
   canAcceptItems: boolean = true;
+  acceptedItems: number[] = [];
   readonly isMutable: boolean = true;
   constructor(item: LoadoutItem, containerDefinitionId: number) {
     super(item, item.slotId, item.loadoutItemOwnerGuid);
@@ -177,6 +178,15 @@ export class LoadoutContainer extends LoadoutItem {
       server.containerError(client, ContainerErrors.DOES_NOT_ACCEPT_ITEMS);
       return;
     }
+
+    if (
+      targetContainer.acceptedItems.length &&
+      !targetContainer.acceptedItems.includes(item.itemDefinitionId)
+    ) {
+      server.containerError(client, ContainerErrors.UNACCEPTED_ITEM);
+      return
+    }
+
     if (!this.isMutable || !targetContainer.isMutable) {
       server.containerError(client, ContainerErrors.NOT_MUTABLE);
       return;
