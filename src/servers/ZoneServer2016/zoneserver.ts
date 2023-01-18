@@ -4675,7 +4675,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     obj.equipLoadout(this);
     obj.subEntity?.startWorking(this, obj);
-    let container = obj.getContainer();
+    const container = obj.getContainer();
     switch (obj.itemDefinitionId) {
       case Items.ANIMAL_TRAP:
         if (container) {
