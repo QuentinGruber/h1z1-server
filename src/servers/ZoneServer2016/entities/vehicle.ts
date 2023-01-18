@@ -20,7 +20,7 @@ import {
   VehicleIds,
   StringIds,
 } from "../models/enums";
-import { ZoneClient2016 } from "./zoneclient";
+import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { DamageInfo } from "types/zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";

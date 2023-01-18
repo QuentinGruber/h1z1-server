@@ -16,7 +16,7 @@ import { getDistance } from "../../../utils/utils";
 import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
-import { ZoneClient2016 } from "./zoneclient";
+import { ZoneClient2016 } from "../classes/zoneclient";
 
 export class ExplosiveEntity extends BaseLightweightCharacter {
   itemDefinitionId: number;

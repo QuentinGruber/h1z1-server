@@ -14,7 +14,7 @@
 import { DoorEntity } from "./doorentity";
 import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
-import { ZoneClient2016 } from "./zoneclient";
+import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo, OccupiedSlotMap } from "types/zoneserver";
 import { getConstructionSlotId, movePoint } from "../../../utils/utils";
 import { ConstructionParentEntity } from "./constructionparententity";

@@ -13,7 +13,7 @@
 
 import { DamageInfo } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
-import { ZoneClient2016 } from "./zoneclient";
+import { ZoneClient2016 } from "../classes/zoneclient";
 
 function getRenderDistance(actorModelId: number) {
   let range: number = 0;

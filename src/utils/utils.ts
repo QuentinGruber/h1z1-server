@@ -30,8 +30,8 @@ import {
   SquareBounds,
 } from "types/zoneserver";
 import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots";
-import { ConstructionParentEntity } from "servers/ZoneServer2016/classes/constructionparententity";
-import { ConstructionChildEntity } from "servers/ZoneServer2016/classes/constructionchildentity";
+import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
+import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
 import { NAME_VALIDATION_STATUS } from "./enums";
 import { Resolver } from "dns";
 

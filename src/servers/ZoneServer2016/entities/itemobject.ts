@@ -14,9 +14,9 @@
 import { DamageInfo } from "types/zoneserver";
 import { Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
-import { BaseItem } from "./baseItem";
+import { BaseItem } from "../classes/baseItem";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
-import { ZoneClient2016 } from "./zoneclient";
+import { ZoneClient2016 } from "../classes/zoneclient";
 
 export class ItemObject extends BaseLightweightCharacter {
   npcRenderDistance = 25;

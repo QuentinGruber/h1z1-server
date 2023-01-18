@@ -11,11 +11,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ConstructionParentEntity } from "servers/ZoneServer2016/classes/constructionparententity";
-import { ConstructionChildEntity } from "servers/ZoneServer2016/classes/constructionchildentity";
+import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
+import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
 import { FilterIds, Items } from "servers/ZoneServer2016/models/enums";
-import { ConstructionDoor } from "servers/ZoneServer2016/classes/constructiondoor";
-import { LootableConstructionEntity } from "servers/ZoneServer2016/classes/lootableconstructionentity";
+import { ConstructionDoor } from "servers/ZoneServer2016/entities/constructiondoor";
+import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/lootableconstructionentity";
 
 export interface npcData {
   guid: string;

@@ -13,7 +13,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { VehicleIds } from "../models/enums";
-import { Vehicle2016 as Vehicle, Vehicle2016 } from "../classes/vehicle";
+import { Vehicle2016 as Vehicle, Vehicle2016 } from "../entities/vehicle";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";

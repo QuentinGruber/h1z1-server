@@ -14,8 +14,8 @@
 import { ContainerErrors, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
-import { LoadoutContainer } from "./loadoutcontainer";
-import { ZoneClient2016 } from "./zoneclient";
+import { LoadoutContainer } from "../classes/loadoutcontainer";
+import { ZoneClient2016 } from "../classes/zoneclient";
 
 export class BaseLootableEntity extends BaseFullCharacter {
   mountedCharacter?: string;

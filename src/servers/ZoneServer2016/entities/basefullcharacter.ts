@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
-import { _ } from "./../../../utils/utils";
+import { _ } from "../../../utils/utils";
 import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
 import {
@@ -23,11 +23,11 @@ import {
   ResourceTypes,
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
-import { BaseItem } from "./baseItem";
+import { BaseItem } from "../classes/baseItem";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
-import { LoadoutContainer } from "./loadoutcontainer";
-import { LoadoutItem } from "./loadoutItem";
-import { ZoneClient2016 } from "./zoneclient";
+import { LoadoutContainer } from "../classes/loadoutcontainer";
+import { LoadoutItem } from "../classes/loadoutItem";
+import { ZoneClient2016 } from "../classes/zoneclient";
 
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);

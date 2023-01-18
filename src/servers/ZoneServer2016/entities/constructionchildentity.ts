@@ -23,7 +23,7 @@ import {
   movePoint,
   registerConstructionSlots,
 } from "../../../utils/utils";
-import { ZoneClient2016 } from "./zoneclient";
+import { ZoneClient2016 } from "../classes/zoneclient";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { eul2quat } from "h1emu-core";
 import {

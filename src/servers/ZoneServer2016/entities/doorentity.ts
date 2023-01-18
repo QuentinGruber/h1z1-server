@@ -14,7 +14,7 @@
 import { eul2quat } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
-import { ZoneClient2016 } from "./zoneclient";
+import { ZoneClient2016 } from "../classes/zoneclient";
 
 function getDoorSound(actorModelId: number) {
   let openSound = 5048;

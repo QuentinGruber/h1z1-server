@@ -12,9 +12,9 @@
 // ======================================================================
 
 import { toInt, _ } from "../../../utils/utils";
-import { Character2016 } from "./character";
+import { Character2016 } from "../entities/character";
 import { ZoneClient2016 as Client } from "./zoneclient";
-import { LootableProp } from "./lootableprop";
+import { LootableProp } from "../entities/lootableprop";
 import { ZoneServer2016 } from "../zoneserver";
 
 export class ZoneClient2016 {

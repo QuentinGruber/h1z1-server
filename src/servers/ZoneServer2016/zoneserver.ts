@@ -25,7 +25,7 @@ import { Resolver } from "dns";
 import { promisify } from "util";
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
-import { Vehicle2016 as Vehicle, Vehicle2016 } from "./classes/vehicle";
+import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
 import { GridCell } from "./classes/gridcell";
 import { WorldObjectManager } from "./managers/worldobjectmanager";
 import {
@@ -61,7 +61,7 @@ import {
   remoteWeaponUpdatePacketsType,
   weaponPacketsType,
 } from "../../types/weaponPackets";
-import { Character2016 as Character } from "./classes/character";
+import { Character2016 as Character } from "./entities/character";
 import {
   _,
   generateRandomGuid,
@@ -86,20 +86,20 @@ import {
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
-import { BaseFullCharacter } from "./classes/basefullcharacter";
-import { ItemObject } from "./classes/itemobject";
+import { BaseFullCharacter } from "./entities/basefullcharacter";
+import { ItemObject } from "./entities/itemobject";
 import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
-import { TrapEntity } from "./classes/trapentity";
-import { DoorEntity } from "./classes/doorentity";
-import { Npc } from "./classes/npc";
-import { ExplosiveEntity } from "./classes/explosiveentity";
-import { BaseLightweightCharacter } from "./classes/baselightweightcharacter";
-import { BaseSimpleNpc } from "./classes/basesimplenpc";
-import { TemporaryEntity } from "./classes/temporaryentity";
-import { BaseEntity } from "./classes/baseentity";
-import { ConstructionDoor } from "./classes/constructiondoor";
-import { ConstructionParentEntity } from "./classes/constructionparententity";
-import { ConstructionChildEntity } from "./classes/constructionchildentity";
+import { TrapEntity } from "./entities/trapentity";
+import { DoorEntity } from "./entities/doorentity";
+import { Npc } from "./entities/npc";
+import { ExplosiveEntity } from "./entities/explosiveentity";
+import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
+import { BaseSimpleNpc } from "./entities/basesimplenpc";
+import { TemporaryEntity } from "./entities/temporaryentity";
+import { BaseEntity } from "./entities/baseentity";
+import { ConstructionDoor } from "./entities/constructiondoor";
+import { ConstructionParentEntity } from "./entities/constructionparententity";
+import { ConstructionChildEntity } from "./entities/constructionchildentity";
 import { FullCharacterSaveData } from "types/savedata";
 import { WorldDataManager } from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
@@ -117,12 +117,12 @@ import { BaseItem } from "./classes/baseItem";
 import { LoadoutItem } from "./classes/loadoutItem";
 import { LoadoutContainer } from "./classes/loadoutcontainer";
 import { Weapon } from "./classes/weapon";
-import { Lootbag } from "./classes/lootbag";
-import { BaseLootableEntity } from "./classes/baselootableentity";
-import { LootableConstructionEntity } from "./classes/lootableconstructionentity";
-import { LootableProp } from "./classes/lootableprop";
-import { PlantingDiameter } from "./classes/plantingdiameter";
-import { Plant } from "./classes/plant";
+import { Lootbag } from "./entities/lootbag";
+import { BaseLootableEntity } from "./entities/baselootableentity";
+import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
+import { LootableProp } from "./entities/lootableprop";
+import { PlantingDiameter } from "./entities/plantingdiameter";
+import { Plant } from "./entities/plant";
 import { smeltingEntity } from "./classes/smeltingentity";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),

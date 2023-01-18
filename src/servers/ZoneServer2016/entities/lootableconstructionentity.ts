@@ -22,10 +22,10 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
 import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
-import { ZoneClient2016 } from "./zoneclient";
-import { smeltingEntity } from "./smeltingentity";
+import { ZoneClient2016 } from "../classes/zoneclient";
+import { smeltingEntity } from "../classes/smeltingentity";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
-import { CollectingEntity } from "./collectingentity";
+import { CollectingEntity } from "../classes/collectingentity";
 
 export class LootableConstructionEntity extends BaseLootableEntity {
   get health() {

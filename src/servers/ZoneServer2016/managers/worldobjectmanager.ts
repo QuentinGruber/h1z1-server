@@ -27,17 +27,17 @@ import {
   randomIntFromInterval,
 } from "../../../utils/utils";
 import { EquipSlots, Items, VehicleIds } from "../models/enums";
-import { Vehicle2016 } from "../classes/vehicle";
+import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
-import { ItemObject } from "../classes/itemobject";
-import { DoorEntity } from "../classes/doorentity";
-import { Zombie } from "../classes/zombie";
-import { BaseFullCharacter } from "../classes/basefullcharacter";
-import { ExplosiveEntity } from "../classes/explosiveentity";
+import { ItemObject } from "../entities/itemobject";
+import { DoorEntity } from "../entities/doorentity";
+import { Zombie } from "../entities/zombie";
+import { BaseFullCharacter } from "../entities/basefullcharacter";
+import { ExplosiveEntity } from "../entities/explosiveentity";
 import { lootTables, containerLootSpawners } from "../data/lootspawns";
 import { BaseItem } from "../classes/baseItem";
-import { Lootbag } from "../classes/lootbag";
-import { LootableProp } from "../classes/lootableprop";
+import { Lootbag } from "../entities/lootbag";
+import { LootableProp } from "../entities/lootableprop";
 import { ZoneClient2016 } from "../classes/zoneclient";
 const debug = require("debug")("ZoneServer");
 

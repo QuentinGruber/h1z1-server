@@ -41,18 +41,18 @@ import {
   Stances,
   VehicleIds,
 } from "./models/enums";
-import { BaseFullCharacter } from "./classes/basefullcharacter";
-import { ConstructionParentEntity } from "./classes/constructionparententity";
-import { ConstructionDoor } from "./classes/constructiondoor";
+import { BaseFullCharacter } from "./entities/basefullcharacter";
+import { ConstructionParentEntity } from "./entities/constructionparententity";
+import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./commands/commandhandler";
 import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import { ConstructionPermissions } from "types/zoneserver";
 import { GameTimeSync } from "types/zone2016packets";
-import { LootableProp } from "./classes/lootableprop";
-import { Vehicle2016 } from "./classes/vehicle";
-import { Plant } from "./classes/plant";
-import { ConstructionChildEntity } from "./classes/constructionchildentity";
+import { LootableProp } from "./entities/lootableprop";
+import { Vehicle2016 } from "./entities/vehicle";
+import { Plant } from "./entities/plant";
+import { ConstructionChildEntity } from "./entities/constructionchildentity";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;

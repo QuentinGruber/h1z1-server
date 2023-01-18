@@ -13,7 +13,7 @@
 import { isQuat } from "../../../utils/utils";
 import { BaseLootableEntity } from "./baselootableentity";
 import { ZoneServer2016 } from "../zoneserver";
-import { ZoneClient2016 } from "./zoneclient";
+import { ZoneClient2016 } from "../classes/zoneclient";
 
 import { StringIds, Items } from "../models/enums";
 

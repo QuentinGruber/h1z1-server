@@ -13,10 +13,10 @@
 
 import { Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
-import { LootableConstructionEntity } from "./lootableconstructionentity";
+import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
 import { BaseItem } from "./baseItem";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
-import { BaseEntity } from "./baseentity";
+import { BaseEntity } from "../entities/baseentity";
 import { ZoneClient2016 } from "./zoneclient";
 
 function getSubEntityData(

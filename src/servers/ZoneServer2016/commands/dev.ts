@@ -18,8 +18,8 @@ import {
   CharacterManagedObject,
   CharacterSeekTarget,
 } from "types/zone2016packets";
-import { BaseLightweightCharacter } from "../classes/baselightweightcharacter";
-import { Npc } from "../classes/npc";
+import { BaseLightweightCharacter } from "../entities/baselightweightcharacter";
+import { Npc } from "../entities/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 //import { NormanTest } from "../classes/Planting/Test";

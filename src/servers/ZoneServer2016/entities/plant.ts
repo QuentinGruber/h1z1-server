@@ -13,8 +13,8 @@
 
 import { ZoneServer2016 } from "../zoneserver";
 import { ItemObject } from "./itemobject";
-import { BaseItem } from "./baseItem";
-import { ZoneClient2016 } from "./zoneclient";
+import { BaseItem } from "../classes/baseItem";
+import { ZoneClient2016 } from "../classes/zoneclient";
 import { PlantingDiameter } from "./plantingdiameter";
 
 import { Items, StringIds } from "../models/enums";

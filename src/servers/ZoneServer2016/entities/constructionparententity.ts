@@ -23,7 +23,7 @@ import {
   getRectangleCorners,
   movePoint,
 } from "../../../utils/utils";
-import { ZoneClient2016 } from "./zoneclient";
+import { ZoneClient2016 } from "../classes/zoneclient";
 import {
   ConstructionPermissions,
   ConstructionSlotPositionMap,

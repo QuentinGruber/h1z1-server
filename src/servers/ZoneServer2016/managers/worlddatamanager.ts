@@ -33,19 +33,19 @@ import {
 } from "types/savedata";
 import { initMongo, toBigHex, _ } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
-import { Vehicle2016 } from "../classes/vehicle";
+import { Vehicle2016 } from "../entities/vehicle";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { LoadoutItem } from "../classes/loadoutItem";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { BaseItem } from "../classes/baseItem";
 import { Weapon } from "../classes/weapon";
-import { BaseEntity } from "../classes/baseentity";
-import { BaseFullCharacter } from "../classes/basefullcharacter";
+import { BaseEntity } from "../entities/baseentity";
+import { BaseFullCharacter } from "../entities/basefullcharacter";
 import { ConstructionEntity } from "types/zoneserver";
-import { ConstructionChildEntity } from "../classes/constructionchildentity";
-import { ConstructionParentEntity } from "../classes/constructionparententity";
-import { LootableConstructionEntity } from "../classes/lootableconstructionentity";
-import { ConstructionDoor } from "../classes/constructiondoor";
+import { ConstructionChildEntity } from "../entities/constructionchildentity";
+import { ConstructionParentEntity } from "../entities/constructionparententity";
+import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
+import { ConstructionDoor } from "../entities/constructiondoor";
 import { Items } from "../models/enums";
 
 const fs = require("fs");

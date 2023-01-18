@@ -21,8 +21,8 @@ import {
   getDifference,
   isPosInRadius,
 } from "../../../utils/utils";
-import { ExplosiveEntity } from "../classes/explosiveentity";
-import { Npc } from "../classes/npc";
+import { ExplosiveEntity } from "../entities/explosiveentity";
+import { Npc } from "../entities/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import {
   characterBuildKitLoadout,

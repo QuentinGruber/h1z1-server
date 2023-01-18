@@ -20,7 +20,7 @@ import {
   ResourceIds,
   ResourceTypes,
 } from "../models/enums";
-import { ZoneClient2016 } from "./zoneclient";
+import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import {
@@ -34,9 +34,9 @@ import {
   randomIntFromInterval,
   _,
 } from "../../../utils/utils";
-import { BaseItem } from "./baseItem";
+import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
-import { LoadoutContainer } from "./loadoutcontainer";
+import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { characterDefaultLoadout } from "../data/loadouts";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
