@@ -2688,9 +2688,7 @@ export class ZoneServer2016 extends EventEmitter {
         } else if (object.disappearTimestamp < date)
           object.disappearTimestamp = date + 86400000;
         if (object.fertilizedTimestamp < date) object.isFertilized = false;
-        Object.values(object.seedSlots).forEach((slot: string) => {
-          const plant = this._plants[slot] as Plant;
-          if (!plant) return;
+        Object.values(object.seedSlots).forEach((plant) => {
           if (plant.nextStateTime < date) plant.grow(this);
         });
       }
@@ -4673,7 +4671,7 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    parent.seedSlots[slot] = characterId;
+    
     const obj = new Plant(
       characterId,
       transientId,
@@ -4686,6 +4684,7 @@ export class ZoneServer2016 extends EventEmitter {
       parentObjectCharacterId,
       slot
     );
+    parent.seedSlots[slot] = obj;
     this._plants[characterId] = obj;
     return true;
   }
@@ -6057,8 +6056,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         object.isFertilized = true;
         object.fertilizedTimestamp = new Date().getTime() + 86400000; // + 1 day
-        Object.values(object.seedSlots).forEach((slot: string) => {
-          const plant = this._plants[slot] as Plant;
+        Object.values(object.seedSlots).forEach((plant) => {
           if (plant.isFertilized) return;
           plant.isFertilized = true;
           const roz = (plant.nextStateTime - new Date().getTime()) / 2;
@@ -6066,10 +6064,10 @@ export class ZoneServer2016 extends EventEmitter {
           this.sendDataToAllWithSpawnedEntity(
             // play burning effect & remove it after 15s
             this._plants,
-            slot,
+            plant.characterId,
             "Command.PlayDialogEffect",
             {
-              characterId: slot,
+              characterId: plant.characterId,
               effectId: 5056,
             }
           );
