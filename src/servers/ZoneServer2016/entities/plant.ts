@@ -22,7 +22,7 @@ import { Items, StringIds } from "../models/enums";
 export class Plant extends ItemObject {
   growState: number = 0;
   nextStateTime: number; 
-  readonly growTime = 28800000 // 8h;
+  readonly growTime = 6000//28800000 // 8h;
   parentObjectCharacterId: string;
   slot: string;
   isFertilized: boolean = false;
@@ -61,6 +61,8 @@ export class Plant extends ItemObject {
     if (this.item.itemDefinitionId == Items.SEED_CORN) {
       this.nameId = StringIds.CORN;
     } else this.nameId = StringIds.WHEAT;
+
+    console.log(this)
   }
 
   grow(server: ZoneServer2016) {
@@ -102,6 +104,12 @@ export class Plant extends ItemObject {
         modelId: this.actorModelId,
       }
     );
+    if(this.isFertilized) {
+      server.sendDataToAllWithSpawnedEntity(server._plants, this.characterId, "Command.PlayDialogEffect", {
+        characterId: this.characterId,
+        effectId: 5056,
+      });
+    }
     const timeToAdd = this.isFertilized ? this.growTime / 2 : this.growTime; // 4 or 8h based on fertilized or not
     this.nextStateTime = new Date().getTime() + timeToAdd;
   }
