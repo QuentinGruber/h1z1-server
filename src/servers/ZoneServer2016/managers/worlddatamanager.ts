@@ -817,7 +817,6 @@ export class WorldDataManager {
           .toArray()
       );
     }
-    console.log(constructionParents);
     constructionParents.forEach((parent) => {
       this.loadConstructionParentEntity(server, parent);
     });
@@ -1054,11 +1053,9 @@ export class WorldDataManager {
     plantingDiameter.isFertilized = entityData.isFertilized;
     server._temporaryObjects[plantingDiameter.characterId] = plantingDiameter;
 
-    let seedSlots: { [id: string]: Plant } = {};
     Object.values(entityData.seedSlots).forEach((plant) => {
-      seedSlots[plant.slot] = this.loadPlant(server, plantingDiameter, plant);
+      plantingDiameter.seedSlots[plant.slot] = this.loadPlant(server, plantingDiameter, plant);
     })
-    
   }
 
   async loadCropData(server: ZoneServer2016) {
@@ -1078,7 +1075,6 @@ export class WorldDataManager {
           .toArray()
       );
     }
-    console.log(crops);
     crops.forEach((entityData) => {
       this.loadPlantingDiameter(server, entityData);
     });
