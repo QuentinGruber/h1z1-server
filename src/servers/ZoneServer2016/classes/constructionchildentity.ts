@@ -278,7 +278,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     wall: ConstructionChildEntity | ConstructionDoor
   ): boolean {
     if (wall.itemDefinitionId == Items.METAL_WALL_UPPER) {
-      console.log("SET SLOT UPPER")
       return this.setSlot(
         wall,
         upperWallSlotDefinitions,

@@ -906,7 +906,7 @@ export class zonePacketHandlers {
   ) {
     const entity = server.getEntity(packet.data.guid);
     if (!entity) return
-    const isConstruction = (entity instanceof ConstructionParentEntity || entity instanceof ConstructionDoor);
+    const isConstruction = (entity instanceof ConstructionParentEntity || entity instanceof ConstructionChildEntity || entity instanceof ConstructionDoor);
     if (!isPosInRadius(
         isConstruction ? 4 : server._interactionDistance,
         client.character.state.position,
