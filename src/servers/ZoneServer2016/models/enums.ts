@@ -97,6 +97,7 @@ export enum StringIds {
   POLICE_CAR = 12538,
   CORN = 628,
   WHEAT = 1184,
+  USE_IGNITABLE = 9224,
 }
 
 export enum MovementModifiers {
@@ -123,6 +124,7 @@ export enum ContainerErrors {
   NO_SPACE = 10,
   INVALID_LOADOUT_SLOT = 11,
   NO_PERMISSION = 12,
+  UNACCEPTED_ITEM = 13,
 }
 
 export enum FilterIds {
@@ -132,6 +134,8 @@ export enum FilterIds {
   HOUSING = 6,
   SURVIVAL = 7,
   COMPONENT = 8,
+  DEW_COLLECTOR = 9,
+  ANIMAL_TRAP = 10,
 }
 
 export enum ItemClasses {
@@ -559,4 +563,6 @@ export enum Items {
   CONTAINER_FURNACE = 5025,
   CONTAINER_BARBEQUE = 5026,
   CONTAINER_CAMPFIRE = 5027,
+  CONTAINER_DEW_COLLECTOR = 5028,
+  CONTAINER_ANIMAL_TRAP = 5029,
 }

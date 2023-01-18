@@ -25,6 +25,7 @@ import { ConstructionParentEntity } from "./constructionparententity";
 import { ZoneClient2016 } from "./zoneclient";
 import { smeltingEntity } from "./smeltingentity";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
+import { CollectingEntity } from "./collectingentity";
 
 export class LootableConstructionEntity extends BaseLootableEntity {
   get health() {
@@ -38,7 +39,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   npcRenderDistance = 15;
   loadoutId = 5;
   itemDefinitionId: number;
-  smeltingEntity?: smeltingEntity;
+  subEntity?: smeltingEntity | CollectingEntity;
   constructor(
     characterId: string,
     transientId: number,
@@ -48,7 +49,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     server: ZoneServer2016,
     itemDefinitionId: number,
     parentObjectCharacterId: string,
-    isSmeltable: boolean
+    subEntityType: string
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.parentObjectCharacterId = parentObjectCharacterId || "";
@@ -58,8 +59,10 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     this.profileId = 999; /// mark as construction
     this.health = 1000000;
     this.defaultLoadout = lootableContainerDefaultLoadouts.storage;
-    if (isSmeltable) {
-      this.smeltingEntity = new smeltingEntity(this, server);
+    if (subEntityType === "SmeltingEntity") {
+      this.subEntity = new smeltingEntity(this, server);
+    } else if (subEntityType === "CollectingEntity") {
+      this.subEntity = new CollectingEntity(this, server);
     }
   }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -158,17 +161,18 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       server.undoPlacementInteractionString(this, client);
       return;
     }
+    if (this.subEntity) {
+        this.subEntity.OnInteractionString(server, client);
+        return
+    }
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
       stringId: StringIds.OPEN,
     });
   }
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-    if (this.smeltingEntity && this.smeltingEntity.isBurning) {
-      server.sendData(client, "Command.PlayDialogEffect", {
-        characterId: this.characterId,
-        effectId: this.smeltingEntity.smeltingEffect,
-      });
+    if (this.subEntity) {
+      this.subEntity.OnFullCharacterDataRequest(server, client)
     }
   }
 }

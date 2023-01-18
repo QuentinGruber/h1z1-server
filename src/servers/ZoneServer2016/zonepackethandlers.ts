@@ -342,10 +342,12 @@ export class zonePacketHandlers {
   }
   KeepAlive(server: ZoneServer2016, client: Client, packet: any) {
     if (client.isLoading && client.characterReleased) {
-      client.isLoading = false;
-      if (client.routineInterval || !client.characterReleased) return;
-      server.executeRoutine(client);
-      server.startClientRoutine(client);
+      setTimeout(() => {
+        client.isLoading = false;
+        if (client.routineInterval || !client.characterReleased) return;
+        server.executeRoutine(client);
+        server.startClientRoutine(client);
+      }, 500);
     }
   }
   ClientUpdateMonitorTimeDrift(

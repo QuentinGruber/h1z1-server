@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { Items, FilterIds } from "../models/enums";
+import { Items, FilterIds, StringIds } from "../models/enums";
 import { RecipeComponent } from "types/zoneserver";
 import { smeltingData } from "../data/Recipes";
 import { ZoneServer2016 } from "../zoneserver";
@@ -19,6 +19,7 @@ import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { BaseItem } from "./baseItem";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { BaseEntity } from "./baseentity";
+import { ZoneClient2016 } from "h1z1-server/src/servers/ZoneServer2016/classes/zoneclient";
 
 function getAllowedFuel(itemDefinitionId: number): number[] {
   switch (itemDefinitionId) {
@@ -61,22 +62,22 @@ function getSmeltingEntityData(
     case Items.FURNACE:
       child.filterId = FilterIds.FURNACE;
       entity.defaultLoadout = lootableContainerDefaultLoadouts.furnace;
-      child.smeltingEffect = 5028;
+      child.workingEffect = 5028;
       break;
     case Items.CAMPFIRE:
       child.filterId = FilterIds.COOKING;
       entity.defaultLoadout = lootableContainerDefaultLoadouts.campfire;
-      child.smeltingEffect = 1207;
+      child.workingEffect = 1207;
       break;
     case Items.BARBEQUE:
       child.filterId = FilterIds.COOKING;
       entity.defaultLoadout = lootableContainerDefaultLoadouts.barbeque;
-      child.smeltingEffect = 5044;
+      child.workingEffect = 5044;
       break;
     default:
       child.filterId = FilterIds.FURNACE;
       entity.defaultLoadout = lootableContainerDefaultLoadouts.furnace;
-      child.smeltingEffect = 5028;
+      child.workingEffect = 5028;
       break;
   }
 }
@@ -85,11 +86,12 @@ export class smeltingEntity {
   parentObject: LootableConstructionEntity;
   allowedFuel: number[];
   filterId: number = FilterIds.FURNACE;
-  smeltingEffect: number = 5028;
-  isBurning: boolean = false;
+  workingEffect: number = 5028;
+  isWorking: boolean = false;
   isSmelting: boolean = false;
   smeltingTime: number = 60000;
   dictionary: { [characterId: string]: BaseEntity };
+  subType: string = "smeltingEntity"; // for saving identification
   constructor(
     parentObject: LootableConstructionEntity,
     server: ZoneServer2016
@@ -102,14 +104,14 @@ export class smeltingEntity {
     } else this.dictionary = server._lootableConstruction;
   }
 
-  startBurning(
+  startWorking(
     server: ZoneServer2016,
     parentObject: LootableConstructionEntity
   ) {
     const container = parentObject.getContainer();
     if (!container) return;
     if (JSON.stringify(container.items) === "{}") {
-      if (this.isBurning) {
+      if (this.isWorking) {
         server.sendDataToAllWithSpawnedEntity(
           this.dictionary,
           parentObject.characterId,
@@ -119,7 +121,7 @@ export class smeltingEntity {
             effectId: 0,
           }
         );
-        this.isBurning = false;
+        this.isWorking = false;
       }
       return;
     }
@@ -137,18 +139,18 @@ export class smeltingEntity {
             1
           );
         }
-        if (!this.isBurning) {
+        if (!this.isWorking) {
           server.sendDataToAllWithSpawnedEntity(
             this.dictionary,
             parentObject.characterId,
             "Command.PlayDialogEffect",
             {
               characterId: parentObject.characterId,
-              effectId: this.smeltingEffect,
+              effectId: this.workingEffect,
             }
           );
         }
-        this.isBurning = true;
+        this.isWorking = true;
         allowBurn = true;
         setTimeout(() => {
           if (!this.isSmelting) {
@@ -156,13 +158,13 @@ export class smeltingEntity {
           }
         }, this.smeltingTime);
         setTimeout(() => {
-          this.startBurning(server, parentObject);
+          this.startWorking(server, parentObject);
         }, getBurningTime(item.itemDefinitionId));
         return;
       }
     });
     if (allowBurn) return;
-    this.isBurning = false;
+    this.isWorking = false;
     server.sendDataToAllWithSpawnedEntity(
       this.dictionary,
       parentObject.characterId,
@@ -178,7 +180,7 @@ export class smeltingEntity {
     server: ZoneServer2016,
     parentObject: LootableConstructionEntity
   ) {
-    if (!this.isBurning) {
+    if (!this.isWorking) {
       this.isSmelting = false;
       return;
     }
@@ -237,5 +239,20 @@ export class smeltingEntity {
     setTimeout(() => {
       this.startSmelting(server, parentObject);
     }, this.smeltingTime);
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    server.sendData(client, "Command.InteractionString", {
+      guid: this.parentObject.characterId,
+      stringId: StringIds.USE_IGNITABLE,
+    });
+  }
+
+  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
+      if (!this.isWorking) return
+      server.sendData(client, "Command.PlayDialogEffect", {
+          characterId: this.parentObject.characterId,
+          effectId: this.workingEffect,
+      });
   }
 }
