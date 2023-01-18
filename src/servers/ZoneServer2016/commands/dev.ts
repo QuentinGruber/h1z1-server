@@ -13,6 +13,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
+import { h1z1PacketsType2016 } from "types/packets";
 import {
   CharacterManagedObject,
   CharacterSeekTarget,
@@ -26,7 +27,7 @@ import { ZoneServer2016 } from "../zoneserver";
 const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
-  path: function (server: ZoneServer2016, client: Client, args: any[]) {
+  path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
     const npc = new BaseLightweightCharacter(
       characterId,
@@ -44,7 +45,7 @@ const dev: any = {
       });
     }, 2000);
   },
-  zombie: function (server: ZoneServer2016, client: Client, args: any[]) {
+  zombie: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     // spawn a zombie
     const characterId = server.generateGuid();
     const transient = server.getTransientId(characterId);
@@ -58,7 +59,7 @@ const dev: any = {
     );
     server._npcs[characterId] = zombie;
   },
-  zombiemove: function (server: ZoneServer2016, client: Client, args: any[]) {
+  zombiemove: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     // spawn a zombie
     const characterId = server.generateGuid();
     const transient = server.getTransientId(characterId);
@@ -82,37 +83,37 @@ const dev: any = {
       } as CharacterSeekTarget);
     }, 5000);
   },
-  stats: function (server: ZoneServer2016, client: Client, args: any[]) {
+  stats: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.logStats();
   },
-  spam: function (server: ZoneServer2016, client: Client, args: any[]) {
+  spam: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const spamNb = args[1] || 1;
     for (let i = 0; i < spamNb; i++) {
       server.sendChatText(client, `spam ${i}`);
     }
   },
-  list: function (server: ZoneServer2016, client: Client, args: any[]) {
+  list: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendChatText(
       client,
       `/dev commands list: \n/dev ${Object.keys(this).join("\n/dev ")}`
     );
   },
-  d: function (server: ZoneServer2016, client: Client, args: any[]) {
+  d: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     // quick disconnect
     server.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
     });
   },
-  r: function (server: ZoneServer2016, client: Client, args: any[]) {
+  r: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     // quick respawn
     server.respawnPlayer(client);
   },
-  testpacket: function (server: ZoneServer2016, client: Client, args: any[]) {
+  testpacket: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const packetName = args[1];
-    server.sendData(client, packetName, {});
+    server.sendData(client, packetName as h1z1PacketsType2016, {});
   },
-  findmodel: function (server: ZoneServer2016, client: Client, args: any[]) {
+  findmodel: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const models = require("../../../../data/2016/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
@@ -131,14 +132,14 @@ const dev: any = {
   reloadpackets: function (
     server: ZoneServer2016,
     client: Client,
-    args: any[]
+    args: Array<string>
   ) {
     server.reloadPackets(client);
   },
   systemmessage: function (
     server: ZoneServer2016,
     client: Client,
-    args: any[]
+    args: Array<string>
   ) {
     if (!args[1]) {
       server.sendChatText(client, "Missing 'message' parameter");
@@ -153,7 +154,7 @@ const dev: any = {
     server.sendChatText(client, "Sending system message");
     server.sendData(client, "ShowSystemMessage", msg);
   },
-  setresource: function (server: ZoneServer2016, client: Client, args: any[]) {
+  setresource: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     if (!args[3]) {
       server.sendChatText(
         client,
@@ -182,7 +183,7 @@ const dev: any = {
   selectloadout: function (
     server: ZoneServer2016,
     client: Client,
-    args: any[]
+    args: Array<string>
   ) {
     if (!args[1]) {
       server.sendChatText(client, "Missing loadoutSlotId arg");
@@ -193,7 +194,7 @@ const dev: any = {
       loadoutId: Number(args[1]),
     });
   },
-  selectslot: function (server: ZoneServer2016, client: Client, args: any[]) {
+  selectslot: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     if (!args[1]) {
       server.sendChatText(client, "Missing loadoutSlotId arg");
       return;
@@ -207,7 +208,7 @@ const dev: any = {
   createcustomloadout: function (
     server: ZoneServer2016,
     client: Client,
-    args: any[]
+    args: Array<string>
   ) {
     if (!args[2]) {
       server.sendChatText(client, "Missing slotId and loadoutSlotId args");
@@ -221,7 +222,7 @@ const dev: any = {
     server.sendData(client, "Loadout.CreateCustomLoadout", loadout);
   },
 
-  setslot: function (server: ZoneServer2016, client: Client, args: any[]) {
+  setslot: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     if (!args[2]) {
       server.sendChatText(client, "Missing slotId and itemDefinitionId args.");
       return;
@@ -245,7 +246,7 @@ const dev: any = {
   containererror: function (
     server: ZoneServer2016,
     client: Client,
-    args: any[]
+    args: Array<string>
   ) {
     if (!args[1]) {
       server.sendChatText(client, "Missing containerError arg");
@@ -258,7 +259,7 @@ const dev: any = {
 
     server.sendData(client, "Container.Error", container);
   },
-  setequipment: function (server: ZoneServer2016, client: Client, args: any[]) {
+  setequipment: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     /*
     if(!args[5]) {
       server.sendChatText(client, "Missing 5 args");
@@ -329,7 +330,7 @@ const dev: any = {
     server.sendData(client, "Equipment.SetCharacterEquipmentSlots", equipment);
   },
 
-  tpvehicle: function (server: ZoneServer2016, client: Client, args: any[]) {
+  tpvehicle: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     if (!args[1]) {
       server.sendChatText(client, "Missing vehicleId arg");
       return;
@@ -357,7 +358,7 @@ const dev: any = {
     }
   },
 
-  tpnpc: function (server: ZoneServer2016, client: Client, args: any[]) {
+  tpnpc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     if (!args[1]) {
       server.sendChatText(client, "Missing npc modelId arg");
       return;
@@ -384,7 +385,7 @@ const dev: any = {
       server.sendChatText(client, `No npcs of ID: ${args[1]} found`);
     }
   },
-  stat: function (server: ZoneServer2016, client: Client, args: any[]) {
+  stat: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     if (!args[3]) {
       server.sendChatText(client, "missing statId, baseValue, modifierValue");
       return;
@@ -404,14 +405,14 @@ const dev: any = {
   listcontainers: function (
     server: ZoneServer2016,
     client: Client,
-    args: any[]
+    args: Array<string>
   ) {
     server.sendData(client, "Container.ListAll", {
       characterId: client.character.characterId,
       containers: client.character.pGetContainers(this),
     });
   },
-  shutdown: function (server: ZoneServer2016, client: Client, args: any[]) {
+  shutdown: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "WorldShutdownNotice", {
       timeLeft: 0,
       message: " ",
@@ -420,7 +421,7 @@ const dev: any = {
   begincharacteraccess: function (
     server: ZoneServer2016,
     client: Client,
-    args: any[]
+    args: Array<string>
   ) {
     const objectCharacterId = server.generateGuid(),
       npc = new Npc(
@@ -453,7 +454,7 @@ const dev: any = {
       });
     }, 2000);
   },
-  fte: function (server: ZoneServer2016, client: Client, args: any[]) {
+  fte: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     if (!args[3]) {
       server.sendChatText(client, "Missing 3 args");
       return;
@@ -467,7 +468,7 @@ const dev: any = {
   proximateitems: function (
     server: ZoneServer2016,
     client: Client,
-    args: any[]
+    args: Array<string>
   ) {
     const item: any = server.generateItem(2425)?.itemGuid,
       guid1 = server.generateGuid(),
@@ -510,7 +511,7 @@ const dev: any = {
     });
   },
   /*
-    proxiedobjects: function(server: ZoneServer2016, client: Client, args: any[]) {
+    proxiedobjects: function(server: ZoneServer2016, client: Client, args: Array<string>) {
 
       objects.runtime_object.runtime_objects.forEach((object) => {
         if(object.actor_file === "Common_Props_Dryer.adr") {
@@ -532,13 +533,13 @@ const dev: any = {
     */
   /*
   //region norman testing
-  norman: function (server: ZoneServer2016, client: Client, args: any[]) {
+  norman: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     NormanTest.TestEntry(server, client, args);
   },
   //endregion
   */
 
-  poi: function (server: ZoneServer2016, client: Client, args: any[]) {
+  poi: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "POIChangeMessage", {
       messageStringId: Number(args[1]) || 0,
       id: Number(args[1]) || 0,
@@ -548,7 +549,7 @@ const dev: any = {
   vehicleaccess: function (
     server: ZoneServer2016,
     client: Client,
-    args: any[]
+    args: Array<string>
   ) {
     const characterId = client.vehicle.mountedVehicle;
     console.log(characterId);
@@ -562,6 +563,17 @@ const dev: any = {
       },
     });
   },
+
+  stop: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "PlayerStop", {
+      transientId: client.character.transientId,
+      state: Number(args[0]) == 0 ? false : true
+    })
+  }
 };
 
 export default dev;

@@ -189,40 +189,7 @@ export class zonePacketHandlers {
     new CraftManager(client, server, packet.data.recipeId, packet.data.count);
   }
   CommandSpawnVehicle(server: ZoneServer2016, client: Client, packet: any) {
-    if (!client.isAdmin) {
-      server.sendChatText(client, "You don't have access to that");
-      return;
-    }
-    const allowedIds = [
-      VehicleIds.POLICECAR,
-      VehicleIds.PICKUP,
-      VehicleIds.ATV,
-      VehicleIds.OFFROADER,
-    ];
-    if (!allowedIds.includes(packet.data.vehicleId)) {
-      server.sendChatText(
-        client,
-        "[ERROR] Invalid vehicleId, please choose one of listed below:"
-      );
-      server.sendChatText(
-        client,
-        `OFFROADER: ${VehicleIds.OFFROADER}, PICKUP: ${VehicleIds.PICKUP}, POLICECAR: ${VehicleIds.POLICECAR}, ATV: ${VehicleIds.ATV}`
-      );
-      return;
-    }
-    const characterId = server.generateGuid();
-    const vehicle = new Vehicle2016(
-      characterId,
-      server.getTransientId(characterId),
-      0,
-      packet.data.position,
-      client.character.state.lookAt,
-      server,
-      server.getGameTime(),
-      packet.data.vehicleId
-    );
-    server.worldObjectManager.createVehicle(server, vehicle);
-    client.character.ownedVehicle = vehicle.characterId;
+    this.commandHandler.executeInternalCommand(server, client, "vehicle", packet);
   }
   CommandSetInWater(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
@@ -708,7 +675,7 @@ export class zonePacketHandlers {
           setTimeout(() => {
             server.sendData(client, "ClientUpdate.UpdateLocation", {
               position: pos,
-              unknownBool2: false,
+              triggerLoadingScreen: false,
             });
           }, 1000);
         }

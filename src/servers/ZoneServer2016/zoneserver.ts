@@ -2588,7 +2588,7 @@ export class ZoneServer2016 extends EventEmitter {
           client.character.state.position[2],
           1,
         ],
-        unknownBool2: false,
+        triggerLoadingScreen: false,
       });
       return;
     }
@@ -2625,7 +2625,7 @@ export class ZoneServer2016 extends EventEmitter {
         newPos[2],
         1,
       ],
-      unknownBool2: false,
+      triggerLoadingScreen: false,
     });
   }
 

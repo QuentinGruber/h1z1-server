@@ -1517,9 +1517,9 @@ export interface ClientUpdateUpdateStat {
 export interface ClientUpdateUpdateLocation {
   position?: Float32Array;
   rotation?: Float32Array;
-  triggerLoadingScreen?: boolean;
+  unknownBoolean1?: boolean;
   unknownByte1?: number;
-  unknownBool2?: boolean;
+  triggerLoadingScreen?: boolean;
 }
 export interface ClientUpdateActivateProfile {
   profileData: any;

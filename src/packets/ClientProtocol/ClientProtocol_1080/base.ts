@@ -3059,11 +3059,12 @@ export const basePackets: any = [
     {
       fields: [
         {
-          name: "unknownUint",
+          name: "transientId",
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
         },
+        { name: "state", type: "boolean", defaultValue: false },
       ],
     },
   ],
