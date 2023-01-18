@@ -25,7 +25,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { DamageInfo } from "types/zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
 import { vehicleDefaultLoadouts } from "../data/loadouts";
-import { LoadoutItem } from "./loadoutItem";
+import { LoadoutItem } from "../classes/loadoutItem";
 
 function getActorModelId(vehicleId: number) {
   switch (vehicleId) {
