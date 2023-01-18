@@ -93,12 +93,11 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     overrideEulerAngle?: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
-    
-    if(overrideEulerAngle) {
+
+    if (overrideEulerAngle) {
       this.state.rotation = rotation;
       this.eulerAngle = overrideEulerAngle;
-    }
-    else {
+    } else {
       this.state.rotation = eul2quat(rotation);
       this.eulerAngle = rotation[0];
     }
@@ -226,7 +225,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     slotMap: ConstructionSlotPositionMap,
     itemDefinitionId: number
   ) {
-    if(itemDefinitionId == Items.METAL_WALL_UPPER) {
+    if (itemDefinitionId == Items.METAL_WALL_UPPER) {
       slot = 1;
     }
     const slots = definitions[this.itemDefinitionId];
@@ -286,7 +285,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         this.upperWallSlots,
         this.occupiedUpperWallSlots
       );
-      
     }
     const set = this.setSlot(
       wall,
@@ -382,7 +380,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     const parent = this.getParent(server);
     if (!parent) return;
 
-    if(parent.freeplaceEntities[this.characterId]) {
+    if (parent.freeplaceEntities[this.characterId]) {
       delete parent.freeplaceEntities[this.characterId];
     }
 
@@ -418,7 +416,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     let freeplace: Array<ConstructionChildEntity | ConstructionDoor> = [];
     this.getOccupiedSlotMaps().forEach((slotMap) => {
       freeplace = [...freeplace, ...Object.values(slotMap)];
-    })
+    });
     if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
     if (updateSecured) parent.updateSecuredState(server);
 

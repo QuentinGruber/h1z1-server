@@ -45,7 +45,11 @@ const dev: any = {
       });
     }, 2000);
   },
-  zombie: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+  zombie: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     // spawn a zombie
     const characterId = server.generateGuid();
     const transient = server.getTransientId(characterId);
@@ -59,7 +63,11 @@ const dev: any = {
     );
     server._npcs[characterId] = zombie;
   },
-  zombiemove: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+  zombiemove: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     // spawn a zombie
     const characterId = server.generateGuid();
     const transient = server.getTransientId(characterId);
@@ -83,7 +91,11 @@ const dev: any = {
       } as CharacterSeekTarget);
     }, 5000);
   },
-  stats: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+  stats: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     server.logStats();
   },
   spam: function (server: ZoneServer2016, client: Client, args: Array<string>) {
@@ -109,11 +121,19 @@ const dev: any = {
     // quick respawn
     server.respawnPlayer(client);
   },
-  testpacket: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+  testpacket: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     const packetName = args[1];
     server.sendData(client, packetName as h1z1PacketsType2016, {});
   },
-  findmodel: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+  findmodel: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     const models = require("../../../../data/2016/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
@@ -154,7 +174,11 @@ const dev: any = {
     server.sendChatText(client, "Sending system message");
     server.sendData(client, "ShowSystemMessage", msg);
   },
-  setresource: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+  setresource: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     if (!args[3]) {
       server.sendChatText(
         client,
@@ -194,7 +218,11 @@ const dev: any = {
       loadoutId: Number(args[1]),
     });
   },
-  selectslot: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+  selectslot: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     if (!args[1]) {
       server.sendChatText(client, "Missing loadoutSlotId arg");
       return;
@@ -222,7 +250,11 @@ const dev: any = {
     server.sendData(client, "Loadout.CreateCustomLoadout", loadout);
   },
 
-  setslot: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+  setslot: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     if (!args[2]) {
       server.sendChatText(client, "Missing slotId and itemDefinitionId args.");
       return;
@@ -259,7 +291,11 @@ const dev: any = {
 
     server.sendData(client, "Container.Error", container);
   },
-  setequipment: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+  setequipment: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     /*
     if(!args[5]) {
       server.sendChatText(client, "Missing 5 args");
@@ -330,7 +366,11 @@ const dev: any = {
     server.sendData(client, "Equipment.SetCharacterEquipmentSlots", equipment);
   },
 
-  tpvehicle: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+  tpvehicle: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     if (!args[1]) {
       server.sendChatText(client, "Missing vehicleId arg");
       return;
@@ -358,7 +398,11 @@ const dev: any = {
     }
   },
 
-  tpnpc: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+  tpnpc: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     if (!args[1]) {
       server.sendChatText(client, "Missing npc modelId arg");
       return;
@@ -412,7 +456,11 @@ const dev: any = {
       containers: client.character.pGetContainers(this),
     });
   },
-  shutdown: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+  shutdown: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     server.sendData(client, "WorldShutdownNotice", {
       timeLeft: 0,
       message: " ",
@@ -564,16 +612,12 @@ const dev: any = {
     });
   },
 
-  stop: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
+  stop: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "PlayerStop", {
       transientId: client.character.transientId,
-      state: Number(args[0]) == 0 ? false : true
-    })
-  }
+      state: Number(args[0]) == 0 ? false : true,
+    });
+  },
 };
 
 export default dev;

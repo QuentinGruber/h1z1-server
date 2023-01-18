@@ -76,7 +76,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     ownerName: string,
     parentObjectCharacterId: string,
     BuildingSlot: string | undefined,
-    overrideEulerAngle?: number,
+    overrideEulerAngle?: number
   ) {
     super(
       characterId,
@@ -118,13 +118,13 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         if (parent) {
           // get 3rd dependent foundation wall pos
           const dependentWallPos = parent.getSlotPosition(
-            this.getDependentWalls()[2],
-            parent.wallSlots
-          ),
-          dependentWallRot = parent.getSlotRotation(
-            this.getDependentWalls()[2],
-            parent.wallSlots
-          )
+              this.getDependentWalls()[2],
+              parent.wallSlots
+            ),
+            dependentWallRot = parent.getSlotRotation(
+              this.getDependentWalls()[2],
+              parent.wallSlots
+            );
 
           if (dependentWallPos && dependentWallRot) {
             const point = movePoint(
@@ -432,7 +432,10 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       {
         characterId: this.characterId,
         characterId2: this.characterId,
-        permissions: Object.values(this.permissions).filter((perm: ConstructionPermissions) => perm.characterId != this.ownerCharacterId),
+        permissions: Object.values(this.permissions).filter(
+          (perm: ConstructionPermissions) =>
+            perm.characterId != this.ownerCharacterId
+        ),
       }
     );
   }

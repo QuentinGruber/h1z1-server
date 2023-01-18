@@ -106,19 +106,9 @@ export const vehicleDefaultLoadouts = {
 };
 
 export const lootableContainerDefaultLoadouts = {
-  storage: [
-    { item: Items.CONTAINER_STORAGE },
-  ],
-  furnace: [
-    { item: Items.CONTAINER_FURNACE },
-  ],
-  barbeque: [
-    { item: Items.CONTAINER_BARBEQUE },
-  ],
-  campfire: [
-    { item: Items.CONTAINER_CAMPFIRE },
-  ],
-  lootbag: [
-    { item: Items.CONTAINER_DROPPED_ITEMS },
-  ],
-}
+  storage: [{ item: Items.CONTAINER_STORAGE }],
+  furnace: [{ item: Items.CONTAINER_FURNACE }],
+  barbeque: [{ item: Items.CONTAINER_BARBEQUE }],
+  campfire: [{ item: Items.CONTAINER_CAMPFIRE }],
+  lootbag: [{ item: Items.CONTAINER_DROPPED_ITEMS }],
+};

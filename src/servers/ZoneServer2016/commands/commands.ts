@@ -438,13 +438,18 @@ export const commands: Array<Command> = [
             );
             return;
           }
-          locationPosition = new Float32Array([Number(args[0]), Number(args[1]), Number(args[2]), 1]);
+          locationPosition = new Float32Array([
+            Number(args[0]),
+            Number(args[1]),
+            Number(args[2]),
+            1,
+          ]);
           break;
       }
 
       client.character.state.position = locationPosition;
       client.isLoading = true;
-      client.characterReleased = false
+      client.characterReleased = false;
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: locationPosition,
         triggerLoadingScreen: true,
@@ -754,7 +759,11 @@ export const commands: Array<Command> = [
   {
     name: "savecurrentweather",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       if (!args[0]) {
         server.sendChatText(
           client,
@@ -962,7 +971,11 @@ export const commands: Array<Command> = [
   {
     name: "shutdown",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       const timeLeft = args[0] ? args[0] : 0;
       const message = args[1] ? args[1] : " ";
       const startedTime = Date.now();
@@ -1082,7 +1095,11 @@ export const commands: Array<Command> = [
   {
     name: "slay",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       if (!args[0]) {
         server.sendChatText(client, `Correct usage: /slay {name|playerId}`);
         return;
@@ -1113,7 +1130,11 @@ export const commands: Array<Command> = [
   {
     name: "savecharacters",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       if (!server.enableWorldSaves) {
         server.sendChatText(client, "Server saving is disabled.");
         return;
@@ -1126,7 +1147,11 @@ export const commands: Array<Command> = [
   {
     name: "savevehicles",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       if (!server.enableWorldSaves) {
         server.sendChatText(client, "Server saving is disabled.");
         return;
@@ -1139,7 +1164,11 @@ export const commands: Array<Command> = [
   {
     name: "save",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       if (!server.enableWorldSaves) {
         server.sendChatText(client, "Server saving is disabled.");
         return;
@@ -1152,7 +1181,11 @@ export const commands: Array<Command> = [
   {
     name: "silentban",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       if (!args[0] || !args[1]) {
         server.sendChatText(
           client,
@@ -1207,7 +1240,11 @@ export const commands: Array<Command> = [
   {
     name: "ban",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       if (!args[0]) {
         server.sendChatText(
           client,
@@ -1299,7 +1336,11 @@ export const commands: Array<Command> = [
   {
     name: "unban",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       if (!args[0]) {
         server.sendChatText(
           client,
@@ -1331,7 +1372,11 @@ export const commands: Array<Command> = [
   {
     name: "listprocesses",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       if (!args[0]) {
         server.sendChatText(
           client,
@@ -1361,7 +1406,11 @@ export const commands: Array<Command> = [
   {
     name: "deletebase",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       if (!args[0]) {
         server.sendChatText(
           client,
@@ -1433,7 +1482,11 @@ export const commands: Array<Command> = [
   {
     name: "build",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       client.character.equipItem(
         server,
         server.generateItem(Items.FANNY_PACK_DEV)
@@ -1445,7 +1498,11 @@ export const commands: Array<Command> = [
   {
     name: "respawnloot",
     permissionLevel: PermissionLevels.ADMIN,
-    execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       for (const characterId in server._spawnedItems) {
         const item = server._spawnedItems[characterId];
         if (item.spawnerId > 0) {

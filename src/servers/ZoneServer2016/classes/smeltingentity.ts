@@ -89,7 +89,7 @@ export class smeltingEntity {
   isBurning: boolean = false;
   isSmelting: boolean = false;
   smeltingTime: number = 60000;
-  dictionary: {[characterId: string]: BaseEntity};
+  dictionary: { [characterId: string]: BaseEntity };
   constructor(
     parentObject: LootableConstructionEntity,
     server: ZoneServer2016

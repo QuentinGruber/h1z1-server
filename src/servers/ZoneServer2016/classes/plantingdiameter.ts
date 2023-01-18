@@ -15,19 +15,19 @@ import { TemporaryEntity } from "./temporaryentity";
 import { ZoneServer2016 } from "../zoneserver";
 
 export class PlantingDiameter extends TemporaryEntity {
-    seedSlots: { [id: string]: string; } = {}
-    disappearTimestamp: number = new Date().getTime() + 86400000 // + 1 day
-    isFertilized: boolean = false;
-    fertilizedTimestamp: number = 0
-    constructor(
-        characterId: string,
-        transientId: number,
-        actorModelId: number,
-        position: Float32Array,
-        rotation: Float32Array,
-        server: ZoneServer2016
-    ) {
-        super(characterId, transientId, actorModelId, position, rotation, server);
-        this.npcRenderDistance = 30;
-    }
+  seedSlots: { [id: string]: string } = {};
+  disappearTimestamp: number = new Date().getTime() + 86400000; // + 1 day
+  isFertilized: boolean = false;
+  fertilizedTimestamp: number = 0;
+  constructor(
+    characterId: string,
+    transientId: number,
+    actorModelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    server: ZoneServer2016
+  ) {
+    super(characterId, transientId, actorModelId, position, rotation, server);
+    this.npcRenderDistance = 30;
+  }
 }

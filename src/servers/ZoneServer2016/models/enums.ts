@@ -207,7 +207,7 @@ export enum EntityTypes {
   LOOTABLE_PROP,
   WORLD_LOOTABLE_CONSTRUCTION,
   WORLD_CONSTRUCTION_SIMPLE,
-  PLANT
+  PLANT,
 }
 
 export enum ResourceIds {

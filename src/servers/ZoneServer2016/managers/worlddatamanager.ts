@@ -73,7 +73,9 @@ function constructLoadout(
   });
 }
 
-function constructContainer(container: LoadoutContainerSaveData): LoadoutContainer {
+function constructContainer(
+  container: LoadoutContainerSaveData
+): LoadoutContainer {
   const loadoutContainer = new LoadoutContainer(
     new LoadoutItem(
       new BaseItem(
@@ -148,7 +150,7 @@ export class WorldDataManager {
   }
 
   async insertWorld(server: ZoneServer2016) {
-    if(server._soloMode) return;
+    if (server._soloMode) return;
     if (!server._worldId) {
       const worldCount: number =
         (await server._db?.collection("worlds").countDocuments()) || 0;
@@ -327,7 +329,7 @@ export class WorldDataManager {
       _loadout: loadout,
       _containers: containers,
       _resources: entity._resources,
-      worldSaveVersion: server.worldSaveVersion
+      worldSaveVersion: server.worldSaveVersion,
     };
   }
 
@@ -335,7 +337,9 @@ export class WorldDataManager {
 
   //#region SERVER DATA
 
-  async getServerData(server: ZoneServer2016): Promise<ServerSaveData | undefined> {
+  async getServerData(
+    server: ZoneServer2016
+  ): Promise<ServerSaveData | undefined> {
     if (!server.enableWorldSaves) return;
     let serverData: ServerSaveData;
     if (server._soloMode) {
@@ -357,7 +361,7 @@ export class WorldDataManager {
   private async loadServerData(server: ZoneServer2016) {
     if (!server.enableWorldSaves) return;
     const serverData = await this.getServerData(server);
-    if(!serverData) return;
+    if (!serverData) return;
 
     server.lastItemGuid = BigInt(
       serverData.lastItemGuid || server.lastItemGuid
@@ -607,7 +611,7 @@ export class WorldDataManager {
         characterId: vehicle.characterId,
         actorModelId: vehicle.actorModelId,
         vehicleId: vehicle.vehicleId,
-        worldSaveVersion: server.worldSaveVersion
+        worldSaveVersion: server.worldSaveVersion,
       };
     });
     if (server._soloMode) {
@@ -618,17 +622,20 @@ export class WorldDataManager {
     } else {
       const collection = server._db?.collection("vehicles");
       collection?.deleteMany({ serverId: server._worldId }); // clear vehicles
-      if(vehicles.length) collection?.insertMany(vehicles);
+      if (vehicles.length) collection?.insertMany(vehicles);
     }
   }
   //#endregion
 
   //#region CONSTRUCTION DATA
 
-  loadConstructionDoorEntity(server: ZoneServer2016, entityData: ConstructionDoorSaveData): ConstructionDoor {
+  loadConstructionDoorEntity(
+    server: ZoneServer2016,
+    entityData: ConstructionDoorSaveData
+  ): ConstructionDoor {
     const transientId = server.getTransientId(entityData.characterId),
       entity = new ConstructionDoor(
-        entityData.characterId, 
+        entityData.characterId,
         transientId,
         entityData.actorModelId,
         new Float32Array(entityData.position),
@@ -638,8 +645,8 @@ export class WorldDataManager {
         entityData.ownerCharacterId,
         entityData.parentObjectCharacterId,
         entityData.slot
-      )
-    
+      );
+
     entity.passwordHash = entityData.passwordHash;
     entity.grantedAccess = entityData.grantedAccess;
     entity.placementTime = entityData.placementTime;
@@ -649,10 +656,13 @@ export class WorldDataManager {
     return entity;
   }
 
-  loadLootableConstructionEntity(server: ZoneServer2016, entityData: LootableConstructionSaveData): LootableConstructionEntity {
+  loadLootableConstructionEntity(
+    server: ZoneServer2016,
+    entityData: LootableConstructionSaveData
+  ): LootableConstructionEntity {
     const transientId = server.getTransientId(entityData.characterId),
       entity = new LootableConstructionEntity(
-        entityData.characterId, 
+        entityData.characterId,
         transientId,
         entityData.actorModelId,
         new Float32Array(entityData.position),
@@ -661,11 +671,11 @@ export class WorldDataManager {
         entityData.itemDefinitionId,
         entityData.parentObjectCharacterId,
         false // TEMPORARY UNTIL FURNACES GET SAVED CORRECTLY
-      )
-    
+      );
+
     entity.placementTime = entityData.placementTime;
 
-    if(entityData.container) {
+    if (entityData.container) {
       const container = constructContainer(entityData.container);
       entity._loadout["31"] = container;
       entity._containers["31"] = container;
@@ -676,13 +686,16 @@ export class WorldDataManager {
     return entity;
   }
 
-  loadConstructionChildSlots(server: ZoneServer2016, parent: ConstructionChildEntity, entityData: ConstructionChildSaveData) {
+  loadConstructionChildSlots(
+    server: ZoneServer2016,
+    parent: ConstructionChildEntity,
+    entityData: ConstructionChildSaveData
+  ) {
     Object.values(entityData.occupiedWallSlots).forEach((wallData) => {
       let wall: ConstructionChildEntity | ConstructionDoor;
-      if("occupiedWallSlots" in wallData) {
+      if ("occupiedWallSlots" in wallData) {
         wall = this.loadConstructionChildEntity(server, wallData);
-      }
-      else {
+      } else {
         wall = this.loadConstructionDoorEntity(server, wallData);
       }
       parent.setWallSlot(server, wall);
@@ -696,24 +709,28 @@ export class WorldDataManager {
       parent.setShelterSlot(server, shelter);
     });
     Object.values(entityData.freeplaceEntities).forEach((freeplaceData) => {
-      let freeplace: ConstructionChildEntity | ConstructionDoor | LootableConstructionEntity;
-      if("occupiedWallSlots" in freeplaceData) {
+      let freeplace:
+        | ConstructionChildEntity
+        | ConstructionDoor
+        | LootableConstructionEntity;
+      if ("occupiedWallSlots" in freeplaceData) {
         freeplace = this.loadConstructionChildEntity(server, freeplaceData);
-      }
-      else if("passwordHash" in freeplaceData) {
+      } else if ("passwordHash" in freeplaceData) {
         freeplace = this.loadConstructionDoorEntity(server, freeplaceData);
-      }
-      else {
+      } else {
         freeplace = this.loadLootableConstructionEntity(server, freeplaceData);
       }
       parent.addFreeplaceConstruction(freeplace);
     });
   }
 
-  loadConstructionChildEntity(server: ZoneServer2016, entityData: ConstructionChildSaveData) {
+  loadConstructionChildEntity(
+    server: ZoneServer2016,
+    entityData: ConstructionChildSaveData
+  ) {
     const transientId = server.getTransientId(entityData.characterId),
       entity = new ConstructionChildEntity(
-        entityData.characterId, 
+        entityData.characterId,
         transientId,
         entityData.actorModelId,
         new Float32Array(entityData.position),
@@ -723,9 +740,9 @@ export class WorldDataManager {
         entityData.parentObjectCharacterId,
         entityData.slot,
         entityData.eulerAngle
-      )
-      entity.health = entityData.health;
-      entity.placementTime = entityData.placementTime;
+      );
+    entity.health = entityData.health;
+    entity.placementTime = entityData.placementTime;
     server._constructionSimple[entity.characterId] = entity;
 
     this.loadConstructionChildSlots(server, entity, entityData);
@@ -733,10 +750,13 @@ export class WorldDataManager {
     return entity;
   }
 
-  loadConstructionParentEntity(server: ZoneServer2016, entityData: ConstructionParentSaveData): ConstructionParentEntity {
+  loadConstructionParentEntity(
+    server: ZoneServer2016,
+    entityData: ConstructionParentSaveData
+  ): ConstructionParentEntity {
     const transientId = server.getTransientId(entityData.characterId),
       foundation = new ConstructionParentEntity(
-        entityData.characterId, 
+        entityData.characterId,
         transientId,
         entityData.actorModelId,
         new Float32Array(entityData.position),
@@ -748,18 +768,23 @@ export class WorldDataManager {
         entityData.parentObjectCharacterId,
         entityData.slot,
         entityData.eulerAngle
-      )
-      foundation.health = entityData.health;
-      foundation.placementTime = entityData.placementTime;
-      foundation.permissions = entityData.permissions;
+      );
+    foundation.health = entityData.health;
+    foundation.placementTime = entityData.placementTime;
+    foundation.permissions = entityData.permissions;
     server._constructionFoundations[foundation.characterId] = foundation;
 
     this.loadConstructionChildSlots(server, foundation, entityData);
 
-    Object.values(entityData.occupiedExpansionSlots).forEach((expansionData) => {
-      const expansion = this.loadConstructionParentEntity(server, expansionData);
-      foundation.setExpansionSlot(expansion);
-    });
+    Object.values(entityData.occupiedExpansionSlots).forEach(
+      (expansionData) => {
+        const expansion = this.loadConstructionParentEntity(
+          server,
+          expansionData
+        );
+        foundation.setExpansionSlot(expansion);
+      }
+    );
 
     Object.values(entityData.occupiedRampSlots).forEach((rampData) => {
       const ramp = this.loadConstructionChildEntity(server, rampData);
@@ -770,7 +795,7 @@ export class WorldDataManager {
   }
 
   async loadConstructionData(server: ZoneServer2016) {
-    console.log("LOADCONSTRUCTIONDATA")
+    console.log("LOADCONSTRUCTIONDATA");
     if (!server.enableWorldSaves) return;
     let constructionParents: Array<ConstructionParentSaveData> = [];
     if (server._soloMode) {
@@ -787,112 +812,143 @@ export class WorldDataManager {
           .toArray()
       );
     }
-    console.log(constructionParents)
-    constructionParents.forEach((parent)=> {
+    console.log(constructionParents);
+    constructionParents.forEach((parent) => {
       this.loadConstructionParentEntity(server, parent);
     });
   }
 
-  getBaseConstructionSaveData(server: ZoneServer2016, entity: ConstructionEntity): BaseConstructionSaveData {
+  getBaseConstructionSaveData(
+    server: ZoneServer2016,
+    entity: ConstructionEntity
+  ): BaseConstructionSaveData {
     return {
       ...this.getBaseFullEntitySaveData(server, entity),
       health: entity.health,
       placementTime: entity.placementTime,
       parentObjectCharacterId: entity.parentObjectCharacterId,
       itemDefinitionId: entity.itemDefinitionId,
-      slot: entity instanceof LootableConstructionEntity ? "" : entity.slot
-    }
+      slot: entity instanceof LootableConstructionEntity ? "" : entity.slot,
+    };
   }
 
-  getConstructionDoorSaveData(server: ZoneServer2016, entity: ConstructionDoor): ConstructionDoorSaveData {
+  getConstructionDoorSaveData(
+    server: ZoneServer2016,
+    entity: ConstructionDoor
+  ): ConstructionDoorSaveData {
     return {
       ...this.getBaseConstructionSaveData(server, entity),
       ownerCharacterId: entity.ownerCharacterId,
       passwordHash: entity.passwordHash,
       grantedAccess: entity.grantedAccess,
-      rotation: Array.from(entity.startRot) // override quaternion rotation
-    }
+      rotation: Array.from(entity.startRot), // override quaternion rotation
+    };
   }
 
-  getLootableConstructionSaveData(server: ZoneServer2016, entity: LootableConstructionEntity): LootableConstructionSaveData {
+  getLootableConstructionSaveData(
+    server: ZoneServer2016,
+    entity: LootableConstructionEntity
+  ): LootableConstructionSaveData {
     return {
       ...this.getBaseConstructionSaveData(server, entity),
-      container: entity.getContainer()
-    }
+      container: entity.getContainer(),
+    };
   }
 
-  getConstructionChildSaveData(server: ZoneServer2016, entity: ConstructionChildEntity): ConstructionChildSaveData {
-    const wallSlots: { [slot: number]: ConstructionChildSaveData | ConstructionDoorSaveData } = {},
-    upperWallSlots: { [slot: number]: ConstructionChildSaveData } = {},
-    shelterSlots: { [slot: number]: ConstructionChildSaveData } = {},
-    freePlaceEntities: {
-      [characterId: string]:
-        | ConstructionChildSaveData
-        | ConstructionDoorSaveData
-        | LootableConstructionSaveData;
-    } = {};
-    Object.values(entity.occupiedWallSlots).forEach((wall)=> {
-      if(wall instanceof ConstructionDoor) {
-        wallSlots[wall.getSlotNumber()] = this.getConstructionDoorSaveData(server, wall);
+  getConstructionChildSaveData(
+    server: ZoneServer2016,
+    entity: ConstructionChildEntity
+  ): ConstructionChildSaveData {
+    const wallSlots: {
+        [slot: number]: ConstructionChildSaveData | ConstructionDoorSaveData;
+      } = {},
+      upperWallSlots: { [slot: number]: ConstructionChildSaveData } = {},
+      shelterSlots: { [slot: number]: ConstructionChildSaveData } = {},
+      freePlaceEntities: {
+        [characterId: string]:
+          | ConstructionChildSaveData
+          | ConstructionDoorSaveData
+          | LootableConstructionSaveData;
+      } = {};
+    Object.values(entity.occupiedWallSlots).forEach((wall) => {
+      if (wall instanceof ConstructionDoor) {
+        wallSlots[wall.getSlotNumber()] = this.getConstructionDoorSaveData(
+          server,
+          wall
+        );
+      } else {
+        wallSlots[wall.getSlotNumber()] = this.getConstructionChildSaveData(
+          server,
+          wall
+        );
       }
-      else {
-        wallSlots[wall.getSlotNumber()] = this.getConstructionChildSaveData(server, wall);
+    });
+    Object.values(entity.occupiedUpperWallSlots).forEach((wall) => {
+      upperWallSlots[wall.getSlotNumber()] = this.getConstructionChildSaveData(
+        server,
+        wall
+      );
+    });
+    Object.values(entity.occupiedShelterSlots).forEach((shelter) => {
+      shelterSlots[shelter.getSlotNumber()] = this.getConstructionChildSaveData(
+        server,
+        shelter
+      );
+    });
+    Object.values(entity.freeplaceEntities).forEach((entity) => {
+      if (entity instanceof ConstructionDoor) {
+        freePlaceEntities[entity.characterId] =
+          this.getConstructionDoorSaveData(server, entity);
+      } else if (entity instanceof LootableConstructionEntity) {
+        freePlaceEntities[entity.characterId] =
+          this.getLootableConstructionSaveData(server, entity);
+      } else {
+        freePlaceEntities[entity.characterId] =
+          this.getConstructionChildSaveData(server, entity);
       }
-    })
-    Object.values(entity.occupiedUpperWallSlots).forEach((wall)=> {
-      upperWallSlots[wall.getSlotNumber()] = this.getConstructionChildSaveData(server, wall);
-    })
-    Object.values(entity.occupiedShelterSlots).forEach((shelter)=> {
-      shelterSlots[shelter.getSlotNumber()] = this.getConstructionChildSaveData(server, shelter);
-    })
-    Object.values(entity.freeplaceEntities).forEach((entity)=> {
-      if(entity instanceof ConstructionDoor) {
-        freePlaceEntities[entity.characterId] = this.getConstructionDoorSaveData(server, entity);
-      }
-      else if(entity instanceof LootableConstructionEntity) {
-        freePlaceEntities[entity.characterId] = this.getLootableConstructionSaveData(server, entity);
-      }
-      else {
-        freePlaceEntities[entity.characterId] = this.getConstructionChildSaveData(server, entity);
-      }
-    })
-    
+    });
+
     return {
       ...this.getBaseConstructionSaveData(server, entity),
       eulerAngle: entity.eulerAngle,
-        occupiedWallSlots: wallSlots,
-        occupiedUpperWallSlots: upperWallSlots,
-        occupiedShelterSlots: shelterSlots,
-        freeplaceEntities: freePlaceEntities,
-    }
+      occupiedWallSlots: wallSlots,
+      occupiedUpperWallSlots: upperWallSlots,
+      occupiedShelterSlots: shelterSlots,
+      freeplaceEntities: freePlaceEntities,
+    };
   }
 
-  getConstructionParentSaveData(server: ZoneServer2016, entity: ConstructionParentEntity): ConstructionParentSaveData {
+  getConstructionParentSaveData(
+    server: ZoneServer2016,
+    entity: ConstructionParentEntity
+  ): ConstructionParentSaveData {
     const expansionSlots: { [slot: number]: ConstructionParentSaveData } = {},
-    rampSlots: { [slot: number]: ConstructionChildSaveData } = {};
-    Object.values(entity.occupiedExpansionSlots).forEach((expansion)=> {
-      expansionSlots[expansion.getSlotNumber()] = this.getConstructionParentSaveData(server, expansion);
-    })
-    Object.values(entity.occupiedRampSlots).forEach((ramp)=> {
-      rampSlots[ramp.getSlotNumber()] = this.getConstructionChildSaveData(server, ramp);
-    })
+      rampSlots: { [slot: number]: ConstructionChildSaveData } = {};
+    Object.values(entity.occupiedExpansionSlots).forEach((expansion) => {
+      expansionSlots[expansion.getSlotNumber()] =
+        this.getConstructionParentSaveData(server, expansion);
+    });
+    Object.values(entity.occupiedRampSlots).forEach((ramp) => {
+      rampSlots[ramp.getSlotNumber()] = this.getConstructionChildSaveData(
+        server,
+        ramp
+      );
+    });
     return {
       ...this.getConstructionChildSaveData(server, entity),
       permissions: entity.permissions,
       ownerCharacterId: entity.ownerCharacterId,
       occupiedExpansionSlots: expansionSlots,
       occupiedRampSlots: rampSlots,
-    }
+    };
   }
 
   async saveConstructionData(server: ZoneServer2016) {
     if (!server.enableWorldSaves) return;
     const construction: Array<ConstructionParentSaveData> = [];
-    
-    Object.values(
-      server._constructionFoundations
-    ).forEach((entity) => {
-      if(entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
+
+    Object.values(server._constructionFoundations).forEach((entity) => {
+      if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
         construction.push(this.getConstructionParentSaveData(server, entity));
       }
     });
@@ -904,7 +960,7 @@ export class WorldDataManager {
     } else {
       const collection = server._db?.collection("construction");
       collection?.deleteMany({ serverId: server._worldId });
-      if(construction.length) collection?.insertMany(construction);
+      if (construction.length) collection?.insertMany(construction);
     }
   }
 

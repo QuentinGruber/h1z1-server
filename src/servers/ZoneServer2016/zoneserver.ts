@@ -166,7 +166,9 @@ export class ZoneServer2016 extends EventEmitter {
   _doors: { [characterId: string]: DoorEntity } = {};
   _explosives: { [characterId: string]: ExplosiveEntity } = {};
   _traps: { [characterId: string]: TrapEntity } = {};
-  _temporaryObjects: { [characterId: string]: TemporaryEntity | PlantingDiameter } = {};
+  _temporaryObjects: {
+    [characterId: string]: TemporaryEntity | PlantingDiameter;
+  } = {};
   _vehicles: { [characterId: string]: Vehicle } = {};
   _lootbags: { [characterId: string]: Lootbag } = {};
   _lootableConstruction: { [characterId: string]: LootableConstructionEntity } =
@@ -594,23 +596,20 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         const container = construction.getContainer();
-        if(container) {
-          Object.values(container.items).forEach(
-            (item: BaseItem) => {
-              const proximityItem = {
-                itemDefinitionId: item.itemDefinitionId,
-                associatedCharacterGuid: character.characterId,
-                itemData: construction.pGetItemData(
-                  this,
-                  item,
-                  container.containerDefinitionId
-                ),
-              };
-              (proximityItems.items as any[]).push(proximityItem);
-            }
-          );
+        if (container) {
+          Object.values(container.items).forEach((item: BaseItem) => {
+            const proximityItem = {
+              itemDefinitionId: item.itemDefinitionId,
+              associatedCharacterGuid: character.characterId,
+              itemData: construction.pGetItemData(
+                this,
+                item,
+                container.containerDefinitionId
+              ),
+            };
+            (proximityItems.items as any[]).push(proximityItem);
+          });
         }
-        
       }
     }
     for (const a in this._worldLootableConstruction) {
@@ -624,21 +623,19 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         const container = construction.getContainer();
-        if(container) {
-          Object.values(container.items).forEach(
-            (item: BaseItem) => {
-              const proximityItem = {
-                itemDefinitionId: item.itemDefinitionId,
-                associatedCharacterGuid: character.characterId,
-                itemData: construction.pGetItemData(
-                  this,
-                  item,
-                  container.containerDefinitionId
-                ),
-              };
-              (proximityItems.items as any[]).push(proximityItem);
-            }
-          );
+        if (container) {
+          Object.values(container.items).forEach((item: BaseItem) => {
+            const proximityItem = {
+              itemDefinitionId: item.itemDefinitionId,
+              associatedCharacterGuid: character.characterId,
+              itemData: construction.pGetItemData(
+                this,
+                item,
+                container.containerDefinitionId
+              ),
+            };
+            (proximityItems.items as any[]).push(proximityItem);
+          });
         }
       }
     }
@@ -685,33 +682,39 @@ export class ZoneServer2016 extends EventEmitter {
 
     await this.worldDataManager.loadCharacterData(this, client);
     // to help identify broken character saves
-      Object.values(client.character._loadout).forEach((item: LoadoutItem) => {
+    Object.values(client.character._loadout).forEach((item: LoadoutItem) => {
+      if (item.stackCount < 1) {
+        debug("\n\n\n");
+        debug(`Deprecated character loadout detected ${client.character.name}`);
+        debug(item);
+        debug("\n\n\n");
+        item.stackCount;
+      }
+    });
+    Object.values(client.character._containers).forEach(
+      (container: LoadoutContainer) => {
+        if (container.stackCount < 1) {
+          debug("\n\n\n");
+          debug(
+            `Deprecated character containers detected ${client.character.name}`
+          );
+          debug(container);
+          debug("\n\n\n");
+          container.stackCount = 1;
+        }
+        Object.values(container.items).forEach((item: BaseItem) => {
           if (item.stackCount < 1) {
-              debug("\n\n\n");
-              debug(`Deprecated character loadout detected ${client.character.name}`);
-              debug(item);
-              debug("\n\n\n");
-              item.stackCount
+            debug("\n\n\n");
+            debug(
+              `Deprecated character items detected ${client.character.name}`
+            );
+            debug(item);
+            item.stackCount = 1;
+            debug("\n\n\n");
           }
-      })
-      Object.values(client.character._containers).forEach((container: LoadoutContainer) => {
-          if (container.stackCount < 1) {
-              debug("\n\n\n");
-              debug(`Deprecated character containers detected ${client.character.name}`);
-              debug(container);
-              debug("\n\n\n");
-              container.stackCount = 1
-          }
-          Object.values(container.items).forEach((item: BaseItem) => {
-              if (item.stackCount < 1) {
-                  debug("\n\n\n");
-                  debug(`Deprecated character items detected ${client.character.name}`);
-                  debug(item);
-                  item.stackCount = 1;
-                  debug("\n\n\n");
-              }
-          })
-      })
+        });
+      }
+    );
     this.sendData(client, "SendSelfToClient", {
       data: client.character.pGetSendSelf(this, client.guid),
     });
@@ -869,7 +872,9 @@ export class ZoneServer2016 extends EventEmitter {
     const loadedWorld = await this.worldDataManager.getServerData(this);
     if (loadedWorld) {
       if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
-        console.log(`World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`);
+        console.log(
+          `World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`
+        );
         await this.worldDataManager.deleteWorld(this);
         await this.worldDataManager.insertWorld(this);
         await this.worldDataManager.saveWorld(this);
@@ -907,9 +912,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
-      setTimeout(() => {
-          this.divideLargeCells(800) // divide all cells that have more than 800 objects         
-      },10000)
+    setTimeout(() => {
+      this.divideLargeCells(800); // divide all cells that have more than 800 objects
+    }, 10000);
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
@@ -1063,52 +1068,52 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   divideLargeCells(threshold: number) {
-    const grid = this._grid
+    const grid = this._grid;
     for (let i = 0; i < grid.length; i++) {
-        const gridCell: GridCell = grid[i];
-        if (gridCell.objects.length > threshold) {
-            const newGridCellWidth = gridCell.width / 2;
-            const newGridCellHeight = gridCell.height / 2;
-            // 4 cells made of 1
-            const newGridCell1 = new GridCell(
-                gridCell.position[0],
-                gridCell.position[2],
-                newGridCellWidth,
-                newGridCellHeight
-            );
-            const newGridCell2 = new GridCell(
-                gridCell.position[0] + newGridCellWidth,
-                gridCell.position[2],
-                newGridCellWidth,
-                newGridCellHeight
-            );
-            const newGridCell3 = new GridCell(
-                gridCell.position[0],
-                gridCell.position[2] + newGridCellHeight,
-                newGridCellWidth,
-                newGridCellHeight
-            );
-            const newGridCell4 = new GridCell(
-                gridCell.position[0] + newGridCellWidth,
-                gridCell.position[2] + newGridCellHeight,
-                newGridCellWidth,
-                newGridCellHeight
-            );
-            // remove old grid cell
-            const objects = this._grid[i].objects
-            this._grid.splice(i, 1);
-            i--;
+      const gridCell: GridCell = grid[i];
+      if (gridCell.objects.length > threshold) {
+        const newGridCellWidth = gridCell.width / 2;
+        const newGridCellHeight = gridCell.height / 2;
+        // 4 cells made of 1
+        const newGridCell1 = new GridCell(
+          gridCell.position[0],
+          gridCell.position[2],
+          newGridCellWidth,
+          newGridCellHeight
+        );
+        const newGridCell2 = new GridCell(
+          gridCell.position[0] + newGridCellWidth,
+          gridCell.position[2],
+          newGridCellWidth,
+          newGridCellHeight
+        );
+        const newGridCell3 = new GridCell(
+          gridCell.position[0],
+          gridCell.position[2] + newGridCellHeight,
+          newGridCellWidth,
+          newGridCellHeight
+        );
+        const newGridCell4 = new GridCell(
+          gridCell.position[0] + newGridCellWidth,
+          gridCell.position[2] + newGridCellHeight,
+          newGridCellWidth,
+          newGridCellHeight
+        );
+        // remove old grid cell
+        const objects = this._grid[i].objects;
+        this._grid.splice(i, 1);
+        i--;
 
-            this._grid.push(newGridCell1);
-            this._grid.push(newGridCell2);
-            this._grid.push(newGridCell3);
-            this._grid.push(newGridCell4);
-            objects.forEach((object: BaseEntity) => {
-                this.pushToGridCell(object)
-            })
-        }
+        this._grid.push(newGridCell1);
+        this._grid.push(newGridCell2);
+        this._grid.push(newGridCell3);
+        this._grid.push(newGridCell4);
+        objects.forEach((object: BaseEntity) => {
+          this.pushToGridCell(object);
+        });
+      }
     }
-}
+  }
 
   pushToGridCell(obj: BaseEntity) {
     if (this._grid.length == 0)
@@ -1139,32 +1144,34 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-    assignChunkRenderDistances() {
-        for (const a in this._clients) {
-            let lowerRenderDistance = false
-            const character = this._clients[a].character
-            for (let i = 0; i < this._grid.length; i++) {
-                const gridCell: GridCell = this._grid[i];
+  assignChunkRenderDistances() {
+    for (const a in this._clients) {
+      let lowerRenderDistance = false;
+      const character = this._clients[a].character;
+      for (let i = 0; i < this._grid.length; i++) {
+        const gridCell: GridCell = this._grid[i];
 
-                if (
-                    character.state.position[0] >= gridCell.position[0] &&
-                    character.state.position[0] <= gridCell.position[0] + gridCell.width &&
-                    character.state.position[2] >= gridCell.position[2] &&
-                    character.state.position[2] <= gridCell.position[2] + gridCell.height &&
-                    gridCell.height < 250
-                ) {
-                    lowerRenderDistance = true
-                }
-            }
-            this._clients[a].chunkRenderDistance = lowerRenderDistance ? 200 : 400
+        if (
+          character.state.position[0] >= gridCell.position[0] &&
+          character.state.position[0] <=
+            gridCell.position[0] + gridCell.width &&
+          character.state.position[2] >= gridCell.position[2] &&
+          character.state.position[2] <=
+            gridCell.position[2] + gridCell.height &&
+          gridCell.height < 250
+        ) {
+          lowerRenderDistance = true;
         }
+      }
+      this._clients[a].chunkRenderDistance = lowerRenderDistance ? 200 : 400;
     }
+  }
 
   private worldRoutine() {
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
     else {
       if (this._ready) {
-        this.assignChunkRenderDistances()
+        this.assignChunkRenderDistances();
         this.npcDespawner();
         this.lootbagDespawner();
         this.itemDespawner();
@@ -1610,10 +1617,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   createProjectileNpc(client: Client, data: any) {
     const iD = client.character.getEquippedWeapon().itemDefinitionId;
-      if (iD == Items.WEAPON_BOW_MAKESHIFT ||
-          iD == Items.WEAPON_BOW_RECURVE ||
-          iD == Items.WEAPON_CROSSBOW
-      ) {
+    if (
+      iD == Items.WEAPON_BOW_MAKESHIFT ||
+      iD == Items.WEAPON_BOW_RECURVE ||
+      iD == Items.WEAPON_CROSSBOW
+    ) {
       this.worldObjectManager.createLootEntity(
         this,
         this.generateItem(Items.AMMO_ARROW),
@@ -2576,7 +2584,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (tpUp) {
       this.sendChatText(client, "Construction: Stuck under foundation");
       const foundationY = foundation.state.position[1],
-      yOffset = foundation.itemDefinitionId == Items.FOUNDATION ? 2.2 : 0.1;
+        yOffset = foundation.itemDefinitionId == Items.FOUNDATION ? 2.2 : 0.1;
       this.sendData(client, "ClientUpdate.UpdateLocation", {
         position: [
           client.character.state.position[0],
@@ -2670,19 +2678,22 @@ export class ZoneServer2016 extends EventEmitter {
   private plantManager() {
     const date = new Date().getTime();
     for (const characterId in this._temporaryObjects) {
-        const object = this._temporaryObjects[characterId] as PlantingDiameter
-        if (object instanceof PlantingDiameter) {
-            if (object.disappearTimestamp < date && Object.values(object.seedSlots).length === 0) {
-                this.deleteEntity(object.characterId, this._temporaryObjects)
-            } else if (object.disappearTimestamp < date) object.disappearTimestamp = date + 86400000;
-            if (object.fertilizedTimestamp < date) object.isFertilized = false;
-            Object.values(object.seedSlots).forEach((slot: string) => {
-                const plant = this._plants[slot] as Plant
-                if (!plant) return
-                if (plant.nextStateTime < date) plant.grow(this)
-            })
-        }
-      
+      const object = this._temporaryObjects[characterId] as PlantingDiameter;
+      if (object instanceof PlantingDiameter) {
+        if (
+          object.disappearTimestamp < date &&
+          Object.values(object.seedSlots).length === 0
+        ) {
+          this.deleteEntity(object.characterId, this._temporaryObjects);
+        } else if (object.disappearTimestamp < date)
+          object.disappearTimestamp = date + 86400000;
+        if (object.fertilizedTimestamp < date) object.isFertilized = false;
+        Object.values(object.seedSlots).forEach((slot: string) => {
+          const plant = this._plants[slot] as Plant;
+          if (!plant) return;
+          if (plant.nextStateTime < date) plant.grow(this);
+        });
+      }
     }
   }
 
@@ -3018,70 +3029,70 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-    private spawnGridObjects(client: Client) {
-        const position = client.character.state.position;
-        for (const gridCell of this._grid) {
-            if (
-                !isPosInRadius(client.chunkRenderDistance, gridCell.position, position)
-            )
-                continue;
-            for (const object of gridCell.objects) {
-                if (
-                    !isPosInRadius(
-                        (object.npcRenderDistance as number) ||
-                        this._charactersRenderDistance,
-                        position,
-                        object.state.position
-                    )
-                )
-                    continue;
-                if (object instanceof ConstructionParentEntity) {
-                    this.spawnConstructionParent(client, object);
-                }
-                if (!client.spawnedEntities.includes(object)) {
-                    if (
-                        object instanceof TrapEntity ||
-                        object instanceof TemporaryEntity
-                    ) {
-                        this.addSimpleNpc(client, object);
-                    } else if (object instanceof BaseLightweightCharacter) {
-                        this.addLightweightNpc(client, object);
-                    }
-
-                    // send other required packets if neccesary
-                    if (
-                        typeof object.OnInteractionString !== "undefined" &&
-                        object instanceof BaseLightweightCharacter
-                    ) {
-                        this.sendData(client, "Replication.InteractionComponent", {
-                            transientId: object.transientId,
-                        });
-                        this.sendData(client, "Replication.NpcComponent", {
-                            transientId: object.transientId,
-                            nameId: object.nameId,
-                        });
-                    }
-                    if (
-                        object instanceof DoorEntity ||
-                        object instanceof ConstructionDoor
-                    ) {
-                        if (object.isOpen) {
-                            this.sendData(client, "PlayerUpdatePosition", {
-                                transientId: object.transientId,
-                                positionUpdate: {
-                                    sequenceTime: 0,
-                                    unknown3_int8: 0,
-                                    position: object.state.position,
-                                    orientation: object.openAngle,
-                                },
-                            });
-                        }
-                    }
-                    client.spawnedEntities.push(object);
-                }
-            }
+  private spawnGridObjects(client: Client) {
+    const position = client.character.state.position;
+    for (const gridCell of this._grid) {
+      if (
+        !isPosInRadius(client.chunkRenderDistance, gridCell.position, position)
+      )
+        continue;
+      for (const object of gridCell.objects) {
+        if (
+          !isPosInRadius(
+            (object.npcRenderDistance as number) ||
+              this._charactersRenderDistance,
+            position,
+            object.state.position
+          )
+        )
+          continue;
+        if (object instanceof ConstructionParentEntity) {
+          this.spawnConstructionParent(client, object);
         }
+        if (!client.spawnedEntities.includes(object)) {
+          if (
+            object instanceof TrapEntity ||
+            object instanceof TemporaryEntity
+          ) {
+            this.addSimpleNpc(client, object);
+          } else if (object instanceof BaseLightweightCharacter) {
+            this.addLightweightNpc(client, object);
+          }
+
+          // send other required packets if neccesary
+          if (
+            typeof object.OnInteractionString !== "undefined" &&
+            object instanceof BaseLightweightCharacter
+          ) {
+            this.sendData(client, "Replication.InteractionComponent", {
+              transientId: object.transientId,
+            });
+            this.sendData(client, "Replication.NpcComponent", {
+              transientId: object.transientId,
+              nameId: object.nameId,
+            });
+          }
+          if (
+            object instanceof DoorEntity ||
+            object instanceof ConstructionDoor
+          ) {
+            if (object.isOpen) {
+              this.sendData(client, "PlayerUpdatePosition", {
+                transientId: object.transientId,
+                positionUpdate: {
+                  sequenceTime: 0,
+                  unknown3_int8: 0,
+                  position: object.state.position,
+                  orientation: object.openAngle,
+                },
+              });
+            }
+          }
+          client.spawnedEntities.push(object);
+        }
+      }
     }
+  }
 
   private spawnDoors(client: Client) {
     for (const characterId in this._doors) {
@@ -3838,26 +3849,29 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
     // block building in cities
-    const allowedPoiPlacement = [Items.LANDMINE, Items.IED, Items.PUNJI_STICKS, Items.SNARE]
+    const allowedPoiPlacement = [
+      Items.LANDMINE,
+      Items.IED,
+      Items.PUNJI_STICKS,
+      Items.SNARE,
+    ];
     if (!allowedPoiPlacement.includes(itemDefinitionId)) {
-      let isInPoi = false
+      let isInPoi = false;
       Z1_POIs.forEach((point: any) => {
-          if (
-              isPosInRadius(
-                  point.range,
-                  position,
-                  point.position
-              )
-          ) isInPoi = true
+        if (isPosInRadius(point.range, position, point.position))
+          isInPoi = true;
       });
-        if (isInPoi) {
-            this.sendData(client, "Construction.PlacementFinalizeResponse", {
-                status: 0,
-                unknownString1: "",
-            });
-            this.sendAlert(client, "You may not place this object this close to a town or point of interest.")
-            return;
-        }
+      if (isInPoi) {
+        this.sendData(client, "Construction.PlacementFinalizeResponse", {
+          status: 0,
+          unknownString1: "",
+        });
+        this.sendAlert(
+          client,
+          "You may not place this object this close to a town or point of interest."
+        );
+        return;
+      }
     }
     if (
       !this.handleConstructionPlacement(
@@ -4002,13 +4016,9 @@ export class ZoneServer2016 extends EventEmitter {
           rotation,
           parentObjectCharacterId,
           BuildingSlot
-            );
+        );
       case Items.GROUND_TILLER:
-        return this.placePlantingDiameter(
-          modelId,
-          position,
-          rotation,
-            );
+        return this.placePlantingDiameter(modelId, position, rotation);
       case Items.SEED_WHEAT:
       case Items.SEED_CORN:
         return this.placePlantOnDiameter(
@@ -4018,7 +4028,7 @@ export class ZoneServer2016 extends EventEmitter {
           BuildingSlot,
           parentObjectCharacterId,
           itemDefinitionId
-            );
+        );
       default:
         //this.placementError(client, ConstructionErrors.UNKNOWN_CONSTRUCTION);
 
@@ -4360,7 +4370,7 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    console.log(rotation)
+    console.log(rotation);
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       door = new ConstructionDoor(
@@ -4627,7 +4637,7 @@ export class ZoneServer2016 extends EventEmitter {
   placePlantingDiameter(
     modelId: number,
     position: Float32Array,
-    rotation: Float32Array,
+    rotation: Float32Array
   ): boolean {
     const characterId = this.generateGuid(),
       transientId = 1;
@@ -4639,7 +4649,7 @@ export class ZoneServer2016 extends EventEmitter {
       eul2quat(rotation),
       this
     );
-    this._temporaryObjects[characterId] = obj
+    this._temporaryObjects[characterId] = obj;
 
     return true;
   }
@@ -4651,17 +4661,19 @@ export class ZoneServer2016 extends EventEmitter {
     parentObjectCharacterId: string,
     itemDefinitionId: number
   ): boolean {
-    const item = this.generateItem(itemDefinitionId)
-    if (!item) return false
+    const item = this.generateItem(itemDefinitionId);
+    if (!item) return false;
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId);
-    if (!this._temporaryObjects[parentObjectCharacterId]) return false
-    const parent = this._temporaryObjects[parentObjectCharacterId] as PlantingDiameter
-      if (parent.seedSlots[slot]) {
-          return false
-      }
+    if (!this._temporaryObjects[parentObjectCharacterId]) return false;
+    const parent = this._temporaryObjects[
+      parentObjectCharacterId
+    ] as PlantingDiameter;
+    if (parent.seedSlots[slot]) {
+      return false;
+    }
 
-    parent.seedSlots[slot] = characterId
+    parent.seedSlots[slot] = characterId;
     const obj = new Plant(
       characterId,
       transientId,
@@ -4674,7 +4686,7 @@ export class ZoneServer2016 extends EventEmitter {
       parentObjectCharacterId,
       slot
     );
-    this._plants[characterId] = obj
+    this._plants[characterId] = obj;
     return true;
   }
 
@@ -5530,7 +5542,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!entity || !item) return false;
     if (!count) count = item.stackCount;
     const container = entity.getContainer();
-    if(!container) return false;
+    if (!container) return false;
     if (item.stackCount == count) {
       delete container.items[item.itemGuid];
       if (entity.mountedCharacter) {
@@ -6031,36 +6043,39 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sniffPass(client: Client, item: BaseItem) {
-    if (!this.removeInventoryItem(client, item)) return
+    if (!this.removeInventoryItem(client, item)) return;
     this.applyMovementModifier(client, MovementModifiers.SWIZZLE);
   }
 
   fertilizePlants(client: Client, item: BaseItem) {
-    if (!this.removeInventoryItem(client, item)) return
+    if (!this.removeInventoryItem(client, item)) return;
     for (const characterId in this._temporaryObjects) {
-        const object = this._temporaryObjects[characterId]
-        if (object instanceof PlantingDiameter && isPosInRadius(1, object.state.position, client.character.state.position)) {
-            object.isFertilized = true;
-            object.fertilizedTimestamp = new Date().getTime() + 86400000 // + 1 day
-            Object.values(object.seedSlots).forEach((slot: string) => {
-                const plant = this._plants[slot] as Plant
-                if (plant.isFertilized) return
-                plant.isFertilized = true
-                const roz = (plant.nextStateTime - new Date().getTime()) / 2
-                plant.nextStateTime = new Date().getTime() + roz
-                this.sendDataToAllWithSpawnedEntity(
-                    // play burning effect & remove it after 15s
-                    this._plants,
-                    slot,
-                    "Command.PlayDialogEffect",
-                    {
-                        characterId: slot,
-                        effectId: 5056,
-                    }
-                );
-            })
-            return
-        }
+      const object = this._temporaryObjects[characterId];
+      if (
+        object instanceof PlantingDiameter &&
+        isPosInRadius(1, object.state.position, client.character.state.position)
+      ) {
+        object.isFertilized = true;
+        object.fertilizedTimestamp = new Date().getTime() + 86400000; // + 1 day
+        Object.values(object.seedSlots).forEach((slot: string) => {
+          const plant = this._plants[slot] as Plant;
+          if (plant.isFertilized) return;
+          plant.isFertilized = true;
+          const roz = (plant.nextStateTime - new Date().getTime()) / 2;
+          plant.nextStateTime = new Date().getTime() + roz;
+          this.sendDataToAllWithSpawnedEntity(
+            // play burning effect & remove it after 15s
+            this._plants,
+            slot,
+            "Command.PlayDialogEffect",
+            {
+              characterId: slot,
+              effectId: 5056,
+            }
+          );
+        });
+        return;
+      }
     }
   }
 
@@ -6078,7 +6093,7 @@ export class ZoneServer2016 extends EventEmitter {
         timeout = 3000;
         break;
       case Items.FERTILIZER:
-        this.utilizeHudTimer(client, nameId, timeout, () => {      
+        this.utilizeHudTimer(client, nameId, timeout, () => {
           this.fertilizePlants(client, item);
         });
         return;
@@ -6317,7 +6332,7 @@ export class ZoneServer2016 extends EventEmitter {
     healCount: number,
     bandagingCount: number
   ) {
-    if (!this.removeInventoryItem(client, item)) return
+    if (!this.removeInventoryItem(client, item)) return;
     client.character.healingMaxTicks += healCount;
     client.character._resources[ResourceIds.BLEEDING] -= bandagingCount;
     const bleeding = client.character._resources[ResourceIds.BLEEDING];
@@ -6339,7 +6354,7 @@ export class ZoneServer2016 extends EventEmitter {
     vehicleGuid: string,
     fuelValue: number
   ) {
-    if (!this.removeInventoryItem(client, item)) return
+    if (!this.removeInventoryItem(client, item)) return;
     const vehicle = this._vehicles[vehicleGuid];
     vehicle._resources[ResourceIds.FUEL] += fuelValue;
     if (vehicle._resources[ResourceIds.FUEL] > 10000) {
@@ -6355,12 +6370,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   shredItemPass(client: Client, item: BaseItem, count: number) {
-    if (!this.removeInventoryItem(client, item)) return
+    if (!this.removeInventoryItem(client, item)) return;
     client.character.lootItem(this, this.generateItem(Items.CLOTH, count));
   }
 
   salvageItemPass(client: Client, item: BaseItem, count: number) {
-    if (!this.removeInventoryItem(client, item)) return
+    if (!this.removeInventoryItem(client, item)) return;
     client.character.lootItem(this, this.generateItem(Items.ALLOY_LEAD, count));
     client.character.lootItem(this, this.generateItem(Items.SHARD_BRASS, 1));
     client.character.lootItem(
@@ -6660,11 +6675,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   startClientRoutine(client: Client) {
     client.routineInterval = setTimeout(() => {
-      const date1 = new Date().getTime()
-      console.log('xd')
+      const date1 = new Date().getTime();
+      console.log("xd");
       if (!client) return;
       if (!client.isLoading) {
-        this.plantManager()
+        this.plantManager();
         this.vehicleManager(client);
         this.npcManager(client);
         this.removeOutOfDistanceEntities(client);
@@ -6678,8 +6693,8 @@ export class ZoneServer2016 extends EventEmitter {
         //this.spawnTemporaryObjects(client);
         this.POIManager(client);
         client.posAtLastRoutine = client.character.state.position;
-        const date2 = new Date().getTime()
-        console.log(date2 - date1)
+        const date2 = new Date().getTime();
+        console.log(date2 - date1);
       }
       if (client.isLoading) {
         delete client.routineInterval;

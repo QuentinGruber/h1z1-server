@@ -113,11 +113,11 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     );
 
     const parent = this.getParent(server);
-    if(parent && parent.freeplaceEntities[this.characterId]) {
+    if (parent && parent.freeplaceEntities[this.characterId]) {
       delete parent.freeplaceEntities[this.characterId];
     }
 
-    if(!destructTime) {
+    if (!destructTime) {
       server.worldObjectManager.createLootbag(server, this);
       return;
     }

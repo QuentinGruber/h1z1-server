@@ -1888,7 +1888,7 @@ export const containerLootSpawners: {
           min: 3,
           max: 11,
         },
-        },
+      },
       {
         item: Items.AMMO_308,
         weight: 15,
@@ -1986,7 +1986,7 @@ export const containerLootSpawners: {
           min: 1,
           max: 1,
         },
-      },      
+      },
     ],
   },
   "Cabinets Cube": {

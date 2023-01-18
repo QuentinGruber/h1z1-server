@@ -105,7 +105,7 @@ export class ConstructionDoor extends DoorEntity {
     const parent = this.getParent(server);
     if (!parent) return;
 
-    if(parent.freeplaceEntities[this.characterId]) {
+    if (parent.freeplaceEntities[this.characterId]) {
       delete parent.freeplaceEntities[this.characterId];
     }
 
