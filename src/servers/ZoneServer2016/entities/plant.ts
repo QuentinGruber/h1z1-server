@@ -135,7 +135,11 @@ export class Plant extends ItemObject {
         );
         break;
     }
-
+    server.sendCompositeEffectToAllWithSpawnedEntity(
+      server._plants,
+        this,
+        5151     
+    );
     server.deleteEntity(this.characterId, server._plants);
   }
 
