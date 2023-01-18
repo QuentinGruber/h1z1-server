@@ -134,6 +134,6 @@ export class CollectingEntity {
       stringId: StringIds.OPEN,
     });
   }
-  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
+  OnFullCharacterDataRequest() {
   }
 }
