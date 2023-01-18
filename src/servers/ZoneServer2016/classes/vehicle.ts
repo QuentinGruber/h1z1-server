@@ -25,6 +25,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { DamageInfo } from "types/zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
 import { vehicleDefaultLoadouts } from "../data/loadouts";
+import { LoadoutItem } from "./loadoutItem";
 
 function getActorModelId(vehicleId: number) {
   switch (vehicleId) {
@@ -588,7 +589,12 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
     server.deleteEntity(this.characterId, server._vehicles);
     server.explosionDamage(this.state.position, this.characterId);
-
+    this.state.position[1] -= 0.4 
+    // fix floating vehicle lootbags
+    Object.values(this._loadout).forEach((item: LoadoutItem) => {
+        delete this._loadout[item.slotId]
+    })
+    // delete vehicle loadout parts from lootbag
     server.worldObjectManager.createLootbag(server, this);
   }
 }
