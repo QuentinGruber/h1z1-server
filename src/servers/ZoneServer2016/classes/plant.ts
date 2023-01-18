@@ -21,10 +21,13 @@ import { Items, StringIds } from "../models/enums";
 
 export class Plant extends ItemObject {
   growState: number = 0;
-  nextStateTime: number = new Date().getTime() + 28800000; // + 8h
+  nextStateTime: number; 
+  readonly growTime = 28800000 // 8h;
   parentObjectCharacterId: string;
   slot: string;
   isFertilized: boolean = false;
+  isLightweight = false;
+  npcRenderDistance = 30;
   constructor(
     characterId: string,
     transientId: number,
@@ -47,10 +50,9 @@ export class Plant extends ItemObject {
       spawnerId,
       item
     );
-    this.npcRenderDistance = 30;
     this.parentObjectCharacterId = parentObjectCharacterId;
     this.slot = slot;
-    this.isLightweight = false;
+    this.nextStateTime = new Date().getTime() + this.growTime;
     if (!server._temporaryObjects[parentObjectCharacterId]) return;
     const parent = server._temporaryObjects[
       parentObjectCharacterId
@@ -100,7 +102,7 @@ export class Plant extends ItemObject {
         modelId: this.actorModelId,
       }
     );
-    const timeToAdd = this.isFertilized ? 28800000 / 2 : 28800000; // 4 or 8h based on fertilized or not
+    const timeToAdd = this.isFertilized ? this.growTime / 2 : this.growTime; // 4 or 8h based on fertilized or not
     this.nextStateTime = new Date().getTime() + timeToAdd;
   }
 
