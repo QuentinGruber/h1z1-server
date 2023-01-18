@@ -699,7 +699,7 @@ export class WorldDataManager {
       if("occupiedWallSlots" in freeplaceData) {
         freeplace = this.loadConstructionChildEntity(server, freeplaceData);
       }
-      else if("ownerCharacterId" in freeplaceData) {
+      else if("passwordHash" in freeplaceData) {
         freeplace = this.loadConstructionDoorEntity(server, freeplaceData);
       }
       else {
@@ -762,7 +762,8 @@ export class WorldDataManager {
     });
 
     Object.values(entityData.occupiedRampSlots).forEach((rampData) => {
-      this.loadConstructionChildEntity(server, rampData);
+      const ramp = this.loadConstructionChildEntity(server, rampData);
+      foundation.setRampSlot(ramp);
     });
 
     return foundation;
@@ -839,6 +840,9 @@ export class WorldDataManager {
       }
     })
     Object.values(entity.occupiedUpperWallSlots).forEach((wall)=> {
+      console.log("occupiedUpperWallSlots")
+      console.log(wall.characterId)
+      console.log(wall.getSlotNumber())
       upperWallSlots[wall.getSlotNumber()] = this.getConstructionChildSaveData(server, wall);
     })
     Object.values(entity.occupiedShelterSlots).forEach((shelter)=> {

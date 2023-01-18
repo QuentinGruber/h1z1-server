@@ -224,6 +224,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     slotMap: ConstructionSlotPositionMap,
     itemDefinitionId: number
   ) {
+    if(itemDefinitionId == Items.METAL_WALL_UPPER) {
+      slot = 1;
+    }
     const slots = definitions[this.itemDefinitionId];
     if (!slots || !slots.authorizedItems.includes(itemDefinitionId)) {
       return false;
@@ -275,12 +278,14 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     wall: ConstructionChildEntity | ConstructionDoor
   ): boolean {
     if (wall.itemDefinitionId == Items.METAL_WALL_UPPER) {
+      console.log("SET SLOT UPPER")
       return this.setSlot(
         wall,
         upperWallSlotDefinitions,
         this.upperWallSlots,
         this.occupiedUpperWallSlots
       );
+      
     }
     const set = this.setSlot(
       wall,
