@@ -21,6 +21,7 @@ import {
   isPosInRadiusWithY,
   registerConstructionSlots,
   getRectangleCorners,
+  movePoint,
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "./zoneclient";
 import {
@@ -119,9 +120,19 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           const dependentWallPos = parent.getSlotPosition(
             this.getDependentWalls()[2],
             parent.wallSlots
-          );
-          if (dependentWallPos) {
-            bounds[3] = [dependentWallPos[0], dependentWallPos[2]];
+          ),
+          dependentWallRot = parent.getSlotRotation(
+            this.getDependentWalls()[2],
+            parent.wallSlots
+          )
+
+          if (dependentWallPos && dependentWallRot) {
+            const point = movePoint(
+              dependentWallPos,
+              -dependentWallRot[0] + (270 * Math.PI) / 180,
+              5
+            );
+            bounds[3] = [point[0], point[2]];
             this.bounds = bounds;
           }
         }

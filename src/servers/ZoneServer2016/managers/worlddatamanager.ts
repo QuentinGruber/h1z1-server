@@ -642,6 +642,7 @@ export class WorldDataManager {
     
     entity.passwordHash = entityData.passwordHash;
     entity.grantedAccess = entityData.grantedAccess;
+    entity.placementTime = entityData.placementTime;
 
     server._constructionDoors[entity.characterId] = entity;
 

@@ -162,10 +162,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   getSlotRotation(
-    buildingSlot: string,
+    slot: string | number,
     slots: ConstructionSlotPositionMap
   ): Float32Array | undefined {
-    let slot = getConstructionSlotId(buildingSlot);
+    if (typeof slot == "string") {
+      slot = getConstructionSlotId(slot);
+    }
     if (slot == 101) slot = 1; // upper wall slot
     return slots[slot]?.rotation || undefined;
   }
@@ -379,6 +381,10 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     );
     const parent = this.getParent(server);
     if (!parent) return;
+
+    if(parent.freeplaceEntities[this.characterId]) {
+      delete parent.freeplaceEntities[this.characterId];
+    }
 
     let slotMap: OccupiedSlotMap | undefined,
       updateSecured = false;

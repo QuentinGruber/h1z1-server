@@ -42,7 +42,7 @@ export class ConstructionDoor extends DoorEntity {
   readonly slot: string;
   damageRange: number;
   readonly fixedPosition: Float32Array;
-  readonly placementTime = Date.now();
+  placementTime = Date.now();
   isSecured = true;
   constructor(
     characterId: string,
@@ -104,6 +104,11 @@ export class ConstructionDoor extends DoorEntity {
     );
     const parent = this.getParent(server);
     if (!parent) return;
+
+    if(parent.freeplaceEntities[this.characterId]) {
+      delete parent.freeplaceEntities[this.characterId];
+    }
+
     let slotMap: OccupiedSlotMap | undefined,
       updateSecured = false;
     switch (this.itemDefinitionId) {

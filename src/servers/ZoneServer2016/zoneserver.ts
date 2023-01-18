@@ -84,7 +84,6 @@ import {
   movePoint,
   getConstructionSlotId,
   checkConstructionInRange,
-  getRectangleCorners,
   resolveHostAddress,
 } from "../../utils/utils";
 
