@@ -11,8 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { PlantingManager } from "./classes/Planting/PlantingManager";
-
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
 
@@ -102,7 +100,7 @@ import { BaseEntity } from "./classes/baseentity";
 import { ConstructionDoor } from "./classes/constructiondoor";
 import { ConstructionParentEntity } from "./classes/constructionparententity";
 import { ConstructionChildEntity } from "./classes/constructionchildentity";
-import { FullCharacterSaveData, ServerSaveData } from "types/savedata";
+import { FullCharacterSaveData } from "types/savedata";
 import { WorldDataManager } from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
 import { GAME_VERSIONS } from "../../utils/enums";
@@ -239,7 +237,6 @@ export class ZoneServer2016 extends EventEmitter {
   worldObjectManager: WorldObjectManager;
   weatherManager: WeatherManager;
   worldDataManager: WorldDataManager;
-  plantingManager: PlantingManager;
   hookManager: HookManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
@@ -282,7 +279,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.worldObjectManager = new WorldObjectManager();
     this.weatherManager = new WeatherManager();
     this.worldDataManager = new WorldDataManager();
-    this.plantingManager = new PlantingManager(null);
     this.hookManager = new HookManager();
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
@@ -5715,11 +5711,6 @@ export class ZoneServer2016 extends EventEmitter {
       object,
       this.getItemDefinition(item.itemDefinitionId).PICKUP_EFFECT ?? 5151
     );
-    //region Norman added. if it is a crop product, randomly generated product is processed by the planting manager. else, continue
-    if (this.plantingManager.TriggerPicking(item, client, this)) {
-      return;
-    }
-    //endregion
 
     client.character.lootItem(this, item);
 

@@ -133,5 +133,5 @@ export class Plant extends ItemObject {
                 effectId: 5056,
             }
         );
-    };
+    }
 }

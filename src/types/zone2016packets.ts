@@ -230,7 +230,8 @@ export interface ServerPopulationInfo {
 export interface GetServerPopulationInfo {
 }
 export interface PlayerStop {
-  unknownUint: any;
+  transientId: any;
+  state?: boolean;
 }
 export interface ClientSettings {
   helpUrl?: string;
