@@ -19,7 +19,7 @@ import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { BaseItem } from "./baseItem";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { BaseEntity } from "./baseentity";
-import { ZoneClient2016 } from "h1z1-server/src/servers/ZoneServer2016/classes/zoneclient";
+import { ZoneClient2016 } from "./zoneclient";
 
 function getAllowedFuel(itemDefinitionId: number): number[] {
   switch (itemDefinitionId) {
