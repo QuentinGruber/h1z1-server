@@ -123,6 +123,7 @@ import { LootableConstructionEntity } from "./classes/lootableconstructionentity
 import { LootableProp } from "./classes/lootableprop";
 import { PlantingDiameter } from "./classes/plantingdiameter";
 import { Plant } from "./classes/plant";
+import { smeltingEntity } from "./classes/smeltingentity";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -3992,6 +3993,16 @@ export class ZoneServer2016 extends EventEmitter {
           eul2quat(rotation),
           freeplaceParentCharacterId
         );
+      case Items.DEW_COLLECTOR:
+      case Items.ANIMAL_TRAP:
+        return this.placeCollectingEntity(
+          client,
+          itemDefinitionId,
+          modelId,
+          position,
+          eul2quat(rotation),
+          freeplaceParentCharacterId
+        );
       case Items.METAL_WALL:
       case Items.METAL_WALL_UPPER:
       case Items.METAL_DOORWAY:
@@ -4574,7 +4585,7 @@ export class ZoneServer2016 extends EventEmitter {
       this,
       itemDefinitionId,
       parentObjectCharacterId || "",
-      false
+      ""
     );
 
     const parent = obj.getParent(this);
@@ -4612,7 +4623,7 @@ export class ZoneServer2016 extends EventEmitter {
       this,
       itemDefinitionId,
       parentObjectCharacterId || "",
-      true
+      "SmeltingEntity"
     );
 
     const parent = obj.getParent(this);
@@ -4625,7 +4636,57 @@ export class ZoneServer2016 extends EventEmitter {
 
     obj.equipLoadout(this);
 
-    obj.smeltingEntity?.startSmelting(this, obj);
+    this.executeFuncForAllReadyClientsInRange((client) => {
+      this.spawnLootableConstruction(client, obj);
+    }, obj);
+
+    return true;
+  }
+
+  placeCollectingEntity(
+    client: Client,
+    itemDefinitionId: number,
+    modelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
+    parentObjectCharacterId?: string
+  ): boolean {
+    const characterId = this.generateGuid(),
+      transientId = this.getTransientId(characterId);
+    const obj = new LootableConstructionEntity(
+      characterId,
+      transientId,
+      modelId,
+      position,
+      rotation,
+      this,
+      itemDefinitionId,
+      parentObjectCharacterId || "",
+      "CollectingEntity"
+    );
+
+    const parent = obj.getParent(this);
+    if (parent) {
+      this._lootableConstruction[characterId] = obj;
+      parent.addFreeplaceConstruction(obj);
+    } else {
+      this._worldLootableConstruction[characterId] = obj;
+    }
+
+    obj.equipLoadout(this);
+    obj.subEntity?.startWorking(this, obj);
+    let container = obj.getContainer();
+    switch (obj.itemDefinitionId) {
+      case Items.ANIMAL_TRAP:
+        if (container) {
+          container.canAcceptItems = false;
+        }
+        break;
+      case Items.DEW_COLLECTOR:
+        if (container) {
+          container.acceptedItems = [Items.WATER_EMPTY];
+        }
+    }
 
     this.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnLootableConstruction(client, obj);
@@ -5088,7 +5149,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  //#region ********************INVENTORY********************
+  //#region ********************INVENTORY********************   }
 
   addItem(
     client: Client,
@@ -6302,8 +6363,12 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
-          if (smeltable.smeltingEntity?.isBurning) return;
-          smeltable.smeltingEntity?.startBurning(this, smeltable);
+          if (
+            smeltable.subEntity instanceof smeltingEntity &&
+            smeltable.subEntity?.isWorking
+          )
+            return;
+          smeltable.subEntity?.startWorking(this, smeltable);
           return;
         }
       }
@@ -6318,8 +6383,12 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
-          if (smeltable.smeltingEntity?.isBurning) return;
-          smeltable.smeltingEntity?.startBurning(this, smeltable);
+          if (
+            smeltable.subEntity instanceof smeltingEntity &&
+            smeltable.subEntity?.isWorking
+          )
+            return;
+          smeltable.subEntity?.startWorking(this, smeltable);
           return;
         }
       }
@@ -6430,6 +6499,8 @@ export class ZoneServer2016 extends EventEmitter {
         break;
       case ContainerErrors.NO_PERMISSION:
         this.sendChatText(client, "Container Error: NoPermission");
+      case ContainerErrors.UNACCEPTED_ITEM:
+        this.sendChatText(client, "Container Error: Item not accepted");
         break;
       default:
         this.sendData(client, "Container.Error", {
@@ -6676,7 +6747,6 @@ export class ZoneServer2016 extends EventEmitter {
   startClientRoutine(client: Client) {
     client.routineInterval = setTimeout(() => {
       const date1 = new Date().getTime();
-      console.log("xd");
       if (!client) return;
       if (!client.isLoading) {
         this.plantManager();

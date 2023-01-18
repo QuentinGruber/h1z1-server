@@ -670,7 +670,7 @@ export class WorldDataManager {
         server,
         entityData.itemDefinitionId,
         entityData.parentObjectCharacterId,
-        false // TEMPORARY UNTIL FURNACES GET SAVED CORRECTLY
+        "" // TEMPORARY UNTIL FURNACES GET SAVED CORRECTLY
       );
 
     entity.placementTime = entityData.placementTime;
