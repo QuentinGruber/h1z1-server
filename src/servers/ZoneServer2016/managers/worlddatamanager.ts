@@ -733,7 +733,6 @@ export class WorldDataManager {
   }
 
   loadConstructionParentEntity(server: ZoneServer2016, entityData: ConstructionParentSaveData): ConstructionParentEntity {
-    console.log("ASDSADADASDASD")
     const transientId = server.getTransientId(entityData.characterId),
       foundation = new ConstructionParentEntity(
         entityData.characterId, 
@@ -840,9 +839,6 @@ export class WorldDataManager {
       }
     })
     Object.values(entity.occupiedUpperWallSlots).forEach((wall)=> {
-      console.log("occupiedUpperWallSlots")
-      console.log(wall.characterId)
-      console.log(wall.getSlotNumber())
       upperWallSlots[wall.getSlotNumber()] = this.getConstructionChildSaveData(server, wall);
     })
     Object.values(entity.occupiedShelterSlots).forEach((shelter)=> {
