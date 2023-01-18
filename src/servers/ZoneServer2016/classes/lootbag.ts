@@ -13,10 +13,12 @@
 
 import { BaseLootableEntity } from "./baselootableentity";
 import { ZoneServer2016 } from "../zoneserver";
+import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 
 export class Lootbag extends BaseLootableEntity {
   creationTime = Date.now();
   canAcceptItems = false;
+  loadoutId = 5;
   constructor(
     characterId: string,
     transientId: number,
@@ -30,5 +32,7 @@ export class Lootbag extends BaseLootableEntity {
     if (container) container.canAcceptItems = false;
     this.flags.noCollide = 1;
     this.npcRenderDistance = 50;
+    this.defaultLoadout = lootableContainerDefaultLoadouts.lootbag;
+    this.equipLoadout(server);
   }
 }

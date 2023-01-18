@@ -481,8 +481,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   getDeathItems(server: ZoneServer2016) {
-    const isCharacter = !!server._characters[this.characterId],
-      items: { [itemGuid: string]: BaseItem } = {};
+    const items: { [itemGuid: string]: BaseItem } = {};
     Object.values(this._loadout).forEach((item) => {
       if (
         item.itemGuid != "0x0" &&
@@ -496,7 +495,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
     Object.values(this._containers).forEach((container: LoadoutContainer) => {
       Object.values(container.items).forEach((item) => {
-        if (!isCharacter || !this.isDefaultItem(item.itemDefinitionId)) {
+        if (!this.isDefaultItem(item.itemDefinitionId)) {
           let stacked = false;
           for (const i of Object.values(items)) {
             // stack similar items

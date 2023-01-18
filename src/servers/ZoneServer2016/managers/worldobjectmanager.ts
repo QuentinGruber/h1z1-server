@@ -219,12 +219,6 @@ export class WorldObjectManager {
       new Float32Array([0, 0, 0, 0]),
       server
     );
-
-    lootbag.equipItem(
-      server,
-      server.generateItem(Items.CONTAINER_DROPPED_ITEMS),
-      false
-    );
     const container = lootbag.getContainer();
     if (container) {
       container.items = items;

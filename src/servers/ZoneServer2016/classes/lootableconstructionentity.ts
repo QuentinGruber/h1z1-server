@@ -24,6 +24,7 @@ import { ConstructionChildEntity } from "./constructionchildentity";
 import { ConstructionParentEntity } from "./constructionparententity";
 import { ZoneClient2016 } from "./zoneclient";
 import { smeltingEntity } from "./smeltingentity";
+import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 
 export class LootableConstructionEntity extends BaseLootableEntity {
   get health() {
@@ -56,6 +57,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
     this.profileId = 999; /// mark as construction
     this.health = 1000000;
+    this.defaultLoadout = lootableContainerDefaultLoadouts.storage;
     if (isSmeltable) {
       this.smeltingEntity = new smeltingEntity(this, server);
     }
@@ -111,6 +113,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     );
     if(!destructTime) {
       server.worldObjectManager.createLootbag(server, this);
+      return;
     }
     setTimeout(() => {
       server.worldObjectManager.createLootbag(server, this);

@@ -17,6 +17,8 @@ import { smeltingData } from "../data/Recipes";
 import { ZoneServer2016 } from "../zoneserver";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { BaseItem } from "./baseItem";
+import { lootableContainerDefaultLoadouts } from "../data/loadouts";
+import { BaseEntity } from "./baseentity";
 
 function getAllowedFuel(itemDefinitionId: number): number[] {
   switch (itemDefinitionId) {
@@ -58,22 +60,22 @@ function getSmeltingEntityData(
   switch (entity.itemDefinitionId) {
     case Items.FURNACE:
       child.filterId = FilterIds.FURNACE;
-      child.containerId = Items.CONTAINER_FURNACE;
+      entity.defaultLoadout = lootableContainerDefaultLoadouts.furnace;
       child.smeltingEffect = 5028;
       break;
     case Items.CAMPFIRE:
       child.filterId = FilterIds.COOKING;
-      child.containerId = Items.CONTAINER_CAMPFIRE;
+      entity.defaultLoadout = lootableContainerDefaultLoadouts.campfire;
       child.smeltingEffect = 1207;
       break;
     case Items.BARBEQUE:
       child.filterId = FilterIds.COOKING;
-      child.containerId = Items.CONTAINER_BARBEQUE;
+      entity.defaultLoadout = lootableContainerDefaultLoadouts.barbeque;
       child.smeltingEffect = 5044;
       break;
     default:
       child.filterId = FilterIds.FURNACE;
-      child.containerId = Items.CONTAINER_FURNACE;
+      entity.defaultLoadout = lootableContainerDefaultLoadouts.furnace;
       child.smeltingEffect = 5028;
       break;
   }
@@ -81,14 +83,13 @@ function getSmeltingEntityData(
 
 export class smeltingEntity {
   parentObject: LootableConstructionEntity;
-  containerId: number = Items.FURNACE;
   allowedFuel: number[];
   filterId: number = FilterIds.FURNACE;
   smeltingEffect: number = 5028;
   isBurning: boolean = false;
   isSmelting: boolean = false;
   smeltingTime: number = 60000;
-  dictionary: any;
+  dictionary: {[characterId: string]: BaseEntity};
   constructor(
     parentObject: LootableConstructionEntity,
     server: ZoneServer2016
@@ -96,11 +97,6 @@ export class smeltingEntity {
     this.parentObject = parentObject;
     this.allowedFuel = getAllowedFuel(parentObject.itemDefinitionId);
     getSmeltingEntityData(parentObject, this);
-    parentObject.equipItem(
-      server,
-      server.generateItem(this.containerId),
-      false
-    );
     if (!parentObject.getParent(server)) {
       this.dictionary = server._worldLootableConstruction;
     } else this.dictionary = server._lootableConstruction;

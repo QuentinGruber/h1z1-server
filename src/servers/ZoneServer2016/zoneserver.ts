@@ -4577,7 +4577,7 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       this._worldLootableConstruction[characterId] = obj;
     }
-    obj.equipItem(this, this.generateItem(Items.CONTAINER_STORAGE), false);
+    obj.equipLoadout(this);
 
     this.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnLootableConstruction(client, obj);
@@ -4615,6 +4615,9 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       this._worldLootableConstruction[characterId] = obj;
     }
+
+    obj.equipLoadout(this);
+
     obj.smeltingEntity?.startSmelting(this, obj);
 
     this.executeFuncForAllReadyClientsInRange((client) => {
