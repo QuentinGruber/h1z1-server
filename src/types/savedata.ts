@@ -129,6 +129,20 @@ export interface ConstructionParentSaveData
     occupiedRampSlots: { [slot: number]: ConstructionChildSaveData }
 }
 
+export interface PlantSaveData
+  extends BaseFullEntitySaveData {
+    growState: number;
+    parentObjectCharacterId: string;
+    slot: string;
+    item: ItemSaveData;
+}
+
+export interface PlantingDiameterSaveData
+  extends BaseFullEntitySaveData {
+    seedSlots: { [id: string]: PlantSaveData };
+    fertilizedTimestamp: number;
+    isFertilized: boolean;
+}
 
 export interface ServerSaveData extends BaseSaveData {
   lastItemGuid: string;

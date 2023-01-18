@@ -28,6 +28,8 @@ import {
   LoadoutContainerSaveData,
   LoadoutItemSaveData,
   LootableConstructionSaveData,
+  PlantingDiameterSaveData,
+  PlantSaveData,
   ServerSaveData,
   WeaponSaveData,
 } from "types/savedata";
@@ -47,6 +49,8 @@ import { ConstructionParentEntity } from "../entities/constructionparententity";
 import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
 import { Items } from "../models/enums";
+import { PlantingDiameter } from "../entities/plantingdiameter";
+import { Plant } from "../entities/plant";
 
 const fs = require("fs");
 const debug = require("debug")("ZoneServer");
@@ -175,6 +179,7 @@ export class WorldDataManager {
     //await this.loadVehicleData(server);
     await this.loadServerData(server);
     await this.loadConstructionData(server);
+    await this.loadCropData(server);
     server._transientIds = server.getAllCurrentUsedTransientId();
     debug("World fetched!");
   }
@@ -220,6 +225,7 @@ export class WorldDataManager {
     await this.saveServerData(server);
     await this.saveCharacters(server);
     await this.saveConstructionData(server);
+    await this.saveCropData(server);
     debug("World saved!");
   }
 
@@ -795,7 +801,6 @@ export class WorldDataManager {
   }
 
   async loadConstructionData(server: ZoneServer2016) {
-    console.log("LOADCONSTRUCTIONDATA");
     if (!server.enableWorldSaves) return;
     let constructionParents: Array<ConstructionParentSaveData> = [];
     if (server._soloMode) {
@@ -812,7 +817,6 @@ export class WorldDataManager {
           .toArray()
       );
     }
-    console.log(constructionParents);
     constructionParents.forEach((parent) => {
       this.loadConstructionParentEntity(server, parent);
     });
@@ -962,6 +966,118 @@ export class WorldDataManager {
       collection?.deleteMany({ serverId: server._worldId });
       if (construction.length) collection?.insertMany(construction);
     }
+  }
+
+  getPlantSaveData(server: ZoneServer2016, entity: Plant): PlantSaveData {
+    return {
+      ...this.getBaseFullEntitySaveData(server, entity),
+      growState: entity.growState,
+      parentObjectCharacterId: entity.parentObjectCharacterId,
+      slot: entity.slot,
+      item: this.getItemSaveData(server, entity.item)
+    }
+  }
+
+  getPlantingDiameterSaveData(server: ZoneServer2016, entity: PlantingDiameter): PlantingDiameterSaveData {
+    let slots: { [id: string]: PlantSaveData } = {};
+    Object.values(entity.seedSlots).forEach((plant) => {
+      slots[plant.slot] = this.getPlantSaveData(server, plant);
+    });
+
+    return {
+      ...this.getBaseFullEntitySaveData(server, entity),
+      seedSlots: slots,
+      fertilizedTimestamp: entity.fertilizedTimestamp,
+      isFertilized: entity.isFertilized
+    }
+  }
+
+  async saveCropData(server: ZoneServer2016) {
+    if (!server.enableWorldSaves) return;
+    const crops: Array<PlantingDiameterSaveData> = [];
+
+    Object.values(server._temporaryObjects).forEach((entity) => {
+      if (entity instanceof PlantingDiameter) {
+        crops.push(this.getPlantingDiameterSaveData(server, entity));
+      }
+    });
+
+    if (server._soloMode) {
+      fs.writeFileSync(
+        `${server._appDataFolder}/worlddata/crops.json`,
+        JSON.stringify(crops, null, 2)
+      );
+    } else {
+      const collection = server._db?.collection("crops");
+      collection?.deleteMany({ serverId: server._worldId });
+      if (crops.length) collection?.insertMany(crops);
+    }
+  }
+
+  loadPlant(server: ZoneServer2016, parent: PlantingDiameter, entityData: PlantSaveData): Plant {
+    const item = new BaseItem(
+      entityData.item.itemDefinitionId,
+      entityData.item.itemGuid,
+      entityData.item.currentDurability,
+      entityData.item.stackCount
+    ), 
+    plant = new Plant(
+      entityData.characterId,
+      1, // shouldn't be needed
+      entityData.actorModelId,
+      new Float32Array(entityData.position),
+      new Float32Array(entityData.rotation),
+      server,
+      0,
+      item,
+      parent.characterId,
+      entityData.slot
+    );
+    plant.growState = entityData.growState;
+
+    server._plants[plant.characterId] = plant;
+    return plant;
+  }
+
+  loadPlantingDiameter(server: ZoneServer2016, entityData: PlantingDiameterSaveData) {
+    const plantingDiameter = new PlantingDiameter(
+      entityData.characterId,
+      1, // shouldn't be needed
+      entityData.actorModelId,
+      new Float32Array(entityData.position),
+      new Float32Array(entityData.rotation),
+      server
+    )
+
+    plantingDiameter.fertilizedTimestamp = entityData.fertilizedTimestamp;
+    plantingDiameter.isFertilized = entityData.isFertilized;
+    server._temporaryObjects[plantingDiameter.characterId] = plantingDiameter;
+
+    Object.values(entityData.seedSlots).forEach((plant) => {
+      plantingDiameter.seedSlots[plant.slot] = this.loadPlant(server, plantingDiameter, plant);
+    })
+  }
+
+  async loadCropData(server: ZoneServer2016) {
+    if (!server.enableWorldSaves) return;
+    let crops: Array<PlantingDiameterSaveData> = [];
+    if (server._soloMode) {
+      crops = require(`${server._appDataFolder}/worlddata/crops.json`);
+      if (!crops) {
+        debug("Construction data not found in file, aborting.");
+        return;
+      }
+    } else {
+      crops = <any>(
+        await server._db
+          ?.collection("crops")
+          .find({ serverId: server._worldId })
+          .toArray()
+      );
+    }
+    crops.forEach((entityData) => {
+      this.loadPlantingDiameter(server, entityData);
+    });
   }
 
   //#endregion

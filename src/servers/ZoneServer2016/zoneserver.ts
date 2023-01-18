@@ -687,8 +687,8 @@ export class ZoneServer2016 extends EventEmitter {
     Object.values(client.character._loadout).forEach((item: LoadoutItem) => {
       if (item.stackCount < 1) {
         debug("\n\n\n");
-        debug(`Deprecated character loadout detected ${client.character.name}`);
-        debug(item);
+        console.log(`Deprecated character loadout detected ${client.character.name}`);
+        console.log(item);
         debug("\n\n\n");
         item.stackCount;
       }
@@ -697,20 +697,20 @@ export class ZoneServer2016 extends EventEmitter {
       (container: LoadoutContainer) => {
         if (container.stackCount < 1) {
           debug("\n\n\n");
-          debug(
+          console.log(
             `Deprecated character containers detected ${client.character.name}`
           );
-          debug(container);
+          console.log(container);
           debug("\n\n\n");
           container.stackCount = 1;
         }
         Object.values(container.items).forEach((item: BaseItem) => {
           if (item.stackCount < 1) {
             debug("\n\n\n");
-            debug(
+            console.log(
               `Deprecated character items detected ${client.character.name}`
             );
-            debug(item);
+            console.log(item);
             item.stackCount = 1;
             debug("\n\n\n");
           }
