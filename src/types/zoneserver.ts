@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,7 +11,11 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
+import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
 import { FilterIds, Items } from "servers/ZoneServer2016/models/enums";
+import { ConstructionDoor } from "servers/ZoneServer2016/entities/constructiondoor";
+import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/lootableconstructionentity";
 
 export interface npcData {
   guid: string;
@@ -74,31 +78,6 @@ export interface characterEquipment {
   textureAlias?: string;
   tintAlias?: string;
   decalAlias?: string;
-}
-
-export interface weaponItem {
-  ammoCount: number;
-  reloadTimer?: NodeJS.Timeout;
-  currentReloadCount: number; // needed for reload packet to work every time
-}
-
-export interface inventoryItem {
-  itemDefinitionId: number;
-  slotId: number;
-  itemGuid: string;
-  containerGuid: string;
-  currentDurability: number;
-  stackCount: number;
-  weapon?: weaponItem;
-}
-
-export interface loadoutItem extends inventoryItem {
-  loadoutItemOwnerGuid: string;
-}
-
-export interface loadoutContainer extends loadoutItem {
-  containerDefinitionId: number;
-  items: { [itemGuid: string]: inventoryItem };
 }
 
 export interface Weather {
@@ -263,4 +242,45 @@ export interface Recipe {
   filterId: FilterIds;
   bundleCount?: number;
   components: Array<RecipeComponent>;
+  requireWorkbench?: boolean
 }
+
+export interface ItemUseOption {
+    itemDef: number,
+    type: number,
+    timeout: number,
+    eatCount?: number,
+    drinkCount?: number,
+    givetrash?: number,
+    healCount?: number,
+    staminaCount?: number,
+    bandagingCount?: number,
+    refuelCount?: number,
+}
+
+export interface smeltRecipe {
+    filterId: FilterIds;
+    rewardId: number;
+    components: Array<RecipeComponent>;
+}
+
+export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
+
+export type ConstructionEntity = SlottedConstructionEntity | LootableConstructionEntity;
+
+export interface ConstructionPermissions {
+  characterId: string;
+  characterName: string;
+  useContainers: boolean;
+  build: boolean;
+  demolish: boolean;
+  visit: boolean;
+}
+
+export type ConstructionSlotPositionMap = { [slot: number]: {position: Float32Array, rotation: Float32Array} };
+
+export type OccupiedSlotMap = { [slot: string]: SlottedConstructionEntity };
+
+type Point2D = [number, number];
+
+export type SquareBounds = [Point2D, Point2D, Point2D, Point2D];

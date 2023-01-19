@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -36,12 +36,12 @@ export class SOEServer extends EventEmitter {
   _waitQueueTimeMs: number = 50;
   _pingTimeoutTime: number = 60000;
   _usePingTimeout: boolean = false;
-  private _maxMultiBufferSize: number;
+  private readonly _maxMultiBufferSize: number;
   private _soeClientRoutineLoopMethod!: (
     arg0: () => void,
     arg1: number
   ) => void;
-  private _resendTimeout: number = 300;
+  private _resendTimeout: number = 500;
   packetRatePerClient: number = 500;
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
@@ -77,7 +77,7 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  private _sendPhysicalPacket(client: Client, packet: Buffer): void {
+  private _sendPhysicalPacket(client: Client, packet: Uint8Array): void {
     client.packetsSentThisSec++;
     client.stats.totalPacketSent++;
     this._connection.postMessage({
@@ -253,10 +253,7 @@ export class SOEServer extends EventEmitter {
       case "MultiPacket": {
         for (let i = 0; i < packet.sub_packets.length; i++) {
           const subPacket = packet.sub_packets[i];
-          switch (subPacket.name) {
-            default:
-              this.handlePacket(client, subPacket);
-          }
+          this.handlePacket(client, subPacket);
         }
         break;
       }
@@ -285,16 +282,24 @@ export class SOEServer extends EventEmitter {
         );
         break;
       case "OutOfOrder":
+        client.addPing(
+          Date.now() +
+            this._waitQueueTimeMs -
+            (client.unAckData.get(packet.sequence) as number)
+        );
+        client.outputStream.removeFromCache(packet.sequence);
         client.unAckData.delete(packet.sequence);
-        //client.outputStream.resendData(packet.sequence);
         break;
       case "Ack":
+        const mostWaitedPacketTime = client.unAckData.get(
+          client.outputStream.lastAck.get()
+        ) as number;
+        if (mostWaitedPacketTime) {
+          client.addPing(
+            Date.now() + this._waitQueueTimeMs - mostWaitedPacketTime
+          );
+        }
         client.outputStream.ack(packet.sequence, client.unAckData);
-        break;
-      case "FatalError":
-        debug("Received fatal error from client");
-        break;
-      case "FatalErrorReply":
         break;
       default:
         console.log(`Unknown SOE packet received from ${client.sessionId}`);
@@ -321,13 +326,11 @@ export class SOEServer extends EventEmitter {
         let client: SOEClient;
         const clientId = message.remote.address + ":" + message.remote.port;
         debug(data.length + " bytes from ", clientId);
-        let unknow_client;
         // if doesn't know the client
         if (!this._clients.has(clientId)) {
           if (data[1] !== 1) {
             return;
           }
-          unknow_client = true;
           client = this._createClient(clientId, message.remote);
 
           client.inputStream.on("appdata", (data: Buffer) => {
@@ -392,16 +395,9 @@ export class SOEServer extends EventEmitter {
             const parsed_data = JSON.parse(raw_parsed_data);
             if (parsed_data.name === "Error") {
               console.error(parsed_data.error);
+            } else {
+              this.handlePacket(client, parsed_data);
             }
-            if (!unknow_client && parsed_data.name === "SessionRequest") {
-              this.deleteClient(this._clients.get(clientId) as SOEClient);
-              debug(
-                "Delete an old session badly closed by the client (",
-                clientId,
-                ") )"
-              );
-            }
-            this.handlePacket(client, parsed_data);
           } else {
             console.error("Unmanaged packet from client", clientId, data);
           }
@@ -557,7 +553,7 @@ export class SOEServer extends EventEmitter {
   }
 
   // Called by the application to send data to a client
-  sendAppData(client: Client, data: Buffer): void {
+  sendAppData(client: Client, data: Uint8Array): void {
     if (client.outputStream.isUsingEncryption()) {
       debug("Sending app data: " + data.length + " bytes with encryption");
     } else {
@@ -566,7 +562,7 @@ export class SOEServer extends EventEmitter {
     client.outputStream.write(data);
   }
 
-  sendUnbufferedAppData(client: Client, data: Buffer): void {
+  sendUnbufferedAppData(client: Client, data: Uint8Array): void {
     if (client.outputStream.isUsingEncryption()) {
       debug(
         "Sending unbuffered app data: " + data.length + " bytes with encryption"

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -14,7 +14,6 @@
 import {
   characterResourceData,
   collectionsSchema,
-  containerData,
   currencySchema,
   effectTagsSchema,
   equipmentSlotSchema,
@@ -22,23 +21,23 @@ import {
   fullNpcSchema,
   fullPcSchema,
   itemSchema,
-  //itemWeaponDetailSubSchema1,
-  //itemWeaponDetailSubSchema2,
   lightWeightNpcSchema,
   lightWeightPcSchema,
   loadoutSlotsSchema,
   objectiveSchema,
   packPositionUpdateData,
   packUnsignedIntWith2bitLengthValue,
+  packInteractionComponent,
+  packNpcComponent,
   readPositionUpdateData,
   readUnsignedIntWith2bitLengthValue,
   recipeData,
   packItemWeaponData,
+  containers,
 } from "./shared";
 import {
   achievementSchema,
   identitySchema,
-  //profileSchema,
   profileSchema,
   rewardBundleSchema,
   skyData,
@@ -2236,15 +2235,7 @@ export const basePackets: any = [
               name: "containers",
               type: "array",
               defaultValue: [],
-              fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 }, // containerType?
-                {
-                  name: "containerData",
-                  type: "schema",
-                  defaultValue: {},
-                  fields: containerData,
-                },
-              ],
+              fields: containers,
             },
             {
               name: "unknownArray28",
@@ -2821,12 +2812,12 @@ export const basePackets: any = [
     0x8d,
     {
       fields: [
-        { name: "time1", type: "uint64string", defaultValue: "0" },
-        { name: "time2", type: "uint64string", defaultValue: "0" },
+        { name: "clientHoursMs", type: "uint64string", defaultValue: "0" }, // seems like hours since a 12h trip in ms UTC time
+        { name: "clientHoursMs2", type: "uint64string", defaultValue: "0" },
         { name: "clientTime", type: "uint64string", defaultValue: "0" },
         { name: "serverTime", type: "uint64string", defaultValue: "0" },
         { name: "serverTime2", type: "uint64string", defaultValue: "0" },
-        { name: "time3", type: "uint64string", defaultValue: "0" },
+        { name: "time3", type: "uint64string", defaultValue: "0" }, // maybe drift ?
       ],
     },
   ],
@@ -3068,11 +3059,12 @@ export const basePackets: any = [
     {
       fields: [
         {
-          name: "unknownUint",
+          name: "transientId",
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
         },
+        { name: "state", type: "boolean", defaultValue: false },
       ],
     },
   ],
@@ -3437,7 +3429,73 @@ export const basePackets: any = [
   ["Ps4PlayGoBase", 0xe8, {}],
   ["SynchronizedTeleportBase", 0xe9, {}],
   ["StaticViewBase", 0xea, {}],
-  ["ReplicationBase", 0xeb, {}],
+  [
+    "Replication.InteractionComponent",
+    0xeb,
+    {
+      fields: [
+        { name: "opcode", type: "uint8", defaultValue: 4 },
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+        {
+          name: "rawComponent",
+          type: "custom",
+          parser: packInteractionComponent,
+          packer: packInteractionComponent,
+          defaultValue: packInteractionComponent,
+        },
+      ],
+    },
+  ],
+  [
+    "Replication.NpcComponent",
+    0xeb04,
+    {
+      fields: [
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+        { name: "stringLength", type: "uint16", defaultValue: 18 },
+        //{ name: "componentName", type: "fixedlengthstring", defaultValue: "ClientNpcComponent" }, avoid test errors
+        {
+          name: "componentName",
+          type: "uint64string",
+          defaultValue: "0x704E746E65696C43",
+        },
+        {
+          name: "componentName2",
+          type: "uint64string",
+          defaultValue: "0x656E6F706D6F4363",
+        },
+        { name: "componentName3", type: "uint16", defaultValue: 29806 },
+        { name: "unkByte1", type: "uint8", defaultValue: 0 },
+        { name: "unkDword1", type: "uint32", defaultValue: 0 },
+        { name: "unkDword2", type: "uint32", defaultValue: 1 },
+        { name: "unkDword3", type: "uint32", defaultValue: 124 },
+        { name: "unkDword4", type: "uint32", defaultValue: 4136351497 },
+        { name: "unkByte2", type: "uint8", defaultValue: 0 },
+        { name: "unkDword5", type: "uint32", defaultValue: 82 },
+        { name: "unkDword6", type: "uint32", defaultValue: 2126 },
+        { name: "unkDword7", type: "uint32", defaultValue: 718 },
+        { name: "unkDword8", type: "uint32", defaultValue: 0 },
+        { name: "nameId", type: "uint32", defaultValue: 0 },
+        {
+          name: "rawComponent",
+          type: "custom",
+          parser: packNpcComponent,
+          packer: packNpcComponent,
+          defaultValue: packNpcComponent,
+        },
+      ],
+    },
+  ],
   ["DatasheetsBase", 0xec, {}],
   ["PlayerWorldTransferRequest", 0xed, {}],
   ["PlayerWorldTransferReply", 0xee, {}],

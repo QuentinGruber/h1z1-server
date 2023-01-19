@@ -1,5 +1,468 @@
-import { Recipe } from "types/zoneserver";
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2023 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
+import { Recipe, smeltRecipe } from "types/zoneserver";
 import { FilterIds, Items } from "../models/enums";
+export const smeltingData: { [recipeId: number]: smeltRecipe } = {
+  1: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.BLACKBERRY_PIE,
+    components: [
+      {
+        itemDefinitionId: Items.SUGAR,
+        requiredAmount: 1,
+      },
+      {
+        itemDefinitionId: Items.BLACKBERRY,
+        requiredAmount: 8,
+      },
+      {
+        itemDefinitionId: Items.FLOUR,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  2: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.COFFEE,
+    components: [
+      {
+        itemDefinitionId: Items.GROUND_COFFEE,
+        requiredAmount: 1,
+      },
+      {
+        itemDefinitionId: Items.WATER_PURE,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  3: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.STEAK_RABBIT,
+    components: [
+      {
+        itemDefinitionId: Items.MEAT_RABBIT,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  4: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.JERKY_DEER,
+    components: [
+      {
+        itemDefinitionId: Items.MEAT_VENISON,
+        requiredAmount: 1,
+      },
+      {
+        itemDefinitionId: Items.SALT,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  5: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.STEAK_DEER,
+    components: [
+      {
+        itemDefinitionId: Items.MEAT_VENISON,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  6: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.WATER_PURE,
+    components: [
+      {
+        itemDefinitionId: Items.WATER_STAGNANT,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  7: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.WATER_PURE,
+    components: [
+      {
+        itemDefinitionId: Items.WATER_DIRTY,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  8: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.STEW_RABBIT,
+    components: [
+      {
+        itemDefinitionId: Items.SALT,
+        requiredAmount: 1,
+      },
+      {
+        itemDefinitionId: Items.STEAK_RABBIT,
+        requiredAmount: 1,
+      },
+      {
+        itemDefinitionId: Items.WATER_PURE,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  9: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.CORN_ROASTED,
+    components: [
+      {
+        itemDefinitionId: Items.CORN,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  10: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.SURVIVAL_BORSCHT,
+    components: [
+      {
+        itemDefinitionId: Items.CANNED_FOOD01,
+        requiredAmount: 1,
+      },
+      {
+        itemDefinitionId: Items.SALT,
+        requiredAmount: 1,
+      },
+      {
+        itemDefinitionId: Items.WATER_PURE,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  11: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.SURVIVAL_BREAD,
+    components: [
+      {
+        itemDefinitionId: Items.WATER_PURE,
+        requiredAmount: 1,
+      },
+      {
+        itemDefinitionId: Items.YEAST,
+        requiredAmount: 1,
+      },
+      {
+        itemDefinitionId: Items.FLOUR,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  12: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.SWIZZLE,
+    components: [
+      {
+        itemDefinitionId: Items.SUGAR,
+        requiredAmount: 1,
+      },
+      {
+        itemDefinitionId: Items.WATER_PURE,
+        requiredAmount: 1,
+      },
+      {
+        itemDefinitionId: Items.COLD_MEDICINE,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  13: {
+    filterId: FilterIds.COOKING,
+    rewardId: Items.STEAK_WOLF,
+    components: [
+      {
+        itemDefinitionId: Items.MEAT_WOLF,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  14: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.NAIL,
+        requiredAmount: 4,
+      },
+    ],
+  },
+  15: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_SCRAP,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  16: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.BROKEN_METAL_ITEM,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  17: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_1911,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  18: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_308,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  19: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_AK47,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  20: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_AK47_MODIFIED,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  21: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_AR15,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  22: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_AXE_FIRE,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  23: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_AXE_WOOD,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  24: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_BAT_ALUM,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  25: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_BLAZE,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  26: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_COMBATKNIFE,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  27: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_CROWBAR,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  28: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_FROSTBITE,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  29: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_HAMMER,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  30: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_HAMMER_DEMOLITION,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  31: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_HATCHET,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  32: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_HATCHET_MAKESHIFT,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  33: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_KATANA,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  34: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_M9,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  35: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_MACHETE01,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  36: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_MAGNUM,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  37: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_PIPE,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  38: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_REAPER,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  39: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_SHOTGUN,
+        requiredAmount: 1,
+      },
+    ],
+  },
+  40: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.WEAPON_WRENCH,
+        requiredAmount: 1,
+      },
+    ],
+  },
+};
 
 export const recipes: { [recipeId: number]: Recipe } = {
   [Items.AMMO_223]: {
@@ -552,6 +1015,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 1,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.STEAK_RABBIT]: {
     filterId: FilterIds.COOKING,
@@ -1070,6 +1534,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 1,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.COMPASS_IMPROVISED]: {
     filterId: FilterIds.SURVIVAL,
@@ -1113,6 +1578,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 1,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.SHELTER_LARGE]: {
     filterId: FilterIds.HOUSING,
@@ -1164,6 +1630,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 2,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.WEAPON_BOW_MAKESHIFT]: {
     filterId: FilterIds.WEAPONS,
@@ -1274,6 +1741,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 2,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.METAL_WALL]: {
     filterId: FilterIds.HOUSING,
@@ -1345,6 +1813,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 2,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.SHARD_PLASTIC]: {
     filterId: FilterIds.COMPONENT,
@@ -1616,6 +2085,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 8,
       },
     ],
+    requireWorkbench: true,
   },
   [Items.STORAGE_BOX]: {
     filterId: FilterIds.HOUSING,
