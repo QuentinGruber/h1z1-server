@@ -1116,20 +1116,16 @@ export class zonePacketHandlers {
       case ItemUseOptions.SHRED:
         server.shredItem(client, item);
         break;
-      case ItemUseOptions.EAT:
-        server.eatItem(client, item);
-        break;
       case ItemUseOptions.DRINK:
-        server.drinkItem(client, item);
+      case ItemUseOptions.EAT:
+      case ItemUseOptions.USE_MEDICAL:
+        server.useConsumable(client, item);
         break;
       case ItemUseOptions.USE:
         server.useItem(client, item);
         break;
       case ItemUseOptions.REFUEL:
         server.refuelVehicle(client, item, packet.data.characterId2);
-        break;
-      case ItemUseOptions.USE_MEDICAL:
-        server.useMedical(client, item);
         break;
       case ItemUseOptions.IGNITE:
         server.igniteOption(client, item);

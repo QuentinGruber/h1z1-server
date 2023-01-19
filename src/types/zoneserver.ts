@@ -245,6 +245,19 @@ export interface Recipe {
   requireWorkbench?: boolean
 }
 
+export interface ItemUseOption {
+    itemDef: number,
+    type: number,
+    timeout: number,
+    eatCount?: number,
+    drinkCount?: number,
+    givetrash?: number,
+    healCount?: number,
+    staminaCount?: number,
+    bandagingCount?: number,
+    refuelCount?: number,
+}
+
 export interface smeltRecipe {
     filterId: FilterIds;
     rewardId: number;

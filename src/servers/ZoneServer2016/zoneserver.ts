@@ -42,6 +42,7 @@ import {
   StringIds,
   VehicleIds,
   ConstructionPermissionIds,
+  ItemUseOptions,
 } from "./models/enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
@@ -104,6 +105,7 @@ import { ConstructionChildEntity } from "./entities/constructionchildentity";
 import { FullCharacterSaveData } from "types/savedata";
 import { WorldDataManager } from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
+import { UseOptions } from "./data/useoptions";
 import { GAME_VERSIONS } from "../../utils/enums";
 
 import {
@@ -5889,123 +5891,69 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  eatItem(client: Client, item: BaseItem) {
+  useConsumable(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
+    let doReturn = true
     let drinkCount = 0;
-    let eatCount = 2000;
+    let eatCount = 0;
+    let staminaCount = 0;
     let givetrash = 0;
-    let timeout = 1000;
-    switch (item.itemDefinitionId) {
-      case Items.BLACKBERRY:
-        drinkCount = 200;
-        eatCount = 200;
-        timeout = 600;
-        break;
-      case Items.CANNED_FOOD01:
-        eatCount = 4000;
-        givetrash = 48;
-        break;
-      case Items.MRE_APPLE:
-        eatCount = 6000;
-        drinkCount = 6000;
-        break;
-      case Items.MEAT_ROTTEN:
-        eatCount = 1000;
-        break;
-      default:
-        this.sendChatText(
-          client,
-          "[ERROR] eat count not mapped to item Definition " +
-            item.itemDefinitionId
-        );
-    }
-    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
-      this.eatItemPass(client, item, eatCount, drinkCount, givetrash);
-    });
-  }
-
-  useMedical(client: Client, item: BaseItem) {
-    const itemDef = this.getItemDefinition(item.itemDefinitionId);
-    if (!itemDef) return;
-    let timeout = 1000;
     let healCount = 9;
     let bandagingCount = 40;
-    switch (item.itemDefinitionId) {
-      case Items.FIRST_AID:
-        healCount = 99;
-        timeout = 5000;
-        bandagingCount = 120;
-        break;
-      case Items.BANDAGE:
-      case Items.GAUZE:
-        healCount = 9;
-        timeout = 1000;
-        break;
-      case Items.BANDAGE_DRESSED:
-        healCount = 29;
-        timeout = 2000;
-        break;
-      default:
+    let timeout = 0;
+      for (const a in UseOptions) {
+          if (UseOptions[a].itemDef == item.itemDefinitionId && (UseOptions[a].type == ItemUseOptions.EAT || 
+              UseOptions[a].type == ItemUseOptions.DRINK ||
+              UseOptions[a].type == ItemUseOptions.USE_MEDICAL
+              )) {
+              const useOption = UseOptions[a];
+              doReturn = false
+              timeout = useOption.timeout
+              if (useOption.drinkCount) drinkCount = useOption.drinkCount
+              if (useOption.eatCount) eatCount = useOption.eatCount
+              if (useOption.staminaCount) staminaCount = useOption.staminaCount
+              if (useOption.givetrash) givetrash = useOption.givetrash
+              if (useOption.healCount) healCount = useOption.healCount
+              if (useOption.bandagingCount) bandagingCount = useOption.bandagingCount
+          }
+      }
+    if (doReturn) {
         this.sendChatText(
-          client,
-          "[ERROR] Medical not mapped to item Definition " +
+            client,
+            "[ERROR] consumable not mapped to item Definition " +
             item.itemDefinitionId
         );
+        return
     }
+
     this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
-      this.useMedicalPass(client, item, healCount, bandagingCount);
+      this.useComsumablePass(client, item, eatCount, drinkCount, staminaCount, givetrash, healCount, bandagingCount);
     });
   }
 
   igniteOption(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
-    let timeout = 100;
-    switch (item.itemDefinitionId) {
-      case Items.LIGHTER:
-        break;
-      case Items.BOW_DRILL:
-        timeout = 15000;
-        break;
-      default:
-        this.sendChatText(
-          client,
-          "[ERROR] Igniter not mapped to item Definition " +
-            item.itemDefinitionId
-        );
-    }
+      let timeout = 0;
+      let doReturn = true;
+      for (const a in UseOptions) {
+          if (UseOptions[a].itemDef == item.itemDefinitionId && UseOptions[a].type == ItemUseOptions.IGNITE) {
+              const useOption = UseOptions[a];
+              doReturn = false
+              timeout = useOption.timeout
+          }
+      }
+      if (doReturn) {
+          this.sendChatText(
+              client,
+              "[ERROR] use option not mapped to item Definition " +
+              item.itemDefinitionId
+          );
+          return
+      }
     this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
       this.igniteoptionPass(client);
-    });
-  }
-
-  drinkItem(client: Client, item: BaseItem) {
-    const itemDef = this.getItemDefinition(item.itemDefinitionId);
-    if (!itemDef) return;
-    let drinkCount = 2000;
-    const eatCount = 0,
-      givetrash = Items.WATER_EMPTY;
-    const timeout = 1000;
-    switch (item.itemDefinitionId) {
-      case Items.WATER_DIRTY:
-        drinkCount = 1000;
-        break;
-      case Items.WATER_STAGNANT:
-        drinkCount = 2000;
-        break;
-      case Items.WATER_PURE:
-        drinkCount = 4000;
-        break;
-      default:
-        this.sendChatText(
-          client,
-          "[ERROR] drink count not mapped to item Definition " +
-            item.itemDefinitionId
-        );
-    }
-    this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
-      this.drinkItemPass(client, item, eatCount, drinkCount, givetrash);
     });
   }
 
@@ -6055,10 +6003,27 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   useItem(client: Client, item: BaseItem) {
-    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
-      nameId = itemDefinition.NAME_ID;
-    let useoption = "";
-    let timeout = 1000;
+      const itemDef = this.getItemDefinition(item.itemDefinitionId);
+      if (!itemDef) return;
+      const nameId = itemDef.NAME_ID;
+      let timeout = 0;
+      let useoption = ""
+      let doReturn = true;
+      for (const a in UseOptions) {
+          if (UseOptions[a].itemDef == item.itemDefinitionId && UseOptions[a].type == ItemUseOptions.USE) {
+              const useOption = UseOptions[a];
+              doReturn = false
+              timeout = useOption.timeout
+          }
+      }
+      if (doReturn) {
+          this.sendChatText(
+              client,
+              "[ERROR] use option not mapped to item Definition " +
+              item.itemDefinitionId
+          );
+          return
+      }
     switch (item.itemDefinitionId) {
       case Items.WATER_EMPTY:
         useoption = "fill";
@@ -6095,24 +6060,28 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
   refuelVehicle(client: Client, item: BaseItem, vehicleGuid: string) {
-    const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
-      nameId = itemDefinition.NAME_ID;
-    const timeout = 5000;
-    let fuelValue = 2500;
-    switch (item.itemDefinitionId) {
-      case Items.FUEL_ETHANOL:
-        fuelValue = 5000;
-        break;
-      case Items.FUEL_BIOFUEL:
-        fuelValue = 2500;
-        break;
-      default:
-        this.sendChatText(
-          client,
-          "[ERROR] Fuel not mapped to item Definition " + item.itemDefinitionId
-        );
-        return;
-    }
+      const itemDef = this.getItemDefinition(item.itemDefinitionId);
+      if (!itemDef) return;
+      const nameId = itemDef.NAME_ID;
+      let fuelValue = 0
+      let timeout = 0;
+      let doReturn = true;
+      for (const a in UseOptions) {
+          if (UseOptions[a].itemDef == item.itemDefinitionId && UseOptions[a].type == ItemUseOptions.REFUEL) {
+              const useOption = UseOptions[a];
+              doReturn = false
+              timeout = useOption.timeout
+              if (useOption.refuelCount) fuelValue = useOption.refuelCount
+          }
+      }
+      if (doReturn) {
+          this.sendChatText(
+              client,
+              "[ERROR] consumable not mapped to item Definition " +
+              item.itemDefinitionId
+          );
+          return
+      }
     this.utilizeHudTimer(client, nameId, timeout, () => {
       this.refuelVehiclePass(client, item, vehicleGuid, fuelValue);
     });
@@ -6193,55 +6162,45 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  drinkItemPass(
+  useComsumablePass(
     client: Client,
     item: BaseItem,
     eatCount: number,
     drinkCount: number,
-    givetrash: number
+    staminaCount: number,
+    givetrash: number,
+    healCount: number,
+    bandagingCount:number 
   ) {
-    this.removeInventoryItem(client, item, 1);
-    client.character._resources[ResourceIds.HUNGER] += eatCount;
-    client.character._resources[ResourceIds.HYDRATION] += drinkCount;
-    this.updateResource(
-      client,
-      client.character.characterId,
-      client.character._resources[ResourceIds.HUNGER],
-      ResourceIds.HUNGER
-    );
-    this.updateResource(
-      client,
-      client.character.characterId,
-      client.character._resources[ResourceIds.HYDRATION],
-      ResourceIds.HYDRATION
-    );
-    if (givetrash) {
-      client.character.lootContainerItem(this, this.generateItem(givetrash));
+    if (!this.removeInventoryItem(client, item)) return;
+    if (eatCount) {
+      client.character._resources[ResourceIds.HUNGER] += eatCount;
+        this.updateResource(
+            client,
+            client.character.characterId,
+            client.character._resources[ResourceIds.HUNGER],
+            ResourceIds.HUNGER
+        );
     }
-  }
-
-  eatItemPass(
-    client: Client,
-    item: BaseItem,
-    eatCount: number,
-    drinkCount: number,
-    givetrash: number
-  ) {
-    this.removeInventoryItem(client, item, 1);
-    client.character._resources[ResourceIds.HUNGER] += eatCount;
-    client.character._resources[ResourceIds.HYDRATION] += drinkCount;
-    this.updateResource(
-      client,
-      client.character.characterId,
-      client.character._resources[ResourceIds.HUNGER],
-      ResourceIds.HUNGER
-    );
-    this.updateResource(
-      client,
-      client.character.characterId,
-      client.character._resources[ResourceIds.HYDRATION],
-      ResourceIds.HYDRATION
-    );
+    if (drinkCount) {
+        client.character._resources[ResourceIds.HYDRATION] += drinkCount;
+        this.updateResource(
+            client,
+            client.character.characterId,
+            client.character._resources[ResourceIds.HYDRATION],
+            ResourceIds.HYDRATION
+        );
+    }
+    if (staminaCount) {
+        client.character._resources[ResourceIds.STAMINA] += staminaCount;
+        this.updateResource(
+            client,
+            client.character.characterId,
+            client.character._resources[ResourceIds.STAMINA],
+            ResourceIds.STAMINA
+        );
+    }
+    
     if (item.itemDefinitionId == Items.MEAT_ROTTEN) {
       const damageInfo: DamageInfo = {
         entity: "",
@@ -6251,6 +6210,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (givetrash) {
       client.character.lootContainerItem(this, this.generateItem(givetrash));
+    }
+    if (bandagingCount && healCount){
+        client.character.healingMaxTicks += healCount;
+        client.character._resources[ResourceIds.BLEEDING] -= bandagingCount;
+        const bleeding = client.character._resources[ResourceIds.BLEEDING];
+        if (!client.character.healingInterval) {
+            client.character.starthealingInterval(client, this);
+        }
+        this.updateResourceToAllWithSpawnedEntity(
+            client.character.characterId,
+            bleeding,
+            ResourceIds.BLEEDING,
+            ResourceTypes.BLEEDING,
+            this._characters
+        );
     }
   }
 
@@ -6309,27 +6283,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  useMedicalPass(
-    client: Client,
-    item: BaseItem,
-    healCount: number,
-    bandagingCount: number
-  ) {
-    if (!this.removeInventoryItem(client, item)) return;
-    client.character.healingMaxTicks += healCount;
-    client.character._resources[ResourceIds.BLEEDING] -= bandagingCount;
-    const bleeding = client.character._resources[ResourceIds.BLEEDING];
-    if (!client.character.healingInterval) {
-      client.character.starthealingInterval(client, this);
-    }
-    this.updateResourceToAllWithSpawnedEntity(
-      client.character.characterId,
-      bleeding,
-      ResourceIds.BLEEDING,
-      ResourceTypes.BLEEDING,
-      this._characters
-    );
-  }
+
 
   refuelVehiclePass(
     client: Client,
