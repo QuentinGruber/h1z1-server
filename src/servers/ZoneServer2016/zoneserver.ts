@@ -6069,7 +6069,6 @@ export class ZoneServer2016 extends EventEmitter {
       if (!itemDef) return;
       const nameId = itemDef.NAME_ID;
       let timeout = 0;
-      let useoption = ""
       let doReturn = true;
       for (const a in UseOptions) {
           if (UseOptions[a].itemDef == item.itemDefinitionId && UseOptions[a].type == ItemUseOptions.SLICE) {
