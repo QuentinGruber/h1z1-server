@@ -102,10 +102,10 @@ export enum StringIds {
 }
 
 export enum MovementModifiers {
-  RESTED = 1.3,
-  SWIZZLE = 1.15,
-  SNARED = 0.4,
-  BOOTS = 1.15,
+  RESTED = 1.10,
+  SWIZZLE = 1.10,
+  SNARED = 0.5,
+  BOOTS = 1.10,
 }
 
 export enum ContainerErrors {

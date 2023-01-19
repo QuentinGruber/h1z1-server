@@ -5479,6 +5479,7 @@ export class ZoneServer2016 extends EventEmitter {
       client,
       client.character.getActiveEquipmentSlot(item)
     );
+    this.checkConveys(client)
     if (this.getItemDefinition(itemDefId).ITEM_TYPE === 34) {
       delete client.character._containers[loadoutSlotId];
       this.initializeContainerList(client);
@@ -6448,6 +6449,7 @@ export class ZoneServer2016 extends EventEmitter {
   clearMovementModifiers(client: Client) {
     for (const a in client.character.timeouts) {
       client.character.timeouts[a]._onTimeout();
+      clearTimeout(client.character.timeouts[a])
       delete client.character.timeouts[a];
     }
   }
@@ -6455,22 +6457,10 @@ export class ZoneServer2016 extends EventEmitter {
   applyMovementModifier(client: Client, modifier: MovementModifiers) {
     this.multiplyMovementModifier(client, modifier);
     switch (modifier) {
-      case MovementModifiers.RESTED:
-        if (client.character.timeouts["wellRested"]) {
-          client.character.timeouts["wellRested"]._onTimeout();
-          delete client.character.timeouts["wellRested"];
-        }
-        client.character.timeouts["wellRested"] = setTimeout(() => {
-          if (!client.character.timeouts["wellRested"]) {
-            return;
-          }
-          this.divideMovementModifier(client, modifier);
-          delete client.character.timeouts["wellRested"];
-        }, 300000);
-        break;
       case MovementModifiers.SWIZZLE:
         if (client.character.timeouts["swizzle"]) {
           client.character.timeouts["swizzle"]._onTimeout();
+          clearTimeout(client.character.timeouts["swizzle"])
           delete client.character.timeouts["swizzle"];
         }
         client.character.timeouts["swizzle"] = setTimeout(() => {
@@ -6484,6 +6474,7 @@ export class ZoneServer2016 extends EventEmitter {
       case MovementModifiers.SNARED:
         if (client.character.timeouts["snared"]) {
           client.character.timeouts["snared"]._onTimeout();
+          clearTimeout(client.character.timeouts["snared"])
           delete client.character.timeouts["snared"];
         }
         client.character.timeouts["snared"] = setTimeout(() => {
@@ -6518,7 +6509,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!character._equipment["5"]) {
       if (character.hasConveys) {
         character.hasConveys = false;
-        this.divideMovementModifier(client, 1.15);
+        this.divideMovementModifier(client, MovementModifiers.BOOTS);
       }
     } else {
       if (character._equipment["5"].guid) {
@@ -6529,10 +6520,10 @@ export class ZoneServer2016 extends EventEmitter {
         const itemDef = this.getItemDefinition(item.itemDefinitionId);
         if (itemDef.DESCRIPTION_ID == 11895 && !character.hasConveys) {
           character.hasConveys = true;
-          this.applyMovementModifier(client, MovementModifiers.BOOTS);
+          this.multiplyMovementModifier(client, MovementModifiers.BOOTS);
         } else if (itemDef.DESCRIPTION_ID != 11895 && character.hasConveys) {
           character.hasConveys = false;
-          this.divideMovementModifier(client, 1.15);
+          this.divideMovementModifier(client, MovementModifiers.BOOTS);
         }
       }
     }
