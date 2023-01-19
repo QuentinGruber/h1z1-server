@@ -263,7 +263,7 @@ export class ZoneServer2016 extends EventEmitter {
   private readonly _transientIdGenerator = generateTransientId();
   _packetsStats: Record<string, number> = {};
   enableWorldSaves: boolean;
-  readonly worldSaveVersion: number = 1;
+  readonly worldSaveVersion: number = 2;
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
   private _proximityItemsDistance: number = 2;
 
