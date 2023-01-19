@@ -179,6 +179,7 @@ export class WorldDataManager {
     //await this.loadVehicleData(server);
     await this.loadServerData(server);
     await this.loadConstructionData(server);
+    await this.loadWorldFreeplaceConstruction(server);
     await this.loadCropData(server);
     server._transientIds = server.getAllCurrentUsedTransientId();
     debug("World fetched!");
@@ -225,6 +226,7 @@ export class WorldDataManager {
     await this.saveServerData(server);
     await this.saveCharacters(server);
     await this.saveConstructionData(server);
+    await this.saveWorldFreeplaceConstruction(server);
     await this.saveCropData(server);
     debug("World saved!");
   }
@@ -664,7 +666,8 @@ export class WorldDataManager {
 
   loadLootableConstructionEntity(
     server: ZoneServer2016,
-    entityData: LootableConstructionSaveData
+    entityData: LootableConstructionSaveData,
+    isWorldConstruction: boolean = false
   ): LootableConstructionEntity {
     const transientId = server.getTransientId(entityData.characterId),
       entity = new LootableConstructionEntity(
@@ -687,6 +690,10 @@ export class WorldDataManager {
       entity._containers["31"] = container;
     }
 
+    if(isWorldConstruction) {
+      server._worldLootableConstruction[entity.characterId] = entity;
+      return entity;
+    }
     server._lootableConstruction[entity.characterId] = entity;
 
     return entity;
@@ -1065,7 +1072,7 @@ export class WorldDataManager {
     if (server._soloMode) {
       crops = require(`${server._appDataFolder}/worlddata/crops.json`);
       if (!crops) {
-        debug("Construction data not found in file, aborting.");
+        debug("Crop data not found in file, aborting.");
         return;
       }
     } else {
@@ -1078,6 +1085,48 @@ export class WorldDataManager {
     }
     crops.forEach((entityData) => {
       this.loadPlantingDiameter(server, entityData);
+    });
+  }
+
+  async saveWorldFreeplaceConstruction(server: ZoneServer2016) {
+    //worldconstruction
+    const freeplace: Array<LootableConstructionSaveData> = [];
+    Object.values(server._worldLootableConstruction).forEach((entity) => {
+      freeplace.push(this.getLootableConstructionSaveData(server, entity))
+    });
+
+    if (server._soloMode) {
+      fs.writeFileSync(
+        `${server._appDataFolder}/worlddata/worldconstruction.json`,
+        JSON.stringify(freeplace, null, 2)
+      );
+    } else {
+      const collection = server._db?.collection("worldconstruction");
+      collection?.deleteMany({ serverId: server._worldId });
+      if (freeplace.length) collection?.insertMany(freeplace);
+    }
+  }
+
+  async loadWorldFreeplaceConstruction(server: ZoneServer2016) {
+    //worldconstruction
+    if (!server.enableWorldSaves) return;
+    let freeplace: Array<LootableConstructionSaveData> = [];
+    if (server._soloMode) {
+      freeplace = require(`${server._appDataFolder}/worlddata/worldconstruction.json`);
+      if (!freeplace) {
+        debug("World construction data not found in file, aborting.");
+        return;
+      }
+    } else {
+      freeplace = <any>(
+        await server._db
+          ?.collection("worldconstruction")
+          .find({ serverId: server._worldId })
+          .toArray()
+      );
+    }
+    freeplace.forEach((entityData) => {
+      this.loadLootableConstructionEntity(server, entityData, true);
     });
   }
 
