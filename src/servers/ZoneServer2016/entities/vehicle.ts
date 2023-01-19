@@ -568,9 +568,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   destroy(server: ZoneServer2016) {
     this._resources[ResourceIds.CONDITION] = 0;
     for (const c in server._clients) {
-      if (
-        this.characterId === server._clients[c].vehicle.mountedVehicle
-      ) {
+      if (this.characterId === server._clients[c].vehicle.mountedVehicle) {
         server.dismountVehicle(server._clients[c]);
       }
     }
@@ -588,11 +586,11 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     server.deleteEntity(this.characterId, server._vehicles);
     server.explosionDamage(this.state.position, this.characterId);
-    this.state.position[1] -= 0.4 
+    this.state.position[1] -= 0.4;
     // fix floating vehicle lootbags
     Object.values(this._loadout).forEach((item: LoadoutItem) => {
-        delete this._loadout[item.slotId]
-    })
+      delete this._loadout[item.slotId];
+    });
     // delete vehicle loadout parts from lootbag
     server.worldObjectManager.createLootbag(server, this);
   }

@@ -690,7 +690,7 @@ export class WorldDataManager {
       entity._containers["31"] = container;
     }
 
-    if(isWorldConstruction) {
+    if (isWorldConstruction) {
       server._worldLootableConstruction[entity.characterId] = entity;
       return entity;
     }
@@ -863,7 +863,7 @@ export class WorldDataManager {
     return {
       ...this.getBaseConstructionSaveData(server, entity),
       container: entity.getContainer(),
-      subEntityType: entity.subEntity?.subType || ""
+      subEntityType: entity.subEntity?.subType || "",
     };
   }
 
@@ -982,11 +982,14 @@ export class WorldDataManager {
       growState: entity.growState,
       parentObjectCharacterId: entity.parentObjectCharacterId,
       slot: entity.slot,
-      item: this.getItemSaveData(server, entity.item)
-    }
+      item: this.getItemSaveData(server, entity.item),
+    };
   }
 
-  getPlantingDiameterSaveData(server: ZoneServer2016, entity: PlantingDiameter): PlantingDiameterSaveData {
+  getPlantingDiameterSaveData(
+    server: ZoneServer2016,
+    entity: PlantingDiameter
+  ): PlantingDiameterSaveData {
     const slots: { [id: string]: PlantSaveData } = {};
     Object.values(entity.seedSlots).forEach((plant) => {
       slots[plant.slot] = this.getPlantSaveData(server, plant);
@@ -996,8 +999,8 @@ export class WorldDataManager {
       ...this.getBaseFullEntitySaveData(server, entity),
       seedSlots: slots,
       fertilizedTimestamp: entity.fertilizedTimestamp,
-      isFertilized: entity.isFertilized
-    }
+      isFertilized: entity.isFertilized,
+    };
   }
 
   async saveCropData(server: ZoneServer2016) {
@@ -1022,50 +1025,61 @@ export class WorldDataManager {
     }
   }
 
-  loadPlant(server: ZoneServer2016, parent: PlantingDiameter, entityData: PlantSaveData): Plant {
+  loadPlant(
+    server: ZoneServer2016,
+    parent: PlantingDiameter,
+    entityData: PlantSaveData
+  ): Plant {
     const item = new BaseItem(
-      entityData.item.itemDefinitionId,
-      entityData.item.itemGuid,
-      entityData.item.currentDurability,
-      entityData.item.stackCount
-    ), 
-    transientId = server.getTransientId(entityData.characterId),
-    plant = new Plant(
-      entityData.characterId,
-      transientId,
-      entityData.actorModelId,
-      new Float32Array(entityData.position),
-      new Float32Array(entityData.rotation),
-      server,
-      0,
-      item,
-      parent.characterId,
-      entityData.slot
-    );
+        entityData.item.itemDefinitionId,
+        entityData.item.itemGuid,
+        entityData.item.currentDurability,
+        entityData.item.stackCount
+      ),
+      transientId = server.getTransientId(entityData.characterId),
+      plant = new Plant(
+        entityData.characterId,
+        transientId,
+        entityData.actorModelId,
+        new Float32Array(entityData.position),
+        new Float32Array(entityData.rotation),
+        server,
+        0,
+        item,
+        parent.characterId,
+        entityData.slot
+      );
     plant.growState = entityData.growState;
 
     server._plants[plant.characterId] = plant;
     return plant;
   }
 
-  loadPlantingDiameter(server: ZoneServer2016, entityData: PlantingDiameterSaveData) {
+  loadPlantingDiameter(
+    server: ZoneServer2016,
+    entityData: PlantingDiameterSaveData
+  ) {
     const transientId = server.getTransientId(entityData.characterId),
-    plantingDiameter = new PlantingDiameter(
-      entityData.characterId,
-      transientId,
-      entityData.actorModelId,
-      new Float32Array(entityData.position),
-      new Float32Array(entityData.rotation),
-      server
-    )
+      plantingDiameter = new PlantingDiameter(
+        entityData.characterId,
+        transientId,
+        entityData.actorModelId,
+        new Float32Array(entityData.position),
+        new Float32Array(entityData.rotation),
+        server
+      );
 
     plantingDiameter.fertilizedTimestamp = entityData.fertilizedTimestamp;
     plantingDiameter.isFertilized = entityData.isFertilized;
     server._temporaryObjects[plantingDiameter.characterId] = plantingDiameter;
 
     Object.values(entityData.seedSlots).forEach((plant) => {
-      plantingDiameter.seedSlots[plant.slot] = this.loadPlant(server, plantingDiameter, plant);
-    })
+      plantingDiameter.seedSlots[plant.slot] = this.loadPlant(
+        server,
+        plantingDiameter,
+        plant
+      );
+    });
   }
 
   async loadCropData(server: ZoneServer2016) {
@@ -1094,7 +1108,7 @@ export class WorldDataManager {
     //worldconstruction
     const freeplace: Array<LootableConstructionSaveData> = [];
     Object.values(server._worldLootableConstruction).forEach((entity) => {
-      freeplace.push(this.getLootableConstructionSaveData(server, entity))
+      freeplace.push(this.getLootableConstructionSaveData(server, entity));
     });
 
     if (server._soloMode) {

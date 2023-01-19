@@ -24,7 +24,12 @@ import { ZoneClient2016 } from "./zoneclient";
 function getAllowedFuel(itemDefinitionId: number): number[] {
   switch (itemDefinitionId) {
     case Items.FURNACE:
-      return [Items.WOOD_LOG, Items.WOOD_PLANK, Items.WOOD_STICK, Items.CHARCOAL];
+      return [
+        Items.WOOD_LOG,
+        Items.WOOD_PLANK,
+        Items.WOOD_STICK,
+        Items.CHARCOAL,
+      ];
     case Items.BARBEQUE:
       return [Items.WOOD_STICK, Items.WOOD_PLANK, Items.CHARCOAL];
     case Items.CAMPFIRE:
@@ -249,10 +254,10 @@ export class SmeltingEntity {
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-      if (!this.isWorking) return
-      server.sendData(client, "Command.PlayDialogEffect", {
-          characterId: this.parentObject.characterId,
-          effectId: this.workingEffect,
-      });
+    if (!this.isWorking) return;
+    server.sendData(client, "Command.PlayDialogEffect", {
+      characterId: this.parentObject.characterId,
+      effectId: this.workingEffect,
+    });
   }
 }

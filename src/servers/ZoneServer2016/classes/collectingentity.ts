@@ -20,19 +20,19 @@ import { BaseEntity } from "../entities/baseentity";
 import { ZoneClient2016 } from "./zoneclient";
 
 function getSubEntityData(
-    entity: LootableConstructionEntity,
-    child: CollectingEntity
+  entity: LootableConstructionEntity,
+  child: CollectingEntity
 ) {
-    switch (entity.itemDefinitionId) {
-        case Items.DEW_COLLECTOR:
-            entity.defaultLoadout = lootableContainerDefaultLoadouts.dew_collector;
-            child.workingEffect = 0;
-            break;
-        case Items.ANIMAL_TRAP:
-            entity.defaultLoadout = lootableContainerDefaultLoadouts.animal_trap;
-            child.workingEffect = 0;
-            break;
-    }
+  switch (entity.itemDefinitionId) {
+    case Items.DEW_COLLECTOR:
+      entity.defaultLoadout = lootableContainerDefaultLoadouts.dew_collector;
+      child.workingEffect = 0;
+      break;
+    case Items.ANIMAL_TRAP:
+      entity.defaultLoadout = lootableContainerDefaultLoadouts.animal_trap;
+      child.workingEffect = 0;
+      break;
+  }
 }
 
 export class CollectingEntity {
@@ -52,21 +52,21 @@ export class CollectingEntity {
     if (!parentObject.getParent(server)) {
       this.dictionary = server._worldLootableConstruction;
     } else this.dictionary = server._lootableConstruction;
-      getSubEntityData(parentObject, this);
+    getSubEntityData(parentObject, this);
 
     this.startWorking(server, parentObject);
 
     const container = parentObject.getContainer();
-      switch (parentObject.itemDefinitionId) {
-        case Items.ANIMAL_TRAP:
-          if (container) {
-            container.canAcceptItems = false;
-          }
-          break;
+    switch (parentObject.itemDefinitionId) {
+      case Items.ANIMAL_TRAP:
+        if (container) {
+          container.canAcceptItems = false;
+        }
+        break;
       case Items.DEW_COLLECTOR:
         if (container) {
           container.acceptedItems = [Items.WATER_EMPTY];
-      }
+        }
     }
   }
 

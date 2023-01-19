@@ -878,18 +878,12 @@ export const commands: Array<Command> = [
 
       for (const a in itemDefinitions) {
         const name = itemDefinitions[a].NAME;
-        const argsName = args[0].toString().toUpperCase().replaceAll("_", " ")
+        const argsName = args[0].toString().toUpperCase().replaceAll("_", " ");
         if (!name) continue;
-        if (
-          name.toUpperCase() ==
-          argsName
-        )
-          itemDefId = itemDefinitions[a].ID;
+        if (name.toUpperCase() == argsName) itemDefId = itemDefinitions[a].ID;
         else if (
-          getDifference(name.toUpperCase(), argsName) <=
-            3 &&
-          getDifference(name.toUpperCase(), argsName) !=
-            0
+          getDifference(name.toUpperCase(), argsName) <= 3 &&
+          getDifference(name.toUpperCase(), argsName) != 0
         )
           similar = itemDefinitions[a].NAME.toUpperCase().replaceAll(" ", "_");
       }

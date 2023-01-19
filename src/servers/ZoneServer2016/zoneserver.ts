@@ -689,7 +689,9 @@ export class ZoneServer2016 extends EventEmitter {
     Object.values(client.character._loadout).forEach((item: LoadoutItem) => {
       if (item.stackCount < 1) {
         debug("\n\n\n");
-        console.log(`Deprecated character loadout detected ${client.character.name}`);
+        console.log(
+          `Deprecated character loadout detected ${client.character.name}`
+        );
         console.log(item);
         debug("\n\n\n");
         item.stackCount;
@@ -3777,16 +3779,16 @@ export class ZoneServer2016 extends EventEmitter {
     ];
     if (!allowedPoiPlacement.includes(itemDefinitionId)) {
       let isInPoi = false;
-      let useRange = true
+      let useRange = true;
       Z1_POIs.forEach((point: any) => {
-          if (point.bounds) {
-            useRange = false;
-                    point.bounds.forEach((bound: any) => {
-                        if (isInsideSquare([position[0], position[2]], bound)) {
-                            isInPoi = true
-                            return
-                        }
-                    })
+        if (point.bounds) {
+          useRange = false;
+          point.bounds.forEach((bound: any) => {
+            if (isInsideSquare([position[0], position[2]], bound)) {
+              isInPoi = true;
+              return;
+            }
+          });
         }
         if (useRange && isPosInRadius(point.range, position, point.position))
           isInPoi = true;
@@ -4344,7 +4346,10 @@ export class ZoneServer2016 extends EventEmitter {
     parentObjectCharacterId: string,
     BuildingSlot?: string
   ): boolean {
-    if(itemDefinitionId == Items.FOUNDATION_EXPANSION && (!parentObjectCharacterId || !BuildingSlot)) {
+    if (
+      itemDefinitionId == Items.FOUNDATION_EXPANSION &&
+      (!parentObjectCharacterId || !BuildingSlot)
+    ) {
       // prevent expansions from being placed without a deck if client check is bypassed
       return false;
     }
@@ -4654,7 +4659,6 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    
     const obj = new Plant(
       characterId,
       transientId,
@@ -5479,7 +5483,7 @@ export class ZoneServer2016 extends EventEmitter {
       client,
       client.character.getActiveEquipmentSlot(item)
     );
-    this.checkConveys(client)
+    this.checkConveys(client);
     if (this.getItemDefinition(itemDefId).ITEM_TYPE === 34) {
       delete client.character._containers[loadoutSlotId];
       this.initializeContainerList(client);
@@ -5899,7 +5903,7 @@ export class ZoneServer2016 extends EventEmitter {
   useConsumable(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
-    let doReturn = true
+    let doReturn = true;
     let drinkCount = 0;
     let eatCount = 0;
     let staminaCount = 0;
@@ -5907,56 +5911,70 @@ export class ZoneServer2016 extends EventEmitter {
     let healCount = 9;
     let bandagingCount = 40;
     let timeout = 0;
-      for (const a in UseOptions) {
-          if (UseOptions[a].itemDef == item.itemDefinitionId && (UseOptions[a].type == ItemUseOptions.EAT || 
-              UseOptions[a].type == ItemUseOptions.DRINK ||
-              UseOptions[a].type == ItemUseOptions.USE_MEDICAL
-              )) {
-              const useOption = UseOptions[a];
-              doReturn = false
-              timeout = useOption.timeout
-              if (useOption.drinkCount) drinkCount = useOption.drinkCount
-              if (useOption.eatCount) eatCount = useOption.eatCount
-              if (useOption.staminaCount) staminaCount = useOption.staminaCount
-              if (useOption.givetrash) givetrash = useOption.givetrash
-              if (useOption.healCount) healCount = useOption.healCount
-              if (useOption.bandagingCount) bandagingCount = useOption.bandagingCount
-          }
+    for (const a in UseOptions) {
+      if (
+        UseOptions[a].itemDef == item.itemDefinitionId &&
+        (UseOptions[a].type == ItemUseOptions.EAT ||
+          UseOptions[a].type == ItemUseOptions.DRINK ||
+          UseOptions[a].type == ItemUseOptions.USE_MEDICAL)
+      ) {
+        const useOption = UseOptions[a];
+        doReturn = false;
+        timeout = useOption.timeout;
+        if (useOption.drinkCount) drinkCount = useOption.drinkCount;
+        if (useOption.eatCount) eatCount = useOption.eatCount;
+        if (useOption.staminaCount) staminaCount = useOption.staminaCount;
+        if (useOption.givetrash) givetrash = useOption.givetrash;
+        if (useOption.healCount) healCount = useOption.healCount;
+        if (useOption.bandagingCount) bandagingCount = useOption.bandagingCount;
       }
+    }
     if (doReturn) {
-        this.sendChatText(
-            client,
-            "[ERROR] consumable not mapped to item Definition " +
-            item.itemDefinitionId
-        );
-        return
+      this.sendChatText(
+        client,
+        "[ERROR] consumable not mapped to item Definition " +
+          item.itemDefinitionId
+      );
+      return;
     }
 
     this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
-      this.useComsumablePass(client, item, eatCount, drinkCount, staminaCount, givetrash, healCount, bandagingCount);
+      this.useComsumablePass(
+        client,
+        item,
+        eatCount,
+        drinkCount,
+        staminaCount,
+        givetrash,
+        healCount,
+        bandagingCount
+      );
     });
   }
 
   igniteOption(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
-      let timeout = 0;
-      let doReturn = true;
-      for (const a in UseOptions) {
-          if (UseOptions[a].itemDef == item.itemDefinitionId && UseOptions[a].type == ItemUseOptions.IGNITE) {
-              const useOption = UseOptions[a];
-              doReturn = false
-              timeout = useOption.timeout
-          }
+    let timeout = 0;
+    let doReturn = true;
+    for (const a in UseOptions) {
+      if (
+        UseOptions[a].itemDef == item.itemDefinitionId &&
+        UseOptions[a].type == ItemUseOptions.IGNITE
+      ) {
+        const useOption = UseOptions[a];
+        doReturn = false;
+        timeout = useOption.timeout;
       }
-      if (doReturn) {
-          this.sendChatText(
-              client,
-              "[ERROR] use option not mapped to item Definition " +
-              item.itemDefinitionId
-          );
-          return
-      }
+    }
+    if (doReturn) {
+      this.sendChatText(
+        client,
+        "[ERROR] use option not mapped to item Definition " +
+          item.itemDefinitionId
+      );
+      return;
+    }
     this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
       this.igniteoptionPass(client);
     });
@@ -6008,27 +6026,30 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   useItem(client: Client, item: BaseItem) {
-      const itemDef = this.getItemDefinition(item.itemDefinitionId);
-      if (!itemDef) return;
-      const nameId = itemDef.NAME_ID;
-      let timeout = 0;
-      let useoption = ""
-      let doReturn = true;
-      for (const a in UseOptions) {
-          if (UseOptions[a].itemDef == item.itemDefinitionId && UseOptions[a].type == ItemUseOptions.USE) {
-              const useOption = UseOptions[a];
-              doReturn = false
-              timeout = useOption.timeout
-          }
+    const itemDef = this.getItemDefinition(item.itemDefinitionId);
+    if (!itemDef) return;
+    const nameId = itemDef.NAME_ID;
+    let timeout = 0;
+    let useoption = "";
+    let doReturn = true;
+    for (const a in UseOptions) {
+      if (
+        UseOptions[a].itemDef == item.itemDefinitionId &&
+        UseOptions[a].type == ItemUseOptions.USE
+      ) {
+        const useOption = UseOptions[a];
+        doReturn = false;
+        timeout = useOption.timeout;
       }
-      if (doReturn) {
-          this.sendChatText(
-              client,
-              "[ERROR] use option not mapped to item Definition " +
-              item.itemDefinitionId
-          );
-          return
-      }
+    }
+    if (doReturn) {
+      this.sendChatText(
+        client,
+        "[ERROR] use option not mapped to item Definition " +
+          item.itemDefinitionId
+      );
+      return;
+    }
     switch (item.itemDefinitionId) {
       case Items.WATER_EMPTY:
         useoption = "fill";
@@ -6066,54 +6087,60 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sliceItem(client: Client, item: BaseItem) {
-      const itemDef = this.getItemDefinition(item.itemDefinitionId);
-      if (!itemDef) return;
-      const nameId = itemDef.NAME_ID;
-      let timeout = 0;
-      let doReturn = true;
-      for (const a in UseOptions) {
-          if (UseOptions[a].itemDef == item.itemDefinitionId && UseOptions[a].type == ItemUseOptions.SLICE) {
-              const useOption = UseOptions[a];
-              doReturn = false
-              timeout = useOption.timeout
-          }
+    const itemDef = this.getItemDefinition(item.itemDefinitionId);
+    if (!itemDef) return;
+    const nameId = itemDef.NAME_ID;
+    let timeout = 0;
+    let doReturn = true;
+    for (const a in UseOptions) {
+      if (
+        UseOptions[a].itemDef == item.itemDefinitionId &&
+        UseOptions[a].type == ItemUseOptions.SLICE
+      ) {
+        const useOption = UseOptions[a];
+        doReturn = false;
+        timeout = useOption.timeout;
       }
-      if (doReturn) {
-          this.sendChatText(
-              client,
-              "[ERROR] use option not mapped to item Definition " +
-              item.itemDefinitionId
-          );
-          return
-      }
-      this.utilizeHudTimer(client, nameId, timeout, () => {
-          this.slicePass(client, item);
-      });
+    }
+    if (doReturn) {
+      this.sendChatText(
+        client,
+        "[ERROR] use option not mapped to item Definition " +
+          item.itemDefinitionId
+      );
+      return;
+    }
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.slicePass(client, item);
+    });
   }
 
   refuelVehicle(client: Client, item: BaseItem, vehicleGuid: string) {
-      const itemDef = this.getItemDefinition(item.itemDefinitionId);
-      if (!itemDef) return;
-      const nameId = itemDef.NAME_ID;
-      let fuelValue = 0
-      let timeout = 0;
-      let doReturn = true;
-      for (const a in UseOptions) {
-          if (UseOptions[a].itemDef == item.itemDefinitionId && UseOptions[a].type == ItemUseOptions.REFUEL) {
-              const useOption = UseOptions[a];
-              doReturn = false
-              timeout = useOption.timeout
-              if (useOption.refuelCount) fuelValue = useOption.refuelCount
-          }
+    const itemDef = this.getItemDefinition(item.itemDefinitionId);
+    if (!itemDef) return;
+    const nameId = itemDef.NAME_ID;
+    let fuelValue = 0;
+    let timeout = 0;
+    let doReturn = true;
+    for (const a in UseOptions) {
+      if (
+        UseOptions[a].itemDef == item.itemDefinitionId &&
+        UseOptions[a].type == ItemUseOptions.REFUEL
+      ) {
+        const useOption = UseOptions[a];
+        doReturn = false;
+        timeout = useOption.timeout;
+        if (useOption.refuelCount) fuelValue = useOption.refuelCount;
       }
-      if (doReturn) {
-          this.sendChatText(
-              client,
-              "[ERROR] consumable not mapped to item Definition " +
-              item.itemDefinitionId
-          );
-          return
-      }
+    }
+    if (doReturn) {
+      this.sendChatText(
+        client,
+        "[ERROR] consumable not mapped to item Definition " +
+          item.itemDefinitionId
+      );
+      return;
+    }
     this.utilizeHudTimer(client, nameId, timeout, () => {
       this.refuelVehiclePass(client, item, vehicleGuid, fuelValue);
     });
@@ -6202,37 +6229,37 @@ export class ZoneServer2016 extends EventEmitter {
     staminaCount: number,
     givetrash: number,
     healCount: number,
-    bandagingCount:number 
+    bandagingCount: number
   ) {
     if (!this.removeInventoryItem(client, item)) return;
     if (eatCount) {
       client.character._resources[ResourceIds.HUNGER] += eatCount;
-        this.updateResource(
-            client,
-            client.character.characterId,
-            client.character._resources[ResourceIds.HUNGER],
-            ResourceIds.HUNGER
-        );
+      this.updateResource(
+        client,
+        client.character.characterId,
+        client.character._resources[ResourceIds.HUNGER],
+        ResourceIds.HUNGER
+      );
     }
     if (drinkCount) {
-        client.character._resources[ResourceIds.HYDRATION] += drinkCount;
-        this.updateResource(
-            client,
-            client.character.characterId,
-            client.character._resources[ResourceIds.HYDRATION],
-            ResourceIds.HYDRATION
-        );
+      client.character._resources[ResourceIds.HYDRATION] += drinkCount;
+      this.updateResource(
+        client,
+        client.character.characterId,
+        client.character._resources[ResourceIds.HYDRATION],
+        ResourceIds.HYDRATION
+      );
     }
     if (staminaCount) {
-        client.character._resources[ResourceIds.STAMINA] += staminaCount;
-        this.updateResource(
-            client,
-            client.character.characterId,
-            client.character._resources[ResourceIds.STAMINA],
-            ResourceIds.STAMINA
-        );
+      client.character._resources[ResourceIds.STAMINA] += staminaCount;
+      this.updateResource(
+        client,
+        client.character.characterId,
+        client.character._resources[ResourceIds.STAMINA],
+        ResourceIds.STAMINA
+      );
     }
-    
+
     if (item.itemDefinitionId == Items.MEAT_ROTTEN) {
       const damageInfo: DamageInfo = {
         entity: "",
@@ -6243,30 +6270,30 @@ export class ZoneServer2016 extends EventEmitter {
     if (givetrash) {
       client.character.lootContainerItem(this, this.generateItem(givetrash));
     }
-    if (bandagingCount && healCount){
-        client.character.healingMaxTicks += healCount;
-        client.character._resources[ResourceIds.BLEEDING] -= bandagingCount;
-        const bleeding = client.character._resources[ResourceIds.BLEEDING];
-        if (!client.character.healingInterval) {
-            client.character.starthealingInterval(client, this);
-        }
-        this.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            bleeding,
-            ResourceIds.BLEEDING,
-            ResourceTypes.BLEEDING,
-            this._characters
-        );
+    if (bandagingCount && healCount) {
+      client.character.healingMaxTicks += healCount;
+      client.character._resources[ResourceIds.BLEEDING] -= bandagingCount;
+      const bleeding = client.character._resources[ResourceIds.BLEEDING];
+      if (!client.character.healingInterval) {
+        client.character.starthealingInterval(client, this);
+      }
+      this.updateResourceToAllWithSpawnedEntity(
+        client.character.characterId,
+        bleeding,
+        ResourceIds.BLEEDING,
+        ResourceTypes.BLEEDING,
+        this._characters
+      );
     }
   }
 
-  slicePass(
-    client: Client,
-    item: BaseItem,
-  ) {
+  slicePass(client: Client, item: BaseItem) {
     if (!this.removeInventoryItem(client, item)) return;
     if (item.itemDefinitionId == Items.BLACKBERRY_PIE) {
-      client.character.lootContainerItem(this, this.generateItem(Items.BLACKBERRY_PIE_SLICE, 4));
+      client.character.lootContainerItem(
+        this,
+        this.generateItem(Items.BLACKBERRY_PIE_SLICE, 4)
+      );
     }
   }
 
@@ -6324,8 +6351,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
-
-
 
   refuelVehiclePass(
     client: Client,
@@ -6449,7 +6474,7 @@ export class ZoneServer2016 extends EventEmitter {
   clearMovementModifiers(client: Client) {
     for (const a in client.character.timeouts) {
       client.character.timeouts[a]._onTimeout();
-      clearTimeout(client.character.timeouts[a])
+      clearTimeout(client.character.timeouts[a]);
       delete client.character.timeouts[a];
     }
   }
@@ -6460,7 +6485,7 @@ export class ZoneServer2016 extends EventEmitter {
       case MovementModifiers.SWIZZLE:
         if (client.character.timeouts["swizzle"]) {
           client.character.timeouts["swizzle"]._onTimeout();
-          clearTimeout(client.character.timeouts["swizzle"])
+          clearTimeout(client.character.timeouts["swizzle"]);
           delete client.character.timeouts["swizzle"];
         }
         client.character.timeouts["swizzle"] = setTimeout(() => {
@@ -6474,7 +6499,7 @@ export class ZoneServer2016 extends EventEmitter {
       case MovementModifiers.SNARED:
         if (client.character.timeouts["snared"]) {
           client.character.timeouts["snared"]._onTimeout();
-          clearTimeout(client.character.timeouts["snared"])
+          clearTimeout(client.character.timeouts["snared"]);
           delete client.character.timeouts["snared"];
         }
         client.character.timeouts["snared"] = setTimeout(() => {

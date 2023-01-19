@@ -184,7 +184,7 @@ export class LoadoutContainer extends LoadoutItem {
       !targetContainer.acceptedItems.includes(item.itemDefinitionId)
     ) {
       server.containerError(client, ContainerErrors.UNACCEPTED_ITEM);
-      return
+      return;
     }
 
     if (!this.isMutable || !targetContainer.isMutable) {

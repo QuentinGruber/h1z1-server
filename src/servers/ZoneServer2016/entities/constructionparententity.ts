@@ -265,11 +265,14 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   isSideSecure(side: number): boolean {
-    if(this.itemDefinitionId != Items.FOUNDATION) return false;
+    if (this.itemDefinitionId != Items.FOUNDATION) return false;
     let secure = true;
     Object.keys(this.wallSlots).forEach((slot) => {
-      const wall = this.occupiedWallSlots[Number(slot)+1]
-      if(side == this.getDependentExpansion(Number(slot)+1) && (!wall || !wall.isSecured)) {
+      const wall = this.occupiedWallSlots[Number(slot) + 1];
+      if (
+        side == this.getDependentExpansion(Number(slot) + 1) &&
+        (!wall || !wall.isSecured)
+      ) {
         secure = false;
         return;
       }
@@ -280,7 +283,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   /**
    * Tests if all walls slots of this foundation are occupied and secured.
    * @returns boolean
-  */
+   */
   getWallsSecured(): boolean {
     const wallSlots = Object.values(this.occupiedWallSlots);
     // check if all wall slots are occupied
@@ -298,7 +301,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   updateSecuredState(server: ZoneServer2016) {
-
     // doesn't work correctly yet -Meme
 
     /*

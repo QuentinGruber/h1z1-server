@@ -162,8 +162,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       return;
     }
     if (this.subEntity) {
-        this.subEntity.OnInteractionString(server, client);
-        return
+      this.subEntity.OnInteractionString(server, client);
+      return;
     }
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
@@ -172,8 +172,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.subEntity) {
-      if (!(this.subEntity instanceof SmeltingEntity)) return
-      this.subEntity.OnFullCharacterDataRequest(server, client)
+      if (!(this.subEntity instanceof SmeltingEntity)) return;
+      this.subEntity.OnFullCharacterDataRequest(server, client);
     }
   }
 }
