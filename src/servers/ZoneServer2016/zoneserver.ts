@@ -224,17 +224,7 @@ export class ZoneServer2016 extends EventEmitter {
   _charactersRenderDistance = 350;
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
-    : [
-        "tp",
-        "spawnnpc",
-        "rat",
-        "normalsize",
-        "drive",
-        "parachute",
-        "spawnvehicle",
-        "hood",
-        "kit",
-      ];
+    : [];
   _interactionDistance = 3;
   _pingTimeoutTime = 30000;
   weather: Weather;
