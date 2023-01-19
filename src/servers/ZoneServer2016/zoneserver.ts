@@ -4342,6 +4342,10 @@ export class ZoneServer2016 extends EventEmitter {
     parentObjectCharacterId: string,
     BuildingSlot?: string
   ): boolean {
+    if(itemDefinitionId == Items.FOUNDATION_EXPANSION && (!parentObjectCharacterId || !BuildingSlot)) {
+      // prevent expansions from being placed without a deck if client check is bypassed
+      return false;
+    }
     if (
       BuildingSlot &&
       this._constructionFoundations[parentObjectCharacterId]

@@ -221,7 +221,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   /**
-   * Returns an array containing the parent foundation walls that a given expansion depends on to be secured.
+   * [Deck expansions only] Returns an array containing the parent foundation walls that a given expansion depends on to be secured.
    * @param expansion The expansion to check.
    */
   getDependentWalls(): Array<number> {
@@ -238,7 +238,123 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     return [];
   }
 
+  /**
+   * [Deck foundations only] Returns the slotId of an expansion on the same side as a given wall.
+   * @param expansion The expansion to check.
+   */
+  getDependentExpansion(slotId: number): number {
+    switch (slotId) {
+      case 4:
+      case 5:
+      case 6:
+        return 1;
+      case 1:
+      case 2:
+      case 3:
+        return 2;
+      case 10:
+      case 11:
+      case 12:
+        return 3;
+      case 7:
+      case 8:
+      case 9:
+        return 4;
+    }
+    return 0; // should never get here
+  }
+
+  isSideSecure(side: number): boolean {
+    if(this.itemDefinitionId != Items.FOUNDATION) return false;
+    let secure = true;
+    Object.keys(this.wallSlots).forEach((slot) => {
+      const wall = this.occupiedWallSlots[Number(slot)+1]
+      if(side == this.getDependentExpansion(Number(slot)+1) && (!wall || !wall.isSecured)) {
+        secure = false;
+        return;
+      }
+    });
+    return secure;
+  }
+
+  /**
+   * Tests if all walls slots of this foundation are occupied and secured.
+   * @returns boolean
+  */
+  getWallsSecured(): boolean {
+    const wallSlots = Object.values(this.occupiedWallSlots);
+    // check if all wall slots are occupied
+    if (wallSlots.length != Object.values(this.wallSlots).length) {
+      return false;
+    }
+    // check if any walls are gates / if they're open
+
+    for (const wall of wallSlots) {
+      if (!wall.isSecured) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   updateSecuredState(server: ZoneServer2016) {
+
+    // doesn't work correctly yet -Meme
+
+    /*
+    switch(this.itemDefinitionId) {
+      case Items.FOUNDATION:
+        for (const expansion of Object.values(this.occupiedExpansionSlots)) {
+          expansion.updateSecuredState(server);
+        }
+        
+        for(let i = 1; i < 5; i++) {
+          const expansion = this.occupiedExpansionSlots[i];
+          if(!this.isSideSecure(i) && (!expansion || !expansion.getWallsSecured())) {
+            if(expansion) expansion.isSecured = false;
+            this.isSecured = false;
+            server.sendAlertToAll("NOT SECURE");
+            return;
+          }
+        }
+        server.sendAlertToAll("SECURE");
+        this.isSecured = true;
+        for (const expansion of Object.values(this.occupiedExpansionSlots)) {
+          expansion.updateSecuredState(server);
+        }
+        return;
+      case Items.FOUNDATION_EXPANSION:
+        const parent =
+          server._constructionFoundations[this.parentObjectCharacterId];
+        if (parent) {
+          if(parent.isSecured && this.getWallsSecured()) {
+            this.isSecured = true;
+            return;
+          }
+
+          for (const slot of this.getDependentWalls()) {
+            const wall = parent.occupiedWallSlots[slot];
+            if (!wall || !wall.isSecured) {
+              this.isSecured = false;
+              return;
+            }
+          }
+        }
+        else {
+          this.isSecured = false;
+          return;
+        }
+        break;
+      default:
+        if(!this.getWallsSecured()) {
+          this.isSecured = false;
+          return;
+        }
+        break;
+    }
+    this.isSecured = true;
+    */
+
     // update secured state for all attached expansions
     if (this.itemDefinitionId == Items.FOUNDATION) {
       for (const expansion of Object.values(this.occupiedExpansionSlots)) {
@@ -262,8 +378,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
     /* TODO: for deck foundations ONLY, need to check each side to see if it's secure,
     and if not, check if the expansion is secure (without checking for dependent deck walls)
-
-
     */
 
     // if this is an expansion, check dependent parent foundation walls
