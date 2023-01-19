@@ -11,9 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ContainerErrors } from "../models/enums";
+import { ContainerErrors, FilterIds, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
+import { checkConstructionInRange } from "../../../utils/utils";
 const debug = require("debug")("ZoneServer");
 
 interface craftComponentDSEntry {
@@ -91,7 +92,37 @@ export class CraftManager {
       bundleCount = recipe?.bundleCount || 1, // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
       craftCount = recipeCount * bundleCount; // the actual amount of items to craft
     if (!recipe) return false;
-
+    switch (recipe.filterId) {
+      case FilterIds.COOKING:
+      case FilterIds.FURNACE:
+        server.sendAlert(
+          client,
+          "This recipe requires a furnace, barbeque, or campfire to craft"
+        );
+        return false;
+    }
+    if (recipe.requireWorkbench) {
+      if (
+        !checkConstructionInRange(
+          server._constructionSimple,
+          client.character.state.position,
+          1.5,
+          Items.WORKBENCH
+        ) &&
+        !checkConstructionInRange(
+          server._worldSimpleConstruction,
+          client.character.state.position,
+          1.5,
+          Items.WORKBENCH
+        )
+      ) {
+        server.sendAlert(
+          client,
+          "You must be near a workbench to complete this recipe"
+        );
+        return false;
+      }
+    }
     for (const component of recipe.components) {
       const remainingItems = component.requiredAmount * recipeCount;
       // if component isn't found at all
@@ -259,8 +290,8 @@ export class CraftManager {
         if (!remainingItems) break;
       }
     }
-    server.lootItem(
-      client.character,
+    client.character.lootItem(
+      server,
       server.generateItem(recipeId, craftCount)
     );
     return true;

@@ -24,7 +24,14 @@ import { MongoClient } from "mongodb";
 import { MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
-import { positionUpdate } from "types/zoneserver";
+import {
+  ConstructionSlotPositionMap,
+  positionUpdate,
+  SquareBounds,
+} from "types/zoneserver";
+import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots";
+import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
+import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
 import { NAME_VALIDATION_STATUS } from "./enums";
 import { Resolver } from "dns";
 
@@ -76,6 +83,12 @@ export class customLodash {
 }
 
 export const _ = new customLodash();
+
+export function isQuat(rotation: Float32Array) {
+  return rotation[1] != 0 && rotation[2] != 0 && rotation[3] != 0
+    ? rotation
+    : eul2quat(rotation);
+}
 
 // Original code from GuinnessRules
 export function eul2quat(angle: Float32Array): Float32Array {
@@ -264,6 +277,24 @@ export const setupAppDataFolder = (): void => {
       JSON.stringify([])
     );
   }
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/construction.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/construction.json`,
+      JSON.stringify([])
+    );
+  }
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/worldconstruction.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/worldconstruction.json`,
+      JSON.stringify([])
+    );
+  }
+  if (!fs.existsSync(`${AppDataFolderPath}/worlddata/crops.json`)) {
+    fs.writeFileSync(
+      `${AppDataFolderPath}/worlddata/crops.json`,
+      JSON.stringify([])
+    );
+  }
   if (!fs.existsSync(`${AppDataFolderPath}/worlddata/world.json`)) {
     fs.writeFileSync(
       `${AppDataFolderPath}/worlddata/world.json`,
@@ -280,7 +311,10 @@ const isBetween = (radius: number, value1: number, value2: number): boolean => {
   return value1 <= value2 + radius && value1 >= value2 - radius;
 };
 
-export const isInside = (point: [number, number], vs: any) => {
+export const isInsideSquare = (
+  point: [number, number],
+  vs: SquareBounds | number[][]
+) => {
   const x = point[0],
     y = point[1];
 
@@ -297,9 +331,9 @@ export const isInside = (point: [number, number], vs: any) => {
   return inside;
 };
 
-export const isInsideWithY = (
+export const isInsideCube = (
   point: [number, number],
-  vs: any,
+  vs: SquareBounds,
   y_pos1: number,
   y_pos2: number,
   y_radius: number
@@ -350,6 +384,22 @@ export function getDistance(p1: Float32Array, p2: Float32Array) {
   return Math.sqrt(a * a + b * b + c * c);
 }
 
+export function checkConstructionInRange(
+  dictionary: any,
+  position: Float32Array,
+  range: number,
+  itemDefinitionId: number
+): boolean {
+  for (const a in dictionary) {
+    const construction = dictionary[a];
+    if (construction.itemDefinitionId != itemDefinitionId) continue;
+    if (isPosInRadius(range, position, construction.state.position)) {
+      return true;
+    }
+  }
+  return false;
+}
+
 export function createPositionUpdate(
   position: Float32Array,
   rotation: Float32Array,
@@ -368,35 +418,35 @@ export function createPositionUpdate(
 
 export function getRectangleCorners(
   centerPoint: Float32Array,
-  a_len: number,
-  h_len: number,
-  angle: number
-): any[] {
-  const middlePointA = movePoint(centerPoint, angle, h_len / 2);
+  angle: number,
+  offset: number,
+  eulerRot: number
+): SquareBounds {
+  const middlePointA = movePoint(centerPoint, eulerRot, offset / 2);
   const middlePointB = movePoint(
     centerPoint,
-    angle + (180 * Math.PI) / 180,
-    h_len / 2
+    eulerRot + (180 * Math.PI) / 180,
+    offset / 2
   );
   const pointA = movePoint(
     middlePointA,
-    angle + 90 * (Math.PI / 180),
-    a_len / 2
+    eulerRot + 90 * (Math.PI / 180),
+    angle / 2
   );
   const pointB = movePoint(
     middlePointA,
-    angle + 270 * (Math.PI / 180),
-    a_len / 2
+    eulerRot + 270 * (Math.PI / 180),
+    angle / 2
   );
   const pointC = movePoint(
     middlePointB,
-    angle + 270 * (Math.PI / 180),
-    a_len / 2
+    eulerRot + 270 * (Math.PI / 180),
+    angle / 2
   );
   const pointD = movePoint(
     middlePointB,
-    angle + 90 * (Math.PI / 180),
-    a_len / 2
+    eulerRot + 90 * (Math.PI / 180),
+    angle / 2
   );
   return [
     [pointA[0], pointA[2]],
@@ -656,6 +706,70 @@ export function calculateOrientation(
   return Math.atan2(pos1[2] - pos2[2], pos1[0] - pos2[0]) * -1 - 1.4;
 }
 
+export function getOffsetPoint(
+  position: Float32Array,
+  rotation: number,
+  angle: number,
+  distance: number
+) {
+  return movePoint(position, -rotation + (angle * Math.PI) / 180, distance);
+}
+
+export function getAngleAndDistance(
+  p1: Float32Array,
+  p2: Float32Array
+): { angle: number; distance: number } {
+  const dx = p2[0] - p1[0];
+  const dy = p2[2] - p1[2];
+  const angle = (Math.atan2(dy, dx) * 180) / Math.PI; // Angle of rotation in degrees
+  const distance = Math.sqrt(dx ** 2 + dy ** 2); // Distance between the points
+  return { angle, distance };
+}
+
+export function getConstructionSlotId(buildingSlot: string) {
+  switch (buildingSlot) {
+    case "LoveShackDoor":
+    case "WoodShackDoor":
+      return 1;
+    case "WallStack":
+      return 101;
+    default:
+      return Number(
+        buildingSlot.substring(buildingSlot.length, buildingSlot.length - 2)
+      );
+  }
+}
+
+export function registerConstructionSlots(
+  construction: ConstructionParentEntity | ConstructionChildEntity,
+  setSlots: ConstructionSlotPositionMap,
+  slotDefinitions: ConstructionSlots
+) {
+  const slots = slotDefinitions[construction.itemDefinitionId];
+  if (slots) {
+    slots.offsets.forEach((offset: number, i: number) => {
+      const point = getOffsetPoint(
+        construction.state.position,
+        construction.eulerAngle,
+        slots.angles[i],
+        slots.offsets[i]
+      );
+      setSlots[i + 1] = {
+        position: new Float32Array([
+          point[0],
+          construction.state.position[1] + slots.yOffset,
+          point[2],
+          1,
+        ]),
+        rotation: new Float32Array([
+          construction.eulerAngle + slots.rotationOffsets[i],
+          0,
+          0,
+        ]),
+      };
+    });
+  }
+}
 // thx GPT i'm not writing regex myself :)
 export function isValidCharacterName(characterName: string) {
   // Regular expression that matches all special characters

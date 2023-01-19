@@ -12,7 +12,8 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { Vehicle2016 as Vehicle } from "../classes/vehicle";
+import { VehicleIds } from "../models/enums";
+import { Vehicle2016 as Vehicle, Vehicle2016 } from "../entities/vehicle";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
@@ -38,7 +39,9 @@ export const internalCommands: Array<Command> = [
         9371,
         client.character.state.position,
         client.character.state.lookAt,
-        server.getGameTime()
+        server,
+        server.getGameTime(),
+        VehicleIds.SPECTATE
       );
       for (const a in server._clients) {
         const iteratedClient = server._clients[a];
@@ -85,6 +88,42 @@ export const internalCommands: Array<Command> = [
       server.sendData(client, "Command.RunSpeed", {
         runSpeed: packetData.runSpeed,
       });
+    },
+  },
+  {
+    name: "vehicle",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, packetData: any) => {
+      const allowedIds = [
+        VehicleIds.POLICECAR,
+        VehicleIds.PICKUP,
+        VehicleIds.ATV,
+        VehicleIds.OFFROADER,
+      ];
+      if (!allowedIds.includes(packetData.vehicleId)) {
+        server.sendChatText(
+          client,
+          "[ERROR] Invalid vehicleId, please choose one of listed below:"
+        );
+        server.sendChatText(
+          client,
+          `OFFROADER: ${VehicleIds.OFFROADER}, PICKUP: ${VehicleIds.PICKUP}, POLICECAR: ${VehicleIds.POLICECAR}, ATV: ${VehicleIds.ATV}`
+        );
+        return;
+      }
+      const characterId = server.generateGuid();
+      const vehicle = new Vehicle2016(
+        characterId,
+        server.getTransientId(characterId),
+        0,
+        packetData.position,
+        client.character.state.lookAt,
+        server,
+        server.getGameTime(),
+        packetData.vehicleId
+      );
+      server.worldObjectManager.createVehicle(server, vehicle);
+      client.character.ownedVehicle = vehicle.characterId;
     },
   },
 ];

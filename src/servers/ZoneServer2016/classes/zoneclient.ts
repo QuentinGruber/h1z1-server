@@ -12,8 +12,10 @@
 // ======================================================================
 
 import { toInt, _ } from "../../../utils/utils";
-import { Character2016 } from "./character";
+import { Character2016 } from "../entities/character";
 import { ZoneClient2016 as Client } from "./zoneclient";
+import { LootableProp } from "../entities/lootableprop";
+import { ZoneServer2016 } from "../zoneserver";
 
 export class ZoneClient2016 {
   guid?: string;
@@ -21,6 +23,7 @@ export class ZoneClient2016 {
   currentPOI?: number;
   firstLoading: boolean = false;
   isLoading: boolean = true;
+  characterReleased: boolean = false;
   isInteracting: boolean = false;
   isAdmin: boolean = false;
   banType: string = "";
@@ -51,6 +54,7 @@ export class ZoneClient2016 {
   hudTimer?: NodeJS.Timeout | null;
   spawnedDTOs: any[] = [];
   spawnedEntities: any[] = [];
+  searchedProps: LootableProp[] = [];
   managedObjects: string[] = [];
   vehicle: {
     mountedVehicle?: string;
@@ -69,12 +73,16 @@ export class ZoneClient2016 {
   pingWarnings: number = 0;
   isWeaponLock: boolean = false;
   avgPingReady: boolean = false;
+  chunkRenderDistance: number = 400;
+  routineInterval?: NodeJS.Timeout;
+  xsSecurityTimeout?: NodeJS.Timeout;
   constructor(
     sessionId: number,
     soeClientId: string,
     loginSessionId: string,
     characterId: string,
-    transientId: number
+    transientId: number,
+    server: ZoneServer2016
   ) {
     this.sessionId = sessionId;
     this.soeClientId = soeClientId;
@@ -94,7 +102,8 @@ export class ZoneClient2016 {
       this.hudTimer = null;
       this.isInteracting = false;
     };
-    this.character = new Character2016(characterId, transientId);
+
+    this.character = new Character2016(characterId, transientId, server);
   }
   addPing(ping: number) {
     if (ping > 0) {
