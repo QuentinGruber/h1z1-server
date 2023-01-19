@@ -4311,7 +4311,6 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    console.log(rotation);
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       door = new ConstructionDoor(
