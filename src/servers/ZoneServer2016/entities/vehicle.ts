@@ -567,6 +567,13 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
   destroy(server: ZoneServer2016) {
     this._resources[ResourceIds.CONDITION] = 0;
+    for (const c in server._clients) {
+      if (
+        this.characterId === server._clients[c].vehicle.mountedVehicle
+      ) {
+        server.dismountVehicle(server._clients[c]);
+      }
+    }
     server.sendDataToAllWithSpawnedEntity(
       server._vehicles,
       this.characterId,
@@ -579,14 +586,6 @@ export class Vehicle2016 extends BaseLootableEntity {
         disableWeirdPhysics: false,
       }
     );
-    for (const c in server._clients) {
-      if (
-        this.characterId === server._clients[c].vehicle.mountedVehicle &&
-        !server._clients[c].character.isAlive
-      ) {
-        server.dismountVehicle(server._clients[c]);
-      }
-    }
     server.deleteEntity(this.characterId, server._vehicles);
     server.explosionDamage(this.state.position, this.characterId);
     this.state.position[1] -= 0.4 
