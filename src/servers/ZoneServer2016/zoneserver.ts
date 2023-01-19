@@ -6671,7 +6671,6 @@ export class ZoneServer2016 extends EventEmitter {
 
   startClientRoutine(client: Client) {
     client.routineInterval = setTimeout(() => {
-      const date1 = new Date().getTime();
       if (!client) return;
       if (!client.isLoading) {
         this.plantManager();
@@ -6684,8 +6683,6 @@ export class ZoneServer2016 extends EventEmitter {
         this.worldConstructionManager(client);
         this.POIManager(client);
         client.posAtLastRoutine = client.character.state.position;
-        const date2 = new Date().getTime();
-        console.log(date2 - date1);
       }
       if (client.isLoading) {
         delete client.routineInterval;
