@@ -1029,9 +1029,10 @@ export class WorldDataManager {
       entityData.item.currentDurability,
       entityData.item.stackCount
     ), 
+    transientId = server.getTransientId(entityData.characterId),
     plant = new Plant(
       entityData.characterId,
-      1, // shouldn't be needed
+      transientId,
       entityData.actorModelId,
       new Float32Array(entityData.position),
       new Float32Array(entityData.rotation),
@@ -1048,9 +1049,10 @@ export class WorldDataManager {
   }
 
   loadPlantingDiameter(server: ZoneServer2016, entityData: PlantingDiameterSaveData) {
-    const plantingDiameter = new PlantingDiameter(
+    const transientId = server.getTransientId(entityData.characterId),
+    plantingDiameter = new PlantingDiameter(
       entityData.characterId,
-      1, // shouldn't be needed
+      transientId,
       entityData.actorModelId,
       new Float32Array(entityData.position),
       new Float32Array(entityData.rotation),
