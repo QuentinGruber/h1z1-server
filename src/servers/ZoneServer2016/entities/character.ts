@@ -530,6 +530,7 @@ export class Character2016 extends BaseFullCharacter {
       orientationToSource: orientation,
       unknownDword2: 100,
     });
+    server.sendChatText(client, `Received ${damage} damage`);
     if (!sourceEntity) return;
 
     const damageRecord = server.generateDamageRecord(

@@ -987,7 +987,7 @@ export class WorldDataManager {
   }
 
   getPlantingDiameterSaveData(server: ZoneServer2016, entity: PlantingDiameter): PlantingDiameterSaveData {
-    let slots: { [id: string]: PlantSaveData } = {};
+    const slots: { [id: string]: PlantSaveData } = {};
     Object.values(entity.seedSlots).forEach((plant) => {
       slots[plant.slot] = this.getPlantSaveData(server, plant);
     });
