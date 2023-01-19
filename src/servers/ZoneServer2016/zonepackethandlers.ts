@@ -1055,12 +1055,14 @@ export class zonePacketHandlers {
         container = mountedContainer;
       }
     }
-
     switch (packet.data.itemUseOption) {
       case ItemUseOptions.DROP:
       case ItemUseOptions.DROP_BATTERY:
       case ItemUseOptions.DROP_SPARKS:
         server.dropItem(client, item, packet.data.itemSubData?.count);
+        break;
+      case ItemUseOptions.SLICE:
+        server.sliceItem(client, item);
         break;
       case ItemUseOptions.EQUIP:
         const activeSlotId = client.character.getActiveLoadoutSlot(itemGuid);

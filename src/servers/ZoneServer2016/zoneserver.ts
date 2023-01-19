@@ -6063,6 +6063,34 @@ export class ZoneServer2016 extends EventEmitter {
         return;
     }
   }
+
+  sliceItem(client: Client, item: BaseItem) {
+      const itemDef = this.getItemDefinition(item.itemDefinitionId);
+      if (!itemDef) return;
+      const nameId = itemDef.NAME_ID;
+      let timeout = 0;
+      let useoption = ""
+      let doReturn = true;
+      for (const a in UseOptions) {
+          if (UseOptions[a].itemDef == item.itemDefinitionId && UseOptions[a].type == ItemUseOptions.SLICE) {
+              const useOption = UseOptions[a];
+              doReturn = false
+              timeout = useOption.timeout
+          }
+      }
+      if (doReturn) {
+          this.sendChatText(
+              client,
+              "[ERROR] use option not mapped to item Definition " +
+              item.itemDefinitionId
+          );
+          return
+      }
+      this.utilizeHudTimer(client, nameId, timeout, () => {
+          this.slicePass(client, item);
+      });
+  }
+
   refuelVehicle(client: Client, item: BaseItem, vehicleGuid: string) {
       const itemDef = this.getItemDefinition(item.itemDefinitionId);
       if (!itemDef) return;
@@ -6229,6 +6257,16 @@ export class ZoneServer2016 extends EventEmitter {
             ResourceTypes.BLEEDING,
             this._characters
         );
+    }
+  }
+
+  slicePass(
+    client: Client,
+    item: BaseItem,
+  ) {
+    if (!this.removeInventoryItem(client, item)) return;
+    if (item.itemDefinitionId == Items.BLACKBERRY_PIE) {
+      client.character.lootContainerItem(this, this.generateItem(Items.BLACKBERRY_PIE_SLICE, 4));
     }
   }
 

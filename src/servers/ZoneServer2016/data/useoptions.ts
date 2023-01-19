@@ -1,6 +1,5 @@
 import { Items, ItemUseOptions } from "../models/enums";
 import { ItemUseOption } from "types/zoneserver";
-const itemUseOptions = {};
 export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
 //----------Eat-------------//
     1: {
@@ -125,7 +124,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     37: {
         itemDef: Items.BLACKBERRY_PIE,
         type: ItemUseOptions.EAT,
-        timeout: 1000,
+        timeout: 2000,
         eatCount: 10000,
         drinkCount: 4000,
     },
@@ -149,6 +148,13 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
         timeout: 1000,
         eatCount: 2000,
         drinkCount: 6000,
+    },
+    48: {
+        itemDef: Items.BLACKBERRY_PIE_SLICE,
+        type: ItemUseOptions.EAT,
+        timeout: 1000,
+        eatCount: 2500,
+        drinkCount: 1000,
     },
 
 //----------Use Medical-------------//
@@ -289,6 +295,13 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
         refuelCount: 5000,
     },
 
+//-----------------Slice------------------//
+    47: {
+        itemDef: Items.BLACKBERRY_PIE,
+        type: ItemUseOptions.SLICE,
+        timeout: 3000,
+    },
+
  //----------Generic USE option------------//
     16: {
         itemDef: Items.FERTILIZER,
@@ -304,5 +317,5 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
         itemDef: Items.SWIZZLE,
         type: ItemUseOptions.USE,
         timeout: 1000,
-    },  
+    },
 }

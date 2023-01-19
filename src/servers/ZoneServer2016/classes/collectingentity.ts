@@ -149,6 +149,4 @@ export class CollectingEntity {
       stringId: StringIds.OPEN,
     });
   }
-  OnFullCharacterDataRequest() {
-  }
 }
