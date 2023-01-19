@@ -31,6 +31,7 @@ import {
 import { EquipSlots, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
+const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 function getDriveModel(model: string) {
   switch (model) {
@@ -867,23 +868,32 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          "[ERROR] Usage /additem {itemDefinitionId} optional: {count} {playerName|playerId}"
+          "[ERROR] Usage /additem {itemDefinitionId/item name} optional: {count} {playerName|playerId}"
         );
         return;
       }
       const count = Number(args[1]) || 1;
       let itemDefId;
       let similar;
-      const keys = Object.keys(Items);
-      for (let x = 0; x < keys.length; x++) {
-        if (keys[x] == args[0].toString().toUpperCase())
-          itemDefId = Number(Object.values(Items)[x]);
-        else if (
-          getDifference(keys[x], args[0].toString()) <= 3 &&
-          getDifference(keys[x], args[0].toString()) != 0
+
+      for (const a in itemDefinitions) {
+        const name = itemDefinitions[a].NAME;
+        const argsName = args[0].toString().toUpperCase().replaceAll("_", " ")
+        if (!name) continue;
+        if (
+          name.toUpperCase() ==
+          argsName
         )
-          similar = keys[x];
+          itemDefId = itemDefinitions[a].ID;
+        else if (
+          getDifference(name.toUpperCase(), argsName) <=
+            3 &&
+          getDifference(name.toUpperCase(), argsName) !=
+            0
+        )
+          similar = itemDefinitions[a].NAME.toUpperCase().replaceAll(" ", "_");
       }
+
       if (!itemDefId) itemDefId = Number(args[0]);
       const item = server.generateItem(itemDefId, count);
       if (!item) {
