@@ -84,7 +84,7 @@ export class WorldObjectManager {
   private lastLootRespawnTime: number = 0;
   private lastVehicleRespawnTime: number = 0;
   private lastNpcRespawnTime: number = 0;
-  lootRespawnTimer: number = 1800000; // 30 min default
+  lootRespawnTimer: number = 1200000; // 30 min default
   vehicleRespawnTimer: number = 600000; // 10 minutes // 600000
   npcRespawnTimer: number = 600000; // 10 minutes
   // items get despawned after x minutes
@@ -112,16 +112,19 @@ export class WorldObjectManager {
       const playerCount = _.size(server._characters)
       switch (true) {
           case playerCount <= 20:
-              this.lootRespawnTimer = 2700000; // 45 min
+              this.lootRespawnTimer = 2400000; // 40 min
               break;
           case playerCount > 20 && playerCount <= 40:
               this.lootRespawnTimer = 1800000; // 30 min
               break;
+          case playerCount > 40 && playerCount <= 60:
+              this.lootRespawnTimer = 1200000; // 20 min
+              break;
           case playerCount > 60 && playerCount < 40:
-              this.lootRespawnTimer = 900000; // 15 min
+              this.lootRespawnTimer = 600000 // 10 min
               break;
           default:
-              this.lootRespawnTimer = 2700000; 
+              this.lootRespawnTimer = 1200000; 
       }
   }
 
