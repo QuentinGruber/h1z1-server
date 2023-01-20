@@ -94,7 +94,7 @@ export class SmeltingEntity {
   workingEffect: number = 5028;
   isWorking: boolean = false;
   isSmelting: boolean = false;
-  smeltingTime: number = 60000;
+  smeltingTime: number = 40000;
   dictionary: { [characterId: string]: BaseEntity };
   subType: string = "SmeltingEntity"; // for saving identification
   constructor(
