@@ -1288,11 +1288,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendDeathMetrics(client);
     debug(character.name + " has died");
     if (sourceClient) {
-      this.sendDataToAll("Character.KilledBy", {
-        killed: client.character.characterId,
-        killer: sourceClient.character.characterId,
-        isCheater: sourceClient.character.godMode,
-      } as CharacterKilledBy);
       client.lastDeathReport = {
         position: client.character.state.position,
         attackerPosition: sourceClient.character.state.position,
