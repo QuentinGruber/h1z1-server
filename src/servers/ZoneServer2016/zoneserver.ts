@@ -1659,10 +1659,13 @@ export class ZoneServer2016 extends EventEmitter {
       Math.random() * this._spawnLocations.length
     );
     if (client.character.initialized) {
+      client.managedObjects?.forEach((characterId: any) => {
+          this.dropVehicleManager(client, characterId);
+      });
       this.sendData(client, "Character.RespawnReply", {
         characterId: client.character.characterId,
         status: 1,
-      });
+      }); 
       this.sendData(client, "ClientUpdate.UpdateLocation", {
         position: this._spawnLocations[randomSpawnIndex].position,
       });

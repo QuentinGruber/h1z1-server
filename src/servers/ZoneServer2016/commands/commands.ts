@@ -479,7 +479,9 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Client not found.");
         return;
       }
+      targetClient.character.state.position = client.character.state.position
       targetClient.isLoading = true;
+      targetClient.characterReleased = false;
       server.sendData(targetClient, "ClientUpdate.UpdateLocation", {
         position: client.character.state.position,
         triggerLoadingScreen: true,
@@ -512,7 +514,9 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Client not found.");
         return;
       }
-      targetClient.isLoading = true;
+      client.character.state.position = targetClient.character.state.position
+      client.isLoading = true;
+      client.characterReleased = false;
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: targetClient.character.state.position,
         triggerLoadingScreen: true,
