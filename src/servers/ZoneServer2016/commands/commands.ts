@@ -76,6 +76,31 @@ export const commands: Array<Command> = [
     },
   },
   {
+    name: "vanish",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client) => {
+      client.character.isSpectator = !client.character.isSpectator;
+      server.sendChatText(
+        client,
+        `Hidden state: ${client.character.isSpectator}`
+      );
+      if (!client.character.isSpectator) return
+      for (const a in server._clients) {
+        const iteratedClient = server._clients[a];
+        if (iteratedClient.spawnedEntities.includes(client.character)) {
+          server.sendData(iteratedClient, "Character.RemovePlayer", {
+            characterId: client.character.characterId,
+          });
+          iteratedClient.spawnedEntities.splice(
+            iteratedClient.spawnedEntities.indexOf(client.character),
+            1
+          );
+        }
+      }
+      server.sendData(client, "SpectatorBase", {});
+    },
+  },
+  {
     name: "serverinfo",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {

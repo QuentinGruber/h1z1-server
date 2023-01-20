@@ -2924,7 +2924,7 @@ export class ZoneServer2016 extends EventEmitter {
         !client.spawnedEntities.includes(characterObj) &&
         characterObj.isAlive &&
         !characterObj.isSpectator &&
-        characterObj.isHidden == client.character.isHidden &&
+        (characterObj.isHidden == client.character.isHidden || client.character.isSpectator) &&
         client.banType != "hiddenplayers"
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
