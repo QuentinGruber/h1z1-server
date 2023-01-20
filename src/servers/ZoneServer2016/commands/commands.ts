@@ -1433,6 +1433,7 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `Maximum range is 100`);
         return;
       }
+        const entitiesToDelete: { characterId: string, dictionary: any }[] = []
       for (const a in server._constructionSimple) {
         const construction = server._constructionSimple[a];
         if (
@@ -1442,12 +1443,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          server.deleteEntity(
-            construction.characterId,
-            server._constructionSimple,
-            1875,
-            500
-          );
+          entitiesToDelete.push({characterId: construction.characterId, dictionary: server._constructionSimple})
         }
       }
       for (const a in server._constructionDoors) {
@@ -1459,12 +1455,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          server.deleteEntity(
-            construction.characterId,
-            server._constructionDoors,
-            1875,
-            500
-          );
+          entitiesToDelete.push({characterId: construction.characterId, dictionary: server._constructionDoors})
         }
       }
       for (const a in server._constructionFoundations) {
@@ -1476,14 +1467,43 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          server.deleteEntity(
-            construction.characterId,
-            server._constructionFoundations,
-            1875,
-            500
-          );
+          entitiesToDelete.push({characterId: construction.characterId, dictionary: server._constructionFoundations})
         }
       }
+      for (const a in server._lootableConstruction) {
+        const construction = server._lootableConstruction[a];
+        if (
+          isPosInRadius(
+            Number(args[0]),
+            client.character.state.position,
+            construction.state.position
+          )
+        ) {
+          entitiesToDelete.push({characterId: construction.characterId, dictionary: server._lootableConstruction})
+        }
+      }
+
+      for (const a in server._worldLootableConstruction) {
+        const construction = server._worldLootableConstruction[a];
+        if (
+          isPosInRadius(
+            Number(args[0]),
+            client.character.state.position,
+            construction.state.position
+          )
+        ) {
+          entitiesToDelete.push({characterId: construction.characterId, dictionary: server._worldLootableConstruction})
+        }
+      }
+
+      entitiesToDelete.forEach((entity: {characterId: string, dictionary: any}) => {
+          server.deleteEntity(
+              entity.characterId,
+              entity.dictionary,
+              1875,
+              500
+          );
+      })
       server.sendChatText(
         client,
         `Removed all constructions in range of ${Number(args[0])}`
