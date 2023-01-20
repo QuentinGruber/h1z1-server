@@ -2434,7 +2434,7 @@ export class ZoneServer2016 extends EventEmitter {
   checkFoundationPermission(
     client: Client,
     foundation: ConstructionParentEntity
-  ) {
+  ): boolean {
     let isInSecuredArea = false;
 
     // under foundation check
@@ -2459,7 +2459,7 @@ export class ZoneServer2016 extends EventEmitter {
       )
         this.tpPlayerOutsideFoundation(client, foundation, true);
     }
-    if (!foundation.isSecured) return;
+    if (!foundation.isSecured) return false;
     let allowed = false;
     const permissions = foundation.permissions[client.character.characterId];
     if (permissions && permissions.visit) allowed = true;
@@ -2477,20 +2477,21 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
-    if (allowed) return;
+    if (allowed) return true
     if (foundation.isInside(client.character.state.position)) {
       this.tpPlayerOutsideFoundation(client, foundation);
-      return;
+      return false;
     }
 
     if (!isInSecuredArea && client.character.isHidden)
       client.character.isHidden = "";
+      return false
   }
 
   checkConstructionChildEntityPermission(
     client: Client,
     construction: ConstructionChildEntity
-  ) {
+  ): boolean {
     let isInSecuredArea = false;
     const allowedIds = [
       Items.SHELTER,
@@ -2498,9 +2499,9 @@ export class ZoneServer2016 extends EventEmitter {
       Items.SHELTER_UPPER,
       Items.SHELTER_UPPER_LARGE,
     ];
-    if (!allowedIds.includes(construction.itemDefinitionId)) return;
+    if (!allowedIds.includes(construction.itemDefinitionId)) return false;
     let allowed = false;
-    if (!construction.isSecured) return;
+    if (!construction.isSecured) return false;
     let foundation: ConstructionParentEntity | undefined;
     if (this._constructionFoundations[construction.parentObjectCharacterId]) {
       foundation =
@@ -2524,20 +2525,23 @@ export class ZoneServer2016 extends EventEmitter {
         foundation = b;
       }
     }
-    if (!foundation) return;
+    if (!foundation) return false;
     const permissions = foundation.permissions[client.character.characterId];
     if (permissions && permissions.visit) allowed = true;
     if (construction.isInside(client.character.state.position)) {
       if (allowed) {
         this.constructionHidePlayer(client, construction.characterId, true);
         isInSecuredArea = true;
+        return true
       } else {
         this.tpPlayerOutsideFoundation(client, foundation);
+        return false
       }
     }
 
     if (!isInSecuredArea && client.character.isHidden)
       client.character.isHidden = "";
+      return false
   }
 
   constructionHidePlayer(
@@ -2865,10 +2869,16 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private constructionManager(client: Client) {
-    for (const characterId in this._constructionFoundations) {
+    let hide = false
+    for (const characterId in this._constructionFoundations) {  
       const npc = this._constructionFoundations[characterId];
-      this.checkFoundationPermission(client, npc);
+      if (this.checkFoundationPermission(client, npc)) hide = true;    
     }
+    for (const characterId in this._constructionSimple) {  
+      const npc = this._constructionSimple[characterId];
+      if (this.checkConstructionChildEntityPermission(client, npc)) hide = true;    
+    }
+    if (!hide && client.character.isHidden) client.character.isHidden = ""
   }
 
   /**
