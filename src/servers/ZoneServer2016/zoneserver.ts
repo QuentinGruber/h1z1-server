@@ -558,7 +558,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  getProximityItems(character: BaseFullCharacter): ClientUpdateProximateItems {
+  getProximityItems(character: Character): ClientUpdateProximateItems {
     const items = Object.values(this._spawnedItems);
     const proximityItems: ClientUpdateProximateItems = { items: [] };
     for (let i = 0; i < items.length; i++) {
@@ -589,6 +589,14 @@ export class ZoneServer2016 extends EventEmitter {
           1
         )
       ) {
+          if (construction && construction.parentObjectCharacterId) {
+              const parent = construction.getParent(this);
+              if (
+                  parent &&
+                  parent.isSecured &&
+                  character.isHidden != parent.characterId
+              ) {continue}
+          }
         const container = construction.getContainer();
         if (container) {
           Object.values(container.items).forEach((item: BaseItem) => {
@@ -2475,6 +2483,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (allowed) {
           this.constructionHidePlayer(client, foundation.characterId, true);
           isInSecuredArea = true;
+          return true
         } else {
           this.tpPlayerOutsideFoundation(client, foundation);
         }
@@ -2486,9 +2495,7 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    if (!isInSecuredArea && client.character.isHidden)
-      client.character.isHidden = "";
-      return false
+    return false
   }
 
   checkConstructionChildEntityPermission(
@@ -2542,9 +2549,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
 
-    if (!isInSecuredArea && client.character.isHidden)
-      client.character.isHidden = "";
-      return false
+    return false
   }
 
   constructionHidePlayer(
