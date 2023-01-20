@@ -479,7 +479,7 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Client not found.");
         return;
       }
-      targetClient.character.state.position = client.character.state.position
+      targetClient.character.state.position = client.character.state.position;
       targetClient.isLoading = true;
       targetClient.characterReleased = false;
       server.sendData(targetClient, "ClientUpdate.UpdateLocation", {
@@ -514,7 +514,7 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Client not found.");
         return;
       }
-      client.character.state.position = targetClient.character.state.position
+      client.character.state.position = targetClient.character.state.position;
       client.isLoading = true;
       client.characterReleased = false;
       server.sendData(client, "ClientUpdate.UpdateLocation", {
@@ -884,6 +884,10 @@ export const commands: Array<Command> = [
         const name = itemDefinitions[a].NAME;
         const argsName = args[0].toString().toUpperCase().replaceAll("_", " ");
         if (!name) continue;
+        if (itemDefinitions[a].CODE_FACTORY_NAME == "AccountRecipe") continue;
+        if (itemDefinitions[a].CODE_FACTORY_NAME == "EquippableContainer") {
+          if (itemDefinitions[a].BULK == 0) continue; // skip account recipes and world containers
+        }
         if (name.toUpperCase() == argsName) itemDefId = itemDefinitions[a].ID;
         else if (
           getDifference(name.toUpperCase(), argsName) <= 3 &&
@@ -891,7 +895,6 @@ export const commands: Array<Command> = [
         )
           similar = itemDefinitions[a].NAME.toUpperCase().replaceAll(" ", "_");
       }
-
       if (!itemDefId) itemDefId = Number(args[0]);
       const item = server.generateItem(itemDefId, count);
       if (!item) {
