@@ -2446,8 +2446,6 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     foundation: ConstructionParentEntity
   ): boolean {
-    let isInSecuredArea = false;
-
     // under foundation check
     if (
       foundation.itemDefinitionId == Items.FOUNDATION ||
@@ -2482,7 +2480,6 @@ export class ZoneServer2016 extends EventEmitter {
       if (foundation.isInside(client.character.state.position)) {
         if (allowed) {
           this.constructionHidePlayer(client, foundation.characterId, true);
-          isInSecuredArea = true;
           return true
         } else {
           this.tpPlayerOutsideFoundation(client, foundation);
@@ -2502,7 +2499,6 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     construction: ConstructionChildEntity
   ): boolean {
-    let isInSecuredArea = false;
     const allowedIds = [
       Items.SHELTER,
       Items.SHELTER_LARGE,
@@ -2541,7 +2537,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (construction.isInside(client.character.state.position)) {
       if (allowed) {
         this.constructionHidePlayer(client, construction.characterId, true);
-        isInSecuredArea = true;
         return true
       } else {
         this.tpPlayerOutsideFoundation(client, foundation);
