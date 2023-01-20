@@ -127,7 +127,9 @@ export class WorldDataManager {
       server.executeFuncForAllReadyClients((client: Client) => {
         this.saveCharacterData(server, client);
       });
-      // save here
+      server.sendChatTextToAdmins("World save started.");
+      this.saveWorld(server);
+      server.sendChatTextToAdmins("World saved!");
 
       this.lastSaveTime = Date.now();
     }
