@@ -1497,7 +1497,7 @@ export class zonePacketHandlers {
                 !client.character.temporaryScrapTimeout
               ) {
                 const chance = Math.floor(Math.random() * 100) + 1;
-                if (chance <= 60) {
+                if (chance <= 70) {
                   client.character.lootItem(
                     server,
                     server.generateItem(Items.METAL_SCRAP)
@@ -1506,7 +1506,7 @@ export class zonePacketHandlers {
                 }
                 client.character.temporaryScrapTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapTimeout;
-                }, Math.floor(Math.random() * (12000 - 1300 + 1) + 1300));
+                }, Math.floor(Math.random() * (6000 - 1000 + 1) + 1000));
               }
             }
           }
