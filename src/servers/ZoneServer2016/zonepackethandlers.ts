@@ -217,6 +217,7 @@ export class zonePacketHandlers {
       damage: number = packet.data.damage,
       vehicle = server._vehicles[characterId];
     if (characterId === client.character.characterId) {
+      if (client.character.vehicleExitDate + 3000 > new Date().getTime()) {return}
       if (!client.vehicle.mountedVehicle) {
         // if not mounted
         // fixes collision dmg bug on login

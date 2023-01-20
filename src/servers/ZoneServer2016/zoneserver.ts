@@ -4856,6 +4856,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
+    client.character.vehicleExitDate = new Date().getTime()
     if (!seatId) return;
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.DismountResponse", {
@@ -4922,7 +4923,6 @@ export class ZoneServer2016 extends EventEmitter {
         ],
       }
     );
-
     client.character.dismountContainer(this);
   }
 
