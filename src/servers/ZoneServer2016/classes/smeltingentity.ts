@@ -241,6 +241,7 @@ export class SmeltingEntity {
         });
       }
     });
+    this.isSmelting = false
     setTimeout(() => {
       this.startSmelting(server, parentObject);
     }, this.smeltingTime);
