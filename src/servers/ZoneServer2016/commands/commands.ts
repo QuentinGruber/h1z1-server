@@ -84,7 +84,7 @@ export const commands: Array<Command> = [
         client,
         `Hidden state: ${client.character.isSpectator}`
       );
-      if (!client.character.isSpectator) return
+      if (!client.character.isSpectator) return;
       for (const a in server._clients) {
         const iteratedClient = server._clients[a];
         if (iteratedClient.spawnedEntities.includes(client.character)) {
@@ -1458,7 +1458,7 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `Maximum range is 100`);
         return;
       }
-        const entitiesToDelete: { characterId: string, dictionary: any }[] = []
+      const entitiesToDelete: { characterId: string; dictionary: any }[] = [];
       for (const a in server._constructionSimple) {
         const construction = server._constructionSimple[a];
         if (
@@ -1468,7 +1468,10 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({characterId: construction.characterId, dictionary: server._constructionSimple})
+          entitiesToDelete.push({
+            characterId: construction.characterId,
+            dictionary: server._constructionSimple,
+          });
         }
       }
       for (const a in server._constructionDoors) {
@@ -1480,7 +1483,10 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({characterId: construction.characterId, dictionary: server._constructionDoors})
+          entitiesToDelete.push({
+            characterId: construction.characterId,
+            dictionary: server._constructionDoors,
+          });
         }
       }
       for (const a in server._constructionFoundations) {
@@ -1492,7 +1498,10 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({characterId: construction.characterId, dictionary: server._constructionFoundations})
+          entitiesToDelete.push({
+            characterId: construction.characterId,
+            dictionary: server._constructionFoundations,
+          });
         }
       }
       for (const a in server._lootableConstruction) {
@@ -1504,7 +1513,10 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({characterId: construction.characterId, dictionary: server._lootableConstruction})
+          entitiesToDelete.push({
+            characterId: construction.characterId,
+            dictionary: server._lootableConstruction,
+          });
         }
       }
 
@@ -1517,18 +1529,18 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({characterId: construction.characterId, dictionary: server._worldLootableConstruction})
+          entitiesToDelete.push({
+            characterId: construction.characterId,
+            dictionary: server._worldLootableConstruction,
+          });
         }
       }
 
-      entitiesToDelete.forEach((entity: {characterId: string, dictionary: any}) => {
-          server.deleteEntity(
-              entity.characterId,
-              entity.dictionary,
-              1875,
-              500
-          );
-      })
+      entitiesToDelete.forEach(
+        (entity: { characterId: string; dictionary: any }) => {
+          server.deleteEntity(entity.characterId, entity.dictionary, 1875, 500);
+        }
+      );
       server.sendChatText(
         client,
         `Removed all constructions in range of ${Number(args[0])}`

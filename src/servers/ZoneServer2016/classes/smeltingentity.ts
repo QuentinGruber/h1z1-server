@@ -32,7 +32,12 @@ function getAllowedFuel(itemDefinitionId: number): number[] {
         Items.CHARCOAL,
       ];
     case Items.BARBEQUE:
-      return [Items.WEAPON_BRANCH, Items.WOOD_STICK, Items.WOOD_PLANK, Items.CHARCOAL];
+      return [
+        Items.WEAPON_BRANCH,
+        Items.WOOD_STICK,
+        Items.WOOD_PLANK,
+        Items.CHARCOAL,
+      ];
     case Items.CAMPFIRE:
       return [
         Items.WOOD_LOG,
@@ -42,7 +47,12 @@ function getAllowedFuel(itemDefinitionId: number): number[] {
         Items.CHARCOAL,
       ];
     default:
-      return [Items.WOOD_LOG, Items.WEAPON_BRANCH, Items.WOOD_PLANK, Items.CHARCOAL];
+      return [
+        Items.WOOD_LOG,
+        Items.WEAPON_BRANCH,
+        Items.WOOD_PLANK,
+        Items.CHARCOAL,
+      ];
   }
 }
 
@@ -245,7 +255,7 @@ export class SmeltingEntity {
         });
       }
     });
-    this.isSmelting = false
+    this.isSmelting = false;
     setTimeout(() => {
       this.startSmelting(server, parentObject);
     }, this.smeltingTime);

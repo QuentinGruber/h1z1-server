@@ -106,31 +106,29 @@ export class WorldObjectManager {
     EquipSlots.HAIR,
   ];
 
-  private getItemRespawnTimer(
-    server: ZoneServer2016,
-  ): void {
-      const playerCount = _.size(server._characters)
-      switch (true) {
-          case playerCount <= 20:
-              this.lootRespawnTimer = 2400000; // 40 min
-              break;
-          case playerCount > 20 && playerCount <= 40:
-              this.lootRespawnTimer = 1800000; // 30 min
-              break;
-          case playerCount > 40 && playerCount <= 60:
-              this.lootRespawnTimer = 1200000; // 20 min
-              break;
-          case playerCount > 60 && playerCount < 40:
-              this.lootRespawnTimer = 600000 // 10 min
-              break;
-          default:
-              this.lootRespawnTimer = 1200000; 
-      }
+  private getItemRespawnTimer(server: ZoneServer2016): void {
+    const playerCount = _.size(server._characters);
+    switch (true) {
+      case playerCount <= 20:
+        this.lootRespawnTimer = 2400000; // 40 min
+        break;
+      case playerCount > 20 && playerCount <= 40:
+        this.lootRespawnTimer = 1800000; // 30 min
+        break;
+      case playerCount > 40 && playerCount <= 60:
+        this.lootRespawnTimer = 1200000; // 20 min
+        break;
+      case playerCount > 60 && playerCount < 40:
+        this.lootRespawnTimer = 600000; // 10 min
+        break;
+      default:
+        this.lootRespawnTimer = 1200000;
+    }
   }
 
   run(server: ZoneServer2016) {
     debug("WOM::Run");
-    this.getItemRespawnTimer(server)
+    this.getItemRespawnTimer(server);
     if (this.lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
       //this.createLootOld(server);
       this.createLoot(server);
