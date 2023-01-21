@@ -169,7 +169,7 @@ export class LootableProp extends BaseLootableEntity {
     this.loadoutId = 5;
     getContainerAndTime(this);
   }
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean) {
     if (!client.searchedProps.includes(this)) {
       server.utilizeHudTimer(
         client,

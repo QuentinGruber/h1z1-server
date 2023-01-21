@@ -531,7 +531,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
   }
 
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean) {
     if (this.canUndoPlacement(server, client)) {
       this.destroy(server);
       client.character.lootItem(

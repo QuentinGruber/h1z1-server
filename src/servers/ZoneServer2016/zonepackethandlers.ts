@@ -457,30 +457,23 @@ export class zonePacketHandlers {
     this.commandHandler.executeCommand(server, client, packet);
   }
   CommandInteractRequest(server: ZoneServer2016, client: Client, packet: any) {
-    server.sendData(client, "Command.InteractionString", {
-      guid: packet.data.guid,
-      stringId: 5463,
-      unknown4: 0,
-    });
-    server.sendData(client, "Command.InteractionList", {
-      guid: packet.data.guid,
-      unknownBoolean1: true,
-      unknownArray1: [
-        {
-          unknownDword1: 11,
-          unknownDword2: 0,
-          unknownDword3: 5463,
-          unknownDword4: 51,
-          unknownDword5: 1,
-          unknownDword6: 0,
-          unknownDword7: 0,
-        },
-      ],
-      unknownString1: "",
-      unknownBoolean2: true,
-      unknownArray2: [],
-      unknownBoolean3: false,
-    });
+    const entity = server.getEntity(packet.data.characterId);
+    if (!entity) return;
+    const isConstruction =
+      entity instanceof ConstructionParentEntity ||
+      entity instanceof ConstructionDoor;
+    if (
+      !isPosInRadius(
+        isConstruction ? 4 : server._interactionDistance,
+        client.character.state.position,
+        isConstruction
+          ? entity.fixedPosition || entity.state.position
+          : entity.state.position
+      )
+    )
+      return;
+
+    entity.OnPlayerSelect(server, client, packet.data.isInstant);
   }
   CommandInteractCancel(server: ZoneServer2016, client: Client, packet: any) {
     debug("Interaction Canceled");
@@ -824,23 +817,7 @@ export class zonePacketHandlers {
     entity.OnFullCharacterDataRequest(server, client);
   }
   CommandPlayerSelect(server: ZoneServer2016, client: Client, packet: any) {
-    const entity = server.getEntity(packet.data.guid);
-    if (!entity) return;
-    const isConstruction =
-      entity instanceof ConstructionParentEntity ||
-      entity instanceof ConstructionDoor;
-    if (
-      !isPosInRadius(
-        isConstruction ? 4 : server._interactionDistance,
-        client.character.state.position,
-        isConstruction
-          ? entity.fixedPosition || entity.state.position
-          : entity.state.position
-      )
-    )
-      return;
-
-    entity.OnPlayerSelect(server, client);
+    debug("Command.PlayerSelect")
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
     if (!client.character.currentInteractionGuid || packet.data.password === 1)
@@ -848,11 +825,16 @@ export class zonePacketHandlers {
     const doorEntity = server._constructionDoors[
       client.character.currentInteractionGuid
     ] as ConstructionDoor;
+    if (!doorEntity) return;
     if (doorEntity.ownerCharacterId === client.character.characterId) {
-      doorEntity.passwordHash = packet.data.password;
-      doorEntity.grantedAccess.push(client.character.characterId);
+        if (doorEntity.passwordHash != packet.data.password) {
+            doorEntity.passwordHash = packet.data.password;
+            doorEntity.grantedAccess = [];
+            doorEntity.grantedAccess.push(client.character.characterId);
+        }
+        return
     }
-    if (doorEntity.passwordHash === packet.data.password) {
+    if (doorEntity.passwordHash === packet.data.password && !doorEntity.grantedAccess.includes(client.character.characterId)) {
       doorEntity.grantedAccess.push(client.character.characterId);
     }
   }

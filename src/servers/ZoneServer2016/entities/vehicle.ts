@@ -479,7 +479,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
   }
 
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean) {
     !client.vehicle.mountedVehicle
       ? server.mountVehicle(client, this.characterId)
       : server.dismountVehicle(client);

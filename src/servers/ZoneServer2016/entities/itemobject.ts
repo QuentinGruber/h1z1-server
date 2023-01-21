@@ -63,7 +63,7 @@ export class ItemObject extends BaseLightweightCharacter {
     (this.spawnerId = spawnerId), (this.item = item);
   }
 
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean) {
     server.pickupItem(client, this.characterId);
   }
 

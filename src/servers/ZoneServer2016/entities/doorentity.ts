@@ -141,7 +141,7 @@ export class DoorEntity extends BaseLightweightCharacter {
     this.closeSound = closeSound;
   }
 
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean) {
     client; // eslint
     if (this.moving) {
       return;

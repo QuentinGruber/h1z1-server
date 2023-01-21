@@ -44,7 +44,7 @@ export class BaseLootableEntity extends BaseFullCharacter {
     });
   }
 
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016): void {
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean): void {
     if (client.character.characterId == this.mountedCharacter) {
       client.character.dismountContainer(server);
       delete this.mountedCharacter; // the check below wont fix container if characterId is the same

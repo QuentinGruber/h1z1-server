@@ -117,7 +117,7 @@ export class Plant extends ItemObject {
     this.nextStateTime = new Date().getTime() + timeToAdd;
   }
 
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean) {
     if (this.growState != 3) return;
     if (!server._temporaryObjects[this.parentObjectCharacterId]) {
       server.deleteEntity(this.characterId, server._plants);
