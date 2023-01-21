@@ -935,42 +935,44 @@ export const commands: Array<Command> = [
         );
         return;
       }
-        if (args[2]) {
-            const targetClient = server.getClientByNameOrLoginSession(
-                args[2].toString()
-            );
-            if (typeof targetClient == "string") {
-                server.sendChatText(
-                    client,
-                    `Could not find player ${args[2].toString().toUpperCase()}, did you mean ${targetClient.toUpperCase()}`
-                );
-                return;
-            }
-            if (args[2] && !targetClient) {
-                server.sendChatText(client, "Client not found.");
-                return;
-            }
-            server.sendChatText(
-                client,
-                `Adding ${count}x item${count == 1 ? "" : "s"
-                } with id ${itemDefId} to player ${targetClient ? targetClient.character.name : client.character.name
-                }`
-            );
-            (targetClient ? targetClient.character : client.character).lootItem(
-                server,
-                item
-            );
-        } else {
-            server.sendChatText(
-                client,
-                `Adding ${count}x item${count == 1 ? "" : "s"
-                } with id ${itemDefId} to player ${client.character.name}`
-            );
-            client.character.lootItem(
-                server,
-                item
-            );
+      if (args[2]) {
+        const targetClient = server.getClientByNameOrLoginSession(
+          args[2].toString()
+        );
+        if (typeof targetClient == "string") {
+          server.sendChatText(
+            client,
+            `Could not find player ${args[2]
+              .toString()
+              .toUpperCase()}, did you mean ${targetClient.toUpperCase()}`
+          );
+          return;
         }
+        if (args[2] && !targetClient) {
+          server.sendChatText(client, "Client not found.");
+          return;
+        }
+        server.sendChatText(
+          client,
+          `Adding ${count}x item${
+            count == 1 ? "" : "s"
+          } with id ${itemDefId} to player ${
+            targetClient ? targetClient.character.name : client.character.name
+          }`
+        );
+        (targetClient ? targetClient.character : client.character).lootItem(
+          server,
+          item
+        );
+      } else {
+        server.sendChatText(
+          client,
+          `Adding ${count}x item${
+            count == 1 ? "" : "s"
+          } with id ${itemDefId} to player ${client.character.name}`
+        );
+        client.character.lootItem(server, item);
+      }
     },
   },
   {
