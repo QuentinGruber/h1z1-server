@@ -462,6 +462,16 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
       },
     ],
   },
+  41: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_PIPE,
+        requiredAmount: 1,
+      },
+    ],
+  },
 };
 
 export const recipes: { [recipeId: number]: Recipe } = {
