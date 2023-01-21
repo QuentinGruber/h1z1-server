@@ -1301,7 +1301,7 @@ export class zonePacketHandlers {
     if (!characterId) {
       return;
     }
-    if(characterId == foundation.ownerCharacterId) {
+    if (characterId == foundation.ownerCharacterId) {
       server.sendAlert(client, "You can't edit your own permissions.");
       return;
     }
@@ -1366,7 +1366,7 @@ export class zonePacketHandlers {
       }
     }
 
-    if(characterId == foundation.ownerCharacterId) {
+    if (characterId == foundation.ownerCharacterId) {
       server.sendAlert(client, "You can't edit your own permissions.");
       return;
     }

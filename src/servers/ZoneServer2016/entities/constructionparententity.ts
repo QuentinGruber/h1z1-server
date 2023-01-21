@@ -519,7 +519,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     characterId: string,
     permission: ConstructionPermissionIds
   ) {
-    if(characterId == this.ownerCharacterId) return true;
+    if (characterId == this.ownerCharacterId) return true;
     switch (permission) {
       case ConstructionPermissionIds.BUILD:
         return this.permissions[characterId]?.build;
