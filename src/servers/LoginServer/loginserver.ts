@@ -24,7 +24,6 @@ import {
   getAppDataFolderPath,
   initMongo,
   setupAppDataFolder,
-  validateVersion,
   isValidCharacterName,
   resolveHostAddress,
 } from "../../utils/utils";
@@ -178,7 +177,7 @@ export class LoginServer extends EventEmitter {
               if (connectionEstablished || packet.name === "SessionRequest") {
                 switch (packet.name) {
                   case "SessionRequest": {
-                    const { serverId, h1emuVersion } = packet.data;
+                    const { serverId } = packet.data;
                     debug(
                       `Received session request from ${client.address}:${client.port}`
                     );
@@ -195,19 +194,6 @@ export class LoginServer extends EventEmitter {
                       if (resolvedServerAddress.includes(client.address)) {
                         status = 1;
                       }
-                    }
-                    if (
-                      status &&
-                      process.env.H1Z1_SERVER_VERSION &&
-                      !validateVersion(
-                        process.env.H1Z1_SERVER_VERSION,
-                        h1emuVersion
-                      )
-                    ) {
-                      console.log(
-                        `serverId : ${serverId} version mismatch ${h1emuVersion} vs ${process.env.H1Z1_SERVER_VERSION}`
-                      );
-                      status = 0;
                     }
                     if (status === 1) {
                       debug(`ZoneConnection established`);
