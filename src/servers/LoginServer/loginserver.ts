@@ -228,12 +228,14 @@ export class LoginServer extends EventEmitter {
                   case "UpdateZonePopulation": {
                     const { population } = packet.data;
                     const serverId = this._zoneConnections[client.clientId];
+                    const { maxPopulationNumber } =
+      await this._db.collection("servers").findOne({ serverId: serverId });
                     this._db?.collection("servers").findOneAndUpdate(
                       { serverId: serverId },
                       {
                         $set: {
                           populationNumber: population,
-                          populationLevel: Number((population / 1).toFixed(0)),
+                          populationLevel: Number((population / maxPopulationNumber * 3).toFixed(0)),
                         },
                       }
                     );
