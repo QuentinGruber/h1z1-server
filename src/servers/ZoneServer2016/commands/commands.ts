@@ -935,32 +935,44 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      const targetClient = server.getClientByNameOrLoginSession(
-        args[2].toString()
-      );
-      if (typeof targetClient == "string") {
+      if (args[2]) {
+        const targetClient = server.getClientByNameOrLoginSession(
+          args[2].toString()
+        );
+        if (typeof targetClient == "string") {
+          server.sendChatText(
+            client,
+            `Could not find player ${args[2]
+              .toString()
+              .toUpperCase()}, did you mean ${targetClient.toUpperCase()}`
+          );
+          return;
+        }
+        if (args[2] && !targetClient) {
+          server.sendChatText(client, "Client not found.");
+          return;
+        }
         server.sendChatText(
           client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+          `Adding ${count}x item${
+            count == 1 ? "" : "s"
+          } with id ${itemDefId} to player ${
+            targetClient ? targetClient.character.name : client.character.name
+          }`
         );
-        return;
+        (targetClient ? targetClient.character : client.character).lootItem(
+          server,
+          item
+        );
+      } else {
+        server.sendChatText(
+          client,
+          `Adding ${count}x item${
+            count == 1 ? "" : "s"
+          } with id ${itemDefId} to player ${client.character.name}`
+        );
+        client.character.lootItem(server, item);
       }
-      if (args[2] && !targetClient) {
-        server.sendChatText(client, "Client not found.");
-        return;
-      }
-      server.sendChatText(
-        client,
-        `Adding ${count}x item${
-          count == 1 ? "" : "s"
-        } with id ${itemDefId} to player ${
-          targetClient ? targetClient.character.name : client.character.name
-        }`
-      );
-      (targetClient ? targetClient.character : client.character).lootItem(
-        server,
-        item
-      );
     },
   },
   {
@@ -1422,26 +1434,31 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin listProcesses {ZoneClientId}`
+          `Correct usage: /admin listProcesses {name | ZoneClientId}`
         );
         return;
       }
-      for (const a in server._clients) {
-        const iteratedClient = server._clients[a];
-        if (Number(iteratedClient.loginSessionId) === Number(args[0])) {
-          server.sendChatText(
-            client,
-            `Showing process list of user: ${iteratedClient.character.name}`
-          );
-          for (
-            let index = 0;
-            index < iteratedClient.clientLogs.length;
-            index++
-          ) {
-            const element = iteratedClient.clientLogs[index];
-            server.sendChatText(client, `${element.log}`);
-          }
-        }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      server.sendChatText(
+        client,
+        `Showing process list of user: ${targetClient.character.name}`
+      );
+      for (let index = 0; index < targetClient.clientLogs.length; index++) {
+        const element = targetClient.clientLogs[index];
+        server.sendChatText(client, `${element.log}`);
       }
     },
   },
