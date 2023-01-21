@@ -913,7 +913,10 @@ export const commands: Array<Command> = [
         if (itemDefinitions[a].CODE_FACTORY_NAME == "EquippableContainer") {
           if (itemDefinitions[a].BULK == 0) continue; // skip account recipes and world containers
         }
-        if (name.toUpperCase() == argsName) itemDefId = itemDefinitions[a].ID;
+        if (name.toUpperCase() == argsName) {
+            itemDefId = itemDefinitions[a].ID;
+            break;
+        }
         else if (
           getDifference(name.toUpperCase(), argsName) <= 3 &&
           getDifference(name.toUpperCase(), argsName) != 0
