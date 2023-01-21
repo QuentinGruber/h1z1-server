@@ -84,7 +84,7 @@ export class BaseEntity {
     // default: do nothing
   }
 
-  // eslint-disable-next-block @typescript-eslint/no-unused-vars
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
     server: ZoneServer2016,
     client: ZoneClient2016,
@@ -92,6 +92,7 @@ export class BaseEntity {
   ) {
     // default: do nothing
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {

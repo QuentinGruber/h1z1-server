@@ -169,11 +169,12 @@ export class LootableProp extends BaseLootableEntity {
     this.loadoutId = 5;
     getContainerAndTime(this);
   }
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
     server: ZoneServer2016,
     client: ZoneClient2016,
     isInstant?: boolean
+  /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     if (!client.searchedProps.includes(this)) {
       server.utilizeHudTimer(
