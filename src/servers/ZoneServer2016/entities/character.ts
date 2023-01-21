@@ -540,11 +540,11 @@ export class Character2016 extends BaseFullCharacter {
       oldHealth
     );
     this.addCombatlogEntry(damageRecord);
-    server.combatLog(client);
+    //server.combatLog(client);
 
     const sourceClient = server.getClientByCharId(damageInfo.entity);
     if (!sourceClient?.character) return;
-    //sourceClient.character.addCombatlogEntry(damageRecord);
+    sourceClient.character.addCombatlogEntry(damageRecord);
     //server.combatLog(sourceClient);
   }
 
