@@ -183,8 +183,9 @@ export class LoginServer extends EventEmitter {
                       `Received session request from ${client.address}:${client.port}`
                     );
                     let status = 0;
-                    const { serverAddress:fullServerAddress} =
-                    await this._db.collection("servers").findOne({ serverId: serverId });
+                    const { serverAddress: fullServerAddress } = await this._db
+                      .collection("servers")
+                      .findOne({ serverId: serverId });
                     const serverAddress = fullServerAddress.split(":")[0];
                     if (serverAddress) {
                       const resolvedServerAddress = await resolveHostAddress(
@@ -228,14 +229,17 @@ export class LoginServer extends EventEmitter {
                   case "UpdateZonePopulation": {
                     const { population } = packet.data;
                     const serverId = this._zoneConnections[client.clientId];
-                    const { maxPopulationNumber } =
-      await this._db.collection("servers").findOne({ serverId: serverId });
+                    const { maxPopulationNumber } = await this._db
+                      .collection("servers")
+                      .findOne({ serverId: serverId });
                     this._db?.collection("servers").findOneAndUpdate(
                       { serverId: serverId },
                       {
                         $set: {
                           populationNumber: population,
-                          populationLevel: Number((population / maxPopulationNumber * 3).toFixed(0)),
+                          populationLevel: Number(
+                            ((population / maxPopulationNumber) * 3).toFixed(0)
+                          ),
                         },
                       }
                     );
@@ -825,7 +829,7 @@ export class LoginServer extends EventEmitter {
       ).data;
     }
     debug(charactersLoginInfo);
-    if(charactersLoginInfo.status){
+    if (charactersLoginInfo.status) {
       charactersLoginInfo.status = Number(characterExistOnZone);
     }
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);

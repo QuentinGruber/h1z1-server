@@ -253,7 +253,10 @@ export const setupAppDataFolder = (): void => {
     );
   }
   if (
-    !fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`) || fs.readFileSync(`${AppDataFolderPath}/single_player_characters2016.json`).toString() === "{}"
+    !fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`) ||
+    fs
+      .readFileSync(`${AppDataFolderPath}/single_player_characters2016.json`)
+      .toString() === "{}"
   ) {
     fs.writeFileSync(
       `${AppDataFolderPath}/single_player_characters2016.json`,
