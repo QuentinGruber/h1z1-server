@@ -1301,7 +1301,10 @@ export class zonePacketHandlers {
     if (!characterId) {
       return;
     }
-    if (characterId == foundation.ownerCharacterId) return;
+    if (characterId == foundation.ownerCharacterId) {
+      server.sendAlert(client, "You can't edit your own permissions.");
+      return;
+    }
     const obj: ConstructionPermissions = foundation.permissions[characterId];
     switch (packet.data.permissionSlot) {
       case 1:
@@ -1363,6 +1366,10 @@ export class zonePacketHandlers {
       }
     }
 
+    if (characterId == foundation.ownerCharacterId) {
+      server.sendAlert(client, "You can't edit your own permissions.");
+      return;
+    }
     if (!characterId) return;
     let obj: ConstructionPermissions = foundation.permissions[characterId];
     if (!obj) {
