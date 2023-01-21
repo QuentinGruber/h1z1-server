@@ -109,7 +109,6 @@ import { UseOptions } from "./data/useoptions";
 import { GAME_VERSIONS } from "../../utils/enums";
 
 import {
-  CharacterKilledBy,
   ClientUpdateDeathMetrics,
   ClientUpdateProximateItems,
   zone2016packets,

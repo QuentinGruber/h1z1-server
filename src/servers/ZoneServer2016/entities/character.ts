@@ -544,8 +544,8 @@ export class Character2016 extends BaseFullCharacter {
 
     const sourceClient = server.getClientByCharId(damageInfo.entity);
     if (!sourceClient?.character) return;
-    sourceClient.character.addCombatlogEntry(damageRecord);
-    server.combatLog(sourceClient);
+    //sourceClient.character.addCombatlogEntry(damageRecord);
+    //server.combatLog(sourceClient);
   }
 
   mountContainer(server: ZoneServer2016, lootableEntity: BaseLootableEntity) {
