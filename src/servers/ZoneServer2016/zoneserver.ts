@@ -2534,7 +2534,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
-    if (allowed) return true;
+    if (allowed) return false;
     if (foundation.isInside(client.character.state.position)) {
       this.tpPlayerOutsideFoundation(client, foundation);
       return false;
