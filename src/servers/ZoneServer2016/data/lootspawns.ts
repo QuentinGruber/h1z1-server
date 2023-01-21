@@ -172,7 +172,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region TOOLS
   "ItemSpawner_Weapon_Crowbar01.adr": {
-    spawnChance: 20,
+    spawnChance: 35,
     items: [
       {
         item: Items.WEAPON_CROWBAR,
@@ -906,6 +906,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       ...carparts,
       {
         item: Items.DUCT_TAPE,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.WEAPON_CROWBAR,
         weight: 20,
         spawnCount: {
           min: 1,
