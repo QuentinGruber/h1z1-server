@@ -2970,7 +2970,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId != characterObj.characterId &&
         characterObj.isReady &&
         isPosInRadius(
-          client.character.isSpectator ? 1000 : this._charactersRenderDistance,
+          this._charactersRenderDistance,
           client.character.state.position,
           characterObj.state.position
         ) &&
