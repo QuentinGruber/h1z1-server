@@ -3549,11 +3549,13 @@ export class ZoneServer2016 extends EventEmitter {
           // assigns management to first client within radius
           this.assignManagedObject(client, vehicle);
         }
-      } else if (!isPosInRadius(
+      } else if (
+        !isPosInRadius(
           this._charactersRenderDistance,
           client.character.state.position,
           vehicle.state.position
-      )) {
+        )
+      ) {
         // vehicle despawning / managed object drop logic
 
         const index = client.spawnedEntities.indexOf(vehicle);
