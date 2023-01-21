@@ -726,7 +726,7 @@ export class LoginServer extends EventEmitter {
       .findOne({ characterId: characterId });
     const connectionStatus =
       Object.values(this._zoneConnections).includes(serverId) &&
-      (populationNumber <= maxPopulationNumber || !maxPopulationNumber);
+      (populationNumber < maxPopulationNumber || !maxPopulationNumber);
     debug(`connectionStatus ${connectionStatus}`);
 
     if (!character) {
@@ -823,7 +823,9 @@ export class LoginServer extends EventEmitter {
       ).data;
     }
     debug(charactersLoginInfo);
-    charactersLoginInfo.status = Number(characterExistOnZone);
+    if(charactersLoginInfo.status){
+      charactersLoginInfo.status = Number(characterExistOnZone);
+    }
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
     debug("CharacterLoginRequest");
   }
