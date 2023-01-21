@@ -26,21 +26,33 @@ function getAllowedFuel(itemDefinitionId: number): number[] {
     case Items.FURNACE:
       return [
         Items.WOOD_LOG,
+        Items.WEAPON_BRANCH,
         Items.WOOD_PLANK,
         Items.WOOD_STICK,
         Items.CHARCOAL,
       ];
     case Items.BARBEQUE:
-      return [Items.WOOD_STICK, Items.WOOD_PLANK, Items.CHARCOAL];
+      return [
+        Items.WEAPON_BRANCH,
+        Items.WOOD_STICK,
+        Items.WOOD_PLANK,
+        Items.CHARCOAL,
+      ];
     case Items.CAMPFIRE:
       return [
         Items.WOOD_LOG,
+        Items.WEAPON_BRANCH,
         Items.WOOD_PLANK,
         Items.WOOD_STICK,
         Items.CHARCOAL,
       ];
     default:
-      return [Items.WOOD_LOG, Items.WOOD_PLANK, Items.CHARCOAL];
+      return [
+        Items.WOOD_LOG,
+        Items.WEAPON_BRANCH,
+        Items.WOOD_PLANK,
+        Items.CHARCOAL,
+      ];
   }
 }
 
@@ -54,6 +66,8 @@ function getBurningTime(itemDefinitionId: number): number {
       return 60000;
     case Items.WOOD_STICK:
       return 30000;
+    case Items.WEAPON_BRANCH:
+      return 120000;
     default:
       return 30000;
   }
@@ -94,7 +108,7 @@ export class SmeltingEntity {
   workingEffect: number = 5028;
   isWorking: boolean = false;
   isSmelting: boolean = false;
-  smeltingTime: number = 60000;
+  smeltingTime: number = 40000;
   dictionary: { [characterId: string]: BaseEntity };
   subType: string = "SmeltingEntity"; // for saving identification
   constructor(
@@ -241,6 +255,7 @@ export class SmeltingEntity {
         });
       }
     });
+    this.isSmelting = false;
     setTimeout(() => {
       this.startSmelting(server, parentObject);
     }, this.smeltingTime);

@@ -109,7 +109,6 @@ import { UseOptions } from "./data/useoptions";
 import { GAME_VERSIONS } from "../../utils/enums";
 
 import {
-  CharacterKilledBy,
   ClientUpdateDeathMetrics,
   ClientUpdateProximateItems,
   zone2016packets,
@@ -558,7 +557,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  getProximityItems(character: BaseFullCharacter): ClientUpdateProximateItems {
+  getProximityItems(character: Character): ClientUpdateProximateItems {
     const items = Object.values(this._spawnedItems);
     const proximityItems: ClientUpdateProximateItems = { items: [] };
     for (let i = 0; i < items.length; i++) {
@@ -589,6 +588,16 @@ export class ZoneServer2016 extends EventEmitter {
           1
         )
       ) {
+        if (construction && construction.parentObjectCharacterId) {
+          const parent = construction.getParent(this);
+          if (
+            parent &&
+            parent.isSecured &&
+            character.isHidden != parent.characterId
+          ) {
+            continue;
+          }
+        }
         const container = construction.getContainer();
         if (container) {
           Object.values(container.items).forEach((item: BaseItem) => {
@@ -1280,11 +1289,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendDeathMetrics(client);
     debug(character.name + " has died");
     if (sourceClient) {
-      this.sendDataToAll("Character.KilledBy", {
-        killed: client.character.characterId,
-        killer: sourceClient.character.characterId,
-        isCheater: sourceClient.character.godMode,
-      } as CharacterKilledBy);
       client.lastDeathReport = {
         position: client.character.state.position,
         attackerPosition: sourceClient.character.state.position,
@@ -1486,6 +1490,21 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
 
+    for (const construction in this._worldLootableConstruction) {
+      const constructionObject = this._worldLootableConstruction[
+        construction
+      ] as LootableConstructionEntity;
+      if (isPosInRadius(2, constructionObject.state.position, position)) {
+        this.checkConstructionDamage(
+          constructionObject.characterId,
+          50000,
+          this._worldLootableConstruction,
+          position,
+          constructionObject.state.position
+        );
+      }
+    }
+
     for (const explosive in this._explosives) {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
@@ -1659,6 +1678,9 @@ export class ZoneServer2016 extends EventEmitter {
       Math.random() * this._spawnLocations.length
     );
     if (client.character.initialized) {
+      client.managedObjects?.forEach((characterId: any) => {
+        this.dropVehicleManager(client, characterId);
+      });
       this.sendData(client, "Character.RespawnReply", {
         characterId: client.character.characterId,
         status: 1,
@@ -1854,12 +1876,12 @@ export class ZoneServer2016 extends EventEmitter {
         1000 /
         (sequenceTime - client.oldPos.time)) *
       3600000;
-    if (speed > 28 && (verticalSpeed < 50 || verticalSpeed == Infinity)) {
+    if (speed > 28 && (verticalSpeed < 40 || verticalSpeed == Infinity)) {
       client.speedWarnsNumber += 1;
     } else if (client.speedWarnsNumber != 0) {
       client.speedWarnsNumber -= 1;
     }
-    if (client.speedWarnsNumber > 30) {
+    if (client.speedWarnsNumber > 50) {
       this.kickPlayer(client);
       client.speedWarnsNumber = 0;
       this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
@@ -2014,8 +2036,26 @@ export class ZoneServer2016 extends EventEmitter {
       this._constructionSimple[entityKey] ||
       this._lootableConstruction[entityKey] ||
       this._constructionDoors[entityKey] ||
+      this._worldLootableConstruction[entityKey] ||
       undefined
     );
+  }
+
+  getConstructionDictionary(entityKey: string): any | undefined {
+    switch (true) {
+      case !!this._constructionFoundations[entityKey]:
+        return this._constructionFoundations;
+      case !!this._constructionSimple[entityKey]:
+        return this._constructionSimple;
+      case !!this._lootableConstruction[entityKey]:
+        return this._lootableConstruction;
+      case !!this._constructionDoors[entityKey]:
+        return this._constructionDoors;
+      case !!this._worldLootableConstruction[entityKey]:
+        return this._worldLootableConstruction;
+      default:
+        return;
+    }
   }
 
   getEntity(entityKey: string): BaseEntity | undefined {
@@ -2434,9 +2474,7 @@ export class ZoneServer2016 extends EventEmitter {
   checkFoundationPermission(
     client: Client,
     foundation: ConstructionParentEntity
-  ) {
-    let isInSecuredArea = false;
-
+  ): boolean {
     // under foundation check
     if (
       foundation.itemDefinitionId == Items.FOUNDATION ||
@@ -2459,7 +2497,7 @@ export class ZoneServer2016 extends EventEmitter {
       )
         this.tpPlayerOutsideFoundation(client, foundation, true);
     }
-    if (!foundation.isSecured) return;
+    if (!foundation.isSecured) return false;
     let allowed = false;
     const permissions = foundation.permissions[client.character.characterId];
     if (permissions && permissions.visit) allowed = true;
@@ -2471,36 +2509,34 @@ export class ZoneServer2016 extends EventEmitter {
       if (foundation.isInside(client.character.state.position)) {
         if (allowed) {
           this.constructionHidePlayer(client, foundation.characterId, true);
-          isInSecuredArea = true;
+          return true;
         } else {
           this.tpPlayerOutsideFoundation(client, foundation);
         }
       }
     }
-    if (allowed) return;
+    if (allowed) return true;
     if (foundation.isInside(client.character.state.position)) {
       this.tpPlayerOutsideFoundation(client, foundation);
-      return;
+      return false;
     }
 
-    if (!isInSecuredArea && client.character.isHidden)
-      client.character.isHidden = "";
+    return false;
   }
 
   checkConstructionChildEntityPermission(
     client: Client,
     construction: ConstructionChildEntity
-  ) {
-    let isInSecuredArea = false;
+  ): boolean {
     const allowedIds = [
       Items.SHELTER,
       Items.SHELTER_LARGE,
       Items.SHELTER_UPPER,
       Items.SHELTER_UPPER_LARGE,
     ];
-    if (!allowedIds.includes(construction.itemDefinitionId)) return;
+    if (!allowedIds.includes(construction.itemDefinitionId)) return false;
     let allowed = false;
-    if (!construction.isSecured) return;
+    if (!construction.isSecured) return false;
     let foundation: ConstructionParentEntity | undefined;
     if (this._constructionFoundations[construction.parentObjectCharacterId]) {
       foundation =
@@ -2524,20 +2560,20 @@ export class ZoneServer2016 extends EventEmitter {
         foundation = b;
       }
     }
-    if (!foundation) return;
+    if (!foundation) return false;
     const permissions = foundation.permissions[client.character.characterId];
     if (permissions && permissions.visit) allowed = true;
     if (construction.isInside(client.character.state.position)) {
       if (allowed) {
         this.constructionHidePlayer(client, construction.characterId, true);
-        isInSecuredArea = true;
+        return true;
       } else {
         this.tpPlayerOutsideFoundation(client, foundation);
+        return false;
       }
     }
 
-    if (!isInSecuredArea && client.character.isHidden)
-      client.character.isHidden = "";
+    return false;
   }
 
   constructionHidePlayer(
@@ -2865,10 +2901,16 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private constructionManager(client: Client) {
+    let hide = false;
     for (const characterId in this._constructionFoundations) {
       const npc = this._constructionFoundations[characterId];
-      this.checkFoundationPermission(client, npc);
+      if (this.checkFoundationPermission(client, npc)) hide = true;
     }
+    for (const characterId in this._constructionSimple) {
+      const npc = this._constructionSimple[characterId];
+      if (this.checkConstructionChildEntityPermission(client, npc)) hide = true;
+    }
+    if (!hide && client.character.isHidden) client.character.isHidden = "";
   }
 
   /**
@@ -2916,7 +2958,8 @@ export class ZoneServer2016 extends EventEmitter {
         !client.spawnedEntities.includes(characterObj) &&
         characterObj.isAlive &&
         !characterObj.isSpectator &&
-        characterObj.isHidden == client.character.isHidden &&
+        (characterObj.isHidden == client.character.isHidden ||
+          client.character.isSpectator) &&
         client.banType != "hiddenplayers"
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
@@ -4707,7 +4750,7 @@ export class ZoneServer2016 extends EventEmitter {
             }
             if (this._vehicles[vehicleGuid].positionUpdate.engineRPM) {
               const fuelLoss =
-                this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.01;
+                this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.003;
               this._vehicles[vehicleGuid]._resources[ResourceIds.FUEL] -=
                 fuelLoss;
             }
@@ -4848,6 +4891,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
+    client.character.vehicleExitDate = new Date().getTime();
     if (!seatId) return;
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.DismountResponse", {
@@ -4914,7 +4958,6 @@ export class ZoneServer2016 extends EventEmitter {
         ],
       }
     );
-
     client.character.dismountContainer(this);
   }
 
