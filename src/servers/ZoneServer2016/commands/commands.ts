@@ -491,10 +491,15 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `Correct usage: /tphere {name|playerId}`);
         return;
       }
-      const targetClient = server.getClientByNameOrLoginSession(args[0].toString())
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
       if (typeof targetClient == "string") {
-          server.sendChatText(client, `Could not find ${args[0].toString()}, did you mean ${targetClient}`);
-          return
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
       }
       if (!targetClient) {
         server.sendChatText(client, "Client not found.");
@@ -522,10 +527,15 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `Correct usage: /tpto {name|playerId}`);
         return;
       }
-      const targetClient = server.getClientByNameOrLoginSession(args[0].toString())
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
       if (typeof targetClient == "string") {
-          server.sendChatText(client, `Could not find ${args[0].toString()}, did you mean ${targetClient}`);
-          return
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
       }
       if (!targetClient) {
         server.sendChatText(client, "Client not found.");
@@ -906,10 +916,9 @@ export const commands: Array<Command> = [
           if (itemDefinitions[a].BULK == 0) continue; // skip account recipes and world containers
         }
         if (name.toUpperCase() == argsName) {
-            itemDefId = itemDefinitions[a].ID;
-            break;
-        }
-        else if (
+          itemDefId = itemDefinitions[a].ID;
+          break;
+        } else if (
           getDifference(name.toUpperCase(), argsName) <= 3 &&
           getDifference(name.toUpperCase(), argsName) != 0
         )
@@ -926,10 +935,15 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      const targetClient = server.getClientByNameOrLoginSession(args[2].toString())
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[2].toString()
+      );
       if (typeof targetClient == "string") {
-          server.sendChatText(client, `Could not find ${args[0].toString()}, did you mean ${targetClient}`);
-          return
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
       }
       if (args[2] && !targetClient) {
         server.sendChatText(client, "Client not found.");
@@ -1128,10 +1142,15 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `Correct usage: /slay {name|playerId}`);
         return;
       }
-      const targetClient = server.getClientByNameOrLoginSession(args[0].toString())
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
       if (typeof targetClient == "string") {
-          server.sendChatText(client, `Could not find ${args[0].toString()}, did you mean ${targetClient}`);
-          return
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
       }
       if (!targetClient) {
         server.sendChatText(client, "Client not found.");
@@ -1219,10 +1238,15 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `valid ban types: ${banTypes.join(", ")}`);
         return;
       }
-      const targetClient = server.getClientByNameOrLoginSession(args[0].toString())
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
       if (typeof targetClient == "string") {
-          server.sendChatText(client, `Could not find ${args[0].toString()}, did you mean ${targetClient}`);
-          return
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
       }
       if (!targetClient) {
         server.sendChatText(client, "Client not found.");
@@ -1268,10 +1292,15 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      const targetClient = server.getClientByNameOrLoginSession(args[0].toString())
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
       if (typeof targetClient == "string") {
-          server.sendChatText(client, `Could not find ${args[0].toString()}, did you mean ${targetClient}`);
-          return
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
       }
       if (!targetClient) {
         server.sendChatText(client, "Client not found.");
@@ -1313,10 +1342,15 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      const targetClient = server.getClientByNameOrLoginSession(args[0].toString())
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
       if (typeof targetClient == "string") {
-          server.sendChatText(client, `Could not find ${args[0].toString()}, did you mean ${targetClient}`);
-          return
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
       }
       if (!targetClient) {
         server.sendChatText(client, "Client not found.");
