@@ -63,7 +63,11 @@ export class ItemObject extends BaseLightweightCharacter {
     (this.spawnerId = spawnerId), (this.item = item);
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean) {
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+  ) {
     server.pickupItem(client, this.characterId);
   }
 

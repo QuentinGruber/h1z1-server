@@ -35,11 +35,15 @@ export const commandPackets: any = [
     "Command.InteractRequest",
     0x090700,
     {
-        fields: [
-            { name: "characterId", type: "uint64string", defaultValue: "0" },
-            { name: "entityPosition", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
-            { name: "isInstant", type: "boolean", defaultValue: true },
-        ],
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        {
+          name: "entityPosition",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0],
+        },
+        { name: "isInstant", type: "boolean", defaultValue: true },
+      ],
     },
   ],
   [

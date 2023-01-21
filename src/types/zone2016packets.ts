@@ -1383,7 +1383,9 @@ export interface CommandPlaySoundAtLocation {
   unknownDword3?: number;
 }
 export interface CommandInteractRequest {
-  guid?: string;
+  characterId?: string;
+  entityPosition?: Float32Array;
+  isInstant?: boolean;
 }
 export interface CommandInteractCancel {
 }

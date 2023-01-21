@@ -486,7 +486,11 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     return getConstructionSlotId(this.slot);
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean) {
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+  ) {
     if (this.canUndoPlacement(server, client)) {
       this.destroy(server);
       client.character.lootItem(

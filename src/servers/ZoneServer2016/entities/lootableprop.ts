@@ -170,7 +170,11 @@ export class LootableProp extends BaseLootableEntity {
     getContainerAndTime(this);
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean) {
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+  ) {
     if (!client.searchedProps.includes(this)) {
       server.utilizeHudTimer(
         client,

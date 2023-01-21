@@ -85,7 +85,11 @@ export class BaseEntity {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean) {
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+  ) {
     // default: do nothing
   }
 

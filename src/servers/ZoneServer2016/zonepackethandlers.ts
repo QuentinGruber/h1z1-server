@@ -817,7 +817,7 @@ export class zonePacketHandlers {
     entity.OnFullCharacterDataRequest(server, client);
   }
   CommandPlayerSelect(server: ZoneServer2016, client: Client, packet: any) {
-    debug("Command.PlayerSelect")
+    debug("Command.PlayerSelect");
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
     if (!client.character.currentInteractionGuid || packet.data.password === 1)
@@ -827,14 +827,17 @@ export class zonePacketHandlers {
     ] as ConstructionDoor;
     if (!doorEntity) return;
     if (doorEntity.ownerCharacterId === client.character.characterId) {
-        if (doorEntity.passwordHash != packet.data.password) {
-            doorEntity.passwordHash = packet.data.password;
-            doorEntity.grantedAccess = [];
-            doorEntity.grantedAccess.push(client.character.characterId);
-        }
-        return
+      if (doorEntity.passwordHash != packet.data.password) {
+        doorEntity.passwordHash = packet.data.password;
+        doorEntity.grantedAccess = [];
+        doorEntity.grantedAccess.push(client.character.characterId);
+      }
+      return;
     }
-    if (doorEntity.passwordHash === packet.data.password && !doorEntity.grantedAccess.includes(client.character.characterId)) {
+    if (
+      doorEntity.passwordHash === packet.data.password &&
+      !doorEntity.grantedAccess.includes(client.character.characterId)
+    ) {
       doorEntity.grantedAccess.push(client.character.characterId);
     }
   }

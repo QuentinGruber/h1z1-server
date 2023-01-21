@@ -44,7 +44,11 @@ export class BaseLootableEntity extends BaseFullCharacter {
     });
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean): void {
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+  ): void {
     if (client.character.characterId == this.mountedCharacter) {
       client.character.dismountContainer(server);
       delete this.mountedCharacter; // the check below wont fix container if characterId is the same
