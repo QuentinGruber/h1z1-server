@@ -121,7 +121,7 @@ export class Plant extends ItemObject {
     server: ZoneServer2016,
     client: ZoneClient2016,
     isInstant?: boolean
-  /* eslint-enable @typescript-eslint/no-unused-vars */
+    /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     if (this.growState != 3) return;
     if (!server._temporaryObjects[this.parentObjectCharacterId]) {

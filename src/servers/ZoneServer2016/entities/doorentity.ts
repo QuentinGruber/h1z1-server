@@ -145,7 +145,7 @@ export class DoorEntity extends BaseLightweightCharacter {
     server: ZoneServer2016,
     client: ZoneClient2016,
     isInstant?: boolean
-  /* eslint-enable @typescript-eslint/no-unused-vars */
+    /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     client; // eslint
     if (this.moving) {

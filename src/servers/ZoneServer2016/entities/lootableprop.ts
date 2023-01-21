@@ -174,7 +174,7 @@ export class LootableProp extends BaseLootableEntity {
     server: ZoneServer2016,
     client: ZoneClient2016,
     isInstant?: boolean
-  /* eslint-enable @typescript-eslint/no-unused-vars */
+    /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     if (!client.searchedProps.includes(this)) {
       server.utilizeHudTimer(

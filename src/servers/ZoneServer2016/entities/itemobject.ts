@@ -67,7 +67,7 @@ export class ItemObject extends BaseLightweightCharacter {
     server: ZoneServer2016,
     client: ZoneClient2016,
     isInstant?: boolean
-  /* eslint-enable @typescript-eslint/no-unused-vars */
+    /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     server.pickupItem(client, this.characterId);
   }
