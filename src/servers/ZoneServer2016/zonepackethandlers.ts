@@ -943,7 +943,7 @@ export class zonePacketHandlers {
       client,
       packet.data.itemDefinitionId,
       modelId,
-      packet.data.position,
+      packet.data.position2,
       final,
       packet.data.parentObjectCharacterId,
       packet.data.BuildingSlot
