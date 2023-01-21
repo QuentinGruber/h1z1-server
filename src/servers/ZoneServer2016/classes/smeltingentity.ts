@@ -26,21 +26,23 @@ function getAllowedFuel(itemDefinitionId: number): number[] {
     case Items.FURNACE:
       return [
         Items.WOOD_LOG,
+        Items.WEAPON_BRANCH,
         Items.WOOD_PLANK,
         Items.WOOD_STICK,
         Items.CHARCOAL,
       ];
     case Items.BARBEQUE:
-      return [Items.WOOD_STICK, Items.WOOD_PLANK, Items.CHARCOAL];
+      return [Items.WEAPON_BRANCH, Items.WOOD_STICK, Items.WOOD_PLANK, Items.CHARCOAL];
     case Items.CAMPFIRE:
       return [
         Items.WOOD_LOG,
+        Items.WEAPON_BRANCH,
         Items.WOOD_PLANK,
         Items.WOOD_STICK,
         Items.CHARCOAL,
       ];
     default:
-      return [Items.WOOD_LOG, Items.WOOD_PLANK, Items.CHARCOAL];
+      return [Items.WOOD_LOG, Items.WEAPON_BRANCH, Items.WOOD_PLANK, Items.CHARCOAL];
   }
 }
 
@@ -54,6 +56,8 @@ function getBurningTime(itemDefinitionId: number): number {
       return 60000;
     case Items.WOOD_STICK:
       return 30000;
+    case Items.WEAPON_BRANCH:
+      return 120000;
     default:
       return 30000;
   }
