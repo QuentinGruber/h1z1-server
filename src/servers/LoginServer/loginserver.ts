@@ -80,7 +80,6 @@ export class LoginServer extends EventEmitter {
   _httpServerPort: number = 80;
   private _h1emuLoginServer!: H1emuLoginServer;
   private _zoneConnections: { [h1emuClientId: string]: number } = {};
-  private _serverList!: any[];
   private _internalReqCount: number = 0;
   private _pendingInternalReq: { [requestId: number]: any } = {};
   private _pendingInternalReqTimeouts: { [requestId: number]: NodeJS.Timeout } =
@@ -184,10 +183,9 @@ export class LoginServer extends EventEmitter {
                       `Received session request from ${client.address}:${client.port}`
                     );
                     let status = 0;
-
-                    const serverAddress = this._serverList
-                      .find((e) => e.serverId === serverId)
-                      ?.serverAddress.split(":")[0];
+                    const { serverAddress:fullServerAddress} =
+                    await this._db.collection("servers").findOne({ serverId: serverId });
+                    const serverAddress = fullServerAddress.split(":")[0];
                     if (serverAddress) {
                       const resolvedServerAddress = await resolveHostAddress(
                         this._resolver,
@@ -1021,17 +1019,7 @@ export class LoginServer extends EventEmitter {
         await initMongo(mongoClient, debugName);
       }
       this._db = mongoClient.db("h1server");
-      this._serverList = await this._db
-        .collection("servers")
-        .find({})
-        .toArray();
       this.updateServersStatus();
-      setInterval(async () => {
-        this._serverList = await this._db
-          .collection("servers")
-          .find({})
-          .toArray();
-      }, 60000);
     }
 
     if (this._soloMode) {
