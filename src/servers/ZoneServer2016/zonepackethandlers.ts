@@ -1301,6 +1301,9 @@ export class zonePacketHandlers {
     if (!characterId) {
       return;
     }
+    if(characterId == foundation.ownerCharacterId) {
+      server.sendAlert(client, "You can't edit your own permissions.");
+    }
     if (characterId == foundation.ownerCharacterId) return;
     const obj: ConstructionPermissions = foundation.permissions[characterId];
     switch (packet.data.permissionSlot) {
@@ -1361,6 +1364,10 @@ export class zonePacketHandlers {
       if (character.name === packet.data.characterName) {
         characterId = character.characterId;
       }
+    }
+
+    if(characterId == foundation.ownerCharacterId) {
+      server.sendAlert(client, "You can't edit your own permissions.");
     }
 
     if (!characterId) return;
@@ -1925,6 +1932,10 @@ export class zonePacketHandlers {
   EndCharacterAccess(server: ZoneServer2016, client: Client, packet: any) {
     client.character.dismountContainer(server);
   }
+
+  GroupInvite(server: ZoneServer2016, client: Client, packet: any) {
+    console.log(JSON.stringify(packet, undefined, 2));
+  }
   //#endregion
 
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
@@ -2112,6 +2123,8 @@ export class zonePacketHandlers {
         break;
       case "AccessedCharacter.EndCharacterAccess":
         this.EndCharacterAccess(server, client, packet);
+      case "Group.Invite":
+        this.GroupInvite(server, client, packet);
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");
