@@ -85,6 +85,7 @@ import {
   checkConstructionInRange,
   resolveHostAddress,
   isInsideSquare,
+  getDifference,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -2098,6 +2099,24 @@ export class ZoneServer2016 extends EventEmitter {
         return c;
       }
     }
+  }
+
+  getClientByNameOrLoginSession(name: string): Client | string | undefined {
+    let similar: string = "";
+    const targetClient: Client | undefined = Object.values(this._clients).find(
+      (c) => {
+        const clientName = c.character.name?.toLowerCase().replaceAll(" ", "_");
+        if (!clientName) return;
+        if (clientName == name.toLowerCase() || c.loginSessionId == name) {
+          return c;
+        } else if (
+          getDifference(name.toLowerCase(), clientName) <= 3 &&
+          getDifference(name.toLowerCase(), clientName) != 0
+        )
+          similar = clientName;
+      }
+    );
+    return targetClient ? targetClient : similar ? similar : undefined;
   }
 
   checkHelmet(
