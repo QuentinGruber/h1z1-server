@@ -253,7 +253,10 @@ export const setupAppDataFolder = (): void => {
     );
   }
   if (
-    !fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`)
+    !fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`) ||
+    fs
+      .readFileSync(`${AppDataFolderPath}/single_player_characters2016.json`)
+      .toString() === "{}"
   ) {
     fs.writeFileSync(
       `${AppDataFolderPath}/single_player_characters2016.json`,
@@ -652,24 +655,6 @@ export const toHex = (number: number): string => {
 export const getRandomFromArray = (array: any[]): any => {
   return array[Math.floor(Math.random() * array.length)];
 };
-
-export function validateVersion(
-  loginVersion: string,
-  zoneVersion: string
-): boolean {
-  const [loginMajor, loginMinor, loginPatch] = loginVersion.split(".");
-  const [zoneMajor, zoneMinor, zonePatch] = zoneVersion.split(".");
-  if (loginMajor > zoneMajor) {
-    return false;
-  }
-  if (loginMinor > zoneMinor) {
-    return false;
-  }
-  if (loginPatch > zonePatch) {
-    return false;
-  }
-  return true;
-}
 
 export const getRandomKeyFromAnObject = (object: any): string => {
   const keys = Object.keys(object);

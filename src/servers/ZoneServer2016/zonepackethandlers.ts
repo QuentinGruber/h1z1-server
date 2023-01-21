@@ -217,6 +217,9 @@ export class zonePacketHandlers {
       damage: number = packet.data.damage,
       vehicle = server._vehicles[characterId];
     if (characterId === client.character.characterId) {
+      if (client.character.vehicleExitDate + 3000 > new Date().getTime()) {
+        return;
+      }
       if (!client.vehicle.mountedVehicle) {
         // if not mounted
         // fixes collision dmg bug on login
@@ -943,7 +946,7 @@ export class zonePacketHandlers {
       client,
       packet.data.itemDefinitionId,
       modelId,
-      packet.data.position,
+      packet.data.position2,
       final,
       packet.data.parentObjectCharacterId,
       packet.data.BuildingSlot
@@ -1497,16 +1500,16 @@ export class zonePacketHandlers {
                 !client.character.temporaryScrapTimeout
               ) {
                 const chance = Math.floor(Math.random() * 100) + 1;
-                if (chance <= 60) {
+                if (chance <= 70) {
                   client.character.lootItem(
                     server,
                     server.generateItem(Items.METAL_SCRAP)
                   );
-                  server.damageItem(client, weaponItem, 50);
+                  server.damageItem(client, weaponItem, 35);
                 }
                 client.character.temporaryScrapTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapTimeout;
-                }, Math.floor(Math.random() * (12000 - 1300 + 1) + 1300));
+                }, Math.floor(Math.random() * (6000 - 1000 + 1) + 1000));
               }
             }
           }
@@ -1561,6 +1564,13 @@ export class zonePacketHandlers {
                 damage: -100000,
               };
               entity.damage(server, damageInfo);
+              server.updateResourceToAllWithSpawnedEntity(
+                entity.characterId,
+                entity.health,
+                ResourceIds.CONSTRUCTION_CONDITION,
+                ResourceTypes.CONDITION,
+                server.getConstructionDictionary(entity.characterId)
+              );
               client.character.temporaryScrapSoundTimeout = setTimeout(() => {
                 delete client.character.temporaryScrapSoundTimeout;
               }, 1000);

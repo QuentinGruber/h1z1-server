@@ -127,7 +127,9 @@ export class WorldDataManager {
       server.executeFuncForAllReadyClients((client: Client) => {
         this.saveCharacterData(server, client);
       });
-      // save here
+      server.sendChatTextToAdmins("World save started.");
+      this.saveWorld(server);
+      server.sendChatTextToAdmins("World saved!");
 
       this.lastSaveTime = Date.now();
     }
@@ -203,7 +205,7 @@ export class WorldDataManager {
     if (server._soloMode) {
       fs.writeFileSync(
         `${server._appDataFolder}/single_player_characters2016.json`,
-        JSON.stringify({}, null, 2)
+        JSON.stringify([], null, 2)
       );
     } else {
       await server._db?.collection("characters").updateMany(

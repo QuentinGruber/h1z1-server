@@ -76,6 +76,31 @@ export const commands: Array<Command> = [
     },
   },
   {
+    name: "vanish",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client) => {
+      client.character.isSpectator = !client.character.isSpectator;
+      server.sendChatText(
+        client,
+        `Hidden state: ${client.character.isSpectator}`
+      );
+      if (!client.character.isSpectator) return;
+      for (const a in server._clients) {
+        const iteratedClient = server._clients[a];
+        if (iteratedClient.spawnedEntities.includes(client.character)) {
+          server.sendData(iteratedClient, "Character.RemovePlayer", {
+            characterId: client.character.characterId,
+          });
+          iteratedClient.spawnedEntities.splice(
+            iteratedClient.spawnedEntities.indexOf(client.character),
+            1
+          );
+        }
+      }
+      server.sendData(client, "SpectatorBase", {});
+    },
+  },
+  {
     name: "serverinfo",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
@@ -466,20 +491,23 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `Correct usage: /tphere {name|playerId}`);
         return;
       }
-      const targetClient = Object.values(server._clients).find((c) => {
-        if (
-          c.character.name?.toLowerCase().replace(/\s/g, "") ==
-            args[0].toLowerCase() ||
-          c.loginSessionId == args[0]
-        ) {
-          return c;
-        }
-      });
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
       if (!targetClient) {
         server.sendChatText(client, "Client not found.");
         return;
       }
+      targetClient.character.state.position = client.character.state.position;
       targetClient.isLoading = true;
+      targetClient.characterReleased = false;
       server.sendData(targetClient, "ClientUpdate.UpdateLocation", {
         position: client.character.state.position,
         triggerLoadingScreen: true,
@@ -499,20 +527,23 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `Correct usage: /tpto {name|playerId}`);
         return;
       }
-      const targetClient = Object.values(server._clients).find((c) => {
-        if (
-          c.character.name?.toLowerCase().replace(/\s/g, "") ==
-            args[0].toLowerCase() ||
-          c.loginSessionId == args[0]
-        ) {
-          return c;
-        }
-      });
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
       if (!targetClient) {
         server.sendChatText(client, "Client not found.");
         return;
       }
-      targetClient.isLoading = true;
+      client.character.state.position = targetClient.character.state.position;
+      client.isLoading = true;
+      client.characterReleased = false;
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: targetClient.character.state.position,
         triggerLoadingScreen: true,
@@ -880,14 +911,19 @@ export const commands: Array<Command> = [
         const name = itemDefinitions[a].NAME;
         const argsName = args[0].toString().toUpperCase().replaceAll("_", " ");
         if (!name) continue;
-        if (name.toUpperCase() == argsName) itemDefId = itemDefinitions[a].ID;
-        else if (
+        if (itemDefinitions[a].CODE_FACTORY_NAME == "AccountRecipe") continue;
+        if (itemDefinitions[a].CODE_FACTORY_NAME == "EquippableContainer") {
+          if (itemDefinitions[a].BULK == 0) continue; // skip account recipes and world containers
+        }
+        if (name.toUpperCase() == argsName) {
+          itemDefId = itemDefinitions[a].ID;
+          break;
+        } else if (
           getDifference(name.toUpperCase(), argsName) <= 3 &&
           getDifference(name.toUpperCase(), argsName) != 0
         )
           similar = itemDefinitions[a].NAME.toUpperCase().replaceAll(" ", "_");
       }
-
       if (!itemDefId) itemDefId = Number(args[0]);
       const item = server.generateItem(itemDefId, count);
       if (!item) {
@@ -899,34 +935,44 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      let targetClient;
       if (args[2]) {
-        targetClient = Object.values(server._clients).find((c) => {
-          if (
-            c.character.name?.toLowerCase().replace(/\s/g, "") ==
-              args[2].toLowerCase() ||
-            c.loginSessionId == args[2]
-          ) {
-            return c;
-          }
-        });
+        const targetClient = server.getClientByNameOrLoginSession(
+          args[2].toString()
+        );
+        if (typeof targetClient == "string") {
+          server.sendChatText(
+            client,
+            `Could not find player ${args[2]
+              .toString()
+              .toUpperCase()}, did you mean ${targetClient.toUpperCase()}`
+          );
+          return;
+        }
+        if (args[2] && !targetClient) {
+          server.sendChatText(client, "Client not found.");
+          return;
+        }
+        server.sendChatText(
+          client,
+          `Adding ${count}x item${
+            count == 1 ? "" : "s"
+          } with id ${itemDefId} to player ${
+            targetClient ? targetClient.character.name : client.character.name
+          }`
+        );
+        (targetClient ? targetClient.character : client.character).lootItem(
+          server,
+          item
+        );
+      } else {
+        server.sendChatText(
+          client,
+          `Adding ${count}x item${
+            count == 1 ? "" : "s"
+          } with id ${itemDefId} to player ${client.character.name}`
+        );
+        client.character.lootItem(server, item);
       }
-      if (args[2] && !targetClient) {
-        server.sendChatText(client, "Client not found.");
-        return;
-      }
-      server.sendChatText(
-        client,
-        `Adding ${count}x item${
-          count == 1 ? "" : "s"
-        } with id ${itemDefId} to player ${
-          targetClient ? targetClient.character.name : client.character.name
-        }`
-      );
-      (targetClient ? targetClient.character : client.character).lootItem(
-        server,
-        item
-      );
     },
   },
   {
@@ -1108,15 +1154,16 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `Correct usage: /slay {name|playerId}`);
         return;
       }
-      const targetClient = Object.values(server._clients).find((c) => {
-        if (
-          c.character.name?.toLowerCase().replace(/\s/g, "") ==
-            args[0].toLowerCase() ||
-          c.loginSessionId == args[0]
-        ) {
-          return c;
-        }
-      });
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
       if (!targetClient) {
         server.sendChatText(client, "Client not found.");
         return;
@@ -1203,15 +1250,16 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `valid ban types: ${banTypes.join(", ")}`);
         return;
       }
-      const targetClient = Object.values(server._clients).find((c) => {
-        if (
-          c.character.name?.toLowerCase().replace(/\s/g, "") ==
-            args[0].toLowerCase() ||
-          c.loginSessionId == args[0]
-        ) {
-          return c;
-        }
-      });
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
       if (!targetClient) {
         server.sendChatText(client, "Client not found.");
         return;
@@ -1256,15 +1304,16 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      const targetClient = Object.values(server._clients).find((c) => {
-        if (
-          c.character.name?.toLowerCase().replace(/\s/g, "") ==
-            args[0].toLowerCase() ||
-          c.loginSessionId == args[0]
-        ) {
-          return c;
-        }
-      });
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
       if (!targetClient) {
         server.sendChatText(client, "Client not found.");
         return;
@@ -1305,15 +1354,16 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      const targetClient = Object.values(server._clients).find((c) => {
-        if (
-          c.character.name?.toLowerCase().replace(/\s/g, "") ==
-            args[0].toLowerCase() ||
-          c.loginSessionId == args[0]
-        ) {
-          return c;
-        }
-      });
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
       if (!targetClient) {
         server.sendChatText(client, "Client not found.");
         return;
@@ -1384,26 +1434,31 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin listProcesses {ZoneClientId}`
+          `Correct usage: /admin listProcesses {name | ZoneClientId}`
         );
         return;
       }
-      for (const a in server._clients) {
-        const iteratedClient = server._clients[a];
-        if (Number(iteratedClient.loginSessionId) === Number(args[0])) {
-          server.sendChatText(
-            client,
-            `Showing process list of user: ${iteratedClient.character.name}`
-          );
-          for (
-            let index = 0;
-            index < iteratedClient.clientLogs.length;
-            index++
-          ) {
-            const element = iteratedClient.clientLogs[index];
-            server.sendChatText(client, `${element.log}`);
-          }
-        }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      server.sendChatText(
+        client,
+        `Showing process list of user: ${targetClient.character.name}`
+      );
+      for (let index = 0; index < targetClient.clientLogs.length; index++) {
+        const element = targetClient.clientLogs[index];
+        server.sendChatText(client, `${element.log}`);
       }
     },
   },
@@ -1426,6 +1481,7 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `Maximum range is 100`);
         return;
       }
+      const entitiesToDelete: { characterId: string; dictionary: any }[] = [];
       for (const a in server._constructionSimple) {
         const construction = server._constructionSimple[a];
         if (
@@ -1435,12 +1491,10 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          server.deleteEntity(
-            construction.characterId,
-            server._constructionSimple,
-            1875,
-            500
-          );
+          entitiesToDelete.push({
+            characterId: construction.characterId,
+            dictionary: server._constructionSimple,
+          });
         }
       }
       for (const a in server._constructionDoors) {
@@ -1452,12 +1506,10 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          server.deleteEntity(
-            construction.characterId,
-            server._constructionDoors,
-            1875,
-            500
-          );
+          entitiesToDelete.push({
+            characterId: construction.characterId,
+            dictionary: server._constructionDoors,
+          });
         }
       }
       for (const a in server._constructionFoundations) {
@@ -1469,14 +1521,49 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          server.deleteEntity(
-            construction.characterId,
-            server._constructionFoundations,
-            1875,
-            500
-          );
+          entitiesToDelete.push({
+            characterId: construction.characterId,
+            dictionary: server._constructionFoundations,
+          });
         }
       }
+      for (const a in server._lootableConstruction) {
+        const construction = server._lootableConstruction[a];
+        if (
+          isPosInRadius(
+            Number(args[0]),
+            client.character.state.position,
+            construction.state.position
+          )
+        ) {
+          entitiesToDelete.push({
+            characterId: construction.characterId,
+            dictionary: server._lootableConstruction,
+          });
+        }
+      }
+
+      for (const a in server._worldLootableConstruction) {
+        const construction = server._worldLootableConstruction[a];
+        if (
+          isPosInRadius(
+            Number(args[0]),
+            client.character.state.position,
+            construction.state.position
+          )
+        ) {
+          entitiesToDelete.push({
+            characterId: construction.characterId,
+            dictionary: server._worldLootableConstruction,
+          });
+        }
+      }
+
+      entitiesToDelete.forEach(
+        (entity: { characterId: string; dictionary: any }) => {
+          server.deleteEntity(entity.characterId, entity.dictionary, 1875, 500);
+        }
+      );
       server.sendChatText(
         client,
         `Removed all constructions in range of ${Number(args[0])}`

@@ -83,6 +83,7 @@ export class Character2016 extends BaseFullCharacter {
   isReady = false;
   creationDate!: string;
   lastLoginDate!: string;
+  vehicleExitDate: number = new Date().getTime();
   currentLoadoutSlot = LoadoutSlots.FISTS;
   readonly loadoutId = LoadoutIds.CHARACTER;
   startRessourceUpdater: any;
@@ -191,11 +192,11 @@ export class Character2016 extends BaseFullCharacter {
           (client.vehicle.mountedVehicle == "" ||
             !client.vehicle.mountedVehicle)
         ) {
-          client.character._resources[ResourceIds.STAMINA] -= 2;
+          client.character._resources[ResourceIds.STAMINA] -= 4;
           client.character.isExhausted =
             client.character._resources[ResourceIds.STAMINA] < 120;
         } else if (!client.character.isBleeding || !client.character.isMoving) {
-          client.character._resources[ResourceIds.STAMINA] += 4;
+          client.character._resources[ResourceIds.STAMINA] += 8;
         }
 
         // todo: modify sprint stat
@@ -539,12 +540,12 @@ export class Character2016 extends BaseFullCharacter {
       oldHealth
     );
     this.addCombatlogEntry(damageRecord);
-    server.combatLog(client);
+    //server.combatLog(client);
 
     const sourceClient = server.getClientByCharId(damageInfo.entity);
     if (!sourceClient?.character) return;
     sourceClient.character.addCombatlogEntry(damageRecord);
-    server.combatLog(sourceClient);
+    //server.combatLog(sourceClient);
   }
 
   mountContainer(server: ZoneServer2016, lootableEntity: BaseLootableEntity) {
