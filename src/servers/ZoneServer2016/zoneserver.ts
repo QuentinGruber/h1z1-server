@@ -3522,7 +3522,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
-          this._charactersRenderDistance,
+          this._charactersRenderDistance + 50, // may cause characters issues due to vehicles despawning earlier than players
           client.character.state.position,
           vehicle.state.position
         )
@@ -3549,7 +3549,11 @@ export class ZoneServer2016 extends EventEmitter {
           // assigns management to first client within radius
           this.assignManagedObject(client, vehicle);
         }
-      } else {
+      } else if (!isPosInRadius(
+          this._charactersRenderDistance,
+          client.character.state.position,
+          vehicle.state.position
+      )) {
         // vehicle despawning / managed object drop logic
 
         const index = client.spawnedEntities.indexOf(vehicle);
