@@ -116,7 +116,7 @@ export class Plant extends ItemObject {
     const timeToAdd = this.isFertilized ? this.growTime / 2 : this.growTime; // 4 or 8h based on fertilized or not
     this.nextStateTime = new Date().getTime() + timeToAdd;
   }
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean) {
     if (this.growState != 3) return;
     if (!server._temporaryObjects[this.parentObjectCharacterId]) {

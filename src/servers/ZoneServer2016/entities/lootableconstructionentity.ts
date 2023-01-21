@@ -142,7 +142,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       ) || false
     );
   }
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean) {
     if (this.canUndoPlacement(server, client)) {
       this.destroy(server);

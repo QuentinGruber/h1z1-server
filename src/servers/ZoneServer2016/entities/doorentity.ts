@@ -140,7 +140,7 @@ export class DoorEntity extends BaseLightweightCharacter {
     this.openSound = openSound;
     this.closeSound = closeSound;
   }
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean) {
     client; // eslint
     if (this.moving) {

@@ -43,7 +43,7 @@ export class BaseLootableEntity extends BaseFullCharacter {
       stringId: StringIds.OPEN,
     });
   }
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016, isInstant?: boolean): void {
     if (client.character.characterId == this.mountedCharacter) {
       client.character.dismountContainer(server);
