@@ -1503,7 +1503,7 @@ export class zonePacketHandlers {
                     server,
                     server.generateItem(Items.METAL_SCRAP)
                   );
-                  server.damageItem(client, weaponItem, 50);
+                  server.damageItem(client, weaponItem, 35);
                 }
                 client.character.temporaryScrapTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapTimeout;
@@ -1562,6 +1562,13 @@ export class zonePacketHandlers {
                 damage: -100000,
               };
               entity.damage(server, damageInfo);
+                server.updateResourceToAllWithSpawnedEntity(
+                    entity.characterId,
+                    entity.health,
+                    ResourceIds.CONSTRUCTION_CONDITION,
+                    ResourceTypes.CONDITION,
+                    server.getConstructionDictionary(entity.characterId)
+                );
               client.character.temporaryScrapSoundTimeout = setTimeout(() => {
                 delete client.character.temporaryScrapSoundTimeout;
               }, 1000);

@@ -1489,6 +1489,21 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
 
+    for (const construction in this._worldLootableConstruction) {
+      const constructionObject = this._worldLootableConstruction[
+        construction
+      ] as LootableConstructionEntity;
+      if (isPosInRadius(2, constructionObject.state.position, position)) {
+        this.checkConstructionDamage(
+          constructionObject.characterId,
+          50000,
+          this._worldLootableConstruction,
+          position,
+          constructionObject.state.position
+        );
+      }
+    }
+
     for (const explosive in this._explosives) {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
@@ -2020,8 +2035,26 @@ export class ZoneServer2016 extends EventEmitter {
       this._constructionSimple[entityKey] ||
       this._lootableConstruction[entityKey] ||
       this._constructionDoors[entityKey] ||
+      this._worldLootableConstruction[entityKey] ||
       undefined
     );
+  }
+
+  getConstructionDictionary(entityKey: string): any | undefined {
+      switch (true) {
+          case !!this._constructionFoundations[entityKey]:
+              return this._constructionFoundations
+          case !!this._constructionSimple[entityKey]:
+              return this._constructionSimple
+          case !!this._lootableConstruction[entityKey]:
+              return this._lootableConstruction
+          case !!this._constructionDoors[entityKey]:
+              return this._constructionDoors
+          case !!this._worldLootableConstruction[entityKey]:
+              return this._worldLootableConstruction
+          default:
+              return
+      }
   }
 
   getEntity(entityKey: string): BaseEntity | undefined {
