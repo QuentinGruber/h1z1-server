@@ -478,8 +478,13 @@ export class Vehicle2016 extends BaseLootableEntity {
       );
     }
   }
-
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+  ) {
     !client.vehicle.mountedVehicle
       ? server.mountVehicle(client, this.characterId)
       : server.dismountVehicle(client);

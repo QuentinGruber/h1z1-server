@@ -1559,6 +1559,38 @@ export const commands: Array<Command> = [
         }
       }
 
+      for (const a in server._temporaryObjects) {
+        const construction = server._temporaryObjects[a];
+        if (
+          isPosInRadius(
+            Number(args[0]),
+            client.character.state.position,
+            construction.state.position
+          )
+        ) {
+          entitiesToDelete.push({
+            characterId: construction.characterId,
+            dictionary: server._temporaryObjects,
+          });
+        }
+      }
+
+      for (const a in server._plants) {
+        const construction = server._plants[a];
+        if (
+          isPosInRadius(
+            Number(args[0]),
+            client.character.state.position,
+            construction.state.position
+          )
+        ) {
+          entitiesToDelete.push({
+            characterId: construction.characterId,
+            dictionary: server._plants,
+          });
+        }
+      }
+
       entitiesToDelete.forEach(
         (entity: { characterId: string; dictionary: any }) => {
           server.deleteEntity(entity.characterId, entity.dictionary, 1875, 500);
