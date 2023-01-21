@@ -2355,9 +2355,7 @@ export const basePackets: any = [
   ["Ability.ActivateVehicleAbility", 0x1015, {}],
   ["Ability.DeactivateItemAbility", 0x1016, {}],
   ["Ability.DeactivateVehicleAbility", 0x1017, {}],
-
   ["MiniGame", 0x12, {}],
-  ["Group", 0x13, {}],
   ["Encounter", 0x14, {}],
   ["Inventory", 0x15, {}],
   [
