@@ -977,6 +977,7 @@ export class WorldDataManager {
       const collection = server._db?.collection("construction");
       await collection?.deleteMany({ serverId: server._worldId });
       if (construction.length) await collection?.insertMany(construction);
+      await tempCollection?.deleteMany({ serverId: server._worldId });
     }
   }
 
