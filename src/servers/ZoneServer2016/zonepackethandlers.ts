@@ -1596,7 +1596,8 @@ export class zonePacketHandlers {
           if (
             !weaponItem.weapon?.ammoCount &&
             weaponItem.itemDefinitionId != Items.WEAPON_BOW_MAKESHIFT &&
-            weaponItem.itemDefinitionId != Items.WEAPON_BOW_RECURVE
+            weaponItem.itemDefinitionId != Items.WEAPON_BOW_RECURVE &&
+            weaponItem.itemDefinitionId != Items.WEAPON_BOW_WOOD
           )
             return;
           if (p.packet.firestate > 0) {
@@ -1723,7 +1724,8 @@ export class zonePacketHandlers {
 
           if (
             weaponItem.itemDefinitionId == Items.WEAPON_BOW_MAKESHIFT ||
-            weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE
+            weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE ||
+            weaponItem.itemDefinitionId == Items.WEAPON_BOW_WOOD
           ) {
             if (
               client.character.getEquippedWeapon().itemGuid !=

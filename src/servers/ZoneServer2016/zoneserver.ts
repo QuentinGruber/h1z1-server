@@ -1631,7 +1631,8 @@ export class ZoneServer2016 extends EventEmitter {
     if (
       iD == Items.WEAPON_BOW_MAKESHIFT ||
       iD == Items.WEAPON_BOW_RECURVE ||
-      iD == Items.WEAPON_CROSSBOW
+      iD == Items.WEAPON_CROSSBOW ||
+      iD == Items.WEAPON_BOW_WOOD
     ) {
       this.worldObjectManager.createLootEntity(
         this,
@@ -2238,6 +2239,8 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.WEAPON_BOW_MAKESHIFT:
         return 2500;
       case Items.WEAPON_BOW_RECURVE:
+        return 2500;
+      case Items.WEAPON_BOW_WOOD:
         return 2500;
       case Items.WEAPON_CROSSBOW:
         return 2500;
