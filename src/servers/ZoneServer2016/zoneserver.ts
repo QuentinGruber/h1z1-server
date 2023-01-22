@@ -1150,24 +1150,22 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   assignChunkRenderDistance(client: Client) {
-      let lowerRenderDistance = false;
-      const character = client.character;
-      for (let i = 0; i < this._grid.length; i++) {
-        const gridCell: GridCell = this._grid[i];
+    let lowerRenderDistance = false;
+    const character = client.character;
+    for (let i = 0; i < this._grid.length; i++) {
+      const gridCell: GridCell = this._grid[i];
 
-        if (
-          character.state.position[0] >= gridCell.position[0] &&
-          character.state.position[0] <=
-            gridCell.position[0] + gridCell.width &&
-          character.state.position[2] >= gridCell.position[2] &&
-          character.state.position[2] <=
-            gridCell.position[2] + gridCell.height &&
-          gridCell.height < 250
-        ) {
-          lowerRenderDistance = true;
-        }
+      if (
+        character.state.position[0] >= gridCell.position[0] &&
+        character.state.position[0] <= gridCell.position[0] + gridCell.width &&
+        character.state.position[2] >= gridCell.position[2] &&
+        character.state.position[2] <= gridCell.position[2] + gridCell.height &&
+        gridCell.height < 250
+      ) {
+        lowerRenderDistance = true;
       }
-      client.chunkRenderDistance = lowerRenderDistance ? 200 : 400;
+    }
+    client.chunkRenderDistance = lowerRenderDistance ? 200 : 400;
   }
 
   private worldRoutine() {
@@ -6715,7 +6713,6 @@ export class ZoneServer2016 extends EventEmitter {
         this.worldConstructionManager(client);
         this.POIManager(client);
         client.posAtLastRoutine = client.character.state.position;
-        console.log(client.chunkRenderDistance)
       }
       if (client.isLoading) {
         delete client.routineInterval;

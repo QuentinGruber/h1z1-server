@@ -1,4 +1,3 @@
-
 export class GridCell {
   position: Float32Array;
   objects: Array<any> = [];
