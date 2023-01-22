@@ -1,4 +1,3 @@
-import { BaseEntity } from "../entities/baseentity";
 
 export class GridCell {
   position: Float32Array;

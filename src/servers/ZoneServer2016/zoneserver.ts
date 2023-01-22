@@ -3069,8 +3069,7 @@ export class ZoneServer2016 extends EventEmitter {
                   transientId: object.transientId,
                   nameId: object.nameId,
                 });
-              case object instanceof DoorEntity ||
-                object instanceof ConstructionDoor:
+              case object instanceof DoorEntity:
                 if (object.isOpen) {
                   this.sendData(client, "PlayerUpdatePosition", {
                     transientId: object.transientId,
