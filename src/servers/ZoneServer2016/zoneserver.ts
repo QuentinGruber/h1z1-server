@@ -5573,6 +5573,7 @@ export class ZoneServer2016 extends EventEmitter {
     container?: LoadoutContainer,
     count?: number
   ): boolean {
+    if(item) item.debugFlag = "removeContainerItem";
     const client = this.getClientByContainerAccessor(character);
     if (!container || !item) return false;
     if (!count) count = item.stackCount;
@@ -5602,6 +5603,7 @@ export class ZoneServer2016 extends EventEmitter {
     item: BaseItem,
     count: number = 1
   ): boolean {
+    item.debugFlag = "removeInventoryItem";
     if (count > item.stackCount) {
       console.error(
         `RemoveInventoryItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`
@@ -5703,11 +5705,12 @@ export class ZoneServer2016 extends EventEmitter {
    * @param count Optional: The number of items to drop on the ground, default 1.
    */
   dropItem(client: Client, item: BaseItem, count: number = 1): void {
+    item.debugFlag = "dropItem";
     if (!item) {
       this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
-    let dropItem;
+    let dropItem: BaseItem | undefined;
     if (item.stackCount == count) {
       dropItem = item;
     } else if (item.stackCount > count) {
