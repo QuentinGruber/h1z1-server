@@ -5552,8 +5552,10 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns Returns client or undefined.
    */
   getClientByContainerAccessor(character: BaseFullCharacter) {
-    let client: Client | undefined = this.getClientByCharId(character.characterId);
-    if(!client && character instanceof BaseLootableEntity) {
+    let client: Client | undefined = this.getClientByCharId(
+      character.characterId
+    );
+    if (!client && character instanceof BaseLootableEntity) {
       client = this.getClientByCharId(character.mountedCharacter || "");
     }
     return client;
@@ -5573,7 +5575,7 @@ export class ZoneServer2016 extends EventEmitter {
     container?: LoadoutContainer,
     count?: number
   ): boolean {
-    if(item) item.debugFlag = "removeContainerItem";
+    if (item) item.debugFlag = "removeContainerItem";
     const client = this.getClientByContainerAccessor(character);
     if (!container || !item) return false;
     if (!count) count = item.stackCount;

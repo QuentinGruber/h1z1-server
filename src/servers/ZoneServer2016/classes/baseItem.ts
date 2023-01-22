@@ -20,15 +20,18 @@ export class BaseItem {
   containerGuid = "0x0";
   currentDurability: number;
   debugFlag: string = "unset";
-  set stackCount(stackCount: number){
-    if(stackCount <= 0) {
-      console.error(`negative stackcount (${stackCount}) detected for item ${this.itemDefinitionId} debugflag ${this.debugFlag}`);
+  set stackCount(stackCount: number) {
+    if (stackCount <= 0) {
+      console.error(
+        `negative stackcount (${stackCount}) detected for item ${this.itemDefinitionId} debugflag ${this.debugFlag}`
+      );
       this._stackCount = 1;
       return;
     }
-      this._stackCount = stackCount;
+    this._stackCount = stackCount;
   }
   private _stackCount?: number = 0;
+  /* eslint-disable @typescript-eslint/adjacent-overload-signatures */
   get stackCount() {
     return this._stackCount || 1;
   }

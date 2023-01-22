@@ -34,7 +34,10 @@ function getCraftComponentsDataSource(client: Client): {
       if (inventory[item.itemDefinitionId]) {
         inventory[item.itemDefinitionId].stackCount += item.stackCount;
       } else {
-        inventory[item.itemDefinitionId] = { ...item, stackCount: item.stackCount }; // push new itemstack
+        inventory[item.itemDefinitionId] = {
+          ...item,
+          stackCount: item.stackCount,
+        }; // push new itemstack
       }
     });
   });

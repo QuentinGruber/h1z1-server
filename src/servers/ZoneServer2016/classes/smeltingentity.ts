@@ -148,7 +148,12 @@ export class SmeltingEntity {
     Object.values(container.items).forEach((item: BaseItem) => {
       if (allowBurn) return;
       if (this.allowedFuel.includes(item.itemDefinitionId)) {
-        server.removeContainerItem(this.parentObject, item, this.parentObject.getContainer(), 1);
+        server.removeContainerItem(
+          this.parentObject,
+          item,
+          this.parentObject.getContainer(),
+          1
+        );
         if (item.itemDefinitionId == Items.WOOD_LOG) {
           // give charcoal if wood log was burned
           server.addContainerItemExternal(
