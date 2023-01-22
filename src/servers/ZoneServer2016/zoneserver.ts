@@ -3810,12 +3810,7 @@ export class ZoneServer2016 extends EventEmitter {
       });
       return;
     }
-    const allowedItems = [
-      Items.IED,
-      Items.LANDMINE,
-      Items.PUNJI_STICKS,
-      Items.SNARE,
-    ];
+    const allowedItems = [Items.IED, Items.LANDMINE, Items.SNARE];
 
     // for construction entities that don't have a parentObjectCharacterId from the client
     let freeplaceParentCharacterId = "";
