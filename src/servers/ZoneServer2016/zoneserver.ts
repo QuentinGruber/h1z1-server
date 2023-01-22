@@ -202,6 +202,7 @@ export class ZoneServer2016 extends EventEmitter {
   _cycleSpeed = 100;
   _frozeCycle = false;
   tickRate = 2000;
+  worldRoutineRate = 30000;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
   _bannedClients: {
@@ -937,7 +938,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(),
-      this.tickRate
+      this.worldRoutineRate
     );
     this.hookManager.checkHook("OnServerReady");
   }
@@ -1148,10 +1149,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  assignChunkRenderDistances() {
-    for (const a in this._clients) {
+  assignChunkRenderDistance(client: Client) {
       let lowerRenderDistance = false;
-      const character = this._clients[a].character;
+      const character = client.character;
       for (let i = 0; i < this._grid.length; i++) {
         const gridCell: GridCell = this._grid[i];
 
@@ -1167,15 +1167,14 @@ export class ZoneServer2016 extends EventEmitter {
           lowerRenderDistance = true;
         }
       }
-      this._clients[a].chunkRenderDistance = lowerRenderDistance ? 200 : 400;
-    }
+      client.chunkRenderDistance = lowerRenderDistance ? 200 : 400;
   }
 
   private worldRoutine() {
     if (!this.hookManager.checkHook("OnWorldRoutine")) return;
     else {
       if (this._ready) {
-        this.assignChunkRenderDistances();
+        this.plantManager();
         this.npcDespawner();
         this.lootbagDespawner();
         this.itemDespawner();
@@ -6706,7 +6705,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.routineInterval = setTimeout(() => {
       if (!client) return;
       if (!client.isLoading) {
-        this.plantManager();
+        this.assignChunkRenderDistance(client);
         this.vehicleManager(client);
         this.npcManager(client);
         this.removeOutOfDistanceEntities(client);
@@ -6716,6 +6715,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.worldConstructionManager(client);
         this.POIManager(client);
         client.posAtLastRoutine = client.character.state.position;
+        console.log(client.chunkRenderDistance)
       }
       if (client.isLoading) {
         delete client.routineInterval;
