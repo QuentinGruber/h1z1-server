@@ -5165,7 +5165,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
       return;
     }
-    if (!this.removeContainerItem(client, item, container, 1)) {
+    if (!this.removeContainerItem(client.character, item, container, 1)) {
       this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
@@ -5547,6 +5547,21 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
+   * Returns a client object by either the characterId of the passed character, or the mountedCharacterId if the passed character is a BaseLootableEntity.
+   * @param character Either a Character or BaseLootableEntity to retrieve it's accessing client.
+   * @returns Returns client or undefined.
+   */
+  getClientByContainerAccessor(character: BaseFullCharacter) {
+    let client: Client | undefined = this.getClientByCharId(
+      character.characterId
+    );
+    if (!client && character instanceof BaseLootableEntity) {
+      client = this.getClientByCharId(character.mountedCharacter || "");
+    }
+    return client;
+  }
+
+  /**
    * Removes items from a specific item stack in a container.
    * @param client The client to have their items removed.
    * @param item The item object.
@@ -5555,62 +5570,26 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns Returns true if the items were successfully removed, false if there was an error.
    */
   removeContainerItem(
-    client: Client,
+    character: BaseFullCharacter,
     item?: BaseItem,
     container?: LoadoutContainer,
     count?: number
   ): boolean {
+    if (item) item.debugFlag = "removeContainerItem";
+    const client = this.getClientByContainerAccessor(character);
     if (!container || !item) return false;
     if (!count) count = item.stackCount;
     if (item.stackCount == count) {
       delete container.items[item.itemGuid];
-      this.deleteItem(client, item.itemGuid);
+      if (client) this.deleteItem(client, item.itemGuid);
     } else if (item.stackCount > count) {
       item.stackCount -= count;
-      this.updateContainerItem(client, item, container);
+      if (client) this.updateContainerItem(client, item, container);
     } else {
       // if count > removeItem.stackCount
       return false;
     }
-    this.updateContainer(client, container);
-    return true;
-  }
-
-  removeContainerItemNoClient(
-    item?: BaseItem,
-    entity?: LootableConstructionEntity,
-    count?: number
-  ): boolean {
-    if (!entity || !item) return false;
-    if (!count) count = item.stackCount;
-    const container = entity.getContainer();
-    if (!container) return false;
-    if (item.stackCount == count) {
-      delete container.items[item.itemGuid];
-      if (entity.mountedCharacter) {
-        const client = this.getClientByCharId(entity.mountedCharacter);
-        if (client) {
-          this.deleteItem(client, item.itemGuid);
-        }
-      }
-    } else if (item.stackCount > count) {
-      item.stackCount -= count;
-      if (entity.mountedCharacter) {
-        const client = this.getClientByCharId(entity.mountedCharacter);
-        if (client) {
-          this.updateContainerItem(client, item, container);
-        }
-      }
-    } else {
-      // if count > removeItem.stackCount
-      return false;
-    }
-    if (entity.mountedCharacter) {
-      const client = this.getClientByCharId(entity.mountedCharacter);
-      if (client) {
-        this.updateContainer(client, container);
-      }
-    }
+    if (client) this.updateContainer(client, container);
     return true;
   }
 
@@ -5626,6 +5605,7 @@ export class ZoneServer2016 extends EventEmitter {
     item: BaseItem,
     count: number = 1
   ): boolean {
+    item.debugFlag = "removeInventoryItem";
     if (count > item.stackCount) {
       console.error(
         `RemoveInventoryItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`
@@ -5639,7 +5619,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.mountedContainer.getContainer()?.items[item.itemGuid]
     ) {
       return this.removeContainerItem(
-        client,
+        client.character,
         item,
         client.character.mountedContainer.getContainer(),
         count
@@ -5650,7 +5630,7 @@ export class ZoneServer2016 extends EventEmitter {
       return this.removeLoadoutItem(client, item.slotId);
     } else {
       return this.removeContainerItem(
-        client,
+        client.character,
         item,
         client.character.getItemContainer(item.itemGuid),
         count
@@ -5707,7 +5687,7 @@ export class ZoneServer2016 extends EventEmitter {
       for (const itemStack of Object.values(removeItems)) {
         if (
           !this.removeContainerItem(
-            client,
+            client.character,
             itemStack.item,
             itemStack.container,
             itemStack.count
@@ -5727,11 +5707,12 @@ export class ZoneServer2016 extends EventEmitter {
    * @param count Optional: The number of items to drop on the ground, default 1.
    */
   dropItem(client: Client, item: BaseItem, count: number = 1): void {
+    item.debugFlag = "dropItem";
     if (!item) {
       this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
-    let dropItem;
+    let dropItem: BaseItem | undefined;
     if (item.stackCount == count) {
       dropItem = item;
     } else if (item.stackCount > count) {

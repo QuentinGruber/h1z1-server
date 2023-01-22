@@ -199,7 +199,7 @@ export class LoadoutContainer extends LoadoutItem {
       // allows items in the same container but different stacks to be stacked
       return;
     }
-    if (!server.removeContainerItem(client, item, this, count)) {
+    if (!server.removeContainerItem(client.character, item, this, count)) {
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }

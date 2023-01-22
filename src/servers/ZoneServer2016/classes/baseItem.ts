@@ -19,7 +19,22 @@ export class BaseItem {
   itemGuid: string;
   containerGuid = "0x0";
   currentDurability: number;
-  stackCount: number;
+  debugFlag: string = "unset";
+  set stackCount(stackCount: number) {
+    if (stackCount <= 0) {
+      console.error(
+        `negative stackcount (${stackCount}) detected for item ${this.itemDefinitionId} debugflag ${this.debugFlag}`
+      );
+      this._stackCount = 1;
+      return;
+    }
+    this._stackCount = stackCount;
+  }
+  private _stackCount?: number = 0;
+  /* eslint-disable @typescript-eslint/adjacent-overload-signatures */
+  get stackCount() {
+    return this._stackCount || 1;
+  }
   weapon?: Weapon;
   constructor(
     itemDefinitionId: number,

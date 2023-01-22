@@ -345,6 +345,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   isInside(position: Float32Array) {
     if (!this.bounds) {
+      switch (this.itemDefinitionId) {
+        case Items.STRUCTURE_STAIRS:
+        case Items.STRUCTURE_STAIRS_UPPER:
+        case Items.LOOKOUT_TOWER:
+          return false;
+      }
       console.error(
         `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
       );
