@@ -457,30 +457,23 @@ export class zonePacketHandlers {
     this.commandHandler.executeCommand(server, client, packet);
   }
   CommandInteractRequest(server: ZoneServer2016, client: Client, packet: any) {
-    server.sendData(client, "Command.InteractionString", {
-      guid: packet.data.guid,
-      stringId: 5463,
-      unknown4: 0,
-    });
-    server.sendData(client, "Command.InteractionList", {
-      guid: packet.data.guid,
-      unknownBoolean1: true,
-      unknownArray1: [
-        {
-          unknownDword1: 11,
-          unknownDword2: 0,
-          unknownDword3: 5463,
-          unknownDword4: 51,
-          unknownDword5: 1,
-          unknownDword6: 0,
-          unknownDword7: 0,
-        },
-      ],
-      unknownString1: "",
-      unknownBoolean2: true,
-      unknownArray2: [],
-      unknownBoolean3: false,
-    });
+    const entity = server.getEntity(packet.data.characterId);
+    if (!entity) return;
+    const isConstruction =
+      entity instanceof ConstructionParentEntity ||
+      entity instanceof ConstructionDoor;
+    if (
+      !isPosInRadius(
+        isConstruction ? 4 : server._interactionDistance,
+        client.character.state.position,
+        isConstruction
+          ? entity.fixedPosition || entity.state.position
+          : entity.state.position
+      )
+    )
+      return;
+
+    entity.OnPlayerSelect(server, client, packet.data.isInstant);
   }
   CommandInteractCancel(server: ZoneServer2016, client: Client, packet: any) {
     debug("Interaction Canceled");
@@ -824,23 +817,7 @@ export class zonePacketHandlers {
     entity.OnFullCharacterDataRequest(server, client);
   }
   CommandPlayerSelect(server: ZoneServer2016, client: Client, packet: any) {
-    const entity = server.getEntity(packet.data.guid);
-    if (!entity) return;
-    const isConstruction =
-      entity instanceof ConstructionParentEntity ||
-      entity instanceof ConstructionDoor;
-    if (
-      !isPosInRadius(
-        isConstruction ? 4 : server._interactionDistance,
-        client.character.state.position,
-        isConstruction
-          ? entity.fixedPosition || entity.state.position
-          : entity.state.position
-      )
-    )
-      return;
-
-    entity.OnPlayerSelect(server, client);
+    debug("Command.PlayerSelect");
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
     if (!client.character.currentInteractionGuid || packet.data.password === 1)
@@ -848,11 +825,19 @@ export class zonePacketHandlers {
     const doorEntity = server._constructionDoors[
       client.character.currentInteractionGuid
     ] as ConstructionDoor;
+    if (!doorEntity) return;
     if (doorEntity.ownerCharacterId === client.character.characterId) {
-      doorEntity.passwordHash = packet.data.password;
-      doorEntity.grantedAccess.push(client.character.characterId);
+      if (doorEntity.passwordHash != packet.data.password) {
+        doorEntity.passwordHash = packet.data.password;
+        doorEntity.grantedAccess = [];
+        doorEntity.grantedAccess.push(client.character.characterId);
+      }
+      return;
     }
-    if (doorEntity.passwordHash === packet.data.password) {
+    if (
+      doorEntity.passwordHash === packet.data.password &&
+      !doorEntity.grantedAccess.includes(client.character.characterId)
+    ) {
       doorEntity.grantedAccess.push(client.character.characterId);
     }
   }
@@ -1301,7 +1286,10 @@ export class zonePacketHandlers {
     if (!characterId) {
       return;
     }
-    if (characterId == foundation.ownerCharacterId) return;
+    if (characterId == foundation.ownerCharacterId) {
+      server.sendAlert(client, "You can't edit your own permissions.");
+      return;
+    }
     const obj: ConstructionPermissions = foundation.permissions[characterId];
     switch (packet.data.permissionSlot) {
       case 1:
@@ -1363,6 +1351,10 @@ export class zonePacketHandlers {
       }
     }
 
+    if (characterId == foundation.ownerCharacterId) {
+      server.sendAlert(client, "You can't edit your own permissions.");
+      return;
+    }
     if (!characterId) return;
     let obj: ConstructionPermissions = foundation.permissions[characterId];
     if (!obj) {
@@ -1604,7 +1596,8 @@ export class zonePacketHandlers {
           if (
             !weaponItem.weapon?.ammoCount &&
             weaponItem.itemDefinitionId != Items.WEAPON_BOW_MAKESHIFT &&
-            weaponItem.itemDefinitionId != Items.WEAPON_BOW_RECURVE
+            weaponItem.itemDefinitionId != Items.WEAPON_BOW_RECURVE &&
+            weaponItem.itemDefinitionId != Items.WEAPON_BOW_WOOD
           )
             return;
           if (p.packet.firestate > 0) {
@@ -1731,7 +1724,8 @@ export class zonePacketHandlers {
 
           if (
             weaponItem.itemDefinitionId == Items.WEAPON_BOW_MAKESHIFT ||
-            weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE
+            weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE ||
+            weaponItem.itemDefinitionId == Items.WEAPON_BOW_WOOD
           ) {
             if (
               client.character.getEquippedWeapon().itemGuid !=

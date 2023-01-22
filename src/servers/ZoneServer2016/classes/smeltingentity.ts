@@ -148,7 +148,12 @@ export class SmeltingEntity {
     Object.values(container.items).forEach((item: BaseItem) => {
       if (allowBurn) return;
       if (this.allowedFuel.includes(item.itemDefinitionId)) {
-        server.removeContainerItemNoClient(item, parentObject, 1);
+        server.removeContainerItem(
+          this.parentObject,
+          item,
+          this.parentObject.getContainer(),
+          1
+        );
         if (item.itemDefinitionId == Items.WOOD_LOG) {
           // give charcoal if wood log was burned
           server.addContainerItemExternal(
@@ -231,9 +236,10 @@ export class SmeltingEntity {
                 if (fulfilledComponents.length == recipe.components.length) {
                   itemsToRemove.forEach(
                     (item: { item: BaseItem; count: number }) => {
-                      server.removeContainerItemNoClient(
+                      server.removeContainerItem(
+                        this.parentObject,
                         item.item,
-                        parentObject,
+                        this.parentObject.getContainer(),
                         item.count
                       );
                     }
@@ -255,7 +261,6 @@ export class SmeltingEntity {
         });
       }
     });
-    this.isSmelting = false;
     setTimeout(() => {
       this.startSmelting(server, parentObject);
     }, this.smeltingTime);

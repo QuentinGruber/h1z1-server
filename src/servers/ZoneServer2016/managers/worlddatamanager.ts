@@ -972,9 +972,12 @@ export class WorldDataManager {
         JSON.stringify(construction, null, 2)
       );
     } else {
+      const tempCollection = server._db?.collection("construction-temp");
+      if (construction.length) await tempCollection?.insertMany(construction);
       const collection = server._db?.collection("construction");
-      collection?.deleteMany({ serverId: server._worldId });
-      if (construction.length) collection?.insertMany(construction);
+      await collection?.deleteMany({ serverId: server._worldId });
+      if (construction.length) await collection?.insertMany(construction);
+      await tempCollection?.deleteMany({ serverId: server._worldId });
     }
   }
 
@@ -1022,8 +1025,11 @@ export class WorldDataManager {
       );
     } else {
       const collection = server._db?.collection("crops");
-      collection?.deleteMany({ serverId: server._worldId });
-      if (crops.length) collection?.insertMany(crops);
+      const tempCollection = server._db?.collection("crops-temp");
+      if (crops.length) await tempCollection?.insertMany(crops);
+      await collection?.deleteMany({ serverId: server._worldId });
+      if (crops.length) await collection?.insertMany(crops);
+      await tempCollection?.deleteMany({ serverId: server._worldId });
     }
   }
 
@@ -1120,8 +1126,11 @@ export class WorldDataManager {
       );
     } else {
       const collection = server._db?.collection("worldconstruction");
-      collection?.deleteMany({ serverId: server._worldId });
-      if (freeplace.length) collection?.insertMany(freeplace);
+      const tempCollection = server._db?.collection("worldconstruction-temp");
+      if (freeplace.length) await tempCollection?.insertMany(freeplace);
+      await collection?.deleteMany({ serverId: server._worldId });
+      if (freeplace.length) await collection?.insertMany(freeplace);
+      await tempCollection?.deleteMany({ serverId: server._worldId });
     }
   }
 

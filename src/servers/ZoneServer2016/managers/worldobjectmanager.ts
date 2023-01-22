@@ -134,6 +134,7 @@ export class WorldObjectManager {
       this.createLoot(server);
       this.createContainerLoot(server);
       this.lastLootRespawnTime = Date.now();
+      server.divideLargeCells(700);
     }
     if (this.lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
       this.createNpcs(server);
@@ -456,7 +457,9 @@ export class WorldObjectManager {
   createContainerLoot(server: ZoneServer2016) {
     for (const a in server._lootableProps) {
       const prop = server._lootableProps[a] as LootableProp;
-      if (!!Object.keys(prop._containers["31"].items).length) continue; // skip if container is not empty
+      const container = prop.getContainer();
+      if (!container) continue;
+      if (!!Object.keys(container.items).length) continue; // skip if container is not empty
       const lootTable = containerLootSpawners[prop.lootSpawner];
       if (lootTable) {
         for (let x = 0; x < lootTable.maxItems; x++) {
@@ -464,11 +467,9 @@ export class WorldObjectManager {
           if (!item) continue;
           const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
           let allow = true;
-          Object.values(prop._containers["31"].items).forEach(
-            (spawnedItem: BaseItem) => {
-              if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
-            }
-          );
+          Object.values(container.items).forEach((spawnedItem: BaseItem) => {
+            if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
+          });
           if (allow) {
             if (chance <= item.weight) {
               const count = Math.floor(
@@ -480,7 +481,7 @@ export class WorldObjectManager {
               server.addContainerItemExternal(
                 prop.mountedCharacter ? prop.mountedCharacter : "",
                 server.generateItem(item.item),
-                prop._containers["31"],
+                container,
                 count
               );
             }
@@ -489,7 +490,7 @@ export class WorldObjectManager {
           }
         }
       }
-      if (Object.keys(prop._containers["31"].items).length != 0) {
+      if (Object.keys(container.items).length != 0) {
         // mark prop as unsearched for clients
         Object.values(server._clients).forEach((client: ZoneClient2016) => {
           const index = client.searchedProps.indexOf(prop);
