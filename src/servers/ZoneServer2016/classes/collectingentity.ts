@@ -124,7 +124,7 @@ export class CollectingEntity {
           passed = true;
           if (this.currentTicks >= this.requiredTicks) {
             this.currentTicks = 0;
-            server.removeContainerItemNoClient(item, parentObject, 1);
+            server.removeContainerItem(this.parentObject, item, parentObject.getContainer(), 1);
             server.addContainerItemExternal(
               parentObject.mountedCharacter
                 ? parentObject.mountedCharacter
