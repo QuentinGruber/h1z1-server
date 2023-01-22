@@ -458,7 +458,7 @@ export class WorldObjectManager {
     for (const a in server._lootableProps) {
       const prop = server._lootableProps[a] as LootableProp;
       const container = prop.getContainer();
-      if(!container) continue;
+      if (!container) continue;
       if (!!Object.keys(container.items).length) continue; // skip if container is not empty
       const lootTable = containerLootSpawners[prop.lootSpawner];
       if (lootTable) {
@@ -467,11 +467,9 @@ export class WorldObjectManager {
           if (!item) continue;
           const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
           let allow = true;
-          Object.values(container.items).forEach(
-            (spawnedItem: BaseItem) => {
-              if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
-            }
-          );
+          Object.values(container.items).forEach((spawnedItem: BaseItem) => {
+            if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
+          });
           if (allow) {
             if (chance <= item.weight) {
               const count = Math.floor(
