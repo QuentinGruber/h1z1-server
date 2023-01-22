@@ -134,6 +134,7 @@ export class WorldObjectManager {
       this.createLoot(server);
       this.createContainerLoot(server);
       this.lastLootRespawnTime = Date.now();
+      server.divideLargeCells(700);
     }
     if (this.lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
       this.createNpcs(server);

@@ -917,9 +917,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
-    setTimeout(() => {
-      this.divideLargeCells(800); // divide all cells that have more than 800 objects
-    }, 10000);
+
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
@@ -1076,6 +1074,7 @@ export class ZoneServer2016 extends EventEmitter {
     const grid = this._grid;
     for (let i = 0; i < grid.length; i++) {
       const gridCell: GridCell = grid[i];
+      if (gridCell.height < 250) continue;
       if (gridCell.objects.length > threshold) {
         const newGridCellWidth = gridCell.width / 2;
         const newGridCellHeight = gridCell.height / 2;
