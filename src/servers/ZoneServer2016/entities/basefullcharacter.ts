@@ -28,6 +28,7 @@ import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { LoadoutItem } from "../classes/loadoutItem";
 import { ZoneClient2016 } from "../classes/zoneclient";
+import { Weapon } from "../classes/weapon";
 
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
@@ -482,14 +483,23 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
   getDeathItems(server: ZoneServer2016) {
     const items: { [itemGuid: string]: BaseItem } = {};
-    Object.values(this._loadout).forEach((item) => {
+    Object.values(this._loadout).forEach((itemData) => {
       if (
-        item.itemGuid != "0x0" &&
-        !this.isDefaultItem(item.itemDefinitionId) &&
-        !server.isAdminItem(item.itemDefinitionId)
+        itemData.itemGuid != "0x0" &&
+        !this.isDefaultItem(itemData.itemDefinitionId) &&
+        !server.isAdminItem(itemData.itemDefinitionId)
       ) {
-        items[item.itemGuid] = _.cloneDeep(item);
-        items[item.itemGuid].slotId = Object.keys(items).length + 1;
+        const item = new BaseItem(
+          itemData.itemDefinitionId, 
+          itemData.itemGuid, 
+          itemData.currentDurability, 
+          itemData.stackCount
+        );
+        
+        item.debugFlag = "getDeathItems";
+        if(itemData.weapon) item.weapon = new Weapon(item, itemData.weapon.ammoCount)
+        item.slotId = Object.keys(items).length + 1;
+        items[item.itemGuid] = item;
       }
     });
 
