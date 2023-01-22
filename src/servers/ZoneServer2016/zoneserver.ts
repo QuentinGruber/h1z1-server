@@ -3813,7 +3813,6 @@ export class ZoneServer2016 extends EventEmitter {
     const allowedItems = [
       Items.IED,
       Items.LANDMINE,
-      Items.PUNJI_STICKS,
       Items.SNARE,
     ];
 
