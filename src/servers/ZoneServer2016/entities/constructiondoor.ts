@@ -231,10 +231,29 @@ export class ConstructionDoor extends DoorEntity {
         );
         this.isOpen = !this.isOpen;
         this.isSecured = !this.isOpen;
-
         const parent = this.getParent(server);
         if (parent) {
           parent.updateSecuredState(server);
+          // spawn hidden characters emmediately after door opens
+          const allowedConstruction = [
+            Items.SHELTER,
+            Items.SHELTER_LARGE,
+            Items.SHELTER_UPPER,
+            Items.SHELTER_UPPER_LARGE,
+            Items.SHACK,
+            Items.SHACK_BASIC,
+            Items.SHACK_SMALL,
+          ];
+          if (
+            this.isOpen &&
+            allowedConstruction.includes(parent.itemDefinitionId)
+          ) {
+            for (const a in server._clients) {
+              const client = server._clients[a];
+              if (client.character.isHidden == parent.characterId)
+                server.constructionManager(client);
+            }
+          }
         }
         return;
       } else {

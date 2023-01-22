@@ -2915,7 +2915,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  private constructionManager(client: Client) {
+  public constructionManager(client: Client) {
     let hide = false;
     for (const characterId in this._constructionFoundations) {
       const npc = this._constructionFoundations[characterId];
@@ -2925,7 +2925,10 @@ export class ZoneServer2016 extends EventEmitter {
       const npc = this._constructionSimple[characterId];
       if (this.checkConstructionChildEntityPermission(client, npc)) hide = true;
     }
-    if (!hide && client.character.isHidden) client.character.isHidden = "";
+    if (!hide && client.character.isHidden) {
+      client.character.isHidden = "";
+      this.spawnCharacterToOtherClients(client.character);
+    }
   }
 
   /**
@@ -2989,6 +2992,33 @@ export class ZoneServer2016 extends EventEmitter {
         });
 
         client.spawnedEntities.push(this._characters[characterObj.characterId]);
+      }
+    }
+  }
+
+  spawnCharacterToOtherClients(character: Character) {
+    for (const a in this._clients) {
+      const c = this._clients[a];
+      if (
+        isPosInRadius(
+          this._charactersRenderDistance,
+          character.state.position,
+          c.character.state.position
+        ) &&
+        !c.spawnedEntities.includes(character) &&
+        character != c.character
+      ) {
+        const vehicleId = c.vehicle.mountedVehicle,
+          vehicle = vehicleId ? this._vehicles[vehicleId] : false;
+        this.sendData(c, "AddLightweightPc", {
+          ...character.pGetLightweight(),
+          mountGuid: vehicleId || "",
+          mountSeatId: vehicle
+            ? vehicle.getCharacterSeat(character.characterId)
+            : 0,
+          mountRelatedDword1: vehicle ? 1 : 0,
+        });
+        c.spawnedEntities.push(character);
       }
     }
   }
