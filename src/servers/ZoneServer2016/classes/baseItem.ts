@@ -23,13 +23,14 @@ export class BaseItem {
   set stackCount(stackCount: number){
     if(stackCount <= 0) {
       console.error(`negative stackcount (${stackCount}) detected for item ${this.itemDefinitionId} debugflag ${this.debugFlag}`);
-      this.stackCount = 1;
+      this._stackCount = 1;
       return;
     }
-    this.stackCount = stackCount;
+      this._stackCount = stackCount;
   }
+  private _stackCount?: number = 0;
   get stackCount() {
-    return this.stackCount;
+    return this._stackCount || 1;
   }
   weapon?: Weapon;
   constructor(
