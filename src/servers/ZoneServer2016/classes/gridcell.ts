@@ -2,7 +2,7 @@ import { BaseEntity } from "../entities/baseentity";
 
 export class GridCell {
   position: Float32Array;
-  objects: Array<BaseEntity> = [];
+  objects: Array<any> = [];
   width: number;
   height: number;
   constructor(x: number, y: number, width: number, height: number) {
