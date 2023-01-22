@@ -1894,7 +1894,7 @@ export const containerLootSpawners: {
     ],
   },
   "Weapons Locker": {
-    spawnChance: 50,
+    spawnChance: 60,
     maxItems: 1,
     items: [
       {
@@ -1907,7 +1907,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.KEVLAR_DEFAULT,
-        weight: 30,
+        weight: 35,
         spawnCount: {
           min: 1,
           max: 1,
