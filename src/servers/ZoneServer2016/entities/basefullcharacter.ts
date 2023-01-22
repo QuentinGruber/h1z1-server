@@ -490,14 +490,15 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         !server.isAdminItem(itemData.itemDefinitionId)
       ) {
         const item = new BaseItem(
-          itemData.itemDefinitionId, 
-          itemData.itemGuid, 
-          itemData.currentDurability, 
+          itemData.itemDefinitionId,
+          itemData.itemGuid,
+          itemData.currentDurability,
           itemData.stackCount
         );
-        
+
         item.debugFlag = "getDeathItems";
-        if(itemData.weapon) item.weapon = new Weapon(item, itemData.weapon.ammoCount)
+        if (itemData.weapon)
+          item.weapon = new Weapon(item, itemData.weapon.ammoCount);
         item.slotId = Object.keys(items).length + 1;
         items[item.itemGuid] = item;
       }
