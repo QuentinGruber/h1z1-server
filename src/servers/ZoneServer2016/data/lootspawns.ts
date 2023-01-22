@@ -1894,20 +1894,20 @@ export const containerLootSpawners: {
     ],
   },
   "Weapons Locker": {
-    spawnChance: 100,
+    spawnChance: 50,
     maxItems: 1,
     items: [
       {
         item: Items.WEAPON_AR15,
-        weight: 30,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1,
         },
       },
       {
-        item: Items.WEAPON_308,
-        weight: 5,
+        item: Items.KEVLAR_DEFAULT,
+        weight: 30,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1919,14 +1919,6 @@ export const containerLootSpawners: {
         spawnCount: {
           min: 3,
           max: 11,
-        },
-      },
-      {
-        item: Items.AMMO_308,
-        weight: 10,
-        spawnCount: {
-          min: 2,
-          max: 8,
         },
       },
     ],
