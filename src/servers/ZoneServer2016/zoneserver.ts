@@ -3561,7 +3561,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
-          vehicle.npcRenderDistance || this._charactersRenderDistance, 
+          vehicle.npcRenderDistance || this._charactersRenderDistance,
           client.character.state.position,
           vehicle.state.position
         )
