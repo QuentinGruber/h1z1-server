@@ -2983,7 +2983,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId != characterObj.characterId &&
         characterObj.isReady &&
         isPosInRadius(
-          this._charactersRenderDistance,
+          characterObj.npcRenderDistance || this._charactersRenderDistance,
           client.character.state.position,
           characterObj.state.position
         ) &&
@@ -3561,7 +3561,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
-          this._charactersRenderDistance + 50, // may cause characters issues due to vehicles despawning earlier than players
+          vehicle.npcRenderDistance || this._charactersRenderDistance, 
           client.character.state.position,
           vehicle.state.position
         )
