@@ -6736,6 +6736,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.assignChunkRenderDistance(client);
           this.removeOutOfDistanceEntities(client);
           this.POIManager(client);
+          client.routineCounter = 0
         }
         
           this.vehicleManager(client);
