@@ -362,12 +362,29 @@ export class zonePacketHandlers {
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
     if (packet.data.file === "Synchronization.log") {
-        if (packet.data.message.toLowerCase().includes("client clock drifted forward")) {
-            server.sendChatTextToAdmins(
-            `FairPlay: ${client.character.name}'s ${packet.data.message.replace("Client ", "")}`,
-            false
-          );
-        }
+      if (
+        packet.data.message
+          .toLowerCase()
+          .includes("client clock drifted forward")
+      ) {
+        const pruned = packet.data.message
+          .replace("Client clock drifted forward by ", "")
+          .replace("ms over the server interval of ", "");
+        const drifted = Number(pruned.match(/\d+/).join("")) / 1000;
+        const interval = Number(
+          pruned.replace(pruned.match(/\d+/).join(""), "").replace(" s", "")
+        );
+
+        server.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } time drifted forward ${drifted} s span of ${interval} s, accelerating by: ${(
+            (drifted / interval) *
+            100
+          ).toFixed(0)}%`,
+          false
+        );
+      }
     }
     if (
       packet.data.file === "ClientProc.log" &&
