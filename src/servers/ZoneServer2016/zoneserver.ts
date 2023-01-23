@@ -3372,16 +3372,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-    sendChatToAllInRange(client: Client, message: string, range: number) {
-        this.sendDataToAllInRange(range, client.character.state.position, "Chat.ChatText", {
-            message: `${client.character.name}: ${message}`,
-            unknownDword1: 0,
-            color: [255, 255, 255, 0],
-            unknownDword2: 13951728,
-            unknownByte3: 0,
-            unknownByte4: 1,
-        })
-    }
+  sendChatToAllInRange(client: Client, message: string, range: number) {
+    this.sendDataToAllInRange(
+      range,
+      client.character.state.position,
+      "Chat.ChatText",
+      {
+        message: `${client.character.name}: ${message}`,
+        unknownDword1: 0,
+        color: [255, 255, 255, 0],
+        unknownDword2: 13951728,
+        unknownByte3: 0,
+        unknownByte4: 1,
+      }
+    );
+  }
 
   createClient(
     sessionId: number,
