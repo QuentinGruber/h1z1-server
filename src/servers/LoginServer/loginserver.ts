@@ -395,9 +395,9 @@ export class LoginServer extends EventEmitter {
         client.protocolName === "LoginUdp_9"
           ? GAME_VERSIONS.H1Z1_15janv_2015
           : GAME_VERSIONS.H1Z1_6dec_2016;
-      console.warn(
-        "Your session id is not a valid json string, please update your launcher to avoid this warning"
-      );
+      //console.warn(
+      //  "Your session id is not a valid json string, please update your launcher to avoid this warning"
+      //);
     }
     if (this._soloMode) {
       client.loginSessionId = String(sessionId);
