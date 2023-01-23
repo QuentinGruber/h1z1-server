@@ -361,6 +361,31 @@ export class zonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
+    if (packet.data.file === "Synchronization.log") {
+      if (
+        packet.data.message
+          .toLowerCase()
+          .includes("client clock drifted forward")
+      ) {
+        const pruned = packet.data.message
+          .replace("Client clock drifted forward by ", "")
+          .replace("ms over the server interval of ", "");
+        const drifted = Number(pruned.match(/\d+/).join("")) / 1000;
+        const interval = Number(
+          pruned.replace(pruned.match(/\d+/).join(""), "").replace(" s", "")
+        );
+
+        server.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } time drifted forward ${drifted} s span of ${interval} s, accelerating by: ${(
+            (drifted / interval) *
+            100
+          ).toFixed(0)}%`,
+          false
+        );
+      }
+    }
     if (
       packet.data.file === "ClientProc.log" &&
       !client.clientLogs.includes(packet.data.message)
@@ -621,7 +646,8 @@ export class zonePacketHandlers {
           vehicle.removePassenger(passenger);
         }
       });
-      if (client.vehicle.mountedVehicle === characterId) {
+      // disabled, dont think we need it and wastes alot of resources
+      /*if (client.vehicle.mountedVehicle === characterId) {
         if (
           !client.posAtLastRoutine ||
           !isPosInRadius(
@@ -632,7 +658,7 @@ export class zonePacketHandlers {
         ) {
           server.executeFuncForAllReadyClients(() => server.vehicleManager);
         }
-      }
+      }*/
     }
   }
   VehicleStateData(server: ZoneServer2016, client: Client, packet: any) {
@@ -664,24 +690,17 @@ export class zonePacketHandlers {
       // falling flag, ignore for now
     }
     if (packet.data.stance) {
-      if (packet.data.stance == Stances.JUMPING_STANDING) {
-        client.xsSecurityTimeout = setTimeout(() => {
-          delete client.xsSecurityTimeout;
-        }, 500);
-      }
       if (packet.data.stance == Stances.STANCE_XS) {
-        if (client.xsSecurityTimeout) {
-          const pos = client.character.state.position;
-          server.sendChatTextToAdmins(
-            `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
-          );
-          setTimeout(() => {
-            server.sendData(client, "ClientUpdate.UpdateLocation", {
-              position: pos,
-              triggerLoadingScreen: false,
-            });
-          }, 1000);
-        }
+        const pos = client.character.state.position;
+        server.sendChatTextToAdmins(
+          `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
+        );
+        setTimeout(() => {
+          server.sendData(client, "ClientUpdate.UpdateLocation", {
+            position: pos,
+            triggerLoadingScreen: false,
+          });
+        }, 1000);
       }
       client.character.isRunning =
         packet.data.stance == Stances.MOVE_STANDING_SPRINTING ? true : false;
@@ -1275,7 +1294,11 @@ export class zonePacketHandlers {
     const foundation = server._constructionFoundations[
       packet.data.objectCharacterId
     ] as ConstructionParentEntity;
-    if (foundation.ownerCharacterId != client.character.characterId) return;
+    if (
+      foundation.ownerCharacterId != client.character.characterId &&
+      (!client.isAdmin || !client.isDebugMode) // allows debug mode
+    )
+      return; // add debug admin
     let characterId = "";
     for (const a in server._characters) {
       const character = server._characters[a];
@@ -1342,7 +1365,11 @@ export class zonePacketHandlers {
     const foundation = server._constructionFoundations[
       packet.data.objectCharacterId
     ] as ConstructionParentEntity;
-    if (foundation.ownerCharacterId != client.character.characterId) return;
+    if (
+      foundation.ownerCharacterId != client.character.characterId &&
+      (!client.isAdmin || !client.isDebugMode)
+    )
+      return;
     let characterId = "";
     for (const a in server._characters) {
       const character = server._characters[a];

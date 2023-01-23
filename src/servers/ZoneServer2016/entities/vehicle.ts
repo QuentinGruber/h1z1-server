@@ -141,6 +141,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (!this.actorModelId) this.actorModelId = getActorModelId(this.vehicleId);
     this.loadoutId = getVehicleLoadoutId(this.vehicleId);
     this.defaultLoadout = getDefaultLoadout(this.loadoutId);
+    this.npcRenderDistance = 150;
     this.isInvulnerable =
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;

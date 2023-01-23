@@ -6,6 +6,35 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+function getRenderDistance(itemDefinitionId: number) {
+  let range: number = 0;
+  switch (itemDefinitionId) {
+    case Items.SHACK: // metal shack
+    case Items.SHACK_SMALL: // small shack
+    case Items.SHACK_BASIC: // wood shack
+    case Items.FOUNDATION: // foundation,
+    case Items.FOUNDATION_EXPANSION: // expansion
+    case Items.GROUND_TAMPER: // tamper
+      range = 700;
+      break;
+    case Items.FURNACE:
+    case Items.WORKBENCH:
+    case Items.WORKBENCH_WEAPON:
+    case Items.BEE_BOX:
+    case Items.DEW_COLLECTOR:
+      range = 200;
+      break;
+    case Items.STORAGE_BOX:
+    case Items.ANIMAL_TRAP:
+      range = 20;
+      break;
+    default:
+      range = 750;
+      break;
+  }
+  return range;
+}
+
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneServer2016 } from "../zoneserver";
 import { ConstructionPermissionIds, Items } from "../models/enums";
@@ -107,6 +136,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.profileId = 999; /// mark as construction
     this.damageRange = getDamageRange(this.itemDefinitionId);
     this.isSecured = this.itemDefinitionId == Items.METAL_WALL ? true : false;
+    this.npcRenderDistance = getRenderDistance(this.itemDefinitionId);
 
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
     Object.seal(this.wallSlots);

@@ -1165,7 +1165,7 @@ export class ZoneServer2016 extends EventEmitter {
         lowerRenderDistance = true;
       }
     }
-    client.chunkRenderDistance = lowerRenderDistance ? 200 : 400;
+    client.chunkRenderDistance = lowerRenderDistance ? 300 : 400;
   }
 
   private worldRoutine() {
@@ -1177,10 +1177,18 @@ export class ZoneServer2016 extends EventEmitter {
         this.lootbagDespawner();
         this.itemDespawner();
         this.worldObjectManager.run(this);
+        this.setTickRate();
         if (this.enableWorldSaves) this.worldDataManager.run(this);
       }
     }
     this.worldRoutineTimer.refresh();
+  }
+
+  setTickRate() {
+    const count = _.size(this._characters);
+    if (count >= 60 && count < 80) this.tickRate = 2500;
+    else if (count >= 80) this.tickRate = 3000;
+    else this.tickRate = 2000;
   }
 
   deleteClient(client: Client) {
@@ -2528,13 +2536,16 @@ export class ZoneServer2016 extends EventEmitter {
         if (allowed) {
           this.constructionHidePlayer(client, foundation.characterId, true);
           return true;
-        } else {
+        } else if (!client.isAdmin || !client.isDebugMode) {
           this.tpPlayerOutsideFoundation(client, foundation);
         }
       }
     }
     if (allowed) return false;
-    if (foundation.isInside(client.character.state.position)) {
+    if (
+      foundation.isInside(client.character.state.position) &&
+      (!client.isAdmin || !client.isDebugMode)
+    ) {
       this.tpPlayerOutsideFoundation(client, foundation);
       return false;
     }
@@ -2585,7 +2596,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (allowed) {
         this.constructionHidePlayer(client, construction.characterId, true);
         return true;
-      } else {
+      } else if (!client.isAdmin || !client.isDebugMode) {
         this.tpPlayerOutsideFoundation(client, foundation);
         return false;
       }
@@ -2972,7 +2983,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId != characterObj.characterId &&
         characterObj.isReady &&
         isPosInRadius(
-          this._charactersRenderDistance,
+          characterObj.npcRenderDistance || this._charactersRenderDistance,
           client.character.state.position,
           characterObj.state.position
         ) &&
@@ -3419,8 +3430,10 @@ export class ZoneServer2016 extends EventEmitter {
             ? `YOU HAVE BEEN PERMAMENTLY BANNED FROM THE SERVER REASON: ${reason}`
             : "YOU HAVE BEEN BANNED FROM THE SERVER."
         );
-        this.sendGlobalChatText(
-          `${client.character.name} has been Banned from the server!`
+        this.sendAlertToAll(
+          reason
+            ? `${client.character.name} has been Banned from the server! Reason: ${reason}`
+            : `${client.character.name} has been Banned from the server!`
         );
       }
       setTimeout(() => {
@@ -3548,7 +3561,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
-          this._charactersRenderDistance + 50, // may cause characters issues due to vehicles despawning earlier than players
+          vehicle.npcRenderDistance || this._charactersRenderDistance,
           client.character.state.position,
           vehicle.state.position
         )
@@ -6731,15 +6744,22 @@ export class ZoneServer2016 extends EventEmitter {
     client.routineInterval = setTimeout(() => {
       if (!client) return;
       if (!client.isLoading) {
-        this.assignChunkRenderDistance(client);
+        client.routineCounter++;
+        if (client.routineCounter >= 3) {
+          this.assignChunkRenderDistance(client);
+          this.removeOutOfDistanceEntities(client);
+          this.POIManager(client);
+          client.routineCounter = 0;
+        }
+
         this.vehicleManager(client);
         this.npcManager(client);
-        this.removeOutOfDistanceEntities(client);
+
         this.spawnCharacters(client);
         this.spawnGridObjects(client);
         this.constructionManager(client);
         this.worldConstructionManager(client);
-        this.POIManager(client);
+
         client.posAtLastRoutine = client.character.state.position;
       }
       if (client.isLoading) {

@@ -26,6 +26,7 @@ export class ZoneClient2016 {
   characterReleased: boolean = false;
   isInteracting: boolean = false;
   isAdmin: boolean = false;
+  isDebugMode: boolean = false;
   banType: string = "";
   HWID: string = "";
   posAtLastRoutine: Float32Array = new Float32Array();
@@ -75,7 +76,7 @@ export class ZoneClient2016 {
   avgPingReady: boolean = false;
   chunkRenderDistance: number = 400;
   routineInterval?: NodeJS.Timeout;
-  xsSecurityTimeout?: NodeJS.Timeout;
+  routineCounter: number = 0;
   constructor(
     sessionId: number,
     soeClientId: string,

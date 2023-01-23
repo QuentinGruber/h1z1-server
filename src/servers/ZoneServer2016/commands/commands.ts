@@ -31,6 +31,7 @@ import {
 import { EquipSlots, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
+import { ConstructionParentEntity } from "../entities/constructionparententity";
 const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 function getDriveModel(model: string) {
@@ -80,9 +81,9 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client) => {
       client.character.isSpectator = !client.character.isSpectator;
-      server.sendChatText(
+      server.sendAlert(
         client,
-        `Hidden state: ${client.character.isSpectator}`
+        `Set hidden state to ${client.character.isSpectator}`
       );
       if (!client.character.isSpectator) return;
       for (const a in server._clients) {
@@ -1616,6 +1617,38 @@ export const commands: Array<Command> = [
       );
       client.character.equipLoadout(server, characterBuildKitLoadout);
       server.sendChatText(client, `Build kit given`);
+    },
+  },
+  {
+    name: "debug",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (server: ZoneServer2016, client: Client) => {
+      client.isDebugMode = !client.isDebugMode;
+      server.sendAlert(client, `Set debug mode to ${client.isDebugMode}`);
+    },
+  },
+  {
+    name: "listpermissions",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (server: ZoneServer2016, client: Client) => {
+      if (!client.character.currentInteractionGuid) {
+        server.sendChatText(client, `[ERROR] No interaction target`);
+        return;
+      }
+      const foundation = server._constructionFoundations[
+        client.character.currentInteractionGuid
+      ] as ConstructionParentEntity;
+      if (!foundation) {
+        server.sendChatText(client, `[ERROR] Target is not a foundation`);
+        return;
+      }
+      server.sendChatText(
+        client,
+        `Displaying list of permissions for foundation: ${foundation.characterId}, owner: ${foundation.ownerCharacterId}`
+      );
+      Object.values(foundation.permissions).forEach((permission: any) => {
+        server.sendChatText(client, JSON.stringify(permission));
+      });
     },
   },
   {
