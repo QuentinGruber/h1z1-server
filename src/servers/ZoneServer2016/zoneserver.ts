@@ -1165,7 +1165,7 @@ export class ZoneServer2016 extends EventEmitter {
         lowerRenderDistance = true;
       }
     }
-    client.chunkRenderDistance = lowerRenderDistance ? 200 : 400;
+    client.chunkRenderDistance = lowerRenderDistance ? 300 : 400;
   }
 
   private worldRoutine() {
@@ -1185,8 +1185,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   setTickRate() {
-    const count = _.size(this._characters)
-    if (count >= 60 && count < 80 ) this.tickRate = 2500;
+    const count = _.size(this._characters);
+    if (count >= 60 && count < 80) this.tickRate = 2500;
     else if (count >= 80) this.tickRate = 3000;
     else this.tickRate = 2000;
   }
@@ -3430,8 +3430,10 @@ export class ZoneServer2016 extends EventEmitter {
             ? `YOU HAVE BEEN PERMAMENTLY BANNED FROM THE SERVER REASON: ${reason}`
             : "YOU HAVE BEEN BANNED FROM THE SERVER."
         );
-        this.sendGlobalChatText(
-          `${client.character.name} has been Banned from the server!`
+        this.sendAlertToAll(
+          reason
+            ? `${client.character.name} has been Banned from the server! Reason: ${reason}`
+            : `${client.character.name} has been Banned from the server!`
         );
       }
       setTimeout(() => {
