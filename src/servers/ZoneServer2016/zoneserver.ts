@@ -6731,15 +6731,21 @@ export class ZoneServer2016 extends EventEmitter {
     client.routineInterval = setTimeout(() => {
       if (!client) return;
       if (!client.isLoading) {
-        this.assignChunkRenderDistance(client);
-        this.vehicleManager(client);
-        this.npcManager(client);
-        this.removeOutOfDistanceEntities(client);
-        this.spawnCharacters(client);
-        this.spawnGridObjects(client);
-        this.constructionManager(client);
-        this.worldConstructionManager(client);
-        this.POIManager(client);
+        client.routineCounter++
+        if (client.routineCounter >= 3) {
+          this.assignChunkRenderDistance(client);
+          this.removeOutOfDistanceEntities(client);
+          this.POIManager(client);
+        }
+        
+          this.vehicleManager(client);
+          this.npcManager(client);
+        
+          this.spawnCharacters(client);
+          this.spawnGridObjects(client);
+          this.constructionManager(client);
+          this.worldConstructionManager(client);
+        
         client.posAtLastRoutine = client.character.state.position;
       }
       if (client.isLoading) {

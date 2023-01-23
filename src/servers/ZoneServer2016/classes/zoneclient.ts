@@ -75,7 +75,7 @@ export class ZoneClient2016 {
   avgPingReady: boolean = false;
   chunkRenderDistance: number = 400;
   routineInterval?: NodeJS.Timeout;
-  xsSecurityTimeout?: NodeJS.Timeout;
+  routineCounter: number = 0;
   constructor(
     sessionId: number,
     soeClientId: string,
