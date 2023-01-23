@@ -1177,10 +1177,16 @@ export class ZoneServer2016 extends EventEmitter {
         this.lootbagDespawner();
         this.itemDespawner();
         this.worldObjectManager.run(this);
+        this.setTickRate();
         if (this.enableWorldSaves) this.worldDataManager.run(this);
       }
     }
     this.worldRoutineTimer.refresh();
+  }
+
+  setTickRate() {
+    if (_.size(this._characters) > 60) this.tickRate = 3000;
+    else this.tickRate = 2000;
   }
 
   deleteClient(client: Client) {
