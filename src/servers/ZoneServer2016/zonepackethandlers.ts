@@ -133,10 +133,6 @@ export class zonePacketHandlers {
           server.sendAlert(client, "You are an admin!");
         }
       }, 10000);
-      server.sendChatTextToAllOthers(
-        client,
-        `${client.character.name} has joined the server !`
-      );
       if (client.banType != "") {
         server.sendChatTextToAdmins(
           `Silently banned ${client.character.name} has joined the server !`
@@ -442,7 +438,7 @@ export class zonePacketHandlers {
   }
   ChatChat(server: ZoneServer2016, client: Client, packet: any) {
     const { channel, message } = packet.data;
-    server.sendChat(client, message);
+    server.sendChatToAllInRange(client, message, 300);
   }
   ClientInitializationDetails(
     server: ZoneServer2016,
