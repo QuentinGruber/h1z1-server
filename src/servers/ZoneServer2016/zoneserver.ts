@@ -1185,7 +1185,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   setTickRate() {
-    if (_.size(this._characters) > 60) this.tickRate = 3000;
+    const count = _.size(this._characters)
+    if (count >= 60 && count < 80 ) this.tickRate = 2500;
+    else if (count >= 80) this.tickRate = 3000;
     else this.tickRate = 2000;
   }
 
