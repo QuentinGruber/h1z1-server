@@ -621,7 +621,8 @@ export class zonePacketHandlers {
           vehicle.removePassenger(passenger);
         }
       });
-      if (client.vehicle.mountedVehicle === characterId) {
+      // disabled, dont think we need it and wastes alot of resources
+      /*if (client.vehicle.mountedVehicle === characterId) {
         if (
           !client.posAtLastRoutine ||
           !isPosInRadius(
@@ -632,7 +633,7 @@ export class zonePacketHandlers {
         ) {
           server.executeFuncForAllReadyClients(() => server.vehicleManager);
         }
-      }
+      }*/
     }
   }
   VehicleStateData(server: ZoneServer2016, client: Client, packet: any) {
@@ -664,13 +665,7 @@ export class zonePacketHandlers {
       // falling flag, ignore for now
     }
     if (packet.data.stance) {
-      if (packet.data.stance == Stances.JUMPING_STANDING) {
-        client.xsSecurityTimeout = setTimeout(() => {
-          delete client.xsSecurityTimeout;
-        }, 500);
-      }
       if (packet.data.stance == Stances.STANCE_XS) {
-        if (client.xsSecurityTimeout) {
           const pos = client.character.state.position;
           server.sendChatTextToAdmins(
             `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
@@ -681,7 +676,6 @@ export class zonePacketHandlers {
               triggerLoadingScreen: false,
             });
           }, 1000);
-        }
       }
       client.character.isRunning =
         packet.data.stance == Stances.MOVE_STANDING_SPRINTING ? true : false;
@@ -727,11 +721,12 @@ export class zonePacketHandlers {
       if (!client.characterReleased) {
         client.characterReleased = true;
       }
-      server.speedFairPlayCheck(
+      // disabled for now
+      /*server.speedFairPlayCheck(
         client,
         packet.data.sequenceTime,
         packet.data.position
-      );
+      );*/
       client.character.state.position = new Float32Array([
         packet.data.position[0],
         packet.data.position[1],
