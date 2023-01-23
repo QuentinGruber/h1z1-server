@@ -361,6 +361,14 @@ export class zonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
+    if (packet.data.file === "Synchronization.log") {
+        if (packet.data.message.toLowerCase().includes("client clock drifted forward")) {
+            server.sendChatTextToAdmins(
+            `FairPlay: ${client.character.name}'s ${packet.data.message.replace("Client ", "")}`,
+            false
+          );
+        }
+    }
     if (
       packet.data.file === "ClientProc.log" &&
       !client.clientLogs.includes(packet.data.message)
@@ -721,12 +729,11 @@ export class zonePacketHandlers {
       if (!client.characterReleased) {
         client.characterReleased = true;
       }
-      // disabled for now
-      /*server.speedFairPlayCheck(
+      server.speedFairPlayCheck(
         client,
         packet.data.sequenceTime,
         packet.data.position
-      );*/
+      );
       client.character.state.position = new Float32Array([
         packet.data.position[0],
         packet.data.position[1],
