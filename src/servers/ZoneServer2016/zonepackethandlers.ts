@@ -666,16 +666,16 @@ export class zonePacketHandlers {
     }
     if (packet.data.stance) {
       if (packet.data.stance == Stances.STANCE_XS) {
-          const pos = client.character.state.position;
-          server.sendChatTextToAdmins(
-            `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
-          );
-          setTimeout(() => {
-            server.sendData(client, "ClientUpdate.UpdateLocation", {
-              position: pos,
-              triggerLoadingScreen: false,
-            });
-          }, 1000);
+        const pos = client.character.state.position;
+        server.sendChatTextToAdmins(
+          `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
+        );
+        setTimeout(() => {
+          server.sendData(client, "ClientUpdate.UpdateLocation", {
+            position: pos,
+            triggerLoadingScreen: false,
+          });
+        }, 1000);
       }
       client.character.isRunning =
         packet.data.stance == Stances.MOVE_STANDING_SPRINTING ? true : false;
