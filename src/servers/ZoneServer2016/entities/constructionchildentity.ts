@@ -10,7 +10,7 @@ function getRenderDistance(itemDefinitionId: number) {
   let range: number = 0;
   switch (itemDefinitionId) {
     case Items.SHACK: // metal shack
-    case Items.SHACK_SMALL: // small shack  
+    case Items.SHACK_SMALL: // small shack
     case Items.SHACK_BASIC: // wood shack
     case Items.FOUNDATION: // foundation,
     case Items.FOUNDATION_EXPANSION: // expansion
@@ -25,6 +25,7 @@ function getRenderDistance(itemDefinitionId: number) {
       range = 200;
       break;
     case Items.STORAGE_BOX:
+    case Items.ANIMAL_TRAP:
       range = 20;
       break;
     default:
