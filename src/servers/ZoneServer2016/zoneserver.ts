@@ -2534,13 +2534,16 @@ export class ZoneServer2016 extends EventEmitter {
         if (allowed) {
           this.constructionHidePlayer(client, foundation.characterId, true);
           return true;
-        } else {
+        } else if (!client.isAdmin || !client.isDebugMode) {
           this.tpPlayerOutsideFoundation(client, foundation);
         }
       }
     }
     if (allowed) return false;
-    if (foundation.isInside(client.character.state.position)) {
+    if (
+      foundation.isInside(client.character.state.position) &&
+      (!client.isAdmin || !client.isDebugMode)
+    ) {
       this.tpPlayerOutsideFoundation(client, foundation);
       return false;
     }
@@ -2591,7 +2594,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (allowed) {
         this.constructionHidePlayer(client, construction.characterId, true);
         return true;
-      } else {
+      } else if (!client.isAdmin || !client.isDebugMode) {
         this.tpPlayerOutsideFoundation(client, foundation);
         return false;
       }

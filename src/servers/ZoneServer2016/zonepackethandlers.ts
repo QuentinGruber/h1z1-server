@@ -1294,7 +1294,11 @@ export class zonePacketHandlers {
     const foundation = server._constructionFoundations[
       packet.data.objectCharacterId
     ] as ConstructionParentEntity;
-    if (foundation.ownerCharacterId != client.character.characterId) return;
+    if (
+      foundation.ownerCharacterId != client.character.characterId &&
+      (!client.isAdmin || !client.isDebugMode) // allows debug mode
+    )
+      return; // add debug admin
     let characterId = "";
     for (const a in server._characters) {
       const character = server._characters[a];
@@ -1361,7 +1365,11 @@ export class zonePacketHandlers {
     const foundation = server._constructionFoundations[
       packet.data.objectCharacterId
     ] as ConstructionParentEntity;
-    if (foundation.ownerCharacterId != client.character.characterId) return;
+    if (
+      foundation.ownerCharacterId != client.character.characterId &&
+      (!client.isAdmin || !client.isDebugMode)
+    )
+      return;
     let characterId = "";
     for (const a in server._characters) {
       const character = server._characters[a];

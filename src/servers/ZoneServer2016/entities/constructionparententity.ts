@@ -547,7 +547,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       return;
     }
 
-    if (this.ownerCharacterId != client.character.characterId) return;
+    if (
+      this.ownerCharacterId != client.character.characterId &&
+      (!client.isAdmin || !client.isDebugMode) // allows debug mode
+    )
+      return;
     server.sendData(
       client,
       "NpcFoundationPermissionsManagerBase.showPermissions",
@@ -568,7 +572,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       return;
     }
 
-    if (this.ownerCharacterId != client.character.characterId) return;
+    if (
+      this.ownerCharacterId != client.character.characterId &&
+      (!client.isAdmin || !client.isDebugMode)
+    )
+      return; // debug mode give permission interact string
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
       stringId: StringIds.PERMISSIONS_TARGET,
