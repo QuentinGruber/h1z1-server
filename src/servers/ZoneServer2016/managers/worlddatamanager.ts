@@ -819,6 +819,10 @@ export class WorldDataManager {
         return;
       }
     } else {
+      const hasTempData = Boolean((await server._db?.collection("construction-temp").find({serverId:server._worldId}).toArray())?.length)
+      if(hasTempData){
+        throw "Database still have temp data for this worldId"
+      }
       constructionParents = <any>(
         await server._db
           ?.collection("construction")
@@ -1100,6 +1104,10 @@ export class WorldDataManager {
         return;
       }
     } else {
+      const hasTempData = Boolean((await server._db?.collection("crop-temp").find({serverId:server._worldId}).toArray())?.length)
+      if(hasTempData){
+        throw "Database still have temp data for this worldId"
+      }
       crops = <any>(
         await server._db
           ?.collection("crops")
@@ -1145,6 +1153,10 @@ export class WorldDataManager {
         return;
       }
     } else {
+      const hasTempData = Boolean((await server._db?.collection("worldconstruction-temp").find({serverId:server._worldId}).toArray())?.length)
+      if(hasTempData){
+        throw "Database still have temp data for this worldId"
+      }
       freeplace = <any>(
         await server._db
           ?.collection("worldconstruction")
