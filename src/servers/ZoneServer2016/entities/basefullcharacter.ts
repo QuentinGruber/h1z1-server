@@ -379,10 +379,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   ) {
     const client = server.getClientByCharId(this.characterId);
     if (!item) return;
-    if (item.stackCount <= 0){
-      console.error(
-        `LootContainerItem: stackCount is negative! item ${item}`
-      );
+    if (item.stackCount <= 0) {
+      console.error(`LootContainerItem: stackCount is negative! item ${item}`);
       return;
     }
     if (!count) count = item.stackCount;
