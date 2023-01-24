@@ -15,6 +15,7 @@ import { MongoClient } from "mongodb";
 import { httpServerMessage } from "types/shared";
 import { parentPort, workerData } from "worker_threads";
 import http from "http";
+import { DB_COLLECTIONS } from "utils/enums";
 function sendMessageToServer(type: string, requestId: number, data: any) {
   const message: httpServerMessage = {
     type: type,
@@ -61,7 +62,7 @@ httpServer.on("request", async function (req, res) {
   const queryObject: any = queryString ? parseQueryString(queryString) : null;
   switch (path) {
     case "servers": {
-      const collection = db.collection("servers");
+      const collection = db.collection(DB_COLLECTIONS.SERVERS);
       const serversArray = await collection.find().toArray();
       res.writeHead(200, { "Content-Type": "text/json" });
       res.write(JSON.stringify(serversArray));

@@ -52,7 +52,7 @@ import {
 import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
 import LoginClient from "servers/LoginServer/loginclient";
-import { GAME_VERSIONS, NAME_VALIDATION_STATUS } from "../../utils/enums";
+import { DB_COLLECTIONS, GAME_VERSIONS, NAME_VALIDATION_STATUS } from "../../utils/enums";
 import DataSchema from "h1z1-dataschema";
 import { applicationDataKOTK } from "../../packets/LoginUdp/LoginUdp_11/loginpackets";
 import { Resolver } from "dns";
@@ -183,7 +183,7 @@ export class LoginServer extends EventEmitter {
                     );
                     let status = 0;
                     const { serverAddress: fullServerAddress } = await this._db
-                      .collection("servers")
+                      .collection(DB_COLLECTIONS.SERVERS)
                       .findOne({ serverId: serverId });
                     const serverAddress = fullServerAddress.split(":")[0];
                     if (serverAddress) {
@@ -216,9 +216,9 @@ export class LoginServer extends EventEmitter {
                     const { population } = packet.data;
                     const serverId = this._zoneConnections[client.clientId];
                     const { maxPopulationNumber } = await this._db
-                      .collection("servers")
+                      .collection(DB_COLLECTIONS.SERVERS)
                       .findOne({ serverId: serverId });
-                    this._db?.collection("servers").findOneAndUpdate(
+                    this._db?.collection(DB_COLLECTIONS.SERVERS).findOneAndUpdate(
                       { serverId: serverId },
                       {
                         $set: {
@@ -371,7 +371,7 @@ export class LoginServer extends EventEmitter {
         status: 1,
       };
       return await this._db
-        .collection("characters-light")
+        .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
         .find(charactersQuery)
         .toArray();
     }
@@ -403,7 +403,7 @@ export class LoginServer extends EventEmitter {
       client.loginSessionId = String(sessionId);
     } else {
       const realSession = await this._db
-        .collection("user-sessions")
+        .collection(DB_COLLECTIONS.USERS_SESSIONS)
         .findOne({ guid: sessionId });
       client.loginSessionId = realSession ? realSession.authKey : sessionId;
     }
@@ -449,7 +449,7 @@ export class LoginServer extends EventEmitter {
         let status = isValidCharacterName(characterName);
         if (!this._soloMode) {
           const blackListedEntry = await this._db
-            .collection("blackListEntries")
+            .collection(DB_COLLECTIONS.BLACK_LIST_ENTRIES)
             .findOne({
               WORD: characterName.toUpperCase(),
             });
@@ -461,7 +461,7 @@ export class LoginServer extends EventEmitter {
             }
           } else {
             const duplicateCharacter = await this._db
-              .collection("characters-light")
+              .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
               .findOne({
                 "payload.name": characterName,
                 serverId: baseResponse.serverId,
@@ -555,7 +555,7 @@ export class LoginServer extends EventEmitter {
   }
 
   async updateServerStatus(serverId: number, status: boolean) {
-    const server = await this._db.collection("servers").findOneAndUpdate(
+    const server = await this._db.collection(DB_COLLECTIONS.SERVERS).findOneAndUpdate(
       { serverId: serverId },
       {
         $set: {
@@ -576,7 +576,7 @@ export class LoginServer extends EventEmitter {
   }
 
   async updateServersStatus(): Promise<void> {
-    const servers = await this._db.collection("servers").find().toArray();
+    const servers = await this._db.collection(DB_COLLECTIONS.SERVERS).find().toArray();
 
     for (let index = 0; index < servers.length; index++) {
       const server: GameServer = servers[index];
@@ -593,7 +593,7 @@ export class LoginServer extends EventEmitter {
     let servers;
     if (!this._soloMode) {
       servers = await this._db
-        .collection("servers")
+        .collection(DB_COLLECTIONS.SERVERS)
         .find({
           gameVersion: client.gameVersion,
         })
@@ -675,7 +675,7 @@ export class LoginServer extends EventEmitter {
       const characterId = packet.characterId;
       const characterQuery = { characterId: characterId };
       const charracterToDelete = await this._db
-        .collection("characters-light")
+        .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
         .findOne(characterQuery);
       if (
         charracterToDelete &&
@@ -688,7 +688,7 @@ export class LoginServer extends EventEmitter {
         )) as number;
         if (deletionStatus) {
           await this._db
-            .collection("characters-light")
+            .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
             .updateOne(characterQuery, {
               $set: {
                 status: 0,
@@ -712,9 +712,9 @@ export class LoginServer extends EventEmitter {
     loginSessionId: string | undefined
   ): Promise<CharacterLoginReply> {
     const { serverAddress, populationNumber, maxPopulationNumber } =
-      await this._db.collection("servers").findOne({ serverId: serverId });
+      await this._db.collection(DB_COLLECTIONS.SERVERS).findOne({ serverId: serverId });
     const character = await this._db
-      .collection("characters-light")
+      .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
       .findOne({ characterId: characterId });
     const connectionStatus =
       Object.values(this._zoneConnections).includes(serverId) &&
@@ -728,7 +728,7 @@ export class LoginServer extends EventEmitter {
     }
     const hiddenSession = connectionStatus
       ? await this._db
-          .collection("user-sessions")
+          .collection(DB_COLLECTIONS.USERS_SESSIONS)
           .findOne({ authKey: loginSessionId })
       : { guid: "" };
     return {
@@ -936,7 +936,7 @@ export class LoginServer extends EventEmitter {
     } else {
       let sessionObj;
       const storedUserSession = await this._db
-        ?.collection("user-sessions")
+        ?.collection(DB_COLLECTIONS.USERS_SESSIONS)
         .findOne({ authKey: client.loginSessionId, serverId: serverId });
       if (storedUserSession) {
         sessionObj = storedUserSession;
@@ -946,7 +946,7 @@ export class LoginServer extends EventEmitter {
           authKey: client.loginSessionId,
           guid: generateRandomGuid(),
         };
-        await this._db?.collection("user-sessions").insertOne(sessionObj);
+        await this._db?.collection(DB_COLLECTIONS.USERS_SESSIONS).insertOne(sessionObj);
       }
       let newCharacterData;
       switch (client.gameVersion) {
@@ -974,7 +974,7 @@ export class LoginServer extends EventEmitter {
         : 0;
 
       if (creationStatus === 1) {
-        await this._db.collection("characters-light").insertOne({
+        await this._db.collection(DB_COLLECTIONS.CHARACTERS_LIGHT).insertOne({
           authKey: client.loginSessionId,
           serverId: serverId,
           gameVersion: client.gameVersion,

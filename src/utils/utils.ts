@@ -20,7 +20,7 @@ import {
   setImmediate as setImmediatePromise,
   setTimeout as setTimeoutPromise,
 } from "timers/promises";
-import { MongoClient } from "mongodb";
+import { Db, MongoClient } from "mongodb";
 import { MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
@@ -32,7 +32,7 @@ import {
 import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots";
 import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
 import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
-import { NAME_VALIDATION_STATUS } from "./enums";
+import { DB_COLLECTIONS, NAME_VALIDATION_STATUS } from "./enums";
 import { Resolver } from "dns";
 
 export class customLodash {
@@ -572,9 +572,9 @@ export const initMongo = async function (
 ): Promise<void> {
   const debug = require("debug")(serverName);
   const dbName = "h1server";
-  await mongoClient.db(dbName).createCollection("servers");
+  await mongoClient.db(dbName).createCollection(DB_COLLECTIONS.SERVERS);
   const servers = require("../../data/defaultDatabase/shared/servers.json");
-  await mongoClient.db(dbName).collection("servers").insertMany(servers);
+  await mongoClient.db(dbName).collection(DB_COLLECTIONS.SERVERS).insertMany(servers);
   debug("h1server database was missing... created one with samples.");
 };
 

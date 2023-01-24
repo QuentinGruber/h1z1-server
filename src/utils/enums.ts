@@ -40,6 +40,7 @@ export enum DB_COLLECTIONS {
   PROPS = "props",
   SERVERS = "servers",
   USERS_SESSIONS = "user-sessions",
+  VEHICLES = "vehicles",
   WEATHERS = "weathers",
   WORLD_CONSTRUCTIONS = "worldconstruction",
   WORLD_CONSTRUCTIONS_TEMP= "worldconstruction-temp",

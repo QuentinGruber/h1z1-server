@@ -107,7 +107,7 @@ import { FullCharacterSaveData } from "types/savedata";
 import { WorldDataManager } from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
-import { GAME_VERSIONS } from "../../utils/enums";
+import { DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
 
 import {
   ClientUpdateDeathMetrics,
@@ -321,7 +321,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
         if (!this._soloMode) {
           zoneClient.isAdmin =
-            (await this._db?.collection("admins").findOne({
+            (await this._db?.collection(DB_COLLECTIONS.ADMINS).findOne({
               sessionId: zoneClient.loginSessionId,
               serverId: this._worldId,
             })) != undefined;
@@ -411,7 +411,7 @@ export class ZoneServer2016 extends EventEmitter {
               case "CharacterExistRequest": {
                 const { characterId, reqId } = packet.data;
                 try {
-                  const collection = (this._db as Db).collection("characters");
+                  const collection = (this._db as Db).collection(DB_COLLECTIONS.CHARACTERS);
                   const charactersArray = await collection
                     .find({
                       characterId: characterId,
@@ -444,7 +444,7 @@ export class ZoneServer2016 extends EventEmitter {
               case "CharacterDeleteRequest": {
                 const { characterId, reqId } = packet.data;
                 try {
-                  const collection = (this._db as Db).collection("characters");
+                  const collection = (this._db as Db).collection(DB_COLLECTIONS.CHARACTERS);
                   const charactersArray = await collection
                     .find({ characterId: characterId })
                     .toArray();
@@ -540,7 +540,7 @@ export class ZoneServer2016 extends EventEmitter {
         status: 1,
         worldSaveVersion: this.worldSaveVersion,
       };
-      const collection = (this._db as Db).collection("characters");
+      const collection = (this._db as Db).collection(DB_COLLECTIONS.CHARACTERS);
       const charactersArray = await collection.findOne({
         characterId: character.characterId,
       });
@@ -862,7 +862,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     this._h1emuZoneServer.start();
     await this._db
-      ?.collection("servers")
+      ?.collection(DB_COLLECTIONS.SERVERS)
       .findOneAndUpdate(
         { serverId: this._worldId },
         { $set: { populationNumber: 0, populationLevel: 0 } }
