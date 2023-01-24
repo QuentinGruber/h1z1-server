@@ -51,7 +51,7 @@ import { ConstructionDoor } from "../entities/constructiondoor";
 import { Items } from "../models/enums";
 import { PlantingDiameter } from "../entities/plantingdiameter";
 import { Plant } from "../entities/plant";
-import { DB_COLLECTIONS } from "utils/enums";
+import { DB_COLLECTIONS } from "../../../utils/enums";
 
 const fs = require("fs");
 const debug = require("debug")("ZoneServer");

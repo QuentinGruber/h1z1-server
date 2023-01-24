@@ -15,7 +15,7 @@ import { MongoClient } from "mongodb";
 import { httpServerMessage } from "types/shared";
 import { parentPort, workerData } from "worker_threads";
 import http from "http";
-import { DB_COLLECTIONS } from "utils/enums";
+import { DB_COLLECTIONS } from "../../../utils/enums";
 function sendMessageToServer(type: string, requestId: number, data: any) {
   const message: httpServerMessage = {
     type: type,
