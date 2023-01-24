@@ -31,6 +31,7 @@ import {
 import { EquipSlots, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
+import { ConstructionPermissions } from "types/zoneserver";
 import { ConstructionParentEntity } from "../entities/constructionparententity";
 const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
@@ -1625,6 +1626,69 @@ export const commands: Array<Command> = [
     execute: async (server: ZoneServer2016, client: Client) => {
       client.isDebugMode = !client.isDebugMode;
       server.sendAlert(client, `Set debug mode to ${client.isDebugMode}`);
+    },
+  },
+  {
+    name: "listbases",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `"[ERROR] Usage /findbases {name / clientId}"`
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      server.sendChatText(
+        client,
+        `Listing all bases of ${targetClient.character.name}:`
+      );
+      let counter = 1;
+      for (const a in server._constructionFoundations) {
+        const foundation = server._constructionFoundations[a];
+        const name = server.getItemDefinition(foundation.itemDefinitionId).NAME;
+        if (
+          foundation.ownerCharacterId === targetClient.character.characterId
+        ) {
+          const pos = `[${foundation.state.position[0]} ${foundation.state.position[1]} ${foundation.state.position[2]}]`;
+          server.sendChatText(
+            client,
+            `${counter}. ${name}: position ${pos}, permissions: Owner`
+          );
+          counter++;
+          continue;
+        }
+        Object.values(foundation.permissions).forEach(
+          (permission: ConstructionPermissions) => {
+            if (permission.characterId === targetClient.character.characterId) {
+              const pos = `[${foundation.state.position[0]} ${foundation.state.position[1]} ${foundation.state.position[2]}]`;
+              server.sendChatText(
+                client,
+                `${counter}. ${name}: position ${pos}, permissions: build: ${permission.build}, demolish: ${permission.demolish}, containers: ${permission.useContainers}, visitor: ${permission.visit}`
+              );
+              counter++;
+            }
+          }
+        );
+      }
     },
   },
   {
