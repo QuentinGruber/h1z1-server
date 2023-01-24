@@ -52,7 +52,11 @@ import {
 import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
 import LoginClient from "servers/LoginServer/loginclient";
-import { DB_COLLECTIONS, GAME_VERSIONS, NAME_VALIDATION_STATUS } from "../../utils/enums";
+import {
+  DB_COLLECTIONS,
+  GAME_VERSIONS,
+  NAME_VALIDATION_STATUS,
+} from "../../utils/enums";
 import DataSchema from "h1z1-dataschema";
 import { applicationDataKOTK } from "../../packets/LoginUdp/LoginUdp_11/loginpackets";
 import { Resolver } from "dns";
@@ -218,17 +222,21 @@ export class LoginServer extends EventEmitter {
                     const { maxPopulationNumber } = await this._db
                       .collection(DB_COLLECTIONS.SERVERS)
                       .findOne({ serverId: serverId });
-                    this._db?.collection(DB_COLLECTIONS.SERVERS).findOneAndUpdate(
-                      { serverId: serverId },
-                      {
-                        $set: {
-                          populationNumber: population,
-                          populationLevel: Number(
-                            ((population / maxPopulationNumber) * 3).toFixed(0)
-                          ),
-                        },
-                      }
-                    );
+                    this._db
+                      ?.collection(DB_COLLECTIONS.SERVERS)
+                      .findOneAndUpdate(
+                        { serverId: serverId },
+                        {
+                          $set: {
+                            populationNumber: population,
+                            populationLevel: Number(
+                              ((population / maxPopulationNumber) * 3).toFixed(
+                                0
+                              )
+                            ),
+                          },
+                        }
+                      );
                     break;
                   }
                   default:
@@ -555,16 +563,18 @@ export class LoginServer extends EventEmitter {
   }
 
   async updateServerStatus(serverId: number, status: boolean) {
-    const server = await this._db.collection(DB_COLLECTIONS.SERVERS).findOneAndUpdate(
-      { serverId: serverId },
-      {
-        $set: {
-          allowedAccess: status,
-          populationNumber: 0,
-          populationLevel: 0,
-        },
-      }
-    );
+    const server = await this._db
+      .collection(DB_COLLECTIONS.SERVERS)
+      .findOneAndUpdate(
+        { serverId: serverId },
+        {
+          $set: {
+            allowedAccess: status,
+            populationNumber: 0,
+            populationLevel: 0,
+          },
+        }
+      );
     this.clients.forEach((client: Client) => {
       if (client.gameVersion === server.value.gameVersion) {
         this.sendData(client, "ServerUpdate", {
@@ -576,7 +586,10 @@ export class LoginServer extends EventEmitter {
   }
 
   async updateServersStatus(): Promise<void> {
-    const servers = await this._db.collection(DB_COLLECTIONS.SERVERS).find().toArray();
+    const servers = await this._db
+      .collection(DB_COLLECTIONS.SERVERS)
+      .find()
+      .toArray();
 
     for (let index = 0; index < servers.length; index++) {
       const server: GameServer = servers[index];
@@ -712,7 +725,9 @@ export class LoginServer extends EventEmitter {
     loginSessionId: string | undefined
   ): Promise<CharacterLoginReply> {
     const { serverAddress, populationNumber, maxPopulationNumber } =
-      await this._db.collection(DB_COLLECTIONS.SERVERS).findOne({ serverId: serverId });
+      await this._db
+        .collection(DB_COLLECTIONS.SERVERS)
+        .findOne({ serverId: serverId });
     const character = await this._db
       .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
       .findOne({ characterId: characterId });
@@ -946,7 +961,9 @@ export class LoginServer extends EventEmitter {
           authKey: client.loginSessionId,
           guid: generateRandomGuid(),
         };
-        await this._db?.collection(DB_COLLECTIONS.USERS_SESSIONS).insertOne(sessionObj);
+        await this._db
+          ?.collection(DB_COLLECTIONS.USERS_SESSIONS)
+          .insertOne(sessionObj);
       }
       let newCharacterData;
       switch (client.gameVersion) {

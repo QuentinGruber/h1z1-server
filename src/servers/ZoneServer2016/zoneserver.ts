@@ -411,7 +411,9 @@ export class ZoneServer2016 extends EventEmitter {
               case "CharacterExistRequest": {
                 const { characterId, reqId } = packet.data;
                 try {
-                  const collection = (this._db as Db).collection(DB_COLLECTIONS.CHARACTERS);
+                  const collection = (this._db as Db).collection(
+                    DB_COLLECTIONS.CHARACTERS
+                  );
                   const charactersArray = await collection
                     .find({
                       characterId: characterId,
@@ -444,7 +446,9 @@ export class ZoneServer2016 extends EventEmitter {
               case "CharacterDeleteRequest": {
                 const { characterId, reqId } = packet.data;
                 try {
-                  const collection = (this._db as Db).collection(DB_COLLECTIONS.CHARACTERS);
+                  const collection = (this._db as Db).collection(
+                    DB_COLLECTIONS.CHARACTERS
+                  );
                   const charactersArray = await collection
                     .find({ characterId: characterId })
                     .toArray();

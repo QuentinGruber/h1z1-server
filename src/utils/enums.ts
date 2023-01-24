@@ -26,9 +26,9 @@ export enum NAME_VALIDATION_STATUS {
 }
 
 export enum DB_COLLECTIONS {
-  ADMINS= "admins",
-  BANNED= "banned",
-  BLACK_LIST_ENTRIES= "blackListEntries",
+  ADMINS = "admins",
+  BANNED = "banned",
+  BLACK_LIST_ENTRIES = "blackListEntries",
   CHARACTERS = "characters",
   CHARACTERS_LIGHT = "characters-light",
   CHAT = "chat",
@@ -43,7 +43,6 @@ export enum DB_COLLECTIONS {
   VEHICLES = "vehicles",
   WEATHERS = "weathers",
   WORLD_CONSTRUCTIONS = "worldconstruction",
-  WORLD_CONSTRUCTIONS_TEMP= "worldconstruction-temp",
+  WORLD_CONSTRUCTIONS_TEMP = "worldconstruction-temp",
   WORLDS = "worlds",
 }
-

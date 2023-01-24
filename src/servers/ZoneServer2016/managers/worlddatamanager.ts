@@ -160,9 +160,11 @@ export class WorldDataManager {
     if (server._soloMode) return;
     if (!server._worldId) {
       const worldCount: number =
-        (await server._db?.collection(DB_COLLECTIONS.WORLDS).countDocuments()) || 0;
-        server._worldId = worldCount + 1;
-        await server._db?.collection(DB_COLLECTIONS.WORLDS).insertOne({
+        (await server._db
+          ?.collection(DB_COLLECTIONS.WORLDS)
+          .countDocuments()) || 0;
+      server._worldId = worldCount + 1;
+      await server._db?.collection(DB_COLLECTIONS.WORLDS).insertOne({
         worldId: server._worldId,
         lastItemGuid: toBigHex(server.lastItemGuid),
         worldSaveVersion: server.worldSaveVersion,
@@ -984,7 +986,9 @@ export class WorldDataManager {
         JSON.stringify(construction, null, 2)
       );
     } else {
-      const tempCollection = server._db?.collection(DB_COLLECTIONS.CONSTRUCTION_TEMP);
+      const tempCollection = server._db?.collection(
+        DB_COLLECTIONS.CONSTRUCTION_TEMP
+      );
       if (construction.length) await tempCollection?.insertMany(construction);
       const collection = server._db?.collection(DB_COLLECTIONS.CONSTRUCTION);
       await collection?.deleteMany({ serverId: server._worldId });
@@ -1148,8 +1152,12 @@ export class WorldDataManager {
         JSON.stringify(freeplace, null, 2)
       );
     } else {
-      const collection = server._db?.collection(DB_COLLECTIONS.WORLD_CONSTRUCTIONS);
-      const tempCollection = server._db?.collection(DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP);
+      const collection = server._db?.collection(
+        DB_COLLECTIONS.WORLD_CONSTRUCTIONS
+      );
+      const tempCollection = server._db?.collection(
+        DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP
+      );
       if (freeplace.length) await tempCollection?.insertMany(freeplace);
       await collection?.deleteMany({ serverId: server._worldId });
       if (freeplace.length) await collection?.insertMany(freeplace);
