@@ -12,15 +12,15 @@
 // ======================================================================
 
 export enum GAME_VERSIONS {
-    H1Z1_15janv_2015 = 1,
-    H1Z1_6dec_2016 = 2,
-    H1Z1_KOTK_PS3 = 3,
+  H1Z1_15janv_2015 = 1,
+  H1Z1_6dec_2016 = 2,
+  H1Z1_KOTK_PS3 = 3,
 }
 
 export enum NAME_VALIDATION_STATUS {
-    AVAILABLE = 1,
-    TAKEN = 2,
-    INVALID = 3,
-    PROFANE = 4,
-    RESERVED = 5,
+  AVAILABLE = 1,
+  TAKEN = 2,
+  INVALID = 3,
+  PROFANE = 4,
+  RESERVED = 5,
 }
