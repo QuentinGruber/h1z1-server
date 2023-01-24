@@ -20,7 +20,7 @@ import {
   setImmediate as setImmediatePromise,
   setTimeout as setTimeoutPromise,
 } from "timers/promises";
-import { Db, MongoClient } from "mongodb";
+import { MongoClient } from "mongodb";
 import { MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
