@@ -3022,15 +3022,11 @@ export class ZoneServer2016 extends EventEmitter {
         !c.spawnedEntities.includes(character) &&
         character != c.character
       ) {
-        const vehicleId = c.vehicle.mountedVehicle,
-          vehicle = vehicleId ? this._vehicles[vehicleId] : false;
         this.sendData(c, "AddLightweightPc", {
           ...character.pGetLightweight(),
-          mountGuid: vehicleId || "",
-          mountSeatId: vehicle
-            ? vehicle.getCharacterSeat(character.characterId)
-            : 0,
-          mountRelatedDword1: vehicle ? 1 : 0,
+          mountGuid: "",
+          mountSeatId: 0,
+          mountRelatedDword1: 0,
         });
         c.spawnedEntities.push(character);
       }
