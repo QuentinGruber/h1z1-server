@@ -36,6 +36,7 @@ export class ZoneClient2016 {
     time: 0,
   };
   speedWarnsNumber: number = 0;
+  allowedProjectiles: number = 0;
   pvpStats: {
     shotsFired: number;
     shotsHit: number;
