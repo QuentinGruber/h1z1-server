@@ -437,8 +437,12 @@ export class zonePacketHandlers {
     });
   }
   ChatChat(server: ZoneServer2016, client: Client, packet: any) {
-    const { channel, message } = packet.data;
-    server.sendChatToAllInRange(client, message, 300);
+      const { channel, message } = packet.data;
+    if (!client.radio){
+        server.sendChatToAllInRange(client, message, 300);
+    } else if (client.radio) {
+        server.sendChatToAllWithRadio(client, message);
+    }
   }
   ClientInitializationDetails(
     server: ZoneServer2016,
@@ -1939,6 +1943,15 @@ export class zonePacketHandlers {
       packet
     );
   }
+  VoiceRadioChannel(server: ZoneServer2016, client: Client, packet: any) {
+    if (!client.character._loadout['39']) return
+    if (client.character._loadout['39'].itemDefinitionId != Items.EMERGENCY_RADIO) return
+    client.radio = true
+
+  }
+  VoiceLeaveRadio(server: ZoneServer2016, client: Client, packet: any) {
+    client.radio = false
+  }
   EndCharacterAccess(server: ZoneServer2016, client: Client, packet: any) {
     client.character.dismountContainer(server);
   }
@@ -2126,6 +2139,12 @@ export class zonePacketHandlers {
         break;
       case "Command.Spectate":
         this.CommandSpectate(server, client, packet);
+        break;
+      case "Voice.RadioChannel":
+        this.VoiceRadioChannel(server, client, packet);
+        break;
+      case "Voice.LeaveRadio":
+        this.VoiceLeaveRadio(server, client, packet);
         break;
       case "AccessedCharacter.EndCharacterAccess":
         this.EndCharacterAccess(server, client, packet);

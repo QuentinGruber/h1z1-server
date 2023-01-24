@@ -60,6 +60,7 @@ export class ZoneClient2016 {
   vehicle: {
     mountedVehicle?: string;
   } = {};
+  radio: boolean = false;
   npcsToSpawnTimer!: NodeJS.Timeout;
   loginSessionId: string;
   pingTimer: NodeJS.Timeout | undefined;
