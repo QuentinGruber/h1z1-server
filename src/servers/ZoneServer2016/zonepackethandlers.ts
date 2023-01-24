@@ -1668,55 +1668,60 @@ export class zonePacketHandlers {
           );
           client.allowedProjectiles++;
           break;
-          case "Weapon.ProjectileHitReport":
-              if (!client.allowedProjectiles) return
-              client.allowedProjectiles--;
-              if (
-                  client.character.getEquippedWeapon().itemDefinitionId ==
-                  Items.WEAPON_REMOVER
-              ) {
-                  if (!client.isAdmin) return;
-                  const characterId = p.packet.hitReport.characterId,
-                      entityType = server.getEntityType(characterId);
-                  switch (entityType) {
-                      case EntityTypes.NPC:
-                          if (!server._npcs[characterId]) {
-                              return;
-                          }
-                          server.deleteEntity(characterId, server._npcs);
-                          break;
-                      case EntityTypes.VEHICLE:
-                          if (!server._vehicles[characterId]) {
-                              return;
-                          }
-                          server.deleteEntity(characterId, server._vehicles);
-                          break;
-                      case EntityTypes.OBJECT:
-                          if (!server._spawnedItems[characterId]) {
-                              return;
-                          }
-                          delete server.worldObjectManager._spawnedLootObjects[
-                              server._spawnedItems[characterId].spawnerId
-                          ];
-                          server.deleteEntity(characterId, server._spawnedItems);
-                          break;
-                      case EntityTypes.EXPLOSIVE:
-                          server.deleteEntity(characterId, server._explosives);
-                          break;
-                      case EntityTypes.CONSTRUCTION_DOOR:
-                      case EntityTypes.CONSTRUCTION_SIMPLE:
-                      case EntityTypes.CONSTRUCTION_FOUNDATION:
-                      case EntityTypes.LOOTABLE_CONSTRUCTION:
-                          const entity = server.getConstructionEntity(characterId);
-                          if (!entity) return;
-                          entity.destroy(server);
-                          break;
-                      default:
-                          return;
-                  }
-                  server.sendAlert(client, "Object removed.");
+        case "Weapon.ProjectileHitReport":
+          if (!client.allowedProjectiles) {
+            server.sendChatTextToAdmins(
+              `FairPlay: ${client.character.name} is hitting projectiles without ammunition`
+            );
+            return;
+          }
+          client.allowedProjectiles--;
+          if (
+            client.character.getEquippedWeapon().itemDefinitionId ==
+            Items.WEAPON_REMOVER
+          ) {
+            if (!client.isAdmin) return;
+            const characterId = p.packet.hitReport.characterId,
+              entityType = server.getEntityType(characterId);
+            switch (entityType) {
+              case EntityTypes.NPC:
+                if (!server._npcs[characterId]) {
                   return;
-              }
+                }
+                server.deleteEntity(characterId, server._npcs);
+                break;
+              case EntityTypes.VEHICLE:
+                if (!server._vehicles[characterId]) {
+                  return;
+                }
+                server.deleteEntity(characterId, server._vehicles);
+                break;
+              case EntityTypes.OBJECT:
+                if (!server._spawnedItems[characterId]) {
+                  return;
+                }
+                delete server.worldObjectManager._spawnedLootObjects[
+                  server._spawnedItems[characterId].spawnerId
+                ];
+                server.deleteEntity(characterId, server._spawnedItems);
+                break;
+              case EntityTypes.EXPLOSIVE:
+                server.deleteEntity(characterId, server._explosives);
+                break;
+              case EntityTypes.CONSTRUCTION_DOOR:
+              case EntityTypes.CONSTRUCTION_SIMPLE:
+              case EntityTypes.CONSTRUCTION_FOUNDATION:
+              case EntityTypes.LOOTABLE_CONSTRUCTION:
+                const entity = server.getConstructionEntity(characterId);
+                if (!entity) return;
+                entity.destroy(server);
+                break;
+              default:
+                return;
+            }
+            server.sendAlert(client, "Object removed.");
+            return;
+          }
           if (client.banType === "nodamage") return;
           server.registerHit(client, p.packet);
           debug("Weapon.ProjectileHitReport");
@@ -1724,8 +1729,8 @@ export class zonePacketHandlers {
         case "Weapon.ReloadRequest":
           if (weaponItem.weapon.reloadTimer) return;
           setTimeout(() => {
-              client.allowedProjectiles = 0;
-          })
+            client.allowedProjectiles = 0;
+          });
           // force 0 firestate so gun doesnt shoot randomly after reloading
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,
@@ -2139,8 +2144,8 @@ export class zonePacketHandlers {
       case "Loadout.SelectSlot":
         this.LoadoutSelectSlot(server, client, packet);
         setTimeout(() => {
-            client.allowedProjectiles = 0; // reset allowed projectile after weapon switch
-        }, 300)
+          client.allowedProjectiles = 0; // reset allowed projectile after weapon switch
+        }, 300);
         break;
       case "Weapon.Weapon":
         this.Weapon(server, client, packet);
