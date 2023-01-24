@@ -437,7 +437,7 @@ export class zonePacketHandlers {
     });
   }
   ChatChat(server: ZoneServer2016, client: Client, packet: any) {
-    const { channel, message } = packet.data;
+    const { channel, message } = packet.data; // leave channel for later
     if (!client.radio) {
       server.sendChatToAllInRange(client, message, 300);
     } else if (client.radio) {
