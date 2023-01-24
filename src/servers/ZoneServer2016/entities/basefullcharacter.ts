@@ -375,7 +375,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     server: ZoneServer2016,
     item?: BaseItem,
     count?: number,
-    sendUpdate: boolean = true
+    sendUpdate: boolean = true,
+    array: LoadoutContainer[] = []
   ) {
     const client = server.getClientByCharId(this.characterId);
     if (!item) return;
@@ -403,6 +404,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       }
 
       Object.values(this._containers).forEach((c) => {
+        if (array.includes(c)) return;
+        array.push(c);
         const availableSpace = c.getAvailableBulk(server),
           itemBulk = server.getItemDefinition(item.itemDefinitionId).BULK,
           lootCount = Math.floor(availableSpace / itemBulk);
@@ -410,7 +413,10 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           item.stackCount -= lootCount;
           this.lootContainerItem(
             server,
-            server.generateItem(item.itemDefinitionId, lootCount)
+            server.generateItem(item.itemDefinitionId, lootCount),
+            count,
+            true,
+            array
           );
         }
       });

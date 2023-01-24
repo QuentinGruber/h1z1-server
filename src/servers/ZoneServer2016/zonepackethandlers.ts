@@ -1025,7 +1025,7 @@ export class zonePacketHandlers {
   //#region ITEMS
   RequestUseItem(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet.data);
-    if (packet.data.itemSubData?.count < 1) return
+    if (packet.data.itemSubData?.count < 1) return;
     const { itemGuid } = packet.data;
     if (!itemGuid) {
       server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
