@@ -1730,7 +1730,7 @@ export class zonePacketHandlers {
           if (weaponItem.weapon.reloadTimer) return;
           setTimeout(() => {
             client.allowedProjectiles = 0;
-          });
+          }, 300);
           // force 0 firestate so gun doesnt shoot randomly after reloading
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,
