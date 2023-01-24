@@ -437,11 +437,11 @@ export class zonePacketHandlers {
     });
   }
   ChatChat(server: ZoneServer2016, client: Client, packet: any) {
-      const { channel, message } = packet.data;
-    if (!client.radio){
-        server.sendChatToAllInRange(client, message, 300);
+    const { channel, message } = packet.data;
+    if (!client.radio) {
+      server.sendChatToAllInRange(client, message, 300);
     } else if (client.radio) {
-        server.sendChatToAllWithRadio(client, message);
+      server.sendChatToAllWithRadio(client, message);
     }
   }
   ClientInitializationDetails(
@@ -1944,13 +1944,15 @@ export class zonePacketHandlers {
     );
   }
   VoiceRadioChannel(server: ZoneServer2016, client: Client, packet: any) {
-    if (!client.character._loadout['39']) return
-    if (client.character._loadout['39'].itemDefinitionId != Items.EMERGENCY_RADIO) return
-    client.radio = true
-
+    if (!client.character._loadout["39"]) return;
+    if (
+      client.character._loadout["39"].itemDefinitionId != Items.EMERGENCY_RADIO
+    )
+      return;
+    client.radio = true;
   }
   VoiceLeaveRadio(server: ZoneServer2016, client: Client, packet: any) {
-    client.radio = false
+    client.radio = false;
   }
   EndCharacterAccess(server: ZoneServer2016, client: Client, packet: any) {
     client.character.dismountContainer(server);

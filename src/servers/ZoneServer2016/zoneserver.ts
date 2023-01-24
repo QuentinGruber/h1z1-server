@@ -3022,11 +3022,11 @@ export class ZoneServer2016 extends EventEmitter {
         !c.spawnedEntities.includes(character) &&
         character != c.character
       ) {
-          this.sendData(c, "AddLightweightPc", {
-              ...character.pGetLightweight(),
-              mountGuid: "",
-              mountSeatId: 0,
-              mountRelatedDword1: 0,
+        this.sendData(c, "AddLightweightPc", {
+          ...character.pGetLightweight(),
+          mountGuid: "",
+          mountSeatId: 0,
+          mountRelatedDword1: 0,
         });
         c.spawnedEntities.push(character);
       }
@@ -3036,7 +3036,7 @@ export class ZoneServer2016 extends EventEmitter {
   private itemDespawner() {
     for (const characterId in this._spawnedItems) {
       const itemObject = this._spawnedItems[characterId];
-      if (!itemObject) return
+      if (!itemObject) return;
       // dropped item despawner
       if (
         Date.now() - itemObject.creationTime >=
@@ -3387,28 +3387,32 @@ export class ZoneServer2016 extends EventEmitter {
 
   sendChatToAllWithRadio(client: Client, message: string) {
     this.sendData(client, "Chat.ChatText", {
-            message: `[RADIO: ${client.character.name}]: ${message}`,
-            unknownDword1: 0,
-            color: [255, 255, 255, 0],
-            unknownDword2: 13951728,
-            unknownByte3: 0,
-            unknownByte4: 1,
-        });
+      message: `[RADIO: ${client.character.name}]: ${message}`,
+      unknownDword1: 0,
+      color: [255, 255, 255, 0],
+      unknownDword2: 13951728,
+      unknownByte3: 0,
+      unknownByte4: 1,
+    });
     for (const a in this._clients) {
-        const c = this._clients[a]
-        if (c != client) {
-            if (!c.character._loadout['39']) return
-            if (c.character._loadout['39'].itemDefinitionId != Items.EMERGENCY_RADIO || !c.radio) return
-            this.sendData(c, "Chat.ChatText", {
-                message: `[RADIO: ${client.character.name}]: ${message}`,
-                unknownDword1: 0,
-                color: [255, 255, 255, 0],
-                unknownDword2: 13951728,
-                unknownByte3: 0,
-                unknownByte4: 1,
-            });
-        }
-        
+      const c = this._clients[a];
+      if (c != client) {
+        if (!c.character._loadout["39"]) return;
+        if (
+          c.character._loadout["39"].itemDefinitionId !=
+            Items.EMERGENCY_RADIO ||
+          !c.radio
+        )
+          return;
+        this.sendData(c, "Chat.ChatText", {
+          message: `[RADIO: ${client.character.name}]: ${message}`,
+          unknownDword1: 0,
+          color: [255, 255, 255, 0],
+          unknownDword2: 13951728,
+          unknownByte3: 0,
+          unknownByte4: 1,
+        });
+      }
     }
   }
 
