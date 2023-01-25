@@ -3515,6 +3515,7 @@ export class ZoneServer2016 extends EventEmitter {
           url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         });
         this.sendData(client, "LoginFailed", {});
+        this.deleteClient(client)
         setTimeout(() => {
           if (!client) return;
           this.deleteClient(client);
@@ -3528,6 +3529,7 @@ export class ZoneServer2016 extends EventEmitter {
       status: 1,
       sessionId: client.loginSessionId,
     });
+    this.deleteClient(client)
   }
 
   getDateString(timestamp: number) {
