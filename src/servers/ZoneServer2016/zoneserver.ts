@@ -282,6 +282,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!this._mongoAddress) {
       this._soloMode = true;
+      this._useFairPlay = false;
       debug("Server in solo mode !");
     }
     this.on("data", this.onZoneDataEvent);
