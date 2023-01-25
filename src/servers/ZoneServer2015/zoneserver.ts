@@ -36,7 +36,7 @@ import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "../../types/packets";
 import { Vehicle } from "./classes/vehicle";
 import { Resolver } from "dns";
-import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
+import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -658,12 +658,11 @@ export class ZoneServer2015 extends EventEmitter {
     }
     debug("connected to mongo !");
     // if no collections exist on h1server database , fill it with samples
-    const dbIsEmpty =
-      (await mongoClient.db("h1server").collections()).length < 1;
+    const dbIsEmpty = (await mongoClient.db(DB_NAME).collections()).length < 1;
     if (dbIsEmpty) {
       await initMongo(mongoClient, debugName);
     }
-    this._db = mongoClient.db("h1server");
+    this._db = mongoClient.db(DB_NAME);
   }
 
   async start(): Promise<void> {
