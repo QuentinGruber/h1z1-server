@@ -798,7 +798,7 @@ export async function logClientActionToMongo(
   collection: Collection,
   client: ZoneClient2016,
   serverId: number,
-  logMessage: Object
+  logMessage: Record<string, unknown>
 ) {
   collection.insertOne({
     ...logMessage,
