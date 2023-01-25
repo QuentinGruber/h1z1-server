@@ -181,12 +181,12 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       if (!args[0]) {
-          server.sendChatText(
-              client,
-              `[ERROR] Usage: /getnetstats {name / clientId}"`,
-              true
-          );
-          return
+        server.sendChatText(
+          client,
+          `[ERROR] Usage: /getnetstats {name / clientId}"`,
+          true
+        );
+        return;
       }
       const targetClient = server.getClientByNameOrLoginSession(
         args[0].toString()
@@ -206,12 +206,12 @@ export const commands: Array<Command> = [
       if (soeClient) {
         const stats = soeClient.getNetworkStats();
         server.sendChatText(
-              client,
-              `Displaying net statistics of player ${targetClient.character.name}`,
-              true
-          );
+          client,
+          `Displaying net statistics of player ${targetClient.character.name}`,
+          true
+        );
         for (let index = 0; index < stats.length; index++) {
-          const stat = stats[index];       
+          const stat = stats[index];
           server.sendChatText(client, stat);
         }
       }
@@ -1534,7 +1534,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          construction.destroy(server)
+          construction.destroy(server);
         }
       }
       for (const a in server._constructionDoors) {
@@ -1546,7 +1546,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          construction.destroy(server)
+          construction.destroy(server);
         }
       }
       for (const a in server._constructionFoundations) {
@@ -1558,7 +1558,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          construction.destroy(server)
+          construction.destroy(server);
         }
       }
       for (const a in server._lootableConstruction) {
@@ -1570,7 +1570,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          construction.destroy(server)
+          construction.destroy(server);
         }
       }
 
@@ -1583,7 +1583,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          construction.destroy(server)
+          construction.destroy(server);
         }
       }
 

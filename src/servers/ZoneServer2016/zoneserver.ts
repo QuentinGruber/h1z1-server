@@ -3515,7 +3515,7 @@ export class ZoneServer2016 extends EventEmitter {
           url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         });
         this.sendData(client, "LoginFailed", {});
-        this.deleteClient(client)
+        this.deleteClient(client);
         setTimeout(() => {
           if (!client) return;
           this.deleteClient(client);
@@ -3529,7 +3529,7 @@ export class ZoneServer2016 extends EventEmitter {
       status: 1,
       sessionId: client.loginSessionId,
     });
-    this.deleteClient(client)
+    this.deleteClient(client);
   }
 
   getDateString(timestamp: number) {
@@ -4989,7 +4989,8 @@ export class ZoneServer2016 extends EventEmitter {
   dismountVehicle(client: Client) {
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = this._vehicles[client.vehicle.mountedVehicle];
-    if (!vehicle) { // return if vehicle doesnt exist
+    if (!vehicle) {
+      // return if vehicle doesnt exist
       this.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
@@ -5068,9 +5069,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   changeSeat(client: Client, packet: any) {
     if (!client.vehicle.mountedVehicle) return;
-    const vehicle = this._vehicles[client.vehicle.mountedVehicle]
-    if (!vehicle) return
-    const  seatCount = vehicle.getSeatCount(),
+    const vehicle = this._vehicles[client.vehicle.mountedVehicle];
+    if (!vehicle) return;
+    const seatCount = vehicle.getSeatCount(),
       oldSeatId = vehicle.getCharacterSeat(client.character.characterId);
 
     const seatId = packet.data.seatId,

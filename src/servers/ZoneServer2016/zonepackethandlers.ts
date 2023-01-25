@@ -1959,7 +1959,8 @@ export class zonePacketHandlers {
   VoiceRadioChannel(server: ZoneServer2016, client: Client, packet: any) {
     if (!client.character._loadout[LoadoutSlots.RADIO]) return;
     if (
-      client.character._loadout[LoadoutSlots.RADIO].itemDefinitionId != Items.EMERGENCY_RADIO
+      client.character._loadout[LoadoutSlots.RADIO].itemDefinitionId !=
+      Items.EMERGENCY_RADIO
     )
       return;
     client.radio = true;
