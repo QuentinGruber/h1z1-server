@@ -23,9 +23,9 @@ import {
   _,
   Int64String,
   isPosInRadius,
-  toInt,
   toHex,
   quat2matrix,
+  logClientActionToMongo,
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -53,6 +53,7 @@ import { LootableProp } from "./entities/lootableprop";
 import { Vehicle2016 } from "./entities/vehicle";
 import { Plant } from "./entities/plant";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
+import { Collection } from "mongodb";
 import { DB_COLLECTIONS } from "../../utils/enums";
 
 export class zonePacketHandlers {
@@ -371,7 +372,17 @@ export class zonePacketHandlers {
         const interval = Number(
           pruned.replace(pruned.match(/\d+/).join(""), "").replace(" s", "")
         );
-
+        logClientActionToMongo(
+          server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+          client,
+          server._worldId,
+          {
+            type: "time drifted",
+            drifted,
+            interval,
+            accelerating: (drifted / interval) * 100,
+          }
+        );
         server.sendChatTextToAdmins(
           `FairPlay: ${
             client.character.name
@@ -397,14 +408,14 @@ export class zonePacketHandlers {
       for (let x = 0; x < suspicious.length; x++) {
         if (packet.data.message.toLowerCase().includes(suspicious[x])) {
           obj.isSuspicious = true;
+          logClientActionToMongo(
+            server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+            client,
+            server._worldId,
+            { type: "suspicious software", suspicious: suspicious[x] }
+          );
           server.sendChatTextToAdmins(
-            `FairPlay: ${
-              client.character.name
-            } is using suspicious software - ${obj.log
-              .toLowerCase()
-              .substring(
-                obj.log.toLowerCase().lastIndexOf(suspicious[x].toLowerCase())
-              )}`,
+            `FairPlay: ${client.character.name} is using suspicious software - ${suspicious[x]}`,
             false
           );
         }
@@ -679,6 +690,12 @@ export class zonePacketHandlers {
     if (packet.data.stance) {
       if (packet.data.stance == Stances.STANCE_XS) {
         const pos = client.character.state.position;
+        logClientActionToMongo(
+          server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+          client,
+          server._worldId,
+          { type: "XS glitching", pos }
+        );
         server.sendChatTextToAdmins(
           `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
         );

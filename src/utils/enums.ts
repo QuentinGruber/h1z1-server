@@ -45,4 +45,6 @@ export enum DB_COLLECTIONS {
   WORLD_CONSTRUCTIONS = "worldconstruction",
   WORLD_CONSTRUCTIONS_TEMP = "worldconstruction-temp",
   WORLDS = "worlds",
+  COMMAND_USED = "commands-used",
+  FAIRPLAY = "fairplay-logs",
 }
