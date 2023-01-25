@@ -284,3 +284,14 @@ export type OccupiedSlotMap = { [slot: string]: SlottedConstructionEntity };
 type Point2D = [number, number];
 
 export type SquareBounds = [Point2D, Point2D, Point2D, Point2D];
+
+export interface Ban {
+  name:string;
+  banType:string;
+  banReason: string;
+  loginSessionId: string;
+  IP: string;
+  HWID: string;
+  adminName: string;
+  expirationDate: number;
+}

@@ -13,7 +13,7 @@
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import fs from "fs";
-import { DamageInfo } from "types/zoneserver";
+import { Ban, DamageInfo } from "types/zoneserver";
 
 import {
   zoneShutdown,
@@ -32,6 +32,7 @@ import { EquipSlots, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
 import { ConstructionParentEntity } from "../entities/constructionparententity";
+import { DB_COLLECTIONS } from "../../../utils/enums";
 const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 function getDriveModel(model: string) {
@@ -1404,24 +1405,19 @@ export const commands: Array<Command> = [
         return;
       }
       const name = args[0].toString().toLowerCase();
-      for (const a in server._bannedClients) {
-        const bannedClient = server._bannedClients[a];
-        if (
-          bannedClient.name?.toLowerCase().replace(/\s/g, "") === name ||
-          bannedClient.loginSessionId == args[0]
-        ) {
-          delete server._bannedClients[a];
-          server.sendChatText(
-            client,
-            `Removed ban on user ${bannedClient.name}`
-          );
-          return;
-        }
+      const bannedClient = (
+        await server._db
+          ?.collection(DB_COLLECTIONS.BANNED)
+          .findOneAndDelete({ name })
+      )?.value as unknown as Ban;
+      if (bannedClient) {
+        server.sendChatText(client, `Removed ban on user ${bannedClient.name}`);
+      } else {
+        server.sendChatText(
+          client,
+          `Cannot find any banned user with name ${args[0]}`
+        );
       }
-      server.sendChatText(
-        client,
-        `Cannot find any banned user with name ${args[0]}`
-      );
     },
   },
   {
