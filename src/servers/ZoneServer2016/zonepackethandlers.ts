@@ -53,8 +53,8 @@ import { LootableProp } from "./entities/lootableprop";
 import { Vehicle2016 } from "./entities/vehicle";
 import { Plant } from "./entities/plant";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
-import { Collection, Db } from "mongodb";
-import { DB_COLLECTIONS } from "utils/enums";
+import { Collection } from "mongodb";
+import { DB_COLLECTIONS } from "../../utils/enums";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
