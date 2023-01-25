@@ -20,8 +20,8 @@ import {
   setImmediate as setImmediatePromise,
   setTimeout as setTimeoutPromise,
 } from "timers/promises";
-import { MongoClient } from "mongodb";
-import { MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
+import { Collection, MongoClient } from "mongodb";
+import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import {
@@ -32,8 +32,9 @@ import {
 import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots";
 import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
 import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
-import { NAME_VALIDATION_STATUS } from "./enums";
+import { DB_COLLECTIONS, NAME_VALIDATION_STATUS } from "./enums";
 import { Resolver } from "dns";
+import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 
 export class customLodash {
   sum(pings: number[]): number {
@@ -571,10 +572,13 @@ export const initMongo = async function (
   serverName: string
 ): Promise<void> {
   const debug = require("debug")(serverName);
-  const dbName = "h1server";
-  await mongoClient.db(dbName).createCollection("servers");
+  const dbName = DB_NAME;
+  await mongoClient.db(dbName).createCollection(DB_COLLECTIONS.SERVERS);
   const servers = require("../../data/defaultDatabase/shared/servers.json");
-  await mongoClient.db(dbName).collection("servers").insertMany(servers);
+  await mongoClient
+    .db(dbName)
+    .collection(DB_COLLECTIONS.SERVERS)
+    .insertMany(servers);
   debug("h1server database was missing... created one with samples.");
 };
 
@@ -789,4 +793,17 @@ export async function resolveHostAddress(
     });
   });
   return resolvedAddress as string[];
+}
+export async function logClientActionToMongo(
+  collection: Collection,
+  client: ZoneClient2016,
+  serverId: number,
+  logMessage: Record<string, unknown>
+) {
+  collection.insertOne({
+    ...logMessage,
+    serverId,
+    characterName: client.character.name,
+    loginSessionId: client.loginSessionId,
+  });
 }

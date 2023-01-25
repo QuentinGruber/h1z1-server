@@ -669,6 +669,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       case ItemClasses.WEAPONS_PISTOL:
       case ItemClasses.WEAPONS_MELEES:
       case ItemClasses.WEAPONS_MELEES0:
+      case ItemClasses.WEAPONS_CROSSBOW:
+      case ItemClasses.WEAPONS_BOW:
         if (this._loadout[slot]?.itemDefinitionId) {
           // primary
           slot = LoadoutSlots.SECONDARY;

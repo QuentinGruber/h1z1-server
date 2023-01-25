@@ -15,6 +15,8 @@ import { MongoClient } from "mongodb";
 import { httpServerMessage } from "types/shared";
 import { parentPort, workerData } from "worker_threads";
 import http from "http";
+import { DB_COLLECTIONS } from "../../../utils/enums";
+import { DB_NAME } from "../../../utils/constants";
 function sendMessageToServer(type: string, requestId: number, data: any) {
   const message: httpServerMessage = {
     type: type,
@@ -29,7 +31,7 @@ const { MONGO_URL, SERVER_PORT } = workerData;
 const client = new MongoClient(MONGO_URL, {
   maxPoolSize: 5,
 });
-const dbName = "h1server";
+const dbName = DB_NAME;
 const db = client.db(dbName);
 client.connect();
 let requestCount = 0;
@@ -61,7 +63,7 @@ httpServer.on("request", async function (req, res) {
   const queryObject: any = queryString ? parseQueryString(queryString) : null;
   switch (path) {
     case "servers": {
-      const collection = db.collection("servers");
+      const collection = db.collection(DB_COLLECTIONS.SERVERS);
       const serversArray = await collection.find().toArray();
       res.writeHead(200, { "Content-Type": "text/json" });
       res.write(JSON.stringify(serversArray));

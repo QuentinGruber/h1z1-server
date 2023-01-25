@@ -24,3 +24,27 @@ export enum NAME_VALIDATION_STATUS {
   PROFANE = 4,
   RESERVED = 5,
 }
+
+export enum DB_COLLECTIONS {
+  ADMINS = "admins",
+  BANNED = "banned",
+  BLACK_LIST_ENTRIES = "blackListEntries",
+  CHARACTERS = "characters",
+  CHARACTERS_LIGHT = "characters-light",
+  CHAT = "chat",
+  CONSTRUCTION = "construction",
+  CONSTRUCTION_TEMP = "construction-temp",
+  CROPS = "crops",
+  CROPS_TEMP = "crops-temp",
+  FINGERPRINTS = "fingerprints",
+  PROPS = "props",
+  SERVERS = "servers",
+  USERS_SESSIONS = "user-sessions",
+  VEHICLES = "vehicles",
+  WEATHERS = "weathers",
+  WORLD_CONSTRUCTIONS = "worldconstruction",
+  WORLD_CONSTRUCTIONS_TEMP = "worldconstruction-temp",
+  WORLDS = "worlds",
+  COMMAND_USED = "commands-used",
+  FAIRPLAY = "fairplay-logs",
+}
