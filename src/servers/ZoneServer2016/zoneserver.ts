@@ -1911,7 +1911,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (client.speedWarnsNumber > 50) {
       this.kickPlayer(client);
       client.speedWarnsNumber = 0;
-      if(!this._soloMode){
+      if (!this._soloMode) {
         logClientActionToMongo(
           this._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
           client,
@@ -1966,7 +1966,7 @@ export class ZoneServer2016 extends EventEmitter {
       const hitRatio =
         (100 * client.pvpStats.shotsHit) / client.pvpStats.shotsFired;
       if (client.pvpStats.shotsFired > 10 && hitRatio > 80) {
-        if(!this._soloMode){
+        if (!this._soloMode) {
           logClientActionToMongo(
             this._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
             client,

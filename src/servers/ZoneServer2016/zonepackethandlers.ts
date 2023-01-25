@@ -373,7 +373,7 @@ export class zonePacketHandlers {
         const interval = Number(
           pruned.replace(pruned.match(/\d+/).join(""), "").replace(" s", "")
         );
-        if(!server._soloMode){
+        if (!server._soloMode) {
           logClientActionToMongo(
             server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
             client,
@@ -411,7 +411,7 @@ export class zonePacketHandlers {
       for (let x = 0; x < suspicious.length; x++) {
         if (packet.data.message.toLowerCase().includes(suspicious[x])) {
           obj.isSuspicious = true;
-          if(!server._soloMode){
+          if (!server._soloMode) {
             logClientActionToMongo(
               server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
               client,
@@ -699,7 +699,7 @@ export class zonePacketHandlers {
     if (packet.data.stance) {
       if (packet.data.stance == Stances.STANCE_XS) {
         const pos = client.character.state.position;
-        if(!server._soloMode){
+        if (!server._soloMode) {
           logClientActionToMongo(
             server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
             client,
