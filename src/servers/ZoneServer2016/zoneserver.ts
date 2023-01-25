@@ -572,7 +572,7 @@ export class ZoneServer2016 extends EventEmitter {
       const isAdmin = Boolean(
         await this._db
           ?.collection(DB_COLLECTIONS.ADMINS)
-          .findOne({ sessionId: guid })
+          .findOne({ sessionId: guid, serverId: this._worldId })
       );
       this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
