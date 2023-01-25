@@ -294,4 +294,6 @@ export interface Ban {
   HWID: string;
   adminName: string;
   expirationDate: number;
+  active: boolean;
+  unBanAdminName: string;
 }
