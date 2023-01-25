@@ -40,6 +40,7 @@ import {
   ItemUseOptions,
   Stances,
   VehicleIds,
+  LoadoutSlots,
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
@@ -449,8 +450,12 @@ export class zonePacketHandlers {
     });
   }
   ChatChat(server: ZoneServer2016, client: Client, packet: any) {
-    const { channel, message } = packet.data;
-    server.sendChatToAllInRange(client, message, 300);
+    const { channel, message } = packet.data; // leave channel for later
+    if (!client.radio) {
+      server.sendChatToAllInRange(client, message, 300);
+    } else if (client.radio) {
+      server.sendChatToAllWithRadio(client, message);
+    }
   }
   ClientInitializationDetails(
     server: ZoneServer2016,
@@ -1029,6 +1034,7 @@ export class zonePacketHandlers {
   //#region ITEMS
   RequestUseItem(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet.data);
+    if (packet.data.itemSubData?.count < 1) return;
     const { itemGuid } = packet.data;
     if (!itemGuid) {
       server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
@@ -1670,8 +1676,16 @@ export class zonePacketHandlers {
             "Update.ProjectileLaunch",
             {}
           );
+          client.allowedProjectiles++;
           break;
         case "Weapon.ProjectileHitReport":
+          if (!client.allowedProjectiles) {
+            server.sendChatTextToAdmins(
+              `FairPlay: ${client.character.name} is hitting projectiles without ammunition`
+            );
+            return;
+          }
+          client.allowedProjectiles--;
           if (
             client.character.getEquippedWeapon().itemDefinitionId ==
             Items.WEAPON_REMOVER
@@ -1724,6 +1738,9 @@ export class zonePacketHandlers {
           break;
         case "Weapon.ReloadRequest":
           if (weaponItem.weapon.reloadTimer) return;
+          setTimeout(() => {
+            client.allowedProjectiles = 0;
+          }, 100);
           // force 0 firestate so gun doesnt shoot randomly after reloading
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,
@@ -1947,6 +1964,18 @@ export class zonePacketHandlers {
       packet
     );
   }
+  VoiceRadioChannel(server: ZoneServer2016, client: Client, packet: any) {
+    if (!client.character._loadout[LoadoutSlots.RADIO]) return;
+    if (
+      client.character._loadout[LoadoutSlots.RADIO].itemDefinitionId !=
+      Items.EMERGENCY_RADIO
+    )
+      return;
+    client.radio = true;
+  }
+  VoiceLeaveRadio(server: ZoneServer2016, client: Client, packet: any) {
+    client.radio = false;
+  }
   EndCharacterAccess(server: ZoneServer2016, client: Client, packet: any) {
     client.character.dismountContainer(server);
   }
@@ -2125,6 +2154,7 @@ export class zonePacketHandlers {
         break;
       case "Loadout.SelectSlot":
         this.LoadoutSelectSlot(server, client, packet);
+        client.allowedProjectiles = 0; // reset allowed projectile after weapon switch
         break;
       case "Weapon.Weapon":
         this.Weapon(server, client, packet);
@@ -2134,6 +2164,12 @@ export class zonePacketHandlers {
         break;
       case "Command.Spectate":
         this.CommandSpectate(server, client, packet);
+        break;
+      case "Voice.RadioChannel":
+        this.VoiceRadioChannel(server, client, packet);
+        break;
+      case "Voice.LeaveRadio":
+        this.VoiceLeaveRadio(server, client, packet);
         break;
       case "AccessedCharacter.EndCharacterAccess":
         this.EndCharacterAccess(server, client, packet);

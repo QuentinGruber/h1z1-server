@@ -791,6 +791,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1,
         },
       },
+      {
+        item: Items.EMERGENCY_RADIO,
+        weight: 7,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
     ],
   },
   // #endregion
@@ -1016,6 +1024,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 2,
         },
       },
+      {
+        item: Items.EMERGENCY_RADIO,
+        weight: 7,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
     ],
   },
   // #endregion
@@ -1112,6 +1128,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1,
         },
       },
+      {
+        item: Items.EMERGENCY_RADIO,
+        weight: 7,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
     ],
   },
   // #endregion
@@ -1163,6 +1187,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       {
         item: Items.CANNED_FOOD01,
         weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.EMERGENCY_RADIO,
+        weight: 7,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1409,6 +1441,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1,
         },
       },
+      {
+        item: Items.EMERGENCY_RADIO,
+        weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
     ],
   },
   "ItemSpawner_Z1_MilitaryBase_Tents1.adr": {
@@ -1559,6 +1599,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           max: 1,
         },
       },
+      {
+        item: Items.EMERGENCY_RADIO,
+        weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
     ],
   },
   "ItemSpawner_Z1_MilitaryBase_Tents2.adr": {
@@ -1616,6 +1664,14 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       {
         item: Items.KEVLAR_DEFAULT,
         weight: 100,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.EMERGENCY_RADIO,
+        weight: 50,
         spawnCount: {
           min: 1,
           max: 1,

@@ -31,7 +31,11 @@ import {
 import { EquipSlots, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
+import { ConstructionPermissions } from "types/zoneserver";
 import { ConstructionParentEntity } from "../entities/constructionparententity";
+import { LoadoutItem } from "../classes/loadoutItem";
+import { LoadoutContainer } from "../classes/loadoutcontainer";
+import { BaseItem } from "../classes/baseItem";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
@@ -172,6 +176,47 @@ export const commands: Array<Command> = [
         for (let index = 0; index < stats.length; index++) {
           const stat = stats[index];
           server.sendChatText(client, stat, index == 0);
+        }
+      }
+    },
+  },
+  {
+    name: "getnetstats",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `[ERROR] Usage: /getnetstats {name / clientId}"`,
+          true
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      const soeClient = server.getSoeClient(targetClient.soeClientId);
+      if (soeClient) {
+        const stats = soeClient.getNetworkStats();
+        server.sendChatText(
+          client,
+          `Displaying net statistics of player ${targetClient.character.name}`,
+          true
+        );
+        for (let index = 0; index < stats.length; index++) {
+          const stat = stats[index];
+          server.sendChatText(client, stat);
         }
       }
     },
@@ -1491,10 +1536,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({
-            characterId: construction.characterId,
-            dictionary: server._constructionSimple,
-          });
+          construction.destroy(server);
         }
       }
       for (const a in server._constructionDoors) {
@@ -1506,10 +1548,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({
-            characterId: construction.characterId,
-            dictionary: server._constructionDoors,
-          });
+          construction.destroy(server);
         }
       }
       for (const a in server._constructionFoundations) {
@@ -1521,10 +1560,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({
-            characterId: construction.characterId,
-            dictionary: server._constructionFoundations,
-          });
+          construction.destroy(server);
         }
       }
       for (const a in server._lootableConstruction) {
@@ -1536,10 +1572,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({
-            characterId: construction.characterId,
-            dictionary: server._lootableConstruction,
-          });
+          construction.destroy(server);
         }
       }
 
@@ -1552,10 +1585,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({
-            characterId: construction.characterId,
-            dictionary: server._worldLootableConstruction,
-          });
+          construction.destroy(server);
         }
       }
 
@@ -1624,6 +1654,145 @@ export const commands: Array<Command> = [
     execute: async (server: ZoneServer2016, client: Client) => {
       client.isDebugMode = !client.isDebugMode;
       server.sendAlert(client, `Set debug mode to ${client.isDebugMode}`);
+    },
+  },
+  {
+    name: "listbases",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `"[ERROR] Usage /findbases {name / clientId}"`
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      server.sendChatText(
+        client,
+        `Listing all bases of ${targetClient.character.name}:`
+      );
+      let counter = 1;
+      for (const a in server._constructionFoundations) {
+        const foundation = server._constructionFoundations[a];
+        const name = server.getItemDefinition(foundation.itemDefinitionId).NAME;
+        if (
+          foundation.ownerCharacterId === targetClient.character.characterId
+        ) {
+          const pos = `[${foundation.state.position[0]} ${foundation.state.position[1]} ${foundation.state.position[2]}]`;
+          server.sendChatText(
+            client,
+            `${counter}. ${name}: position ${pos}, permissions: Owner`
+          );
+          counter++;
+          continue;
+        }
+        Object.values(foundation.permissions).forEach(
+          (permission: ConstructionPermissions) => {
+            if (permission.characterId === targetClient.character.characterId) {
+              const pos = `[${foundation.state.position[0]} ${foundation.state.position[1]} ${foundation.state.position[2]}]`;
+              server.sendChatText(
+                client,
+                `${counter}. ${name}: position ${pos}, permissions: build: ${permission.build}, demolish: ${permission.demolish}, containers: ${permission.useContainers}, visitor: ${permission.visit}`
+              );
+              counter++;
+            }
+          }
+        );
+      }
+    },
+  },
+  {
+    name: "getinventory",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `"[ERROR] Usage /getinventory {name / clientId}"`
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      server.sendChatText(
+        client,
+        `Listing all items of ${targetClient.character.name}:`
+      );
+      let counter = 0;
+      server.sendChatText(client, `LOADOUT:`);
+      Object.values(targetClient.character._loadout).forEach(
+        (item: LoadoutItem) => {
+          const name = server.getItemDefinition(item.itemDefinitionId).NAME;
+          counter++;
+          server.sendChatText(
+            client,
+            `${counter}. ${name ? name : item.itemDefinitionId}, count: ${
+              item.stackCount
+            }`
+          );
+        }
+      );
+      counter = 0;
+      server.sendChatText(client, " ");
+      server.sendChatText(client, `CONTAINERS:`);
+      Object.values(targetClient.character._containers).forEach(
+        (container: LoadoutContainer) => {
+          server.sendChatText(client, " ");
+          const containerName = server.getItemDefinition(
+            container.itemDefinitionId
+          ).NAME;
+          server.sendChatText(
+            client,
+            `${containerName ? containerName : container.itemDefinitionId}:`
+          );
+          Object.values(container.items).forEach((item: BaseItem) => {
+            counter++;
+            const itemName = server.getItemDefinition(
+              item.itemDefinitionId
+            ).NAME;
+            server.sendChatText(
+              client,
+              `${counter}. ${
+                itemName ? itemName : item.itemDefinitionId
+              }, count: ${item.stackCount}`
+            );
+          });
+        }
+      );
     },
   },
   {

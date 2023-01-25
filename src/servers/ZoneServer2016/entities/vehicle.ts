@@ -141,7 +141,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (!this.actorModelId) this.actorModelId = getActorModelId(this.vehicleId);
     this.loadoutId = getVehicleLoadoutId(this.vehicleId);
     this.defaultLoadout = getDefaultLoadout(this.loadoutId);
-    this.npcRenderDistance = 150;
+    this.npcRenderDistance = 200;
     this.isInvulnerable =
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;
@@ -572,6 +572,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
   }
   destroy(server: ZoneServer2016) {
+    if (!server._vehicles[this.characterId]) return;
     this._resources[ResourceIds.CONDITION] = 0;
     for (const c in server._clients) {
       if (this.characterId === server._clients[c].vehicle.mountedVehicle) {

@@ -3059,15 +3059,11 @@ export class ZoneServer2016 extends EventEmitter {
         !c.spawnedEntities.includes(character) &&
         character != c.character
       ) {
-        const vehicleId = c.vehicle.mountedVehicle,
-          vehicle = vehicleId ? this._vehicles[vehicleId] : false;
         this.sendData(c, "AddLightweightPc", {
           ...character.pGetLightweight(),
-          mountGuid: vehicleId || "",
-          mountSeatId: vehicle
-            ? vehicle.getCharacterSeat(character.characterId)
-            : 0,
-          mountRelatedDword1: vehicle ? 1 : 0,
+          mountGuid: "",
+          mountSeatId: 0,
+          mountRelatedDword1: 0,
         });
         c.spawnedEntities.push(character);
       }
@@ -3077,6 +3073,7 @@ export class ZoneServer2016 extends EventEmitter {
   private itemDespawner() {
     for (const characterId in this._spawnedItems) {
       const itemObject = this._spawnedItems[characterId];
+      if (!itemObject) return;
       // dropped item despawner
       if (
         Date.now() - itemObject.creationTime >=
@@ -3425,6 +3422,37 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  sendChatToAllWithRadio(client: Client, message: string) {
+    this.sendData(client, "Chat.ChatText", {
+      message: `[RADIO: ${client.character.name}]: ${message}`,
+      unknownDword1: 0,
+      color: [255, 255, 255, 0],
+      unknownDword2: 13951728,
+      unknownByte3: 0,
+      unknownByte4: 1,
+    });
+    for (const a in this._clients) {
+      const c = this._clients[a];
+      if (c != client) {
+        if (!c.character._loadout["39"]) return;
+        if (
+          c.character._loadout["39"].itemDefinitionId !=
+            Items.EMERGENCY_RADIO ||
+          !c.radio
+        )
+          return;
+        this.sendData(c, "Chat.ChatText", {
+          message: `[RADIO: ${client.character.name}]: ${message}`,
+          unknownDword1: 0,
+          color: [255, 255, 255, 0],
+          unknownDword2: 13951728,
+          unknownByte3: 0,
+          unknownByte4: 1,
+        });
+      }
+    }
+  }
+
   createClient(
     sessionId: number,
     soeClientId: string,
@@ -3549,6 +3577,7 @@ export class ZoneServer2016 extends EventEmitter {
           url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
         });
         this.sendData(client, "LoginFailed", {});
+        this.deleteClient(client);
         setTimeout(() => {
           if (!client) return;
           this.deleteClient(client);
@@ -5025,7 +5054,8 @@ export class ZoneServer2016 extends EventEmitter {
   dismountVehicle(client: Client) {
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = this._vehicles[client.vehicle.mountedVehicle];
-    if (!vehicle && !client.character.isAlive) {
+    if (!vehicle) {
+      // return if vehicle doesnt exist
       this.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
@@ -5104,8 +5134,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   changeSeat(client: Client, packet: any) {
     if (!client.vehicle.mountedVehicle) return;
-    const vehicle = this._vehicles[client.vehicle.mountedVehicle],
-      seatCount = vehicle.getSeatCount(),
+    const vehicle = this._vehicles[client.vehicle.mountedVehicle];
+    if (!vehicle) return;
+    const seatCount = vehicle.getSeatCount(),
       oldSeatId = vehicle.getCharacterSeat(client.character.characterId);
 
     const seatId = packet.data.seatId,

@@ -72,6 +72,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   }
 
   detonate(server: ZoneServer2016, client?: ZoneClient2016) {
+    if (!server._explosives[this.characterId] || this.detonated) return;
     this.detonated = true;
     server.sendCompositeEffectToAllInRange(600, "", this.state.position, 1875);
     server.deleteEntity(this.characterId, server._explosives);
