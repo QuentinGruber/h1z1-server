@@ -744,7 +744,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     this.sendData(client, "SendSelfToClient", {
-      data: client.character.pGetSendSelf(this, client.guid),
+      data: client.character.pGetSendSelf(this, client.guid, client),
     });
     client.character.initialized = true;
     this.initializeContainerList(client);

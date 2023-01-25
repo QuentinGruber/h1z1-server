@@ -330,7 +330,7 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
 
-  pGetSendSelf(server: ZoneServer2016, guid = "") {
+  pGetSendSelf(server: ZoneServer2016, guid = "", client: ZoneClient2016) {
     return {
       ...this.pGetLightweight(),
       guid: guid,
@@ -358,6 +358,7 @@ export class Character2016 extends BaseFullCharacter {
       //unknownQword3: this.characterId,
       //vehicleLoadoutRelatedDword: 1,
       //unknownDword40: 1
+      isAdmin: client.isAdmin,
     };
   }
 
