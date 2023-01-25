@@ -734,7 +734,7 @@ export class LoginServer extends EventEmitter {
     const character = await this._db
       .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
       .findOne({ characterId: characterId });
-    const connectionStatus =
+    let connectionStatus =
       Object.values(this._zoneConnections).includes(serverId) &&
       (populationNumber < maxPopulationNumber || !maxPopulationNumber);
     debug(`connectionStatus ${connectionStatus}`);
@@ -749,6 +749,15 @@ export class LoginServer extends EventEmitter {
           .collection(DB_COLLECTIONS.USERS_SESSIONS)
           .findOne({ authKey: loginSessionId })
       : { guid: "" };
+      connectionStatus = false;
+    if(!connectionStatus){
+        // Admins bypass max pop
+        connectionStatus = await this.askZone(
+          serverId,
+          "ClientIsAdminRequest",
+          { guid: hiddenSession?.guid}
+        ) as boolean;
+    }
     return {
       unknownQword1: "0x0",
       unknownDword1: 0,

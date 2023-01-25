@@ -30,7 +30,8 @@ export class H1emuLoginServer extends H1emuServer {
           break;
         case "CharacterCreateReply":
         case "CharacterExistReply":
-        case "CharacterDeleteReply": {
+        case "CharacterDeleteReply":
+        case "ClientIsAdminReply": {
           this.emit("processInternalReq", packet, ["status"]);
           break;
         }
