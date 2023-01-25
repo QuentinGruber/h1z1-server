@@ -1777,7 +1777,11 @@ export const commands: Array<Command> = [
           ).NAME;
           server.sendChatText(
             client,
-            `${containerName ? containerName : container.itemDefinitionId}:`
+            `${
+              containerName ? containerName : container.itemDefinitionId
+            } [${container.getUsedBulk(server)}/${container.getMaxBulk(
+              server
+            )}]:`
           );
           Object.values(container.items).forEach((item: BaseItem) => {
             counter++;

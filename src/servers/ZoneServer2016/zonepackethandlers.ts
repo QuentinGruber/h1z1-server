@@ -1676,7 +1676,11 @@ export class zonePacketHandlers {
             "Update.ProjectileLaunch",
             {}
           );
-          const projectilesCount = server.getWeaponAmmoId(weaponItem.itemDefinitionId) == Items.AMMO_12GA? 12 : 1
+          const projectilesCount =
+            server.getWeaponAmmoId(weaponItem.itemDefinitionId) ==
+            Items.AMMO_12GA
+              ? 12
+              : 1;
           client.allowedProjectiles += projectilesCount;
           break;
         case "Weapon.ProjectileHitReport":

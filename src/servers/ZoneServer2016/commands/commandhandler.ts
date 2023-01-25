@@ -67,7 +67,7 @@ export class CommandHandler {
       args: string[] = packet.data.arguments.toLowerCase().split(" ");
     if (this.commands[hash]) {
       const command = this.commands[hash];
-      if(!server._soloMode){
+      if (!server._soloMode) {
         logClientActionToMongo(
           server._db?.collection(DB_COLLECTIONS.COMMAND_USED) as Collection,
           client,
@@ -114,7 +114,7 @@ export class CommandHandler {
     }
     if (this.internalCommands[commandName]) {
       const command = this.internalCommands[commandName];
-      if(!server._soloMode){
+      if (!server._soloMode) {
         logClientActionToMongo(
           server._db?.collection(DB_COLLECTIONS.COMMAND_USED) as Collection,
           client,
