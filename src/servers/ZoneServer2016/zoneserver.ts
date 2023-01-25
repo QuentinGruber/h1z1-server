@@ -3056,7 +3056,7 @@ export class ZoneServer2016 extends EventEmitter {
       const c = this._clients[a];
       if (
         isPosInRadius(
-          this._charactersRenderDistance,
+          character.npcRenderDistance || this._charactersRenderDistance,
           character.state.position,
           c.character.state.position
         ) &&
