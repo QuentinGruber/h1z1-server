@@ -408,6 +408,10 @@ export class ZoneServer2016 extends EventEmitter {
                 this.onCharacterCreateRequest(client, packet);
                 break;
               }
+              case "ClientIsAdminRequest": {
+                this.onClientIsAdminRequest(client, packet);
+                break;
+              }
               case "CharacterExistRequest": {
                 const { characterId, reqId } = packet.data;
                 try {
@@ -557,6 +561,25 @@ export class ZoneServer2016 extends EventEmitter {
       });
     } catch (error) {
       this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
+        reqId: reqId,
+        status: 0,
+      });
+    }
+  }
+  async onClientIsAdminRequest(client: any, packet: any) {
+    const { guid, reqId } = packet.data;
+    try {
+      const isAdmin = Boolean(
+        await this._db
+          ?.collection(DB_COLLECTIONS.ADMINS)
+          .findOne({ sessionId: guid, serverId: this._worldId })
+      );
+      this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
+        reqId: reqId,
+        status: isAdmin,
+      });
+    } catch (error) {
+      this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
         status: 0,
       });
