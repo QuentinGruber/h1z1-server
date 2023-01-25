@@ -4989,7 +4989,7 @@ export class ZoneServer2016 extends EventEmitter {
   dismountVehicle(client: Client) {
     if (!client.vehicle.mountedVehicle) return;
     const vehicle = this._vehicles[client.vehicle.mountedVehicle];
-    if (!vehicle && !client.character.isAlive) {
+    if (!vehicle) { // return if vehicle doesnt exist
       this.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
@@ -5068,8 +5068,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   changeSeat(client: Client, packet: any) {
     if (!client.vehicle.mountedVehicle) return;
-    const vehicle = this._vehicles[client.vehicle.mountedVehicle],
-      seatCount = vehicle.getSeatCount(),
+    const vehicle = this._vehicles[client.vehicle.mountedVehicle]
+    if (!vehicle) return
+    const  seatCount = vehicle.getSeatCount(),
       oldSeatId = vehicle.getCharacterSeat(client.character.characterId);
 
     const seatId = packet.data.seatId,
