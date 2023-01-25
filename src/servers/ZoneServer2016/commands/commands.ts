@@ -33,6 +33,9 @@ import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
 import { ConstructionPermissions } from "types/zoneserver";
 import { ConstructionParentEntity } from "../entities/constructionparententity";
+import { LoadoutItem } from "../classes/loadoutItem";
+import { LoadoutContainer } from "../classes/loadoutcontainer";
+import { BaseItem } from "../classes/baseItem";
 const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 function getDriveModel(model: string) {
@@ -1715,6 +1718,77 @@ export const commands: Array<Command> = [
           }
         );
       }
+    },
+  },
+  {
+    name: "getinventory",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `"[ERROR] Usage /getinventory {name / clientId}"`
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      server.sendChatText(
+        client,
+        `Listing all items of ${targetClient.character.name}:`
+      );
+      let counter = 0;
+        server.sendChatText(
+            client,
+            `LOADOUT:`
+        );
+        Object.values(targetClient.character._loadout).forEach((item: LoadoutItem) => {
+            const name = server.getItemDefinition(item.itemDefinitionId).NAME
+            counter++;
+            server.sendChatText(
+                client,
+                `${counter}. ${name? name : item.itemDefinitionId}, count: ${item.stackCount}`
+            );
+        })
+        counter = 0;
+        server.sendChatText(client," ");
+        server.sendChatText(
+            client,
+            `CONTAINERS:`
+        );
+        Object.values(targetClient.character._containers).forEach((container: LoadoutContainer) => {
+            server.sendChatText(client, " ");
+            const containerName = server.getItemDefinition(container.itemDefinitionId).NAME
+            server.sendChatText(
+                client,
+                `${containerName? containerName : container.itemDefinitionId}:`
+            );
+            Object.values(container.items).forEach((item: BaseItem) => {
+                counter++;
+                const itemName = server.getItemDefinition(item.itemDefinitionId).NAME
+                server.sendChatText(
+                    client,
+                    `${counter}. ${itemName ? itemName : item.itemDefinitionId}, count: ${item.stackCount}`
+                );
+            })
+        })
+      
     },
   },
   {
