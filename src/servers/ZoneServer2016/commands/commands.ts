@@ -1754,41 +1754,46 @@ export const commands: Array<Command> = [
         `Listing all items of ${targetClient.character.name}:`
       );
       let counter = 0;
-        server.sendChatText(
+      server.sendChatText(client, `LOADOUT:`);
+      Object.values(targetClient.character._loadout).forEach(
+        (item: LoadoutItem) => {
+          const name = server.getItemDefinition(item.itemDefinitionId).NAME;
+          counter++;
+          server.sendChatText(
             client,
-            `LOADOUT:`
-        );
-        Object.values(targetClient.character._loadout).forEach((item: LoadoutItem) => {
-            const name = server.getItemDefinition(item.itemDefinitionId).NAME
+            `${counter}. ${name ? name : item.itemDefinitionId}, count: ${
+              item.stackCount
+            }`
+          );
+        }
+      );
+      counter = 0;
+      server.sendChatText(client, " ");
+      server.sendChatText(client, `CONTAINERS:`);
+      Object.values(targetClient.character._containers).forEach(
+        (container: LoadoutContainer) => {
+          server.sendChatText(client, " ");
+          const containerName = server.getItemDefinition(
+            container.itemDefinitionId
+          ).NAME;
+          server.sendChatText(
+            client,
+            `${containerName ? containerName : container.itemDefinitionId}:`
+          );
+          Object.values(container.items).forEach((item: BaseItem) => {
             counter++;
+            const itemName = server.getItemDefinition(
+              item.itemDefinitionId
+            ).NAME;
             server.sendChatText(
-                client,
-                `${counter}. ${name? name : item.itemDefinitionId}, count: ${item.stackCount}`
+              client,
+              `${counter}. ${
+                itemName ? itemName : item.itemDefinitionId
+              }, count: ${item.stackCount}`
             );
-        })
-        counter = 0;
-        server.sendChatText(client," ");
-        server.sendChatText(
-            client,
-            `CONTAINERS:`
-        );
-        Object.values(targetClient.character._containers).forEach((container: LoadoutContainer) => {
-            server.sendChatText(client, " ");
-            const containerName = server.getItemDefinition(container.itemDefinitionId).NAME
-            server.sendChatText(
-                client,
-                `${containerName? containerName : container.itemDefinitionId}:`
-            );
-            Object.values(container.items).forEach((item: BaseItem) => {
-                counter++;
-                const itemName = server.getItemDefinition(item.itemDefinitionId).NAME
-                server.sendChatText(
-                    client,
-                    `${counter}. ${itemName ? itemName : item.itemDefinitionId}, count: ${item.stackCount}`
-                );
-            })
-        })
-      
+          });
+        }
+      );
     },
   },
   {
