@@ -48,7 +48,7 @@ import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
 
 import {
-    Ban,
+  Ban,
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
@@ -3408,11 +3408,14 @@ export class ZoneServer2016 extends EventEmitter {
     )?.address;
     const addressBanned = await this._db
       ?.collection(DB_COLLECTIONS.BANNED)
-      .findOne({ IP: address, active:true });
+      .findOne({ IP: address, active: true });
     const idBanned = await this._db
       ?.collection(DB_COLLECTIONS.BANNED)
-      .findOne({ loginSessionId: client.loginSessionId, active:true });
-    if (addressBanned?.expirationDate < Date.now() || idBanned?.expirationDate < Date.now()) {
+      .findOne({ loginSessionId: client.loginSessionId, active: true });
+    if (
+      addressBanned?.expirationDate < Date.now() ||
+      idBanned?.expirationDate < Date.now()
+    ) {
       client.banType = addressBanned
         ? addressBanned.banType
         : idBanned?.banType;
@@ -3439,7 +3442,7 @@ export class ZoneServer2016 extends EventEmitter {
       adminName: adminName ? adminName : "",
       expirationDate: 0,
       active: true,
-      unBanAdminName: ""
+      unBanAdminName: "",
     };
     if (timestamp) {
       object.expirationDate = timestamp;
