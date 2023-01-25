@@ -572,6 +572,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
   }
   destroy(server: ZoneServer2016) {
+    if (!server._vehicles[this.characterId]) return;
     this._resources[ResourceIds.CONDITION] = 0;
     for (const c in server._clients) {
       if (this.characterId === server._clients[c].vehicle.mountedVehicle) {
