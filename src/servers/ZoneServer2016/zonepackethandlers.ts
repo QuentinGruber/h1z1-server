@@ -372,8 +372,17 @@ export class zonePacketHandlers {
         const interval = Number(
           pruned.replace(pruned.match(/\d+/).join(""), "").replace(" s", "")
         );
-        logClientActionToMongo(server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,client,server._worldId,{type:"time drifted",drifted,interval,accelerating:(drifted / interval) *
-        100})
+        logClientActionToMongo(
+          server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+          client,
+          server._worldId,
+          {
+            type: "time drifted",
+            drifted,
+            interval,
+            accelerating: (drifted / interval) * 100,
+          }
+        );
         server.sendChatTextToAdmins(
           `FairPlay: ${
             client.character.name
@@ -399,11 +408,14 @@ export class zonePacketHandlers {
       for (let x = 0; x < suspicious.length; x++) {
         if (packet.data.message.toLowerCase().includes(suspicious[x])) {
           obj.isSuspicious = true;
-          logClientActionToMongo(server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,client,server._worldId,{type:"suspicious software",suspicious:suspicious[x]})
+          logClientActionToMongo(
+            server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+            client,
+            server._worldId,
+            { type: "suspicious software", suspicious: suspicious[x] }
+          );
           server.sendChatTextToAdmins(
-            `FairPlay: ${
-              client.character.name
-            } is using suspicious software - ${suspicious[x]}`,
+            `FairPlay: ${client.character.name} is using suspicious software - ${suspicious[x]}`,
             false
           );
         }
@@ -688,7 +700,12 @@ export class zonePacketHandlers {
     if (packet.data.stance) {
       if (packet.data.stance == Stances.STANCE_XS) {
         const pos = client.character.state.position;
-        logClientActionToMongo(server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,client,server._worldId,{type:"XS glitching",pos})
+        logClientActionToMongo(
+          server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+          client,
+          server._worldId,
+          { type: "XS glitching", pos }
+        );
         server.sendChatTextToAdmins(
           `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
         );

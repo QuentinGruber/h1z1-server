@@ -25,9 +25,6 @@ export enum NAME_VALIDATION_STATUS {
   RESERVED = 5,
 }
 
-
-
-
 export enum DB_COLLECTIONS {
   ADMINS = "admins",
   BANNED = "banned",
@@ -49,5 +46,5 @@ export enum DB_COLLECTIONS {
   WORLD_CONSTRUCTIONS_TEMP = "worldconstruction-temp",
   WORLDS = "worlds",
   COMMAND_USED = "commands-used",
-  FAIRPLAY = "fairplay-logs"
+  FAIRPLAY = "fairplay-logs",
 }

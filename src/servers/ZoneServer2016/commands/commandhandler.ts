@@ -67,7 +67,12 @@ export class CommandHandler {
       args: string[] = packet.data.arguments.toLowerCase().split(" ");
     if (this.commands[hash]) {
       const command = this.commands[hash];
-      logClientActionToMongo(server._db?.collection(DB_COLLECTIONS.COMMAND_USED) as Collection,client,server._worldId,{name:command.name,permissionLevel:command.permissionLevel,args})
+      logClientActionToMongo(
+        server._db?.collection(DB_COLLECTIONS.COMMAND_USED) as Collection,
+        client,
+        server._worldId,
+        { name: command.name, permissionLevel: command.permissionLevel, args }
+      );
       if (!this.clientHasCommandPermission(server, client, command)) {
         server.sendChatText(client, "You don't have access to that.");
         return;
@@ -107,7 +112,12 @@ export class CommandHandler {
     }
     if (this.internalCommands[commandName]) {
       const command = this.internalCommands[commandName];
-      logClientActionToMongo(server._db?.collection(DB_COLLECTIONS.COMMAND_USED) as Collection,client,server._worldId,{name:command.name,permissionLevel:command.permissionLevel})
+      logClientActionToMongo(
+        server._db?.collection(DB_COLLECTIONS.COMMAND_USED) as Collection,
+        client,
+        server._worldId,
+        { name: command.name, permissionLevel: command.permissionLevel }
+      );
       if (!this.clientHasCommandPermission(server, client, command)) {
         server.sendChatText(client, "You don't have access to that.");
         return;
