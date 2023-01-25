@@ -40,6 +40,7 @@ import {
   ItemUseOptions,
   Stances,
   VehicleIds,
+  LoadoutSlots,
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
@@ -1956,9 +1957,9 @@ export class zonePacketHandlers {
     );
   }
   VoiceRadioChannel(server: ZoneServer2016, client: Client, packet: any) {
-    if (!client.character._loadout["39"]) return;
+    if (!client.character._loadout[LoadoutSlots.RADIO]) return;
     if (
-      client.character._loadout["39"].itemDefinitionId != Items.EMERGENCY_RADIO
+      client.character._loadout[LoadoutSlots.RADIO].itemDefinitionId != Items.EMERGENCY_RADIO
     )
       return;
     client.radio = true;
