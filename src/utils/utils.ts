@@ -20,7 +20,7 @@ import {
   setImmediate as setImmediatePromise,
   setTimeout as setTimeoutPromise,
 } from "timers/promises";
-import { MongoClient } from "mongodb";
+import { Collection, MongoClient } from "mongodb";
 import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
@@ -34,6 +34,7 @@ import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constr
 import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
 import { DB_COLLECTIONS, NAME_VALIDATION_STATUS } from "./enums";
 import { Resolver } from "dns";
+import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 
 export class customLodash {
   sum(pings: number[]): number {
@@ -792,4 +793,7 @@ export async function resolveHostAddress(
     });
   });
   return resolvedAddress as string[];
+}
+export async function logClientActionToMongo(collection: Collection,client: ZoneClient2016,logMessage:Object){
+  collection.insertOne({...logMessage,characterName:client.character.name,loginSessionId: client.loginSessionId})
 }
