@@ -749,14 +749,12 @@ export class LoginServer extends EventEmitter {
           .collection(DB_COLLECTIONS.USERS_SESSIONS)
           .findOne({ authKey: loginSessionId })
       : { guid: "" };
-      connectionStatus = false;
-    if(!connectionStatus){
-        // Admins bypass max pop
-        connectionStatus = await this.askZone(
-          serverId,
-          "ClientIsAdminRequest",
-          { guid: hiddenSession?.guid}
-        ) as boolean;
+    connectionStatus = false;
+    if (!connectionStatus) {
+      // Admins bypass max pop
+      connectionStatus = (await this.askZone(serverId, "ClientIsAdminRequest", {
+        guid: hiddenSession?.guid,
+      })) as boolean;
     }
     return {
       unknownQword1: "0x0",

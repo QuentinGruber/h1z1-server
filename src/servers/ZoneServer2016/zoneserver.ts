@@ -409,7 +409,7 @@ export class ZoneServer2016 extends EventEmitter {
                 break;
               }
               case "ClientIsAdminRequest": {
-                this.onClientIsAdminRequest(client,packet);
+                this.onClientIsAdminRequest(client, packet);
                 break;
               }
               case "CharacterExistRequest": {
@@ -569,7 +569,11 @@ export class ZoneServer2016 extends EventEmitter {
   async onClientIsAdminRequest(client: any, packet: any) {
     const { guid, reqId } = packet.data;
     try {
-      const isAdmin = Boolean(await this._db?.collection(DB_COLLECTIONS.ADMINS).findOne({sessionId:guid}));
+      const isAdmin = Boolean(
+        await this._db
+          ?.collection(DB_COLLECTIONS.ADMINS)
+          .findOne({ sessionId: guid })
+      );
       this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
         status: isAdmin,
