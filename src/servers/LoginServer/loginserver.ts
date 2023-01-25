@@ -749,7 +749,6 @@ export class LoginServer extends EventEmitter {
           .collection(DB_COLLECTIONS.USERS_SESSIONS)
           .findOne({ authKey: loginSessionId })
       : { guid: "" };
-    connectionStatus = false;
     if (!connectionStatus) {
       // Admins bypass max pop
       connectionStatus = (await this.askZone(serverId, "ClientIsAdminRequest", {
