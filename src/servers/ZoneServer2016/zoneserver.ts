@@ -48,6 +48,7 @@ import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
 
 import {
+  Ban,
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
@@ -206,18 +207,6 @@ export class ZoneServer2016 extends EventEmitter {
   worldRoutineRate = 30000;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
-  _bannedClients: {
-    [loginSessionId: string]: {
-      name?: string;
-      banReason: string;
-      loginSessionId: string;
-      IP: string;
-      HWID: string;
-      banType: string;
-      adminName: string;
-      expirationDate: number;
-    };
-  } = {};
   readonly _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
     port: 1110,
@@ -322,6 +311,9 @@ export class ZoneServer2016 extends EventEmitter {
           generatedTransient
         );
         if (!this._soloMode) {
+          if (await this.isClientBanned(zoneClient)) {
+            return;
+          }
           zoneClient.isAdmin =
             (await this._db?.collection(DB_COLLECTIONS.ADMINS).findOne({
               sessionId: zoneClient.loginSessionId,
@@ -408,6 +400,10 @@ export class ZoneServer2016 extends EventEmitter {
             switch (packet.name) {
               case "CharacterCreateRequest": {
                 this.onCharacterCreateRequest(client, packet);
+                break;
+              }
+              case "ClientIsAdminRequest": {
+                this.onClientIsAdminRequest(client, packet);
                 break;
               }
               case "CharacterExistRequest": {
@@ -559,6 +555,25 @@ export class ZoneServer2016 extends EventEmitter {
       });
     } catch (error) {
       this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
+        reqId: reqId,
+        status: 0,
+      });
+    }
+  }
+  async onClientIsAdminRequest(client: any, packet: any) {
+    const { guid, reqId } = packet.data;
+    try {
+      const isAdmin = Boolean(
+        await this._db
+          ?.collection(DB_COLLECTIONS.ADMINS)
+          .findOne({ sessionId: guid, serverId: this._worldId })
+      );
+      this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
+        reqId: reqId,
+        status: isAdmin,
+      });
+    } catch (error) {
+      this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
         status: 0,
       });
@@ -3428,6 +3443,29 @@ export class ZoneServer2016 extends EventEmitter {
     return client;
   }
 
+  async isClientBanned(client: Client): Promise<boolean> {
+    const address: string | undefined = this.getSoeClient(
+      client.soeClientId
+    )?.address;
+    const addressBanned = await this._db
+      ?.collection(DB_COLLECTIONS.BANNED)
+      .findOne({ IP: address, active: true });
+    const idBanned = await this._db
+      ?.collection(DB_COLLECTIONS.BANNED)
+      .findOne({ loginSessionId: client.loginSessionId, active: true });
+    if (
+      addressBanned?.expirationDate < Date.now() ||
+      idBanned?.expirationDate < Date.now()
+    ) {
+      client.banType = addressBanned
+        ? addressBanned.banType
+        : idBanned?.banType;
+      this.enforceBan(client);
+      return true;
+    }
+    return false;
+  }
+
   banClient(
     client: Client,
     reason: string,
@@ -3435,20 +3473,22 @@ export class ZoneServer2016 extends EventEmitter {
     adminName: string,
     timestamp: number
   ) {
-    const object = {
-      name: client.character.name,
+    const object: Ban = {
+      name: client.character.name || "",
       banType: banType,
       banReason: reason ? reason : "no reason",
       loginSessionId: client.loginSessionId,
-      IP: "",
+      IP: this.getSoeClient(client.soeClientId)?.address || "",
       HWID: client.HWID,
       adminName: adminName ? adminName : "",
       expirationDate: 0,
+      active: true,
+      unBanAdminName: "",
     };
     if (timestamp) {
       object.expirationDate = timestamp;
     }
-    this._bannedClients[client.loginSessionId] = object;
+    this._db?.collection(DB_COLLECTIONS.BANNED).insertOne(object);
     if (banType === "normal") {
       if (timestamp) {
         this.sendAlert(
@@ -3522,6 +3562,10 @@ export class ZoneServer2016 extends EventEmitter {
       status: 1,
       sessionId: client.loginSessionId,
     });
+    setTimeout(() => {
+      if (!client) return;
+      this.deleteClient(client);
+    }, 1000);
   }
 
   getDateString(timestamp: number) {

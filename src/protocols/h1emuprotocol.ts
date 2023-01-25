@@ -128,6 +128,26 @@ const packets = [
       ],
     },
   ],
+  [
+    "ClientIsAdminRequest",
+    0x14,
+    {
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "guid", type: "uint64string", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "ClientIsAdminReply",
+    0x15,
+    {
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "status", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
 ];
 
 export const [H1emuPacketsPacketTypes, H1emuPacketsPackets] =
