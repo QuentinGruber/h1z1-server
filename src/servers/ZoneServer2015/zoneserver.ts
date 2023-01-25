@@ -658,8 +658,7 @@ export class ZoneServer2015 extends EventEmitter {
     }
     debug("connected to mongo !");
     // if no collections exist on h1server database , fill it with samples
-    const dbIsEmpty =
-      (await mongoClient.db(DB_NAME).collections()).length < 1;
+    const dbIsEmpty = (await mongoClient.db(DB_NAME).collections()).length < 1;
     if (dbIsEmpty) {
       await initMongo(mongoClient, debugName);
     }
