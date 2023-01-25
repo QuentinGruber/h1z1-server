@@ -180,6 +180,7 @@ export enum LoadoutSlots {
   FISTS = 7,
   HEAD = 11,
   ARMOR = 38,
+  RADIO = 39,
   ITEM2 = 41,
 }
 
