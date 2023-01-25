@@ -1740,7 +1740,7 @@ export class zonePacketHandlers {
           if (weaponItem.weapon.reloadTimer) return;
           setTimeout(() => {
             client.allowedProjectiles = 0;
-          }, 300);
+          }, 100);
           // force 0 firestate so gun doesnt shoot randomly after reloading
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,
@@ -2154,9 +2154,7 @@ export class zonePacketHandlers {
         break;
       case "Loadout.SelectSlot":
         this.LoadoutSelectSlot(server, client, packet);
-        setTimeout(() => {
-          client.allowedProjectiles = 0; // reset allowed projectile after weapon switch
-        }, 300);
+        client.allowedProjectiles = 0; // reset allowed projectile after weapon switch
         break;
       case "Weapon.Weapon":
         this.Weapon(server, client, packet);
