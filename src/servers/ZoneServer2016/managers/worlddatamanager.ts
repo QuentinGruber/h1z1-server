@@ -52,6 +52,7 @@ import { Items } from "../models/enums";
 import { PlantingDiameter } from "../entities/plantingdiameter";
 import { Plant } from "../entities/plant";
 import { DB_COLLECTIONS } from "../../../utils/enums";
+import { DB_NAME } from "../../../utils/constants";
 
 const fs = require("fs");
 const debug = require("debug")("ZoneServer");
@@ -150,9 +151,9 @@ export class WorldDataManager {
       }
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
-      (await mongoClient.db("h1server").collections()).length ||
+      (await mongoClient.db(DB_NAME).collections()).length ||
         (await initMongo(mongoClient, "ZoneServer"));
-      server._db = mongoClient.db("h1server");
+      server._db = mongoClient.db(DB_NAME);
     }
   }
 

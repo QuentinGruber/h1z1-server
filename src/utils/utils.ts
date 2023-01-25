@@ -21,7 +21,7 @@ import {
   setTimeout as setTimeoutPromise,
 } from "timers/promises";
 import { MongoClient } from "mongodb";
-import { MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
+import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import {
@@ -571,7 +571,7 @@ export const initMongo = async function (
   serverName: string
 ): Promise<void> {
   const debug = require("debug")(serverName);
-  const dbName = "h1server";
+  const dbName = DB_NAME;
   await mongoClient.db(dbName).createCollection(DB_COLLECTIONS.SERVERS);
   const servers = require("../../data/defaultDatabase/shared/servers.json");
   await mongoClient

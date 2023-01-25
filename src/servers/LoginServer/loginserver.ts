@@ -35,7 +35,7 @@ import { Worker } from "worker_threads";
 import { httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
-import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
+import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 import { healthThreadDecorator } from "../../servers/shared/workers/healthWorker";
 import {
   LoginReply,
@@ -1025,11 +1025,11 @@ export class LoginServer extends EventEmitter {
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
       const dbIsEmpty =
-        (await mongoClient.db("h1server").collections()).length < 1;
+        (await mongoClient.db(DB_NAME).collections()).length < 1;
       if (dbIsEmpty) {
         await initMongo(mongoClient, debugName);
       }
-      this._db = mongoClient.db("h1server");
+      this._db = mongoClient.db(DB_NAME);
       this.updateServersStatus();
     }
 
