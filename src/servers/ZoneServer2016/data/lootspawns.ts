@@ -2217,6 +2217,14 @@ export const containerLootSpawners: {
           max: 1,
         },
       },
+      {
+        item: Items.ANIMAL_FAT,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
     ],
   },
   "Garbage Can": {
@@ -2261,6 +2269,14 @@ export const containerLootSpawners: {
         spawnCount: {
           min: 1,
           max: 1,
+        },
+      },
+      {
+        item: Items.ANIMAL_FAT,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 2,
         },
       },
     ],
