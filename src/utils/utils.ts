@@ -794,6 +794,6 @@ export async function resolveHostAddress(
   });
   return resolvedAddress as string[];
 }
-export async function logClientActionToMongo(collection: Collection,client: ZoneClient2016,logMessage:Object){
-  collection.insertOne({...logMessage,characterName:client.character.name,loginSessionId: client.loginSessionId})
+export async function logClientActionToMongo(collection: Collection,client: ZoneClient2016,serverId:number,logMessage:Object){
+  collection.insertOne({...logMessage,serverId,characterName:client.character.name,loginSessionId: client.loginSessionId})
 }

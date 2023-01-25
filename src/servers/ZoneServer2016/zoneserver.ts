@@ -86,9 +86,10 @@ import {
   resolveHostAddress,
   isInsideSquare,
   getDifference,
+  logClientActionToMongo,
 } from "../../utils/utils";
 
-import { Db } from "mongodb";
+import { Collection, Db } from "mongodb";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ItemObject } from "./entities/itemobject";
 import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
@@ -1895,6 +1896,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (client.speedWarnsNumber > 50) {
       this.kickPlayer(client);
       client.speedWarnsNumber = 0;
+      logClientActionToMongo(this._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,client,this._worldId,{type:"SpeedHack"})
       this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
     }
     client.oldPos = { position: position, time: sequenceTime };
@@ -1942,6 +1944,7 @@ export class ZoneServer2016 extends EventEmitter {
       const hitRatio =
         (100 * client.pvpStats.shotsHit) / client.pvpStats.shotsFired;
       if (client.pvpStats.shotsFired > 10 && hitRatio > 80) {
+        logClientActionToMongo(this._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,client,this._worldId,{type:"exceeds hit/miss ratio",hitRatio,totalShotsFired:client.pvpStats.shotsFired})
         this.sendChatTextToAdmins(
           `FairPlay: ${
             client.character.name
