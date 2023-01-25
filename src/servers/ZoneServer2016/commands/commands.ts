@@ -1493,10 +1493,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({
-            characterId: construction.characterId,
-            dictionary: server._constructionSimple,
-          });
+          construction.destroy(server)
         }
       }
       for (const a in server._constructionDoors) {
@@ -1508,10 +1505,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({
-            characterId: construction.characterId,
-            dictionary: server._constructionDoors,
-          });
+          construction.destroy(server)
         }
       }
       for (const a in server._constructionFoundations) {
@@ -1523,10 +1517,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({
-            characterId: construction.characterId,
-            dictionary: server._constructionFoundations,
-          });
+          construction.destroy(server)
         }
       }
       for (const a in server._lootableConstruction) {
@@ -1538,10 +1529,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({
-            characterId: construction.characterId,
-            dictionary: server._lootableConstruction,
-          });
+          construction.destroy(server)
         }
       }
 
@@ -1554,10 +1542,7 @@ export const commands: Array<Command> = [
             construction.state.position
           )
         ) {
-          entitiesToDelete.push({
-            characterId: construction.characterId,
-            dictionary: server._worldLootableConstruction,
-          });
+          construction.destroy(server)
         }
       }
 
