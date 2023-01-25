@@ -47,12 +47,13 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./commands/commandhandler";
 import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
-import { ConstructionPermissions } from "types/zoneserver";
+import { Ban, ConstructionPermissions } from "types/zoneserver";
 import { GameTimeSync } from "types/zone2016packets";
 import { LootableProp } from "./entities/lootableprop";
 import { Vehicle2016 } from "./entities/vehicle";
 import { Plant } from "./entities/plant";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
+import { DB_COLLECTIONS } from "../../utils/enums";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -545,7 +546,7 @@ export class zonePacketHandlers {
       require("../../../data/profilestats.json")
     );
   }
-  WallOfDataClientSystemInfo(
+  async WallOfDataClientSystemInfo(
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -554,22 +555,12 @@ export class zonePacketHandlers {
     const startPos = info.search("Device") + 9;
     const cut = info.substring(startPos, info.length);
     client.HWID = cut.substring(0, cut.search(",") - 1);
-    for (const a in server._bannedClients) {
-      const bannedClient = server._bannedClients[a];
-      if (
-        bannedClient.expirationDate != 0 &&
-        bannedClient.expirationDate < Date.now()
-      ) {
-        delete server._bannedClients[a];
-        continue;
-      }
-      if (
-        bannedClient.loginSessionId === client.loginSessionId ||
-        (bannedClient.HWID === client.HWID && client.HWID != "")
-      ) {
-        client.banType = bannedClient.banType;
-        server.enforceBan(client);
-      }
+    const hwidBanned: Ban = (await server._db
+      ?.collection(DB_COLLECTIONS.BANNED)
+      .findOne({ HWID: client.HWID, active: true })) as unknown as Ban;
+    if (hwidBanned?.expirationDate < Date.now()) {
+      client.banType = hwidBanned.banType;
+      server.enforceBan(client);
     }
   }
   DtoHitSpeedTreeReport(server: ZoneServer2016, client: Client, packet: any) {
