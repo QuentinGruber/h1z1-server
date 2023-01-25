@@ -3438,9 +3438,9 @@ export class ZoneServer2016 extends EventEmitter {
     for (const a in this._clients) {
       const c = this._clients[a];
       if (c != client) {
-        if (!c.character._loadout["39"]) return;
+        if (!c.character._loadout[LoadoutSlots.RADIO]) return;
         if (
-          c.character._loadout["39"].itemDefinitionId !=
+          c.character._loadout[LoadoutSlots.RADIO].itemDefinitionId !=
             Items.EMERGENCY_RADIO ||
           !c.radio
         )
@@ -6096,8 +6096,8 @@ export class ZoneServer2016 extends EventEmitter {
     let eatCount = 0;
     let staminaCount = 0;
     let givetrash = 0;
-    let healCount = 9;
-    let bandagingCount = 40;
+    let healCount = 0;
+    let bandagingCount = 0;
     let timeout = 0;
     for (const a in UseOptions) {
       if (
