@@ -13,10 +13,12 @@
 
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
-import { flhash } from "../../../utils/utils";
+import { flhash, logClientActionToMongo } from "../../../utils/utils";
 import { Command, PermissionLevels } from "./types";
 import { commands } from "./commands";
 import { internalCommands } from "./internalcommands";
+import { DB_COLLECTIONS } from "../../../utils/enums";
+import { Collection } from "mongodb";
 
 export class CommandHandler {
   readonly commands: { [hash: number]: Command } = {};
@@ -65,6 +67,7 @@ export class CommandHandler {
       args: string[] = packet.data.arguments.toLowerCase().split(" ");
     if (this.commands[hash]) {
       const command = this.commands[hash];
+      logClientActionToMongo(server._db?.collection(DB_COLLECTIONS.COMMAND_USED) as Collection,client,{name:command.name,permissionLevel:command.permissionLevel,args})
       if (!this.clientHasCommandPermission(server, client, command)) {
         server.sendChatText(client, "You don't have access to that.");
         return;
@@ -104,6 +107,7 @@ export class CommandHandler {
     }
     if (this.internalCommands[commandName]) {
       const command = this.internalCommands[commandName];
+      logClientActionToMongo(server._db?.collection(DB_COLLECTIONS.COMMAND_USED) as Collection,client,{name:command.name,permissionLevel:command.permissionLevel,args})
       if (!this.clientHasCommandPermission(server, client, command)) {
         server.sendChatText(client, "You don't have access to that.");
         return;
