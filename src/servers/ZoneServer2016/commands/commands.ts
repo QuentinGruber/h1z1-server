@@ -177,6 +177,47 @@ export const commands: Array<Command> = [
     },
   },
   {
+    name: "getnetstats",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+          server.sendChatText(
+              client,
+              `[ERROR] Usage: /getnetstats {name / clientId}"`,
+              true
+          );
+          return
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      const soeClient = server.getSoeClient(targetClient.soeClientId);
+      if (soeClient) {
+        const stats = soeClient.getNetworkStats();
+        server.sendChatText(
+              client,
+              `Displaying net statistics of player ${targetClient.character.name}`,
+              true
+          );
+        for (let index = 0; index < stats.length; index++) {
+          const stat = stats[index];       
+          server.sendChatText(client, stat);
+        }
+      }
+    },
+  },
+  {
     name: "location",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
