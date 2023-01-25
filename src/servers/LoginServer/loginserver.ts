@@ -284,7 +284,10 @@ export class LoginServer extends EventEmitter {
             }`
           );
           delete this._zoneConnections[client.clientId];
-          if (client.serverId) {
+          if (
+            client.serverId &&
+            !Object.values(this._zoneConnections).includes(client.serverId)
+          ) {
             await this.updateServerStatus(client.serverId, false);
           }
         }
