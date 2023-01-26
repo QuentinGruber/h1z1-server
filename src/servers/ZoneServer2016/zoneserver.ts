@@ -2131,7 +2131,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (item.currentDurability <= 0) {
       this.removeInventoryItem(client, item);
       if (this.isWeapon(item.itemDefinitionId)) {
-        client.character.lootContainerItem(this, this.generateItem(Items.BROKEN_METAL_ITEM));
+        client.character.lootContainerItem(
+          this,
+          this.generateItem(Items.BROKEN_METAL_ITEM)
+        );
       }
       return;
     }
@@ -3130,7 +3133,7 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           continue;
         }
-          
+
         if (object instanceof ConstructionParentEntity) {
           this.spawnConstructionParent(client, object);
           continue;
@@ -3431,21 +3434,21 @@ export class ZoneServer2016 extends EventEmitter {
   sendChatToAllWithRadio(client: Client, message: string) {
     for (const a in this._clients) {
       const c = this._clients[a];
-        if (!c.character._loadout[LoadoutSlots.RADIO]) return;
-        if (
-          c.character._loadout[LoadoutSlots.RADIO].itemDefinitionId !=
-            Items.EMERGENCY_RADIO ||
-          !c.radio
-        )
-          return;
-        this.sendData(c, "Chat.ChatText", {
-          message: `[RADIO: ${client.character.name}]: ${message}`,
-          unknownDword1: 0,
-          color: [255, 255, 255, 0],
-          unknownDword2: 13951728,
-          unknownByte3: 0,
-          unknownByte4: 1,
-        });
+      if (!c.character._loadout[LoadoutSlots.RADIO]) return;
+      if (
+        c.character._loadout[LoadoutSlots.RADIO].itemDefinitionId !=
+          Items.EMERGENCY_RADIO ||
+        !c.radio
+      )
+        return;
+      this.sendData(c, "Chat.ChatText", {
+        message: `[RADIO: ${client.character.name}]: ${message}`,
+        unknownDword1: 0,
+        color: [255, 255, 255, 0],
+        unknownDword2: 13951728,
+        unknownByte3: 0,
+        unknownByte4: 1,
+      });
     }
   }
 

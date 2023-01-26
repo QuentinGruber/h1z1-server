@@ -592,7 +592,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       }
     );
     server.deleteEntity(this.characterId, server._vehicles);
-    if(!disableExplosion) {
+    if (!disableExplosion) {
       server.explosionDamage(this.state.position, this.characterId);
     }
     this.state.position[1] -= 0.4;
