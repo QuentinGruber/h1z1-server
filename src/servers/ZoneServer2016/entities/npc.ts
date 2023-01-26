@@ -15,6 +15,8 @@ import { DamageInfo } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
+import { logClientActionToMongo } from "../../../utils/utils";
+import { DB_COLLECTIONS } from "../../../utils/enums";
 
 export class Npc extends BaseFullCharacter {
   health: number;
@@ -75,6 +77,14 @@ export class Npc extends BaseFullCharacter {
       this.flags.knockedOut = 1;
       this.deathTime = Date.now();
       if (client) {
+        if (!server._soloMode) {
+          logClientActionToMongo(
+            server._db.collection(DB_COLLECTIONS.KILLS),
+            client,
+            server._worldId,
+            { type: "zombie" }
+          );
+        }
         client.character.metrics.zombiesKilled++;
       }
       server.sendDataToAllWithSpawnedEntity(

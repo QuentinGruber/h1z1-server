@@ -1315,6 +1315,14 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendDeathMetrics(client);
     debug(character.name + " has died");
     if (sourceClient) {
+      if (!this._soloMode) {
+        logClientActionToMongo(
+          this._db.collection(DB_COLLECTIONS.KILLS),
+          sourceClient,
+          this._worldId,
+          { type: "player", playerKilled: client.character.name }
+        );
+      }
       client.lastDeathReport = {
         position: client.character.state.position,
         attackerPosition: sourceClient.character.state.position,
