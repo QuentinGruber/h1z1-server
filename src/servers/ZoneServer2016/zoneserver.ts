@@ -1147,7 +1147,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (
       obj instanceof Vehicle ||
       obj instanceof Character ||
-      obj instanceof Npc ||
       (obj instanceof ConstructionChildEntity &&
         !obj.getParent(this) &&
         !(obj instanceof ConstructionParentEntity)) ||
@@ -2467,8 +2466,7 @@ export class ZoneServer2016 extends EventEmitter {
   private shouldRemoveEntity(client: Client, entity: BaseEntity): boolean {
     return (
       entity && // in case if entity is undefined somehow
-      !(entity instanceof Vehicle2016) && // ignore vehicles
-      !(entity instanceof Npc) && // ignore npcs
+      !(entity instanceof Vehicle2016) &&
       (this.filterOutOfDistance(entity, client.character.state.position) ||
         this.constructionShouldHideEntity(client, entity))
     );
@@ -2737,7 +2735,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  private npcManager(client: Client) {
+  /*private npcManager(client: Client) {
     for (const characterId in this._npcs) {
       const npc = this._npcs[characterId];
       // npc clientside spawner
@@ -2763,7 +2761,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
-  }
+  }*/
 
   private npcDespawner() {
     for (const characterId in this._npcs) {
@@ -3140,40 +3138,42 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         if (client.spawnedEntities.includes(object)) continue;
-
-        switch (true) {
-          case object instanceof BaseLightweightCharacter:
-            this.addLightweightNpc(client, object);
-            switch (true) {
-              case typeof object.OnInteractionString !== "undefined":
-                this.sendData(client, "Replication.InteractionComponent", {
-                  transientId: object.transientId,
-                });
-                this.sendData(client, "Replication.NpcComponent", {
-                  transientId: object.transientId,
-                  nameId: object.nameId,
-                });
-              case object instanceof DoorEntity:
-                if (object.isOpen) {
-                  this.sendData(client, "PlayerUpdatePosition", {
-                    transientId: object.transientId,
-                    positionUpdate: {
-                      sequenceTime: 0,
-                      unknown3_int8: 0,
-                      position: object.state.position,
-                      orientation: object.openAngle,
-                    },
-                  });
-                }
-                break;
-            }
-            break;
-          case object instanceof TrapEntity ||
-            object instanceof TemporaryEntity:
-            this.addSimpleNpc(client, object);
-            break;
-        }
         client.spawnedEntities.push(object);
+        if (object instanceof BaseLightweightCharacter) {
+          this.addLightweightNpc(client, object);
+          if (typeof object.OnInteractionString !== "undefined") {
+            this.sendData(client, "Replication.InteractionComponent", {
+              transientId: object.transientId,
+            });
+            this.sendData(client, "Replication.NpcComponent", {
+              transientId: object.transientId,
+              nameId: object.nameId,
+            });
+          }
+          if (object instanceof DoorEntity) {
+            if (object.isOpen) {
+              this.sendData(client, "PlayerUpdatePosition", {
+                transientId: object.transientId,
+                positionUpdate: {
+                  sequenceTime: 0,
+                  unknown3_int8: 0,
+                  position: object.state.position,
+                  orientation: object.openAngle,
+                },
+              });
+            }
+            continue;
+          }
+          if (object instanceof Npc) {
+            object.updateEquipment(this);
+            continue;
+          }
+        } else if (
+          object instanceof TrapEntity ||
+          object instanceof TemporaryEntity
+        ) {
+          this.addSimpleNpc(client, object);
+        }
       }
     }
   }
@@ -6864,7 +6864,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         this.vehicleManager(client);
-        this.npcManager(client);
+        //this.npcManager(client);
 
         this.spawnCharacters(client);
         this.spawnGridObjects(client);
@@ -6883,7 +6883,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   executeRoutine(client: Client) {
     this.vehicleManager(client);
-    this.npcManager(client);
+    //this.npcManager(client);
     this.removeOutOfDistanceEntities(client);
     this.spawnCharacters(client);
     this.spawnGridObjects(client);
