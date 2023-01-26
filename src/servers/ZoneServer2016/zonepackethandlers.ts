@@ -1719,19 +1719,14 @@ export class zonePacketHandlers {
                 server.deleteEntity(characterId, server._npcs);
                 break;
               case EntityTypes.VEHICLE:
-                if (!server._vehicles[characterId]) {
-                  return;
-                }
-                server.deleteEntity(characterId, server._vehicles);
+                const vehicle = server._vehicles[characterId];
+                if (!vehicle) return;
+                vehicle.destroy(server, true);
                 break;
               case EntityTypes.OBJECT:
-                if (!server._spawnedItems[characterId]) {
-                  return;
-                }
-                delete server.worldObjectManager._spawnedLootObjects[
-                  server._spawnedItems[characterId].spawnerId
-                ];
-                server.deleteEntity(characterId, server._spawnedItems);
+                const object = server._spawnedItems[characterId];
+                if (!object) return;
+                object.destroy(server);
                 break;
               case EntityTypes.EXPLOSIVE:
                 server.deleteEntity(characterId, server._explosives);

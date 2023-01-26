@@ -90,4 +90,11 @@ export class ItemObject extends BaseLightweightCharacter {
       server._explosives[this.characterId].detonate(server);
     }
   }
+
+  destroy(server: ZoneServer2016) {
+    delete server.worldObjectManager._spawnedLootObjects[
+      server._spawnedItems[this.characterId].spawnerId
+    ];
+    server.deleteEntity(this.characterId, server._spawnedItems);
+  }
 }
