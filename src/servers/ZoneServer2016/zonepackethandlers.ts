@@ -625,9 +625,6 @@ export class zonePacketHandlers {
       }
     );
     //}
-    if (packet.data.positionUpdate.frontTilt) vehicle.positionUpdate.frontTilt = packet.positionUpdate.frontTilt
-    if (packet.data.positionUpdate.sideTilt) vehicle.positionUpdate.sideTilt = packet.positionUpdate.sideTilt
-    if (packet.data.positionUpdate.orientation) vehicle.positionUpdate.orientation = packet.positionUpdate.orientation
     if (packet.data.positionUpdate.engineRPM) {
       vehicle.engineRPM = packet.data.positionUpdate.engineRPM;
     }
