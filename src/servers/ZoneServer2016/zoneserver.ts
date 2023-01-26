@@ -3427,17 +3427,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendChatToAllWithRadio(client: Client, message: string) {
-    this.sendData(client, "Chat.ChatText", {
-      message: `[RADIO: ${client.character.name}]: ${message}`,
-      unknownDword1: 0,
-      color: [255, 255, 255, 0],
-      unknownDword2: 13951728,
-      unknownByte3: 0,
-      unknownByte4: 1,
-    });
     for (const a in this._clients) {
       const c = this._clients[a];
-      if (c != client) {
         if (!c.character._loadout[LoadoutSlots.RADIO]) return;
         if (
           c.character._loadout[LoadoutSlots.RADIO].itemDefinitionId !=
@@ -3453,7 +3444,6 @@ export class ZoneServer2016 extends EventEmitter {
           unknownByte3: 0,
           unknownByte4: 1,
         });
-      }
     }
   }
 
