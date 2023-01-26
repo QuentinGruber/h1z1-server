@@ -15,7 +15,7 @@ function getRenderDistance(itemDefinitionId: number) {
     case Items.FOUNDATION: // foundation,
     case Items.FOUNDATION_EXPANSION: // expansion
     case Items.GROUND_TAMPER: // tamper
-      range = 700;
+      range = 350;
       break;
     case Items.FURNACE:
     case Items.WORKBENCH:
@@ -29,7 +29,7 @@ function getRenderDistance(itemDefinitionId: number) {
       range = 20;
       break;
     default:
-      range = 750;
+      range = 350;
       break;
   }
   return range;

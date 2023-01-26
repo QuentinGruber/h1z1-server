@@ -4918,8 +4918,7 @@ export class ZoneServer2016 extends EventEmitter {
               return;
             }
             if (this._vehicles[vehicleGuid].engineRPM) {
-              const fuelLoss =
-                this._vehicles[vehicleGuid].engineRPM * 0.003;
+              const fuelLoss = this._vehicles[vehicleGuid].engineRPM * 0.003;
               this._vehicles[vehicleGuid]._resources[ResourceIds.FUEL] -=
                 fuelLoss;
             }
