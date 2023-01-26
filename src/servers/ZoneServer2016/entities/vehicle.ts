@@ -105,6 +105,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   engineOn: boolean = false;
   isLocked: number = 0;
   positionUpdate: any /*positionUpdate*/;
+  engineRPM: number = 0;
   fuelUpdater: any;
   isInvulnerable: boolean = false;
   onDismount?: any;
@@ -141,7 +142,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (!this.actorModelId) this.actorModelId = getActorModelId(this.vehicleId);
     this.loadoutId = getVehicleLoadoutId(this.vehicleId);
     this.defaultLoadout = getDefaultLoadout(this.loadoutId);
-    this.npcRenderDistance = 200;
+    this.npcRenderDistance = 250;
     this.isInvulnerable =
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;
@@ -264,7 +265,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     return {
       npcData: {
         ...this.pGetLightweight(),
-        position: this.positionUpdate.position || this.state.position,
+        position: this.state.position,
         vehicleId: this.vehicleId,
       },
       positionUpdate: {
@@ -540,7 +541,8 @@ export class Vehicle2016 extends BaseLootableEntity {
         },
       },
     });
-    for (const a in this.seats) {
+    // disable this workaround for now
+    /*for (const a in this.seats) {
       const seatId = this.getCharacterSeat(this.seats[a]);
       if (!this.seats[a]) continue;
       server.sendData(client, "Mount.MountResponse", {
@@ -551,7 +553,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         unknownDword3: seatId === "0" ? 1 : 0, //isDriver
         identity: {},
       });
-    }
+    }*/
 
     if (this.currentDamageEffect != 0) {
       server.sendData(client, "Command.PlayDialogEffect", {
@@ -571,7 +573,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       delete this.onReadyCallback;
     }
   }
-  destroy(server: ZoneServer2016) {
+  destroy(server: ZoneServer2016, disableExplosion = false) {
     if (!server._vehicles[this.characterId]) return;
     this._resources[ResourceIds.CONDITION] = 0;
     for (const c in server._clients) {
@@ -592,7 +594,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       }
     );
     server.deleteEntity(this.characterId, server._vehicles);
-    server.explosionDamage(this.state.position, this.characterId);
+    if (!disableExplosion) {
+      server.explosionDamage(this.state.position, this.characterId);
+    }
     this.state.position[1] -= 0.4;
     // fix floating vehicle lootbags
     Object.values(this._loadout).forEach((item: LoadoutItem) => {

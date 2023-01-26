@@ -626,7 +626,7 @@ export class zonePacketHandlers {
     );
     //}
     if (packet.data.positionUpdate.engineRPM) {
-      vehicle.positionUpdate = packet.data.positionUpdate;
+      vehicle.engineRPM = packet.data.positionUpdate.engineRPM;
     }
     if (packet.data.positionUpdate.position) {
       if (packet.data.positionUpdate.position[1] < -100) {
@@ -636,7 +636,7 @@ export class zonePacketHandlers {
       }
       vehicle.state.position = new Float32Array([
         packet.data.positionUpdate.position[0],
-        packet.data.positionUpdate.position[1],
+        packet.data.positionUpdate.position[1] - 0.4,
         packet.data.positionUpdate.position[2],
         1,
       ]);
@@ -927,7 +927,7 @@ export class zonePacketHandlers {
     entity.OnInteractionString(server, client);
   }
   MountSeatChangeRequest(server: ZoneServer2016, client: Client, packet: any) {
-    server.changeSeat(client, packet);
+    //server.changeSeat(client, packet); disabled for now
   }
   ConstructionPlacementFinalizeRequest(
     server: ZoneServer2016,
@@ -1156,7 +1156,13 @@ export class zonePacketHandlers {
         server.igniteOption(client, item);
         break;
       case ItemUseOptions.UNLOAD:
-        item.weapon?.unload(server, client);
+        if (item.weapon) {
+          item.weapon.unload(server, client);
+        } else {
+          const msg = `Unload weapon failed for item ${item.itemDefinitionId}. Please report this!`;
+          server.sendAlert(client, msg);
+          console.log(msg);
+        }
         break;
       case ItemUseOptions.SALVAGE:
         server.salvageAmmo(client, item);
@@ -1712,19 +1718,14 @@ export class zonePacketHandlers {
                 server.deleteEntity(characterId, server._npcs);
                 break;
               case EntityTypes.VEHICLE:
-                if (!server._vehicles[characterId]) {
-                  return;
-                }
-                server.deleteEntity(characterId, server._vehicles);
+                const vehicle = server._vehicles[characterId];
+                if (!vehicle) return;
+                vehicle.destroy(server, true);
                 break;
               case EntityTypes.OBJECT:
-                if (!server._spawnedItems[characterId]) {
-                  return;
-                }
-                delete server.worldObjectManager._spawnedLootObjects[
-                  server._spawnedItems[characterId].spawnerId
-                ];
-                server.deleteEntity(characterId, server._spawnedItems);
+                const object = server._spawnedItems[characterId];
+                if (!object) return;
+                object.destroy(server);
                 break;
               case EntityTypes.EXPLOSIVE:
                 server.deleteEntity(characterId, server._explosives);

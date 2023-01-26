@@ -553,7 +553,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_1911,
-        weight: 10,
+        weight: 5,
         spawnCount: {
           min: 1,
           max: 1,
@@ -561,7 +561,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_M9,
-        weight: 10,
+        weight: 5,
         spawnCount: {
           min: 1,
           max: 1,

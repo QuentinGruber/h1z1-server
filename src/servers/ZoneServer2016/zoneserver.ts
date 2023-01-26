@@ -744,7 +744,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     this.sendData(client, "SendSelfToClient", {
-      data: client.character.pGetSendSelf(this, client.guid),
+      data: client.character.pGetSendSelf(this, client.guid, client),
     });
     client.character.initialized = true;
     this.initializeContainerList(client);
@@ -1147,7 +1147,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (
       obj instanceof Vehicle ||
       obj instanceof Character ||
-      obj instanceof Npc ||
       (obj instanceof ConstructionChildEntity &&
         !obj.getParent(this) &&
         !(obj instanceof ConstructionParentEntity)) ||
@@ -2139,7 +2138,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (item.currentDurability <= 0) {
       this.removeInventoryItem(client, item);
       if (this.isWeapon(item.itemDefinitionId)) {
-        client.character.lootContainerItem(this, this.generateItem(1354));
+        client.character.lootContainerItem(
+          this,
+          this.generateItem(Items.BROKEN_METAL_ITEM)
+        );
       }
       return;
     }
@@ -2472,8 +2474,7 @@ export class ZoneServer2016 extends EventEmitter {
   private shouldRemoveEntity(client: Client, entity: BaseEntity): boolean {
     return (
       entity && // in case if entity is undefined somehow
-      !(entity instanceof Vehicle2016) && // ignore vehicles
-      !(entity instanceof Npc) && // ignore npcs
+      !(entity instanceof Vehicle2016) &&
       (this.filterOutOfDistance(entity, client.character.state.position) ||
         this.constructionShouldHideEntity(client, entity))
     );
@@ -2742,7 +2743,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  private npcManager(client: Client) {
+  /*private npcManager(client: Client) {
     for (const characterId in this._npcs) {
       const npc = this._npcs[characterId];
       // npc clientside spawner
@@ -2768,7 +2769,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
-  }
+  }*/
 
   private npcDespawner() {
     for (const characterId in this._npcs) {
@@ -3064,7 +3065,7 @@ export class ZoneServer2016 extends EventEmitter {
       const c = this._clients[a];
       if (
         isPosInRadius(
-          this._charactersRenderDistance,
+          character.npcRenderDistance || this._charactersRenderDistance,
           character.state.position,
           c.character.state.position
         ) &&
@@ -3087,21 +3088,22 @@ export class ZoneServer2016 extends EventEmitter {
       const itemObject = this._spawnedItems[characterId];
       if (!itemObject) return;
       // dropped item despawner
-      if (
-        Date.now() - itemObject.creationTime >=
-        this.worldObjectManager.itemDespawnTimer
-      ) {
-        switch (itemObject.spawnerId) {
-          case -1:
-            this.deleteEntity(itemObject.characterId, this._spawnedItems);
-            this.sendCompositeEffectToAllWithSpawnedEntity(
-              this._spawnedItems,
-              itemObject,
-              this.getItemDefinition(itemObject.item.itemDefinitionId)
-                .PICKUP_EFFECT ?? 5151
-            );
-            continue;
-        }
+      const despawnTime =
+        itemObject.spawnerId == -1
+          ? this.worldObjectManager.itemDespawnTimer
+          : this.worldObjectManager.lootDespawnTimer;
+      if (Date.now() - itemObject.creationTime >= despawnTime) {
+        this.deleteEntity(itemObject.characterId, this._spawnedItems);
+        if (itemObject.spawnerId != -1)
+          delete this.worldObjectManager._spawnedLootObjects[
+            itemObject.spawnerId
+          ];
+        this.sendCompositeEffectToAllWithSpawnedEntity(
+          this._spawnedItems,
+          itemObject,
+          this.getItemDefinition(itemObject.item.itemDefinitionId)
+            .PICKUP_EFFECT ?? 5151
+        );
       }
     }
   }
@@ -3135,48 +3137,52 @@ export class ZoneServer2016 extends EventEmitter {
             position,
             object.state.position
           )
-        )
+        ) {
           continue;
+        }
+
         if (object instanceof ConstructionParentEntity) {
           this.spawnConstructionParent(client, object);
           continue;
         }
 
         if (client.spawnedEntities.includes(object)) continue;
-
-        switch (true) {
-          case object instanceof BaseLightweightCharacter:
-            this.addLightweightNpc(client, object);
-            switch (true) {
-              case typeof object.OnInteractionString !== "undefined":
-                this.sendData(client, "Replication.InteractionComponent", {
-                  transientId: object.transientId,
-                });
-                this.sendData(client, "Replication.NpcComponent", {
-                  transientId: object.transientId,
-                  nameId: object.nameId,
-                });
-              case object instanceof DoorEntity:
-                if (object.isOpen) {
-                  this.sendData(client, "PlayerUpdatePosition", {
-                    transientId: object.transientId,
-                    positionUpdate: {
-                      sequenceTime: 0,
-                      unknown3_int8: 0,
-                      position: object.state.position,
-                      orientation: object.openAngle,
-                    },
-                  });
-                }
-                break;
-            }
-            break;
-          case object instanceof TrapEntity ||
-            object instanceof TemporaryEntity:
-            this.addSimpleNpc(client, object);
-            break;
-        }
         client.spawnedEntities.push(object);
+        if (object instanceof BaseLightweightCharacter) {
+          this.addLightweightNpc(client, object);
+          if (typeof object.OnInteractionString !== "undefined") {
+            this.sendData(client, "Replication.InteractionComponent", {
+              transientId: object.transientId,
+            });
+            this.sendData(client, "Replication.NpcComponent", {
+              transientId: object.transientId,
+              nameId: object.nameId,
+            });
+          }
+          if (object instanceof DoorEntity) {
+            if (object.isOpen) {
+              this.sendData(client, "PlayerUpdatePosition", {
+                transientId: object.transientId,
+                positionUpdate: {
+                  sequenceTime: 0,
+                  unknown3_int8: 0,
+                  position: object.state.position,
+                  orientation: object.openAngle,
+                },
+              });
+            }
+            continue;
+          }
+          if (object instanceof Npc) {
+            object.updateEquipment(this);
+            continue;
+          }
+        } else if (
+          object instanceof TrapEntity ||
+          object instanceof TemporaryEntity
+        ) {
+          this.addSimpleNpc(client, object);
+        }
       }
     }
   }
@@ -3435,33 +3441,23 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendChatToAllWithRadio(client: Client, message: string) {
-    this.sendData(client, "Chat.ChatText", {
-      message: `[RADIO: ${client.character.name}]: ${message}`,
-      unknownDword1: 0,
-      color: [255, 255, 255, 0],
-      unknownDword2: 13951728,
-      unknownByte3: 0,
-      unknownByte4: 1,
-    });
     for (const a in this._clients) {
       const c = this._clients[a];
-      if (c != client) {
-        if (!c.character._loadout["39"]) return;
-        if (
-          c.character._loadout["39"].itemDefinitionId !=
-            Items.EMERGENCY_RADIO ||
-          !c.radio
-        )
-          return;
-        this.sendData(c, "Chat.ChatText", {
-          message: `[RADIO: ${client.character.name}]: ${message}`,
-          unknownDword1: 0,
-          color: [255, 255, 255, 0],
-          unknownDword2: 13951728,
-          unknownByte3: 0,
-          unknownByte4: 1,
-        });
-      }
+      if (!c.character._loadout[LoadoutSlots.RADIO]) return;
+      if (
+        c.character._loadout[LoadoutSlots.RADIO].itemDefinitionId !=
+          Items.EMERGENCY_RADIO ||
+        !c.radio
+      )
+        return;
+      this.sendData(c, "Chat.ChatText", {
+        message: `[RADIO: ${client.character.name}]: ${message}`,
+        unknownDword1: 0,
+        color: [255, 255, 255, 0],
+        unknownDword2: 13951728,
+        unknownByte3: 0,
+        unknownByte4: 1,
+      });
     }
   }
 
@@ -4930,9 +4926,8 @@ export class ZoneServer2016 extends EventEmitter {
               delete this._vehicles[vehicleGuid].resourcesUpdater;
               return;
             }
-            if (this._vehicles[vehicleGuid].positionUpdate.engineRPM) {
-              const fuelLoss =
-                this._vehicles[vehicleGuid].positionUpdate.engineRPM * 0.003;
+            if (this._vehicles[vehicleGuid].engineRPM) {
+              const fuelLoss = this._vehicles[vehicleGuid].engineRPM * 0.003;
               this._vehicles[vehicleGuid]._resources[ResourceIds.FUEL] -=
                 fuelLoss;
             }
@@ -6104,8 +6099,8 @@ export class ZoneServer2016 extends EventEmitter {
     let eatCount = 0;
     let staminaCount = 0;
     let givetrash = 0;
-    let healCount = 9;
-    let bandagingCount = 40;
+    let healCount = 0;
+    let bandagingCount = 0;
     let timeout = 0;
     for (const a in UseOptions) {
       if (
@@ -6878,7 +6873,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
 
         this.vehicleManager(client);
-        this.npcManager(client);
+        //this.npcManager(client);
 
         this.spawnCharacters(client);
         this.spawnGridObjects(client);
@@ -6897,7 +6892,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   executeRoutine(client: Client) {
     this.vehicleManager(client);
-    this.npcManager(client);
+    //this.npcManager(client);
     this.removeOutOfDistanceEntities(client);
     this.spawnCharacters(client);
     this.spawnGridObjects(client);

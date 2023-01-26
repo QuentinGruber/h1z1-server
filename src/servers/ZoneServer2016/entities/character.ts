@@ -123,7 +123,7 @@ export class Character2016 extends BaseFullCharacter {
       new Float32Array([0, 0, 0, 1]),
       server
     );
-    this.npcRenderDistance = 200;
+    this.npcRenderDistance = 250;
     this.healingTicks = 0;
     this.healingMaxTicks = 0;
     (this._resources = {
@@ -330,7 +330,7 @@ export class Character2016 extends BaseFullCharacter {
     };
   }
 
-  pGetSendSelf(server: ZoneServer2016, guid = "") {
+  pGetSendSelf(server: ZoneServer2016, guid = "", client: ZoneClient2016) {
     return {
       ...this.pGetLightweight(),
       guid: guid,
@@ -358,6 +358,7 @@ export class Character2016 extends BaseFullCharacter {
       //unknownQword3: this.characterId,
       //vehicleLoadoutRelatedDword: 1,
       //unknownDword40: 1
+      isAdmin: client.isAdmin,
     };
   }
 

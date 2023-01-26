@@ -12,7 +12,6 @@
 // ======================================================================
 
 import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
-import { _ } from "../../../utils/utils";
 import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
 import {
@@ -530,8 +529,18 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
             }
           }
           if (!stacked) {
-            items[item.itemGuid] = _.cloneDeep(item);
-            items[item.itemGuid].slotId = Object.keys(items).length + 1;
+            const newItem = new BaseItem(
+              item.itemDefinitionId,
+              item.itemGuid,
+              item.currentDurability,
+              item.stackCount
+            );
+
+            newItem.debugFlag = "getDeathItemsNotStacked";
+            if (item.weapon)
+              newItem.weapon = new Weapon(newItem, item.weapon.ammoCount);
+            newItem.slotId = Object.keys(items).length + 1;
+            items[newItem.itemGuid] = newItem;
           }
         }
       });
