@@ -83,6 +83,7 @@ export class ConstructionDoor extends DoorEntity {
     const itemDefinition = server.getItemDefinition(this.itemDefinitionId);
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
     this.grantedAccess.push(ownerCharacterId);
+    this.npcRenderDistance = 750;
   }
 
   pGetConstructionHealth() {
@@ -195,7 +196,8 @@ export class ConstructionDoor extends DoorEntity {
       if (
         this.passwordHash == 0 ||
         this.grantedAccess.includes(client.character.characterId) ||
-        client.character.characterId === this.ownerCharacterId
+        client.character.characterId === this.ownerCharacterId ||
+        (client.isAdmin && client.isDebugMode) // debug mode open all doors/gates
       ) {
         if (this.moving) {
           return;

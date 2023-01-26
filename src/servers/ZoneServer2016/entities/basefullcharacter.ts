@@ -12,7 +12,6 @@
 // ======================================================================
 
 import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
-import { _ } from "../../../utils/utils";
 import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
 import {
@@ -375,10 +374,15 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     server: ZoneServer2016,
     item?: BaseItem,
     count?: number,
-    sendUpdate: boolean = true
+    sendUpdate: boolean = true,
+    array: LoadoutContainer[] = []
   ) {
     const client = server.getClientByCharId(this.characterId);
     if (!item) return;
+    if (item.stackCount <= 0) {
+      console.error(`LootContainerItem: stackCount is negative! item ${item}`);
+      return;
+    }
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
       console.error(
@@ -399,6 +403,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       }
 
       Object.values(this._containers).forEach((c) => {
+        if (array.includes(c)) return;
+        array.push(c);
         const availableSpace = c.getAvailableBulk(server),
           itemBulk = server.getItemDefinition(item.itemDefinitionId).BULK,
           lootCount = Math.floor(availableSpace / itemBulk);
@@ -406,7 +412,10 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           item.stackCount -= lootCount;
           this.lootContainerItem(
             server,
-            server.generateItem(item.itemDefinitionId, lootCount)
+            server.generateItem(item.itemDefinitionId, lootCount),
+            count,
+            true,
+            array
           );
         }
       });
@@ -520,8 +529,18 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
             }
           }
           if (!stacked) {
-            items[item.itemGuid] = _.cloneDeep(item);
-            items[item.itemGuid].slotId = Object.keys(items).length + 1;
+            const newItem = new BaseItem(
+              item.itemDefinitionId,
+              item.itemGuid,
+              item.currentDurability,
+              item.stackCount
+            );
+
+            newItem.debugFlag = "getDeathItemsNotStacked";
+            if (item.weapon)
+              newItem.weapon = new Weapon(newItem, item.weapon.ammoCount);
+            newItem.slotId = Object.keys(items).length + 1;
+            items[newItem.itemGuid] = newItem;
           }
         }
       });
@@ -659,6 +678,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       case ItemClasses.WEAPONS_PISTOL:
       case ItemClasses.WEAPONS_MELEES:
       case ItemClasses.WEAPONS_MELEES0:
+      case ItemClasses.WEAPONS_CROSSBOW:
+      case ItemClasses.WEAPONS_BOW:
         if (this._loadout[slot]?.itemDefinitionId) {
           // primary
           slot = LoadoutSlots.SECONDARY;

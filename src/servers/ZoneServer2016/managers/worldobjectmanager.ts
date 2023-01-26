@@ -26,7 +26,16 @@ import {
   isPosInRadius,
   randomIntFromInterval,
 } from "../../../utils/utils";
-import { EquipSlots, Items, VehicleIds } from "../models/enums";
+import {
+  EquipSlots,
+  Items,
+  VehicleIds,
+  Skins_Shirt,
+  Skins_Pants,
+  Skins_Beanie,
+  Skins_Cap,
+  Skins_MotorHelmet,
+} from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
@@ -55,6 +64,38 @@ function getRandomVehicleId() {
       // pickup
       return VehicleIds.PICKUP;
   }
+}
+
+function getRandomSkin(itemDefinitionId: number) {
+  const allowedItems = [
+    Items.SHIRT_DEFAULT,
+    Items.PANTS_DEFAULT,
+    Items.HAT_BEANIE,
+    Items.HAT_CAP,
+    Items.HELMET_MOTORCYCLE,
+  ];
+  if (!allowedItems.includes(itemDefinitionId)) return itemDefinitionId;
+  let itemDefId = 0;
+  let arr: any[] = [];
+  switch (itemDefinitionId) {
+    case Items.SHIRT_DEFAULT:
+      arr = Object.keys(Skins_Shirt);
+      break;
+    case Items.PANTS_DEFAULT:
+      arr = Object.keys(Skins_Pants);
+      break;
+    case Items.HAT_BEANIE:
+      arr = Object.keys(Skins_Beanie);
+      break;
+    case Items.HAT_CAP:
+      arr = Object.keys(Skins_Cap);
+      break;
+    case Items.HELMET_MOTORCYCLE:
+      arr = Object.keys(Skins_MotorHelmet);
+      break;
+  }
+  itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);
+  return itemDefId;
 }
 
 function getRandomItem(items: Array<LootDefinition>) {
@@ -88,7 +129,8 @@ export class WorldObjectManager {
   vehicleRespawnTimer: number = 600000; // 10 minutes // 600000
   npcRespawnTimer: number = 600000; // 10 minutes
   // items get despawned after x minutes
-  itemDespawnTimer: number = 1800000; // 30 minutes
+  itemDespawnTimer: number = 600000; // 10 minutes
+  lootDespawnTimer: number = 3600000; // 60 minutes
   deadNpcDespawnTimer: number = 600000; // 10 minutes
 
   // objects won't spawn if another object is within this radius
@@ -438,7 +480,7 @@ export class WorldObjectManager {
               this.createLootEntity(
                 server,
                 server.generateItem(
-                  item.item,
+                  getRandomSkin(item.item),
                   randomIntFromInterval(
                     item.spawnCount.min,
                     item.spawnCount.max
@@ -480,7 +522,7 @@ export class WorldObjectManager {
               // temporary spawnchance
               server.addContainerItemExternal(
                 prop.mountedCharacter ? prop.mountedCharacter : "",
-                server.generateItem(item.item),
+                server.generateItem(getRandomSkin(item.item)),
                 container,
                 count
               );

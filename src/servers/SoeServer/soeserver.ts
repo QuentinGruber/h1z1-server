@@ -584,6 +584,7 @@ export class SOEServer extends EventEmitter {
   }
 
   deleteClient(client: SOEClient): void {
+    client.closeTimers();
     this._clients.delete(client.address + ":" + client.port);
     debug("client connection from port : ", client.port, " deleted");
   }

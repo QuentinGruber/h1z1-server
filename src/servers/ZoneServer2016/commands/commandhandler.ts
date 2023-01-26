@@ -13,10 +13,12 @@
 
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
-import { flhash } from "../../../utils/utils";
+import { flhash, logClientActionToMongo } from "../../../utils/utils";
 import { Command, PermissionLevels } from "./types";
 import { commands } from "./commands";
 import { internalCommands } from "./internalcommands";
+import { DB_COLLECTIONS } from "../../../utils/enums";
+import { Collection } from "mongodb";
 
 export class CommandHandler {
   readonly commands: { [hash: number]: Command } = {};
@@ -68,6 +70,19 @@ export class CommandHandler {
       if (!this.clientHasCommandPermission(server, client, command)) {
         server.sendChatText(client, "You don't have access to that.");
         return;
+      } else {
+        if (!server._soloMode) {
+          logClientActionToMongo(
+            server._db?.collection(DB_COLLECTIONS.COMMAND_USED) as Collection,
+            client,
+            server._worldId,
+            {
+              name: command.name,
+              permissionLevel: command.permissionLevel,
+              args,
+            }
+          );
+        }
       }
       command.execute(server, client, args);
     } else if (hash == flhash("HELP")) {
@@ -107,6 +122,15 @@ export class CommandHandler {
       if (!this.clientHasCommandPermission(server, client, command)) {
         server.sendChatText(client, "You don't have access to that.");
         return;
+      } else {
+        if (!server._soloMode) {
+          logClientActionToMongo(
+            server._db?.collection(DB_COLLECTIONS.COMMAND_USED) as Collection,
+            client,
+            server._worldId,
+            { name: command.name, permissionLevel: command.permissionLevel }
+          );
+        }
       }
       command.execute(server, client, packet.data);
     } else {

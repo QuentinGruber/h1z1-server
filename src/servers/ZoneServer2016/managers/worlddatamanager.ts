@@ -51,6 +51,8 @@ import { ConstructionDoor } from "../entities/constructiondoor";
 import { Items } from "../models/enums";
 import { PlantingDiameter } from "../entities/plantingdiameter";
 import { Plant } from "../entities/plant";
+import { DB_COLLECTIONS } from "../../../utils/enums";
+import { DB_NAME } from "../../../utils/constants";
 
 const fs = require("fs");
 const debug = require("debug")("ZoneServer");
@@ -149,9 +151,9 @@ export class WorldDataManager {
       }
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
-      (await mongoClient.db("h1server").collections()).length ||
+      (await mongoClient.db(DB_NAME).collections()).length ||
         (await initMongo(mongoClient, "ZoneServer"));
-      server._db = mongoClient.db("h1server");
+      server._db = mongoClient.db(DB_NAME);
     }
   }
 
@@ -159,16 +161,18 @@ export class WorldDataManager {
     if (server._soloMode) return;
     if (!server._worldId) {
       const worldCount: number =
-        (await server._db?.collection("worlds").countDocuments()) || 0;
+        (await server._db
+          ?.collection(DB_COLLECTIONS.WORLDS)
+          .countDocuments()) || 0;
       server._worldId = worldCount + 1;
-      await server._db?.collection("worlds").insertOne({
+      await server._db?.collection(DB_COLLECTIONS.WORLDS).insertOne({
         worldId: server._worldId,
         lastItemGuid: toBigHex(server.lastItemGuid),
         worldSaveVersion: server.worldSaveVersion,
       });
       debug("Existing world was not found, created one.");
     } else {
-      await server._db?.collection("worlds").insertOne({
+      await server._db?.collection(DB_COLLECTIONS.WORLDS).insertOne({
         worldId: server._worldId,
         lastItemGuid: toBigHex(server.lastItemGuid),
         worldSaveVersion: server.worldSaveVersion,
@@ -194,7 +198,7 @@ export class WorldDataManager {
         JSON.stringify({}, null, 2)
       );
     } else {
-      await server._db?.collection("worlds").deleteOne({
+      await server._db?.collection(DB_COLLECTIONS.WORLDS).deleteOne({
         worldId: server._worldId,
       });
     }
@@ -208,7 +212,7 @@ export class WorldDataManager {
         JSON.stringify([], null, 2)
       );
     } else {
-      await server._db?.collection("characters").updateMany(
+      await server._db?.collection(DB_COLLECTIONS.CHARACTERS).updateMany(
         {
           serverId: server._worldId,
         },
@@ -361,7 +365,7 @@ export class WorldDataManager {
     } else {
       serverData = <any>(
         await server._db
-          ?.collection("worlds")
+          ?.collection(DB_COLLECTIONS.WORLDS)
           .findOne({ worldId: server._worldId })
       );
     }
@@ -391,7 +395,7 @@ export class WorldDataManager {
         JSON.stringify(saveData, null, 2)
       );
     } else {
-      await server._db?.collection("worlds").updateOne(
+      await server._db?.collection(DB_COLLECTIONS.WORLDS).updateOne(
         { worldId: server._worldId },
         {
           $set: {
@@ -540,7 +544,7 @@ export class WorldDataManager {
         JSON.stringify([singlePlayerCharacter], null, 2)
       );
     } else {
-      await server._db?.collection("characters").updateOne(
+      await server._db?.collection(DB_COLLECTIONS.CHARACTERS).updateOne(
         {
           serverId: server._worldId,
           characterId: client.character.characterId,
@@ -630,7 +634,7 @@ export class WorldDataManager {
         JSON.stringify(vehicles, null, 2)
       );
     } else {
-      const collection = server._db?.collection("vehicles");
+      const collection = server._db?.collection(DB_COLLECTIONS.VEHICLES);
       collection?.deleteMany({ serverId: server._worldId }); // clear vehicles
       if (vehicles.length) collection?.insertMany(vehicles);
     }
@@ -819,6 +823,17 @@ export class WorldDataManager {
         return;
       }
     } else {
+      const hasTempData = Boolean(
+        (
+          await server._db
+            ?.collection("construction-temp")
+            .find({ serverId: server._worldId })
+            .toArray()
+        )?.length
+      );
+      if (hasTempData) {
+        throw "Database still have temp data for this worldId";
+      }
       constructionParents = <any>(
         await server._db
           ?.collection("construction")
@@ -972,9 +987,11 @@ export class WorldDataManager {
         JSON.stringify(construction, null, 2)
       );
     } else {
-      const tempCollection = server._db?.collection("construction-temp");
+      const tempCollection = server._db?.collection(
+        DB_COLLECTIONS.CONSTRUCTION_TEMP
+      );
       if (construction.length) await tempCollection?.insertMany(construction);
-      const collection = server._db?.collection("construction");
+      const collection = server._db?.collection(DB_COLLECTIONS.CONSTRUCTION);
       await collection?.deleteMany({ serverId: server._worldId });
       if (construction.length) await collection?.insertMany(construction);
       await tempCollection?.deleteMany({ serverId: server._worldId });
@@ -1024,8 +1041,8 @@ export class WorldDataManager {
         JSON.stringify(crops, null, 2)
       );
     } else {
-      const collection = server._db?.collection("crops");
-      const tempCollection = server._db?.collection("crops-temp");
+      const collection = server._db?.collection(DB_COLLECTIONS.CROPS);
+      const tempCollection = server._db?.collection(DB_COLLECTIONS.CROPS_TEMP);
       if (crops.length) await tempCollection?.insertMany(crops);
       await collection?.deleteMany({ serverId: server._worldId });
       if (crops.length) await collection?.insertMany(crops);
@@ -1100,9 +1117,20 @@ export class WorldDataManager {
         return;
       }
     } else {
+      const hasTempData = Boolean(
+        (
+          await server._db
+            ?.collection("crop-temp")
+            .find({ serverId: server._worldId })
+            .toArray()
+        )?.length
+      );
+      if (hasTempData) {
+        throw "Database still have temp data for this worldId";
+      }
       crops = <any>(
         await server._db
-          ?.collection("crops")
+          ?.collection(DB_COLLECTIONS.CROPS)
           .find({ serverId: server._worldId })
           .toArray()
       );
@@ -1125,8 +1153,12 @@ export class WorldDataManager {
         JSON.stringify(freeplace, null, 2)
       );
     } else {
-      const collection = server._db?.collection("worldconstruction");
-      const tempCollection = server._db?.collection("worldconstruction-temp");
+      const collection = server._db?.collection(
+        DB_COLLECTIONS.WORLD_CONSTRUCTIONS
+      );
+      const tempCollection = server._db?.collection(
+        DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP
+      );
       if (freeplace.length) await tempCollection?.insertMany(freeplace);
       await collection?.deleteMany({ serverId: server._worldId });
       if (freeplace.length) await collection?.insertMany(freeplace);
@@ -1145,9 +1177,20 @@ export class WorldDataManager {
         return;
       }
     } else {
+      const hasTempData = Boolean(
+        (
+          await server._db
+            ?.collection(DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP)
+            .find({ serverId: server._worldId })
+            .toArray()
+        )?.length
+      );
+      if (hasTempData) {
+        throw "Database still have temp data for this worldId";
+      }
       freeplace = <any>(
         await server._db
-          ?.collection("worldconstruction")
+          ?.collection(DB_COLLECTIONS.WORLD_CONSTRUCTIONS)
           .find({ serverId: server._worldId })
           .toArray()
       );

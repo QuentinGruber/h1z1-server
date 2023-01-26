@@ -23,9 +23,9 @@ import {
   _,
   Int64String,
   isPosInRadius,
-  toInt,
   toHex,
   quat2matrix,
+  logClientActionToMongo,
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -40,6 +40,7 @@ import {
   ItemUseOptions,
   Stances,
   VehicleIds,
+  LoadoutSlots,
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
@@ -47,12 +48,14 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./commands/commandhandler";
 import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
-import { ConstructionPermissions } from "types/zoneserver";
+import { Ban, ConstructionPermissions } from "types/zoneserver";
 import { GameTimeSync } from "types/zone2016packets";
 import { LootableProp } from "./entities/lootableprop";
 import { Vehicle2016 } from "./entities/vehicle";
 import { Plant } from "./entities/plant";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
+import { Collection } from "mongodb";
+import { DB_COLLECTIONS } from "../../utils/enums";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -133,10 +136,6 @@ export class zonePacketHandlers {
           server.sendAlert(client, "You are an admin!");
         }
       }, 10000);
-      server.sendChatTextToAllOthers(
-        client,
-        `${client.character.name} has joined the server !`
-      );
       if (client.banType != "") {
         server.sendChatTextToAdmins(
           `Silently banned ${client.character.name} has joined the server !`
@@ -361,6 +360,43 @@ export class zonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
+    if (packet.data.file === "Synchronization.log") {
+      if (
+        packet.data.message
+          .toLowerCase()
+          .includes("client clock drifted forward")
+      ) {
+        const pruned = packet.data.message
+          .replace("Client clock drifted forward by ", "")
+          .replace("ms over the server interval of ", "");
+        const drifted = Number(pruned.match(/\d+/).join("")) / 1000;
+        const interval = Number(
+          pruned.replace(pruned.match(/\d+/).join(""), "").replace(" s", "")
+        );
+        if (!server._soloMode) {
+          logClientActionToMongo(
+            server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+            client,
+            server._worldId,
+            {
+              type: "time drifted",
+              drifted,
+              interval,
+              accelerating: (drifted / interval) * 100,
+            }
+          );
+        }
+        server.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } time drifted forward ${drifted} s span of ${interval} s, accelerating by: ${(
+            (drifted / interval) *
+            100
+          ).toFixed(0)}%`,
+          false
+        );
+      }
+    }
     if (
       packet.data.file === "ClientProc.log" &&
       !client.clientLogs.includes(packet.data.message)
@@ -375,14 +411,16 @@ export class zonePacketHandlers {
       for (let x = 0; x < suspicious.length; x++) {
         if (packet.data.message.toLowerCase().includes(suspicious[x])) {
           obj.isSuspicious = true;
+          if (!server._soloMode) {
+            logClientActionToMongo(
+              server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+              client,
+              server._worldId,
+              { type: "suspicious software", suspicious: suspicious[x] }
+            );
+          }
           server.sendChatTextToAdmins(
-            `FairPlay: ${
-              client.character.name
-            } is using suspicious software - ${obj.log
-              .toLowerCase()
-              .substring(
-                obj.log.toLowerCase().lastIndexOf(suspicious[x].toLowerCase())
-              )}`,
+            `FairPlay: ${client.character.name} is using suspicious software - ${suspicious[x]}`,
             false
           );
         }
@@ -416,8 +454,12 @@ export class zonePacketHandlers {
     });
   }
   ChatChat(server: ZoneServer2016, client: Client, packet: any) {
-    const { channel, message } = packet.data;
-    server.sendChat(client, message);
+    const { channel, message } = packet.data; // leave channel for later
+    if (!client.radio) {
+      server.sendChatToAllInRange(client, message, 300);
+    } else if (client.radio) {
+      server.sendChatToAllWithRadio(client, message);
+    }
   }
   ClientInitializationDetails(
     server: ZoneServer2016,
@@ -524,7 +566,7 @@ export class zonePacketHandlers {
       require("../../../data/profilestats.json")
     );
   }
-  WallOfDataClientSystemInfo(
+  async WallOfDataClientSystemInfo(
     server: ZoneServer2016,
     client: Client,
     packet: any
@@ -533,22 +575,12 @@ export class zonePacketHandlers {
     const startPos = info.search("Device") + 9;
     const cut = info.substring(startPos, info.length);
     client.HWID = cut.substring(0, cut.search(",") - 1);
-    for (const a in server._bannedClients) {
-      const bannedClient = server._bannedClients[a];
-      if (
-        bannedClient.expirationDate != 0 &&
-        bannedClient.expirationDate < Date.now()
-      ) {
-        delete server._bannedClients[a];
-        continue;
-      }
-      if (
-        bannedClient.loginSessionId === client.loginSessionId ||
-        (bannedClient.HWID === client.HWID && client.HWID != "")
-      ) {
-        client.banType = bannedClient.banType;
-        server.enforceBan(client);
-      }
+    const hwidBanned: Ban = (await server._db
+      ?.collection(DB_COLLECTIONS.BANNED)
+      .findOne({ HWID: client.HWID, active: true })) as unknown as Ban;
+    if (hwidBanned?.expirationDate < Date.now()) {
+      client.banType = hwidBanned.banType;
+      server.enforceBan(client);
     }
   }
   DtoHitSpeedTreeReport(server: ZoneServer2016, client: Client, packet: any) {
@@ -594,7 +626,7 @@ export class zonePacketHandlers {
     );
     //}
     if (packet.data.positionUpdate.engineRPM) {
-      vehicle.positionUpdate = packet.data.positionUpdate;
+      vehicle.engineRPM = packet.data.positionUpdate.engineRPM;
     }
     if (packet.data.positionUpdate.position) {
       if (packet.data.positionUpdate.position[1] < -100) {
@@ -604,7 +636,7 @@ export class zonePacketHandlers {
       }
       vehicle.state.position = new Float32Array([
         packet.data.positionUpdate.position[0],
-        packet.data.positionUpdate.position[1],
+        packet.data.positionUpdate.position[1] - 0.4,
         packet.data.positionUpdate.position[2],
         1,
       ]);
@@ -621,7 +653,8 @@ export class zonePacketHandlers {
           vehicle.removePassenger(passenger);
         }
       });
-      if (client.vehicle.mountedVehicle === characterId) {
+      // disabled, dont think we need it and wastes alot of resources
+      /*if (client.vehicle.mountedVehicle === characterId) {
         if (
           !client.posAtLastRoutine ||
           !isPosInRadius(
@@ -632,7 +665,7 @@ export class zonePacketHandlers {
         ) {
           server.executeFuncForAllReadyClients(() => server.vehicleManager);
         }
-      }
+      }*/
     }
   }
   VehicleStateData(server: ZoneServer2016, client: Client, packet: any) {
@@ -664,24 +697,25 @@ export class zonePacketHandlers {
       // falling flag, ignore for now
     }
     if (packet.data.stance) {
-      if (packet.data.stance == Stances.JUMPING_STANDING) {
-        client.xsSecurityTimeout = setTimeout(() => {
-          delete client.xsSecurityTimeout;
-        }, 500);
-      }
       if (packet.data.stance == Stances.STANCE_XS) {
-        if (client.xsSecurityTimeout) {
-          const pos = client.character.state.position;
-          server.sendChatTextToAdmins(
-            `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
+        const pos = client.character.state.position;
+        if (!server._soloMode) {
+          logClientActionToMongo(
+            server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+            client,
+            server._worldId,
+            { type: "XS glitching", pos }
           );
-          setTimeout(() => {
-            server.sendData(client, "ClientUpdate.UpdateLocation", {
-              position: pos,
-              triggerLoadingScreen: false,
-            });
-          }, 1000);
         }
+        server.sendChatTextToAdmins(
+          `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
+        );
+        setTimeout(() => {
+          server.sendData(client, "ClientUpdate.UpdateLocation", {
+            position: pos,
+            triggerLoadingScreen: false,
+          });
+        }, 1000);
       }
       client.character.isRunning =
         packet.data.stance == Stances.MOVE_STANDING_SPRINTING ? true : false;
@@ -893,7 +927,7 @@ export class zonePacketHandlers {
     entity.OnInteractionString(server, client);
   }
   MountSeatChangeRequest(server: ZoneServer2016, client: Client, packet: any) {
-    server.changeSeat(client, packet);
+    //server.changeSeat(client, packet); disabled for now
   }
   ConstructionPlacementFinalizeRequest(
     server: ZoneServer2016,
@@ -1006,6 +1040,7 @@ export class zonePacketHandlers {
   //#region ITEMS
   RequestUseItem(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet.data);
+    if (packet.data.itemSubData?.count < 1) return;
     const { itemGuid } = packet.data;
     if (!itemGuid) {
       server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
@@ -1121,7 +1156,13 @@ export class zonePacketHandlers {
         server.igniteOption(client, item);
         break;
       case ItemUseOptions.UNLOAD:
-        item.weapon?.unload(server, client);
+        if (item.weapon) {
+          item.weapon.unload(server, client);
+        } else {
+          const msg = `Unload weapon failed for item ${item.itemDefinitionId}. Please report this!`;
+          server.sendAlert(client, msg);
+          console.log(msg);
+        }
         break;
       case ItemUseOptions.SALVAGE:
         server.salvageAmmo(client, item);
@@ -1275,7 +1316,11 @@ export class zonePacketHandlers {
     const foundation = server._constructionFoundations[
       packet.data.objectCharacterId
     ] as ConstructionParentEntity;
-    if (foundation.ownerCharacterId != client.character.characterId) return;
+    if (
+      foundation.ownerCharacterId != client.character.characterId &&
+      (!client.isAdmin || !client.isDebugMode) // allows debug mode
+    )
+      return; // add debug admin
     let characterId = "";
     for (const a in server._characters) {
       const character = server._characters[a];
@@ -1342,7 +1387,11 @@ export class zonePacketHandlers {
     const foundation = server._constructionFoundations[
       packet.data.objectCharacterId
     ] as ConstructionParentEntity;
-    if (foundation.ownerCharacterId != client.character.characterId) return;
+    if (
+      foundation.ownerCharacterId != client.character.characterId &&
+      (!client.isAdmin || !client.isDebugMode)
+    )
+      return;
     let characterId = "";
     for (const a in server._characters) {
       const character = server._characters[a];
@@ -1639,8 +1688,21 @@ export class zonePacketHandlers {
             "Update.ProjectileLaunch",
             {}
           );
+          const projectilesCount =
+            server.getWeaponAmmoId(weaponItem.itemDefinitionId) ==
+            Items.AMMO_12GA
+              ? 12
+              : 1;
+          client.allowedProjectiles += projectilesCount;
           break;
         case "Weapon.ProjectileHitReport":
+          if (!client.allowedProjectiles) {
+            server.sendChatTextToAdmins(
+              `FairPlay: ${client.character.name} is hitting projectiles without ammunition`
+            );
+            return;
+          }
+          client.allowedProjectiles--;
           if (
             client.character.getEquippedWeapon().itemDefinitionId ==
             Items.WEAPON_REMOVER
@@ -1656,19 +1718,14 @@ export class zonePacketHandlers {
                 server.deleteEntity(characterId, server._npcs);
                 break;
               case EntityTypes.VEHICLE:
-                if (!server._vehicles[characterId]) {
-                  return;
-                }
-                server.deleteEntity(characterId, server._vehicles);
+                const vehicle = server._vehicles[characterId];
+                if (!vehicle) return;
+                vehicle.destroy(server, true);
                 break;
               case EntityTypes.OBJECT:
-                if (!server._spawnedItems[characterId]) {
-                  return;
-                }
-                delete server.worldObjectManager._spawnedLootObjects[
-                  server._spawnedItems[characterId].spawnerId
-                ];
-                server.deleteEntity(characterId, server._spawnedItems);
+                const object = server._spawnedItems[characterId];
+                if (!object) return;
+                object.destroy(server);
                 break;
               case EntityTypes.EXPLOSIVE:
                 server.deleteEntity(characterId, server._explosives);
@@ -1693,6 +1750,9 @@ export class zonePacketHandlers {
           break;
         case "Weapon.ReloadRequest":
           if (weaponItem.weapon.reloadTimer) return;
+          setTimeout(() => {
+            client.allowedProjectiles = 0;
+          }, 100);
           // force 0 firestate so gun doesnt shoot randomly after reloading
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,
@@ -1916,6 +1976,18 @@ export class zonePacketHandlers {
       packet
     );
   }
+  VoiceRadioChannel(server: ZoneServer2016, client: Client, packet: any) {
+    if (!client.character._loadout[LoadoutSlots.RADIO]) return;
+    if (
+      client.character._loadout[LoadoutSlots.RADIO].itemDefinitionId !=
+      Items.EMERGENCY_RADIO
+    )
+      return;
+    client.radio = true;
+  }
+  VoiceLeaveRadio(server: ZoneServer2016, client: Client, packet: any) {
+    client.radio = false;
+  }
   EndCharacterAccess(server: ZoneServer2016, client: Client, packet: any) {
     client.character.dismountContainer(server);
   }
@@ -2094,6 +2166,7 @@ export class zonePacketHandlers {
         break;
       case "Loadout.SelectSlot":
         this.LoadoutSelectSlot(server, client, packet);
+        client.allowedProjectiles = 0; // reset allowed projectile after weapon switch
         break;
       case "Weapon.Weapon":
         this.Weapon(server, client, packet);
@@ -2103,6 +2176,12 @@ export class zonePacketHandlers {
         break;
       case "Command.Spectate":
         this.CommandSpectate(server, client, packet);
+        break;
+      case "Voice.RadioChannel":
+        this.VoiceRadioChannel(server, client, packet);
+        break;
+      case "Voice.LeaveRadio":
+        this.VoiceLeaveRadio(server, client, packet);
         break;
       case "AccessedCharacter.EndCharacterAccess":
         this.EndCharacterAccess(server, client, packet);

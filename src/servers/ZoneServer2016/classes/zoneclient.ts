@@ -26,6 +26,7 @@ export class ZoneClient2016 {
   characterReleased: boolean = false;
   isInteracting: boolean = false;
   isAdmin: boolean = false;
+  isDebugMode: boolean = false;
   banType: string = "";
   HWID: string = "";
   posAtLastRoutine: Float32Array = new Float32Array();
@@ -35,6 +36,7 @@ export class ZoneClient2016 {
     time: 0,
   };
   speedWarnsNumber: number = 0;
+  allowedProjectiles: number = 0;
   pvpStats: {
     shotsFired: number;
     shotsHit: number;
@@ -59,6 +61,7 @@ export class ZoneClient2016 {
   vehicle: {
     mountedVehicle?: string;
   } = {};
+  radio: boolean = false;
   npcsToSpawnTimer!: NodeJS.Timeout;
   loginSessionId: string;
   pingTimer: NodeJS.Timeout | undefined;
@@ -75,7 +78,7 @@ export class ZoneClient2016 {
   avgPingReady: boolean = false;
   chunkRenderDistance: number = 400;
   routineInterval?: NodeJS.Timeout;
-  xsSecurityTimeout?: NodeJS.Timeout;
+  routineCounter: number = 0;
   constructor(
     sessionId: number,
     soeClientId: string,
