@@ -3127,8 +3127,10 @@ export class ZoneServer2016 extends EventEmitter {
             position,
             object.state.position
           )
-        )
+        ) {
           continue;
+        }
+          
         if (object instanceof ConstructionParentEntity) {
           this.spawnConstructionParent(client, object);
           continue;
