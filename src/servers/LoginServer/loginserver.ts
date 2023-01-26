@@ -614,22 +614,6 @@ export class LoginServer extends EventEmitter {
           gameVersion: client.gameVersion,
         })
         .toArray();
-      const userWhiteList = await this._db
-        .collection("servers-whitelist")
-        .find({ userId: client.loginSessionId })
-        .toArray();
-      if (userWhiteList) {
-        for (let i = 0; i < servers.length; i++) {
-          if (!servers[i].allowedAccess) {
-            for (let y = 0; y < userWhiteList.length; y++) {
-              if (servers[i].serverId == userWhiteList[y].serverId) {
-                servers[i].allowedAccess = true;
-              }
-            }
-            delete servers[i]._id;
-          }
-        }
-      }
     } else {
       switch (client.gameVersion) {
         default:
