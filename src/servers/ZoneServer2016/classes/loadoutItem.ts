@@ -55,13 +55,11 @@ export class LoadoutItem extends BaseItem {
     }
     if (oldLoadoutItem) {
       if (!server.removeLoadoutItem(client, oldLoadoutItem.slotId)) {
-        console.log("error 1");
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
     }
     if (!server.removeLoadoutItem(client, this.slotId)) {
-      console.log("error 2");
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }

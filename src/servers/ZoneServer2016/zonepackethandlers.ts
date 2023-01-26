@@ -1156,7 +1156,14 @@ export class zonePacketHandlers {
         server.igniteOption(client, item);
         break;
       case ItemUseOptions.UNLOAD:
-        item.weapon?.unload(server, client);
+        if(item.weapon) {
+          item.weapon.unload(server, client);
+        }
+        else {
+          const msg = `Unload weapon failed for item ${item.itemDefinitionId}. Please report this!`;
+          server.sendAlert(client, msg);
+          console.log(msg);
+        }
         break;
       case ItemUseOptions.SALVAGE:
         server.salvageAmmo(client, item);

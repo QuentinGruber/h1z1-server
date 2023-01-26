@@ -2131,7 +2131,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (item.currentDurability <= 0) {
       this.removeInventoryItem(client, item);
       if (this.isWeapon(item.itemDefinitionId)) {
-        client.character.lootContainerItem(this, this.generateItem(1354));
+        client.character.lootContainerItem(this, this.generateItem(Items.BROKEN_METAL_ITEM));
       }
       return;
     }
