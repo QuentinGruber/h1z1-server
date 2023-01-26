@@ -268,7 +268,7 @@ export class WeatherManager {
       unknownDword12: 0.25,
       sunAxisX: 0,
       sunAxisY: 0,
-	  unknownDword15: 0,
+      unknownDword15: 0,
       windDirectionX: -1,
       windDirectionY: -0.5,
       windDirectionZ: -1,
