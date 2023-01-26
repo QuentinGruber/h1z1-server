@@ -3080,21 +3080,22 @@ export class ZoneServer2016 extends EventEmitter {
       const itemObject = this._spawnedItems[characterId];
       if (!itemObject) return;
       // dropped item despawner
-      if (
-        Date.now() - itemObject.creationTime >=
-        this.worldObjectManager.itemDespawnTimer
-      ) {
-        switch (itemObject.spawnerId) {
-          case -1:
-            this.deleteEntity(itemObject.characterId, this._spawnedItems);
-            this.sendCompositeEffectToAllWithSpawnedEntity(
-              this._spawnedItems,
-              itemObject,
-              this.getItemDefinition(itemObject.item.itemDefinitionId)
-                .PICKUP_EFFECT ?? 5151
-            );
-            continue;
-        }
+      const despawnTime =
+        itemObject.spawnerId == -1
+          ? this.worldObjectManager.itemDespawnTimer
+          : this.worldObjectManager.lootDespawnTimer;
+      if (Date.now() - itemObject.creationTime >= despawnTime) {
+        this.deleteEntity(itemObject.characterId, this._spawnedItems);
+        if (itemObject.spawnerId != -1)
+          delete this.worldObjectManager._spawnedLootObjects[
+            itemObject.spawnerId
+          ];
+        this.sendCompositeEffectToAllWithSpawnedEntity(
+          this._spawnedItems,
+          itemObject,
+          this.getItemDefinition(itemObject.item.itemDefinitionId)
+            .PICKUP_EFFECT ?? 5151
+        );
       }
     }
   }

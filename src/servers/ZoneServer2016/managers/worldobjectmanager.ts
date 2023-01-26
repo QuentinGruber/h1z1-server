@@ -129,7 +129,8 @@ export class WorldObjectManager {
   vehicleRespawnTimer: number = 600000; // 10 minutes // 600000
   npcRespawnTimer: number = 600000; // 10 minutes
   // items get despawned after x minutes
-  itemDespawnTimer: number = 1800000; // 30 minutes
+  itemDespawnTimer: number = 600000; // 10 minutes
+  lootDespawnTimer: number = 3600000; // 60 minutes
   deadNpcDespawnTimer: number = 600000; // 10 minutes
 
   // objects won't spawn if another object is within this radius
