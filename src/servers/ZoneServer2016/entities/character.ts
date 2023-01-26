@@ -123,7 +123,7 @@ export class Character2016 extends BaseFullCharacter {
       new Float32Array([0, 0, 0, 1]),
       server
     );
-    this.npcRenderDistance = 200;
+    this.npcRenderDistance = 300;
     this.healingTicks = 0;
     this.healingMaxTicks = 0;
     (this._resources = {

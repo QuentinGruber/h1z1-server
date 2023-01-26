@@ -625,8 +625,11 @@ export class zonePacketHandlers {
       }
     );
     //}
+    if (packet.data.positionUpdate.frontTilt) vehicle.positionUpdate.frontTilt = packet.positionUpdate.frontTilt
+    if (packet.data.positionUpdate.sideTilt) vehicle.positionUpdate.sideTilt = packet.positionUpdate.sideTilt
+    if (packet.data.positionUpdate.orientation) vehicle.positionUpdate.orientation = packet.positionUpdate.orientation
     if (packet.data.positionUpdate.engineRPM) {
-      vehicle.positionUpdate = packet.data.positionUpdate;
+      vehicle.engineRPM = packet.data.positionUpdate.engineRPM;
     }
     if (packet.data.positionUpdate.position) {
       if (packet.data.positionUpdate.position[1] < -100) {
@@ -636,7 +639,7 @@ export class zonePacketHandlers {
       }
       vehicle.state.position = new Float32Array([
         packet.data.positionUpdate.position[0],
-        packet.data.positionUpdate.position[1],
+        packet.data.positionUpdate.position[1] - 0.4,
         packet.data.positionUpdate.position[2],
         1,
       ]);
