@@ -540,7 +540,8 @@ export class Vehicle2016 extends BaseLootableEntity {
         },
       },
     });
-    for (const a in this.seats) {
+    // disable this workaround for now
+    /*for (const a in this.seats) {
       const seatId = this.getCharacterSeat(this.seats[a]);
       if (!this.seats[a]) continue;
       server.sendData(client, "Mount.MountResponse", {
@@ -551,7 +552,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         unknownDword3: seatId === "0" ? 1 : 0, //isDriver
         identity: {},
       });
-    }
+    }*/
 
     if (this.currentDamageEffect != 0) {
       server.sendData(client, "Command.PlayDialogEffect", {
