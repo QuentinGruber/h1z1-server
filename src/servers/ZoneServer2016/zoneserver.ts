@@ -150,7 +150,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
 export class ZoneServer2016 extends EventEmitter {
   private _gatewayServer: GatewayServer;
   readonly _protocol: H1Z1Protocol;
-  _db?: Db;
+  _db!: Db;
   _soloMode = false;
   _useFairPlay = true;
   _serverName = process.env.SERVER_NAME || "";
