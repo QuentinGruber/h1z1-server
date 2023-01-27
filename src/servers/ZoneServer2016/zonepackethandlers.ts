@@ -593,7 +593,7 @@ export class zonePacketHandlers {
       .findOne({ HWID: client.HWID, active: true })) as unknown as Ban;
     if (hwidBanned?.expirationDate < Date.now()) {
       client.banType = hwidBanned.banType;
-      server.enforceBan(client);
+      //server.enforceBan(client);
     }
   }
   DtoHitSpeedTreeReport(server: ZoneServer2016, client: Client, packet: any) {
