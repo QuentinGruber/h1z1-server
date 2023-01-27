@@ -41,9 +41,7 @@ export class customLodash {
   }
   cloneDeep(value: unknown):unknown {
     return structuredClone(value)
-    // return JSON.parse(JSON.stringify(value))
   }
-
   find(array: any[], filter: any) {
     return array.find(filter);
   }
