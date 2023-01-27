@@ -840,7 +840,7 @@ export class WorldDataManager {
         .find({ serverId: server._worldId })
         .toArray();
 
-      if (tempData.values.length) {
+      if (tempData.length) {
         await fixDbTempData(
           server,
           tempData,
@@ -1135,7 +1135,7 @@ export class WorldDataManager {
         ?.collection("crop-temp")
         .find({ serverId: server._worldId })
         .toArray();
-      if (tempData.values.length) {
+      if (tempData.length) {
         await fixDbTempData(
           server,
           tempData,
@@ -1196,7 +1196,7 @@ export class WorldDataManager {
         ?.collection(DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP)
         .find({ serverId: server._worldId })
         .toArray();
-      if (tempData.values.length) {
+      if (tempData.length) {
         await fixDbTempData(
           server,
           tempData,
