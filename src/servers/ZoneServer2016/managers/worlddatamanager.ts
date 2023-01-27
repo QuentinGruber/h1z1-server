@@ -129,9 +129,7 @@ export class WorldDataManager {
       server.executeFuncForAllReadyClients((client: Client) => {
         this.saveCharacterData(server, client);
       });
-      server.sendChatTextToAdmins("World save started.");
       this.saveWorld(server);
-      server.sendChatTextToAdmins("World saved!");
 
       this.lastSaveTime = Date.now();
     }
@@ -228,12 +226,26 @@ export class WorldDataManager {
   }
 
   async saveWorld(server: ZoneServer2016) {
-    //await this.saveVehicles(server);
-    await this.saveServerData(server);
-    await this.saveCharacters(server);
-    await this.saveConstructionData(server);
-    await this.saveWorldFreeplaceConstruction(server);
-    await this.saveCropData(server);
+    if (server.isSaving) {
+      server.sendChatTextToAdmins("A save is already in progress.");
+      return;
+    }
+    server.sendChatTextToAdmins("World save started.");
+    server.isSaving = true;
+    try {
+      //await this.saveVehicles(server);
+      await this.saveServerData(server);
+      await this.saveCharacters(server);
+      await this.saveConstructionData(server);
+      await this.saveWorldFreeplaceConstruction(server);
+      await this.saveCropData(server);
+    } catch (e) {
+      console.log(e);
+      server.isSaving = false;
+      server.sendChatTextToAdmins("World save failed!");
+    }
+    server.isSaving = false;
+    server.sendChatTextToAdmins("World saved!");
     debug("World saved!");
   }
 

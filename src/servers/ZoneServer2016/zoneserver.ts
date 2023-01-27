@@ -247,6 +247,7 @@ export class ZoneServer2016 extends EventEmitter {
   readonly worldSaveVersion: number = 2;
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
   private _proximityItemsDistance: number = 2;
+  isSaving: boolean = false;
 
   constructor(
     serverPort: number,
