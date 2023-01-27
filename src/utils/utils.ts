@@ -358,12 +358,16 @@ export const isInsideCube = (
   return inside && isBetween(y_radius, y_pos1, y_pos2);
 };
 
-export const isPosInRadius = (radius: number, player_position: Float32Array, enemi_position: Float32Array): boolean => {
-    const xDiff = player_position[0] - enemi_position[0];
-    const zDiff = player_position[2] - enemi_position[2];
-    const radiusSquared = radius * radius;
+export const isPosInRadius = (
+  radius: number,
+  player_position: Float32Array,
+  enemi_position: Float32Array
+): boolean => {
+  const xDiff = player_position[0] - enemi_position[0];
+  const zDiff = player_position[2] - enemi_position[2];
+  const radiusSquared = radius * radius;
 
-    return (xDiff * xDiff + zDiff * zDiff) <= radiusSquared;
+  return xDiff * xDiff + zDiff * zDiff <= radiusSquared;
 };
 export const isPosInRadiusWithY = (
   radius: number,

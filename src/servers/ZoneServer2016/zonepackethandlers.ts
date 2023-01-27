@@ -418,7 +418,7 @@ export class zonePacketHandlers {
         "processhacker",
         "visual studio",
         "devenv.exe",
-        "code.exe"
+        "code.exe",
       ];
       const obj = { log: packet.data.message, isSuspicious: false };
       for (let x = 0; x < suspicious.length; x++) {
