@@ -806,3 +806,25 @@ export async function logClientActionToMongo(
     loginSessionId: client.loginSessionId,
   });
 }
+
+export async function fixDbTempData(
+  server: ZoneServer2016,
+  tempData: any,
+  collection: DB_COLLECTIONS,
+  tempCollection: DB_COLLECTIONS
+) {
+  console.log(`DB: move ${tempCollection} data to ${collection}`);
+  for (let i = 0; i < tempData.length; i++) {
+    const tempItem = tempData[i];
+    await server._db
+      .collection(collection)
+      .findOneAndUpdate(
+        { _id: tempItem._id },
+        { $set: tempItem },
+        { upsert: true }
+      );
+  }
+  await server._db
+    ?.collection(tempCollection)
+    .deleteMany({ serverId: server._worldId });
+}

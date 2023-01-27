@@ -33,7 +33,7 @@ import {
   ServerSaveData,
   WeaponSaveData,
 } from "types/savedata";
-import { initMongo, toBigHex, _ } from "../../../utils/utils";
+import { fixDbTempData, initMongo, toBigHex, _ } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../entities/vehicle";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
@@ -835,16 +835,18 @@ export class WorldDataManager {
         return;
       }
     } else {
-      const hasTempData = Boolean(
-        (
-          await server._db
-            ?.collection("construction-temp")
-            .find({ serverId: server._worldId })
-            .toArray()
-        )?.length
-      );
-      if (hasTempData) {
-        throw "Database still have temp data for this worldId";
+      const tempData = await server._db
+        ?.collection(DB_COLLECTIONS.CONSTRUCTION_TEMP)
+        .find({ serverId: server._worldId })
+        .toArray();
+
+      if (tempData) {
+        await fixDbTempData(
+          server,
+          tempData,
+          DB_COLLECTIONS.CONSTRUCTION,
+          DB_COLLECTIONS.CONSTRUCTION_TEMP
+        );
       }
       constructionParents = <any>(
         await server._db
@@ -1129,16 +1131,17 @@ export class WorldDataManager {
         return;
       }
     } else {
-      const hasTempData = Boolean(
-        (
-          await server._db
-            ?.collection("crop-temp")
-            .find({ serverId: server._worldId })
-            .toArray()
-        )?.length
-      );
-      if (hasTempData) {
-        throw "Database still have temp data for this worldId";
+      const tempData = await server._db
+        ?.collection("crop-temp")
+        .find({ serverId: server._worldId })
+        .toArray();
+      if (tempData) {
+        await fixDbTempData(
+          server,
+          tempData,
+          DB_COLLECTIONS.CROPS,
+          DB_COLLECTIONS.CROPS_TEMP
+        );
       }
       crops = <any>(
         await server._db
@@ -1189,16 +1192,17 @@ export class WorldDataManager {
         return;
       }
     } else {
-      const hasTempData = Boolean(
-        (
-          await server._db
-            ?.collection(DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP)
-            .find({ serverId: server._worldId })
-            .toArray()
-        )?.length
-      );
-      if (hasTempData) {
-        throw "Database still have temp data for this worldId";
+      const tempData = await server._db
+        ?.collection(DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP)
+        .find({ serverId: server._worldId })
+        .toArray();
+      if (tempData) {
+        await fixDbTempData(
+          server,
+          tempData,
+          DB_COLLECTIONS.WORLD_CONSTRUCTIONS,
+          DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP
+        );
       }
       freeplace = <any>(
         await server._db
