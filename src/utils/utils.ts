@@ -12,7 +12,6 @@
 // ======================================================================
 
 import { generate_random_guid } from "h1emu-core";
-import v8 from "v8";
 import { compress, compressBound } from "./lz4/lz4";
 import fs, { readdirSync } from "fs";
 import { normalize, resolve } from "path";
@@ -40,8 +39,9 @@ export class customLodash {
   sum(pings: number[]): number {
     return pings.reduce((a, b) => a + b, 0);
   }
-  cloneDeep(value: unknown) {
-    return v8.deserialize(v8.serialize(value));
+  cloneDeep(value: unknown):unknown {
+    return structuredClone(value)
+    // return JSON.parse(JSON.stringify(value))
   }
 
   find(array: any[], filter: any) {
