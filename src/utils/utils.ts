@@ -39,8 +39,8 @@ export class customLodash {
   sum(pings: number[]): number {
     return pings.reduce((a, b) => a + b, 0);
   }
-  cloneDeep(value: unknown):unknown {
-    return structuredClone(value)
+  cloneDeep(value: unknown): unknown {
+    return structuredClone(value);
   }
   find(array: any[], filter: any) {
     return array.find(filter);
