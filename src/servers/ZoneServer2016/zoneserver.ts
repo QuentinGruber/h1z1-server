@@ -3449,21 +3449,16 @@ export class ZoneServer2016 extends EventEmitter {
   sendChatToAllWithRadio(client: Client, message: string) {
     for (const a in this._clients) {
       const c = this._clients[a];
-      if (!c.character._loadout[LoadoutSlots.RADIO]) return;
-      if (
-        c.character._loadout[LoadoutSlots.RADIO].itemDefinitionId !=
-          Items.EMERGENCY_RADIO ||
-        !c.radio
-      )
-        return;
-      this.sendData(c, "Chat.ChatText", {
-        message: `[RADIO: ${client.character.name}]: ${message}`,
-        unknownDword1: 0,
-        color: [255, 255, 255, 0],
-        unknownDword2: 13951728,
-        unknownByte3: 0,
-        unknownByte4: 1,
-      });
+      if (c.radio) {
+        this.sendData(c, "Chat.ChatText", {
+          message: `[RADIO: ${client.character.name}]: ${message}`,
+          unknownDword1: 0,
+          color: [255, 255, 255, 0],
+          unknownDword2: 13951728,
+          unknownByte3: 0,
+          unknownByte4: 1,
+        });
+      }
     }
   }
 
@@ -3709,10 +3704,11 @@ export class ZoneServer2016 extends EventEmitter {
           });
           client.spawnedEntities.push(vehicle);
         }
-        if (!vehicle.isManaged) {
+        // disable managing vehicles with routine, leaving only managind when entering it
+        /*if (!vehicle.isManaged) {
           // assigns management to first client within radius
           this.assignManagedObject(client, vehicle);
-        }
+        }*/
       } else if (
         !isPosInRadius(
           this._charactersRenderDistance,
