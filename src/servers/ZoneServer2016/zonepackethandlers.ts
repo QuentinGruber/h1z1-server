@@ -403,9 +403,22 @@ export class zonePacketHandlers {
     ) {
       const suspicious = [
         "cheatengine",
+        "artmoney",
+        "cosmos",
+        "wemod",
         "injector",
-        "gameover",
+        "visual",
+        "ida.exe",
+        "ida64",
+        "ida32",
+        "idafree",
+        "ghidra",
+        "javaw.exe", // seems like the only way to track ghidra open?
+        "codebrowser",
         "processhacker",
+        "visual studio",
+        "devenv.exe",
+        "code.exe"
       ];
       const obj = { log: packet.data.message, isSuspicious: false };
       for (let x = 0; x < suspicious.length; x++) {
