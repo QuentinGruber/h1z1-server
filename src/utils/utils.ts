@@ -361,10 +361,11 @@ export const isPosInRadius = (
   player_position: Float32Array,
   enemi_position: Float32Array
 ): boolean => {
-  return (
-    isBetween(radius, player_position[0], enemi_position[0]) &&
-    isBetween(radius, player_position[2], enemi_position[2])
-  );
+  const xDiff = player_position[0] - enemi_position[0];
+  const zDiff = player_position[2] - enemi_position[2];
+  const radiusSquared = radius * radius;
+
+  return xDiff * xDiff + zDiff * zDiff <= radiusSquared;
 };
 export const isPosInRadiusWithY = (
   radius: number,

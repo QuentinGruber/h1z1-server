@@ -1449,7 +1449,7 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      const name = args[0].toString().toLowerCase();
+      const name = args.join(" ").toString().toLowerCase();
       const bannedClient = (
         await server._db
           ?.collection(DB_COLLECTIONS.BANNED)
@@ -1463,7 +1463,7 @@ export const commands: Array<Command> = [
       } else {
         server.sendChatText(
           client,
-          `Cannot find any banned user with name ${args[0]}`
+          `Cannot find any banned user with name ${name}`
         );
       }
     },
