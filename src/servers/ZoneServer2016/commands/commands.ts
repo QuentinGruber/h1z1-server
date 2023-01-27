@@ -1271,9 +1271,7 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Server saving is disabled.");
         return;
       }
-      server.sendChatText(client, "World save started.");
       await server.worldDataManager.saveWorld(server);
-      server.sendChatText(client, "World saved!");
     },
   },
   {
