@@ -816,10 +816,11 @@ export async function fixDbTempData(
   console.log(`DB: move ${tempCollection} data to ${collection}`);
   for (let i = 0; i < tempData.length; i++) {
     const tempItem = tempData[i];
+    delete tempItem._id;
     await server._db
       .collection(collection)
       .findOneAndUpdate(
-        { _id: tempItem._id },
+        { characterId: tempItem.characterId },
         { $set: tempItem },
         { upsert: true }
       );
