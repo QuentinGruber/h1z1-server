@@ -911,7 +911,9 @@ export class ZoneServer2016 extends EventEmitter {
       await this.worldDataManager.insertWorld(this);
       await this.worldDataManager.saveWorld(this);
     }
+    console.time("fetch world data");
     await this.worldDataManager.fetchWorldData(this);
+    console.timeEnd("fetch world data");
     if (!this._soloMode) {
       this.initializeLoginServerConnection();
     }
