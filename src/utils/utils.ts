@@ -19,7 +19,7 @@ import {
   setImmediate as setImmediatePromise,
   setTimeout as setTimeoutPromise,
 } from "timers/promises";
-import { Collection, MongoClient } from "mongodb";
+import { Collection, Db, MongoClient } from "mongodb";
 import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
@@ -471,8 +471,8 @@ export const generateRandomGuid = function (): string {
   return "0x" + generate_random_guid();
 };
 
-export function* generateTransientId() {
-  let id = 0;
+export function* generateTransientId(startId: number = 0) {
+  let id = startId;
   for (let index = 0; index < MAX_TRANSIENT_ID; index++) {
     yield id++;
   }
@@ -808,7 +808,8 @@ export async function logClientActionToMongo(
 }
 
 export async function fixDbTempData(
-  server: ZoneServer2016,
+  db: Db,
+  worldId:number,
   tempData: any,
   collection: DB_COLLECTIONS,
   tempCollection: DB_COLLECTIONS
@@ -817,7 +818,7 @@ export async function fixDbTempData(
   for (let i = 0; i < tempData.length; i++) {
     const tempItem = tempData[i];
     delete tempItem._id;
-    await server._db
+    await db
       .collection(collection)
       .findOneAndUpdate(
         { characterId: tempItem.characterId },
@@ -825,7 +826,7 @@ export async function fixDbTempData(
         { upsert: true }
       );
   }
-  await server._db
+  await db
     ?.collection(tempCollection)
-    .deleteMany({ serverId: server._worldId });
+    .deleteMany({ serverId: worldId });
 }

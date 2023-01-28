@@ -129,6 +129,7 @@ import { LootableProp } from "./entities/lootableprop";
 import { PlantingDiameter } from "./entities/plantingdiameter";
 import { Plant } from "./entities/plant";
 import { SmeltingEntity } from "./classes/smeltingentity";
+import { spawn, Worker } from "threads";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -161,7 +162,6 @@ export class ZoneServer2016 extends EventEmitter {
   _defaultWeatherTemplate = "z1br";
   _spawnLocations: Array<SpawnLocation> = spawnLocations;
   private _h1emuZoneServer!: H1emuZoneServer;
-  readonly _appDataFolder = getAppDataFolderPath();
   _worldId = 0;
   _grid: GridCell[] = [];
   readonly _clients: { [characterId: string]: Client } = {};
@@ -223,7 +223,7 @@ export class ZoneServer2016 extends EventEmitter {
   _weatherTemplates: any;
   worldObjectManager: WorldObjectManager;
   weatherManager: WeatherManager;
-  worldDataManager: WorldDataManager;
+  worldDataManager!: any;
   hookManager: HookManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
@@ -266,7 +266,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
     this.weatherManager = new WeatherManager();
-    this.worldDataManager = new WorldDataManager();
     this.hookManager = new HookManager();
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
@@ -895,10 +894,14 @@ export class ZoneServer2016 extends EventEmitter {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
 
+    this.worldDataManager = await spawn(new Worker("./managers/w")) ;
+      await this.worldDataManager.initialize(this._worldId,this._mongoAddress);
     if (!this._soloMode) {
-      await this.worldDataManager.initializeDatabase(this);
+      this._db = await WorldDataManager.getDatabase(this._mongoAddress);
     }
-    const loadedWorld = await this.worldDataManager.getServerData(this);
+    if(this.enableWorldSaves){
+    const loadedWorld = await this.worldDataManager.getServerData(this._worldId,this._soloMode);
+    console.log(loadedWorld)
     if (loadedWorld) {
       if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
         console.log(
@@ -912,9 +915,17 @@ export class ZoneServer2016 extends EventEmitter {
       await this.worldDataManager.insertWorld(this);
       await this.worldDataManager.saveWorld(this);
     }
+    this.lastItemGuid = BigInt(
+      loadedWorld.lastItemGuid || this.lastItemGuid
+    );
     console.time("fetch world data");
+      // return un obj avec les differents type d'item + le dernier transientId
+      // fais + de call static et INSHALLAH
     await this.worldDataManager.fetchWorldData(this);
+      // UNUSED ???
+    // this._transientIds = this.getAllCurrentUsedTransientId();
     console.timeEnd("fetch world data");
+      }
     if (!this._soloMode) {
       this.initializeLoginServerConnection();
     }

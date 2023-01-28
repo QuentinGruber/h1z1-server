@@ -33,7 +33,7 @@ import {
   ServerSaveData,
   WeaponSaveData,
 } from "types/savedata";
-import { fixDbTempData, initMongo, toBigHex, _ } from "../../../utils/utils";
+import { fixDbTempData, getAppDataFolderPath, initMongo, toBigHex, _ } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../entities/vehicle";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
@@ -122,6 +122,11 @@ function constructContainers(
 export class WorldDataManager {
   lastSaveTime = 0;
   saveTimer = 600000; // 10 minutes
+  private _db: any;
+  readonly _appDataFolder = getAppDataFolderPath();
+    private _worldId: number = 0;
+    private _soloMode: boolean = false;
+  
   run(server: ZoneServer2016) {
     if (!server.enableWorldSaves) return;
     debug("WorldDataManager::Run");
@@ -135,23 +140,29 @@ export class WorldDataManager {
     }
   }
 
-  async initializeDatabase(server: ZoneServer2016) {
-    if (server._mongoAddress) {
-      const mongoClient = new MongoClient(server._mongoAddress, {
+  static async getDatabase(mongoAddress: string){
+      const mongoClient = new MongoClient(mongoAddress, {
         maxPoolSize: 50,
       });
       try {
         await mongoClient.connect();
       } catch (e) {
         throw debug(
-          "[ERROR]Unable to connect to mongo server " + server._mongoAddress
+          "[ERROR]Unable to connect to mongo server " + mongoAddress
         );
       }
       debug("connected to mongo !");
       // if no collections exist on h1server database , fill it with samples
       (await mongoClient.db(DB_NAME).collections()).length ||
         (await initMongo(mongoClient, "ZoneServer"));
-      server._db = mongoClient.db(DB_NAME);
+      return mongoClient.db(DB_NAME);
+  }
+
+  async initialize(worldId:number,mongoAddress: string ) {
+    this._soloMode = !mongoAddress;
+    this._worldId = worldId;
+    if(!this._soloMode){
+      this._db = await WorldDataManager.getDatabase(mongoAddress)
     }
   }
 
@@ -181,11 +192,9 @@ export class WorldDataManager {
   async fetchWorldData(server: ZoneServer2016) {
     if (!server.enableWorldSaves) return;
     //await this.loadVehicleData(server);
-    await this.loadServerData(server);
-    await this.loadConstructionData(server);
-    await this.loadWorldFreeplaceConstruction(server);
-    await this.loadCropData(server);
-    server._transientIds = server.getAllCurrentUsedTransientId();
+    await this.loadConstructionData();
+    await this.loadWorldFreeplaceConstruction();
+    await this.loadCropData();
     debug("World fetched!");
   }
   async deleteServerData(server: ZoneServer2016) {
@@ -364,35 +373,24 @@ export class WorldDataManager {
   //#region SERVER DATA
 
   async getServerData(
-    server: ZoneServer2016
-  ): Promise<ServerSaveData | undefined> {
-    if (!server.enableWorldSaves) return;
+    serverId: number, soloMode:boolean  ): Promise<ServerSaveData | undefined> {
     let serverData: ServerSaveData;
-    if (server._soloMode) {
-      serverData = require(`${server._appDataFolder}/worlddata/world.json`);
+    if (soloMode) {
+      serverData = require(`${this._appDataFolder}/worlddata/world.json`);
       if (!serverData) {
         debug("World data not found in file, aborting.");
         return;
       }
     } else {
       serverData = <any>(
-        await server._db
+        await this._db
           ?.collection(DB_COLLECTIONS.WORLDS)
-          .findOne({ worldId: server._worldId })
+          .findOne({ worldId: serverId })
       );
     }
     return serverData;
   }
 
-  private async loadServerData(server: ZoneServer2016) {
-    if (!server.enableWorldSaves) return;
-    const serverData = await this.getServerData(server);
-    if (!serverData) return;
-
-    server.lastItemGuid = BigInt(
-      serverData.lastItemGuid || server.lastItemGuid
-    );
-  }
 
   private async saveServerData(server: ZoneServer2016) {
     if (!server.enableWorldSaves) return;
@@ -781,7 +779,7 @@ export class WorldDataManager {
     return entity;
   }
 
-  loadConstructionParentEntity(
+  static loadConstructionParentEntity(
     server: ZoneServer2016,
     entityData: ConstructionParentSaveData
   ): ConstructionParentEntity {
@@ -809,7 +807,7 @@ export class WorldDataManager {
 
     Object.values(entityData.occupiedExpansionSlots).forEach(
       (expansionData) => {
-        const expansion = this.loadConstructionParentEntity(
+        const expansion = WorldDataManager.loadConstructionParentEntity(
           server,
           expansionData
         );
@@ -825,39 +823,44 @@ export class WorldDataManager {
     return foundation;
   }
 
-  async loadConstructionData(server: ZoneServer2016) {
-    if (!server.enableWorldSaves) return;
+  async loadConstructionData() {
     let constructionParents: Array<ConstructionParentSaveData> = [];
-    if (server._soloMode) {
-      constructionParents = require(`${server._appDataFolder}/worlddata/construction.json`);
+    if (this._soloMode) {
+      constructionParents = require(`${this._appDataFolder}/worlddata/construction.json`);
       if (!constructionParents) {
         debug("Construction data not found in file, aborting.");
         return;
       }
     } else {
-      const tempData = await server._db
+      const tempData = await this._db
         ?.collection(DB_COLLECTIONS.CONSTRUCTION_TEMP)
-        .find({ serverId: server._worldId })
+        .find({ serverId: this._worldId })
         .toArray();
 
       if (tempData.length) {
         await fixDbTempData(
-          server,
+          this._db,
+          this._worldId,
           tempData,
           DB_COLLECTIONS.CONSTRUCTION,
           DB_COLLECTIONS.CONSTRUCTION_TEMP
         );
       }
       constructionParents = <any>(
-        await server._db
+        await this._db
           ?.collection("construction")
-          .find({ serverId: server._worldId })
+          .find({ serverId: this._worldId })
           .toArray()
       );
     }
+    return constructionParents;
+  }
+
+  static processConstructionData(constructionParents: ConstructionParentSaveData[],server: ZoneServer2016){
     constructionParents.forEach((parent) => {
-      this.loadConstructionParentEntity(server, parent);
+      WorldDataManager.loadConstructionParentEntity(server, parent);
     });
+    
   }
 
   getBaseConstructionSaveData(
