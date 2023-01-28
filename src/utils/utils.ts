@@ -809,7 +809,7 @@ export async function logClientActionToMongo(
 
 export async function fixDbTempData(
   db: Db,
-  worldId:number,
+  worldId: number,
   tempData: any,
   collection: DB_COLLECTIONS,
   tempCollection: DB_COLLECTIONS
@@ -826,7 +826,5 @@ export async function fixDbTempData(
         { upsert: true }
       );
   }
-  await db
-    ?.collection(tempCollection)
-    .deleteMany({ serverId: worldId });
+  await db?.collection(tempCollection).deleteMany({ serverId: worldId });
 }
