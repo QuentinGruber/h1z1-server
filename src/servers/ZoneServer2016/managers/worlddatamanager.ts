@@ -386,7 +386,7 @@ export class WorldDataManager {
     return serverData;
   }
 
-  private async saveServerData(lastItemGuid: BigInt) {
+  private async saveServerData(lastItemGuid: bigint) {
     const saveData: ServerSaveData = {
       serverId: this._worldId,
       lastItemGuid: toBigHex(lastItemGuid),

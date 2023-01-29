@@ -1238,7 +1238,8 @@ export const commands: Array<Command> = [
         return;
       }
       server.sendChatText(client, "CharacterData save started.");
-      await server.worldDataManager.saveCharacters(server);
+      const characters = Object.values(server._characters)
+      await server.worldDataManager.saveCharacters(characters);
       server.sendChatText(client, "Character data has been saved!");
     },
   },
@@ -1271,7 +1272,12 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Server saving is disabled.");
         return;
       }
-      await server.worldDataManager.saveWorld(server);
+      // const characters = Object.values(server._characters)
+      const characters:any = [];
+      const worldConstructions = Object.values(server._worldLootableConstruction)
+      const tempEntities = Object.values(server._temporaryObjects)
+      const constructions = Object.values(server._constructionFoundations)
+      await server.worldDataManager.saveWorld({lastGuidItem: server.lastItemGuid,characters,worldConstructions,tempEntities,constructions});
     },
   },
   {
