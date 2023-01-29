@@ -1208,7 +1208,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   setTickRate() {
-    this.tickRate = 3000 / _.size(this._clients);
+    const size = _.size(this._clients);
+    if (size <= 0) {
+      this.tickRate = 3000;
+      return;
+    }
+    this.tickRate = 3000 / size;
   }
 
   deleteClient(client: Client) {
