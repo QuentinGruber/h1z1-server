@@ -573,6 +573,7 @@ export class LoginServer extends EventEmitter {
         {
           $set: {
             allowedAccess: status,
+            statusTimestamp: Date.now(),
             populationNumber: 0,
             populationLevel: 0,
           },
