@@ -180,7 +180,7 @@ export class zonePacketHandlers {
         characterId: client.character.characterId,
       });
     }
-    server.setTickRate()
+    server.setTickRate();
   }
   Security(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
