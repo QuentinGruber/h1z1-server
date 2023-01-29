@@ -66,7 +66,7 @@ const fs = require("fs");
 const debug = require("debug")("ZoneServer");
   export interface WorldArg {
     lastGuidItem: bigint;
-    characters: Character2016[];
+    characters: CharacterSaveDataTransfer[];
     worldConstructions: LootableConstructionEntity[];
     tempEntities: TemporaryEntity[];
     constructions: ConstructionParentEntity[];
@@ -74,6 +74,9 @@ const debug = require("debug")("ZoneServer");
 export interface FetchedWorldData {
   constructionParents: ConstructionParentSaveData[];
   lastTransientId: number;
+}
+export interface CharacterSaveDataTransfer extends CharacterUpdateSaveData{
+  characterId: string
 }
 
 export function constructLoadout(
@@ -460,21 +463,22 @@ export class WorldDataManager {
     }
     return savedCharacter;
   }
-  async saveCharacterData(
-    character: Character2016
-    // updateItemGuid = true
-  ) {
-    // Why ?
-    // if (updateItemGuid) await this.saveServerData(server);
 
+  static convertToCharacterSaveDataTransfer(characterSaveData:Character2016,worldId: number){
     const saveData: CharacterUpdateSaveData = {
       ...WorldDataManager.getBaseFullCharacterUpdateSaveData(
-        character,
-        this._worldId
+        characterSaveData,
+        worldId
       ),
-      rotation: Array.from(character.state.lookAt),
-      isRespawning: character.isRespawning,
+      rotation: Array.from(characterSaveData.state.lookAt),
+      isRespawning: characterSaveData.isRespawning,
     };
+      return saveData;    
+  }
+  async saveCharacterData(
+    characterSaveData: CharacterSaveDataTransfer
+  ) {
+
     if (this._soloMode) {
       const singlePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       let singlePlayerCharacter = singlePlayerCharacters.find(
@@ -486,7 +490,7 @@ export class WorldDataManager {
       }
       singlePlayerCharacter = {
         ...singlePlayerCharacter,
-        ...saveData,
+        ...characterSaveData,
       };
       fs.writeFileSync(
         `${this._appDataFolder}/single_player_characters2016.json`,
@@ -496,21 +500,19 @@ export class WorldDataManager {
       await this._db?.collection(DB_COLLECTIONS.CHARACTERS).updateOne(
         {
           serverId: this._worldId,
-          characterId: character.characterId,
+          characterId: characterSaveData.characterId
         },
         {
           $set: {
-            ...saveData,
+            ...characterSaveData,
           },
         }
       );
     }
   }
 
-  async saveCharacters(characters: Character2016[]) {
+  async saveCharacters(characters: CharacterSaveDataTransfer[]) {
     const promises: Array<any> = [];
-    // why ??
-    // await this.saveServerData(server);
     for (let i = 0; i < characters.length; i++) {
       const character = characters[i];
       promises.push(

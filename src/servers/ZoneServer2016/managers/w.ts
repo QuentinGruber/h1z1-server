@@ -1,7 +1,7 @@
 import { expose } from "threads/worker";
 import { FullCharacterSaveData, ServerSaveData } from "types/savedata";
 import { Character2016 } from "../entities/character";
-import { FetchedWorldData, WorldArg, WorldDataManager } from "./worlddatamanager";
+import { CharacterSaveDataTransfer, FetchedWorldData, WorldArg, WorldDataManager } from "./worlddatamanager";
 
 const worldDataManager = new WorldDataManager();
 export interface WorldDataManagerThreaded {
@@ -37,10 +37,10 @@ expose({
   deleteWorld() {
     return worldDataManager.deleteWorld();
   },
-  saveCharacters(characters: Character2016[]) {
+  saveCharacters(characters: CharacterSaveDataTransfer[]) {
     return worldDataManager.saveCharacters(characters);
   },
-  saveCharacterData(character: Character2016) {
+  saveCharacterData(character: CharacterSaveDataTransfer) {
     return worldDataManager.saveCharacterData(character);
   },
 });

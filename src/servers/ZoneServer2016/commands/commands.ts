@@ -1272,10 +1272,11 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Server saving is disabled.");
         return;
       }
-      // const characters = Object.values(server._characters)
-      const characters:any = [];
-      const worldConstructions = Object.values(server._worldLootableConstruction)
-      const tempEntities = Object.values(server._temporaryObjects)
+      const characters = Object.values(server._characters)
+      const worldConstructions:any = [];
+      const tempEntities:any = [];
+      // const worldConstructions = Object.values(server._worldLootableConstruction)
+      // const tempEntities = Object.values(server._temporaryObjects)
       const constructions = Object.values(server._constructionFoundations)
       await server.worldDataManager.saveWorld({lastGuidItem: server.lastItemGuid,characters,worldConstructions,tempEntities,constructions});
     },
