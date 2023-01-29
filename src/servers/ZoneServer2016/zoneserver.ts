@@ -942,7 +942,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
-
+    this.startRoutinesLoop()
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
@@ -1208,10 +1208,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   setTickRate() {
-    const count = _.size(this._characters);
-    if (count >= 60 && count < 80) this.tickRate = 2500;
-    else if (count >= 80) this.tickRate = 3000;
-    else this.tickRate = 2000;
+      this.tickRate = 3000 / _.size(this._clients)
   }
 
   deleteClient(client: Client) {
@@ -1236,6 +1233,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendZonePopulationUpdate();
       }
     }
+    this.setTickRate()
   }
 
   generateDamageRecord(
@@ -6861,35 +6859,32 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
-
-  startClientRoutine(client: Client) {
-    client.routineInterval = setTimeout(() => {
-      if (!client) return;
-      if (!client.isLoading) {
-        client.routineCounter++;
-        if (client.routineCounter >= 3) {
-          this.assignChunkRenderDistance(client);
-          this.removeOutOfDistanceEntities(client);
-          this.POIManager(client);
-          client.routineCounter = 0;
-        }
-
-        this.vehicleManager(client);
-        //this.npcManager(client);
-
-        this.spawnCharacters(client);
-        this.spawnGridObjects(client);
-        this.constructionManager(client);
-        this.worldConstructionManager(client);
-
-        client.posAtLastRoutine = client.character.state.position;
+  async startRoutinesLoop() {
+      if (_.size(this._clients) <= 0) {
+          await Scheduler.wait(3000)
+          this.startRoutinesLoop()
+          return
       }
-      if (client.isLoading) {
-        delete client.routineInterval;
-        return;
+      for (const a in this._clients) {        
+          const client = this._clients[a]
+          if (!client.isLoading) {
+              client.routineCounter++;
+              if (client.routineCounter >= 3) {
+                  this.assignChunkRenderDistance(client);
+                  this.removeOutOfDistanceEntities(client);
+                  this.POIManager(client);
+                  client.routineCounter = 0;
+              }
+              this.vehicleManager(client);
+              this.spawnCharacters(client);
+              this.spawnGridObjects(client);
+              this.constructionManager(client);
+              this.worldConstructionManager(client);
+              client.posAtLastRoutine = client.character.state.position; 
+          }
+          await Scheduler.wait(this.tickRate)
       }
-      client.routineInterval?.refresh();
-    }, this.tickRate);
+      this.startRoutinesLoop()
   }
 
   executeRoutine(client: Client) {

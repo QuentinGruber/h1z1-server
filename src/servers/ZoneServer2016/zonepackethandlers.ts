@@ -180,6 +180,7 @@ export class zonePacketHandlers {
         characterId: client.character.characterId,
       });
     }
+    server.setTickRate()
   }
   Security(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
@@ -346,9 +347,8 @@ export class zonePacketHandlers {
     if (client.isLoading && client.characterReleased) {
       setTimeout(() => {
         client.isLoading = false;
-        if (client.routineInterval || !client.characterReleased) return;
+        if (!client.characterReleased) return;
         server.executeRoutine(client);
-        server.startClientRoutine(client);
       }, 500);
     }
   }
