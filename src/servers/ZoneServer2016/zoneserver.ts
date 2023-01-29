@@ -106,7 +106,12 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
 import { FullCharacterSaveData } from "types/savedata";
-import { constructContainers, constructLoadout, FetchedWorldData, WorldDataManager } from "./managers/worlddatamanager";
+import {
+  constructContainers,
+  constructLoadout,
+  FetchedWorldData,
+  WorldDataManager,
+} from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
 import { DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
@@ -130,6 +135,7 @@ import { PlantingDiameter } from "./entities/plantingdiameter";
 import { Plant } from "./entities/plant";
 import { SmeltingEntity } from "./classes/smeltingentity";
 import { spawn, Worker } from "threads";
+import { WorldDataManagerThreaded } from "./managers/w";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -223,7 +229,7 @@ export class ZoneServer2016 extends EventEmitter {
   _weatherTemplates: any;
   worldObjectManager: WorldObjectManager;
   weatherManager: WeatherManager;
-  worldDataManager!: any;
+  worldDataManager!: WorldDataManagerThreaded;
   hookManager: HookManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
@@ -706,8 +712,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client)))
       return;
 
-    const savedCharacter = await this.worldDataManager.fetchCharacterData(client.character.characterId);
-    await this.loadCharacterData(client,savedCharacter);
+    const savedCharacter = await this.worldDataManager.fetchCharacterData(
+      client.character.characterId
+    );
+    await this.loadCharacterData(client, savedCharacter);
     // to help identify broken character saves
     Object.values(client.character._loadout).forEach((item: LoadoutItem) => {
       if (item.stackCount < 1) {
@@ -891,13 +899,14 @@ export class ZoneServer2016 extends EventEmitter {
       );
   }
 
-  async loadCharacterData(client:Client,savedCharacter:FullCharacterSaveData){
+  async loadCharacterData(
+    client: Client,
+    savedCharacter: FullCharacterSaveData
+  ) {
     if (!this.hookManager.checkHook("OnLoadCharacterData", client)) return;
-    if (
-      !(await this.hookManager.checkAsyncHook("OnLoadCharacterData", client))
-    )
+    if (!(await this.hookManager.checkAsyncHook("OnLoadCharacterData", client)))
       return;
-    
+
     client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
     client.character.name = savedCharacter.characterName;
     client.character.actorModelId = savedCharacter.actorModelId;
@@ -907,7 +916,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.creationDate = savedCharacter.creationDate;
     client.character.lastLoginDate = savedCharacter.lastLoginDate;
     client.character.hairModel = savedCharacter.hairModel || "";
-    
+
     let newCharacter = false;
     if (
       _.isEqual(savedCharacter.position, [0, 0, 0, 1]) &&
@@ -948,15 +957,16 @@ export class ZoneServer2016 extends EventEmitter {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
 
-    this.worldDataManager = await spawn(new Worker("./managers/w"));
+    this.worldDataManager = (await spawn(
+      new Worker("./managers/w")
+    )) as unknown as WorldDataManagerThreaded;
     await this.worldDataManager.initialize(this._worldId, this._mongoAddress);
     if (!this._soloMode) {
       this._db = await WorldDataManager.getDatabase(this._mongoAddress);
     }
     if (this.enableWorldSaves) {
       const loadedWorld = await this.worldDataManager.getServerData(
-        this._worldId,
-        this._soloMode
+        this._worldId
       );
       console.log(loadedWorld);
       if (loadedWorld) {
@@ -964,20 +974,22 @@ export class ZoneServer2016 extends EventEmitter {
           console.log(
             `World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`
           );
-          await this.worldDataManager.deleteWorld(this);
-          await this.worldDataManager.insertWorld(this);
-          await this.worldDataManager.saveWorld(this);
+          await this.worldDataManager.deleteWorld();
+          await this.worldDataManager.insertWorld(loadedWorld.lastItemGuid);
         }
       } else {
-        await this.worldDataManager.insertWorld(this);
-        await this.worldDataManager.saveWorld(this);
+        await this.worldDataManager.insertWorld();
       }
       this.lastItemGuid = BigInt(loadedWorld.lastItemGuid || this.lastItemGuid);
       console.time("fetch world data");
       // return un obj avec les differents type d'item + le dernier transientId
-      const fetchedWorldData = await this.worldDataManager.fetchWorldData() as FetchedWorldData;
-      WorldDataManager.loadConstructionParentEntities(fetchedWorldData.constructionParents,this);
-      
+      const fetchedWorldData =
+        (await this.worldDataManager.fetchWorldData()) as FetchedWorldData;
+      WorldDataManager.loadConstructionParentEntities(
+        fetchedWorldData.constructionParents,
+        this
+      );
+
       // UNUSED ???
       // this._transientIds = this.getAllCurrentUsedTransientId();
       console.timeEnd("fetch world data");
@@ -1268,7 +1280,8 @@ export class ZoneServer2016 extends EventEmitter {
         this.itemDespawner();
         this.worldObjectManager.run(this);
         this.setTickRate();
-        if (this.enableWorldSaves) this.worldDataManager.run();
+        // TODO: save every 10min logic
+        // if (this.enableWorldSaves) this.worldDataManager.run();
       }
     }
     this.worldRoutineTimer.refresh();

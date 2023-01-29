@@ -1255,7 +1255,7 @@ export const commands: Array<Command> = [
         return;
       }
       server.sendChatText(client, "VehicleData save started.");
-      await server.worldDataManager.saveVehicles(server);
+      // await server.worldDataManager.saveVehicles(server);
       server.sendChatText(client, "Vehicles have been saved!");
     },
   },

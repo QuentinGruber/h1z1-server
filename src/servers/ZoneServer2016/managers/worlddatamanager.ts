@@ -59,12 +59,21 @@ import { PlantingDiameter } from "../entities/plantingdiameter";
 import { Plant } from "../entities/plant";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import { DB_NAME } from "../../../utils/constants";
+import { Character2016 } from "../entities/character";
+import { TemporaryEntity } from "../entities/temporaryentity";
 
 const fs = require("fs");
 const debug = require("debug")("ZoneServer");
-export  interface FetchedWorldData {
-    constructionParents: ConstructionParentSaveData[],
-    lastTransientId: number,
+  export interface WorldArg {
+    lastGuidItem: bigint;
+    characters: Character2016[];
+    worldConstructions: LootableConstructionEntity[];
+    tempEntities: TemporaryEntity[];
+    constructions: ConstructionParentEntity[];
+  }
+export interface FetchedWorldData {
+  constructionParents: ConstructionParentSaveData[];
+  lastTransientId: number;
 }
 
 export function constructLoadout(
@@ -130,27 +139,13 @@ export function constructContainers(
 }
 
 export class WorldDataManager {
-  lastSaveTime = 0;
-  saveTimer = 600000; // 10 minutes
   private _db: any;
   readonly _appDataFolder = getAppDataFolderPath();
   private _worldId: number = 0;
   private _soloMode: boolean = false;
   //TODO: remove it from zoneserver then
-  private  _worldSaveVersion: number = 2;
-
-  run(server: ZoneServer2016) {
-    if (!server.enableWorldSaves) return;
-    debug("WorldDataManager::Run");
-    if (this.lastSaveTime + this.saveTimer <= Date.now()) {
-      server.executeFuncForAllReadyClients((client: Client) => {
-        this.saveCharacterData(server, client);
-      });
-      this.saveWorld(server);
-
-      this.lastSaveTime = Date.now();
-    }
-  }
+  private _worldSaveVersion: number = 2;
+  _isSaving: boolean = false;
 
   static async getDatabase(mongoAddress: string) {
     const mongoClient = new MongoClient(mongoAddress, {
@@ -176,107 +171,109 @@ export class WorldDataManager {
     }
   }
 
-  async insertWorld(server: ZoneServer2016) {
-    if (server._soloMode) return;
-    if (!server._worldId) {
+  async insertWorld(lastItemGuid: bigint) {
+    if (this._soloMode) return;
+    if (!this._worldId) {
       const worldCount: number =
-        (await server._db
-          ?.collection(DB_COLLECTIONS.WORLDS)
-          .countDocuments()) || 0;
-      server._worldId = worldCount + 1;
-      await server._db?.collection(DB_COLLECTIONS.WORLDS).insertOne({
-        worldId: server._worldId,
-        lastItemGuid: toBigHex(server.lastItemGuid),
-        worldSaveVersion: server.worldSaveVersion,
+        (await this._db?.collection(DB_COLLECTIONS.WORLDS).countDocuments()) ||
+        0;
+      this._worldId = worldCount + 1;
+      await this._db?.collection(DB_COLLECTIONS.WORLDS).insertOne({
+        worldId: this._worldId,
+        lastItemGuid: toBigHex(lastItemGuid),
+        worldSaveVersion: this._worldSaveVersion,
       });
       debug("Existing world was not found, created one.");
     } else {
-      await server._db?.collection(DB_COLLECTIONS.WORLDS).insertOne({
-        worldId: server._worldId,
-        lastItemGuid: toBigHex(server.lastItemGuid),
-        worldSaveVersion: server.worldSaveVersion,
+      await this._db?.collection(DB_COLLECTIONS.WORLDS).insertOne({
+        worldId: this._worldId,
+        lastItemGuid: toBigHex(lastItemGuid),
+        worldSaveVersion: this._worldSaveVersion,
       });
     }
   }
 
-  async fetchWorldData():Promise<FetchedWorldData> {
+  async fetchWorldData(): Promise<FetchedWorldData> {
     //await this.loadVehicleData(server);
-    const constructionParents = await this.loadConstructionData() as ConstructionParentSaveData[];
+    const constructionParents =
+      (await this.loadConstructionData()) as ConstructionParentSaveData[];
     // await this.loadWorldFreeplaceConstruction();
     // await this.loadCropData();
     debug("World fetched!");
-    return {constructionParents,lastTransientId:0}
+    return { constructionParents, lastTransientId: 0 };
   }
-  async deleteServerData(server: ZoneServer2016) {
-    if (!server.enableWorldSaves) return;
-    if (server._soloMode) {
+  async deleteServerData() {
+    if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/worlddata/world.json`,
         JSON.stringify({}, null, 2)
       );
     } else {
-      await server._db?.collection(DB_COLLECTIONS.WORLDS).deleteOne({
-        worldId: server._worldId,
+      await this._db?.collection(DB_COLLECTIONS.WORLDS).deleteOne({
+        worldId: this._worldId,
       });
     }
   }
 
-  async deleteCharacters(server: ZoneServer2016) {
-    if (!server.enableWorldSaves) return;
-    if (server._soloMode) {
+  async deleteCharacters() {
+    if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/single_player_characters2016.json`,
         JSON.stringify([], null, 2)
       );
     } else {
-      await server._db?.collection(DB_COLLECTIONS.CHARACTERS).updateMany(
+      await this._db?.collection(DB_COLLECTIONS.CHARACTERS).updateMany(
         {
-          serverId: server._worldId,
+          serverId: this._worldId,
         },
         { $set: { status: 0 } }
       );
     }
   }
 
-  async deleteWorld(server: ZoneServer2016) {
-    await this.deleteServerData(server);
-    await this.deleteCharacters(server);
+  async deleteWorld() {
+    await this.deleteServerData();
+    await this.deleteCharacters();
     debug("World deleted!");
   }
 
-  async saveWorld(server: ZoneServer2016) {
-    if (server.isSaving) {
-      server.sendChatTextToAdmins("A save is already in progress.");
+  async saveWorld(world: WorldArg
+ ) {
+    if (this._isSaving) {
+      // server.sendChatTextToAdmins("A save is already in progress.");
       return;
     }
-    server.sendChatTextToAdmins("World save started.");
-    server.isSaving = true;
+    // server.sendChatTextToAdmins("World save started.");
+    this._isSaving = true;
     try {
       //await this.saveVehicles(server);
-      await this.saveServerData(server);
-      await this.saveCharacters(server);
-      await this.saveConstructionData(server);
-      await this.saveWorldFreeplaceConstruction(server);
-      await this.saveCropData(server);
+      await this.saveServerData(world.lastGuidItem);
+      await this.saveCharacters(world.characters);
+      await this.saveConstructionData(world.constructions, this._worldId);
+      await this.saveWorldFreeplaceConstruction(
+        world.worldConstructions,
+        this._worldId
+      );
+      await this.saveCropData(world.tempEntities, this._worldId);
     } catch (e) {
       console.log(e);
-      server.isSaving = false;
-      server.sendChatTextToAdmins("World save failed!");
+      this._isSaving = false;
+      // server.sendChatTextToAdmins("World save failed!");
     }
-    server.isSaving = false;
-    server.sendChatTextToAdmins("World saved!");
+    this._isSaving = false;
+    // server.sendChatTextToAdmins("World saved!");
     debug("World saved!");
   }
 
   //#region DATA GETTER HELPER FUNCTIONS
 
-  static getBaseSaveData(server:ZoneServer2016): BaseSaveData {
+  static getBaseSaveData(serverId: number): BaseSaveData {
     return {
-      serverId: server._worldId,
+      serverId: serverId,
     };
   }
 
- static getBaseEntityUpdateSaveData(
+  static getBaseEntityUpdateSaveData(
     entity: BaseEntity
   ): BaseEntityUpdateSaveData {
     return {
@@ -286,28 +283,24 @@ export class WorldDataManager {
   }
 
   static getBaseFullEntitySaveData(
-    server:ZoneServer2016,
     entity: BaseEntity,
+    serverId: number
   ): BaseFullEntitySaveData {
     return {
       ...this.getBaseEntityUpdateSaveData(entity),
-      ...this.getBaseSaveData(server),
+      ...this.getBaseSaveData(serverId),
       characterId: entity.characterId,
       actorModelId: entity.actorModelId,
     };
   }
 
-  static getWeaponSaveData(
-    weapon: Weapon
-  ): WeaponSaveData {
+  static getWeaponSaveData(weapon: Weapon): WeaponSaveData {
     return {
       ammoCount: weapon.ammoCount,
     };
   }
 
-  static getItemSaveData(
-    item: BaseItem
-  ): ItemSaveData {
+  static getItemSaveData(item: BaseItem): ItemSaveData {
     return {
       itemDefinitionId: item.itemDefinitionId,
       slotId: item.slotId,
@@ -315,15 +308,11 @@ export class WorldDataManager {
       containerGuid: item.containerGuid,
       currentDurability: item.currentDurability,
       stackCount: item.stackCount,
-      weapon: item.weapon
-        ? this.getWeaponSaveData(item.weapon)
-        : undefined,
+      weapon: item.weapon ? this.getWeaponSaveData(item.weapon) : undefined,
     };
   }
 
-  static getLoadoutItemSaveData(
-    item: LoadoutItem
-  ): LoadoutItemSaveData {
+  static getLoadoutItemSaveData(item: LoadoutItem): LoadoutItemSaveData {
     return {
       ...this.getItemSaveData(item),
       loadoutItemOwnerGuid: item.loadoutItemOwnerGuid,
@@ -348,8 +337,8 @@ export class WorldDataManager {
   }
 
   static getBaseFullCharacterUpdateSaveData(
-    server: ZoneServer2016,
-    entity: BaseFullCharacter
+    entity: BaseFullCharacter,
+    worldSaveVersion: number
   ): BaseFullCharacterUpdateSaveData {
     const loadout: { [loadoutSlotId: number]: LoadoutItemSaveData } = {},
       containers: { [loadoutSlotId: number]: LoadoutContainerSaveData } = {};
@@ -369,7 +358,7 @@ export class WorldDataManager {
       _loadout: loadout,
       _containers: containers,
       _resources: entity._resources,
-      worldSaveVersion: server.worldSaveVersion,
+      worldSaveVersion: worldSaveVersion,
     };
   }
 
@@ -379,10 +368,9 @@ export class WorldDataManager {
 
   async getServerData(
     serverId: number,
-    soloMode: boolean
   ): Promise<ServerSaveData | undefined> {
     let serverData: ServerSaveData;
-    if (soloMode) {
+    if (this._soloMode) {
       serverData = require(`${this._appDataFolder}/worlddata/world.json`);
       if (!serverData) {
         debug("World data not found in file, aborting.");
@@ -398,21 +386,20 @@ export class WorldDataManager {
     return serverData;
   }
 
-  private async saveServerData(server: ZoneServer2016) {
-    if (!server.enableWorldSaves) return;
+  private async saveServerData(lastItemGuid: BigInt) {
     const saveData: ServerSaveData = {
-      serverId: server._worldId,
-      lastItemGuid: toBigHex(server.lastItemGuid),
-      worldSaveVersion: server.worldSaveVersion,
+      serverId: this._worldId,
+      lastItemGuid: toBigHex(lastItemGuid),
+      worldSaveVersion: this._worldSaveVersion,
     };
-    if (server._soloMode) {
+    if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/worlddata/world.json`,
         JSON.stringify(saveData, null, 2)
       );
     } else {
-      await server._db?.collection(DB_COLLECTIONS.WORLDS).updateOne(
-        { worldId: server._worldId },
+      await this._db?.collection(DB_COLLECTIONS.WORLDS).updateOne(
+        { worldId: this._worldId },
         {
           $set: {
             ...saveData,
@@ -426,7 +413,9 @@ export class WorldDataManager {
 
   //#region CHARACTER DATA
 
-  async fetchCharacterData(characterId:string): Promise<FullCharacterSaveData> {
+  async fetchCharacterData(
+    characterId: string
+  ): Promise<FullCharacterSaveData> {
     let savedCharacter: FullCharacterSaveData;
     if (this._soloMode) {
       delete require.cache[
@@ -436,18 +425,17 @@ export class WorldDataManager {
       ];
       const SinglePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       savedCharacter = SinglePlayerCharacters.find(
-        (character: any) =>
-          character.characterId === characterId
+        (character: any) => character.characterId === characterId
       );
       if (!savedCharacter) {
-          throw `[ERROR] Single player character not found! characterId: ${characterId}`
+        throw `[ERROR] Single player character not found! characterId: ${characterId}`;
       }
     } else {
       const loadedCharacter = await this._db
         ?.collection("characters")
         .findOne({ characterId: characterId });
       if (!loadedCharacter) {
-          throw `[ERROR] Mongo character not found! characterId: ${characterId}`
+        throw `[ERROR] Mongo character not found! characterId: ${characterId}`;
       }
       savedCharacter = {
         serverId: loadedCharacter.serverId,
@@ -471,25 +459,26 @@ export class WorldDataManager {
       };
     }
     return savedCharacter;
-}
+  }
   async saveCharacterData(
-    server: ZoneServer2016,
-    client: Client,
-    updateItemGuid = true
+    character: Character2016
+    // updateItemGuid = true
   ) {
-    if (!server.enableWorldSaves) return;
-    if (updateItemGuid) await this.saveServerData(server);
+    // Why ?
+    // if (updateItemGuid) await this.saveServerData(server);
 
     const saveData: CharacterUpdateSaveData = {
-      ...WorldDataManager.getBaseFullCharacterUpdateSaveData(server, client.character),
-      rotation: Array.from(client.character.state.lookAt),
-      isRespawning: client.character.isRespawning,
+      ...WorldDataManager.getBaseFullCharacterUpdateSaveData(
+        character,
+        this._worldId
+      ),
+      rotation: Array.from(character.state.lookAt),
+      isRespawning: character.isRespawning,
     };
-    if (server._soloMode) {
+    if (this._soloMode) {
       const singlePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       let singlePlayerCharacter = singlePlayerCharacters.find(
-        (character: any) =>
-          character.characterId === client.character.characterId
+        (character: any) => character.characterId === character.characterId
       );
       if (!singlePlayerCharacter) {
         console.log("[ERROR] Single player character savedata not found!");
@@ -504,10 +493,10 @@ export class WorldDataManager {
         JSON.stringify([singlePlayerCharacter], null, 2)
       );
     } else {
-      await server._db?.collection(DB_COLLECTIONS.CHARACTERS).updateOne(
+      await this._db?.collection(DB_COLLECTIONS.CHARACTERS).updateOne(
         {
-          serverId: server._worldId,
-          characterId: client.character.characterId,
+          serverId: this._worldId,
+          characterId: character.characterId,
         },
         {
           $set: {
@@ -518,19 +507,18 @@ export class WorldDataManager {
     }
   }
 
-  async saveCharacters(server: ZoneServer2016) {
-    if (!server.enableWorldSaves) return;
+  async saveCharacters(characters: Character2016[]) {
     const promises: Array<any> = [];
-    await this.saveServerData(server);
-    server.executeFuncForAllReadyClients((client: Client) => {
+    // why ??
+    // await this.saveServerData(server);
+    for (let i = 0; i < characters.length; i++) {
+      const character = characters[i];
       promises.push(
-        server.worldDataManager
-          .saveCharacterData(server, client, false)
-          .then((ret:any) => {
-            return ret;
-          })
+        this.saveCharacterData(character).then((ret: any) => {
+          return ret;
+        })
       );
-    });
+    }
     await Promise.all(promises);
   }
 
@@ -538,67 +526,66 @@ export class WorldDataManager {
 
   //#region VEHICLE DATA
 
-  private async loadVehicleData(server: ZoneServer2016) {
-    if (!server.enableWorldSaves) return;
-    let vehicles: Array<FullVehicleSaveData>;
-    if (server._soloMode) {
-      vehicles = require(`${this._appDataFolder}/worlddata/vehicles.json`);
-      if (!vehicles) {
-        debug("Vehicle data not found in file, aborting.");
-        return;
-      }
-    } else {
-      vehicles = <any>(
-        await server._db
-          ?.collection("vehicles")
-          .find({ worldId: server._worldId })
-          .toArray()
-      );
-    }
-    vehicles.forEach((vehicle) => {
-      const transientId = server.getTransientId(vehicle.characterId);
-      const vehicleData = new Vehicle2016(
-        vehicle.characterId,
-        transientId,
-        0,
-        new Float32Array(vehicle.position),
-        new Float32Array(vehicle.rotation),
-        server,
-        server._gameTime,
-        vehicle.vehicleId
-      );
-      constructLoadout(vehicle._loadout, vehicleData._loadout);
-      constructContainers(vehicle._containers, vehicleData._containers);
-      vehicleData._resources = vehicle._resources;
-      server.worldObjectManager.createVehicle(server, vehicleData);
-    });
-  }
+  // private async loadVehicleData() {
+  //   let vehicles: Array<FullVehicleSaveData>;
+  //   if (this._soloMode) {
+  //     vehicles = require(`${this._appDataFolder}/worlddata/vehicles.json`);
+  //     if (!vehicles) {
+  //       debug("Vehicle data not found in file, aborting.");
+  //       return;
+  //     }
+  //   } else {
+  //     vehicles = <any>(
+  //       await this._db
+  //         ?.collection("vehicles")
+  //         .find({ worldId: this._worldId })
+  //         .toArray()
+  //     );
+  //   }
+  //   vehicles.forEach((vehicle) => {
+  //     const transientId = server.getTransientId(vehicle.characterId);
+  //     const vehicleData = new Vehicle2016(
+  //       vehicle.characterId,
+  //       transientId,
+  //       0,
+  //       new Float32Array(vehicle.position),
+  //       new Float32Array(vehicle.rotation),
+  //       server,
+  //       server._gameTime,
+  //       vehicle.vehicleId
+  //     );
+  //     constructLoadout(vehicle._loadout, vehicleData._loadout);
+  //     constructContainers(vehicle._containers, vehicleData._containers);
+  //     vehicleData._resources = vehicle._resources;
+  //     server.worldObjectManager.createVehicle(server, vehicleData);
+  //   });
+  // }
 
-  async saveVehicles(server: ZoneServer2016) {
-    if (!server.enableWorldSaves) return;
-    const vehicles: Array<FullVehicleSaveData> = Object.values(
-      server._vehicles
-    ).map((vehicle) => {
-      return {
-        ...WorldDataManager.getBaseFullCharacterUpdateSaveData(server, vehicle),
-        ...WorldDataManager.getBaseFullEntitySaveData(server, vehicle),
-        characterId: vehicle.characterId,
-        actorModelId: vehicle.actorModelId,
-        vehicleId: vehicle.vehicleId,
-        worldSaveVersion: server.worldSaveVersion,
-      };
-    });
-    if (server._soloMode) {
-      fs.writeFileSync(
-        `${this._appDataFolder}/worlddata/vehicles.json`,
-        JSON.stringify(vehicles, null, 2)
-      );
-    } else {
-      const collection = server._db?.collection(DB_COLLECTIONS.VEHICLES);
-      collection?.deleteMany({ serverId: server._worldId }); // clear vehicles
-      if (vehicles.length) collection?.insertMany(vehicles);
-    }
-  }
+  // async saveVehicles(server: ZoneServer2016) {
+  //   if (!server.enableWorldSaves) return;
+  //   const vehicles: Array<FullVehicleSaveData> = Object.values(
+  //     server._vehicles
+  //   ).map((vehicle) => {
+  //     return {
+  //       ...WorldDataManager.getBaseFullCharacterUpdateSaveData(server, vehicle),
+  //       ...WorldDataManager.getBaseFullEntitySaveData(server, vehicle),
+  //       characterId: vehicle.characterId,
+  //       actorModelId: vehicle.actorModelId,
+  //       vehicleId: vehicle.vehicleId,
+  //       worldSaveVersion: server.worldSaveVersion,
+  //     };
+  //   });
+  //   if (server._soloMode) {
+  //     fs.writeFileSync(
+  //       `${this._appDataFolder}/worlddata/vehicles.json`,
+  //       JSON.stringify(vehicles, null, 2)
+  //     );
+  //   } else {
+  //     const collection = server._db?.collection(DB_COLLECTIONS.VEHICLES);
+  //     collection?.deleteMany({ serverId: server._worldId }); // clear vehicles
+  //     if (vehicles.length) collection?.insertMany(vehicles);
+  //   }
+  // }
   //#endregion
 
   //#region CONSTRUCTION DATA
@@ -777,7 +764,6 @@ export class WorldDataManager {
     let constructionParents: Array<ConstructionParentSaveData> = [];
     if (this._soloMode) {
       constructionParents = require(`${this._appDataFolder}/worlddata/construction.json`);
-      console.log(constructionParents)
       if (!constructionParents) {
         debug("Construction data not found in file, aborting.");
         return;
@@ -817,11 +803,11 @@ export class WorldDataManager {
   }
 
   static getBaseConstructionSaveData(
-    server: ZoneServer2016,
-    entity: ConstructionEntity
+    entity: ConstructionEntity,
+    serverId: number
   ): BaseConstructionSaveData {
     return {
-      ...this.getBaseFullEntitySaveData(server, entity),
+      ...this.getBaseFullEntitySaveData(entity, serverId),
       health: entity.health,
       placementTime: entity.placementTime,
       parentObjectCharacterId: entity.parentObjectCharacterId,
@@ -831,11 +817,11 @@ export class WorldDataManager {
   }
 
   static getConstructionDoorSaveData(
-    server: ZoneServer2016,
-    entity: ConstructionDoor
+    entity: ConstructionDoor,
+    serverId: number
   ): ConstructionDoorSaveData {
     return {
-      ...this.getBaseConstructionSaveData(server, entity),
+      ...this.getBaseConstructionSaveData(entity, serverId),
       ownerCharacterId: entity.ownerCharacterId,
       passwordHash: entity.passwordHash,
       grantedAccess: entity.grantedAccess,
@@ -844,19 +830,19 @@ export class WorldDataManager {
   }
 
   static getLootableConstructionSaveData(
-    server: ZoneServer2016,
-    entity: LootableConstructionEntity
+    entity: LootableConstructionEntity,
+    serverId: number
   ): LootableConstructionSaveData {
     return {
-      ...this.getBaseConstructionSaveData(server, entity),
+      ...this.getBaseConstructionSaveData(entity, serverId),
       container: entity.getContainer(),
       subEntityType: entity.subEntity?.subType || "",
     };
   }
 
   static getConstructionChildSaveData(
-    server: ZoneServer2016,
-    entity: ConstructionChildEntity
+    entity: ConstructionChildEntity,
+    serverId: number
   ): ConstructionChildSaveData {
     const wallSlots: {
         [slot: number]: ConstructionChildSaveData | ConstructionDoorSaveData;
@@ -872,43 +858,43 @@ export class WorldDataManager {
     Object.values(entity.occupiedWallSlots).forEach((wall) => {
       if (wall instanceof ConstructionDoor) {
         wallSlots[wall.getSlotNumber()] = this.getConstructionDoorSaveData(
-          server,
-          wall
+          wall,
+          serverId
         );
       } else {
         wallSlots[wall.getSlotNumber()] = this.getConstructionChildSaveData(
-          server,
-          wall
+          wall,
+          serverId
         );
       }
     });
     Object.values(entity.occupiedUpperWallSlots).forEach((wall) => {
       upperWallSlots[wall.getSlotNumber()] = this.getConstructionChildSaveData(
-        server,
-        wall
+        wall,
+        serverId
       );
     });
     Object.values(entity.occupiedShelterSlots).forEach((shelter) => {
       shelterSlots[shelter.getSlotNumber()] = this.getConstructionChildSaveData(
-        server,
-        shelter
+        shelter,
+        serverId
       );
     });
     Object.values(entity.freeplaceEntities).forEach((entity) => {
       if (entity instanceof ConstructionDoor) {
         freePlaceEntities[entity.characterId] =
-          this.getConstructionDoorSaveData(server, entity);
+          this.getConstructionDoorSaveData(entity, serverId);
       } else if (entity instanceof LootableConstructionEntity) {
         freePlaceEntities[entity.characterId] =
-          this.getLootableConstructionSaveData(server, entity);
+          this.getLootableConstructionSaveData(entity, serverId);
       } else {
         freePlaceEntities[entity.characterId] =
-          this.getConstructionChildSaveData(server, entity);
+          this.getConstructionChildSaveData(entity, serverId);
       }
     });
 
     return {
-      ...this.getBaseConstructionSaveData(server, entity),
+      ...this.getBaseConstructionSaveData(entity, serverId),
       eulerAngle: entity.eulerAngle,
       occupiedWallSlots: wallSlots,
       occupiedUpperWallSlots: upperWallSlots,
@@ -918,23 +904,23 @@ export class WorldDataManager {
   }
 
   static getConstructionParentSaveData(
-    server: ZoneServer2016,
-    entity: ConstructionParentEntity
+    entity: ConstructionParentEntity,
+    serverId: number
   ): ConstructionParentSaveData {
     const expansionSlots: { [slot: number]: ConstructionParentSaveData } = {},
       rampSlots: { [slot: number]: ConstructionChildSaveData } = {};
     Object.values(entity.occupiedExpansionSlots).forEach((expansion) => {
       expansionSlots[expansion.getSlotNumber()] =
-        this.getConstructionParentSaveData(server, expansion);
+        this.getConstructionParentSaveData(expansion, serverId);
     });
     Object.values(entity.occupiedRampSlots).forEach((ramp) => {
       rampSlots[ramp.getSlotNumber()] = this.getConstructionChildSaveData(
-        server,
-        ramp
+        ramp,
+        serverId
       );
     });
     return {
-      ...this.getConstructionChildSaveData(server, entity),
+      ...this.getConstructionChildSaveData(entity, serverId),
       permissions: entity.permissions,
       ownerCharacterId: entity.ownerCharacterId,
       occupiedExpansionSlots: expansionSlots,
@@ -942,35 +928,39 @@ export class WorldDataManager {
     };
   }
 
-  async saveConstructionData(server: ZoneServer2016) {
-    if (!server.enableWorldSaves) return;
+  async saveConstructionData(
+    constructionParents: ConstructionParentEntity[],
+    serverId: number
+  ) {
     const construction: Array<ConstructionParentSaveData> = [];
 
-    Object.values(server._constructionFoundations).forEach((entity) => {
+    Object.values(constructionParents).forEach((entity) => {
       if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
-        construction.push(WorldDataManager.getConstructionParentSaveData(server, entity));
+        construction.push(
+          WorldDataManager.getConstructionParentSaveData(entity, serverId)
+        );
       }
     });
-    if (server._soloMode) {
+    if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/worlddata/construction.json`,
         JSON.stringify(construction, null, 2)
       );
     } else {
-      const tempCollection = server._db?.collection(
+      const tempCollection = this._db?.collection(
         DB_COLLECTIONS.CONSTRUCTION_TEMP
       );
       if (construction.length) await tempCollection?.insertMany(construction);
-      const collection = server._db?.collection(DB_COLLECTIONS.CONSTRUCTION);
-      await collection?.deleteMany({ serverId: server._worldId });
+      const collection = this._db?.collection(DB_COLLECTIONS.CONSTRUCTION);
+      await collection?.deleteMany({ serverId: this._worldId });
       if (construction.length) await collection?.insertMany(construction);
-      await tempCollection?.deleteMany({ serverId: server._worldId });
+      await tempCollection?.deleteMany({ serverId: this._worldId });
     }
   }
 
-  static getPlantSaveData(server: ZoneServer2016, entity: Plant): PlantSaveData {
+  static getPlantSaveData(entity: Plant, serverId: number): PlantSaveData {
     return {
-      ...this.getBaseFullEntitySaveData(server, entity),
+      ...this.getBaseFullEntitySaveData(entity, serverId),
       growState: entity.growState,
       parentObjectCharacterId: entity.parentObjectCharacterId,
       slot: entity.slot,
@@ -979,44 +969,45 @@ export class WorldDataManager {
   }
 
   static getPlantingDiameterSaveData(
-    server: ZoneServer2016,
-    entity: PlantingDiameter
+    entity: PlantingDiameter,
+    serverId: number
   ): PlantingDiameterSaveData {
     const slots: { [id: string]: PlantSaveData } = {};
     Object.values(entity.seedSlots).forEach((plant) => {
-      slots[plant.slot] = this.getPlantSaveData(server, plant);
+      slots[plant.slot] = this.getPlantSaveData(plant, serverId);
     });
 
     return {
-      ...this.getBaseFullEntitySaveData(server, entity),
+      ...this.getBaseFullEntitySaveData(entity, serverId),
       seedSlots: slots,
       fertilizedTimestamp: entity.fertilizedTimestamp,
       isFertilized: entity.isFertilized,
     };
   }
 
-  async saveCropData(server: ZoneServer2016) {
-    if (!server.enableWorldSaves) return;
+  async saveCropData(temporaryObjects: TemporaryEntity[], serverId: number) {
     const crops: Array<PlantingDiameterSaveData> = [];
 
-    Object.values(server._temporaryObjects).forEach((entity) => {
+    Object.values(temporaryObjects).forEach((entity) => {
       if (entity instanceof PlantingDiameter) {
-        crops.push(WorldDataManager.getPlantingDiameterSaveData(server, entity));
+        crops.push(
+          WorldDataManager.getPlantingDiameterSaveData(entity, serverId)
+        );
       }
     });
 
-    if (server._soloMode) {
+    if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/worlddata/crops.json`,
         JSON.stringify(crops, null, 2)
       );
     } else {
-      const collection = server._db?.collection(DB_COLLECTIONS.CROPS);
-      const tempCollection = server._db?.collection(DB_COLLECTIONS.CROPS_TEMP);
+      const collection = this._db?.collection(DB_COLLECTIONS.CROPS);
+      const tempCollection = this._db?.collection(DB_COLLECTIONS.CROPS_TEMP);
       if (crops.length) await tempCollection?.insertMany(crops);
-      await collection?.deleteMany({ serverId: server._worldId });
+      await collection?.deleteMany({ serverId: this._worldId });
       if (crops.length) await collection?.insertMany(crops);
-      await tempCollection?.deleteMany({ serverId: server._worldId });
+      await tempCollection?.deleteMany({ serverId: this._worldId });
     }
   }
 
@@ -1112,29 +1103,34 @@ export class WorldDataManager {
     });
   }
 
-  async saveWorldFreeplaceConstruction(server: ZoneServer2016) {
+  async saveWorldFreeplaceConstruction(
+    worldLootableConstruction: LootableConstructionEntity[],
+    serverId: number
+  ) {
     //worldconstruction
     const freeplace: Array<LootableConstructionSaveData> = [];
-    Object.values(server._worldLootableConstruction).forEach((entity) => {
-      freeplace.push(WorldDataManager.getLootableConstructionSaveData(server, entity));
+    Object.values(worldLootableConstruction).forEach((entity) => {
+      freeplace.push(
+        WorldDataManager.getLootableConstructionSaveData(entity, serverId)
+      );
     });
 
-    if (server._soloMode) {
+    if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/worlddata/worldconstruction.json`,
         JSON.stringify(freeplace, null, 2)
       );
     } else {
-      const collection = server._db?.collection(
+      const collection = this._db?.collection(
         DB_COLLECTIONS.WORLD_CONSTRUCTIONS
       );
-      const tempCollection = server._db?.collection(
+      const tempCollection = this._db?.collection(
         DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP
       );
       if (freeplace.length) await tempCollection?.insertMany(freeplace);
-      await collection?.deleteMany({ serverId: server._worldId });
+      await collection?.deleteMany({ serverId: this._worldId });
       if (freeplace.length) await collection?.insertMany(freeplace);
-      await tempCollection?.deleteMany({ serverId: server._worldId });
+      await tempCollection?.deleteMany({ serverId: this._worldId });
     }
   }
 
