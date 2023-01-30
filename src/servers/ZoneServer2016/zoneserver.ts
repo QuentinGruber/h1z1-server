@@ -28,6 +28,7 @@ import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
 import { GridCell } from "./classes/gridcell";
 import { WorldObjectManager } from "./managers/worldobjectmanager";
+import { SmeltingManager } from "./managers/smeltingmanager";
 import {
   ContainerErrors,
   EntityTypes,
@@ -232,6 +233,7 @@ export class ZoneServer2016 extends EventEmitter {
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
   worldObjectManager: WorldObjectManager;
+  smeltingManager: SmeltingManager;
   weatherManager: WeatherManager;
   worldDataManager!: WorldDataManagerThreaded;
   hookManager: HookManager;
@@ -276,6 +278,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this.weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
+    this.smeltingManager = new SmeltingManager();
     this.weatherManager = new WeatherManager();
     this.hookManager = new HookManager();
     this.enableWorldSaves =
@@ -1100,7 +1103,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
-
+    this.startRoutinesLoop();
+    this.smeltingManager.checkSmeltables(this);
+    this.smeltingManager.checkCollectors(this);
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
@@ -1367,10 +1372,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   setTickRate() {
-    const count = _.size(this._characters);
-    if (count >= 60 && count < 80) this.tickRate = 2500;
-    else if (count >= 80) this.tickRate = 3000;
-    else this.tickRate = 2000;
+    const size = _.size(this._clients);
+    if (size <= 0) {
+      this.tickRate = 3000;
+      return;
+    }
+    this.tickRate = 3000 / size;
   }
 
   deleteClient(client: Client) {
@@ -1399,6 +1406,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendZonePopulationUpdate();
       }
     }
+    this.setTickRate();
   }
 
   generateDamageRecord(
@@ -4299,6 +4307,7 @@ export class ZoneServer2016 extends EventEmitter {
           eul2quat(rotation),
           freeplaceParentCharacterId
         );
+      case Items.BEE_BOX:
       case Items.DEW_COLLECTOR:
       case Items.ANIMAL_TRAP:
         return this.placeCollectingEntity(
@@ -4986,11 +4995,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     obj.equipLoadout(this);
-
+    const container = obj.getContainer();
+    if (container) {
+      switch (obj.itemDefinitionId) {
+        case Items.ANIMAL_TRAP:
+          container.canAcceptItems = false;
+          break;
+        case Items.DEW_COLLECTOR:
+        case Items.BEE_BOX:
+          container.acceptedItems = [Items.WATER_EMPTY];
+      }
+    }
     this.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnLootableConstruction(client, obj);
     }, obj);
-
+    this.smeltingManager._collectingEntities[characterId] = characterId;
     return true;
   }
 
@@ -6676,13 +6695,22 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
-          if (
-            smeltable.subEntity instanceof SmeltingEntity &&
-            smeltable.subEntity?.isWorking
-          )
+          if (smeltable.subEntity instanceof SmeltingEntity) {
+            if (smeltable.subEntity.isWorking) return;
+            smeltable.subEntity.isWorking = true;
+            this.smeltingManager._smeltingEntities[smeltable.characterId] =
+              smeltable.characterId;
+            this.sendDataToAllWithSpawnedEntity(
+              smeltable.subEntity.dictionary,
+              smeltable.characterId,
+              "Command.PlayDialogEffect",
+              {
+                characterId: smeltable.characterId,
+                effectId: smeltable.subEntity.workingEffect,
+              }
+            );
             return;
-          smeltable.subEntity?.startWorking(this, smeltable);
-          return;
+          }
         }
       }
     }
@@ -6696,13 +6724,22 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
-          if (
-            smeltable.subEntity instanceof SmeltingEntity &&
-            smeltable.subEntity?.isWorking
-          )
+          if (smeltable.subEntity instanceof SmeltingEntity) {
+            if (smeltable.subEntity.isWorking) return;
+            smeltable.subEntity.isWorking = true;
+            this.smeltingManager._smeltingEntities[smeltable.characterId] =
+              smeltable.characterId;
+            this.sendDataToAllWithSpawnedEntity(
+              smeltable.subEntity.dictionary,
+              smeltable.characterId,
+              "Command.PlayDialogEffect",
+              {
+                characterId: smeltable.characterId,
+                effectId: smeltable.subEntity.workingEffect,
+              }
+            );
             return;
-          smeltable.subEntity?.startWorking(this, smeltable);
-          return;
+          }
         }
       }
     }
@@ -7024,10 +7061,14 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
-
-  startClientRoutine(client: Client) {
-    client.routineInterval = setTimeout(() => {
-      if (!client) return;
+  async startRoutinesLoop() {
+    if (_.size(this._clients) <= 0) {
+      await Scheduler.wait(3000);
+      this.startRoutinesLoop();
+      return;
+    }
+    for (const a in this._clients) {
+      const client = this._clients[a];
       if (!client.isLoading) {
         client.routineCounter++;
         if (client.routineCounter >= 3) {
@@ -7036,23 +7077,16 @@ export class ZoneServer2016 extends EventEmitter {
           this.POIManager(client);
           client.routineCounter = 0;
         }
-
         this.vehicleManager(client);
-        //this.npcManager(client);
-
         this.spawnCharacters(client);
         this.spawnGridObjects(client);
         this.constructionManager(client);
         this.worldConstructionManager(client);
-
         client.posAtLastRoutine = client.character.state.position;
       }
-      if (client.isLoading) {
-        delete client.routineInterval;
-        return;
-      }
-      client.routineInterval?.refresh();
-    }, this.tickRate);
+      await Scheduler.wait(this.tickRate);
+    }
+    this.startRoutinesLoop();
   }
 
   executeRoutine(client: Client) {

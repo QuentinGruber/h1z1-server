@@ -630,7 +630,18 @@ export class WorldDataManager {
       entity._loadout["31"] = container;
       entity._containers["31"] = container;
     }
-
+    if (entityData.subEntityType === "CollectingEntity") {
+      server.smeltingManager._collectingEntities[entityData.characterId] =
+        entityData.characterId;
+      switch (entityData.itemDefinitionId) {
+        case Items.ANIMAL_TRAP:
+          entity._containers["31"].canAcceptItems = false;
+          break;
+        case Items.DEW_COLLECTOR:
+        case Items.BEE_BOX:
+          entity._containers["31"].acceptedItems = [Items.WATER_EMPTY];
+      }
+    }
     if (isWorldConstruction) {
       server._worldLootableConstruction[entity.characterId] = entity;
       return entity;
