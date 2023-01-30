@@ -135,7 +135,7 @@ import { PlantingDiameter } from "./entities/plantingdiameter";
 import { Plant } from "./entities/plant";
 import { SmeltingEntity } from "./classes/smeltingentity";
 import { spawn, Worker } from "threads";
-import { WorldDataManagerThreaded } from "./managers/w";
+import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -958,7 +958,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._frozeCycle = false;
 
     this.worldDataManager = (await spawn(
-      new Worker("./managers/w")
+      new Worker("./managers/worlddatamanagerthread")
     )) as unknown as WorldDataManagerThreaded;
     await this.worldDataManager.initialize(this._worldId, this._mongoAddress);
     if (!this._soloMode) {
