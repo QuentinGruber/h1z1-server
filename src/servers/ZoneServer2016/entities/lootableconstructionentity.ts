@@ -177,7 +177,6 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.subEntity) {
-      if (!(this.subEntity instanceof SmeltingEntity)) return;
       this.subEntity.OnFullCharacterDataRequest(server, client);
     }
   }

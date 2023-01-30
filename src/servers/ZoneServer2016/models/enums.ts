@@ -570,6 +570,7 @@ export enum Items {
   CONTAINER_CAMPFIRE = 5027,
   CONTAINER_DEW_COLLECTOR = 5028,
   CONTAINER_ANIMAL_TRAP = 5029,
+  CONTAINER_BEE_BOX = 5030,
 }
 
 export enum Skins_Shirt {
