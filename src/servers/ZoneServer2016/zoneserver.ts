@@ -104,7 +104,12 @@ import { BaseEntity } from "./entities/baseentity";
 import { ConstructionDoor } from "./entities/constructiondoor";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
-import { ConstructionParentSaveData, FullCharacterSaveData, LootableConstructionSaveData, PlantingDiameterSaveData } from "types/savedata";
+import {
+  ConstructionParentSaveData,
+  FullCharacterSaveData,
+  LootableConstructionSaveData,
+  PlantingDiameterSaveData,
+} from "types/savedata";
 import {
   constructContainers,
   constructLoadout,
@@ -1022,74 +1027,70 @@ export class ZoneServer2016 extends EventEmitter {
     debug("Server ready");
   }
 
-  async saveWorld(){
+  async saveWorld() {
     if (this._isSaving) {
       this.sendChatTextToAdmins("A save is already in progress.");
-     return;
-   }
-   this.sendChatTextToAdmins("World save started.");
-   this._isSaving = true;
-   console.time("ZONE: processing")
-   try {
-    const characters = WorldDataManager.convertCharactersToSaveData(
-      Object.values(this._characters),
-      this._worldId
-    );
-    const worldConstructions: LootableConstructionSaveData[] = [];
-    Object.values(this._worldLootableConstruction).forEach((entity) => {
-      worldConstructions.push(
-        WorldDataManager.getLootableConstructionSaveData(
-          entity,
-          this._worldId
-        )
+      return;
+    }
+    this.sendChatTextToAdmins("World save started.");
+    this._isSaving = true;
+    console.time("ZONE: processing");
+    try {
+      const characters = WorldDataManager.convertCharactersToSaveData(
+        Object.values(this._characters),
+        this._worldId
       );
-    });
-    const constructions: ConstructionParentSaveData[] = [];
-
-    Object.values(this._constructionFoundations).forEach((entity) => {
-      if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
-        constructions.push(
-          WorldDataManager.getConstructionParentSaveData(
+      const worldConstructions: LootableConstructionSaveData[] = [];
+      Object.values(this._worldLootableConstruction).forEach((entity) => {
+        worldConstructions.push(
+          WorldDataManager.getLootableConstructionSaveData(
             entity,
             this._worldId
           )
         );
-      }
-    });
-    const crops: PlantingDiameterSaveData[] = [];
-    Object.values(this._temporaryObjects).forEach((entity) => {
-      if (entity instanceof PlantingDiameter) {
-        crops.push(
-          WorldDataManager.getPlantingDiameterSaveData(
-            entity,
-            this._worldId
-          )
-        );
-      }
-    });
+      });
+      const constructions: ConstructionParentSaveData[] = [];
 
-    console.timeEnd("ZONE: processing")
+      Object.values(this._constructionFoundations).forEach((entity) => {
+        if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
+          constructions.push(
+            WorldDataManager.getConstructionParentSaveData(
+              entity,
+              this._worldId
+            )
+          );
+        }
+      });
+      const crops: PlantingDiameterSaveData[] = [];
+      Object.values(this._temporaryObjects).forEach((entity) => {
+        if (entity instanceof PlantingDiameter) {
+          crops.push(
+            WorldDataManager.getPlantingDiameterSaveData(entity, this._worldId)
+          );
+        }
+      });
 
-    console.time("ZONE: saveWorld")
+      console.timeEnd("ZONE: processing");
 
-    this.worldDataManager.saveWorld({
-      lastGuidItem: this.lastItemGuid,
-      characters,
-      worldConstructions,
-      crops,
-      constructions,
-    });
-   } catch (e) {
-     console.log(e);
-     this._isSaving = false;
-     console.timeEnd("ZONE: saveWorld")
-     this.sendChatTextToAdmins("World save failed!");
-   }
-   console.timeEnd("ZONE: saveWorld")
-   this._isSaving = false;
-   this.sendChatTextToAdmins("World saved!");
-   debug("World saved!");
-    
+      console.time("ZONE: saveWorld");
+
+      this.worldDataManager.saveWorld({
+        lastGuidItem: this.lastItemGuid,
+        characters,
+        worldConstructions,
+        crops,
+        constructions,
+      });
+    } catch (e) {
+      console.log(e);
+      this._isSaving = false;
+      console.timeEnd("ZONE: saveWorld");
+      this.sendChatTextToAdmins("World save failed!");
+    }
+    console.timeEnd("ZONE: saveWorld");
+    this._isSaving = false;
+    this.sendChatTextToAdmins("World saved!");
+    debug("World saved!");
   }
 
   async start(): Promise<void> {

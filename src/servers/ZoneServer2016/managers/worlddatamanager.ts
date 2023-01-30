@@ -192,10 +192,11 @@ export class WorldDataManager {
     //await this.loadVehicleData(server);
     const constructionParents =
       (await this.loadConstructionData()) as ConstructionParentSaveData[];
-    const freeplace = await this.loadWorldFreeplaceConstruction() as LootableConstructionSaveData[]; 
-     const crops = await this.loadCropData() as PlantingDiameterSaveData[];
+    const freeplace =
+      (await this.loadWorldFreeplaceConstruction()) as LootableConstructionSaveData[];
+    const crops = (await this.loadCropData()) as PlantingDiameterSaveData[];
     debug("World fetched!");
-    return { constructionParents,freeplace,crops, lastTransientId: 0 };
+    return { constructionParents, freeplace, crops, lastTransientId: 0 };
   }
   async deleteServerData() {
     if (this._soloMode) {
@@ -233,16 +234,14 @@ export class WorldDataManager {
   }
 
   async saveWorld(world: WorldArg) {
-      console.time("WDM: saveWorld")
-      //await this.saveVehicles(server);
-      await this.saveServerData(world.lastGuidItem);
-      await this.saveCharacters(world.characters);
-      await this.saveConstructionData(world.constructions);
-      await this.saveWorldFreeplaceConstruction(
-         world.worldConstructions
-       );
-       await this.saveCropData(world.crops);
-       console.timeEnd("WDM: saveWorld")
+    console.time("WDM: saveWorld");
+    //await this.saveVehicles(server);
+    await this.saveServerData(world.lastGuidItem);
+    await this.saveCharacters(world.characters);
+    await this.saveConstructionData(world.constructions);
+    await this.saveWorldFreeplaceConstruction(world.worldConstructions);
+    await this.saveCropData(world.crops);
+    console.timeEnd("WDM: saveWorld");
   }
 
   //#region DATA GETTER HELPER FUNCTIONS
@@ -963,7 +962,6 @@ export class WorldDataManager {
   }
 
   async saveCropData(crops: PlantingDiameterSaveData[]) {
-
     if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/worlddata/crops.json`,
@@ -1120,7 +1118,7 @@ export class WorldDataManager {
           .toArray()
       );
     }
-    return freeplace
+    return freeplace;
   }
 
   //#endregion

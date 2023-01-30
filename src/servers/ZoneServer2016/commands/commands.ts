@@ -1284,7 +1284,6 @@ export const commands: Array<Command> = [
       }
 
       await server.saveWorld();
-      
     },
   },
   {
