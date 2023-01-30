@@ -17,7 +17,7 @@ import { RecipeComponent } from "types/zoneserver";
 import { CollectingEntity } from "../classes/collectingentity";
 import { SmeltingEntity } from "../classes/smeltingentity";
 import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
-import { BaseItem } from "h1z1-server/src/servers/ZoneServer2016/classes/baseItem";
+import { BaseItem } from "../classes/baseItem";
 import { smeltingData } from "../data/Recipes";
 import { Scheduler } from "../../../utils/utils";
 
