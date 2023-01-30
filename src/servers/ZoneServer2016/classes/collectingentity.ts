@@ -43,6 +43,11 @@ export class CollectingEntity {
   requiredTicks: number = 15; // 15 min to fill
   currentTicks: number = 0;
   wasUsed: boolean = false;
+  isWorking: boolean = true;
+  isSmelting: boolean = true;
+  smeltingTime: number = 40000;
+  allowedFuel: number[] = [];
+  filterId: number = 0;
   subType: string = "CollectingEntity"; // for saving identification
   constructor(
     parentObject: LootableConstructionEntity,

@@ -28,6 +28,7 @@ import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
 import { GridCell } from "./classes/gridcell";
 import { WorldObjectManager } from "./managers/worldobjectmanager";
+import { SmeltingManager } from "./managers/smeltingmanager";
 import {
   ContainerErrors,
   EntityTypes,
@@ -222,6 +223,7 @@ export class ZoneServer2016 extends EventEmitter {
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
   worldObjectManager: WorldObjectManager;
+  smeltingManager: SmeltingManager;
   weatherManager: WeatherManager;
   worldDataManager: WorldDataManager;
   hookManager: HookManager;
@@ -265,6 +267,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this.weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
+    this.smeltingManager = new SmeltingManager();
     this.weatherManager = new WeatherManager();
     this.worldDataManager = new WorldDataManager();
     this.hookManager = new HookManager();
@@ -943,6 +946,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     await this.setupServer();
     this.startRoutinesLoop();
+    this.smeltingManager.run(this);
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
@@ -6516,13 +6520,22 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
-          if (
-            smeltable.subEntity instanceof SmeltingEntity &&
-            smeltable.subEntity?.isWorking
-          )
+          if (smeltable.subEntity instanceof SmeltingEntity) {
+            if (smeltable.subEntity.isWorking) return;
+            smeltable.subEntity.isWorking = true;
+            this.smeltingManager._workingEntities[smeltable.characterId] =
+              smeltable.characterId;
+            this.sendDataToAllWithSpawnedEntity(
+              smeltable.subEntity.dictionary,
+              smeltable.characterId,
+              "Command.PlayDialogEffect",
+              {
+                characterId: smeltable.characterId,
+                effectId: smeltable.subEntity.workingEffect,
+              }
+            );
             return;
-          smeltable.subEntity?.startWorking(this, smeltable);
-          return;
+          }
         }
       }
     }
@@ -6536,13 +6549,22 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
-          if (
-            smeltable.subEntity instanceof SmeltingEntity &&
-            smeltable.subEntity?.isWorking
-          )
+          if (smeltable.subEntity instanceof SmeltingEntity) {
+            if (smeltable.subEntity.isWorking) return;
+            smeltable.subEntity.isWorking = true;
+            this.smeltingManager._workingEntities[smeltable.characterId] =
+              smeltable.characterId;
+            this.sendDataToAllWithSpawnedEntity(
+              smeltable.subEntity.dictionary,
+              smeltable.characterId,
+              "Command.PlayDialogEffect",
+              {
+                characterId: smeltable.characterId,
+                effectId: smeltable.subEntity.workingEffect,
+              }
+            );
             return;
-          smeltable.subEntity?.startWorking(this, smeltable);
-          return;
+          }
         }
       }
     }
