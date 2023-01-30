@@ -68,7 +68,7 @@ export interface WorldArg {
   lastGuidItem: bigint;
   characters: CharacterUpdateSaveData[];
   worldConstructions: LootableConstructionSaveData[];
-  tempEntities: TemporaryEntity[];
+  crops: PlantingDiameterSaveData[];
   constructions: ConstructionParentSaveData[];
 }
 export interface FetchedWorldData {
@@ -986,13 +986,6 @@ export class WorldDataManager {
   async saveCropData(temporaryObjects: TemporaryEntity[], serverId: number) {
     const crops: Array<PlantingDiameterSaveData> = [];
 
-    Object.values(temporaryObjects).forEach((entity) => {
-      if (entity instanceof PlantingDiameter) {
-        crops.push(
-          WorldDataManager.getPlantingDiameterSaveData(entity, serverId)
-        );
-      }
-    });
 
     if (this._soloMode) {
       fs.writeFileSync(
@@ -1102,17 +1095,8 @@ export class WorldDataManager {
   }
 
   async saveWorldFreeplaceConstruction(
-    worldLootableConstruction: LootableConstructionEntity[],
-    serverId: number
+    freeplace: LootableConstructionSaveData[]
   ) {
-    //worldconstruction
-    const freeplace: Array<LootableConstructionSaveData> = [];
-    Object.values(worldLootableConstruction).forEach((entity) => {
-      freeplace.push(
-        WorldDataManager.getLootableConstructionSaveData(entity, serverId)
-      );
-    });
-
     if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/worlddata/worldconstruction.json`,
