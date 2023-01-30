@@ -230,7 +230,7 @@ export class SmeltingManager {
     return;
   }
 
-  checkCollector(
+  private checkCollector(
     server: ZoneServer2016,
     entity: LootableConstructionEntity,
     subEntity: CollectingEntity,
@@ -268,7 +268,7 @@ export class SmeltingManager {
     }
   }
 
-  checkWax(
+  private checkWax(
     server: ZoneServer2016,
     entity: LootableConstructionEntity,
     subEntity: CollectingEntity,
@@ -307,7 +307,7 @@ export class SmeltingManager {
     }
   }
 
-  checkAnimalTrap(
+  private checkAnimalTrap(
     server: ZoneServer2016,
     entity: LootableConstructionEntity,
     subEntity: CollectingEntity,
