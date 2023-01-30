@@ -38,7 +38,11 @@ import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { BaseItem } from "../classes/baseItem";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import { WorldDataManager } from "../managers/worlddatamanager";
-import { ConstructionParentSaveData, LootableConstructionSaveData, PlantingDiameterSaveData } from "types/savedata";
+import {
+  ConstructionParentSaveData,
+  LootableConstructionSaveData,
+  PlantingDiameterSaveData,
+} from "types/savedata";
 import { PlantingDiameter } from "../entities/plantingdiameter";
 const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
@@ -1283,28 +1287,37 @@ export const commands: Array<Command> = [
         server._worldId
       );
       const worldConstructions: LootableConstructionSaveData[] = [];
-    Object.values(server._worldLootableConstruction).forEach((entity) => {
-      worldConstructions.push(
-        WorldDataManager.getLootableConstructionSaveData(entity, server._worldId)
-      );
-    });
-    const constructions: ConstructionParentSaveData[] = [];
+      Object.values(server._worldLootableConstruction).forEach((entity) => {
+        worldConstructions.push(
+          WorldDataManager.getLootableConstructionSaveData(
+            entity,
+            server._worldId
+          )
+        );
+      });
+      const constructions: ConstructionParentSaveData[] = [];
 
-    Object.values(server._constructionFoundations).forEach((entity) => {
-      if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
-        constructions.push(
-          WorldDataManager.getConstructionParentSaveData(entity, server._worldId)
-        );
-      }
-    });
-      const crops : PlantingDiameterSaveData[] = []
-    Object.values(server._temporaryObjects).forEach((entity) => {
-      if (entity instanceof PlantingDiameter) {
-        crops.push(
-          WorldDataManager.getPlantingDiameterSaveData(entity, server._worldId)
-        );
-      }
-    });
+      Object.values(server._constructionFoundations).forEach((entity) => {
+        if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
+          constructions.push(
+            WorldDataManager.getConstructionParentSaveData(
+              entity,
+              server._worldId
+            )
+          );
+        }
+      });
+      const crops: PlantingDiameterSaveData[] = [];
+      Object.values(server._temporaryObjects).forEach((entity) => {
+        if (entity instanceof PlantingDiameter) {
+          crops.push(
+            WorldDataManager.getPlantingDiameterSaveData(
+              entity,
+              server._worldId
+            )
+          );
+        }
+      });
 
       await server.worldDataManager.saveWorld({
         lastGuidItem: server.lastItemGuid,

@@ -936,9 +936,7 @@ export class WorldDataManager {
     };
   }
 
-  async saveConstructionData(
-    constructions: ConstructionParentSaveData[]
-  ) {
+  async saveConstructionData(constructions: ConstructionParentSaveData[]) {
     if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/worlddata/construction.json`,
@@ -985,7 +983,6 @@ export class WorldDataManager {
 
   async saveCropData(temporaryObjects: TemporaryEntity[], serverId: number) {
     const crops: Array<PlantingDiameterSaveData> = [];
-
 
     if (this._soloMode) {
       fs.writeFileSync(

@@ -1302,7 +1302,10 @@ export class ZoneServer2016 extends EventEmitter {
         client.isLoading = true; // stop anything from acting on character
 
         clearTimeout(client.character?.resourcesUpdater);
-        const characterSave = WorldDataManager.convertToCharacterSaveData(client.character,this._worldId);
+        const characterSave = WorldDataManager.convertToCharacterSaveData(
+          client.character,
+          this._worldId
+        );
         this.worldDataManager.saveCharacterData(characterSave);
         this.dismountVehicle(client);
         client.managedObjects?.forEach((characterId: any) => {
