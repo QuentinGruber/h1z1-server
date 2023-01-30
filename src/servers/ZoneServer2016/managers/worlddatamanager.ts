@@ -55,6 +55,7 @@ import { Plant } from "../entities/plant";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import { DB_NAME } from "../../../utils/constants";
 import { Character2016 } from "../entities/character";
+import { Items } from "../models/enums";
 
 const fs = require("fs");
 const debug = require("debug")("ZoneServer");
