@@ -211,7 +211,9 @@ setTimeout(() => {
   });
   client.on("ZoneDoneSendingInitialData", (err, res) => {
     console.log("ZoneDoneSendingInitialData");
-    process.exit(0);
+    zoneServer.saveWorld().then(()=>{
+      process.exit(0);
+    })
   });
 }, 2000);
 
