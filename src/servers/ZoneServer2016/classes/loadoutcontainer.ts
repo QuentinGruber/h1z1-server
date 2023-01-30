@@ -33,7 +33,6 @@ function combineItemStack(
       client.character,
       item,
       targetContainer,
-      count,
       false
     );
     return;
@@ -41,9 +40,8 @@ function combineItemStack(
   // if only partial stack is moved
   server.addContainerItem(
     client.character,
-    server.generateItem(item.itemDefinitionId),
+    server.generateItem(item.itemDefinitionId, count),
     targetContainer,
-    count,
     false
   );
 }

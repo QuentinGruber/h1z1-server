@@ -5951,19 +5951,15 @@ export class ZoneServer2016 extends EventEmitter {
     character: BaseFullCharacter,
     item: BaseItem | undefined,
     container: LoadoutContainer,
-    count: number,
     sendUpdate: boolean = true
   ) {
     if (!item) return;
 
     const itemDefId = item.itemDefinitionId,
-      client = this.getClientByCharId(character.characterId);
-    container.items[item.itemGuid] = {
-      ...item,
-      slotId: Object.keys(container.items).length,
-      containerGuid: container.itemGuid,
-      stackCount: count,
-    };
+      client = this.getClientByContainerAccessor(character);
+    item.slotId = Object.keys(container.items).length;
+    item.containerGuid = container.itemGuid;
+    container.items[item.itemGuid] = item;
 
     if (!client) return;
     this.addItem(
@@ -5976,7 +5972,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData(client, "Reward.AddNonRewardItem", {
         itemDefId: itemDefId,
         iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
-        count: count,
+        count: item.stackCount,
       });
     }
   }
@@ -5989,6 +5985,7 @@ export class ZoneServer2016 extends EventEmitter {
     //this.updateLoadout(client.character);
   }
 
+  /*
   addContainerItemExternal(
     characterId: string,
     item: BaseItem | undefined,
@@ -6050,6 +6047,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.updateContainer(client, container);
   }
+  */
 
   updateContainerItem(
     client: Client,

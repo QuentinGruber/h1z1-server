@@ -156,12 +156,11 @@ export class SmeltingEntity {
         );
         if (item.itemDefinitionId == Items.WOOD_LOG) {
           // give charcoal if wood log was burned
-          server.addContainerItemExternal(
-            parentObject.mountedCharacter ? parentObject.mountedCharacter : "",
+          server.addContainerItem(
+            this.parentObject,
             server.generateItem(Items.CHARCOAL),
-            container,
-            1
-          );
+            container
+          )
         }
         if (!this.isWorking) {
           server.sendDataToAllWithSpawnedEntity(
@@ -245,14 +244,11 @@ export class SmeltingEntity {
                     }
                   );
                   passed = true;
-                  server.addContainerItemExternal(
-                    parentObject.mountedCharacter
-                      ? parentObject.mountedCharacter
-                      : "",
+                  server.addContainerItem(
+                    this.parentObject,
                     server.generateItem(recipe.rewardId),
-                    container,
-                    1
-                  );
+                    container
+                  )
                   return;
                 }
               }
