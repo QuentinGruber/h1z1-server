@@ -374,7 +374,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     sendUpdate: boolean = true,
     array: LoadoutContainer[] = []
   ) {
-    const client = server.getClientByCharId(this.characterId);
+    const client = server.getClientByContainerAccessor(this);
     if (!item || !item.isValid("lootContainerItem")) return;
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
@@ -734,8 +734,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     for (const container of Object.values(this._containers)) {
       if (
         container &&
-        container.getMaxBulk(server) >=
-          container.getUsedBulk(server) + itemDef.BULK * count
+        (container.getMaxBulk(server) == 0 ||
+          container.getAvailableBulk(server) >= itemDef.BULK * count)
       ) {
         return container;
       }

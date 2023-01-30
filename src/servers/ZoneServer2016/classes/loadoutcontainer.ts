@@ -85,7 +85,9 @@ export class LoadoutContainer extends LoadoutItem {
    * @returns Returns the amount of bulk available.
    */
   getAvailableBulk(server: ZoneServer2016): number {
-    return this.getMaxBulk(server) - this.getUsedBulk(server);
+    const availableBulk = this.getMaxBulk(server) - this.getUsedBulk(server);
+    // prevents returning a negative available bulk for containers with 0 max bulk
+    return availableBulk <= 0 ? 0 : availableBulk
   }
 
   /**

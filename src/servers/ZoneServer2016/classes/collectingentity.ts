@@ -91,20 +91,11 @@ export class CollectingEntity {
           if (this.currentTicks >= this.requiredTicks) {
             this.currentTicks = 0;
             this.wasUsed = true;
-            /*
-            server.addContainerItemExternal(
-              parentObject.mountedCharacter
-                ? parentObject.mountedCharacter
-                : "",
+            this.parentObject.lootContainerItem(
+              server,
               server.generateItem(Items.MEAT_RABBIT),
-              container,
-              1
-            );
-            */
-            server.addContainerItem(
-              this.parentObject,
-              server.generateItem(Items.MEAT_RABBIT),
-              container
+              undefined, 
+              false
             )
             parentObject.actorModelId = 35;
             server.sendDataToAllWithSpawnedEntity(
@@ -137,19 +128,11 @@ export class CollectingEntity {
               parentObject.getContainer(),
               1
             );
-            /*
-            server.addContainerItemExternal(
-              parentObject.mountedCharacter
-                ? parentObject.mountedCharacter
-                : "",
+            this.parentObject.lootContainerItem(
+              server,
               server.generateItem(Items.WATER_STAGNANT),
-              container,
-              1
-            );*/
-            server.addContainerItem(
-              this.parentObject,
-              server.generateItem(Items.WATER_STAGNANT),
-              container
+              undefined, 
+              false
             )
             return;
           }

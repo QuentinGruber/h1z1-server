@@ -156,10 +156,11 @@ export class SmeltingEntity {
         );
         if (item.itemDefinitionId == Items.WOOD_LOG) {
           // give charcoal if wood log was burned
-          server.addContainerItem(
-            this.parentObject,
+          this.parentObject.lootContainerItem(
+            server,
             server.generateItem(Items.CHARCOAL),
-            container
+            undefined, 
+            false
           )
         }
         if (!this.isWorking) {
@@ -244,10 +245,11 @@ export class SmeltingEntity {
                     }
                   );
                   passed = true;
-                  server.addContainerItem(
-                    this.parentObject,
+                  this.parentObject.lootContainerItem(
+                    server,
                     server.generateItem(recipe.rewardId),
-                    container
+                    undefined, 
+                    false
                   )
                   return;
                 }
