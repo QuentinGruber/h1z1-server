@@ -104,7 +104,7 @@ import { BaseEntity } from "./entities/baseentity";
 import { ConstructionDoor } from "./entities/constructiondoor";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
-import { FullCharacterSaveData } from "types/savedata";
+import { ConstructionParentSaveData, FullCharacterSaveData, LootableConstructionSaveData, PlantingDiameterSaveData } from "types/savedata";
 import {
   constructContainers,
   constructLoadout,
@@ -253,6 +253,7 @@ export class ZoneServer2016 extends EventEmitter {
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
   private _proximityItemsDistance: number = 2;
   isSaving: boolean = false;
+  private _isSaving: boolean = false;
 
   constructor(
     serverPort: number,
@@ -1019,6 +1020,72 @@ export class ZoneServer2016 extends EventEmitter {
       `Server saving ${this.enableWorldSaves ? "enabled" : "disabled"}.`
     );
     debug("Server ready");
+  }
+
+  async saveWorld(){
+    if (this._isSaving) {
+      this.sendChatTextToAdmins("A save is already in progress.");
+     return;
+   }
+   console.time("ZONE: saveWorld")
+   this.sendChatTextToAdmins("World save started.");
+   this._isSaving = true;
+   try {
+    const characters = WorldDataManager.convertCharactersToSaveData(
+      Object.values(this._characters),
+      this._worldId
+    );
+    const worldConstructions: LootableConstructionSaveData[] = [];
+    Object.values(this._worldLootableConstruction).forEach((entity) => {
+      worldConstructions.push(
+        WorldDataManager.getLootableConstructionSaveData(
+          entity,
+          this._worldId
+        )
+      );
+    });
+    const constructions: ConstructionParentSaveData[] = [];
+
+    Object.values(this._constructionFoundations).forEach((entity) => {
+      if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
+        constructions.push(
+          WorldDataManager.getConstructionParentSaveData(
+            entity,
+            this._worldId
+          )
+        );
+      }
+    });
+    const crops: PlantingDiameterSaveData[] = [];
+    Object.values(this._temporaryObjects).forEach((entity) => {
+      if (entity instanceof PlantingDiameter) {
+        crops.push(
+          WorldDataManager.getPlantingDiameterSaveData(
+            entity,
+            this._worldId
+          )
+        );
+      }
+    });
+
+    await this.worldDataManager.saveWorld({
+      lastGuidItem: this.lastItemGuid,
+      characters,
+      worldConstructions,
+      crops,
+      constructions,
+    });
+   } catch (e) {
+     console.log(e);
+     this._isSaving = false;
+     console.timeEnd("ZONE: saveWorld")
+     this.sendChatTextToAdmins("World save failed!");
+   }
+   console.timeEnd("ZONE: saveWorld")
+   this._isSaving = false;
+   this.sendChatTextToAdmins("World saved!");
+   debug("World saved!");
+    
   }
 
   async start(): Promise<void> {

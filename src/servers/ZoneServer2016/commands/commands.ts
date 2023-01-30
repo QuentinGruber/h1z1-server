@@ -1282,50 +1282,9 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Server saving is disabled.");
         return;
       }
-      const characters = WorldDataManager.convertCharactersToSaveData(
-        Object.values(server._characters),
-        server._worldId
-      );
-      const worldConstructions: LootableConstructionSaveData[] = [];
-      Object.values(server._worldLootableConstruction).forEach((entity) => {
-        worldConstructions.push(
-          WorldDataManager.getLootableConstructionSaveData(
-            entity,
-            server._worldId
-          )
-        );
-      });
-      const constructions: ConstructionParentSaveData[] = [];
 
-      Object.values(server._constructionFoundations).forEach((entity) => {
-        if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
-          constructions.push(
-            WorldDataManager.getConstructionParentSaveData(
-              entity,
-              server._worldId
-            )
-          );
-        }
-      });
-      const crops: PlantingDiameterSaveData[] = [];
-      Object.values(server._temporaryObjects).forEach((entity) => {
-        if (entity instanceof PlantingDiameter) {
-          crops.push(
-            WorldDataManager.getPlantingDiameterSaveData(
-              entity,
-              server._worldId
-            )
-          );
-        }
-      });
-
-      await server.worldDataManager.saveWorld({
-        lastGuidItem: server.lastItemGuid,
-        characters,
-        worldConstructions,
-        crops,
-        constructions,
-      });
+      await server.saveWorld();
+      
     },
   },
   {

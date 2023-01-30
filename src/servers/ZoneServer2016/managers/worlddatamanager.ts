@@ -141,7 +141,6 @@ export class WorldDataManager {
   private _soloMode: boolean = false;
   //TODO: remove it from zoneserver then
   private _worldSaveVersion: number = 2;
-  _isSaving: boolean = false;
 
   static async getDatabase(mongoAddress: string) {
     const mongoClient = new MongoClient(mongoAddress, {
@@ -234,13 +233,7 @@ export class WorldDataManager {
   }
 
   async saveWorld(world: WorldArg) {
-    if (this._isSaving) {
-      // server.sendChatTextToAdmins("A save is already in progress.");
-      return;
-    }
-    // server.sendChatTextToAdmins("World save started.");
-    this._isSaving = true;
-    try {
+      console.time("WDM: saveWorld")
       //await this.saveVehicles(server);
       await this.saveServerData(world.lastGuidItem);
       await this.saveCharacters(world.characters);
@@ -249,14 +242,7 @@ export class WorldDataManager {
          world.worldConstructions
        );
        await this.saveCropData(world.crops);
-    } catch (e) {
-      console.log(e);
-      this._isSaving = false;
-      // server.sendChatTextToAdmins("World save failed!");
-    }
-    this._isSaving = false;
-    // server.sendChatTextToAdmins("World saved!");
-    debug("World saved!");
+       console.timeEnd("WDM: saveWorld")
   }
 
   //#region DATA GETTER HELPER FUNCTIONS
