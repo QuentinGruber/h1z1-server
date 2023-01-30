@@ -67,7 +67,6 @@ import { Character2016 as Character } from "./entities/character";
 import {
   _,
   generateRandomGuid,
-  getAppDataFolderPath,
   Int64String,
   isPosInRadius,
   isPosInRadiusWithY,
@@ -991,6 +990,12 @@ export class ZoneServer2016 extends EventEmitter {
         fetchedWorldData.constructionParents,
         this
       );
+      fetchedWorldData.freeplace.forEach((entityData) => {
+        WorldDataManager.loadLootableConstructionEntity(this, entityData, true);
+      });
+      fetchedWorldData.crops.forEach((entityData) => {
+        WorldDataManager.loadPlantingDiameter(this, entityData);
+      });
 
       // UNUSED ???
       // this._transientIds = this.getAllCurrentUsedTransientId();

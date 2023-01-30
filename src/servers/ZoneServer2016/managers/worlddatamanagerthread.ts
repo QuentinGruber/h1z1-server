@@ -4,7 +4,6 @@ import {
   FullCharacterSaveData,
   ServerSaveData,
 } from "types/savedata";
-import { Character2016 } from "../entities/character";
 import {
   FetchedWorldData,
   WorldArg,
