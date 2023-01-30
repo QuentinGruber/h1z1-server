@@ -442,12 +442,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         });
       }
     } else {
-      server.addContainerItem(
-        this,
-        item,
-        availableContainer,
-        sendUpdate
-      );
+      server.addContainerItem(this, item, availableContainer, sendUpdate);
     }
   }
 

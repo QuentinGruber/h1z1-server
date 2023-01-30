@@ -524,7 +524,7 @@ export class WorldObjectManager {
                 prop,
                 server.generateItem(getRandomSkin(item.item), count),
                 container
-              )
+              );
             }
           } else {
             x--;

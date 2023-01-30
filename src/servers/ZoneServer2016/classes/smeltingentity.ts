@@ -159,9 +159,9 @@ export class SmeltingEntity {
           this.parentObject.lootContainerItem(
             server,
             server.generateItem(Items.CHARCOAL),
-            undefined, 
+            undefined,
             false
-          )
+          );
         }
         if (!this.isWorking) {
           server.sendDataToAllWithSpawnedEntity(
@@ -248,9 +248,9 @@ export class SmeltingEntity {
                   this.parentObject.lootContainerItem(
                     server,
                     server.generateItem(recipe.rewardId),
-                    undefined, 
+                    undefined,
                     false
-                  )
+                  );
                   return;
                 }
               }

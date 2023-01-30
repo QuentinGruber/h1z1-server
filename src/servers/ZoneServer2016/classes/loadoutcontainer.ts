@@ -29,12 +29,7 @@ function combineItemStack(
 ) {
   if (oldStackCount == count) {
     // if full stack is moved
-    server.addContainerItem(
-      client.character,
-      item,
-      targetContainer,
-      false
-    );
+    server.addContainerItem(client.character, item, targetContainer, false);
     return;
   }
   // if only partial stack is moved
@@ -87,7 +82,7 @@ export class LoadoutContainer extends LoadoutItem {
   getAvailableBulk(server: ZoneServer2016): number {
     const availableBulk = this.getMaxBulk(server) - this.getUsedBulk(server);
     // prevents returning a negative available bulk for containers with 0 max bulk
-    return availableBulk <= 0 ? 0 : availableBulk
+    return availableBulk <= 0 ? 0 : availableBulk;
   }
 
   /**

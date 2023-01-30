@@ -42,9 +42,11 @@ export class BaseItem {
   }
 
   isValid(flag?: string): boolean {
-    if(flag) this.debugFlag = flag;
-    if(this.stackCount <= 0) {
-      console.error(`Item is invalid! itemDefId: ${this.itemDefinitionId} stackCount: ${this.stackCount} debugFlag: ${this.debugFlag}`);
+    if (flag) this.debugFlag = flag;
+    if (this.stackCount <= 0) {
+      console.error(
+        `Item is invalid! itemDefId: ${this.itemDefinitionId} stackCount: ${this.stackCount} debugFlag: ${this.debugFlag}`
+      );
       return false;
     }
     return true;

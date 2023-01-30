@@ -94,9 +94,9 @@ export class CollectingEntity {
             this.parentObject.lootContainerItem(
               server,
               server.generateItem(Items.MEAT_RABBIT),
-              undefined, 
+              undefined,
               false
-            )
+            );
             parentObject.actorModelId = 35;
             server.sendDataToAllWithSpawnedEntity(
               this.dictionary,
@@ -131,9 +131,9 @@ export class CollectingEntity {
             this.parentObject.lootContainerItem(
               server,
               server.generateItem(Items.WATER_STAGNANT),
-              undefined, 
+              undefined,
               false
-            )
+            );
             return;
           }
         });
