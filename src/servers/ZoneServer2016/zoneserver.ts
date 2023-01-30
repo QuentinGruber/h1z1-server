@@ -975,7 +975,9 @@ export class ZoneServer2016 extends EventEmitter {
             `World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`
           );
           await this.worldDataManager.deleteWorld();
-          await this.worldDataManager.insertWorld(BigInt(loadedWorld.lastItemGuid));
+          await this.worldDataManager.insertWorld(
+            BigInt(loadedWorld.lastItemGuid)
+          );
         }
       } else {
         await this.worldDataManager.insertWorld(this.lastItemGuid);
@@ -1300,7 +1302,8 @@ export class ZoneServer2016 extends EventEmitter {
         client.isLoading = true; // stop anything from acting on character
 
         clearTimeout(client.character?.resourcesUpdater);
-        this.worldDataManager.saveCharacterData(client.character);
+        const characterSave = WorldDataManager.convertToCharacterSaveData(client.character,this._worldId);
+        this.worldDataManager.saveCharacterData(characterSave);
         this.dismountVehicle(client);
         client.managedObjects?.forEach((characterId: any) => {
           this.dropVehicleManager(client, characterId);

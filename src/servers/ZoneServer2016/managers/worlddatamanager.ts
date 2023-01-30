@@ -64,19 +64,16 @@ import { TemporaryEntity } from "../entities/temporaryentity";
 
 const fs = require("fs");
 const debug = require("debug")("ZoneServer");
-  export interface WorldArg {
-    lastGuidItem: bigint;
-    characters: CharacterSaveDataTransfer[];
-    worldConstructions: LootableConstructionEntity[];
-    tempEntities: TemporaryEntity[];
-    constructions: ConstructionParentEntity[];
-  }
+export interface WorldArg {
+  lastGuidItem: bigint;
+  characters: CharacterUpdateSaveData[];
+  worldConstructions: LootableConstructionSaveData[];
+  tempEntities: TemporaryEntity[];
+  constructions: ConstructionParentSaveData[];
+}
 export interface FetchedWorldData {
   constructionParents: ConstructionParentSaveData[];
   lastTransientId: number;
-}
-export interface CharacterSaveDataTransfer extends CharacterUpdateSaveData{
-  characterId: string
 }
 
 export function constructLoadout(
@@ -240,8 +237,7 @@ export class WorldDataManager {
     debug("World deleted!");
   }
 
-  async saveWorld(world: WorldArg
- ) {
+  async saveWorld(world: WorldArg) {
     if (this._isSaving) {
       // server.sendChatTextToAdmins("A save is already in progress.");
       return;
@@ -252,12 +248,12 @@ export class WorldDataManager {
       //await this.saveVehicles(server);
       await this.saveServerData(world.lastGuidItem);
       await this.saveCharacters(world.characters);
-      await this.saveConstructionData(world.constructions, this._worldId);
-      await this.saveWorldFreeplaceConstruction(
-        world.worldConstructions,
-        this._worldId
-      );
-      await this.saveCropData(world.tempEntities, this._worldId);
+      await this.saveConstructionData(world.constructions);
+      // await this.saveWorldFreeplaceConstruction(
+      //   world.worldConstructions,
+      //   this._worldId
+      // );
+      // await this.saveCropData(world.tempEntities, this._worldId);
     } catch (e) {
       console.log(e);
       this._isSaving = false;
@@ -369,9 +365,7 @@ export class WorldDataManager {
 
   //#region SERVER DATA
 
-  async getServerData(
-    serverId: number,
-  ): Promise<ServerSaveData | undefined> {
+  async getServerData(serverId: number): Promise<ServerSaveData | undefined> {
     let serverData: ServerSaveData;
     if (this._soloMode) {
       serverData = require(`${this._appDataFolder}/worlddata/world.json`);
@@ -464,21 +458,33 @@ export class WorldDataManager {
     return savedCharacter;
   }
 
-  static convertToCharacterSaveDataTransfer(characterSaveData:Character2016,worldId: number){
+  static convertCharactersToSaveData(
+    characters: Character2016[],
+    worldId: number
+  ) {
+    const charactersSaveData: CharacterUpdateSaveData[] = [];
+    for (let i = 0; i < characters.length; i++) {
+      const character = characters[i];
+      charactersSaveData.push(
+        this.convertToCharacterSaveData(character, worldId)
+      );
+    }
+    return charactersSaveData;
+  }
+
+  static convertToCharacterSaveData(character: Character2016, worldId: number) {
     const saveData: CharacterUpdateSaveData = {
       ...WorldDataManager.getBaseFullCharacterUpdateSaveData(
-        characterSaveData,
+        character,
         worldId
       ),
-      rotation: Array.from(characterSaveData.state.lookAt),
-      isRespawning: characterSaveData.isRespawning,
+      characterId: character.characterId,
+      rotation: Array.from(character.state.lookAt),
+      isRespawning: character.isRespawning,
     };
-      return saveData;    
+    return saveData;
   }
-  async saveCharacterData(
-    characterSaveData: CharacterSaveDataTransfer
-  ) {
-
+  async saveCharacterData(characterSaveData: CharacterUpdateSaveData) {
     if (this._soloMode) {
       const singlePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       let singlePlayerCharacter = singlePlayerCharacters.find(
@@ -500,7 +506,7 @@ export class WorldDataManager {
       await this._db?.collection(DB_COLLECTIONS.CHARACTERS).updateOne(
         {
           serverId: this._worldId,
-          characterId: characterSaveData.characterId
+          characterId: characterSaveData.characterId,
         },
         {
           $set: {
@@ -511,7 +517,7 @@ export class WorldDataManager {
     }
   }
 
-  async saveCharacters(characters: CharacterSaveDataTransfer[]) {
+  async saveCharacters(characters: CharacterUpdateSaveData[]) {
     const promises: Array<any> = [];
     for (let i = 0; i < characters.length; i++) {
       const character = characters[i];
@@ -931,31 +937,21 @@ export class WorldDataManager {
   }
 
   async saveConstructionData(
-    constructionParents: ConstructionParentEntity[],
-    serverId: number
+    constructions: ConstructionParentSaveData[]
   ) {
-    const construction: Array<ConstructionParentSaveData> = [];
-
-    Object.values(constructionParents).forEach((entity) => {
-      if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
-        construction.push(
-          WorldDataManager.getConstructionParentSaveData(entity, serverId)
-        );
-      }
-    });
     if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/worlddata/construction.json`,
-        JSON.stringify(construction, null, 2)
+        JSON.stringify(constructions, null, 2)
       );
     } else {
       const tempCollection = this._db?.collection(
         DB_COLLECTIONS.CONSTRUCTION_TEMP
       );
-      if (construction.length) await tempCollection?.insertMany(construction);
+      if (constructions.length) await tempCollection?.insertMany(constructions);
       const collection = this._db?.collection(DB_COLLECTIONS.CONSTRUCTION);
       await collection?.deleteMany({ serverId: this._worldId });
-      if (construction.length) await collection?.insertMany(construction);
+      if (constructions.length) await collection?.insertMany(constructions);
       await tempCollection?.deleteMany({ serverId: this._worldId });
     }
   }

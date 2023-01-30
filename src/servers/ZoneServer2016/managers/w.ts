@@ -1,7 +1,15 @@
 import { expose } from "threads/worker";
-import { FullCharacterSaveData, ServerSaveData } from "types/savedata";
+import {
+  CharacterUpdateSaveData,
+  FullCharacterSaveData,
+  ServerSaveData,
+} from "types/savedata";
 import { Character2016 } from "../entities/character";
-import { CharacterSaveDataTransfer, FetchedWorldData, WorldArg, WorldDataManager } from "./worlddatamanager";
+import {
+  FetchedWorldData,
+  WorldArg,
+  WorldDataManager,
+} from "./worlddatamanager";
 
 const worldDataManager = new WorldDataManager();
 export interface WorldDataManagerThreaded {
@@ -12,8 +20,8 @@ export interface WorldDataManagerThreaded {
   insertWorld: (arg0: bigint) => Promise<void>;
   deleteWorld: () => Promise<void>;
   saveWorld: (arg0: WorldArg) => Promise<void>;
-  saveCharacters: (arg0: Character2016[]) => Promise<void>;
-  saveCharacterData: (arg0: Character2016) => Promise<void>;
+  saveCharacters: (arg0: CharacterUpdateSaveData[]) => Promise<void>;
+  saveCharacterData: (arg0: CharacterUpdateSaveData) => Promise<void>;
 }
 expose({
   initialize(worldId: number, mongoAddress: string) {
@@ -37,10 +45,10 @@ expose({
   deleteWorld() {
     return worldDataManager.deleteWorld();
   },
-  saveCharacters(characters: CharacterSaveDataTransfer[]) {
+  saveCharacters(characters: CharacterUpdateSaveData[]) {
     return worldDataManager.saveCharacters(characters);
   },
-  saveCharacterData(character: CharacterSaveDataTransfer) {
+  saveCharacterData(character: CharacterUpdateSaveData) {
     return worldDataManager.saveCharacterData(character);
   },
 });

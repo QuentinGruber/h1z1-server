@@ -61,6 +61,7 @@ export interface BaseFullCharacterUpdateSaveData extends BaseEntityUpdateSaveDat
 
 export interface CharacterUpdateSaveData
   extends BaseFullCharacterUpdateSaveData {
+  characterId: string,
   isRespawning: boolean;
 }
 

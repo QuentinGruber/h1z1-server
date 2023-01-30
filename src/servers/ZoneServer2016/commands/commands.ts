@@ -37,6 +37,8 @@ import { LoadoutItem } from "../classes/loadoutItem";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { BaseItem } from "../classes/baseItem";
 import { DB_COLLECTIONS } from "../../../utils/enums";
+import { WorldDataManager } from "../managers/worlddatamanager";
+import { ConstructionParentSaveData } from "types/savedata";
 const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 function getDriveModel(model: string) {
@@ -1238,7 +1240,10 @@ export const commands: Array<Command> = [
         return;
       }
       server.sendChatText(client, "CharacterData save started.");
-      const characters = Object.values(server._characters)
+      const characters = WorldDataManager.convertCharactersToSaveData(
+        Object.values(server._characters),
+        server._worldId
+      );
       await server.worldDataManager.saveCharacters(characters);
       server.sendChatText(client, "Character data has been saved!");
     },
@@ -1272,13 +1277,30 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Server saving is disabled.");
         return;
       }
-      const characters = Object.values(server._characters)
-      const worldConstructions:any = [];
-      const tempEntities:any = [];
+      const characters = WorldDataManager.convertCharactersToSaveData(
+        Object.values(server._characters),
+        server._worldId
+      );
+      const worldConstructions: any = [];
+      const tempEntities: any = [];
       // const worldConstructions = Object.values(server._worldLootableConstruction)
       // const tempEntities = Object.values(server._temporaryObjects)
-      const constructions = Object.values(server._constructionFoundations)
-      await server.worldDataManager.saveWorld({lastGuidItem: server.lastItemGuid,characters,worldConstructions,tempEntities,constructions});
+    const constructions: ConstructionParentSaveData[] = [];
+
+    Object.values(server._constructionFoundations).forEach((entity) => {
+      if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
+        constructions.push(
+          WorldDataManager.getConstructionParentSaveData(entity, server._worldId)
+        );
+      }
+    });
+      await server.worldDataManager.saveWorld({
+        lastGuidItem: server.lastItemGuid,
+        characters,
+        worldConstructions,
+        tempEntities,
+        constructions,
+      });
     },
   },
   {
