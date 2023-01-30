@@ -1027,9 +1027,9 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatTextToAdmins("A save is already in progress.");
      return;
    }
-   console.time("ZONE: saveWorld")
    this.sendChatTextToAdmins("World save started.");
    this._isSaving = true;
+   console.time("ZONE: processing")
    try {
     const characters = WorldDataManager.convertCharactersToSaveData(
       Object.values(this._characters),
@@ -1068,7 +1068,11 @@ export class ZoneServer2016 extends EventEmitter {
       }
     });
 
-    await this.worldDataManager.saveWorld({
+    console.timeEnd("ZONE: processing")
+
+    console.time("ZONE: saveWorld")
+
+    this.worldDataManager.saveWorld({
       lastGuidItem: this.lastItemGuid,
       characters,
       worldConstructions,
@@ -7207,6 +7211,6 @@ if (process.env.VSCODE_DEBUG === "true") {
     1117,
     Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),
     process.env.MONGO_URL,
-    12
+    2
   ).start();
 }
