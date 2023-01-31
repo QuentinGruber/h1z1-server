@@ -16,7 +16,7 @@ import { LootableConstructionEntity } from "../entities/lootableconstructionenti
 import { ConstructionDoor } from "../entities/constructiondoor";
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { Scheduler } from "../../../utils/utils";
-import { ConstructionParentEntity } from "h1z1-server/src/servers/ZoneServer2016/entities/constructionparententity";
+import { ConstructionParentEntity } from "../entities/constructionparententity";
 
 export class DecayManager {
   loopTime = 1200000; // 20 min
