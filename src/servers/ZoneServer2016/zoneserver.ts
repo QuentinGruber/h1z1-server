@@ -29,6 +29,7 @@ import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
 import { GridCell } from "./classes/gridcell";
 import { WorldObjectManager } from "./managers/worldobjectmanager";
 import { SmeltingManager } from "./managers/smeltingmanager";
+import { DecayManager } from "./managers/decaymanager";
 import {
   ContainerErrors,
   EntityTypes,
@@ -224,6 +225,7 @@ export class ZoneServer2016 extends EventEmitter {
   _weatherTemplates: any;
   worldObjectManager: WorldObjectManager;
   smeltingManager: SmeltingManager;
+  decayManager: DecayManager;
   weatherManager: WeatherManager;
   worldDataManager: WorldDataManager;
   hookManager: HookManager;
@@ -268,6 +270,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
     this.smeltingManager = new SmeltingManager();
+    this.decayManager = new DecayManager();
     this.weatherManager = new WeatherManager();
     this.worldDataManager = new WorldDataManager();
     this.hookManager = new HookManager();
@@ -948,6 +951,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.startRoutinesLoop();
     this.smeltingManager.checkSmeltables(this);
     this.smeltingManager.checkCollectors(this);
+    this.decayManager.run(this);
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
@@ -1399,6 +1403,7 @@ export class ZoneServer2016 extends EventEmitter {
   async explosionDamage(
     position: Float32Array,
     npcTriggered: string,
+    source: string,
     client?: Client
   ) {
     // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
@@ -1435,7 +1440,7 @@ export class ZoneServer2016 extends EventEmitter {
         continue;
       if (
         isPosInRadius(
-          constructionObject.damageRange,
+          constructionObject.damageRange * 1.5,
           constructionObject.fixedPosition
             ? constructionObject.fixedPosition
             : constructionObject.state.position,
@@ -1454,7 +1459,8 @@ export class ZoneServer2016 extends EventEmitter {
             position,
             constructionObject.fixedPosition
               ? constructionObject.fixedPosition
-              : constructionObject.state.position
+              : constructionObject.state.position,
+            source
           );
         }
       }
@@ -1466,7 +1472,7 @@ export class ZoneServer2016 extends EventEmitter {
       ] as ConstructionDoor;
       if (
         isPosInRadius(
-          constructionObject.damageRange,
+          constructionObject.damageRange * 1.5,
           constructionObject.fixedPosition
             ? constructionObject.fixedPosition
             : constructionObject.state.position,
@@ -1485,7 +1491,8 @@ export class ZoneServer2016 extends EventEmitter {
             position,
             constructionObject.fixedPosition
               ? constructionObject.fixedPosition
-              : constructionObject.state.position
+              : constructionObject.state.position,
+            source
           );
         }
       }
@@ -1497,7 +1504,7 @@ export class ZoneServer2016 extends EventEmitter {
       ] as ConstructionParentEntity;
       if (
         isPosInRadius(
-          constructionObject.damageRange,
+          constructionObject.damageRange * 1.5,
           constructionObject.state.position,
           position
         )
@@ -1509,7 +1516,8 @@ export class ZoneServer2016 extends EventEmitter {
             50000,
             this._constructionFoundations,
             position,
-            constructionObject.state.position
+            constructionObject.state.position,
+            source
           );
         }
       }
@@ -1532,7 +1540,8 @@ export class ZoneServer2016 extends EventEmitter {
           50000,
           this._lootableConstruction,
           position,
-          constructionObject.state.position
+          constructionObject.state.position,
+          source
         );
       }
     }
@@ -1547,7 +1556,8 @@ export class ZoneServer2016 extends EventEmitter {
           50000,
           this._worldLootableConstruction,
           position,
-          constructionObject.state.position
+          constructionObject.state.position,
+          source
         );
       }
     }
@@ -1634,14 +1644,44 @@ export class ZoneServer2016 extends EventEmitter {
     damage: number,
     dictionary: any,
     position: Float32Array,
-    entityPosition: Float32Array
+    entityPosition: Float32Array,
+    source: string
   ) {
+    switch (source) {
+      case "vehicle":
+        damage /= 10;
+        break;
+      case "ethanol":
+        damage /= 2;
+        break;
+      case "fuel":
+        damage /= 4;
+        break;
+    }
     const constructionObject: ConstructionEntity =
       dictionary[constructionCharId];
+    switch (constructionObject.itemDefinitionId) {
+      case Items.DOOR_METAL:
+        damage *= 1.45;
+        break;
+      case Items.DOOR_WOOD:
+        damage *= 2;
+        break;
+      case Items.SHACK_BASIC:
+      case Items.DOOR_BASIC:
+        damage *= 4;
+        break;
+      default:
+        damage *= 0.8;
+        break;
+    }
     const distance = getDistance(entityPosition, position);
     constructionObject.damage(this, {
       entity: "",
-      damage: distance < 4 ? damage : damage / Math.sqrt(distance),
+      damage:
+        distance < constructionObject.damageRange
+          ? damage
+          : damage / Math.sqrt(distance),
     });
     this.updateResourceToAllWithSpawnedEntity(
       constructionObject.characterId,
@@ -2570,21 +2610,7 @@ export class ZoneServer2016 extends EventEmitter {
       foundation.itemDefinitionId == Items.FOUNDATION ||
       foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
     ) {
-      if (
-        isPosInRadiusWithY(
-          foundation.itemDefinitionId == Items.FOUNDATION ? 6.46 : 4.9,
-          client.character.state.position,
-          new Float32Array([
-            foundation.state.position[0],
-            foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
-              ? foundation.state.position[1] - 2.5
-              : foundation.state.position[1],
-            foundation.state.position[2],
-            1,
-          ]),
-          2
-        )
-      )
+      if (foundation.isUnder(client.character.state.position))
         this.tpPlayerOutsideFoundation(client, foundation, true);
     }
     if (!foundation.isSecured) return false;
@@ -6212,7 +6238,7 @@ export class ZoneServer2016 extends EventEmitter {
       const object = this._temporaryObjects[characterId];
       if (
         object instanceof PlantingDiameter &&
-        isPosInRadius(1, object.state.position, client.character.state.position)
+        isPosInRadius(3, object.state.position, client.character.state.position)
       ) {
         object.isFertilized = true;
         object.fertilizedTimestamp = new Date().getTime() + 86400000; // + 1 day
@@ -6232,7 +6258,6 @@ export class ZoneServer2016 extends EventEmitter {
             }
           );
         });
-        return;
       }
     }
   }

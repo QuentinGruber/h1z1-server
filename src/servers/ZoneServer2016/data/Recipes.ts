@@ -2516,6 +2516,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
   },
   [Items.YEAST]: {
     filterId: FilterIds.COMPONENT,
+    bundleCount: 2,
     components: [
       {
         itemDefinitionId: Items.SUGAR,

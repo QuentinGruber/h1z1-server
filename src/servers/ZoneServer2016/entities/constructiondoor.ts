@@ -83,7 +83,7 @@ export class ConstructionDoor extends DoorEntity {
     const itemDefinition = server.getItemDefinition(this.itemDefinitionId);
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
     this.grantedAccess.push(ownerCharacterId);
-    this.npcRenderDistance = 750;
+    this.npcRenderDistance = 350;
   }
 
   pGetConstructionHealth() {

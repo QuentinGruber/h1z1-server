@@ -12,13 +12,13 @@
 // ======================================================================
 
 import { ConstructionChildEntity } from "./constructionchildentity";
+import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
   getConstructionSlotId,
   isInsideSquare,
   isInsideCube,
-  isPosInRadiusWithY,
   registerConstructionSlots,
   getRectangleCorners,
   movePoint,
@@ -53,7 +53,8 @@ function getDamageRange(definitionId: number): number {
 export class ConstructionParentEntity extends ConstructionChildEntity {
   permissions: { [characterId: string]: ConstructionPermissions } = {};
   ownerCharacterId: string;
-
+  objectLessTicks: number = 0;
+  objectLessMaxTicks: number = 3;
   readonly expansionSlots: ConstructionSlotPositionMap = {};
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
   readonly rampSlots: ConstructionSlotPositionMap = {};
@@ -138,14 +139,18 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         }
         break;
       case Items.SHACK:
+        this.bounds = getRectangleCorners(position, 4.7, 5, -this.eulerAngle);
+        break;
       case Items.SHACK_SMALL:
-      case Items.SHACK_BASIC:
         this.bounds = getRectangleCorners(
           this.state.position,
           3.5,
           2.5,
           -this.eulerAngle
         );
+        break;
+      case Items.SHACK_BASIC:
+        this.bounds = getRectangleCorners(position, 1.6, 1.6, -this.eulerAngle);
         break;
     }
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
@@ -458,9 +463,21 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.GROUND_TAMPER:
         return isInsideSquare([position[0], position[2]], this.bounds);
       case Items.SHACK:
-        return isPosInRadiusWithY(2.39, position, this.state.position, 2);
+        return isInsideCube(
+          [position[0], position[2]],
+          this.bounds,
+          position[1],
+          this.state.position[1],
+          2.1
+        );
       case Items.SHACK_BASIC:
-        return isPosInRadiusWithY(1, position, this.state.position, 2);
+        return isInsideCube(
+          [position[0], position[2]],
+          this.bounds,
+          position[1],
+          this.state.position[1],
+          1.7
+        );
       case Items.SHACK_SMALL:
         return isInsideCube(
           [position[0], position[2]],
@@ -474,6 +491,23 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
   }
 
+  isUnder(position: Float32Array) {
+    if (!this.bounds) {
+      console.error(
+        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+      );
+      return false; // this should never occur
+    }
+
+    return isInsideCube(
+      [position[0], position[2]],
+      this.bounds,
+      position[1],
+      this.state.position[1] - 50,
+      49
+    );
+  }
+
   destroy(server: ZoneServer2016, destructTime = 0) {
     server.deleteEntity(
       this.characterId,
@@ -481,6 +515,21 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       242,
       destructTime
     );
+    if (
+      this.itemDefinitionId == Items.SHACK ||
+      this.itemDefinitionId == Items.SHACK_SMALL ||
+      this.itemDefinitionId == Items.SHACK_BASIC
+    ) {
+      for (const entity of Object.values(this.freeplaceEntities)) {
+        if (entity instanceof ConstructionChildEntity) {
+          server._worldSimpleConstruction[entity.characterId] = entity;
+          delete server._constructionSimple[entity.characterId];
+        } else if (entity instanceof LootableConstructionEntity) {
+          server._worldLootableConstruction[entity.characterId] = entity;
+          delete server._lootableConstruction[entity.characterId];
+        }
+      }
+    }
     const parent =
       server._constructionFoundations[this.parentObjectCharacterId];
     if (!parent) return;
