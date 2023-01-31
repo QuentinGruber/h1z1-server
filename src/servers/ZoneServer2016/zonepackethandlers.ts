@@ -1775,6 +1775,21 @@ export class zonePacketHandlers {
                     accumulatedItemDamage += 25;
                   }
                 );
+                if (entity.health < 1000000) {
+                  const damageInfo = {
+                    entity: "",
+                    damage: -50000,
+                  };
+                  entity.damage(server, damageInfo);
+                  server.updateResourceToAllWithSpawnedEntity(
+                    entity.characterId,
+                    entity.health,
+                    ResourceIds.CONSTRUCTION_CONDITION,
+                    ResourceTypes.CONDITION,
+                    server.getConstructionDictionary(entity.characterId)
+                  );
+                  accumulatedItemDamage += 25;
+                }
                 server.damageItem(client, weaponItem, accumulatedItemDamage);
                 client.character.temporaryScrapSoundTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapSoundTimeout;

@@ -114,6 +114,12 @@ export class DecayManager {
   }
 
   private contructionDecayDamage(server: ZoneServer2016) {
+    for (const a in server._worldLootableConstruction) {
+      this.decayDamage(server, server._worldLootableConstruction[a]);
+    }
+    for (const a in server._worldSimpleConstruction) {
+      this.decayDamage(server, server._worldSimpleConstruction[a]);
+    }
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
       if (
