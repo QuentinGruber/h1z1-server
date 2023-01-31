@@ -20,7 +20,10 @@ export interface WorldDataManagerThreaded {
   deleteWorld: () => Promise<void>;
   saveWorld: (arg0: WorldArg) => Promise<void>;
   saveCharacters: (arg0: CharacterUpdateSaveData[]) => Promise<void>;
-  saveCharacterData: (arg0: CharacterUpdateSaveData, arg1?: bigint) => Promise<void>;
+  saveCharacterData: (
+    arg0: CharacterUpdateSaveData,
+    arg1?: bigint
+  ) => Promise<void>;
 }
 expose({
   initialize(worldId: number, mongoAddress: string) {

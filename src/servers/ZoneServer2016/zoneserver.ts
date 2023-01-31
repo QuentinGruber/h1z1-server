@@ -261,8 +261,8 @@ export class ZoneServer2016 extends EventEmitter {
   private _proximityItemsDistance: number = 2;
   isSaving: boolean = false;
   private _isSaving: boolean = false;
-  saveTimeInterval: number = 600000 ;
-  nextSaveTime: number = Date.now() + this.saveTimeInterval ;
+  saveTimeInterval: number = 600000;
+  nextSaveTime: number = Date.now() + this.saveTimeInterval;
 
   constructor(
     serverPort: number,
@@ -1365,8 +1365,12 @@ export class ZoneServer2016 extends EventEmitter {
         this.itemDespawner();
         this.worldObjectManager.run(this);
         this.setTickRate();
-        if (this.enableWorldSaves && !this.isSaving && this.nextSaveTime - Date.now() < 0) {
-          this.saveWorld()
+        if (
+          this.enableWorldSaves &&
+          !this.isSaving &&
+          this.nextSaveTime - Date.now() < 0
+        ) {
+          this.saveWorld();
         }
       }
     }
@@ -1392,7 +1396,10 @@ export class ZoneServer2016 extends EventEmitter {
           client.character,
           this._worldId
         );
-        this.worldDataManager.saveCharacterData(characterSave, this.lastItemGuid);
+        this.worldDataManager.saveCharacterData(
+          characterSave,
+          this.lastItemGuid
+        );
         this.dismountVehicle(client);
         client.managedObjects?.forEach((characterId: any) => {
           this.dropVehicleManager(client, characterId);

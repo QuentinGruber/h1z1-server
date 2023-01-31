@@ -465,13 +465,16 @@ export class WorldDataManager {
     };
     return saveData;
   }
-  async saveCharacterData(characterSaveData: CharacterUpdateSaveData, lastItemGuid?: bigint) {
+  async saveCharacterData(
+    characterSaveData: CharacterUpdateSaveData,
+    lastItemGuid?: bigint
+  ) {
     /* 
       lastItemGuid MUST be saved whenever a character is saved (a character is saved on logout)
       in case of a crash so that a player can't end up with an item in their inventory with an
       itemGuid lower than the saved lastItemGuid
     */
-    if(lastItemGuid) this.saveServerData(lastItemGuid);
+    if (lastItemGuid) this.saveServerData(lastItemGuid);
     if (this._soloMode) {
       const singlePlayerCharacters = require(`${this._appDataFolder}/single_player_characters2016.json`);
       let singlePlayerCharacter = singlePlayerCharacters.find(

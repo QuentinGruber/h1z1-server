@@ -1298,7 +1298,10 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Server saving is disabled.");
         return;
       }
-      server.sendChatText(client,`Next save at ${new Date(server.nextSaveTime)}`)
+      server.sendChatText(
+        client,
+        `Next save at ${new Date(server.nextSaveTime)}`
+      );
     },
   },
   {
@@ -1316,7 +1319,6 @@ export const commands: Array<Command> = [
 
       server.enableWorldSaves = false;
       server.sendAlertToAll("World saving has been disabled");
-
     },
   },
   {
@@ -1334,7 +1336,6 @@ export const commands: Array<Command> = [
 
       server.enableWorldSaves = true;
       server.sendAlertToAll("World saving has been enabled");
-
     },
   },
   {
