@@ -1287,6 +1287,57 @@ export const commands: Array<Command> = [
     },
   },
   {
+    name: "nextsave",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!server.enableWorldSaves) {
+        server.sendChatText(client, "Server saving is disabled.");
+        return;
+      }
+      server.sendChatText(client,`Next save at ${new Date(server.nextSaveTime)}`)
+    },
+  },
+  {
+    name: "disablesave",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!server.enableWorldSaves) {
+        server.sendChatText(client, "Server saving is already disabled.");
+        return;
+      }
+
+      server.enableWorldSaves = false;
+      server.sendAlertToAll("World saving has been disabled");
+
+    },
+  },
+  {
+    name: "enablesave",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (server.enableWorldSaves) {
+        server.sendChatText(client, "Server saving is already enabled.");
+        return;
+      }
+
+      server.enableWorldSaves = true;
+      server.sendAlertToAll("World saving has been enabled");
+
+    },
+  },
+  {
     name: "silentban",
     permissionLevel: PermissionLevels.ADMIN,
     execute: async (

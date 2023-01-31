@@ -261,6 +261,8 @@ export class ZoneServer2016 extends EventEmitter {
   private _proximityItemsDistance: number = 2;
   isSaving: boolean = false;
   private _isSaving: boolean = false;
+  saveTimeInterval: number = 600000 ;
+  nextSaveTime: number = Date.now() + this.saveTimeInterval ;
 
   constructor(
     serverPort: number,
@@ -976,7 +978,6 @@ export class ZoneServer2016 extends EventEmitter {
       const loadedWorld = await this.worldDataManager.getServerData(
         this._worldId
       );
-      console.log(loadedWorld);
       if (loadedWorld) {
         if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
           console.log(
@@ -992,7 +993,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
       this.lastItemGuid = BigInt(loadedWorld.lastItemGuid || this.lastItemGuid);
       console.time("fetch world data");
-      // return un obj avec les differents type d'item + le dernier transientId
       const fetchedWorldData =
         (await this.worldDataManager.fetchWorldData()) as FetchedWorldData;
       WorldDataManager.loadConstructionParentEntities(
@@ -1093,6 +1093,7 @@ export class ZoneServer2016 extends EventEmitter {
     console.timeEnd("ZONE: saveWorld");
     this._isSaving = false;
     this.sendChatTextToAdmins("World saved!");
+    this.nextSaveTime = Date.now() + this.saveTimeInterval;
     debug("World saved!");
   }
 
@@ -1364,8 +1365,9 @@ export class ZoneServer2016 extends EventEmitter {
         this.itemDespawner();
         this.worldObjectManager.run(this);
         this.setTickRate();
-        // TODO: save every 10min logic
-        // if (this.enableWorldSaves) this.worldDataManager.run();
+        if (this.enableWorldSaves && !this.isSaving && this.nextSaveTime - Date.now() < 0) {
+          this.saveWorld()
+        }
       }
     }
     this.worldRoutineTimer.refresh();
