@@ -6252,7 +6252,7 @@ export class ZoneServer2016 extends EventEmitter {
       const object = this._temporaryObjects[characterId];
       if (
         object instanceof PlantingDiameter &&
-        isPosInRadius(1, object.state.position, client.character.state.position)
+        isPosInRadius(3, object.state.position, client.character.state.position)
       ) {
         object.isFertilized = true;
         object.fertilizedTimestamp = new Date().getTime() + 86400000; // + 1 day
@@ -6272,7 +6272,6 @@ export class ZoneServer2016 extends EventEmitter {
             }
           );
         });
-        return;
       }
     }
   }
