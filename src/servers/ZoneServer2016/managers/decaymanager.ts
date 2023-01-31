@@ -24,7 +24,6 @@ export class DecayManager {
   requiredTicksToDamage = 12; // damage structures once every 12 hours
 
   public async run(server: ZoneServer2016) {
-    console.log("loop");
     this.contructionExpirationCheck(server);
     if (this.currentTicksCount >= this.requiredTicksToDamage) {
       this.contructionDecayDamage(server);
@@ -38,7 +37,11 @@ export class DecayManager {
   private contructionExpirationCheck(server: ZoneServer2016) {
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
-      if (foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION) continue;
+      if (
+        foundation.itemDefinitionId != Items.FOUNDATION &&
+        foundation.itemDefinitionId != Items.GROUND_TAMPER
+      )
+        continue;
       let expansionshaveChild = false;
       Object.values(foundation.occupiedExpansionSlots).forEach(
         (exp: ConstructionParentEntity) => {
@@ -111,9 +114,14 @@ export class DecayManager {
   }
 
   private contructionDecayDamage(server: ZoneServer2016) {
-    console.log("decay");
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
+      if (
+        foundation.itemDefinitionId != Items.FOUNDATION &&
+        foundation.itemDefinitionId != Items.GROUND_TAMPER
+      ) {
+        this.decayDamage(server, foundation);
+      }
       Object.values(foundation.freeplaceEntities).forEach(
         (
           entity:
