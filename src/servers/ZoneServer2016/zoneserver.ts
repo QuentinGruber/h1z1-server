@@ -1399,6 +1399,7 @@ export class ZoneServer2016 extends EventEmitter {
   async explosionDamage(
     position: Float32Array,
     npcTriggered: string,
+    source: string,
     client?: Client
   ) {
     // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
@@ -1454,7 +1455,8 @@ export class ZoneServer2016 extends EventEmitter {
             position,
             constructionObject.fixedPosition
               ? constructionObject.fixedPosition
-              : constructionObject.state.position
+              : constructionObject.state.position,
+            source
           );
         }
       }
@@ -1485,7 +1487,8 @@ export class ZoneServer2016 extends EventEmitter {
             position,
             constructionObject.fixedPosition
               ? constructionObject.fixedPosition
-              : constructionObject.state.position
+              : constructionObject.state.position,
+            source
           );
         }
       }
@@ -1509,7 +1512,8 @@ export class ZoneServer2016 extends EventEmitter {
             50000,
             this._constructionFoundations,
             position,
-            constructionObject.state.position
+            constructionObject.state.position,
+            source
           );
         }
       }
@@ -1532,7 +1536,8 @@ export class ZoneServer2016 extends EventEmitter {
           50000,
           this._lootableConstruction,
           position,
-          constructionObject.state.position
+          constructionObject.state.position,
+          source
         );
       }
     }
@@ -1547,7 +1552,8 @@ export class ZoneServer2016 extends EventEmitter {
           50000,
           this._worldLootableConstruction,
           position,
-          constructionObject.state.position
+          constructionObject.state.position,
+          source
         );
       }
     }
@@ -1634,8 +1640,20 @@ export class ZoneServer2016 extends EventEmitter {
     damage: number,
     dictionary: any,
     position: Float32Array,
-    entityPosition: Float32Array
+    entityPosition: Float32Array,
+    source: string
   ) {
+    switch (source) {
+      case "vehicle":
+        damage /= 10;
+        break;
+      case "ethanol":
+        damage /= 2;
+        break;
+      case "fuel":
+        damage /= 4;
+        break;
+    }
     const constructionObject: ConstructionEntity =
       dictionary[constructionCharId];
     const distance = getDistance(entityPosition, position);
