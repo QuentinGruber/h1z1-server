@@ -38,6 +38,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   parentObjectCharacterId: string;
   loadoutId = 5;
   itemDefinitionId: number;
+  damageRange: number = 1.5;
   subEntity?: SmeltingEntity | CollectingEntity;
   constructor(
     characterId: string,

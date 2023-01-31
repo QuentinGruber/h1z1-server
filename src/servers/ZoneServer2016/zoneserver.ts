@@ -1440,7 +1440,7 @@ export class ZoneServer2016 extends EventEmitter {
         continue;
       if (
         isPosInRadius(
-          constructionObject.damageRange,
+          constructionObject.damageRange * 1.5,
           constructionObject.fixedPosition
             ? constructionObject.fixedPosition
             : constructionObject.state.position,
@@ -1472,7 +1472,7 @@ export class ZoneServer2016 extends EventEmitter {
       ] as ConstructionDoor;
       if (
         isPosInRadius(
-          constructionObject.damageRange,
+          constructionObject.damageRange * 1.5,
           constructionObject.fixedPosition
             ? constructionObject.fixedPosition
             : constructionObject.state.position,
@@ -1504,7 +1504,7 @@ export class ZoneServer2016 extends EventEmitter {
       ] as ConstructionParentEntity;
       if (
         isPosInRadius(
-          constructionObject.damageRange,
+          constructionObject.damageRange * 1.5,
           constructionObject.state.position,
           position
         )
@@ -1678,7 +1678,7 @@ export class ZoneServer2016 extends EventEmitter {
     const distance = getDistance(entityPosition, position);
     constructionObject.damage(this, {
       entity: "",
-      damage: distance < 2 ? damage : damage / Math.sqrt(distance),
+      damage: distance < constructionObject.damageRange ? damage : damage / Math.sqrt(distance),
     });
     this.updateResourceToAllWithSpawnedEntity(
       constructionObject.characterId,
