@@ -36,7 +36,6 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
   placementTime = Date.now();
   parentObjectCharacterId: string;
-  npcRenderDistance = 15;
   loadoutId = 5;
   itemDefinitionId: number;
   subEntity?: SmeltingEntity | CollectingEntity;
@@ -63,6 +62,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       this.subEntity = new SmeltingEntity(this, server);
     } else if (subEntityType === "CollectingEntity") {
       this.subEntity = new CollectingEntity(this, server);
+    } else {
+      this.npcRenderDistance = 20;
     }
   }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
