@@ -1082,13 +1082,20 @@ export class ZoneServer2016 extends EventEmitter {
 
       console.time("ZONE: saveWorld");
 
-      this.worldDataManager.saveWorld({
-        lastGuidItem: this.lastItemGuid,
-        characters,
-        worldConstructions,
-        crops,
-        constructions,
-      });
+      this.worldDataManager
+        .saveWorld({
+          lastGuidItem: this.lastItemGuid,
+          characters,
+          worldConstructions,
+          crops,
+          constructions,
+        })
+        .then(() => {
+          this._isSaving = false;
+          this.sendChatTextToAdmins("World saved!");
+          this.nextSaveTime = Date.now() + this.saveTimeInterval;
+          debug("World saved!");
+        });
     } catch (e) {
       console.log(e);
       this._isSaving = false;
@@ -1096,10 +1103,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatTextToAdmins("World save failed!");
     }
     console.timeEnd("ZONE: saveWorld");
-    this._isSaving = false;
-    this.sendChatTextToAdmins("World saved!");
-    this.nextSaveTime = Date.now() + this.saveTimeInterval;
-    debug("World saved!");
   }
 
   async start(): Promise<void> {
