@@ -1607,7 +1607,7 @@ export class zonePacketHandlers {
             );
             if (!entity) return;
             if (!client.character.temporaryScrapSoundTimeout) {
-              let accumulatedItemDamage = 25;
+              let accumulatedItemDamage = 0;
               server.sendCompositeEffectToAllInRange(
                 15,
                 client.character.characterId,
@@ -1800,6 +1800,8 @@ export class zonePacketHandlers {
                 entity: "",
                 damage: -50000,
               };
+              accumulatedItemDamage = 50;
+              server.damageItem(client, weaponItem, accumulatedItemDamage);
               entity.damage(server, damageInfo);
               server.updateResourceToAllWithSpawnedEntity(
                 entity.characterId,
