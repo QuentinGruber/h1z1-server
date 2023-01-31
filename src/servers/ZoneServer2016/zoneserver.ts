@@ -2610,21 +2610,7 @@ export class ZoneServer2016 extends EventEmitter {
       foundation.itemDefinitionId == Items.FOUNDATION ||
       foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
     ) {
-      if (
-        isPosInRadiusWithY(
-          foundation.itemDefinitionId == Items.FOUNDATION ? 6.46 : 4.9,
-          client.character.state.position,
-          new Float32Array([
-            foundation.state.position[0],
-            foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
-              ? foundation.state.position[1] - 2.5
-              : foundation.state.position[1],
-            foundation.state.position[2],
-            1,
-          ]),
-          2
-        )
-      )
+      if (foundation.isUnder(client.character.state.position))
         this.tpPlayerOutsideFoundation(client, foundation, true);
     }
     if (!foundation.isSecured) return false;

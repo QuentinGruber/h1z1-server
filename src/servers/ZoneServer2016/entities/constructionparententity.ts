@@ -480,6 +480,23 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
   }
 
+  isUnder(position: Float32Array) {
+    if (!this.bounds) {
+      console.error(
+        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+      );
+      return false; // this should never occur
+    }
+
+    return isInsideCube(
+      [position[0], position[2]],
+      this.bounds,
+      position[1],
+      this.state.position[1] - 50,
+      49
+    );
+  }
+
   destroy(server: ZoneServer2016, destructTime = 0) {
     server.deleteEntity(
       this.characterId,
