@@ -29,6 +29,7 @@ import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
 import { GridCell } from "./classes/gridcell";
 import { WorldObjectManager } from "./managers/worldobjectmanager";
 import { SmeltingManager } from "./managers/smeltingmanager";
+import { DecayManager } from "./managers/decaymanager";
 import {
   ContainerErrors,
   EntityTypes,
@@ -224,6 +225,7 @@ export class ZoneServer2016 extends EventEmitter {
   _weatherTemplates: any;
   worldObjectManager: WorldObjectManager;
   smeltingManager: SmeltingManager;
+  decayManager: DecayManager;
   weatherManager: WeatherManager;
   worldDataManager: WorldDataManager;
   hookManager: HookManager;
@@ -268,6 +270,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
     this.smeltingManager = new SmeltingManager();
+    this.decayManager = new DecayManager();
     this.weatherManager = new WeatherManager();
     this.worldDataManager = new WorldDataManager();
     this.hookManager = new HookManager();
@@ -948,6 +951,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.startRoutinesLoop();
     this.smeltingManager.checkSmeltables(this);
     this.smeltingManager.checkCollectors(this);
+    this.decayManager.run(this);
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
