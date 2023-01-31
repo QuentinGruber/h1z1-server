@@ -28,6 +28,7 @@ import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
 import { GridCell } from "./classes/gridcell";
 import { WorldObjectManager } from "./managers/worldobjectmanager";
+import { SmeltingManager } from "./managers/smeltingmanager";
 import {
   ContainerErrors,
   EntityTypes,
@@ -222,6 +223,7 @@ export class ZoneServer2016 extends EventEmitter {
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
   worldObjectManager: WorldObjectManager;
+  smeltingManager: SmeltingManager;
   weatherManager: WeatherManager;
   worldDataManager: WorldDataManager;
   hookManager: HookManager;
@@ -265,6 +267,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this.weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
+    this.smeltingManager = new SmeltingManager();
     this.weatherManager = new WeatherManager();
     this.worldDataManager = new WorldDataManager();
     this.hookManager = new HookManager();
@@ -943,6 +946,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     await this.setupServer();
     this.startRoutinesLoop();
+    this.smeltingManager.checkSmeltables(this);
+    this.smeltingManager.checkCollectors(this);
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
@@ -4139,6 +4144,7 @@ export class ZoneServer2016 extends EventEmitter {
           eul2quat(rotation),
           freeplaceParentCharacterId
         );
+      case Items.BEE_BOX:
       case Items.DEW_COLLECTOR:
       case Items.ANIMAL_TRAP:
         return this.placeCollectingEntity(
@@ -4826,11 +4832,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     obj.equipLoadout(this);
-
+    const container = obj.getContainer();
+    if (container) {
+      switch (obj.itemDefinitionId) {
+        case Items.ANIMAL_TRAP:
+          container.canAcceptItems = false;
+          break;
+        case Items.DEW_COLLECTOR:
+        case Items.BEE_BOX:
+          container.acceptedItems = [Items.WATER_EMPTY];
+      }
+    }
     this.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnLootableConstruction(client, obj);
     }, obj);
-
+    this.smeltingManager._collectingEntities[characterId] = characterId;
     return true;
   }
 
@@ -6450,13 +6466,22 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
-          if (
-            smeltable.subEntity instanceof SmeltingEntity &&
-            smeltable.subEntity?.isWorking
-          )
+          if (smeltable.subEntity instanceof SmeltingEntity) {
+            if (smeltable.subEntity.isWorking) return;
+            smeltable.subEntity.isWorking = true;
+            this.smeltingManager._smeltingEntities[smeltable.characterId] =
+              smeltable.characterId;
+            this.sendDataToAllWithSpawnedEntity(
+              smeltable.subEntity.dictionary,
+              smeltable.characterId,
+              "Command.PlayDialogEffect",
+              {
+                characterId: smeltable.characterId,
+                effectId: smeltable.subEntity.workingEffect,
+              }
+            );
             return;
-          smeltable.subEntity?.startWorking(this, smeltable);
-          return;
+          }
         }
       }
     }
@@ -6470,13 +6495,22 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
-          if (
-            smeltable.subEntity instanceof SmeltingEntity &&
-            smeltable.subEntity?.isWorking
-          )
+          if (smeltable.subEntity instanceof SmeltingEntity) {
+            if (smeltable.subEntity.isWorking) return;
+            smeltable.subEntity.isWorking = true;
+            this.smeltingManager._smeltingEntities[smeltable.characterId] =
+              smeltable.characterId;
+            this.sendDataToAllWithSpawnedEntity(
+              smeltable.subEntity.dictionary,
+              smeltable.characterId,
+              "Command.PlayDialogEffect",
+              {
+                characterId: smeltable.characterId,
+                effectId: smeltable.subEntity.workingEffect,
+              }
+            );
             return;
-          smeltable.subEntity?.startWorking(this, smeltable);
-          return;
+          }
         }
       }
     }
