@@ -1285,7 +1285,6 @@ export class zonePacketHandlers {
               client.character,
               loadoutItem,
               targetContainer,
-              count,
               false
             );
           } else if (containerGuid == "0xffffffffffffffff") {

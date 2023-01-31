@@ -5993,19 +5993,15 @@ export class ZoneServer2016 extends EventEmitter {
     character: BaseFullCharacter,
     item: BaseItem | undefined,
     container: LoadoutContainer,
-    count: number,
     sendUpdate: boolean = true
   ) {
     if (!item) return;
 
     const itemDefId = item.itemDefinitionId,
-      client = this.getClientByCharId(character.characterId);
-    container.items[item.itemGuid] = {
-      ...item,
-      slotId: Object.keys(container.items).length,
-      containerGuid: container.itemGuid,
-      stackCount: count,
-    };
+      client = this.getClientByContainerAccessor(character);
+    item.slotId = Object.keys(container.items).length;
+    item.containerGuid = container.itemGuid;
+    container.items[item.itemGuid] = item;
 
     if (!client) return;
     this.addItem(
@@ -6018,7 +6014,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData(client, "Reward.AddNonRewardItem", {
         itemDefId: itemDefId,
         iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
-        count: count,
+        count: item.stackCount,
       });
     }
   }
@@ -6029,68 +6025,6 @@ export class ZoneServer2016 extends EventEmitter {
       data: client.character.pGetItemData(this, item, 101),
     });
     //this.updateLoadout(client.character);
-  }
-
-  addContainerItemExternal(
-    characterId: string,
-    item: BaseItem | undefined,
-    container: LoadoutContainer,
-    count: number
-  ) {
-    if (!item) return;
-    let addItem = false;
-    let itemAssigned = false;
-    const client = this.getClientByCharId(characterId);
-    Object.values(container.items).forEach((containerItem: BaseItem) => {
-      // item stacking
-      if (itemAssigned) return;
-      if (containerItem.itemDefinitionId == item.itemDefinitionId) {
-        const addedValue = containerItem.stackCount + item.stackCount;
-        if (
-          addedValue >
-          this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE
-        ) {
-          containerItem.stackCount = this.getItemDefinition(
-            item.itemDefinitionId
-          ).MAX_STACK_SIZE;
-          container.items[item.itemGuid] = {
-            ...item,
-            slotId: Object.keys(container.items).length,
-            containerGuid: container.itemGuid,
-            stackCount:
-              addedValue -
-              this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE,
-          };
-          addItem = true;
-          itemAssigned = true;
-          if (!client) return;
-          this.updateContainerItem(client, containerItem, container);
-        } else {
-          containerItem.stackCount = addedValue;
-          itemAssigned = true;
-          if (!client) return;
-          this.updateContainerItem(client, containerItem, container);
-        }
-      }
-    });
-    if (!itemAssigned) {
-      container.items[item.itemGuid] = {
-        ...item,
-        slotId: Object.keys(container.items).length,
-        containerGuid: container.itemGuid,
-        stackCount: count,
-      };
-    }
-
-    if (!client) return;
-    if (addItem || !itemAssigned) {
-      this.addItem(
-        client,
-        container.items[item.itemGuid],
-        container.containerDefinitionId
-      );
-    }
-    this.updateContainer(client, container);
   }
 
   updateContainerItem(
