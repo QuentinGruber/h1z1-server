@@ -464,9 +464,21 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.GROUND_TAMPER:
         return isInsideSquare([position[0], position[2]], this.bounds);
       case Items.SHACK:
-        return isPosInRadiusWithY(2.39, position, this.state.position, 2);
+        return isInsideCube(
+          [position[0], position[2]],
+          this.bounds,
+          position[1],
+          this.state.position[1],
+          2.1
+        );
       case Items.SHACK_BASIC:
-        return isPosInRadiusWithY(1, position, this.state.position, 2);
+        return isInsideCube(
+          [position[0], position[2]],
+          this.bounds,
+          position[1],
+          this.state.position[1],
+          1.7
+        );
       case Items.SHACK_SMALL:
         return isInsideCube(
           [position[0], position[2]],
