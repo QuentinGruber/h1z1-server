@@ -140,14 +140,18 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         }
         break;
       case Items.SHACK:
+        this.bounds = getRectangleCorners(position, 4.7, 5, -this.eulerAngle);
+        break;
       case Items.SHACK_SMALL:
-      case Items.SHACK_BASIC:
         this.bounds = getRectangleCorners(
           this.state.position,
           3.5,
           2.5,
           -this.eulerAngle
         );
+        break;
+      case Items.SHACK_BASIC:
+        this.bounds = getRectangleCorners(position, 1.6, 1.6, -this.eulerAngle);
         break;
     }
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);

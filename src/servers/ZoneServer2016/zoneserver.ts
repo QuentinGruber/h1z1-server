@@ -1678,7 +1678,10 @@ export class ZoneServer2016 extends EventEmitter {
     const distance = getDistance(entityPosition, position);
     constructionObject.damage(this, {
       entity: "",
-      damage: distance < constructionObject.damageRange ? damage : damage / Math.sqrt(distance),
+      damage:
+        distance < constructionObject.damageRange
+          ? damage
+          : damage / Math.sqrt(distance),
     });
     this.updateResourceToAllWithSpawnedEntity(
       constructionObject.characterId,
