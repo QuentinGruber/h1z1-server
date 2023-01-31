@@ -156,11 +156,11 @@ export class SmeltingManager {
         server.removeContainerItem(entity, item, entity.getContainer(), 1);
         if (item.itemDefinitionId == Items.WOOD_LOG) {
           // give charcoal if wood log was burned
-          server.addContainerItemExternal(
-            entity.mountedCharacter ? entity.mountedCharacter : "",
+          entity.lootContainerItem(
+            server,
             server.generateItem(Items.CHARCOAL),
-            container!,
-            1
+            1,
+            true
           );
         }
         return true;
@@ -211,11 +211,11 @@ export class SmeltingManager {
                       );
                     }
                   );
-                  server.addContainerItemExternal(
-                    entity.mountedCharacter ? entity.mountedCharacter : "",
+                  entity.lootContainerItem(
+                    server,
                     server.generateItem(recipe.rewardId),
-                    container,
-                    1
+                    1,
+                    true
                   );
                   this.smelt(server, entity);
                   return;
@@ -244,11 +244,11 @@ export class SmeltingManager {
         server.removeContainerItem(entity, item, container, 1);
         const reward = getRewardId(entity.itemDefinitionId);
         if (reward) {
-          server.addContainerItemExternal(
-            entity.mountedCharacter ? entity.mountedCharacter : "",
+          entity.lootContainerItem(
+            server,
             server.generateItem(reward),
-            container,
-            1
+            1,
+            true
           );
           if (reward == Items.HONEY) {
             server.sendDataToAllWithSpawnedEntity(
@@ -286,11 +286,11 @@ export class SmeltingManager {
     if (checkEmpty) {
       if (subEntity.currentWaxTicks >= subEntity.requiredWaxTicks) {
         subEntity.currentWaxTicks = 0;
-        server.addContainerItemExternal(
-          entity.mountedCharacter ? entity.mountedCharacter : "",
+        entity.lootContainerItem(
+          server,
           server.generateItem(Items.WAX),
-          container,
-          1
+          1,
+          true
         );
         server.sendDataToAllWithSpawnedEntity(
           subEntity.dictionary,
@@ -321,11 +321,11 @@ export class SmeltingManager {
       }
       if (subEntity.currentTicks >= subEntity.requiredTicks) {
         subEntity.currentTicks = 0;
-        server.addContainerItemExternal(
-          entity.mountedCharacter ? entity.mountedCharacter : "",
+        entity.lootContainerItem(
+          server,
           server.generateItem(Items.MEAT_RABBIT),
-          container,
-          1
+          1,
+          true
         );
         entity.actorModelId = 35;
         server.sendDataToAllWithSpawnedEntity(
