@@ -1656,6 +1656,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const constructionObject: ConstructionEntity =
       dictionary[constructionCharId];
+    switch (constructionObject.itemDefinitionId) {
+      case Items.DOOR_METAL:
+        damage *= 1.45;
+        break;
+      case Items.DOOR_WOOD:
+        damage *= 2;
+        break;
+      case Items.SHACK_BASIC:
+      case Items.DOOR_BASIC:
+        damage *= 4;
+        break;
+      default:
+        damage *= 0.8;
+        break;
+    }
     const distance = getDistance(entityPosition, position);
     constructionObject.damage(this, {
       entity: "",

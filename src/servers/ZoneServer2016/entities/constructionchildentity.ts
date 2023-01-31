@@ -69,6 +69,7 @@ function getDamageRange(definitionId: number): number {
     case Items.METAL_WALL_UPPER:
     case Items.SHELTER:
     case Items.SHELTER_UPPER:
+    case Items.METAL_GATE:
       return 4.3;
     case Items.SHELTER_LARGE:
     case Items.SHELTER_UPPER_LARGE:
