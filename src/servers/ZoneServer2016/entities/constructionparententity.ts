@@ -54,7 +54,8 @@ function getDamageRange(definitionId: number): number {
 export class ConstructionParentEntity extends ConstructionChildEntity {
   permissions: { [characterId: string]: ConstructionPermissions } = {};
   ownerCharacterId: string;
-
+  objectLessTicks:number = 0;
+  objectLessMaxTicks: number = 3
   readonly expansionSlots: ConstructionSlotPositionMap = {};
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
   readonly rampSlots: ConstructionSlotPositionMap = {};
