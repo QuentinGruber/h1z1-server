@@ -19,7 +19,6 @@ import {
   getConstructionSlotId,
   isInsideSquare,
   isInsideCube,
-  isPosInRadiusWithY,
   registerConstructionSlots,
   getRectangleCorners,
   movePoint,
