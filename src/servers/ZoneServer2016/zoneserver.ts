@@ -14,6 +14,8 @@
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
 
+process.env.isBin && require("./managers/worlddatamanagerthread");
+
 import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
@@ -69,7 +71,6 @@ import { Character2016 as Character } from "./entities/character";
 import {
   _,
   generateRandomGuid,
-  getAppDataFolderPath,
   Int64String,
   isPosInRadius,
   isPosInRadiusWithY,
@@ -107,8 +108,18 @@ import { BaseEntity } from "./entities/baseentity";
 import { ConstructionDoor } from "./entities/constructiondoor";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
-import { FullCharacterSaveData } from "types/savedata";
-import { WorldDataManager } from "./managers/worlddatamanager";
+import {
+  ConstructionParentSaveData,
+  FullCharacterSaveData,
+  LootableConstructionSaveData,
+  PlantingDiameterSaveData,
+} from "types/savedata";
+import {
+  constructContainers,
+  constructLoadout,
+  FetchedWorldData,
+  WorldDataManager,
+} from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
 import { DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
@@ -131,6 +142,8 @@ import { LootableProp } from "./entities/lootableprop";
 import { PlantingDiameter } from "./entities/plantingdiameter";
 import { Plant } from "./entities/plant";
 import { SmeltingEntity } from "./classes/smeltingentity";
+import { spawn, Worker } from "threads";
+import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -163,7 +176,6 @@ export class ZoneServer2016 extends EventEmitter {
   _defaultWeatherTemplate = "z1br";
   _spawnLocations: Array<SpawnLocation> = spawnLocations;
   private _h1emuZoneServer!: H1emuZoneServer;
-  readonly _appDataFolder = getAppDataFolderPath();
   _worldId = 0;
   _grid: GridCell[] = [];
   readonly _clients: { [characterId: string]: Client } = {};
@@ -227,7 +239,7 @@ export class ZoneServer2016 extends EventEmitter {
   smeltingManager: SmeltingManager;
   decayManager: DecayManager;
   weatherManager: WeatherManager;
-  worldDataManager: WorldDataManager;
+  worldDataManager!: WorldDataManagerThreaded;
   hookManager: HookManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
@@ -252,6 +264,9 @@ export class ZoneServer2016 extends EventEmitter {
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
   private _proximityItemsDistance: number = 2;
   isSaving: boolean = false;
+  private _isSaving: boolean = false;
+  saveTimeInterval: number = 600000;
+  nextSaveTime: number = Date.now() + this.saveTimeInterval;
 
   constructor(
     serverPort: number,
@@ -272,7 +287,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.smeltingManager = new SmeltingManager();
     this.decayManager = new DecayManager();
     this.weatherManager = new WeatherManager();
-    this.worldDataManager = new WorldDataManager();
     this.hookManager = new HookManager();
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
@@ -713,7 +727,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client)))
       return;
 
-    await this.worldDataManager.loadCharacterData(this, client);
+    const savedCharacter = await this.worldDataManager.fetchCharacterData(
+      client.character.characterId
+    );
+    await this.loadCharacterData(client, savedCharacter);
     // to help identify broken character saves
     Object.values(client.character._loadout).forEach((item: LoadoutItem) => {
       if (item.stackCount < 1) {
@@ -897,30 +914,107 @@ export class ZoneServer2016 extends EventEmitter {
       );
   }
 
+  async loadCharacterData(
+    client: Client,
+    savedCharacter: FullCharacterSaveData
+  ) {
+    if (!this.hookManager.checkHook("OnLoadCharacterData", client)) return;
+    if (!(await this.hookManager.checkAsyncHook("OnLoadCharacterData", client)))
+      return;
+
+    client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
+    client.character.name = savedCharacter.characterName;
+    client.character.actorModelId = savedCharacter.actorModelId;
+    client.character.headActor = savedCharacter.headActor;
+    client.character.isRespawning = savedCharacter.isRespawning;
+    client.character.gender = savedCharacter.gender;
+    client.character.creationDate = savedCharacter.creationDate;
+    client.character.lastLoginDate = savedCharacter.lastLoginDate;
+    client.character.hairModel = savedCharacter.hairModel || "";
+
+    let newCharacter = false;
+    if (
+      _.isEqual(savedCharacter.position, [0, 0, 0, 1]) &&
+      _.isEqual(savedCharacter.rotation, [0, 0, 0, 1])
+    ) {
+      // if position/rotation hasn't changed
+      newCharacter = true;
+    }
+
+    if (
+      newCharacter ||
+      client.character.isRespawning ||
+      !this.enableWorldSaves
+    ) {
+      client.character.isRespawning = false;
+      await this.respawnPlayer(client);
+    } else {
+      client.character.state.position = new Float32Array(
+        savedCharacter.position
+      );
+      client.character.state.rotation = new Float32Array(
+        savedCharacter.rotation
+      );
+      constructLoadout(savedCharacter._loadout, client.character._loadout);
+      constructContainers(
+        savedCharacter._containers,
+        client.character._containers
+      );
+      client.character._resources =
+        savedCharacter._resources || client.character._resources;
+      client.character.generateEquipmentFromLoadout(this);
+    }
+
+    this.hookManager.checkHook("OnLoadedCharacterData", client);
+  }
+
   private async setupServer() {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
 
+    this.worldDataManager = (await spawn(
+      new Worker("./managers/worlddatamanagerthread")
+    )) as unknown as WorldDataManagerThreaded;
+    await this.worldDataManager.initialize(this._worldId, this._mongoAddress);
     if (!this._soloMode) {
-      await this.worldDataManager.initializeDatabase(this);
+      this._db = await WorldDataManager.getDatabase(this._mongoAddress);
     }
-    const loadedWorld = await this.worldDataManager.getServerData(this);
-    if (loadedWorld) {
-      if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
-        console.log(
-          `World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`
-        );
-        await this.worldDataManager.deleteWorld(this);
-        await this.worldDataManager.insertWorld(this);
-        await this.worldDataManager.saveWorld(this);
+    if (this.enableWorldSaves) {
+      const loadedWorld = await this.worldDataManager.getServerData(
+        this._worldId
+      );
+      if (Object.keys(loadedWorld).length) {
+        if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
+          console.log(
+            `World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`
+          );
+          await this.worldDataManager.deleteWorld();
+          await this.worldDataManager.insertWorld(
+            BigInt(loadedWorld.lastItemGuid)
+          );
+        }
+      } else {
+        await this.worldDataManager.insertWorld(this.lastItemGuid);
       }
-    } else {
-      await this.worldDataManager.insertWorld(this);
-      await this.worldDataManager.saveWorld(this);
+      this.lastItemGuid = BigInt(loadedWorld.lastItemGuid || this.lastItemGuid);
+      console.time("fetch world data");
+      const fetchedWorldData =
+        (await this.worldDataManager.fetchWorldData()) as FetchedWorldData;
+      WorldDataManager.loadConstructionParentEntities(
+        fetchedWorldData.constructionParents,
+        this
+      );
+      fetchedWorldData.freeplace.forEach((entityData) => {
+        WorldDataManager.loadLootableConstructionEntity(this, entityData, true);
+      });
+      fetchedWorldData.crops.forEach((entityData) => {
+        WorldDataManager.loadPlantingDiameter(this, entityData);
+      });
+
+      // UNUSED ???
+      // this._transientIds = this.getAllCurrentUsedTransientId();
+      console.timeEnd("fetch world data");
     }
-    console.time("fetch world data");
-    await this.worldDataManager.fetchWorldData(this);
-    console.timeEnd("fetch world data");
     if (!this._soloMode) {
       this.initializeLoginServerConnection();
     }
@@ -939,6 +1033,73 @@ export class ZoneServer2016 extends EventEmitter {
       `Server saving ${this.enableWorldSaves ? "enabled" : "disabled"}.`
     );
     debug("Server ready");
+  }
+
+  async saveWorld() {
+    if (this._isSaving) {
+      this.sendChatTextToAdmins("A save is already in progress.");
+      return;
+    }
+    this.sendChatTextToAdmins("World save started.");
+    this._isSaving = true;
+    console.time("ZONE: processing");
+    try {
+      const characters = WorldDataManager.convertCharactersToSaveData(
+        Object.values(this._characters),
+        this._worldId
+      );
+      const worldConstructions: LootableConstructionSaveData[] = [];
+      Object.values(this._worldLootableConstruction).forEach((entity) => {
+        worldConstructions.push(
+          WorldDataManager.getLootableConstructionSaveData(
+            entity,
+            this._worldId
+          )
+        );
+      });
+      const constructions: ConstructionParentSaveData[] = [];
+
+      Object.values(this._constructionFoundations).forEach((entity) => {
+        if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
+          constructions.push(
+            WorldDataManager.getConstructionParentSaveData(
+              entity,
+              this._worldId
+            )
+          );
+        }
+      });
+      const crops: PlantingDiameterSaveData[] = [];
+      Object.values(this._temporaryObjects).forEach((entity) => {
+        if (entity instanceof PlantingDiameter) {
+          crops.push(
+            WorldDataManager.getPlantingDiameterSaveData(entity, this._worldId)
+          );
+        }
+      });
+
+      console.timeEnd("ZONE: processing");
+
+      console.time("ZONE: saveWorld");
+
+      this.worldDataManager.saveWorld({
+        lastGuidItem: this.lastItemGuid,
+        characters,
+        worldConstructions,
+        crops,
+        constructions,
+      });
+    } catch (e) {
+      console.log(e);
+      this._isSaving = false;
+      console.timeEnd("ZONE: saveWorld");
+      this.sendChatTextToAdmins("World save failed!");
+    }
+    console.timeEnd("ZONE: saveWorld");
+    this._isSaving = false;
+    this.sendChatTextToAdmins("World saved!");
+    this.nextSaveTime = Date.now() + this.saveTimeInterval;
+    debug("World saved!");
   }
 
   async start(): Promise<void> {
@@ -1210,7 +1371,13 @@ export class ZoneServer2016 extends EventEmitter {
         this.itemDespawner();
         this.worldObjectManager.run(this);
         this.setTickRate();
-        if (this.enableWorldSaves) this.worldDataManager.run(this);
+        if (
+          this.enableWorldSaves &&
+          !this.isSaving &&
+          this.nextSaveTime - Date.now() < 0
+        ) {
+          this.saveWorld();
+        }
       }
     }
     this.worldRoutineTimer.refresh();
@@ -1231,7 +1398,14 @@ export class ZoneServer2016 extends EventEmitter {
         client.isLoading = true; // stop anything from acting on character
 
         clearTimeout(client.character?.resourcesUpdater);
-        this.worldDataManager.saveCharacterData(this, client);
+        const characterSave = WorldDataManager.convertToCharacterSaveData(
+          client.character,
+          this._worldId
+        );
+        this.worldDataManager.saveCharacterData(
+          characterSave,
+          this.lastItemGuid
+        );
         this.dismountVehicle(client);
         client.managedObjects?.forEach((characterId: any) => {
           this.dropVehicleManager(client, characterId);
