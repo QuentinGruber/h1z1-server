@@ -1390,7 +1390,7 @@ export class ZoneServer2016 extends EventEmitter {
           client.character,
           this._worldId
         );
-        this.worldDataManager.saveCharacterData(characterSave);
+        this.worldDataManager.saveCharacterData(characterSave, this.lastItemGuid);
         this.dismountVehicle(client);
         client.managedObjects?.forEach((characterId: any) => {
           this.dropVehicleManager(client, characterId);
