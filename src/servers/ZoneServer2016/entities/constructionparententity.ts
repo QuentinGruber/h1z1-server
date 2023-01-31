@@ -498,13 +498,13 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       );
       return false; // this should never occur
     }
-
+    let fixY = this.itemDefinitionId == Items.FOUNDATION ? 1 : 0;
     return isInsideCube(
       [position[0], position[2]],
       this.bounds,
       position[1],
-      this.state.position[1] - 50,
-      49
+      this.state.position[1] - 50 + fixY,
+      49 + fixY
     );
   }
 
