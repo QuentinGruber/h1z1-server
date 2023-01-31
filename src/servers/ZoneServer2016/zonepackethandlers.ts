@@ -56,6 +56,7 @@ import { Plant } from "./entities/plant";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
 import { Collection } from "mongodb";
 import { DB_COLLECTIONS } from "../../utils/enums";
+import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -180,6 +181,7 @@ export class zonePacketHandlers {
         characterId: client.character.characterId,
       });
     }
+    server.setTickRate();
   }
   Security(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
@@ -346,9 +348,8 @@ export class zonePacketHandlers {
     if (client.isLoading && client.characterReleased) {
       setTimeout(() => {
         client.isLoading = false;
-        if (client.routineInterval || !client.characterReleased) return;
+        if (!client.characterReleased) return;
         server.executeRoutine(client);
-        server.startClientRoutine(client);
       }, 500);
     }
   }
@@ -403,9 +404,22 @@ export class zonePacketHandlers {
     ) {
       const suspicious = [
         "cheatengine",
+        "artmoney",
+        "cosmos",
+        "wemod",
         "injector",
-        "gameover",
+        "visual",
+        "ida.exe",
+        "ida64",
+        "ida32",
+        "idafree",
+        "ghidra",
+        "javaw.exe", // seems like the only way to track ghidra open?
+        "codebrowser",
         "processhacker",
+        "visual studio",
+        "devenv.exe",
+        "code.exe",
       ];
       const obj = { log: packet.data.message, isSuspicious: false };
       for (let x = 0; x < suspicious.length; x++) {
@@ -580,7 +594,7 @@ export class zonePacketHandlers {
       .findOne({ HWID: client.HWID, active: true })) as unknown as Ban;
     if (hwidBanned?.expirationDate < Date.now()) {
       client.banType = hwidBanned.banType;
-      server.enforceBan(client);
+      //server.enforceBan(client);
     }
   }
   DtoHitSpeedTreeReport(server: ZoneServer2016, client: Client, packet: any) {
@@ -1271,7 +1285,6 @@ export class zonePacketHandlers {
               client.character,
               loadoutItem,
               targetContainer,
-              count,
               false
             );
           } else if (containerGuid == "0xffffffffffffffff") {
@@ -1593,17 +1606,201 @@ export class zonePacketHandlers {
             );
             if (!entity) return;
             if (!client.character.temporaryScrapSoundTimeout) {
+              let accumulatedItemDamage = 0;
               server.sendCompositeEffectToAllInRange(
                 15,
                 client.character.characterId,
                 entity.state.position,
                 1605
               );
-              server.damageItem(client, weaponItem, 50);
+              if (entity instanceof ConstructionParentEntity) {
+                Object.values(entity.occupiedExpansionSlots).forEach(
+                  (expansion: ConstructionParentEntity) => {
+                    // repair every object on each expansion
+                    Object.values(expansion.occupiedShelterSlots).forEach(
+                      (child: ConstructionChildEntity) => {
+                        if (child.health >= 1000000) return;
+                        const damageInfo = {
+                          entity: "",
+                          damage: -50000,
+                        };
+                        child.damage(server, damageInfo);
+                        server.updateResourceToAllWithSpawnedEntity(
+                          child.characterId,
+                          child.health,
+                          ResourceIds.CONSTRUCTION_CONDITION,
+                          ResourceTypes.CONDITION,
+                          server.getConstructionDictionary(child.characterId)
+                        );
+                        accumulatedItemDamage += 25;
+                      }
+                    );
+                    Object.values(expansion.occupiedWallSlots).forEach(
+                      (child: ConstructionChildEntity | ConstructionDoor) => {
+                        if (child.health >= 1000000) return;
+                        const damageInfo = {
+                          entity: "",
+                          damage: -50000,
+                        };
+                        child.damage(server, damageInfo);
+                        server.updateResourceToAllWithSpawnedEntity(
+                          child.characterId,
+                          child.health,
+                          ResourceIds.CONSTRUCTION_CONDITION,
+                          ResourceTypes.CONDITION,
+                          server.getConstructionDictionary(child.characterId)
+                        );
+                        accumulatedItemDamage += 25;
+                      }
+                    );
+                    Object.values(expansion.occupiedUpperWallSlots).forEach(
+                      (child: ConstructionChildEntity) => {
+                        if (child.health >= 1000000) return;
+                        const damageInfo = {
+                          entity: "",
+                          damage: -50000,
+                        };
+                        child.damage(server, damageInfo);
+                        server.updateResourceToAllWithSpawnedEntity(
+                          child.characterId,
+                          child.health,
+                          ResourceIds.CONSTRUCTION_CONDITION,
+                          ResourceTypes.CONDITION,
+                          server.getConstructionDictionary(child.characterId)
+                        );
+                        accumulatedItemDamage += 25;
+                      }
+                    );
+                    Object.values(expansion.freeplaceEntities).forEach(
+                      (
+                        child:
+                          | ConstructionChildEntity
+                          | ConstructionDoor
+                          | LootableConstructionEntity
+                      ) => {
+                        if (child.health >= 1000000) return;
+                        const damageInfo = {
+                          entity: "",
+                          damage: -50000,
+                        };
+                        child.damage(server, damageInfo);
+                        server.updateResourceToAllWithSpawnedEntity(
+                          child.characterId,
+                          child.health,
+                          ResourceIds.CONSTRUCTION_CONDITION,
+                          ResourceTypes.CONDITION,
+                          server.getConstructionDictionary(child.characterId)
+                        );
+                        accumulatedItemDamage += 25;
+                      }
+                    );
+                  }
+                );
+                // repair every object on main foundation
+                Object.values(entity.occupiedShelterSlots).forEach(
+                  (child: ConstructionChildEntity) => {
+                    if (child.health >= 1000000) return;
+                    const damageInfo = {
+                      entity: "",
+                      damage: -50000,
+                    };
+                    child.damage(server, damageInfo);
+                    server.updateResourceToAllWithSpawnedEntity(
+                      child.characterId,
+                      child.health,
+                      ResourceIds.CONSTRUCTION_CONDITION,
+                      ResourceTypes.CONDITION,
+                      server.getConstructionDictionary(child.characterId)
+                    );
+                    accumulatedItemDamage += 25;
+                  }
+                );
+                Object.values(entity.occupiedWallSlots).forEach(
+                  (child: ConstructionChildEntity | ConstructionDoor) => {
+                    if (child.health >= 1000000) return;
+                    const damageInfo = {
+                      entity: "",
+                      damage: -50000,
+                    };
+                    child.damage(server, damageInfo);
+                    server.updateResourceToAllWithSpawnedEntity(
+                      child.characterId,
+                      child.health,
+                      ResourceIds.CONSTRUCTION_CONDITION,
+                      ResourceTypes.CONDITION,
+                      server.getConstructionDictionary(child.characterId)
+                    );
+                    accumulatedItemDamage += 25;
+                  }
+                );
+                Object.values(entity.occupiedUpperWallSlots).forEach(
+                  (child: ConstructionChildEntity) => {
+                    if (child.health >= 1000000) return;
+                    const damageInfo = {
+                      entity: "",
+                      damage: -50000,
+                    };
+                    child.damage(server, damageInfo);
+                    server.updateResourceToAllWithSpawnedEntity(
+                      child.characterId,
+                      child.health,
+                      ResourceIds.CONSTRUCTION_CONDITION,
+                      ResourceTypes.CONDITION,
+                      server.getConstructionDictionary(child.characterId)
+                    );
+                    accumulatedItemDamage += 25;
+                  }
+                );
+                Object.values(entity.freeplaceEntities).forEach(
+                  (
+                    child:
+                      | ConstructionChildEntity
+                      | ConstructionDoor
+                      | LootableConstructionEntity
+                  ) => {
+                    if (child.health >= 1000000) return;
+                    const damageInfo = {
+                      entity: "",
+                      damage: -50000,
+                    };
+                    child.damage(server, damageInfo);
+                    server.updateResourceToAllWithSpawnedEntity(
+                      child.characterId,
+                      child.health,
+                      ResourceIds.CONSTRUCTION_CONDITION,
+                      ResourceTypes.CONDITION,
+                      server.getConstructionDictionary(child.characterId)
+                    );
+                    accumulatedItemDamage += 25;
+                  }
+                );
+                if (entity.health < 1000000) {
+                  const damageInfo = {
+                    entity: "",
+                    damage: -50000,
+                  };
+                  entity.damage(server, damageInfo);
+                  server.updateResourceToAllWithSpawnedEntity(
+                    entity.characterId,
+                    entity.health,
+                    ResourceIds.CONSTRUCTION_CONDITION,
+                    ResourceTypes.CONDITION,
+                    server.getConstructionDictionary(entity.characterId)
+                  );
+                  accumulatedItemDamage += 25;
+                }
+                server.damageItem(client, weaponItem, accumulatedItemDamage);
+                client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+                  delete client.character.temporaryScrapSoundTimeout;
+                }, 1000);
+                return;
+              }
               const damageInfo = {
                 entity: "",
-                damage: -100000,
+                damage: -50000,
               };
+              accumulatedItemDamage = 50;
+              server.damageItem(client, weaponItem, accumulatedItemDamage);
               entity.damage(server, damageInfo);
               server.updateResourceToAllWithSpawnedEntity(
                 entity.characterId,

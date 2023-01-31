@@ -14,6 +14,8 @@
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
 
+process.env.isBin && require("./managers/worlddatamanagerthread");
+
 import { EventEmitter } from "events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
@@ -28,6 +30,8 @@ import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
 import { GridCell } from "./classes/gridcell";
 import { WorldObjectManager } from "./managers/worldobjectmanager";
+import { SmeltingManager } from "./managers/smeltingmanager";
+import { DecayManager } from "./managers/decaymanager";
 import {
   ContainerErrors,
   EntityTypes,
@@ -67,7 +71,6 @@ import { Character2016 as Character } from "./entities/character";
 import {
   _,
   generateRandomGuid,
-  getAppDataFolderPath,
   Int64String,
   isPosInRadius,
   isPosInRadiusWithY,
@@ -105,8 +108,18 @@ import { BaseEntity } from "./entities/baseentity";
 import { ConstructionDoor } from "./entities/constructiondoor";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionChildEntity } from "./entities/constructionchildentity";
-import { FullCharacterSaveData } from "types/savedata";
-import { WorldDataManager } from "./managers/worlddatamanager";
+import {
+  ConstructionParentSaveData,
+  FullCharacterSaveData,
+  LootableConstructionSaveData,
+  PlantingDiameterSaveData,
+} from "types/savedata";
+import {
+  constructContainers,
+  constructLoadout,
+  FetchedWorldData,
+  WorldDataManager,
+} from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
 import { DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
@@ -129,6 +142,8 @@ import { LootableProp } from "./entities/lootableprop";
 import { PlantingDiameter } from "./entities/plantingdiameter";
 import { Plant } from "./entities/plant";
 import { SmeltingEntity } from "./classes/smeltingentity";
+import { spawn, Worker } from "threads";
+import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -161,7 +176,6 @@ export class ZoneServer2016 extends EventEmitter {
   _defaultWeatherTemplate = "z1br";
   _spawnLocations: Array<SpawnLocation> = spawnLocations;
   private _h1emuZoneServer!: H1emuZoneServer;
-  readonly _appDataFolder = getAppDataFolderPath();
   _worldId = 0;
   _grid: GridCell[] = [];
   readonly _clients: { [characterId: string]: Client } = {};
@@ -222,8 +236,10 @@ export class ZoneServer2016 extends EventEmitter {
   _packetHandlers: zonePacketHandlers;
   _weatherTemplates: any;
   worldObjectManager: WorldObjectManager;
+  smeltingManager: SmeltingManager;
+  decayManager: DecayManager;
   weatherManager: WeatherManager;
-  worldDataManager: WorldDataManager;
+  worldDataManager!: WorldDataManagerThreaded;
   hookManager: HookManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
@@ -247,6 +263,10 @@ export class ZoneServer2016 extends EventEmitter {
   readonly worldSaveVersion: number = 2;
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
   private _proximityItemsDistance: number = 2;
+  isSaving: boolean = false;
+  private _isSaving: boolean = false;
+  saveTimeInterval: number = 600000;
+  nextSaveTime: number = Date.now() + this.saveTimeInterval;
 
   constructor(
     serverPort: number,
@@ -264,8 +284,9 @@ export class ZoneServer2016 extends EventEmitter {
     this._weatherTemplates = localWeatherTemplates;
     this.weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
+    this.smeltingManager = new SmeltingManager();
+    this.decayManager = new DecayManager();
     this.weatherManager = new WeatherManager();
-    this.worldDataManager = new WorldDataManager();
     this.hookManager = new HookManager();
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
@@ -706,7 +727,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client)))
       return;
 
-    await this.worldDataManager.loadCharacterData(this, client);
+    const savedCharacter = await this.worldDataManager.fetchCharacterData(
+      client.character.characterId
+    );
+    await this.loadCharacterData(client, savedCharacter);
     // to help identify broken character saves
     Object.values(client.character._loadout).forEach((item: LoadoutItem) => {
       if (item.stackCount < 1) {
@@ -890,28 +914,107 @@ export class ZoneServer2016 extends EventEmitter {
       );
   }
 
+  async loadCharacterData(
+    client: Client,
+    savedCharacter: FullCharacterSaveData
+  ) {
+    if (!this.hookManager.checkHook("OnLoadCharacterData", client)) return;
+    if (!(await this.hookManager.checkAsyncHook("OnLoadCharacterData", client)))
+      return;
+
+    client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
+    client.character.name = savedCharacter.characterName;
+    client.character.actorModelId = savedCharacter.actorModelId;
+    client.character.headActor = savedCharacter.headActor;
+    client.character.isRespawning = savedCharacter.isRespawning;
+    client.character.gender = savedCharacter.gender;
+    client.character.creationDate = savedCharacter.creationDate;
+    client.character.lastLoginDate = savedCharacter.lastLoginDate;
+    client.character.hairModel = savedCharacter.hairModel || "";
+
+    let newCharacter = false;
+    if (
+      _.isEqual(savedCharacter.position, [0, 0, 0, 1]) &&
+      _.isEqual(savedCharacter.rotation, [0, 0, 0, 1])
+    ) {
+      // if position/rotation hasn't changed
+      newCharacter = true;
+    }
+
+    if (
+      newCharacter ||
+      client.character.isRespawning ||
+      !this.enableWorldSaves
+    ) {
+      client.character.isRespawning = false;
+      await this.respawnPlayer(client);
+    } else {
+      client.character.state.position = new Float32Array(
+        savedCharacter.position
+      );
+      client.character.state.rotation = new Float32Array(
+        savedCharacter.rotation
+      );
+      constructLoadout(savedCharacter._loadout, client.character._loadout);
+      constructContainers(
+        savedCharacter._containers,
+        client.character._containers
+      );
+      client.character._resources =
+        savedCharacter._resources || client.character._resources;
+      client.character.generateEquipmentFromLoadout(this);
+    }
+
+    this.hookManager.checkHook("OnLoadedCharacterData", client);
+  }
+
   private async setupServer() {
     this.forceTime(971172000000); // force day time by default - not working for now
     this._frozeCycle = false;
 
+    this.worldDataManager = (await spawn(
+      new Worker("./managers/worlddatamanagerthread")
+    )) as unknown as WorldDataManagerThreaded;
+    await this.worldDataManager.initialize(this._worldId, this._mongoAddress);
     if (!this._soloMode) {
-      await this.worldDataManager.initializeDatabase(this);
+      this._db = await WorldDataManager.getDatabase(this._mongoAddress);
     }
-    const loadedWorld = await this.worldDataManager.getServerData(this);
-    if (loadedWorld) {
-      if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
-        console.log(
-          `World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`
-        );
-        await this.worldDataManager.deleteWorld(this);
-        await this.worldDataManager.insertWorld(this);
-        await this.worldDataManager.saveWorld(this);
+    if (this.enableWorldSaves) {
+      const loadedWorld = await this.worldDataManager.getServerData(
+        this._worldId
+      );
+      if (Object.keys(loadedWorld).length) {
+        if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
+          console.log(
+            `World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`
+          );
+          await this.worldDataManager.deleteWorld();
+          await this.worldDataManager.insertWorld(
+            BigInt(loadedWorld.lastItemGuid)
+          );
+        }
+      } else {
+        await this.worldDataManager.insertWorld(this.lastItemGuid);
       }
-    } else {
-      await this.worldDataManager.insertWorld(this);
-      await this.worldDataManager.saveWorld(this);
+      this.lastItemGuid = BigInt(loadedWorld.lastItemGuid || this.lastItemGuid);
+      console.time("fetch world data");
+      const fetchedWorldData =
+        (await this.worldDataManager.fetchWorldData()) as FetchedWorldData;
+      WorldDataManager.loadConstructionParentEntities(
+        fetchedWorldData.constructionParents,
+        this
+      );
+      fetchedWorldData.freeplace.forEach((entityData) => {
+        WorldDataManager.loadLootableConstructionEntity(this, entityData, true);
+      });
+      fetchedWorldData.crops.forEach((entityData) => {
+        WorldDataManager.loadPlantingDiameter(this, entityData);
+      });
+
+      // UNUSED ???
+      // this._transientIds = this.getAllCurrentUsedTransientId();
+      console.timeEnd("fetch world data");
     }
-    await this.worldDataManager.fetchWorldData(this);
     if (!this._soloMode) {
       this.initializeLoginServerConnection();
     }
@@ -932,6 +1035,73 @@ export class ZoneServer2016 extends EventEmitter {
     debug("Server ready");
   }
 
+  async saveWorld() {
+    if (this._isSaving) {
+      this.sendChatTextToAdmins("A save is already in progress.");
+      return;
+    }
+    this.sendChatTextToAdmins("World save started.");
+    this._isSaving = true;
+    console.time("ZONE: processing");
+    try {
+      const characters = WorldDataManager.convertCharactersToSaveData(
+        Object.values(this._characters),
+        this._worldId
+      );
+      const worldConstructions: LootableConstructionSaveData[] = [];
+      Object.values(this._worldLootableConstruction).forEach((entity) => {
+        worldConstructions.push(
+          WorldDataManager.getLootableConstructionSaveData(
+            entity,
+            this._worldId
+          )
+        );
+      });
+      const constructions: ConstructionParentSaveData[] = [];
+
+      Object.values(this._constructionFoundations).forEach((entity) => {
+        if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
+          constructions.push(
+            WorldDataManager.getConstructionParentSaveData(
+              entity,
+              this._worldId
+            )
+          );
+        }
+      });
+      const crops: PlantingDiameterSaveData[] = [];
+      Object.values(this._temporaryObjects).forEach((entity) => {
+        if (entity instanceof PlantingDiameter) {
+          crops.push(
+            WorldDataManager.getPlantingDiameterSaveData(entity, this._worldId)
+          );
+        }
+      });
+
+      console.timeEnd("ZONE: processing");
+
+      console.time("ZONE: saveWorld");
+
+      this.worldDataManager.saveWorld({
+        lastGuidItem: this.lastItemGuid,
+        characters,
+        worldConstructions,
+        crops,
+        constructions,
+      });
+    } catch (e) {
+      console.log(e);
+      this._isSaving = false;
+      console.timeEnd("ZONE: saveWorld");
+      this.sendChatTextToAdmins("World save failed!");
+    }
+    console.timeEnd("ZONE: saveWorld");
+    this._isSaving = false;
+    this.sendChatTextToAdmins("World saved!");
+    this.nextSaveTime = Date.now() + this.saveTimeInterval;
+    debug("World saved!");
+  }
+
   async start(): Promise<void> {
     debug("Starting server");
     debug(`Protocol used : ${this._protocol.protocolName}`);
@@ -939,7 +1109,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
-
+    this.startRoutinesLoop();
+    this.smeltingManager.checkSmeltables(this);
+    this.smeltingManager.checkCollectors(this);
+    this.decayManager.run(this);
     this._startTime += Date.now();
     this._startGameTime += Date.now();
     if (this._dynamicWeatherEnabled) {
@@ -1198,17 +1371,25 @@ export class ZoneServer2016 extends EventEmitter {
         this.itemDespawner();
         this.worldObjectManager.run(this);
         this.setTickRate();
-        if (this.enableWorldSaves) this.worldDataManager.run(this);
+        if (
+          this.enableWorldSaves &&
+          !this.isSaving &&
+          this.nextSaveTime - Date.now() < 0
+        ) {
+          this.saveWorld();
+        }
       }
     }
     this.worldRoutineTimer.refresh();
   }
 
   setTickRate() {
-    const count = _.size(this._characters);
-    if (count >= 60 && count < 80) this.tickRate = 2500;
-    else if (count >= 80) this.tickRate = 3000;
-    else this.tickRate = 2000;
+    const size = _.size(this._clients);
+    if (size <= 0) {
+      this.tickRate = 3000;
+      return;
+    }
+    this.tickRate = 3000 / size;
   }
 
   deleteClient(client: Client) {
@@ -1217,7 +1398,14 @@ export class ZoneServer2016 extends EventEmitter {
         client.isLoading = true; // stop anything from acting on character
 
         clearTimeout(client.character?.resourcesUpdater);
-        this.worldDataManager.saveCharacterData(this, client);
+        const characterSave = WorldDataManager.convertToCharacterSaveData(
+          client.character,
+          this._worldId
+        );
+        this.worldDataManager.saveCharacterData(
+          characterSave,
+          this.lastItemGuid
+        );
         this.dismountVehicle(client);
         client.managedObjects?.forEach((characterId: any) => {
           this.dropVehicleManager(client, characterId);
@@ -1233,6 +1421,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendZonePopulationUpdate();
       }
     }
+    this.setTickRate();
   }
 
   generateDamageRecord(
@@ -1314,7 +1503,10 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendDeathMetrics(client);
     debug(character.name + " has died");
     if (sourceClient) {
-      if (!this._soloMode) {
+      if (
+        !this._soloMode &&
+        client.character.name !== sourceClient.character.name
+      ) {
         logClientActionToMongo(
           this._db.collection(DB_COLLECTIONS.KILLS),
           sourceClient,
@@ -1385,6 +1577,7 @@ export class ZoneServer2016 extends EventEmitter {
   async explosionDamage(
     position: Float32Array,
     npcTriggered: string,
+    source: string,
     client?: Client
   ) {
     // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
@@ -1421,7 +1614,7 @@ export class ZoneServer2016 extends EventEmitter {
         continue;
       if (
         isPosInRadius(
-          constructionObject.damageRange,
+          constructionObject.damageRange * 1.5,
           constructionObject.fixedPosition
             ? constructionObject.fixedPosition
             : constructionObject.state.position,
@@ -1440,7 +1633,8 @@ export class ZoneServer2016 extends EventEmitter {
             position,
             constructionObject.fixedPosition
               ? constructionObject.fixedPosition
-              : constructionObject.state.position
+              : constructionObject.state.position,
+            source
           );
         }
       }
@@ -1452,7 +1646,7 @@ export class ZoneServer2016 extends EventEmitter {
       ] as ConstructionDoor;
       if (
         isPosInRadius(
-          constructionObject.damageRange,
+          constructionObject.damageRange * 1.5,
           constructionObject.fixedPosition
             ? constructionObject.fixedPosition
             : constructionObject.state.position,
@@ -1471,7 +1665,8 @@ export class ZoneServer2016 extends EventEmitter {
             position,
             constructionObject.fixedPosition
               ? constructionObject.fixedPosition
-              : constructionObject.state.position
+              : constructionObject.state.position,
+            source
           );
         }
       }
@@ -1483,7 +1678,7 @@ export class ZoneServer2016 extends EventEmitter {
       ] as ConstructionParentEntity;
       if (
         isPosInRadius(
-          constructionObject.damageRange,
+          constructionObject.damageRange * 1.5,
           constructionObject.state.position,
           position
         )
@@ -1495,7 +1690,8 @@ export class ZoneServer2016 extends EventEmitter {
             50000,
             this._constructionFoundations,
             position,
-            constructionObject.state.position
+            constructionObject.state.position,
+            source
           );
         }
       }
@@ -1518,7 +1714,8 @@ export class ZoneServer2016 extends EventEmitter {
           50000,
           this._lootableConstruction,
           position,
-          constructionObject.state.position
+          constructionObject.state.position,
+          source
         );
       }
     }
@@ -1533,7 +1730,8 @@ export class ZoneServer2016 extends EventEmitter {
           50000,
           this._worldLootableConstruction,
           position,
-          constructionObject.state.position
+          constructionObject.state.position,
+          source
         );
       }
     }
@@ -1620,14 +1818,44 @@ export class ZoneServer2016 extends EventEmitter {
     damage: number,
     dictionary: any,
     position: Float32Array,
-    entityPosition: Float32Array
+    entityPosition: Float32Array,
+    source: string
   ) {
+    switch (source) {
+      case "vehicle":
+        damage /= 10;
+        break;
+      case "ethanol":
+        damage /= 2;
+        break;
+      case "fuel":
+        damage /= 4;
+        break;
+    }
     const constructionObject: ConstructionEntity =
       dictionary[constructionCharId];
+    switch (constructionObject.itemDefinitionId) {
+      case Items.DOOR_METAL:
+        damage *= 1.45;
+        break;
+      case Items.DOOR_WOOD:
+        damage *= 2;
+        break;
+      case Items.SHACK_BASIC:
+      case Items.DOOR_BASIC:
+        damage *= 4;
+        break;
+      default:
+        damage *= 0.8;
+        break;
+    }
     const distance = getDistance(entityPosition, position);
     constructionObject.damage(this, {
       entity: "",
-      damage: distance < 4 ? damage : damage / Math.sqrt(distance),
+      damage:
+        distance < constructionObject.damageRange
+          ? damage
+          : damage / Math.sqrt(distance),
     });
     this.updateResourceToAllWithSpawnedEntity(
       constructionObject.characterId,
@@ -2556,21 +2784,7 @@ export class ZoneServer2016 extends EventEmitter {
       foundation.itemDefinitionId == Items.FOUNDATION ||
       foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
     ) {
-      if (
-        isPosInRadiusWithY(
-          foundation.itemDefinitionId == Items.FOUNDATION ? 6.46 : 4.9,
-          client.character.state.position,
-          new Float32Array([
-            foundation.state.position[0],
-            foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
-              ? foundation.state.position[1] - 2.5
-              : foundation.state.position[1],
-            foundation.state.position[2],
-            1,
-          ]),
-          2
-        )
-      )
+      if (foundation.isUnder(client.character.state.position))
         this.tpPlayerOutsideFoundation(client, foundation, true);
     }
     if (!foundation.isSecured) return false;
@@ -3443,21 +3657,16 @@ export class ZoneServer2016 extends EventEmitter {
   sendChatToAllWithRadio(client: Client, message: string) {
     for (const a in this._clients) {
       const c = this._clients[a];
-      if (!c.character._loadout[LoadoutSlots.RADIO]) return;
-      if (
-        c.character._loadout[LoadoutSlots.RADIO].itemDefinitionId !=
-          Items.EMERGENCY_RADIO ||
-        !c.radio
-      )
-        return;
-      this.sendData(c, "Chat.ChatText", {
-        message: `[RADIO: ${client.character.name}]: ${message}`,
-        unknownDword1: 0,
-        color: [255, 255, 255, 0],
-        unknownDword2: 13951728,
-        unknownByte3: 0,
-        unknownByte4: 1,
-      });
+      if (c.radio) {
+        this.sendData(c, "Chat.ChatText", {
+          message: `[RADIO: ${client.character.name}]: ${message}`,
+          unknownDword1: 0,
+          color: [255, 255, 255, 0],
+          unknownDword2: 13951728,
+          unknownByte3: 0,
+          unknownByte4: 1,
+        });
+      }
     }
   }
 
@@ -3703,10 +3912,11 @@ export class ZoneServer2016 extends EventEmitter {
           });
           client.spawnedEntities.push(vehicle);
         }
-        if (!vehicle.isManaged) {
+        // disable managing vehicles with routine, leaving only managind when entering it
+        /*if (!vehicle.isManaged) {
           // assigns management to first client within radius
           this.assignManagedObject(client, vehicle);
-        }
+        }*/
       } else if (
         !isPosInRadius(
           this._charactersRenderDistance,
@@ -4134,6 +4344,7 @@ export class ZoneServer2016 extends EventEmitter {
           eul2quat(rotation),
           freeplaceParentCharacterId
         );
+      case Items.BEE_BOX:
       case Items.DEW_COLLECTOR:
       case Items.ANIMAL_TRAP:
         return this.placeCollectingEntity(
@@ -4821,11 +5032,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     obj.equipLoadout(this);
-
+    const container = obj.getContainer();
+    if (container) {
+      switch (obj.itemDefinitionId) {
+        case Items.ANIMAL_TRAP:
+          container.canAcceptItems = false;
+          break;
+        case Items.DEW_COLLECTOR:
+        case Items.BEE_BOX:
+          container.acceptedItems = [Items.WATER_EMPTY];
+      }
+    }
     this.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnLootableConstruction(client, obj);
     }, obj);
-
+    this.smeltingManager._collectingEntities[characterId] = characterId;
     return true;
   }
 
@@ -5946,19 +6167,15 @@ export class ZoneServer2016 extends EventEmitter {
     character: BaseFullCharacter,
     item: BaseItem | undefined,
     container: LoadoutContainer,
-    count: number,
     sendUpdate: boolean = true
   ) {
     if (!item) return;
 
     const itemDefId = item.itemDefinitionId,
-      client = this.getClientByCharId(character.characterId);
-    container.items[item.itemGuid] = {
-      ...item,
-      slotId: Object.keys(container.items).length,
-      containerGuid: container.itemGuid,
-      stackCount: count,
-    };
+      client = this.getClientByContainerAccessor(character);
+    item.slotId = Object.keys(container.items).length;
+    item.containerGuid = container.itemGuid;
+    container.items[item.itemGuid] = item;
 
     if (!client) return;
     this.addItem(
@@ -5971,7 +6188,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData(client, "Reward.AddNonRewardItem", {
         itemDefId: itemDefId,
         iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
-        count: count,
+        count: item.stackCount,
       });
     }
   }
@@ -5982,68 +6199,6 @@ export class ZoneServer2016 extends EventEmitter {
       data: client.character.pGetItemData(this, item, 101),
     });
     //this.updateLoadout(client.character);
-  }
-
-  addContainerItemExternal(
-    characterId: string,
-    item: BaseItem | undefined,
-    container: LoadoutContainer,
-    count: number
-  ) {
-    if (!item) return;
-    let addItem = false;
-    let itemAssigned = false;
-    const client = this.getClientByCharId(characterId);
-    Object.values(container.items).forEach((containerItem: BaseItem) => {
-      // item stacking
-      if (itemAssigned) return;
-      if (containerItem.itemDefinitionId == item.itemDefinitionId) {
-        const addedValue = containerItem.stackCount + item.stackCount;
-        if (
-          addedValue >
-          this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE
-        ) {
-          containerItem.stackCount = this.getItemDefinition(
-            item.itemDefinitionId
-          ).MAX_STACK_SIZE;
-          container.items[item.itemGuid] = {
-            ...item,
-            slotId: Object.keys(container.items).length,
-            containerGuid: container.itemGuid,
-            stackCount:
-              addedValue -
-              this.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE,
-          };
-          addItem = true;
-          itemAssigned = true;
-          if (!client) return;
-          this.updateContainerItem(client, containerItem, container);
-        } else {
-          containerItem.stackCount = addedValue;
-          itemAssigned = true;
-          if (!client) return;
-          this.updateContainerItem(client, containerItem, container);
-        }
-      }
-    });
-    if (!itemAssigned) {
-      container.items[item.itemGuid] = {
-        ...item,
-        slotId: Object.keys(container.items).length,
-        containerGuid: container.itemGuid,
-        stackCount: count,
-      };
-    }
-
-    if (!client) return;
-    if (addItem || !itemAssigned) {
-      this.addItem(
-        client,
-        container.items[item.itemGuid],
-        container.containerDefinitionId
-      );
-    }
-    this.updateContainer(client, container);
   }
 
   updateContainerItem(
@@ -6191,7 +6346,7 @@ export class ZoneServer2016 extends EventEmitter {
       const object = this._temporaryObjects[characterId];
       if (
         object instanceof PlantingDiameter &&
-        isPosInRadius(1, object.state.position, client.character.state.position)
+        isPosInRadius(3, object.state.position, client.character.state.position)
       ) {
         object.isFertilized = true;
         object.fertilizedTimestamp = new Date().getTime() + 86400000; // + 1 day
@@ -6211,7 +6366,6 @@ export class ZoneServer2016 extends EventEmitter {
             }
           );
         });
-        return;
       }
     }
   }
@@ -6511,13 +6665,22 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
-          if (
-            smeltable.subEntity instanceof SmeltingEntity &&
-            smeltable.subEntity?.isWorking
-          )
+          if (smeltable.subEntity instanceof SmeltingEntity) {
+            if (smeltable.subEntity.isWorking) return;
+            smeltable.subEntity.isWorking = true;
+            this.smeltingManager._smeltingEntities[smeltable.characterId] =
+              smeltable.characterId;
+            this.sendDataToAllWithSpawnedEntity(
+              smeltable.subEntity.dictionary,
+              smeltable.characterId,
+              "Command.PlayDialogEffect",
+              {
+                characterId: smeltable.characterId,
+                effectId: smeltable.subEntity.workingEffect,
+              }
+            );
             return;
-          smeltable.subEntity?.startWorking(this, smeltable);
-          return;
+          }
         }
       }
     }
@@ -6531,13 +6694,22 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
-          if (
-            smeltable.subEntity instanceof SmeltingEntity &&
-            smeltable.subEntity?.isWorking
-          )
+          if (smeltable.subEntity instanceof SmeltingEntity) {
+            if (smeltable.subEntity.isWorking) return;
+            smeltable.subEntity.isWorking = true;
+            this.smeltingManager._smeltingEntities[smeltable.characterId] =
+              smeltable.characterId;
+            this.sendDataToAllWithSpawnedEntity(
+              smeltable.subEntity.dictionary,
+              smeltable.characterId,
+              "Command.PlayDialogEffect",
+              {
+                characterId: smeltable.characterId,
+                effectId: smeltable.subEntity.workingEffect,
+              }
+            );
             return;
-          smeltable.subEntity?.startWorking(this, smeltable);
-          return;
+          }
         }
       }
     }
@@ -6859,10 +7031,14 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
   }
-
-  startClientRoutine(client: Client) {
-    client.routineInterval = setTimeout(() => {
-      if (!client) return;
+  async startRoutinesLoop() {
+    if (_.size(this._clients) <= 0) {
+      await Scheduler.wait(3000);
+      this.startRoutinesLoop();
+      return;
+    }
+    for (const a in this._clients) {
+      const client = this._clients[a];
       if (!client.isLoading) {
         client.routineCounter++;
         if (client.routineCounter >= 3) {
@@ -6871,23 +7047,16 @@ export class ZoneServer2016 extends EventEmitter {
           this.POIManager(client);
           client.routineCounter = 0;
         }
-
         this.vehicleManager(client);
-        //this.npcManager(client);
-
         this.spawnCharacters(client);
         this.spawnGridObjects(client);
         this.constructionManager(client);
         this.worldConstructionManager(client);
-
         client.posAtLastRoutine = client.character.state.position;
       }
-      if (client.isLoading) {
-        delete client.routineInterval;
-        return;
-      }
-      client.routineInterval?.refresh();
-    }, this.tickRate);
+      await Scheduler.wait(this.tickRate);
+    }
+    this.startRoutinesLoop();
   }
 
   executeRoutine(client: Client) {

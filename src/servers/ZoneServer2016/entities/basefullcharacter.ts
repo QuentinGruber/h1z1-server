@@ -205,10 +205,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     sendPacket: boolean = true,
     loadoutSlotId: number = 0
   ) {
-    if (!item) {
-      debug("[ERROR] EquipItem: Invalid item!");
-      return;
-    }
+    if (!item || !item.isValid("equipItem")) return;
     const def = server.getItemDefinition(item.itemDefinitionId);
     if (loadoutSlotId) {
       if (
@@ -333,7 +330,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     sendUpdate = true
   ) {
     const client = server.getClientByCharId(this.characterId);
-    if (!item) return;
+    if (!item || !item.isValid("lootItem")) return;
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
       console.error(
@@ -377,12 +374,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     sendUpdate: boolean = true,
     array: LoadoutContainer[] = []
   ) {
-    const client = server.getClientByCharId(this.characterId);
-    if (!item) return;
-    if (item.stackCount <= 0) {
-      console.error(`LootContainerItem: stackCount is negative! item ${item}`);
-      return;
-    }
+    const client = server.getClientByContainerAccessor(this);
+    if (!item || !item.isValid("lootContainerItem")) return;
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
       console.error(
@@ -449,13 +442,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         });
       }
     } else {
-      server.addContainerItem(
-        this,
-        item,
-        availableContainer,
-        count,
-        sendUpdate
-      );
+      server.addContainerItem(this, item, availableContainer, sendUpdate);
     }
   }
 
@@ -742,8 +729,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     for (const container of Object.values(this._containers)) {
       if (
         container &&
-        container.getMaxBulk(server) >=
-          container.getUsedBulk(server) + itemDef.BULK * count
+        (container.getMaxBulk(server) == 0 ||
+          container.getAvailableBulk(server) >= itemDef.BULK * count)
       ) {
         return container;
       }

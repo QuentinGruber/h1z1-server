@@ -12,7 +12,6 @@
 // ======================================================================
 
 import { generate_random_guid } from "h1emu-core";
-import v8 from "v8";
 import { compress, compressBound } from "./lz4/lz4";
 import fs, { readdirSync } from "fs";
 import { normalize, resolve } from "path";
@@ -20,7 +19,7 @@ import {
   setImmediate as setImmediatePromise,
   setTimeout as setTimeoutPromise,
 } from "timers/promises";
-import { Collection, MongoClient } from "mongodb";
+import { Collection, Db, MongoClient } from "mongodb";
 import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
@@ -40,10 +39,9 @@ export class customLodash {
   sum(pings: number[]): number {
     return pings.reduce((a, b) => a + b, 0);
   }
-  cloneDeep(value: unknown) {
-    return v8.deserialize(v8.serialize(value));
+  cloneDeep(value: unknown): unknown {
+    return structuredClone(value);
   }
-
   find(array: any[], filter: any) {
     return array.find(filter);
   }
@@ -363,10 +361,11 @@ export const isPosInRadius = (
   player_position: Float32Array,
   enemi_position: Float32Array
 ): boolean => {
-  return (
-    isBetween(radius, player_position[0], enemi_position[0]) &&
-    isBetween(radius, player_position[2], enemi_position[2])
-  );
+  const xDiff = player_position[0] - enemi_position[0];
+  const zDiff = player_position[2] - enemi_position[2];
+  const radiusSquared = radius * radius;
+
+  return xDiff * xDiff + zDiff * zDiff <= radiusSquared;
 };
 export const isPosInRadiusWithY = (
   radius: number,
@@ -472,8 +471,8 @@ export const generateRandomGuid = function (): string {
   return "0x" + generate_random_guid();
 };
 
-export function* generateTransientId() {
-  let id = 0;
+export function* generateTransientId(startId: number = 0) {
+  let id = startId;
   for (let index = 0; index < MAX_TRANSIENT_ID; index++) {
     yield id++;
   }
@@ -806,4 +805,26 @@ export async function logClientActionToMongo(
     characterName: client.character.name,
     loginSessionId: client.loginSessionId,
   });
+}
+
+export async function fixDbTempData(
+  db: Db,
+  worldId: number,
+  tempData: any,
+  collection: DB_COLLECTIONS,
+  tempCollection: DB_COLLECTIONS
+) {
+  console.log(`DB: move ${tempCollection} data to ${collection}`);
+  for (let i = 0; i < tempData.length; i++) {
+    const tempItem = tempData[i];
+    delete tempItem._id;
+    await db
+      .collection(collection)
+      .findOneAndUpdate(
+        { characterId: tempItem.characterId },
+        { $set: tempItem },
+        { upsert: true }
+      );
+  }
+  await db?.collection(tempCollection).deleteMany({ serverId: worldId });
 }

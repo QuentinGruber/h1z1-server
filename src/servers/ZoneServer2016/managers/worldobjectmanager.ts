@@ -520,11 +520,10 @@ export class WorldObjectManager {
                   item.spawnCount.min
               );
               // temporary spawnchance
-              server.addContainerItemExternal(
-                prop.mountedCharacter ? prop.mountedCharacter : "",
-                server.generateItem(getRandomSkin(item.item)),
-                container,
-                count
+              server.addContainerItem(
+                prop,
+                server.generateItem(getRandomSkin(item.item), count),
+                container
               );
             }
           } else {

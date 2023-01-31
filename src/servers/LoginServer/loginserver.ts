@@ -573,6 +573,7 @@ export class LoginServer extends EventEmitter {
         {
           $set: {
             allowedAccess: status,
+            statusTimestamp: Date.now(),
             populationNumber: 0,
             populationLevel: 0,
           },
@@ -880,7 +881,7 @@ export class LoginServer extends EventEmitter {
     switch (client.gameVersion) {
       case GAME_VERSIONS.H1Z1_15janv_2015: {
         sampleCharacter = require("../../../data/2015/sampleData/single_player_character.json");
-        newCharacter = _.cloneDeep(sampleCharacter);
+        newCharacter = _.cloneDeep(sampleCharacter) as any;
         newCharacter.payload.name = characterName;
         break;
       }
@@ -888,7 +889,7 @@ export class LoginServer extends EventEmitter {
       case GAME_VERSIONS.H1Z1_KOTK_PS3:
       case GAME_VERSIONS.H1Z1_6dec_2016: {
         sampleCharacter = require("../../../data/2016/sampleData/character.json");
-        newCharacter = _.cloneDeep(sampleCharacter);
+        newCharacter = _.cloneDeep(sampleCharacter) as any;
         newCharacter.characterName = characterName;
         break;
       }

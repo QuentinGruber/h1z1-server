@@ -29,21 +29,14 @@ function combineItemStack(
 ) {
   if (oldStackCount == count) {
     // if full stack is moved
-    server.addContainerItem(
-      client.character,
-      item,
-      targetContainer,
-      count,
-      false
-    );
+    server.addContainerItem(client.character, item, targetContainer, false);
     return;
   }
   // if only partial stack is moved
   server.addContainerItem(
     client.character,
-    server.generateItem(item.itemDefinitionId),
+    server.generateItem(item.itemDefinitionId, count),
     targetContainer,
-    count,
     false
   );
 }
@@ -87,7 +80,9 @@ export class LoadoutContainer extends LoadoutItem {
    * @returns Returns the amount of bulk available.
    */
   getAvailableBulk(server: ZoneServer2016): number {
-    return this.getMaxBulk(server) - this.getUsedBulk(server);
+    const availableBulk = this.getMaxBulk(server) - this.getUsedBulk(server);
+    // prevents returning a negative available bulk for containers with 0 max bulk
+    return availableBulk <= 0 ? 0 : availableBulk;
   }
 
   /**

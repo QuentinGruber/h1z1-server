@@ -14,7 +14,6 @@
 import { Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
-import { BaseItem } from "./baseItem";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { BaseEntity } from "../entities/baseentity";
 import { ZoneClient2016 } from "./zoneclient";
@@ -24,6 +23,10 @@ function getSubEntityData(
   child: CollectingEntity
 ) {
   switch (entity.itemDefinitionId) {
+    case Items.BEE_BOX:
+      entity.defaultLoadout = lootableContainerDefaultLoadouts.bee_box;
+      child.workingEffect = 188;
+      break;
     case Items.DEW_COLLECTOR:
       entity.defaultLoadout = lootableContainerDefaultLoadouts.dew_collector;
       child.workingEffect = 0;
@@ -37,12 +40,18 @@ function getSubEntityData(
 
 export class CollectingEntity {
   parentObject: LootableConstructionEntity;
-  workingEffect: number = 5028;
-  tickTime: number = 60000;
+  workingEffect: number = 0; // bee box
   dictionary: { [characterId: string]: BaseEntity };
-  requiredTicks: number = 15; // 15 min to fill
+  requiredTicks: number = 4; // 20 min to fill
   currentTicks: number = 0;
+  requiredWaxTicks: number = 144; // 12 hours to collect wax
+  currentWaxTicks: number = 0;
   wasUsed: boolean = false;
+  isWorking: boolean = true; // some values below arent used, keeping them to avoid compile errors related to 2 different subclasses
+  isSmelting: boolean = true;
+  smeltingTime: number = 40000;
+  allowedFuel: number[] = [];
+  filterId: number = 0;
   subType: string = "CollectingEntity"; // for saving identification
   constructor(
     parentObject: LootableConstructionEntity,
@@ -53,105 +62,31 @@ export class CollectingEntity {
       this.dictionary = server._worldLootableConstruction;
     } else this.dictionary = server._lootableConstruction;
     getSubEntityData(parentObject, this);
-
-    this.startWorking(server, parentObject);
-
-    const container = parentObject.getContainer();
-    switch (parentObject.itemDefinitionId) {
-      case Items.ANIMAL_TRAP:
-        if (container) {
-          container.canAcceptItems = false;
-        }
-        break;
-      case Items.DEW_COLLECTOR:
-        if (container) {
-          container.acceptedItems = [Items.WATER_EMPTY];
-        }
-    }
   }
 
-  startWorking(
-    server: ZoneServer2016,
-    parentObject: LootableConstructionEntity
-  ) {
-    const container = parentObject.getContainer();
-    if (!container) return;
-    if (!this.dictionary[parentObject.characterId]) {
-      return;
-    }
-    const checkEmpty = JSON.stringify(container.items) === "{}";
-    switch (parentObject.itemDefinitionId) {
-      case Items.ANIMAL_TRAP:
-        if (checkEmpty) {
-          if (this.wasUsed) {
-            server.deleteEntity(parentObject.characterId, this.dictionary);
-            return;
-          }
-          if (!this.wasUsed) this.currentTicks++;
-          if (this.currentTicks >= this.requiredTicks) {
-            this.currentTicks = 0;
-            this.wasUsed = true;
-            server.addContainerItemExternal(
-              parentObject.mountedCharacter
-                ? parentObject.mountedCharacter
-                : "",
-              server.generateItem(Items.MEAT_RABBIT),
-              container,
-              1
-            );
-            parentObject.actorModelId = 35;
-            server.sendDataToAllWithSpawnedEntity(
-              this.dictionary,
-              parentObject.characterId,
-              "Character.ReplaceBaseModel",
-              {
-                characterId: parentObject.characterId,
-                modelId: parentObject.actorModelId,
-              }
-            );
-          }
-        }
-        setTimeout(() => {
-          this.startWorking(server, parentObject);
-        }, this.tickTime);
-        return;
-      case Items.DEW_COLLECTOR:
-        let passed = false;
-        Object.values(container.items).forEach((item: BaseItem) => {
-          if (passed) return;
-          if (item.itemDefinitionId != Items.WATER_EMPTY) return;
-          this.currentTicks++;
-          passed = true;
-          if (this.currentTicks >= this.requiredTicks) {
-            this.currentTicks = 0;
-            server.removeContainerItem(
-              this.parentObject,
-              item,
-              parentObject.getContainer(),
-              1
-            );
-            server.addContainerItemExternal(
-              parentObject.mountedCharacter
-                ? parentObject.mountedCharacter
-                : "",
-              server.generateItem(Items.WATER_STAGNANT),
-              container,
-              1
-            );
-            return;
-          }
-        });
-        if (!passed) this.currentTicks = 0;
-        setTimeout(() => {
-          this.startWorking(server, parentObject);
-        }, this.tickTime);
-        return;
-    }
-  }
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "Command.InteractionString", {
       guid: this.parentObject.characterId,
       stringId: StringIds.OPEN,
     });
+  }
+
+  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
+    if (this.parentObject.itemDefinitionId != Items.BEE_BOX) return;
+    const container = this.parentObject.getContainer();
+    if (!container) return;
+    for (const a in container.items) {
+      const item = container.items[a];
+      if (
+        item.itemDefinitionId == Items.HONEY ||
+        item.itemDefinitionId == Items.WAX
+      ) {
+        server.sendData(client, "Command.PlayDialogEffect", {
+          characterId: this.parentObject.characterId,
+          effectId: this.workingEffect,
+        });
+        return;
+      }
+    }
   }
 }

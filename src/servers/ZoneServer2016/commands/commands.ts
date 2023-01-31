@@ -37,6 +37,13 @@ import { LoadoutItem } from "../classes/loadoutItem";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { BaseItem } from "../classes/baseItem";
 import { DB_COLLECTIONS } from "../../../utils/enums";
+import { WorldDataManager } from "../managers/worlddatamanager";
+import {
+  ConstructionParentSaveData,
+  LootableConstructionSaveData,
+  PlantingDiameterSaveData,
+} from "types/savedata";
+import { PlantingDiameter } from "../entities/plantingdiameter";
 const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 function getDriveModel(model: string) {
@@ -1238,7 +1245,11 @@ export const commands: Array<Command> = [
         return;
       }
       server.sendChatText(client, "CharacterData save started.");
-      await server.worldDataManager.saveCharacters(server);
+      const characters = WorldDataManager.convertCharactersToSaveData(
+        Object.values(server._characters),
+        server._worldId
+      );
+      await server.worldDataManager.saveCharacters(characters);
       server.sendChatText(client, "Character data has been saved!");
     },
   },
@@ -1255,7 +1266,7 @@ export const commands: Array<Command> = [
         return;
       }
       server.sendChatText(client, "VehicleData save started.");
-      await server.worldDataManager.saveVehicles(server);
+      // await server.worldDataManager.saveVehicles(server);
       server.sendChatText(client, "Vehicles have been saved!");
     },
   },
@@ -1271,9 +1282,60 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Server saving is disabled.");
         return;
       }
-      server.sendChatText(client, "World save started.");
-      await server.worldDataManager.saveWorld(server);
-      server.sendChatText(client, "World saved!");
+
+      await server.saveWorld();
+    },
+  },
+  {
+    name: "nextsave",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!server.enableWorldSaves) {
+        server.sendChatText(client, "Server saving is disabled.");
+        return;
+      }
+      server.sendChatText(
+        client,
+        `Next save at ${new Date(server.nextSaveTime)}`
+      );
+    },
+  },
+  {
+    name: "disablesave",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!server.enableWorldSaves) {
+        server.sendChatText(client, "Server saving is already disabled.");
+        return;
+      }
+
+      server.enableWorldSaves = false;
+      server.sendAlertToAll("World saving has been disabled");
+    },
+  },
+  {
+    name: "enablesave",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (server.enableWorldSaves) {
+        server.sendChatText(client, "Server saving is already enabled.");
+        return;
+      }
+
+      server.enableWorldSaves = true;
+      server.sendAlertToAll("World saving has been enabled");
     },
   },
   {
@@ -1449,7 +1511,7 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      const name = args[0].toString().toLowerCase();
+      const name = args.join(" ").toString().toLowerCase();
       const bannedClient = (
         await server._db
           ?.collection(DB_COLLECTIONS.BANNED)
@@ -1463,7 +1525,7 @@ export const commands: Array<Command> = [
       } else {
         server.sendChatText(
           client,
-          `Cannot find any banned user with name ${args[0]}`
+          `Cannot find any banned user with name ${name}`
         );
       }
     },
