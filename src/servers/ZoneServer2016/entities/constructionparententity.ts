@@ -12,6 +12,8 @@
 // ======================================================================
 
 import { ConstructionChildEntity } from "./constructionchildentity";
+import { ConstructionDoor } from "./constructiondoor";
+import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
@@ -481,6 +483,21 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       242,
       destructTime
     );
+    if (
+      this.itemDefinitionId == Items.SHACK ||
+      this.itemDefinitionId == Items.SHACK_SMALL ||
+      this.itemDefinitionId == Items.SHACK_BASIC
+    ) {
+      for (const entity of Object.values(this.freeplaceEntities)) {
+        if (entity instanceof ConstructionChildEntity) {
+          server._worldSimpleConstruction[entity.characterId] = entity;
+          delete server._constructionSimple[entity.characterId];
+        } else if (entity instanceof LootableConstructionEntity) {
+          server._worldLootableConstruction[entity.characterId] = entity;
+          delete server._lootableConstruction[entity.characterId];
+        }
+      }
+    }
     const parent =
       server._constructionFoundations[this.parentObjectCharacterId];
     if (!parent) return;
