@@ -12,7 +12,6 @@
 // ======================================================================
 
 import { ConstructionChildEntity } from "./constructionchildentity";
-import { ConstructionDoor } from "./constructiondoor";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
