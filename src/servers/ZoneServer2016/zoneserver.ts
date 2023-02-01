@@ -1500,6 +1500,23 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
       return;
 
+    const weapon = client.character.getEquippedWeapon();
+    if(weapon && weapon.weapon) {
+      this.sendRemoteWeaponUpdateDataToAllOthers(
+        client,
+        client.character.transientId,
+        weapon.itemGuid,
+        "Update.FireState",
+        {
+          state: {
+            firestate: 0,
+            transientId: client.character.transientId,
+            position: client.character.state.position,
+          },
+        }
+      );
+    }
+
     const character = client.character,
       sourceClient = this.getClientByCharId(damageInfo.entity);
     client.character.isRespawning = true;
