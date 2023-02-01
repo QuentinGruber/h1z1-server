@@ -2727,6 +2727,10 @@ export class ZoneServer2016 extends EventEmitter {
           effectId: 0,
           unk3: 0,
           unk4: false,
+          unk5: false,
+          unk6: false,
+          unk7: false,
+          unk8: false,
         });
       }
     });
