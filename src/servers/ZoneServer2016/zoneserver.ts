@@ -2623,7 +2623,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   customizeDTO(client: Client) {
     const DTOArray: any = [];
-   /* for (const object in this._lootableProps) {
+    /* for (const object in this._lootableProps) {
       const prop = this._lootableProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
@@ -2721,14 +2721,14 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: object.characterId,
       });
       if (object instanceof LootableProp) {
-                this.sendDataToAll("DtoStateChange", {
-                    objectId: object.spawnerId,
-                    modelName: object.actorFile,
-                    effectId: 0,
-                    unk3: 0,
-                    unk4: false,
-                });
-            }
+        this.sendDataToAll("DtoStateChange", {
+          objectId: object.spawnerId,
+          modelName: object.actorFile,
+          effectId: 0,
+          unk3: 0,
+          unk4: false,
+        });
+      }
     });
   }
 
@@ -3382,14 +3382,13 @@ export class ZoneServer2016 extends EventEmitter {
               nameId: object.nameId,
             });
             if (object instanceof LootableProp) {
-                this.sendDataToAll("DtoStateChange", {
-                    // @ts-ignore // ik it looks bad but if it has the actor file than it has spawnerId aswell
-                    objectId: object.spawnerId,
-                    modelName: "Weapon_Empty.adr",
-                    effectId: 0,
-                    unk3: 0,
-                    unk4: false,
-                });
+              this.sendDataToAll("DtoStateChange", {
+                objectId: object.spawnerId,
+                modelName: "Weapon_Empty.adr",
+                effectId: 0,
+                unk3: 0,
+                unk4: false,
+              });
             }
           }
           if (object instanceof DoorEntity) {
