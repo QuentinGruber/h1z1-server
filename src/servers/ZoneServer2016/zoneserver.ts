@@ -1501,7 +1501,7 @@ export class ZoneServer2016 extends EventEmitter {
       return;
 
     const weapon = client.character.getEquippedWeapon();
-    if(weapon && weapon.weapon) {
+    if (weapon && weapon.weapon) {
       this.sendRemoteWeaponUpdateDataToAllOthers(
         client,
         client.character.transientId,
