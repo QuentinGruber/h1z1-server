@@ -2623,14 +2623,14 @@ export class ZoneServer2016 extends EventEmitter {
 
   customizeDTO(client: Client) {
     const DTOArray: any = [];
-    for (const object in this._lootableProps) {
+   /* for (const object in this._lootableProps) {
       const prop = this._lootableProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
         unknownString1: "Weapon_Empty.adr",
       };
       DTOArray.push(propInstance);
-    }
+    }*/
     for (const object in this._speedTrees) {
       const DTO = this._speedTrees[object];
       const DTOinstance = {
@@ -2720,6 +2720,15 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData(client, "Character.RemovePlayer", {
         characterId: object.characterId,
       });
+      if (object instanceof LootableProp) {
+                this.sendDataToAll("DtoStateChange", {
+                    objectId: object.spawnerId,
+                    modelName: object.actorFile,
+                    effectId: 0,
+                    unk3: 0,
+                    unk4: false,
+                });
+            }
     });
   }
 
@@ -3372,6 +3381,16 @@ export class ZoneServer2016 extends EventEmitter {
               transientId: object.transientId,
               nameId: object.nameId,
             });
+            if (object instanceof LootableProp) {
+                this.sendDataToAll("DtoStateChange", {
+                    // @ts-ignore // ik it looks bad but if it has the actor file than it has spawnerId aswell
+                    objectId: object.spawnerId,
+                    modelName: "Weapon_Empty.adr",
+                    effectId: 0,
+                    unk3: 0,
+                    unk4: false,
+                });
+            }
           }
           if (object instanceof DoorEntity) {
             if (object.isOpen) {
