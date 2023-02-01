@@ -2355,6 +2355,8 @@ export class ZoneServer2016 extends EventEmitter {
         return this._constructionDoors;
       case !!this._worldLootableConstruction[entityKey]:
         return this._worldLootableConstruction;
+      case !!this._worldSimpleConstruction[entityKey]:
+        return this._worldSimpleConstruction;
       default:
         return;
     }
@@ -2643,14 +2645,14 @@ export class ZoneServer2016 extends EventEmitter {
 
   customizeDTO(client: Client) {
     const DTOArray: any = [];
-    for (const object in this._lootableProps) {
+    /* for (const object in this._lootableProps) {
       const prop = this._lootableProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
         unknownString1: "Weapon_Empty.adr",
       };
       DTOArray.push(propInstance);
-    }
+    }*/
     for (const object in this._speedTrees) {
       const DTO = this._speedTrees[object];
       const DTOinstance = {
@@ -2740,6 +2742,19 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData(client, "Character.RemovePlayer", {
         characterId: object.characterId,
       });
+      if (object instanceof LootableProp) {
+        this.sendDataToAll("DtoStateChange", {
+          objectId: object.spawnerId,
+          modelName: object.actorFile,
+          effectId: 0,
+          unk3: 0,
+          unk4: false,
+          unk5: false,
+          unk6: false,
+          unk7: false,
+          unk8: false,
+        });
+      }
     });
   }
 
@@ -3392,6 +3407,15 @@ export class ZoneServer2016 extends EventEmitter {
               transientId: object.transientId,
               nameId: object.nameId,
             });
+            if (object instanceof LootableProp) {
+              this.sendDataToAll("DtoStateChange", {
+                objectId: object.spawnerId,
+                modelName: "Weapon_Empty.adr",
+                effectId: 0,
+                unk3: 0,
+                unk4: false,
+              });
+            }
           }
           if (object instanceof DoorEntity) {
             if (object.isOpen) {
