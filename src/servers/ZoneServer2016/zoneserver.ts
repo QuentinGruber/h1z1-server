@@ -726,11 +726,18 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.hookManager.checkHook("OnSendCharacterData", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client)))
       return;
-
-    const savedCharacter = await this.worldDataManager.fetchCharacterData(
-      client.character.characterId
+    let savedCharacter;
+    try {
+      savedCharacter = await this.worldDataManager.fetchCharacterData(
+        client.character.characterId
+      );
+    } catch (e) {
+      this.sendData(client, "LoginFailed", {});
+    }
+    await this.loadCharacterData(
+      client,
+      savedCharacter as FullCharacterSaveData
     );
-    await this.loadCharacterData(client, savedCharacter);
     // to help identify broken character saves
     Object.values(client.character._loadout).forEach((item: LoadoutItem) => {
       if (item.stackCount < 1) {
