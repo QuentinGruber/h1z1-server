@@ -2335,6 +2335,8 @@ export class ZoneServer2016 extends EventEmitter {
         return this._constructionDoors;
       case !!this._worldLootableConstruction[entityKey]:
         return this._worldLootableConstruction;
+      case !!this._worldSimpleConstruction[entityKey]:
+        return this._worldSimpleConstruction;
       default:
         return;
     }
