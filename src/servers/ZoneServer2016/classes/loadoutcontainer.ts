@@ -128,9 +128,7 @@ export class LoadoutContainer extends LoadoutItem {
         server.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE >=
           item.stackCount + count
       ) {
-        if (!slotId || slotId == item.slotId) {
-          return item.itemGuid;
-        }
+        return item.itemGuid;
       }
     }
     return "";
@@ -198,7 +196,19 @@ export class LoadoutContainer extends LoadoutItem {
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
-    if (newSlotId == MAX_UINT32) {
+    const itemStack = targetContainer.getAvailableItemStack(
+      server,
+      item.itemDefinitionId,
+      count,
+      newSlotId
+    );
+    if (itemStack) {
+      // add to existing item stack
+      const item = targetContainer.items[itemStack];
+      item.stackCount += count;
+      server.updateContainerItem(client, item, targetContainer);
+    } else {
+      // add item to end
       combineItemStack(
         server,
         client,
@@ -207,29 +217,6 @@ export class LoadoutContainer extends LoadoutItem {
         item,
         count
       );
-    } else {
-      const itemStack = targetContainer.getAvailableItemStack(
-        server,
-        item.itemDefinitionId,
-        count,
-        newSlotId
-      );
-      if (itemStack) {
-        // add to existing item stack
-        const item = targetContainer.items[itemStack];
-        item.stackCount += count;
-        server.updateContainerItem(client, item, targetContainer);
-      } else {
-        // add item to end
-        combineItemStack(
-          server,
-          client,
-          oldStackCount,
-          targetContainer,
-          item,
-          count
-        );
-      }
     }
   }
 }
