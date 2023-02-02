@@ -124,7 +124,8 @@ export class DecayManager {
       const foundation = server._constructionFoundations[a];
       if (
         foundation.itemDefinitionId != Items.FOUNDATION &&
-        foundation.itemDefinitionId != Items.GROUND_TAMPER
+        foundation.itemDefinitionId != Items.GROUND_TAMPER &&
+        foundation.itemDefinitionId != Items.FOUNDATION_EXPANSION
       ) {
         this.decayDamage(server, foundation);
       }
