@@ -518,16 +518,16 @@ export class zonePacketHandlers {
     const isConstruction =
       entity instanceof ConstructionParentEntity ||
       entity instanceof ConstructionDoor;
-      if (
-        !isPosInRadius(
-          entity.interactionDistance || server._interactionDistance,
-          client.character.state.position,
-          isConstruction
-            ? entity.fixedPosition || entity.state.position
-            : entity.state.position
-        )
+    if (
+      !isPosInRadius(
+        entity.interactionDistance || server._interactionDistance,
+        client.character.state.position,
+        isConstruction
+          ? entity.fixedPosition || entity.state.position
+          : entity.state.position
       )
-        return;
+    )
+      return;
 
     entity.OnPlayerSelect(server, client, packet.data.isInstant);
   }
