@@ -11,7 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { MAX_UINT32 } from "../../../utils/constants";
 import { ContainerErrors } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
@@ -117,7 +116,6 @@ export class LoadoutContainer extends LoadoutItem {
     server: ZoneServer2016,
     itemDefId: number,
     count: number,
-    slotId: number = 0
   ): string {
     //
     // if slotId is defined, then only an item with the same slotId will be returned
@@ -200,7 +198,6 @@ export class LoadoutContainer extends LoadoutItem {
       server,
       item.itemDefinitionId,
       count,
-      newSlotId
     );
     if (itemStack) {
       // add to existing item stack
