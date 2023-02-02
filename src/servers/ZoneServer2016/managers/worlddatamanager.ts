@@ -393,7 +393,7 @@ export class WorldDataManager {
 
   async fetchCharacterData(
     characterId: string
-  ): Promise<FullCharacterSaveData> {
+  ): Promise<FullCharacterSaveData | undefined> {
     let savedCharacter: FullCharacterSaveData;
     if (this._soloMode) {
       delete require.cache[
@@ -414,6 +414,7 @@ export class WorldDataManager {
         .findOne({ characterId: characterId });
       if (!loadedCharacter) {
         throw `[ERROR] Mongo character not found! characterId: ${characterId}`;
+        return;
       }
       savedCharacter = {
         serverId: loadedCharacter.serverId,

@@ -15,7 +15,7 @@ export interface WorldDataManagerThreaded {
   initialize: (arg0: number, arg1: string) => Promise<void>;
   getServerData: (arg0: number) => Promise<ServerSaveData>;
   fetchWorldData: () => Promise<FetchedWorldData>;
-  fetchCharacterData: (arg0: string) => Promise<FullCharacterSaveData>;
+  fetchCharacterData: (arg0: string) => Promise<FullCharacterSaveData | undefined>;
   insertWorld: (arg0: bigint) => Promise<void>;
   deleteWorld: () => Promise<void>;
   saveWorld: (arg0: WorldArg) => Promise<void>;
