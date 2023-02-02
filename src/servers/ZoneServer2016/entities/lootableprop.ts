@@ -150,7 +150,6 @@ export class LootableProp extends BaseLootableEntity {
   containerId: number = Items.CONTAINER_STORAGE;
   lootSpawner: string = "Wrecked Car";
   searchTime: number = 1000;
-  actorFile: string;
   constructor(
     characterId: string,
     transientId: number,
@@ -160,17 +159,14 @@ export class LootableProp extends BaseLootableEntity {
     server: ZoneServer2016,
     scale: Float32Array,
     spawnerId: number,
-    renderDistance: number,
-    actorFile: string
+    renderDistance: number
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.scale = new Float32Array(scale);
     this.spawnerId = spawnerId;
-    //this.npcRenderDistance = renderDistance; set render to 30m for all props
-    this.npcRenderDistance = 30;
+    this.npcRenderDistance = renderDistance;
     this.state.rotation = isQuat(rotation);
     this.loadoutId = 5;
-    this.actorFile = actorFile;
     getContainerAndTime(this);
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */
