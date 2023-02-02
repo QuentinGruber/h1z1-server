@@ -60,6 +60,7 @@ export class BaseEntity {
   };
   scale = new Float32Array([1, 1, 1, 1]);
   npcRenderDistance?: number; // when undefined, use the zoneserver._charactersRenderDistance value
+  interactionDistance?: number; // when undefined, use the zoneserver._interactionDistance value
   constructor(
     characterId: string,
     transientId: number,
