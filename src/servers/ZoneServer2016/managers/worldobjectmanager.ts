@@ -304,7 +304,7 @@ export class WorldObjectManager {
           server,
           propInstance.scale,
           propInstance.id,
-          propType.renderDistance,
+          propType.renderDistance
         );
         server._lootableProps[characterId] = obj;
         obj.equipItem(server, server.generateItem(obj.containerId), false);

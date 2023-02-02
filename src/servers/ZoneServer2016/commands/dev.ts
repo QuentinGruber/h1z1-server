@@ -68,6 +68,7 @@ const dev: any = {
     server._npcs[characterId] = zombie;
   },
   deletesmallshacks: function (server: ZoneServer2016, client: Client) {
+    let counter = 0;
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
       if (foundation.itemDefinitionId == Items.SHACK_SMALL) {
@@ -87,9 +88,10 @@ const dev: any = {
           }
         );
         foundation.destroy(server);
+        counter++;
       }
     }
-    server.sendChatText(client, "Deleted all small shacks");
+    server.sendChatText(client, `Deleted ${counter} small shacks`);
   },
   zombiemove: function (
     server: ZoneServer2016,

@@ -4321,11 +4321,12 @@ export class ZoneServer2016 extends EventEmitter {
           parentObjectCharacterId,
           BuildingSlot
         );
+      case Items.SHACK_SMALL:
+        return false;
       case Items.GROUND_TAMPER:
       case Items.SHACK_BASIC:
       case Items.SHACK:
       case Items.FOUNDATION:
-      case Items.SHACK_SMALL:
       case Items.FOUNDATION_EXPANSION:
         return this.placeConstructionFoundation(
           client,

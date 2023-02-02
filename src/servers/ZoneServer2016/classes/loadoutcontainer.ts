@@ -115,7 +115,7 @@ export class LoadoutContainer extends LoadoutItem {
   getAvailableItemStack(
     server: ZoneServer2016,
     itemDefId: number,
-    count: number,
+    count: number
   ): string {
     //
     // if slotId is defined, then only an item with the same slotId will be returned
@@ -197,7 +197,7 @@ export class LoadoutContainer extends LoadoutItem {
     const itemStack = targetContainer.getAvailableItemStack(
       server,
       item.itemDefinitionId,
-      count,
+      count
     );
     if (itemStack) {
       // add to existing item stack
