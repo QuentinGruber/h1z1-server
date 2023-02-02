@@ -726,24 +726,19 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.hookManager.checkHook("OnSendCharacterData", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client)))
       return;
-    let savedCharacter: FullCharacterSaveData | undefined;
+    let savedCharacter;
     try {
       savedCharacter = await this.worldDataManager.fetchCharacterData(
         client.character.characterId
       );
     } catch (e) {
       this.sendData(client, "LoginFailed", {});
+      return;
     }
-    if(savedCharacter) {
-      await this.loadCharacterData(
-        client,
-        savedCharacter
-      );
-    }
-    else {
-      console.log(`Character: ${client.character.characterId} failed to load!`)
-      this.kickPlayer(client);
-    }
+    await this.loadCharacterData(
+      client,
+      savedCharacter as FullCharacterSaveData
+    );
     this.sendData(client, "SendSelfToClient", {
       data: client.character.pGetSendSelf(this, client.guid, client),
     });
