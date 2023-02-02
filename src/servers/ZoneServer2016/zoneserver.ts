@@ -726,7 +726,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.hookManager.checkHook("OnSendCharacterData", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client)))
       return;
-    let savedCharacter;
+    let savedCharacter: FullCharacterSaveData;
     try {
       savedCharacter = await this.worldDataManager.fetchCharacterData(
         client.character.characterId
