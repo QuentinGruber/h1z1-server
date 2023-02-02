@@ -141,6 +141,21 @@ export class DecayManager {
       );
       Object.values(foundation.occupiedShelterSlots).forEach(
         (entity: ConstructionDoor | ConstructionChildEntity) => {
+          if (entity instanceof ConstructionChildEntity) {
+            Object.values(entity.occupiedShelterSlots).forEach(
+              (childEntity: ConstructionDoor | ConstructionChildEntity) => {
+                if (childEntity instanceof ConstructionChildEntity) {
+                  childEntity.occupiedShelterSlots;
+                }
+                this.decayDamage(server, childEntity);
+              }
+            );
+            Object.values(entity.occupiedWallSlots).forEach(
+              (door: ConstructionDoor | ConstructionChildEntity) => {
+                this.decayDamage(server, door);
+              }
+            );
+          }
           this.decayDamage(server, entity);
         }
       );
