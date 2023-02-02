@@ -22,6 +22,10 @@ import { BaseLightweightCharacter } from "../entities/baselightweightcharacter";
 import { Npc } from "../entities/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
+import { Items } from "../models/enums";
+import { LootableConstructionEntity } from "h1z1-server/src/servers/ZoneServer2016/entities/lootableconstructionentity";
+import { ConstructionChildEntity } from "h1z1-server/src/servers/ZoneServer2016/entities/constructionchildentity";
+import { ConstructionDoor } from "h1z1-server/src/servers/ZoneServer2016/entities/constructiondoor";
 //import { NormanTest } from "../classes/Planting/Test";
 
 const debug = require("debug")("zonepacketHandlers");
@@ -62,6 +66,30 @@ const dev: any = {
       server
     );
     server._npcs[characterId] = zombie;
+  },
+  deletesmallshacks: function (server: ZoneServer2016, client: Client) {
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      if (foundation.itemDefinitionId == Items.SHACK_SMALL) {
+        Object.values(foundation.freeplaceEntities).forEach(
+          (
+            entity:
+              | LootableConstructionEntity
+              | ConstructionChildEntity
+              | ConstructionDoor
+          ) => {
+            entity.destroy(server);
+          }
+        );
+        Object.values(foundation.occupiedWallSlots).forEach(
+          (entity: ConstructionChildEntity | ConstructionDoor) => {
+            entity.destroy(server);
+          }
+        );
+        foundation.destroy(server);
+      }
+    }
+    server.sendChatText(client, "Deleted all small shacks");
   },
   zombiemove: function (
     server: ZoneServer2016,
