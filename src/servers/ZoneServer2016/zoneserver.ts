@@ -726,53 +726,18 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.hookManager.checkHook("OnSendCharacterData", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnSendCharacterData", client)))
       return;
-    let savedCharacter;
+    let savedCharacter: FullCharacterSaveData;
     try {
       savedCharacter = await this.worldDataManager.fetchCharacterData(
         client.character.characterId
       );
     } catch (e) {
       this.sendData(client, "LoginFailed", {});
+      return;
     }
     await this.loadCharacterData(
       client,
       savedCharacter as FullCharacterSaveData
-    );
-    // to help identify broken character saves
-    Object.values(client.character._loadout).forEach((item: LoadoutItem) => {
-      if (item.stackCount < 1) {
-        debug("\n\n\n");
-        console.log(
-          `Deprecated character loadout detected ${client.character.name}`
-        );
-        console.log(item);
-        debug("\n\n\n");
-        item.stackCount;
-      }
-    });
-    Object.values(client.character._containers).forEach(
-      (container: LoadoutContainer) => {
-        if (container.stackCount < 1) {
-          debug("\n\n\n");
-          console.log(
-            `Deprecated character containers detected ${client.character.name}`
-          );
-          console.log(container);
-          debug("\n\n\n");
-          container.stackCount = 1;
-        }
-        Object.values(container.items).forEach((item: BaseItem) => {
-          if (item.stackCount < 1) {
-            debug("\n\n\n");
-            console.log(
-              `Deprecated character items detected ${client.character.name}`
-            );
-            console.log(item);
-            item.stackCount = 1;
-            debug("\n\n\n");
-          }
-        });
-      }
     );
     this.sendData(client, "SendSelfToClient", {
       data: client.character.pGetSendSelf(this, client.guid, client),
