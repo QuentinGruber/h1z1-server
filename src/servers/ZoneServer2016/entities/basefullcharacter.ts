@@ -399,9 +399,12 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         if (array.includes(c)) return;
         array.push(c);
         const availableSpace = c.getAvailableBulk(server),
-          itemBulk = server.getItemDefinition(item.itemDefinitionId).BULK,
-          lootCount = Math.floor(availableSpace / itemBulk);
+          itemBulk = server.getItemDefinition(item.itemDefinitionId).BULK;
+        let lootCount = Math.floor(availableSpace / itemBulk);
         if (lootCount) {
+          if (lootCount > item.stackCount) {
+            lootCount = item.stackCount;
+          }
           item.stackCount -= lootCount;
           this.lootContainerItem(
             server,
