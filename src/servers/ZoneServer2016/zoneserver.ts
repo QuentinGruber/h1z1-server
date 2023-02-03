@@ -3204,6 +3204,54 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  public repairChildEntity(
+    entity: ConstructionChildEntity | ConstructionDoor,
+    hammerHit: number
+  ): number {
+    if (entity instanceof ConstructionChildEntity) {
+      Object.values(entity.occupiedShelterSlots).forEach(
+        (slot: ConstructionChildEntity) => {
+          hammerHit = this.repairChildEntity(slot, hammerHit);
+        }
+      );
+      Object.values(entity.occupiedWallSlots).forEach(
+        (wall: ConstructionDoor | ConstructionChildEntity) => {
+          hammerHit = this.repairChildEntity(wall, hammerHit);
+        }
+      );
+      Object.values(entity.occupiedUpperWallSlots).forEach(
+        (slot: ConstructionDoor | ConstructionChildEntity) => {
+          hammerHit = this.repairChildEntity(slot, hammerHit);
+        }
+      );
+    }
+    if (entity.health >= 1000000) return hammerHit;
+    this.repairConstruction(entity, 50000);
+    hammerHit += 15;
+    return hammerHit;
+  }
+
+  public repairConstruction(
+    entity:
+      | ConstructionChildEntity
+      | ConstructionDoor
+      | LootableConstructionEntity,
+    amount: number
+  ) {
+    const damageInfo = {
+      entity: "",
+      damage: (amount *= -1),
+    };
+    entity.damage(this, damageInfo);
+    this.updateResourceToAllWithSpawnedEntity(
+      entity.characterId,
+      entity.health,
+      ResourceIds.CONSTRUCTION_CONDITION,
+      ResourceTypes.CONDITION,
+      this.getConstructionDictionary(entity.characterId)
+    );
+  }
+
   /**
    * Manages the spawning of WORLD parented free-place construction entities, such as storage containers placed directly on the ground.
    *
