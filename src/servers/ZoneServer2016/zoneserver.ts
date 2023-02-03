@@ -1333,7 +1333,7 @@ export class ZoneServer2016 extends EventEmitter {
         lowerRenderDistance = true;
       }
     }
-    client.chunkRenderDistance = lowerRenderDistance ? 300 : 400;
+    client.chunkRenderDistance = lowerRenderDistance ? 250 : 350;
   }
 
   private worldRoutine() {
