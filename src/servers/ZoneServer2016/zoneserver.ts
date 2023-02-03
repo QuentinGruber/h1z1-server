@@ -1297,7 +1297,7 @@ export class ZoneServer2016 extends EventEmitter {
       obj instanceof Character ||
       (obj instanceof ConstructionChildEntity &&
         !obj.getParent(this) &&
-        !(obj instanceof ConstructionParentEntity)) ||
+        obj instanceof ConstructionParentEntity) ||
       (obj instanceof LootableConstructionEntity && !obj.getParent(this))
     )
       return; // dont push objects that can change its position
@@ -3188,6 +3188,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  private spawnConstructionParentsInRange(client: Client) {
+    for (const a in this._constructionFoundations) {
+      const foundation = this._constructionFoundations[a];
+      if (
+        isPosInRadius(
+          foundation.npcRenderDistance || this._charactersRenderDistance,
+          client.character.state.position,
+          foundation.state.position
+        )
+      ) {
+        this.spawnConstructionParent(client, foundation);
+      }
+    }
+  }
+
   public constructionManager(client: Client) {
     let hide = false;
     for (const characterId in this._constructionFoundations) {
@@ -3397,11 +3412,11 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           continue;
         }
-
-        if (object instanceof ConstructionParentEntity) {
+        // removed for testing
+        /*if (object instanceof ConstructionParentEntity) {
           this.spawnConstructionParent(client, object);
           continue;
-        }
+        }*/
 
         if (client.spawnedEntities.includes(object)) continue;
         client.spawnedEntities.push(object);
@@ -7091,6 +7106,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.POIManager(client);
           client.routineCounter = 0;
         }
+        this.spawnConstructionParentsInRange(client);
         this.vehicleManager(client);
         this.spawnCharacters(client);
         this.spawnGridObjects(client);
@@ -7104,6 +7120,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   executeRoutine(client: Client) {
+    this.spawnConstructionParentsInRange(client);
     this.vehicleManager(client);
     //this.npcManager(client);
     this.removeOutOfDistanceEntities(client);
