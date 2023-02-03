@@ -109,9 +109,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     switch (this.itemDefinitionId) {
       case Items.GROUND_TAMPER:
         this.bounds = this.getSquareBounds([1, 5, 9, 13]);
+        this.interactionDistance = 4;
         break;
       case Items.FOUNDATION:
         this.bounds = this.getSquareBounds([1, 4, 7, 10]);
+        this.interactionDistance = 10;
         break;
       case Items.FOUNDATION_EXPANSION: // 1, 2, 5, 3RD dependent foundation wall
         const bounds = this.getSquareBounds([1, 2, 5, 0]),
@@ -137,9 +139,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
             this.bounds = bounds;
           }
         }
+        this.interactionDistance = 8;
         break;
       case Items.SHACK:
         this.bounds = getRectangleCorners(position, 4.7, 5, -this.eulerAngle);
+        this.interactionDistance = 4;
         break;
       case Items.SHACK_SMALL:
         this.bounds = getRectangleCorners(
@@ -148,9 +152,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           2.5,
           -this.eulerAngle
         );
+        this.interactionDistance = 4;
         break;
       case Items.SHACK_BASIC:
         this.bounds = getRectangleCorners(position, 1.6, 1.6, -this.eulerAngle);
+        this.interactionDistance = 4;
         break;
     }
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
@@ -556,7 +562,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         client.character.characterId,
         ConstructionPermissionIds.BUILD
       ) &&
-      Date.now() < this.placementTime + 120000 &&
+      Date.now() < this.placementTime + this.undoPlacementTime &&
       client.character.getEquippedWeapon().itemDefinitionId ==
         Items.WEAPON_HAMMER_DEMOLITION &&
       this.isSlotsEmpty()

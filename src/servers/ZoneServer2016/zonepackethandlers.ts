@@ -520,7 +520,7 @@ export class zonePacketHandlers {
       entity instanceof ConstructionDoor;
     if (
       !isPosInRadius(
-        isConstruction ? 4 : server._interactionDistance,
+        entity.interactionDistance || server._interactionDistance,
         client.character.state.position,
         isConstruction
           ? entity.fixedPosition || entity.state.position
@@ -927,7 +927,7 @@ export class zonePacketHandlers {
       entity instanceof ConstructionDoor;
     if (
       !isPosInRadius(
-        isConstruction ? 4 : server._interactionDistance,
+        entity.interactionDistance || server._interactionDistance,
         client.character.state.position,
         isConstruction
           ? entity.fixedPosition || entity.state.position
