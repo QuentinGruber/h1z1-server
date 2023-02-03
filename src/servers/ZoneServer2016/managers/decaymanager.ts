@@ -21,7 +21,7 @@ import { ConstructionParentEntity } from "../entities/constructionparententity";
 export class DecayManager {
   loopTime = 1200000; // 20 min
   currentTicksCount = 0; // used to run structure damaging once every x loops
-  requiredTicksToDamage = 12; // damage structures once every 12 hours
+  requiredTicksToDamage = 36; // damage structures once every 12 hours
 
   public async run(server: ZoneServer2016) {
     this.contructionExpirationCheck(server);
