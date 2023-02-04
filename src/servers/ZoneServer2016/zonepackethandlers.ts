@@ -1686,10 +1686,6 @@ export class zonePacketHandlers {
                 }, 1000);
                 return;
               }
-              const damageInfo = {
-                entity: "",
-                damage: -50000,
-              };
               accumulatedItemDamage = 50;
               server.repairConstruction(entity, 50000);
               accumulatedItemDamage += 15;

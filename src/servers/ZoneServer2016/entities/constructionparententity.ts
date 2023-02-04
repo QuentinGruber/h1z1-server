@@ -109,7 +109,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     switch (this.itemDefinitionId) {
       case Items.GROUND_TAMPER:
         this.bounds = this.getSquareBounds([1, 5, 9, 13]);
-        this.interactionDistance = 4;
+        this.interactionDistance = 16; // fix temper interact distance if deck is placed on it
         break;
       case Items.FOUNDATION:
         this.bounds = this.getSquareBounds([1, 4, 7, 10]);
