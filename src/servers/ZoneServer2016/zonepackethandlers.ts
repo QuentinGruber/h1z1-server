@@ -1904,6 +1904,7 @@ export class zonePacketHandlers {
                   !server.removeInventoryItems(client, weaponAmmoId, 1)) ||
                 ++weaponItem.weapon.ammoCount == maxAmmo
               ) {
+                console.log("OUT OF AMMO 1")
                 server.sendWeaponData(client, "Weapon.Reload", {
                   weaponGuid: p.packet.characterId,
                   unknownDword1: maxAmmo,
@@ -1925,8 +1926,9 @@ export class zonePacketHandlers {
                 client.character.clearReloadTimeout();
                 return;
               }
-              if (!(reserveAmmo - 1)) {
+              if (reserveAmmo - 1 < 0) {
                 // updated reserve ammo
+                console.log("OUT OF AMMO 2")
                 server.sendWeaponData(client, "Weapon.Reload", {
                   weaponGuid: p.packet.characterId,
                   unknownDword1: maxAmmo,
