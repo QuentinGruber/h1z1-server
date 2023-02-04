@@ -275,11 +275,12 @@ export class WorldObjectManager {
 
     if (!_.size(items)) return; // don't spawn lootbag if inventory is empty
 
-    const lootbag = new Lootbag(
+    const pos = entity.state.position,
+    lootbag = new Lootbag(
       characterId,
       server.getTransientId(characterId),
       isCharacter ? 9581 : 9391,
-      entity.state.position,
+      new Float32Array([pos[0], pos[1] + 0.1, pos[2]]),
       new Float32Array([0, 0, 0, 0]),
       server
     );
