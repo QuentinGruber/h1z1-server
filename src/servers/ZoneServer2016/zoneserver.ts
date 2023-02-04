@@ -4271,7 +4271,20 @@ export class ZoneServer2016 extends EventEmitter {
         if (useRange && isPosInRadius(point.range, position, point.position))
           isInPoi = true;
       });
-      if (isInPoi) {
+      // alow placement in poi if object is parented to a foundation
+      let isInFoundation = false;
+      for (const a in this._constructionFoundations) {
+        const iteratedFoundation = this._constructionFoundations[a];
+        if (iteratedFoundation.bounds) {
+          if (
+            iteratedFoundation.isInside(position) ||
+            (iteratedFoundation.characterId == parentObjectCharacterId &&
+              isPosInRadius(20, iteratedFoundation.state.position, position))
+          )
+            isInFoundation = true;
+        }
+      }
+      if (isInPoi && !isInFoundation) {
         this.sendData(client, "Construction.PlacementFinalizeResponse", {
           status: 0,
           unknownString1: "",
