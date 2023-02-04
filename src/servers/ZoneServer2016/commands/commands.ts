@@ -1192,7 +1192,7 @@ export const commands: Array<Command> = [
           .map((c) => {
             return `${c.character.name}: ${c.loginSessionId}`;
           })
-          .join(", ")}`
+          .join(",\n")}`
       );
     },
   },
