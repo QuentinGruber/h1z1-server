@@ -1212,7 +1212,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.sendData(client, "ClientGameSettings", {
       Unknown2: 0,
-      interactGlowAndDist: 3,
+      interactGlowAndDist: 16, // need it high for tampers
       unknownBoolean1: true,
       timescale: 1.0,
       enableWeapons: 1,
@@ -1297,7 +1297,7 @@ export class ZoneServer2016 extends EventEmitter {
       obj instanceof Character ||
       (obj instanceof ConstructionChildEntity &&
         !obj.getParent(this) &&
-        !(obj instanceof ConstructionParentEntity)) ||
+        obj instanceof ConstructionParentEntity) ||
       (obj instanceof LootableConstructionEntity && !obj.getParent(this))
     )
       return; // dont push objects that can change its position
@@ -1333,7 +1333,7 @@ export class ZoneServer2016 extends EventEmitter {
         lowerRenderDistance = true;
       }
     }
-    client.chunkRenderDistance = lowerRenderDistance ? 300 : 400;
+    client.chunkRenderDistance = lowerRenderDistance ? 250 : 350;
   }
 
   private worldRoutine() {
@@ -2696,6 +2696,7 @@ export class ZoneServer2016 extends EventEmitter {
   private shouldRemoveEntity(client: Client, entity: BaseEntity): boolean {
     return (
       entity && // in case if entity is undefined somehow
+      !(entity instanceof ConstructionParentEntity) &&
       !(entity instanceof Vehicle2016) &&
       (this.filterOutOfDistance(entity, client.character.state.position) ||
         this.constructionShouldHideEntity(client, entity))
@@ -3187,6 +3188,21 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  private spawnConstructionParentsInRange(client: Client) {
+    for (const a in this._constructionFoundations) {
+      const foundation = this._constructionFoundations[a];
+      if (
+        isPosInRadius(
+          foundation.npcRenderDistance || this._charactersRenderDistance,
+          client.character.state.position,
+          foundation.state.position
+        )
+      ) {
+        this.spawnConstructionParent(client, foundation);
+      }
+    }
+  }
+
   public constructionManager(client: Client) {
     let hide = false;
     for (const characterId in this._constructionFoundations) {
@@ -3201,6 +3217,54 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.isHidden = "";
       this.spawnCharacterToOtherClients(client.character);
     }
+  }
+
+  public repairChildEntity(
+    entity: ConstructionChildEntity | ConstructionDoor,
+    hammerHit: number
+  ): number {
+    if (entity instanceof ConstructionChildEntity) {
+      Object.values(entity.occupiedShelterSlots).forEach(
+        (slot: ConstructionChildEntity) => {
+          hammerHit = this.repairChildEntity(slot, hammerHit);
+        }
+      );
+      Object.values(entity.occupiedWallSlots).forEach(
+        (wall: ConstructionDoor | ConstructionChildEntity) => {
+          hammerHit = this.repairChildEntity(wall, hammerHit);
+        }
+      );
+      Object.values(entity.occupiedUpperWallSlots).forEach(
+        (slot: ConstructionDoor | ConstructionChildEntity) => {
+          hammerHit = this.repairChildEntity(slot, hammerHit);
+        }
+      );
+    }
+    if (entity.health >= 1000000) return hammerHit;
+    this.repairConstruction(entity, 50000);
+    hammerHit += 15;
+    return hammerHit;
+  }
+
+  public repairConstruction(
+    entity:
+      | ConstructionChildEntity
+      | ConstructionDoor
+      | LootableConstructionEntity,
+    amount: number
+  ) {
+    const damageInfo = {
+      entity: "",
+      damage: (amount *= -1),
+    };
+    entity.damage(this, damageInfo);
+    this.updateResourceToAllWithSpawnedEntity(
+      entity.characterId,
+      entity.health,
+      ResourceIds.CONSTRUCTION_CONDITION,
+      ResourceTypes.CONDITION,
+      this.getConstructionDictionary(entity.characterId)
+    );
   }
 
   /**
@@ -3348,11 +3412,11 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           continue;
         }
-
-        if (object instanceof ConstructionParentEntity) {
+        // removed for testing
+        /*if (object instanceof ConstructionParentEntity) {
           this.spawnConstructionParent(client, object);
           continue;
-        }
+        }*/
 
         if (client.spawnedEntities.includes(object)) continue;
         client.spawnedEntities.push(object);
@@ -4207,7 +4271,20 @@ export class ZoneServer2016 extends EventEmitter {
         if (useRange && isPosInRadius(point.range, position, point.position))
           isInPoi = true;
       });
-      if (isInPoi) {
+      // alow placement in poi if object is parented to a foundation
+      let isInFoundation = false;
+      for (const a in this._constructionFoundations) {
+        const iteratedFoundation = this._constructionFoundations[a];
+        if (iteratedFoundation.bounds) {
+          if (
+            iteratedFoundation.isInside(position) ||
+            (iteratedFoundation.characterId == parentObjectCharacterId &&
+              isPosInRadius(20, iteratedFoundation.state.position, position))
+          )
+            isInFoundation = true;
+        }
+      }
+      if (isInPoi && !isInFoundation) {
         this.sendData(client, "Construction.PlacementFinalizeResponse", {
           status: 0,
           unknownString1: "",
@@ -7042,6 +7119,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.POIManager(client);
           client.routineCounter = 0;
         }
+        this.spawnConstructionParentsInRange(client);
         this.vehicleManager(client);
         this.spawnCharacters(client);
         this.spawnGridObjects(client);
@@ -7055,6 +7133,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   executeRoutine(client: Client) {
+    this.spawnConstructionParentsInRange(client);
     this.vehicleManager(client);
     //this.npcManager(client);
     this.removeOutOfDistanceEntities(client);

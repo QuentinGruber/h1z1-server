@@ -21,7 +21,7 @@ import { ConstructionParentEntity } from "../entities/constructionparententity";
 export class DecayManager {
   loopTime = 1200000; // 20 min
   currentTicksCount = 0; // used to run structure damaging once every x loops
-  requiredTicksToDamage = 12; // damage structures once every 12 hours
+  requiredTicksToDamage = 36; // damage structures once every 12 hours
 
   public async run(server: ZoneServer2016) {
     this.contructionExpirationCheck(server);
@@ -142,33 +142,39 @@ export class DecayManager {
       Object.values(foundation.occupiedShelterSlots).forEach(
         (entity: ConstructionDoor | ConstructionChildEntity) => {
           if (entity instanceof ConstructionChildEntity) {
-            Object.values(entity.occupiedShelterSlots).forEach(
-              (childEntity: ConstructionDoor | ConstructionChildEntity) => {
-                if (childEntity instanceof ConstructionChildEntity) {
-                  childEntity.occupiedShelterSlots;
-                }
-                this.decayDamage(server, childEntity);
-              }
-            );
-            Object.values(entity.occupiedWallSlots).forEach(
-              (door: ConstructionDoor | ConstructionChildEntity) => {
-                this.decayDamage(server, door);
-              }
-            );
+            this.decayChildEntity(server, entity);
           }
-          this.decayDamage(server, entity);
         }
       );
       Object.values(foundation.occupiedWallSlots).forEach(
         (entity: ConstructionDoor | ConstructionChildEntity) => {
-          this.decayDamage(server, entity);
-        }
-      );
-      Object.values(foundation.occupiedUpperWallSlots).forEach(
-        (entity: ConstructionDoor | ConstructionChildEntity) => {
-          this.decayDamage(server, entity);
+          this.decayChildEntity(server, entity);
         }
       );
     }
+  }
+
+  private decayChildEntity(
+    server: ZoneServer2016,
+    entity: ConstructionChildEntity | ConstructionDoor
+  ) {
+    if (entity instanceof ConstructionChildEntity) {
+      Object.values(entity.occupiedShelterSlots).forEach(
+        (slot: ConstructionChildEntity) => {
+          this.decayChildEntity(server, slot);
+        }
+      );
+      Object.values(entity.occupiedWallSlots).forEach(
+        (wall: ConstructionDoor | ConstructionChildEntity) => {
+          this.decayDamage(server, wall);
+        }
+      );
+      Object.values(entity.occupiedUpperWallSlots).forEach(
+        (slot: ConstructionDoor | ConstructionChildEntity) => {
+          this.decayDamage(server, slot);
+        }
+      );
+    }
+    this.decayDamage(server, entity);
   }
 }

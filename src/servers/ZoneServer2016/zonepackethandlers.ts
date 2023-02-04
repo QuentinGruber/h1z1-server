@@ -1619,56 +1619,18 @@ export class zonePacketHandlers {
                     // repair every object on each expansion
                     Object.values(expansion.occupiedShelterSlots).forEach(
                       (child: ConstructionChildEntity) => {
-                        if (child.health >= 1000000) return;
-                        const damageInfo = {
-                          entity: "",
-                          damage: -50000,
-                        };
-                        child.damage(server, damageInfo);
-                        server.updateResourceToAllWithSpawnedEntity(
-                          child.characterId,
-                          child.health,
-                          ResourceIds.CONSTRUCTION_CONDITION,
-                          ResourceTypes.CONDITION,
-                          server.getConstructionDictionary(child.characterId)
+                        accumulatedItemDamage = server.repairChildEntity(
+                          child,
+                          accumulatedItemDamage
                         );
-                        accumulatedItemDamage += 25;
                       }
                     );
                     Object.values(expansion.occupiedWallSlots).forEach(
                       (child: ConstructionChildEntity | ConstructionDoor) => {
-                        if (child.health >= 1000000) return;
-                        const damageInfo = {
-                          entity: "",
-                          damage: -50000,
-                        };
-                        child.damage(server, damageInfo);
-                        server.updateResourceToAllWithSpawnedEntity(
-                          child.characterId,
-                          child.health,
-                          ResourceIds.CONSTRUCTION_CONDITION,
-                          ResourceTypes.CONDITION,
-                          server.getConstructionDictionary(child.characterId)
+                        accumulatedItemDamage = server.repairChildEntity(
+                          child,
+                          accumulatedItemDamage
                         );
-                        accumulatedItemDamage += 25;
-                      }
-                    );
-                    Object.values(expansion.occupiedUpperWallSlots).forEach(
-                      (child: ConstructionChildEntity) => {
-                        if (child.health >= 1000000) return;
-                        const damageInfo = {
-                          entity: "",
-                          damage: -50000,
-                        };
-                        child.damage(server, damageInfo);
-                        server.updateResourceToAllWithSpawnedEntity(
-                          child.characterId,
-                          child.health,
-                          ResourceIds.CONSTRUCTION_CONDITION,
-                          ResourceTypes.CONDITION,
-                          server.getConstructionDictionary(child.characterId)
-                        );
-                        accumulatedItemDamage += 25;
                       }
                     );
                     Object.values(expansion.freeplaceEntities).forEach(
@@ -1679,19 +1641,8 @@ export class zonePacketHandlers {
                           | LootableConstructionEntity
                       ) => {
                         if (child.health >= 1000000) return;
-                        const damageInfo = {
-                          entity: "",
-                          damage: -50000,
-                        };
-                        child.damage(server, damageInfo);
-                        server.updateResourceToAllWithSpawnedEntity(
-                          child.characterId,
-                          child.health,
-                          ResourceIds.CONSTRUCTION_CONDITION,
-                          ResourceTypes.CONDITION,
-                          server.getConstructionDictionary(child.characterId)
-                        );
-                        accumulatedItemDamage += 25;
+                        server.repairConstruction(child, 50000);
+                        accumulatedItemDamage += 15;
                       }
                     );
                   }
@@ -1699,56 +1650,18 @@ export class zonePacketHandlers {
                 // repair every object on main foundation
                 Object.values(entity.occupiedShelterSlots).forEach(
                   (child: ConstructionChildEntity) => {
-                    if (child.health >= 1000000) return;
-                    const damageInfo = {
-                      entity: "",
-                      damage: -50000,
-                    };
-                    child.damage(server, damageInfo);
-                    server.updateResourceToAllWithSpawnedEntity(
-                      child.characterId,
-                      child.health,
-                      ResourceIds.CONSTRUCTION_CONDITION,
-                      ResourceTypes.CONDITION,
-                      server.getConstructionDictionary(child.characterId)
+                    accumulatedItemDamage = server.repairChildEntity(
+                      child,
+                      accumulatedItemDamage
                     );
-                    accumulatedItemDamage += 25;
                   }
                 );
                 Object.values(entity.occupiedWallSlots).forEach(
                   (child: ConstructionChildEntity | ConstructionDoor) => {
-                    if (child.health >= 1000000) return;
-                    const damageInfo = {
-                      entity: "",
-                      damage: -50000,
-                    };
-                    child.damage(server, damageInfo);
-                    server.updateResourceToAllWithSpawnedEntity(
-                      child.characterId,
-                      child.health,
-                      ResourceIds.CONSTRUCTION_CONDITION,
-                      ResourceTypes.CONDITION,
-                      server.getConstructionDictionary(child.characterId)
+                    accumulatedItemDamage = server.repairChildEntity(
+                      child,
+                      accumulatedItemDamage
                     );
-                    accumulatedItemDamage += 25;
-                  }
-                );
-                Object.values(entity.occupiedUpperWallSlots).forEach(
-                  (child: ConstructionChildEntity) => {
-                    if (child.health >= 1000000) return;
-                    const damageInfo = {
-                      entity: "",
-                      damage: -50000,
-                    };
-                    child.damage(server, damageInfo);
-                    server.updateResourceToAllWithSpawnedEntity(
-                      child.characterId,
-                      child.health,
-                      ResourceIds.CONSTRUCTION_CONDITION,
-                      ResourceTypes.CONDITION,
-                      server.getConstructionDictionary(child.characterId)
-                    );
-                    accumulatedItemDamage += 25;
                   }
                 );
                 Object.values(entity.freeplaceEntities).forEach(
@@ -1759,35 +1672,13 @@ export class zonePacketHandlers {
                       | LootableConstructionEntity
                   ) => {
                     if (child.health >= 1000000) return;
-                    const damageInfo = {
-                      entity: "",
-                      damage: -50000,
-                    };
-                    child.damage(server, damageInfo);
-                    server.updateResourceToAllWithSpawnedEntity(
-                      child.characterId,
-                      child.health,
-                      ResourceIds.CONSTRUCTION_CONDITION,
-                      ResourceTypes.CONDITION,
-                      server.getConstructionDictionary(child.characterId)
-                    );
-                    accumulatedItemDamage += 25;
+                    server.repairConstruction(child, 50000);
+                    accumulatedItemDamage += 15;
                   }
                 );
                 if (entity.health < 1000000) {
-                  const damageInfo = {
-                    entity: "",
-                    damage: -50000,
-                  };
-                  entity.damage(server, damageInfo);
-                  server.updateResourceToAllWithSpawnedEntity(
-                    entity.characterId,
-                    entity.health,
-                    ResourceIds.CONSTRUCTION_CONDITION,
-                    ResourceTypes.CONDITION,
-                    server.getConstructionDictionary(entity.characterId)
-                  );
-                  accumulatedItemDamage += 25;
+                  server.repairConstruction(entity, 50000);
+                  accumulatedItemDamage += 15;
                 }
                 server.damageItem(client, weaponItem, accumulatedItemDamage);
                 client.character.temporaryScrapSoundTimeout = setTimeout(() => {
@@ -1795,20 +1686,9 @@ export class zonePacketHandlers {
                 }, 1000);
                 return;
               }
-              const damageInfo = {
-                entity: "",
-                damage: -50000,
-              };
               accumulatedItemDamage = 50;
-              server.damageItem(client, weaponItem, accumulatedItemDamage);
-              entity.damage(server, damageInfo);
-              server.updateResourceToAllWithSpawnedEntity(
-                entity.characterId,
-                entity.health,
-                ResourceIds.CONSTRUCTION_CONDITION,
-                ResourceTypes.CONDITION,
-                server.getConstructionDictionary(entity.characterId)
-              );
+              server.repairConstruction(entity, 50000);
+              accumulatedItemDamage += 15;
               client.character.temporaryScrapSoundTimeout = setTimeout(() => {
                 delete client.character.temporaryScrapSoundTimeout;
               }, 1000);

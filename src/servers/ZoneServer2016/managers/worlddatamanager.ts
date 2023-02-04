@@ -959,6 +959,7 @@ export class WorldDataManager {
     return {
       ...this.getBaseFullEntitySaveData(entity, serverId),
       growState: entity.growState,
+      nextStateTime: entity.nextStateTime,
       parentObjectCharacterId: entity.parentObjectCharacterId,
       slot: entity.slot,
       item: this.getItemSaveData(entity.item),
@@ -1023,6 +1024,7 @@ export class WorldDataManager {
         entityData.slot
       );
     plant.growState = entityData.growState;
+    plant.nextStateTime = entityData.nextStateTime;
 
     server._plants[plant.characterId] = plant;
     return plant;

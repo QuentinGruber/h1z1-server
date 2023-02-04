@@ -182,9 +182,9 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
   8: {
     itemDef: Items.BANDAGE_DRESSED,
     type: ItemUseOptions.USE_MEDICAL,
-    timeout: 2000,
-    healCount: 29,
-    bandagingCount: 0,
+    timeout: 1000,
+    healCount: 30,
+    bandagingCount: 40,
   },
   42: {
     itemDef: Items.COLD_MEDICINE,
