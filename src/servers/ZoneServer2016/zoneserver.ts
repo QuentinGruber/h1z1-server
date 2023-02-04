@@ -1883,12 +1883,14 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   createProjectileNpc(client: Client, data: any) {
-    const iD = client.character.getEquippedWeapon().itemDefinitionId;
+    const weaponItem = client.character.getEquippedWeapon();
+    if(!weaponItem) return;
+    const itemDefId = weaponItem.itemDefinitionId;
     if (
-      iD == Items.WEAPON_BOW_MAKESHIFT ||
-      iD == Items.WEAPON_BOW_RECURVE ||
-      iD == Items.WEAPON_CROSSBOW ||
-      iD == Items.WEAPON_BOW_WOOD
+      itemDefId == Items.WEAPON_BOW_MAKESHIFT ||
+      itemDefId == Items.WEAPON_BOW_RECURVE ||
+      itemDefId == Items.WEAPON_CROSSBOW ||
+      itemDefId == Items.WEAPON_BOW_WOOD
     ) {
       this.worldObjectManager.createLootEntity(
         this,
@@ -2152,9 +2154,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   hitMissFairPlayCheck(client: Client, hit: boolean, hitLocation: string) {
+    const weaponItem = client.character.getEquippedWeapon();
     if (
       !this._useFairPlay ||
-      client.character.getEquippedWeapon().itemDefinitionId ==
+      !weaponItem ||
+      weaponItem.itemDefinitionId ==
         Items.WEAPON_SHOTGUN
     )
       return;
@@ -2535,12 +2539,15 @@ export class ZoneServer2016 extends EventEmitter {
     const entity = this.getEntity(packet.hitReport.characterId);
     if (!entity) return;
 
+    const weaponItem = client.character.getEquippedWeapon();
+    if(!weaponItem) return;
+
     entity.OnProjectileHit(this, {
       entity: client.character.characterId,
       // this could cause issues if a player switches their weapon before a projectile hits or a client desyncs
-      weapon: client.character.getEquippedWeapon().itemDefinitionId,
+      weapon: weaponItem.itemDefinitionId,
       damage: this.getProjectileDamage(
-        client.character.getEquippedWeapon().itemDefinitionId,
+        weaponItem.itemDefinitionId,
         client.character.state.position,
         entity.state.position
       ),
@@ -6205,6 +6212,18 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.deleteEntity(guid, this._spawnedItems);
     delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
+  }
+
+  sendWeaponReload(client: Client, weaponItem: LoadoutItem, ammoCount?: number) {
+    if(!weaponItem.weapon) return;
+    const maxAmmo = this.getWeaponMaxAmmo(weaponItem.itemDefinitionId);
+    this.sendWeaponData(client, "Weapon.Reload", {
+      weaponGuid: weaponItem.itemGuid,
+      unknownDword1: maxAmmo,
+      ammoCount: ammoCount || weaponItem.weapon.ammoCount,
+      unknownDword3: maxAmmo,
+      currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
+    });
   }
 
   deleteItem(client: Client, itemGuid: string) {
