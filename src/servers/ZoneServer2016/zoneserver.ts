@@ -1884,7 +1884,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   createProjectileNpc(client: Client, data: any) {
     const weaponItem = client.character.getEquippedWeapon();
-    if(!weaponItem) return;
+    if (!weaponItem) return;
     const itemDefId = weaponItem.itemDefinitionId;
     if (
       itemDefId == Items.WEAPON_BOW_MAKESHIFT ||
@@ -2158,8 +2158,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (
       !this._useFairPlay ||
       !weaponItem ||
-      weaponItem.itemDefinitionId ==
-        Items.WEAPON_SHOTGUN
+      weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
     )
       return;
     if (hit) {
@@ -2540,7 +2539,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!entity) return;
 
     const weaponItem = client.character.getEquippedWeapon();
-    if(!weaponItem) return;
+    if (!weaponItem) return;
 
     entity.OnProjectileHit(this, {
       entity: client.character.characterId,
@@ -6214,8 +6213,12 @@ export class ZoneServer2016 extends EventEmitter {
     delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
   }
 
-  sendWeaponReload(client: Client, weaponItem: LoadoutItem, ammoCount?: number) {
-    if(!weaponItem.weapon) return;
+  sendWeaponReload(
+    client: Client,
+    weaponItem: LoadoutItem,
+    ammoCount?: number
+  ) {
+    if (!weaponItem.weapon) return;
     const maxAmmo = this.getWeaponMaxAmmo(weaponItem.itemDefinitionId);
     this.sendWeaponData(client, "Weapon.Reload", {
       weaponGuid: weaponItem.itemGuid,

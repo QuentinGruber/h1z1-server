@@ -1781,11 +1781,8 @@ export class zonePacketHandlers {
           }
           client.allowedProjectiles--;
           const weapon = client.character.getEquippedWeapon();
-          if(!weapon) return;
-          if (
-            weapon.itemDefinitionId ==
-            Items.WEAPON_REMOVER
-          ) {
+          if (!weapon) return;
+          if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
             if (!client.isAdmin) return;
             const characterId = p.packet.hitReport.characterId,
               entityType = server.getEntityType(characterId);
@@ -1869,8 +1866,7 @@ export class zonePacketHandlers {
             const currentWeapon = client.character.getEquippedWeapon();
             if (
               !currentWeapon ||
-              currentWeapon.itemGuid !=
-              weaponItem.itemGuid
+              currentWeapon.itemGuid != weaponItem.itemGuid
             ) {
               return;
             }
@@ -1885,7 +1881,11 @@ export class zonePacketHandlers {
             ) {
               return;
             }
-            server.sendWeaponReload(client, weaponItem, (weaponItem.weapon.ammoCount += reloadAmount));
+            server.sendWeaponReload(
+              client,
+              weaponItem,
+              (weaponItem.weapon.ammoCount += reloadAmount)
+            );
             return;
           }
           //#region SHOTGUN ONLY
@@ -1937,12 +1937,11 @@ export class zonePacketHandlers {
           }
           //#endregion
           weaponItem.weapon.reloadTimer = setTimeout(() => {
-            const currentWeapon = client.character.getEquippedWeapon()
+            const currentWeapon = client.character.getEquippedWeapon();
             if (
               !weaponItem.weapon?.reloadTimer ||
               !currentWeapon ||
-              currentWeapon.itemGuid !=
-                weaponItem.itemGuid
+              currentWeapon.itemGuid != weaponItem.itemGuid
             ) {
               return;
             }
@@ -1957,7 +1956,11 @@ export class zonePacketHandlers {
             ) {
               return;
             }
-            server.sendWeaponReload(client, weaponItem, (weaponItem.weapon.ammoCount += reloadAmount));
+            server.sendWeaponReload(
+              client,
+              weaponItem,
+              (weaponItem.weapon.ammoCount += reloadAmount)
+            );
             client.character.clearReloadTimeout();
           }, reloadTime);
 
