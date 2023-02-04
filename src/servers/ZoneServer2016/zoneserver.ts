@@ -1416,15 +1416,19 @@ export class ZoneServer2016 extends EventEmitter {
       targetPing = 0;
     if (sourceClient && !targetClient) {
       sourceName = sourceClient.character.name || "Unknown";
-      sourcePing = sourceClient.avgPing;
+      const sourceSOEClient = this.getSoeClient(sourceClient.soeClientId);
+      sourcePing = sourceSOEClient ? sourceSOEClient.avgPing: 0;
     } else if (!sourceClient && targetClient) {
       targetName = targetClient.character.name || "Unknown";
-      targetPing = targetClient.avgPing;
+      const targetSOEClient = this.getSoeClient(targetClient.soeClientId);
+      targetPing = targetSOEClient ? targetSOEClient.avgPing: 0;
     } else if (sourceClient && targetClient) {
+      const sourceSOEClient = this.getSoeClient(sourceClient.soeClientId),
+      targetSOEClient = this.getSoeClient(targetClient.soeClientId);
       sourceName = sourceClient.character.name || "Unknown";
-      sourcePing = sourceClient.avgPing;
+      sourcePing = sourceSOEClient ? sourceSOEClient.avgPing: 0;
       targetName = targetClient.character.name || "Unknown";
-      targetPing = targetClient.avgPing;
+      targetPing = targetSOEClient ? targetSOEClient.avgPing: 0;
     }
     return {
       source: {
