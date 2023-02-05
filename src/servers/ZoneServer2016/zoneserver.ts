@@ -955,7 +955,7 @@ export class ZoneServer2016 extends EventEmitter {
       const loadedWorld = await this.worldDataManager.getServerData(
         this._worldId
       );
-      if (Object.keys(loadedWorld).length) {
+      if (loadedWorld && Object.keys(loadedWorld).length) {
         if (loadedWorld.worldSaveVersion !== this.worldSaveVersion) {
           console.log(
             `World save version mismatch, deleting world data. Current: ${this.worldSaveVersion} Old: ${loadedWorld.worldSaveVersion}`
@@ -968,7 +968,9 @@ export class ZoneServer2016 extends EventEmitter {
       } else {
         await this.worldDataManager.insertWorld(this.lastItemGuid);
       }
-      this.lastItemGuid = BigInt(loadedWorld.lastItemGuid || this.lastItemGuid);
+      this.lastItemGuid = BigInt(
+        loadedWorld?.lastItemGuid || this.lastItemGuid
+      );
       console.time("fetch world data");
       const fetchedWorldData =
         (await this.worldDataManager.fetchWorldData()) as FetchedWorldData;
