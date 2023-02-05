@@ -12,77 +12,87 @@
 // ======================================================================
 
 import dgram from "dgram";
-
-import { parentPort, workerData } from "worker_threads";
+import { expose } from "threads/worker";
+import { parentPort } from "worker_threads";
 
 const debug = require("debug")("UDPserver");
 
-interface Message {
-  type: string;
-  data: { packetData: Buffer; port: number; address: string };
+let remoteRate = 1000;
+const connection = dgram.createSocket("udp4");
+
+connection.once("listening", () => {
+  const { address, port } = connection.address();
+  debug("Listening on " + address + ":" + port);
+  try {
+    connection.setRecvBufferSize(64 * 1024);
+    connection.setSendBufferSize(64 * 1024);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+connection.on("error", (err) => {
+  throw new Error(`server error:\n${err.stack}`);
+});
+
+const remotesRate: { [address: string]: number } = {};
+const packetQueue: UdpPacket[] = [];
+
+connection.on("message", (data, remote) => {
+  if (remotesRate[remote.address]) {
+    remotesRate[remote.address]++;
+    if (remotesRate[remote.address] > remoteRate) {
+      return;
+    }
+  } else {
+    remotesRate[remote.address] = 1;
+  }
+  packetQueue.push({ data, remote });
+});
+
+setInterval(() => {
+  for (const index in remotesRate) {
+    remotesRate[index] = 0;
+  }
+}, 1000);
+
+export interface UdpPacket {
+  data: Uint8Array;
+  remote: any; // TODO
 }
-
-export interface UdpServerWorkerData {
-  serverPort: number;
-  disableAntiDdos: boolean;
+export interface UdpServerWorker {
+  disableAntiDDOS: () => Promise<void>;
+  bind: (port: number) => Promise<void>;
+  close: () => Promise<void>;
+  send: (
+    packetData: WebGLUniformLocation,
+    port: number,
+    address: string
+  ) => Promise<void>;
+  fetchPackets: (max: number) => Promise<UdpPacket[]>;
 }
-if (workerData) {
-  const { serverPort } = workerData;
-  const remoteRate = workerData.disableAntiDdos ? Infinity : 1000;
-  const connection = dgram.createSocket("udp4");
-
-  connection.once("listening", () => {
-    const { address, port } = connection.address();
-    debug("Listening on " + address + ":" + port);
-    try {
-      connection.setRecvBufferSize(64 * 1024);
-      connection.setSendBufferSize(64 * 1024);
-    } catch (error) {
-      console.log(error);
+expose({
+  disableAntiDDOS() {
+    remoteRate = Infinity;
+  },
+  bind(port: number) {
+    connection.bind(port);
+  },
+  close() {
+    connection.close();
+  },
+  send(packetData: Uint8Array, port: number, address: string) {
+    connection.send(packetData, port, address);
+  },
+  fetchPackets(max: number) {
+    const packetsToReturn: UdpPacket[] = [];
+    for (
+      let i = 0;
+      i < (packetQueue.length < max ? packetQueue.length : max);
+      i++
+    ) {
+      packetsToReturn.push(packetQueue.shift() as UdpPacket);
     }
-  });
-
-  connection.on("error", (err) => {
-    throw new Error(`server error:\n${err.stack}`);
-  });
-
-  const remotesRate: { [address: string]: number } = {};
-
-  connection.on("message", (data, remote) => {
-    if (remotesRate[remote.address]) {
-      remotesRate[remote.address]++;
-      if (remotesRate[remote.address] > remoteRate) {
-        return;
-      }
-    } else {
-      remotesRate[remote.address] = 1;
-    }
-
-    parentPort?.postMessage({
-      data: data,
-      remote: remote,
-    });
-  });
-
-  parentPort?.on("message", (message: Message) => {
-    switch (message.type) {
-      case "sendPacket":
-        const { packetData, port, address } = message.data;
-        connection.send(packetData, port, address);
-        break;
-      case "bind":
-        connection.bind(serverPort);
-        break;
-      case "close":
-        connection.close();
-      default:
-        break;
-    }
-  });
-
-  setInterval(() => {
-    for (const index in remotesRate) {
-      remotesRate[index] = 0;
-    }
-  }, 1000);
-}
+    return packetQueue;
+  },
+});

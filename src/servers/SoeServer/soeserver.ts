@@ -16,10 +16,14 @@ import { RemoteInfo } from "dgram";
 import { Soeprotocol } from "h1emu-core";
 import Client, { packetsQueue } from "./soeclient";
 import SOEClient from "./soeclient";
-import { Worker } from "worker_threads";
 import { crc_length_options } from "../../types/soeserver";
 import { LogicalPacket } from "./logicalPacket";
 import { json } from "types/shared";
+import {
+  UdpPacket,
+  UdpServerWorker,
+} from "servers/shared/workers/udpServerWorker";
+import { spawn, Worker } from "threads";
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
@@ -30,7 +34,7 @@ export class SOEServer extends EventEmitter {
   _udpLength: number = 512;
   _useEncryption: boolean = true;
   private _clients: Map<string, SOEClient> = new Map();
-  private _connection: Worker;
+  private _connection!: UdpServerWorker;
   _crcSeed: number = 0;
   _crcLength: crc_length_options = 2;
   _waitQueueTimeMs: number = 50;
@@ -46,22 +50,13 @@ export class SOEServer extends EventEmitter {
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
   _allowRawDataReception: boolean = true;
-  constructor(
-    serverPort: number,
-    cryptoKey: Uint8Array,
-    disableAntiDdos?: boolean
-  ) {
+  private _maxUdpPacketsPerTick: number = Infinity;
+  constructor(serverPort: number, cryptoKey: Uint8Array) {
     super();
     Buffer.poolSize = 8192 * 4;
     this._serverPort = serverPort;
     this._cryptoKey = cryptoKey;
     this._maxMultiBufferSize = this._udpLength - 4 - this._crcLength;
-    this._connection = new Worker(
-      `${__dirname}/../shared/workers/udpServerWorker.js`,
-      {
-        workerData: { serverPort: serverPort, disableAntiDdos },
-      }
-    );
     setInterval(() => {
       this.resetPacketsSent();
     }, 1000);
@@ -80,14 +75,7 @@ export class SOEServer extends EventEmitter {
   private _sendPhysicalPacket(client: Client, packet: Uint8Array): void {
     client.packetsSentThisSec++;
     client.stats.totalPacketSent++;
-    this._connection.postMessage({
-      type: "sendPacket",
-      data: {
-        packetData: packet,
-        port: client.port,
-        address: client.address,
-      },
-    });
+    this._connection.send(packet, client.port, client.address);
   }
 
   private sendOutQueue(client: Client): void {
@@ -114,6 +102,7 @@ export class SOEServer extends EventEmitter {
   }
 
   private soeRoutine(): void {
+    this.handleIncommingUdpPackets();
     for (const client of this._clients.values()) {
       this.soeClientRoutine(client);
     }
@@ -307,7 +296,119 @@ export class SOEServer extends EventEmitter {
     }
   }
 
-  start(crcLength?: crc_length_options, udpLength?: number): void {
+  async handleIncommingUdpPackets() {
+    const udpPackets = await this._connection.fetchPackets(
+      this._maxUdpPacketsPerTick
+    );
+    for (let i = 0; i < udpPackets.length; i++) {
+      const udpPacket = udpPackets[i];
+      this.handleUdpPacket(udpPacket);
+    }
+  }
+
+  handleUdpPacket(packet: UdpPacket) {
+    const data = Buffer.from(packet.data);
+    try {
+      let client: SOEClient;
+      const clientId = packet.remote.address + ":" + packet.remote.port;
+      debug(data.length + " bytes from ", clientId);
+      // if doesn't know the client
+      if (!this._clients.has(clientId)) {
+        if (data[1] !== 1) {
+          return;
+        }
+        client = this._createClient(clientId, packet.remote);
+
+        client.inputStream.on("appdata", (data: Buffer) => {
+          this.emit("appdata", client, data);
+        });
+
+        client.inputStream.on("error", (err: Error) => {
+          console.error(err);
+          this.emit("disconnect", client);
+        });
+
+        client.inputStream.on("ack", (sequence: number) => {
+          client.nextAck.set(sequence);
+        });
+
+        client.inputStream.on("outoforder", (outOfOrderSequence: number) => {
+          client.stats.packetsOutOfOrder++;
+          client.outOfOrderPackets.push(outOfOrderSequence);
+        });
+
+        client.outputStream.on(
+          "data",
+          (
+            data: Buffer,
+            sequence: number,
+            fragment: boolean,
+            unbuffered: boolean
+          ) => {
+            this._sendLogicalPacket(
+              client,
+              fragment ? "DataFragment" : "Data",
+              {
+                sequence: sequence,
+                data: data,
+              },
+              unbuffered
+            );
+          }
+        );
+
+        // the only difference with the event "data" is that resended data is send via the priority queue
+        client.outputStream.on(
+          "dataResend",
+          (data: Buffer, sequence: number, fragment: boolean) => {
+            client.stats.packetResend++;
+            this._sendLogicalPacket(
+              client,
+              fragment ? "DataFragment" : "Data",
+              {
+                sequence: sequence,
+                data: data,
+              }
+            );
+          }
+        );
+      } else {
+        client = this._clients.get(clientId) as SOEClient;
+      }
+      if (data[0] === 0x00) {
+        const raw_parsed_data: string = this._protocol.parse(data);
+        if (raw_parsed_data) {
+          const parsed_data = JSON.parse(raw_parsed_data);
+          if (parsed_data.name === "Error") {
+            console.error(parsed_data.error);
+          } else {
+            this.handlePacket(client, parsed_data);
+          }
+        } else {
+          console.error("Unmanaged packet from client", clientId, data);
+        }
+      } else {
+        if (this._allowRawDataReception) {
+          debug("Raw data received from client", clientId, data);
+          this.emit("appdata", client, data, true); // Unreliable + Unordered
+        } else {
+          debug(
+            "Raw data received from client but raw data reception isn't enabled",
+            clientId,
+            data
+          );
+        }
+      }
+    } catch (e) {
+      console.log(e);
+      process.exitCode = 1;
+    }
+  }
+
+  async start(
+    crcLength?: crc_length_options,
+    udpLength?: number
+  ): Promise<void> {
     if (crcLength !== undefined) {
       this._crcLength = crcLength;
     }
@@ -315,114 +416,19 @@ export class SOEServer extends EventEmitter {
     if (udpLength !== undefined) {
       this._udpLength = udpLength;
     }
+    this._connection = (await spawn(
+      new Worker(`../shared/workers/udpServerWorker.js`)
+    )) as unknown as UdpServerWorker;
     this._soeClientRoutineLoopMethod = setTimeout;
     this._soeClientRoutineLoopMethod(
       () => this.soeRoutine(),
       this._routineTiming
     );
-    this._connection.on("message", (message) => {
-      const data = Buffer.from(message.data);
-      try {
-        let client: SOEClient;
-        const clientId = message.remote.address + ":" + message.remote.port;
-        debug(data.length + " bytes from ", clientId);
-        // if doesn't know the client
-        if (!this._clients.has(clientId)) {
-          if (data[1] !== 1) {
-            return;
-          }
-          client = this._createClient(clientId, message.remote);
-
-          client.inputStream.on("appdata", (data: Buffer) => {
-            this.emit("appdata", client, data);
-          });
-
-          client.inputStream.on("error", (err: Error) => {
-            console.error(err);
-            this.emit("disconnect", client);
-          });
-
-          client.inputStream.on("ack", (sequence: number) => {
-            client.nextAck.set(sequence);
-          });
-
-          client.inputStream.on("outoforder", (outOfOrderSequence: number) => {
-            client.stats.packetsOutOfOrder++;
-            client.outOfOrderPackets.push(outOfOrderSequence);
-          });
-
-          client.outputStream.on(
-            "data",
-            (
-              data: Buffer,
-              sequence: number,
-              fragment: boolean,
-              unbuffered: boolean
-            ) => {
-              this._sendLogicalPacket(
-                client,
-                fragment ? "DataFragment" : "Data",
-                {
-                  sequence: sequence,
-                  data: data,
-                },
-                unbuffered
-              );
-            }
-          );
-
-          // the only difference with the event "data" is that resended data is send via the priority queue
-          client.outputStream.on(
-            "dataResend",
-            (data: Buffer, sequence: number, fragment: boolean) => {
-              client.stats.packetResend++;
-              this._sendLogicalPacket(
-                client,
-                fragment ? "DataFragment" : "Data",
-                {
-                  sequence: sequence,
-                  data: data,
-                }
-              );
-            }
-          );
-        } else {
-          client = this._clients.get(clientId) as SOEClient;
-        }
-        if (data[0] === 0x00) {
-          const raw_parsed_data: string = this._protocol.parse(data);
-          if (raw_parsed_data) {
-            const parsed_data = JSON.parse(raw_parsed_data);
-            if (parsed_data.name === "Error") {
-              console.error(parsed_data.error);
-            } else {
-              this.handlePacket(client, parsed_data);
-            }
-          } else {
-            console.error("Unmanaged packet from client", clientId, data);
-          }
-        } else {
-          if (this._allowRawDataReception) {
-            debug("Raw data received from client", clientId, data);
-            this.emit("appdata", client, data, true); // Unreliable + Unordered
-          } else {
-            debug(
-              "Raw data received from client but raw data reception isn't enabled",
-              clientId,
-              data
-            );
-          }
-        }
-      } catch (e) {
-        console.log(e);
-        process.exitCode = 1;
-      }
-    });
-    this._connection.postMessage({ type: "bind" });
+    this._connection.bind(this._serverPort);
   }
 
   stop(): void {
-    this._connection.postMessage({ type: "close" });
+    this._connection.close();
     process.exitCode = 0;
   }
 
