@@ -293,10 +293,16 @@ export class CraftManager {
         if (!remainingItems) break;
       }
     }
+
     client.character.lootItem(
       server,
       server.generateItem(recipeId, craftCount)
     );
+    if (recipe.leftOverItems) {
+      recipe.leftOverItems.forEach((id: number) => {
+        client.character.lootItem(server, server.generateItem(id, 1));
+      });
+    }
     return true;
     //#endregion
   }

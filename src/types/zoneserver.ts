@@ -243,6 +243,7 @@ export interface Recipe {
   bundleCount?: number;
   components: Array<RecipeComponent>;
   requireWorkbench?: boolean
+  leftOverItems?: number[]
 }
 
 export interface ItemUseOption {
