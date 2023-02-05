@@ -75,6 +75,7 @@ export class SOEServer extends EventEmitter {
   private _sendPhysicalPacket(client: Client, packet: Uint8Array): void {
     client.packetsSentThisSec++;
     client.stats.totalPacketSent++;
+    console.log("soeserver: send")
     this._connection.send(packet, client.port, client.address);
   }
 
@@ -301,6 +302,7 @@ export class SOEServer extends EventEmitter {
       this._maxUdpPacketsPerTick
     );
     for (let i = 0; i < udpPackets.length; i++) {
+      console.log("got a packet")
       const udpPacket = udpPackets[i];
       this.handleUdpPacket(udpPacket);
     }

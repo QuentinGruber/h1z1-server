@@ -82,6 +82,7 @@ expose({
     connection.close();
   },
   send(packetData: Uint8Array, port: number, address: string) {
+    console.log("worker: send")
     connection.send(packetData, port, address);
   },
   fetchPackets(max: number) {
@@ -91,8 +92,9 @@ expose({
       i < (packetQueue.length < max ? packetQueue.length : max);
       i++
     ) {
-      packetsToReturn.push(packetQueue.shift() as UdpPacket);
+      const packet = packetQueue.shift() as UdpPacket
+      packetsToReturn.push(packet);
     }
-    return packetQueue;
+    return packetsToReturn;
   },
 });
