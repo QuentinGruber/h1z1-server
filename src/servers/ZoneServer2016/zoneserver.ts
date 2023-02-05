@@ -6184,12 +6184,22 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefId: item.itemDefinitionId,
       count: count,
     });
-    this.worldObjectManager.createLootEntity(
+    const obj = this.worldObjectManager.createLootEntity(
       this,
       dropItem,
       client.character.state.position,
       new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
     );
+
+    if (!obj) return;
+    this.addLightweightNpc(client, obj);
+    this.sendData(client, "Replication.InteractionComponent", {
+      transientId: obj.transientId,
+    });
+    this.sendData(client, "Replication.NpcComponent", {
+      transientId: obj.transientId,
+      nameId: obj.nameId,
+    });
   }
 
   pickupItem(client: Client, guid: string) {
