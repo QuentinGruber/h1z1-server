@@ -1150,6 +1150,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
   },
   [Items.BANDAGE_DRESSED]: {
     filterId: FilterIds.SURVIVAL,
+    bundleCount: 5,
     components: [
       {
         itemDefinitionId: Items.BANDAGE,
