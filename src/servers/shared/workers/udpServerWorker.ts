@@ -82,7 +82,6 @@ expose({
     connection.close();
   },
   send(packetData: Uint8Array, port: number, address: string) {
-    console.log("worker: send")
     connection.send(packetData, port, address);
   },
   fetchPackets(max: number) {
