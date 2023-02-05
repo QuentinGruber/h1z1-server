@@ -36,6 +36,7 @@ import {
   fixDbTempData,
   getAppDataFolderPath,
   initMongo,
+  isTransferable,
   toBigHex,
 } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
@@ -446,9 +447,11 @@ export class WorldDataManager {
     const charactersSaveData: CharacterUpdateSaveData[] = [];
     for (let i = 0; i < characters.length; i++) {
       const character = characters[i];
-      charactersSaveData.push(
-        this.convertToCharacterSaveData(character, worldId)
-      );
+      const characterSave = this.convertToCharacterSaveData(character, worldId);
+      // TODO: this is a temp solution, a deepclone slow down the save process :(
+      if(isTransferable(characterSave)){
+        charactersSaveData.push(characterSave);
+      }
     }
     return charactersSaveData;
   }
