@@ -828,3 +828,14 @@ export async function fixDbTempData(
   }
   await db?.collection(tempCollection).deleteMany({ serverId: worldId });
 }
+
+export function isTransferable(data: unknown): boolean {
+  try {
+    structuredClone(data);
+    return true;
+  } catch (e) {
+    console.log(`can't clone ${data}`);
+    console.log(e);
+    return false;
+  }
+}
