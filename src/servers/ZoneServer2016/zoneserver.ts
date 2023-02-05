@@ -4215,14 +4215,34 @@ export class ZoneServer2016 extends EventEmitter {
     // for construction entities that don't have a parentObjectCharacterId from the client
     let freeplaceParentCharacterId = "";
 
+    let isInFoundation = false;
+    for (const a in this._constructionFoundations) {
+      const iteratedFoundation = this._constructionFoundations[a];
+      const permissions =
+        iteratedFoundation.permissions[client.character.characterId];
+      if (!permissions || !permissions.build) continue;
+      if (iteratedFoundation.bounds) {
+        if (iteratedFoundation.isInside(position)) isInFoundation = true;
+      }
+    }
+    const allowedIds = [
+      Items.FOUNDATION_EXPANSION,
+      Items.FOUNDATION_RAMP,
+      Items.FOUNDATION_STAIRS,
+    ];
     for (const a in this._constructionFoundations) {
       const foundation = this._constructionFoundations[a];
       let allowBuild = false;
       const permissions = foundation.permissions[client.character.characterId];
       if (permissions && permissions.build) allowBuild = true;
       if (
+        !allowedIds.includes(itemDefinitionId) &&
+        !isInFoundation &&
         isPosInRadius(
-          foundation.actorModelId === 9180 ? 5 : 30,
+          foundation.itemDefinitionId === Items.FOUNDATION ||
+            foundation.itemDefinitionId === Items.GROUND_TAMPER
+            ? 70
+            : 20,
           position,
           foundation.state.position
         ) &&
@@ -4272,7 +4292,7 @@ export class ZoneServer2016 extends EventEmitter {
           isInPoi = true;
       });
       // alow placement in poi if object is parented to a foundation
-      let isInFoundation = false;
+      let isInFoundationPOI = false;
       for (const a in this._constructionFoundations) {
         const iteratedFoundation = this._constructionFoundations[a];
         if (iteratedFoundation.bounds) {
@@ -4281,10 +4301,10 @@ export class ZoneServer2016 extends EventEmitter {
             (iteratedFoundation.characterId == parentObjectCharacterId &&
               isPosInRadius(20, iteratedFoundation.state.position, position))
           )
-            isInFoundation = true;
+            isInFoundationPOI = true;
         }
       }
-      if (isInPoi && !isInFoundation) {
+      if (isInPoi && !isInFoundationPOI) {
         this.sendData(client, "Construction.PlacementFinalizeResponse", {
           status: 0,
           unknownString1: "",
