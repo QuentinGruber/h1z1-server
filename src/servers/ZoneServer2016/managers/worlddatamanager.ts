@@ -449,7 +449,7 @@ export class WorldDataManager {
       const character = characters[i];
       const characterSave = this.convertToCharacterSaveData(character, worldId);
       // TODO: this is a temp solution, a deepclone slow down the save process :(
-      if(isTransferable(characterSave)){
+      if (isTransferable(characterSave)) {
         charactersSaveData.push(characterSave);
       }
     }
