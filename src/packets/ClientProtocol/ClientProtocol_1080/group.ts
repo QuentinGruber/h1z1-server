@@ -168,7 +168,10 @@ export const groupPackets = [
     0x130b, 
     {
       fields: [
-
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }, // X coord?
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 }, // Y coord?
       ]
     }
   ],
@@ -177,7 +180,9 @@ export const groupPackets = [
     0x130c, 
     {
       fields: [
-
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
       ]
     }
   ],
@@ -186,7 +191,8 @@ export const groupPackets = [
     0x130e, 
     {
       fields: [
-
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
       ]
     }
   ],
@@ -195,7 +201,9 @@ export const groupPackets = [
     0x130f, 
     {
       fields: [
-
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
       ]
     }
   ],
@@ -204,7 +212,8 @@ export const groupPackets = [
     0x1310, 
     {
       fields: [
-
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
       ]
     }
   ],
@@ -213,7 +222,9 @@ export const groupPackets = [
     0x1311, 
     {
       fields: [
-
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        { name: "leaveState", type: "boolean", defaultValue: false },
       ]
     }
   ],
@@ -222,7 +233,7 @@ export const groupPackets = [
     0x1312, 
     {
       fields: [
-
+        // todo: massive structure
       ]
     }
   ],
@@ -231,7 +242,7 @@ export const groupPackets = [
     0x1313, 
     {
       fields: [
-
+        // todo: massive structure
       ]
     }
   ],
@@ -240,7 +251,7 @@ export const groupPackets = [
     0x1314, 
     {
       fields: [
-
+        // todo: massive structure
       ]
     }
   ],
@@ -249,7 +260,9 @@ export const groupPackets = [
     0x1316, 
     {
       fields: [
-
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
       ]
     }
   ],
@@ -258,7 +271,16 @@ export const groupPackets = [
     0x1317, 
     {
       fields: [
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "characterId", type: "uint64string", defaultValue: "" },
 
+        // need to write pack func
+        // if unknownDword2 == 4
+        /*
+        { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+        */
       ]
     }
   ],
@@ -267,7 +289,14 @@ export const groupPackets = [
     0x1318, 
     {
       fields: [
-
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        {
+          name: "inviteData",
+          type: "schema",
+          defaultValue: {},
+          fields: inviteDataSchema,
+        },
       ]
     }
   ],
@@ -276,7 +305,9 @@ export const groupPackets = [
     0x1319, 
     {
       fields: [
-
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        // todo: extra dword if dword2 passes some condition
       ]
     }
   ],
@@ -285,7 +316,16 @@ export const groupPackets = [
     0x131a, 
     {
       fields: [
-
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknownArray1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownFloatVector", type: "floatvector3", defaultValue: [0, 0, 0] },
+          ],
+        },
       ]
     }
   ],
@@ -294,7 +334,15 @@ export const groupPackets = [
     0x1323, 
     {
       fields: [
-
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        {
+          name: "inviteData",
+          type: "schema",
+          defaultValue: {},
+          fields: inviteDataSchema,
+        },
       ]
     }
   ],
