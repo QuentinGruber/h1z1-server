@@ -3276,7 +3276,8 @@ export class ZoneServer2016 extends EventEmitter {
       const entity = this._worldSimpleConstruction[characterId];
       if (
         isPosInRadius(
-          entity.npcRenderDistance as number,
+          (entity.npcRenderDistance as number) ||
+            this._charactersRenderDistance,
           client.character.state.position,
           entity.state.position
         )
@@ -3288,7 +3289,8 @@ export class ZoneServer2016 extends EventEmitter {
       const entity = this._worldLootableConstruction[characterId];
       if (
         isPosInRadius(
-          entity.npcRenderDistance as number,
+          (entity.npcRenderDistance as number) ||
+            this._charactersRenderDistance,
           client.character.state.position,
           entity.state.position
         )
