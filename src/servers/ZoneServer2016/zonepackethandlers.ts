@@ -1349,6 +1349,7 @@ export class zonePacketHandlers {
       return;
     }
     const obj: ConstructionPermissions = foundation.permissions[characterId];
+    if(!obj) return;
     switch (packet.data.permissionSlot) {
       case 1:
         obj.build = !obj.build;
