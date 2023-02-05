@@ -1908,7 +1908,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.dismountVehicle(client);
     }
     client.isLoading = true;
-
+    client.characterReleased = false;
     client.character.resetMetrics();
     client.character.isAlive = true;
     client.character.isRunning = false;
