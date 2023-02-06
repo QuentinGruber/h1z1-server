@@ -1597,6 +1597,14 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
 
+    for (const trapKey in this._traps) {
+      const trap = this._traps[trapKey];
+      if (!trap) continue;
+      if (isPosInRadius(5, trap.state.position, position)) {
+        trap.destroy(this);
+      }
+    }
+
     for (const construction in this._constructionSimple) {
       const constructionObject = this._constructionSimple[construction];
       if (
@@ -2288,6 +2296,8 @@ export class ZoneServer2016 extends EventEmitter {
         return EntityTypes.WORLD_CONSTRUCTION_SIMPLE;
       case !!this._plants[entityKey]:
         return EntityTypes.PLANT;
+      case !!this._traps[entityKey]:
+        return EntityTypes.TRAP;
       default:
         return EntityTypes.INVALID;
     }

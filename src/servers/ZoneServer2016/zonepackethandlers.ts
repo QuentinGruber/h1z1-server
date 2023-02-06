@@ -1819,6 +1819,9 @@ export class zonePacketHandlers {
               case EntityTypes.EXPLOSIVE:
                 server.deleteEntity(characterId, server._explosives);
                 break;
+              case EntityTypes.TRAP:
+                server.deleteEntity(characterId, server._traps);
+                break;
               case EntityTypes.CONSTRUCTION_DOOR:
               case EntityTypes.CONSTRUCTION_SIMPLE:
               case EntityTypes.CONSTRUCTION_FOUNDATION:
