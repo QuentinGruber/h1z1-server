@@ -134,6 +134,7 @@ export interface ConstructionParentSaveData
 export interface PlantSaveData
   extends BaseFullEntitySaveData {
     growState: number;
+    nextStateTime: number;
     parentObjectCharacterId: string;
     slot: string;
     item: ItemSaveData;

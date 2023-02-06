@@ -230,9 +230,21 @@ export class zonePacketHandlers {
         client.character.damage(server, { entity: "", damage: damage });
       }
     } else if (vehicle) {
-      vehicle.damage(server, { entity: "", damage: damage / 50 });
-      //server.DTOhit(client, packet);
+      // leave old system with this damage threshold to damage flipped vehicles
+      if (damage > 5000 && damage < 5500) {
+        vehicle.damage(server, { entity: "", damage: damage / 50 });
+      }
     }
+  }
+
+  VehicleCollision(server: ZoneServer2016, client: Client, packet: any) {
+    const characterId: string = server._transientIds[packet.data.transientId],
+      vehicle = characterId ? server._vehicles[characterId] : undefined;
+
+    if (!vehicle) return;
+    const damage = packet.data.damage.toFixed(0);
+    vehicle.damage(server, { entity: "", damage: damage });
+    //server.DTOhit(client, packet);
   }
 
   CommandPointAndReport(server: ZoneServer2016, client: Client, packet: any) {
@@ -520,7 +532,7 @@ export class zonePacketHandlers {
       entity instanceof ConstructionDoor;
     if (
       !isPosInRadius(
-        isConstruction ? 4 : server._interactionDistance,
+        entity.interactionDistance || server._interactionDistance,
         client.character.state.position,
         isConstruction
           ? entity.fixedPosition || entity.state.position
@@ -927,7 +939,7 @@ export class zonePacketHandlers {
       entity instanceof ConstructionDoor;
     if (
       !isPosInRadius(
-        isConstruction ? 4 : server._interactionDistance,
+        entity.interactionDistance || server._interactionDistance,
         client.character.state.position,
         isConstruction
           ? entity.fixedPosition || entity.state.position
@@ -1484,7 +1496,7 @@ export class zonePacketHandlers {
     }
     function handleWeaponPacket(p: any) {
       const weaponItem = client.character.getEquippedWeapon();
-      if (!weaponItem.weapon) return;
+      if (!weaponItem || !weaponItem.weapon) return;
       switch (p.packetName) {
         case "Weapon.FireStateUpdate":
           debug("Weapon.FireStateUpdate");
@@ -1619,56 +1631,18 @@ export class zonePacketHandlers {
                     // repair every object on each expansion
                     Object.values(expansion.occupiedShelterSlots).forEach(
                       (child: ConstructionChildEntity) => {
-                        if (child.health >= 1000000) return;
-                        const damageInfo = {
-                          entity: "",
-                          damage: -50000,
-                        };
-                        child.damage(server, damageInfo);
-                        server.updateResourceToAllWithSpawnedEntity(
-                          child.characterId,
-                          child.health,
-                          ResourceIds.CONSTRUCTION_CONDITION,
-                          ResourceTypes.CONDITION,
-                          server.getConstructionDictionary(child.characterId)
+                        accumulatedItemDamage = server.repairChildEntity(
+                          child,
+                          accumulatedItemDamage
                         );
-                        accumulatedItemDamage += 25;
                       }
                     );
                     Object.values(expansion.occupiedWallSlots).forEach(
                       (child: ConstructionChildEntity | ConstructionDoor) => {
-                        if (child.health >= 1000000) return;
-                        const damageInfo = {
-                          entity: "",
-                          damage: -50000,
-                        };
-                        child.damage(server, damageInfo);
-                        server.updateResourceToAllWithSpawnedEntity(
-                          child.characterId,
-                          child.health,
-                          ResourceIds.CONSTRUCTION_CONDITION,
-                          ResourceTypes.CONDITION,
-                          server.getConstructionDictionary(child.characterId)
+                        accumulatedItemDamage = server.repairChildEntity(
+                          child,
+                          accumulatedItemDamage
                         );
-                        accumulatedItemDamage += 25;
-                      }
-                    );
-                    Object.values(expansion.occupiedUpperWallSlots).forEach(
-                      (child: ConstructionChildEntity) => {
-                        if (child.health >= 1000000) return;
-                        const damageInfo = {
-                          entity: "",
-                          damage: -50000,
-                        };
-                        child.damage(server, damageInfo);
-                        server.updateResourceToAllWithSpawnedEntity(
-                          child.characterId,
-                          child.health,
-                          ResourceIds.CONSTRUCTION_CONDITION,
-                          ResourceTypes.CONDITION,
-                          server.getConstructionDictionary(child.characterId)
-                        );
-                        accumulatedItemDamage += 25;
                       }
                     );
                     Object.values(expansion.freeplaceEntities).forEach(
@@ -1679,19 +1653,8 @@ export class zonePacketHandlers {
                           | LootableConstructionEntity
                       ) => {
                         if (child.health >= 1000000) return;
-                        const damageInfo = {
-                          entity: "",
-                          damage: -50000,
-                        };
-                        child.damage(server, damageInfo);
-                        server.updateResourceToAllWithSpawnedEntity(
-                          child.characterId,
-                          child.health,
-                          ResourceIds.CONSTRUCTION_CONDITION,
-                          ResourceTypes.CONDITION,
-                          server.getConstructionDictionary(child.characterId)
-                        );
-                        accumulatedItemDamage += 25;
+                        server.repairConstruction(child, 50000);
+                        accumulatedItemDamage += 15;
                       }
                     );
                   }
@@ -1699,56 +1662,18 @@ export class zonePacketHandlers {
                 // repair every object on main foundation
                 Object.values(entity.occupiedShelterSlots).forEach(
                   (child: ConstructionChildEntity) => {
-                    if (child.health >= 1000000) return;
-                    const damageInfo = {
-                      entity: "",
-                      damage: -50000,
-                    };
-                    child.damage(server, damageInfo);
-                    server.updateResourceToAllWithSpawnedEntity(
-                      child.characterId,
-                      child.health,
-                      ResourceIds.CONSTRUCTION_CONDITION,
-                      ResourceTypes.CONDITION,
-                      server.getConstructionDictionary(child.characterId)
+                    accumulatedItemDamage = server.repairChildEntity(
+                      child,
+                      accumulatedItemDamage
                     );
-                    accumulatedItemDamage += 25;
                   }
                 );
                 Object.values(entity.occupiedWallSlots).forEach(
                   (child: ConstructionChildEntity | ConstructionDoor) => {
-                    if (child.health >= 1000000) return;
-                    const damageInfo = {
-                      entity: "",
-                      damage: -50000,
-                    };
-                    child.damage(server, damageInfo);
-                    server.updateResourceToAllWithSpawnedEntity(
-                      child.characterId,
-                      child.health,
-                      ResourceIds.CONSTRUCTION_CONDITION,
-                      ResourceTypes.CONDITION,
-                      server.getConstructionDictionary(child.characterId)
+                    accumulatedItemDamage = server.repairChildEntity(
+                      child,
+                      accumulatedItemDamage
                     );
-                    accumulatedItemDamage += 25;
-                  }
-                );
-                Object.values(entity.occupiedUpperWallSlots).forEach(
-                  (child: ConstructionChildEntity) => {
-                    if (child.health >= 1000000) return;
-                    const damageInfo = {
-                      entity: "",
-                      damage: -50000,
-                    };
-                    child.damage(server, damageInfo);
-                    server.updateResourceToAllWithSpawnedEntity(
-                      child.characterId,
-                      child.health,
-                      ResourceIds.CONSTRUCTION_CONDITION,
-                      ResourceTypes.CONDITION,
-                      server.getConstructionDictionary(child.characterId)
-                    );
-                    accumulatedItemDamage += 25;
                   }
                 );
                 Object.values(entity.freeplaceEntities).forEach(
@@ -1759,35 +1684,13 @@ export class zonePacketHandlers {
                       | LootableConstructionEntity
                   ) => {
                     if (child.health >= 1000000) return;
-                    const damageInfo = {
-                      entity: "",
-                      damage: -50000,
-                    };
-                    child.damage(server, damageInfo);
-                    server.updateResourceToAllWithSpawnedEntity(
-                      child.characterId,
-                      child.health,
-                      ResourceIds.CONSTRUCTION_CONDITION,
-                      ResourceTypes.CONDITION,
-                      server.getConstructionDictionary(child.characterId)
-                    );
-                    accumulatedItemDamage += 25;
+                    server.repairConstruction(child, 50000);
+                    accumulatedItemDamage += 15;
                   }
                 );
                 if (entity.health < 1000000) {
-                  const damageInfo = {
-                    entity: "",
-                    damage: -50000,
-                  };
-                  entity.damage(server, damageInfo);
-                  server.updateResourceToAllWithSpawnedEntity(
-                    entity.characterId,
-                    entity.health,
-                    ResourceIds.CONSTRUCTION_CONDITION,
-                    ResourceTypes.CONDITION,
-                    server.getConstructionDictionary(entity.characterId)
-                  );
-                  accumulatedItemDamage += 25;
+                  server.repairConstruction(entity, 50000);
+                  accumulatedItemDamage += 15;
                 }
                 server.damageItem(client, weaponItem, accumulatedItemDamage);
                 client.character.temporaryScrapSoundTimeout = setTimeout(() => {
@@ -1795,20 +1698,9 @@ export class zonePacketHandlers {
                 }, 1000);
                 return;
               }
-              const damageInfo = {
-                entity: "",
-                damage: -50000,
-              };
               accumulatedItemDamage = 50;
-              server.damageItem(client, weaponItem, accumulatedItemDamage);
-              entity.damage(server, damageInfo);
-              server.updateResourceToAllWithSpawnedEntity(
-                entity.characterId,
-                entity.health,
-                ResourceIds.CONSTRUCTION_CONDITION,
-                ResourceTypes.CONDITION,
-                server.getConstructionDictionary(entity.characterId)
-              );
+              server.repairConstruction(entity, 50000);
+              accumulatedItemDamage += 15;
               client.character.temporaryScrapSoundTimeout = setTimeout(() => {
                 delete client.character.temporaryScrapSoundTimeout;
               }, 1000);
@@ -1900,10 +1792,9 @@ export class zonePacketHandlers {
             return;
           }
           client.allowedProjectiles--;
-          if (
-            client.character.getEquippedWeapon().itemDefinitionId ==
-            Items.WEAPON_REMOVER
-          ) {
+          const weapon = client.character.getEquippedWeapon();
+          if (!weapon) return;
+          if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
             if (!client.isAdmin) return;
             const characterId = p.packet.hitReport.characterId,
               entityType = server.getEntityType(characterId);
@@ -1926,6 +1817,9 @@ export class zonePacketHandlers {
                 break;
               case EntityTypes.EXPLOSIVE:
                 server.deleteEntity(characterId, server._explosives);
+                break;
+              case EntityTypes.TRAP:
+                server.deleteEntity(characterId, server._traps);
                 break;
               case EntityTypes.CONSTRUCTION_DOOR:
               case EntityTypes.CONSTRUCTION_SIMPLE:
@@ -1984,11 +1878,13 @@ export class zonePacketHandlers {
             weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE ||
             weaponItem.itemDefinitionId == Items.WEAPON_BOW_WOOD
           ) {
+            const currentWeapon = client.character.getEquippedWeapon();
             if (
-              client.character.getEquippedWeapon().itemGuid !=
-              weaponItem.itemGuid
-            )
+              !currentWeapon ||
+              currentWeapon.itemGuid != weaponItem.itemGuid
+            ) {
               return;
+            }
             const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
               reserveAmmo = // how much ammo is in inventory
                 client.character.getInventoryItemAmount(weaponAmmoId),
@@ -2000,13 +1896,11 @@ export class zonePacketHandlers {
             ) {
               return;
             }
-            server.sendWeaponData(client, "Weapon.Reload", {
-              weaponGuid: p.packet.characterId,
-              unknownDword1: maxAmmo,
-              ammoCount: (weaponItem.weapon.ammoCount += reloadAmount),
-              unknownDword3: maxAmmo,
-              currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
-            });
+            server.sendWeaponReload(
+              client,
+              weaponItem,
+              (weaponItem.weapon.ammoCount += reloadAmount)
+            );
             return;
           }
           //#region SHOTGUN ONLY
@@ -2024,15 +1918,7 @@ export class zonePacketHandlers {
                   !server.removeInventoryItems(client, weaponAmmoId, 1)) ||
                 ++weaponItem.weapon.ammoCount == maxAmmo
               ) {
-                server.sendWeaponData(client, "Weapon.Reload", {
-                  weaponGuid: p.packet.characterId,
-                  unknownDword1: maxAmmo,
-                  ammoCount: weaponItem.weapon.ammoCount,
-                  unknownDword3: maxAmmo,
-                  currentReloadCount: toHex(
-                    ++weaponItem.weapon.currentReloadCount
-                  ),
-                });
+                server.sendWeaponReload(client, weaponItem);
                 server.sendRemoteWeaponUpdateDataToAllOthers(
                   client,
                   client.character.transientId,
@@ -2045,17 +1931,9 @@ export class zonePacketHandlers {
                 client.character.clearReloadTimeout();
                 return;
               }
-              if (!(reserveAmmo - 1)) {
+              if (reserveAmmo - 1 < 0) {
                 // updated reserve ammo
-                server.sendWeaponData(client, "Weapon.Reload", {
-                  weaponGuid: p.packet.characterId,
-                  unknownDword1: maxAmmo,
-                  ammoCount: weaponItem.weapon.ammoCount,
-                  unknownDword3: maxAmmo,
-                  currentReloadCount: toHex(
-                    ++weaponItem.weapon.currentReloadCount
-                  ),
-                });
+                server.sendWeaponReload(client, weaponItem);
                 server.sendRemoteWeaponUpdateDataToAllOthers(
                   client,
                   client.character.transientId,
@@ -2074,12 +1952,14 @@ export class zonePacketHandlers {
           }
           //#endregion
           weaponItem.weapon.reloadTimer = setTimeout(() => {
+            const currentWeapon = client.character.getEquippedWeapon();
             if (
               !weaponItem.weapon?.reloadTimer ||
-              client.character.getEquippedWeapon().itemGuid !=
-                weaponItem.itemGuid
-            )
+              !currentWeapon ||
+              currentWeapon.itemGuid != weaponItem.itemGuid
+            ) {
               return;
+            }
             const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
               reserveAmmo = // how much ammo is in inventory
                 client.character.getInventoryItemAmount(weaponAmmoId),
@@ -2091,13 +1971,11 @@ export class zonePacketHandlers {
             ) {
               return;
             }
-            server.sendWeaponData(client, "Weapon.Reload", {
-              weaponGuid: p.packet.characterId,
-              unknownDword1: maxAmmo,
-              ammoCount: (weaponItem.weapon.ammoCount += reloadAmount),
-              unknownDword3: maxAmmo,
-              currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
-            });
+            server.sendWeaponReload(
+              client,
+              weaponItem,
+              (weaponItem.weapon.ammoCount += reloadAmount)
+            );
             client.character.clearReloadTimeout();
           }, reloadTime);
 
@@ -2217,6 +2095,9 @@ export class zonePacketHandlers {
         break;
       case "Collision.Damage":
         this.CollisionDamage(server, client, packet);
+        break;
+      case "VehicleCollision":
+        this.VehicleCollision(server, client, packet);
         break;
       case "LobbyGameDefinition.DefinitionsRequest":
         this.LobbyGameDefinitionDefinitionsRequest(server, client, packet);

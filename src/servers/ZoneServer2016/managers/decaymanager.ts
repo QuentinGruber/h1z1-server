@@ -21,7 +21,7 @@ import { ConstructionParentEntity } from "../entities/constructionparententity";
 export class DecayManager {
   loopTime = 1200000; // 20 min
   currentTicksCount = 0; // used to run structure damaging once every x loops
-  requiredTicksToDamage = 12; // damage structures once every 12 hours
+  requiredTicksToDamage = 36; // damage structures once every 12 hours
 
   public async run(server: ZoneServer2016) {
     this.contructionExpirationCheck(server);
@@ -102,6 +102,11 @@ export class DecayManager {
       entity: "",
       damage: 125000,
     });
+    if (entity.health <= 0) {
+      entity.destroy(server);
+      return;
+    }
+    if (!dictionary[entity.characterId]) return;
     server.updateResourceToAllWithSpawnedEntity(
       entity.characterId,
       entity.health,
@@ -109,8 +114,6 @@ export class DecayManager {
       ResourceTypes.CONDITION,
       dictionary
     );
-    if (entity.health > 0) return;
-    entity.destroy(server);
   }
 
   private contructionDecayDamage(server: ZoneServer2016) {
@@ -124,7 +127,8 @@ export class DecayManager {
       const foundation = server._constructionFoundations[a];
       if (
         foundation.itemDefinitionId != Items.FOUNDATION &&
-        foundation.itemDefinitionId != Items.GROUND_TAMPER
+        foundation.itemDefinitionId != Items.GROUND_TAMPER &&
+        foundation.itemDefinitionId != Items.FOUNDATION_EXPANSION
       ) {
         this.decayDamage(server, foundation);
       }
@@ -140,19 +144,40 @@ export class DecayManager {
       );
       Object.values(foundation.occupiedShelterSlots).forEach(
         (entity: ConstructionDoor | ConstructionChildEntity) => {
-          this.decayDamage(server, entity);
+          if (entity instanceof ConstructionChildEntity) {
+            this.decayChildEntity(server, entity);
+          }
         }
       );
       Object.values(foundation.occupiedWallSlots).forEach(
         (entity: ConstructionDoor | ConstructionChildEntity) => {
-          this.decayDamage(server, entity);
-        }
-      );
-      Object.values(foundation.occupiedUpperWallSlots).forEach(
-        (entity: ConstructionDoor | ConstructionChildEntity) => {
-          this.decayDamage(server, entity);
+          this.decayChildEntity(server, entity);
         }
       );
     }
+  }
+
+  private decayChildEntity(
+    server: ZoneServer2016,
+    entity: ConstructionChildEntity | ConstructionDoor
+  ) {
+    if (entity instanceof ConstructionChildEntity) {
+      Object.values(entity.occupiedShelterSlots).forEach(
+        (slot: ConstructionChildEntity) => {
+          this.decayChildEntity(server, slot);
+        }
+      );
+      Object.values(entity.occupiedWallSlots).forEach(
+        (wall: ConstructionDoor | ConstructionChildEntity) => {
+          this.decayDamage(server, wall);
+        }
+      );
+      Object.values(entity.occupiedUpperWallSlots).forEach(
+        (slot: ConstructionDoor | ConstructionChildEntity) => {
+          this.decayDamage(server, slot);
+        }
+      );
+    }
+    this.decayDamage(server, entity);
   }
 }

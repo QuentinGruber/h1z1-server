@@ -186,17 +186,20 @@ export class LoginServer extends EventEmitter {
                       `Received session request from ${client.address}:${client.port}`
                     );
                     let status = 0;
-                    const { serverAddress: fullServerAddress } = await this._db
+                    const server = await this._db
                       .collection(DB_COLLECTIONS.SERVERS)
                       .findOne({ serverId: serverId });
-                    const serverAddress = fullServerAddress.split(":")[0];
-                    if (serverAddress) {
-                      const resolvedServerAddress = await resolveHostAddress(
-                        this._resolver,
-                        serverAddress
-                      );
-                      if (resolvedServerAddress.includes(client.address)) {
-                        status = 1;
+                    if (server) {
+                      const fullServerAddress = server.serverAddress;
+                      const serverAddress = fullServerAddress.split(":")[0];
+                      if (serverAddress) {
+                        const resolvedServerAddress = await resolveHostAddress(
+                          this._resolver,
+                          serverAddress
+                        );
+                        if (resolvedServerAddress.includes(client.address)) {
+                          status = 1;
+                        }
                       }
                     }
                     if (status === 1) {

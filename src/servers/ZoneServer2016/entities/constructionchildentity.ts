@@ -89,6 +89,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly fixedPosition?: Float32Array;
   placementTime = Date.now();
   readonly bounds?: SquareBounds;
+  undoPlacementTime = 600000;
+  interactionDistance = 4;
 
   // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
   readonly wallSlots: ConstructionSlotPositionMap = {};
@@ -484,7 +486,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         client.character.characterId,
         ConstructionPermissionIds.BUILD
       ) &&
-      Date.now() < this.placementTime + 120000 &&
+      Date.now() < this.placementTime + this.undoPlacementTime &&
       client.character.getEquippedWeapon().itemDefinitionId ==
         Items.WEAPON_HAMMER_DEMOLITION
     );

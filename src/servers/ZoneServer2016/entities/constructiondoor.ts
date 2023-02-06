@@ -84,6 +84,10 @@ export class ConstructionDoor extends DoorEntity {
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
     this.grantedAccess.push(ownerCharacterId);
     this.npcRenderDistance = 350;
+    switch (this.itemDefinitionId) {
+      case Items.METAL_GATE:
+        this.interactionDistance = 5;
+    }
   }
 
   pGetConstructionHealth() {
