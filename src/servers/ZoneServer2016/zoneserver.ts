@@ -168,7 +168,7 @@ export class ZoneServer2016 extends EventEmitter {
   _db!: Db;
   _soloMode = false;
   _useFairPlay = true;
-  _maxPing = 200;
+  maxPing = 200;
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
@@ -7189,8 +7189,8 @@ export class ZoneServer2016 extends EventEmitter {
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
       const ping = soeClient.avgPing;
-      client.zonePings.push(ping > 600 ? 600 : ping); // dont push values higher than 600, that would increase averate value drasticaly
-      if (ping >= this._maxPing) {
+      client.zonePings.push(ping > 600 ? 600 : ping); // dont push values higher than 600, that would increase average value drasticaly
+      if (ping >= this.maxPing) {
         this.sendAlert(
           client,
           `Your ping is very high: ${ping}. You may be kicked soon`
@@ -7199,7 +7199,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (client.zonePings.length >= 10) {
         const averagePing =
           client.zonePings.reduce((a, b) => a + b, 0) / client.zonePings.length;
-        if (averagePing >= this._maxPing) {
+        if (averagePing >= this.maxPing) {
           this.kickPlayer(client);
           this.sendChatTextToAdmins(
             `${client.character.name} has been been kicked for average ping: ${averagePing}`
