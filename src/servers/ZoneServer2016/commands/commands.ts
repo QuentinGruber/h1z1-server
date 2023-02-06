@@ -1511,7 +1511,7 @@ export const commands: Array<Command> = [
         );
         return;
       }
-      const name = args.join(" ").toString().toLowerCase();
+      const name = args.join(" ").toString();
       const bannedClient = (
         await server._db
           ?.collection(DB_COLLECTIONS.BANNED)
