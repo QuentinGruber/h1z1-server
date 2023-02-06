@@ -168,6 +168,7 @@ export class ZoneServer2016 extends EventEmitter {
   _db!: Db;
   _soloMode = false;
   _useFairPlay = true;
+  _maxPing = 200;
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
@@ -7151,6 +7152,7 @@ export class ZoneServer2016 extends EventEmitter {
       const client = this._clients[a];
       if (!client.isLoading) {
         client.routineCounter++;
+        this.checkZonePing(client);
         if (client.routineCounter >= 3) {
           this.assignChunkRenderDistance(client);
           this.removeOutOfDistanceEntities(client);
@@ -7181,6 +7183,32 @@ export class ZoneServer2016 extends EventEmitter {
     this.worldConstructionManager(client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;
+  }
+
+  checkZonePing(client: Client) {
+    const soeClient = this.getSoeClient(client.soeClientId);
+    if (soeClient) {
+      const ping = soeClient.avgPing;
+      client.zonePings.push(ping);
+      if (ping >= this._maxPing) {
+        this.sendAlert(
+          client,
+          `Your ping is very high: ${ping}. You may be kicked soon`
+        );
+      }
+      if (client.zonePings.length >= 10) {
+        const averagePing =
+          client.zonePings.reduce((a, b) => a + b, 0) / client.zonePings.length;
+        if (averagePing >= this._maxPing) {
+          this.kickPlayer(client);
+          this.sendChatTextToAdmins(
+            `${client.character.name} has been been kicked for average ping: ${averagePing}`
+          );
+          return;
+        }
+        client.zonePings.splice(0, 1); // remove oldest ping val
+      }
+    }
   }
 
   private _sendDataToAll(
