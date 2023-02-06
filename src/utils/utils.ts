@@ -787,7 +787,7 @@ export async function resolveHostAddress(
         console.log(
           `Failed to resolve ${hostName} as an host name, it will be used as an IP`
         );
-        return [hostName]; // if it can't resolve it, assume that's an IPV4 / IPV6 not an hostname
+        resolve([hostName]); // if it can't resolve it, assume that's an IPV4 / IPV6 not an hostname
       }
     });
   });
