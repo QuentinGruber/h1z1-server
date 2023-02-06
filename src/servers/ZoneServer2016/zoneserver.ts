@@ -7189,7 +7189,7 @@ export class ZoneServer2016 extends EventEmitter {
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
       const ping = soeClient.avgPing;
-      client.zonePings.push(ping);
+      client.zonePings.push(ping > 600 ? 600 : ping); // dont push values higher than 600, that would increase averate value drasticaly
       if (ping >= this._maxPing) {
         this.sendAlert(
           client,
