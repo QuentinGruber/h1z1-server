@@ -6748,7 +6748,7 @@ export class ZoneServer2016 extends EventEmitter {
       const smeltable = this._lootableConstruction[a];
       if (
         isPosInRadius(
-          1,
+          1.5,
           client.character.state.position,
           smeltable.state.position
         )
@@ -6768,7 +6768,6 @@ export class ZoneServer2016 extends EventEmitter {
                 effectId: smeltable.subEntity.workingEffect,
               }
             );
-            return;
           }
         }
       }
@@ -6777,7 +6776,7 @@ export class ZoneServer2016 extends EventEmitter {
       const smeltable = this._worldLootableConstruction[a];
       if (
         isPosInRadius(
-          1,
+          1.5,
           client.character.state.position,
           smeltable.state.position
         )
@@ -6797,7 +6796,6 @@ export class ZoneServer2016 extends EventEmitter {
                 effectId: smeltable.subEntity.workingEffect,
               }
             );
-            return;
           }
         }
       }
