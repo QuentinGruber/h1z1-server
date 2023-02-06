@@ -26,6 +26,7 @@ export class WeatherManager {
   windStrength = 0;
   temperature = 80;
   fogEnabled = 1;
+  fogAllowed = false;
   seasonStarted = false;
   constructor() {
     this.seasonstart();
@@ -169,26 +170,19 @@ export class WeatherManager {
       default:
         break;
     }
-
     switch (
       currentHour // switch for enabling weather effects based by in-game time
     ) {
       case 1: // start deteriorating fog (fog values wont go below 0 so no need for check if fog was turned on)
+        this.fog = 0;
+        this.fogAllowed = false;
         break;
       case 2: // Determine weather for next day cycle (sunny,cloudy etc)
         if (!this.weatherChoosen) {
           this.chooseWeather();
         }
-        const fogtogglechance = randomIntFromInterval(0, 100);
-        if (!this.fogChecked) {
-          if (fogtogglechance <= 75) {
-            this.fog = 0;
-          }
-          this.fogChecked = true;
-        }
         break;
       case 3: //
-        this.fogChecked = false;
         this.weatherChoosen = false;
         break;
       /*case 4: // start accumulating rain clouds and start rain with a random delay (after clouds accululated) if matched %chance
@@ -224,6 +218,19 @@ export class WeatherManager {
             }
             break;*/
       case 19: // start accumulating fog if matching %chance
+        const fogtogglechance = randomIntFromInterval(0, 100);
+        if (!this.fogChecked) {
+          if (fogtogglechance <= 65) {
+            this.fog = 0;
+            this.fogAllowed = false;
+          } else {
+            this.fogAllowed = true;
+          }
+          this.fogChecked = true;
+        }
+        break;
+      case 20:
+        this.fogChecked = false;
         break;
       default:
         break;
@@ -232,7 +239,7 @@ export class WeatherManager {
       // do nothing
     } else if (this.fogValue > this.fog) {
       this.fogValue--;
-    } else {
+    } else if (this.fogAllowed) {
       this.fogValue++;
     }
     if (this.skyColorValue == this.skyColor) {

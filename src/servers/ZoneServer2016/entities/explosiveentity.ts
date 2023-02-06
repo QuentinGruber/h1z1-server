@@ -109,7 +109,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
       for (const a in server._vehicles) {
         if (
           getDistance(server._vehicles[a].state.position, this.state.position) <
-          2.2
+          1.8
         ) {
           this.detonate(server);
           return;

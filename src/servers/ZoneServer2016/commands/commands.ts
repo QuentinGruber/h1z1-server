@@ -1667,6 +1667,22 @@ export const commands: Array<Command> = [
         }
       }
 
+      for (const a in server._traps) {
+        const construction = server._traps[a];
+        if (
+          isPosInRadius(
+            Number(args[0]),
+            client.character.state.position,
+            construction.state.position
+          )
+        ) {
+          entitiesToDelete.push({
+            characterId: construction.characterId,
+            dictionary: server._traps,
+          });
+        }
+      }
+
       for (const a in server._plants) {
         const construction = server._plants[a];
         if (

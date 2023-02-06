@@ -230,9 +230,21 @@ export class zonePacketHandlers {
         client.character.damage(server, { entity: "", damage: damage });
       }
     } else if (vehicle) {
-      vehicle.damage(server, { entity: "", damage: damage / 50 });
-      //server.DTOhit(client, packet);
+      // leave old system with this damage threshold to damage flipped vehicles
+      if (damage > 5000 && damage < 5500) {
+        vehicle.damage(server, { entity: "", damage: damage / 50 });
+      }
     }
+  }
+
+  VehicleCollision(server: ZoneServer2016, client: Client, packet: any) {
+    const characterId: string = server._transientIds[packet.data.transientId],
+      vehicle = characterId ? server._vehicles[characterId] : undefined;
+
+    if (!vehicle) return;
+    const damage = packet.data.damage.toFixed(0);
+    vehicle.damage(server, { entity: "", damage: damage });
+    //server.DTOhit(client, packet);
   }
 
   CommandPointAndReport(server: ZoneServer2016, client: Client, packet: any) {
@@ -1806,6 +1818,9 @@ export class zonePacketHandlers {
               case EntityTypes.EXPLOSIVE:
                 server.deleteEntity(characterId, server._explosives);
                 break;
+              case EntityTypes.TRAP:
+                server.deleteEntity(characterId, server._traps);
+                break;
               case EntityTypes.CONSTRUCTION_DOOR:
               case EntityTypes.CONSTRUCTION_SIMPLE:
               case EntityTypes.CONSTRUCTION_FOUNDATION:
@@ -2080,6 +2095,9 @@ export class zonePacketHandlers {
         break;
       case "Collision.Damage":
         this.CollisionDamage(server, client, packet);
+        break;
+      case "VehicleCollision":
+        this.VehicleCollision(server, client, packet);
         break;
       case "LobbyGameDefinition.DefinitionsRequest":
         this.LobbyGameDefinitionDefinitionsRequest(server, client, packet);

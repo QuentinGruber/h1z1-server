@@ -61,8 +61,10 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     this.defaultLoadout = lootableContainerDefaultLoadouts.storage;
     if (subEntityType === "SmeltingEntity") {
       this.subEntity = new SmeltingEntity(this, server);
+      this.npcRenderDistance = 250;
     } else if (subEntityType === "CollectingEntity") {
       this.subEntity = new CollectingEntity(this, server);
+      this.npcRenderDistance = 250;
     } else {
       this.npcRenderDistance = 20;
     }

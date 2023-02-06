@@ -1604,6 +1604,14 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
 
+    for (const trapKey in this._traps) {
+      const trap = this._traps[trapKey];
+      if (!trap) continue;
+      if (isPosInRadius(5, trap.state.position, position)) {
+        trap.destroy(this);
+      }
+    }
+
     for (const construction in this._constructionSimple) {
       const constructionObject = this._constructionSimple[construction];
       if (
@@ -1917,7 +1925,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.dismountVehicle(client);
     }
     client.isLoading = true;
-
+    client.characterReleased = false;
     client.character.resetMetrics();
     client.character.isAlive = true;
     client.character.isRunning = false;
@@ -2298,6 +2306,8 @@ export class ZoneServer2016 extends EventEmitter {
         return EntityTypes.WORLD_CONSTRUCTION_SIMPLE;
       case !!this._plants[entityKey]:
         return EntityTypes.PLANT;
+      case !!this._traps[entityKey]:
+        return EntityTypes.TRAP;
       default:
         return EntityTypes.INVALID;
     }
@@ -2788,16 +2798,20 @@ export class ZoneServer2016 extends EventEmitter {
     foundation: ConstructionParentEntity
   ): boolean {
     // under foundation check
+    const permissions = foundation.permissions[client.character.characterId];
     if (
       foundation.itemDefinitionId == Items.FOUNDATION ||
       foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
     ) {
       if (foundation.isUnder(client.character.state.position))
-        this.tpPlayerOutsideFoundation(client, foundation, true);
+        if (permissions && permissions.visit) {
+          this.tpPlayerOutsideFoundation(client, foundation, true);
+        } else {
+          this.tpPlayerOutsideFoundation(client, foundation, false);
+        }
     }
     if (!foundation.isSecured) return false;
     let allowed = false;
-    const permissions = foundation.permissions[client.character.characterId];
     if (permissions && permissions.visit) allowed = true;
     if (
       foundation.itemDefinitionId == Items.SHACK ||
@@ -2928,41 +2942,22 @@ export class ZoneServer2016 extends EventEmitter {
       });
       return;
     }
-    let protectedRadius: number;
-    switch (foundation.itemDefinitionId) {
-      case Items.FOUNDATION:
-        protectedRadius = 14;
-        break;
-      case Items.FOUNDATION_EXPANSION:
-        protectedRadius = 9.2;
-        break;
-      case Items.GROUND_TAMPER:
-        protectedRadius = 16;
-        break;
-      default:
-        protectedRadius = 14;
-    }
-    const distance =
-      protectedRadius -
-      getDistance(foundation.state.position, client.character.state.position);
-    const newPos = movePoint(
-      client.character.state.position,
-      currentAngle,
-      distance
-    );
+    const newPos = movePoint(client.character.state.position, currentAngle, 1);
     this.sendChatText(client, "Construction: no visitor permission");
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
     }
+    client.character.state.position = new Float32Array([
+      newPos[0],
+      client.character.state.position[1],
+      newPos[2],
+      1,
+    ]);
     this.sendData(client, "ClientUpdate.UpdateLocation", {
-      position: [
-        newPos[0],
-        client.character.state.position[1] + 1,
-        newPos[2],
-        1,
-      ],
+      position: client.character.state.position,
       triggerLoadingScreen: false,
     });
+    this.checkFoundationPermission(client, foundation);
   }
 
   /*private npcManager(client: Client) {
@@ -3289,7 +3284,8 @@ export class ZoneServer2016 extends EventEmitter {
       const entity = this._worldSimpleConstruction[characterId];
       if (
         isPosInRadius(
-          entity.npcRenderDistance as number,
+          (entity.npcRenderDistance as number) ||
+            this._charactersRenderDistance,
           client.character.state.position,
           entity.state.position
         )
@@ -3301,7 +3297,8 @@ export class ZoneServer2016 extends EventEmitter {
       const entity = this._worldLootableConstruction[characterId];
       if (
         isPosInRadius(
-          entity.npcRenderDistance as number,
+          (entity.npcRenderDistance as number) ||
+            this._charactersRenderDistance,
           client.character.state.position,
           entity.state.position
         )
@@ -4228,14 +4225,34 @@ export class ZoneServer2016 extends EventEmitter {
     // for construction entities that don't have a parentObjectCharacterId from the client
     let freeplaceParentCharacterId = "";
 
+    let isInFoundation = false;
+    for (const a in this._constructionFoundations) {
+      const iteratedFoundation = this._constructionFoundations[a];
+      const permissions =
+        iteratedFoundation.permissions[client.character.characterId];
+      if (!permissions || !permissions.build) continue;
+      if (iteratedFoundation.bounds) {
+        if (iteratedFoundation.isInside(position)) isInFoundation = true;
+      }
+    }
+    const allowedIds = [
+      Items.FOUNDATION_EXPANSION,
+      Items.FOUNDATION_RAMP,
+      Items.FOUNDATION_STAIRS,
+    ];
     for (const a in this._constructionFoundations) {
       const foundation = this._constructionFoundations[a];
       let allowBuild = false;
       const permissions = foundation.permissions[client.character.characterId];
       if (permissions && permissions.build) allowBuild = true;
       if (
+        !allowedIds.includes(itemDefinitionId) &&
+        !isInFoundation &&
         isPosInRadius(
-          foundation.actorModelId === 9180 ? 5 : 30,
+          foundation.itemDefinitionId === Items.FOUNDATION ||
+            foundation.itemDefinitionId === Items.GROUND_TAMPER
+            ? 70
+            : 20,
           position,
           foundation.state.position
         ) &&
@@ -4285,7 +4302,7 @@ export class ZoneServer2016 extends EventEmitter {
           isInPoi = true;
       });
       // alow placement in poi if object is parented to a foundation
-      let isInFoundation = false;
+      let isInFoundationPOI = false;
       for (const a in this._constructionFoundations) {
         const iteratedFoundation = this._constructionFoundations[a];
         if (iteratedFoundation.bounds) {
@@ -4294,10 +4311,10 @@ export class ZoneServer2016 extends EventEmitter {
             (iteratedFoundation.characterId == parentObjectCharacterId &&
               isPosInRadius(20, iteratedFoundation.state.position, position))
           )
-            isInFoundation = true;
+            isInFoundationPOI = true;
         }
       }
-      if (isInPoi && !isInFoundation) {
+      if (isInPoi && !isInFoundationPOI) {
         this.sendData(client, "Construction.PlacementFinalizeResponse", {
           status: 0,
           unknownString1: "",
@@ -6770,7 +6787,7 @@ export class ZoneServer2016 extends EventEmitter {
       const smeltable = this._lootableConstruction[a];
       if (
         isPosInRadius(
-          1,
+          1.5,
           client.character.state.position,
           smeltable.state.position
         )
@@ -6790,7 +6807,6 @@ export class ZoneServer2016 extends EventEmitter {
                 effectId: smeltable.subEntity.workingEffect,
               }
             );
-            return;
           }
         }
       }
@@ -6799,7 +6815,7 @@ export class ZoneServer2016 extends EventEmitter {
       const smeltable = this._worldLootableConstruction[a];
       if (
         isPosInRadius(
-          1,
+          1.5,
           client.character.state.position,
           smeltable.state.position
         )
@@ -6819,7 +6835,6 @@ export class ZoneServer2016 extends EventEmitter {
                 effectId: smeltable.subEntity.workingEffect,
               }
             );
-            return;
           }
         }
       }

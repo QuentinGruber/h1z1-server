@@ -102,6 +102,11 @@ export class DecayManager {
       entity: "",
       damage: 125000,
     });
+    if (entity.health <= 0) {
+      entity.destroy(server);
+      return;
+    }
+    if (!dictionary[entity.characterId]) return;
     server.updateResourceToAllWithSpawnedEntity(
       entity.characterId,
       entity.health,
@@ -109,8 +114,6 @@ export class DecayManager {
       ResourceTypes.CONDITION,
       dictionary
     );
-    if (entity.health > 0) return;
-    entity.destroy(server);
   }
 
   private contructionDecayDamage(server: ZoneServer2016) {
