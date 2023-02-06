@@ -4231,22 +4231,21 @@ export class ZoneServer2016 extends EventEmitter {
       const permissions =
         iteratedFoundation.permissions[client.character.characterId];
       if (!permissions || !permissions.build) continue;
+      if (iteratedFoundation.characterId == parentObjectCharacterId) {
+        isInFoundation = true;
+        break;
+      }
       if (iteratedFoundation.bounds) {
         if (iteratedFoundation.isInside(position)) isInFoundation = true;
       }
     }
-    const allowedIds = [
-      Items.FOUNDATION_EXPANSION,
-      Items.FOUNDATION_RAMP,
-      Items.FOUNDATION_STAIRS,
-    ];
+
     for (const a in this._constructionFoundations) {
       const foundation = this._constructionFoundations[a];
       let allowBuild = false;
       const permissions = foundation.permissions[client.character.characterId];
       if (permissions && permissions.build) allowBuild = true;
       if (
-        !allowedIds.includes(itemDefinitionId) &&
         !isInFoundation &&
         isPosInRadius(
           foundation.itemDefinitionId === Items.FOUNDATION ||
