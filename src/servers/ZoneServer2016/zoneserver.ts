@@ -7201,7 +7201,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkZonePing(client: Client) {
-    if (Number(client.character.lastLoginDate) + 30000 > new Date().getTime()) return
+    if (Number(client.character.lastLoginDate) + 30000 > new Date().getTime())
+      return;
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
       const ping = soeClient.avgPing;

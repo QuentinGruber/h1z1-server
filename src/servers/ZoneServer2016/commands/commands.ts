@@ -20,7 +20,7 @@ import {
   _,
   getDifference,
   isPosInRadius,
-  toHex
+  toHex,
 } from "../../../utils/utils";
 import { ExplosiveEntity } from "../entities/explosiveentity";
 import { Npc } from "../entities/npc";
