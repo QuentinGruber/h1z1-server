@@ -91,6 +91,7 @@ import {
   isInsideSquare,
   getDifference,
   logClientActionToMongo,
+  removeUntransferableFields,
 } from "../../utils/utils";
 
 import { Collection, Db } from "mongodb";
@@ -1025,23 +1026,24 @@ export class ZoneServer2016 extends EventEmitter {
       );
       const worldConstructions: LootableConstructionSaveData[] = [];
       Object.values(this._worldLootableConstruction).forEach((entity) => {
-        worldConstructions.push(
+        const lootableConstructionSaveData =
           WorldDataManager.getLootableConstructionSaveData(
             entity,
             this._worldId
-          )
-        );
+          );
+        removeUntransferableFields(lootableConstructionSaveData);
+        worldConstructions.push(lootableConstructionSaveData);
       });
       const constructions: ConstructionParentSaveData[] = [];
 
       Object.values(this._constructionFoundations).forEach((entity) => {
         if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
-          constructions.push(
-            WorldDataManager.getConstructionParentSaveData(
-              entity,
-              this._worldId
-            )
+          const construction = WorldDataManager.getConstructionParentSaveData(
+            entity,
+            this._worldId
           );
+          // isTransferable(construction) too complex will run on max recursive call error
+          constructions.push(construction);
         }
       });
       const crops: PlantingDiameterSaveData[] = [];
