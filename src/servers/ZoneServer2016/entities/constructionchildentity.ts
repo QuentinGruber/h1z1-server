@@ -22,14 +22,14 @@ function getRenderDistance(itemDefinitionId: number) {
     case Items.WORKBENCH_WEAPON:
     case Items.BEE_BOX:
     case Items.DEW_COLLECTOR:
-      range = 250;
+      range = 100;
       break;
     case Items.STORAGE_BOX:
     case Items.ANIMAL_TRAP:
       range = 20;
       break;
     default:
-      range = 350;
+      range = 300;
       break;
   }
   return range;

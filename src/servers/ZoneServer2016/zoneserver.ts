@@ -91,6 +91,7 @@ import {
   isInsideSquare,
   getDifference,
   logClientActionToMongo,
+  removeUntransferableFields,
 } from "../../utils/utils";
 
 import { Collection, Db } from "mongodb";
@@ -168,7 +169,7 @@ export class ZoneServer2016 extends EventEmitter {
   _db!: Db;
   _soloMode = false;
   _useFairPlay = true;
-  maxPing = 200;
+  maxPing = 250;
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
@@ -1025,23 +1026,24 @@ export class ZoneServer2016 extends EventEmitter {
       );
       const worldConstructions: LootableConstructionSaveData[] = [];
       Object.values(this._worldLootableConstruction).forEach((entity) => {
-        worldConstructions.push(
+        const lootableConstructionSaveData =
           WorldDataManager.getLootableConstructionSaveData(
             entity,
             this._worldId
-          )
-        );
+          );
+        removeUntransferableFields(lootableConstructionSaveData);
+        worldConstructions.push(lootableConstructionSaveData);
       });
       const constructions: ConstructionParentSaveData[] = [];
 
       Object.values(this._constructionFoundations).forEach((entity) => {
         if (entity.itemDefinitionId != Items.FOUNDATION_EXPANSION) {
-          constructions.push(
-            WorldDataManager.getConstructionParentSaveData(
-              entity,
-              this._worldId
-            )
+          const construction = WorldDataManager.getConstructionParentSaveData(
+            entity,
+            this._worldId
           );
+          // isTransferable(construction) too complex will run on max recursive call error
+          constructions.push(construction);
         }
       });
       const crops: PlantingDiameterSaveData[] = [];
@@ -1926,6 +1928,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     client.isLoading = true;
     client.characterReleased = false;
+    client.character.lastLoginDate = toHex(Date.now());
     client.character.resetMetrics();
     client.character.isAlive = true;
     client.character.isRunning = false;
@@ -4231,22 +4234,21 @@ export class ZoneServer2016 extends EventEmitter {
       const permissions =
         iteratedFoundation.permissions[client.character.characterId];
       if (!permissions || !permissions.build) continue;
+      if (iteratedFoundation.characterId == parentObjectCharacterId) {
+        isInFoundation = true;
+        break;
+      }
       if (iteratedFoundation.bounds) {
         if (iteratedFoundation.isInside(position)) isInFoundation = true;
       }
     }
-    const allowedIds = [
-      Items.FOUNDATION_EXPANSION,
-      Items.FOUNDATION_RAMP,
-      Items.FOUNDATION_STAIRS,
-    ];
+
     for (const a in this._constructionFoundations) {
       const foundation = this._constructionFoundations[a];
       let allowBuild = false;
       const permissions = foundation.permissions[client.character.characterId];
       if (permissions && permissions.build) allowBuild = true;
       if (
-        !allowedIds.includes(itemDefinitionId) &&
         !isInFoundation &&
         isPosInRadius(
           foundation.itemDefinitionId === Items.FOUNDATION ||
@@ -7201,6 +7203,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkZonePing(client: Client) {
+    if (Number(client.character.lastLoginDate) + 30000 > new Date().getTime())
+      return;
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
       const ping = soeClient.avgPing;
@@ -7211,7 +7215,7 @@ export class ZoneServer2016 extends EventEmitter {
           `Your ping is very high: ${ping}. You may be kicked soon`
         );
       }
-      if (client.zonePings.length >= 10) {
+      if (client.zonePings.length >= 15) {
         const averagePing =
           client.zonePings.reduce((a, b) => a + b, 0) / client.zonePings.length;
         if (averagePing >= this.maxPing) {
