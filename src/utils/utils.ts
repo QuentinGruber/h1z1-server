@@ -829,13 +829,19 @@ export async function fixDbTempData(
   await db?.collection(tempCollection).deleteMany({ serverId: worldId });
 }
 
-export function isTransferable(data: unknown): boolean {
-  try {
-    structuredClone(data);
-    return true;
-  } catch (e) {
-    console.log(`can't clone ${data}`);
-    console.log(e);
-    return false;
+export function removeUntransferableFields(data: any) {
+  const allowedTypes = ["string", "number", "boolean", "undefined", "bigint"];
+
+  for (const key in data) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (data.hasOwnProperty(key)) {
+      const value = data[key];
+      if (typeof value === "object") {
+        removeUntransferableFields(value);
+      } else if (!allowedTypes.includes(typeof value)) {
+        console.log(`Invalid value type: ${typeof value}.`);
+        delete data[key];
+      }
+    }
   }
 }
