@@ -1926,6 +1926,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     client.isLoading = true;
     client.characterReleased = false;
+    client.character.lastLoginDate = toHex(Date.now());
     client.character.resetMetrics();
     client.character.isAlive = true;
     client.character.isRunning = false;
@@ -4231,22 +4232,21 @@ export class ZoneServer2016 extends EventEmitter {
       const permissions =
         iteratedFoundation.permissions[client.character.characterId];
       if (!permissions || !permissions.build) continue;
+      if (iteratedFoundation.characterId == parentObjectCharacterId) {
+        isInFoundation = true;
+        break;
+      }
       if (iteratedFoundation.bounds) {
         if (iteratedFoundation.isInside(position)) isInFoundation = true;
       }
     }
-    const allowedIds = [
-      Items.FOUNDATION_EXPANSION,
-      Items.FOUNDATION_RAMP,
-      Items.FOUNDATION_STAIRS,
-    ];
+
     for (const a in this._constructionFoundations) {
       const foundation = this._constructionFoundations[a];
       let allowBuild = false;
       const permissions = foundation.permissions[client.character.characterId];
       if (permissions && permissions.build) allowBuild = true;
       if (
-        !allowedIds.includes(itemDefinitionId) &&
         !isInFoundation &&
         isPosInRadius(
           foundation.itemDefinitionId === Items.FOUNDATION ||
@@ -7201,6 +7201,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkZonePing(client: Client) {
+    if (Number(client.character.lastLoginDate) + 30000 > new Date().getTime())
+      return;
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
       const ping = soeClient.avgPing;
@@ -7211,7 +7213,7 @@ export class ZoneServer2016 extends EventEmitter {
           `Your ping is very high: ${ping}. You may be kicked soon`
         );
       }
-      if (client.zonePings.length >= 10) {
+      if (client.zonePings.length >= 15) {
         const averagePing =
           client.zonePings.reduce((a, b) => a + b, 0) / client.zonePings.length;
         if (averagePing >= this.maxPing) {

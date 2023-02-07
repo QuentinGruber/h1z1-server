@@ -98,15 +98,11 @@ export class DecayManager {
       | ConstructionChildEntity
   ) {
     const dictionary = server.getConstructionDictionary(entity.characterId);
+    if (!dictionary[entity.characterId]) return;
     entity.damage(server, {
       entity: "",
       damage: 125000,
     });
-    if (entity.health <= 0) {
-      entity.destroy(server);
-      return;
-    }
-    if (!dictionary[entity.characterId]) return;
     server.updateResourceToAllWithSpawnedEntity(
       entity.characterId,
       entity.health,
@@ -114,6 +110,8 @@ export class DecayManager {
       ResourceTypes.CONDITION,
       dictionary
     );
+    if (entity.health > 0) return;
+    entity.destroy(server);
   }
 
   private contructionDecayDamage(server: ZoneServer2016) {
@@ -122,6 +120,15 @@ export class DecayManager {
     }
     for (const a in server._worldSimpleConstruction) {
       this.decayDamage(server, server._worldSimpleConstruction[a]);
+    }
+    for (const a in server._constructionSimple) {
+      this.decayDamage(server, server._constructionSimple[a]);
+    }
+    for (const a in server._lootableConstruction) {
+      this.decayDamage(server, server._lootableConstruction[a]);
+    }
+    for (const a in server._constructionDoors) {
+      this.decayDamage(server, server._constructionDoors[a]);
     }
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
@@ -132,32 +139,10 @@ export class DecayManager {
       ) {
         this.decayDamage(server, foundation);
       }
-      Object.values(foundation.freeplaceEntities).forEach(
-        (
-          entity:
-            | LootableConstructionEntity
-            | ConstructionDoor
-            | ConstructionChildEntity
-        ) => {
-          this.decayDamage(server, entity);
-        }
-      );
-      Object.values(foundation.occupiedShelterSlots).forEach(
-        (entity: ConstructionDoor | ConstructionChildEntity) => {
-          if (entity instanceof ConstructionChildEntity) {
-            this.decayChildEntity(server, entity);
-          }
-        }
-      );
-      Object.values(foundation.occupiedWallSlots).forEach(
-        (entity: ConstructionDoor | ConstructionChildEntity) => {
-          this.decayChildEntity(server, entity);
-        }
-      );
     }
   }
 
-  private decayChildEntity(
+  /*private decayChildEntity(
     server: ZoneServer2016,
     entity: ConstructionChildEntity | ConstructionDoor
   ) {
@@ -179,5 +164,5 @@ export class DecayManager {
       );
     }
     this.decayDamage(server, entity);
-  }
+  }*/
 }
