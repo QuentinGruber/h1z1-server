@@ -7375,6 +7375,6 @@ if (process.env.VSCODE_DEBUG === "true") {
     1117,
     Buffer.from(DEFAULT_CRYPTO_KEY, "base64"),
     process.env.MONGO_URL,
-    12
+    2
   ).start();
 }
