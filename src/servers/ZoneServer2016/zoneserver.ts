@@ -7210,7 +7210,7 @@ export class ZoneServer2016 extends EventEmitter {
           `Your ping is very high: ${ping}. You may be kicked soon`
         );
       }
-      if (client.zonePings.length >= 10) {
+      if (client.zonePings.length >= 15) {
         const averagePing =
           client.zonePings.reduce((a, b) => a + b, 0) / client.zonePings.length;
         if (averagePing >= this.maxPing) {
