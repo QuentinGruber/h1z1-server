@@ -1926,6 +1926,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     client.isLoading = true;
     client.characterReleased = false;
+    client.character.lastLoginDate = toHex(Date.now());
     client.character.resetMetrics();
     client.character.isAlive = true;
     client.character.isRunning = false;
@@ -7200,6 +7201,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkZonePing(client: Client) {
+    if (Number(client.character.lastLoginDate) + 30000 > new Date().getTime()) return
     const soeClient = this.getSoeClient(client.soeClientId);
     if (soeClient) {
       const ping = soeClient.avgPing;
