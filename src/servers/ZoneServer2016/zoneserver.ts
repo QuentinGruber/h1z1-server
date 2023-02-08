@@ -5666,6 +5666,10 @@ export class ZoneServer2016 extends EventEmitter {
         false
       );
     }
+    if (item.weapon) {
+      clearTimeout(item.weapon.reloadTimer);
+      delete item.weapon.reloadTimer;
+    }
     client.character.equipItem(this, item, true, slotId);
   }
 
@@ -6308,6 +6312,10 @@ export class ZoneServer2016 extends EventEmitter {
     container.items[item.itemGuid] = item;
 
     if (!client) return;
+    if (item.weapon) {
+      clearTimeout(item.weapon.reloadTimer);
+      delete item.weapon.reloadTimer;
+    }
     this.addItem(
       client,
       container.items[item.itemGuid],

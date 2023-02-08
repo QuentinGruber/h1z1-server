@@ -194,6 +194,10 @@ export class LoadoutContainer extends LoadoutItem {
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
+    if (item.weapon) {
+      clearTimeout(item.weapon.reloadTimer);
+      delete item.weapon.reloadTimer;
+    }
     const itemStack = targetContainer.getAvailableItemStack(
       server,
       item.itemDefinitionId,
