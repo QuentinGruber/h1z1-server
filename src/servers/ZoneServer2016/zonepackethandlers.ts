@@ -743,23 +743,9 @@ export class zonePacketHandlers {
           });
         }, 1000);
       }
-      client.character.isRunning =
-        packet.data.stance == Stances.MOVE_STANDING_SPRINTING ? true : false;
-      const penaltiedStances = [
-        Stances.JUMPING_BACKWARDS,
-        Stances.JUMPING_BACKWARDS_LEFT,
-        Stances.JUMPING_BACKWARDS_RIGHT,
-        Stances.JUMPING_FORWARD_LEFT,
-        Stances.JUMPING_FORWARD_RIGHT,
-        Stances.JUMPING_FORWARD_SPRINTING,
-        Stances.JUMPING_LEFT,
-        Stances.JUMPING_RIGHT,
-        Stances.JUMPING_STANDING,
-        Stances.JUMPING_WORWARD,
-        Stances.JUMPING_FORWARD_LEFT_SPRINTING,
-        Stances.JUMPING_FORWARD_RIGHT_SPRINTING,
-      ];
-      if (penaltiedStances.includes(packet.data.stance)) {
+      const byte1 = packet.data.stance & 0xff;
+      client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
+      if (!!(byte1 & (1 << 4)) && !(byte1 & (1 << 5))) {
         client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
         if (client.character._resources[ResourceIds.STAMINA] < 0)
           client.character._resources[ResourceIds.STAMINA] = 0;
