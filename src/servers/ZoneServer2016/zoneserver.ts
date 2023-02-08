@@ -6308,6 +6308,11 @@ export class ZoneServer2016 extends EventEmitter {
     container.items[item.itemGuid] = item;
 
     if (!client) return;
+    if (item.weapon) {
+      clearTimeout(item.weapon.reloadTimer);
+      delete item.weapon.reloadTimer;
+      console.log("timeout deleted");
+    }
     this.addItem(
       client,
       container.items[item.itemGuid],

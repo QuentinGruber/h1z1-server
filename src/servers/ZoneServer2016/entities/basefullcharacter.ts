@@ -376,6 +376,10 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   ) {
     const client = server.getClientByContainerAccessor(this);
     if (!item || !item.isValid("lootContainerItem")) return;
+    if (item.weapon) {
+      clearTimeout(item.weapon.reloadTimer);
+      delete item.weapon.reloadTimer;
+    }
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
       console.error(
