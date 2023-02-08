@@ -197,7 +197,6 @@ export class LoadoutContainer extends LoadoutItem {
     if (item.weapon) {
       clearTimeout(item.weapon.reloadTimer);
       delete item.weapon.reloadTimer;
-      console.log("timeout deleted");
     }
     const itemStack = targetContainer.getAvailableItemStack(
       server,

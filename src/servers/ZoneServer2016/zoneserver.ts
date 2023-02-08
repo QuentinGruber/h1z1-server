@@ -6311,7 +6311,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (item.weapon) {
       clearTimeout(item.weapon.reloadTimer);
       delete item.weapon.reloadTimer;
-      console.log("timeout deleted");
     }
     this.addItem(
       client,
