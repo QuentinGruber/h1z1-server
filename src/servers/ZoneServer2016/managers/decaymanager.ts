@@ -121,12 +121,12 @@ export class DecayManager {
     for (const a in server._worldSimpleConstruction) {
       this.decayDamage(server, server._worldSimpleConstruction[a]);
     }
-    for (const a in server._constructionSimple) {
+    /*for (const a in server._constructionSimple) {
       this.decayDamage(server, server._constructionSimple[a]);
     }
     for (const a in server._lootableConstruction) {
       this.decayDamage(server, server._lootableConstruction[a]);
-    }
+    }*/
     for (const a in server._constructionDoors) {
       this.decayDamage(server, server._constructionDoors[a]);
     }
