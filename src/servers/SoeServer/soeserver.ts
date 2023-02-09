@@ -138,12 +138,21 @@ export class SOEServer extends EventEmitter {
 
   // If a packet hasn't been acknowledge in the timeout time, then resend it via the priority queue
   checkResendQueue(client: Client) {
+    // if client is flooded with packets give it time to acknowledge them
+    if (client.unAckData.size > 500) {
+      // add 3ms to packets time so its processed later if client doesnt acknowlede it somehow
+      client.unAckData = new Map(
+        Array.from(client.unAckData, ([key, value]) => [key, value + 3])
+      );
+      return;
+    }
     const currentTime = Date.now();
-    let counter = 0;
     for (const [sequence, time] of client.unAckData) {
+      if (time + 200 > currentTime) {
+        // dont resent data immediately before client has time to acknowledge it
+        continue;
+      }
       if (time + this._resendTimeout < currentTime) {
-        counter++;
-        if (counter > 10) break;
         client.outputStream.resendData(sequence);
         client.unAckData.delete(sequence);
       }
