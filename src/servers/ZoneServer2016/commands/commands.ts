@@ -283,7 +283,8 @@ export const commands: Array<Command> = [
         }
       }
     },
-  }, {
+  },
+  {
     name: "d",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
@@ -293,7 +294,8 @@ export const commands: Array<Command> = [
         sessionId: client.loginSessionId,
       });
     },
-  },{
+  },
+  {
     name: "tp",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
