@@ -20,7 +20,7 @@ export class Weapon {
   itemGuid: string;
   itemDefinitionId: number;
   ammoCount: number;
-  reloadTimer?: NodeJS.Timeout;
+  reloadTimer?: NodeJS.Timeout | undefined;
   currentReloadCount = 0; // needed for reload packet to work every time
   constructor(item: BaseItem, ammoCount?: number) {
     this.itemGuid = item.itemGuid;
