@@ -1585,13 +1585,13 @@ export class zonePacketHandlers {
             if (entity && !(entity instanceof ConstructionParentEntity)) {
               if (permission) {
                 if (entity.canUndoPlacement(server, client)) {
-                    // give back item only if can undo
-                    client.character.lootItem(
-                        server,
-                        server.generateItem(entity.itemDefinitionId)
-                    );
+                  // give back item only if can undo
+                  client.character.lootItem(
+                    server,
+                    server.generateItem(entity.itemDefinitionId)
+                  );
                 }
-                entity.destroy(server);           
+                entity.destroy(server);
               } else {
                 server.placementError(
                   client,
