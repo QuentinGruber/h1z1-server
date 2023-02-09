@@ -4275,12 +4275,24 @@ export class ZoneServer2016 extends EventEmitter {
       }
 
       // for construction entities that don't have a parentObjectCharacterId from the client
-      if (!Number(parentObjectCharacterId) && foundation.isInside(position)) {
-        freeplaceParentCharacterId = foundation.characterId;
-        // check if object is inside a shelter
+      if (!Number(parentObjectCharacterId)) {
+        if (foundation.isInside(position)) {
+          freeplaceParentCharacterId = foundation.characterId;
+        }
+        // check if inside a shelter even if not inside foundation (large shelters can extend it)
         Object.values(foundation.occupiedShelterSlots).forEach((shelter) => {
           if (shelter.isInside(position)) {
             freeplaceParentCharacterId = shelter.characterId;
+          }
+          if (!Number(freeplaceParentCharacterId)) {
+            // check upper shelters if its not in lower ones
+            Object.values(shelter.occupiedShelterSlots).forEach(
+              (upperShelter) => {
+                if (upperShelter.isInside(position)) {
+                  freeplaceParentCharacterId = upperShelter.characterId;
+                }
+              }
+            );
           }
         });
       }
