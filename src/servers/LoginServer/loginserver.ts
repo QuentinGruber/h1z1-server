@@ -949,7 +949,7 @@ export class LoginServer extends EventEmitter {
       let sessionObj;
       const storedUserSession = await this._db
         ?.collection(DB_COLLECTIONS.USERS_SESSIONS)
-        .findOne({ authKey: client.loginSessionId});
+        .findOne({ authKey: client.loginSessionId });
       if (storedUserSession) {
         sessionObj = storedUserSession;
       } else {
