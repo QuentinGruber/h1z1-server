@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "h1emu-core";
 import SOEClient from "../SoeServer/soeclient";

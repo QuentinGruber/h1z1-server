@@ -13,12 +13,12 @@
 
 import { generate_random_guid } from "h1emu-core";
 import { compress, compressBound } from "./lz4/lz4";
-import fs, { readdirSync } from "fs";
-import { normalize, resolve } from "path";
+import fs, { readdirSync } from "node:fs";
+import { normalize, resolve } from "node:path";
 import {
   setImmediate as setImmediatePromise,
   setTimeout as setTimeoutPromise,
-} from "timers/promises";
+} from "node:timers/promises";
 import { Collection, Db, MongoClient } from "mongodb";
 import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
@@ -32,7 +32,7 @@ import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots
 import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
 import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
 import { DB_COLLECTIONS, NAME_VALIDATION_STATUS } from "./enums";
-import { Resolver } from "dns";
+import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 
 export class customLodash {

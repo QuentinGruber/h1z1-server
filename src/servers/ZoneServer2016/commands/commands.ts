@@ -12,7 +12,7 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import fs from "fs";
+import fs from "node:fs";
 import { Ban, DamageInfo } from "types/zoneserver";
 
 import {

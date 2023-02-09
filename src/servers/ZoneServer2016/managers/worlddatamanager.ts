@@ -58,7 +58,7 @@ import { DB_NAME } from "../../../utils/constants";
 import { Character2016 } from "../entities/character";
 import { Items } from "../models/enums";
 
-const fs = require("fs");
+const fs = require("node:fs");
 const debug = require("debug")("ZoneServer");
 export interface WorldArg {
   lastGuidItem: bigint;
