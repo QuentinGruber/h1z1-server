@@ -110,6 +110,16 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {
+    const container = this.getContainer();
+    if (container) {
+      container.items = {};
+      for (const a in server._characters) {
+        const character = server._characters[a];
+        if (character.mountedContainer == this) {
+          character.dismountContainer(server);
+        }
+      }
+    }
     server.deleteEntity(
       this.characterId,
       server._lootableConstruction[this.characterId]
