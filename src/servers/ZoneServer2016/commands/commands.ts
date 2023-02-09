@@ -361,6 +361,7 @@ export const commands: Array<Command> = [
     name: "d",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      client.properlyLogout = true;
       server.sendData(client, "CharacterSelectSessionResponse", {
         status: 1,
         sessionId: client.loginSessionId,

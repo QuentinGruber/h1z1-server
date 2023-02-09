@@ -360,7 +360,8 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     this._gatewayServer.on("disconnect", (client: SOEClient) => {
-      this.deleteClient(this._clients[client.sessionId]);
+      // this happen when the connection is close without a regular logout
+      setTimeout(()=>{this.deleteClient(this._clients[client.sessionId])},10000)
     });
 
     this._gatewayServer.on(
