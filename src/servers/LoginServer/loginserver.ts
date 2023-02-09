@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 
 import { SOEServer } from "../SoeServer/soeserver";
 import { H1emuLoginServer } from "../H1emuServer/h1emuLoginServer";
@@ -29,9 +29,9 @@ import {
 } from "../../utils/utils";
 import { GameServer } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
-import fs from "fs";
+import fs from "node:fs";
 import { loginPacketsType } from "types/packets";
-import { Worker } from "worker_threads";
+import { Worker } from "node:worker_threads";
 import { httpServerMessage } from "types/shared";
 import { LoginProtocol2016 } from "../../protocols/loginprotocol2016";
 import { crc_length_options } from "../../types/soeserver";
@@ -59,7 +59,7 @@ import {
 } from "../../utils/enums";
 import DataSchema from "h1z1-dataschema";
 import { applicationDataKOTK } from "../../packets/LoginUdp/LoginUdp_11/loginpackets";
-import { Resolver } from "dns";
+import { Resolver } from "node:dns";
 
 const debugName = "LoginServer";
 const debug = require("debug")(debugName);

@@ -11,15 +11,15 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-const EventEmitter = require("events").EventEmitter,
+const EventEmitter = require("node:events").EventEmitter,
   SOEInputStream =
     require("../servers/SoeServer/soeinputstream").SOEInputStream,
   SOEOutputStream =
     require("../servers/SoeServer/soeoutputstream").SOEOutputStream,
   { Soeprotocol } = require("h1emu-core"),
-  util = require("util"),
-  fs = require("fs"),
-  dgram = require("dgram"),
+  util = require("node:util"),
+  fs = require("node:fs"),
+  dgram = require("node:dgram"),
   debug = require("debug")("SOEClient");
 
 function createSessionId() {

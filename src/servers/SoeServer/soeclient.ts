@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { RemoteInfo } from "dgram";
+import { RemoteInfo } from "node:dgram";
 import { toInt, wrappedUint16, _ } from "../../utils/utils";
 import { soePacket } from "../../types/soeserver";
 import { SOEInputStream } from "./soeinputstream";

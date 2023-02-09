@@ -16,15 +16,15 @@ const debugName = "ZoneServer",
 
 process.env.isBin && require("./managers/worlddatamanagerthread");
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
 import SOEClient from "../SoeServer/soeclient";
 import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
 import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
-import { Resolver } from "dns";
+import { Resolver } from "node:dns";
 
-import { promisify } from "util";
+import { promisify } from "node:util";
 import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
@@ -145,6 +145,7 @@ import { Plant } from "./entities/plant";
 import { SmeltingEntity } from "./classes/smeltingentity";
 import { spawn, Worker } from "threads";
 import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
+import { logVersion } from "../../utils/processErrorHandling";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -359,7 +360,10 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     this._gatewayServer.on("disconnect", (client: SOEClient) => {
-      this.deleteClient(this._clients[client.sessionId]);
+      // this happen when the connection is close without a regular logout
+      setTimeout(() => {
+        this.deleteClient(this._clients[client.sessionId]);
+      }, 10000);
     });
 
     this._gatewayServer.on(
@@ -541,6 +545,7 @@ export class ZoneServer2016 extends EventEmitter {
     } catch (error) {
       console.error(error);
       console.error(`An error occurred while processing a packet : `, packet);
+      logVersion();
     }
   }
 

@@ -13,12 +13,13 @@
     "h1z1-server-demo-2016": "scripts/h1z1-server-demo-2016.js"
   },
   "dependencies": {
+    "@types/node": "18.13.0",
     "debug": "4.3.4",
     "h1emu-core": "1.0.2",
     "h1z1-dataschema": "1.7.0",
-    "mongodb": "4.13.0",
-    "threads": "^1.7.0",
-    "typescript": "4.9.4"
+    "mongodb": "5.0.1",
+    "threads": "1.7.0",
+    "typescript": "4.9.5"
   },
   "directories": {
     "src": "./src"
