@@ -20,6 +20,7 @@ import { Worker } from "worker_threads";
 import { crc_length_options } from "../../types/soeserver";
 import { LogicalPacket } from "./logicalPacket";
 import { json } from "types/shared";
+import { wrappedUint16 } from "../../utils/utils";
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
@@ -46,6 +47,7 @@ export class SOEServer extends EventEmitter {
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
   _allowRawDataReception: boolean = true;
+  private _maxSeqResendRange: number = 100;
   constructor(
     serverPort: number,
     cryptoKey: Uint8Array,
@@ -148,11 +150,7 @@ export class SOEServer extends EventEmitter {
     }
     const currentTime = Date.now();
     for (const [sequence, time] of client.unAckData) {
-      if (time + 200 > currentTime) {
-        // dont resent data immediately before client has time to acknowledge it
-        continue;
-      }
-      if (time + this._resendTimeout < currentTime) {
+      if (time + this._resendTimeout < currentTime && sequence < wrappedUint16.wrap(client.outputStream.lastAck.get()  + this._maxSeqResendRange ) ) {
         client.outputStream.resendData(sequence);
         client.unAckData.delete(sequence);
       }
