@@ -14,7 +14,7 @@
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { flhash, logClientActionToMongo } from "../../../utils/utils";
-import { Command, PermissionLevels } from "./types";
+import { Command } from "./types";
 import { commands } from "./commands";
 import { internalCommands } from "./internalcommands";
 import { DB_COLLECTIONS } from "../../../utils/enums";
