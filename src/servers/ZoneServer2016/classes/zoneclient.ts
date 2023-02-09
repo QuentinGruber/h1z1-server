@@ -80,6 +80,7 @@ export class ZoneClient2016 {
   routineCounter: number = 0;
   zonePings: number[] = [];
   properlyLogout: boolean = false;
+  permissionLevel: number = 0;
   constructor(
     sessionId: number,
     soeClientId: string,

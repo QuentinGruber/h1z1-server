@@ -732,15 +732,13 @@ export class LoginServer extends EventEmitter {
         `CharacterId "${characterId}" unfound on serverId: "${serverId}"`
       );
     }
-    const hiddenSession = connectionStatus
-      ? await this._db
-          .collection(DB_COLLECTIONS.USERS_SESSIONS)
-          .findOne({ authKey: loginSessionId })
-      : { guid: "" };
-    if (!connectionStatus) {
+    const hiddenSession = (await this._db
+      .collection(DB_COLLECTIONS.USERS_SESSIONS)
+      .findOne({ authKey: loginSessionId })) ?? { guid: "" };
+    if (!connectionStatus && hiddenSession.guid) {
       // Admins bypass max pop
       connectionStatus = (await this.askZone(serverId, "ClientIsAdminRequest", {
-        guid: hiddenSession?.guid,
+        guid: hiddenSession.guid,
       })) as boolean;
     }
     return {
@@ -949,12 +947,11 @@ export class LoginServer extends EventEmitter {
       let sessionObj;
       const storedUserSession = await this._db
         ?.collection(DB_COLLECTIONS.USERS_SESSIONS)
-        .findOne({ authKey: client.loginSessionId, serverId: serverId });
+        .findOne({ authKey: client.loginSessionId });
       if (storedUserSession) {
         sessionObj = storedUserSession;
       } else {
         sessionObj = {
-          serverId: serverId,
           authKey: client.loginSessionId,
           guid: generateRandomGuid(),
         };

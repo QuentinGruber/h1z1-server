@@ -338,11 +338,15 @@ export class ZoneServer2016 extends EventEmitter {
           if (await this.isClientBanned(zoneClient)) {
             return;
           }
-          zoneClient.isAdmin =
-            (await this._db?.collection(DB_COLLECTIONS.ADMINS).findOne({
+          const adminData = (await this._db
+            ?.collection(DB_COLLECTIONS.ADMINS)
+            .findOne({
               sessionId: zoneClient.loginSessionId,
-              serverId: this._worldId,
-            })) != undefined;
+            })) as unknown as { permissionLevel: number };
+          if (adminData) {
+            zoneClient.isAdmin = true;
+            zoneClient.permissionLevel = adminData.permissionLevel ?? 3;
+          }
         } else {
           zoneClient.isAdmin = true;
         }
@@ -594,7 +598,7 @@ export class ZoneServer2016 extends EventEmitter {
       const isAdmin = Boolean(
         await this._db
           ?.collection(DB_COLLECTIONS.ADMINS)
-          .findOne({ sessionId: guid, serverId: this._worldId })
+          .findOne({ sessionId: guid })
       );
       this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
