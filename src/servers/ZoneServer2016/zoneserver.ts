@@ -145,6 +145,7 @@ import { Plant } from "./entities/plant";
 import { SmeltingEntity } from "./classes/smeltingentity";
 import { spawn, Worker } from "threads";
 import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
+import { logVersion } from "../../utils/processErrorHandling";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -541,6 +542,7 @@ export class ZoneServer2016 extends EventEmitter {
     } catch (error) {
       console.error(error);
       console.error(`An error occurred while processing a packet : `, packet);
+      logVersion();
     }
   }
 
