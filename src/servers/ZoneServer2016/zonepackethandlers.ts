@@ -502,7 +502,7 @@ export class zonePacketHandlers {
     if (client.hudTimer) {
       clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
     }
-    if(client.properlyLogout){
+    if (client.properlyLogout) {
       server.deleteClient(client);
     }
   }
