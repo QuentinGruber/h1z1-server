@@ -338,10 +338,15 @@ export class ZoneServer2016 extends EventEmitter {
           if (await this.isClientBanned(zoneClient)) {
             return;
           }
-          zoneClient.isAdmin =
-            (await this._db?.collection(DB_COLLECTIONS.ADMINS).findOne({
+          const adminData = 
+            await this._db?.collection(DB_COLLECTIONS.ADMINS).findOne({
               sessionId: zoneClient.loginSessionId,
-            })) != undefined;
+            }) as unknown as {permissionLevel:number}
+          if(adminData){
+            zoneClient.isAdmin = true;
+            zoneClient.permissionLevel = adminData.permissionLevel ?? 3;
+          }
+          
         } else {
           zoneClient.isAdmin = true;
         }

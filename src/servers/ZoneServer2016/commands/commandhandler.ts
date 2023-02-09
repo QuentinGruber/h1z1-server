@@ -34,8 +34,7 @@ export class CommandHandler {
     command: Command
   ) {
     return (
-      command.permissionLevel == PermissionLevels.DEFAULT ||
-      client.isAdmin || // temp permissionLevel logic until isAdmin is replaced
+      command.permissionLevel <= client.permissionLevel ||
       server._allowedCommands.includes(command.name)
     );
   }

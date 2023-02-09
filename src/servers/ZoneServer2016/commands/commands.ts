@@ -90,31 +90,6 @@ export const commands: Array<Command> = [
     },
   },
   {
-    name: "vanish",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client) => {
-      client.character.isSpectator = !client.character.isSpectator;
-      server.sendAlert(
-        client,
-        `Set hidden state to ${client.character.isSpectator}`
-      );
-      if (!client.character.isSpectator) return;
-      for (const a in server._clients) {
-        const iteratedClient = server._clients[a];
-        if (iteratedClient.spawnedEntities.includes(client.character)) {
-          server.sendData(iteratedClient, "Character.RemovePlayer", {
-            characterId: client.character.characterId,
-          });
-          iteratedClient.spawnedEntities.splice(
-            iteratedClient.spawnedEntities.indexOf(client.character),
-            1
-          );
-        }
-      }
-      server.sendData(client, "SpectatorBase", {});
-    },
-  },
-  {
     name: "serverinfo",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
@@ -189,47 +164,6 @@ export const commands: Array<Command> = [
     },
   },
   {
-    name: "getnetstats",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          `[ERROR] Usage: /getnetstats {name / clientId}"`,
-          true
-        );
-        return;
-      }
-      const targetClient = server.getClientByNameOrLoginSession(
-        args[0].toString()
-      );
-      if (typeof targetClient == "string") {
-        server.sendChatText(
-          client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
-        );
-        return;
-      }
-      if (!targetClient) {
-        server.sendChatText(client, "Client not found.");
-        return;
-      }
-      const soeClient = server.getSoeClient(targetClient.soeClientId);
-      if (soeClient) {
-        const stats = soeClient.getNetworkStats();
-        server.sendChatText(
-          client,
-          `Displaying net statistics of player ${targetClient.character.name}`,
-          true
-        );
-        for (let index = 0; index < stats.length; index++) {
-          const stat = stats[index];
-          server.sendChatText(client, stat);
-        }
-      }
-    },
-  },
-  {
     name: "location",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
@@ -279,6 +213,243 @@ export const commands: Array<Command> = [
             ));
         client.character.updateEquipmentSlot(server, EquipSlots.CHEST);
       }
+    },
+  },
+  //#endregion
+
+  //#region MODERATOR PERMISSIONS
+  {
+    name: "vanish",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client) => {
+      client.character.isSpectator = !client.character.isSpectator;
+      server.sendAlert(
+        client,
+        `Set hidden state to ${client.character.isSpectator}`
+      );
+      if (!client.character.isSpectator) return;
+      for (const a in server._clients) {
+        const iteratedClient = server._clients[a];
+        if (iteratedClient.spawnedEntities.includes(client.character)) {
+          server.sendData(iteratedClient, "Character.RemovePlayer", {
+            characterId: client.character.characterId,
+          });
+          iteratedClient.spawnedEntities.splice(
+            iteratedClient.spawnedEntities.indexOf(client.character),
+            1
+          );
+        }
+      }
+      server.sendData(client, "SpectatorBase", {});
+    },
+  },
+  {
+    name: "getnetstats",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `[ERROR] Usage: /getnetstats {name / clientId}"`,
+          true
+        );
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      const soeClient = server.getSoeClient(targetClient.soeClientId);
+      if (soeClient) {
+        const stats = soeClient.getNetworkStats();
+        server.sendChatText(
+          client,
+          `Displaying net statistics of player ${targetClient.character.name}`,
+          true
+        );
+        for (let index = 0; index < stats.length; index++) {
+          const stat = stats[index];
+          server.sendChatText(client, stat);
+        }
+      }
+    },
+  }, {
+    name: "d",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      client.properlyLogout = true;
+      server.sendData(client, "CharacterSelectSessionResponse", {
+        status: 1,
+        sessionId: client.loginSessionId,
+      });
+    },
+  },{
+    name: "tp",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      let locationPosition;
+      switch (args[0]) {
+        case "farm":
+          locationPosition = new Float32Array([-696.48, 13.86, -1847.15, 1]);
+          break;
+        case "zimms":
+          locationPosition = new Float32Array([2209.17, 47.42, -1011.48, 1]);
+          break;
+        case "pv":
+          locationPosition = new Float32Array([-125.55, 23.41, -1131.71, 1]);
+          break;
+        case "br":
+          locationPosition = new Float32Array([3824.41, 168.19, -4000.0, 1]);
+          break;
+        case "ranchito":
+          locationPosition = new Float32Array([2185.32, 42.36, 2130.49, 1]);
+          break;
+        case "drylake":
+          locationPosition = new Float32Array([479.46, 109.7, 2902.51, 1]);
+          break;
+        case "dam":
+          locationPosition = new Float32Array([-629.49, 69.96, 1233.49, 1]);
+          break;
+        case "cranberry":
+          locationPosition = new Float32Array([-1368.37, 71.29, 1837.61, 1]);
+          break;
+        case "church":
+          locationPosition = new Float32Array([-1928.68, 62.77, 2880.1, 1]);
+          break;
+        case "desoto":
+          locationPosition = new Float32Array([-2793.22, 140.77, 1035.8, 1]);
+          break;
+        case "toxic":
+          locationPosition = new Float32Array([-3064.68, 42.98, -2160.06, 1]);
+          break;
+        case "radiotower":
+          locationPosition = new Float32Array([-1499.21, 353.98, -840.52, 1]);
+          break;
+        case "villas":
+          locationPosition = new Float32Array([489.02, 102, 2942.65, 1]);
+          break;
+        case "military":
+          locationPosition = new Float32Array([696.53, 48.08, -2470.62, 1]);
+          break;
+        case "hospital":
+          locationPosition = new Float32Array([1895.4, 93.69, -2914.39, 1]);
+          break;
+        default:
+          if (args.length < 3) {
+            server.sendChatText(
+              client,
+              "Unknown set location, need 3 args to tp to exact location: x, y, z",
+              false
+            );
+            server.sendChatText(
+              client,
+              "Set location list: farm, zimms, pv, br, ranchito, drylake, dam, cranberry, church, desoto, toxic, radiotower, villas, military, hospital",
+              false
+            );
+            return;
+          }
+          locationPosition = new Float32Array([
+            Number(args[0]),
+            Number(args[1]),
+            Number(args[2]),
+            1,
+          ]);
+          break;
+      }
+
+      client.character.state.position = locationPosition;
+      client.isLoading = true;
+      client.characterReleased = false;
+      client.character.lastLoginDate = toHex(Date.now());
+      server.sendData(client, "ClientUpdate.UpdateLocation", {
+        position: locationPosition,
+        triggerLoadingScreen: true,
+      });
+      server.sendWeatherUpdatePacket(client, server.weather);
+    },
+  },
+  {
+    name: "tphere",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(client, `Correct usage: /tphere {name|playerId}`);
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      targetClient.character.state.position = client.character.state.position;
+      targetClient.isLoading = true;
+      targetClient.characterReleased = false;
+      targetClient.character.lastLoginDate = toHex(Date.now());
+      server.sendData(targetClient, "ClientUpdate.UpdateLocation", {
+        position: client.character.state.position,
+        triggerLoadingScreen: true,
+      });
+      server.sendChatText(
+        client,
+        `Teleporting ${targetClient.character.name} to your location`
+      );
+      server.sendWeatherUpdatePacket(client, server.weather);
+    },
+  },
+  {
+    name: "tpto",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(client, `Correct usage: /tpto {name|playerId}`);
+        return;
+      }
+      const targetClient = server.getClientByNameOrLoginSession(
+        args[0].toString()
+      );
+      if (typeof targetClient == "string") {
+        server.sendChatText(
+          client,
+          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
+        );
+        return;
+      }
+      if (!targetClient) {
+        server.sendChatText(client, "Client not found.");
+        return;
+      }
+      client.character.state.position = targetClient.character.state.position;
+      client.isLoading = true;
+      client.characterReleased = false;
+      client.character.lastLoginDate = toHex(Date.now());
+      server.sendData(client, "ClientUpdate.UpdateLocation", {
+        position: targetClient.character.state.position,
+        triggerLoadingScreen: true,
+      });
+      server.sendChatText(
+        client,
+        `Teleporting to ${targetClient.character.name}'s location`
+      );
+      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   //#endregion
@@ -357,17 +528,6 @@ export const commands: Array<Command> = [
       client.character.ownedVehicle = vehicleData.characterId;
     },
   },*/
-  {
-    name: "d",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      client.properlyLogout = true;
-      server.sendData(client, "CharacterSelectSessionResponse", {
-        status: 1,
-        sessionId: client.loginSessionId,
-      });
-    },
-  },
   {
     name: "titan",
     permissionLevel: PermissionLevels.ADMIN,
@@ -453,165 +613,6 @@ export const commands: Array<Command> = [
       server._vehicles = {};
       server._doors = {};
       server.sendChatText(client, "Objects removed from the game.", true);
-    },
-  },
-  {
-    name: "tp",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      let locationPosition;
-      switch (args[0]) {
-        case "farm":
-          locationPosition = new Float32Array([-696.48, 13.86, -1847.15, 1]);
-          break;
-        case "zimms":
-          locationPosition = new Float32Array([2209.17, 47.42, -1011.48, 1]);
-          break;
-        case "pv":
-          locationPosition = new Float32Array([-125.55, 23.41, -1131.71, 1]);
-          break;
-        case "br":
-          locationPosition = new Float32Array([3824.41, 168.19, -4000.0, 1]);
-          break;
-        case "ranchito":
-          locationPosition = new Float32Array([2185.32, 42.36, 2130.49, 1]);
-          break;
-        case "drylake":
-          locationPosition = new Float32Array([479.46, 109.7, 2902.51, 1]);
-          break;
-        case "dam":
-          locationPosition = new Float32Array([-629.49, 69.96, 1233.49, 1]);
-          break;
-        case "cranberry":
-          locationPosition = new Float32Array([-1368.37, 71.29, 1837.61, 1]);
-          break;
-        case "church":
-          locationPosition = new Float32Array([-1928.68, 62.77, 2880.1, 1]);
-          break;
-        case "desoto":
-          locationPosition = new Float32Array([-2793.22, 140.77, 1035.8, 1]);
-          break;
-        case "toxic":
-          locationPosition = new Float32Array([-3064.68, 42.98, -2160.06, 1]);
-          break;
-        case "radiotower":
-          locationPosition = new Float32Array([-1499.21, 353.98, -840.52, 1]);
-          break;
-        case "villas":
-          locationPosition = new Float32Array([489.02, 102, 2942.65, 1]);
-          break;
-        case "military":
-          locationPosition = new Float32Array([696.53, 48.08, -2470.62, 1]);
-          break;
-        case "hospital":
-          locationPosition = new Float32Array([1895.4, 93.69, -2914.39, 1]);
-          break;
-        default:
-          if (args.length < 3) {
-            server.sendChatText(
-              client,
-              "Unknown set location, need 3 args to tp to exact location: x, y, z",
-              false
-            );
-            server.sendChatText(
-              client,
-              "Set location list: farm, zimms, pv, br, ranchito, drylake, dam, cranberry, church, desoto, toxic, radiotower, villas, military, hospital",
-              false
-            );
-            return;
-          }
-          locationPosition = new Float32Array([
-            Number(args[0]),
-            Number(args[1]),
-            Number(args[2]),
-            1,
-          ]);
-          break;
-      }
-
-      client.character.state.position = locationPosition;
-      client.isLoading = true;
-      client.characterReleased = false;
-      client.character.lastLoginDate = toHex(Date.now());
-      server.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: locationPosition,
-        triggerLoadingScreen: true,
-      });
-      server.sendWeatherUpdatePacket(client, server.weather);
-    },
-  },
-  {
-    name: "tphere",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!args[0]) {
-        server.sendChatText(client, `Correct usage: /tphere {name|playerId}`);
-        return;
-      }
-      const targetClient = server.getClientByNameOrLoginSession(
-        args[0].toString()
-      );
-      if (typeof targetClient == "string") {
-        server.sendChatText(
-          client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
-        );
-        return;
-      }
-      if (!targetClient) {
-        server.sendChatText(client, "Client not found.");
-        return;
-      }
-      targetClient.character.state.position = client.character.state.position;
-      targetClient.isLoading = true;
-      targetClient.characterReleased = false;
-      targetClient.character.lastLoginDate = toHex(Date.now());
-      server.sendData(targetClient, "ClientUpdate.UpdateLocation", {
-        position: client.character.state.position,
-        triggerLoadingScreen: true,
-      });
-      server.sendChatText(
-        client,
-        `Teleporting ${targetClient.character.name} to your location`
-      );
-      server.sendWeatherUpdatePacket(client, server.weather);
-    },
-  },
-  {
-    name: "tpto",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!args[0]) {
-        server.sendChatText(client, `Correct usage: /tpto {name|playerId}`);
-        return;
-      }
-      const targetClient = server.getClientByNameOrLoginSession(
-        args[0].toString()
-      );
-      if (typeof targetClient == "string") {
-        server.sendChatText(
-          client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
-        );
-        return;
-      }
-      if (!targetClient) {
-        server.sendChatText(client, "Client not found.");
-        return;
-      }
-      client.character.state.position = targetClient.character.state.position;
-      client.isLoading = true;
-      client.characterReleased = false;
-      client.character.lastLoginDate = toHex(Date.now());
-      server.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: targetClient.character.state.position,
-        triggerLoadingScreen: true,
-      });
-      server.sendChatText(
-        client,
-        `Teleporting to ${targetClient.character.name}'s location`
-      );
-      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   {
