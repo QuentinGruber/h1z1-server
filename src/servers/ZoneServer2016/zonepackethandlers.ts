@@ -1584,11 +1584,14 @@ export class zonePacketHandlers {
               );
             if (entity && !(entity instanceof ConstructionParentEntity)) {
               if (permission) {
+                if (entity.canUndoPlacement(server, client)) {
+                  // give back item only if can undo
+                  client.character.lootItem(
+                    server,
+                    server.generateItem(entity.itemDefinitionId)
+                  );
+                }
                 entity.destroy(server);
-                client.character.lootItem(
-                  server,
-                  server.generateItem(entity.itemDefinitionId)
-                );
               } else {
                 server.placementError(
                   client,
