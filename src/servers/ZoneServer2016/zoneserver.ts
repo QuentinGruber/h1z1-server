@@ -1750,6 +1750,22 @@ export class ZoneServer2016 extends EventEmitter {
       }
     }
 
+    for (const construction in this._worldSimpleConstruction) {
+      const constructionObject = this._worldSimpleConstruction[
+        construction
+      ] as ConstructionChildEntity;
+      if (isPosInRadius(4, constructionObject.state.position, position)) {
+        this.checkConstructionDamage(
+          constructionObject.characterId,
+          50000,
+          this._worldSimpleConstruction,
+          position,
+          constructionObject.state.position,
+          source
+        );
+      }
+    }
+
     for (const explosive in this._explosives) {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
