@@ -61,7 +61,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     this.defaultLoadout = lootableContainerDefaultLoadouts.storage;
     if (subEntityType === "SmeltingEntity") {
       this.subEntity = new SmeltingEntity(this, server);
-      this.npcRenderDistance = 20; //this.npcRenderDistance = 250; lower render distances until next wipe (furnaces were invis and people have multiple at one one, causes lag)
+      this.npcRenderDistance = 250;
     } else if (subEntityType === "CollectingEntity") {
       this.subEntity = new CollectingEntity(this, server);
       this.npcRenderDistance = 20; //this.npcRenderDistance = 250;
@@ -118,19 +118,22 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       242,
       destructTime
     );
-
     const parent = this.getParent(server);
     if (parent && parent.freeplaceEntities[this.characterId]) {
       delete parent.freeplaceEntities[this.characterId];
     }
 
-    if (!destructTime) {
-      server.worldObjectManager.createLootbag(server, this);
-      return;
+    server.worldObjectManager.createLootbag(server, this);
+    const container = this.getContainer();
+    if (container) {
+      container.items = {};
+      for (const a in server._characters) {
+        const character = server._characters[a];
+        if (character.mountedContainer == this) {
+          character.dismountContainer(server);
+        }
+      }
     }
-    setTimeout(() => {
-      server.worldObjectManager.createLootbag(server, this);
-    }, destructTime);
   }
 
   getHasPermission(

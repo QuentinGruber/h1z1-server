@@ -29,7 +29,7 @@ export const internalCommands: Array<Command> = [
   },
   {
     name: "spectate",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, packetData: any) => {
       client.character.isSpectator = true;
       const characterId = server.generateGuid();
@@ -83,7 +83,7 @@ export const internalCommands: Array<Command> = [
   },
   {
     name: "run",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, packetData: any) => {
       server.sendData(client, "Command.RunSpeed", {
         runSpeed: packetData.runSpeed,

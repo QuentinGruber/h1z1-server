@@ -11,15 +11,16 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
-import { RemoteInfo } from "dgram";
+import { EventEmitter } from "node:events";
+import { RemoteInfo } from "node:dgram";
 import { Soeprotocol } from "h1emu-core";
 import Client, { packetsQueue } from "./soeclient";
 import SOEClient from "./soeclient";
-import { Worker } from "worker_threads";
+import { Worker } from "node:worker_threads";
 import { crc_length_options } from "../../types/soeserver";
 import { LogicalPacket } from "./logicalPacket";
 import { json } from "types/shared";
+import { wrappedUint16 } from "../../utils/utils";
 const debug = require("debug")("SOEServer");
 process.env.isBin && require("../shared/workers/udpServerWorker.js");
 
@@ -46,6 +47,7 @@ export class SOEServer extends EventEmitter {
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
   _allowRawDataReception: boolean = true;
+  private _maxSeqResendRange: number = 100;
   constructor(
     serverPort: number,
     cryptoKey: Uint8Array,
@@ -140,7 +142,13 @@ export class SOEServer extends EventEmitter {
   checkResendQueue(client: Client) {
     const currentTime = Date.now();
     for (const [sequence, time] of client.unAckData) {
-      if (time + this._resendTimeout < currentTime) {
+      if (
+        time + this._resendTimeout < currentTime &&
+        sequence <=
+          wrappedUint16.wrap(
+            client.outputStream.lastAck.get() + this._maxSeqResendRange
+          )
+      ) {
         client.outputStream.resendData(sequence);
         client.unAckData.delete(sequence);
       }

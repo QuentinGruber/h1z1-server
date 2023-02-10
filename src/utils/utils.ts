@@ -13,13 +13,13 @@
 
 import { generate_random_guid } from "h1emu-core";
 import { compress, compressBound } from "./lz4/lz4";
-import fs, { readdirSync } from "fs";
-import { normalize, resolve } from "path";
+import fs, { readdirSync } from "node:fs";
+import { normalize, resolve } from "node:path";
 import {
   setImmediate as setImmediatePromise,
   setTimeout as setTimeoutPromise,
-} from "timers/promises";
-import { Collection, Db, MongoClient } from "mongodb";
+} from "node:timers/promises";
+import { Collection, MongoClient } from "mongodb";
 import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
@@ -32,7 +32,7 @@ import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots
 import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
 import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
 import { DB_COLLECTIONS, NAME_VALIDATION_STATUS } from "./enums";
-import { Resolver } from "dns";
+import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 
 export class customLodash {
@@ -805,28 +805,6 @@ export async function logClientActionToMongo(
     characterName: client.character.name,
     loginSessionId: client.loginSessionId,
   });
-}
-
-export async function fixDbTempData(
-  db: Db,
-  worldId: number,
-  tempData: any,
-  collection: DB_COLLECTIONS,
-  tempCollection: DB_COLLECTIONS
-) {
-  console.log(`DB: move ${tempCollection} data to ${collection}`);
-  for (let i = 0; i < tempData.length; i++) {
-    const tempItem = tempData[i];
-    delete tempItem._id;
-    await db
-      .collection(collection)
-      .findOneAndUpdate(
-        { characterId: tempItem.characterId },
-        { $set: tempItem },
-        { upsert: true }
-      );
-  }
-  await db?.collection(tempCollection).deleteMany({ serverId: worldId });
 }
 
 export function removeUntransferableFields(data: any) {

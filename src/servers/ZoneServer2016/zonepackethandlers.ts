@@ -502,7 +502,9 @@ export class zonePacketHandlers {
     if (client.hudTimer) {
       clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
     }
-    server.deleteClient(client);
+    if (client.properlyLogout) {
+      server.deleteClient(client);
+    }
   }
   GameTimeSync(
     server: ZoneServer2016,
@@ -553,6 +555,7 @@ export class zonePacketHandlers {
   ) {
     client.posAtLogoutStart = client.character.state.position;
     if (!client.character.isAlive) {
+      client.properlyLogout = true;
       // Exit to menu button on respawn screen
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
       return;
@@ -568,6 +571,7 @@ export class zonePacketHandlers {
       clearTimeout(client.hudTimer);
     }
     client.hudTimer = setTimeout(() => {
+      client.properlyLogout = true;
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
     }, timerTime);
   }
@@ -743,23 +747,9 @@ export class zonePacketHandlers {
           });
         }, 1000);
       }
-      client.character.isRunning =
-        packet.data.stance == Stances.MOVE_STANDING_SPRINTING ? true : false;
-      const penaltiedStances = [
-        Stances.JUMPING_BACKWARDS,
-        Stances.JUMPING_BACKWARDS_LEFT,
-        Stances.JUMPING_BACKWARDS_RIGHT,
-        Stances.JUMPING_FORWARD_LEFT,
-        Stances.JUMPING_FORWARD_RIGHT,
-        Stances.JUMPING_FORWARD_SPRINTING,
-        Stances.JUMPING_LEFT,
-        Stances.JUMPING_RIGHT,
-        Stances.JUMPING_STANDING,
-        Stances.JUMPING_WORWARD,
-        Stances.JUMPING_FORWARD_LEFT_SPRINTING,
-        Stances.JUMPING_FORWARD_RIGHT_SPRINTING,
-      ];
-      if (penaltiedStances.includes(packet.data.stance)) {
+      const byte1 = packet.data.stance & 0xff;
+      client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
+      if (!!(byte1 & (1 << 4)) && !(byte1 & (1 << 5))) {
         client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
         if (client.character._resources[ResourceIds.STAMINA] < 0)
           client.character._resources[ResourceIds.STAMINA] = 0;
@@ -1594,11 +1584,14 @@ export class zonePacketHandlers {
               );
             if (entity && !(entity instanceof ConstructionParentEntity)) {
               if (permission) {
+                if (entity.canUndoPlacement(server, client)) {
+                  // give back item only if can undo
+                  client.character.lootItem(
+                    server,
+                    server.generateItem(entity.itemDefinitionId)
+                  );
+                }
                 entity.destroy(server);
-                client.character.lootItem(
-                  server,
-                  server.generateItem(entity.itemDefinitionId)
-                );
               } else {
                 server.placementError(
                   client,

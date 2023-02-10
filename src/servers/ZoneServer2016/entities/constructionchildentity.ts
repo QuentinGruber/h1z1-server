@@ -465,10 +465,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         entity.parentObjectCharacterId = parentFoundation.characterId;
         parentFoundation.freeplaceEntities[entity.characterId] = entity;
       });
-      parentFoundation.freeplaceEntities = {
-        ...parentFoundation.freeplaceEntities,
-        ...this.freeplaceEntities,
-      };
+      // move free placed entities to parent foundation
+      for (const a in this.freeplaceEntities) {
+        const freePlacedEntity = this.freeplaceEntities[a];
+        freePlacedEntity.parentObjectCharacterId = parentFoundation.characterId;
+        parentFoundation.freeplaceEntities[freePlacedEntity.characterId] =
+          freePlacedEntity;
+      }
     }
   }
 

@@ -13,8 +13,8 @@
 
 import { MongoClient } from "mongodb";
 import { httpServerMessage } from "types/shared";
-import { parentPort, workerData } from "worker_threads";
-import http from "http";
+import { parentPort, workerData } from "node:worker_threads";
+import http from "node:http";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import { DB_NAME } from "../../../utils/constants";
 function sendMessageToServer(type: string, requestId: number, data: any) {

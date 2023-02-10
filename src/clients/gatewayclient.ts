@@ -12,7 +12,7 @@
 // ======================================================================
 
 const debug = require("debug")("GatewayClient");
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import { GatewayProtocol } from "h1emu-core";
 import { SOEClient } from "./soeclient";
 

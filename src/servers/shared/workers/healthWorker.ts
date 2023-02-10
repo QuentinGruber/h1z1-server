@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { parentPort, workerData, Worker } from "worker_threads";
+import { parentPort, workerData, Worker } from "node:worker_threads";
 const debug = require("debug")("HEALTHWORKER");
 interface Target {
   prototype: any;

@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 
 import { SOEClient } from "./soeclient";
 import { LoginProtocol } from "../protocols/loginprotocol";
