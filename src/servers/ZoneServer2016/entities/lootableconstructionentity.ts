@@ -110,6 +110,20 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {
+    server.deleteEntity(
+      this.characterId,
+      server._lootableConstruction[this.characterId]
+        ? server._lootableConstruction
+        : server._worldLootableConstruction,
+      242,
+      destructTime
+    );
+    const parent = this.getParent(server);
+    if (parent && parent.freeplaceEntities[this.characterId]) {
+      delete parent.freeplaceEntities[this.characterId];
+    }
+
+    server.worldObjectManager.createLootbag(server, this);
     const container = this.getContainer();
     if (container) {
       container.items = {};
@@ -120,27 +134,6 @@ export class LootableConstructionEntity extends BaseLootableEntity {
         }
       }
     }
-    server.deleteEntity(
-      this.characterId,
-      server._lootableConstruction[this.characterId]
-        ? server._lootableConstruction
-        : server._worldLootableConstruction,
-      242,
-      destructTime
-    );
-
-    const parent = this.getParent(server);
-    if (parent && parent.freeplaceEntities[this.characterId]) {
-      delete parent.freeplaceEntities[this.characterId];
-    }
-
-    if (!destructTime) {
-      server.worldObjectManager.createLootbag(server, this);
-      return;
-    }
-    setTimeout(() => {
-      server.worldObjectManager.createLootbag(server, this);
-    }, destructTime);
   }
 
   getHasPermission(
