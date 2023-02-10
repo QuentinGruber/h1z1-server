@@ -586,7 +586,7 @@ export class LoginServer extends EventEmitter {
       if (client.gameVersion === server.value.gameVersion) {
         this.sendData(client, "ServerUpdate", {
           ...server.value,
-          allowedAccess: status,
+          allowedAccess: !server.value.locked ? status : false,
         });
       }
     });
@@ -618,6 +618,12 @@ export class LoginServer extends EventEmitter {
           gameVersion: client.gameVersion,
         })
         .toArray();
+      servers = servers.map((server: any) => {
+        if (server.locked) {
+          server.allowedAccess = false;
+        }
+        return server;
+      });
     } else {
       switch (client.gameVersion) {
         default:
