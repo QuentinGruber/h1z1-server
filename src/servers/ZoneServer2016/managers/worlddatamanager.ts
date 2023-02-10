@@ -146,7 +146,7 @@ export class WorldDataManager {
 
   static async getDatabase(mongoAddress: string) {
     const mongoClient = new MongoClient(mongoAddress, {
-      maxPoolSize: 50,
+      maxPoolSize: 100,
     });
     try {
       await mongoClient.connect();
@@ -947,20 +947,16 @@ export class WorldDataManager {
       );
     } else {
       const collection = this._db?.collection(DB_COLLECTIONS.CONSTRUCTION) as Collection;
-      console.time("updating")
+      const updatePromises = []
       for(let i =0; i < constructions.length; i++){
         const construction = constructions[i];
-        await collection.findOneAndUpdate({ characterId: construction.characterId }, { $set: {...construction  } }, { upsert: true});
+        updatePromises.push(collection.findOneAndUpdate({ characterId: construction.characterId, serverId:this._worldId }, { $set: construction  }, { upsert: true}));
       }
-      console.timeEnd("updating")
-      console.time("ids")
+      await Promise.all(updatePromises)
       const allCharactersIds = constructions.map((construction)=>{
         return construction.characterId;
       })
-      console.timeEnd("ids")
-      console.time("deleting")
-      await collection.deleteMany({characterId: {$nin: allCharactersIds}})
-      console.timeEnd("deleting")
+      await collection.deleteMany({serverId:this._worldId,characterId: {$nin: allCharactersIds}})
     }
   }
 
@@ -999,12 +995,17 @@ export class WorldDataManager {
         JSON.stringify(crops, null, 2)
       );
     } else {
-      const collection = this._db?.collection(DB_COLLECTIONS.CROPS);
-      const tempCollection = this._db?.collection(DB_COLLECTIONS.CROPS_TEMP);
-      if (crops.length) await tempCollection?.insertMany(crops);
-      await collection?.deleteMany({ serverId: this._worldId });
-      if (crops.length) await collection?.insertMany(crops);
-      await tempCollection?.deleteMany({ serverId: this._worldId });
+      const collection = this._db?.collection(DB_COLLECTIONS.CROPS) as Collection;
+      const updatePromises = []
+      for(let i =0; i < crops.length; i++){
+        const construction = crops[i];
+        updatePromises.push(collection.findOneAndUpdate({ characterId: construction.characterId, serverId:this._worldId }, { $set: construction  }, { upsert: true}));
+      }
+      await Promise.all(updatePromises)
+      const allCharactersIds = crops.map((crop)=>{
+        return crop.characterId;
+      })
+      await collection.deleteMany({serverId:this._worldId,characterId: {$nin: allCharactersIds}})
     }
   }
 
@@ -1099,24 +1100,27 @@ export class WorldDataManager {
   }
 
   async saveWorldFreeplaceConstruction(
-    freeplace: LootableConstructionSaveData[]
+    freeplaces: LootableConstructionSaveData[]
   ) {
     if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/worlddata/worldconstruction.json`,
-        JSON.stringify(freeplace, null, 2)
+        JSON.stringify(freeplaces, null, 2)
       );
     } else {
       const collection = this._db?.collection(
         DB_COLLECTIONS.WORLD_CONSTRUCTIONS
       );
-      const tempCollection = this._db?.collection(
-        DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP
-      );
-      if (freeplace.length) await tempCollection?.insertMany(freeplace);
-      await collection?.deleteMany({ serverId: this._worldId });
-      if (freeplace.length) await collection?.insertMany(freeplace);
-      await tempCollection?.deleteMany({ serverId: this._worldId });
+      const updatePromises = []
+      for(let i =0; i < freeplaces.length; i++){
+        const construction = freeplaces[i];
+        updatePromises.push(collection.findOneAndUpdate({ characterId: construction.characterId, serverId:this._worldId }, { $set: construction  }, { upsert: true}));
+      }
+      await Promise.all(updatePromises)
+      const allCharactersIds = freeplaces.map((freeplace)=>{
+        return freeplace.characterId;
+      })
+      await collection.deleteMany({serverId:this._worldId,characterId: {$nin: allCharactersIds}})
     }
   }
 
