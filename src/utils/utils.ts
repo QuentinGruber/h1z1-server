@@ -807,28 +807,6 @@ export async function logClientActionToMongo(
   });
 }
 
-export async function fixDbTempData(
-  db: Db,
-  worldId: number,
-  tempData: any,
-  collection: DB_COLLECTIONS,
-  tempCollection: DB_COLLECTIONS
-) {
-  console.log(`DB: move ${tempCollection} data to ${collection}`);
-  for (let i = 0; i < tempData.length; i++) {
-    const tempItem = tempData[i];
-    delete tempItem._id;
-    await db
-      .collection(collection)
-      .findOneAndUpdate(
-        { characterId: tempItem.characterId },
-        { $set: tempItem },
-        { upsert: true }
-      );
-  }
-  await db?.collection(tempCollection).deleteMany({ serverId: worldId });
-}
-
 export function removeUntransferableFields(data: any) {
   const allowedTypes = ["string", "number", "boolean", "undefined", "bigint"];
 

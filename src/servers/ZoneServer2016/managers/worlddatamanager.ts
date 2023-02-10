@@ -33,7 +33,6 @@ import {
   WeaponSaveData,
 } from "types/savedata";
 import {
-  fixDbTempData,
   getAppDataFolderPath,
   initMongo,
   removeUntransferableFields,
@@ -780,20 +779,6 @@ export class WorldDataManager {
         return;
       }
     } else {
-      const tempData = await this._db
-        ?.collection(DB_COLLECTIONS.CONSTRUCTION_TEMP)
-        .find({ serverId: this._worldId })
-        .toArray();
-
-      if (tempData.length) {
-        await fixDbTempData(
-          this._db,
-          this._worldId,
-          tempData,
-          DB_COLLECTIONS.CONSTRUCTION,
-          DB_COLLECTIONS.CONSTRUCTION_TEMP
-        );
-      }
       constructionParents = <any>(
         await this._db
           ?.collection("construction")
@@ -1076,19 +1061,6 @@ export class WorldDataManager {
         return;
       }
     } else {
-      const tempData = await this._db
-        ?.collection("crop-temp")
-        .find({ serverId: this._worldId })
-        .toArray();
-      if (tempData.length) {
-        await fixDbTempData(
-          this._db,
-          this._worldId,
-          tempData,
-          DB_COLLECTIONS.CROPS,
-          DB_COLLECTIONS.CROPS_TEMP
-        );
-      }
       crops = <any>(
         await this._db
           ?.collection(DB_COLLECTIONS.CROPS)
@@ -1134,19 +1106,6 @@ export class WorldDataManager {
         return;
       }
     } else {
-      const tempData = await this._db
-        ?.collection(DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP)
-        .find({ serverId: this._worldId })
-        .toArray();
-      if (tempData.length) {
-        await fixDbTempData(
-          this._db,
-          this._worldId,
-          tempData,
-          DB_COLLECTIONS.WORLD_CONSTRUCTIONS,
-          DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP
-        );
-      }
       freeplace = <any>(
         await this._db
           ?.collection(DB_COLLECTIONS.WORLD_CONSTRUCTIONS)
