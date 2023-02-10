@@ -1640,7 +1640,7 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        if (this.isConstructionInSecuredArea(constructionObject, "simple")) {
+        if (this.isConstructionInSecuredArea(constructionObject)) {
           if (client) {
             this.sendBaseSecuredMessage(client);
           }
@@ -1672,7 +1672,7 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        if (this.isConstructionInSecuredArea(constructionObject, "door")) {
+        if (this.isConstructionInSecuredArea(constructionObject)) {
           if (client) {
             this.sendBaseSecuredMessage(client);
           }
@@ -1789,10 +1789,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  isConstructionInSecuredArea(
-    construction: SlottedConstructionEntity,
-    type: string
-  ) {
+  isConstructionInSecuredArea(construction: SlottedConstructionEntity) {
     /*switch (type) {
       case "simple":
         for (const a in this._constructionFoundations) {
