@@ -61,7 +61,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     this.defaultLoadout = lootableContainerDefaultLoadouts.storage;
     if (subEntityType === "SmeltingEntity") {
       this.subEntity = new SmeltingEntity(this, server);
-      this.npcRenderDistance = 20; //this.npcRenderDistance = 250; lower render distances until next wipe (furnaces were invis and people have multiple at one one, causes lag)
+      this.npcRenderDistance = 250;
     } else if (subEntityType === "CollectingEntity") {
       this.subEntity = new CollectingEntity(this, server);
       this.npcRenderDistance = 20; //this.npcRenderDistance = 250;
