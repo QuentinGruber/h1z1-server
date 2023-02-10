@@ -4411,13 +4411,47 @@ export class ZoneServer2016 extends EventEmitter {
         });
       }
     }
+    // block building around spawn points
+    let isInSpawnPoint = false;
+    this._spawnLocations.forEach((point: any) => {
+      if (isPosInRadius(50, position, point.position)) isInSpawnPoint = true;
+    });
+    // alow placement in spawn point if object is parented to a foundation
+    let isInFoundationSpawnPoint = false;
+    for (const a in this._constructionFoundations) {
+      const iteratedFoundation = this._constructionFoundations[a];
+      if (iteratedFoundation.bounds) {
+        if (
+          iteratedFoundation.isInside(position) ||
+          (iteratedFoundation.characterId == parentObjectCharacterId &&
+            isPosInRadius(20, iteratedFoundation.state.position, position))
+        )
+          isInFoundationSpawnPoint = true;
+      }
+      for (const b in iteratedFoundation.occupiedShelterSlots) {
+        const shelter = iteratedFoundation.occupiedShelterSlots[b];
+        if (
+          shelter.characterId == parentObjectCharacterId &&
+          isPosInRadius(20, iteratedFoundation.state.position, position)
+        ) {
+          isInFoundationSpawnPoint = true;
+        }
+      }
+    }
+    if (isInSpawnPoint && !isInFoundationSpawnPoint) {
+      this.sendData(client, "Construction.PlacementFinalizeResponse", {
+        status: 0,
+        unknownString1: "",
+      });
+      this.sendAlert(
+        client,
+        "You may not place this object this close to a town or point of interest."
+      );
+      return;
+    }
+
     // block building in cities
-    const allowedPoiPlacement = [
-      Items.LANDMINE,
-      Items.IED,
-      Items.PUNJI_STICKS,
-      Items.SNARE,
-    ];
+    const allowedPoiPlacement = [Items.LANDMINE, Items.IED, Items.SNARE];
     if (!allowedPoiPlacement.includes(itemDefinitionId)) {
       let isInPoi = false;
       let useRange = true;
@@ -4445,6 +4479,15 @@ export class ZoneServer2016 extends EventEmitter {
               isPosInRadius(20, iteratedFoundation.state.position, position))
           )
             isInFoundationPOI = true;
+        }
+        for (const b in iteratedFoundation.occupiedShelterSlots) {
+          const shelter = iteratedFoundation.occupiedShelterSlots[b];
+          if (
+            shelter.characterId == parentObjectCharacterId &&
+            isPosInRadius(20, iteratedFoundation.state.position, position)
+          ) {
+            isInFoundationPOI = true;
+          }
         }
       }
       if (isInPoi && !isInFoundationPOI) {
