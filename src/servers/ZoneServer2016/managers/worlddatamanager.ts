@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { MongoClient } from "mongodb";
+import { Collection, MongoClient } from "mongodb";
 import {
   BaseConstructionSaveData,
   BaseEntityUpdateSaveData,
@@ -946,14 +946,21 @@ export class WorldDataManager {
         JSON.stringify(constructions, null, 2)
       );
     } else {
-      const tempCollection = this._db?.collection(
-        DB_COLLECTIONS.CONSTRUCTION_TEMP
-      );
-      if (constructions.length) await tempCollection?.insertMany(constructions);
-      const collection = this._db?.collection(DB_COLLECTIONS.CONSTRUCTION);
-      await collection?.deleteMany({ serverId: this._worldId });
-      if (constructions.length) await collection?.insertMany(constructions);
-      await tempCollection?.deleteMany({ serverId: this._worldId });
+      const collection = this._db?.collection(DB_COLLECTIONS.CONSTRUCTION) as Collection;
+      console.time("updating")
+      for(let i =0; i < constructions.length; i++){
+        const construction = constructions[i];
+        await collection.findOneAndUpdate({ characterId: construction.characterId }, { $set: {...construction  } }, { upsert: true});
+      }
+      console.timeEnd("updating")
+      console.time("ids")
+      const allCharactersIds = constructions.map((construction)=>{
+        return construction.characterId;
+      })
+      console.timeEnd("ids")
+      console.time("deleting")
+      await collection.deleteMany({characterId: {$nin: allCharactersIds}})
+      console.timeEnd("deleting")
     }
   }
 
