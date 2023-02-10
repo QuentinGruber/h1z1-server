@@ -767,7 +767,7 @@ export class WorldDataManager {
       const ramp = this.loadConstructionChildEntity(server, rampData);
       foundation.setRampSlot(ramp);
     });
-
+    foundation.updateSecuredState(server);
     return foundation;
   }
 
