@@ -607,7 +607,7 @@ export class WorldDataManager {
         entityData.parentObjectCharacterId,
         entityData.slot
       );
-
+    entity.health = entityData.health;
     entity.passwordHash = entityData.passwordHash;
     entity.grantedAccess = entityData.grantedAccess;
     entity.placementTime = entityData.placementTime;
@@ -634,7 +634,7 @@ export class WorldDataManager {
         entityData.parentObjectCharacterId,
         entityData.subEntityType
       );
-
+    entity.health = entityData.health;
     entity.placementTime = entityData.placementTime;
 
     if (entityData.container) {
