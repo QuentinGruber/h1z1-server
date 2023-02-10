@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { MongoClient } from "mongodb";
+import { Collection, MongoClient } from "mongodb";
 import {
   BaseConstructionSaveData,
   BaseEntityUpdateSaveData,
@@ -33,7 +33,6 @@ import {
   WeaponSaveData,
 } from "types/savedata";
 import {
-  fixDbTempData,
   getAppDataFolderPath,
   initMongo,
   removeUntransferableFields,
@@ -146,7 +145,7 @@ export class WorldDataManager {
 
   static async getDatabase(mongoAddress: string) {
     const mongoClient = new MongoClient(mongoAddress, {
-      maxPoolSize: 50,
+      maxPoolSize: 100,
     });
     try {
       await mongoClient.connect();
@@ -780,20 +779,6 @@ export class WorldDataManager {
         return;
       }
     } else {
-      const tempData = await this._db
-        ?.collection(DB_COLLECTIONS.CONSTRUCTION_TEMP)
-        .find({ serverId: this._worldId })
-        .toArray();
-
-      if (tempData.length) {
-        await fixDbTempData(
-          this._db,
-          this._worldId,
-          tempData,
-          DB_COLLECTIONS.CONSTRUCTION,
-          DB_COLLECTIONS.CONSTRUCTION_TEMP
-        );
-      }
       constructionParents = <any>(
         await this._db
           ?.collection("construction")
@@ -946,14 +931,28 @@ export class WorldDataManager {
         JSON.stringify(constructions, null, 2)
       );
     } else {
-      const tempCollection = this._db?.collection(
-        DB_COLLECTIONS.CONSTRUCTION_TEMP
-      );
-      if (constructions.length) await tempCollection?.insertMany(constructions);
-      const collection = this._db?.collection(DB_COLLECTIONS.CONSTRUCTION);
-      await collection?.deleteMany({ serverId: this._worldId });
-      if (constructions.length) await collection?.insertMany(constructions);
-      await tempCollection?.deleteMany({ serverId: this._worldId });
+      const collection = this._db?.collection(
+        DB_COLLECTIONS.CONSTRUCTION
+      ) as Collection;
+      const updatePromises = [];
+      for (let i = 0; i < constructions.length; i++) {
+        const construction = constructions[i];
+        updatePromises.push(
+          collection.findOneAndUpdate(
+            { characterId: construction.characterId, serverId: this._worldId },
+            { $set: construction },
+            { upsert: true }
+          )
+        );
+      }
+      await Promise.all(updatePromises);
+      const allCharactersIds = constructions.map((construction) => {
+        return construction.characterId;
+      });
+      await collection.deleteMany({
+        serverId: this._worldId,
+        characterId: { $nin: allCharactersIds },
+      });
     }
   }
 
@@ -992,12 +991,28 @@ export class WorldDataManager {
         JSON.stringify(crops, null, 2)
       );
     } else {
-      const collection = this._db?.collection(DB_COLLECTIONS.CROPS);
-      const tempCollection = this._db?.collection(DB_COLLECTIONS.CROPS_TEMP);
-      if (crops.length) await tempCollection?.insertMany(crops);
-      await collection?.deleteMany({ serverId: this._worldId });
-      if (crops.length) await collection?.insertMany(crops);
-      await tempCollection?.deleteMany({ serverId: this._worldId });
+      const collection = this._db?.collection(
+        DB_COLLECTIONS.CROPS
+      ) as Collection;
+      const updatePromises = [];
+      for (let i = 0; i < crops.length; i++) {
+        const construction = crops[i];
+        updatePromises.push(
+          collection.findOneAndUpdate(
+            { characterId: construction.characterId, serverId: this._worldId },
+            { $set: construction },
+            { upsert: true }
+          )
+        );
+      }
+      await Promise.all(updatePromises);
+      const allCharactersIds = crops.map((crop) => {
+        return crop.characterId;
+      });
+      await collection.deleteMany({
+        serverId: this._worldId,
+        characterId: { $nin: allCharactersIds },
+      });
     }
   }
 
@@ -1068,19 +1083,6 @@ export class WorldDataManager {
         return;
       }
     } else {
-      const tempData = await this._db
-        ?.collection("crop-temp")
-        .find({ serverId: this._worldId })
-        .toArray();
-      if (tempData.length) {
-        await fixDbTempData(
-          this._db,
-          this._worldId,
-          tempData,
-          DB_COLLECTIONS.CROPS,
-          DB_COLLECTIONS.CROPS_TEMP
-        );
-      }
       crops = <any>(
         await this._db
           ?.collection(DB_COLLECTIONS.CROPS)
@@ -1092,24 +1094,36 @@ export class WorldDataManager {
   }
 
   async saveWorldFreeplaceConstruction(
-    freeplace: LootableConstructionSaveData[]
+    freeplaces: LootableConstructionSaveData[]
   ) {
     if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/worlddata/worldconstruction.json`,
-        JSON.stringify(freeplace, null, 2)
+        JSON.stringify(freeplaces, null, 2)
       );
     } else {
       const collection = this._db?.collection(
         DB_COLLECTIONS.WORLD_CONSTRUCTIONS
       );
-      const tempCollection = this._db?.collection(
-        DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP
-      );
-      if (freeplace.length) await tempCollection?.insertMany(freeplace);
-      await collection?.deleteMany({ serverId: this._worldId });
-      if (freeplace.length) await collection?.insertMany(freeplace);
-      await tempCollection?.deleteMany({ serverId: this._worldId });
+      const updatePromises = [];
+      for (let i = 0; i < freeplaces.length; i++) {
+        const construction = freeplaces[i];
+        updatePromises.push(
+          collection.findOneAndUpdate(
+            { characterId: construction.characterId, serverId: this._worldId },
+            { $set: construction },
+            { upsert: true }
+          )
+        );
+      }
+      await Promise.all(updatePromises);
+      const allCharactersIds = freeplaces.map((freeplace) => {
+        return freeplace.characterId;
+      });
+      await collection.deleteMany({
+        serverId: this._worldId,
+        characterId: { $nin: allCharactersIds },
+      });
     }
   }
 
@@ -1123,19 +1137,6 @@ export class WorldDataManager {
         return;
       }
     } else {
-      const tempData = await this._db
-        ?.collection(DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP)
-        .find({ serverId: this._worldId })
-        .toArray();
-      if (tempData.length) {
-        await fixDbTempData(
-          this._db,
-          this._worldId,
-          tempData,
-          DB_COLLECTIONS.WORLD_CONSTRUCTIONS,
-          DB_COLLECTIONS.WORLD_CONSTRUCTIONS_TEMP
-        );
-      }
       freeplace = <any>(
         await this._db
           ?.collection(DB_COLLECTIONS.WORLD_CONSTRUCTIONS)

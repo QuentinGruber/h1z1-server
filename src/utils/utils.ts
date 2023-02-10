@@ -19,7 +19,7 @@ import {
   setImmediate as setImmediatePromise,
   setTimeout as setTimeoutPromise,
 } from "node:timers/promises";
-import { Collection, Db, MongoClient } from "mongodb";
+import { Collection, MongoClient } from "mongodb";
 import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
@@ -805,28 +805,6 @@ export async function logClientActionToMongo(
     characterName: client.character.name,
     loginSessionId: client.loginSessionId,
   });
-}
-
-export async function fixDbTempData(
-  db: Db,
-  worldId: number,
-  tempData: any,
-  collection: DB_COLLECTIONS,
-  tempCollection: DB_COLLECTIONS
-) {
-  console.log(`DB: move ${tempCollection} data to ${collection}`);
-  for (let i = 0; i < tempData.length; i++) {
-    const tempItem = tempData[i];
-    delete tempItem._id;
-    await db
-      .collection(collection)
-      .findOneAndUpdate(
-        { characterId: tempItem.characterId },
-        { $set: tempItem },
-        { upsert: true }
-      );
-  }
-  await db?.collection(tempCollection).deleteMany({ serverId: worldId });
 }
 
 export function removeUntransferableFields(data: any) {
