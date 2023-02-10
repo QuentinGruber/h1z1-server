@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import { GatewayClient } from "./gatewayclient";
 import { H1Z1Protocol as ZoneProtocol } from "../protocols/h1z1protocol";
 

@@ -23,7 +23,7 @@
 <ul class="tsd-hierarchy">
 <li><span class="target">SOEServer</span></li></ul></li></ul></section><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L26">src/servers/SoeServer/soeserver.ts:26</a></li></ul></aside>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L27">src/servers/SoeServer/soeserver.ts:27</a></li></ul></aside>
 <section class="tsd-panel-group tsd-index-group">
 <section class="tsd-panel tsd-index-panel">
 <details class="tsd-index-content tsd-index-accordion" open><summary class="tsd-accordion-summary tsd-index-summary">
@@ -43,6 +43,7 @@
 <a href="servers_SoeServer_soeserver.SOEServer.html#_crcSeed" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>_crc<wbr/>Seed</span></a>
 <a href="servers_SoeServer_soeserver.SOEServer.html#_cryptoKey" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>_crypto<wbr/>Key</span></a>
 <a href="servers_SoeServer_soeserver.SOEServer.html#_maxMultiBufferSize" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>_max<wbr/>Multi<wbr/>Buffer<wbr/>Size</span></a>
+<a href="servers_SoeServer_soeserver.SOEServer.html#_maxSeqResendRange" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>_max<wbr/>Seq<wbr/>Resend<wbr/>Range</span></a>
 <a href="servers_SoeServer_soeserver.SOEServer.html#_pingTimeoutTime" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>_ping<wbr/>Timeout<wbr/>Time</span></a>
 <a href="servers_SoeServer_soeserver.SOEServer.html#_protocol" class="tsd-index-link tsd-kind-property tsd-parent-kind-class"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>_protocol</span></a>
 <a href="servers_SoeServer_soeserver.SOEServer.html#_resendTimeout" class="tsd-index-link tsd-kind-property tsd-parent-kind-class tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg><span>_resend<wbr/>Timeout</span></a>
@@ -129,74 +130,79 @@
 <h4 class="tsd-returns-title">Returns <a href="servers_SoeServer_soeserver.SOEServer.html" class="tsd-signature-type" data-tsd-kind="Class">SOEServer</a></h4><aside class="tsd-sources">
 <p>Overrides EventEmitter.constructor</p>
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L49">src/servers/SoeServer/soeserver.ts:49</a></li></ul></aside></li></ul></section></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L51">src/servers/SoeServer/soeserver.ts:51</a></li></ul></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_ackTiming" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_ack<wbr/>Timing</span><a href="#_ackTiming" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_ack<wbr/>Timing<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 80</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L46">src/servers/SoeServer/soeserver.ts:46</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L47">src/servers/SoeServer/soeserver.ts:47</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="_allowRawDataReception" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_allow<wbr/>Raw<wbr/>Data<wbr/>Reception</span><a href="#_allowRawDataReception" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_allow<wbr/>Raw<wbr/>Data<wbr/>Reception<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L48">src/servers/SoeServer/soeserver.ts:48</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L49">src/servers/SoeServer/soeserver.ts:49</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_clients" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_clients</span><a href="#_clients" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_clients<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Map</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">, </span><a href="servers_SoeServer_soeclient.default.html" class="tsd-signature-type" data-tsd-kind="Class">default</a><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol"> = ...</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L32">src/servers/SoeServer/soeserver.ts:32</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L33">src/servers/SoeServer/soeserver.ts:33</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_connection" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_connection</span><a href="#_connection" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_connection<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Worker</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L33">src/servers/SoeServer/soeserver.ts:33</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L34">src/servers/SoeServer/soeserver.ts:34</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="_crcLength" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_crc<wbr/>Length</span><a href="#_crcLength" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_crc<wbr/>Length<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">crc_length_options</span><span class="tsd-signature-symbol"> = 2</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L35">src/servers/SoeServer/soeserver.ts:35</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L36">src/servers/SoeServer/soeserver.ts:36</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="_crcSeed" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_crc<wbr/>Seed</span><a href="#_crcSeed" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_crc<wbr/>Seed<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 0</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L34">src/servers/SoeServer/soeserver.ts:34</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L35">src/servers/SoeServer/soeserver.ts:35</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="_cryptoKey" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_crypto<wbr/>Key</span><a href="#_cryptoKey" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_crypto<wbr/>Key<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Uint8Array</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L28">src/servers/SoeServer/soeserver.ts:28</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L29">src/servers/SoeServer/soeserver.ts:29</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_maxMultiBufferSize" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>_max<wbr/>Multi<wbr/>Buffer<wbr/>Size</span><a href="#_maxMultiBufferSize" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_max<wbr/>Multi<wbr/>Buffer<wbr/>Size<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L39">src/servers/SoeServer/soeserver.ts:39</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L40">src/servers/SoeServer/soeserver.ts:40</a></li></ul></aside></section>
+<section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_maxSeqResendRange" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_max<wbr/>Seq<wbr/>Resend<wbr/>Range</span><a href="#_maxSeqResendRange" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<div class="tsd-signature">_max<wbr/>Seq<wbr/>Resend<wbr/>Range<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 100</span></div><aside class="tsd-sources">
+<ul>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L50">src/servers/SoeServer/soeserver.ts:50</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="_pingTimeoutTime" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_ping<wbr/>Timeout<wbr/>Time</span><a href="#_pingTimeoutTime" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_ping<wbr/>Timeout<wbr/>Time<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 60000</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L37">src/servers/SoeServer/soeserver.ts:37</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L38">src/servers/SoeServer/soeserver.ts:38</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="_protocol" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_protocol</span><a href="#_protocol" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_protocol<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">Soeprotocol</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L29">src/servers/SoeServer/soeserver.ts:29</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L30">src/servers/SoeServer/soeserver.ts:30</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_resendTimeout" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_resend<wbr/>Timeout</span><a href="#_resendTimeout" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_resend<wbr/>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 500</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L44">src/servers/SoeServer/soeserver.ts:44</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L45">src/servers/SoeServer/soeserver.ts:45</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_routineTiming" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_routine<wbr/>Timing</span><a href="#_routineTiming" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_routine<wbr/>Timing<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 3</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L47">src/servers/SoeServer/soeserver.ts:47</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L48">src/servers/SoeServer/soeserver.ts:48</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="_serverPort" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_server<wbr/>Port</span><a href="#_serverPort" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_server<wbr/>Port<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L27">src/servers/SoeServer/soeserver.ts:27</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L28">src/servers/SoeServer/soeserver.ts:28</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-private"><a id="_soeClientRoutineLoopMethod" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_soe<wbr/>Client<wbr/>Routine<wbr/>Loop<wbr/>Method</span><a href="#_soeClientRoutineLoopMethod" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_soe<wbr/>Client<wbr/>Routine<wbr/>Loop<wbr/>Method<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span>arg0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span>, arg1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></div>
@@ -204,8 +210,8 @@
 <h4>Type declaration</h4>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-signature">
-<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-class">
-<li class="tsd-signature" id="__type.__type-1"><span class="tsd-signature-symbol">(</span>arg0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span>, arg1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+<ul class="tsd-signatures tsd-kind-type-literal tsd-parent-kind-property">
+<li class="tsd-signature" id="_soeClientRoutineLoopMethod.__type.__type-1"><span class="tsd-signature-symbol">(</span>arg0<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span>, arg1<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">number</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -222,38 +228,38 @@
 <h5>arg1: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L40">src/servers/SoeServer/soeserver.ts:40</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L41">src/servers/SoeServer/soeserver.ts:41</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="_udpLength" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_udp<wbr/>Length</span><a href="#_udpLength" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_udp<wbr/>Length<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 512</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L30">src/servers/SoeServer/soeserver.ts:30</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L31">src/servers/SoeServer/soeserver.ts:31</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="_useEncryption" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_use<wbr/>Encryption</span><a href="#_useEncryption" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_use<wbr/>Encryption<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = true</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L31">src/servers/SoeServer/soeserver.ts:31</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L32">src/servers/SoeServer/soeserver.ts:32</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="_usePingTimeout" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_use<wbr/>Ping<wbr/>Timeout</span><a href="#_usePingTimeout" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_use<wbr/>Ping<wbr/>Timeout<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L38">src/servers/SoeServer/soeserver.ts:38</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L39">src/servers/SoeServer/soeserver.ts:39</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="_waitQueueTimeMs" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>_wait<wbr/>Queue<wbr/>Time<wbr/>Ms</span><a href="#_waitQueueTimeMs" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">_wait<wbr/>Queue<wbr/>Time<wbr/>Ms<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 50</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L36">src/servers/SoeServer/soeserver.ts:36</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L37">src/servers/SoeServer/soeserver.ts:37</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class"><a id="packetRatePerClient" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>packet<wbr/>Rate<wbr/>Per<wbr/>Client</span><a href="#packetRatePerClient" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">packet<wbr/>Rate<wbr/>Per<wbr/>Client<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span><span class="tsd-signature-symbol"> = 500</span></div><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L45">src/servers/SoeServer/soeserver.ts:45</a></li></ul></aside></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L46">src/servers/SoeServer/soeserver.ts:46</a></li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="captureRejectionSymbol" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>capture<wbr/>Rejection<wbr/>Symbol</span><a href="#captureRejectionSymbol" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">capture<wbr/>Rejection<wbr/>Symbol<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">typeof </span><a href="servers_SoeServer_soeserver.SOEServer.html#captureRejectionSymbol" class="tsd-signature-type" data-tsd-kind="Property">captureRejectionSymbol</a></div><aside class="tsd-sources">
 <p>Inherited from EventEmitter.captureRejectionSymbol</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:291</li></ul></aside></section>
+<li>Defined in node_modules/@types/node/events.d.ts:328</li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="captureRejections" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>capture<wbr/>Rejections</span><a href="#captureRejections" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">capture<wbr/>Rejections<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">boolean</span></div>
@@ -261,13 +267,13 @@
 </div><aside class="tsd-sources">
 <p>Inherited from EventEmitter.captureRejections</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:296</li></ul></aside></section>
+<li>Defined in node_modules/@types/node/events.d.ts:333</li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="defaultMaxListeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>default<wbr/>Max<wbr/>Listeners</span><a href="#defaultMaxListeners" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">default<wbr/>Max<wbr/>Listeners<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">number</span></div><aside class="tsd-sources">
 <p>Inherited from EventEmitter.defaultMaxListeners</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:297</li></ul></aside></section>
+<li>Defined in node_modules/@types/node/events.d.ts:334</li></ul></aside></section>
 <section class="tsd-panel tsd-member tsd-kind-property tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="errorMonitor" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>error<wbr/>Monitor</span><a href="#errorMonitor" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <div class="tsd-signature">error<wbr/>Monitor<span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">typeof </span><a href="servers_SoeServer_soeserver.SOEServer.html#errorMonitor" class="tsd-signature-type" data-tsd-kind="Property">errorMonitor</a></div>
@@ -280,7 +286,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 </div><aside class="tsd-sources">
 <p>Inherited from EventEmitter.errorMonitor</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:290</li></ul></aside></section></section>
+<li>Defined in node_modules/@types/node/events.d.ts:327</li></ul></aside></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_addPacketToBuffer" class="tsd-anchor"></a>
@@ -299,7 +305,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 <h5>queue: <a href="../interfaces/servers_SoeServer_soeclient.packetsQueue.html" class="tsd-signature-type" data-tsd-kind="Interface">packetsQueue</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L520">src/servers/SoeServer/soeserver.ts:520</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L528">src/servers/SoeServer/soeserver.ts:528</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_addPacketToQueue" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_add<wbr/>Packet<wbr/>To<wbr/>Queue</span><a href="#_addPacketToQueue" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -314,7 +320,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 <h5>queue: <a href="../interfaces/servers_SoeServer_soeclient.packetsQueue.html" class="tsd-signature-type" data-tsd-kind="Interface">packetsQueue</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L499">src/servers/SoeServer/soeserver.ts:499</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L507">src/servers/SoeServer/soeserver.ts:507</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_canBeBuffered" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_can<wbr/>Be<wbr/>Buffered</span><a href="#_canBeBuffered" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -329,7 +335,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 <h5>queue: <a href="../interfaces/servers_SoeServer_soeclient.packetsQueue.html" class="tsd-signature-type" data-tsd-kind="Interface">packetsQueue</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L508">src/servers/SoeServer/soeserver.ts:508</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L516">src/servers/SoeServer/soeserver.ts:516</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_createClient" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_create<wbr/>Client</span><a href="#_createClient" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -344,7 +350,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 <h5>remote: <span class="tsd-signature-type">RemoteInfo</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <a href="servers_SoeServer_soeclient.default.html" class="tsd-signature-type" data-tsd-kind="Class">default</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L209">src/servers/SoeServer/soeserver.ts:209</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L217">src/servers/SoeServer/soeserver.ts:217</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_sendLogicalPacket" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_send<wbr/>Logical<wbr/>Packet</span><a href="#_sendLogicalPacket" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -363,7 +369,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 <h5>unbuffered: <span class="tsd-signature-type">boolean</span><span class="tsd-signature-symbol"> = false</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L534">src/servers/SoeServer/soeserver.ts:534</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L542">src/servers/SoeServer/soeserver.ts:542</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="_sendPhysicalPacket" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_send<wbr/>Physical<wbr/>Packet</span><a href="#_sendPhysicalPacket" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -378,7 +384,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 <h5>packet: <span class="tsd-signature-type">Uint8Array</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L80">src/servers/SoeServer/soeserver.ts:80</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L82">src/servers/SoeServer/soeserver.ts:82</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="addListener" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>add<wbr/>Listener</span><a href="#addListener" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -409,7 +415,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 <h4 class="tsd-returns-title">Returns <a href="servers_SoeServer_soeserver.SOEServer.html" class="tsd-signature-type" data-tsd-kind="Class">SOEServer</a></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.addListener</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:317</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:354</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="checkAck" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>check<wbr/>Ack</span><a href="#checkAck" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -422,7 +428,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 <h5>client: <a href="servers_SoeServer_soeclient.default.html" class="tsd-signature-type" data-tsd-kind="Class">default</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L152">src/servers/SoeServer/soeserver.ts:152</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L160">src/servers/SoeServer/soeserver.ts:160</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="checkClientOutQueues" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>check<wbr/>Client<wbr/>Out<wbr/>Queues</span><a href="#checkClientOutQueues" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -435,7 +441,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 <h5>client: <a href="servers_SoeServer_soeclient.default.html" class="tsd-signature-type" data-tsd-kind="Class">default</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L110">src/servers/SoeServer/soeserver.ts:110</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L112">src/servers/SoeServer/soeserver.ts:112</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="checkOutOfOrderQueue" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>check<wbr/>Out<wbr/>Of<wbr/>Order<wbr/>Queue</span><a href="#checkOutOfOrderQueue" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -448,7 +454,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 <h5>client: <a href="servers_SoeServer_soeclient.default.html" class="tsd-signature-type" data-tsd-kind="Class">default</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L196">src/servers/SoeServer/soeserver.ts:196</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L204">src/servers/SoeServer/soeserver.ts:204</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="checkResendQueue" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>check<wbr/>Resend<wbr/>Queue</span><a href="#checkResendQueue" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -461,7 +467,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 <h5>client: <a href="servers_SoeServer_soeclient.default.html" class="tsd-signature-type" data-tsd-kind="Class">default</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L140">src/servers/SoeServer/soeserver.ts:140</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L142">src/servers/SoeServer/soeserver.ts:142</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="createLogicalPacket" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>create<wbr/>Logical<wbr/>Packet</span><a href="#createLogicalPacket" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -476,7 +482,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 <h5>packet: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">LogicalPacket</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L477">src/servers/SoeServer/soeserver.ts:477</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L485">src/servers/SoeServer/soeserver.ts:485</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="deleteClient" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>delete<wbr/>Client</span><a href="#deleteClient" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -489,7 +495,7 @@ regular <code>&#39;error&#39;</code> listener is installed.</p>
 <h5>client: <a href="servers_SoeServer_soeclient.default.html" class="tsd-signature-type" data-tsd-kind="Class">default</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L586">src/servers/SoeServer/soeserver.ts:586</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L594">src/servers/SoeServer/soeserver.ts:594</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="emit" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>emit</span><a href="#emit" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -513,7 +519,7 @@ to each.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.emit</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:573</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:610</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="eventNames" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>event<wbr/>Names</span><a href="#eventNames" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -529,7 +535,7 @@ listeners. The values in the array are strings or <code>Symbol</code>s.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.eventNames</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:632</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:669</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="getMaxListeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Max<wbr/>Listeners</span><a href="#getMaxListeners" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -543,7 +549,7 @@ set by <code>emitter.setMaxListeners(n)</code> or defaults to <a href="servers_S
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.getMaxListeners</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:489</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:526</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="getSoeClient" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>get<wbr/>Soe<wbr/>Client</span><a href="#getSoeClient" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -556,7 +562,7 @@ set by <code>emitter.setMaxListeners(n)</code> or defaults to <a href="servers_S
 <h5>soeClientId: <span class="tsd-signature-type">string</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">undefined</span><span class="tsd-signature-symbol"> | </span><a href="servers_SoeServer_soeclient.default.html" class="tsd-signature-type" data-tsd-kind="Class">default</a></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L70">src/servers/SoeServer/soeserver.ts:70</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L72">src/servers/SoeServer/soeserver.ts:72</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="handlePacket" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>handle<wbr/>Packet</span><a href="#handlePacket" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -571,7 +577,7 @@ set by <code>emitter.setMaxListeners(n)</code> or defaults to <a href="servers_S
 <h5>packet: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L215">src/servers/SoeServer/soeserver.ts:215</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L223">src/servers/SoeServer/soeserver.ts:223</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="listenerCount" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>listener<wbr/>Count</span><a href="#listenerCount" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -591,7 +597,7 @@ set by <code>emitter.setMaxListeners(n)</code> or defaults to <a href="servers_S
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.listenerCount</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:579</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:616</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="listeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>listeners</span><a href="#listeners" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -611,7 +617,7 @@ set by <code>emitter.setMaxListeners(n)</code> or defaults to <a href="servers_S
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.listeners</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:502</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:539</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="off" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>off</span><a href="#off" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -642,7 +648,7 @@ set by <code>emitter.setMaxListeners(n)</code> or defaults to <a href="servers_S
 <h4 class="tsd-returns-title">Returns <a href="servers_SoeServer_soeserver.SOEServer.html" class="tsd-signature-type" data-tsd-kind="Class">SOEServer</a></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.off</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:462</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:499</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="on" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>on</span><a href="#on" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -687,7 +693,7 @@ event listener to the beginning of the listeners array.</p>
 <h4 class="tsd-returns-title">Returns <a href="servers_SoeServer_soeserver.SOEServer.html" class="tsd-signature-type" data-tsd-kind="Class">SOEServer</a></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.on</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:348</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:385</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="once" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>once</span><a href="#once" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -730,7 +736,7 @@ event listener to the beginning of the listeners array.</p>
 <h4 class="tsd-returns-title">Returns <a href="servers_SoeServer_soeserver.SOEServer.html" class="tsd-signature-type" data-tsd-kind="Class">SOEServer</a></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.once</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:377</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:414</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="packLogicalData" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>pack<wbr/>Logical<wbr/>Data</span><a href="#packLogicalData" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -745,7 +751,7 @@ event listener to the beginning of the listeners array.</p>
 <h5>packet: <span class="tsd-signature-type">any</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Buffer</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L429">src/servers/SoeServer/soeserver.ts:429</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L437">src/servers/SoeServer/soeserver.ts:437</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="prependListener" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>prepend<wbr/>Listener</span><a href="#prependListener" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -786,7 +792,7 @@ times.</p>
 <h4 class="tsd-returns-title">Returns <a href="servers_SoeServer_soeserver.SOEServer.html" class="tsd-signature-type" data-tsd-kind="Class">SOEServer</a></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.prependListener</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:597</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:634</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="prependOnceListener" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>prepend<wbr/>Once<wbr/>Listener</span><a href="#prependOnceListener" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -825,7 +831,7 @@ listener is removed, and then invoked.</p>
 <h4 class="tsd-returns-title">Returns <a href="servers_SoeServer_soeserver.SOEServer.html" class="tsd-signature-type" data-tsd-kind="Class">SOEServer</a></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.prependOnceListener</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:613</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:650</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="rawListeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>raw<wbr/>Listeners</span><a href="#rawListeners" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -846,7 +852,7 @@ including any wrappers (such as those created by <code>.once()</code>).</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.rawListeners</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:532</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:569</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="removeAllListeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>remove<wbr/>All<wbr/>Listeners</span><a href="#removeAllListeners" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -868,7 +874,7 @@ component or module (e.g. sockets or file streams).</p>
 <h4 class="tsd-returns-title">Returns <a href="servers_SoeServer_soeserver.SOEServer.html" class="tsd-signature-type" data-tsd-kind="Class">SOEServer</a></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.removeAllListeners</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:473</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:510</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="removeListener" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>remove<wbr/>Listener</span><a href="#removeListener" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -921,7 +927,7 @@ recently added instance. In the example the <code>once(&#39;ping&#39;)</code>lis
 <h4 class="tsd-returns-title">Returns <a href="servers_SoeServer_soeserver.SOEServer.html" class="tsd-signature-type" data-tsd-kind="Class">SOEServer</a></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.removeListener</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:457</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:494</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="resetPacketsQueue" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>reset<wbr/>Packets<wbr/>Queue</span><a href="#resetPacketsQueue" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -934,7 +940,7 @@ recently added instance. In the example the <code>once(&#39;ping&#39;)</code>lis
 <h5>queue: <a href="../interfaces/servers_SoeServer_soeclient.packetsQueue.html" class="tsd-signature-type" data-tsd-kind="Interface">packetsQueue</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L161">src/servers/SoeServer/soeserver.ts:161</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L169">src/servers/SoeServer/soeserver.ts:169</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="resetPacketsSent" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>reset<wbr/>Packets<wbr/>Sent</span><a href="#resetPacketsSent" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -942,7 +948,7 @@ recently added instance. In the example the <code>once(&#39;ping&#39;)</code>lis
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L74">src/servers/SoeServer/soeserver.ts:74</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L76">src/servers/SoeServer/soeserver.ts:76</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="sendAppData" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>send<wbr/>App<wbr/>Data</span><a href="#sendAppData" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -957,7 +963,7 @@ recently added instance. In the example the <code>once(&#39;ping&#39;)</code>lis
 <h5>data: <span class="tsd-signature-type">Uint8Array</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L556">src/servers/SoeServer/soeserver.ts:556</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L564">src/servers/SoeServer/soeserver.ts:564</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="sendClientWaitQueue" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>send<wbr/>Client<wbr/>Wait<wbr/>Queue</span><a href="#sendClientWaitQueue" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -972,7 +978,7 @@ recently added instance. In the example the <code>once(&#39;ping&#39;)</code>lis
 <h5>queue: <a href="../interfaces/servers_SoeServer_soeclient.packetsQueue.html" class="tsd-signature-type" data-tsd-kind="Interface">packetsQueue</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L179">src/servers/SoeServer/soeserver.ts:179</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L187">src/servers/SoeServer/soeserver.ts:187</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="sendOutQueue" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>send<wbr/>Out<wbr/>Queue</span><a href="#sendOutQueue" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -985,7 +991,7 @@ recently added instance. In the example the <code>once(&#39;ping&#39;)</code>lis
 <h5>client: <a href="servers_SoeServer_soeclient.default.html" class="tsd-signature-type" data-tsd-kind="Class">default</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L93">src/servers/SoeServer/soeserver.ts:93</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L95">src/servers/SoeServer/soeserver.ts:95</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="sendUnbufferedAppData" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>send<wbr/>Unbuffered<wbr/>App<wbr/>Data</span><a href="#sendUnbufferedAppData" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1000,7 +1006,7 @@ recently added instance. In the example the <code>once(&#39;ping&#39;)</code>lis
 <h5>data: <span class="tsd-signature-type">Uint8Array</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L565">src/servers/SoeServer/soeserver.ts:565</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L573">src/servers/SoeServer/soeserver.ts:573</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="setEncryption" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Encryption</span><a href="#setEncryption" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1015,7 +1021,7 @@ recently added instance. In the example the <code>once(&#39;ping&#39;)</code>lis
 <h5>value: <span class="tsd-signature-type">boolean</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L576">src/servers/SoeServer/soeserver.ts:576</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L584">src/servers/SoeServer/soeserver.ts:584</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="setMaxListeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>set<wbr/>Max<wbr/>Listeners</span><a href="#setMaxListeners" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -1037,7 +1043,7 @@ modified for this specific <code>EventEmitter</code> instance. The value can be 
 <h4 class="tsd-returns-title">Returns <a href="servers_SoeServer_soeserver.SOEServer.html" class="tsd-signature-type" data-tsd-kind="Class">SOEServer</a></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.setMaxListeners</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:483</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:520</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="setupResendForQueuedPackets" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>setup<wbr/>Resend<wbr/>For<wbr/>Queued<wbr/>Packets</span><a href="#setupResendForQueuedPackets" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -1052,7 +1058,7 @@ modified for this specific <code>EventEmitter</code> instance. The value can be 
 <h5>queue: <a href="../interfaces/servers_SoeServer_soeclient.packetsQueue.html" class="tsd-signature-type" data-tsd-kind="Interface">packetsQueue</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L166">src/servers/SoeServer/soeserver.ts:166</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L174">src/servers/SoeServer/soeserver.ts:174</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="soeClientRoutine" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>soe<wbr/>Client<wbr/>Routine</span><a href="#soeClientRoutine" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -1065,7 +1071,7 @@ modified for this specific <code>EventEmitter</code> instance. The value can be 
 <h5>client: <a href="servers_SoeServer_soeclient.default.html" class="tsd-signature-type" data-tsd-kind="Class">default</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L127">src/servers/SoeServer/soeserver.ts:127</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L129">src/servers/SoeServer/soeserver.ts:129</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-private"><a id="soeRoutine" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>soe<wbr/>Routine</span><a href="#soeRoutine" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-private">
@@ -1073,7 +1079,7 @@ modified for this specific <code>EventEmitter</code> instance. The value can be 
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L116">src/servers/SoeServer/soeserver.ts:116</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L118">src/servers/SoeServer/soeserver.ts:118</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="start" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>start</span><a href="#start" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1088,7 +1094,7 @@ modified for this specific <code>EventEmitter</code> instance. The value can be 
 <h5><code class="tsd-tag ts-flagOptional">Optional</code> udpLength: <span class="tsd-signature-type">number</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L310">src/servers/SoeServer/soeserver.ts:310</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L318">src/servers/SoeServer/soeserver.ts:318</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="stop" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>stop</span><a href="#stop" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1096,7 +1102,7 @@ modified for this specific <code>EventEmitter</code> instance. The value can be 
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L424">src/servers/SoeServer/soeserver.ts:424</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L432">src/servers/SoeServer/soeserver.ts:432</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class"><a id="toggleEncryption" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>toggle<wbr/>Encryption</span><a href="#toggleEncryption" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class">
@@ -1109,11 +1115,11 @@ modified for this specific <code>EventEmitter</code> instance. The value can be 
 <h5>client: <a href="servers_SoeServer_soeclient.default.html" class="tsd-signature-type" data-tsd-kind="Class">default</a></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <ul>
-<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/1a56df70/src/servers/SoeServer/soeserver.ts#L581">src/servers/SoeServer/soeserver.ts:581</a></li></ul></aside></li></ul></section>
+<li>Defined in <a href="https://github.com/QuentinGruber/h1z1-server/blob/0c88ae28/src/servers/SoeServer/soeserver.ts#L589">src/servers/SoeServer/soeserver.ts:589</a></li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="getEventListeners" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>get<wbr/>Event<wbr/>Listeners</span><a href="#getEventListeners" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-<li class="tsd-signature tsd-anchor-link" id="getEventListeners.getEventListeners-1">get<wbr/>Event<wbr/>Listeners<span class="tsd-signature-symbol">(</span>emitter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">EventEmitter</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DOMEventTarget</span>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">[]</span><a href="#getEventListeners.getEventListeners-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="getEventListeners.getEventListeners-1">get<wbr/>Event<wbr/>Listeners<span class="tsd-signature-symbol">(</span>emitter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">EventEmitter</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">_DOMEventTarget</span>, name<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">[]</span><a href="#getEventListeners.getEventListeners-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Returns a copy of the array of listeners for the event named <code>eventName</code>.</p>
 <p>For <code>EventEmitter</code>s this behaves exactly the same as calling <code>.listeners</code> on
@@ -1129,13 +1135,13 @@ event target. This is useful for debugging and diagnostic purposes.</p>
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>emitter: <span class="tsd-signature-type">EventEmitter</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DOMEventTarget</span></h5></li>
+<h5>emitter: <span class="tsd-signature-type">EventEmitter</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">_DOMEventTarget</span></h5></li>
 <li>
 <h5>name: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Function</span><span class="tsd-signature-symbol">[]</span></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.getEventListeners</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:262</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:299</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="listenerCount-2" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>listener<wbr/>Count</span><a href="#listenerCount-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -1163,7 +1169,7 @@ event target. This is useful for debugging and diagnostic purposes.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">number</span></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.listenerCount</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:234</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:271</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="on-2" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>on</span><a href="#on-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
@@ -1197,11 +1203,11 @@ composed of the emitted event arguments.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">AsyncIterableIterator</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.on</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:217</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:254</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="once-2" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>once</span><a href="#once-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-<li class="tsd-signature tsd-anchor-link" id="once-2.once-3">once<span class="tsd-signature-symbol">(</span>emitter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">NodeEventTarget</span>, eventName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">StaticEventEmitterOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><a href="#once-2.once-3" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="once-2.once-3">once<span class="tsd-signature-symbol">(</span>emitter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">_NodeEventTarget</span>, eventName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">StaticEventEmitterOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><a href="#once-2.once-3" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Creates a <code>Promise</code> that is fulfilled when the <code>EventEmitter</code> emits the given
 event or that is rejected if the <code>EventEmitter</code> emits <code>&#39;error&#39;</code> while waiting.
@@ -1226,7 +1232,7 @@ special handling:</p>
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>emitter: <span class="tsd-signature-type">NodeEventTarget</span></h5></li>
+<h5>emitter: <span class="tsd-signature-type">_NodeEventTarget</span></h5></li>
 <li>
 <h5>eventName: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">symbol</span></h5></li>
 <li>
@@ -1234,14 +1240,14 @@ special handling:</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.once</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:157</li></ul></aside></li>
-<li class="tsd-signature tsd-anchor-link" id="once-2.once-4">once<span class="tsd-signature-symbol">(</span>emitter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">DOMEventTarget</span>, eventName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">StaticEventEmitterOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><a href="#once-2.once-4" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li>Defined in node_modules/@types/node/events.d.ts:194</li></ul></aside></li>
+<li class="tsd-signature tsd-anchor-link" id="once-2.once-4">once<span class="tsd-signature-symbol">(</span>emitter<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">_DOMEventTarget</span>, eventName<span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span>, options<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">StaticEventEmitterOptions</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span><a href="#once-2.once-4" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5>emitter: <span class="tsd-signature-type">DOMEventTarget</span></h5></li>
+<h5>emitter: <span class="tsd-signature-type">_DOMEventTarget</span></h5></li>
 <li>
 <h5>eventName: <span class="tsd-signature-type">string</span></h5></li>
 <li>
@@ -1249,11 +1255,11 @@ special handling:</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">Promise</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type">any</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.once</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:158</li></ul></aside></li></ul></section>
+<li>Defined in node_modules/@types/node/events.d.ts:195</li></ul></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external"><a id="setMaxListeners-2" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>set<wbr/>Max<wbr/>Listeners</span><a href="#setMaxListeners-2" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-kind-method tsd-parent-kind-class tsd-is-inherited tsd-is-external">
-<li class="tsd-signature tsd-anchor-link" id="setMaxListeners-2.setMaxListeners-3">set<wbr/>Max<wbr/>Listeners<span class="tsd-signature-symbol">(</span>n<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, <span class="tsd-signature-symbol">...</span>eventTargets<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">EventEmitter</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DOMEventTarget</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#setMaxListeners-2.setMaxListeners-3" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="setMaxListeners-2.setMaxListeners-3">set<wbr/>Max<wbr/>Listeners<span class="tsd-signature-symbol">(</span>n<span class="tsd-signature-symbol">?: </span><span class="tsd-signature-type">number</span>, <span class="tsd-signature-symbol">...</span>eventTargets<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">EventEmitter</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">_DOMEventTarget</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#setMaxListeners-2.setMaxListeners-3" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><pre><code class="language-js"><span class="hl-0">const</span><span class="hl-1"> {</span><br/><span class="hl-1">  </span><span class="hl-2">setMaxListeners</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-2">EventEmitter</span><br/><span class="hl-1">} = </span><span class="hl-3">require</span><span class="hl-1">(</span><span class="hl-4">&#39;events&#39;</span><span class="hl-1">);</span><br/><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">target</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">EventTarget</span><span class="hl-1">();</span><br/><span class="hl-0">const</span><span class="hl-1"> </span><span class="hl-2">emitter</span><span class="hl-1"> = </span><span class="hl-0">new</span><span class="hl-1"> </span><span class="hl-3">EventEmitter</span><span class="hl-1">();</span><br/><br/><span class="hl-3">setMaxListeners</span><span class="hl-1">(</span><span class="hl-7">5</span><span class="hl-1">, </span><span class="hl-6">target</span><span class="hl-1">, </span><span class="hl-6">emitter</span><span class="hl-1">);</span>
 </code></pre>
@@ -1268,11 +1274,11 @@ special handling:</p>
 <div class="tsd-comment tsd-typography"><p>A non-negative number. The maximum number of listeners per <code>EventTarget</code> event.</p>
 </div></li>
 <li>
-<h5><code class="tsd-tag ts-flagRest">Rest</code> <span class="tsd-signature-symbol">...</span>eventTargets: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">EventEmitter</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">DOMEventTarget</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
+<h5><code class="tsd-tag ts-flagRest">Rest</code> <span class="tsd-signature-symbol">...</span>eventTargets: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-type">EventEmitter</span><span class="tsd-signature-symbol"> | </span><span class="tsd-signature-type">_DOMEventTarget</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h5></li></ul></div>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4><aside class="tsd-sources">
 <p>Inherited from EventEmitter.setMaxListeners</p>
 <ul>
-<li>Defined in node_modules/@types/node/events.d.ts:280</li></ul></aside></li></ul></section></section></div>
+<li>Defined in node_modules/@types/node/events.d.ts:317</li></ul></aside></li></ul></section></section></div>
 <div class="col-4 col-menu menu-sticky-wrap menu-highlight">
 <div class="tsd-navigation settings">
 <details class="tsd-index-accordion"><summary class="tsd-accordion-summary">
@@ -1330,6 +1336,7 @@ special handling:</p>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="servers_SoeServer_soeserver.SOEServer.html#_crcSeed" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_crc<wbr/>Seed</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="servers_SoeServer_soeserver.SOEServer.html#_cryptoKey" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_crypto<wbr/>Key</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="servers_SoeServer_soeserver.SOEServer.html#_maxMultiBufferSize" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_max<wbr/>Multi<wbr/>Buffer<wbr/>Size</a></li>
+<li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="servers_SoeServer_soeserver.SOEServer.html#_maxSeqResendRange" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_max<wbr/>Seq<wbr/>Resend<wbr/>Range</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="servers_SoeServer_soeserver.SOEServer.html#_pingTimeoutTime" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_ping<wbr/>Timeout<wbr/>Time</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class"><a href="servers_SoeServer_soeserver.SOEServer.html#_protocol" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_protocol</a></li>
 <li class="tsd-kind-property tsd-parent-kind-class tsd-is-private"><a href="servers_SoeServer_soeserver.SOEServer.html#_resendTimeout" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-1024-path"></use><use href="#icon-1024-text"></use></svg>_resend<wbr/>Timeout</a></li>

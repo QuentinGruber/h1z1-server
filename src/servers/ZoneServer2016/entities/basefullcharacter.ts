@@ -12,7 +12,6 @@
 // ======================================================================
 
 import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
-import { _ } from "../../../utils/utils";
 import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
 import {
@@ -28,6 +27,7 @@ import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { LoadoutItem } from "../classes/loadoutItem";
 import { ZoneClient2016 } from "../classes/zoneclient";
+import { Weapon } from "../classes/weapon";
 
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
@@ -205,10 +205,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     sendPacket: boolean = true,
     loadoutSlotId: number = 0
   ) {
-    if (!item) {
-      debug("[ERROR] EquipItem: Invalid item!");
-      return;
-    }
+    if (!item || !item.isValid("equipItem")) return;
     const def = server.getItemDefinition(item.itemDefinitionId);
     if (loadoutSlotId) {
       if (
@@ -333,7 +330,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     sendUpdate = true
   ) {
     const client = server.getClientByCharId(this.characterId);
-    if (!item) return;
+    if (!item || !item.isValid("lootItem")) return;
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
       console.error(
@@ -374,10 +371,15 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     server: ZoneServer2016,
     item?: BaseItem,
     count?: number,
-    sendUpdate: boolean = true
+    sendUpdate: boolean = true,
+    array: LoadoutContainer[] = []
   ) {
-    const client = server.getClientByCharId(this.characterId);
-    if (!item) return;
+    const client = server.getClientByContainerAccessor(this);
+    if (!item || !item.isValid("lootContainerItem")) return;
+    if (item.weapon) {
+      clearTimeout(item.weapon.reloadTimer);
+      delete item.weapon.reloadTimer;
+    }
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
       console.error(
@@ -398,14 +400,22 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       }
 
       Object.values(this._containers).forEach((c) => {
+        if (array.includes(c)) return;
+        array.push(c);
         const availableSpace = c.getAvailableBulk(server),
-          itemBulk = server.getItemDefinition(item.itemDefinitionId).BULK,
-          lootCount = Math.floor(availableSpace / itemBulk);
+          itemBulk = server.getItemDefinition(item.itemDefinitionId).BULK;
+        let lootCount = Math.floor(availableSpace / itemBulk);
         if (lootCount) {
+          if (lootCount > item.stackCount) {
+            lootCount = item.stackCount;
+          }
           item.stackCount -= lootCount;
           this.lootContainerItem(
             server,
-            server.generateItem(item.itemDefinitionId, lootCount)
+            server.generateItem(item.itemDefinitionId, lootCount),
+            count,
+            true,
+            array
           );
         }
       });
@@ -439,13 +449,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         });
       }
     } else {
-      server.addContainerItem(
-        this,
-        item,
-        availableContainer,
-        count,
-        sendUpdate
-      );
+      server.addContainerItem(this, item, availableContainer, sendUpdate);
     }
   }
 
@@ -482,14 +486,24 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
   getDeathItems(server: ZoneServer2016) {
     const items: { [itemGuid: string]: BaseItem } = {};
-    Object.values(this._loadout).forEach((item) => {
+    Object.values(this._loadout).forEach((itemData) => {
       if (
-        item.itemGuid != "0x0" &&
-        !this.isDefaultItem(item.itemDefinitionId) &&
-        !server.isAdminItem(item.itemDefinitionId)
+        itemData.itemGuid != "0x0" &&
+        !this.isDefaultItem(itemData.itemDefinitionId) &&
+        !server.isAdminItem(itemData.itemDefinitionId)
       ) {
-        items[item.itemGuid] = _.cloneDeep(item);
-        items[item.itemGuid].slotId = Object.keys(items).length + 1;
+        const item = new BaseItem(
+          itemData.itemDefinitionId,
+          itemData.itemGuid,
+          itemData.currentDurability,
+          itemData.stackCount
+        );
+
+        item.debugFlag = "getDeathItems";
+        if (itemData.weapon)
+          item.weapon = new Weapon(item, itemData.weapon.ammoCount);
+        item.slotId = Object.keys(items).length + 1;
+        items[item.itemGuid] = item;
       }
     });
 
@@ -509,8 +523,18 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
             }
           }
           if (!stacked) {
-            items[item.itemGuid] = _.cloneDeep(item);
-            items[item.itemGuid].slotId = Object.keys(items).length + 1;
+            const newItem = new BaseItem(
+              item.itemDefinitionId,
+              item.itemGuid,
+              item.currentDurability,
+              item.stackCount
+            );
+
+            newItem.debugFlag = "getDeathItemsNotStacked";
+            if (item.weapon)
+              newItem.weapon = new Weapon(newItem, item.weapon.ammoCount);
+            newItem.slotId = Object.keys(items).length + 1;
+            items[newItem.itemGuid] = newItem;
           }
         }
       });
@@ -648,6 +672,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       case ItemClasses.WEAPONS_PISTOL:
       case ItemClasses.WEAPONS_MELEES:
       case ItemClasses.WEAPONS_MELEES0:
+      case ItemClasses.WEAPONS_CROSSBOW:
+      case ItemClasses.WEAPONS_BOW:
         if (this._loadout[slot]?.itemDefinitionId) {
           // primary
           slot = LoadoutSlots.SECONDARY;
@@ -710,8 +736,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     for (const container of Object.values(this._containers)) {
       if (
         container &&
-        container.getMaxBulk(server) >=
-          container.getUsedBulk(server) + itemDef.BULK * count
+        (container.getMaxBulk(server) == 0 ||
+          container.getAvailableBulk(server) >= itemDef.BULK * count)
       ) {
         return container;
       }

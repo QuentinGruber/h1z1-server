@@ -462,6 +462,16 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
       },
     ],
   },
+  41: {
+    filterId: FilterIds.FURNACE,
+    rewardId: Items.METAL_BAR,
+    components: [
+      {
+        itemDefinitionId: Items.METAL_PIPE,
+        requiredAmount: 1,
+      },
+    ],
+  },
 };
 
 export const recipes: { [recipeId: number]: Recipe } = {
@@ -1140,6 +1150,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
   },
   [Items.BANDAGE_DRESSED]: {
     filterId: FilterIds.SURVIVAL,
+    bundleCount: 5,
     components: [
       {
         itemDefinitionId: Items.BANDAGE,
@@ -2039,7 +2050,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
       },
     ],
   },
-  [Items.SHACK_SMALL]: {
+  // disabled for now as crashes game client
+  /*[Items.SHACK_SMALL]: {
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2055,7 +2067,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 2,
       },
     ],
-  },
+  },*/
   [Items.FLARE_SMOKE]: {
     filterId: FilterIds.SURVIVAL,
     components: [
@@ -2506,6 +2518,8 @@ export const recipes: { [recipeId: number]: Recipe } = {
   },
   [Items.YEAST]: {
     filterId: FilterIds.COMPONENT,
+    bundleCount: 2,
+    leftOverItems: [Items.WATER_EMPTY],
     components: [
       {
         itemDefinitionId: Items.SUGAR,

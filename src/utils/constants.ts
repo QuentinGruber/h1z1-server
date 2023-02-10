@@ -18,3 +18,4 @@ export const MAX_UINT32 = 0xffffffff;
 export const DATA_HEADER_SIZE = 4;
 export const MAX_SEQUENCE = MAX_UINT16;
 export const DEFAULT_CRYPTO_KEY = "F70IaxuU8C/w7FPXY1ibXw==";
+export const DB_NAME = "h1server";

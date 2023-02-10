@@ -36,9 +36,9 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
   placementTime = Date.now();
   parentObjectCharacterId: string;
-  npcRenderDistance = 15;
   loadoutId = 5;
   itemDefinitionId: number;
+  damageRange: number = 1.5;
   subEntity?: SmeltingEntity | CollectingEntity;
   constructor(
     characterId: string,
@@ -61,8 +61,12 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     this.defaultLoadout = lootableContainerDefaultLoadouts.storage;
     if (subEntityType === "SmeltingEntity") {
       this.subEntity = new SmeltingEntity(this, server);
+      this.npcRenderDistance = 250;
     } else if (subEntityType === "CollectingEntity") {
       this.subEntity = new CollectingEntity(this, server);
+      this.npcRenderDistance = 20; //this.npcRenderDistance = 250;
+    } else {
+      this.npcRenderDistance = 20;
     }
   }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -114,19 +118,22 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       242,
       destructTime
     );
-
     const parent = this.getParent(server);
     if (parent && parent.freeplaceEntities[this.characterId]) {
       delete parent.freeplaceEntities[this.characterId];
     }
 
-    if (!destructTime) {
-      server.worldObjectManager.createLootbag(server, this);
-      return;
+    server.worldObjectManager.createLootbag(server, this);
+    const container = this.getContainer();
+    if (container) {
+      container.items = {};
+      for (const a in server._characters) {
+        const character = server._characters[a];
+        if (character.mountedContainer == this) {
+          character.dismountContainer(server);
+        }
+      }
     }
-    setTimeout(() => {
-      server.worldObjectManager.createLootbag(server, this);
-    }, destructTime);
   }
 
   getHasPermission(
@@ -142,8 +149,13 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       ) || false
     );
   }
-
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+  ) {
     if (this.canUndoPlacement(server, client)) {
       this.destroy(server);
       client.character.lootItem(
@@ -172,7 +184,6 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.subEntity) {
-      if (!(this.subEntity instanceof SmeltingEntity)) return;
       this.subEntity.OnFullCharacterDataRequest(server, client);
     }
   }

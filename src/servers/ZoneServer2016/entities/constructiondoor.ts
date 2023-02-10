@@ -26,9 +26,9 @@ function getDamageRange(definitionId: number): number {
     case Items.DOOR_WOOD:
     case Items.DOOR_METAL:
     case Items.DOOR_BASIC:
-      return 1.5;
+      return 2;
     default:
-      return 1.5;
+      return 2;
   }
 }
 
@@ -82,6 +82,12 @@ export class ConstructionDoor extends DoorEntity {
     );
     const itemDefinition = server.getItemDefinition(this.itemDefinitionId);
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
+    this.grantedAccess.push(ownerCharacterId);
+    this.npcRenderDistance = 350;
+    switch (this.itemDefinitionId) {
+      case Items.METAL_GATE:
+        this.interactionDistance = 5;
+    }
   }
 
   pGetConstructionHealth() {
@@ -176,7 +182,11 @@ export class ConstructionDoor extends DoorEntity {
     return getConstructionSlotId(this.slot);
   }
 
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+  ) {
     if (this.canUndoPlacement(server, client)) {
       this.destroy(server);
       client.character.lootItem(
@@ -186,69 +196,98 @@ export class ConstructionDoor extends DoorEntity {
       return;
     }
 
-    if (
-      this.passwordHash != 0 &&
-      this.ownerCharacterId != client.character.characterId &&
-      !this.grantedAccess.includes(client.character.characterId)
-    ) {
-      server.sendData(client, "Locks.ShowMenu", {
-        characterId: client.character.characterId,
-        unknownDword1: 2,
-        lockType: 2,
-        objectCharacterId: this.characterId,
-      });
-      return;
-    }
-    if (
-      this.passwordHash == 0 &&
-      this.ownerCharacterId === client.character.characterId
-    ) {
-      server.sendData(client, "Locks.ShowMenu", {
-        characterId: client.character.characterId,
-        unknownDword1: 2,
-        lockType: 1,
-        objectCharacterId: this.characterId,
-      });
-      return;
-    }
-    if (this.moving) {
-      return;
-    }
-    this.moving = true;
-    // eslint-disable-next-line
-    const door = this; // for setTimeout callback
-    setTimeout(function () {
-      door.moving = false;
-    }, 1000);
-    server.sendDataToAllWithSpawnedEntity(
-      server._constructionDoors,
-      this.characterId,
-      "PlayerUpdatePosition",
-      {
-        transientId: this.transientId,
-        positionUpdate: {
-          sequenceTime: 0,
-          unknown3_int8: 0,
-          position: this.state.position,
-          orientation: this.isOpen ? this.closedAngle : this.openAngle,
-        },
+    if (isInstant) {
+      if (
+        this.passwordHash == 0 ||
+        this.grantedAccess.includes(client.character.characterId) ||
+        client.character.characterId === this.ownerCharacterId ||
+        (client.isAdmin && client.isDebugMode) // debug mode open all doors/gates
+      ) {
+        if (this.moving) {
+          return;
+        }
+        this.moving = true;
+        // eslint-disable-next-line
+        const door = this; // for setTimeout callback
+        setTimeout(function () {
+          door.moving = false;
+        }, 1000);
+        server.sendDataToAllWithSpawnedEntity(
+          server._constructionDoors,
+          this.characterId,
+          "PlayerUpdatePosition",
+          {
+            transientId: this.transientId,
+            positionUpdate: {
+              sequenceTime: 0,
+              unknown3_int8: 0,
+              position: this.state.position,
+              orientation: this.isOpen ? this.closedAngle : this.openAngle,
+            },
+          }
+        );
+        server.sendDataToAllWithSpawnedEntity(
+          server._constructionDoors,
+          this.characterId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: this.characterId,
+            effectId: this.isOpen ? this.closeSound : this.openSound,
+          }
+        );
+        this.isOpen = !this.isOpen;
+        this.isSecured = !this.isOpen;
+        const parent = this.getParent(server);
+        if (parent) {
+          parent.updateSecuredState(server);
+          // spawn hidden characters emmediately after door opens
+          const allowedConstruction = [
+            Items.SHELTER,
+            Items.SHELTER_LARGE,
+            Items.SHELTER_UPPER,
+            Items.SHELTER_UPPER_LARGE,
+            Items.SHACK,
+            Items.SHACK_BASIC,
+            Items.SHACK_SMALL,
+          ];
+          if (
+            this.isOpen &&
+            allowedConstruction.includes(parent.itemDefinitionId)
+          ) {
+            for (const a in server._clients) {
+              const client = server._clients[a];
+              if (client.character.isHidden == parent.characterId)
+                server.constructionManager(client);
+            }
+          }
+        }
+        return;
+      } else {
+        server.sendData(client, "Locks.ShowMenu", {
+          characterId: client.character.characterId,
+          unknownDword1: 2,
+          lockType: 2,
+          objectCharacterId: this.characterId,
+        });
+        return;
       }
-    );
-    server.sendDataToAllWithSpawnedEntity(
-      server._constructionDoors,
-      this.characterId,
-      "Command.PlayDialogEffect",
-      {
-        characterId: this.characterId,
-        effectId: this.isOpen ? this.closeSound : this.openSound,
+    } else if (!isInstant) {
+      if (client.character.characterId === this.ownerCharacterId) {
+        server.sendData(client, "Locks.ShowMenu", {
+          characterId: client.character.characterId,
+          unknownDword1: 2,
+          lockType: 1,
+          objectCharacterId: this.characterId,
+        });
+        return;
+      } else if (!this.grantedAccess.includes(client.character.characterId)) {
+        server.sendData(client, "Locks.ShowMenu", {
+          characterId: client.character.characterId,
+          unknownDword1: 2,
+          lockType: 2,
+          objectCharacterId: this.characterId,
+        });
       }
-    );
-    this.isOpen = !this.isOpen;
-    this.isSecured = !this.isOpen;
-
-    const parent = this.getParent(server);
-    if (parent) {
-      parent.updateSecuredState(server);
     }
   }
 
@@ -257,9 +296,19 @@ export class ConstructionDoor extends DoorEntity {
       server.undoPlacementInteractionString(this, client);
       return;
     }
-    server.sendData(client, "Command.InteractionString", {
-      guid: this.characterId,
-      stringId: StringIds.OPEN_AND_LOCK,
-    });
+    if (
+      client.character.characterId === this.ownerCharacterId ||
+      !this.grantedAccess.includes(client.character.characterId)
+    ) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.OPEN_AND_LOCK,
+      });
+    } else {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.OPEN,
+      });
+    }
   }
 }

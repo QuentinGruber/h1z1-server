@@ -35,7 +35,7 @@ export const voicePackets: any = [
       ],
     },
   ],
-  ["Voice.LeaveChannel", 0x8202, {}],
-  ["Voice.RadioChannel", 0x8207, {}],
-  ["Voice.LeaveRadio", 0x8208, {}],
+  ["Voice.LeaveChannel", 0x8202, { fields: [] }],
+  ["Voice.RadioChannel", 0x8207, { fields: [] }],
+  ["Voice.LeaveRadio", 0x8208, { fields: [] }],
 ];

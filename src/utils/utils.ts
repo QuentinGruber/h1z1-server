@@ -12,16 +12,15 @@
 // ======================================================================
 
 import { generate_random_guid } from "h1emu-core";
-import v8 from "v8";
 import { compress, compressBound } from "./lz4/lz4";
-import fs, { readdirSync } from "fs";
-import { normalize, resolve } from "path";
+import fs, { readdirSync } from "node:fs";
+import { normalize, resolve } from "node:path";
 import {
   setImmediate as setImmediatePromise,
   setTimeout as setTimeoutPromise,
-} from "timers/promises";
-import { MongoClient } from "mongodb";
-import { MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
+} from "node:timers/promises";
+import { Collection, MongoClient } from "mongodb";
+import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import {
@@ -32,17 +31,17 @@ import {
 import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots";
 import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
 import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
-import { NAME_VALIDATION_STATUS } from "./enums";
-import { Resolver } from "dns";
+import { DB_COLLECTIONS, NAME_VALIDATION_STATUS } from "./enums";
+import { Resolver } from "node:dns";
+import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 
 export class customLodash {
   sum(pings: number[]): number {
     return pings.reduce((a, b) => a + b, 0);
   }
-  cloneDeep(value: unknown) {
-    return v8.deserialize(v8.serialize(value));
+  cloneDeep(value: unknown): unknown {
+    return structuredClone(value);
   }
-
   find(array: any[], filter: any) {
     return array.find(filter);
   }
@@ -253,7 +252,10 @@ export const setupAppDataFolder = (): void => {
     );
   }
   if (
-    !fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`)
+    !fs.existsSync(`${AppDataFolderPath}/single_player_characters2016.json`) ||
+    fs
+      .readFileSync(`${AppDataFolderPath}/single_player_characters2016.json`)
+      .toString() === "{}"
   ) {
     fs.writeFileSync(
       `${AppDataFolderPath}/single_player_characters2016.json`,
@@ -359,10 +361,11 @@ export const isPosInRadius = (
   player_position: Float32Array,
   enemi_position: Float32Array
 ): boolean => {
-  return (
-    isBetween(radius, player_position[0], enemi_position[0]) &&
-    isBetween(radius, player_position[2], enemi_position[2])
-  );
+  const xDiff = player_position[0] - enemi_position[0];
+  const zDiff = player_position[2] - enemi_position[2];
+  const radiusSquared = radius * radius;
+
+  return xDiff * xDiff + zDiff * zDiff <= radiusSquared;
 };
 export const isPosInRadiusWithY = (
   radius: number,
@@ -468,8 +471,8 @@ export const generateRandomGuid = function (): string {
   return "0x" + generate_random_guid();
 };
 
-export function* generateTransientId() {
-  let id = 0;
+export function* generateTransientId(startId: number = 0) {
+  let id = startId;
   for (let index = 0; index < MAX_TRANSIENT_ID; index++) {
     yield id++;
   }
@@ -568,10 +571,13 @@ export const initMongo = async function (
   serverName: string
 ): Promise<void> {
   const debug = require("debug")(serverName);
-  const dbName = "h1server";
-  await mongoClient.db(dbName).createCollection("servers");
+  const dbName = DB_NAME;
+  await mongoClient.db(dbName).createCollection(DB_COLLECTIONS.SERVERS);
   const servers = require("../../data/defaultDatabase/shared/servers.json");
-  await mongoClient.db(dbName).collection("servers").insertMany(servers);
+  await mongoClient
+    .db(dbName)
+    .collection(DB_COLLECTIONS.SERVERS)
+    .insertMany(servers);
   debug("h1server database was missing... created one with samples.");
 };
 
@@ -652,24 +658,6 @@ export const toHex = (number: number): string => {
 export const getRandomFromArray = (array: any[]): any => {
   return array[Math.floor(Math.random() * array.length)];
 };
-
-export function validateVersion(
-  loginVersion: string,
-  zoneVersion: string
-): boolean {
-  const [loginMajor, loginMinor, loginPatch] = loginVersion.split(".");
-  const [zoneMajor, zoneMinor, zonePatch] = zoneVersion.split(".");
-  if (loginMajor > zoneMajor) {
-    return false;
-  }
-  if (loginMinor > zoneMinor) {
-    return false;
-  }
-  if (loginPatch > zonePatch) {
-    return false;
-  }
-  return true;
-}
 
 export const getRandomKeyFromAnObject = (object: any): string => {
   const keys = Object.keys(object);
@@ -799,9 +787,39 @@ export async function resolveHostAddress(
         console.log(
           `Failed to resolve ${hostName} as an host name, it will be used as an IP`
         );
-        return [hostName]; // if it can't resolve it, assume that's an IPV4 / IPV6 not an hostname
+        resolve([hostName]); // if it can't resolve it, assume that's an IPV4 / IPV6 not an hostname
       }
     });
   });
   return resolvedAddress as string[];
+}
+export async function logClientActionToMongo(
+  collection: Collection,
+  client: ZoneClient2016,
+  serverId: number,
+  logMessage: Record<string, unknown>
+) {
+  collection.insertOne({
+    ...logMessage,
+    serverId,
+    characterName: client.character.name,
+    loginSessionId: client.loginSessionId,
+  });
+}
+
+export function removeUntransferableFields(data: any) {
+  const allowedTypes = ["string", "number", "boolean", "undefined", "bigint"];
+
+  for (const key in data) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (data.hasOwnProperty(key)) {
+      const value = data[key];
+      if (typeof value === "object") {
+        removeUntransferableFields(value);
+      } else if (!allowedTypes.includes(typeof value)) {
+        console.log(`Invalid value type: ${typeof value}.`);
+        delete data[key];
+      }
+    }
+  }
 }

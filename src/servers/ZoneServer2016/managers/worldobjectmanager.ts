@@ -26,7 +26,16 @@ import {
   isPosInRadius,
   randomIntFromInterval,
 } from "../../../utils/utils";
-import { EquipSlots, Items, VehicleIds } from "../models/enums";
+import {
+  EquipSlots,
+  Items,
+  VehicleIds,
+  Skins_Shirt,
+  Skins_Pants,
+  Skins_Beanie,
+  Skins_Cap,
+  Skins_MotorHelmet,
+} from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
 import { ItemObject } from "../entities/itemobject";
@@ -55,6 +64,38 @@ function getRandomVehicleId() {
       // pickup
       return VehicleIds.PICKUP;
   }
+}
+
+function getRandomSkin(itemDefinitionId: number) {
+  const allowedItems = [
+    Items.SHIRT_DEFAULT,
+    Items.PANTS_DEFAULT,
+    Items.HAT_BEANIE,
+    Items.HAT_CAP,
+    Items.HELMET_MOTORCYCLE,
+  ];
+  if (!allowedItems.includes(itemDefinitionId)) return itemDefinitionId;
+  let itemDefId = 0;
+  let arr: any[] = [];
+  switch (itemDefinitionId) {
+    case Items.SHIRT_DEFAULT:
+      arr = Object.keys(Skins_Shirt);
+      break;
+    case Items.PANTS_DEFAULT:
+      arr = Object.keys(Skins_Pants);
+      break;
+    case Items.HAT_BEANIE:
+      arr = Object.keys(Skins_Beanie);
+      break;
+    case Items.HAT_CAP:
+      arr = Object.keys(Skins_Cap);
+      break;
+    case Items.HELMET_MOTORCYCLE:
+      arr = Object.keys(Skins_MotorHelmet);
+      break;
+  }
+  itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);
+  return itemDefId;
 }
 
 function getRandomItem(items: Array<LootDefinition>) {
@@ -88,7 +129,8 @@ export class WorldObjectManager {
   vehicleRespawnTimer: number = 600000; // 10 minutes // 600000
   npcRespawnTimer: number = 600000; // 10 minutes
   // items get despawned after x minutes
-  itemDespawnTimer: number = 1800000; // 30 minutes
+  itemDespawnTimer: number = 600000; // 10 minutes
+  lootDespawnTimer: number = 3600000; // 60 minutes
   deadNpcDespawnTimer: number = 600000; // 10 minutes
 
   // objects won't spawn if another object is within this radius
@@ -134,6 +176,7 @@ export class WorldObjectManager {
       this.createLoot(server);
       this.createContainerLoot(server);
       this.lastLootRespawnTime = Date.now();
+      server.divideLargeCells(700);
     }
     if (this.lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
       this.createNpcs(server);
@@ -232,14 +275,15 @@ export class WorldObjectManager {
 
     if (!_.size(items)) return; // don't spawn lootbag if inventory is empty
 
-    const lootbag = new Lootbag(
-      characterId,
-      server.getTransientId(characterId),
-      isCharacter ? 9581 : 9391,
-      entity.state.position,
-      new Float32Array([0, 0, 0, 0]),
-      server
-    );
+    const pos = entity.state.position,
+      lootbag = new Lootbag(
+        characterId,
+        server.getTransientId(characterId),
+        isCharacter ? 9581 : 9391,
+        new Float32Array([pos[0], pos[1] + 0.1, pos[2]]),
+        new Float32Array([0, 0, 0, 0]),
+        server
+      );
     const container = lootbag.getContainer();
     if (container) {
       container.items = items;
@@ -437,7 +481,7 @@ export class WorldObjectManager {
               this.createLootEntity(
                 server,
                 server.generateItem(
-                  item.item,
+                  getRandomSkin(item.item),
                   randomIntFromInterval(
                     item.spawnCount.min,
                     item.spawnCount.max
@@ -456,7 +500,9 @@ export class WorldObjectManager {
   createContainerLoot(server: ZoneServer2016) {
     for (const a in server._lootableProps) {
       const prop = server._lootableProps[a] as LootableProp;
-      if (!!Object.keys(prop._containers["31"].items).length) continue; // skip if container is not empty
+      const container = prop.getContainer();
+      if (!container) continue;
+      if (!!Object.keys(container.items).length) continue; // skip if container is not empty
       const lootTable = containerLootSpawners[prop.lootSpawner];
       if (lootTable) {
         for (let x = 0; x < lootTable.maxItems; x++) {
@@ -464,11 +510,9 @@ export class WorldObjectManager {
           if (!item) continue;
           const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
           let allow = true;
-          Object.values(prop._containers["31"].items).forEach(
-            (spawnedItem: BaseItem) => {
-              if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
-            }
-          );
+          Object.values(container.items).forEach((spawnedItem: BaseItem) => {
+            if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
+          });
           if (allow) {
             if (chance <= item.weight) {
               const count = Math.floor(
@@ -477,11 +521,10 @@ export class WorldObjectManager {
                   item.spawnCount.min
               );
               // temporary spawnchance
-              server.addContainerItemExternal(
-                prop.mountedCharacter ? prop.mountedCharacter : "",
-                server.generateItem(item.item),
-                prop._containers["31"],
-                count
+              server.addContainerItem(
+                prop,
+                server.generateItem(getRandomSkin(item.item), count),
+                container
               );
             }
           } else {
@@ -489,7 +532,7 @@ export class WorldObjectManager {
           }
         }
       }
-      if (Object.keys(prop._containers["31"].items).length != 0) {
+      if (Object.keys(container.items).length != 0) {
         // mark prop as unsearched for clients
         Object.values(server._clients).forEach((client: ZoneClient2016) => {
           const index = client.searchedProps.indexOf(prop);

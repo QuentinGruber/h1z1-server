@@ -17,7 +17,7 @@ import { BaseItem } from "../classes/baseItem";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { PlantingDiameter } from "./plantingdiameter";
 
-import { Items, StringIds } from "../models/enums";
+import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 
 export class Plant extends ItemObject {
   growState: number = 0;
@@ -116,9 +116,29 @@ export class Plant extends ItemObject {
     const timeToAdd = this.isFertilized ? this.growTime / 2 : this.growTime; // 4 or 8h based on fertilized or not
     this.nextStateTime = new Date().getTime() + timeToAdd;
   }
-
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+  ) {
     if (this.growState != 3) return;
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      if (!foundation.isInside(this.state.position)) continue;
+      if (
+        foundation.isSecured &&
+        !foundation.getHasPermission(
+          server,
+          client.character.characterId,
+          ConstructionPermissionIds.CONTAINERS
+        )
+      ) {
+        server.sendChatText(client, "Construction: no permission");
+        return;
+      }
+    }
     if (!server._temporaryObjects[this.parentObjectCharacterId]) {
       server.deleteEntity(this.characterId, server._plants);
       return;

@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { RemoteInfo } from "dgram";
+import { RemoteInfo } from "node:dgram";
 import { toInt, wrappedUint16, _ } from "../../utils/utils";
 import { soePacket } from "../../types/soeserver";
 import { SOEInputStream } from "./soeinputstream";
@@ -60,6 +60,7 @@ export default class SOEClient {
   avgPing: number = 0;
   pings: number[] = [];
   avgPingLen: number = 6;
+  private _statsResetTimer: NodeJS.Timer;
   constructor(remote: RemoteInfo, crcSeed: number, cryptoKey: Uint8Array) {
     this.soeClientId = remote.address + ":" + remote.port;
     this.address = remote.address;
@@ -67,6 +68,15 @@ export default class SOEClient {
     this.crcSeed = crcSeed;
     this.inputStream = new SOEInputStream(cryptoKey);
     this.outputStream = new SOEOutputStream(cryptoKey);
+    this._statsResetTimer = setInterval(() => this._resetStats(), 60000);
+  }
+  closeTimers() {
+    clearInterval(this._statsResetTimer);
+  }
+  private _resetStats() {
+    this.stats.totalPacketSent = 0;
+    this.stats.packetsOutOfOrder = 0;
+    this.stats.packetResend = 0;
   }
   getNetworkStats(): string[] {
     const { totalPacketSent, packetResend, packetsOutOfOrder } = this.stats;
@@ -87,9 +97,9 @@ export default class SOEClient {
     if (this.pings.length > this.avgPingLen) {
       this.pings.shift();
     }
-    this.updateAvgPing();
+    this._updateAvgPing();
   }
-  updateAvgPing() {
+  private _updateAvgPing() {
     this.avgPing = toInt(_.sum(this.pings) / this.pings.length);
   }
 }

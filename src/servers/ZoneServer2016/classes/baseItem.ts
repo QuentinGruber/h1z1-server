@@ -19,6 +19,7 @@ export class BaseItem {
   itemGuid: string;
   containerGuid = "0x0";
   currentDurability: number;
+  debugFlag: string = "unset";
   stackCount: number;
   weapon?: Weapon;
   constructor(
@@ -30,6 +31,24 @@ export class BaseItem {
     this.itemDefinitionId = itemDefinitionId;
     this.itemGuid = guid;
     this.currentDurability = durability;
-    this.stackCount = stackCount;
+    if (stackCount <= 0) {
+      console.error(
+        `negative stackcount (${stackCount}) detected for item ${this.itemDefinitionId} debugflag ${this.debugFlag}`
+      );
+      this.stackCount = 1;
+    } else {
+      this.stackCount = stackCount;
+    }
+  }
+
+  isValid(flag?: string): boolean {
+    if (flag) this.debugFlag = flag;
+    if (this.stackCount <= 0) {
+      console.error(
+        `Item is invalid! itemDefId: ${this.itemDefinitionId} stackCount: ${this.stackCount} debugFlag: ${this.debugFlag}`
+      );
+      return false;
+    }
+    return true;
   }
 }

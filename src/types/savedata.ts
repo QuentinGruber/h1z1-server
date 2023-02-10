@@ -61,6 +61,7 @@ export interface BaseFullCharacterUpdateSaveData extends BaseEntityUpdateSaveDat
 
 export interface CharacterUpdateSaveData
   extends BaseFullCharacterUpdateSaveData {
+  characterId: string,
   isRespawning: boolean;
 }
 
@@ -133,6 +134,7 @@ export interface ConstructionParentSaveData
 export interface PlantSaveData
   extends BaseFullEntitySaveData {
     growState: number;
+    nextStateTime: number;
     parentObjectCharacterId: string;
     slot: string;
     item: ItemSaveData;

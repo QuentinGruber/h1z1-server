@@ -62,8 +62,13 @@ export class ItemObject extends BaseLightweightCharacter {
     super(characterId, transientId, actorModelId, position, rotation, server);
     (this.spawnerId = spawnerId), (this.item = item);
   }
-
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+  ) {
     server.pickupItem(client, this.characterId);
   }
 
@@ -82,7 +87,17 @@ export class ItemObject extends BaseLightweightCharacter {
     ) {
       server.deleteEntity(this.characterId, server._spawnedItems);
       delete server.worldObjectManager._spawnedLootObjects[this.spawnerId];
-      server._explosives[this.characterId].detonate(server);
+      server._explosives[this.characterId].detonate(
+        server,
+        server.getClientByCharId(damageInfo.entity)
+      );
     }
+  }
+
+  destroy(server: ZoneServer2016) {
+    delete server.worldObjectManager._spawnedLootObjects[
+      server._spawnedItems[this.characterId].spawnerId
+    ];
+    server.deleteEntity(this.characterId, server._spawnedItems);
   }
 }

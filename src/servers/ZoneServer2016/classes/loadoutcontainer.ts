@@ -11,7 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { MAX_UINT32 } from "../../../utils/constants";
 import { ContainerErrors } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
@@ -29,21 +28,14 @@ function combineItemStack(
 ) {
   if (oldStackCount == count) {
     // if full stack is moved
-    server.addContainerItem(
-      client.character,
-      item,
-      targetContainer,
-      count,
-      false
-    );
+    server.addContainerItem(client.character, item, targetContainer, false);
     return;
   }
   // if only partial stack is moved
   server.addContainerItem(
     client.character,
-    server.generateItem(item.itemDefinitionId),
+    server.generateItem(item.itemDefinitionId, count),
     targetContainer,
-    count,
     false
   );
 }
@@ -87,7 +79,9 @@ export class LoadoutContainer extends LoadoutItem {
    * @returns Returns the amount of bulk available.
    */
   getAvailableBulk(server: ZoneServer2016): number {
-    return this.getMaxBulk(server) - this.getUsedBulk(server);
+    const availableBulk = this.getMaxBulk(server) - this.getUsedBulk(server);
+    // prevents returning a negative available bulk for containers with 0 max bulk
+    return availableBulk <= 0 ? 0 : availableBulk;
   }
 
   /**
@@ -121,8 +115,7 @@ export class LoadoutContainer extends LoadoutItem {
   getAvailableItemStack(
     server: ZoneServer2016,
     itemDefId: number,
-    count: number,
-    slotId: number = 0
+    count: number
   ): string {
     //
     // if slotId is defined, then only an item with the same slotId will be returned
@@ -133,9 +126,7 @@ export class LoadoutContainer extends LoadoutItem {
         server.getItemDefinition(item.itemDefinitionId).MAX_STACK_SIZE >=
           item.stackCount + count
       ) {
-        if (!slotId || slotId == item.slotId) {
-          return item.itemGuid;
-        }
+        return item.itemGuid;
       }
     }
     return "";
@@ -199,11 +190,26 @@ export class LoadoutContainer extends LoadoutItem {
       // allows items in the same container but different stacks to be stacked
       return;
     }
-    if (!server.removeContainerItem(client, item, this, count)) {
+    if (!server.removeContainerItem(client.character, item, this, count)) {
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
-    if (newSlotId == MAX_UINT32) {
+    if (item.weapon) {
+      clearTimeout(item.weapon.reloadTimer);
+      delete item.weapon.reloadTimer;
+    }
+    const itemStack = targetContainer.getAvailableItemStack(
+      server,
+      item.itemDefinitionId,
+      count
+    );
+    if (itemStack) {
+      // add to existing item stack
+      const item = targetContainer.items[itemStack];
+      item.stackCount += count;
+      server.updateContainerItem(client, item, targetContainer);
+    } else {
+      // add item to end
       combineItemStack(
         server,
         client,
@@ -212,29 +218,6 @@ export class LoadoutContainer extends LoadoutItem {
         item,
         count
       );
-    } else {
-      const itemStack = targetContainer.getAvailableItemStack(
-        server,
-        item.itemDefinitionId,
-        count,
-        newSlotId
-      );
-      if (itemStack) {
-        // add to existing item stack
-        const item = targetContainer.items[itemStack];
-        item.stackCount += count;
-        server.updateContainerItem(client, item, targetContainer);
-      } else {
-        // add item to end
-        combineItemStack(
-          server,
-          client,
-          oldStackCount,
-          targetContainer,
-          item,
-          count
-        );
-      }
     }
   }
 }

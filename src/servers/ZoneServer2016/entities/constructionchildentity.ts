@@ -6,6 +6,35 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+function getRenderDistance(itemDefinitionId: number) {
+  let range: number = 0;
+  switch (itemDefinitionId) {
+    case Items.SHACK: // metal shack
+    case Items.SHACK_SMALL: // small shack
+    case Items.SHACK_BASIC: // wood shack
+    case Items.FOUNDATION: // foundation,
+    case Items.FOUNDATION_EXPANSION: // expansion
+    case Items.GROUND_TAMPER: // tamper
+      range = 350;
+      break;
+    case Items.FURNACE:
+    case Items.WORKBENCH:
+    case Items.WORKBENCH_WEAPON:
+    case Items.BEE_BOX:
+    case Items.DEW_COLLECTOR:
+      range = 100;
+      break;
+    case Items.STORAGE_BOX:
+    case Items.ANIMAL_TRAP:
+      range = 20;
+      break;
+    default:
+      range = 300;
+      break;
+  }
+  return range;
+}
+
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneServer2016 } from "../zoneserver";
 import { ConstructionPermissionIds, Items } from "../models/enums";
@@ -60,6 +89,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly fixedPosition?: Float32Array;
   placementTime = Date.now();
   readonly bounds?: SquareBounds;
+  undoPlacementTime = 600000;
+  interactionDistance = 4;
 
   // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
   readonly wallSlots: ConstructionSlotPositionMap = {};
@@ -107,6 +138,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.profileId = 999; /// mark as construction
     this.damageRange = getDamageRange(this.itemDefinitionId);
     this.isSecured = this.itemDefinitionId == Items.METAL_WALL ? true : false;
+    this.npcRenderDistance = getRenderDistance(this.itemDefinitionId);
 
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
     Object.seal(this.wallSlots);
@@ -345,6 +377,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   isInside(position: Float32Array) {
     if (!this.bounds) {
+      switch (this.itemDefinitionId) {
+        case Items.STRUCTURE_STAIRS:
+        case Items.STRUCTURE_STAIRS_UPPER:
+        case Items.LOOKOUT_TOWER:
+          return false;
+      }
       console.error(
         `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
       );
@@ -427,10 +465,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         entity.parentObjectCharacterId = parentFoundation.characterId;
         parentFoundation.freeplaceEntities[entity.characterId] = entity;
       });
-      parentFoundation.freeplaceEntities = {
-        ...parentFoundation.freeplaceEntities,
-        ...this.freeplaceEntities,
-      };
+      // move free placed entities to parent foundation
+      for (const a in this.freeplaceEntities) {
+        const freePlacedEntity = this.freeplaceEntities[a];
+        freePlacedEntity.parentObjectCharacterId = parentFoundation.characterId;
+        parentFoundation.freeplaceEntities[freePlacedEntity.characterId] =
+          freePlacedEntity;
+      }
     }
   }
 
@@ -448,7 +489,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         client.character.characterId,
         ConstructionPermissionIds.BUILD
       ) &&
-      Date.now() < this.placementTime + 120000 &&
+      Date.now() < this.placementTime + this.undoPlacementTime &&
       client.character.getEquippedWeapon().itemDefinitionId ==
         Items.WEAPON_HAMMER_DEMOLITION
     );
@@ -485,8 +526,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     if (!this.slot) return 0;
     return getConstructionSlotId(this.slot);
   }
-
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+  ) {
     if (this.canUndoPlacement(server, client)) {
       this.destroy(server);
       client.character.lootItem(

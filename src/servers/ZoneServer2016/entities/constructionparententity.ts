@@ -12,13 +12,13 @@
 // ======================================================================
 
 import { ConstructionChildEntity } from "./constructionchildentity";
+import { LootableConstructionEntity } from "./lootableconstructionentity";
 import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import {
   getConstructionSlotId,
   isInsideSquare,
   isInsideCube,
-  isPosInRadiusWithY,
   registerConstructionSlots,
   getRectangleCorners,
   movePoint,
@@ -53,7 +53,8 @@ function getDamageRange(definitionId: number): number {
 export class ConstructionParentEntity extends ConstructionChildEntity {
   permissions: { [characterId: string]: ConstructionPermissions } = {};
   ownerCharacterId: string;
-
+  objectLessTicks: number = 0;
+  objectLessMaxTicks: number = 3;
   readonly expansionSlots: ConstructionSlotPositionMap = {};
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
   readonly rampSlots: ConstructionSlotPositionMap = {};
@@ -108,9 +109,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     switch (this.itemDefinitionId) {
       case Items.GROUND_TAMPER:
         this.bounds = this.getSquareBounds([1, 5, 9, 13]);
+        this.interactionDistance = 16; // fix temper interact distance if deck is placed on it
         break;
       case Items.FOUNDATION:
         this.bounds = this.getSquareBounds([1, 4, 7, 10]);
+        this.interactionDistance = 10;
         break;
       case Items.FOUNDATION_EXPANSION: // 1, 2, 5, 3RD dependent foundation wall
         const bounds = this.getSquareBounds([1, 2, 5, 0]),
@@ -136,16 +139,24 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
             this.bounds = bounds;
           }
         }
+        this.interactionDistance = 8;
         break;
       case Items.SHACK:
+        this.bounds = getRectangleCorners(position, 4.7, 5, -this.eulerAngle);
+        this.interactionDistance = 4;
+        break;
       case Items.SHACK_SMALL:
-      case Items.SHACK_BASIC:
         this.bounds = getRectangleCorners(
           this.state.position,
           3.5,
           2.5,
           -this.eulerAngle
         );
+        this.interactionDistance = 4;
+        break;
+      case Items.SHACK_BASIC:
+        this.bounds = getRectangleCorners(position, 1.6, 1.6, -this.eulerAngle);
+        this.interactionDistance = 4;
         break;
     }
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
@@ -226,6 +237,20 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
    */
   getDependentWalls(): Array<number> {
     switch (this.getSlotNumber()) {
+      case 1:
+        return [4, 5, 6];
+      case 2:
+        return [1, 2, 3];
+      case 3:
+        return [10, 11, 12];
+      case 4:
+        return [7, 8, 9];
+    }
+    return [];
+  }
+
+  getDependentWallsExternal(entity: ConstructionParentEntity): Array<number> {
+    switch (entity.getSlotNumber()) {
       case 1:
         return [4, 5, 6];
       case 2:
@@ -358,10 +383,185 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     */
 
     // update secured state for all attached expansions
-    if (this.itemDefinitionId == Items.FOUNDATION) {
-      for (const expansion of Object.values(this.occupiedExpansionSlots)) {
-        expansion.updateSecuredState(server);
+    if (this.itemDefinitionId == Items.FOUNDATION_EXPANSION) {
+      const parent =
+        server._constructionFoundations[this.parentObjectCharacterId];
+      if (parent) {
+        parent.updateSecuredState(server);
       }
+      return;
+    }
+    if (this.itemDefinitionId == Items.FOUNDATION) {
+      for (const a in this.occupiedExpansionSlots) {
+        let allowSecured = true;
+        const wallSlots = Object.values(
+          this.occupiedExpansionSlots[a].occupiedWallSlots
+        );
+        // check if all wall slots are occupied
+        if (
+          wallSlots.length !=
+          Object.values(this.occupiedExpansionSlots[a].wallSlots).length
+        ) {
+          allowSecured = false;
+        }
+        // check if any walls are gates / if they're open
+        for (const wall of wallSlots) {
+          if (!wall.isSecured) {
+            allowSecured = false;
+          }
+        }
+        this.occupiedExpansionSlots[a].isSecured = allowSecured;
+      }
+      let side01 = false;
+      let side02 = false;
+      let side03 = false;
+      let side04 = false;
+      if (
+        this.occupiedWallSlots["4"] &&
+        this.occupiedWallSlots["5"] &&
+        this.occupiedWallSlots["6"]
+      ) {
+        if (
+          this.occupiedWallSlots["4"].isSecured &&
+          this.occupiedWallSlots["5"].isSecured &&
+          this.occupiedWallSlots["6"].isSecured
+        ) {
+          side01 = true;
+        } else if (
+          this.occupiedExpansionSlots["1"] &&
+          this.occupiedExpansionSlots["1"].isSecured
+        )
+          side01 = true;
+      } else if (
+        this.occupiedExpansionSlots["1"] &&
+        this.occupiedExpansionSlots["1"].isSecured
+      )
+        side01 = true;
+
+      if (
+        this.occupiedWallSlots["1"] &&
+        this.occupiedWallSlots["2"] &&
+        this.occupiedWallSlots["3"]
+      ) {
+        if (
+          this.occupiedWallSlots["1"].isSecured &&
+          this.occupiedWallSlots["2"].isSecured &&
+          this.occupiedWallSlots["3"].isSecured
+        ) {
+          side02 = true;
+        } else if (
+          this.occupiedExpansionSlots["2"] &&
+          this.occupiedExpansionSlots["2"].isSecured
+        )
+          side02 = true;
+      } else if (
+        this.occupiedExpansionSlots["2"] &&
+        this.occupiedExpansionSlots["2"].isSecured
+      )
+        side02 = true;
+
+      if (
+        this.occupiedWallSlots["10"] &&
+        this.occupiedWallSlots["11"] &&
+        this.occupiedWallSlots["12"]
+      ) {
+        if (
+          this.occupiedWallSlots["10"].isSecured &&
+          this.occupiedWallSlots["11"].isSecured &&
+          this.occupiedWallSlots["12"].isSecured
+        ) {
+          side03 = true;
+        } else if (
+          this.occupiedExpansionSlots["3"] &&
+          this.occupiedExpansionSlots["3"].isSecured
+        )
+          side03 = true;
+      } else if (
+        this.occupiedExpansionSlots["3"] &&
+        this.occupiedExpansionSlots["3"].isSecured
+      )
+        side03 = true;
+
+      if (
+        this.occupiedWallSlots["7"] &&
+        this.occupiedWallSlots["8"] &&
+        this.occupiedWallSlots["9"]
+      ) {
+        if (
+          this.occupiedWallSlots["7"].isSecured &&
+          this.occupiedWallSlots["8"].isSecured &&
+          this.occupiedWallSlots["9"].isSecured
+        ) {
+          side04 = true;
+        } else if (
+          this.occupiedExpansionSlots["4"] &&
+          this.occupiedExpansionSlots["4"].isSecured
+        )
+          side04 = true;
+      } else if (
+        this.occupiedExpansionSlots["4"] &&
+        this.occupiedExpansionSlots["4"].isSecured
+      )
+        side04 = true;
+
+      if (side01 && side02 && side03 && side04) {
+        this.isSecured = true;
+      } else this.isSecured = false;
+      if (!this.isSecured) {
+        if (this.occupiedExpansionSlots["1"]) {
+          for (const slot of this.getDependentWallsExternal(
+            this.occupiedExpansionSlots["1"]
+          )) {
+            if (!side02 || !side03 || !side04) {
+              const wall = this.occupiedWallSlots[slot];
+              if (!wall || !wall.isSecured) {
+                this.occupiedExpansionSlots["1"].isSecured = false;
+                return;
+              }
+            }
+          }
+        }
+        if (this.occupiedExpansionSlots["2"]) {
+          for (const slot of this.getDependentWallsExternal(
+            this.occupiedExpansionSlots["2"]
+          )) {
+            if (!side01 || !side03 || !side04) {
+              const wall = this.occupiedWallSlots[slot];
+              if (!wall || !wall.isSecured) {
+                this.occupiedExpansionSlots["2"].isSecured = false;
+                return;
+              }
+            }
+          }
+        }
+        if (this.occupiedExpansionSlots["3"]) {
+          for (const slot of this.getDependentWallsExternal(
+            this.occupiedExpansionSlots["3"]
+          )) {
+            if (!side02 || !side01 || !side04) {
+              const wall = this.occupiedWallSlots[slot];
+              if (!wall || !wall.isSecured) {
+                this.occupiedExpansionSlots["3"].isSecured = false;
+                return;
+              }
+            }
+          }
+        }
+        if (this.occupiedExpansionSlots["4"]) {
+          for (const slot of this.getDependentWallsExternal(
+            this.occupiedExpansionSlots["4"]
+          )) {
+            if (!side02 || !side03 || !side01) {
+              const wall = this.occupiedWallSlots[slot];
+              if (!wall || !wall.isSecured) {
+                this.occupiedExpansionSlots["4"].isSecured = false;
+                return;
+              }
+            }
+          }
+        }
+      }
+      return;
     }
 
     const wallSlots = Object.values(this.occupiedWallSlots);
@@ -458,9 +658,21 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.GROUND_TAMPER:
         return isInsideSquare([position[0], position[2]], this.bounds);
       case Items.SHACK:
-        return isPosInRadiusWithY(2.39, position, this.state.position, 2);
+        return isInsideCube(
+          [position[0], position[2]],
+          this.bounds,
+          position[1],
+          this.state.position[1],
+          2.1
+        );
       case Items.SHACK_BASIC:
-        return isPosInRadiusWithY(1, position, this.state.position, 2);
+        return isInsideCube(
+          [position[0], position[2]],
+          this.bounds,
+          position[1],
+          this.state.position[1],
+          1.7
+        );
       case Items.SHACK_SMALL:
         return isInsideCube(
           [position[0], position[2]],
@@ -474,6 +686,23 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
   }
 
+  isUnder(position: Float32Array) {
+    if (!this.bounds) {
+      console.error(
+        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+      );
+      return false; // this should never occur
+    }
+    const fixY = this.itemDefinitionId == Items.FOUNDATION ? 1 : 0;
+    return isInsideCube(
+      [position[0], position[2]],
+      this.bounds,
+      position[1],
+      this.state.position[1] - 50 + fixY,
+      49 + fixY
+    );
+  }
+
   destroy(server: ZoneServer2016, destructTime = 0) {
     server.deleteEntity(
       this.characterId,
@@ -481,6 +710,21 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       242,
       destructTime
     );
+    if (
+      this.itemDefinitionId == Items.SHACK ||
+      this.itemDefinitionId == Items.SHACK_SMALL ||
+      this.itemDefinitionId == Items.SHACK_BASIC
+    ) {
+      for (const entity of Object.values(this.freeplaceEntities)) {
+        if (entity instanceof ConstructionChildEntity) {
+          server._worldSimpleConstruction[entity.characterId] = entity;
+          delete server._constructionSimple[entity.characterId];
+        } else if (entity instanceof LootableConstructionEntity) {
+          server._worldLootableConstruction[entity.characterId] = entity;
+          delete server._lootableConstruction[entity.characterId];
+        }
+      }
+    }
     const parent =
       server._constructionFoundations[this.parentObjectCharacterId];
     if (!parent) return;
@@ -507,7 +751,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         client.character.characterId,
         ConstructionPermissionIds.BUILD
       ) &&
-      Date.now() < this.placementTime + 120000 &&
+      Date.now() < this.placementTime + this.undoPlacementTime &&
       client.character.getEquippedWeapon().itemDefinitionId ==
         Items.WEAPON_HAMMER_DEMOLITION &&
       this.isSlotsEmpty()
@@ -519,6 +763,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     characterId: string,
     permission: ConstructionPermissionIds
   ) {
+    if (characterId == this.ownerCharacterId) return true;
     switch (permission) {
       case ConstructionPermissionIds.BUILD:
         return this.permissions[characterId]?.build;
@@ -530,8 +775,13 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         return this.permissions[characterId]?.visit;
     }
   }
-
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+  ) {
     if (this.canUndoPlacement(server, client)) {
       this.destroy(server);
       client.character.lootItem(
@@ -541,7 +791,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       return;
     }
 
-    if (this.ownerCharacterId != client.character.characterId) return;
+    if (
+      this.ownerCharacterId != client.character.characterId &&
+      (!client.isAdmin || !client.isDebugMode) // allows debug mode
+    )
+      return;
     server.sendData(
       client,
       "NpcFoundationPermissionsManagerBase.showPermissions",
@@ -562,7 +816,11 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       return;
     }
 
-    if (this.ownerCharacterId != client.character.characterId) return;
+    if (
+      this.ownerCharacterId != client.character.characterId &&
+      (!client.isAdmin || !client.isDebugMode)
+    )
+      return; // debug mode give permission interact string
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
       stringId: StringIds.PERMISSIONS_TARGET,

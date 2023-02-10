@@ -34,7 +34,10 @@ function getCraftComponentsDataSource(client: Client): {
       if (inventory[item.itemDefinitionId]) {
         inventory[item.itemDefinitionId].stackCount += item.stackCount;
       } else {
-        inventory[item.itemDefinitionId] = { ...item }; // push new itemstack
+        inventory[item.itemDefinitionId] = {
+          ...item,
+          stackCount: item.stackCount,
+        }; // push new itemstack
       }
     });
   });
@@ -290,10 +293,16 @@ export class CraftManager {
         if (!remainingItems) break;
       }
     }
+
     client.character.lootItem(
       server,
       server.generateItem(recipeId, craftCount)
     );
+    if (recipe.leftOverItems) {
+      recipe.leftOverItems.forEach((id: number) => {
+        client.character.lootItem(server, server.generateItem(id, 1));
+      });
+    }
     return true;
     //#endregion
   }

@@ -25,7 +25,9 @@ client.on("connect", (err, res) => {
 });
 client.on("ZoneDoneSendingInitialData", (err, res) => {
   console.log("ZoneDoneSendingInitialData");
-  process.exit(0);
+  zone.saveWorld().then(() => {
+    process.exit(0);
+  });
 });
 
 setInterval(() => {

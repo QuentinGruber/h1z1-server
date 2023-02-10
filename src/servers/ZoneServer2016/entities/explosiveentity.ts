@@ -72,12 +72,22 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   }
 
   detonate(server: ZoneServer2016, client?: ZoneClient2016) {
+    if (!server._explosives[this.characterId] || this.detonated) return;
     this.detonated = true;
     server.sendCompositeEffectToAllInRange(600, "", this.state.position, 1875);
     server.deleteEntity(this.characterId, server._explosives);
     client
-      ? server.explosionDamage(this.state.position, this.characterId, client)
-      : server.explosionDamage(this.state.position, this.characterId);
+      ? server.explosionDamage(
+          this.state.position,
+          this.characterId,
+          server.getItemDefinition(this.itemDefinitionId).NAME.toLowerCase(),
+          client
+        )
+      : server.explosionDamage(
+          this.state.position,
+          this.characterId,
+          server.getItemDefinition(this.itemDefinitionId).NAME.toLowerCase()
+        );
   }
 
   arm(server: ZoneServer2016) {
@@ -99,7 +109,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
       for (const a in server._vehicles) {
         if (
           getDistance(server._vehicles[a].state.position, this.state.position) <
-          2.2
+          1.8
         ) {
           this.detonate(server);
           return;

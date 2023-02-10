@@ -3050,7 +3050,21 @@ export const basePackets: any = [
       fields: [],
     },
   ],
-  ["PlayerUpdate.VehicleCollision", 0xaa, {}],
+  [
+    "VehicleCollision",
+    0xaa,
+    {
+      fields: [
+        {
+          name: "transientId",
+          type: "custom",
+          parser: readUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue,
+        },
+        { name: "damage", type: "float", defaultValue: 0 },
+      ],
+    },
+  ],
   [
     "PlayerStop",
     0xab,

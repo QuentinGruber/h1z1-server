@@ -60,6 +60,7 @@ export class BaseEntity {
   };
   scale = new Float32Array([1, 1, 1, 1]);
   npcRenderDistance?: number; // when undefined, use the zoneserver._charactersRenderDistance value
+  interactionDistance?: number; // when undefined, use the zoneserver._interactionDistance value
   constructor(
     characterId: string,
     transientId: number,
@@ -84,10 +85,15 @@ export class BaseEntity {
     // default: do nothing
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  OnPlayerSelect(server: ZoneServer2016, client: ZoneClient2016) {
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+  ) {
     // default: do nothing
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
