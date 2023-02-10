@@ -349,6 +349,7 @@ export class ZoneServer2016 extends EventEmitter {
           }
         } else {
           zoneClient.isAdmin = true;
+          zoneClient.permissionLevel = 3;
         }
 
         if (this._characters[characterId]) {
