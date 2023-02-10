@@ -1640,7 +1640,7 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        if (this.isConstructionInSecuredArea(constructionObject, "simple")) {
+        if (this.isConstructionInSecuredArea(constructionObject)) {
           if (client) {
             this.sendBaseSecuredMessage(client);
           }
@@ -1665,14 +1665,14 @@ export class ZoneServer2016 extends EventEmitter {
       ] as ConstructionDoor;
       if (
         isPosInRadius(
-          constructionObject.damageRange * 1.5,
+          constructionObject.damageRange,
           constructionObject.fixedPosition
             ? constructionObject.fixedPosition
             : constructionObject.state.position,
           position
         )
       ) {
-        if (this.isConstructionInSecuredArea(constructionObject, "door")) {
+        if (this.isConstructionInSecuredArea(constructionObject)) {
           if (client) {
             this.sendBaseSecuredMessage(client);
           }
@@ -1789,11 +1789,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  isConstructionInSecuredArea(
-    construction: SlottedConstructionEntity,
-    type: string
-  ) {
-    switch (type) {
+  isConstructionInSecuredArea(construction: SlottedConstructionEntity) {
+    /*switch (type) {
       case "simple":
         for (const a in this._constructionFoundations) {
           const foundation = this._constructionFoundations[a];
@@ -1838,7 +1835,103 @@ export class ZoneServer2016 extends EventEmitter {
             return true;
         }
     }
-    return false;
+    return false;*/
+    const gates: number[] = [
+      Items.METAL_GATE,
+      Items.METAL_WALL,
+      Items.METAL_WALL_UPPER,
+      Items.METAL_DOORWAY,
+    ];
+    const doors: number[] = [
+      Items.DOOR_BASIC,
+      Items.DOOR_METAL,
+      Items.DOOR_WOOD,
+    ];
+    const parent = construction.getParent(this);
+    const parentFoundation = construction.getParentFoundation(this);
+    if (!parent && !parentFoundation) return false;
+    if (parent?.isSecured || parentFoundation?.isSecured) {
+      if (
+        gates.includes(construction.itemDefinitionId) ||
+        doors.includes(construction.itemDefinitionId)
+      ) {
+        if (
+          (parentFoundation?.itemDefinitionId == Items.FOUNDATION_EXPANSION &&
+            !doors.includes(construction.itemDefinitionId)) ||
+          parentFoundation?.itemDefinitionId == Items.SHACK ||
+          parentFoundation?.itemDefinitionId == Items.SHACK_BASIC ||
+          parentFoundation?.itemDefinitionId == Items.SHACK_SMALL
+        )
+          return false;
+        if (parentFoundation?.itemDefinitionId == Items.FOUNDATION) {
+          if (
+            doors.includes(construction.itemDefinitionId) &&
+            parent &&
+            (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)
+          ) {
+            if (parentFoundation.isSecured) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+          switch (construction.getSlotNumber()) {
+            case 4:
+            case 5:
+            case 6:
+              if (
+                parentFoundation.occupiedExpansionSlots["1"] &&
+                parentFoundation.occupiedExpansionSlots["1"].isSecured
+              )
+                return true;
+              break;
+            case 1:
+            case 2:
+            case 3:
+              if (
+                parentFoundation.occupiedExpansionSlots["2"] &&
+                parentFoundation.occupiedExpansionSlots["2"].isSecured
+              )
+                return true;
+              break;
+            case 10:
+            case 11:
+            case 12:
+              if (
+                parentFoundation.occupiedExpansionSlots["3"] &&
+                parentFoundation.occupiedExpansionSlots["3"].isSecured
+              )
+                return true;
+              break;
+            case 7:
+            case 8:
+            case 9:
+              if (
+                parentFoundation.occupiedExpansionSlots["4"] &&
+                parentFoundation.occupiedExpansionSlots["4"].isSecured
+              )
+                return true;
+              break;
+          }
+          return false;
+        } else if (
+          parentFoundation?.itemDefinitionId == Items.FOUNDATION_EXPANSION
+        ) {
+          if (
+            doors.includes(construction.itemDefinitionId) &&
+            parent &&
+            (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)
+          ) {
+            if (parentFoundation.isSecured) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
+      }
+      return true;
+    } else return false;
   }
 
   sendBaseSecuredMessage(client: Client) {
@@ -4318,13 +4411,47 @@ export class ZoneServer2016 extends EventEmitter {
         });
       }
     }
+    // block building around spawn points
+    let isInSpawnPoint = false;
+    this._spawnLocations.forEach((point: any) => {
+      if (isPosInRadius(50, position, point.position)) isInSpawnPoint = true;
+    });
+    // alow placement in spawn point if object is parented to a foundation
+    let isInFoundationSpawnPoint = false;
+    for (const a in this._constructionFoundations) {
+      const iteratedFoundation = this._constructionFoundations[a];
+      if (iteratedFoundation.bounds) {
+        if (
+          iteratedFoundation.isInside(position) ||
+          (iteratedFoundation.characterId == parentObjectCharacterId &&
+            isPosInRadius(20, iteratedFoundation.state.position, position))
+        )
+          isInFoundationSpawnPoint = true;
+      }
+      for (const b in iteratedFoundation.occupiedShelterSlots) {
+        const shelter = iteratedFoundation.occupiedShelterSlots[b];
+        if (
+          shelter.characterId == parentObjectCharacterId &&
+          isPosInRadius(20, iteratedFoundation.state.position, position)
+        ) {
+          isInFoundationSpawnPoint = true;
+        }
+      }
+    }
+    if (isInSpawnPoint && !isInFoundationSpawnPoint) {
+      this.sendData(client, "Construction.PlacementFinalizeResponse", {
+        status: 0,
+        unknownString1: "",
+      });
+      this.sendAlert(
+        client,
+        "You may not place this object this close to a town or point of interest."
+      );
+      return;
+    }
+
     // block building in cities
-    const allowedPoiPlacement = [
-      Items.LANDMINE,
-      Items.IED,
-      Items.PUNJI_STICKS,
-      Items.SNARE,
-    ];
+    const allowedPoiPlacement = [Items.LANDMINE, Items.IED, Items.SNARE];
     if (!allowedPoiPlacement.includes(itemDefinitionId)) {
       let isInPoi = false;
       let useRange = true;
@@ -4352,6 +4479,15 @@ export class ZoneServer2016 extends EventEmitter {
               isPosInRadius(20, iteratedFoundation.state.position, position))
           )
             isInFoundationPOI = true;
+        }
+        for (const b in iteratedFoundation.occupiedShelterSlots) {
+          const shelter = iteratedFoundation.occupiedShelterSlots[b];
+          if (
+            shelter.characterId == parentObjectCharacterId &&
+            isPosInRadius(20, iteratedFoundation.state.position, position)
+          ) {
+            isInFoundationPOI = true;
+          }
         }
       }
       if (isInPoi && !isInFoundationPOI) {
