@@ -1672,11 +1672,11 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-          if (this.isConstructionInSecuredArea(constructionObject, "door")) {
+        if (this.isConstructionInSecuredArea(constructionObject, "door")) {
           if (client) {
             this.sendBaseSecuredMessage(client);
           }
-          } else {
+        } else {
           this.checkConstructionDamage(
             constructionObject.characterId,
             50000,
@@ -1839,64 +1839,102 @@ export class ZoneServer2016 extends EventEmitter {
         }
     }
     return false;*/
-      const gates: number[] = [
-          Items.METAL_GATE, Items.METAL_WALL, Items.METAL_WALL_UPPER, Items.METAL_DOORWAY
-
-      ]
-      const doors: number[] = [
-
-          Items.DOOR_BASIC, Items.DOOR_METAL, Items.DOOR_WOOD
-
-          ]
-    const parent = construction.getParent(this)
-    const parentFoundation = construction.getParentFoundation(this)
-    if (!parent && !parentFoundation) return false
-    if (parent?.isSecured || parentFoundation?.isSecured){
-        if (gates.includes(construction.itemDefinitionId) || doors.includes(construction.itemDefinitionId)) {
-            if ((parentFoundation?.itemDefinitionId == Items.FOUNDATION_EXPANSION && !doors.includes(construction.itemDefinitionId)) || parentFoundation?.itemDefinitionId == Items.SHACK || parentFoundation?.itemDefinitionId == Items.SHACK_BASIC || parentFoundation?.itemDefinitionId == Items.SHACK_SMALL) return false
-            if (parentFoundation?.itemDefinitionId == Items.FOUNDATION) {
-                if (doors.includes(construction.itemDefinitionId) && parent && (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)) {
-                    if (parentFoundation.isSecured) {
-                        return true
-                    } else {
-                        return false
-                    }
-                }
-                switch (construction.getSlotNumber()) {
-                    case 4:
-                    case 5:
-                    case 6:
-                        if (parentFoundation.occupiedExpansionSlots['1'] && parentFoundation.occupiedExpansionSlots['1'].isSecured) return true
-                        break;
-                    case 1:
-                    case 2:
-                    case 3:
-                        if (parentFoundation.occupiedExpansionSlots['2'] && parentFoundation.occupiedExpansionSlots['2'].isSecured) return true
-                        break;
-                    case 10:
-                    case 11:
-                    case 12:
-                        if (parentFoundation.occupiedExpansionSlots['3'] && parentFoundation.occupiedExpansionSlots['3'].isSecured) return true
-                        break;
-                    case 7:
-                    case 8:
-                    case 9:
-                        if (parentFoundation.occupiedExpansionSlots['4'] && parentFoundation.occupiedExpansionSlots['4'].isSecured) return true
-                        break;
-                }
-                return false
-            } else if (parentFoundation?.itemDefinitionId == Items.FOUNDATION_EXPANSION) {
-                if (doors.includes(construction.itemDefinitionId) && parent && (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)) {
-                    if (parentFoundation.isSecured) {
-                        return true
-                    } else {
-                        return false
-                    }
-                }
+    const gates: number[] = [
+      Items.METAL_GATE,
+      Items.METAL_WALL,
+      Items.METAL_WALL_UPPER,
+      Items.METAL_DOORWAY,
+    ];
+    const doors: number[] = [
+      Items.DOOR_BASIC,
+      Items.DOOR_METAL,
+      Items.DOOR_WOOD,
+    ];
+    const parent = construction.getParent(this);
+    const parentFoundation = construction.getParentFoundation(this);
+    if (!parent && !parentFoundation) return false;
+    if (parent?.isSecured || parentFoundation?.isSecured) {
+      if (
+        gates.includes(construction.itemDefinitionId) ||
+        doors.includes(construction.itemDefinitionId)
+      ) {
+        if (
+          (parentFoundation?.itemDefinitionId == Items.FOUNDATION_EXPANSION &&
+            !doors.includes(construction.itemDefinitionId)) ||
+          parentFoundation?.itemDefinitionId == Items.SHACK ||
+          parentFoundation?.itemDefinitionId == Items.SHACK_BASIC ||
+          parentFoundation?.itemDefinitionId == Items.SHACK_SMALL
+        )
+          return false;
+        if (parentFoundation?.itemDefinitionId == Items.FOUNDATION) {
+          if (
+            doors.includes(construction.itemDefinitionId) &&
+            parent &&
+            (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)
+          ) {
+            if (parentFoundation.isSecured) {
+              return true;
+            } else {
+              return false;
             }
+          }
+          switch (construction.getSlotNumber()) {
+            case 4:
+            case 5:
+            case 6:
+              if (
+                parentFoundation.occupiedExpansionSlots["1"] &&
+                parentFoundation.occupiedExpansionSlots["1"].isSecured
+              )
+                return true;
+              break;
+            case 1:
+            case 2:
+            case 3:
+              if (
+                parentFoundation.occupiedExpansionSlots["2"] &&
+                parentFoundation.occupiedExpansionSlots["2"].isSecured
+              )
+                return true;
+              break;
+            case 10:
+            case 11:
+            case 12:
+              if (
+                parentFoundation.occupiedExpansionSlots["3"] &&
+                parentFoundation.occupiedExpansionSlots["3"].isSecured
+              )
+                return true;
+              break;
+            case 7:
+            case 8:
+            case 9:
+              if (
+                parentFoundation.occupiedExpansionSlots["4"] &&
+                parentFoundation.occupiedExpansionSlots["4"].isSecured
+              )
+                return true;
+              break;
+          }
+          return false;
+        } else if (
+          parentFoundation?.itemDefinitionId == Items.FOUNDATION_EXPANSION
+        ) {
+          if (
+            doors.includes(construction.itemDefinitionId) &&
+            parent &&
+            (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)
+          ) {
+            if (parentFoundation.isSecured) {
+              return true;
+            } else {
+              return false;
+            }
+          }
         }
-        return true
-    } else return false
+      }
+      return true;
+    } else return false;
   }
 
   sendBaseSecuredMessage(client: Client) {
