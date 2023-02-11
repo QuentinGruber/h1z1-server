@@ -254,6 +254,7 @@ export class SOEServer extends EventEmitter {
           true
         );
         break;
+      case "FatalError":
       case "Disconnect":
         debug("Received disconnect from client");
         this.emit("disconnect", client);
