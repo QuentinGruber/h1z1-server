@@ -134,6 +134,49 @@ const dev: any = {
       server.sendChatText(client, `spam ${i}`);
     }
   },
+    grid: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+        const spamNb = args[1] || 1;
+        const arr: any[] = []
+        for (var x = 0; x < 100; x++) {
+            const obj = {
+                unk: 0
+            };
+            arr.push(obj)
+        }
+        arr[3].unk = 300;
+        arr[4].unk = 300;
+        arr[13].unk = 300;
+        arr[14].unk = 300;
+        arr[23].unk = 300;
+        arr[24].unk = 300;
+        arr[33].unk = 300;
+        arr[34].unk = 300;
+        arr[43].unk = 300;
+        arr[44].unk = 300;
+        arr[51].unk = 300;
+        arr[52].unk = 300;
+        arr[53].unk = 300;
+        arr[54].unk = 300;
+        arr[55].unk = 300;
+        arr[56].unk = 300;
+        arr[61].unk = 300;
+        arr[62].unk = 300;
+        arr[63].unk = 300;
+        arr[64].unk = 300;
+        arr[65].unk = 300;
+        arr[66].unk = 300;
+        arr[71].unk = 300;
+        arr[72].unk = 300;
+        arr[73].unk = 300;
+        arr[74].unk = 300;
+        arr[75].unk = 300;
+        arr[76].unk = 300;
+
+        server.sendData(client, "ClientUpdate.UpdateLockoutTimes", {
+            unk: arr,
+            bool: true
+        })
+    },
   list: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendChatText(
       client,

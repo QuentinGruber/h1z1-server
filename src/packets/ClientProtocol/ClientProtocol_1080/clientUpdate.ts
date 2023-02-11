@@ -382,7 +382,21 @@ export const clientUpdatePackets: any = [
   ["ClientUpdate.UpdateActivityMetrics", 0x114b00, {}],
   ["ClientUpdate.StopWithError", 0x114c00, {}],
   ["ClientUpdate.SetWorldWipeTimer", 0x114d00, {}],
-  ["ClientUpdate.UpdateLockoutTimes", 0x114e00, {}],
+  ["ClientUpdate.UpdateLockoutTimes", 0x114e00,
+    {
+        fields: [
+            {
+                name: "unk",
+                type: "array",
+                defaultValue: [],
+                fields: [
+                    { name: "unk", type: "float", defaultValue: 0 },                  
+                ],
+            },
+            { name: "bool", type: "boolean", defaultValue: 1 }
+        ],
+    },
+  ],
   ["ClientUpdate.ZoneStatus", 0x114f00, {}],
   ["ClientUpdate.SetDataCenter", 0x115000, {}],
   ["ClientUpdate.UpdateBattlEyeRegistration", 0x115100, {}],
