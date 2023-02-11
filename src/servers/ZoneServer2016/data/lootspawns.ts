@@ -2591,7 +2591,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_308,
-        weight: 5,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2599,7 +2599,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_SHOTGUN,
-        weight: 5,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1,
