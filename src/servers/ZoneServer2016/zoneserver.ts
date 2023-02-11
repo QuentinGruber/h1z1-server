@@ -3829,25 +3829,33 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendChatToAllInRange(client: Client, message: string, range: number) {
-    for (const a in this._clients) {
-      if (
-        isPosInRadius(
-          range,
-          this._clients[a].character.state.position,
-          client.character.state.position
-        )
-      ) {
-        const c = this._clients[a];
-        this.sendChat(c, `${client.character.name}: ${message}`);
+    this.sendDataToAllInRange(
+      range,
+      client.character.state.position,
+      "Chat.ChatText",
+      {
+        message: `${client.character.name}: ${message}`,
+        unknownDword1: 0,
+        color: [255, 255, 255, 0],
+        unknownDword2: 13951728,
+        unknownByte3: 0,
+        unknownByte4: 1,
       }
-    }
+    );
   }
 
   sendChatToAllWithRadio(client: Client, message: string) {
     for (const a in this._clients) {
       const c = this._clients[a];
       if (c.radio) {
-        this.sendChat(c, `[RADIO: ${client.character.name}]: ${message}`);
+        this.sendData(c, "Chat.ChatText", {
+          message: `[RADIO: ${client.character.name}]: ${message}`,
+          unknownDword1: 0,
+          color: [255, 255, 255, 0],
+          unknownDword2: 13951728,
+          unknownByte3: 0,
+          unknownByte4: 1,
+        });
       }
     }
   }
