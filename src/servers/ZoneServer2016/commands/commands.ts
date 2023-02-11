@@ -647,6 +647,14 @@ export const commands: Array<Command> = [
     },
   },
   {
+    name: "gm", // "god" also works
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      server.setGodMode(client, !client.character.godMode);
+      server.sendAlert(client, `Set godmode to ${client.character.godMode}`);
+    },
+  },
+  {
     name: "listprocesses",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: async (
@@ -1395,14 +1403,6 @@ export const commands: Array<Command> = [
         client,
         `Vehicle respawn timer set to ${Number(args[0])}`
       );
-    },
-  },
-  {
-    name: "gm", // "god" also works
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.setGodMode(client, !client.character.godMode);
-      server.sendAlert(client, `Set godmode to ${client.character.godMode}`);
     },
   },
   {
