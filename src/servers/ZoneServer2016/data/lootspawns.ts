@@ -537,7 +537,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     items: [
       {
         item: Items.WEAPON_308,
-        weight: 6,
+        weight: 7,
         spawnCount: {
           min: 1,
           max: 1,
@@ -681,10 +681,10 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.AMMO_45,
-        weight: 20,
+        weight: 18,
         spawnCount: {
           min: 1,
-          max: 5,
+          max: 4,
         },
       },
       {
@@ -700,36 +700,36 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         weight: 18,
         spawnCount: {
           min: 1,
-          max: 5,
+          max: 4,
         },
       },
       {
         item: Items.AMMO_44,
-        weight: 18,
+        weight: 12,
         spawnCount: {
           min: 1,
-          max: 5,
+          max: 3,
         },
       },
       {
         item: Items.AMMO_223,
-        weight: 8,
+        weight: 12,
         spawnCount: {
           min: 1,
-          max: 5,
+          max: 3,
         },
       },
       {
         item: Items.AMMO_762,
-        weight: 8,
+        weight: 12,
         spawnCount: {
           min: 1,
-          max: 5,
+          max: 3,
         },
       },
       {
         item: Items.AMMO_308,
-        weight: 8,
+        weight: 14,
         spawnCount: {
           min: 1,
           max: 3,
@@ -737,7 +737,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.AMMO_12GA,
-        weight: 8,
+        weight: 14,
         spawnCount: {
           min: 1,
           max: 3,
@@ -805,7 +805,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region RARE
   "ItemSpawnerRare_Tier00.adr": {
-    spawnChance: 10,
+    spawnChance: 15,
     items: [
       {
         item: Items.AMMO_45,
@@ -2587,6 +2587,38 @@ export const containerLootSpawners: {
         spawnCount: {
           min: 1,
           max: 1,
+        },
+      },
+      {
+        item: Items.WEAPON_308,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.WEAPON_SHOTGUN,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.AMMO_308,
+        weight: 25,
+        spawnCount: {
+          min: 2,
+          max: 3,
+        },
+      },
+      {
+        item: Items.AMMO_12GA,
+        weight: 25,
+        spawnCount: {
+          min: 2,
+          max: 3,
         },
       },
     ],
