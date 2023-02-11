@@ -81,7 +81,8 @@ export class GatewayServer extends EventEmitter {
                 break;
             }
           } else {
-            debug("Packet parsing was unsuccesful");
+            console.log(`Unsupported gateway packet ${packet.name}`);
+            console.log(packet);
           }
         } catch (e) {
           console.error("Gateway: packet parsing failed");
