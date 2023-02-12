@@ -1582,7 +1582,14 @@ export class zonePacketHandlers {
                 client.character.characterId,
                 ConstructionPermissionIds.DEMOLISH
               );
-            if (entity && !(entity instanceof ConstructionParentEntity)) {
+            if (
+              entity &&
+              !(
+                entity.itemDefinitionId == Items.FOUNDATION ||
+                entity.itemDefinitionId == Items.FOUNDATION_EXPANSION ||
+                entity.itemDefinitionId == Items.GROUND_TAMPER
+              )
+            ) {
               if (permission) {
                 if (entity.canUndoPlacement(server, client)) {
                   // give back item only if can undo
