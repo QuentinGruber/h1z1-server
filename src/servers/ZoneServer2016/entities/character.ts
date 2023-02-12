@@ -98,6 +98,7 @@ export class Character2016 extends BaseFullCharacter {
   isSpectator = false;
   initialized = false; // if sendself has been sent
   spawnGridData: number[] = [];
+  lastJumpTime: number = 0;
   readonly metrics: CharacterMetrics = {
     recipesDiscovered: 0,
     zombiesKilled: 0,
