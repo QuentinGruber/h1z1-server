@@ -21,6 +21,7 @@ import {
   getDifference,
   isPosInRadius,
   toHex,
+  randomIntFromInterval,
 } from "../../../utils/utils";
 import { ExplosiveEntity } from "../entities/explosiveentity";
 import { Npc } from "../entities/npc";
@@ -76,7 +77,10 @@ export const commands: Array<Command> = [
     name: "respawn",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.respawnPlayer(client);
+      server.respawnPlayer(
+        client,
+        server._spawnGrid[randomIntFromInterval(0, 99)]
+      );
     },
   },
   {
