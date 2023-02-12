@@ -29,6 +29,7 @@ import { zonePacketHandlers } from "./zonepackethandlers";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
 import { GridCell } from "./classes/gridcell";
+import { SpawnCell } from "./classes/spawncell";
 import { WorldObjectManager } from "./managers/worldobjectmanager";
 import { SmeltingManager } from "./managers/smeltingmanager";
 import { DecayManager } from "./managers/decaymanager";
@@ -148,6 +149,7 @@ import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 import { logVersion } from "../../utils/processErrorHandling";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
+  spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
   localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
   itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
@@ -181,7 +183,7 @@ export class ZoneServer2016 extends EventEmitter {
   private _h1emuZoneServer!: H1emuZoneServer;
   _worldId = 0;
   _grid: GridCell[] = [];
-  _spawnGrid: GridCell[] = []
+  _spawnGrid: SpawnCell[] = [];
   readonly _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
   _npcs: { [characterId: string]: Npc } = {};
@@ -932,7 +934,10 @@ export class ZoneServer2016 extends EventEmitter {
       !this.enableWorldSaves
     ) {
       client.character.isRespawning = false;
-      await this.respawnPlayer(client);
+      await this.respawnPlayer(
+        client,
+        this._spawnGrid[randomIntFromInterval(0, 99)]
+      );
     } else {
       client.character.state.position = new Float32Array(
         savedCharacter.position
@@ -1100,7 +1105,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
-      this._spawnGrid = this.divideMapIntoSpawnGrid(7450, 7450, 745)
+    this._spawnGrid = this.divideMapIntoSpawnGrid(7450, 7450, 745);
     this.startRoutinesLoop();
     this.smeltingManager.checkSmeltables(this);
     this.smeltingManager.checkCollectors(this);
@@ -1242,20 +1247,39 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendCharacterData(client);
   }
 
-    private divideMapIntoSpawnGrid(
-        mapWidth: number,
-        mapHeight: number,
-        gridCellSize: number
+  private divideMapIntoSpawnGrid(
+    mapWidth: number,
+    mapHeight: number,
+    gridCellSize: number
+  ) {
+    const grid = [];
+    for (
+      let i = -mapWidth / 2 + gridCellSize / 2;
+      i < mapWidth / 2;
+      i += gridCellSize
     ) {
-        const grid = [];
-        for (let i = -mapWidth / 2 + gridCellSize / 2; i < mapWidth / 2; i += gridCellSize) {
-            for (let j = mapHeight / 2 - gridCellSize / 2; j > -mapHeight / 2; j -= gridCellSize) {
-                const cell = new GridCell(i, j, gridCellSize, gridCellSize);
-                grid.push(cell);
-            }
-        }
-        return grid.reverse();
+      for (
+        let j = mapHeight / 2 - gridCellSize / 2;
+        j > -mapHeight / 2;
+        j -= gridCellSize
+      ) {
+        const cell = new SpawnCell(i, j, gridCellSize, gridCellSize);
+        spawnLocations2.forEach((location: number[]) => {
+          if (!location) return;
+          if (
+            location[0] >= cell.position[0] &&
+            location[0] <= cell.position[0] + cell.width &&
+            location[2] >= cell.position[2] &&
+            location[2] <= cell.position[2] + cell.height
+          ) {
+            cell.spawnPoints.push(new Float32Array(location));
+          }
+        });
+        grid.push(cell);
+      }
     }
+    return grid.reverse();
+  }
 
   private divideMapIntoGrid(
     mapWidth: number,
@@ -1524,49 +1548,42 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
     }
-      const arr: any[] = []
-      for (var x = 0; x < 100; x++) {
-          const obj = {
-              unk: 0
-          };
-          arr.push(obj)
+    const pos = client.character.state.position;
+    this._spawnGrid.forEach((spawnCell: SpawnCell) => {
+      // find current grid and add it to blocked ones
+      if (
+        pos[0] >= spawnCell.position[0] &&
+        pos[0] <= spawnCell.position[0] + spawnCell.width &&
+        pos[2] >= spawnCell.position[2] &&
+        pos[2] <= spawnCell.position[2] + spawnCell.height
+      ) {
+        client.character.spawnGridData[this._spawnGrid.indexOf(spawnCell)] =
+          new Date().getTime() + 300000;
+        // find neighboring grids and add to blocked ones
+        this._spawnGrid.forEach((cell: SpawnCell) => {
+          if (isPosInRadius(1100, cell.position, spawnCell.position)) {
+            client.character.spawnGridData[this._spawnGrid.indexOf(cell)] =
+              new Date().getTime() + 300000;
+          }
+        });
       }
-          arr[3].unk = 300;
-          arr[4].unk = 300;
-          arr[13].unk = 300;
-          arr[14].unk = 300;
-          arr[23].unk = 300;
-          arr[24].unk = 300;
-          arr[33].unk = 300;
-          arr[34].unk = 300;
-          arr[43].unk = 300;
-          arr[44].unk = 300;
-          arr[51].unk = 300;
-          arr[52].unk = 300;
-          arr[53].unk = 300;
-          arr[54].unk = 300;
-          arr[55].unk = 300;
-          arr[56].unk = 300;
-          arr[61].unk = 300;
-          arr[62].unk = 300;
-          arr[63].unk = 300;
-          arr[64].unk = 300;
-          arr[65].unk = 300;
-          arr[66].unk = 300;
-          arr[71].unk = 300;
-          arr[72].unk = 300;
-          arr[73].unk = 300;
-          arr[74].unk = 300;
-          arr[75].unk = 300;
-          arr[76].unk = 300;
-
-          this.sendData(client, "ClientUpdate.UpdateLockoutTimes", {
-              unk: arr,
-              bool: true
-          })
-      
+    });
     const character = client.character,
       sourceClient = this.getClientByCharId(damageInfo.entity);
+
+    const gridArr: any[] = [];
+    character.spawnGridData.forEach((number: number) => {
+      if (number <= new Date().getTime()) number = 0;
+      gridArr.push({
+        unk: number ? Math.floor((number - new Date().getTime()) / 1000) : 0,
+      });
+    });
+
+    this.sendData(client, "ClientUpdate.UpdateLockoutTimes", {
+      unk: gridArr,
+      bool: true,
+    });
+
     client.character.isRespawning = true;
     this.sendDeathMetrics(client);
     debug(character.name + " has died");
@@ -2094,7 +2111,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  async respawnPlayer(client: Client) {
+  async respawnPlayer(client: Client, cell: SpawnCell) {
     if (!this.hookManager.checkHook("OnPlayerRespawn", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnPlayerRespawn", client)))
       return;
@@ -2125,7 +2142,7 @@ export class ZoneServer2016 extends EventEmitter {
       true
     );
     const randomSpawnIndex = Math.floor(
-      Math.random() * this._spawnLocations.length
+      Math.random() * cell.spawnPoints.length
     );
     if (client.character.initialized) {
       client.managedObjects?.forEach((characterId: any) => {
@@ -2136,14 +2153,13 @@ export class ZoneServer2016 extends EventEmitter {
         status: 1,
       });
       this.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: this._spawnLocations[randomSpawnIndex].position,
+        position: cell.spawnPoints[randomSpawnIndex],
       });
     }
 
     this.clearInventory(client);
     client.character.equipLoadout(this);
-    client.character.state.position =
-      this._spawnLocations[randomSpawnIndex].position;
+    client.character.state.position = cell.spawnPoints[randomSpawnIndex];
     this.updateResource(
       client,
       client.character.characterId,

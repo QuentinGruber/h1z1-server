@@ -14,9 +14,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { VehicleIds } from "../models/enums";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "../entities/vehicle";
+import { SpawnCell } from "../classes/spawncell";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
+import { isPosInRadius } from "../../../utils/utils";
 
 export const internalCommands: Array<Command> = [
   //#region DEFAULT PERMISSIONS
@@ -24,7 +26,14 @@ export const internalCommands: Array<Command> = [
     name: "respawn",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, packetData: any) => {
-      server.respawnPlayer(client);
+      let doReturn = false;
+      server._spawnGrid.forEach((cell: SpawnCell) => {
+        if (isPosInRadius(50, cell.position, packetData.gridPosition)) {
+          if (doReturn) return;
+          server.respawnPlayer(client, cell);
+          doReturn = true;
+        }
+      });
     },
   },
   {
