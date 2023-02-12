@@ -181,6 +181,7 @@ export class ZoneServer2016 extends EventEmitter {
   private _h1emuZoneServer!: H1emuZoneServer;
   _worldId = 0;
   _grid: GridCell[] = [];
+  _spawnGrid: GridCell[] = []
   readonly _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
   _npcs: { [characterId: string]: Npc } = {};
@@ -1099,6 +1100,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
+      this._spawnGrid = this.divideMapIntoSpawnGrid(7450, 7450, 745)
     this.startRoutinesLoop();
     this.smeltingManager.checkSmeltables(this);
     this.smeltingManager.checkCollectors(this);
@@ -1239,6 +1241,21 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.sendCharacterData(client);
   }
+
+    private divideMapIntoSpawnGrid(
+        mapWidth: number,
+        mapHeight: number,
+        gridCellSize: number
+    ) {
+        const grid = [];
+        for (let i = -mapWidth / 2 + gridCellSize / 2; i < mapWidth / 2; i += gridCellSize) {
+            for (let j = mapHeight / 2 - gridCellSize / 2; j > -mapHeight / 2; j -= gridCellSize) {
+                const cell = new GridCell(i, j, gridCellSize, gridCellSize);
+                grid.push(cell);
+            }
+        }
+        return grid.reverse();
+    }
 
   private divideMapIntoGrid(
     mapWidth: number,
@@ -1507,7 +1524,47 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
     }
+      const arr: any[] = []
+      for (var x = 0; x < 100; x++) {
+          const obj = {
+              unk: 0
+          };
+          arr.push(obj)
+      }
+          arr[3].unk = 300;
+          arr[4].unk = 300;
+          arr[13].unk = 300;
+          arr[14].unk = 300;
+          arr[23].unk = 300;
+          arr[24].unk = 300;
+          arr[33].unk = 300;
+          arr[34].unk = 300;
+          arr[43].unk = 300;
+          arr[44].unk = 300;
+          arr[51].unk = 300;
+          arr[52].unk = 300;
+          arr[53].unk = 300;
+          arr[54].unk = 300;
+          arr[55].unk = 300;
+          arr[56].unk = 300;
+          arr[61].unk = 300;
+          arr[62].unk = 300;
+          arr[63].unk = 300;
+          arr[64].unk = 300;
+          arr[65].unk = 300;
+          arr[66].unk = 300;
+          arr[71].unk = 300;
+          arr[72].unk = 300;
+          arr[73].unk = 300;
+          arr[74].unk = 300;
+          arr[75].unk = 300;
+          arr[76].unk = 300;
 
+          this.sendData(client, "ClientUpdate.UpdateLockoutTimes", {
+              unk: arr,
+              bool: true
+          })
+      
     const character = client.character,
       sourceClient = this.getClientByCharId(damageInfo.entity);
     client.character.isRespawning = true;
