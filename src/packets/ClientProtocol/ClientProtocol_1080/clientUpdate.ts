@@ -185,19 +185,16 @@ export const clientUpdatePackets: any = [
     0x111f00,
     {
       fields: [
-        { name: "unknownFlags", type: "uint8", defaultValue: 0 },
         {
           name: "locations",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: respawnLocationSchema,
         },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         {
           name: "locations2",
           type: "array",
-          defaultValue: [{}],
+          defaultValue: [],
           fields: respawnLocationSchema,
         },
       ],
@@ -390,7 +387,7 @@ export const clientUpdatePackets: any = [
                 type: "array",
                 defaultValue: [],
                 fields: [
-                    { name: "unk", type: "float", defaultValue: 0 },                  
+                    { name: "unk", type: "uint32", defaultValue: 0 },                  
                 ],
             },
             { name: "bool", type: "boolean", defaultValue: 1 }
