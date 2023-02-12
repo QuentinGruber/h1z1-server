@@ -749,7 +749,13 @@ export class zonePacketHandlers {
       }
       const byte1 = packet.data.stance & 0xff;
       client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
-      if (!!(byte1 & (1 << 4)) && !(byte1 & (1 << 5))) {
+      if (
+        !!(byte1 & (1 << 4)) &&
+        !(byte1 & (1 << 5)) &&
+        // temporary fix for multiplying jump penalty until exact flags are found
+        client.character.lastJumpTime < Date.now()
+      ) {
+        client.character.lastJumpTime = Date.now() + 1100;
         client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
         if (client.character._resources[ResourceIds.STAMINA] < 0)
           client.character._resources[ResourceIds.STAMINA] = 0;
@@ -1582,7 +1588,14 @@ export class zonePacketHandlers {
                 client.character.characterId,
                 ConstructionPermissionIds.DEMOLISH
               );
-            if (entity && !(entity instanceof ConstructionParentEntity)) {
+            if (
+              entity &&
+              !(
+                entity.itemDefinitionId == Items.FOUNDATION ||
+                entity.itemDefinitionId == Items.FOUNDATION_EXPANSION ||
+                entity.itemDefinitionId == Items.GROUND_TAMPER
+              )
+            ) {
               if (permission) {
                 if (entity.canUndoPlacement(server, client)) {
                   // give back item only if can undo

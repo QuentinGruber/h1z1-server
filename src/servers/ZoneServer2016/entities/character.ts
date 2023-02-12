@@ -97,6 +97,8 @@ export class Character2016 extends BaseFullCharacter {
   tempGodMode = false;
   isSpectator = false;
   initialized = false; // if sendself has been sent
+  spawnGridData: number[] = [];
+  lastJumpTime: number = 0;
   readonly metrics: CharacterMetrics = {
     recipesDiscovered: 0,
     zombiesKilled: 0,
@@ -170,7 +172,6 @@ export class Character2016 extends BaseFullCharacter {
         }
       }, 1000);
     };
-
     this.startRessourceUpdater = (
       client: ZoneClient2016,
       server: ZoneServer2016

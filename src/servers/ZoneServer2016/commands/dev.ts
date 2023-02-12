@@ -26,6 +26,7 @@ import { Items } from "../models/enums";
 import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
+import { randomIntFromInterval } from "../../../utils/utils";
 //import { NormanTest } from "../classes/Planting/Test";
 
 const debug = require("debug")("zonepacketHandlers");
@@ -149,7 +150,10 @@ const dev: any = {
   },
   r: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     // quick respawn
-    server.respawnPlayer(client);
+    server.respawnPlayer(
+      client,
+      server._spawnGrid[randomIntFromInterval(0, 99)]
+    );
   },
   testpacket: function (
     server: ZoneServer2016,

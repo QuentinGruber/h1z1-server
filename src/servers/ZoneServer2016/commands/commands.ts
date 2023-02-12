@@ -21,6 +21,7 @@ import {
   getDifference,
   isPosInRadius,
   toHex,
+  randomIntFromInterval,
 } from "../../../utils/utils";
 import { ExplosiveEntity } from "../entities/explosiveentity";
 import { Npc } from "../entities/npc";
@@ -76,7 +77,10 @@ export const commands: Array<Command> = [
     name: "respawn",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.respawnPlayer(client);
+      server.respawnPlayer(
+        client,
+        server._spawnGrid[randomIntFromInterval(0, 99)]
+      );
     },
   },
   {
@@ -644,6 +648,14 @@ export const commands: Array<Command> = [
           `Cannot find any banned user with name ${name}`
         );
       }
+    },
+  },
+  {
+    name: "gm", // "god" also works
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      server.setGodMode(client, !client.character.godMode);
+      server.sendAlert(client, `Set godmode to ${client.character.godMode}`);
     },
   },
   {
@@ -1395,14 +1407,6 @@ export const commands: Array<Command> = [
         client,
         `Vehicle respawn timer set to ${Number(args[0])}`
       );
-    },
-  },
-  {
-    name: "gm", // "god" also works
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.setGodMode(client, !client.character.godMode);
-      server.sendAlert(client, `Set godmode to ${client.character.godMode}`);
     },
   },
   {

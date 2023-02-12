@@ -46,7 +46,7 @@ export class SOEServer extends EventEmitter {
   packetRatePerClient: number = 500;
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
-  _allowRawDataReception: boolean = true;
+  _allowRawDataReception: boolean = false;
   private _maxSeqResendRange: number = 100;
   constructor(
     serverPort: number,
@@ -254,6 +254,7 @@ export class SOEServer extends EventEmitter {
           true
         );
         break;
+      case "FatalError":
       case "Disconnect":
         debug("Received disconnect from client");
         this.emit("disconnect", client);
@@ -411,10 +412,10 @@ export class SOEServer extends EventEmitter {
           }
         } else {
           if (this._allowRawDataReception) {
-            debug("Raw data received from client", clientId, data);
+            console.log("Raw data received from client", clientId, data);
             this.emit("appdata", client, data, true); // Unreliable + Unordered
           } else {
-            debug(
+            console.log(
               "Raw data received from client but raw data reception isn't enabled",
               clientId,
               data
