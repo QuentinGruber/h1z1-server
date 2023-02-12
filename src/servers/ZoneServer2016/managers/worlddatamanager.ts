@@ -408,6 +408,8 @@ export class WorldDataManager {
       if (!savedCharacter) {
         throw `[ERROR] Single player character not found! characterId: ${characterId}`;
       }
+      savedCharacter.spawnGridData =
+        savedCharacter.spawnGridData || Array(100).fill(0);
     } else {
       const loadedCharacter = await this._db
         ?.collection("characters")
@@ -464,7 +466,7 @@ export class WorldDataManager {
       characterId: character.characterId,
       rotation: Array.from(character.state.lookAt),
       isRespawning: character.isRespawning,
-      spawnGridData : character.spawnGridData
+      spawnGridData: character.spawnGridData,
     };
     return saveData;
   }
