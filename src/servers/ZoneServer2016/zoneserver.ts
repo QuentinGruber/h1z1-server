@@ -4486,8 +4486,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
     // block building around spawn points
     let isInSpawnPoint = false;
-    this._spawnLocations.forEach((point: any) => {
-      if (isPosInRadius(50, position, point.position)) isInSpawnPoint = true;
+    spawnLocations2.forEach((point: Float32Array) => {
+      if (isPosInRadius(25, position, point)) isInSpawnPoint = true;
     });
     // alow placement in spawn point if object is parented to a foundation
     let isInFoundationSpawnPoint = false;
