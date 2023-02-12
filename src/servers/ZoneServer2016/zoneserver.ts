@@ -1275,7 +1275,6 @@ export class ZoneServer2016 extends EventEmitter {
             cell.spawnPoints.push(new Float32Array(location));
           }
         });
-        console.log(cell.spawnPoints.length);
         grid.push(cell);
       }
     }
