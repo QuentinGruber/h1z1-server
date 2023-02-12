@@ -28,8 +28,8 @@ export const internalCommands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, packetData: any) => {
       let doReturn = false;
       server._spawnGrid.forEach((cell: SpawnCell) => {
+        if (doReturn) return;
         if (isPosInRadius(50, cell.position, packetData.gridPosition)) {
-          if (doReturn) return;
           server.respawnPlayer(client, cell);
           doReturn = true;
         }
