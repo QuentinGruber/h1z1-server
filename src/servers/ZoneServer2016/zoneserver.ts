@@ -1105,7 +1105,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
-    this._spawnGrid = this.divideMapIntoSpawnGrid(7450, 7450, 745);
+    this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
     this.startRoutinesLoop();
     this.smeltingManager.checkSmeltables(this);
     this.smeltingManager.checkCollectors(this);
@@ -1267,14 +1267,15 @@ export class ZoneServer2016 extends EventEmitter {
         spawnLocations2.forEach((location: number[]) => {
           if (!location) return;
           if (
-            location[0] >= cell.position[0] &&
-            location[0] <= cell.position[0] + cell.width &&
-            location[2] >= cell.position[2] &&
-            location[2] <= cell.position[2] + cell.height
+            location[0] >= cell.position[0] - cell.width / 2 &&
+            location[0] <= cell.position[0] + cell.width / 2 &&
+            location[2] >= cell.position[2] - cell.height / 2 &&
+            location[2] <= cell.position[2] + cell.height / 2
           ) {
             cell.spawnPoints.push(new Float32Array(location));
           }
         });
+        console.log(cell.spawnPoints.length);
         grid.push(cell);
       }
     }
@@ -1552,10 +1553,10 @@ export class ZoneServer2016 extends EventEmitter {
     this._spawnGrid.forEach((spawnCell: SpawnCell) => {
       // find current grid and add it to blocked ones
       if (
-        pos[0] >= spawnCell.position[0] &&
-        pos[0] <= spawnCell.position[0] + spawnCell.width &&
-        pos[2] >= spawnCell.position[2] &&
-        pos[2] <= spawnCell.position[2] + spawnCell.height
+        pos[0] >= spawnCell.position[0] - spawnCell.width / 2 &&
+        pos[0] <= spawnCell.position[0] + spawnCell.width / 2 &&
+        pos[2] >= spawnCell.position[2] - spawnCell.height / 2 &&
+        pos[2] <= spawnCell.position[2] + spawnCell.height / 2
       ) {
         client.character.spawnGridData[this._spawnGrid.indexOf(spawnCell)] =
           new Date().getTime() + 300000;
