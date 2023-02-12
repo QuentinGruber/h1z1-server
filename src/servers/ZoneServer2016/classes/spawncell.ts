@@ -1,5 +1,3 @@
-import { BaseEntity } from "../entities/baseentity";
-
 export class SpawnCell {
   position: Float32Array;
   spawnPoints: Float32Array[] = [];
