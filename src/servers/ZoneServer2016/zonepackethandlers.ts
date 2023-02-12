@@ -57,7 +57,6 @@ import { ConstructionChildEntity } from "./entities/constructionchildentity";
 import { Collection } from "mongodb";
 import { DB_COLLECTIONS } from "../../utils/enums";
 import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
-import { SpawnCell } from "h1z1-server/src/servers/ZoneServer2016/classes/spawncell";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
