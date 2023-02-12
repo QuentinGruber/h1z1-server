@@ -2155,7 +2155,12 @@ export class ZoneServer2016 extends EventEmitter {
         status: 1,
       });
       this.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: cell.spawnPoints[randomSpawnIndex],
+        position: new Float32Array([
+          cell.spawnPoints[randomSpawnIndex][0],
+          cell.spawnPoints[randomSpawnIndex][1] + 1,
+          cell.spawnPoints[randomSpawnIndex][2],
+          1,
+        ]),
       });
     }
 
