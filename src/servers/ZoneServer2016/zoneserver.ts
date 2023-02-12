@@ -149,6 +149,7 @@ import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 import { logVersion } from "../../utils/processErrorHandling";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
+  Z1_vehicles = require("../../../data/2016/zoneData/Z1_vehicleLocations.json"),
   spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
   localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
@@ -4483,7 +4484,10 @@ export class ZoneServer2016 extends EventEmitter {
         !allowedItems.includes(itemDefinitionId) &&
         !isInsidePermissionedFoundation
       ) {
-        this.placementError(client, ConstructionErrors.BUILD_PERMISSION);
+        this.sendAlert(
+          client,
+          "You may not place this object this close to another players foundation"
+        );
         this.sendData(client, "Construction.PlacementFinalizeResponse", {
           status: 0,
           unknownString1: "",
@@ -4526,7 +4530,24 @@ export class ZoneServer2016 extends EventEmitter {
       });
       this.sendAlert(
         client,
-        "You may not place this object this close to a town or point of interest."
+        "You may not place this object this close to a spawn point"
+      );
+      return;
+    }
+    // block building near vehicle spawn
+    let isInVehicleSpawnPoint = false;
+    Z1_vehicles.forEach((vehicleSpawn: any) => {
+      if (isPosInRadius(30, position, vehicleSpawn.position))
+        isInVehicleSpawnPoint = true;
+    });
+    if (isInVehicleSpawnPoint && !isInsidePermissionedFoundation) {
+      this.sendData(client, "Construction.PlacementFinalizeResponse", {
+        status: 0,
+        unknownString1: "",
+      });
+      this.sendAlert(
+        client,
+        "You may not place this object this close to a vehicle spawn point"
       );
       return;
     }
