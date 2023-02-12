@@ -4441,6 +4441,28 @@ export class ZoneServer2016 extends EventEmitter {
         if (iteratedFoundation.isInside(position)) isInFoundation = true;
       }
     }
+    let isInsidePermissionedFoundation = false;
+    for (const a in this._constructionFoundations) {
+      const iteratedFoundation = this._constructionFoundations[a];
+      if (iteratedFoundation.bounds) {
+        if (
+          iteratedFoundation.isInside(position) ||
+          (iteratedFoundation.characterId == parentObjectCharacterId &&
+            isPosInRadius(20, iteratedFoundation.state.position, position))
+        )
+          isInsidePermissionedFoundation = true;
+      }
+      for (const b in iteratedFoundation.occupiedShelterSlots) {
+        const shelter = iteratedFoundation.occupiedShelterSlots[b];
+        if (
+          (shelter.characterId == parentObjectCharacterId &&
+            isPosInRadius(20, iteratedFoundation.state.position, position)) ||
+          (shelter.bounds && shelter.isInside(position))
+        ) {
+          isInsidePermissionedFoundation = true;
+        }
+      }
+    }
 
     for (const a in this._constructionFoundations) {
       const foundation = this._constructionFoundations[a];
@@ -4458,7 +4480,8 @@ export class ZoneServer2016 extends EventEmitter {
           foundation.state.position
         ) &&
         allowBuild === false &&
-        !allowedItems.includes(itemDefinitionId)
+        !allowedItems.includes(itemDefinitionId) &&
+        !isInsidePermissionedFoundation
       ) {
         this.placementError(client, ConstructionErrors.BUILD_PERMISSION);
         this.sendData(client, "Construction.PlacementFinalizeResponse", {
@@ -4496,29 +4519,7 @@ export class ZoneServer2016 extends EventEmitter {
     spawnLocations2.forEach((point: Float32Array) => {
       if (isPosInRadius(25, position, point)) isInSpawnPoint = true;
     });
-    // alow placement in spawn point if object is parented to a foundation
-    let isInFoundationSpawnPoint = false;
-    for (const a in this._constructionFoundations) {
-      const iteratedFoundation = this._constructionFoundations[a];
-      if (iteratedFoundation.bounds) {
-        if (
-          iteratedFoundation.isInside(position) ||
-          (iteratedFoundation.characterId == parentObjectCharacterId &&
-            isPosInRadius(20, iteratedFoundation.state.position, position))
-        )
-          isInFoundationSpawnPoint = true;
-      }
-      for (const b in iteratedFoundation.occupiedShelterSlots) {
-        const shelter = iteratedFoundation.occupiedShelterSlots[b];
-        if (
-          shelter.characterId == parentObjectCharacterId &&
-          isPosInRadius(20, iteratedFoundation.state.position, position)
-        ) {
-          isInFoundationSpawnPoint = true;
-        }
-      }
-    }
-    if (isInSpawnPoint && !isInFoundationSpawnPoint) {
+    if (isInSpawnPoint && !isInsidePermissionedFoundation) {
       this.sendData(client, "Construction.PlacementFinalizeResponse", {
         status: 0,
         unknownString1: "",
@@ -4549,28 +4550,7 @@ export class ZoneServer2016 extends EventEmitter {
           isInPoi = true;
       });
       // alow placement in poi if object is parented to a foundation
-      let isInFoundationPOI = false;
-      for (const a in this._constructionFoundations) {
-        const iteratedFoundation = this._constructionFoundations[a];
-        if (iteratedFoundation.bounds) {
-          if (
-            iteratedFoundation.isInside(position) ||
-            (iteratedFoundation.characterId == parentObjectCharacterId &&
-              isPosInRadius(20, iteratedFoundation.state.position, position))
-          )
-            isInFoundationPOI = true;
-        }
-        for (const b in iteratedFoundation.occupiedShelterSlots) {
-          const shelter = iteratedFoundation.occupiedShelterSlots[b];
-          if (
-            shelter.characterId == parentObjectCharacterId &&
-            isPosInRadius(20, iteratedFoundation.state.position, position)
-          ) {
-            isInFoundationPOI = true;
-          }
-        }
-      }
-      if (isInPoi && !isInFoundationPOI) {
+      if (isInPoi && !isInsidePermissionedFoundation) {
         this.sendData(client, "Construction.PlacementFinalizeResponse", {
           status: 0,
           unknownString1: "",
