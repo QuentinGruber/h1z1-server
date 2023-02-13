@@ -207,14 +207,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     switch (this.itemDefinitionId) {
       case Items.METAL_DOORWAY: // for parent foundation
         const door = this.occupiedWallSlots[1];
-        if (
-          !door ||
-          !(door instanceof ConstructionDoor) ||
-          door.isOpen
-        ) {
+        if (!door || !(door instanceof ConstructionDoor) || door.isOpen) {
           this.isSecured = false;
-        }
-        else {
+        } else {
           this.isSecured = true;
         }
         const parent = this.getParentFoundation(server);

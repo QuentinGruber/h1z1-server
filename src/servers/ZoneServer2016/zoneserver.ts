@@ -6180,8 +6180,8 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.state.position,
       new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
     );
-    
-    if(!obj) return;
+
+    if (!obj) return;
     this.addLightweightNpc(client, obj);
     this.sendData(client, "Replication.InteractionComponent", {
       transientId: obj.transientId,
