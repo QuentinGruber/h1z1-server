@@ -109,13 +109,13 @@ export class CraftManager {
         !checkConstructionInRange(
           server._constructionSimple,
           client.character.state.position,
-          1.5,
+          3,
           Items.WORKBENCH
         ) &&
         !checkConstructionInRange(
           server._worldSimpleConstruction,
           client.character.state.position,
-          1.5,
+          3,
           Items.WORKBENCH
         )
       ) {
