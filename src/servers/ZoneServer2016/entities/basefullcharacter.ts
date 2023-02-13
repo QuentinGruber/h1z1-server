@@ -509,7 +509,10 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
     Object.values(this._containers).forEach((container: LoadoutContainer) => {
       Object.values(container.items).forEach((item) => {
-        if (!this.isDefaultItem(item.itemDefinitionId)) {
+        if (
+          !this.isDefaultItem(item.itemDefinitionId) &&
+          !server.isAdminItem(item.itemDefinitionId)
+        ) {
           let stacked = false;
           for (const i of Object.values(items)) {
             // stack similar items
