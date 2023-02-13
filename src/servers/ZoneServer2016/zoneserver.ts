@@ -6620,13 +6620,13 @@ export class ZoneServer2016 extends EventEmitter {
       !checkConstructionInRange(
         this._constructionSimple,
         client.character.state.position,
-        1.5,
+        3,
         Items.WORKBENCH_WEAPON
       ) &&
       !checkConstructionInRange(
         this._worldSimpleConstruction,
         client.character.state.position,
-        1.5,
+        3,
         Items.WORKBENCH_WEAPON
       )
     ) {
