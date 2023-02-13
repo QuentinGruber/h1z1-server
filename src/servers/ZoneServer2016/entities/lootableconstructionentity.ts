@@ -110,7 +110,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {
-    server.deleteEntity(
+    const deleted = server.deleteEntity(
       this.characterId,
       server._lootableConstruction[this.characterId]
         ? server._lootableConstruction
@@ -134,6 +134,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
         }
       }
     }
+    return deleted;
   }
 
   getHasPermission(
