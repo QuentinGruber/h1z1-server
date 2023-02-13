@@ -4525,7 +4525,11 @@ export class ZoneServer2016 extends EventEmitter {
     spawnLocations2.forEach((point: Float32Array) => {
       if (isPosInRadius(25, position, point)) isInSpawnPoint = true;
     });
-    if (isInSpawnPoint && !isInsidePermissionedFoundation) {
+    if (
+      isInSpawnPoint &&
+      !isInsidePermissionedFoundation &&
+      !allowedItems.includes(itemDefinitionId)
+    ) {
       this.sendData(client, "Construction.PlacementFinalizeResponse", {
         status: 0,
         unknownString1: "",
@@ -4542,7 +4546,11 @@ export class ZoneServer2016 extends EventEmitter {
       if (isPosInRadius(30, position, vehicleSpawn.position))
         isInVehicleSpawnPoint = true;
     });
-    if (isInVehicleSpawnPoint && !isInsidePermissionedFoundation) {
+    if (
+      isInVehicleSpawnPoint &&
+      !isInsidePermissionedFoundation &&
+      !allowedItems.includes(itemDefinitionId)
+    ) {
       this.sendData(client, "Construction.PlacementFinalizeResponse", {
         status: 0,
         unknownString1: "",
