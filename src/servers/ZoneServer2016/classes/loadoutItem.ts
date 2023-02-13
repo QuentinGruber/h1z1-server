@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -55,19 +55,17 @@ export class LoadoutItem extends BaseItem {
     }
     if (oldLoadoutItem) {
       if (!server.removeLoadoutItem(client, oldLoadoutItem.slotId)) {
-        console.log("error 1");
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
     }
     if (!server.removeLoadoutItem(client, this.slotId)) {
-      console.log("error 2");
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
     if (oldLoadoutItem) {
-      server.equipItem(client.character, oldLoadoutItem, true, this.slotId);
+      client.character.equipItem(server, oldLoadoutItem, true, this.slotId);
     }
-    server.equipItem(client.character, this, true, newSlotId);
+    client.character.equipItem(server, this, true, newSlotId);
   }
 }

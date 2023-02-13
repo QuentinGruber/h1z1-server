@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,15 +11,15 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-const EventEmitter = require("events").EventEmitter,
+const EventEmitter = require("node:events").EventEmitter,
   SOEInputStream =
     require("../servers/SoeServer/soeinputstream").SOEInputStream,
   SOEOutputStream =
     require("../servers/SoeServer/soeoutputstream").SOEOutputStream,
   { Soeprotocol } = require("h1emu-core"),
-  util = require("util"),
-  fs = require("fs"),
-  dgram = require("dgram"),
+  util = require("node:util"),
+  fs = require("node:fs"),
+  dgram = require("node:dgram"),
   debug = require("debug")("SOEClient");
 
 function createSessionId() {

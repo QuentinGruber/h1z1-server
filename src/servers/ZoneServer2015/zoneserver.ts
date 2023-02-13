@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { H1Z1Protocol as ZoneProtocol } from "../../protocols/h1z1protocol";
 import { H1emuZoneServer } from "../H1emuServer/h1emuZoneServer";
@@ -30,13 +30,13 @@ import {
 } from "../../utils/utils";
 import { Weather } from "../../types/zoneserver";
 import { Db, MongoClient } from "mongodb";
-import { Worker } from "worker_threads";
+import { Worker } from "node:worker_threads";
 import SOEClient from "../SoeServer/soeclient";
 import { ZoneClient as Client } from "./classes/zoneclient";
 import { h1z1PacketsType } from "../../types/packets";
 import { Vehicle } from "./classes/vehicle";
-import { Resolver } from "dns";
-import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
+import { Resolver } from "node:dns";
+import { DB_NAME, DEFAULT_CRYPTO_KEY } from "../../utils/constants";
 
 process.env.isBin && require("./workers/dynamicWeather");
 
@@ -658,12 +658,11 @@ export class ZoneServer2015 extends EventEmitter {
     }
     debug("connected to mongo !");
     // if no collections exist on h1server database , fill it with samples
-    const dbIsEmpty =
-      (await mongoClient.db("h1server").collections()).length < 1;
+    const dbIsEmpty = (await mongoClient.db(DB_NAME).collections()).length < 1;
     if (dbIsEmpty) {
       await initMongo(mongoClient, debugName);
     }
-    this._db = mongoClient.db("h1server");
+    this._db = mongoClient.db(DB_NAME);
   }
 
   async start(): Promise<void> {

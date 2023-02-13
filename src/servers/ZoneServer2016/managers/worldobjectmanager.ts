@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -16,6 +16,7 @@ const Z1_doors = require("../../../../data/2016/zoneData/Z1_doors.json");
 const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
+const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
@@ -25,38 +26,95 @@ import {
   isPosInRadius,
   randomIntFromInterval,
 } from "../../../utils/utils";
-import { EquipSlots, Items } from "../models/enums";
-import { Vehicle2016 } from "../classes/vehicle";
+import {
+  EquipSlots,
+  Items,
+  VehicleIds,
+  Skins_Shirt,
+  Skins_Pants,
+  Skins_Beanie,
+  Skins_Cap,
+  Skins_MotorHelmet,
+} from "../models/enums";
+import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
-import { ItemObject } from "../classes/itemobject";
-import { DoorEntity } from "../classes/doorentity";
-import { Zombie } from "../classes/zombie";
-import { BaseFullCharacter } from "../classes/basefullcharacter";
-import { ExplosiveEntity } from "../classes/explosiveentity";
-import { lootTables } from "../data/lootspawns";
+import { ItemObject } from "../entities/itemobject";
+import { DoorEntity } from "../entities/doorentity";
+import { Zombie } from "../entities/zombie";
+import { BaseFullCharacter } from "../entities/basefullcharacter";
+import { ExplosiveEntity } from "../entities/explosiveentity";
+import { lootTables, containerLootSpawners } from "../data/lootspawns";
 import { BaseItem } from "../classes/baseItem";
-import { Lootbag } from "../classes/lootbag";
-import { LoadoutContainer } from "../classes/loadoutcontainer";
+import { Lootbag } from "../entities/lootbag";
+import { LootableProp } from "../entities/lootableprop";
+import { ZoneClient2016 } from "../classes/zoneclient";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {
   switch (Math.floor(Math.random() * 4)) {
     case 0: // offroader
-      return 7225;
+      return VehicleIds.OFFROADER;
     case 1: // policecar
-      return 9301;
+      return VehicleIds.POLICECAR;
     case 2: // pickup
-      return 9258;
+      return VehicleIds.PICKUP;
     case 3: // atv
-      return 9588;
+      return VehicleIds.ATV;
     default:
       // pickup
-      return 9258;
+      return VehicleIds.PICKUP;
   }
 }
 
+function getRandomSkin(itemDefinitionId: number) {
+  const allowedItems = [
+    Items.SHIRT_DEFAULT,
+    Items.PANTS_DEFAULT,
+    Items.HAT_BEANIE,
+    Items.HAT_CAP,
+    Items.HELMET_MOTORCYCLE,
+  ];
+  if (!allowedItems.includes(itemDefinitionId)) return itemDefinitionId;
+  let itemDefId = 0;
+  let arr: any[] = [];
+  switch (itemDefinitionId) {
+    case Items.SHIRT_DEFAULT:
+      arr = Object.keys(Skins_Shirt);
+      break;
+    case Items.PANTS_DEFAULT:
+      arr = Object.keys(Skins_Pants);
+      break;
+    case Items.HAT_BEANIE:
+      arr = Object.keys(Skins_Beanie);
+      break;
+    case Items.HAT_CAP:
+      arr = Object.keys(Skins_Cap);
+      break;
+    case Items.HELMET_MOTORCYCLE:
+      arr = Object.keys(Skins_MotorHelmet);
+      break;
+  }
+  itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);
+  return itemDefId;
+}
+
 function getRandomItem(items: Array<LootDefinition>) {
-  return items[Math.floor(Math.random() * items.length)];
+  //return items[Math.floor(Math.random() * items.length)];
+  //items[0].
+
+  const totalWeight = items.reduce((total, item) => total + item.weight, 0),
+    randomWeight = Math.random() * totalWeight;
+  let currentWeight = 0;
+
+  for (let i = 0; i < items.length; i++) {
+    currentWeight += items[i].weight;
+    if (currentWeight > randomWeight) {
+      return items[i];
+    }
+  }
+
+  // This line should never be reached, but is included for type safety
+  return;
 }
 
 export class WorldObjectManager {
@@ -67,11 +125,12 @@ export class WorldObjectManager {
   private lastLootRespawnTime: number = 0;
   private lastVehicleRespawnTime: number = 0;
   private lastNpcRespawnTime: number = 0;
-  lootRespawnTimer: number = 600000; // 10 minutes
+  lootRespawnTimer: number = 1200000; // 30 min default
   vehicleRespawnTimer: number = 600000; // 10 minutes // 600000
   npcRespawnTimer: number = 600000; // 10 minutes
   // items get despawned after x minutes
-  itemDespawnTimer: number = 1800000; // 30 minutes
+  itemDespawnTimer: number = 600000; // 10 minutes
+  lootDespawnTimer: number = 3600000; // 60 minutes
   deadNpcDespawnTimer: number = 600000; // 10 minutes
 
   // objects won't spawn if another object is within this radius
@@ -89,12 +148,35 @@ export class WorldObjectManager {
     EquipSlots.HAIR,
   ];
 
+  private getItemRespawnTimer(server: ZoneServer2016): void {
+    const playerCount = _.size(server._characters);
+    switch (true) {
+      case playerCount <= 20:
+        this.lootRespawnTimer = 2400000; // 40 min
+        break;
+      case playerCount > 20 && playerCount <= 40:
+        this.lootRespawnTimer = 1800000; // 30 min
+        break;
+      case playerCount > 40 && playerCount <= 60:
+        this.lootRespawnTimer = 1200000; // 20 min
+        break;
+      case playerCount > 60 && playerCount < 40:
+        this.lootRespawnTimer = 600000; // 10 min
+        break;
+      default:
+        this.lootRespawnTimer = 1200000;
+    }
+  }
+
   run(server: ZoneServer2016) {
     debug("WOM::Run");
+    this.getItemRespawnTimer(server);
     if (this.lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
       //this.createLootOld(server);
       this.createLoot(server);
+      this.createContainerLoot(server);
       this.lastLootRespawnTime = Date.now();
+      server.divideLargeCells(700);
     }
     if (this.lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
       this.createNpcs(server);
@@ -127,6 +209,7 @@ export class WorldObjectManager {
       modelId,
       position,
       rotation,
+      server,
       spawnerId
     );
     this.equipRandomSkins(server, zombie, this.zombieSlots, bannedZombieModels);
@@ -160,9 +243,11 @@ export class WorldObjectManager {
       modelId,
       position,
       rotation,
+      server,
       itemSpawnerId || 0,
       item
     );
+    server._spawnedItems[characterId].nameId = itemDef.NAME_ID;
     if (
       item.itemDefinitionId === Items.FUEL_ETHANOL ||
       item.itemDefinitionId === Items.FUEL_BIOFUEL
@@ -174,7 +259,8 @@ export class WorldObjectManager {
         modelId,
         position,
         rotation,
-        false
+        server,
+        item.itemDefinitionId
       );
     }
     if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;
@@ -184,66 +270,50 @@ export class WorldObjectManager {
 
   createLootbag(server: ZoneServer2016, entity: BaseFullCharacter) {
     const characterId = generateRandomGuid(),
-      isCharacter = !!server._characters[entity.characterId];
-
-    const items: { [itemGuid: string]: BaseItem } = {};
-    Object.values(entity._loadout).forEach((item) => {
-      if (
-        item.itemGuid != "0x0" &&
-        !server.isDefaultItem(entity, item.itemDefinitionId)
-      ) {
-        items[item.itemGuid] = _.cloneDeep(item);
-        items[item.itemGuid].slotId = Object.keys(items).length + 1;
-      }
-    });
-
-    Object.values(entity._containers).forEach((container: LoadoutContainer) => {
-      Object.values(container.items).forEach((item) => {
-        if (
-          !isCharacter ||
-          !server.isDefaultItem(entity, item.itemDefinitionId)
-        ) {
-          let stacked = false;
-          for (const i of Object.values(items)) {
-            // stack similar items
-            if (
-              i.itemDefinitionId == item.itemDefinitionId &&
-              server.isStackable(item.itemDefinitionId)
-            ) {
-              items[i.itemGuid].stackCount += item.stackCount;
-              stacked = true;
-              break;
-            }
-          }
-          if (!stacked) {
-            items[item.itemGuid] = _.cloneDeep(item);
-            items[item.itemGuid].slotId = Object.keys(items).length + 1;
-          }
-        }
-      });
-    });
+      isCharacter = !!server._characters[entity.characterId],
+      items = entity.getDeathItems(server);
 
     if (!_.size(items)) return; // don't spawn lootbag if inventory is empty
 
-    const lootbag = new Lootbag(
-      characterId,
-      server.getTransientId(characterId),
-      isCharacter ? 9581 : 9391,
-      entity.state.position,
-      new Float32Array([0, 0, 0, 0])
-    );
-
-    server.equipItem(
-      lootbag,
-      server.generateItem(Items.CONTAINER_DROPPED_ITEMS),
-      false
-    );
+    const pos = entity.state.position,
+      lootbag = new Lootbag(
+        characterId,
+        server.getTransientId(characterId),
+        isCharacter ? 9581 : 9391,
+        new Float32Array([pos[0], pos[1] + 0.1, pos[2]]),
+        new Float32Array([0, 0, 0, 0]),
+        server
+      );
     const container = lootbag.getContainer();
     if (container) {
       container.items = items;
     }
 
     server._lootbags[characterId] = lootbag;
+  }
+
+  createProps(server: ZoneServer2016) {
+    Z1_lootableProps.forEach((propType: any) => {
+      propType.instances.forEach((propInstance: any) => {
+        const characterId = generateRandomGuid();
+        const obj = new LootableProp(
+          characterId,
+          server.getTransientId(characterId), // need transient generated for Interaction Replication
+          propInstance.modelId,
+          propInstance.position,
+          propInstance.rotation,
+          server,
+          propInstance.scale,
+          propInstance.id,
+          propType.renderDistance
+        );
+        server._lootableProps[characterId] = obj;
+        obj.equipItem(server, server.generateItem(obj.containerId), false);
+        obj._containers["31"].canAcceptItems = false;
+        obj.nameId = server.getItemDefinition(obj.containerId).NAME_ID;
+      });
+    });
+    debug("All props created");
   }
 
   private createDoor(
@@ -261,6 +331,7 @@ export class WorldObjectManager {
       modelID,
       position,
       rotation,
+      server,
       scale,
       spawnerId
     );
@@ -289,21 +360,16 @@ export class WorldObjectManager {
   }
 
   createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
-    // setup vehicle loadout slots, containers, etc here
-    // todo: add siren and horn
+    vehicle.equipLoadout(server);
 
-    // not used for now since workaround doesn't use it
-    // vehicle.getInventoryItemId()
-
-    server.equipLoadout(vehicle);
-
-    server.equipItem(vehicle, server.generateItem(vehicle.getTurboItemId()));
-    server.equipItem(
-      vehicle,
+    // TODO - Randomize these
+    vehicle.equipItem(server, server.generateItem(vehicle.getTurboItemId()));
+    vehicle.equipItem(
+      server,
       server.generateItem(vehicle.getHeadlightsItemId())
     );
-    server.equipItem(vehicle, server.generateItem(Items.BATTERY));
-    server.equipItem(vehicle, server.generateItem(Items.SPARKPLUGS));
+    vehicle.equipItem(server, server.generateItem(Items.BATTERY));
+    vehicle.equipItem(server, server.generateItem(Items.SPARKPLUGS));
     server._vehicles[vehicle.characterId] = vehicle;
   }
 
@@ -330,10 +396,12 @@ export class WorldObjectManager {
         vehicleData = new Vehicle2016(
           characterId,
           server.getTransientId(characterId),
-          getRandomVehicleId(),
+          0,
           new Float32Array(vehicle.position),
           new Float32Array(vehicle.rotation),
-          server.getGameTime()
+          server,
+          server.getGameTime(),
+          getRandomVehicleId()
         );
 
       this.createVehicle(server, vehicleData); // save vehicle
@@ -398,10 +466,10 @@ export class WorldObjectManager {
     debug("All npcs objects created");
   }
 
-  createLoot(server: ZoneServer2016) {
+  createLoot(server: ZoneServer2016, lTables = lootTables) {
     // temp logic until item weights are added
     Z1_items.forEach((spawnerType: any) => {
-      const lootTable = lootTables[spawnerType.actorDefinition];
+      const lootTable = lTables[spawnerType.actorDefinition];
       if (lootTable) {
         spawnerType.instances.forEach((itemInstance: any) => {
           if (this._spawnedLootObjects[itemInstance.id]) return;
@@ -409,19 +477,70 @@ export class WorldObjectManager {
           if (chance <= lootTable.spawnChance) {
             // temporary spawnchance
             const item = getRandomItem(lootTable.items);
-            this.createLootEntity(
-              server,
-              server.generateItem(
-                item.item,
-                randomIntFromInterval(item.spawnCount.min, item.spawnCount.max)
-              ),
-              itemInstance.position,
-              itemInstance.rotation,
-              itemInstance.id
-            );
+            if (item) {
+              this.createLootEntity(
+                server,
+                server.generateItem(
+                  getRandomSkin(item.item),
+                  randomIntFromInterval(
+                    item.spawnCount.min,
+                    item.spawnCount.max
+                  )
+                ),
+                itemInstance.position,
+                itemInstance.rotation,
+                itemInstance.id
+              );
+            }
           }
         });
       }
     });
+  }
+  createContainerLoot(server: ZoneServer2016) {
+    for (const a in server._lootableProps) {
+      const prop = server._lootableProps[a] as LootableProp;
+      const container = prop.getContainer();
+      if (!container) continue;
+      if (!!Object.keys(container.items).length) continue; // skip if container is not empty
+      const lootTable = containerLootSpawners[prop.lootSpawner];
+      if (lootTable) {
+        for (let x = 0; x < lootTable.maxItems; x++) {
+          const item = getRandomItem(lootTable.items);
+          if (!item) continue;
+          const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
+          let allow = true;
+          Object.values(container.items).forEach((spawnedItem: BaseItem) => {
+            if (item.item == spawnedItem.itemDefinitionId) allow = false; // dont allow the same item to be added twice
+          });
+          if (allow) {
+            if (chance <= item.weight) {
+              const count = Math.floor(
+                Math.random() *
+                  (item.spawnCount.max - item.spawnCount.min + 1) +
+                  item.spawnCount.min
+              );
+              // temporary spawnchance
+              server.addContainerItem(
+                prop,
+                server.generateItem(getRandomSkin(item.item), count),
+                container
+              );
+            }
+          } else {
+            x--;
+          }
+        }
+      }
+      if (Object.keys(container.items).length != 0) {
+        // mark prop as unsearched for clients
+        Object.values(server._clients).forEach((client: ZoneClient2016) => {
+          const index = client.searchedProps.indexOf(prop);
+          if (index > -1) {
+            client.searchedProps.splice(index, 1);
+          }
+        });
+      }
+    }
   }
 }

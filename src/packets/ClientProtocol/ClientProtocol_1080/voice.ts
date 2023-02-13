@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -35,7 +35,7 @@ export const voicePackets: any = [
       ],
     },
   ],
-  ["Voice.LeaveChannel", 0x8202, {}],
-  ["Voice.RadioChannel", 0x8207, {}],
-  ["Voice.LeaveRadio", 0x8208, {}],
+  ["Voice.LeaveChannel", 0x8202, { fields: [] }],
+  ["Voice.RadioChannel", 0x8207, { fields: [] }],
+  ["Voice.LeaveRadio", 0x8208, { fields: [] }],
 ];

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -267,8 +267,8 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknown1", type: "uint32", defaultValue: 0 },
-        { name: "unknown2", type: "uint32", defaultValue: 0 },
+        { name: "destroyedEffect", type: "uint32", defaultValue: 0 },
+        { name: "destroyedModel", type: "uint32", defaultValue: 0 },
         { name: "unknown3", type: "uint32", defaultValue: 0 },
         { name: "disableWeirdPhysic", type: "boolean", defaultValue: 0 },
         { name: "unknown4", type: "uint32", defaultValue: 0 },
@@ -352,6 +352,12 @@ export const characterPackets: any = [
         { name: "respawnGuid", type: "uint64string", defaultValue: "0" },
         { name: "profileId", type: "uint32", defaultValue: 0 },
         { name: "profileId2", type: "uint32", defaultValue: 0 },
+        { name: "unk", type: "uint32", defaultValue: 0 },
+        {
+          name: "gridPosition",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0],
+        },
       ],
     },
   ],

@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -30,8 +30,8 @@ export class Weapon {
 
   unload(server: ZoneServer2016, client: ZoneClient2016) {
     if (!this.ammoCount) return;
-    server.lootItem(
-      client.character,
+    client.character.lootItem(
+      server,
       server.generateItem(
         server.getWeaponAmmoId(this.itemDefinitionId),
         this.ammoCount

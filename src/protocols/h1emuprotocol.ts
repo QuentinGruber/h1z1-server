@@ -3,7 +3,7 @@
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
 //   copyright (C) 2020 - 2021 Quentin Gruber
-//   copyright (C) 2021 - 2022 H1emu community
+//   copyright (C) 2021 - 2023 H1emu community
 //
 //   https://github.com/QuentinGruber/h1z1-server
 //   https://www.npmjs.com/package/h1z1-server
@@ -121,6 +121,26 @@ const packets = [
   [
     "CharacterExistReply",
     0x13,
+    {
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "status", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "ClientIsAdminRequest",
+    0x14,
+    {
+      fields: [
+        { name: "reqId", type: "uint32", defaultValue: 0 },
+        { name: "guid", type: "uint64string", defaultValue: 0 },
+      ],
+    },
+  ],
+  [
+    "ClientIsAdminReply",
+    0x15,
     {
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
