@@ -6598,7 +6598,7 @@ export class ZoneServer2016 extends EventEmitter {
   salvageAmmo(client: Client, item: BaseItem) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID;
-    const timeout = 2000;
+    const timeout = 1000;
     const allowedItems = [
       Items.AMMO_12GA,
       Items.AMMO_223,
