@@ -35,4 +35,8 @@ export class Lootbag extends BaseLootableEntity {
     this.defaultLoadout = lootableContainerDefaultLoadouts.lootbag;
     this.equipLoadout(server);
   }
+
+  destroy(server: ZoneServer2016) {
+    return server.deleteEntity(this.characterId, server._lootbags);
+  }
 }

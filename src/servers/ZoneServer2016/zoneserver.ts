@@ -2955,7 +2955,8 @@ export class ZoneServer2016 extends EventEmitter {
     dictionary: any,
     effectId?: number,
     timeToDisappear?: number
-  ) {
+  ): boolean {
+    if (!dictionary[characterId]) return false;
     this.sendDataToAllWithSpawnedEntity(
       dictionary,
       characterId,
@@ -2976,6 +2977,7 @@ export class ZoneServer2016 extends EventEmitter {
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
     delete this._characterIds[characterId];
+    return true;
   }
 
   sendManagedObjectResponseControlPacket(client: Client, obj: zone2016packets) {

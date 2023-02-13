@@ -57,6 +57,7 @@ import { ConstructionChildEntity } from "./entities/constructionchildentity";
 import { Collection } from "mongodb";
 import { DB_COLLECTIONS } from "../../utils/enums";
 import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
+import { Character2016 } from "./entities/character";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -1495,7 +1496,6 @@ export class zonePacketHandlers {
       if (!weaponItem || !weaponItem.weapon) return;
       switch (p.packetName) {
         case "Weapon.FireStateUpdate":
-          debug("Weapon.FireStateUpdate");
           // wrench workaround
           if (
             weaponItem.itemDefinitionId == Items.WEAPON_WRENCH &&
@@ -1803,47 +1803,24 @@ export class zonePacketHandlers {
           if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
             if (!client.isAdmin) return;
             const characterId = p.packet.hitReport.characterId,
-              entityType = server.getEntityType(characterId);
-            switch (entityType) {
-              case EntityTypes.NPC:
-                if (!server._npcs[characterId]) {
-                  return;
-                }
-                server.deleteEntity(characterId, server._npcs);
-                break;
-              case EntityTypes.VEHICLE:
-                const vehicle = server._vehicles[characterId];
-                if (!vehicle) return;
-                vehicle.destroy(server, true);
-                break;
-              case EntityTypes.OBJECT:
-                const object = server._spawnedItems[characterId];
-                if (!object) return;
-                object.destroy(server);
-                break;
-              case EntityTypes.EXPLOSIVE:
-                server.deleteEntity(characterId, server._explosives);
-                break;
-              case EntityTypes.TRAP:
-                server.deleteEntity(characterId, server._traps);
-                break;
-              case EntityTypes.CONSTRUCTION_DOOR:
-              case EntityTypes.CONSTRUCTION_SIMPLE:
-              case EntityTypes.CONSTRUCTION_FOUNDATION:
-              case EntityTypes.LOOTABLE_CONSTRUCTION:
-                const entity = server.getConstructionEntity(characterId);
-                if (!entity) return;
-                entity.destroy(server);
-                break;
-              default:
-                return;
+              entity = server.getEntity(characterId);
+            if (!entity) {
+              server.sendAlert(client, "Entity is undefined!");
+              return;
             }
-            server.sendAlert(client, "Object removed.");
+            if (entity instanceof Character2016) return;
+            if (entity instanceof Vehicle2016) {
+              if (!entity.destroy(server, true)) return;
+              server.sendAlert(client, "Object removed.");
+              return;
+            }
+            if (entity.destroy(server)) {
+              server.sendAlert(client, "Object removed.");
+            }
             return;
           }
           if (client.banType === "nodamage") return;
           server.registerHit(client, p.packet);
-          debug("Weapon.ProjectileHitReport");
           break;
         case "Weapon.ReloadRequest":
           if (weaponItem.weapon.reloadTimer) return;
@@ -1984,14 +1961,11 @@ export class zonePacketHandlers {
             );
             client.character.clearReloadTimeout();
           }, reloadTime);
-
-          debug("Weapon.ReloadRequest");
           break;
         case "Weapon.ReloadInterrupt":
           server.reloadInterrupt(client, weaponItem);
           break;
         case "Weapon.SwitchFireModeRequest":
-          debug("SwitchFireModeRequest");
           // workaround so aiming in doesn't sometimes make the shooting sound
           if (!weaponItem.weapon?.ammoCount) return;
 
@@ -2031,11 +2005,9 @@ export class zonePacketHandlers {
               aimBlocked: p.packet.aimBlocked,
             }
           );
-          debug("AimBlockedNotify");
           break;
         case "Weapon.ProjectileSpawnNpc":
           server.createProjectileNpc(client, p.packet);
-          debug("Weapon.ProjectileSpawnNpc");
           break;
         case "Weapon.ProjectileSpawnAttachedNpc":
           debug("Weapon.ProjectileSpawnAttachedNpc");
