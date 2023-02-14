@@ -4179,10 +4179,10 @@ export class ZoneServer2016 extends EventEmitter {
             transientId: vehicle.transientId,
             nameId: vehicle.nameId,
           });
-          this.sendData(client, "Vehicle.OwnerPassengerList", {
+          /*this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
             passengers: vehicle.pGetPassengers(this),
-          });
+          });*/
           client.spawnedEntities.push(vehicle);
         }
         // disable managing vehicles with routine, leaving only managind when entering it
@@ -5549,27 +5549,22 @@ export class ZoneServer2016 extends EventEmitter {
           }, 3000);
         }
       }
-      this.sendDataToAllWithSpawnedEntity(
-        this._characters,
-        client.character.characterId,
-        "Vehicle.Owner",
-        {
-          guid: vehicle.characterId,
-          characterId: client.character.characterId,
-          unknownDword1: 0,
-          vehicleId: vehicle.vehicleId,
-          passengers: [
-            {
-              characterId: client.character.characterId,
-              identity: {
-                characterName: client.character.name,
-              },
-              unknownString1: "",
-              unknownByte1: 1,
+      this.sendData(client, "Vehicle.Owner", {
+        guid: vehicle.characterId,
+        characterId: client.character.characterId,
+        unknownDword1: 0,
+        vehicleId: vehicle.vehicleId,
+        passengers: [
+          {
+            characterId: client.character.characterId,
+            identity: {
+              characterName: client.character.name,
             },
-          ],
-        }
-      );
+            unknownString1: "",
+            unknownByte1: 1,
+          },
+        ],
+      });
 
       if (vehicle.getContainer()) {
         client.character.mountContainer(this, vehicle);
@@ -5653,6 +5648,9 @@ export class ZoneServer2016 extends EventEmitter {
     const vehicle = this._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) {
       // return if vehicle doesnt exist
+      console.log(
+        `Error: ${client.character.name} exited non existing vehicle`
+      );
       this.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
@@ -5660,7 +5658,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     client.character.vehicleExitDate = new Date().getTime();
-    if (!seatId) return;
+    if (!seatId) {
+      console.log(
+        `Error: ${client.character.name} exited vehicle with no seatId set`
+      );
+      return;
+    }
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
@@ -5670,8 +5673,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
     vehicle.seats[seatId] = "";
     this.sendDataToAllWithSpawnedEntity(
-      this._vehicles,
-      client.vehicle.mountedVehicle,
+      this._characters,
+      client.character.characterId,
       "Mount.DismountResponse",
       {
         characterId: client.character.characterId,
@@ -5706,24 +5709,15 @@ export class ZoneServer2016 extends EventEmitter {
       unknownArray2: [],
     });
     this.sendDataToAllWithSpawnedEntity(
-      this._characters,
-      client.character.characterId,
+      this._vehicles,
+      vehicle.characterId,
       "Vehicle.Owner",
       {
         guid: vehicle.characterId,
-        characterId: client.character.characterId,
+        characterId: "",
         unknownDword1: 0,
         vehicleId: 0,
-        passengers: [
-          {
-            characterId: client.character.characterId,
-            identity: {
-              characterName: client.character.name,
-            },
-            unknownString1: "",
-            unknownByte1: 1,
-          },
-        ],
+        passengers: [],
       }
     );
     client.character.dismountContainer(this);
