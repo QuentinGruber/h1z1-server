@@ -57,6 +57,7 @@ import { ConstructionChildEntity } from "./entities/constructionchildentity";
 import { Collection } from "mongodb";
 import { DB_COLLECTIONS } from "../../utils/enums";
 import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
+import { Character2016 } from "./entities/character";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -230,9 +231,21 @@ export class zonePacketHandlers {
         client.character.damage(server, { entity: "", damage: damage });
       }
     } else if (vehicle) {
-      vehicle.damage(server, { entity: "", damage: damage / 50 });
-      //server.DTOhit(client, packet);
+      // leave old system with this damage threshold to damage flipped vehicles
+      if (damage > 5000 && damage < 5500) {
+        vehicle.damage(server, { entity: "", damage: damage / 50 });
+      }
     }
+  }
+
+  VehicleCollision(server: ZoneServer2016, client: Client, packet: any) {
+    const characterId: string = server._transientIds[packet.data.transientId],
+      vehicle = characterId ? server._vehicles[characterId] : undefined;
+
+    if (!vehicle) return;
+    const damage = packet.data.damage.toFixed(0);
+    vehicle.damage(server, { entity: "", damage: damage });
+    //server.DTOhit(client, packet);
   }
 
   CommandPointAndReport(server: ZoneServer2016, client: Client, packet: any) {
@@ -490,7 +503,9 @@ export class zonePacketHandlers {
     if (client.hudTimer) {
       clearTimeout(client.hudTimer); // clear the timer started at StartLogoutRequest
     }
-    server.deleteClient(client);
+    if (client.properlyLogout) {
+      server.deleteClient(client);
+    }
   }
   GameTimeSync(
     server: ZoneServer2016,
@@ -541,6 +556,7 @@ export class zonePacketHandlers {
   ) {
     client.posAtLogoutStart = client.character.state.position;
     if (!client.character.isAlive) {
+      client.properlyLogout = true;
       // Exit to menu button on respawn screen
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
       return;
@@ -556,6 +572,7 @@ export class zonePacketHandlers {
       clearTimeout(client.hudTimer);
     }
     client.hudTimer = setTimeout(() => {
+      client.properlyLogout = true;
       server.sendData(client, "ClientUpdate.CompleteLogoutProcess", {});
     }, timerTime);
   }
@@ -731,23 +748,15 @@ export class zonePacketHandlers {
           });
         }, 1000);
       }
-      client.character.isRunning =
-        packet.data.stance == Stances.MOVE_STANDING_SPRINTING ? true : false;
-      const penaltiedStances = [
-        Stances.JUMPING_BACKWARDS,
-        Stances.JUMPING_BACKWARDS_LEFT,
-        Stances.JUMPING_BACKWARDS_RIGHT,
-        Stances.JUMPING_FORWARD_LEFT,
-        Stances.JUMPING_FORWARD_RIGHT,
-        Stances.JUMPING_FORWARD_SPRINTING,
-        Stances.JUMPING_LEFT,
-        Stances.JUMPING_RIGHT,
-        Stances.JUMPING_STANDING,
-        Stances.JUMPING_WORWARD,
-        Stances.JUMPING_FORWARD_LEFT_SPRINTING,
-        Stances.JUMPING_FORWARD_RIGHT_SPRINTING,
-      ];
-      if (penaltiedStances.includes(packet.data.stance)) {
+      const byte1 = packet.data.stance & 0xff;
+      client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
+      if (
+        !!(byte1 & (1 << 4)) &&
+        !(byte1 & (1 << 5)) &&
+        // temporary fix for multiplying jump penalty until exact flags are found
+        client.character.lastJumpTime < Date.now()
+      ) {
+        client.character.lastJumpTime = Date.now() + 1100;
         client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
         if (client.character._resources[ResourceIds.STAMINA] < 0)
           client.character._resources[ResourceIds.STAMINA] = 0;
@@ -852,6 +861,12 @@ export class zonePacketHandlers {
       "respawn",
       packet
     );
+  }
+  SpectatorTP(server: ZoneServer2016, client: Client, packet: any) {
+    server.sendData(client, "ClientUpdate.UpdateLocation", {
+      position: [packet.data.x, 355, packet.data.y, 1],
+      triggerLoadingScreen: false,
+    });
   }
   CharacterFullCharacterDataRequest(
     server: ZoneServer2016,
@@ -1485,10 +1500,9 @@ export class zonePacketHandlers {
     }
     function handleWeaponPacket(p: any) {
       const weaponItem = client.character.getEquippedWeapon();
-      if (!weaponItem.weapon) return;
+      if (!weaponItem || !weaponItem.weapon) return;
       switch (p.packetName) {
         case "Weapon.FireStateUpdate":
-          debug("Weapon.FireStateUpdate");
           // wrench workaround
           if (
             weaponItem.itemDefinitionId == Items.WEAPON_WRENCH &&
@@ -1581,13 +1595,23 @@ export class zonePacketHandlers {
                 client.character.characterId,
                 ConstructionPermissionIds.DEMOLISH
               );
-            if (entity && !(entity instanceof ConstructionParentEntity)) {
+            if (
+              entity &&
+              !(
+                entity.itemDefinitionId == Items.FOUNDATION ||
+                entity.itemDefinitionId == Items.FOUNDATION_EXPANSION ||
+                entity.itemDefinitionId == Items.GROUND_TAMPER
+              )
+            ) {
               if (permission) {
+                if (entity.canUndoPlacement(server, client)) {
+                  // give back item only if can undo
+                  client.character.lootItem(
+                    server,
+                    server.generateItem(entity.itemDefinitionId)
+                  );
+                }
                 entity.destroy(server);
-                client.character.lootItem(
-                  server,
-                  server.generateItem(entity.itemDefinitionId)
-                );
               } else {
                 server.placementError(
                   client,
@@ -1781,50 +1805,29 @@ export class zonePacketHandlers {
             return;
           }
           client.allowedProjectiles--;
-          if (
-            client.character.getEquippedWeapon().itemDefinitionId ==
-            Items.WEAPON_REMOVER
-          ) {
+          const weapon = client.character.getEquippedWeapon();
+          if (!weapon) return;
+          if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
             if (!client.isAdmin) return;
             const characterId = p.packet.hitReport.characterId,
-              entityType = server.getEntityType(characterId);
-            switch (entityType) {
-              case EntityTypes.NPC:
-                if (!server._npcs[characterId]) {
-                  return;
-                }
-                server.deleteEntity(characterId, server._npcs);
-                break;
-              case EntityTypes.VEHICLE:
-                const vehicle = server._vehicles[characterId];
-                if (!vehicle) return;
-                vehicle.destroy(server, true);
-                break;
-              case EntityTypes.OBJECT:
-                const object = server._spawnedItems[characterId];
-                if (!object) return;
-                object.destroy(server);
-                break;
-              case EntityTypes.EXPLOSIVE:
-                server.deleteEntity(characterId, server._explosives);
-                break;
-              case EntityTypes.CONSTRUCTION_DOOR:
-              case EntityTypes.CONSTRUCTION_SIMPLE:
-              case EntityTypes.CONSTRUCTION_FOUNDATION:
-              case EntityTypes.LOOTABLE_CONSTRUCTION:
-                const entity = server.getConstructionEntity(characterId);
-                if (!entity) return;
-                entity.destroy(server);
-                break;
-              default:
-                return;
+              entity = server.getEntity(characterId);
+            if (!entity) {
+              server.sendAlert(client, "Entity is undefined!");
+              return;
             }
-            server.sendAlert(client, "Object removed.");
+            if (entity instanceof Character2016) return;
+            if (entity instanceof Vehicle2016) {
+              if (!entity.destroy(server, true)) return;
+              server.sendAlert(client, "Object removed.");
+              return;
+            }
+            if (entity.destroy(server)) {
+              server.sendAlert(client, "Object removed.");
+            }
             return;
           }
           if (client.banType === "nodamage") return;
           server.registerHit(client, p.packet);
-          debug("Weapon.ProjectileHitReport");
           break;
         case "Weapon.ReloadRequest":
           if (weaponItem.weapon.reloadTimer) return;
@@ -1865,11 +1868,13 @@ export class zonePacketHandlers {
             weaponItem.itemDefinitionId == Items.WEAPON_BOW_RECURVE ||
             weaponItem.itemDefinitionId == Items.WEAPON_BOW_WOOD
           ) {
+            const currentWeapon = client.character.getEquippedWeapon();
             if (
-              client.character.getEquippedWeapon().itemGuid !=
-              weaponItem.itemGuid
-            )
+              !currentWeapon ||
+              currentWeapon.itemGuid != weaponItem.itemGuid
+            ) {
               return;
+            }
             const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
               reserveAmmo = // how much ammo is in inventory
                 client.character.getInventoryItemAmount(weaponAmmoId),
@@ -1881,13 +1886,11 @@ export class zonePacketHandlers {
             ) {
               return;
             }
-            server.sendWeaponData(client, "Weapon.Reload", {
-              weaponGuid: p.packet.characterId,
-              unknownDword1: maxAmmo,
-              ammoCount: (weaponItem.weapon.ammoCount += reloadAmount),
-              unknownDword3: maxAmmo,
-              currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
-            });
+            server.sendWeaponReload(
+              client,
+              weaponItem,
+              (weaponItem.weapon.ammoCount += reloadAmount)
+            );
             return;
           }
           //#region SHOTGUN ONLY
@@ -1905,15 +1908,7 @@ export class zonePacketHandlers {
                   !server.removeInventoryItems(client, weaponAmmoId, 1)) ||
                 ++weaponItem.weapon.ammoCount == maxAmmo
               ) {
-                server.sendWeaponData(client, "Weapon.Reload", {
-                  weaponGuid: p.packet.characterId,
-                  unknownDword1: maxAmmo,
-                  ammoCount: weaponItem.weapon.ammoCount,
-                  unknownDword3: maxAmmo,
-                  currentReloadCount: toHex(
-                    ++weaponItem.weapon.currentReloadCount
-                  ),
-                });
+                server.sendWeaponReload(client, weaponItem);
                 server.sendRemoteWeaponUpdateDataToAllOthers(
                   client,
                   client.character.transientId,
@@ -1926,17 +1921,9 @@ export class zonePacketHandlers {
                 client.character.clearReloadTimeout();
                 return;
               }
-              if (!(reserveAmmo - 1)) {
+              if (reserveAmmo - 1 < 0) {
                 // updated reserve ammo
-                server.sendWeaponData(client, "Weapon.Reload", {
-                  weaponGuid: p.packet.characterId,
-                  unknownDword1: maxAmmo,
-                  ammoCount: weaponItem.weapon.ammoCount,
-                  unknownDword3: maxAmmo,
-                  currentReloadCount: toHex(
-                    ++weaponItem.weapon.currentReloadCount
-                  ),
-                });
+                server.sendWeaponReload(client, weaponItem);
                 server.sendRemoteWeaponUpdateDataToAllOthers(
                   client,
                   client.character.transientId,
@@ -1955,12 +1942,14 @@ export class zonePacketHandlers {
           }
           //#endregion
           weaponItem.weapon.reloadTimer = setTimeout(() => {
+            const currentWeapon = client.character.getEquippedWeapon();
             if (
               !weaponItem.weapon?.reloadTimer ||
-              client.character.getEquippedWeapon().itemGuid !=
-                weaponItem.itemGuid
-            )
+              !currentWeapon ||
+              currentWeapon.itemGuid != weaponItem.itemGuid
+            ) {
               return;
+            }
             const maxReloadAmount = maxAmmo - weaponItem.weapon.ammoCount, // how much ammo is needed for full clip
               reserveAmmo = // how much ammo is in inventory
                 client.character.getInventoryItemAmount(weaponAmmoId),
@@ -1972,23 +1961,18 @@ export class zonePacketHandlers {
             ) {
               return;
             }
-            server.sendWeaponData(client, "Weapon.Reload", {
-              weaponGuid: p.packet.characterId,
-              unknownDword1: maxAmmo,
-              ammoCount: (weaponItem.weapon.ammoCount += reloadAmount),
-              unknownDword3: maxAmmo,
-              currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
-            });
+            server.sendWeaponReload(
+              client,
+              weaponItem,
+              (weaponItem.weapon.ammoCount += reloadAmount)
+            );
             client.character.clearReloadTimeout();
           }, reloadTime);
-
-          debug("Weapon.ReloadRequest");
           break;
         case "Weapon.ReloadInterrupt":
           server.reloadInterrupt(client, weaponItem);
           break;
         case "Weapon.SwitchFireModeRequest":
-          debug("SwitchFireModeRequest");
           // workaround so aiming in doesn't sometimes make the shooting sound
           if (!weaponItem.weapon?.ammoCount) return;
 
@@ -2028,11 +2012,9 @@ export class zonePacketHandlers {
               aimBlocked: p.packet.aimBlocked,
             }
           );
-          debug("AimBlockedNotify");
           break;
         case "Weapon.ProjectileSpawnNpc":
           server.createProjectileNpc(client, p.packet);
-          debug("Weapon.ProjectileSpawnNpc");
           break;
         case "Weapon.ProjectileSpawnAttachedNpc":
           debug("Weapon.ProjectileSpawnAttachedNpc");
@@ -2098,6 +2080,9 @@ export class zonePacketHandlers {
         break;
       case "Collision.Damage":
         this.CollisionDamage(server, client, packet);
+        break;
+      case "VehicleCollision":
+        this.VehicleCollision(server, client, packet);
         break;
       case "LobbyGameDefinition.DefinitionsRequest":
         this.LobbyGameDefinitionDefinitionsRequest(server, client, packet);
@@ -2202,6 +2187,9 @@ export class zonePacketHandlers {
         break;
       case "Character.Respawn":
         this.CharacterRespawn(server, client, packet);
+        break;
+      case "SpectatorTP":
+        this.SpectatorTP(server, client, packet);
         break;
       case "Character.FullCharacterDataRequest":
         this.CharacterFullCharacterDataRequest(server, client, packet);

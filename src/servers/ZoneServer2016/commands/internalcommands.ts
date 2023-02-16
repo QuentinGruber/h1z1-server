@@ -14,9 +14,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { VehicleIds } from "../models/enums";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "../entities/vehicle";
+import { SpawnCell } from "../classes/spawncell";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
+import { isPosInRadius } from "../../../utils/utils";
 
 export const internalCommands: Array<Command> = [
   //#region DEFAULT PERMISSIONS
@@ -24,12 +26,19 @@ export const internalCommands: Array<Command> = [
     name: "respawn",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, packetData: any) => {
-      server.respawnPlayer(client);
+      let doReturn = false;
+      server._spawnGrid.forEach((cell: SpawnCell) => {
+        if (doReturn) return;
+        if (isPosInRadius(50, cell.position, packetData.gridPosition)) {
+          server.respawnPlayer(client, cell);
+          doReturn = true;
+        }
+      });
     },
   },
   {
     name: "spectate",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, packetData: any) => {
       client.character.isSpectator = true;
       const characterId = server.generateGuid();
@@ -83,7 +92,7 @@ export const internalCommands: Array<Command> = [
   },
   {
     name: "run",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, packetData: any) => {
       server.sendData(client, "Command.RunSpeed", {
         runSpeed: packetData.runSpeed,

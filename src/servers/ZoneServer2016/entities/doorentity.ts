@@ -189,4 +189,8 @@ export class DoorEntity extends BaseLightweightCharacter {
       stringId: 78,
     });
   }
+
+  destroy(server: ZoneServer2016) {
+    return server.deleteEntity(this.characterId, server._doors);
+  }
 }

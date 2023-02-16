@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import { SOEServer } from "../SoeServer/soeserver";
 import { GatewayProtocol } from "h1emu-core";
 import SOEClient from "../SoeServer/soeclient";
@@ -47,40 +47,47 @@ export class GatewayServer extends EventEmitter {
           this.emit("tunneldata", client, data, 0);
           return;
         }
-        const packet = JSON.parse(this._protocol.parse(data));
-        if (packet) {
-          switch (packet.name) {
-            case "LoginRequest":
-              if (packet.character_id) {
-                this._soeServer.toggleEncryption(client);
-                const appData = this._protocol.pack_login_reply_packet(true);
-                if (appData) {
-                  this._soeServer.sendAppData(client, appData);
+        try {
+          const packet = JSON.parse(this._protocol.parse(data));
+          if (packet) {
+            switch (packet.name) {
+              case "LoginRequest":
+                if (packet.character_id) {
+                  this._soeServer.toggleEncryption(client);
+                  const appData = this._protocol.pack_login_reply_packet(true);
+                  if (appData) {
+                    this._soeServer.sendAppData(client, appData);
+                  }
+                  this.emit(
+                    "login",
+                    client,
+                    packet.character_id,
+                    packet.ticket,
+                    packet.client_protocol
+                  );
                 }
+                break;
+              case "Logout":
+                debug("Logout gateway");
+                this.emit("disconnect", client);
+                break;
+              case "TunnelPacket":
                 this.emit(
-                  "login",
+                  "tunneldata",
                   client,
-                  packet.character_id,
-                  packet.ticket,
-                  packet.client_protocol
+                  Buffer.from(packet.tunnel_data),
+                  packet.channel
                 );
-              }
-              break;
-            case "Logout":
-              debug("Logout gateway");
-              this.emit("disconnect", client);
-              break;
-            case "TunnelPacket":
-              this.emit(
-                "tunneldata",
-                client,
-                Buffer.from(packet.tunnel_data),
-                packet.flags
-              );
-              break;
+                break;
+            }
+          } else {
+            console.log(`Unsupported gateway packet ${packet.name}`);
+            console.log(packet);
           }
-        } else {
-          debug("Packet parsing was unsuccesful");
+        } catch (e) {
+          console.error("Gateway: packet parsing failed");
+          console.log(data);
+          console.log(e);
         }
       }
     );
@@ -97,7 +104,10 @@ export class GatewayServer extends EventEmitter {
     unbuffered: boolean
   ) {
     debug("Sending tunnel data to client");
-    const data = this._protocol.pack_tunnel_data_packet_for_client(tunnelData);
+    const data = this._protocol.pack_tunnel_data_packet_for_client(
+      tunnelData,
+      0
+    );
     if (data) {
       if (unbuffered) {
         this._soeServer.sendUnbufferedAppData(client, data);

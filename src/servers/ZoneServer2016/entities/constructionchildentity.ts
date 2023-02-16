@@ -22,14 +22,14 @@ function getRenderDistance(itemDefinitionId: number) {
     case Items.WORKBENCH_WEAPON:
     case Items.BEE_BOX:
     case Items.DEW_COLLECTOR:
-      range = 250;
+      range = 100;
       break;
     case Items.STORAGE_BOX:
     case Items.ANIMAL_TRAP:
       range = 20;
       break;
     default:
-      range = 350;
+      range = 300;
       break;
   }
   return range;
@@ -207,8 +207,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     switch (this.itemDefinitionId) {
       case Items.METAL_DOORWAY: // for parent foundation
         const door = this.occupiedWallSlots[1];
-        if (!door) this.isSecured = false;
-        if (door instanceof ConstructionDoor && door.isOpen) {
+        if (!door || !(door instanceof ConstructionDoor) || door.isOpen) {
           this.isSecured = false;
         } else {
           this.isSecured = true;
@@ -407,7 +406,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {
-    server.deleteEntity(
+    const deleted = server.deleteEntity(
       this.characterId,
       server._constructionSimple[this.characterId]
         ? server._constructionSimple
@@ -416,7 +415,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       destructTime
     );
     const parent = this.getParent(server);
-    if (!parent) return;
+    if (!parent) return deleted;
 
     if (parent.freeplaceEntities[this.characterId]) {
       delete parent.freeplaceEntities[this.characterId];
@@ -465,11 +464,15 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         entity.parentObjectCharacterId = parentFoundation.characterId;
         parentFoundation.freeplaceEntities[entity.characterId] = entity;
       });
-      parentFoundation.freeplaceEntities = {
-        ...parentFoundation.freeplaceEntities,
-        ...this.freeplaceEntities,
-      };
+      // move free placed entities to parent foundation
+      for (const a in this.freeplaceEntities) {
+        const freePlacedEntity = this.freeplaceEntities[a];
+        freePlacedEntity.parentObjectCharacterId = parentFoundation.characterId;
+        parentFoundation.freeplaceEntities[freePlacedEntity.characterId] =
+          freePlacedEntity;
+      }
     }
+    return deleted;
   }
 
   getParent(server: ZoneServer2016): ConstructionParentEntity | undefined {

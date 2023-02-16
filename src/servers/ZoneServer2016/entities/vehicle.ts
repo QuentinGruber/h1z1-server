@@ -394,10 +394,8 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (this.isInvulnerable) return;
-
     const oldHealth = this._resources[ResourceIds.CONDITION];
     this._resources[ResourceIds.CONDITION] -= damageInfo.damage;
-
     const client = server.getClientByCharId(damageInfo.entity);
     if (client) {
       client.character.addCombatlogEntry(
@@ -574,7 +572,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
   }
   destroy(server: ZoneServer2016, disableExplosion = false) {
-    if (!server._vehicles[this.characterId]) return;
+    if (!server._vehicles[this.characterId]) return false;
     this._resources[ResourceIds.CONDITION] = 0;
     for (const c in server._clients) {
       if (this.characterId === server._clients[c].vehicle.mountedVehicle) {
@@ -593,7 +591,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         disableWeirdPhysics: false,
       }
     );
-    server.deleteEntity(this.characterId, server._vehicles);
+    const deleted = server.deleteEntity(this.characterId, server._vehicles);
     if (!disableExplosion) {
       server.explosionDamage(this.state.position, this.characterId, "vehicle");
     }
@@ -604,5 +602,6 @@ export class Vehicle2016 extends BaseLootableEntity {
     });
     // delete vehicle loadout parts from lootbag
     server.worldObjectManager.createLootbag(server, this);
+    return deleted;
   }
 }

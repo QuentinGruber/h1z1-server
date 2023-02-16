@@ -13,13 +13,13 @@
 
 import { generate_random_guid } from "h1emu-core";
 import { compress, compressBound } from "./lz4/lz4";
-import fs, { readdirSync } from "fs";
-import { normalize, resolve } from "path";
+import fs, { readdirSync } from "node:fs";
+import { normalize, resolve } from "node:path";
 import {
   setImmediate as setImmediatePromise,
   setTimeout as setTimeoutPromise,
-} from "timers/promises";
-import { Collection, Db, MongoClient } from "mongodb";
+} from "node:timers/promises";
+import { Collection, MongoClient } from "mongodb";
 import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
 import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
@@ -32,7 +32,7 @@ import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots
 import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
 import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
 import { DB_COLLECTIONS, NAME_VALIDATION_STATUS } from "./enums";
-import { Resolver } from "dns";
+import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 
 export class customLodash {
@@ -787,7 +787,7 @@ export async function resolveHostAddress(
         console.log(
           `Failed to resolve ${hostName} as an host name, it will be used as an IP`
         );
-        return [hostName]; // if it can't resolve it, assume that's an IPV4 / IPV6 not an hostname
+        resolve([hostName]); // if it can't resolve it, assume that's an IPV4 / IPV6 not an hostname
       }
     });
   });
@@ -807,24 +807,19 @@ export async function logClientActionToMongo(
   });
 }
 
-export async function fixDbTempData(
-  db: Db,
-  worldId: number,
-  tempData: any,
-  collection: DB_COLLECTIONS,
-  tempCollection: DB_COLLECTIONS
-) {
-  console.log(`DB: move ${tempCollection} data to ${collection}`);
-  for (let i = 0; i < tempData.length; i++) {
-    const tempItem = tempData[i];
-    delete tempItem._id;
-    await db
-      .collection(collection)
-      .findOneAndUpdate(
-        { characterId: tempItem.characterId },
-        { $set: tempItem },
-        { upsert: true }
-      );
+export function removeUntransferableFields(data: any) {
+  const allowedTypes = ["string", "number", "boolean", "undefined", "bigint"];
+
+  for (const key in data) {
+    // eslint-disable-next-line no-prototype-builtins
+    if (data.hasOwnProperty(key)) {
+      const value = data[key];
+      if (typeof value === "object") {
+        removeUntransferableFields(value);
+      } else if (!allowedTypes.includes(typeof value)) {
+        console.log(`Invalid value type: ${typeof value}.`);
+        delete data[key];
+      }
+    }
   }
-  await db?.collection(tempCollection).deleteMany({ serverId: worldId });
 }

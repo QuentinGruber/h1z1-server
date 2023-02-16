@@ -62,9 +62,11 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     this.defaultLoadout = lootableContainerDefaultLoadouts.storage;
     if (subEntityType === "SmeltingEntity") {
       this.subEntity = new SmeltingEntity(this, server);
+      this.npcRenderDistance = 250;
     } else if (subEntityType === "CollectingEntity") {
       this.subEntity = new CollectingEntity(this, server);
       this.interactionDistance = 5;
+      this.npcRenderDistance = 20; //this.npcRenderDistance = 250;
     } else {
       this.npcRenderDistance = 20;
     }
@@ -110,7 +112,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {
-    server.deleteEntity(
+    const deleted = server.deleteEntity(
       this.characterId,
       server._lootableConstruction[this.characterId]
         ? server._lootableConstruction
@@ -118,19 +120,23 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       242,
       destructTime
     );
-
     const parent = this.getParent(server);
     if (parent && parent.freeplaceEntities[this.characterId]) {
       delete parent.freeplaceEntities[this.characterId];
     }
 
-    if (!destructTime) {
-      server.worldObjectManager.createLootbag(server, this);
-      return;
+    server.worldObjectManager.createLootbag(server, this);
+    const container = this.getContainer();
+    if (container) {
+      container.items = {};
+      for (const a in server._characters) {
+        const character = server._characters[a];
+        if (character.mountedContainer == this) {
+          character.dismountContainer(server);
+        }
+      }
     }
-    setTimeout(() => {
-      server.worldObjectManager.createLootbag(server, this);
-    }, destructTime);
+    return deleted;
   }
 
   getHasPermission(

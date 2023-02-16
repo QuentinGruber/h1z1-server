@@ -63,6 +63,7 @@ export interface CharacterUpdateSaveData
   extends BaseFullCharacterUpdateSaveData {
   characterId: string,
   isRespawning: boolean;
+  spawnGridData: number[];
 }
 
 export interface FullCharacterSaveData

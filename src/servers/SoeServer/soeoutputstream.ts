@@ -11,7 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { EventEmitter } from "events";
+import { EventEmitter } from "node:events";
 import { RC4 } from "h1emu-core";
 import { wrappedUint16 } from "../../utils/utils";
 import { dataCache } from "types/soeserver";

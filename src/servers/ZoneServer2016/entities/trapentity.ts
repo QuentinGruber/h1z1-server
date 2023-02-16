@@ -95,15 +95,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 position: this.state.position,
               }
             );
-            server.sendDataToAllWithSpawnedEntity(
-              server._traps,
-              this.characterId,
-              "Character.RemovePlayer",
-              {
-                characterId: this.characterId,
-              }
-            );
-            delete server._traps[this.characterId];
+            this.destroy(server);
             return;
           }
         }, 500);
@@ -153,14 +145,7 @@ export class TrapEntity extends BaseSimpleNpc {
           if (!this.isTriggered) {
             this.trapTimer?.refresh();
           } else {
-            server.sendDataToAllWithSpawnedEntity(
-              server._traps,
-              this.characterId,
-              "Character.RemovePlayer",
-              {
-                characterId: this.characterId,
-              }
-            );
+            this.destroy(server);
             this.actorModelId = 1974;
             server.worldObjectManager.createLootEntity(
               server,
@@ -169,10 +154,12 @@ export class TrapEntity extends BaseSimpleNpc {
               this.state.rotation,
               15
             );
-            delete server._traps[this.characterId];
           }
         }, 200);
         break;
     }
+  }
+  destroy(server: ZoneServer2016) {
+    return server.deleteEntity(this.characterId, server._traps);
   }
 }

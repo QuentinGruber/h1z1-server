@@ -17,7 +17,7 @@ import { BaseItem } from "../classes/baseItem";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { PlantingDiameter } from "./plantingdiameter";
 
-import { Items, StringIds } from "../models/enums";
+import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 
 export class Plant extends ItemObject {
   growState: number = 0;
@@ -124,6 +124,21 @@ export class Plant extends ItemObject {
     /* eslint-enable @typescript-eslint/no-unused-vars */
   ) {
     if (this.growState != 3) return;
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      if (!foundation.isInside(this.state.position)) continue;
+      if (
+        foundation.isSecured &&
+        !foundation.getHasPermission(
+          server,
+          client.character.characterId,
+          ConstructionPermissionIds.CONTAINERS
+        )
+      ) {
+        server.sendChatText(client, "Construction: no permission");
+        return;
+      }
+    }
     if (!server._temporaryObjects[this.parentObjectCharacterId]) {
       server.deleteEntity(this.characterId, server._plants);
       return;
@@ -176,5 +191,9 @@ export class Plant extends ItemObject {
       characterId: this.characterId,
       effectId: 5056,
     });
+  }
+
+  destroy(server: ZoneServer2016) {
+    return server.deleteEntity(this.characterId, server._plants);
   }
 }
