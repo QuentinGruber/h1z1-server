@@ -1427,7 +1427,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "players",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendChatText(
         client,
