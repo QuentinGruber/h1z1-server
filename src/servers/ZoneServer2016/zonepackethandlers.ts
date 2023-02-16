@@ -413,7 +413,8 @@ export class zonePacketHandlers {
     }
     if (
       packet.data.file === "ClientProc.log" &&
-      !client.clientLogs.includes(packet.data.message)
+      !client.clientLogs.includes(packet.data.message) &&
+      !client.isAdmin
     ) {
       const suspicious = [
         "cheatengine",
