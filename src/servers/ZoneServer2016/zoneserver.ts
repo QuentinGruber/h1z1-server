@@ -7470,6 +7470,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkZonePing(client: Client) {
+    if(client.isAdmin) return;
     if (Number(client.character.lastLoginDate) + 30000 > new Date().getTime())
       return;
     const soeClient = this.getSoeClient(client.soeClientId);
