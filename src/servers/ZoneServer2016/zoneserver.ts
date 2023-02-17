@@ -4447,7 +4447,14 @@ export class ZoneServer2016 extends EventEmitter {
     let isInsidePermissionedFoundation = false;
     for (const a in this._constructionFoundations) {
       const iteratedFoundation = this._constructionFoundations[a];
-      if (iteratedFoundation.bounds) {
+      if (
+        iteratedFoundation.bounds &&
+        iteratedFoundation.getHasPermission(
+          this,
+          client.character.characterId,
+          ConstructionPermissionIds.BUILD
+        )
+      ) {
         if (
           iteratedFoundation.isInside(position) ||
           (iteratedFoundation.characterId == parentObjectCharacterId &&
@@ -4455,14 +4462,44 @@ export class ZoneServer2016 extends EventEmitter {
         )
           isInsidePermissionedFoundation = true;
       }
+      for (const c in iteratedFoundation.occupiedWallSlots) {
+        const wall = iteratedFoundation.occupiedWallSlots[c];
+        if (wall instanceof ConstructionDoor) continue;
+        if (
+          wall.characterId == parentObjectCharacterId &&
+          isPosInRadius(
+            1,
+            wall.fixedPosition ? wall.fixedPosition : wall.state.position,
+            position
+          )
+        ) {
+          isInsidePermissionedFoundation = true;
+        }
+      }
       for (const b in iteratedFoundation.occupiedShelterSlots) {
         const shelter = iteratedFoundation.occupiedShelterSlots[b];
         if (
           (shelter.characterId == parentObjectCharacterId &&
-            isPosInRadius(20, iteratedFoundation.state.position, position)) ||
+            isPosInRadius(
+              10,
+              shelter.fixedPosition
+                ? shelter.fixedPosition
+                : shelter.state.position,
+              position
+            )) ||
           (shelter.bounds && shelter.isInside(position))
         ) {
           isInsidePermissionedFoundation = true;
+        }
+        for (const b in shelter.occupiedShelterSlots) {
+          const upperShelter = shelter.occupiedShelterSlots[b];
+          if (
+            (upperShelter.characterId == parentObjectCharacterId &&
+              isPosInRadius(10, upperShelter.state.position, position)) ||
+            (upperShelter.bounds && upperShelter.isInside(position))
+          ) {
+            isInsidePermissionedFoundation = true;
+          }
         }
       }
     }
