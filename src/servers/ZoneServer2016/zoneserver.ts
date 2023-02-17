@@ -4019,6 +4019,19 @@ export class ZoneServer2016 extends EventEmitter {
                 timestamp
               )}`
         );
+        this.sendAlertToAll(
+          reason
+            ? `${
+                client.character.name
+              } HAS BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
+                timestamp
+              )}. REASON: ${reason}`
+            : `${
+                client.character.name
+              } HAS BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
+                timestamp
+              )}`
+        );
       } else {
         this.sendAlert(
           client,
@@ -4028,8 +4041,8 @@ export class ZoneServer2016 extends EventEmitter {
         );
         this.sendAlertToAll(
           reason
-            ? `${client.character.name} has been Banned from the server! Reason: ${reason}`
-            : `${client.character.name} has been Banned from the server!`
+            ? `${client.character.name} HAS BEEN BANNED FROM THE SERVER! REASON: ${reason}`
+            : `${client.character.name} HAS BEEN BANNED FROM THE SERVER!`
         );
       }
       setTimeout(() => {
@@ -4089,18 +4102,18 @@ export class ZoneServer2016 extends EventEmitter {
 
   getDateString(timestamp: number) {
     const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "JAN",
+      "FEB",
+      "MAR",
+      "APR",
+      "MAY",
+      "JUN",
+      "JUL",
+      "AUG",
+      "SEP",
+      "OCT",
+      "NOV",
+      "DEC",
     ];
     const date = new Date(timestamp);
     return `${date.getDate()} ${
