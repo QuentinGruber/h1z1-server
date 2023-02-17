@@ -2080,15 +2080,17 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     setTimeout(() => {
-      this.sendDataToAllWithSpawnedEntity(
-        dictionary,
-        constructionCharId,
-        "Command.PlayDialogEffect",
-        {
-          characterId: constructionCharId,
-          effectId: 0,
-        }
-      );
+      if (dictionary[constructionCharId]) {
+        this.sendDataToAllWithSpawnedEntity(
+          dictionary,
+          constructionCharId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: constructionCharId,
+            effectId: 0,
+          }
+        );
+      }
     }, 15000);
     if (constructionObject.health > 0) return;
 
@@ -7113,7 +7115,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
           if (smeltable.subEntity instanceof SmeltingEntity) {
-            if (smeltable.subEntity.isWorking) return;
+            if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
@@ -7141,7 +7143,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
           if (smeltable.subEntity instanceof SmeltingEntity) {
-            if (smeltable.subEntity.isWorking) return;
+            if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
