@@ -6528,14 +6528,28 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     if (!obj) return;
-    this.addLightweightNpc(client, obj);
-    this.sendData(client, "Replication.InteractionComponent", {
-      transientId: obj.transientId,
-    });
-    this.sendData(client, "Replication.NpcComponent", {
-      transientId: obj.transientId,
-      nameId: obj.nameId,
-    });
+    for (const a in this._clients) {
+      const c = this._clients[a];
+      if (
+        isPosInRadius(
+          obj.npcRenderDistance
+            ? obj.npcRenderDistance
+            : this._charactersRenderDistance,
+          obj.state.position,
+          c.character.state.position
+        )
+      ) {
+        c.spawnedEntities.push(obj);
+        this.addLightweightNpc(c, obj);
+        this.sendData(c, "Replication.InteractionComponent", {
+          transientId: obj.transientId,
+        });
+        this.sendData(c, "Replication.NpcComponent", {
+          transientId: obj.transientId,
+          nameId: obj.nameId,
+        });
+      }
+    }
   }
 
   pickupItem(client: Client, guid: string) {
