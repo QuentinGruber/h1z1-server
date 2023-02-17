@@ -1533,7 +1533,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client.character.isAlive) return;
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
       return;
-
     const weapon = client.character.getEquippedWeapon();
     if (weapon && weapon.weapon) {
       this.sendRemoteWeaponUpdateDataToAllOthers(
@@ -1657,7 +1656,7 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       this.worldObjectManager.createLootbag(this, character);
     }
-
+    this.clearInventory(client);
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
   }
 
