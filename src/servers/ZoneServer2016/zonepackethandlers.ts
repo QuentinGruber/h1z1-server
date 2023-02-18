@@ -716,8 +716,7 @@ export class zonePacketHandlers {
     packet: any
   ) {
     if (client.character.tempGodMode) {
-      server.setGodMode(client, false);
-      client.character.tempGodMode = false;
+      server.setTempGodMode(client, false);
     }
     client.character.positionUpdate = packet.data;
     if (packet.data.flags === 513) {
@@ -1484,8 +1483,7 @@ export class zonePacketHandlers {
   Weapon(server: ZoneServer2016, client: Client, packet: any) {
     debug("Weapon.Weapon");
     if (client.character.tempGodMode) {
-      server.setGodMode(client, false);
-      client.character.tempGodMode = false;
+      server.setTempGodMode(client, false);
     }
     switch (packet.data.weaponPacket.packetName) {
       case "Weapon.MultiWeapon":

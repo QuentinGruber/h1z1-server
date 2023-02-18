@@ -2139,12 +2139,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.healingTicks = 0;
     client.character.healingMaxTicks = 0;
     client.character.resourcesUpdater?.refresh();
-    this.updateCharacterState(
-      client,
-      client.character.characterId,
-      client.character.characterStates,
-      true
-    );
+
     const randomSpawnIndex = Math.floor(
       Math.random() * cell.spawnPoints.length
     );
@@ -2198,6 +2193,12 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.characterId,
       client.character._resources[ResourceIds.BLEEDING],
       ResourceIds.BLEEDING
+    );
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      true
     );
 
     // fixes characters showing up as dead if they respawn close to other characters
@@ -2777,7 +2778,16 @@ export class ZoneServer2016 extends EventEmitter {
 
   setGodMode(client: Client, godMode: boolean) {
     client.character.godMode = godMode;
-    client.character.characterStates.invincibility = godMode;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
+  }
+
+  setTempGodMode(client: Client, godMode: boolean) {
+    client.character.tempGodMode = godMode;
     this.updateCharacterState(
       client,
       client.character.characterId,
@@ -2798,14 +2808,10 @@ export class ZoneServer2016 extends EventEmitter {
   }*/
 
   tempGodMode(client: Client, durationMs: number) {
-    if (!client.character.godMode) {
-      this.setGodMode(client, true);
-      client.character.tempGodMode = true;
-      setTimeout(() => {
-        this.setGodMode(client, false);
-        client.character.tempGodMode = false;
-      }, durationMs);
-    }
+    this.setTempGodMode(client, true);
+    setTimeout(() => {
+      this.setTempGodMode(client, false);
+    }, durationMs);
   }
 
   updateCharacterState(

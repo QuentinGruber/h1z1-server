@@ -41,7 +41,7 @@ import { characterDefaultLoadout } from "../data/loadouts";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
-  invincibility?: boolean;
+  invincibility: boolean;
   gmHidden?: boolean;
   knockedOut?: boolean;
   inWater?: boolean;
@@ -58,7 +58,12 @@ export class Character2016 extends BaseFullCharacter {
   spawnLocation?: string;
   resourcesUpdater?: any;
   factionId = 2;
-  godMode = false;
+  set godMode(state: boolean) {
+    this.characterStates.invincibility = state;
+  }
+  get godMode() {
+    return this.characterStates.invincibility;
+  }
   characterStates: CharacterStates;
   isRunning = false;
   isHidden: string = "";
@@ -140,6 +145,7 @@ export class Character2016 extends BaseFullCharacter {
       (this.characterStates = {
         knockedOut: false,
         inWater: false,
+        invincibility: false,
       });
     this.timeouts = {};
     this.starthealingInterval = (
@@ -303,6 +309,10 @@ export class Character2016 extends BaseFullCharacter {
       }, 3000);
     };
   }
+  isGodMode() {
+    return this.godMode || this.tempGodMode;
+  }
+
   clearReloadTimeout() {
     const weaponItem = this.getEquippedWeapon();
     if (!weaponItem.weapon?.reloadTimer) return;
@@ -496,7 +506,7 @@ export class Character2016 extends BaseFullCharacter {
       oldHealth = this._resources[ResourceIds.HEALTH];
     if (!client) return;
 
-    if (this.godMode || !this.isAlive || damage < 100) return;
+    if (this.isGodMode() || !this.isAlive || damage < 100) return;
     if (damageInfo.causeBleed) {
       if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
         this._resources[ResourceIds.BLEEDING] += 41;
