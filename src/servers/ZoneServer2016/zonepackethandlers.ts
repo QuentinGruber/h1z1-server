@@ -413,7 +413,8 @@ export class zonePacketHandlers {
     }
     if (
       packet.data.file === "ClientProc.log" &&
-      !client.clientLogs.includes(packet.data.message)
+      !client.clientLogs.includes(packet.data.message) &&
+      !client.isAdmin
     ) {
       const suspicious = [
         "cheatengine",
@@ -1364,6 +1365,7 @@ export class zonePacketHandlers {
       return;
     }
     const obj: ConstructionPermissions = foundation.permissions[characterId];
+    if (!obj) return;
     switch (packet.data.permissionSlot) {
       case 1:
         obj.build = !obj.build;

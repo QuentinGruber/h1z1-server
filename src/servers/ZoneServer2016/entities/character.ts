@@ -198,7 +198,7 @@ export class Character2016 extends BaseFullCharacter {
           client.character.isExhausted =
             client.character._resources[ResourceIds.STAMINA] < 120;
         } else if (!client.character.isBleeding || !client.character.isMoving) {
-          client.character._resources[ResourceIds.STAMINA] += 8;
+          client.character._resources[ResourceIds.STAMINA] += 12;
         }
 
         // todo: modify sprint stat

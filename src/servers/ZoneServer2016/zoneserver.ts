@@ -1656,7 +1656,8 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       this.worldObjectManager.createLootbag(this, character);
     }
-    this.clearInventory(client);
+    this.clearInventory(client, false);
+
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
   }
 
@@ -2165,8 +2166,6 @@ export class ZoneServer2016 extends EventEmitter {
         ]),
       });
     }
-
-    this.clearInventory(client);
     client.character.equipLoadout(this);
     client.character.state.position = cell.spawnPoints[randomSpawnIndex];
     this.updateResource(
@@ -2199,6 +2198,11 @@ export class ZoneServer2016 extends EventEmitter {
       client.character._resources[ResourceIds.BLEEDING],
       ResourceIds.BLEEDING
     );
+
+    Object.values(client.character._equipment).forEach((equipmentSlot) => {
+      this.clearEquipmentSlot(client, equipmentSlot.slotId, false);
+    });
+    client.character.updateEquipment(this);
 
     // fixes characters showing up as dead if they respawn close to other characters
     if (client.character.initialized) {
@@ -6277,10 +6281,14 @@ export class ZoneServer2016 extends EventEmitter {
    * @param equipmentSlotId The equipment slot to clear.
    * @returns Returns true if the slot was cleared, false if the slot is invalid.
    */
-  clearEquipmentSlot(client: Client, equipmentSlotId: number): boolean {
+  clearEquipmentSlot(
+    client: Client,
+    equipmentSlotId: number,
+    sendPacket = true
+  ): boolean {
     if (!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
-    if (client.character.initialized) {
+    if (client.character.initialized && sendPacket) {
       this.sendDataToAllWithSpawnedEntity(
         this._characters,
         client.character.characterId,
@@ -6309,7 +6317,11 @@ export class ZoneServer2016 extends EventEmitter {
    * @param loadoutSlotId The loadout slot containing the item to remove.
    * @returns Returns true if the item was successfully removed, false if there was an error.
    */
-  removeLoadoutItem(client: Client, loadoutSlotId: number): boolean {
+  removeLoadoutItem(
+    client: Client,
+    loadoutSlotId: number,
+    updateEquipment: boolean = true
+  ): boolean {
     const item = client.character._loadout[loadoutSlotId],
       itemDefId = item?.itemDefinitionId; // save before item gets deleted
 
@@ -6328,10 +6340,12 @@ export class ZoneServer2016 extends EventEmitter {
     this.deleteItem(client, item.itemGuid);
     delete client.character._loadout[loadoutSlotId];
     client.character.updateLoadout(this);
-    this.clearEquipmentSlot(
-      client,
-      client.character.getActiveEquipmentSlot(item)
-    );
+    if (updateEquipment) {
+      this.clearEquipmentSlot(
+        client,
+        client.character.getActiveEquipmentSlot(item)
+      );
+    }
     this.checkConveys(client);
     if (this.getItemDefinition(itemDefId).ITEM_TYPE === 34) {
       delete client.character._containers[loadoutSlotId];
@@ -6397,7 +6411,8 @@ export class ZoneServer2016 extends EventEmitter {
   removeInventoryItem(
     client: Client,
     item: BaseItem,
-    count: number = 1
+    count: number = 1,
+    updateEquipment: boolean = true
   ): boolean {
     item.debugFlag = "removeInventoryItem";
     if (count > item.stackCount) {
@@ -6421,7 +6436,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (client.character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
-      return this.removeLoadoutItem(client, item.slotId);
+      return this.removeLoadoutItem(client, item.slotId, updateEquipment);
     } else {
       return this.removeContainerItem(
         client.character,
@@ -6684,7 +6699,7 @@ export class ZoneServer2016 extends EventEmitter {
    * Clears all items from a character's inventory.
    * @param client The client that'll have it's character's inventory cleared.
    */
-  clearInventory(client: Client) {
+  clearInventory(client: Client, updateEquipment = true) {
     for (const item of Object.values(client.character._loadout)) {
       if (client.character._containers[item.slotId]) {
         const container = client.character._containers[item.slotId];
@@ -6693,7 +6708,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
       if (item.slotId != LoadoutSlots.FISTS && item.itemDefinitionId) {
-        this.removeInventoryItem(client, item, item.stackCount);
+        this.removeInventoryItem(
+          client,
+          item,
+          item.stackCount,
+          updateEquipment
+        );
       }
     }
   }
@@ -6978,7 +6998,7 @@ export class ZoneServer2016 extends EventEmitter {
   salvageAmmo(client: Client, item: BaseItem) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID;
-    const timeout = 2000;
+    const timeout = 1000;
     const allowedItems = [
       Items.AMMO_12GA,
       Items.AMMO_223,
@@ -7000,13 +7020,13 @@ export class ZoneServer2016 extends EventEmitter {
       !checkConstructionInRange(
         this._constructionSimple,
         client.character.state.position,
-        1.5,
+        3,
         Items.WORKBENCH_WEAPON
       ) &&
       !checkConstructionInRange(
         this._worldSimpleConstruction,
         client.character.state.position,
-        1.5,
+        3,
         Items.WORKBENCH_WEAPON
       )
     ) {
@@ -7535,6 +7555,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkZonePing(client: Client) {
+    if (client.isAdmin) return;
     if (Number(client.character.lastLoginDate) + 30000 > new Date().getTime())
       return;
     const soeClient = this.getSoeClient(client.soeClientId);
