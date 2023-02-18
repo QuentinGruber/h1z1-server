@@ -5509,11 +5509,11 @@ export class ZoneServer2016 extends EventEmitter {
       client.hudTimer = null;
     }
     client.character.isRunning = false; // maybe some async stuff make this useless need to test that
-    client.vehicle.mountedVehicle = vehicle.characterId;
     const seatId = vehicle.getNextSeatId(this),
       seat = vehicle.seats[seatId],
       passenger = this._characters[seat];
     if (seatId < 0) return; // no available seats in vehicle
+    client.vehicle.mountedVehicle = vehicle.characterId;
     if (passenger) {
       // dismount the driver
       const client = this.getClientByCharId(passenger.characterId);
