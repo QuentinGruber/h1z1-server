@@ -1657,7 +1657,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.worldObjectManager.createLootbag(this, character);
     }
     this.clearInventory(client, false);
-    
+
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
   }
 
