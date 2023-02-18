@@ -422,7 +422,6 @@ export class zonePacketHandlers {
         "cosmos",
         "wemod",
         "injector",
-        "visual",
         "ida.exe",
         "ida64",
         "ida32",
@@ -451,6 +450,7 @@ export class zonePacketHandlers {
             `FairPlay: ${client.character.name} is using suspicious software - ${suspicious[x]}`,
             false
           );
+          break;
         }
       }
       client.clientLogs.push(obj);
