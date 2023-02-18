@@ -48,7 +48,7 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./commands/commandhandler";
 import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
-import { Ban, ConstructionPermissions } from "types/zoneserver";
+import { Ban, ConstructionPermissions, DamageInfo } from "types/zoneserver";
 import { GameTimeSync } from "types/zone2016packets";
 import { LootableProp } from "./entities/lootableprop";
 import { Vehicle2016 } from "./entities/vehicle";
@@ -902,6 +902,12 @@ export class zonePacketHandlers {
       !doorEntity.grantedAccess.includes(client.character.characterId)
     ) {
       doorEntity.grantedAccess.push(client.character.characterId);
+    } else {
+      const damageInfo: DamageInfo = {
+        entity: "",
+        damage: 1000,
+      };
+      client.character.damage(server, damageInfo);
     }
   }
   MountDismountRequest(server: ZoneServer2016, client: Client, packet: any) {
