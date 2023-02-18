@@ -361,6 +361,7 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
         this._clients[client.sessionId] = zoneClient;
+        zoneClient.sendLightWeightQueue(this);
         this._characters[characterId] = zoneClient.character;
         zoneClient.pingTimer = setTimeout(() => {
           this.timeoutClient(zoneClient);
@@ -2939,7 +2940,7 @@ export class ZoneServer2016 extends EventEmitter {
       return !objectsToRemove.includes(el);
     });
     objectsToRemove.forEach((object: any) => {
-      this.sendData(client, "Character.RemovePlayer", {
+      this.addLightWeightNpcQueue(client, "Character.RemovePlayer", {
         characterId: object.characterId,
       });
     });
@@ -2990,7 +2991,7 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseLightweightCharacter,
     nameId = 0
   ) {
-    this.sendData(client, "AddLightweightNpc", {
+    this.addLightWeightNpcQueue(client, "AddLightweightNpc", {
       ...entity.pGetLightweight(),
       nameId,
     });
@@ -3725,6 +3726,14 @@ export class ZoneServer2016 extends EventEmitter {
     obj: zone2016packets
   ) {
     this._sendData(client, packetName, obj, false);
+  }
+
+  addLightWeightNpcQueue(
+    client: Client,
+    packetName: h1z1PacketsType2016,
+    obj: zone2016packets
+  ) {
+    client.lightWeightNpcQueue.push({ packetName: packetName, data: obj });
   }
 
   sendWeaponData(
