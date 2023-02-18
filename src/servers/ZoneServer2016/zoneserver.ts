@@ -3256,10 +3256,6 @@ export class ZoneServer2016 extends EventEmitter {
         entity,
         this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
       );
-      this.sendData(client, "Replication.NpcComponent", {
-        transientId: entity.transientId,
-        nameId: entity.nameId,
-      });
       client.spawnedEntities.push(entity);
       if (
         entity.itemDefinitionId == Items.SHACK ||
@@ -3289,13 +3285,6 @@ export class ZoneServer2016 extends EventEmitter {
       entity,
       this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
     );
-    this.sendData(client, "Replication.InteractionComponent", {
-      transientId: entity.transientId,
-    });
-    this.sendData(client, "Replication.NpcComponent", {
-      transientId: entity.transientId,
-      nameId: entity.nameId,
-    });
     client.spawnedEntities.push(entity);
     this.updateResource(
       client,
@@ -3328,10 +3317,6 @@ export class ZoneServer2016 extends EventEmitter {
         entity,
         this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
       );
-      this.sendData(client, "Replication.NpcComponent", {
-        transientId: entity.transientId,
-        nameId: entity.nameId,
-      });
       client.spawnedEntities.push(entity);
       this.updateResource(
         client,
@@ -3360,13 +3345,6 @@ export class ZoneServer2016 extends EventEmitter {
       entity,
       this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
     );
-    this.sendData(client, "Replication.InteractionComponent", {
-      transientId: entity.transientId,
-    });
-    this.sendData(client, "Replication.NpcComponent", {
-      transientId: entity.transientId,
-      nameId: entity.nameId,
-    });
     this.updateResource(
       client,
       entity.characterId,
@@ -3638,15 +3616,6 @@ export class ZoneServer2016 extends EventEmitter {
         client.spawnedEntities.push(object);
         if (object instanceof BaseLightweightCharacter) {
           this.addLightweightNpc(client, object);
-          if (typeof object.OnInteractionString !== "undefined") {
-            this.sendData(client, "Replication.InteractionComponent", {
-              transientId: object.transientId,
-            });
-            this.sendData(client, "Replication.NpcComponent", {
-              transientId: object.transientId,
-              nameId: object.nameId,
-            });
-          }
           if (object instanceof DoorEntity) {
             if (object.isOpen) {
               this.sendData(client, "PlayerUpdatePosition", {
@@ -4185,13 +4154,6 @@ export class ZoneServer2016 extends EventEmitter {
           this.sendData(client, "AddLightweightVehicle", {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
-          });
-          this.sendData(client, "Replication.InteractionComponent", {
-            transientId: vehicle.transientId,
-          });
-          this.sendData(client, "Replication.NpcComponent", {
-            transientId: vehicle.transientId,
-            nameId: vehicle.nameId,
           });
           /*this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
@@ -6541,13 +6503,6 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         c.spawnedEntities.push(obj);
         this.addLightweightNpc(c, obj);
-        this.sendData(c, "Replication.InteractionComponent", {
-          transientId: obj.transientId,
-        });
-        this.sendData(c, "Replication.NpcComponent", {
-          transientId: obj.transientId,
-          nameId: obj.nameId,
-        });
       }
     }
   }

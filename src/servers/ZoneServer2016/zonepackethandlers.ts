@@ -43,6 +43,7 @@ import {
   LoadoutSlots,
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
+import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./commands/commandhandler";
@@ -959,6 +960,22 @@ export class zonePacketHandlers {
 
     client.character.currentInteractionGuid = packet.data.guid;
     client.character.lastInteractionTime = Date.now();
+    if (entity instanceof BaseLightweightCharacter) {
+      server.sendData(client, "Replication.NpcComponent", {
+        transientId: entity.transientId,
+        nameId: entity.nameId,
+      });
+      if (
+        !(
+          entity instanceof ConstructionParentEntity ||
+          entity instanceof ConstructionChildEntity
+        )
+      ) {
+        server.sendData(client, "Replication.InteractionComponent", {
+          transientId: entity.transientId,
+        });
+      }
+    }
     entity.OnInteractionString(server, client);
   }
   MountSeatChangeRequest(server: ZoneServer2016, client: Client, packet: any) {
