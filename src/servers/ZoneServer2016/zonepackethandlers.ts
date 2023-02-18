@@ -430,7 +430,6 @@ export class zonePacketHandlers {
         "javaw.exe", // seems like the only way to track ghidra open?
         "codebrowser",
         "processhacker",
-        "visual studio",
         "devenv.exe",
         "code.exe",
       ];

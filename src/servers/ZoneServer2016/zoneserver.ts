@@ -2370,7 +2370,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
       this.sendChatTextToAdmins(
-        `FairPlay: ${client.character.name} has been kicking for speed hacking: ${speed} m/s at position ${client.character.state.position})`,
+        `FairPlay: ${client.character.name} has been kicking for speed hacking: ${speed} m/s at position [${position[0]} ${position[1]} ${position[2]}]`,
         false
       );
     }
