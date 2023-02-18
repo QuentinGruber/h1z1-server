@@ -2369,6 +2369,10 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }
       this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+      this.sendChatTextToAdmins(
+        `FairPlay: ${client.character.name} has been kicking for speed hacking: ${speed} m/s at position ${client.character.state.position})`,
+        false
+      );
     }
     client.oldPos = { position: position, time: sequenceTime };
   }
