@@ -1533,7 +1533,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client.character.isAlive) return;
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
       return;
-
     const weapon = client.character.getEquippedWeapon();
     if (weapon && weapon.weapon) {
       this.sendRemoteWeaponUpdateDataToAllOthers(
@@ -1658,7 +1657,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.worldObjectManager.createLootbag(this, character);
     }
     this.clearInventory(client, false);
-
+    
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
   }
 
@@ -2081,15 +2080,17 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     setTimeout(() => {
-      this.sendDataToAllWithSpawnedEntity(
-        dictionary,
-        constructionCharId,
-        "Command.PlayDialogEffect",
-        {
-          characterId: constructionCharId,
-          effectId: 0,
-        }
-      );
+      if (dictionary[constructionCharId]) {
+        this.sendDataToAllWithSpawnedEntity(
+          dictionary,
+          constructionCharId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: constructionCharId,
+            effectId: 0,
+          }
+        );
+      }
     }, 15000);
     if (constructionObject.health > 0) return;
 
@@ -4023,6 +4024,19 @@ export class ZoneServer2016 extends EventEmitter {
                 timestamp
               )}`
         );
+        this.sendAlertToAll(
+          reason
+            ? `${
+                client.character.name
+              } HAS BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
+                timestamp
+              )}. REASON: ${reason}`
+            : `${
+                client.character.name
+              } HAS BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
+                timestamp
+              )}`
+        );
       } else {
         this.sendAlert(
           client,
@@ -4032,8 +4046,8 @@ export class ZoneServer2016 extends EventEmitter {
         );
         this.sendAlertToAll(
           reason
-            ? `${client.character.name} has been Banned from the server! Reason: ${reason}`
-            : `${client.character.name} has been Banned from the server!`
+            ? `${client.character.name} HAS BEEN BANNED FROM THE SERVER! REASON: ${reason}`
+            : `${client.character.name} HAS BEEN BANNED FROM THE SERVER!`
         );
       }
       setTimeout(() => {
@@ -4093,18 +4107,18 @@ export class ZoneServer2016 extends EventEmitter {
 
   getDateString(timestamp: number) {
     const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "JAN",
+      "FEB",
+      "MAR",
+      "APR",
+      "MAY",
+      "JUN",
+      "JUL",
+      "AUG",
+      "SEP",
+      "OCT",
+      "NOV",
+      "DEC",
     ];
     const date = new Date(timestamp);
     return `${date.getDate()} ${
@@ -4451,7 +4465,14 @@ export class ZoneServer2016 extends EventEmitter {
     let isInsidePermissionedFoundation = false;
     for (const a in this._constructionFoundations) {
       const iteratedFoundation = this._constructionFoundations[a];
-      if (iteratedFoundation.bounds) {
+      if (
+        iteratedFoundation.bounds &&
+        iteratedFoundation.getHasPermission(
+          this,
+          client.character.characterId,
+          ConstructionPermissionIds.BUILD
+        )
+      ) {
         if (
           iteratedFoundation.isInside(position) ||
           (iteratedFoundation.characterId == parentObjectCharacterId &&
@@ -4459,14 +4480,44 @@ export class ZoneServer2016 extends EventEmitter {
         )
           isInsidePermissionedFoundation = true;
       }
+      for (const c in iteratedFoundation.occupiedWallSlots) {
+        const wall = iteratedFoundation.occupiedWallSlots[c];
+        if (wall instanceof ConstructionDoor) continue;
+        if (
+          wall.characterId == parentObjectCharacterId &&
+          isPosInRadius(
+            1,
+            wall.fixedPosition ? wall.fixedPosition : wall.state.position,
+            position
+          )
+        ) {
+          isInsidePermissionedFoundation = true;
+        }
+      }
       for (const b in iteratedFoundation.occupiedShelterSlots) {
         const shelter = iteratedFoundation.occupiedShelterSlots[b];
         if (
           (shelter.characterId == parentObjectCharacterId &&
-            isPosInRadius(20, iteratedFoundation.state.position, position)) ||
+            isPosInRadius(
+              10,
+              shelter.fixedPosition
+                ? shelter.fixedPosition
+                : shelter.state.position,
+              position
+            )) ||
           (shelter.bounds && shelter.isInside(position))
         ) {
           isInsidePermissionedFoundation = true;
+        }
+        for (const b in shelter.occupiedShelterSlots) {
+          const upperShelter = shelter.occupiedShelterSlots[b];
+          if (
+            (upperShelter.characterId == parentObjectCharacterId &&
+              isPosInRadius(10, upperShelter.state.position, position)) ||
+            (upperShelter.bounds && upperShelter.isInside(position))
+          ) {
+            isInsidePermissionedFoundation = true;
+          }
         }
       }
     }
@@ -6492,14 +6543,28 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     if (!obj) return;
-    this.addLightweightNpc(client, obj);
-    this.sendData(client, "Replication.InteractionComponent", {
-      transientId: obj.transientId,
-    });
-    this.sendData(client, "Replication.NpcComponent", {
-      transientId: obj.transientId,
-      nameId: obj.nameId,
-    });
+    for (const a in this._clients) {
+      const c = this._clients[a];
+      if (
+        isPosInRadius(
+          obj.npcRenderDistance
+            ? obj.npcRenderDistance
+            : this._charactersRenderDistance,
+          obj.state.position,
+          c.character.state.position
+        )
+      ) {
+        c.spawnedEntities.push(obj);
+        this.addLightweightNpc(c, obj);
+        this.sendData(c, "Replication.InteractionComponent", {
+          transientId: obj.transientId,
+        });
+        this.sendData(c, "Replication.NpcComponent", {
+          transientId: obj.transientId,
+          nameId: obj.nameId,
+        });
+      }
+    }
   }
 
   pickupItem(client: Client, guid: string) {
@@ -7083,7 +7148,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
           if (smeltable.subEntity instanceof SmeltingEntity) {
-            if (smeltable.subEntity.isWorking) return;
+            if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
@@ -7111,7 +7176,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
           if (smeltable.subEntity instanceof SmeltingEntity) {
-            if (smeltable.subEntity.isWorking) return;
+            if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
