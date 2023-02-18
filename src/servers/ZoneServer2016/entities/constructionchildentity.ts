@@ -207,8 +207,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     switch (this.itemDefinitionId) {
       case Items.METAL_DOORWAY: // for parent foundation
         const door = this.occupiedWallSlots[1];
-        if (!door) this.isSecured = false;
-        if (door instanceof ConstructionDoor && door.isOpen) {
+        if (!door || !(door instanceof ConstructionDoor) || door.isOpen) {
           this.isSecured = false;
         } else {
           this.isSecured = true;
@@ -407,7 +406,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {
-    server.deleteEntity(
+    const deleted = server.deleteEntity(
       this.characterId,
       server._constructionSimple[this.characterId]
         ? server._constructionSimple
@@ -416,7 +415,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       destructTime
     );
     const parent = this.getParent(server);
-    if (!parent) return;
+    if (!parent) return deleted;
 
     if (parent.freeplaceEntities[this.characterId]) {
       delete parent.freeplaceEntities[this.characterId];
@@ -473,6 +472,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           freePlacedEntity;
       }
     }
+    return deleted;
   }
 
   getParent(server: ZoneServer2016): ConstructionParentEntity | undefined {

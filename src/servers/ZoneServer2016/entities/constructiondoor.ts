@@ -102,14 +102,14 @@ export class ConstructionDoor extends DoorEntity {
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {
-    server.deleteEntity(
+    const deleted = server.deleteEntity(
       this.characterId,
       server._constructionDoors,
       242,
       destructTime
     );
     const parent = this.getParent(server);
-    if (!parent) return;
+    if (!parent) return deleted;
 
     if (parent.freeplaceEntities[this.characterId]) {
       delete parent.freeplaceEntities[this.characterId];
@@ -128,6 +128,7 @@ export class ConstructionDoor extends DoorEntity {
     }
     if (slotMap) parent.clearSlot(this.getSlotNumber(), slotMap);
     if (updateSecured) parent.updateSecuredState(server);
+    return deleted;
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {

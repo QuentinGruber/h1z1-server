@@ -192,4 +192,8 @@ export class Plant extends ItemObject {
       effectId: 5056,
     });
   }
+
+  destroy(server: ZoneServer2016) {
+    return server.deleteEntity(this.characterId, server._plants);
+  }
 }
