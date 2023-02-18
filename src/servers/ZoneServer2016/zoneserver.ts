@@ -2198,9 +2198,9 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceIds.BLEEDING
     );
 
-    Object.values(client.character._equipment).forEach((equipmentSlot)=> {
+    Object.values(client.character._equipment).forEach((equipmentSlot) => {
       this.clearEquipmentSlot(client, equipmentSlot.slotId, false);
-    })
+    });
     client.character.updateEquipment(this);
 
     // fixes characters showing up as dead if they respawn close to other characters
@@ -6230,7 +6230,11 @@ export class ZoneServer2016 extends EventEmitter {
    * @param equipmentSlotId The equipment slot to clear.
    * @returns Returns true if the slot was cleared, false if the slot is invalid.
    */
-  clearEquipmentSlot(client: Client, equipmentSlotId: number, sendPacket = true): boolean {
+  clearEquipmentSlot(
+    client: Client,
+    equipmentSlotId: number,
+    sendPacket = true
+  ): boolean {
     if (!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
     if (client.character.initialized && sendPacket) {
@@ -6262,7 +6266,11 @@ export class ZoneServer2016 extends EventEmitter {
    * @param loadoutSlotId The loadout slot containing the item to remove.
    * @returns Returns true if the item was successfully removed, false if there was an error.
    */
-  removeLoadoutItem(client: Client, loadoutSlotId: number, updateEquipment: boolean = true): boolean {
+  removeLoadoutItem(
+    client: Client,
+    loadoutSlotId: number,
+    updateEquipment: boolean = true
+  ): boolean {
     const item = client.character._loadout[loadoutSlotId],
       itemDefId = item?.itemDefinitionId; // save before item gets deleted
 
@@ -6281,7 +6289,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.deleteItem(client, item.itemGuid);
     delete client.character._loadout[loadoutSlotId];
     client.character.updateLoadout(this);
-    if(updateEquipment) {
+    if (updateEquipment) {
       this.clearEquipmentSlot(
         client,
         client.character.getActiveEquipmentSlot(item)
@@ -6635,7 +6643,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
       if (item.slotId != LoadoutSlots.FISTS && item.itemDefinitionId) {
-        this.removeInventoryItem(client, item, item.stackCount, updateEquipment);
+        this.removeInventoryItem(
+          client,
+          item,
+          item.stackCount,
+          updateEquipment
+        );
       }
     }
   }
@@ -7477,7 +7490,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkZonePing(client: Client) {
-    if(client.isAdmin) return;
+    if (client.isAdmin) return;
     if (Number(client.character.lastLoginDate) + 30000 > new Date().getTime())
       return;
     const soeClient = this.getSoeClient(client.soeClientId);
