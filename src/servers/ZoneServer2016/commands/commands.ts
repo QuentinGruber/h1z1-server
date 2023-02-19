@@ -627,7 +627,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin unban {name|playerId}`
+          `Correct usage: /unban {name|playerId}`
         );
         return;
       }
@@ -669,7 +669,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin listProcesses {name | ZoneClientId}`
+          `Correct usage: /listprocesses {name | ZoneClientId}`
         );
         return;
       }
@@ -1398,7 +1398,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin vehiclerespawntimer <time>`
+          `Correct usage: /vehiclerespawntimer <time>`
         );
         return;
       }
