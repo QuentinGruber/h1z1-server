@@ -287,7 +287,41 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       server.addItem(client, this._loadout[loadoutSlotId], 101);
 
     if (!sendPacket) return;
+    if (client && server.isWeapon(item.itemDefinitionId)) {
+      server.sendRemoteWeaponDataToAllOthers(
+        client,
+        client.character.transientId,
+        "RemoteWeapon.Reset",
+        {
+          data: {
+            remoteWeapons: client.character.pGetRemoteWeaponsData(server),
+            remoteWeaponsExtra:
+              client.character.pGetRemoteWeaponsExtraData(server),
+          },
+        }
+      );
+      server.sendRemoteWeaponUpdateDataToAllOthers(
+        client,
+        client.character.transientId,
+        item.itemGuid,
+        "Update.SwitchFireMode",
+        {
+          firegroupIndex: 0,
+          firemodeIndex: 0,
+        }
+      );
 
+      server.sendDataToAllOthersWithSpawnedEntity(
+        server._characters,
+        client,
+        client.character.characterId,
+        "Character.WeaponStance",
+        {
+          characterId: client.character.characterId,
+          stance: client.character.positionUpdate?.stance,
+        }
+      );
+    }
     this.updateLoadout(server);
     if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
   }
@@ -348,41 +382,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         });
       }
       this.equipItem(server, item, sendUpdate);
-      if (client && server.isWeapon(item.itemDefinitionId) && sendUpdate) {
-        server.sendRemoteWeaponDataToAllOthers(
-          client,
-          client.character.transientId,
-          "RemoteWeapon.Reset",
-          {
-            data: {
-              remoteWeapons: client.character.pGetRemoteWeaponsData(server),
-              remoteWeaponsExtra:
-                client.character.pGetRemoteWeaponsExtraData(server),
-            },
-          }
-        );
-        server.sendRemoteWeaponUpdateDataToAllOthers(
-          client,
-          client.character.transientId,
-          item.itemGuid,
-          "Update.SwitchFireMode",
-          {
-            firegroupIndex: 0,
-            firemodeIndex: 0,
-          }
-        );
-
-        server.sendDataToAllOthersWithSpawnedEntity(
-          server._characters,
-          client,
-          client.character.characterId,
-          "Character.WeaponStance",
-          {
-            characterId: client.character.characterId,
-            stance: client.character.positionUpdate?.stance,
-          }
-        );
-      }
     } else {
       this.lootContainerItem(server, item, count, sendUpdate);
     }
