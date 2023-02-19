@@ -3023,7 +3023,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
-    this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
+    this.addLightWeightNpcQueue(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
   checkFoundationPermission(
@@ -3321,7 +3321,7 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceTypes.CONDITION
     );
     if (entity.isOpen) {
-      this.sendData(client, "PlayerUpdatePosition", {
+      this.addLightWeightNpcQueue(client, "PlayerUpdatePosition", {
         transientId: entity.transientId,
         positionUpdate: {
           sequenceTime: 0,
@@ -3645,7 +3645,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.addLightweightNpc(client, object);
           if (object instanceof DoorEntity) {
             if (object.isOpen) {
-              this.sendData(client, "PlayerUpdatePosition", {
+              this.addLightWeightNpcQueue(client, "PlayerUpdatePosition", {
                 transientId: object.transientId,
                 positionUpdate: {
                   sequenceTime: 0,
