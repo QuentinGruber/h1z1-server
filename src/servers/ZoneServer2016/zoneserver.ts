@@ -4046,7 +4046,9 @@ export class ZoneServer2016 extends EventEmitter {
         return;
       case "hiddenplayers":
         const objectsToRemove = client.spawnedEntities.filter((e) =>
-          this.shouldRemoveEntity(client, e)
+          e &&
+          !(e instanceof Vehicle2016) &&
+          !(e instanceof ItemObject)
         );
         client.spawnedEntities = client.spawnedEntities.filter((el) => {
           return !objectsToRemove.includes(el);
