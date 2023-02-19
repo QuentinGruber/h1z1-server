@@ -64,7 +64,7 @@ export const internalCommands: Array<Command> = [
           );
         }
       }
-      server.sendData(client, "SpectatorBase", {});
+      server.sendData(client, "Spectator.Enable", {});
       server.sendData(client, "AddLightweightVehicle", {
         ...vehicle,
         npcData: {

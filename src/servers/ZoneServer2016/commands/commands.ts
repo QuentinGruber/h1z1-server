@@ -244,7 +244,7 @@ export const commands: Array<Command> = [
           );
         }
       }
-      server.sendData(client, "SpectatorBase", {});
+      server.sendData(client, "Spectator.Enable", {});
     },
   },
   {

@@ -863,7 +863,7 @@ export class zonePacketHandlers {
       packet
     );
   }
-  SpectatorTP(server: ZoneServer2016, client: Client, packet: any) {
+  SpectatorTeleport(server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: [packet.data.x, 355, packet.data.y, 1],
       triggerLoadingScreen: false,
@@ -2189,8 +2189,8 @@ export class zonePacketHandlers {
       case "Character.Respawn":
         this.CharacterRespawn(server, client, packet);
         break;
-      case "SpectatorTP":
-        this.SpectatorTP(server, client, packet);
+      case "Spectator.Teleport":
+        this.SpectatorTeleport(server, client, packet);
         break;
       case "Character.FullCharacterDataRequest":
         this.CharacterFullCharacterDataRequest(server, client, packet);
