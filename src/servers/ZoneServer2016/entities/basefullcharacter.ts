@@ -287,7 +287,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       server.addItem(client, this._loadout[loadoutSlotId], 101);
 
     if (!sendPacket) return;
-    if (client && server.isWeapon(item.itemDefinitionId)) {
+    /*if (client && server.isWeapon(item.itemDefinitionId)) {
       server.sendRemoteWeaponDataToAllOthers(
         client,
         client.character.transientId,
@@ -321,7 +321,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           stance: client.character.positionUpdate?.stance,
         }
       );
-    }
+    }*/
     this.updateLoadout(server);
     if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
   }
