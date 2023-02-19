@@ -16,6 +16,8 @@ import { Character2016 } from "../entities/character";
 import { ZoneClient2016 as Client } from "./zoneclient";
 import { LootableProp } from "../entities/lootableprop";
 import { ZoneServer2016 } from "../zoneserver";
+import { h1z1PacketsType2016 } from "../../../types/packets";
+import { zone2016packets } from "../../../types/zone2016packets";
 
 export class ZoneClient2016 {
   guid?: string;
@@ -81,6 +83,10 @@ export class ZoneClient2016 {
   zonePings: number[] = [];
   properlyLogout: boolean = false;
   permissionLevel: number = 0;
+  lightWeightNpcQueue: {
+    packetName: h1z1PacketsType2016;
+    data: zone2016packets;
+  }[] = [];
   constructor(
     sessionId: number,
     soeClientId: string,
@@ -107,7 +113,6 @@ export class ZoneClient2016 {
       this.hudTimer = null;
       this.isInteracting = false;
     };
-
     this.character = new Character2016(characterId, transientId, server);
   }
   addPing(ping: number) {
@@ -126,5 +131,15 @@ export class ZoneClient2016 {
   updateAvgPing() {
     this.avgPing = toInt(_.sum(this.pings) / this.pings.length);
     this.avgPingReady = true;
+  }
+  sendLightWeightQueue(server: ZoneServer2016) {
+    if (!server._clients[this.sessionId]) return;
+    for (let x = 0; x < 15; x++) {
+      const queuedPacket = this.lightWeightNpcQueue[x];
+      if (!queuedPacket) break;
+      server.sendData(this, queuedPacket.packetName, queuedPacket.data);
+    }
+    this.lightWeightNpcQueue.splice(0, 15);
+    setTimeout(() => this.sendLightWeightQueue(server), 5);
   }
 }
