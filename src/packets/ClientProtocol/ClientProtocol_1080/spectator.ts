@@ -75,4 +75,4 @@ export const spectatorPackets: any = [
       ],
     },
   ],
-]
+];
