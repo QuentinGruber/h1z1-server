@@ -1940,7 +1940,10 @@ export class ZoneServer2016 extends EventEmitter {
           parentFoundation?.itemDefinitionId == Items.SHACK_SMALL
         )
           return false;
-        if (parentFoundation?.itemDefinitionId == Items.FOUNDATION) {
+        if (
+          parentFoundation?.itemDefinitionId == Items.FOUNDATION ||
+          parentFoundation?.itemDefinitionId == Items.GROUND_TAMPER
+        ) {
           if (
             doors.includes(construction.itemDefinitionId) &&
             parent &&
