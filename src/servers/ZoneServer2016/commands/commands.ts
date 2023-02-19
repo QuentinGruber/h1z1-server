@@ -229,7 +229,7 @@ export const commands: Array<Command> = [
       client.character.isSpectator = !client.character.isSpectator;
       server.sendAlert(
         client,
-        `Set hidden state to ${client.character.isSpectator}`
+        `Set spectate/vanish state to ${client.character.isSpectator}`
       );
       if (!client.character.isSpectator) return;
       for (const a in server._clients) {
@@ -1427,7 +1427,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "players",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendChatText(
         client,
@@ -1435,7 +1435,7 @@ export const commands: Array<Command> = [
           .map((c) => {
             return `${c.character.name}: ${c.loginSessionId}`;
           })
-          .join(", ")}`
+          .join(",\n")}`
       );
     },
   },

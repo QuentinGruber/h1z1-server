@@ -40,54 +40,66 @@ export const internalCommands: Array<Command> = [
     name: "spectate",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, packetData: any) => {
-      client.character.isSpectator = true;
-      const characterId = server.generateGuid();
-      const vehicle = new Vehicle(
-        characterId,
-        server.getTransientId(characterId),
-        9371,
-        client.character.state.position,
-        client.character.state.lookAt,
-        server,
-        server.getGameTime(),
-        VehicleIds.SPECTATE
-      );
-      for (const a in server._clients) {
-        const iteratedClient = server._clients[a];
-        if (iteratedClient.spawnedEntities.includes(client.character)) {
-          server.sendData(iteratedClient, "Character.RemovePlayer", {
-            characterId: client.character.characterId,
-          });
-          iteratedClient.spawnedEntities.splice(
-            iteratedClient.spawnedEntities.indexOf(client.character),
-            1
-          );
+      client.character.isSpectator = !client.character.isSpectator;
+      if (client.character.isSpectator) {
+        const vehicle = new Vehicle(
+          server.observerVehicleGuid,
+          1,
+          9371,
+          client.character.state.position,
+          client.character.state.lookAt,
+          server,
+          server.getGameTime(),
+          VehicleIds.SPECTATE
+        );
+        for (const a in server._clients) {
+          const iteratedClient = server._clients[a];
+          if (iteratedClient.spawnedEntities.includes(client.character)) {
+            server.sendData(iteratedClient, "Character.RemovePlayer", {
+              characterId: client.character.characterId,
+            });
+            iteratedClient.spawnedEntities.splice(
+              iteratedClient.spawnedEntities.indexOf(client.character),
+              1
+            );
+          }
         }
-      }
-      server.sendData(client, "SpectatorBase", {});
-      server.sendData(client, "AddLightweightVehicle", {
-        ...vehicle,
-        npcData: {
+        server.sendData(client, "SpectatorBase", {});
+        server.sendData(client, "AddLightweightVehicle", {
           ...vehicle,
-          ...vehicle.state,
-          actorModelId: vehicle.actorModelId,
-        },
-      });
-      server.sendData(client, "Mount.MountResponse", {
-        characterId: client.character.characterId,
-        vehicleGuid: vehicle.characterId,
-        seatId: 0,
-        isDriver: 1,
-        identity: {},
-      });
-      server.sendData(client, "Character.ManagedObject", {
-        objectCharacterId: vehicle.characterId,
-        characterId: client.character.characterId,
-      });
-      server.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
-        control: true,
-        objectCharacterId: vehicle.characterId,
-      });
+          npcData: {
+            ...vehicle,
+            ...vehicle.state,
+            actorModelId: vehicle.actorModelId,
+          },
+        });
+        server.sendData(client, "Mount.MountResponse", {
+          characterId: client.character.characterId,
+          vehicleGuid: vehicle.characterId,
+          seatId: 0,
+          isDriver: 1,
+          identity: {},
+        });
+        server.sendData(client, "Character.ManagedObject", {
+          objectCharacterId: vehicle.characterId,
+          characterId: client.character.characterId,
+        });
+        server.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
+          control: true,
+          objectCharacterId: vehicle.characterId,
+        });
+      } else {
+        server.sendData(client, "Mount.DismountResponse", {
+          characterId: client.character.characterId,
+        });
+        server.sendData(client, "Character.RemovePlayer", {
+          characterId: server.observerVehicleGuid,
+        });
+      }
+      server.sendAlert(
+        client,
+        `Set spectate/vanish state to ${client.character.isSpectator}`
+      );
     },
   },
   {

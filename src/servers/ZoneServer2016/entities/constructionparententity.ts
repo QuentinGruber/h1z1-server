@@ -516,7 +516,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
               const wall = this.occupiedWallSlots[slot];
               if (!wall || !wall.isSecured) {
                 this.occupiedExpansionSlots["1"].isSecured = false;
-                return;
+                break;
               }
             }
           }
@@ -529,7 +529,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
               const wall = this.occupiedWallSlots[slot];
               if (!wall || !wall.isSecured) {
                 this.occupiedExpansionSlots["2"].isSecured = false;
-                return;
+                break;
               }
             }
           }
@@ -542,7 +542,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
               const wall = this.occupiedWallSlots[slot];
               if (!wall || !wall.isSecured) {
                 this.occupiedExpansionSlots["3"].isSecured = false;
-                return;
+                break;
               }
             }
           }
@@ -555,7 +555,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
               const wall = this.occupiedWallSlots[slot];
               if (!wall || !wall.isSecured) {
                 this.occupiedExpansionSlots["4"].isSecured = false;
-                return;
+                break;
               }
             }
           }
@@ -704,7 +704,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {
-    server.deleteEntity(
+    const deleted = server.deleteEntity(
       this.characterId,
       server._constructionFoundations,
       242,
@@ -727,9 +727,10 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     }
     const parent =
       server._constructionFoundations[this.parentObjectCharacterId];
-    if (!parent) return;
-    if (!this.slot || !this.parentObjectCharacterId) return;
+    if (!parent) return deleted;
+    if (!this.slot || !this.parentObjectCharacterId) return deleted;
     parent.clearSlot(this.getSlotNumber(), parent.occupiedExpansionSlots);
+    return deleted;
   }
 
   isExpansionSlotsEmpty() {

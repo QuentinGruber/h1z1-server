@@ -49,6 +49,7 @@ export class ItemObject extends BaseLightweightCharacter {
     bit23: 0,
   };
   creationTime: number = 0;
+  triggerExplosionShots = Math.floor(Math.random() * 3) + 2; // random number 2-4 neccesary shots
   constructor(
     characterId: string,
     transientId: number,
@@ -85,6 +86,8 @@ export class ItemObject extends BaseLightweightCharacter {
       this.item.itemDefinitionId === Items.FUEL_BIOFUEL ||
       this.item.itemDefinitionId === Items.FUEL_ETHANOL
     ) {
+      this.triggerExplosionShots -= 1;
+      if (this.triggerExplosionShots > 0) return;
       server.deleteEntity(this.characterId, server._spawnedItems);
       delete server.worldObjectManager._spawnedLootObjects[this.spawnerId];
       server._explosives[this.characterId].detonate(
@@ -98,6 +101,6 @@ export class ItemObject extends BaseLightweightCharacter {
     delete server.worldObjectManager._spawnedLootObjects[
       server._spawnedItems[this.characterId].spawnerId
     ];
-    server.deleteEntity(this.characterId, server._spawnedItems);
+    return server.deleteEntity(this.characterId, server._spawnedItems);
   }
 }
