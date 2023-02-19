@@ -1656,6 +1656,24 @@ export class ZoneServer2016 extends EventEmitter {
         };
       }
     } else {
+      Object.values(client.character._loadout).forEach((slot: LoadoutItem) => {
+        // need to find a better way later, if out of bulk ammo will be outside of lootbag
+        if (slot.weapon) {
+          const ammo = this.generateItem(
+            this.getWeaponAmmoId(slot.itemDefinitionId),
+            slot.weapon.ammoCount
+          );
+          if (ammo && slot.weapon.ammoCount > 0) {
+            client.character.lootContainerItem(
+              this,
+              ammo,
+              ammo.stackCount,
+              true
+            );
+          }
+          slot.weapon.ammoCount = 0;
+        }
+      });
       this.worldObjectManager.createLootbag(this, character);
     }
     this.clearInventory(client);
@@ -6248,6 +6266,29 @@ export class ZoneServer2016 extends EventEmitter {
       oldLoadoutSlot
     );
     if (loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
+    if (this.isWeapon(loadoutItem.itemDefinitionId)) {
+      this.sendRemoteWeaponUpdateDataToAllOthers(
+        client,
+        client.character.transientId,
+        loadoutItem.itemGuid,
+        "Update.SwitchFireMode",
+        {
+          firegroupIndex: 0,
+          firemodeIndex: 0,
+        }
+      );
+
+      this.sendDataToAllOthersWithSpawnedEntity(
+        this._characters,
+        client,
+        client.character.characterId,
+        "Character.WeaponStance",
+        {
+          characterId: client.character.characterId,
+          stance: client.character.positionUpdate?.stance,
+        }
+      );
+    }
   }
 
   /**
@@ -6499,6 +6540,16 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefId: item.itemDefinitionId,
       count: count,
     });
+    if (dropItem && dropItem.weapon) {
+      const ammo = this.generateItem(
+        this.getWeaponAmmoId(dropItem.itemDefinitionId),
+        dropItem.weapon.ammoCount
+      );
+      if (ammo && dropItem.weapon.ammoCount > 0) {
+        client.character.lootContainerItem(this, ammo, ammo.stackCount, true);
+      }
+      dropItem.weapon.ammoCount = 0;
+    }
     const obj = this.worldObjectManager.createLootEntity(
       this,
       dropItem,

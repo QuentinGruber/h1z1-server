@@ -287,7 +287,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       server.addItem(client, this._loadout[loadoutSlotId], 101);
 
     if (!sendPacket) return;
-    /*if (client && server.isWeapon(item.itemDefinitionId)) {
+    if (client && server.isWeapon(item.itemDefinitionId)) {
       server.sendRemoteWeaponDataToAllOthers(
         client,
         client.character.transientId,
@@ -300,28 +300,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           },
         }
       );
-      server.sendRemoteWeaponUpdateDataToAllOthers(
-        client,
-        client.character.transientId,
-        item.itemGuid,
-        "Update.SwitchFireMode",
-        {
-          firegroupIndex: 0,
-          firemodeIndex: 0,
-        }
-      );
-
-      server.sendDataToAllOthersWithSpawnedEntity(
-        server._characters,
-        client,
-        client.character.characterId,
-        "Character.WeaponStance",
-        {
-          characterId: client.character.characterId,
-          stance: client.character.positionUpdate?.stance,
-        }
-      );
-    }*/
+    }
     this.updateLoadout(server);
     if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
   }

@@ -1287,6 +1287,21 @@ export class zonePacketHandlers {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
+          if (item.weapon) {
+            const ammo = server.generateItem(
+              server.getWeaponAmmoId(item.itemDefinitionId),
+              item.weapon.ammoCount
+            );
+            if (ammo && item.weapon.ammoCount > 0) {
+              client.character.lootContainerItem(
+                server,
+                ammo,
+                ammo.stackCount,
+                true
+              );
+            }
+            item.weapon.ammoCount = 0;
+          }
           if (targetContainer) {
             // to container
             sourceContainer.transferItem(
@@ -1335,6 +1350,21 @@ export class zonePacketHandlers {
             if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
+            }
+            if (loadoutItem.weapon) {
+              const ammo = server.generateItem(
+                server.getWeaponAmmoId(loadoutItem.itemDefinitionId),
+                loadoutItem.weapon.ammoCount
+              );
+              if (ammo && loadoutItem.weapon.ammoCount > 0) {
+                client.character.lootContainerItem(
+                  server,
+                  ammo,
+                  ammo.stackCount,
+                  true
+                );
+              }
+              loadoutItem.weapon.ammoCount = 0;
             }
             server.addContainerItem(
               client.character,
