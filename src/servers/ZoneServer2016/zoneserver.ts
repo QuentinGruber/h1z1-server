@@ -6274,7 +6274,7 @@ export class ZoneServer2016 extends EventEmitter {
         "Update.SwitchFireMode",
         {
           firegroupIndex: 0,
-          firemodeIndex: 0,
+          firemodeIndex: 1,
         }
       );
 
