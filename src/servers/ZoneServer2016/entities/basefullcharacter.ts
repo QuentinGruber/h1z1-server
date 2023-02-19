@@ -287,7 +287,20 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       server.addItem(client, this._loadout[loadoutSlotId], 101);
 
     if (!sendPacket) return;
-
+    if (client && server.isWeapon(item.itemDefinitionId)) {
+      server.sendRemoteWeaponDataToAllOthers(
+        client,
+        client.character.transientId,
+        "RemoteWeapon.Reset",
+        {
+          data: {
+            remoteWeapons: client.character.pGetRemoteWeaponsData(server),
+            remoteWeaponsExtra:
+              client.character.pGetRemoteWeaponsExtraData(server),
+          },
+        }
+      );
+    }
     this.updateLoadout(server);
     if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
   }
@@ -348,20 +361,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         });
       }
       this.equipItem(server, item, sendUpdate);
-      if (client && server.isWeapon(item.itemDefinitionId) && sendUpdate) {
-        server.sendRemoteWeaponDataToAllOthers(
-          client,
-          client.character.transientId,
-          "RemoteWeapon.Reset",
-          {
-            data: {
-              remoteWeapons: client.character.pGetRemoteWeaponsData(server),
-              remoteWeaponsExtra:
-                client.character.pGetRemoteWeaponsExtraData(server),
-            },
-          }
-        );
-      }
     } else {
       this.lootContainerItem(server, item, count, sendUpdate);
     }

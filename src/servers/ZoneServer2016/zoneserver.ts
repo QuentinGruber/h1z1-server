@@ -274,6 +274,7 @@ export class ZoneServer2016 extends EventEmitter {
   private _isSaving: boolean = false;
   saveTimeInterval: number = 600000;
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
+  observerVehicleGuid: string = "0xFAFAFAFAFAFAFAFA";
 
   constructor(
     serverPort: number,
@@ -361,6 +362,7 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
         this._clients[client.sessionId] = zoneClient;
+        zoneClient.sendLightWeightQueue(this);
         this._characters[characterId] = zoneClient.character;
         zoneClient.pingTimer = setTimeout(() => {
           this.timeoutClient(zoneClient);
@@ -1391,7 +1393,7 @@ export class ZoneServer2016 extends EventEmitter {
         lowerRenderDistance = true;
       }
     }
-    client.chunkRenderDistance = lowerRenderDistance ? 250 : 350;
+    client.chunkRenderDistance = lowerRenderDistance ? 350 : 500;
   }
 
   private worldRoutine() {
@@ -1654,6 +1656,24 @@ export class ZoneServer2016 extends EventEmitter {
         };
       }
     } else {
+      Object.values(client.character._loadout).forEach((slot: LoadoutItem) => {
+        // need to find a better way later, if out of bulk ammo will be outside of lootbag
+        if (slot.weapon) {
+          const ammo = this.generateItem(
+            this.getWeaponAmmoId(slot.itemDefinitionId),
+            slot.weapon.ammoCount
+          );
+          if (ammo && slot.weapon.ammoCount > 0) {
+            client.character.lootContainerItem(
+              this,
+              ammo,
+              ammo.stackCount,
+              true
+            );
+          }
+          slot.weapon.ammoCount = 0;
+        }
+      });
       this.worldObjectManager.createLootbag(this, character);
     }
     this.clearInventory(client, false);
@@ -1940,7 +1960,10 @@ export class ZoneServer2016 extends EventEmitter {
           parentFoundation?.itemDefinitionId == Items.SHACK_SMALL
         )
           return false;
-        if (parentFoundation?.itemDefinitionId == Items.FOUNDATION) {
+        if (
+          parentFoundation?.itemDefinitionId == Items.FOUNDATION ||
+          parentFoundation?.itemDefinitionId == Items.GROUND_TAMPER
+        ) {
           if (
             doors.includes(construction.itemDefinitionId) &&
             parent &&
@@ -2372,6 +2395,10 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }
       this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+      this.sendChatTextToAdmins(
+        `FairPlay: ${client.character.name} has been kicking for speed hacking: ${speed} m/s at position [${position[0]} ${position[1]} ${position[2]}]`,
+        false
+      );
     }
     client.oldPos = { position: position, time: sequenceTime };
   }
@@ -2943,7 +2970,7 @@ export class ZoneServer2016 extends EventEmitter {
       return !objectsToRemove.includes(el);
     });
     objectsToRemove.forEach((object: any) => {
-      this.sendData(client, "Character.RemovePlayer", {
+      this.addLightWeightNpcQueue(client, "Character.RemovePlayer", {
         characterId: object.characterId,
       });
     });
@@ -2994,13 +3021,13 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseLightweightCharacter,
     nameId = 0
   ) {
-    this.sendData(client, "AddLightweightNpc", {
+    this.addLightWeightNpcQueue(client, "AddLightweightNpc", {
       ...entity.pGetLightweight(),
       nameId,
     });
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
-    this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
+    this.addLightWeightNpcQueue(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
   checkFoundationPermission(
@@ -3260,10 +3287,6 @@ export class ZoneServer2016 extends EventEmitter {
         entity,
         this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
       );
-      this.sendData(client, "Replication.NpcComponent", {
-        transientId: entity.transientId,
-        nameId: entity.nameId,
-      });
       client.spawnedEntities.push(entity);
       if (
         entity.itemDefinitionId == Items.SHACK ||
@@ -3293,13 +3316,6 @@ export class ZoneServer2016 extends EventEmitter {
       entity,
       this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
     );
-    this.sendData(client, "Replication.InteractionComponent", {
-      transientId: entity.transientId,
-    });
-    this.sendData(client, "Replication.NpcComponent", {
-      transientId: entity.transientId,
-      nameId: entity.nameId,
-    });
     client.spawnedEntities.push(entity);
     this.updateResource(
       client,
@@ -3309,7 +3325,7 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceTypes.CONDITION
     );
     if (entity.isOpen) {
-      this.sendData(client, "PlayerUpdatePosition", {
+      this.addLightWeightNpcQueue(client, "PlayerUpdatePosition", {
         transientId: entity.transientId,
         positionUpdate: {
           sequenceTime: 0,
@@ -3332,10 +3348,6 @@ export class ZoneServer2016 extends EventEmitter {
         entity,
         this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
       );
-      this.sendData(client, "Replication.NpcComponent", {
-        transientId: entity.transientId,
-        nameId: entity.nameId,
-      });
       client.spawnedEntities.push(entity);
       this.updateResource(
         client,
@@ -3364,13 +3376,6 @@ export class ZoneServer2016 extends EventEmitter {
       entity,
       this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
     );
-    this.sendData(client, "Replication.InteractionComponent", {
-      transientId: entity.transientId,
-    });
-    this.sendData(client, "Replication.NpcComponent", {
-      transientId: entity.transientId,
-      nameId: entity.nameId,
-    });
     this.updateResource(
       client,
       entity.characterId,
@@ -3642,18 +3647,9 @@ export class ZoneServer2016 extends EventEmitter {
         client.spawnedEntities.push(object);
         if (object instanceof BaseLightweightCharacter) {
           this.addLightweightNpc(client, object);
-          if (typeof object.OnInteractionString !== "undefined") {
-            this.sendData(client, "Replication.InteractionComponent", {
-              transientId: object.transientId,
-            });
-            this.sendData(client, "Replication.NpcComponent", {
-              transientId: object.transientId,
-              nameId: object.nameId,
-            });
-          }
           if (object instanceof DoorEntity) {
             if (object.isOpen) {
-              this.sendData(client, "PlayerUpdatePosition", {
+              this.addLightWeightNpcQueue(client, "PlayerUpdatePosition", {
                 transientId: object.transientId,
                 positionUpdate: {
                   sequenceTime: 0,
@@ -3760,6 +3756,14 @@ export class ZoneServer2016 extends EventEmitter {
     obj: zone2016packets
   ) {
     this._sendData(client, packetName, obj, false);
+  }
+
+  addLightWeightNpcQueue(
+    client: Client,
+    packetName: h1z1PacketsType2016,
+    obj: zone2016packets
+  ) {
+    client.lightWeightNpcQueue.push({ packetName: packetName, data: obj });
   }
 
   sendWeaponData(
@@ -4189,13 +4193,6 @@ export class ZoneServer2016 extends EventEmitter {
           this.sendData(client, "AddLightweightVehicle", {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
-          });
-          this.sendData(client, "Replication.InteractionComponent", {
-            transientId: vehicle.transientId,
-          });
-          this.sendData(client, "Replication.NpcComponent", {
-            transientId: vehicle.transientId,
-            nameId: vehicle.nameId,
           });
           /*this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
@@ -5538,11 +5535,11 @@ export class ZoneServer2016 extends EventEmitter {
       client.hudTimer = null;
     }
     client.character.isRunning = false; // maybe some async stuff make this useless need to test that
-    client.vehicle.mountedVehicle = vehicle.characterId;
     const seatId = vehicle.getNextSeatId(this),
       seat = vehicle.seats[seatId],
       passenger = this._characters[seat];
     if (seatId < 0) return; // no available seats in vehicle
+    client.vehicle.mountedVehicle = vehicle.characterId;
     if (passenger) {
       // dismount the driver
       const client = this.getClientByCharId(passenger.characterId);
@@ -6273,6 +6270,29 @@ export class ZoneServer2016 extends EventEmitter {
       oldLoadoutSlot
     );
     if (loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
+    if (this.isWeapon(loadoutItem.itemDefinitionId)) {
+      this.sendRemoteWeaponUpdateDataToAllOthers(
+        client,
+        client.character.transientId,
+        loadoutItem.itemGuid,
+        "Update.SwitchFireMode",
+        {
+          firegroupIndex: 0,
+          firemodeIndex: 1,
+        }
+      );
+
+      this.sendDataToAllOthersWithSpawnedEntity(
+        this._characters,
+        client,
+        client.character.characterId,
+        "Character.WeaponStance",
+        {
+          characterId: client.character.characterId,
+          stance: client.character.positionUpdate?.stance,
+        }
+      );
+    }
   }
 
   /**
@@ -6535,6 +6555,16 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefId: item.itemDefinitionId,
       count: count,
     });
+    if (dropItem && dropItem.weapon) {
+      const ammo = this.generateItem(
+        this.getWeaponAmmoId(dropItem.itemDefinitionId),
+        dropItem.weapon.ammoCount
+      );
+      if (ammo && dropItem.weapon.ammoCount > 0) {
+        client.character.lootContainerItem(this, ammo, ammo.stackCount, true);
+      }
+      dropItem.weapon.ammoCount = 0;
+    }
     const obj = this.worldObjectManager.createLootEntity(
       this,
       dropItem,
@@ -6556,13 +6586,6 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         c.spawnedEntities.push(obj);
         this.addLightweightNpc(c, obj);
-        this.sendData(c, "Replication.InteractionComponent", {
-          transientId: obj.transientId,
-        });
-        this.sendData(c, "Replication.NpcComponent", {
-          transientId: obj.transientId,
-          nameId: obj.nameId,
-        });
       }
     }
   }
