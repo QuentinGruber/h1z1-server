@@ -39,6 +39,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   loadoutId = 5;
   itemDefinitionId: number;
   damageRange: number = 1.5;
+  interactionDistance = 3;
   subEntity?: SmeltingEntity | CollectingEntity;
   constructor(
     characterId: string,
@@ -64,6 +65,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       this.npcRenderDistance = 250;
     } else if (subEntityType === "CollectingEntity") {
       this.subEntity = new CollectingEntity(this, server);
+      this.interactionDistance = 5;
       this.npcRenderDistance = 20; //this.npcRenderDistance = 250;
     } else {
       this.npcRenderDistance = 20;
@@ -110,7 +112,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
 
   destroy(server: ZoneServer2016, destructTime = 0) {
-    server.deleteEntity(
+    const deleted = server.deleteEntity(
       this.characterId,
       server._lootableConstruction[this.characterId]
         ? server._lootableConstruction
@@ -134,6 +136,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
         }
       }
     }
+    return deleted;
   }
 
   getHasPermission(

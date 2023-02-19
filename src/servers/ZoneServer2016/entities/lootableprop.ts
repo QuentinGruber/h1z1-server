@@ -204,4 +204,8 @@ export class LootableProp extends BaseLootableEntity {
       });
     }
   }
+
+  destroy(server: ZoneServer2016) {
+    return server.deleteEntity(this.characterId, server._lootableProps);
+  }
 }

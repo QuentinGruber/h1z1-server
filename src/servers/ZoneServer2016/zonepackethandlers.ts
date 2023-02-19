@@ -43,12 +43,13 @@ import {
   LoadoutSlots,
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
+import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./commands/commandhandler";
 import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
-import { Ban, ConstructionPermissions } from "types/zoneserver";
+import { Ban, ConstructionPermissions, DamageInfo } from "types/zoneserver";
 import { GameTimeSync } from "types/zone2016packets";
 import { LootableProp } from "./entities/lootableprop";
 import { Vehicle2016 } from "./entities/vehicle";
@@ -57,6 +58,7 @@ import { ConstructionChildEntity } from "./entities/constructionchildentity";
 import { Collection } from "mongodb";
 import { DB_COLLECTIONS } from "../../utils/enums";
 import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
+import { Character2016 } from "./entities/character";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -412,7 +414,8 @@ export class zonePacketHandlers {
     }
     if (
       packet.data.file === "ClientProc.log" &&
-      !client.clientLogs.includes(packet.data.message)
+      !client.clientLogs.includes(packet.data.message) &&
+      !client.isAdmin
     ) {
       const suspicious = [
         "cheatengine",
@@ -420,7 +423,6 @@ export class zonePacketHandlers {
         "cosmos",
         "wemod",
         "injector",
-        "visual",
         "ida.exe",
         "ida64",
         "ida32",
@@ -429,7 +431,6 @@ export class zonePacketHandlers {
         "javaw.exe", // seems like the only way to track ghidra open?
         "codebrowser",
         "processhacker",
-        "visual studio",
         "devenv.exe",
         "code.exe",
       ];
@@ -449,6 +450,7 @@ export class zonePacketHandlers {
             `FairPlay: ${client.character.name} is using suspicious software - ${suspicious[x]}`,
             false
           );
+          break;
         }
       }
       client.clientLogs.push(obj);
@@ -641,7 +643,12 @@ export class zonePacketHandlers {
     const characterId: string = server._transientIds[packet.data.transientId],
       vehicle = characterId ? server._vehicles[characterId] : undefined;
 
-    if (!vehicle) return;
+    if (!vehicle) {
+      const pos = packet.data.positionUpdate.position;
+      if (client.character.isSpectator && pos)
+        client.character.state.position = pos;
+      return;
+    }
 
     //if (!server._soloMode) {
     server.sendDataToAllOthersWithSpawnedEntity(
@@ -783,11 +790,7 @@ export class zonePacketHandlers {
       if (!client.characterReleased) {
         client.characterReleased = true;
       }
-      server.speedFairPlayCheck(
-        client,
-        packet.data.sequenceTime,
-        packet.data.position
-      );
+      server.speedFairPlayCheck(client, Date.now(), packet.data.position);
       client.character.state.position = new Float32Array([
         packet.data.position[0],
         packet.data.position[1],
@@ -861,6 +864,22 @@ export class zonePacketHandlers {
       packet
     );
   }
+  SpectatorTP(server: ZoneServer2016, client: Client, packet: any) {
+    server.sendData(client, "ClientUpdate.UpdateLocation", {
+      position: [packet.data.x, 355, packet.data.y, 1],
+      triggerLoadingScreen: false,
+    });
+    server.sendData(client, "ClientUpdate.UpdateManagedLocation", {
+      characterId: server.observerVehicleGuid,
+      position: [
+        packet.data.x,
+        client.character.state.position[1],
+        packet.data.y,
+        1,
+      ],
+      triggerLoadingScreen: false,
+    });
+  }
   CharacterFullCharacterDataRequest(
     server: ZoneServer2016,
     client: Client,
@@ -895,6 +914,12 @@ export class zonePacketHandlers {
       !doorEntity.grantedAccess.includes(client.character.characterId)
     ) {
       doorEntity.grantedAccess.push(client.character.characterId);
+    } else {
+      const damageInfo: DamageInfo = {
+        entity: "",
+        damage: 1000,
+      };
+      client.character.damage(server, damageInfo);
     }
   }
   MountDismountRequest(server: ZoneServer2016, client: Client, packet: any) {
@@ -946,6 +971,22 @@ export class zonePacketHandlers {
 
     client.character.currentInteractionGuid = packet.data.guid;
     client.character.lastInteractionTime = Date.now();
+    if (entity instanceof BaseLightweightCharacter) {
+      server.sendData(client, "Replication.NpcComponent", {
+        transientId: entity.transientId,
+        nameId: entity.nameId,
+      });
+      if (
+        !(
+          entity instanceof ConstructionParentEntity ||
+          entity instanceof ConstructionChildEntity
+        )
+      ) {
+        server.sendData(client, "Replication.InteractionComponent", {
+          transientId: entity.transientId,
+        });
+      }
+    }
     entity.OnInteractionString(server, client);
   }
   MountSeatChangeRequest(server: ZoneServer2016, client: Client, packet: any) {
@@ -1044,6 +1085,13 @@ export class zonePacketHandlers {
         stance: packet.data.stance,
       }
     );
+  }
+  CommandRedeploy(server: ZoneServer2016, client: Client, packet: any) {
+    const damageInfo: DamageInfo = {
+      entity: "",
+      damage: 0,
+    };
+    server.killCharacter(client, damageInfo);
   }
   FirstTimeEventInventoryAccess(
     server: ZoneServer2016,
@@ -1240,6 +1288,21 @@ export class zonePacketHandlers {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
+          if (item.weapon) {
+            const ammo = server.generateItem(
+              server.getWeaponAmmoId(item.itemDefinitionId),
+              item.weapon.ammoCount
+            );
+            if (ammo && item.weapon.ammoCount > 0) {
+              client.character.lootContainerItem(
+                server,
+                ammo,
+                ammo.stackCount,
+                true
+              );
+            }
+            item.weapon.ammoCount = 0;
+          }
           if (targetContainer) {
             // to container
             sourceContainer.transferItem(
@@ -1288,6 +1351,21 @@ export class zonePacketHandlers {
             if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
+            }
+            if (loadoutItem.weapon) {
+              const ammo = server.generateItem(
+                server.getWeaponAmmoId(loadoutItem.itemDefinitionId),
+                loadoutItem.weapon.ammoCount
+              );
+              if (ammo && loadoutItem.weapon.ammoCount > 0) {
+                client.character.lootContainerItem(
+                  server,
+                  ammo,
+                  ammo.stackCount,
+                  true
+                );
+              }
+              loadoutItem.weapon.ammoCount = 0;
             }
             server.addContainerItem(
               client.character,
@@ -1357,6 +1435,7 @@ export class zonePacketHandlers {
       return;
     }
     const obj: ConstructionPermissions = foundation.permissions[characterId];
+    if (!obj) return;
     switch (packet.data.permissionSlot) {
       case 1:
         obj.build = !obj.build;
@@ -1495,7 +1574,6 @@ export class zonePacketHandlers {
       if (!weaponItem || !weaponItem.weapon) return;
       switch (p.packetName) {
         case "Weapon.FireStateUpdate":
-          debug("Weapon.FireStateUpdate");
           // wrench workaround
           if (
             weaponItem.itemDefinitionId == Items.WEAPON_WRENCH &&
@@ -1803,47 +1881,24 @@ export class zonePacketHandlers {
           if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
             if (!client.isAdmin) return;
             const characterId = p.packet.hitReport.characterId,
-              entityType = server.getEntityType(characterId);
-            switch (entityType) {
-              case EntityTypes.NPC:
-                if (!server._npcs[characterId]) {
-                  return;
-                }
-                server.deleteEntity(characterId, server._npcs);
-                break;
-              case EntityTypes.VEHICLE:
-                const vehicle = server._vehicles[characterId];
-                if (!vehicle) return;
-                vehicle.destroy(server, true);
-                break;
-              case EntityTypes.OBJECT:
-                const object = server._spawnedItems[characterId];
-                if (!object) return;
-                object.destroy(server);
-                break;
-              case EntityTypes.EXPLOSIVE:
-                server.deleteEntity(characterId, server._explosives);
-                break;
-              case EntityTypes.TRAP:
-                server.deleteEntity(characterId, server._traps);
-                break;
-              case EntityTypes.CONSTRUCTION_DOOR:
-              case EntityTypes.CONSTRUCTION_SIMPLE:
-              case EntityTypes.CONSTRUCTION_FOUNDATION:
-              case EntityTypes.LOOTABLE_CONSTRUCTION:
-                const entity = server.getConstructionEntity(characterId);
-                if (!entity) return;
-                entity.destroy(server);
-                break;
-              default:
-                return;
+              entity = server.getEntity(characterId);
+            if (!entity) {
+              server.sendAlert(client, "Entity is undefined!");
+              return;
             }
-            server.sendAlert(client, "Object removed.");
+            if (entity instanceof Character2016) return;
+            if (entity instanceof Vehicle2016) {
+              if (!entity.destroy(server, true)) return;
+              server.sendAlert(client, "Object removed.");
+              return;
+            }
+            if (entity.destroy(server)) {
+              server.sendAlert(client, "Object removed.");
+            }
             return;
           }
           if (client.banType === "nodamage") return;
           server.registerHit(client, p.packet);
-          debug("Weapon.ProjectileHitReport");
           break;
         case "Weapon.ReloadRequest":
           if (weaponItem.weapon.reloadTimer) return;
@@ -1984,14 +2039,11 @@ export class zonePacketHandlers {
             );
             client.character.clearReloadTimeout();
           }, reloadTime);
-
-          debug("Weapon.ReloadRequest");
           break;
         case "Weapon.ReloadInterrupt":
           server.reloadInterrupt(client, weaponItem);
           break;
         case "Weapon.SwitchFireModeRequest":
-          debug("SwitchFireModeRequest");
           // workaround so aiming in doesn't sometimes make the shooting sound
           if (!weaponItem.weapon?.ammoCount) return;
 
@@ -2031,11 +2083,9 @@ export class zonePacketHandlers {
               aimBlocked: p.packet.aimBlocked,
             }
           );
-          debug("AimBlockedNotify");
           break;
         case "Weapon.ProjectileSpawnNpc":
           server.createProjectileNpc(client, p.packet);
-          debug("Weapon.ProjectileSpawnNpc");
           break;
         case "Weapon.ProjectileSpawnAttachedNpc":
           debug("Weapon.ProjectileSpawnAttachedNpc");
@@ -2209,6 +2259,9 @@ export class zonePacketHandlers {
       case "Character.Respawn":
         this.CharacterRespawn(server, client, packet);
         break;
+      case "SpectatorTP":
+        this.SpectatorTP(server, client, packet);
+        break;
       case "Character.FullCharacterDataRequest":
         this.CharacterFullCharacterDataRequest(server, client, packet);
         break;
@@ -2232,6 +2285,9 @@ export class zonePacketHandlers {
         break;
       case "Character.WeaponStance":
         this.CharacterWeaponStance(server, client, packet);
+        break;
+      case "Command.Redeploy":
+        this.CommandRedeploy(server, client, packet);
         break;
       case "FirstTimeEvent.Unknown1":
         this.FirstTimeEventInventoryAccess(server, client, packet);

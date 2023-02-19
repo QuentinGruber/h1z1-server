@@ -274,6 +274,7 @@ export class ZoneServer2016 extends EventEmitter {
   private _isSaving: boolean = false;
   saveTimeInterval: number = 600000;
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
+  observerVehicleGuid: string = "0xFAFAFAFAFAFAFAFA";
 
   constructor(
     serverPort: number,
@@ -361,6 +362,7 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
         this._clients[client.sessionId] = zoneClient;
+        zoneClient.sendLightWeightQueue(this);
         this._characters[characterId] = zoneClient.character;
         zoneClient.pingTimer = setTimeout(() => {
           this.timeoutClient(zoneClient);
@@ -1391,7 +1393,7 @@ export class ZoneServer2016 extends EventEmitter {
         lowerRenderDistance = true;
       }
     }
-    client.chunkRenderDistance = lowerRenderDistance ? 250 : 350;
+    client.chunkRenderDistance = lowerRenderDistance ? 350 : 500;
   }
 
   private worldRoutine() {
@@ -1533,7 +1535,6 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client.character.isAlive) return;
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
       return;
-
     const weapon = client.character.getEquippedWeapon();
     if (weapon && weapon.weapon) {
       this.sendRemoteWeaponUpdateDataToAllOthers(
@@ -1655,8 +1656,27 @@ export class ZoneServer2016 extends EventEmitter {
         };
       }
     } else {
+      Object.values(client.character._loadout).forEach((slot: LoadoutItem) => {
+        // need to find a better way later, if out of bulk ammo will be outside of lootbag
+        if (slot.weapon) {
+          const ammo = this.generateItem(
+            this.getWeaponAmmoId(slot.itemDefinitionId),
+            slot.weapon.ammoCount
+          );
+          if (ammo && slot.weapon.ammoCount > 0) {
+            client.character.lootContainerItem(
+              this,
+              ammo,
+              ammo.stackCount,
+              true
+            );
+          }
+          slot.weapon.ammoCount = 0;
+        }
+      });
       this.worldObjectManager.createLootbag(this, character);
     }
+    this.clearInventory(client, false);
 
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
   }
@@ -1940,7 +1960,10 @@ export class ZoneServer2016 extends EventEmitter {
           parentFoundation?.itemDefinitionId == Items.SHACK_SMALL
         )
           return false;
-        if (parentFoundation?.itemDefinitionId == Items.FOUNDATION) {
+        if (
+          parentFoundation?.itemDefinitionId == Items.FOUNDATION ||
+          parentFoundation?.itemDefinitionId == Items.GROUND_TAMPER
+        ) {
           if (
             doors.includes(construction.itemDefinitionId) &&
             parent &&
@@ -2080,15 +2103,17 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     setTimeout(() => {
-      this.sendDataToAllWithSpawnedEntity(
-        dictionary,
-        constructionCharId,
-        "Command.PlayDialogEffect",
-        {
-          characterId: constructionCharId,
-          effectId: 0,
-        }
-      );
+      if (dictionary[constructionCharId]) {
+        this.sendDataToAllWithSpawnedEntity(
+          dictionary,
+          constructionCharId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: constructionCharId,
+            effectId: 0,
+          }
+        );
+      }
     }, 15000);
     if (constructionObject.health > 0) return;
 
@@ -2164,8 +2189,6 @@ export class ZoneServer2016 extends EventEmitter {
         ]),
       });
     }
-
-    this.clearInventory(client);
     client.character.equipLoadout(this);
     client.character.state.position = cell.spawnPoints[randomSpawnIndex];
     this.updateResource(
@@ -2198,6 +2221,11 @@ export class ZoneServer2016 extends EventEmitter {
       client.character._resources[ResourceIds.BLEEDING],
       ResourceIds.BLEEDING
     );
+
+    Object.values(client.character._equipment).forEach((equipmentSlot) => {
+      this.clearEquipmentSlot(client, equipmentSlot.slotId, false);
+    });
+    client.character.updateEquipment(this);
 
     // fixes characters showing up as dead if they respawn close to other characters
     if (client.character.initialized) {
@@ -2367,6 +2395,10 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }
       this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+      this.sendChatTextToAdmins(
+        `FairPlay: ${client.character.name} has been kicking for speed hacking: ${speed} m/s at position [${position[0]} ${position[1]} ${position[2]}]`,
+        false
+      );
     }
     client.oldPos = { position: position, time: sequenceTime };
   }
@@ -2938,7 +2970,7 @@ export class ZoneServer2016 extends EventEmitter {
       return !objectsToRemove.includes(el);
     });
     objectsToRemove.forEach((object: any) => {
-      this.sendData(client, "Character.RemovePlayer", {
+      this.addLightWeightNpcQueue(client, "Character.RemovePlayer", {
         characterId: object.characterId,
       });
     });
@@ -2955,7 +2987,8 @@ export class ZoneServer2016 extends EventEmitter {
     dictionary: any,
     effectId?: number,
     timeToDisappear?: number
-  ) {
+  ): boolean {
+    if (!dictionary[characterId]) return false;
     this.sendDataToAllWithSpawnedEntity(
       dictionary,
       characterId,
@@ -2976,6 +3009,7 @@ export class ZoneServer2016 extends EventEmitter {
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
     delete this._characterIds[characterId];
+    return true;
   }
 
   sendManagedObjectResponseControlPacket(client: Client, obj: zone2016packets) {
@@ -2987,13 +3021,13 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseLightweightCharacter,
     nameId = 0
   ) {
-    this.sendData(client, "AddLightweightNpc", {
+    this.addLightWeightNpcQueue(client, "AddLightweightNpc", {
       ...entity.pGetLightweight(),
       nameId,
     });
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
-    this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
+    this.addLightWeightNpcQueue(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
   checkFoundationPermission(
@@ -3253,10 +3287,6 @@ export class ZoneServer2016 extends EventEmitter {
         entity,
         this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
       );
-      this.sendData(client, "Replication.NpcComponent", {
-        transientId: entity.transientId,
-        nameId: entity.nameId,
-      });
       client.spawnedEntities.push(entity);
       if (
         entity.itemDefinitionId == Items.SHACK ||
@@ -3286,13 +3316,6 @@ export class ZoneServer2016 extends EventEmitter {
       entity,
       this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
     );
-    this.sendData(client, "Replication.InteractionComponent", {
-      transientId: entity.transientId,
-    });
-    this.sendData(client, "Replication.NpcComponent", {
-      transientId: entity.transientId,
-      nameId: entity.nameId,
-    });
     client.spawnedEntities.push(entity);
     this.updateResource(
       client,
@@ -3302,7 +3325,7 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceTypes.CONDITION
     );
     if (entity.isOpen) {
-      this.sendData(client, "PlayerUpdatePosition", {
+      this.addLightWeightNpcQueue(client, "PlayerUpdatePosition", {
         transientId: entity.transientId,
         positionUpdate: {
           sequenceTime: 0,
@@ -3325,10 +3348,6 @@ export class ZoneServer2016 extends EventEmitter {
         entity,
         this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
       );
-      this.sendData(client, "Replication.NpcComponent", {
-        transientId: entity.transientId,
-        nameId: entity.nameId,
-      });
       client.spawnedEntities.push(entity);
       this.updateResource(
         client,
@@ -3357,13 +3376,6 @@ export class ZoneServer2016 extends EventEmitter {
       entity,
       this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
     );
-    this.sendData(client, "Replication.InteractionComponent", {
-      transientId: entity.transientId,
-    });
-    this.sendData(client, "Replication.NpcComponent", {
-      transientId: entity.transientId,
-      nameId: entity.nameId,
-    });
     this.updateResource(
       client,
       entity.characterId,
@@ -3635,18 +3647,9 @@ export class ZoneServer2016 extends EventEmitter {
         client.spawnedEntities.push(object);
         if (object instanceof BaseLightweightCharacter) {
           this.addLightweightNpc(client, object);
-          if (typeof object.OnInteractionString !== "undefined") {
-            this.sendData(client, "Replication.InteractionComponent", {
-              transientId: object.transientId,
-            });
-            this.sendData(client, "Replication.NpcComponent", {
-              transientId: object.transientId,
-              nameId: object.nameId,
-            });
-          }
           if (object instanceof DoorEntity) {
             if (object.isOpen) {
-              this.sendData(client, "PlayerUpdatePosition", {
+              this.addLightWeightNpcQueue(client, "PlayerUpdatePosition", {
                 transientId: object.transientId,
                 positionUpdate: {
                   sequenceTime: 0,
@@ -3753,6 +3756,14 @@ export class ZoneServer2016 extends EventEmitter {
     obj: zone2016packets
   ) {
     this._sendData(client, packetName, obj, false);
+  }
+
+  addLightWeightNpcQueue(
+    client: Client,
+    packetName: h1z1PacketsType2016,
+    obj: zone2016packets
+  ) {
+    client.lightWeightNpcQueue.push({ packetName: packetName, data: obj });
   }
 
   sendWeaponData(
@@ -4017,6 +4028,19 @@ export class ZoneServer2016 extends EventEmitter {
                 timestamp
               )}`
         );
+        this.sendAlertToAll(
+          reason
+            ? `${
+                client.character.name
+              } HAS BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
+                timestamp
+              )}. REASON: ${reason}`
+            : `${
+                client.character.name
+              } HAS BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
+                timestamp
+              )}`
+        );
       } else {
         this.sendAlert(
           client,
@@ -4026,8 +4050,8 @@ export class ZoneServer2016 extends EventEmitter {
         );
         this.sendAlertToAll(
           reason
-            ? `${client.character.name} has been Banned from the server! Reason: ${reason}`
-            : `${client.character.name} has been Banned from the server!`
+            ? `${client.character.name} HAS BEEN BANNED FROM THE SERVER! REASON: ${reason}`
+            : `${client.character.name} HAS BEEN BANNED FROM THE SERVER!`
         );
       }
       setTimeout(() => {
@@ -4084,18 +4108,18 @@ export class ZoneServer2016 extends EventEmitter {
 
   getDateString(timestamp: number) {
     const months = [
-      "Jan",
-      "Feb",
-      "Mar",
-      "Apr",
-      "May",
-      "Jun",
-      "Jul",
-      "Aug",
-      "Sep",
-      "Oct",
-      "Nov",
-      "Dec",
+      "JAN",
+      "FEB",
+      "MAR",
+      "APR",
+      "MAY",
+      "JUN",
+      "JUL",
+      "AUG",
+      "SEP",
+      "OCT",
+      "NOV",
+      "DEC",
     ];
     const date = new Date(timestamp);
     return `${date.getDate()} ${
@@ -4167,17 +4191,10 @@ export class ZoneServer2016 extends EventEmitter {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
           });
-          this.sendData(client, "Replication.InteractionComponent", {
-            transientId: vehicle.transientId,
-          });
-          this.sendData(client, "Replication.NpcComponent", {
-            transientId: vehicle.transientId,
-            nameId: vehicle.nameId,
-          });
-          this.sendData(client, "Vehicle.OwnerPassengerList", {
+          /*this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
             passengers: vehicle.pGetPassengers(this),
-          });
+          });*/
           client.spawnedEntities.push(vehicle);
         }
         // disable managing vehicles with routine, leaving only managind when entering it
@@ -4442,7 +4459,14 @@ export class ZoneServer2016 extends EventEmitter {
     let isInsidePermissionedFoundation = false;
     for (const a in this._constructionFoundations) {
       const iteratedFoundation = this._constructionFoundations[a];
-      if (iteratedFoundation.bounds) {
+      if (
+        iteratedFoundation.bounds &&
+        iteratedFoundation.getHasPermission(
+          this,
+          client.character.characterId,
+          ConstructionPermissionIds.BUILD
+        )
+      ) {
         if (
           iteratedFoundation.isInside(position) ||
           (iteratedFoundation.characterId == parentObjectCharacterId &&
@@ -4450,14 +4474,44 @@ export class ZoneServer2016 extends EventEmitter {
         )
           isInsidePermissionedFoundation = true;
       }
+      for (const c in iteratedFoundation.occupiedWallSlots) {
+        const wall = iteratedFoundation.occupiedWallSlots[c];
+        if (wall instanceof ConstructionDoor) continue;
+        if (
+          wall.characterId == parentObjectCharacterId &&
+          isPosInRadius(
+            1,
+            wall.fixedPosition ? wall.fixedPosition : wall.state.position,
+            position
+          )
+        ) {
+          isInsidePermissionedFoundation = true;
+        }
+      }
       for (const b in iteratedFoundation.occupiedShelterSlots) {
         const shelter = iteratedFoundation.occupiedShelterSlots[b];
         if (
           (shelter.characterId == parentObjectCharacterId &&
-            isPosInRadius(20, iteratedFoundation.state.position, position)) ||
+            isPosInRadius(
+              10,
+              shelter.fixedPosition
+                ? shelter.fixedPosition
+                : shelter.state.position,
+              position
+            )) ||
           (shelter.bounds && shelter.isInside(position))
         ) {
           isInsidePermissionedFoundation = true;
+        }
+        for (const b in shelter.occupiedShelterSlots) {
+          const upperShelter = shelter.occupiedShelterSlots[b];
+          if (
+            (upperShelter.characterId == parentObjectCharacterId &&
+              isPosInRadius(10, upperShelter.state.position, position)) ||
+            (upperShelter.bounds && upperShelter.isInside(position))
+          ) {
+            isInsidePermissionedFoundation = true;
+          }
         }
       }
     }
@@ -4520,7 +4574,11 @@ export class ZoneServer2016 extends EventEmitter {
     spawnLocations2.forEach((point: Float32Array) => {
       if (isPosInRadius(25, position, point)) isInSpawnPoint = true;
     });
-    if (isInSpawnPoint && !isInsidePermissionedFoundation) {
+    if (
+      isInSpawnPoint &&
+      !isInsidePermissionedFoundation &&
+      !allowedItems.includes(itemDefinitionId)
+    ) {
       this.sendData(client, "Construction.PlacementFinalizeResponse", {
         status: 0,
         unknownString1: "",
@@ -4537,7 +4595,11 @@ export class ZoneServer2016 extends EventEmitter {
       if (isPosInRadius(30, position, vehicleSpawn.position))
         isInVehicleSpawnPoint = true;
     });
-    if (isInVehicleSpawnPoint && !isInsidePermissionedFoundation) {
+    if (
+      isInVehicleSpawnPoint &&
+      !isInsidePermissionedFoundation &&
+      !allowedItems.includes(itemDefinitionId)
+    ) {
       this.sendData(client, "Construction.PlacementFinalizeResponse", {
         status: 0,
         unknownString1: "",
@@ -5470,11 +5532,11 @@ export class ZoneServer2016 extends EventEmitter {
       client.hudTimer = null;
     }
     client.character.isRunning = false; // maybe some async stuff make this useless need to test that
-    client.vehicle.mountedVehicle = vehicle.characterId;
     const seatId = vehicle.getNextSeatId(this),
       seat = vehicle.seats[seatId],
       passenger = this._characters[seat];
     if (seatId < 0) return; // no available seats in vehicle
+    client.vehicle.mountedVehicle = vehicle.characterId;
     if (passenger) {
       // dismount the driver
       const client = this.getClientByCharId(passenger.characterId);
@@ -5536,27 +5598,22 @@ export class ZoneServer2016 extends EventEmitter {
           }, 3000);
         }
       }
-      this.sendDataToAllWithSpawnedEntity(
-        this._characters,
-        client.character.characterId,
-        "Vehicle.Owner",
-        {
-          guid: vehicle.characterId,
-          characterId: client.character.characterId,
-          unknownDword1: 0,
-          vehicleId: vehicle.vehicleId,
-          passengers: [
-            {
-              characterId: client.character.characterId,
-              identity: {
-                characterName: client.character.name,
-              },
-              unknownString1: "",
-              unknownByte1: 1,
+      this.sendData(client, "Vehicle.Owner", {
+        guid: vehicle.characterId,
+        characterId: client.character.characterId,
+        unknownDword1: 0,
+        vehicleId: vehicle.vehicleId,
+        passengers: [
+          {
+            characterId: client.character.characterId,
+            identity: {
+              characterName: client.character.name,
             },
-          ],
-        }
-      );
+            unknownString1: "",
+            unknownByte1: 1,
+          },
+        ],
+      });
 
       if (vehicle.getContainer()) {
         client.character.mountContainer(this, vehicle);
@@ -5640,6 +5697,9 @@ export class ZoneServer2016 extends EventEmitter {
     const vehicle = this._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) {
       // return if vehicle doesnt exist
+      console.log(
+        `Error: ${client.character.name} exited non existing vehicle`
+      );
       this.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
       });
@@ -5647,7 +5707,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
     const seatId = vehicle.getCharacterSeat(client.character.characterId);
     client.character.vehicleExitDate = new Date().getTime();
-    if (!seatId) return;
+    if (!seatId) {
+      console.log(
+        `Error: ${client.character.name} exited vehicle with no seatId set`
+      );
+      return;
+    }
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
@@ -5657,8 +5722,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
     vehicle.seats[seatId] = "";
     this.sendDataToAllWithSpawnedEntity(
-      this._vehicles,
-      client.vehicle.mountedVehicle,
+      this._characters,
+      client.character.characterId,
       "Mount.DismountResponse",
       {
         characterId: client.character.characterId,
@@ -5693,24 +5758,15 @@ export class ZoneServer2016 extends EventEmitter {
       unknownArray2: [],
     });
     this.sendDataToAllWithSpawnedEntity(
-      this._characters,
-      client.character.characterId,
+      this._vehicles,
+      vehicle.characterId,
       "Vehicle.Owner",
       {
         guid: vehicle.characterId,
-        characterId: client.character.characterId,
+        characterId: "",
         unknownDword1: 0,
         vehicleId: 0,
-        passengers: [
-          {
-            characterId: client.character.characterId,
-            identity: {
-              characterName: client.character.name,
-            },
-            unknownString1: "",
-            unknownByte1: 1,
-          },
-        ],
+        passengers: [],
       }
     );
     client.character.dismountContainer(this);
@@ -6211,6 +6267,29 @@ export class ZoneServer2016 extends EventEmitter {
       oldLoadoutSlot
     );
     if (loadoutItem.weapon) loadoutItem.weapon.currentReloadCount = 0;
+    if (this.isWeapon(loadoutItem.itemDefinitionId)) {
+      this.sendRemoteWeaponUpdateDataToAllOthers(
+        client,
+        client.character.transientId,
+        loadoutItem.itemGuid,
+        "Update.SwitchFireMode",
+        {
+          firegroupIndex: 0,
+          firemodeIndex: 1,
+        }
+      );
+
+      this.sendDataToAllOthersWithSpawnedEntity(
+        this._characters,
+        client,
+        client.character.characterId,
+        "Character.WeaponStance",
+        {
+          characterId: client.character.characterId,
+          stance: client.character.positionUpdate?.stance,
+        }
+      );
+    }
   }
 
   /**
@@ -6219,10 +6298,14 @@ export class ZoneServer2016 extends EventEmitter {
    * @param equipmentSlotId The equipment slot to clear.
    * @returns Returns true if the slot was cleared, false if the slot is invalid.
    */
-  clearEquipmentSlot(client: Client, equipmentSlotId: number): boolean {
+  clearEquipmentSlot(
+    client: Client,
+    equipmentSlotId: number,
+    sendPacket = true
+  ): boolean {
     if (!equipmentSlotId) return false;
     delete client.character._equipment[equipmentSlotId];
-    if (client.character.initialized) {
+    if (client.character.initialized && sendPacket) {
       this.sendDataToAllWithSpawnedEntity(
         this._characters,
         client.character.characterId,
@@ -6251,7 +6334,11 @@ export class ZoneServer2016 extends EventEmitter {
    * @param loadoutSlotId The loadout slot containing the item to remove.
    * @returns Returns true if the item was successfully removed, false if there was an error.
    */
-  removeLoadoutItem(client: Client, loadoutSlotId: number): boolean {
+  removeLoadoutItem(
+    client: Client,
+    loadoutSlotId: number,
+    updateEquipment: boolean = true
+  ): boolean {
     const item = client.character._loadout[loadoutSlotId],
       itemDefId = item?.itemDefinitionId; // save before item gets deleted
 
@@ -6270,10 +6357,12 @@ export class ZoneServer2016 extends EventEmitter {
     this.deleteItem(client, item.itemGuid);
     delete client.character._loadout[loadoutSlotId];
     client.character.updateLoadout(this);
-    this.clearEquipmentSlot(
-      client,
-      client.character.getActiveEquipmentSlot(item)
-    );
+    if (updateEquipment) {
+      this.clearEquipmentSlot(
+        client,
+        client.character.getActiveEquipmentSlot(item)
+      );
+    }
     this.checkConveys(client);
     if (this.getItemDefinition(itemDefId).ITEM_TYPE === 34) {
       delete client.character._containers[loadoutSlotId];
@@ -6339,7 +6428,8 @@ export class ZoneServer2016 extends EventEmitter {
   removeInventoryItem(
     client: Client,
     item: BaseItem,
-    count: number = 1
+    count: number = 1,
+    updateEquipment: boolean = true
   ): boolean {
     item.debugFlag = "removeInventoryItem";
     if (count > item.stackCount) {
@@ -6363,7 +6453,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     if (client.character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
-      return this.removeLoadoutItem(client, item.slotId);
+      return this.removeLoadoutItem(client, item.slotId, updateEquipment);
     } else {
       return this.removeContainerItem(
         client.character,
@@ -6462,6 +6552,16 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefId: item.itemDefinitionId,
       count: count,
     });
+    if (dropItem && dropItem.weapon) {
+      const ammo = this.generateItem(
+        this.getWeaponAmmoId(dropItem.itemDefinitionId),
+        dropItem.weapon.ammoCount
+      );
+      if (ammo && dropItem.weapon.ammoCount > 0) {
+        client.character.lootContainerItem(this, ammo, ammo.stackCount, true);
+      }
+      dropItem.weapon.ammoCount = 0;
+    }
     const obj = this.worldObjectManager.createLootEntity(
       this,
       dropItem,
@@ -6470,14 +6570,21 @@ export class ZoneServer2016 extends EventEmitter {
     );
 
     if (!obj) return;
-    this.addLightweightNpc(client, obj);
-    this.sendData(client, "Replication.InteractionComponent", {
-      transientId: obj.transientId,
-    });
-    this.sendData(client, "Replication.NpcComponent", {
-      transientId: obj.transientId,
-      nameId: obj.nameId,
-    });
+    for (const a in this._clients) {
+      const c = this._clients[a];
+      if (
+        isPosInRadius(
+          obj.npcRenderDistance
+            ? obj.npcRenderDistance
+            : this._charactersRenderDistance,
+          obj.state.position,
+          c.character.state.position
+        )
+      ) {
+        c.spawnedEntities.push(obj);
+        this.addLightweightNpc(c, obj);
+      }
+    }
   }
 
   pickupItem(client: Client, guid: string) {
@@ -6612,7 +6719,7 @@ export class ZoneServer2016 extends EventEmitter {
    * Clears all items from a character's inventory.
    * @param client The client that'll have it's character's inventory cleared.
    */
-  clearInventory(client: Client) {
+  clearInventory(client: Client, updateEquipment = true) {
     for (const item of Object.values(client.character._loadout)) {
       if (client.character._containers[item.slotId]) {
         const container = client.character._containers[item.slotId];
@@ -6621,7 +6728,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
       if (item.slotId != LoadoutSlots.FISTS && item.itemDefinitionId) {
-        this.removeInventoryItem(client, item, item.stackCount);
+        this.removeInventoryItem(
+          client,
+          item,
+          item.stackCount,
+          updateEquipment
+        );
       }
     }
   }
@@ -6906,7 +7018,7 @@ export class ZoneServer2016 extends EventEmitter {
   salvageAmmo(client: Client, item: BaseItem) {
     const itemDefinition = this.getItemDefinition(item.itemDefinitionId),
       nameId = itemDefinition.NAME_ID;
-    const timeout = 2000;
+    const timeout = 1000;
     const allowedItems = [
       Items.AMMO_12GA,
       Items.AMMO_223,
@@ -6928,13 +7040,13 @@ export class ZoneServer2016 extends EventEmitter {
       !checkConstructionInRange(
         this._constructionSimple,
         client.character.state.position,
-        1.5,
+        3,
         Items.WORKBENCH_WEAPON
       ) &&
       !checkConstructionInRange(
         this._worldSimpleConstruction,
         client.character.state.position,
-        1.5,
+        3,
         Items.WORKBENCH_WEAPON
       )
     ) {
@@ -7056,7 +7168,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
           if (smeltable.subEntity instanceof SmeltingEntity) {
-            if (smeltable.subEntity.isWorking) return;
+            if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
@@ -7084,7 +7196,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         if (smeltable instanceof LootableConstructionEntity) {
           if (smeltable.subEntity instanceof SmeltingEntity) {
-            if (smeltable.subEntity.isWorking) return;
+            if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
@@ -7463,6 +7575,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkZonePing(client: Client) {
+    if (client.isAdmin) return;
     if (Number(client.character.lastLoginDate) + 30000 > new Date().getTime())
       return;
     const soeClient = this.getSoeClient(client.soeClientId);
