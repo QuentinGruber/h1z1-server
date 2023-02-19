@@ -1085,6 +1085,13 @@ export class zonePacketHandlers {
       }
     );
   }
+  CommandRedeploy(server: ZoneServer2016, client: Client, packet: any) {
+    const damageInfo: DamageInfo = {
+      entity: "",
+      damage: 0,
+    };
+    server.killCharacter(client, damageInfo);
+  }
   FirstTimeEventInventoryAccess(
     server: ZoneServer2016,
     client: Client,
@@ -2246,6 +2253,9 @@ export class zonePacketHandlers {
         break;
       case "Character.WeaponStance":
         this.CharacterWeaponStance(server, client, packet);
+        break;
+      case "Command.Redeploy":
+        this.CommandRedeploy(server, client, packet);
         break;
       case "FirstTimeEvent.Unknown1":
         this.FirstTimeEventInventoryAccess(server, client, packet);
