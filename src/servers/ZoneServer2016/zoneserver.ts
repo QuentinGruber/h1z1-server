@@ -274,6 +274,7 @@ export class ZoneServer2016 extends EventEmitter {
   private _isSaving: boolean = false;
   saveTimeInterval: number = 600000;
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
+  observerVehicleGuid: string = "0xFAFAFAFAFAFAFAFA";
 
   constructor(
     serverPort: number,

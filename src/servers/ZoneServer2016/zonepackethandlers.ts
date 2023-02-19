@@ -642,7 +642,12 @@ export class zonePacketHandlers {
     const characterId: string = server._transientIds[packet.data.transientId],
       vehicle = characterId ? server._vehicles[characterId] : undefined;
 
-    if (!vehicle) return;
+    if (!vehicle) {
+      const pos = packet.data.positionUpdate.position;
+      if (client.character.isSpectator && pos)
+        client.character.state.position = pos;
+      return;
+    }
 
     //if (!server._soloMode) {
     server.sendDataToAllOthersWithSpawnedEntity(
@@ -861,6 +866,16 @@ export class zonePacketHandlers {
   SpectatorTP(server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: [packet.data.x, 355, packet.data.y, 1],
+      triggerLoadingScreen: false,
+    });
+    server.sendData(client, "ClientUpdate.UpdateManagedLocation", {
+      characterId: server.observerVehicleGuid,
+      position: [
+        packet.data.x,
+        client.character.state.position[1],
+        packet.data.y,
+        1,
+      ],
       triggerLoadingScreen: false,
     });
   }

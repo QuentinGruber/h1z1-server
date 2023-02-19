@@ -229,7 +229,7 @@ export const commands: Array<Command> = [
       client.character.isSpectator = !client.character.isSpectator;
       server.sendAlert(
         client,
-        `Set hidden state to ${client.character.isSpectator}`
+        `Set spectate/vanish state to ${client.character.isSpectator}`
       );
       if (!client.character.isSpectator) return;
       for (const a in server._clients) {
