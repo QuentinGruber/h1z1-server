@@ -75,4 +75,29 @@ export const spectatorPackets: any = [
       ],
     },
   ],
+  [
+    "Spectator.SetUnknownFlag1",
+    0xe30600,
+    {
+      fields: [],
+    },
+  ],
+  [
+    "Spectator.SetUnknownFlag2",
+    0xe30700,
+    {
+      fields: [],
+    },
+  ],
+  [
+    "Spectator.MatchResults",
+    0xe30800,
+    {
+      fields: [
+        { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+        { name: "unknownString1", type: "string", defaultValue: "" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
 ];
