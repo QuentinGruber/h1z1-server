@@ -26,7 +26,7 @@ export class DecayManager {
 
   vehicleDamageTicks = 3; // 1 hour
   vehicleTicks = 0; // used to run vehicle damaging once every x loops
-  
+
   // the max amount of vehicles that can be in an area before they start taking more damage
   maxAreaVehicles = 2;
   closeVehicleRange = 25;
@@ -161,8 +161,11 @@ export class DecayManager {
     const vehicles: Array<string> = [];
     for (const characterId in server._vehicles) {
       const v = server._vehicles[characterId];
-      if(!vehicle) continue;
-      if(getDistance(vehicle.state.position, v.state.position) <= this.closeVehicleRange) {
+      if (!vehicle) continue;
+      if (
+        getDistance(vehicle.state.position, v.state.position) <=
+        this.closeVehicleRange
+      ) {
         vehicles.push(v.characterId);
       }
     }
@@ -172,12 +175,12 @@ export class DecayManager {
   public vehicleDecayDamage(server: ZoneServer2016) {
     for (const characterId in server._vehicles) {
       const vehicle = server._vehicles[characterId];
-      if(!vehicle) continue;
+      if (!vehicle) continue;
       const baseDamage = 3000, // 3%
-      closeVehicles = this.getCloseVehicles(server, vehicle);
+        closeVehicles = this.getCloseVehicles(server, vehicle);
       let damage = baseDamage;
-      if(closeVehicles.length > this.maxAreaVehicles) {
-        damage *= (closeVehicles.length - this.maxAreaVehicles) + 1;
+      if (closeVehicles.length > this.maxAreaVehicles) {
+        damage *= closeVehicles.length - this.maxAreaVehicles + 1;
       }
       vehicle.damage(server, {
         entity: "Server.DecayManager",

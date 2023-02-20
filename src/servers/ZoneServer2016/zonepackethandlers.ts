@@ -229,12 +229,18 @@ export class zonePacketHandlers {
         if (Number(client.character.lastLoginDate) + 4000 >= Date.now()) {
           return;
         }
-        client.character.damage(server, { entity: "Server.CollisionDamage", damage: damage });
+        client.character.damage(server, {
+          entity: "Server.CollisionDamage",
+          damage: damage,
+        });
       }
     } else if (vehicle) {
       // leave old system with this damage threshold to damage flipped vehicles
       if (damage > 5000 && damage < 5500) {
-        vehicle.damage(server, { entity: "Server.CollisionDamage", damage: damage / 50 });
+        vehicle.damage(server, {
+          entity: "Server.CollisionDamage",
+          damage: damage / 50,
+        });
       }
     }
   }

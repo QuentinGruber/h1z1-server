@@ -653,7 +653,11 @@ const dev: any = {
     });
   },
 
-  vehicledecay: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+  vehicledecay: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     server.sendChatText(client, "Decaying all vehicles");
     server.decayManager.vehicleDecayDamage(server);
   },
