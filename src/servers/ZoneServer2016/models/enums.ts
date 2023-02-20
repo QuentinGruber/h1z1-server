@@ -217,6 +217,7 @@ export enum EntityTypes {
   WORLD_CONSTRUCTION_SIMPLE,
   PLANT,
   TRAP,
+  TASK_PROP,
 }
 
 export enum ResourceIds {
@@ -452,6 +453,11 @@ export enum Items {
   HAT_CAP = 12, // TODO = expand with other cap colors
   SHIRT_DEFAULT = 2088, // TODO = expand with other default shirts
   PANTS_DEFAULT = 2177, // TODO = expand with other default pants
+  SHIRT_SCRUBS_BLUE = 2553,
+  PANTS_SCRUBS_BLUE = 2557,
+  SURGEON_MASK_AQUA = 2569,
+  CAP_SCRUBS_BLUE = 2560,
+
   CONVEYS_BLUE = 2217, // TODO = expand with other convey colors
   HAT_BEANIE = 2162,
   SUGAR = 57,
