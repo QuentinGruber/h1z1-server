@@ -17,6 +17,7 @@ const Z1_items = require("../../../../data/2016/zoneData/Z1_items.json");
 const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.json");
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
+const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
@@ -25,6 +26,7 @@ import {
   generateRandomGuid,
   isPosInRadius,
   randomIntFromInterval,
+  isQuat,
 } from "../../../utils/utils";
 import {
   EquipSlots,
@@ -48,6 +50,7 @@ import { BaseItem } from "../classes/baseItem";
 import { Lootbag } from "../entities/lootbag";
 import { LootableProp } from "../entities/lootableprop";
 import { ZoneClient2016 } from "../classes/zoneclient";
+import { TaskProp } from "../entities/taskprop";
 const debug = require("debug")("ZoneServer");
 
 function getRandomVehicleId() {
@@ -311,6 +314,24 @@ export class WorldObjectManager {
         obj.equipItem(server, server.generateItem(obj.containerId), false);
         obj._containers["31"].canAcceptItems = false;
         obj.nameId = server.getItemDefinition(obj.containerId).NAME_ID;
+      });
+    });
+    Z1_taskProps.forEach((propType: any) => {
+      propType.instances.forEach((propInstance: any) => {
+        const characterId = generateRandomGuid();
+        const obj = new TaskProp(
+          characterId,
+          server.getTransientId(characterId), // need transient generated for Interaction Replication
+          propType.modelId,
+          propInstance.position,
+          isQuat(propInstance.rotation),
+          server,
+          propInstance.scale,
+          propInstance.id,
+          propType.renderDistance,
+          propType.actor_file
+        );
+        server._taskProps[characterId] = obj;
       });
     });
     debug("All props created");

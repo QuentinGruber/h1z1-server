@@ -147,6 +147,7 @@ import { SmeltingEntity } from "./classes/smeltingentity";
 import { spawn, Worker } from "threads";
 import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 import { logVersion } from "../../utils/processErrorHandling";
+import { TaskProp } from "./entities/taskprop";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   Z1_vehicles = require("../../../data/2016/zoneData/Z1_vehicleLocations.json"),
@@ -208,6 +209,7 @@ export class ZoneServer2016 extends EventEmitter {
   _constructionSimple: { [characterId: string]: ConstructionChildEntity } = {};
 
   _lootableProps: { [characterId: string]: LootableProp } = {};
+  _taskProps: { [characterId: string]: TaskProp } = {};
 
   _worldLootableConstruction: {
     [characterId: string]: LootableConstructionEntity;
@@ -2544,6 +2546,8 @@ export class ZoneServer2016 extends EventEmitter {
         return EntityTypes.PLANT;
       case !!this._traps[entityKey]:
         return EntityTypes.TRAP;
+      case !!this._taskProps[entityKey]:
+        return EntityTypes.TASK_PROP;
       default:
         return EntityTypes.INVALID;
     }
@@ -2607,6 +2611,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._worldLootableConstruction[entityKey] ||
       this._worldSimpleConstruction[entityKey] ||
       this._plants[entityKey] ||
+      this._taskProps[entityKey] ||
       undefined
     );
   }
@@ -2883,6 +2888,14 @@ export class ZoneServer2016 extends EventEmitter {
     const DTOArray: any = [];
     for (const object in this._lootableProps) {
       const prop = this._lootableProps[object];
+      const propInstance = {
+        objectId: prop.spawnerId,
+        unknownString1: "Weapon_Empty.adr",
+      };
+      DTOArray.push(propInstance);
+    }
+    for (const object in this._taskProps) {
+      const prop = this._taskProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
         unknownString1: "Weapon_Empty.adr",
@@ -6806,6 +6819,23 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  taskOptionPass(
+    client: Client,
+    removedItem: BaseItem,
+    rewardItems: { itemDefinitionId: number; count: number }[]
+  ) {
+    if (!this.removeInventoryItem(client, removedItem)) return;
+    rewardItems.forEach(
+      (itemInstance: { itemDefinitionId: number; count: number }) => {
+        const item = this.generateItem(
+          itemInstance.itemDefinitionId,
+          itemInstance.count
+        );
+        client.character.lootContainerItem(this, item);
+      }
+    );
+  }
+
   igniteOption(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
@@ -6831,6 +6861,18 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
       this.igniteoptionPass(client);
+    });
+  }
+
+  taskOption(
+    client: Client,
+    timeout: number,
+    nameId: number,
+    removedItem: BaseItem,
+    rewardItems: { itemDefinitionId: number; count: number }[]
+  ) {
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.taskOptionPass(client, removedItem, rewardItems);
     });
   }
 
