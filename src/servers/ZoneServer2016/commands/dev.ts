@@ -652,6 +652,11 @@ const dev: any = {
       state: Number(args[0]) == 0 ? false : true,
     });
   },
+
+  vehicledecay: function (server: ZoneServer2016, client: Client, args: Array<string>) {
+    server.sendChatText(client, "Decaying all vehicles");
+    server.decayManager.vehicleDecayDamage(server);
+  },
 };
 
 export default dev;

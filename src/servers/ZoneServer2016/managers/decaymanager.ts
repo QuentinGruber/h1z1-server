@@ -20,16 +20,26 @@ import { ConstructionParentEntity } from "../entities/constructionparententity";
 
 export class DecayManager {
   loopTime = 1200000; // 20 min
-  currentTicksCount = 0; // used to run structure damaging once every x loops
-  requiredTicksToDamage = 36; // damage structures once every 12 hours
+  constructionTicks = 0; // used to run structure damaging once every x loops
+  constructionDamageTicks = 36; // damage structures once every 12 hours
+
+  vehicleDamageTicks = 3; // 1 hour
+  vehicleTicks = 0; // used to run vehicle damaging once every x loops
 
   public async run(server: ZoneServer2016) {
     this.contructionExpirationCheck(server);
-    if (this.currentTicksCount >= this.requiredTicksToDamage) {
+    if (this.constructionTicks >= this.constructionDamageTicks) {
       this.contructionDecayDamage(server);
-      this.currentTicksCount = -1;
+      this.constructionTicks = -1;
     }
-    this.currentTicksCount++;
+    this.constructionTicks++;
+
+    if (this.vehicleTicks >= this.vehicleDamageTicks) {
+      this.vehicleDecayDamage(server);
+      this.vehicleTicks = -1;
+    }
+    this.vehicleTicks++;
+
     await Scheduler.wait(this.loopTime);
     this.run(server);
   }
@@ -139,6 +149,26 @@ export class DecayManager {
       ) {
         this.decayDamage(server, foundation);
       }
+    }
+  }
+
+  public vehicleDecayDamage(server: ZoneServer2016) {
+    for (const characterId in server._vehicles) {
+      const vehicle = server._vehicles[characterId];
+      if(!vehicle) continue;
+      vehicle.damage(server, {
+        entity: "",
+        damage: 3000, // 3%
+      });
+      server.updateResourceToAllWithSpawnedEntity(
+        vehicle.characterId,
+        vehicle._resources[ResourceIds.CONDITION],
+        ResourceIds.CONDITION,
+        ResourceTypes.CONDITION,
+        server._vehicles
+      );
+      if (vehicle.getHealth() > 0) continue;
+      vehicle.destroy(server);
     }
   }
 
