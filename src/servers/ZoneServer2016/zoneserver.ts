@@ -1512,6 +1512,7 @@ export class ZoneServer2016 extends EventEmitter {
         oldHP: oldHealth,
         newHP:
           oldHealth - damageInfo.damage < 0 ? 0 : oldHealth - damageInfo.damage,
+        message: damageInfo.message || "",
       },
     };
   }
@@ -2786,6 +2787,32 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  validateHit(client: Client, entity: BaseEntity) {
+    const ret = {
+      isValid: true,
+      message: "",
+    };
+    if (
+      !isPosInRadius(
+        entity.npcRenderDistance || this._charactersRenderDistance,
+        client.character.state.position,
+        entity.state.position
+      )
+    ) {
+      return {
+        isValid: false,
+        message: "ProjectileDistance",
+      };
+    }
+    if (!client.spawnedEntities.includes(entity)) {
+      return {
+        isValid: false,
+        message: "InvalidTarget",
+      };
+    }
+    return ret;
+  }
+
   registerHit(client: Client, packet: any) {
     if (!client.character.isAlive) return;
     const entity = this.getEntity(packet.hitReport.characterId);
@@ -2794,16 +2821,21 @@ export class ZoneServer2016 extends EventEmitter {
     const weaponItem = client.character.getEquippedWeapon();
     if (!weaponItem) return;
 
+    const hitValidation = this.validateHit(client, entity);
+
     entity.OnProjectileHit(this, {
       entity: client.character.characterId,
       // this could cause issues if a player switches their weapon before a projectile hits or a client desyncs
       weapon: weaponItem.itemDefinitionId,
-      damage: this.getProjectileDamage(
-        weaponItem.itemDefinitionId,
-        client.character.state.position,
-        entity.state.position
-      ),
+      damage: hitValidation.isValid
+        ? this.getProjectileDamage(
+            weaponItem.itemDefinitionId,
+            client.character.state.position,
+            entity.state.position
+          )
+        : 0,
       hitReport: packet.hitReport,
+      message: hitValidation.message,
     });
   }
 
@@ -5883,7 +5915,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     this.sendChatText(
       client,
-      `TIME | SOURCE | TARGET | WEAPON | DISTANCE | HITLOCATION | HITPOSITION | OLD HP | NEW HP | PING | ENEMY PING`
+      `TIME | SOURCE | TARGET | WEAPON | DISTANCE | HITLOCATION | HITPOSITION | OLD HP | NEW HP | PING | ENEMY PING | MESSAGE`
     );
     combatlog.forEach((e) => {
       const time = `${((Date.now() - e.hitInfo.timestamp) / 1000).toFixed(1)}s`,
@@ -5914,7 +5946,9 @@ export class ZoneServer2016 extends EventEmitter {
           this.getItemDefinition(e.hitInfo.weapon).MODEL_NAME || "N/A"
         } ${e.hitInfo.distance}m ${
           e.hitInfo.hitLocation
-        } ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing}`
+        } ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing} ${
+          e.hitInfo.message
+        }`
       );
     });
     this.sendChatText(
