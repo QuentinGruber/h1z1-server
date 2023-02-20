@@ -914,8 +914,8 @@ export class zonePacketHandlers {
     ) {
       doorEntity.grantedAccess.push(client.character.characterId);
       const parent = doorEntity.getParentFoundation(server);
-      if(!parent) return;
-      if(parent.permissions[client.character.characterId]) return;
+      if (!parent) return;
+      if (parent.permissions[client.character.characterId]) return;
       parent.permissions[client.character.characterId] = {
         characterId: client.character.characterId,
         characterName: client.character.name,
