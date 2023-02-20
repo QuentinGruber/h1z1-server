@@ -54,7 +54,7 @@ interface CharacterMetrics {
   startedSurvivingTP: number; // timestamp
 }
 export class Character2016 extends BaseFullCharacter {
-  name?: string;
+  name!: string;
   spawnLocation?: string;
   resourcesUpdater?: any;
   factionId = 2;

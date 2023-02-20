@@ -913,6 +913,17 @@ export class zonePacketHandlers {
       !doorEntity.grantedAccess.includes(client.character.characterId)
     ) {
       doorEntity.grantedAccess.push(client.character.characterId);
+      const parent = doorEntity.getParentFoundation(server);
+      if (!parent) return;
+      if (parent.permissions[client.character.characterId]) return;
+      parent.permissions[client.character.characterId] = {
+        characterId: client.character.characterId,
+        characterName: client.character.name,
+        useContainers: false,
+        build: false,
+        demolish: false,
+        visit: true,
+      };
     } else {
       const damageInfo: DamageInfo = {
         entity: "",
