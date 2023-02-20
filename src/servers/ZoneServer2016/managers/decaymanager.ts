@@ -15,8 +15,9 @@ import { Items, ResourceIds, ResourceTypes } from "../models/enums";
 import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
-import { Scheduler } from "../../../utils/utils";
+import { getDistance, Scheduler } from "../../../utils/utils";
 import { ConstructionParentEntity } from "../entities/constructionparententity";
+import { Vehicle2016 } from "../entities/vehicle";
 
 export class DecayManager {
   loopTime = 1200000; // 20 min
@@ -25,6 +26,10 @@ export class DecayManager {
 
   vehicleDamageTicks = 3; // 1 hour
   vehicleTicks = 0; // used to run vehicle damaging once every x loops
+  
+  // the max amount of vehicles that can be in an area before they start taking more damage
+  maxAreaVehicles = 2;
+  closeVehicleRange = 30;
 
   public async run(server: ZoneServer2016) {
     this.contructionExpirationCheck(server);
@@ -110,7 +115,7 @@ export class DecayManager {
     const dictionary = server.getConstructionDictionary(entity.characterId);
     if (!dictionary[entity.characterId]) return;
     entity.damage(server, {
-      entity: "",
+      entity: "Server.DecayManager",
       damage: 125000,
     });
     server.updateResourceToAllWithSpawnedEntity(
@@ -152,13 +157,31 @@ export class DecayManager {
     }
   }
 
+  private getCloseVehicles(server: ZoneServer2016, vehicle: Vehicle2016) {
+    const vehicles: Array<string> = [];
+    for (const characterId in server._vehicles) {
+      const v = server._vehicles[characterId];
+      if(!vehicle) continue;
+      if(getDistance(vehicle.state.position, v.state.position) <= this.closeVehicleRange) {
+        vehicles.push(v.characterId);
+      }
+    }
+    return vehicles;
+  }
+
   public vehicleDecayDamage(server: ZoneServer2016) {
     for (const characterId in server._vehicles) {
       const vehicle = server._vehicles[characterId];
       if(!vehicle) continue;
+      const baseDamage = 3000, // 3%
+      closeVehicles = this.getCloseVehicles(server, vehicle);
+      let damage = baseDamage;
+      if(closeVehicles.length > this.maxAreaVehicles) {
+        damage *= (closeVehicles.length - this.maxAreaVehicles) + 1;
+      }
       vehicle.damage(server, {
-        entity: "",
-        damage: 3000, // 3%
+        entity: "Server.DecayManager",
+        damage: damage,
       });
       server.updateResourceToAllWithSpawnedEntity(
         vehicle.characterId,
