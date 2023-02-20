@@ -29,7 +29,7 @@ export class DecayManager {
   
   // the max amount of vehicles that can be in an area before they start taking more damage
   maxAreaVehicles = 2;
-  closeVehicleRange = 30;
+  closeVehicleRange = 25;
 
   public async run(server: ZoneServer2016) {
     this.contructionExpirationCheck(server);
