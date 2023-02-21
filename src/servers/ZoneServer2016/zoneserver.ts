@@ -4479,14 +4479,37 @@ export class ZoneServer2016 extends EventEmitter {
       });
       return;
     }
-    if (!isPosInRadius(20, client.character.state.position, position)) {
+    if (item.itemDefinitionId == Items.GROUND_TAMPER) {
+      // fix for tamper stacking
+      let tampersInRadius = 0;
+      for (const a in this._constructionFoundations) {
+        const foundation = this._constructionFoundations[a];
+        if (foundation.itemDefinitionId != Items.GROUND_TAMPER) continue;
+        if (isPosInRadius(22, foundation.state.position, position))
+          tampersInRadius++;
+      }
+      if (tampersInRadius >= 3) {
+        this.sendData(client, "Construction.PlacementFinalizeResponse", {
+          status: 0,
+          unknownString1: "",
+        });
+        this.sendAlert(client, "You cant place a ground tamper here");
+        return;
+      }
+    }
+    if (
+      item.itemDefinitionId != Items.GROUND_TAMPER &&
+      item.itemDefinitionId != Items.FOUNDATION &&
+      item.itemDefinitionId != Items.FOUNDATION_EXPANSION &&
+      !isPosInRadius(30, client.character.state.position, position)
+    ) {
       this.sendData(client, "Construction.PlacementFinalizeResponse", {
         status: 0,
         unknownString1: "",
       });
       this.sendAlert(
         client,
-        "You have to be in 20m radius of placed construction position"
+        "You have to be in 30m radius of placed construction position"
       );
       return;
     }
