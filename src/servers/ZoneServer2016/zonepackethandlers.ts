@@ -672,11 +672,6 @@ export class zonePacketHandlers {
       vehicle.engineRPM = packet.data.positionUpdate.engineRPM;
     }
     if (packet.data.positionUpdate.position) {
-      if (packet.data.positionUpdate.position[1] < -100) {
-        // If the vehicle is falling trough the map
-        server.deleteEntity(vehicle.characterId, server._vehicles);
-        return;
-      }
       vehicle.state.position = new Float32Array([
         packet.data.positionUpdate.position[0],
         packet.data.positionUpdate.position[1] - 0.4,
