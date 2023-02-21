@@ -270,7 +270,6 @@ export class Vehicle2016 extends BaseLootableEntity {
       },
       positionUpdate: {
         ...this.positionUpdate,
-        position: this.state.position, // trying to fix invisible characters/vehicles until they move
       },
     };
   }
@@ -527,13 +526,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       });
       delete this.droppedManagedClient;
     }
-    // prevents cars from spawning in under the map for other characters
-    /*
-    server.sendData(client, "PlayerUpdatePosition", {
-      transientId: vehicle.transientId,
-      positionUpdate: vehicle.positionUpdate,
-    });
-    */
+
     server.sendData(client, "ResourceEvent", {
       eventData: {
         type: 1,

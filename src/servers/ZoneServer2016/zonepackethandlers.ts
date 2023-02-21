@@ -705,6 +705,9 @@ export class zonePacketHandlers {
         }
       }*/
     }
+    delete packet.data.positionUpdate.flags;
+    delete packet.data.positionUpdate.position;
+    Object.assign(vehicle.positionUpdate, packet.data.positionUpdate);
   }
   VehicleStateData(server: ZoneServer2016, client: Client, packet: any) {
     server.sendDataToAllOthersWithSpawnedEntity(
