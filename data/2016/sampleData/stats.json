@@ -77,7 +77,7 @@
             "statValue": {
                 "type": 1,
                 "value": {
-                    "base": 1.35,
+                    "base": 1.4,
                     "modifier": 0,
                     "comment_old_value":  1.7
                 }
