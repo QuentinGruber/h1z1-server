@@ -1653,12 +1653,12 @@ export class zonePacketHandlers {
                 !client.character.temporaryScrapTimeout
               ) {
                 const chance = Math.floor(Math.random() * 100) + 1;
-                if (chance <= 70) {
+                if (chance <= 60) {
                   client.character.lootItem(
                     server,
                     server.generateItem(Items.METAL_SCRAP)
                   );
-                  server.damageItem(client, weaponItem, 35);
+                  server.damageItem(client, weaponItem, 50);
                 }
                 client.character.temporaryScrapTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapTimeout;
