@@ -735,18 +735,9 @@ export class Character2016 extends BaseFullCharacter {
     if (!this.isAlive) return;
     const client = server.getClientByCharId(damageInfo.entity), // source
       c = server.getClientByCharId(this.characterId); // target
-    if (
-      !client ||
-      !c ||
-      !damageInfo.hitReport ||
-      !isPosInRadius(
-        this.npcRenderDistance || server._charactersRenderDistance,
-        client.character.state.position,
-        this.state.position
-      ) ||
-      !c.spawnedEntities.includes(client.character)
-    )
+    if (!client || !c || !damageInfo.hitReport) {
       return;
+    }
 
     server.hitMissFairPlayCheck(
       client,
