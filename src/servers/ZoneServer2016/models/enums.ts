@@ -105,7 +105,7 @@ export enum MovementModifiers {
   RESTED = 1.1,
   SWIZZLE = 1.1,
   SNARED = 0.5,
-  BOOTS = 1.2,
+  BOOTS = 1.15,
 }
 
 export enum ContainerErrors {
