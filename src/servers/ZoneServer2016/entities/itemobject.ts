@@ -19,7 +19,7 @@ import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 
 export class ItemObject extends BaseLightweightCharacter {
-  npcRenderDistance = 25;
+  npcRenderDistance = 3000;
   spawnerId = 0;
   item: BaseItem;
   flags = {
