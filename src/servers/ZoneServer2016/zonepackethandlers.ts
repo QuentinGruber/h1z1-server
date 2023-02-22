@@ -229,12 +229,18 @@ export class zonePacketHandlers {
         if (Number(client.character.lastLoginDate) + 4000 >= Date.now()) {
           return;
         }
-        client.character.damage(server, { entity: "", damage: damage });
+        client.character.damage(server, {
+          entity: "Server.CollisionDamage",
+          damage: damage,
+        });
       }
     } else if (vehicle) {
       // leave old system with this damage threshold to damage flipped vehicles
       if (damage > 5000 && damage < 5500) {
-        vehicle.damage(server, { entity: "", damage: damage / 50 });
+        vehicle.damage(server, {
+          entity: "Server.CollisionDamage",
+          damage: damage / 50,
+        });
       }
     }
   }
@@ -722,8 +728,7 @@ export class zonePacketHandlers {
     packet: any
   ) {
     if (client.character.tempGodMode) {
-      server.setGodMode(client, false);
-      client.character.tempGodMode = false;
+      server.setTempGodMode(client, false);
     }
     client.character.positionUpdate = packet.data;
     if (packet.data.flags === 513) {
@@ -914,6 +919,17 @@ export class zonePacketHandlers {
       !doorEntity.grantedAccess.includes(client.character.characterId)
     ) {
       doorEntity.grantedAccess.push(client.character.characterId);
+      const parent = doorEntity.getParentFoundation(server);
+      if (!parent) return;
+      if (parent.permissions[client.character.characterId]) return;
+      parent.permissions[client.character.characterId] = {
+        characterId: client.character.characterId,
+        characterName: client.character.name,
+        useContainers: false,
+        build: false,
+        demolish: false,
+        visit: true,
+      };
     } else {
       const damageInfo: DamageInfo = {
         entity: "",
@@ -1556,8 +1572,7 @@ export class zonePacketHandlers {
   Weapon(server: ZoneServer2016, client: Client, packet: any) {
     debug("Weapon.Weapon");
     if (client.character.tempGodMode) {
-      server.setGodMode(client, false);
-      client.character.tempGodMode = false;
+      server.setTempGodMode(client, false);
     }
     switch (packet.data.weaponPacket.packetName) {
       case "Weapon.MultiWeapon":

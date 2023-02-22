@@ -147,6 +147,7 @@ import { SmeltingEntity } from "./classes/smeltingentity";
 import { spawn, Worker } from "threads";
 import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 import { logVersion } from "../../utils/processErrorHandling";
+import { TaskProp } from "./entities/taskprop";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   Z1_vehicles = require("../../../data/2016/zoneData/Z1_vehicleLocations.json"),
@@ -208,6 +209,7 @@ export class ZoneServer2016 extends EventEmitter {
   _constructionSimple: { [characterId: string]: ConstructionChildEntity } = {};
 
   _lootableProps: { [characterId: string]: LootableProp } = {};
+  _taskProps: { [characterId: string]: TaskProp } = {};
 
   _worldLootableConstruction: {
     [characterId: string]: LootableConstructionEntity;
@@ -1512,6 +1514,7 @@ export class ZoneServer2016 extends EventEmitter {
         oldHP: oldHealth,
         newHP:
           oldHealth - damageInfo.damage < 0 ? 0 : oldHealth - damageInfo.damage,
+        message: damageInfo.message || "",
       },
     };
   }
@@ -2163,12 +2166,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.healingTicks = 0;
     client.character.healingMaxTicks = 0;
     client.character.resourcesUpdater?.refresh();
-    this.updateCharacterState(
-      client,
-      client.character.characterId,
-      client.character.characterStates,
-      true
-    );
+
     const randomSpawnIndex = Math.floor(
       Math.random() * cell.spawnPoints.length
     );
@@ -2220,6 +2218,12 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.characterId,
       client.character._resources[ResourceIds.BLEEDING],
       ResourceIds.BLEEDING
+    );
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      true
     );
 
     Object.values(client.character._equipment).forEach((equipmentSlot) => {
@@ -2543,6 +2547,8 @@ export class ZoneServer2016 extends EventEmitter {
         return EntityTypes.PLANT;
       case !!this._traps[entityKey]:
         return EntityTypes.TRAP;
+      case !!this._taskProps[entityKey]:
+        return EntityTypes.TASK_PROP;
       default:
         return EntityTypes.INVALID;
     }
@@ -2606,6 +2612,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._worldLootableConstruction[entityKey] ||
       this._worldSimpleConstruction[entityKey] ||
       this._plants[entityKey] ||
+      this._taskProps[entityKey] ||
       undefined
     );
   }
@@ -2785,6 +2792,32 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  validateHit(client: Client, entity: BaseEntity) {
+    const ret = {
+      isValid: true,
+      message: "",
+    };
+    if (
+      !isPosInRadius(
+        entity.npcRenderDistance || this._charactersRenderDistance,
+        client.character.state.position,
+        entity.state.position
+      )
+    ) {
+      return {
+        isValid: false,
+        message: "ProjectileDistance",
+      };
+    }
+    if (!client.spawnedEntities.includes(entity)) {
+      return {
+        isValid: false,
+        message: "InvalidTarget",
+      };
+    }
+    return ret;
+  }
+
   registerHit(client: Client, packet: any) {
     if (!client.character.isAlive) return;
     const entity = this.getEntity(packet.hitReport.characterId);
@@ -2793,22 +2826,36 @@ export class ZoneServer2016 extends EventEmitter {
     const weaponItem = client.character.getEquippedWeapon();
     if (!weaponItem) return;
 
+    const hitValidation = this.validateHit(client, entity);
+
     entity.OnProjectileHit(this, {
       entity: client.character.characterId,
       // this could cause issues if a player switches their weapon before a projectile hits or a client desyncs
       weapon: weaponItem.itemDefinitionId,
-      damage: this.getProjectileDamage(
-        weaponItem.itemDefinitionId,
-        client.character.state.position,
-        entity.state.position
-      ),
+      damage: hitValidation.isValid
+        ? this.getProjectileDamage(
+            weaponItem.itemDefinitionId,
+            client.character.state.position,
+            entity.state.position
+          )
+        : 0,
       hitReport: packet.hitReport,
+      message: hitValidation.message,
     });
   }
 
   setGodMode(client: Client, godMode: boolean) {
     client.character.godMode = godMode;
-    client.character.characterStates.invincibility = godMode;
+    this.updateCharacterState(
+      client,
+      client.character.characterId,
+      client.character.characterStates,
+      false
+    );
+  }
+
+  setTempGodMode(client: Client, godMode: boolean) {
+    client.character.tempGodMode = godMode;
     this.updateCharacterState(
       client,
       client.character.characterId,
@@ -2829,14 +2876,10 @@ export class ZoneServer2016 extends EventEmitter {
   }*/
 
   tempGodMode(client: Client, durationMs: number) {
-    if (!client.character.godMode) {
-      this.setGodMode(client, true);
-      client.character.tempGodMode = true;
-      setTimeout(() => {
-        this.setGodMode(client, false);
-        client.character.tempGodMode = false;
-      }, durationMs);
-    }
+    this.setTempGodMode(client, true);
+    setTimeout(() => {
+      this.setTempGodMode(client, false);
+    }, durationMs);
   }
 
   updateCharacterState(
@@ -2877,6 +2920,14 @@ export class ZoneServer2016 extends EventEmitter {
     const DTOArray: any = [];
     for (const object in this._lootableProps) {
       const prop = this._lootableProps[object];
+      const propInstance = {
+        objectId: prop.spawnerId,
+        unknownString1: "Weapon_Empty.adr",
+      };
+      DTOArray.push(propInstance);
+    }
+    for (const object in this._taskProps) {
+      const prop = this._taskProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
         unknownString1: "Weapon_Empty.adr",
@@ -4070,10 +4121,7 @@ export class ZoneServer2016 extends EventEmitter {
         return;
       case "hiddenplayers":
         const objectsToRemove = client.spawnedEntities.filter(
-          (e) =>
-            e && // in case if entity is undefined somehow
-            !e.vehicleId && // ignore vehicles
-            !e.item
+          (e) => e && !(e instanceof Vehicle2016) && !(e instanceof ItemObject)
         );
         client.spawnedEntities = client.spawnedEntities.filter((el) => {
           return !objectsToRemove.includes(el);
@@ -5880,7 +5928,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     this.sendChatText(
       client,
-      `TIME | SOURCE | TARGET | WEAPON | DISTANCE | HITLOCATION | HITPOSITION | OLD HP | NEW HP | PING | ENEMY PING`
+      `TIME | SOURCE | TARGET | WEAPON | DISTANCE | HITLOCATION | HITPOSITION | OLD HP | NEW HP | PING | ENEMY PING | MESSAGE`
     );
     combatlog.forEach((e) => {
       const time = `${((Date.now() - e.hitInfo.timestamp) / 1000).toFixed(1)}s`,
@@ -5911,7 +5959,9 @@ export class ZoneServer2016 extends EventEmitter {
           this.getItemDefinition(e.hitInfo.weapon).MODEL_NAME || "N/A"
         } ${e.hitInfo.distance}m ${
           e.hitInfo.hitLocation
-        } ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing}`
+        } ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing} ${
+          e.hitInfo.message
+        }`
       );
     });
     this.sendChatText(
@@ -6803,6 +6853,23 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  taskOptionPass(
+    client: Client,
+    removedItem: BaseItem,
+    rewardItems: { itemDefinitionId: number; count: number }[]
+  ) {
+    if (!this.removeInventoryItem(client, removedItem)) return;
+    rewardItems.forEach(
+      (itemInstance: { itemDefinitionId: number; count: number }) => {
+        const item = this.generateItem(
+          itemInstance.itemDefinitionId,
+          itemInstance.count
+        );
+        client.character.lootContainerItem(this, item);
+      }
+    );
+  }
+
   igniteOption(client: Client, item: BaseItem) {
     const itemDef = this.getItemDefinition(item.itemDefinitionId);
     if (!itemDef) return;
@@ -6828,6 +6895,18 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this.utilizeHudTimer(client, itemDef.NAME_ID, timeout, () => {
       this.igniteoptionPass(client);
+    });
+  }
+
+  taskOption(
+    client: Client,
+    timeout: number,
+    nameId: number,
+    removedItem: BaseItem,
+    rewardItems: { itemDefinitionId: number; count: number }[]
+  ) {
+    this.utilizeHudTimer(client, nameId, timeout, () => {
+      this.taskOptionPass(client, removedItem, rewardItems);
     });
   }
 
