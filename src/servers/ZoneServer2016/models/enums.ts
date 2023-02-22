@@ -47,6 +47,7 @@ export enum Stances {
 
   SITTING = 525377,
   STANCE_XS = 525393,
+  STANCE_XS_FP = 2622545,
   // havent seen this stance anywhere else than during XS glitching
 }
 

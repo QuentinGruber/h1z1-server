@@ -737,7 +737,10 @@ export class zonePacketHandlers {
       // falling flag, ignore for now
     }
     if (packet.data.stance) {
-      if (packet.data.stance == Stances.STANCE_XS) {
+      if (
+        packet.data.stance == Stances.STANCE_XS ||
+        packet.data.stance == Stances.STANCE_XS_FP
+      ) {
         const pos = client.character.state.position;
         if (!server._soloMode) {
           logClientActionToMongo(
@@ -750,12 +753,10 @@ export class zonePacketHandlers {
         server.sendChatTextToAdmins(
           `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
         );
-        setTimeout(() => {
-          server.sendData(client, "ClientUpdate.UpdateLocation", {
-            position: pos,
-            triggerLoadingScreen: false,
-          });
-        }, 1000);
+        server.sendData(client, "ClientUpdate.UpdateLocation", {
+          position: pos,
+          triggerLoadingScreen: true,
+        });
       }
       const byte1 = packet.data.stance & 0xff;
       client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
