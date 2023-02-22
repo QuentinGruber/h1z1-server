@@ -346,9 +346,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     if (!item || !item.isValid("lootItem")) return;
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
-      console.error(
-        `LootItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`
-      );
       count = item.stackCount;
     }
     const itemDefId = item.itemDefinitionId;
@@ -399,6 +396,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       }
 
       Object.values(this._containers).forEach((c) => {
+        if (item.stackCount <= 0) return;
         if (array.includes(c)) return;
         array.push(c);
         const availableSpace = c.getAvailableBulk(server),
@@ -418,13 +416,14 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           );
         }
       });
-
-      server.worldObjectManager.createLootEntity(
-        server,
-        item,
-        this.state.position,
-        new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
-      );
+      if (item.stackCount > 0) {
+        server.worldObjectManager.createLootEntity(
+          server,
+          item,
+          this.state.position,
+          new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
+        );
+      }
       return;
     }
 
