@@ -315,7 +315,8 @@ export class Character2016 extends BaseFullCharacter {
 
   clearReloadTimeout() {
     const weaponItem = this.getEquippedWeapon();
-    if (!weaponItem.weapon?.reloadTimer) return;
+    if (!weaponItem || !weaponItem.weapon || !weaponItem.weapon.reloadTimer)
+      return;
     clearTimeout(weaponItem.weapon.reloadTimer);
     weaponItem.weapon.reloadTimer = undefined;
   }
