@@ -869,6 +869,9 @@ export class zonePacketHandlers {
     );
   }
   SpectatorTP(server: ZoneServer2016, client: Client, packet: any) {
+    client.managedObjects?.forEach((characterId: any) => {
+        server.dropVehicleManager(client, characterId);
+      });
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: [packet.data.x, 355, packet.data.y, 1],
       triggerLoadingScreen: false,
