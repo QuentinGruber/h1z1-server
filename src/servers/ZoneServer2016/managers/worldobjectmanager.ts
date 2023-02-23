@@ -31,7 +31,6 @@ import {
 import {
   EquipSlots,
   Items,
-  VehicleIds,
   Skins_Shirt,
   Skins_Pants,
   Skins_Beanie,
