@@ -1927,7 +1927,7 @@ export const commands: Array<Command> = [
       args: Array<string>
     ) => {
       if(!args[0]) {
-        server.sendChatText(client, "You must specify a player name to mute!");
+        server.sendChatText(client, "You must specify a player name to unmute!");
         return;
       }
 
