@@ -148,6 +148,7 @@ import { spawn, Worker } from "threads";
 import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 import { logVersion } from "../../utils/processErrorHandling";
 import { TaskProp } from "./entities/taskprop";
+import { ChatManager } from "./managers/chatmanager";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   Z1_vehicles = require("../../../data/2016/zoneData/Z1_vehicleLocations.json"),
@@ -250,6 +251,7 @@ export class ZoneServer2016 extends EventEmitter {
   weatherManager: WeatherManager;
   worldDataManager!: WorldDataManagerThreaded;
   hookManager: HookManager;
+  chatManager: ChatManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _weaponDefinitions: { [weaponDefinitionId: number]: any } =
@@ -298,6 +300,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.decayManager = new DecayManager();
     this.weatherManager = new WeatherManager();
     this.hookManager = new HookManager();
+    this.chatManager = new ChatManager();
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
 
@@ -3972,60 +3975,6 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
-  sendChat(client: Client, message: string) {
-    if (!this._soloMode) {
-      this.sendDataToAll("Chat.ChatText", {
-        message: `${client.character.name}: ${message}`,
-        unknownDword1: 0,
-        color: [255, 255, 255, 0],
-        unknownDword2: 13951728,
-        unknownByte3: 0,
-        unknownByte4: 1,
-      });
-    } else {
-      this.sendData(client, "Chat.ChatText", {
-        message: `${client.character.name}: ${message}`,
-        unknownDword1: 0,
-        color: [255, 255, 255, 0],
-        unknownDword2: 13951728,
-        unknownByte3: 0,
-        unknownByte4: 1,
-      });
-    }
-  }
-
-  sendChatToAllInRange(client: Client, message: string, range: number) {
-    this.sendDataToAllInRange(
-      range,
-      client.character.state.position,
-      "Chat.ChatText",
-      {
-        message: `${client.character.name}: ${message}`,
-        unknownDword1: 0,
-        color: [255, 255, 255, 0],
-        unknownDword2: 13951728,
-        unknownByte3: 0,
-        unknownByte4: 1,
-      }
-    );
-  }
-
-  sendChatToAllWithRadio(client: Client, message: string) {
-    for (const a in this._clients) {
-      const c = this._clients[a];
-      if (c.radio) {
-        this.sendData(c, "Chat.ChatText", {
-          message: `[RADIO: ${client.character.name}]: ${message}`,
-          unknownDword1: 0,
-          color: [255, 255, 255, 0],
-          unknownDword2: 13951728,
-          unknownByte3: 0,
-          unknownByte4: 1,
-        });
-      }
-    }
-  }
-
   createClient(
     sessionId: number,
     soeClientId: string,
@@ -7613,28 +7562,6 @@ export class ZoneServer2016 extends EventEmitter {
   sendUnbufferedRawData(client: Client, data: Buffer) {
     this._sendRawData(client, data, true);
   }
-  sendChatText(client: Client, message: string, clearChat = false) {
-    if (clearChat) {
-      for (let index = 0; index <= 6; index++) {
-        this.sendData(client, "Chat.ChatText", {
-          message: " ",
-          unknownDword1: 0,
-          color: [255, 255, 255, 0],
-          unknownDword2: 13951728,
-          unknownByte3: 0,
-          unknownByte4: 1,
-        });
-      }
-    }
-    this.sendData(client, "Chat.ChatText", {
-      message: message,
-      unknownDword1: 0,
-      color: [255, 255, 255, 0],
-      unknownDword2: 13951728,
-      unknownByte3: 0,
-      unknownByte4: 1,
-    });
-  }
   getAllCurrentUsedTransientId() {
     const allTransient: any = {};
     for (const key in this._doors) {
@@ -7839,25 +7766,7 @@ export class ZoneServer2016 extends EventEmitter {
       { population: populationNumber }
     );
   }
-  sendChatTextToAllOthers(client: Client, message: string, clearChat = false) {
-    for (const a in this._clients) {
-      if (client != this._clients[a]) {
-        this.sendChatText(this._clients[a], message, clearChat);
-      }
-    }
-  }
-  sendChatTextToAdmins(message: string, clearChat = false) {
-    for (const a in this._clients) {
-      if (this._clients[a].isAdmin) {
-        this.sendChatText(this._clients[a], message, clearChat);
-      }
-    }
-  }
-  sendGlobalChatText(message: string, clearChat = false) {
-    for (const a in this._clients) {
-      this.sendChatText(this._clients[a], message, clearChat);
-    }
-  }
+  
   private filterOutOfDistance(
     element: BaseEntity,
     playerPosition: Float32Array
@@ -7927,6 +7836,27 @@ export class ZoneServer2016 extends EventEmitter {
 
   pSetImmediate = promisify(setImmediate);
   pSetTimeout = promisify(setTimeout);
+
+  sendChatText(client: Client, message: string, clearChat?: boolean) {
+    this.chatManager.sendChatText(this, client, message, clearChat);
+  }
+  sendChatTextToAllOthers(client: Client, message: string, clearChat = false) {
+    this.chatManager.sendChatText(this, client, message, clearChat);
+  }
+  sendChatTextToAdmins(message: string, clearChat = false) {
+    this.chatManager.sendChatTextToAdmins(this, message, clearChat);
+  }
+  sendGlobalChatText(message: string, clearChat = false) {
+    this.chatManager.sendGlobalChatText(this, message, clearChat);
+  }
+
+  playerNotFound(client: Client, inputString: string, targetClient: string | Client | undefined) {
+    if (typeof targetClient == "string") {
+      this.chatManager.sendPlayerNotFound(this, client, inputString, targetClient);
+      return true;
+    }
+    return false;
+  }
 }
 
 if (process.env.VSCODE_DEBUG === "true") {

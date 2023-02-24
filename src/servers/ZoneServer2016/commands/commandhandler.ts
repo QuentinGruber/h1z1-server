@@ -62,10 +62,10 @@ export class CommandHandler {
     ) {
       return;
     }
-    const hash = packet.data.commandHash,
-      args: string[] = packet.data.arguments.toLowerCase().split(" ");
+    const hash = packet.data.commandHash;
     if (this.commands[hash]) {
-      const command = this.commands[hash];
+      const command = this.commands[hash],
+      args: string[] = command.keepCase ? packet.data.arguments.split(" "): packet.data.arguments.toLowerCase().split(" ");
       if (!this.clientHasCommandPermission(server, client, command)) {
         server.sendChatText(client, "You don't have access to that.");
         return;

@@ -262,14 +262,10 @@ export const commands: Array<Command> = [
       const targetClient = server.getClientByNameOrLoginSession(
         args[0].toString()
       );
-      if (typeof targetClient == "string") {
-        server.sendChatText(
-          client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
-        );
+      if(server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
       }
-      if (!targetClient) {
+      if (!targetClient || !(targetClient instanceof Client)) {
         server.sendChatText(client, "Client not found.");
         return;
       }
@@ -398,14 +394,10 @@ export const commands: Array<Command> = [
       const targetClient = server.getClientByNameOrLoginSession(
         args[0].toString()
       );
-      if (typeof targetClient == "string") {
-        server.sendChatText(
-          client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
-        );
+      if(server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
       }
-      if (!targetClient) {
+      if (!targetClient || !(targetClient instanceof Client)) {
         server.sendChatText(client, "Client not found.");
         return;
       }
@@ -438,14 +430,10 @@ export const commands: Array<Command> = [
       const targetClient = server.getClientByNameOrLoginSession(
         args[0].toString()
       );
-      if (typeof targetClient == "string") {
-        server.sendChatText(
-          client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
-        );
+      if(server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
       }
-      if (!targetClient) {
+      if (!targetClient || !(targetClient instanceof Client)) {
         server.sendChatText(client, "Client not found.");
         return;
       }
@@ -491,14 +479,10 @@ export const commands: Array<Command> = [
       const targetClient = server.getClientByNameOrLoginSession(
         args[0].toString()
       );
-      if (typeof targetClient == "string") {
-        server.sendChatText(
-          client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
-        );
+      if(server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
       }
-      if (!targetClient) {
+      if (!targetClient || !(targetClient instanceof Client)) {
         server.sendChatText(client, "Client not found.");
         return;
       }
@@ -545,14 +529,10 @@ export const commands: Array<Command> = [
       const targetClient = server.getClientByNameOrLoginSession(
         args[0].toString()
       );
-      if (typeof targetClient == "string") {
-        server.sendChatText(
-          client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
-        );
+      if(server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
       }
-      if (!targetClient) {
+      if (!targetClient || !(targetClient instanceof Client)) {
         server.sendChatText(client, "Client not found.");
         return;
       }
@@ -595,14 +575,10 @@ export const commands: Array<Command> = [
       const targetClient = server.getClientByNameOrLoginSession(
         args[0].toString()
       );
-      if (typeof targetClient == "string") {
-        server.sendChatText(
-          client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
-        );
+      if(server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
       }
-      if (!targetClient) {
+      if (!targetClient || !(targetClient instanceof Client)) {
         server.sendChatText(client, "Client not found.");
         return;
       }
@@ -636,7 +612,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin unban {name|playerId}`
+          `Correct usage: /unban {name|playerId}`
         );
         return;
       }
@@ -678,21 +654,17 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin listProcesses {name | ZoneClientId}`
+          `Correct usage: /listprocesses {name | ZoneClientId}`
         );
         return;
       }
       const targetClient = server.getClientByNameOrLoginSession(
         args[0].toString()
       );
-      if (typeof targetClient == "string") {
-        server.sendChatText(
-          client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
-        );
+      if(server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
       }
-      if (!targetClient) {
+      if (!targetClient || !(targetClient instanceof Client)) {
         server.sendChatText(client, "Client not found.");
         return;
       }
@@ -745,43 +717,6 @@ export const commands: Array<Command> = [
       */
     },
   },
-  /*{
-    name: "drive",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          "[ERROR] Usage /drive offroader/pickup/policecar/atv"
-        );
-        return;
-      }
-      const wasAlreadyGod = client.character.godMode;
-      server.setGodMode(client, true);
-      const characterId = server.generateGuid();
-      const vehicleData = new Vehicle(
-        characterId,
-        server.getTransientId(characterId),
-        getDriveModel(args[0]),
-        client.character.state.position,
-        client.character.state.lookAt,
-        server.getServerTime()
-      );
-      vehicleData.isManaged = true;
-      vehicleData.onReadyCallback = () => {
-        // doing anything with vehicle before client gets fullvehicle packet breaks it
-        server.mountVehicle(client, characterId);
-        // todo: when vehicle takeover function works, delete assignManagedObject call
-        server.assignManagedObject(client, vehicleData);
-        client.vehicle.mountedVehicle = characterId;
-        setTimeout(() => {
-          server.setGodMode(client, wasAlreadyGod);
-        }, 1000);
-      };
-      server.worldObjectManager.createVehicle(server, vehicleData);
-      client.character.ownedVehicle = vehicleData.characterId;
-    },
-  },*/
   {
     name: "titan",
     permissionLevel: PermissionLevels.ADMIN,
@@ -826,33 +761,6 @@ export const commands: Array<Command> = [
       server.sendChatText(client, "Back to normal size");
     },
   },
-  /*{
-    name: "spamvehicle",
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          "[ERROR] Usage /spamvehicle offroader/pickup/policecar/atv"
-        );
-        return;
-      }
-      for (let index = 0; index < 50; index++) {
-        const guid = server.generateGuid();
-        const transientId = server.getTransientId(guid);
-        const characterId = server.generateGuid();
-        const vehicle = new Vehicle(
-          characterId,
-          transientId,
-          getDriveModel(args[0]),
-          client.character.state.position,
-          client.character.state.lookAt,
-          server.getGameTime()
-        );
-        server.worldObjectManager.createVehicle(server, vehicle);
-      }
-    },
-  },*/
   {
     name: "despawnobjects",
     permissionLevel: PermissionLevels.ADMIN,
@@ -922,7 +830,7 @@ export const commands: Array<Command> = [
       if (!args[1]) {
         server.sendChatText(
           client,
-          "[ERROR] Usage /hax spamzombies [RANGE] [POINTS]"
+          "[ERROR] Usage /spamzombies [RANGE] [POINTS]"
         );
         return;
       }
@@ -1096,7 +1004,7 @@ export const commands: Array<Command> = [
           server.sendChatText(client, `"${args[0]}" isn't a weather template`);
           server.sendChatText(
             client,
-            `Use "/hax weather list" to know all available templates`
+            `Use "/weather list" to know all available templates`
           );
         }
       }
@@ -1113,7 +1021,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          "Please define a name for your weather template '/hax saveCurrentWeather {name}'"
+          "Please define a name for your weather template '/savecurrentweather {name}'"
         );
       } else if (server._weatherTemplates[args[0]]) {
         server.sendChatText(client, `"${args[0]}" already exists !`);
@@ -1407,7 +1315,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin vehiclerespawntimer <time>`
+          `Correct usage: /vehiclerespawntimer <time>`
         );
         return;
       }
@@ -1421,6 +1329,7 @@ export const commands: Array<Command> = [
   {
     name: "alert",
     permissionLevel: PermissionLevels.ADMIN,
+    keepCase: true,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendAlertToAll(args.join(" "));
     },
@@ -1463,14 +1372,10 @@ export const commands: Array<Command> = [
       const targetClient = server.getClientByNameOrLoginSession(
         args[0].toString()
       );
-      if (typeof targetClient == "string") {
-        server.sendChatText(
-          client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
-        );
+      if(server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
       }
-      if (!targetClient) {
+      if (!targetClient || !(targetClient instanceof Client)) {
         server.sendChatText(client, "Client not found.");
         return;
       }
@@ -1773,14 +1678,10 @@ export const commands: Array<Command> = [
       const targetClient = server.getClientByNameOrLoginSession(
         args[0].toString()
       );
-      if (typeof targetClient == "string") {
-        server.sendChatText(
-          client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
-        );
+      if(server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
       }
-      if (!targetClient) {
+      if (!targetClient || !(targetClient instanceof Client)) {
         server.sendChatText(client, "Client not found.");
         return;
       }
@@ -1836,14 +1737,10 @@ export const commands: Array<Command> = [
       const targetClient = server.getClientByNameOrLoginSession(
         args[0].toString()
       );
-      if (typeof targetClient == "string") {
-        server.sendChatText(
-          client,
-          `Could not find ${args[0].toString()}, did you mean ${targetClient}`
-        );
+      if(server.playerNotFound(client, args[0].toString(), targetClient)) {
         return;
       }
-      if (!targetClient) {
+      if (!targetClient || !(targetClient instanceof Client)) {
         server.sendChatText(client, "Client not found.");
         return;
       }
@@ -1951,29 +1848,41 @@ export const commands: Array<Command> = [
       server.sendChatText(client, `Respawned loot`);
     },
   },
-  //#endregion
+  {
+    name: "whisper",
+    permissionLevel: PermissionLevels.DEFAULT,
+    keepCase: true,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if(!args[0]) {
+        server.sendChatText(client, "[Whisper] You must specify a player name and message!");
+        return;
+      }
+      if(!args[1]) {
+        server.sendChatText(client, "[Whisper] The message may not be blank!");
+        return;
+      }
 
-  // depreciation messages
-  {
-    name: "hax",
-    permissionLevel: PermissionLevels.DEV,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(
-        client,
-        "/hax and /admin are no longer used. Do /help for a list of commands."
-      );
+      const targetClient = server.getClientByNameOrLoginSession(args[0]);
+      if(server.playerNotFound(client, args[0].toString(), targetClient)) {
+        console.log("ASDASDDASD")
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Player not found.");
+        return;
+      }
+
+      // CHECK FOR GLOBAL AND PLAYER MUTE
+
+      server.sendChatText(client, `[Whisper to ${targetClient.character.name}]: ${args.join(" ")}`)
+      server.sendChatText(targetClient, `[Whisper from ${client.character.name}]: ${args.join(" ")}`)
     },
   },
-  {
-    name: "admin",
-    permissionLevel: PermissionLevels.DEV,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.sendChatText(
-        client,
-        "/hax and /admin are no longer used. Do /help for a list of commands."
-      );
-    },
-  },
+  //#endregion
 
   //#region DEV PERMISSIONS
   {

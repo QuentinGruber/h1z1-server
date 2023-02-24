@@ -490,9 +490,9 @@ export class zonePacketHandlers {
   ChatChat(server: ZoneServer2016, client: Client, packet: any) {
     const { channel, message } = packet.data; // leave channel for later
     if (!client.radio) {
-      server.sendChatToAllInRange(client, message, 300);
+      server.chatManager.sendChatToAllInRange(server, client, message, 300);
     } else if (client.radio) {
-      server.sendChatToAllWithRadio(client, message);
+      server.chatManager.sendChatToAllWithRadio(server, client, message);
     }
   }
   ClientInitializationDetails(
