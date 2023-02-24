@@ -5979,7 +5979,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   reloadInterrupt(client: Client, weaponItem: LoadoutItem) {
-    if (!weaponItem.weapon?.reloadTimer) return;
+    if (!weaponItem || !weaponItem.weapon || !weaponItem.weapon.reloadTimer)
+      return;
     client.character.clearReloadTimeout();
     this.sendWeaponData(client, "Weapon.Reload", {
       weaponGuid: weaponItem.itemGuid,
