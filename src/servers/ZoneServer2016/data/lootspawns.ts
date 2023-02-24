@@ -2623,4 +2623,43 @@ export const containerLootSpawners: {
       },
     ],
   },
+  // used for crate props
+  Crate: {
+    spawnChance: 60,
+    maxItems: 1,
+    items: [
+      {
+        item: Items.WOOD_PLANK,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.FERTILIZER,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.CANNED_FOOD01,
+        weight: 15,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.WATER_PURE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+    ],
+  },
 };

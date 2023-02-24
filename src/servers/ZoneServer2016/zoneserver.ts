@@ -148,6 +148,7 @@ import { spawn, Worker } from "threads";
 import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 import { logVersion } from "../../utils/processErrorHandling";
 import { TaskProp } from "./entities/taskprop";
+import { Crate } from "./entities/crate";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   Z1_vehicles = require("../../../data/2016/zoneData/Z1_vehicleLocations.json"),
@@ -210,6 +211,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   _lootableProps: { [characterId: string]: LootableProp } = {};
   _taskProps: { [characterId: string]: TaskProp } = {};
+  _crates: { [characterId: string]: Crate } = {};
 
   _worldLootableConstruction: {
     [characterId: string]: LootableConstructionEntity;
@@ -2550,6 +2552,8 @@ export class ZoneServer2016 extends EventEmitter {
         return EntityTypes.TRAP;
       case !!this._taskProps[entityKey]:
         return EntityTypes.TASK_PROP;
+      case !!this._crates[entityKey]:
+        return EntityTypes.CRATE;
       default:
         return EntityTypes.INVALID;
     }
@@ -2614,6 +2618,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._worldSimpleConstruction[entityKey] ||
       this._plants[entityKey] ||
       this._taskProps[entityKey] ||
+      this._crates[entityKey] ||
       undefined
     );
   }
@@ -2935,6 +2940,14 @@ export class ZoneServer2016 extends EventEmitter {
       };
       DTOArray.push(propInstance);
     }
+    for (const object in this._crates) {
+      const prop = this._crates[object];
+      const propInstance = {
+        objectId: prop.spawnerId,
+        unknownString1: "Weapon_Empty.adr",
+      };
+      DTOArray.push(propInstance);
+    }
     for (const object in this._speedTrees) {
       const DTO = this._speedTrees[object];
       const DTOinstance = {
@@ -3041,7 +3054,7 @@ export class ZoneServer2016 extends EventEmitter {
     timeToDisappear?: number
   ): boolean {
     if (!dictionary[characterId]) return false;
-    this.sendDataToAllWithSpawnedEntity(
+    this.addNpcQueueToAllWithSpawnedEntity(
       dictionary,
       characterId,
       "Character.RemovePlayer",
@@ -3058,9 +3071,45 @@ export class ZoneServer2016 extends EventEmitter {
         cell.objects.splice(cell.objects.indexOf(dictionary[characterId]), 1);
       }
     });
+
+    // remove deleted entity from spawned entities (correct me if we do it somewhere else)
+
+    for (const a in this._clients) {
+      const client = this._clients[a];
+      let index = client.spawnedEntities.indexOf(dictionary[characterId]);
+      if (index > -1) {
+        client.spawnedEntities.splice(index, 1);
+      }
+    }
     delete dictionary[characterId];
     delete this._transientIds[this._characterIds[characterId]];
     delete this._characterIds[characterId];
+    return true;
+  }
+
+  deleteCrate(crate: Crate, effectId?: number): boolean {
+    if (!this._crates[crate.characterId]) return false;
+    this.addNpcQueueToAllWithSpawnedEntity(
+      this._crates,
+      crate.characterId,
+      "Character.RemovePlayer",
+      {
+        characterId: crate.characterId,
+        unknownWord1: effectId ? 1 : 0,
+        effectId: 242,
+        timeToDisappear: 0,
+        effectDelay: 0,
+      }
+    );
+    crate.spawnTimestamp = Date.now() + 900000; // 15min respawn time
+    crate.health = 5000;
+    for (const a in this._clients) {
+      const client = this._clients[a];
+      let index = client.spawnedEntities.indexOf(crate);
+      if (index > -1) {
+        client.spawnedEntities.splice(index, 1);
+      }
+    }
     return true;
   }
 
@@ -3718,6 +3767,9 @@ export class ZoneServer2016 extends EventEmitter {
         }*/
 
         if (client.spawnedEntities.includes(object)) continue;
+        if (object instanceof Crate) {
+          if (object.spawnTimestamp > Date.now()) continue;
+        }
         client.spawnedEntities.push(object);
         if (object instanceof BaseLightweightCharacter) {
           this.addLightweightNpc(client, object);
@@ -4435,6 +4487,25 @@ export class ZoneServer2016 extends EventEmitter {
         this._clients[a].character.characterId == entityCharacterId
       ) {
         this.sendData(this._clients[a], packetName, obj);
+      }
+    }
+  }
+
+  addNpcQueueToAllWithSpawnedEntity(
+    dictionary: { [id: string]: any },
+    entityCharacterId: string = "",
+    packetName: h1z1PacketsType2016,
+    obj: zone2016packets
+  ) {
+    if (!entityCharacterId) return;
+    for (const a in this._clients) {
+      if (
+        this._clients[a].spawnedEntities.includes(
+          dictionary[entityCharacterId]
+        ) ||
+        this._clients[a].character.characterId == entityCharacterId
+      ) {
+        this.addLightWeightNpcQueue(this._clients[a], packetName, obj);
       }
     }
   }

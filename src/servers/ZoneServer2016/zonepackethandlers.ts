@@ -59,6 +59,7 @@ import { Collection } from "mongodb";
 import { DB_COLLECTIONS } from "../../utils/enums";
 import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
 import { Character2016 } from "./entities/character";
+import { Crate } from "./entities/crate";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -972,6 +973,10 @@ export class zonePacketHandlers {
   ) {
     const entity = server.getEntity(packet.data.guid);
     if (!entity) return;
+    if (entity instanceof Crate) {
+      client.character.currentInteractionGuid = packet.data.guid;
+      return;
+    }
     const isConstruction =
       entity instanceof ConstructionParentEntity ||
       entity instanceof ConstructionChildEntity ||
@@ -1805,6 +1810,23 @@ export class zonePacketHandlers {
               client.character.temporaryScrapSoundTimeout = setTimeout(() => {
                 delete client.character.temporaryScrapSoundTimeout;
               }, 1000);
+            }
+          }
+          // crate damaging workaround
+          if (client.character.currentInteractionGuid) {
+            const entity =
+              server._crates[client.character.currentInteractionGuid];
+            if (entity) {
+              if (!client.character.temporaryScrapSoundTimeout) {
+                client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+                  delete client.character.temporaryScrapSoundTimeout;
+                }, 350);
+                const damageInfo: DamageInfo = {
+                  entity: "Server.WorkAroundMelee",
+                  damage: 800,
+                };
+                entity.OnProjectileHit(server, damageInfo);
+              }
             }
           }
 
