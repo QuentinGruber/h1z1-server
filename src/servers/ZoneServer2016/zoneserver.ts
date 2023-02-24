@@ -4511,6 +4511,63 @@ export class ZoneServer2016 extends EventEmitter {
       });
       return;
     }
+    // disallow construction stacking
+    // world constructions may not be placed within 2 radius, this problem wont affect stuff inside any foundation
+    let stackedDectector = false;
+    if (!Number(parentObjectCharacterId)) {
+      for (const a in this._worldSimpleConstruction) {
+        const c = this._worldSimpleConstruction[a];
+        if (
+          isPosInRadiusWithY(2, c.state.position, position, 1.5) &&
+          c.state.position[1].toFixed(1) != position[1].toFixed(1)
+        ) {
+          stackedDectector = true;
+          break;
+        }
+      }
+      for (const a in this._constructionSimple) {
+        const c = this._constructionSimple[a];
+        if (
+          isPosInRadiusWithY(2, c.state.position, position, 1.5) &&
+          c.state.position[1].toFixed(1) != position[1].toFixed(1)
+        ) {
+          stackedDectector = true;
+          break;
+        }
+      }
+
+      for (const a in this._lootableConstruction) {
+        const c = this._lootableConstruction[a];
+        if (
+          isPosInRadiusWithY(2, c.state.position, position, 1.5) &&
+          c.state.position[1].toFixed(1) != position[1].toFixed(1)
+        ) {
+          stackedDectector = true;
+          break;
+        }
+      }
+      for (const a in this._worldLootableConstruction) {
+        const c = this._worldLootableConstruction[a];
+        if (
+          isPosInRadiusWithY(2, c.state.position, position, 1.5) &&
+          c.state.position[1].toFixed(1) != position[1].toFixed(1)
+        ) {
+          stackedDectector = true;
+          break;
+        }
+      }
+      if (stackedDectector) {
+        this.sendData(client, "Construction.PlacementFinalizeResponse", {
+          status: 0,
+          unknownString1: "",
+        });
+        this.sendAlert(
+          client,
+          "You cant stack that many constructions in one place"
+        );
+        return;
+      }
+    }
     if (item.itemDefinitionId == Items.GROUND_TAMPER) {
       // fix for tamper stacking
       let tampersInRadius = 0;
