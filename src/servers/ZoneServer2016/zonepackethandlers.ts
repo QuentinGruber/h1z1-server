@@ -1919,6 +1919,8 @@ export class zonePacketHandlers {
           break;
         case "Weapon.ReloadRequest":
           if (weaponItem.weapon.reloadTimer) return;
+          const maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId); // max clip size
+          if (weaponItem.weapon.ammoCount >= maxAmmo) return;
           setTimeout(() => {
             client.allowedProjectiles = 0;
           }, 100);
@@ -1946,7 +1948,6 @@ export class zonePacketHandlers {
           const weaponAmmoId = server.getWeaponAmmoId(
               weaponItem.itemDefinitionId
             ),
-            maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
             reloadTime = server.getWeaponReloadTime(
               weaponItem.itemDefinitionId
             );
