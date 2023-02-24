@@ -64,6 +64,7 @@ export interface CharacterUpdateSaveData
   characterId: string,
   isRespawning: boolean;
   spawnGridData: number[];
+  mutedCharacters: string[];
 }
 
 export interface FullCharacterSaveData

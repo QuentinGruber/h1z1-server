@@ -94,7 +94,7 @@ export class ChatManager {
   sendPlayerNotFound(server: ZoneServer2016, client: Client, inputString: string, possibleClient: string) {
     server.sendChatText(
       client,
-      `Could not find player "${inputString}", did you mean "${possibleClient}"?`
+      `Could not find player "${inputString.toLowerCase()}", did you mean "${possibleClient}"?`
     );
   }
 }
