@@ -672,11 +672,6 @@ export class zonePacketHandlers {
       vehicle.engineRPM = packet.data.positionUpdate.engineRPM;
     }
     if (packet.data.positionUpdate.position) {
-      if (packet.data.positionUpdate.position[1] < -100) {
-        // If the vehicle is falling trough the map
-        server.deleteEntity(vehicle.characterId, server._vehicles);
-        return;
-      }
       vehicle.state.position = new Float32Array([
         packet.data.positionUpdate.position[0],
         packet.data.positionUpdate.position[1] - 0.4,
@@ -710,6 +705,9 @@ export class zonePacketHandlers {
         }
       }*/
     }
+    delete packet.data.positionUpdate.flags;
+    delete packet.data.positionUpdate.position;
+    Object.assign(vehicle.positionUpdate, packet.data.positionUpdate);
   }
   VehicleStateData(server: ZoneServer2016, client: Client, packet: any) {
     server.sendDataToAllOthersWithSpawnedEntity(
@@ -739,7 +737,10 @@ export class zonePacketHandlers {
       // falling flag, ignore for now
     }
     if (packet.data.stance) {
-      if (packet.data.stance == Stances.STANCE_XS) {
+      if (
+        packet.data.stance == Stances.STANCE_XS ||
+        packet.data.stance == Stances.STANCE_XS_FP
+      ) {
         const pos = client.character.state.position;
         if (!server._soloMode) {
           logClientActionToMongo(
@@ -752,12 +753,10 @@ export class zonePacketHandlers {
         server.sendChatTextToAdmins(
           `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
         );
-        setTimeout(() => {
-          server.sendData(client, "ClientUpdate.UpdateLocation", {
-            position: pos,
-            triggerLoadingScreen: false,
-          });
-        }, 1000);
+        server.sendData(client, "ClientUpdate.UpdateLocation", {
+          position: pos,
+          triggerLoadingScreen: true,
+        });
       }
       const byte1 = packet.data.stance & 0xff;
       client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
@@ -870,6 +869,9 @@ export class zonePacketHandlers {
     );
   }
   SpectatorTP(server: ZoneServer2016, client: Client, packet: any) {
+    client.managedObjects?.forEach((characterId: any) => {
+      server.dropVehicleManager(client, characterId);
+    });
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: [packet.data.x, 355, packet.data.y, 1],
       triggerLoadingScreen: false,
@@ -1655,12 +1657,12 @@ export class zonePacketHandlers {
                 !client.character.temporaryScrapTimeout
               ) {
                 const chance = Math.floor(Math.random() * 100) + 1;
-                if (chance <= 70) {
+                if (chance <= 60) {
                   client.character.lootItem(
                     server,
                     server.generateItem(Items.METAL_SCRAP)
                   );
-                  server.damageItem(client, weaponItem, 35);
+                  server.damageItem(client, weaponItem, 50);
                 }
                 client.character.temporaryScrapTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapTimeout;

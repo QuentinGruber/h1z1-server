@@ -135,12 +135,12 @@ export class ZoneClient2016 {
   }
   sendLightWeightQueue(server: ZoneServer2016) {
     if (!server._clients[this.sessionId]) return;
-    for (let x = 0; x < 15; x++) {
+    for (let x = 0; x < 10; x++) {
       const queuedPacket = this.lightWeightNpcQueue[x];
       if (!queuedPacket) break;
       server.sendData(this, queuedPacket.packetName, queuedPacket.data);
     }
-    this.lightWeightNpcQueue.splice(0, 15);
+    this.lightWeightNpcQueue.splice(0, 10);
     setTimeout(() => this.sendLightWeightQueue(server), 5);
   }
 }

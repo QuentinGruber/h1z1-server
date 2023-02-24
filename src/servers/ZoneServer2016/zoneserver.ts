@@ -1407,6 +1407,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.lootbagDespawner();
         this.itemDespawner();
         this.worldObjectManager.run(this);
+        this.checkVehiclesInMapBounds();
         this.setTickRate();
         if (
           this.enableWorldSaves &&
@@ -3594,7 +3595,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
           vehicle = vehicleId ? this._vehicles[vehicleId] : false;
-        this.sendData(client, "AddLightweightPc", {
+        this.addLightWeightNpcQueue(client, "AddLightweightPc", {
           ...characterObj.pGetLightweight(),
           mountGuid: vehicleId || "",
           mountSeatId: vehicle
@@ -3627,6 +3628,28 @@ export class ZoneServer2016 extends EventEmitter {
           mountRelatedDword1: 0,
         });
         c.spawnedEntities.push(character);
+      }
+    }
+  }
+
+  private checkVehiclesInMapBounds() {
+    for (const a in this._vehicles) {
+      const vehicle = this._vehicles[a];
+      let inMapBounds: boolean = false;
+      this._spawnGrid.forEach((cell: SpawnCell) => {
+        const position = vehicle.state.position;
+        if (
+          position[0] >= cell.position[0] - cell.width / 2 &&
+          position[0] <= cell.position[0] + cell.width / 2 &&
+          position[2] >= cell.position[2] - cell.height / 2 &&
+          position[2] <= cell.position[2] + cell.height / 2
+        ) {
+          inMapBounds = true;
+        }
+      });
+
+      if (!inMapBounds || vehicle.state.position[1] < -50) {
+        vehicle.destroy(this, true);
       }
     }
   }
@@ -4238,7 +4261,7 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (!client.spawnedEntities.includes(vehicle)) {
-          this.sendData(client, "AddLightweightVehicle", {
+          this.addLightWeightNpcQueue(client, "AddLightweightVehicle", {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
           });
@@ -4488,6 +4511,40 @@ export class ZoneServer2016 extends EventEmitter {
       });
       return;
     }
+    if (item.itemDefinitionId == Items.GROUND_TAMPER) {
+      // fix for tamper stacking
+      let tampersInRadius = 0;
+      for (const a in this._constructionFoundations) {
+        const foundation = this._constructionFoundations[a];
+        if (foundation.itemDefinitionId != Items.GROUND_TAMPER) continue;
+        if (isPosInRadius(22, foundation.state.position, position))
+          tampersInRadius++;
+      }
+      if (tampersInRadius >= 3) {
+        this.sendData(client, "Construction.PlacementFinalizeResponse", {
+          status: 0,
+          unknownString1: "",
+        });
+        this.sendAlert(client, "You cant place a ground tamper here");
+        return;
+      }
+    }
+    if (
+      item.itemDefinitionId != Items.GROUND_TAMPER &&
+      item.itemDefinitionId != Items.FOUNDATION &&
+      item.itemDefinitionId != Items.FOUNDATION_EXPANSION &&
+      !isPosInRadius(30, client.character.state.position, position)
+    ) {
+      this.sendData(client, "Construction.PlacementFinalizeResponse", {
+        status: 0,
+        unknownString1: "",
+      });
+      this.sendAlert(
+        client,
+        "You have to be in 30m radius of placed construction position"
+      );
+      return;
+    }
     const allowedItems = [Items.IED, Items.LANDMINE, Items.SNARE];
 
     // for construction entities that don't have a parentObjectCharacterId from the client
@@ -4658,6 +4715,30 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendAlert(
         client,
         "You may not place this object this close to a vehicle spawn point"
+      );
+      return;
+    }
+    // block building out of map bounds
+    let inMapBounds: boolean = false;
+    this._spawnGrid.forEach((cell: SpawnCell) => {
+      if (
+        position[0] >= cell.position[0] - cell.width / 2 &&
+        position[0] <= cell.position[0] + cell.width / 2 &&
+        position[2] >= cell.position[2] - cell.height / 2 &&
+        position[2] <= cell.position[2] + cell.height / 2
+      ) {
+        inMapBounds = true;
+      }
+    });
+
+    if (!inMapBounds) {
+      this.sendData(client, "Construction.PlacementFinalizeResponse", {
+        status: 0,
+        unknownString1: "",
+      });
+      this.sendAlert(
+        client,
+        "You may not place this object this close to edge of the map"
       );
       return;
     }
@@ -7623,6 +7704,7 @@ export class ZoneServer2016 extends EventEmitter {
       const client = this._clients[a];
       if (!client.isLoading) {
         client.routineCounter++;
+        this.checkInMapBounds(client);
         this.checkZonePing(client);
         if (client.routineCounter >= 3) {
           this.assignChunkRenderDistance(client);
@@ -7682,6 +7764,30 @@ export class ZoneServer2016 extends EventEmitter {
         }
         client.zonePings.splice(0, 1); // remove oldest ping val
       }
+    }
+  }
+
+  checkInMapBounds(client: Client) {
+    let inMapBounds: boolean = false;
+    this._spawnGrid.forEach((cell: SpawnCell) => {
+      const pos = client.character.state.position;
+      if (
+        pos[0] >= cell.position[0] - cell.width / 2 &&
+        pos[0] <= cell.position[0] + cell.width / 2 &&
+        pos[2] >= cell.position[2] - cell.height / 2 &&
+        pos[2] <= cell.position[2] + cell.height / 2
+      ) {
+        inMapBounds = true;
+      }
+    });
+
+    if (!inMapBounds && !client.isAdmin) {
+      const damageInfo: DamageInfo = {
+        entity: "Server.OutOfMapBounds",
+        damage: 1000,
+      };
+      this.sendAlert(client, `The radiation here seems to be dangerously high`);
+      client.character.damage(this, damageInfo);
     }
   }
 
