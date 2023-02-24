@@ -3076,7 +3076,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     for (const a in this._clients) {
       const client = this._clients[a];
-      let index = client.spawnedEntities.indexOf(dictionary[characterId]);
+      const index = client.spawnedEntities.indexOf(dictionary[characterId]);
       if (index > -1) {
         client.spawnedEntities.splice(index, 1);
       }
@@ -3105,7 +3105,7 @@ export class ZoneServer2016 extends EventEmitter {
     crate.health = 5000;
     for (const a in this._clients) {
       const client = this._clients[a];
-      let index = client.spawnedEntities.indexOf(crate);
+      const index = client.spawnedEntities.indexOf(crate);
       if (index > -1) {
         client.spawnedEntities.splice(index, 1);
       }
