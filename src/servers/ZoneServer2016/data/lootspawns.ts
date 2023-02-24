@@ -1210,7 +1210,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     items: [
       {
         item: Items.FERTILIZER,
-        weight: 70,
+        weight: 80,
         spawnCount: {
           min: 1,
           max: 1,
