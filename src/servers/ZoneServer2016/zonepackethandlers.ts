@@ -647,6 +647,11 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
+    if (!packet.data || packet.data.transientId) {
+      console.log("TransientId error detected");
+      console.log(packet);
+      return;
+    }
     const characterId: string = server._transientIds[packet.data.transientId],
       vehicle = characterId ? server._vehicles[characterId] : undefined;
 
