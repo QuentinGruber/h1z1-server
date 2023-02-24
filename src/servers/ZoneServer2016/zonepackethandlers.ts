@@ -1091,7 +1091,7 @@ export class zonePacketHandlers {
   }
   CharacterWeaponStance(server: ZoneServer2016, client: Client, packet: any) {
     if (client.character.positionUpdate) {
-      client.character.positionUpdate.stance = packet.data.stance;
+      client.character.weaponStance = packet.data.stance;
     }
     server.sendDataToAllOthersWithSpawnedEntity(
       server._characters,
@@ -2065,11 +2065,8 @@ export class zonePacketHandlers {
           if (!weaponItem.weapon?.ammoCount) return;
 
           // temp workaround to fix 308 sound while aiming
-          if (
-            p.packet.firemodeIndex == 1 &&
-            server.getItemDefinition(weaponItem.itemDefinitionId).PARAM1 == 1373
-          )
-            return;
+          // this workaround applies to all weapons
+          if (p.packet.firemodeIndex == 1) return;
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,
             client.character.transientId,

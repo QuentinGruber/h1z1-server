@@ -6410,7 +6410,7 @@ export class ZoneServer2016 extends EventEmitter {
         "Update.SwitchFireMode",
         {
           firegroupIndex: 0,
-          firemodeIndex: 1,
+          firemodeIndex: 0,
         }
       );
 
@@ -6421,7 +6421,7 @@ export class ZoneServer2016 extends EventEmitter {
         "Character.WeaponStance",
         {
           characterId: client.character.characterId,
-          stance: client.character.positionUpdate?.stance,
+          stance: client.character.weaponStance,
         }
       );
     }
