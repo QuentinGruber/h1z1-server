@@ -647,7 +647,7 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
-    if (!packet.data || packet.data.transientId) {
+    if (!packet.data || !packet.data.transientId) {
       console.log("TransientId error detected");
       console.log(packet);
       return;

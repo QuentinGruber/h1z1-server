@@ -71,7 +71,7 @@ export class Crate extends BaseLightweightCharacter {
             randomIntFromInterval(item.spawnCount.min, item.spawnCount.max)
           ),
           this.state.position,
-          this.state.rotation
+          new Float32Array([0, 0, 0, 0])
         );
         if (!spawnedItem) return;
         for (const a in server._clients) {
