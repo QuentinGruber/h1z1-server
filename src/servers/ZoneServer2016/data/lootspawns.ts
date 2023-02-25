@@ -420,7 +420,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region CONSUMABLES
   "ItemSpawner_FirstAidKit.adr": {
-    spawnChance: 15,
+    spawnChance: 5,
     items: [
       {
         item: Items.FIRST_AID,
@@ -1210,7 +1210,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     items: [
       {
         item: Items.FERTILIZER,
-        weight: 70,
+        weight: 80,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2251,7 +2251,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.FERTILIZER,
-        weight: 25,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2305,7 +2305,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.FERTILIZER,
-        weight: 25,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2619,6 +2619,137 @@ export const containerLootSpawners: {
         spawnCount: {
           min: 2,
           max: 3,
+        },
+      },
+    ],
+  },
+  // used for crate props
+  Crate: {
+    spawnChance: 50,
+    maxItems: 1,
+    items: [
+      {
+        item: Items.WOOD_PLANK,
+        weight: 15,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.FERTILIZER,
+        weight: 4,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.CLOTH,
+        weight: 15,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.CANNED_FOOD01,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.WATER_PURE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+    ],
+  },
+  Crate_big: {
+    spawnChance: 73,
+    maxItems: 1,
+    items: [
+      {
+        item: Items.FERTILIZER,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.WOOD_PLANK,
+        weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.CLOTH,
+        weight: 15,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.CANNED_FOOD01,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.WATER_PURE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+    ],
+  },
+  Crate_great: {
+    spawnChance: 50,
+    maxItems: 1,
+    items: [
+      {
+        item: Items.FERTILIZER,
+        weight: 8,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.WOOD_PLANK,
+        weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.CANNED_FOOD01,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.WATER_PURE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
       },
     ],
