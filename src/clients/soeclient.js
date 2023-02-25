@@ -44,7 +44,7 @@ class SOEClient {
     this._outQueue = [];
 
     const connection = (this._connection = dgram.createSocket("udp4"));
-    const protocol = (this._protocol = new Soeprotocol(false, 0));
+    const protocol = (this._protocol = new Soeprotocol(true, 0));
     const inputStream = (this._inputStream = new SOEInputStream(cryptoKey));
     const outputStream = (this._outputStream = new SOEOutputStream(cryptoKey));
 
