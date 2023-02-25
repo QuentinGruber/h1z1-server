@@ -1011,9 +1011,10 @@ export class ZoneServer2016 extends EventEmitter {
       fetchedWorldData.crops.forEach((entityData) => {
         WorldDataManager.loadPlantingDiameter(this, entityData);
       });
+      fetchedWorldData.vehicles.forEach((entityData) => {
+        WorldDataManager.loadVehicles(this, entityData);
+      });
 
-      // UNUSED ???
-      // this._transientIds = this.getAllCurrentUsedTransientId();
       console.timeEnd("fetch world data");
     }
     if (!this._soloMode) {
@@ -1047,6 +1048,10 @@ export class ZoneServer2016 extends EventEmitter {
     try {
       const characters = WorldDataManager.convertCharactersToSaveData(
         Object.values(this._characters),
+        this._worldId
+      );
+      const vehicles = WorldDataManager.convertVehiclesToSaveData(
+        Object.values(this._vehicles),
         this._worldId
       );
       const worldConstructions: LootableConstructionSaveData[] = [];
@@ -1091,6 +1096,7 @@ export class ZoneServer2016 extends EventEmitter {
           worldConstructions,
           crops,
           constructions,
+          vehicles
         })
         .then(() => {
           this._isSaving = false;
