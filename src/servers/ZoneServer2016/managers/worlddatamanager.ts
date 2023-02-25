@@ -201,7 +201,13 @@ export class WorldDataManager {
       (await this.loadWorldFreeplaceConstruction()) as LootableConstructionSaveData[];
     const crops = (await this.loadCropData()) as PlantingDiameterSaveData[];
     debug("World fetched!");
-    return { constructionParents, freeplace, crops, lastTransientId: 0, vehicles };
+    return {
+      constructionParents,
+      freeplace,
+      crops,
+      lastTransientId: 0,
+      vehicles,
+    };
   }
   async deleteServerData() {
     if (this._soloMode) {
@@ -461,10 +467,7 @@ export class WorldDataManager {
     return charactersSaveData;
   }
 
-  static convertVehiclesToSaveData(
-    characters: Vehicle2016[],
-    worldId: number
-  ) {
+  static convertVehiclesToSaveData(characters: Vehicle2016[], worldId: number) {
     const vehiclesSaveData: FullVehicleSaveData[] = [];
     for (let i = 0; i < characters.length; i++) {
       const vehicle = characters[i];
@@ -478,10 +481,7 @@ export class WorldDataManager {
 
   static convertToVehicleSaveData(vehicle: Vehicle2016, worldId: number) {
     const saveData: FullVehicleSaveData = {
-      ...WorldDataManager.getBaseFullCharacterUpdateSaveData(
-        vehicle,
-        worldId
-      ),
+      ...WorldDataManager.getBaseFullCharacterUpdateSaveData(vehicle, worldId),
       vehicleId: vehicle.vehicleId,
       actorModelId: vehicle.actorModelId,
       characterId: vehicle.characterId,
@@ -1104,10 +1104,7 @@ export class WorldDataManager {
     return plant;
   }
 
-  static loadVehicles(
-    server: ZoneServer2016,
-    entityData: FullVehicleSaveData
-  ) {
+  static loadVehicles(server: ZoneServer2016, entityData: FullVehicleSaveData) {
     const transientId = server.getTransientId(entityData.characterId),
       vehicle = new Vehicle2016(
         entityData.characterId,
@@ -1119,10 +1116,9 @@ export class WorldDataManager {
         server.getGameTime(),
         entityData.vehicleId
       );
-    constructLoadout(entityData._loadout,vehicle._loadout)
-    constructContainers(entityData._containers,vehicle._containers)
+    constructLoadout(entityData._loadout, vehicle._loadout);
+    constructContainers(entityData._containers, vehicle._containers);
     server._vehicles[vehicle.characterId] = vehicle;
-
   }
 
   static loadPlantingDiameter(
@@ -1170,19 +1166,15 @@ export class WorldDataManager {
     }
     return crops;
   }
-  
-  async saveVehicles(
-    vehicles: FullVehicleSaveData[]
-  ) {
+
+  async saveVehicles(vehicles: FullVehicleSaveData[]) {
     if (this._soloMode) {
       fs.writeFileSync(
         `${this._appDataFolder}/worlddata/vehicles.json`,
         JSON.stringify(vehicles, null, 2)
       );
     } else {
-      const collection = this._db?.collection(
-        DB_COLLECTIONS.VEHICLES
-      );
+      const collection = this._db?.collection(DB_COLLECTIONS.VEHICLES);
       const updatePromises = [];
       for (let i = 0; i < vehicles.length; i++) {
         const vehicle = vehicles[i];

@@ -1096,7 +1096,7 @@ export class ZoneServer2016 extends EventEmitter {
           worldConstructions,
           crops,
           constructions,
-          vehicles
+          vehicles,
         })
         .then(() => {
           this._isSaving = false;
