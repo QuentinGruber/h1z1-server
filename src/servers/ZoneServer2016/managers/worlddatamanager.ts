@@ -487,6 +487,7 @@ export class WorldDataManager {
       characterId: vehicle.characterId,
       serverId: worldId,
       rotation: Array.from(vehicle.state.lookAt),
+      positionUpdate: Array.from(vehicle.positionUpdate),
     };
     return saveData;
   }
@@ -1116,6 +1117,7 @@ export class WorldDataManager {
         server.getGameTime(),
         entityData.vehicleId
       );
+    vehicle.positionUpdate = new Float32Array(entityData.positionUpdate);
     constructLoadout(entityData._loadout, vehicle._loadout);
     constructContainers(entityData._containers, vehicle._containers);
     server._vehicles[vehicle.characterId] = vehicle;

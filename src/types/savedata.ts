@@ -82,6 +82,7 @@ export interface FullCharacterSaveData
 export interface FullVehicleSaveData
   extends BaseFullCharacterUpdateSaveData,
     BaseFullEntitySaveData {
+    positionUpdate: Array<number>;
     vehicleId: number
 }
 
