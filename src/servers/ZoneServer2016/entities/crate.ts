@@ -68,7 +68,7 @@ export class Crate extends BaseLightweightCharacter {
     if (chance <= lootTable.spawnChance) {
       const item = getRandomItem(lootTable.items);
       if (item) {
-        let fixedPosition = this.state.position;
+        const fixedPosition = this.state.position;
         if (this.actorModelId == 9088) fixedPosition[1] += 0.1;
         const spawnedItem = server.worldObjectManager.createLootEntity(
           server,
