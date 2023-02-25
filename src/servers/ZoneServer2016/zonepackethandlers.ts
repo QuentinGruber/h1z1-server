@@ -1821,14 +1821,22 @@ export class zonePacketHandlers {
           if (client.character.currentInteractionGuid) {
             const entity =
               server._crates[client.character.currentInteractionGuid];
-            if (entity) {
+            if (
+              entity &&
+              entity.spawnTimestamp < Date.now() &&
+              isPosInRadius(
+                3,
+                entity.state.position,
+                client.character.state.position
+              )
+            ) {
               if (!client.character.temporaryScrapSoundTimeout) {
                 client.character.temporaryScrapSoundTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapSoundTimeout;
-                }, 350);
+                }, 300);
                 const damageInfo: DamageInfo = {
                   entity: "Server.WorkAroundMelee",
-                  damage: 800,
+                  damage: 1000,
                 };
                 entity.OnProjectileHit(server, damageInfo);
               }

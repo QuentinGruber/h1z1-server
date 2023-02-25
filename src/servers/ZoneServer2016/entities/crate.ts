@@ -59,18 +59,24 @@ export class Crate extends BaseLightweightCharacter {
   }
 
   spawnLoot(server: ZoneServer2016) {
-    const lootTable = containerLootSpawners["Crate"];
+    let lootTable = this.scale.every((val) => val >= 0.9)
+      ? containerLootSpawners["Crate_big"]
+      : containerLootSpawners["Crate"];
+    if (this.actorModelId == 9088)
+      lootTable = containerLootSpawners["Crate_great"];
     const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
     if (chance <= lootTable.spawnChance) {
       const item = getRandomItem(lootTable.items);
       if (item) {
+        let fixedPosition = this.state.position;
+        if (this.actorModelId == 9088) fixedPosition[1] += 0.1;
         const spawnedItem = server.worldObjectManager.createLootEntity(
           server,
           server.generateItem(
             item.item,
             randomIntFromInterval(item.spawnCount.min, item.spawnCount.max)
           ),
-          this.state.position,
+          fixedPosition,
           new Float32Array([0, 0, 0, 0])
         );
         if (!spawnedItem) return;
