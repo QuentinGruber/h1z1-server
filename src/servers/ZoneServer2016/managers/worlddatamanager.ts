@@ -30,6 +30,7 @@ import {
   LootableConstructionSaveData,
   PlantingDiameterSaveData,
   PlantSaveData,
+  positionUpdate,
   ServerSaveData,
   WeaponSaveData,
 } from "types/savedata";
@@ -272,6 +273,14 @@ export class WorldDataManager {
     };
   }
 
+  static getPositionUpdateSaveData(entity: Vehicle2016): positionUpdate {
+    return {
+      orientation: entity.positionUpdate.orientation,
+      frontTilt: entity.positionUpdate.frontTilt,
+      sideTilt: entity.positionUpdate.sideTilt,
+    };
+  }
+
   static getBaseFullEntitySaveData(
     entity: BaseEntity,
     serverId: number
@@ -487,7 +496,7 @@ export class WorldDataManager {
       characterId: vehicle.characterId,
       serverId: worldId,
       rotation: Array.from(vehicle.state.lookAt),
-      positionUpdate: Array.from(vehicle.positionUpdate),
+      positionUpdate: WorldDataManager.getPositionUpdateSaveData(vehicle),
     };
     return saveData;
   }
@@ -1117,7 +1126,7 @@ export class WorldDataManager {
         server.getGameTime(),
         entityData.vehicleId
       );
-    vehicle.positionUpdate = new Float32Array(entityData.positionUpdate);
+    Object.assign(vehicle.positionUpdate, entityData.positionUpdate);
     constructLoadout(entityData._loadout, vehicle._loadout);
     constructContainers(entityData._containers, vehicle._containers);
     server._vehicles[vehicle.characterId] = vehicle;
