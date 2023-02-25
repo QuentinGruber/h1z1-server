@@ -944,7 +944,8 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.isRespawning = false;
       await this.respawnPlayer(
         client,
-        this._spawnGrid[randomIntFromInterval(0, 99)]
+        this._spawnGrid[randomIntFromInterval(0, 99)],
+        false
       );
     } else {
       client.character.state.position = new Float32Array(
@@ -2145,7 +2146,11 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  async respawnPlayer(client: Client, cell: SpawnCell) {
+  async respawnPlayer(
+    client: Client,
+    cell: SpawnCell,
+    clearEquipment: boolean = true
+  ) {
     if (!this.hookManager.checkHook("OnPlayerRespawn", client)) return;
     if (!(await this.hookManager.checkAsyncHook("OnPlayerRespawn", client)))
       return;
@@ -2229,10 +2234,12 @@ export class ZoneServer2016 extends EventEmitter {
       true
     );
 
-    Object.values(client.character._equipment).forEach((equipmentSlot) => {
-      this.clearEquipmentSlot(client, equipmentSlot.slotId, false);
-    });
-    client.character.updateEquipment(this);
+    if (clearEquipment) {
+      Object.values(client.character._equipment).forEach((equipmentSlot) => {
+        this.clearEquipmentSlot(client, equipmentSlot.slotId, false);
+      });
+      client.character.updateEquipment(this);
+    }
 
     // fixes characters showing up as dead if they respawn close to other characters
     if (client.character.initialized) {
