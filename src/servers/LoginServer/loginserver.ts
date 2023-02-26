@@ -93,7 +93,7 @@ export class LoginServer extends EventEmitter {
   constructor(serverPort: number, mongoAddress = "") {
     super();
     this._crcSeed = 0;
-    this._crcLength = 0;
+    this._crcLength = 2;
     this._udpLength = 512;
     this._cryptoKey = Buffer.from(DEFAULT_CRYPTO_KEY, "base64");
     this._soloMode = false;
