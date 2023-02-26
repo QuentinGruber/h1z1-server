@@ -808,23 +808,25 @@ export class zonePacketHandlers {
         client.characterReleased = true;
       }
       server.speedFairPlayCheck(client, Date.now(), packet.data.position);
-      const distance = getDistance(
-        client.character.state.position,
-        packet.data.position
-      );
-      if (distance >= 1) {
-        server.sendChatTextToAdmins(
-          `FairPlay: kicking ${client.character.name}`
+      if (!client.isAdmin) {
+        const distance = getDistance(
+          client.character.state.position,
+          packet.data.position
         );
-        server.kickPlayer(client);
-        const pos = packet.data.position;
-        server.sendChatTextToAdmins(
-          `FairPlay: ${
-            client.character.name
-          } position desynced by ${distance.toFixed(2)} at [${pos[0]} ${
-            pos[1]
-          } ${pos[2]}]`
-        );
+        if (distance >= 1) {
+          server.sendChatTextToAdmins(
+            `FairPlay: kicking ${client.character.name}`
+          );
+          server.kickPlayer(client);
+          const pos = packet.data.position;
+          server.sendChatTextToAdmins(
+            `FairPlay: ${
+              client.character.name
+            } position desynced by ${distance.toFixed(2)} at [${pos[0]} ${
+              pos[1]
+            } ${pos[2]}]`
+          );
+        }
       }
       client.character.state.position = new Float32Array([
         packet.data.position[0],
