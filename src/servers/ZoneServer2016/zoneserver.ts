@@ -2710,7 +2710,10 @@ export class ZoneServer2016 extends EventEmitter {
         c.character._loadout[LoadoutSlots.ARMOR],
         damage / kevlarDamageDivider
       );
-    } else if (itemDef.DESCRIPTION_ID == 11151) {
+    } else if (
+      itemDef.DESCRIPTION_ID == 11151 ||
+      itemDef.DESCRIPTION_ID == 11153
+    ) {
       damage *= 0.7; // was 0.9
       this.damageItem(
         c,
@@ -6451,7 +6454,8 @@ export class ZoneServer2016 extends EventEmitter {
   isArmor(itemDefinitionId: number): boolean {
     return (
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12073 ||
-      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11151
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11151 ||
+      this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 11153
     );
   }
 
