@@ -27,6 +27,7 @@ import {
   quat2matrix,
   logClientActionToMongo,
   eul2quat,
+  getDistance,
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -807,6 +808,19 @@ export class zonePacketHandlers {
         client.characterReleased = true;
       }
       server.speedFairPlayCheck(client, Date.now(), packet.data.position);
+      const distance = getDistance(
+        client.character.state.position,
+        packet.data.position
+      );
+      if (distance >= 1) {
+        server.sendChatTextToAdmins(
+          `FairPlay: kicking ${client.character.name}`
+        );
+        server.kickPlayer(client);
+        server.sendChatTextToAdmins(
+          `FairPlay: kicking ${client.character.name} for invalid position update range`
+        );
+      }
       client.character.state.position = new Float32Array([
         packet.data.position[0],
         packet.data.position[1],

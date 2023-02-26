@@ -4241,10 +4241,7 @@ export class ZoneServer2016 extends EventEmitter {
       status: 1,
       sessionId: client.loginSessionId,
     });
-    setTimeout(() => {
-      if (!client) return;
-      this.deleteClient(client);
-    }, 1000);
+    this.deleteClient(client);
   }
 
   getDateString(timestamp: number) {
