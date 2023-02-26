@@ -48,6 +48,7 @@ import {
   CharacterLoginRequest,
   CharacterCreateRequest,
   LoginUdp_11packets,
+  LoginRequest,
 } from "types/LoginUdp_11packets";
 import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
@@ -132,8 +133,7 @@ export class LoginServer extends EventEmitter {
           // if packet parsing succeed
           switch (packet.name) {
             case "LoginRequest":
-              const { sessionId } = packet.result;
-              await this.LoginRequest(client, sessionId);
+              await this.LoginRequest(client, packet.result);
               break;
             case "CharacterSelectInfoRequest":
               await this.CharacterSelectInfoRequest(client);
@@ -392,8 +392,9 @@ export class LoginServer extends EventEmitter {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async LoginRequest(client: Client, sessionIdString: string) {
+  async LoginRequest(client: Client, request: LoginRequest) {
     let sessionId, gameVersion;
+    let sessionIdString = request.sessionId;
     // In case of shitty json formatting
     sessionIdString = sessionIdString.replaceAll("\\", "");
     try {
