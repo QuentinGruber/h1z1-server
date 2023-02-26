@@ -740,7 +740,18 @@ export class Character2016 extends BaseFullCharacter {
     if (!client || !c || !damageInfo.hitReport) {
       return;
     }
-
+    if (
+      !isPosInRadius(
+        c.vehicle?.mountedVehicle ? 50 : 3,
+        damageInfo.hitReport.position,
+        this.state.position
+      )
+    ) {
+      console.log(
+        `${client.character.name} landed a shot with invalid hit position`
+      );
+      return;
+    }
     server.hitMissFairPlayCheck(
       client,
       true,
