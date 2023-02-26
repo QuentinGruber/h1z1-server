@@ -316,7 +316,7 @@ export class SmeltingManager {
     const checkEmpty = Object.keys(container.items).length === 0;
     if (checkEmpty) {
       if (subEntity.wasUsed) {
-        server.deleteEntity(entity.characterId, subEntity.dictionary);
+        entity.destroy(server);
         return;
       }
       if (subEntity.currentTicks >= subEntity.requiredTicks) {

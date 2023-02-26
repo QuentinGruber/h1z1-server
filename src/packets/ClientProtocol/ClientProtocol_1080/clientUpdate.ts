@@ -234,7 +234,19 @@ export const clientUpdatePackets: any = [
       ],
     },
   ],
-  ["ClientUpdate.UpdateManagedLocation", 0x112300, {}],
+  [
+    "ClientUpdate.UpdateManagedLocation",
+    0x112300,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+        { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+      ],
+    },
+  ],
   [
     "ClientUpdate.ManagedMovementVersion",
     0x112400,

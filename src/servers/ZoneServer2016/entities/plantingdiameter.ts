@@ -31,4 +31,8 @@ export class PlantingDiameter extends TemporaryEntity {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.npcRenderDistance = 30;
   }
+
+  destroy(server: ZoneServer2016) {
+    return server.deleteEntity(this.characterId, server._temporaryObjects);
+  }
 }

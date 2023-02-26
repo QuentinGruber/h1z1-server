@@ -229,7 +229,7 @@ export const commands: Array<Command> = [
       client.character.isSpectator = !client.character.isSpectator;
       server.sendAlert(
         client,
-        `Set hidden state to ${client.character.isSpectator}`
+        `Set spectate/vanish state to ${client.character.isSpectator}`
       );
       if (!client.character.isSpectator) return;
       for (const a in server._clients) {
@@ -374,6 +374,9 @@ export const commands: Array<Command> = [
       }
 
       client.character.state.position = locationPosition;
+      client.managedObjects?.forEach((characterId: any) => {
+        server.dropVehicleManager(client, characterId);
+      });
       client.isLoading = true;
       client.characterReleased = false;
       client.character.lastLoginDate = toHex(Date.now());
@@ -407,6 +410,9 @@ export const commands: Array<Command> = [
         return;
       }
       targetClient.character.state.position = client.character.state.position;
+      targetClient.managedObjects?.forEach((characterId: any) => {
+        server.dropVehicleManager(client, characterId);
+      });
       targetClient.isLoading = true;
       targetClient.characterReleased = false;
       targetClient.character.lastLoginDate = toHex(Date.now());
@@ -444,6 +450,9 @@ export const commands: Array<Command> = [
         return;
       }
       client.character.state.position = targetClient.character.state.position;
+      client.managedObjects?.forEach((characterId: any) => {
+        server.dropVehicleManager(client, characterId);
+      });
       client.isLoading = true;
       client.characterReleased = false;
       client.character.lastLoginDate = toHex(Date.now());
@@ -1427,7 +1436,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "players",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendChatText(
         client,
@@ -1435,7 +1444,7 @@ export const commands: Array<Command> = [
           .map((c) => {
             return `${c.character.name}: ${c.loginSessionId}`;
           })
-          .join(", ")}`
+          .join(",\n")}`
       );
     },
   },

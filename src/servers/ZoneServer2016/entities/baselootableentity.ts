@@ -19,7 +19,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 
 export class BaseLootableEntity extends BaseFullCharacter {
   mountedCharacter?: string;
-  readonly interactionDistance = 4;
+  interactionDistance = 4;
   isLootbag: boolean;
   constructor(
     characterId: string,

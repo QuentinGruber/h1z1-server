@@ -2051,7 +2051,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
     ],
   },
   // disabled for now as crashes game client
-  /*[Items.SHACK_SMALL]: {
+  [Items.SHACK_SMALL]: {
     filterId: FilterIds.HOUSING,
     components: [
       {
@@ -2067,7 +2067,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 2,
       },
     ],
-  },*/
+  },
   [Items.FLARE_SMOKE]: {
     filterId: FilterIds.SURVIVAL,
     components: [
