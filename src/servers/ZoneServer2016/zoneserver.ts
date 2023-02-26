@@ -58,7 +58,6 @@ import {
   DamageInfo,
   DamageRecord,
   Recipe,
-  HitReport,
   SlottedConstructionEntity,
   SpawnLocation,
   Weather2016 as Weather,
@@ -2815,17 +2814,11 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  validateHit(client: Client, entity: BaseEntity, hitReport: HitReport) {
+  validateHit(client: Client, entity: BaseEntity) {
     const ret = {
       isValid: true,
       message: "",
     };
-    if (!isPosInRadius(3, hitReport.position, entity.state.position)) {
-      return {
-        isValid: false,
-        message: "ProjectileDistance1",
-      };
-    }
     if (
       !isPosInRadius(
         entity.npcRenderDistance || this._charactersRenderDistance,
@@ -2835,7 +2828,7 @@ export class ZoneServer2016 extends EventEmitter {
     ) {
       return {
         isValid: false,
-        message: "ProjectileDistance2",
+        message: "ProjectileDistance",
       };
     }
     if (!client.spawnedEntities.includes(entity)) {
@@ -2855,7 +2848,7 @@ export class ZoneServer2016 extends EventEmitter {
     const weaponItem = client.character.getEquippedWeapon();
     if (!weaponItem) return;
 
-    const hitValidation = this.validateHit(client, entity, packet.hitReport);
+    const hitValidation = this.validateHit(client, entity);
 
     entity.OnProjectileHit(this, {
       entity: client.character.characterId,
