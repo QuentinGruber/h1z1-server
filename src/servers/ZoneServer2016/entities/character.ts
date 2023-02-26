@@ -30,6 +30,7 @@ import {
 } from "../../../types/zoneserver";
 import {
   calculateOrientation,
+  isFloat,
   isPosInRadius,
   randomIntFromInterval,
   _,
@@ -681,6 +682,24 @@ export class Character2016 extends BaseFullCharacter {
       c = this.mountedContainer.getContainer();
     }
     return c;
+  }
+
+  getStats() {
+    return stats.map((stat: any) => {
+      console.log(stat)
+      console.log(stat.statData)
+      console.log(stat.statData.statValue)
+      return {
+        statId: stat.statData.statId,
+        statValue: {
+          type: isFloat(stat.statData.statValue.value.base) && isFloat(stat.statData.statValue.value.modifier) ? 1 : 0,
+          value: {
+            base: stat.statData.statValue.value.base,
+            modifier: stat.statData.statValue.value.modifier,
+          }
+        }
+      };
+    });
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {

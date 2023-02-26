@@ -734,9 +734,9 @@
         "statData": {
             "statId": 68,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 1,
+                    "base": 0.2,
                     "modifier": 0
                 }
             }
