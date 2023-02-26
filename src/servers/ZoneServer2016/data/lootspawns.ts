@@ -2189,7 +2189,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.WEAPON_CROWBAR,
-        weight: 40,
+        weight: 35,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2197,7 +2197,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.METAL_PIPE,
-        weight: 40,
+        weight: 35,
         spawnCount: {
           min: 1,
           max: 2,
@@ -2205,7 +2205,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_PIPE,
-        weight: 40,
+        weight: 35,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2213,7 +2213,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_WRENCH,
-        weight: 40,
+        weight: 35,
         spawnCount: {
           min: 1,
           max: 1,
