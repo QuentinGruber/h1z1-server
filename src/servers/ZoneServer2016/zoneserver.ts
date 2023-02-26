@@ -2201,6 +2201,12 @@ export class ZoneServer2016 extends EventEmitter {
         ]),
       });
     }
+    if (clearEquipment) {
+      Object.values(client.character._equipment).forEach((equipmentSlot) => {
+        this.clearEquipmentSlot(client, equipmentSlot.slotId, false);
+      });
+      client.character.updateEquipment(this);
+    }
     client.character.equipLoadout(this);
     client.character.state.position = cell.spawnPoints[randomSpawnIndex];
     this.updateResource(
@@ -2239,13 +2245,6 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.characterStates,
       true
     );
-
-    if (clearEquipment) {
-      Object.values(client.character._equipment).forEach((equipmentSlot) => {
-        this.clearEquipmentSlot(client, equipmentSlot.slotId, false);
-      });
-      client.character.updateEquipment(this);
-    }
 
     // fixes characters showing up as dead if they respawn close to other characters
     if (client.character.initialized) {
