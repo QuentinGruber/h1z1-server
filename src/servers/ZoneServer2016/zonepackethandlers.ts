@@ -26,6 +26,7 @@ import {
   toHex,
   quat2matrix,
   logClientActionToMongo,
+  eul2quat,
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -713,6 +714,11 @@ export class zonePacketHandlers {
     }
     delete packet.data.positionUpdate.flags;
     delete packet.data.positionUpdate.position;
+    if (packet.data.positionUpdate.orientation) {
+      vehicle.state.rotation = eul2quat(
+        new Float32Array([packet.data.positionUpdate.orientation, 0, 0, 0])
+      );
+    }
     Object.assign(vehicle.positionUpdate, packet.data.positionUpdate);
   }
   VehicleStateData(server: ZoneServer2016, client: Client, packet: any) {
