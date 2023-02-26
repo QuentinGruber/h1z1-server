@@ -817,8 +817,13 @@ export class zonePacketHandlers {
           `FairPlay: kicking ${client.character.name}`
         );
         server.kickPlayer(client);
+        const pos = packet.data.position;
         server.sendChatTextToAdmins(
-          `FairPlay: kicking ${client.character.name} for invalid position update range`
+          `FairPlay: ${
+            client.character.name
+          } position desynced by ${distance.toFixed(2)} at [${pos[0]} ${
+            pos[1]
+          } ${pos[2]}]`
         );
       }
       client.character.state.position = new Float32Array([
