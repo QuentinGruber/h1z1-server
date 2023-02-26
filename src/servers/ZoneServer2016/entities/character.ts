@@ -742,7 +742,7 @@ export class Character2016 extends BaseFullCharacter {
     }
     if (
       !isPosInRadius(
-        c.vehicle?.mountedVehicle ? 50 : 3,
+        c.vehicle?.mountedVehicle ? 50 : 4,
         damageInfo.hitReport.position,
         this.state.position
       )
