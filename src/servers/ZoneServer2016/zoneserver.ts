@@ -2397,10 +2397,10 @@ export class ZoneServer2016 extends EventEmitter {
         1000 /
         (sequenceTime - client.oldPos.time)) *
       3600000;
-    if (speed > 28 && (verticalSpeed < 40 || verticalSpeed == Infinity)) {
+    if (speed > 40 && (verticalSpeed < 40 || verticalSpeed == Infinity)) {
       client.speedWarnsNumber += 1;
     } else if (client.speedWarnsNumber != 0) {
-      client.speedWarnsNumber -= 1;
+      client.speedWarnsNumber = 0;
     }
     if (client.speedWarnsNumber > 50) {
       this.kickPlayer(client);
