@@ -808,7 +808,7 @@ export class zonePacketHandlers {
         client.characterReleased = true;
       }
       server.speedFairPlayCheck(client, Date.now(), packet.data.position);
-      if (!client.isAdmin) {
+      /*if (!client.isAdmin) {
         const distance = getDistance(
           client.character.state.position,
           packet.data.position
@@ -827,7 +827,7 @@ export class zonePacketHandlers {
             } ${pos[2]}]`
           );
         }
-      }
+      }*/
       client.character.state.position = new Float32Array([
         packet.data.position[0],
         packet.data.position[1],
