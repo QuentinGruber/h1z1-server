@@ -1857,7 +1857,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.METAL_SCRAP,
-        weight: 50,
+        weight: 33,
         spawnCount: {
           min: 1,
           max: 2,
@@ -1865,7 +1865,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.METAL_SHEET,
-        weight: 50,
+        weight: 33,
         spawnCount: {
           min: 1,
           max: 2,
@@ -1873,7 +1873,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.METAL_PIPE,
-        weight: 30,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1887,7 +1887,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.METAL_SCRAP,
-        weight: 50,
+        weight: 33,
         spawnCount: {
           min: 1,
           max: 2,
@@ -1895,7 +1895,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.METAL_SHEET,
-        weight: 50,
+        weight: 33,
         spawnCount: {
           min: 1,
           max: 2,
@@ -1903,7 +1903,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.METAL_PIPE,
-        weight: 30,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1917,7 +1917,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.METAL_SCRAP,
-        weight: 35,
+        weight: 33,
         spawnCount: {
           min: 1,
           max: 2,
@@ -1925,7 +1925,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.METAL_SHEET,
-        weight: 35,
+        weight: 33,
         spawnCount: {
           min: 1,
           max: 2,
@@ -1941,7 +1941,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.METAL_PIPE,
-        weight: 20,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2037,7 +2037,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.CLOTH,
-        weight: 20,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 2,
@@ -2045,7 +2045,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.AMMO_45,
-        weight: 20,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 2,
@@ -2053,7 +2053,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SUGAR,
-        weight: 20,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2061,7 +2061,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SALT,
-        weight: 25,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2189,7 +2189,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.WEAPON_CROWBAR,
-        weight: 40,
+        weight: 35,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2197,7 +2197,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.METAL_PIPE,
-        weight: 40,
+        weight: 35,
         spawnCount: {
           min: 1,
           max: 2,
@@ -2205,7 +2205,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_PIPE,
-        weight: 40,
+        weight: 35,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2213,7 +2213,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_WRENCH,
-        weight: 40,
+        weight: 35,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2343,7 +2343,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.SUGAR,
-        weight: 20,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 2,
