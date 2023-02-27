@@ -4594,10 +4594,14 @@ export class ZoneServer2016 extends EventEmitter {
       });
       return;
     }
+    const allowedItems = [Items.IED, Items.LANDMINE, Items.SNARE];
     // disallow construction stacking
-    // world constructions may not be placed within 2 radius, this problem wont affect stuff inside any foundation
+    // world constructions may not be placed within 1 radius, this problem wont affect stuff inside any foundation
     let stackedDectector = false;
-    if (!Number(parentObjectCharacterId)) {
+    if (
+      !Number(parentObjectCharacterId) &&
+      !allowedItems.includes(itemDefinitionId)
+    ) {
       for (const a in this._worldSimpleConstruction) {
         const c = this._worldSimpleConstruction[a];
         const diff = Math.abs(c.state.position[1] - position[1]);
@@ -4689,7 +4693,6 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    const allowedItems = [Items.IED, Items.LANDMINE, Items.SNARE];
 
     // for construction entities that don't have a parentObjectCharacterId from the client
     let freeplaceParentCharacterId = "";
