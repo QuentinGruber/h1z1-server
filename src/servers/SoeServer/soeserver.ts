@@ -13,7 +13,7 @@
 
 import { EventEmitter } from "node:events";
 import { RemoteInfo } from "node:dgram";
-import { Soeprotocol } from "h1emu-core";
+import { append_crc_legacy, Soeprotocol } from "h1emu-core";
 import Client, { packetsQueue } from "./soeclient";
 import SOEClient from "./soeclient";
 import { Worker } from "node:worker_threads";
@@ -85,7 +85,7 @@ export class SOEServer extends EventEmitter {
     this._connection.postMessage({
       type: "sendPacket",
       data: {
-        packetData: packet,
+        packetData: this._crcLength?append_crc_legacy(packet,this._crcSeed) :packet,
         port: client.port,
         address: client.address,
       },
