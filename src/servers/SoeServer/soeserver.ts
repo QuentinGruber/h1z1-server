@@ -85,7 +85,9 @@ export class SOEServer extends EventEmitter {
     this._connection.postMessage({
       type: "sendPacket",
       data: {
-        packetData: this._crcLength?append_crc_legacy(packet,this._crcSeed) :packet,
+        packetData: this._crcLength
+          ? append_crc_legacy(packet, this._crcSeed)
+          : packet,
         port: client.port,
         address: client.address,
       },
@@ -403,7 +405,7 @@ export class SOEServer extends EventEmitter {
           if (raw_parsed_data) {
             const parsed_data = JSON.parse(raw_parsed_data);
             if (parsed_data.name === "Error") {
-              console.error("parsing error "+parsed_data.error);
+              console.error("parsing error " + parsed_data.error);
               console.error(parsed_data);
             } else {
               this.handlePacket(client, parsed_data);
