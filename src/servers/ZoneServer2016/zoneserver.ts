@@ -4600,9 +4600,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (!Number(parentObjectCharacterId)) {
       for (const a in this._worldSimpleConstruction) {
         const c = this._worldSimpleConstruction[a];
+        const diff = Math.abs(c.state.position[1] - position[1])
         if (
-          isPosInRadiusWithY(2, c.state.position, position, 1.5) &&
-          c.state.position[1].toFixed(1) != position[1].toFixed(1)
+          isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
+          diff > 0.3
         ) {
           stackedDectector = true;
           break;
@@ -4610,9 +4611,10 @@ export class ZoneServer2016 extends EventEmitter {
       }
       for (const a in this._constructionSimple) {
         const c = this._constructionSimple[a];
+        const diff = Math.abs(c.state.position[1] - position[1])
         if (
-          isPosInRadiusWithY(2, c.state.position, position, 1.5) &&
-          c.state.position[1].toFixed(1) != position[1].toFixed(1)
+          isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
+          diff > 0.3
         ) {
           stackedDectector = true;
           break;
@@ -4621,19 +4623,22 @@ export class ZoneServer2016 extends EventEmitter {
 
       for (const a in this._lootableConstruction) {
         const c = this._lootableConstruction[a];
+        const diff = Math.abs(c.state.position[1] - position[1])
         if (
-          isPosInRadiusWithY(2, c.state.position, position, 1.5) &&
-          c.state.position[1].toFixed(1) != position[1].toFixed(1)
+          isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
+          diff > 0.3
         ) {
+          console.log(diff)
           stackedDectector = true;
           break;
         }
       }
       for (const a in this._worldLootableConstruction) {
         const c = this._worldLootableConstruction[a];
+        const diff = Math.abs(c.state.position[1] - position[1])
         if (
-          isPosInRadiusWithY(2, c.state.position, position, 1.5) &&
-          c.state.position[1].toFixed(1) != position[1].toFixed(1)
+          isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
+          diff > 0.3
         ) {
           stackedDectector = true;
           break;
