@@ -366,7 +366,7 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
         this._clients[client.sessionId] = zoneClient;
-        zoneClient.sendLightWeightQueue(this);
+        //zoneClient.sendLightWeightQueue(this);
         this._characters[characterId] = zoneClient.character;
         zoneClient.pingTimer = setTimeout(() => {
           this.timeoutClient(zoneClient);
@@ -3050,7 +3050,7 @@ export class ZoneServer2016 extends EventEmitter {
       return !objectsToRemove.includes(el);
     });
     objectsToRemove.forEach((object: any) => {
-      this.addLightWeightNpcQueue(client, "Character.RemovePlayer", {
+      this.sendData(client, "Character.RemovePlayer", {
         characterId: object.characterId,
       });
     });
@@ -3069,7 +3069,7 @@ export class ZoneServer2016 extends EventEmitter {
     timeToDisappear?: number
   ): boolean {
     if (!dictionary[characterId]) return false;
-    this.addNpcQueueToAllWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity(
       dictionary,
       characterId,
       "Character.RemovePlayer",
@@ -3104,7 +3104,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   deleteCrate(crate: Crate, effectId?: number): boolean {
     if (!this._crates[crate.characterId]) return false;
-    this.addNpcQueueToAllWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity(
       this._crates,
       crate.characterId,
       "Character.RemovePlayer",
@@ -3137,13 +3137,13 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseLightweightCharacter,
     nameId = 0
   ) {
-    this.addLightWeightNpcQueue(client, "AddLightweightNpc", {
+    this.sendData(client, "AddLightweightNpc", {
       ...entity.pGetLightweight(),
       nameId,
     });
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
-    this.addLightWeightNpcQueue(client, "AddSimpleNpc", entity.pGetSimpleNpc());
+    this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
   checkFoundationPermission(
@@ -3441,7 +3441,7 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceTypes.CONDITION
     );
     if (entity.isOpen) {
-      this.addLightWeightNpcQueue(client, "PlayerUpdatePosition", {
+      this.sendData(client, "PlayerUpdatePosition", {
         transientId: entity.transientId,
         positionUpdate: {
           sequenceTime: 0,
@@ -3659,7 +3659,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
           vehicle = vehicleId ? this._vehicles[vehicleId] : false;
-        this.addLightWeightNpcQueue(client, "AddLightweightPc", {
+        this.sendData(client, "AddLightweightPc", {
           ...characterObj.pGetLightweight(),
           mountGuid: vehicleId || "",
           mountSeatId: vehicle
@@ -3790,7 +3790,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.addLightweightNpc(client, object);
           if (object instanceof DoorEntity) {
             if (object.isOpen) {
-              this.addLightWeightNpcQueue(client, "PlayerUpdatePosition", {
+              this.sendData(client, "PlayerUpdatePosition", {
                 transientId: object.transientId,
                 positionUpdate: {
                   sequenceTime: 0,
@@ -3899,13 +3899,13 @@ export class ZoneServer2016 extends EventEmitter {
     this._sendData(client, packetName, obj, false);
   }
 
-  addLightWeightNpcQueue(
+  /*addLightWeightNpcQueue(
     client: Client,
     packetName: h1z1PacketsType2016,
     obj: zone2016packets
   ) {
     client.lightWeightNpcQueue.push({ packetName: packetName, data: obj });
-  }
+  }*/
 
   sendWeaponData(
     client: Client,
@@ -4325,7 +4325,7 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (!client.spawnedEntities.includes(vehicle)) {
-          this.addLightWeightNpcQueue(client, "AddLightweightVehicle", {
+          this.sendData(client, "AddLightweightVehicle", {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
           });
@@ -4503,7 +4503,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  addNpcQueueToAllWithSpawnedEntity(
+  /*addNpcQueueToAllWithSpawnedEntity(
     dictionary: { [id: string]: any },
     entityCharacterId: string = "",
     packetName: h1z1PacketsType2016,
@@ -4520,7 +4520,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.addLightWeightNpcQueue(this._clients[a], packetName, obj);
       }
     }
-  }
+  }*/
 
   sendDataToAllInRange(
     range: number,

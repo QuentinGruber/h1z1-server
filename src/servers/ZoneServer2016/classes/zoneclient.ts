@@ -84,10 +84,10 @@ export class ZoneClient2016 {
   zonePings: number[] = [];
   properlyLogout: boolean = false;
   permissionLevel: number = 0;
-  lightWeightNpcQueue: {
+  /*(lightWeightNpcQueue: {
     packetName: h1z1PacketsType2016;
     data: zone2016packets;
-  }[] = [];
+  }[] = [];*/
   constructor(
     sessionId: number,
     soeClientId: string,
@@ -133,7 +133,7 @@ export class ZoneClient2016 {
     this.avgPing = toInt(_.sum(this.pings) / this.pings.length);
     this.avgPingReady = true;
   }
-  sendLightWeightQueue(server: ZoneServer2016) {
+  /*sendLightWeightQueue(server: ZoneServer2016) {
     if (!server._clients[this.sessionId]) return;
     for (let x = 0; x < 10; x++) {
       const queuedPacket = this.lightWeightNpcQueue[x];
@@ -142,5 +142,5 @@ export class ZoneClient2016 {
     }
     this.lightWeightNpcQueue.splice(0, 10);
     setTimeout(() => this.sendLightWeightQueue(server), 5);
-  }
+  }*/
 }
