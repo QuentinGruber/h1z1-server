@@ -85,9 +85,7 @@ export class SOEServer extends EventEmitter {
     this._connection.postMessage({
       type: "sendPacket",
       data: {
-        packetData: this._crcLength
-          ? append_crc_legacy(packet, this._crcSeed)
-          : packet,
+        packetData: packet,
         port: client.port,
         address: client.address,
       },
@@ -103,7 +101,11 @@ export class SOEServer extends EventEmitter {
         if (logicalPacket.isReliable && logicalPacket.sequence) {
           client.unAckData.set(logicalPacket.sequence, Date.now());
         }
-        this._sendPhysicalPacket(client, logicalPacket.data);
+        const data =
+          logicalPacket.canCrc && this._crcLength
+            ? append_crc_legacy(logicalPacket.data, this._crcSeed)
+            : logicalPacket.data;
+        this._sendPhysicalPacket(client, data);
       } else {
         break;
       }
