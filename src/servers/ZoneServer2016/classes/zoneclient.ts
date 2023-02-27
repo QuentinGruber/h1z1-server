@@ -17,8 +17,8 @@ import { ZoneClient2016 as Client } from "./zoneclient";
 import { LootableProp } from "../entities/lootableprop";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "../entities/baseentity";
-import { h1z1PacketsType2016 } from "../../../types/packets";
-import { zone2016packets } from "../../../types/zone2016packets";
+//import { h1z1PacketsType2016 } from "../../../types/packets";
+//import { zone2016packets } from "../../../types/zone2016packets";
 
 export class ZoneClient2016 {
   guid?: string;
