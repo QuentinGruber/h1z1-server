@@ -32,7 +32,7 @@ export class SOEServer extends EventEmitter {
   _useEncryption: boolean = true;
   private _clients: Map<string, SOEClient> = new Map();
   private _connection: Worker;
-  _crcSeed: number = 0;
+  _crcSeed: number = Math.floor(Math.random() * 256);
   _crcLength: crc_length_options = 2;
   _waitQueueTimeMs: number = 50;
   _pingTimeoutTime: number = 60000;
