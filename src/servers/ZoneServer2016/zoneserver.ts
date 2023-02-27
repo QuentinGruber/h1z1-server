@@ -4628,7 +4628,6 @@ export class ZoneServer2016 extends EventEmitter {
           isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
           diff > 0.3
         ) {
-          console.log(diff);
           stackedDectector = true;
           break;
         }
