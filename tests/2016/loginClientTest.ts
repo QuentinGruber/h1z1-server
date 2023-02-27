@@ -5,8 +5,7 @@ const loginServer2016 = new LoginServer(1115);
 loginServer2016._protocol = new LoginProtocol();
 loginServer2016.start();
 loginServer2016._soeServer._waitQueueTimeMs = 0;
-loginServer2016._soeServer._crcSeed = 0
-
+loginServer2016._soeServer._crcSeed = 0;
 
 const client = new LoginClient(
   295110,

@@ -1,7 +1,7 @@
 import { LoginClient, LoginServer } from "../../h1z1-server";
 
 const loginServer = new LoginServer(1115);
-loginServer._soeServer._crcSeed = 0
+loginServer._soeServer._crcSeed = 0;
 loginServer.start();
 loginServer._soeServer._waitQueueTimeMs = 0;
 
