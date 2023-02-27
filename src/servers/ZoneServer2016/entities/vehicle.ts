@@ -270,7 +270,6 @@ export class Vehicle2016 extends BaseLootableEntity {
       },
       positionUpdate: {
         ...this.positionUpdate,
-        position: this.state.position, // trying to fix invisible characters/vehicles until they move
       },
     };
   }
@@ -390,6 +389,10 @@ export class Vehicle2016 extends BaseLootableEntity {
         delete this.damageTimeout;
       }
     }, 1000);
+  }
+
+  getHealth() {
+    return this._resources[ResourceIds.CONDITION];
   }
 
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -523,13 +526,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       });
       delete this.droppedManagedClient;
     }
-    // prevents cars from spawning in under the map for other characters
-    /*
-    server.sendData(client, "PlayerUpdatePosition", {
-      transientId: vehicle.transientId,
-      positionUpdate: vehicle.positionUpdate,
-    });
-    */
+
     server.sendData(client, "ResourceEvent", {
       eventData: {
         type: 1,
@@ -572,7 +569,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
   }
   destroy(server: ZoneServer2016, disableExplosion = false) {
-    if (!server._vehicles[this.characterId]) return;
+    if (!server._vehicles[this.characterId]) return false;
     this._resources[ResourceIds.CONDITION] = 0;
     for (const c in server._clients) {
       if (this.characterId === server._clients[c].vehicle.mountedVehicle) {
@@ -591,7 +588,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         disableWeirdPhysics: false,
       }
     );
-    server.deleteEntity(this.characterId, server._vehicles);
+    const deleted = server.deleteEntity(this.characterId, server._vehicles);
     if (!disableExplosion) {
       server.explosionDamage(this.state.position, this.characterId, "vehicle");
     }
@@ -602,5 +599,6 @@ export class Vehicle2016 extends BaseLootableEntity {
     });
     // delete vehicle loadout parts from lootbag
     server.worldObjectManager.createLootbag(server, this);
+    return deleted;
   }
 }

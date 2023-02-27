@@ -79,9 +79,16 @@ export interface FullCharacterSaveData
   status: number;
 }
 
+export interface positionUpdate {
+        orientation?: any;
+        frontTilt?: number;
+        sideTilt?: number;
+}
+
 export interface FullVehicleSaveData
   extends BaseFullCharacterUpdateSaveData,
     BaseFullEntitySaveData {
+    positionUpdate: positionUpdate;
     vehicleId: number
 }
 

@@ -104,4 +104,12 @@ export class BaseEntity {
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     // default: do nothing
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  destroy(server: ZoneServer2016): boolean {
+    console.log(
+      `Attempted to call destroy() on an entity an undefined destroy method! actorModelId ${this.actorModelId}`
+    );
+    return false;
+  }
 }

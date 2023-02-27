@@ -23,6 +23,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   mineTimer?: NodeJS.Timeout;
   npcRenderDistance = 300;
   detonated = false;
+  triggerExplosionShots = Math.floor(Math.random() * 3) + 2; // random number 2-4 neccesary shots
   constructor(
     characterId: string,
     transientId: number,
@@ -122,6 +123,12 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    this.triggerExplosionShots -= 1;
+    if (this.triggerExplosionShots > 0) return;
     this.detonate(server, server.getClientByCharId(damageInfo.entity));
+  }
+
+  destroy(server: ZoneServer2016) {
+    return server.deleteEntity(this.characterId, server._explosives);
   }
 }
