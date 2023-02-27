@@ -366,7 +366,7 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
         this._clients[client.sessionId] = zoneClient;
-        zoneClient.sendLightWeightQueue(this);
+        //zoneClient.sendLightWeightQueue(this);
         this._characters[characterId] = zoneClient.character;
         zoneClient.pingTimer = setTimeout(() => {
           this.timeoutClient(zoneClient);
@@ -3050,7 +3050,7 @@ export class ZoneServer2016 extends EventEmitter {
       return !objectsToRemove.includes(el);
     });
     objectsToRemove.forEach((object: any) => {
-      this.addLightWeightNpcQueue(client, "Character.RemovePlayer", {
+      this.sendData(client, "Character.RemovePlayer", {
         characterId: object.characterId,
       });
     });
@@ -3069,7 +3069,7 @@ export class ZoneServer2016 extends EventEmitter {
     timeToDisappear?: number
   ): boolean {
     if (!dictionary[characterId]) return false;
-    this.addNpcQueueToAllWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity(
       dictionary,
       characterId,
       "Character.RemovePlayer",
@@ -3104,7 +3104,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   deleteCrate(crate: Crate, effectId?: number): boolean {
     if (!this._crates[crate.characterId]) return false;
-    this.addNpcQueueToAllWithSpawnedEntity(
+    this.sendDataToAllWithSpawnedEntity(
       this._crates,
       crate.characterId,
       "Character.RemovePlayer",
@@ -3137,13 +3137,13 @@ export class ZoneServer2016 extends EventEmitter {
     entity: BaseLightweightCharacter,
     nameId = 0
   ) {
-    this.addLightWeightNpcQueue(client, "AddLightweightNpc", {
+    this.sendData(client, "AddLightweightNpc", {
       ...entity.pGetLightweight(),
       nameId,
     });
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
-    this.addLightWeightNpcQueue(client, "AddSimpleNpc", entity.pGetSimpleNpc());
+    this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
   checkFoundationPermission(
@@ -3441,7 +3441,7 @@ export class ZoneServer2016 extends EventEmitter {
       ResourceTypes.CONDITION
     );
     if (entity.isOpen) {
-      this.addLightWeightNpcQueue(client, "PlayerUpdatePosition", {
+      this.sendData(client, "PlayerUpdatePosition", {
         transientId: entity.transientId,
         positionUpdate: {
           sequenceTime: 0,
@@ -3659,7 +3659,7 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
           vehicle = vehicleId ? this._vehicles[vehicleId] : false;
-        this.addLightWeightNpcQueue(client, "AddLightweightPc", {
+        this.sendData(client, "AddLightweightPc", {
           ...characterObj.pGetLightweight(),
           mountGuid: vehicleId || "",
           mountSeatId: vehicle
@@ -3790,7 +3790,7 @@ export class ZoneServer2016 extends EventEmitter {
           this.addLightweightNpc(client, object);
           if (object instanceof DoorEntity) {
             if (object.isOpen) {
-              this.addLightWeightNpcQueue(client, "PlayerUpdatePosition", {
+              this.sendData(client, "PlayerUpdatePosition", {
                 transientId: object.transientId,
                 positionUpdate: {
                   sequenceTime: 0,
@@ -3899,13 +3899,13 @@ export class ZoneServer2016 extends EventEmitter {
     this._sendData(client, packetName, obj, false);
   }
 
-  addLightWeightNpcQueue(
+  /*addLightWeightNpcQueue(
     client: Client,
     packetName: h1z1PacketsType2016,
     obj: zone2016packets
   ) {
     client.lightWeightNpcQueue.push({ packetName: packetName, data: obj });
-  }
+  }*/
 
   sendWeaponData(
     client: Client,
@@ -4325,7 +4325,7 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         if (!client.spawnedEntities.includes(vehicle)) {
-          this.addLightWeightNpcQueue(client, "AddLightweightVehicle", {
+          this.sendData(client, "AddLightweightVehicle", {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
           });
@@ -4503,7 +4503,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  addNpcQueueToAllWithSpawnedEntity(
+  /*addNpcQueueToAllWithSpawnedEntity(
     dictionary: { [id: string]: any },
     entityCharacterId: string = "",
     packetName: h1z1PacketsType2016,
@@ -4520,7 +4520,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.addLightWeightNpcQueue(this._clients[a], packetName, obj);
       }
     }
-  }
+  }*/
 
   sendDataToAllInRange(
     range: number,
@@ -4594,15 +4594,20 @@ export class ZoneServer2016 extends EventEmitter {
       });
       return;
     }
+    const allowedItems = [Items.IED, Items.LANDMINE, Items.SNARE];
     // disallow construction stacking
-    // world constructions may not be placed within 2 radius, this problem wont affect stuff inside any foundation
+    // world constructions may not be placed within 1 radius, this problem wont affect stuff inside any foundation
     let stackedDectector = false;
-    if (!Number(parentObjectCharacterId)) {
+    if (
+      !Number(parentObjectCharacterId) &&
+      !allowedItems.includes(itemDefinitionId)
+    ) {
       for (const a in this._worldSimpleConstruction) {
         const c = this._worldSimpleConstruction[a];
+        const diff = Math.abs(c.state.position[1] - position[1]);
         if (
-          isPosInRadiusWithY(2, c.state.position, position, 1.5) &&
-          c.state.position[1].toFixed(1) != position[1].toFixed(1)
+          isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
+          diff > 0.3
         ) {
           stackedDectector = true;
           break;
@@ -4610,9 +4615,10 @@ export class ZoneServer2016 extends EventEmitter {
       }
       for (const a in this._constructionSimple) {
         const c = this._constructionSimple[a];
+        const diff = Math.abs(c.state.position[1] - position[1]);
         if (
-          isPosInRadiusWithY(2, c.state.position, position, 1.5) &&
-          c.state.position[1].toFixed(1) != position[1].toFixed(1)
+          isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
+          diff > 0.3
         ) {
           stackedDectector = true;
           break;
@@ -4621,9 +4627,10 @@ export class ZoneServer2016 extends EventEmitter {
 
       for (const a in this._lootableConstruction) {
         const c = this._lootableConstruction[a];
+        const diff = Math.abs(c.state.position[1] - position[1]);
         if (
-          isPosInRadiusWithY(2, c.state.position, position, 1.5) &&
-          c.state.position[1].toFixed(1) != position[1].toFixed(1)
+          isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
+          diff > 0.3
         ) {
           stackedDectector = true;
           break;
@@ -4631,9 +4638,10 @@ export class ZoneServer2016 extends EventEmitter {
       }
       for (const a in this._worldLootableConstruction) {
         const c = this._worldLootableConstruction[a];
+        const diff = Math.abs(c.state.position[1] - position[1]);
         if (
-          isPosInRadiusWithY(2, c.state.position, position, 1.5) &&
-          c.state.position[1].toFixed(1) != position[1].toFixed(1)
+          isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
+          diff > 0.3
         ) {
           stackedDectector = true;
           break;
@@ -4685,7 +4693,6 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    const allowedItems = [Items.IED, Items.LANDMINE, Items.SNARE];
 
     // for construction entities that don't have a parentObjectCharacterId from the client
     let freeplaceParentCharacterId = "";
