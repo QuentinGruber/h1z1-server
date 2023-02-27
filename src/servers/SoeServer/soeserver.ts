@@ -402,7 +402,6 @@ export class SOEServer extends EventEmitter {
           const raw_parsed_data: string = this._protocol.parse(data);
           if (raw_parsed_data) {
             const parsed_data = JSON.parse(raw_parsed_data);
-            console.log(parsed_data)
             if (parsed_data.name === "Error") {
               console.error("parsing error "+parsed_data.error);
               console.error(parsed_data);
