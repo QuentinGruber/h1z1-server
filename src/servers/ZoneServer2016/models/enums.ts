@@ -640,7 +640,6 @@ export enum Skins_MotorHelmet {
   Star_Spangled_Hat = 3470,
   Pumpkin_Mask = 2745,
   Scarecrow_Mask = 2750,
-
 }
 export enum Skins_Kevlar {
   Toxic_Body_Armor = 2477,
@@ -648,8 +647,6 @@ export enum Skins_Kevlar {
   Dead_End_Armor = 2860,
   EZW_Armored_Championship_Belt = 3125,
   EZW_Armored_Shoulderpads = 3126,
-
-  
 }
 export enum Skins_Military {
   BACKPACK_MILITARY_TAN = 2124,
@@ -657,5 +654,4 @@ export enum Skins_Military {
   Pink_Skulls_Survivor_Backpack = 3046,
   Sniper_Military_Backpack = 3169,
   Alpaca_Survival_Backpack = 4011,
-
 }
