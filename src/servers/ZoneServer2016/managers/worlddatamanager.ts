@@ -1126,6 +1126,7 @@ export class WorldDataManager {
         server.getGameTime(),
         entityData.vehicleId
       );
+    vehicle._resources = entityData._resources;
     Object.assign(vehicle.positionUpdate, entityData.positionUpdate);
     constructLoadout(entityData._loadout, vehicle._loadout);
     constructContainers(entityData._containers, vehicle._containers);
