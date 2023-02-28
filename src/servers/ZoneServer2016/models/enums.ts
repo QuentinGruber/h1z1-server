@@ -628,4 +628,17 @@ export enum Skins_MotorHelmet {
   GORILLA_WARFARE = 3631,
   ARACHNID = 3721,
   DEFAULT = 2170,
+  Infernal_Demon_Mask = 3862,
+  Holiday_Hat = 2887,
+  Mask_of_Jester = 3366,
+  Patchwork_Rudolph_Helmet = 2817,
+  Wasteland_Skull_Helmet = 3064,
+}
+export enum Skins_Kevlar {
+  Toxic_Body_Armor = 2477,
+  KEVLAR_DEFAULT = 2271,
+  Dead_End_Armor = 2860,
+   q
+}
+export enum Skins_Military {
 }
