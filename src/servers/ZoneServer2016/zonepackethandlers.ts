@@ -52,6 +52,7 @@ import { CommandHandler } from "./commands/commandhandler";
 import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import { Ban, ConstructionPermissions, DamageInfo } from "types/zoneserver";
+import { positionUpdate } from "types/savedata";
 import { GameTimeSync } from "types/zone2016packets";
 import { LootableProp } from "./entities/lootableprop";
 import { Vehicle2016 } from "./entities/vehicle";
@@ -219,6 +220,12 @@ export class zonePacketHandlers {
     server.sendData(client, "Command.FreeInteractionNpc", {});
   }
   CollisionDamage(server: ZoneServer2016, client: Client, packet: any) {
+    if (packet.data.objectCharacterId != client.character.characterId) {
+      const objVehicle = server._vehicles[packet.data.objectCharacterId];
+      if (objVehicle && packet.data.characterId != objVehicle.characterId) {
+        if (objVehicle.getNextSeatId(server) == "0") return;
+      }
+    }
     const characterId = packet.data.characterId,
       damage: number = packet.data.damage,
       vehicle = server._vehicles[characterId];
@@ -713,14 +720,19 @@ export class zonePacketHandlers {
         }
       }*/
     }
-    delete packet.data.positionUpdate.flags;
-    delete packet.data.positionUpdate.position;
-    if (packet.data.positionUpdate.orientation) {
+    const positionUpdate: positionUpdate = packet.data.positionUpdate;
+    if (positionUpdate.orientation) {
+      vehicle.positionUpdate.orientation = positionUpdate.orientation;
       vehicle.state.rotation = eul2quat(
         new Float32Array([packet.data.positionUpdate.orientation, 0, 0, 0])
       );
     }
-    Object.assign(vehicle.positionUpdate, packet.data.positionUpdate);
+    if (positionUpdate.frontTilt) {
+      vehicle.positionUpdate.frontTilt = positionUpdate.frontTilt;
+    }
+    if (positionUpdate.sideTilt) {
+      vehicle.positionUpdate.sideTilt = positionUpdate.sideTilt;
+    }
   }
   VehicleStateData(server: ZoneServer2016, client: Client, packet: any) {
     server.sendDataToAllOthersWithSpawnedEntity(
@@ -808,7 +820,7 @@ export class zonePacketHandlers {
         client.characterReleased = true;
       }
       server.speedFairPlayCheck(client, Date.now(), packet.data.position);
-      if (!client.isAdmin) {
+      /*if (!client.isAdmin) {
         const distance = getDistance(
           client.character.state.position,
           packet.data.position
@@ -827,7 +839,7 @@ export class zonePacketHandlers {
             } ${pos[2]}]`
           );
         }
-      }
+      }*/
       client.character.state.position = new Float32Array([
         packet.data.position[0],
         packet.data.position[1],

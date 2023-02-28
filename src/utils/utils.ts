@@ -188,9 +188,11 @@ export async function zoneShutdown(
       timeLeft: 0,
       message: message,
     });
-    server.sendDataToAll("CharacterSelectSessionResponse", {
-      status: 1,
-      sessionId: "0", // TODO: get sessionId from client object
+    Object.values(server._clients).forEach((client: ZoneClient2016) => {
+      server.sendData(client as any, "CharacterSelectSessionResponse", {
+        status: 1,
+        sessionId: client.loginSessionId,
+      });
     });
     setTimeout(() => {
       process.exit(0);

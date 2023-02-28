@@ -1206,11 +1206,11 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region FARM
   "ItemSpawnerFarm.adr": {
-    spawnChance: 50,
+    spawnChance: 35,
     items: [
       {
         item: Items.FERTILIZER,
-        weight: 80,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1218,7 +1218,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_AXE_WOOD,
-        weight: 40,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1226,7 +1226,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.SEED_CORN,
-        weight: 70,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1234,7 +1234,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.SEED_WHEAT,
-        weight: 70,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1242,7 +1242,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_HATCHET,
-        weight: 40,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1250,15 +1250,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 35,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
-      {
-        item: Items.GROUND_TILLER,
-        weight: 20,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2189,7 +2181,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.WEAPON_CROWBAR,
-        weight: 35,
+        weight: 37,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2197,7 +2189,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.METAL_PIPE,
-        weight: 35,
+        weight: 37,
         spawnCount: {
           min: 1,
           max: 2,
@@ -2205,7 +2197,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_PIPE,
-        weight: 35,
+        weight: 37,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2213,7 +2205,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_WRENCH,
-        weight: 35,
+        weight: 37,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2251,7 +2243,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.FERTILIZER,
-        weight: 10,
+        weight: 6,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2305,7 +2297,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.FERTILIZER,
-        weight: 10,
+        weight: 6,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2638,7 +2630,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.FERTILIZER,
-        weight: 4,
+        weight: 2,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2676,7 +2668,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.FERTILIZER,
-        weight: 25,
+        weight: 27,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2720,14 +2712,6 @@ export const containerLootSpawners: {
     spawnChance: 50,
     maxItems: 1,
     items: [
-      {
-        item: Items.FERTILIZER,
-        weight: 8,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
       {
         item: Items.WOOD_PLANK,
         weight: 50,

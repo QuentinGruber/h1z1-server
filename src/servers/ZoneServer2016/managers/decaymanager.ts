@@ -137,6 +137,12 @@ export class DecayManager {
       this.decayDamage(server, server._worldSimpleConstruction[a]);
     }
     for (const a in server._constructionSimple) {
+      const simple = server._constructionSimple[a];
+      if (
+        simple.itemDefinitionId == Items.FOUNDATION_RAMP ||
+        simple.itemDefinitionId == Items.FOUNDATION_STAIRS
+      )
+        continue;
       this.decayDamage(server, server._constructionSimple[a]);
     }
     /*for (const a in server._lootableConstruction) {
