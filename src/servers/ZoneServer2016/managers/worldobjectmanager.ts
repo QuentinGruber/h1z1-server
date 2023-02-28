@@ -37,7 +37,8 @@ import {
   Skins_Beanie,
   Skins_Cap,
   Skins_MotorHelmet,
-  Skins_Armor,
+  Skins_Kevlar,
+  Skins_Military,
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -85,6 +86,9 @@ function getRandomSkin(itemDefinitionId: number) {
       break;
     case Items.KEVLAR_DEFAULT:
       arr = Object.keys(Skins_Kevlar);
+      break;
+    case Items.BACKPACK_MILITARY_TAN:
+      arr = Object.keys(Skins_Military);
       break;
   }
   itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);

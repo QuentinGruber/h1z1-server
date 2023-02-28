@@ -633,12 +633,29 @@ export enum Skins_MotorHelmet {
   Mask_of_Jester = 3366,
   Patchwork_Rudolph_Helmet = 2817,
   Wasteland_Skull_Helmet = 3064,
+  EZW_Spiked_Helmet = 3124,
+  Dragon_Motorcycle_Helmet = 2828,
+  Cigar_Hog_Mask = 2396,
+  White_Unicorn_Full_Helmet = 3439,
+  Star_Spangled_Hat = 3470,
+  Pumpkin_Mask = 2745,
+  Scarecrow_Mask = 2750,
+
 }
 export enum Skins_Kevlar {
   Toxic_Body_Armor = 2477,
   KEVLAR_DEFAULT = 2271,
   Dead_End_Armor = 2860,
-   q
+  EZW_Armored_Championship_Belt = 3125,
+  EZW_Armored_Shoulderpads = 3126,
+
+  
 }
 export enum Skins_Military {
+  BACKPACK_MILITARY_TAN = 2124,
+  Rasta_Backpack = 2393,
+  Pink_Skulls_Survivor_Backpack = 3046,
+  Sniper_Military_Backpack = 3169,
+  Alpaca_Survival_Backpack = 4011,
+
 }
