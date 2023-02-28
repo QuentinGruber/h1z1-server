@@ -2189,7 +2189,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.WEAPON_CROWBAR,
-        weight: 35,
+        weight: 37,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2197,7 +2197,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.METAL_PIPE,
-        weight: 35,
+        weight: 37,
         spawnCount: {
           min: 1,
           max: 2,
@@ -2205,7 +2205,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_PIPE,
-        weight: 35,
+        weight: 37,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2213,7 +2213,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_WRENCH,
-        weight: 35,
+        weight: 37,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2251,7 +2251,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.FERTILIZER,
-        weight: 10,
+        weight: 6,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2305,7 +2305,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.FERTILIZER,
-        weight: 10,
+        weight: 6,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2676,7 +2676,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.FERTILIZER,
-        weight: 25,
+        weight: 23,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2720,14 +2720,6 @@ export const containerLootSpawners: {
     spawnChance: 50,
     maxItems: 1,
     items: [
-      {
-        item: Items.FERTILIZER,
-        weight: 8,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
       {
         item: Items.WOOD_PLANK,
         weight: 50,
