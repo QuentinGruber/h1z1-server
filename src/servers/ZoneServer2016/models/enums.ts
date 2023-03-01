@@ -600,6 +600,8 @@ export enum Skins_Shirt {
   PRO_GRAMER_HOODIE = 2378,
   PARAMEDIC_UNIFORM = 2535,
   SHIRT_DEFAULT = 2088,
+  Dragon_Lodge_Parka = 3033,
+
 }
 
 export enum Skins_Pants {
@@ -661,5 +663,4 @@ export enum Skins_Glasses {
   Default_Goggles =  1693,
   White_Biker_Glasses = 2252,
   Steampunk_Goggles = 2954,
-  
 }
