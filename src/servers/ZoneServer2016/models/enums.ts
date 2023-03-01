@@ -648,10 +648,10 @@ export enum Skins_Kevlar {
   EZW_Armored_Championship_Belt = 3125,
   EZW_Armored_Shoulderpads = 3126,
 }
-/*export enum Skins_Military {                   //didnt work for some reason 
+export enum Skins_Military {
   Military_Default = 2124,
-  Rasta_Backpack = 2393,                  
+  Rasta_Backpack = 2393,
   Pink_Skulls_Survivor_Backpack = 3046,
   Sniper_Military_Backpack = 3169,
   Alpaca_Survival_Backpack = 4011,
-}*/
+}
