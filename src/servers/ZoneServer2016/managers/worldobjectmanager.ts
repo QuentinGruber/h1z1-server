@@ -38,7 +38,7 @@ import {
   Skins_Cap,
   Skins_MotorHelmet,
   Skins_Kevlar,
-  Skins_Military,
+  /*Skins_Military,*/
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -87,9 +87,9 @@ function getRandomSkin(itemDefinitionId: number) {
     case Items.KEVLAR_DEFAULT:
       arr = Object.keys(Skins_Kevlar);
       break;
-    case Items.BACKPACK_MILITARY_TAN:
-      arr = Object.keys(Skins_Military);
-      break;
+   /*case Items.BACKPACK_MILITARY_TAN:
+      arr = Object.keys(Skins_Military);    //didnt work for some reason 
+      break;*/
   }
   itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);
   return itemDefId;
@@ -247,7 +247,7 @@ export class WorldObjectManager {
     server._spawnedItems[characterId].nameId = itemDef.NAME_ID;
     if (
       item.itemDefinitionId === Items.FUEL_ETHANOL ||
-      item.itemDefinitionId === Items.FUEL_BIOFUEL
+      item.itemDefinitionId === Items.FUEL_BIOFUEL 
     ) {
       server._spawnedItems[characterId].flags.projectileCollision = 1;
       server._explosives[characterId] = new ExplosiveEntity(
