@@ -51,7 +51,7 @@ export class GatewayServer extends EventEmitter {
             switch (packet.name) {
               case "LoginRequest":
                 if (packet.character_id) {
-                  this._soeServer.toggleEncryption(client);
+                  this._soeServer.setEncryption(client,true);
                   const appData = this._protocol.pack_login_reply_packet(true);
                   if (appData) {
                     this._soeServer.sendAppData(client, appData);
