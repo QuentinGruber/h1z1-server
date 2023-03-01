@@ -653,5 +653,5 @@ export enum Skins_Military {
   Rasta_Backpack = 2393,
   Pink_Skulls_Survivor_Backpack = 3046,
   Sniper_Military_Backpack = 3169,
-  Alpaca_Survival_Backpack = 4011,
+  Fully_Geared_Explorer_Backpack = 4009,
 }
