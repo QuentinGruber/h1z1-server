@@ -39,6 +39,7 @@ import {
   Skins_MotorHelmet,
   Skins_Kevlar,
   Skins_Military,
+  Skins_Glasses,
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -65,6 +66,7 @@ function getRandomSkin(itemDefinitionId: number) {
     Items.HELMET_MOTORCYCLE,
     Items.KEVLAR_DEFAULT,
     Items.BACKPACK_MILITARY_TAN,
+    Items.ALL_PURPOSE_GOGGLES,
   ];
   if (!allowedItems.includes(itemDefinitionId)) return itemDefinitionId;
   let itemDefId = 0;
@@ -90,6 +92,9 @@ function getRandomSkin(itemDefinitionId: number) {
       break;
     case Items.BACKPACK_MILITARY_TAN:
       arr = Object.keys(Skins_Military);
+      break;
+    case Items.ALL_PURPOSE_GOGGLES:
+      arr = Object.keys(Skins_Glasses);
       break;
   }
   itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);

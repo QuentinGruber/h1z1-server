@@ -489,6 +489,7 @@ export enum Items {
   HELMET_TACTICAL = 2172,
   RESPIRATOR = 2148,
   NV_GOGGLES = 1700,
+  ALL_PURPOSE_GOGGLES = 1693,
   GUNPOWDER = 11,
   KEVLAR_DEFAULT = 2271,
   ARMOR_PLATED = 2205,
@@ -654,4 +655,11 @@ export enum Skins_Military {
   Pink_Skulls_Survivor_Backpack = 3046,
   Sniper_Military_Backpack = 3169,
   Fully_Geared_Explorer_Backpack = 4009,
+}
+export enum Skins_Glasses {
+  Evil_Clown_Glasses = 2253,
+  Default_Goggles =  1693,
+  White_Biker_Glasses = 2252,
+  Steampunk_Goggles = 2954,
+  
 }
