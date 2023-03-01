@@ -2205,7 +2205,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_PIPE,
-        weight: 0,
+        weight: 35,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2221,7 +2221,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WEAPON_HAMMER_DEMOLITION,
-        weight: 0,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1,
