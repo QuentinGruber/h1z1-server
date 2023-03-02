@@ -360,7 +360,7 @@ export class Character2016 extends BaseFullCharacter {
         //unknownDword1: 2355
       },
       recipes: server.pGetRecipes(), // todo: change to per-character recipe lists
-      stats: stats,
+      stats: this.getStats(),
       loadoutSlots: this.pGetLoadoutSlots(),
       equipmentSlots: this.pGetEquipment(),
       characterResources: this.pGetResources(),
@@ -686,16 +686,16 @@ export class Character2016 extends BaseFullCharacter {
 
   getStats() {
     return stats.map((stat: any) => {
-      console.log(stat)
-      console.log(stat.statData)
-      console.log(stat.statData.statValue)
       return {
         statId: stat.statData.statId,
-        statValue: {
-          type: isFloat(stat.statData.statValue.value.base) && isFloat(stat.statData.statValue.value.modifier) ? 1 : 0,
-          value: {
-            base: stat.statData.statValue.value.base,
-            modifier: stat.statData.statValue.value.modifier,
+        statData: {
+          statId: stat.statData.statId,
+          statValue: {
+            type: isFloat(stat.statData.statValue.value.base) || isFloat(stat.statData.statValue.value.modifier) ? 1 : 0,
+            value: {
+              base: stat.statData.statValue.value.base,
+              modifier: stat.statData.statValue.value.modifier,
+            }
           }
         }
       };
@@ -719,7 +719,7 @@ export class Character2016 extends BaseFullCharacter {
         position: this.state.position, // trying to fix invisible characters/vehicles until they move
         stance: 66561,
       },
-      stats: stats.map((stat: any) => {
+      stats: this.getStats().map((stat: any) => {
         return stat.statData;
       }),
       remoteWeaponsExtra: this.pGetRemoteWeaponsExtraData(server),
