@@ -601,7 +601,6 @@ export enum Skins_Shirt {
   PARAMEDIC_UNIFORM = 2535,
   SHIRT_DEFAULT = 2088,
   Dragon_Lodge_Parka = 3033,
-
 }
 
 export enum Skins_Pants {
@@ -612,6 +611,8 @@ export enum Skins_Pants {
   MUSCLE_LEGGINGS = 2366,
   PARAMEDIC_SLACKS = 2534,
   PANTS_DEFAULT = 2177,
+  TWIN_GALAXIES_PANTS = 3875,
+  Stars_Stripes_Shorts = 2404,
 }
 
 export enum Skins_Beanie {

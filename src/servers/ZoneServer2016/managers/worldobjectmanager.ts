@@ -58,17 +58,6 @@ import { Crate } from "../entities/crate";
 const debug = require("debug")("ZoneServer");
 
 function getRandomSkin(itemDefinitionId: number) {
-  const allowedItems = [
-    Items.SHIRT_DEFAULT,
-    Items.PANTS_DEFAULT,
-    Items.HAT_BEANIE,
-    Items.HAT_CAP,
-    Items.HELMET_MOTORCYCLE,
-    Items.KEVLAR_DEFAULT,
-    Items.BACKPACK_MILITARY_TAN,
-    Items.ALL_PURPOSE_GOGGLES,
-  ];
-  if (!allowedItems.includes(itemDefinitionId)) return itemDefinitionId;
   let itemDefId = 0;
   let arr: any[] = [];
   switch (itemDefinitionId) {
@@ -96,15 +85,14 @@ function getRandomSkin(itemDefinitionId: number) {
     case Items.ALL_PURPOSE_GOGGLES:
       arr = Object.keys(Skins_Glasses);
       break;
+    default:
+      return itemDefinitionId;
   }
   itemDefId = Number(arr[Math.floor((Math.random() * arr.length) / 2)]);
   return itemDefId;
 }
 
 export function getRandomItem(items: Array<LootDefinition>) {
-  //return items[Math.floor(Math.random() * items.length)];
-  //items[0].
-
   const totalWeight = items.reduce((total, item) => total + item.weight, 0),
     randomWeight = Math.random() * totalWeight;
   let currentWeight = 0;
@@ -175,7 +163,6 @@ export class WorldObjectManager {
     debug("WOM::Run");
     this.getItemRespawnTimer(server);
     if (this.lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
-      //this.createLootOld(server);
       this.createLoot(server);
       this.createContainerLoot(server);
       this.lastLootRespawnTime = Date.now();
@@ -253,7 +240,7 @@ export class WorldObjectManager {
     server._spawnedItems[characterId].nameId = itemDef.NAME_ID;
     if (
       item.itemDefinitionId === Items.FUEL_ETHANOL ||
-      item.itemDefinitionId === Items.FUEL_BIOFUEL 
+      item.itemDefinitionId === Items.FUEL_BIOFUEL
     ) {
       server._spawnedItems[characterId].flags.projectileCollision = 1;
       server._explosives[characterId] = new ExplosiveEntity(
