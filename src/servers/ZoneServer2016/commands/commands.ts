@@ -40,29 +40,7 @@ import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { BaseItem } from "../classes/baseItem";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import { WorldDataManager } from "../managers/worlddatamanager";
-import {
-  ConstructionParentSaveData,
-  LootableConstructionSaveData,
-  PlantingDiameterSaveData,
-} from "types/savedata";
-import { PlantingDiameter } from "../entities/plantingdiameter";
 const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
-
-function getDriveModel(model: string) {
-  switch (model) {
-    case "offroader":
-      return 7225;
-    case "pickup":
-      return 9258;
-    case "policecar":
-      return 9301;
-    case "atv":
-      return 9588;
-    default:
-      // offroader default
-      return 7225;
-  }
-}
 
 export const commands: Array<Command> = [
   //#region DEFAULT PERMISSIONS
@@ -97,8 +75,7 @@ export const commands: Array<Command> = [
     name: "serverinfo",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const commandName = args[0];
-      if (commandName === "mem") {
+      if (args[0] === "mem") {
         const used = process.memoryUsage().rss / 1024 / 1024;
         server.sendChatText(
           client,
@@ -110,7 +87,6 @@ export const commands: Array<Command> = [
           _npcs: npcs,
           _spawnedItems: objects,
           _vehicles: vehicles,
-          _lootableProps: props,
         } = server;
         const serverVersion = require("../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
@@ -246,7 +222,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `[ERROR] Usage: /getnetstats {name / clientId}"`,
+          `[ERROR] Usage: /getnetstats {name || clientId}"`,
           true
         );
         return;
