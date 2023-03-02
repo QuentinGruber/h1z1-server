@@ -2385,7 +2385,7 @@ export class ZoneServer2016 extends EventEmitter {
     sequenceTime: number,
     position: Float32Array
   ) {
-    //if (client.isAdmin || !this._useFairPlay) return;
+    if (client.isAdmin || !this._useFairPlay) return;
     const speed =
       (getDistance2d(client.oldPos.position, position) /
         1000 /
