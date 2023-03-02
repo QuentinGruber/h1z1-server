@@ -11,12 +11,14 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+const { LogicalPacket } = require("../servers/SoeServer/logicalPacket");
+
 const EventEmitter = require("node:events").EventEmitter,
   SOEInputStream =
     require("../servers/SoeServer/soeinputstream").SOEInputStream,
   SOEOutputStream =
     require("../servers/SoeServer/soeoutputstream").SOEOutputStream,
-  { Soeprotocol } = require("h1emu-core"),
+  { Soeprotocol, append_crc_legacy } = require("h1emu-core"),
   util = require("node:util"),
   fs = require("node:fs"),
   dgram = require("node:dgram"),
@@ -44,7 +46,7 @@ class SOEClient {
     this._outQueue = [];
 
     const connection = (this._connection = dgram.createSocket("udp4"));
-    const protocol = (this._protocol = new Soeprotocol(false, 0));
+    const protocol = (this._protocol = new Soeprotocol(true, 0));
     const inputStream = (this._inputStream = new SOEInputStream(cryptoKey));
     const outputStream = (this._outputStream = new SOEOutputStream(cryptoKey));
 
@@ -130,7 +132,10 @@ class SOEClient {
 
     function checkOutQueue() {
       if (me._outQueue.length) {
-        const data = me._outQueue.shift();
+        const logical = new LogicalPacket(me._outQueue.shift());
+        const data = logical.canCrc
+          ? append_crc_legacy(logical.data, this._crcSeed)
+          : logical.data;
         if (me._dumpData) {
           fs.writeFileSync("debug/soeclient_" + n1++ + "_out.dat", data);
         }

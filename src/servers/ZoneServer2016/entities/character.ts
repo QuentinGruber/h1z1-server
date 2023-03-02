@@ -104,6 +104,7 @@ export class Character2016 extends BaseFullCharacter {
   initialized = false; // if sendself has been sent
   spawnGridData: number[] = [];
   lastJumpTime: number = 0;
+  weaponStance: number = 1;
   readonly metrics: CharacterMetrics = {
     recipesDiscovered: 0,
     zombiesKilled: 0,
@@ -315,7 +316,8 @@ export class Character2016 extends BaseFullCharacter {
 
   clearReloadTimeout() {
     const weaponItem = this.getEquippedWeapon();
-    if (!weaponItem.weapon?.reloadTimer) return;
+    if (!weaponItem || !weaponItem.weapon || !weaponItem.weapon.reloadTimer)
+      return;
     clearTimeout(weaponItem.weapon.reloadTimer);
     weaponItem.weapon.reloadTimer = undefined;
   }
@@ -722,7 +724,7 @@ export class Character2016 extends BaseFullCharacter {
 
     server.sendData(client, "Character.WeaponStance", {
       characterId: this.characterId,
-      stance: this.positionUpdate?.stance,
+      stance: this.weaponStance,
     });
 
     if (this.onReadyCallback) {
@@ -738,7 +740,18 @@ export class Character2016 extends BaseFullCharacter {
     if (!client || !c || !damageInfo.hitReport) {
       return;
     }
-
+    if (
+      !isPosInRadius(
+        c.vehicle?.mountedVehicle ? 50 : 4,
+        damageInfo.hitReport.position,
+        this.state.position
+      )
+    ) {
+      console.log(
+        `${client.character.name} landed a shot with invalid hit position`
+      );
+      return;
+    }
     server.hitMissFairPlayCheck(
       client,
       true,

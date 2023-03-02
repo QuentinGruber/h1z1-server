@@ -48,6 +48,7 @@ import {
   CharacterLoginRequest,
   CharacterCreateRequest,
   LoginUdp_11packets,
+  LoginRequest,
 } from "types/LoginUdp_11packets";
 import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
@@ -71,7 +72,6 @@ export class LoginServer extends EventEmitter {
   _protocol: LoginProtocol;
   _protocol2016: LoginProtocol2016;
   _db: any;
-  _crcSeed: number;
   _crcLength: crc_length_options;
   _udpLength: number;
   private readonly _cryptoKey: Uint8Array;
@@ -92,8 +92,7 @@ export class LoginServer extends EventEmitter {
   private _resolver = new Resolver();
   constructor(serverPort: number, mongoAddress = "") {
     super();
-    this._crcSeed = 0;
-    this._crcLength = 0;
+    this._crcLength = 2;
     this._udpLength = 512;
     this._cryptoKey = Buffer.from(DEFAULT_CRYPTO_KEY, "base64");
     this._soloMode = false;
@@ -132,8 +131,7 @@ export class LoginServer extends EventEmitter {
           // if packet parsing succeed
           switch (packet.name) {
             case "LoginRequest":
-              const { sessionId } = packet.result;
-              await this.LoginRequest(client, sessionId);
+              await this.LoginRequest(client, packet.result);
               break;
             case "CharacterSelectInfoRequest":
               await this.CharacterSelectInfoRequest(client);
@@ -392,8 +390,9 @@ export class LoginServer extends EventEmitter {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async LoginRequest(client: Client, sessionIdString: string) {
+  async LoginRequest(client: Client, request: LoginRequest) {
     let sessionId, gameVersion;
+    let sessionIdString = request.sessionId;
     // In case of shitty json formatting
     sessionIdString = sessionIdString.replaceAll("\\", "");
     try {

@@ -47,6 +47,7 @@ export enum Stances {
 
   SITTING = 525377,
   STANCE_XS = 525393,
+  STANCE_XS_FP = 2622545,
   // havent seen this stance anywhere else than during XS glitching
 }
 
@@ -105,7 +106,7 @@ export enum MovementModifiers {
   RESTED = 1.1,
   SWIZZLE = 1.1,
   SNARED = 0.5,
-  BOOTS = 1.2,
+  BOOTS = 1.15,
 }
 
 export enum ContainerErrors {
@@ -218,6 +219,7 @@ export enum EntityTypes {
   PLANT,
   TRAP,
   TASK_PROP,
+  CRATE,
 }
 
 export enum ResourceIds {

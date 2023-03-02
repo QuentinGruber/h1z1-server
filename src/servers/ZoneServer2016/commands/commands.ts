@@ -374,6 +374,9 @@ export const commands: Array<Command> = [
       }
 
       client.character.state.position = locationPosition;
+      client.managedObjects?.forEach((characterId: any) => {
+        server.dropVehicleManager(client, characterId);
+      });
       client.isLoading = true;
       client.characterReleased = false;
       client.character.lastLoginDate = toHex(Date.now());
@@ -407,6 +410,9 @@ export const commands: Array<Command> = [
         return;
       }
       targetClient.character.state.position = client.character.state.position;
+      targetClient.managedObjects?.forEach((characterId: any) => {
+        server.dropVehicleManager(client, characterId);
+      });
       targetClient.isLoading = true;
       targetClient.characterReleased = false;
       targetClient.character.lastLoginDate = toHex(Date.now());
@@ -444,6 +450,9 @@ export const commands: Array<Command> = [
         return;
       }
       client.character.state.position = targetClient.character.state.position;
+      client.managedObjects?.forEach((characterId: any) => {
+        server.dropVehicleManager(client, characterId);
+      });
       client.isLoading = true;
       client.characterReleased = false;
       client.character.lastLoginDate = toHex(Date.now());

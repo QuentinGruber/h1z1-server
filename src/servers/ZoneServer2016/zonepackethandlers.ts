@@ -26,6 +26,8 @@ import {
   toHex,
   quat2matrix,
   logClientActionToMongo,
+  eul2quat,
+  getDistance,
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -50,6 +52,7 @@ import { CommandHandler } from "./commands/commandhandler";
 import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import { Ban, ConstructionPermissions, DamageInfo } from "types/zoneserver";
+import { positionUpdate } from "types/savedata";
 import { GameTimeSync } from "types/zone2016packets";
 import { LootableProp } from "./entities/lootableprop";
 import { Vehicle2016 } from "./entities/vehicle";
@@ -59,6 +62,7 @@ import { Collection } from "mongodb";
 import { DB_COLLECTIONS } from "../../utils/enums";
 import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
 import { Character2016 } from "./entities/character";
+import { Crate } from "./entities/crate";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -216,6 +220,12 @@ export class zonePacketHandlers {
     server.sendData(client, "Command.FreeInteractionNpc", {});
   }
   CollisionDamage(server: ZoneServer2016, client: Client, packet: any) {
+    if (packet.data.objectCharacterId != client.character.characterId) {
+      const objVehicle = server._vehicles[packet.data.objectCharacterId];
+      if (objVehicle && packet.data.characterId != objVehicle.characterId) {
+        if (objVehicle.getNextSeatId(server) == "0") return;
+      }
+    }
     const characterId = packet.data.characterId,
       damage: number = packet.data.damage,
       vehicle = server._vehicles[characterId];
@@ -646,6 +656,11 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
+    if (!packet.data || !packet.data.transientId) {
+      console.log("TransientId error detected");
+      console.log(packet);
+      return;
+    }
     const characterId: string = server._transientIds[packet.data.transientId],
       vehicle = characterId ? server._vehicles[characterId] : undefined;
 
@@ -672,11 +687,6 @@ export class zonePacketHandlers {
       vehicle.engineRPM = packet.data.positionUpdate.engineRPM;
     }
     if (packet.data.positionUpdate.position) {
-      if (packet.data.positionUpdate.position[1] < -100) {
-        // If the vehicle is falling trough the map
-        server.deleteEntity(vehicle.characterId, server._vehicles);
-        return;
-      }
       vehicle.state.position = new Float32Array([
         packet.data.positionUpdate.position[0],
         packet.data.positionUpdate.position[1] - 0.4,
@@ -710,6 +720,19 @@ export class zonePacketHandlers {
         }
       }*/
     }
+    const positionUpdate: positionUpdate = packet.data.positionUpdate;
+    if (positionUpdate.orientation) {
+      vehicle.positionUpdate.orientation = positionUpdate.orientation;
+      vehicle.state.rotation = eul2quat(
+        new Float32Array([packet.data.positionUpdate.orientation, 0, 0, 0])
+      );
+    }
+    if (positionUpdate.frontTilt) {
+      vehicle.positionUpdate.frontTilt = positionUpdate.frontTilt;
+    }
+    if (positionUpdate.sideTilt) {
+      vehicle.positionUpdate.sideTilt = positionUpdate.sideTilt;
+    }
   }
   VehicleStateData(server: ZoneServer2016, client: Client, packet: any) {
     server.sendDataToAllOthersWithSpawnedEntity(
@@ -739,7 +762,10 @@ export class zonePacketHandlers {
       // falling flag, ignore for now
     }
     if (packet.data.stance) {
-      if (packet.data.stance == Stances.STANCE_XS) {
+      if (
+        packet.data.stance == Stances.STANCE_XS ||
+        packet.data.stance == Stances.STANCE_XS_FP
+      ) {
         const pos = client.character.state.position;
         if (!server._soloMode) {
           logClientActionToMongo(
@@ -752,12 +778,10 @@ export class zonePacketHandlers {
         server.sendChatTextToAdmins(
           `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
         );
-        setTimeout(() => {
-          server.sendData(client, "ClientUpdate.UpdateLocation", {
-            position: pos,
-            triggerLoadingScreen: false,
-          });
-        }, 1000);
+        server.sendData(client, "ClientUpdate.UpdateLocation", {
+          position: pos,
+          triggerLoadingScreen: true,
+        });
       }
       const byte1 = packet.data.stance & 0xff;
       client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
@@ -796,6 +820,26 @@ export class zonePacketHandlers {
         client.characterReleased = true;
       }
       server.speedFairPlayCheck(client, Date.now(), packet.data.position);
+      /*if (!client.isAdmin) {
+        const distance = getDistance(
+          client.character.state.position,
+          packet.data.position
+        );
+        if (distance >= 1) {
+          server.sendChatTextToAdmins(
+            `FairPlay: kicking ${client.character.name}`
+          );
+          server.kickPlayer(client);
+          const pos = packet.data.position;
+          server.sendChatTextToAdmins(
+            `FairPlay: ${
+              client.character.name
+            } position desynced by ${distance.toFixed(2)} at [${pos[0]} ${
+              pos[1]
+            } ${pos[2]}]`
+          );
+        }
+      }*/
       client.character.state.position = new Float32Array([
         packet.data.position[0],
         packet.data.position[1],
@@ -870,6 +914,9 @@ export class zonePacketHandlers {
     );
   }
   SpectatorTeleport(server: ZoneServer2016, client: Client, packet: any) {
+    client.managedObjects?.forEach((characterId: any) => {
+      server.dropVehicleManager(client, characterId);
+    });
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: [packet.data.x, 355, packet.data.y, 1],
       triggerLoadingScreen: false,
@@ -970,6 +1017,10 @@ export class zonePacketHandlers {
   ) {
     const entity = server.getEntity(packet.data.guid);
     if (!entity) return;
+    if (entity instanceof Crate) {
+      client.character.currentInteractionGuid = packet.data.guid;
+      return;
+    }
     const isConstruction =
       entity instanceof ConstructionParentEntity ||
       entity instanceof ConstructionChildEntity ||
@@ -1089,7 +1140,7 @@ export class zonePacketHandlers {
   }
   CharacterWeaponStance(server: ZoneServer2016, client: Client, packet: any) {
     if (client.character.positionUpdate) {
-      client.character.positionUpdate.stance = packet.data.stance;
+      client.character.weaponStance = packet.data.stance;
     }
     server.sendDataToAllOthersWithSpawnedEntity(
       server._characters,
@@ -1655,12 +1706,12 @@ export class zonePacketHandlers {
                 !client.character.temporaryScrapTimeout
               ) {
                 const chance = Math.floor(Math.random() * 100) + 1;
-                if (chance <= 70) {
+                if (chance <= 60) {
                   client.character.lootItem(
                     server,
                     server.generateItem(Items.METAL_SCRAP)
                   );
-                  server.damageItem(client, weaponItem, 35);
+                  server.damageItem(client, weaponItem, 50);
                 }
                 client.character.temporaryScrapTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapTimeout;
@@ -1805,6 +1856,31 @@ export class zonePacketHandlers {
               }, 1000);
             }
           }
+          // crate damaging workaround
+          if (client.character.currentInteractionGuid) {
+            const entity =
+              server._crates[client.character.currentInteractionGuid];
+            if (
+              entity &&
+              entity.spawnTimestamp < Date.now() &&
+              isPosInRadius(
+                3,
+                entity.state.position,
+                client.character.state.position
+              )
+            ) {
+              if (!client.character.temporaryScrapSoundTimeout) {
+                client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+                  delete client.character.temporaryScrapSoundTimeout;
+                }, 300);
+                const damageInfo: DamageInfo = {
+                  entity: "Server.WorkAroundMelee",
+                  damage: 1000,
+                };
+                entity.OnProjectileHit(server, damageInfo);
+              }
+            }
+          }
 
           if (p.packet.firestate == 64) {
             // empty firestate
@@ -1917,6 +1993,8 @@ export class zonePacketHandlers {
           break;
         case "Weapon.ReloadRequest":
           if (weaponItem.weapon.reloadTimer) return;
+          const maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId); // max clip size
+          if (weaponItem.weapon.ammoCount >= maxAmmo) return;
           setTimeout(() => {
             client.allowedProjectiles = 0;
           }, 100);
@@ -1944,7 +2022,6 @@ export class zonePacketHandlers {
           const weaponAmmoId = server.getWeaponAmmoId(
               weaponItem.itemDefinitionId
             ),
-            maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId), // max clip size
             reloadTime = server.getWeaponReloadTime(
               weaponItem.itemDefinitionId
             );
@@ -2063,11 +2140,8 @@ export class zonePacketHandlers {
           if (!weaponItem.weapon?.ammoCount) return;
 
           // temp workaround to fix 308 sound while aiming
-          if (
-            p.packet.firemodeIndex == 1 &&
-            server.getItemDefinition(weaponItem.itemDefinitionId).PARAM1 == 1373
-          )
-            return;
+          // this workaround applies to all weapons
+          if (p.packet.firemodeIndex == 1) return;
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,
             client.character.transientId,

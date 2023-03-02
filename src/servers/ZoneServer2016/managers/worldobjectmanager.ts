@@ -18,6 +18,7 @@ const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
 const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json");
+const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
@@ -31,7 +32,6 @@ import {
 import {
   EquipSlots,
   Items,
-  VehicleIds,
   Skins_Shirt,
   Skins_Pants,
   Skins_Beanie,
@@ -51,23 +51,8 @@ import { Lootbag } from "../entities/lootbag";
 import { LootableProp } from "../entities/lootableprop";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { TaskProp } from "../entities/taskprop";
+import { Crate } from "../entities/crate";
 const debug = require("debug")("ZoneServer");
-
-function getRandomVehicleId() {
-  switch (Math.floor(Math.random() * 4)) {
-    case 0: // offroader
-      return VehicleIds.OFFROADER;
-    case 1: // policecar
-      return VehicleIds.POLICECAR;
-    case 2: // pickup
-      return VehicleIds.PICKUP;
-    case 3: // atv
-      return VehicleIds.ATV;
-    default:
-      // pickup
-      return VehicleIds.PICKUP;
-  }
-}
 
 function getRandomSkin(itemDefinitionId: number) {
   const allowedItems = [
@@ -101,7 +86,7 @@ function getRandomSkin(itemDefinitionId: number) {
   return itemDefId;
 }
 
-function getRandomItem(items: Array<LootDefinition>) {
+export function getRandomItem(items: Array<LootDefinition>) {
   //return items[Math.floor(Math.random() * items.length)];
   //items[0].
 
@@ -133,7 +118,7 @@ export class WorldObjectManager {
   npcRespawnTimer: number = 600000; // 10 minutes
   // items get despawned after x minutes
   itemDespawnTimer: number = 600000; // 10 minutes
-  lootDespawnTimer: number = 3600000; // 60 minutes
+  lootDespawnTimer: number = 2400000; // 40 minutes
   deadNpcDespawnTimer: number = 600000; // 10 minutes
 
   // objects won't spawn if another object is within this radius
@@ -334,6 +319,24 @@ export class WorldObjectManager {
         server._taskProps[characterId] = obj;
       });
     });
+    Z1_crates.forEach((propType: any) => {
+      propType.instances.forEach((propInstance: any) => {
+        const characterId = generateRandomGuid();
+        const obj = new Crate(
+          characterId,
+          server.getTransientId(characterId), // need transient generated for Interaction Replication
+          propType.modelId,
+          propInstance.position,
+          isQuat(propInstance.rotation),
+          server,
+          propInstance.scale,
+          propInstance.zoneId,
+          propType.renderDistance,
+          propType.actorDefinition
+        );
+        server._crates[characterId] = obj;
+      });
+    });
     debug("All props created");
   }
 
@@ -395,38 +398,43 @@ export class WorldObjectManager {
   }
 
   createVehicles(server: ZoneServer2016) {
-    if (Object.keys(server._vehicles).length >= this.vehicleSpawnCap) return;
-    Z1_vehicles.forEach((vehicle: any) => {
+    if (_.size(server._vehicles) >= this.vehicleSpawnCap) return;
+    const respawnAmount = Math.floor(
+      (this.vehicleSpawnCap - _.size(server._vehicles)) / 5
+    );
+    for (let x = 0; x < respawnAmount; x++) {
+      const dataVehicle =
+        Z1_vehicles[randomIntFromInterval(0, Z1_vehicles.length - 1)];
       let spawn = true;
-      Object.values(server._vehicles).every((spawnedVehicle: Vehicle2016) => {
+      Object.values(server._vehicles).forEach((spawnedVehicle: Vehicle2016) => {
+        if (!spawn) return;
         if (
           isPosInRadius(
             this.vehicleSpawnRadius,
-            vehicle.position,
+            dataVehicle.position,
             spawnedVehicle.state.position
           )
         ) {
           spawn = false;
-          return false;
         }
-        return true;
       });
-      if (!spawn) return;
-
+      if (!spawn) {
+        continue;
+      }
       const characterId = generateRandomGuid(),
         vehicleData = new Vehicle2016(
           characterId,
           server.getTransientId(characterId),
           0,
-          new Float32Array(vehicle.position),
-          new Float32Array(vehicle.rotation),
+          new Float32Array(dataVehicle.position),
+          new Float32Array(dataVehicle.rotation),
           server,
           server.getGameTime(),
-          getRandomVehicleId()
+          dataVehicle.vehicleId
         );
-
+      vehicleData.positionUpdate.orientation = dataVehicle.orientation;
       this.createVehicle(server, vehicleData); // save vehicle
-    });
+    }
     debug("All vehicles created");
   }
 

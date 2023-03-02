@@ -56,6 +56,7 @@ async function test() {
     2
   );
   zoneServer._loginServerInfo.address = "127.0.0.1";
+  (zoneServer as any)._gatewayServer._soeServer._crcSeed = 0;
   //@ts-ignore
   zoneServer._gatewayServer._waitQueueTimeMs = 0;
 
