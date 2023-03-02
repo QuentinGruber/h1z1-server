@@ -23,12 +23,14 @@ import {
   ConstructionDoorSaveData,
   ConstructionParentSaveData,
   FullCharacterSaveData,
+  FullVehicleSaveData,
   ItemSaveData,
   LoadoutContainerSaveData,
   LoadoutItemSaveData,
   LootableConstructionSaveData,
   PlantingDiameterSaveData,
   PlantSaveData,
+  positionUpdate,
   ServerSaveData,
   WeaponSaveData,
 } from "types/savedata";
@@ -56,6 +58,7 @@ import { DB_COLLECTIONS } from "../../../utils/enums";
 import { DB_NAME } from "../../../utils/constants";
 import { Character2016 } from "../entities/character";
 import { Items } from "../models/enums";
+import { Vehicle2016 } from "../entities/vehicle";
 
 const fs = require("node:fs");
 const debug = require("debug")("ZoneServer");
@@ -65,12 +68,14 @@ export interface WorldArg {
   worldConstructions: LootableConstructionSaveData[];
   crops: PlantingDiameterSaveData[];
   constructions: ConstructionParentSaveData[];
+  vehicles: FullVehicleSaveData[];
 }
 export interface FetchedWorldData {
   constructionParents: ConstructionParentSaveData[];
   freeplace: LootableConstructionSaveData[];
   crops: PlantingDiameterSaveData[];
   lastTransientId: number;
+  vehicles: FullVehicleSaveData[];
 }
 
 export function constructLoadout(
@@ -190,14 +195,20 @@ export class WorldDataManager {
   }
 
   async fetchWorldData(): Promise<FetchedWorldData> {
-    //await this.loadVehicleData(server);
+    const vehicles = (await this.loadVehiclesData()) as FullVehicleSaveData[];
     const constructionParents =
       (await this.loadConstructionData()) as ConstructionParentSaveData[];
     const freeplace =
       (await this.loadWorldFreeplaceConstruction()) as LootableConstructionSaveData[];
     const crops = (await this.loadCropData()) as PlantingDiameterSaveData[];
     debug("World fetched!");
-    return { constructionParents, freeplace, crops, lastTransientId: 0 };
+    return {
+      constructionParents,
+      freeplace,
+      crops,
+      lastTransientId: 0,
+      vehicles,
+    };
   }
   async deleteServerData() {
     if (this._soloMode) {
@@ -236,7 +247,7 @@ export class WorldDataManager {
 
   async saveWorld(world: WorldArg) {
     console.time("WDM: saveWorld");
-    //await this.saveVehicles(server);
+    await this.saveVehicles(world.vehicles);
     await this.saveServerData(world.lastGuidItem);
     await this.saveCharacters(world.characters);
     await this.saveConstructionData(world.constructions);
@@ -259,6 +270,14 @@ export class WorldDataManager {
     return {
       position: Array.from(entity.state.position),
       rotation: Array.from(entity.state.rotation),
+    };
+  }
+
+  static getPositionUpdateSaveData(entity: Vehicle2016): positionUpdate {
+    return {
+      orientation: entity.positionUpdate.orientation,
+      frontTilt: entity.positionUpdate.frontTilt,
+      sideTilt: entity.positionUpdate.sideTilt,
     };
   }
 
@@ -456,6 +475,31 @@ export class WorldDataManager {
       charactersSaveData.push(characterSave);
     }
     return charactersSaveData;
+  }
+
+  static convertVehiclesToSaveData(characters: Vehicle2016[], worldId: number) {
+    const vehiclesSaveData: FullVehicleSaveData[] = [];
+    for (let i = 0; i < characters.length; i++) {
+      const vehicle = characters[i];
+      const vehicleSave = this.convertToVehicleSaveData(vehicle, worldId);
+      // TODO: this is a temp solution, a deepclone slow down the save process :(
+      removeUntransferableFields(vehicleSave);
+      vehiclesSaveData.push(vehicleSave);
+    }
+    return vehiclesSaveData;
+  }
+
+  static convertToVehicleSaveData(vehicle: Vehicle2016, worldId: number) {
+    const saveData: FullVehicleSaveData = {
+      ...WorldDataManager.getBaseFullCharacterUpdateSaveData(vehicle, worldId),
+      vehicleId: vehicle.vehicleId,
+      actorModelId: vehicle.actorModelId,
+      characterId: vehicle.characterId,
+      serverId: worldId,
+      rotation: Array.from(vehicle.state.lookAt),
+      positionUpdate: WorldDataManager.getPositionUpdateSaveData(vehicle),
+    };
+    return saveData;
   }
 
   static convertToCharacterSaveData(character: Character2016, worldId: number) {
@@ -776,6 +820,25 @@ export class WorldDataManager {
     return foundation;
   }
 
+  async loadVehiclesData() {
+    let vehicles: Array<FullVehicleSaveData> = [];
+    if (this._soloMode) {
+      vehicles = require(`${this._appDataFolder}/worlddata/vehicles.json`);
+      if (!vehicles) {
+        debug("vehicles data not found in file, aborting.");
+        return;
+      }
+    } else {
+      vehicles = <any>(
+        await this._db
+          ?.collection(DB_COLLECTIONS.VEHICLES)
+          .find({ serverId: this._worldId })
+          .toArray()
+      );
+    }
+    return vehicles;
+  }
+
   async loadConstructionData() {
     let constructionParents: Array<ConstructionParentSaveData> = [];
     if (this._soloMode) {
@@ -1053,6 +1116,25 @@ export class WorldDataManager {
     return plant;
   }
 
+  static loadVehicles(server: ZoneServer2016, entityData: FullVehicleSaveData) {
+    const transientId = server.getTransientId(entityData.characterId),
+      vehicle = new Vehicle2016(
+        entityData.characterId,
+        transientId,
+        entityData.actorModelId,
+        new Float32Array(entityData.position),
+        new Float32Array(entityData.rotation),
+        server,
+        server.getGameTime(),
+        entityData.vehicleId
+      );
+    vehicle._resources = entityData._resources;
+    Object.assign(vehicle.positionUpdate, entityData.positionUpdate);
+    constructLoadout(entityData._loadout, vehicle._loadout);
+    constructContainers(entityData._containers, vehicle._containers);
+    server._vehicles[vehicle.characterId] = vehicle;
+  }
+
   static loadPlantingDiameter(
     server: ZoneServer2016,
     entityData: PlantingDiameterSaveData
@@ -1097,6 +1179,36 @@ export class WorldDataManager {
       );
     }
     return crops;
+  }
+
+  async saveVehicles(vehicles: FullVehicleSaveData[]) {
+    if (this._soloMode) {
+      fs.writeFileSync(
+        `${this._appDataFolder}/worlddata/vehicles.json`,
+        JSON.stringify(vehicles, null, 2)
+      );
+    } else {
+      const collection = this._db?.collection(DB_COLLECTIONS.VEHICLES);
+      const updatePromises = [];
+      for (let i = 0; i < vehicles.length; i++) {
+        const vehicle = vehicles[i];
+        updatePromises.push(
+          collection.findOneAndUpdate(
+            { characterId: vehicle.characterId, serverId: this._worldId },
+            { $set: vehicle },
+            { upsert: true }
+          )
+        );
+      }
+      await Promise.all(updatePromises);
+      const allCharactersIds = vehicles.map((vehicle) => {
+        return vehicle.characterId;
+      });
+      await collection.deleteMany({
+        serverId: this._worldId,
+        characterId: { $nin: allCharactersIds },
+      });
+    }
   }
 
   async saveWorldFreeplaceConstruction(

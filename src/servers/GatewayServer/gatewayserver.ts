@@ -22,14 +22,12 @@ const debug = require("debug")("GatewayServer");
 export class GatewayServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: GatewayProtocol;
-  private _crcSeed: number;
   private _crcLength: crc_length_options;
   private _udpLength: number;
 
   constructor(serverPort: number, gatewayKey: Uint8Array) {
     super();
-    this._crcSeed = 0;
-    this._crcLength = 0;
+    this._crcLength = 2;
     this._udpLength = 512;
 
     this._soeServer = new SOEServer(serverPort, gatewayKey);
@@ -53,7 +51,7 @@ export class GatewayServer extends EventEmitter {
             switch (packet.name) {
               case "LoginRequest":
                 if (packet.character_id) {
-                  this._soeServer.toggleEncryption(client);
+                  this._soeServer.setEncryption(client, true);
                   const appData = this._protocol.pack_login_reply_packet(true);
                   if (appData) {
                     this._soeServer.sendAppData(client, appData);

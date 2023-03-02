@@ -300,6 +300,16 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           },
         }
       );
+      server.sendRemoteWeaponUpdateData(
+        client,
+        this.transientId,
+        item.itemGuid,
+        "Update.SwitchFireMode",
+        {
+          firegroupIndex: 0,
+          firemodeIndex: 0,
+        }
+      );
     }
     this.updateLoadout(server);
     if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);

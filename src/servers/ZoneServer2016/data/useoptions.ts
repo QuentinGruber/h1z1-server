@@ -141,6 +141,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     eatCount: 4000,
     drinkCount: 4000,
     staminaCount: 200,
+    givetrash: Items.WATER_EMPTY,
   },
   46: {
     itemDef: Items.SURVIVAL_BORSCHT,

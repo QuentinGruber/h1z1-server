@@ -15,9 +15,35 @@ export class LogicalPacket {
   sequence?: number;
   data: Uint8Array;
   isReliable: boolean;
+  canCrc: boolean;
   constructor(data: Uint8Array, sequence?: number) {
     this.sequence = sequence;
     this.data = data;
-    this.isReliable = data[1] === 9 || data[1] === 13;
+    switch (data[1]) {
+      case 3:
+        this.isReliable = false;
+        this.canCrc = true;
+        break;
+      case 9:
+        this.isReliable = true;
+        this.canCrc = true;
+        break;
+      case 11:
+        this.isReliable = false;
+        this.canCrc = true;
+        break;
+      case 21:
+        this.isReliable = false;
+        this.canCrc = true;
+        break;
+      case 13:
+        this.isReliable = true;
+        this.canCrc = true;
+        break;
+      default:
+        this.isReliable = false;
+        this.canCrc = false;
+        break;
+    }
   }
 }

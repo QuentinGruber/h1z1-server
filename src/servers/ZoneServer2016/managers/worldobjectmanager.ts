@@ -18,6 +18,7 @@ const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.
 const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
 const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json");
+const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
@@ -50,6 +51,7 @@ import { Lootbag } from "../entities/lootbag";
 import { LootableProp } from "../entities/lootableprop";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { TaskProp } from "../entities/taskprop";
+import { Crate } from "../entities/crate";
 const debug = require("debug")("ZoneServer");
 
 function getRandomSkin(itemDefinitionId: number) {
@@ -84,7 +86,7 @@ function getRandomSkin(itemDefinitionId: number) {
   return itemDefId;
 }
 
-function getRandomItem(items: Array<LootDefinition>) {
+export function getRandomItem(items: Array<LootDefinition>) {
   //return items[Math.floor(Math.random() * items.length)];
   //items[0].
 
@@ -116,7 +118,7 @@ export class WorldObjectManager {
   npcRespawnTimer: number = 600000; // 10 minutes
   // items get despawned after x minutes
   itemDespawnTimer: number = 600000; // 10 minutes
-  lootDespawnTimer: number = 3600000; // 60 minutes
+  lootDespawnTimer: number = 2400000; // 40 minutes
   deadNpcDespawnTimer: number = 600000; // 10 minutes
 
   // objects won't spawn if another object is within this radius
@@ -315,6 +317,24 @@ export class WorldObjectManager {
           propType.actor_file
         );
         server._taskProps[characterId] = obj;
+      });
+    });
+    Z1_crates.forEach((propType: any) => {
+      propType.instances.forEach((propInstance: any) => {
+        const characterId = generateRandomGuid();
+        const obj = new Crate(
+          characterId,
+          server.getTransientId(characterId), // need transient generated for Interaction Replication
+          propType.modelId,
+          propInstance.position,
+          isQuat(propInstance.rotation),
+          server,
+          propInstance.scale,
+          propInstance.zoneId,
+          propType.renderDistance,
+          propType.actorDefinition
+        );
+        server._crates[characterId] = obj;
       });
     });
     debug("All props created");

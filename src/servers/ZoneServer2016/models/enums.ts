@@ -219,6 +219,7 @@ export enum EntityTypes {
   PLANT,
   TRAP,
   TASK_PROP,
+  CRATE,
 }
 
 export enum ResourceIds {

@@ -47,9 +47,9 @@
         "statData": {
             "statId": 3,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 1,
+                    "base": 0.75,
                     "modifier": 0
                 }
             }
@@ -104,9 +104,9 @@
         "statData": {
             "statId": 7,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 1,
+                    "base": 0.75,
                     "modifier": 0
                 }
             }
@@ -286,9 +286,9 @@
         "statData": {
             "statId": 21,
             "statValue": {
-                "type": 0,
+                "type": 1,
                 "value": {
-                    "base": 0,
+                    "base": 0.4,
                     "modifier": 0
                 }
             }
