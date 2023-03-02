@@ -691,13 +691,17 @@ export class Character2016 extends BaseFullCharacter {
         statData: {
           statId: stat.statData.statId,
           statValue: {
-            type: isFloat(stat.statData.statValue.value.base) || isFloat(stat.statData.statValue.value.modifier) ? 1 : 0,
+            type:
+              isFloat(stat.statData.statValue.value.base) ||
+              isFloat(stat.statData.statValue.value.modifier)
+                ? 1
+                : 0,
             value: {
               base: stat.statData.statValue.value.base,
               modifier: stat.statData.statValue.value.modifier,
-            }
-          }
-        }
+            },
+          },
+        },
       };
     });
   }
