@@ -389,6 +389,17 @@ export function getDistance(p1: Float32Array, p2: Float32Array) {
   return Math.sqrt(a * a + b * b + c * c);
 }
 
+export function getDistance2d(p1: Float32Array, p2: Float32Array) {
+  const dx = p1[0] - p2[0];
+  const dy = p1[2] - p2[2];
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+export function getDistance1d(height1: number, height2: number) {
+  const dh = height1 - height2;
+  return Math.abs(dh);
+}
+
 export function checkConstructionInRange(
   dictionary: any,
   position: Float32Array,

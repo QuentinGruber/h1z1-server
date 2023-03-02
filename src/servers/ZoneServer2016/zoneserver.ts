@@ -76,6 +76,8 @@ import {
   isPosInRadius,
   isPosInRadiusWithY,
   getDistance,
+  getDistance1d,
+  getDistance2d,
   randomIntFromInterval,
   Scheduler,
   generateTransientId,
@@ -2383,26 +2385,27 @@ export class ZoneServer2016 extends EventEmitter {
     sequenceTime: number,
     position: Float32Array
   ) {
-    if (client.isAdmin || !this._useFairPlay) return;
+    //if (client.isAdmin || !this._useFairPlay) return;
     const speed =
-      (getDistance(client.oldPos.position, position) /
+      (getDistance2d(client.oldPos.position, position) /
         1000 /
         (sequenceTime - client.oldPos.time)) *
       3600000;
     const verticalSpeed =
-      (getDistance(
-        new Float32Array([0, client.oldPos.position[1], 0]),
-        new Float32Array([0, position[1], 0])
-      ) /
+      (getDistance1d(client.oldPos.position[1], position[1]) /
         1000 /
         (sequenceTime - client.oldPos.time)) *
       3600000;
-    if (speed > 40 && (verticalSpeed < 40 || verticalSpeed == Infinity)) {
+    if (speed > 30 && (verticalSpeed < 20 || verticalSpeed == Infinity)) {
+      const soeClient = this.getSoeClient(client.soeClientId);
+      if (soeClient) {
+        if (soeClient.avgPing >= 250) return;
+      }
       client.speedWarnsNumber += 1;
-    } else if (client.speedWarnsNumber != 0) {
-      client.speedWarnsNumber = 0;
+    } else if (client.speedWarnsNumber > 0) {
+      client.speedWarnsNumber -= 1;
     }
-    if (client.speedWarnsNumber > 50) {
+    if (client.speedWarnsNumber > 30) {
       this.kickPlayer(client);
       client.speedWarnsNumber = 0;
       if (!this._soloMode) {
