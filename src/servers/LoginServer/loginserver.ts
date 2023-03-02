@@ -72,7 +72,6 @@ export class LoginServer extends EventEmitter {
   _protocol: LoginProtocol;
   _protocol2016: LoginProtocol2016;
   _db: any;
-  _crcSeed: number;
   _crcLength: crc_length_options;
   _udpLength: number;
   private readonly _cryptoKey: Uint8Array;
@@ -93,8 +92,7 @@ export class LoginServer extends EventEmitter {
   private _resolver = new Resolver();
   constructor(serverPort: number, mongoAddress = "") {
     super();
-    this._crcSeed = 0;
-    this._crcLength = 0;
+    this._crcLength = 2;
     this._udpLength = 512;
     this._cryptoKey = Buffer.from(DEFAULT_CRYPTO_KEY, "base64");
     this._soloMode = false;
