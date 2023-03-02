@@ -645,14 +645,18 @@ const dev: any = {
       state: Number(args[0]) == 0 ? false : true,
     });
   },
-  
-  spectateflag: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    switch(Number(args[1])){
+
+  spectateflag: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    switch (Number(args[1])) {
       case 1:
         server.sendData(client, "Spectator.SetUnknownFlag1", {});
         break;
       case 2:
-        server.sendData(client, "Spectator.SetUnknownFlag2", {})
+        server.sendData(client, "Spectator.SetUnknownFlag2", {});
         break;
       default:
         server.sendChatText(client, "Unknown spectator flag");
