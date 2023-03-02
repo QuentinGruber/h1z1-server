@@ -107,29 +107,13 @@ export const commands: Array<Command> = [
       } else {
         const {
           _clients: clients,
-          _characters: characters,
           _npcs: npcs,
           _spawnedItems: objects,
           _vehicles: vehicles,
-          _doors: doors,
           _lootableProps: props,
         } = server;
         const serverVersion = require("../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-        server.sendChatText(
-          client,
-          `clients: ${_.size(clients)} characters : ${_.size(characters)}`
-        );
-        server.sendChatText(
-          client,
-          `npcs : ${_.size(npcs)} doors : ${_.size(doors)}`
-        );
-        server.sendChatText(
-          client,
-          `objects : ${_.size(objects)} props : ${_.size(
-            props
-          )} vehicles : ${_.size(vehicles)}`
-        );
         const uptimeMin = (Date.now() - server._startTime) / 60000;
         server.sendChatText(
           client,
@@ -138,6 +122,14 @@ export const commands: Array<Command> = [
               ? `${uptimeMin.toFixed()}m`
               : `${(uptimeMin / 60).toFixed()}h `
           }`
+        );
+        server.sendChatText(
+          client,
+          `clients : ${_.size(clients)} | npcs : ${_.size(npcs)}`
+        );
+        server.sendChatText(
+          client,
+          `items : ${_.size(objects)} | vehicles : ${_.size(vehicles)}`
         );
       }
     },
