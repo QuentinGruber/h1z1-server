@@ -3384,6 +3384,16 @@ export const basePackets: any = [
   ["RequestObject", 0xe1, {}],
   ["ScreenEffectBase", 0xe2, {}],
   ["SpectatorBase", 0xe30100, { fields: [] }],
+  [
+    "SpectatorTP",
+    0xe30400,
+    {
+      fields: [
+        { name: "x", type: "float", defaultValue: 0 },
+        { name: "y", type: "float", defaultValue: 0 },
+      ],
+    },
+  ],
   ["WhitelistBase", 0xe4, {}],
   [
     "NpcFoundationPermissionsManagerBase.showPermissions",

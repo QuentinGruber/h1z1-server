@@ -22,14 +22,12 @@ const debug = require("debug")("GatewayServer");
 export class GatewayServer extends EventEmitter {
   _soeServer: SOEServer;
   _protocol: GatewayProtocol;
-  private _crcSeed: number;
   private _crcLength: crc_length_options;
   private _udpLength: number;
 
   constructor(serverPort: number, gatewayKey: Uint8Array) {
     super();
-    this._crcSeed = 0;
-    this._crcLength = 0;
+    this._crcLength = 2;
     this._udpLength = 512;
 
     this._soeServer = new SOEServer(serverPort, gatewayKey);
@@ -53,7 +51,7 @@ export class GatewayServer extends EventEmitter {
             switch (packet.name) {
               case "LoginRequest":
                 if (packet.character_id) {
-                  this._soeServer.toggleEncryption(client);
+                  this._soeServer.setEncryption(client, true);
                   const appData = this._protocol.pack_login_reply_packet(true);
                   if (appData) {
                     this._soeServer.sendAppData(client, appData);
@@ -76,12 +74,13 @@ export class GatewayServer extends EventEmitter {
                   "tunneldata",
                   client,
                   Buffer.from(packet.tunnel_data),
-                  packet.flags
+                  packet.channel
                 );
                 break;
             }
           } else {
-            debug("Packet parsing was unsuccesful");
+            console.log(`Unsupported gateway packet ${packet.name}`);
+            console.log(packet);
           }
         } catch (e) {
           console.error("Gateway: packet parsing failed");
@@ -103,7 +102,10 @@ export class GatewayServer extends EventEmitter {
     unbuffered: boolean
   ) {
     debug("Sending tunnel data to client");
-    const data = this._protocol.pack_tunnel_data_packet_for_client(tunnelData);
+    const data = this._protocol.pack_tunnel_data_packet_for_client(
+      tunnelData,
+      0
+    );
     if (data) {
       if (unbuffered) {
         this._soeServer.sendUnbufferedAppData(client, data);

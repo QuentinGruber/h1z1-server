@@ -186,6 +186,7 @@ export interface DamageInfo {
   damage: number;
   causeBleed?: boolean;
   hitReport?: HitReport;
+  message?: string;
 }
 
 export interface DamageRecord {
@@ -205,6 +206,7 @@ export interface DamageRecord {
     hitPosition: Float32Array;
     oldHP: number;
     newHP: number;
+    message: string;
   };
 }
 

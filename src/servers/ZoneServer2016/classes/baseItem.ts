@@ -31,11 +31,11 @@ export class BaseItem {
     this.itemDefinitionId = itemDefinitionId;
     this.itemGuid = guid;
     this.currentDurability = durability;
-    if (stackCount <= 0) {
+    if (stackCount < 0) {
       console.error(
         `negative stackcount (${stackCount}) detected for item ${this.itemDefinitionId} debugflag ${this.debugFlag}`
       );
-      this.stackCount = 1;
+      this.stackCount = 0;
     } else {
       this.stackCount = stackCount;
     }

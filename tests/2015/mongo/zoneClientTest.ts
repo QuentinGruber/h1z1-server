@@ -51,6 +51,7 @@ async function test() {
     "mongodb://localhost:27017/",
     1
   );
+  (zoneServer as any)._gatewayServer._soeServer._crcSeed = 0;
   zoneServer._loginServerInfo.address = "127.0.0.1";
   //@ts-ignore
   zoneServer._gatewayServer._soeServer._waitQueueTimeMs = 0;

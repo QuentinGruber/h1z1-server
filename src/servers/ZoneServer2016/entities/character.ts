@@ -41,7 +41,7 @@ import { characterDefaultLoadout } from "../data/loadouts";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
-  invincibility?: boolean;
+  invincibility: boolean;
   gmHidden?: boolean;
   knockedOut?: boolean;
   inWater?: boolean;
@@ -54,11 +54,16 @@ interface CharacterMetrics {
   startedSurvivingTP: number; // timestamp
 }
 export class Character2016 extends BaseFullCharacter {
-  name?: string;
+  name!: string;
   spawnLocation?: string;
   resourcesUpdater?: any;
   factionId = 2;
-  godMode = false;
+  set godMode(state: boolean) {
+    this.characterStates.invincibility = state;
+  }
+  get godMode() {
+    return this.characterStates.invincibility;
+  }
   characterStates: CharacterStates;
   isRunning = false;
   isHidden: string = "";
@@ -97,6 +102,9 @@ export class Character2016 extends BaseFullCharacter {
   tempGodMode = false;
   isSpectator = false;
   initialized = false; // if sendself has been sent
+  spawnGridData: number[] = [];
+  lastJumpTime: number = 0;
+  weaponStance: number = 1;
   readonly metrics: CharacterMetrics = {
     recipesDiscovered: 0,
     zombiesKilled: 0,
@@ -138,6 +146,7 @@ export class Character2016 extends BaseFullCharacter {
       (this.characterStates = {
         knockedOut: false,
         inWater: false,
+        invincibility: false,
       });
     this.timeouts = {};
     this.starthealingInterval = (
@@ -170,7 +179,6 @@ export class Character2016 extends BaseFullCharacter {
         }
       }, 1000);
     };
-
     this.startRessourceUpdater = (
       client: ZoneClient2016,
       server: ZoneServer2016
@@ -197,7 +205,7 @@ export class Character2016 extends BaseFullCharacter {
           client.character.isExhausted =
             client.character._resources[ResourceIds.STAMINA] < 120;
         } else if (!client.character.isBleeding || !client.character.isMoving) {
-          client.character._resources[ResourceIds.STAMINA] += 8;
+          client.character._resources[ResourceIds.STAMINA] += 12;
         }
 
         // todo: modify sprint stat
@@ -302,9 +310,14 @@ export class Character2016 extends BaseFullCharacter {
       }, 3000);
     };
   }
+  isGodMode() {
+    return this.godMode || this.tempGodMode;
+  }
+
   clearReloadTimeout() {
     const weaponItem = this.getEquippedWeapon();
-    if (!weaponItem.weapon?.reloadTimer) return;
+    if (!weaponItem || !weaponItem.weapon || !weaponItem.weapon.reloadTimer)
+      return;
     clearTimeout(weaponItem.weapon.reloadTimer);
     weaponItem.weapon.reloadTimer = undefined;
   }
@@ -495,7 +508,7 @@ export class Character2016 extends BaseFullCharacter {
       oldHealth = this._resources[ResourceIds.HEALTH];
     if (!client) return;
 
-    if (this.godMode || !this.isAlive || damage < 100) return;
+    if (this.isGodMode() || !this.isAlive || damage < 100) return;
     if (damageInfo.causeBleed) {
       if (randomIntFromInterval(0, 100) < damage / 100 && damage > 500) {
         this._resources[ResourceIds.BLEEDING] += 41;
@@ -711,7 +724,7 @@ export class Character2016 extends BaseFullCharacter {
 
     server.sendData(client, "Character.WeaponStance", {
       characterId: this.characterId,
-      stance: this.positionUpdate?.stance,
+      stance: this.weaponStance,
     });
 
     if (this.onReadyCallback) {
@@ -724,7 +737,21 @@ export class Character2016 extends BaseFullCharacter {
     if (!this.isAlive) return;
     const client = server.getClientByCharId(damageInfo.entity), // source
       c = server.getClientByCharId(this.characterId); // target
-    if (!client || !c || !damageInfo.hitReport) return;
+    if (!client || !c || !damageInfo.hitReport) {
+      return;
+    }
+    if (
+      !isPosInRadius(
+        c.vehicle?.mountedVehicle ? 50 : 4,
+        damageInfo.hitReport.position,
+        this.state.position
+      )
+    ) {
+      console.log(
+        `${client.character.name} landed a shot with invalid hit position`
+      );
+      return;
+    }
     server.hitMissFairPlayCheck(
       client,
       true,

@@ -160,6 +160,6 @@ export class TrapEntity extends BaseSimpleNpc {
     }
   }
   destroy(server: ZoneServer2016) {
-    server.deleteEntity(this.characterId, server._traps);
+    return server.deleteEntity(this.characterId, server._traps);
   }
 }

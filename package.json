@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.24.1-0",
+  "version": "0.25.2-2",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -15,7 +15,7 @@
   "dependencies": {
     "@types/node": "18.13.0",
     "debug": "4.3.4",
-    "h1emu-core": "1.0.2",
+    "h1emu-core": "1.1.2",
     "h1z1-dataschema": "1.7.0",
     "mongodb": "5.0.1",
     "threads": "1.7.0",

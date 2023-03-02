@@ -6,6 +6,7 @@ const zoneServer = new ZoneServer(
   Buffer.from("F70IaxuU8C/w7FPXY1ibXw==", "base64")
 );
 (zoneServer as any)._gatewayServer._soeServer._waitQueueTimeMs = 0;
+(zoneServer as any)._gatewayServer._soeServer._crcSeed = 0;
 zoneServer.start();
 
 fs.writeFileSync(

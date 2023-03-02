@@ -352,6 +352,12 @@ export const characterPackets: any = [
         { name: "respawnGuid", type: "uint64string", defaultValue: "0" },
         { name: "profileId", type: "uint32", defaultValue: 0 },
         { name: "profileId2", type: "uint32", defaultValue: 0 },
+        { name: "unk", type: "uint32", defaultValue: 0 },
+        {
+          name: "gridPosition",
+          type: "floatvector4",
+          defaultValue: [0, 0, 0, 0],
+        },
       ],
     },
   ],

@@ -287,7 +287,30 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       server.addItem(client, this._loadout[loadoutSlotId], 101);
 
     if (!sendPacket) return;
-
+    if (client && server.isWeapon(item.itemDefinitionId)) {
+      server.sendRemoteWeaponDataToAllOthers(
+        client,
+        client.character.transientId,
+        "RemoteWeapon.Reset",
+        {
+          data: {
+            remoteWeapons: client.character.pGetRemoteWeaponsData(server),
+            remoteWeaponsExtra:
+              client.character.pGetRemoteWeaponsExtraData(server),
+          },
+        }
+      );
+      server.sendRemoteWeaponUpdateData(
+        client,
+        this.transientId,
+        item.itemGuid,
+        "Update.SwitchFireMode",
+        {
+          firegroupIndex: 0,
+          firemodeIndex: 0,
+        }
+      );
+    }
     this.updateLoadout(server);
     if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
   }
@@ -333,9 +356,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     if (!item || !item.isValid("lootItem")) return;
     if (!count) count = item.stackCount;
     if (count > item.stackCount) {
-      console.error(
-        `LootItem: Not enough items in stack! Count ${count} > Stackcount ${item.stackCount}`
-      );
       count = item.stackCount;
     }
     const itemDefId = item.itemDefinitionId;
@@ -348,20 +368,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         });
       }
       this.equipItem(server, item, sendUpdate);
-      if (client && server.isWeapon(item.itemDefinitionId) && sendUpdate) {
-        server.sendRemoteWeaponDataToAllOthers(
-          client,
-          client.character.transientId,
-          "RemoteWeapon.Reset",
-          {
-            data: {
-              remoteWeapons: client.character.pGetRemoteWeaponsData(server),
-              remoteWeaponsExtra:
-                client.character.pGetRemoteWeaponsExtraData(server),
-            },
-          }
-        );
-      }
     } else {
       this.lootContainerItem(server, item, count, sendUpdate);
     }
@@ -400,6 +406,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       }
 
       Object.values(this._containers).forEach((c) => {
+        if (item.stackCount <= 0) return;
         if (array.includes(c)) return;
         array.push(c);
         const availableSpace = c.getAvailableBulk(server),
@@ -419,13 +426,14 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           );
         }
       });
-
-      server.worldObjectManager.createLootEntity(
-        server,
-        item,
-        this.state.position,
-        new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
-      );
+      if (item.stackCount > 0) {
+        server.worldObjectManager.createLootEntity(
+          server,
+          item,
+          this.state.position,
+          new Float32Array([0, Number(Math.random() * 10 - 5), 0, 1])
+        );
+      }
       return;
     }
 
@@ -509,7 +517,10 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
     Object.values(this._containers).forEach((container: LoadoutContainer) => {
       Object.values(container.items).forEach((item) => {
-        if (!this.isDefaultItem(item.itemDefinitionId)) {
+        if (
+          !this.isDefaultItem(item.itemDefinitionId) &&
+          !server.isAdminItem(item.itemDefinitionId)
+        ) {
           let stacked = false;
           for (const i of Object.values(items)) {
             // stack similar items

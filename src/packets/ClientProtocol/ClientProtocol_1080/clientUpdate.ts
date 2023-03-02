@@ -234,7 +234,19 @@ export const clientUpdatePackets: any = [
       ],
     },
   ],
-  ["ClientUpdate.UpdateManagedLocation", 0x112300, {}],
+  [
+    "ClientUpdate.UpdateManagedLocation",
+    0x112300,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+        { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 1] },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: true },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+      ],
+    },
+  ],
   [
     "ClientUpdate.ManagedMovementVersion",
     0x112400,
@@ -382,7 +394,21 @@ export const clientUpdatePackets: any = [
   ["ClientUpdate.UpdateActivityMetrics", 0x114b00, {}],
   ["ClientUpdate.StopWithError", 0x114c00, {}],
   ["ClientUpdate.SetWorldWipeTimer", 0x114d00, {}],
-  ["ClientUpdate.UpdateLockoutTimes", 0x114e00, {}],
+  [
+    "ClientUpdate.UpdateLockoutTimes",
+    0x114e00,
+    {
+      fields: [
+        {
+          name: "unk",
+          type: "array",
+          defaultValue: [],
+          fields: [{ name: "unk", type: "uint32", defaultValue: 0 }],
+        },
+        { name: "bool", type: "boolean", defaultValue: 1 },
+      ],
+    },
+  ],
   ["ClientUpdate.ZoneStatus", 0x114f00, {}],
   ["ClientUpdate.SetDataCenter", 0x115000, {}],
   ["ClientUpdate.UpdateBattlEyeRegistration", 0x115100, {}],

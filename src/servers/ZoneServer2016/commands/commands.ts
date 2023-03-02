@@ -21,6 +21,7 @@ import {
   getDifference,
   isPosInRadius,
   toHex,
+  randomIntFromInterval,
 } from "../../../utils/utils";
 import { ExplosiveEntity } from "../entities/explosiveentity";
 import { Npc } from "../entities/npc";
@@ -76,7 +77,10 @@ export const commands: Array<Command> = [
     name: "respawn",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.respawnPlayer(client);
+      server.respawnPlayer(
+        client,
+        server._spawnGrid[randomIntFromInterval(0, 99)]
+      );
     },
   },
   {
@@ -225,7 +229,7 @@ export const commands: Array<Command> = [
       client.character.isSpectator = !client.character.isSpectator;
       server.sendAlert(
         client,
-        `Set hidden state to ${client.character.isSpectator}`
+        `Set spectate/vanish state to ${client.character.isSpectator}`
       );
       if (!client.character.isSpectator) return;
       for (const a in server._clients) {
@@ -370,6 +374,9 @@ export const commands: Array<Command> = [
       }
 
       client.character.state.position = locationPosition;
+      client.managedObjects?.forEach((characterId: any) => {
+        server.dropVehicleManager(client, characterId);
+      });
       client.isLoading = true;
       client.characterReleased = false;
       client.character.lastLoginDate = toHex(Date.now());
@@ -403,6 +410,9 @@ export const commands: Array<Command> = [
         return;
       }
       targetClient.character.state.position = client.character.state.position;
+      targetClient.managedObjects?.forEach((characterId: any) => {
+        server.dropVehicleManager(client, characterId);
+      });
       targetClient.isLoading = true;
       targetClient.characterReleased = false;
       targetClient.character.lastLoginDate = toHex(Date.now());
@@ -440,6 +450,9 @@ export const commands: Array<Command> = [
         return;
       }
       client.character.state.position = targetClient.character.state.position;
+      client.managedObjects?.forEach((characterId: any) => {
+        server.dropVehicleManager(client, characterId);
+      });
       client.isLoading = true;
       client.characterReleased = false;
       client.character.lastLoginDate = toHex(Date.now());
@@ -644,6 +657,14 @@ export const commands: Array<Command> = [
           `Cannot find any banned user with name ${name}`
         );
       }
+    },
+  },
+  {
+    name: "gm", // "god" also works
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      server.setGodMode(client, !client.character.godMode);
+      server.sendAlert(client, `Set godmode to ${client.character.godMode}`);
     },
   },
   {
@@ -1398,14 +1419,6 @@ export const commands: Array<Command> = [
     },
   },
   {
-    name: "gm", // "god" also works
-    permissionLevel: PermissionLevels.ADMIN,
-    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.setGodMode(client, !client.character.godMode);
-      server.sendAlert(client, `Set godmode to ${client.character.godMode}`);
-    },
-  },
-  {
     name: "alert",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
@@ -1423,7 +1436,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "players",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendChatText(
         client,
@@ -1431,7 +1444,7 @@ export const commands: Array<Command> = [
           .map((c) => {
             return `${c.character.name}: ${c.loginSessionId}`;
           })
-          .join(", ")}`
+          .join(",\n")}`
       );
     },
   },
