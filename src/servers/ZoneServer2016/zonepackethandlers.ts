@@ -690,7 +690,7 @@ export class zonePacketHandlers {
         vehicle.positionUpdate.position,
         packet.data.positionUpdate.position
       );
-      if (dist > 120) {
+      if (dist > 120 && client.vehicle.mountedVehicle == vehicle.characterId) {
         kick = true;
       }
       vehicle.getPassengerList().forEach((passenger: string) => {

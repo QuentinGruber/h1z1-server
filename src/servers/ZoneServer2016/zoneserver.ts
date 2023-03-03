@@ -2387,7 +2387,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (client.isAdmin || !this._useFairPlay) return;
     const distance = getDistance2d(client.oldPos.position, position);
     if (!client.isLoading && client.enableChecks) {
-      if (distance > 3) {
+      if (distance > 5) {
         if (
           Number(client.character.lastLoginDate) + 15000 <
           new Date().getTime()
