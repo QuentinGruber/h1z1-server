@@ -2389,12 +2389,17 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client.isLoading && client.enableChecks) {
       const maxDistance = client.oldPos.speed < 30 ? 1 : 3;
       if (distance > maxDistance) {
-        this.kickPlayer(client);
-        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
-        this.sendChatTextToAdmins(
-          `FairPlay: ${client.character.name} has been kicked for suspeced teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
-          false
-        );
+        if (
+          Number(client.character.lastLoginDate) + 15000 >
+          new Date().getTime()
+        ) {
+          this.kickPlayer(client);
+          this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+          this.sendChatTextToAdmins(
+            `FairPlay: ${client.character.name} has been kicked for suspeced teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
+            false
+          );
+        }
       }
     }
 
