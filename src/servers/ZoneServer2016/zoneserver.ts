@@ -3334,6 +3334,18 @@ export class ZoneServer2016 extends EventEmitter {
     setTimeout(() => {
       client.enableChecks = true;
     }, 500);
+    setTimeout(() => {
+      if (
+        client.character.isAlive &&
+        foundation.isInside(client.character.state.position)
+      ) {
+        const damageInfo: DamageInfo = {
+          entity: "Server.Permission",
+          damage: 1000,
+        };
+        this.killCharacter(client, damageInfo);
+      }
+    }, 1500);
     this.checkFoundationPermission(client, foundation);
   }
 
