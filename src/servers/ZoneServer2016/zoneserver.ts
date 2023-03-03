@@ -85,7 +85,6 @@ import {
   toHex,
   eul2quat,
   movePoint,
-  getRectangleCorners,
   calculate_falloff,
   getConstructionSlotId,
   checkConstructionInRange,
@@ -93,7 +92,7 @@ import {
   isInsideSquare,
   getDifference,
   logClientActionToMongo,
-  removeUntransferableField
+  removeUntransferableFields,
 } from "../../utils/utils";
 
 import { Collection, Db } from "mongodb";
@@ -2740,7 +2739,7 @@ export class ZoneServer2016 extends EventEmitter {
         return calculate_falloff(
           getDistance(sourcePos, targetPos),
           100,
-          1200,//1667,
+          1200, //1667,
           3,
           14
         );

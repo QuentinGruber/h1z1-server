@@ -675,13 +675,20 @@ export function calculateDamageDistFallOff(
 }
 */
 
-export function calculate_falloff(distance: number, minDamage: number, maxDamage: number, falloffStart: number, falloffEnd: number): number {
+export function calculate_falloff(
+  distance: number,
+  minDamage: number,
+  maxDamage: number,
+  falloffStart: number,
+  falloffEnd: number
+): number {
   if (distance < falloffStart) {
     return maxDamage;
   } else if (distance > falloffEnd) {
     return minDamage;
   } else {
-    const interpolation = (distance - falloffStart) / (falloffEnd - falloffStart);
+    const interpolation =
+      (distance - falloffStart) / (falloffEnd - falloffStart);
     return minDamage + interpolation * (maxDamage - minDamage);
   }
 }
