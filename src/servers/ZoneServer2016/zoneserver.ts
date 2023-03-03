@@ -2387,8 +2387,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (client.isAdmin || !this._useFairPlay) return;
     const distance = getDistance2d(client.oldPos.position, position);
     if (!client.isLoading && client.enableChecks) {
-      const maxDistance = client.oldPos.speed < 30 ? 1 : 3;
-      if (distance > maxDistance) {
+      if (distance > 3) {
         if (
           Number(client.character.lastLoginDate) + 15000 <
           new Date().getTime()
@@ -2436,7 +2435,7 @@ export class ZoneServer2016 extends EventEmitter {
         false
       );
     }
-    client.oldPos = { position: position, time: sequenceTime, speed: speed };
+    client.oldPos = { position: position, time: sequenceTime };
   }
 
   hitMissFairPlayCheck(client: Client, hit: boolean, hitLocation: string) {
