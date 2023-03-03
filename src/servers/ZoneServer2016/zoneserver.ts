@@ -15,7 +15,6 @@ const debugName = "ZoneServer",
   debug = require("debug")(debugName);
 
 process.env.isBin && require("./managers/worlddatamanagerthread");
-
 import { EventEmitter } from "node:events";
 import { GatewayServer } from "../GatewayServer/gatewayserver";
 import { H1Z1Protocol } from "../../protocols/h1z1protocol";
@@ -2386,11 +2385,21 @@ export class ZoneServer2016 extends EventEmitter {
     position: Float32Array
   ) {
     if (client.isAdmin || !this._useFairPlay) return;
+    const distance = getDistance2d(client.oldPos.position, position);
+    if (!client.isLoading && client.enableChecks) {
+      const maxDistance = client.oldPos.speed < 30 ? 1 : 3;
+      if (distance > maxDistance) {
+        this.kickPlayer(client);
+        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} has been kicked for suspeced teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
+          false
+        );
+      }
+    }
+
     const speed =
-      (getDistance2d(client.oldPos.position, position) /
-        1000 /
-        (sequenceTime - client.oldPos.time)) *
-      3600000;
+      (distance / 1000 / (sequenceTime - client.oldPos.time)) * 3600000;
     const verticalSpeed =
       (getDistance1d(client.oldPos.position[1], position[1]) /
         1000 /
@@ -2422,7 +2431,7 @@ export class ZoneServer2016 extends EventEmitter {
         false
       );
     }
-    client.oldPos = { position: position, time: sequenceTime };
+    client.oldPos = { position: position, time: sequenceTime, speed: speed };
   }
 
   hitMissFairPlayCheck(client: Client, hit: boolean, hitLocation: string) {
@@ -5976,6 +5985,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   dismountVehicle(client: Client) {
     if (!client.vehicle.mountedVehicle) return;
+    client.enableChecks = false;
+    setTimeout(() => {
+      client.enableChecks = true;
+    }, 5000);
     const vehicle = this._vehicles[client.vehicle.mountedVehicle];
     if (!vehicle) {
       // return if vehicle doesnt exist
