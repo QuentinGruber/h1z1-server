@@ -2390,7 +2390,7 @@ export class ZoneServer2016 extends EventEmitter {
       const maxDistance = client.oldPos.speed < 30 ? 1 : 3;
       if (distance > maxDistance) {
         if (
-          Number(client.character.lastLoginDate) + 15000 >
+          Number(client.character.lastLoginDate) + 15000 <
           new Date().getTime()
         ) {
           this.kickPlayer(client);
