@@ -3305,6 +3305,10 @@ export class ZoneServer2016 extends EventEmitter {
         ],
         triggerLoadingScreen: false,
       });
+      client.enableChecks = false;
+      setTimeout(() => {
+        client.enableChecks = true;
+      }, 500);
       return;
     }
     const newPos = movePoint(client.character.state.position, currentAngle, 1);
@@ -3322,6 +3326,10 @@ export class ZoneServer2016 extends EventEmitter {
       position: client.character.state.position,
       triggerLoadingScreen: false,
     });
+    client.enableChecks = false;
+    setTimeout(() => {
+      client.enableChecks = true;
+    }, 500);
     this.checkFoundationPermission(client, foundation);
   }
 
