@@ -16,7 +16,6 @@
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 
 import { ZoneServer2016 } from "./zoneserver";
-
 const debug = require("debug")("ZoneServer");
 
 import {
@@ -670,7 +669,6 @@ export class zonePacketHandlers {
         client.character.state.position = pos;
       return;
     }
-
     //if (!server._soloMode) {
     server.sendDataToAllOthersWithSpawnedEntity(
       server._vehicles,
@@ -687,14 +685,26 @@ export class zonePacketHandlers {
       vehicle.engineRPM = packet.data.positionUpdate.engineRPM;
     }
     if (packet.data.positionUpdate.position) {
-      vehicle.state.position = new Float32Array([
-        packet.data.positionUpdate.position[0],
-        packet.data.positionUpdate.position[1] - 0.4,
-        packet.data.positionUpdate.position[2],
-        1,
-      ]);
+      let kick = false;
+      const dist = getDistance(
+        vehicle.positionUpdate.position,
+        packet.data.positionUpdate.position
+      );
+      if (dist > 120) {
+        kick = true;
+      }
       vehicle.getPassengerList().forEach((passenger: string) => {
         if (server._characters[passenger]) {
+          if (kick) {
+            const c = server.getClientByCharId(passenger);
+            if (!c) return;
+            server.kickPlayer(client);
+            server.sendChatTextToAdmins(
+              `FairPlay: kicking ${c.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${packet.data.positionUpdate.position[0]} ${packet.data.positionUpdate.position[1]} ${packet.data.positionUpdate.position[2]}]`,
+              false
+            );
+            return;
+          }
           server._characters[passenger].state.position = new Float32Array([
             packet.data.positionUpdate.position[0],
             packet.data.positionUpdate.position[1],
@@ -706,6 +716,13 @@ export class zonePacketHandlers {
           vehicle.removePassenger(passenger);
         }
       });
+      if (kick) return;
+      vehicle.state.position = new Float32Array([
+        packet.data.positionUpdate.position[0],
+        packet.data.positionUpdate.position[1] - 0.4,
+        packet.data.positionUpdate.position[2],
+        1,
+      ]);
       // disabled, dont think we need it and wastes alot of resources
       /*if (client.vehicle.mountedVehicle === characterId) {
         if (
