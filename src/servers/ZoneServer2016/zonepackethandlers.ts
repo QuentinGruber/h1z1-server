@@ -836,7 +836,8 @@ export class zonePacketHandlers {
       if (!client.characterReleased) {
         client.characterReleased = true;
       }
-      server.speedFairPlayCheck(client, Date.now(), packet.data.position);
+      if (server.speedFairPlayCheck(client, Date.now(), packet.data.position))
+        return;
       /*if (!client.isAdmin) {
         const distance = getDistance(
           client.character.state.position,

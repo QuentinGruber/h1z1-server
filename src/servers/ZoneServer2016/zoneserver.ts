@@ -2383,8 +2383,8 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     sequenceTime: number,
     position: Float32Array
-  ) {
-    if (client.isAdmin || !this._useFairPlay) return;
+  ): boolean {
+    if (client.isAdmin || !this._useFairPlay) return false;
     const distance = getDistance2d(client.oldPos.position, position);
     if (!client.isLoading && client.enableChecks) {
       if (distance > 5) {
@@ -2398,6 +2398,7 @@ export class ZoneServer2016 extends EventEmitter {
             `FairPlay: ${client.character.name} has been kicked for suspeced teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
             false
           );
+          return true;
         }
       }
     }
@@ -2412,7 +2413,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (speed > 35 && verticalSpeed < 20) {
       const soeClient = this.getSoeClient(client.soeClientId);
       if (soeClient) {
-        if (soeClient.avgPing >= 250) return;
+        if (soeClient.avgPing >= 250) return false;
       }
       client.speedWarnsNumber += 1;
     } else if (client.speedWarnsNumber > 0) {
@@ -2434,8 +2435,10 @@ export class ZoneServer2016 extends EventEmitter {
         `FairPlay: ${client.character.name} has been kicking for speed hacking: ${speed} m/s at position [${position[0]} ${position[1]} ${position[2]}]`,
         false
       );
+      return true;
     }
     client.oldPos = { position: position, time: sequenceTime };
+    return false;
   }
 
   hitMissFairPlayCheck(client: Client, hit: boolean, hitLocation: string) {
