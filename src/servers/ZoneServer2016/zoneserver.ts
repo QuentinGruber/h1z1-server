@@ -4145,6 +4145,17 @@ export class ZoneServer2016 extends EventEmitter {
     return false;
   }
 
+  async unbanClient(client: Client,name:string): Promise<Ban>{
+     const unBannedClient = (
+        await this._db
+          ?.collection(DB_COLLECTIONS.BANNED)
+          .findOneAndUpdate(
+            { name, active: true },
+            { $set: { active: false, unBanAdminName: client.character.name } }
+          )
+      )?.value as unknown as Ban;
+    return unBannedClient
+  }
   banClient(
     client: Client,
     reason: string,

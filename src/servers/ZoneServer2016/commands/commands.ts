@@ -638,16 +638,9 @@ export const commands: Array<Command> = [
         return;
       }
       const name = args.join(" ").toString();
-      const bannedClient = (
-        await server._db
-          ?.collection(DB_COLLECTIONS.BANNED)
-          .findOneAndUpdate(
-            { name, active: true },
-            { $set: { active: false, unBanAdminName: client.character.name } }
-          )
-      )?.value as unknown as Ban;
-      if (bannedClient) {
-        server.sendChatText(client, `Removed ban on user ${bannedClient.name}`);
+      const unBannedClient = await server.unbanClient(client,name);
+      if (unBannedClient) {
+        server.sendChatText(client, `Removed ban on user ${unBannedClient.name}`);
       } else {
         server.sendChatText(
           client,
