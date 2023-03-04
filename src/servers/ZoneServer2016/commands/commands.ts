@@ -604,6 +604,7 @@ export const commands: Array<Command> = [
   {
     name: "unban",
     permissionLevel: PermissionLevels.MODERATOR,
+    keepCase: true,
     execute: async (
       server: ZoneServer2016,
       client: Client,
@@ -1874,7 +1875,14 @@ export const commands: Array<Command> = [
         return;
       }
 
-      // CHECK FOR GLOBAL AND PLAYER MUTE
+      if (await server.chatManager.checkMute(server, client)) {
+        server.sendChatText(
+          client,
+          "[Whisper] Message blocked, you are globally muted!"
+        );
+        return;
+      }
+
       if (
         targetClient.character.mutedCharacters.includes(
           client.character.characterId
@@ -2015,6 +2023,18 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "Client not found.");
         return;
       }
+
+      const mutedClient = (await server._db
+        ?.collection(DB_COLLECTIONS.MUTED)
+        .findOne({
+          name: client.character.name.toLowerCase(),
+          active: true,
+        })) as unknown as ClientMute;
+      if (mutedClient) {
+        server.sendChatText(client, "Client is already muted!");
+        return;
+      }
+
       let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
       if (time > 0) {
         time += Date.now();
@@ -2049,22 +2069,29 @@ export const commands: Array<Command> = [
       args: Array<string>
     ) => {
       if (!args[0]) {
-        server.sendChatText(client, `Correct usage: /globalunmute {name|playerId}`);
+        server.sendChatText(
+          client,
+          `Correct usage: /globalunmute {name|playerId}`
+        );
         return;
       }
-      const name = args.join(" ").toString();
-      const mutedClient = (
-        await server._db
-          ?.collection(DB_COLLECTIONS.MUTED)
-          .findOneAndUpdate(
-            { name, active: true },
-            { $set: { active: false, unmuteAdminName: client.character.name } }
-          )
-      )?.value as unknown as ClientMute;
+      const name = args.join(" ").toString(),
+        mutedClient = (
+          await server._db
+            ?.collection(DB_COLLECTIONS.MUTED)
+            .findOneAndUpdate(
+              { name, active: true },
+              {
+                $set: { active: false, unmuteAdminName: client.character.name },
+              }
+            )
+        )?.value as unknown as ClientMute;
       if (mutedClient) {
         server.sendChatText(client, `Removed mute on user ${mutedClient.name}`);
-        const targetClient = server.getClientByNameOrLoginSession(mutedClient.loginSessionId);
-        if(targetClient && targetClient instanceof Client) {
+        const targetClient = server.getClientByNameOrLoginSession(
+          mutedClient.loginSessionId
+        );
+        if (targetClient && targetClient instanceof Client) {
           server.sendAlert(targetClient, "You have been unmuted!");
         }
       } else {

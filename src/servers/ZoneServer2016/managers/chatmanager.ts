@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { ClientMute } from "types/zoneserver";
-import { DB_COLLECTIONS } from "utils/enums";
+import { DB_COLLECTIONS } from "../../../utils/enums";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 
@@ -136,7 +136,7 @@ export class ChatManager {
     timestamp: number
   ) {
     const object: ClientMute = {
-      name: client.character.name || "",
+      name: client.character.name.toLowerCase() || "",
       muteReason: reason ? reason : "no reason",
       loginSessionId: client.loginSessionId,
       adminName: adminName ? adminName : "",
@@ -183,5 +183,31 @@ export class ChatManager {
           : `${client.character.name} has been muted!`
       );
     }
+  }
+
+  async checkMute(server: ZoneServer2016, client: Client): Promise<boolean> {
+    const mutedClient = (await server._db
+      ?.collection(DB_COLLECTIONS.MUTED)
+      .findOne({
+        name: client.character.name.toLowerCase(),
+        active: true,
+      })) as unknown as ClientMute;
+    if (mutedClient) {
+      if (
+        mutedClient.expirationDate &&
+        mutedClient.expirationDate <= Date.now()
+      ) {
+        await server._db
+          ?.collection(DB_COLLECTIONS.MUTED)
+          .findOneAndUpdate(
+            { name: client.character.name.toLowerCase(), active: true },
+            { $set: { active: false, unmuteAdminName: "SERVER" } }
+          );
+        server.sendChatText(client, "You have been unmuted!");
+        return false;
+      }
+      return true;
+    }
+    return false;
   }
 }

@@ -27,7 +27,6 @@ import {
   quat2matrix,
   logClientActionToMongo,
   eul2quat,
-  getDistance,
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -51,7 +50,11 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./commands/commandhandler";
 import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
-import { Ban, ConstructionPermissions, DamageInfo } from "types/zoneserver";
+import {
+  ClientBan,
+  ConstructionPermissions,
+  DamageInfo,
+} from "types/zoneserver";
 import { positionUpdate } from "types/savedata";
 import { GameTimeSync } from "types/zone2016packets";
 import { LootableProp } from "./entities/lootableprop";
@@ -497,8 +500,14 @@ export class zonePacketHandlers {
       ],
     });
   }
-  ChatChat(server: ZoneServer2016, client: Client, packet: any) {
+  async ChatChat(server: ZoneServer2016, client: Client, packet: any) {
     const { channel, message } = packet.data; // leave channel for later
+
+    if (await server.chatManager.checkMute(server, client)) {
+      server.sendChatText(client, "You are muted!");
+      return;
+    }
+
     if (!client.radio) {
       server.chatManager.sendChatToAllInRange(server, client, message, 300);
     } else if (client.radio) {
@@ -623,9 +632,9 @@ export class zonePacketHandlers {
     const startPos = info.search("Device") + 9;
     const cut = info.substring(startPos, info.length);
     client.HWID = cut.substring(0, cut.search(",") - 1);
-    const hwidBanned: Ban = (await server._db
+    const hwidBanned: ClientBan = (await server._db
       ?.collection(DB_COLLECTIONS.BANNED)
-      .findOne({ HWID: client.HWID, active: true })) as unknown as Ban;
+      .findOne({ HWID: client.HWID, active: true })) as unknown as ClientBan;
     if (hwidBanned?.expirationDate < Date.now()) {
       client.banType = hwidBanned.banType;
       //server.enforceBan(client);
