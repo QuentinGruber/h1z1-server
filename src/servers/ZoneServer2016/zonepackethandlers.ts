@@ -101,7 +101,7 @@ export class zonePacketHandlers {
 
     server.customizeDTO(client);
 
-    client.character.startRessourceUpdater(client, server);
+    client.character.startResourceUpdater(client, server);
     server.sendData(client, "Character.CharacterStateDelta", {
       guid1: client.guid,
       guid2: "0x0000000000000000",

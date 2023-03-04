@@ -161,8 +161,9 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
-  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
+  resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
+  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
@@ -6409,6 +6410,11 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return this._containerDefinitions[119];
     }
+  }
+
+  getResourceMaxValue(resourceId: ResourceIds): number {
+    if(!resourceDefinitions[resourceId]) return 0;
+    return resourceDefinitions[resourceId].MAX_VALUE || 0;
   }
 
   /**

@@ -30,7 +30,7 @@ import {
   characterBuildKitLoadout,
   characterKitLoadout,
 } from "../data/loadouts";
-import { EquipSlots, Items } from "../models/enums";
+import { EquipSlots, Items, ResourceIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
 import { ConstructionPermissions } from "types/zoneserver";
@@ -536,7 +536,7 @@ export const commands: Array<Command> = [
       } else {
         server.sendChatText(
           client,
-          `You have banned ${targetClient.character.name} permemently`
+          `You have banned ${targetClient.character.name} permanently`
         );
       }
       const reason = args.slice(2).join(" ");
@@ -1917,6 +1917,27 @@ export const commands: Array<Command> = [
       console.log(loottables);
       server.worldObjectManager.createLoot(server, loottables);
       server.sendChatText(client, `Respawned loot`);
+    },
+  },
+  {
+    name: "heal",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      client.character._resources = {
+        [ResourceIds.HEALTH]: 10000,
+        [ResourceIds.STAMINA]: 600,
+        [ResourceIds.HUNGER]: 10000,
+        [ResourceIds.HYDRATION]: 10000,
+        [ResourceIds.VIRUS]: 0,
+        [ResourceIds.COMFORT]: 5000,
+        [ResourceIds.BLEEDING]: -40,
+      }
+      // TODO: UPDATE RESOURCES
+      server.sendChatText(client, `Set resources to maximum values.`);
     },
   },
   //#endregion
