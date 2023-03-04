@@ -2729,13 +2729,6 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.WEAPON_R380:
         return 1500;
       case Items.WEAPON_SHOTGUN:
-        /*
-        return calculateDamageDistFallOff(
-          getDistance(sourcePos, targetPos),
-          1200, // 1 pellet (was 1667)
-          0.5
-        );
-        */
         return calculate_falloff(
           getDistance(sourcePos, targetPos),
           100,

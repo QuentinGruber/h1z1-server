@@ -664,17 +664,6 @@ export const getRandomKeyFromAnObject = (object: any): string => {
   return keys[Math.floor(Math.random() * keys.length)];
 };
 
-/*
-export function calculateDamageDistFallOff(
-  distance: number,
-  damage: number,
-  range: number
-) {
-  //return damage / (distance * range);
-  return damage * Math.pow(range, distance / 10);
-}
-*/
-
 export function calculate_falloff(
   distance: number,
   minDamage: number,
