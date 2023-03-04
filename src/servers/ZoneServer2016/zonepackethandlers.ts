@@ -1488,10 +1488,10 @@ export class zonePacketHandlers {
     )
       return; // add debug admin
     let characterId = "";
-    for (const a in server._characters) {
-      const character = server._characters[a];
-      if (character.name === packet.data.characterName) {
-        characterId = character.characterId;
+    for (const a in foundation.permissions) {
+      const permissions = foundation.permissions[a];
+      if (permissions.characterName === packet.data.characterName) {
+        characterId = permissions.characterId;
       }
     }
     if (!characterId) {
