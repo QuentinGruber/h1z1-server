@@ -253,7 +253,7 @@ export class LoginServer extends EventEmitter {
                             serverId,
                             loginSessionId,
                             status,
-                            isGlobal:this._isServerOfficial(serverId)
+                            isGlobal:await this._isServerOfficial(serverId)
                           },
                         }, {upsert:true},
                       );
@@ -316,9 +316,9 @@ export class LoginServer extends EventEmitter {
       this._h1emuLoginServer.start();
     }
   }
-    private _isServerOfficial(serverId: number): boolean {
-        // TODO
-        return true;
+    private async _isServerOfficial(serverId: number): Promise<boolean> {
+        const server = await this._db.collection(DB_COLLECTIONS.SERVERS).findOne({serverId})
+        return !!server.IsOfficial;
     }
 
   parseData(clientProtocol: string, data: Buffer) {
