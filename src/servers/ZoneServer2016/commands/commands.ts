@@ -30,7 +30,7 @@ import {
   characterBuildKitLoadout,
   characterKitLoadout,
 } from "../data/loadouts";
-import { EquipSlots, Items, ResourceIds } from "../models/enums";
+import { EquipSlots, Items, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
 import { ConstructionPermissions } from "types/zoneserver";
@@ -1936,7 +1936,14 @@ export const commands: Array<Command> = [
         [ResourceIds.COMFORT]: 5000,
         [ResourceIds.BLEEDING]: -40,
       }
-      // TODO: UPDATE RESOURCES
+      client.character.updateResource(server, client, ResourceIds.HEALTH, ResourceTypes.HEALTH);
+      client.character.updateResource(server, client, ResourceIds.STAMINA, ResourceTypes.STAMINA);
+      client.character.updateResource(server, client, ResourceIds.HUNGER, ResourceTypes.HUNGER);
+      client.character.updateResource(server, client, ResourceIds.HYDRATION, ResourceTypes.HYDRATION);
+      client.character.updateResource(server, client, ResourceIds.VIRUS, ResourceTypes.VIRUS);
+      client.character.updateResource(server, client, ResourceIds.COMFORT, ResourceTypes.COMFORT);
+      client.character.updateResource(server, client, ResourceIds.BLEEDING, ResourceTypes.BLEEDING);
+      
       server.sendChatText(client, `Set resources to maximum values.`);
     },
   },

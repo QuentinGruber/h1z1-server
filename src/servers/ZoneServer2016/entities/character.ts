@@ -264,7 +264,7 @@ export class Character2016 extends BaseFullCharacter {
     }
   }
 
-  updateResource(server: ZoneServer2016, client: ZoneClient2016, resourceId: ResourceIds, resouceType: ResourceTypes, oldValue: number) {
+  updateResource(server: ZoneServer2016, client: ZoneClient2016, resourceId: ResourceIds, resouceType: ResourceTypes, oldValue?: number) {
     const resource = client.character._resources[resourceId];
     if (resource == oldValue) return;
     // only network stamina to other clients
