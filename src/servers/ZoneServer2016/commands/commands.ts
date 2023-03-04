@@ -212,7 +212,7 @@ export const commands: Array<Command> = [
           );
         }
       }
-      server.sendData(client, "SpectatorBase", {});
+      server.sendData(client, "Spectator.Enable", {});
     },
   },
   {
@@ -602,10 +602,7 @@ export const commands: Array<Command> = [
       args: Array<string>
     ) => {
       if (!args[0]) {
-        server.sendChatText(
-          client,
-          `Correct usage: /admin unban {name|playerId}`
-        );
+        server.sendChatText(client, `Correct usage: /unban {name|playerId}`);
         return;
       }
       const name = args.join(" ").toString();
@@ -646,7 +643,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin listProcesses {name | ZoneClientId}`
+          `Correct usage: /listprocesses {name | ZoneClientId}`
         );
         return;
       }
@@ -1375,7 +1372,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin vehiclerespawntimer <time>`
+          `Correct usage: /vehiclerespawntimer <time>`
         );
         return;
       }

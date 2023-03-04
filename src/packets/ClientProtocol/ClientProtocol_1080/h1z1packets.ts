@@ -68,6 +68,7 @@ import { zoneSettingPackets } from "./zoneSetting";
 import { clientPathPackets } from "./clientPath";
 import { accessedCharacterPackets } from "./accessedCharacter";
 import { replicationPackets } from "./replication";
+import { spectatorPackets } from "./spectator";
 
 const packets: any = [
   ...basePackets,
@@ -126,6 +127,7 @@ const packets: any = [
   ...clientPathPackets,
   ...accessedCharacterPackets,
   ...replicationPackets,
+  ...spectatorPackets,
 ];
 
 const [packetTypes, packetDescriptors] = PacketTableBuild(packets);
