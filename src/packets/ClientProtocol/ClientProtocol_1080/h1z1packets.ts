@@ -66,6 +66,7 @@ import { wallOfDataPackets } from "./wallOfData";
 import { wordFilterPackets } from "./wordFilter";
 import { zoneSettingPackets } from "./zoneSetting";
 import { clientPathPackets } from "./clientPath";
+import { spectatorPackets } from "./spectator";
 
 const packets: any = [
   ...basePackets,
@@ -122,6 +123,7 @@ const packets: any = [
   ...wordFilterPackets,
   ...zoneSettingPackets,
   ...clientPathPackets,
+  ...spectatorPackets,
 ];
 
 const [packetTypes, packetDescriptors] = PacketTableBuild(packets);
