@@ -645,29 +645,33 @@ const dev: any = {
       state: Number(args[0]) == 0 ? false : true,
     });
   },
-  
-  group: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-      server.sendData(client, "Group.Invite", {
-        unknownDword1: Number(args[1]),
-        unknownDword2: Number(args[2]),
-        unknownDword3: Number(args[3]),
-        inviteData: {
-          sourceCharacter: {
-            characterId: client.character.characterId,
-            identity: {
-              characterFirstName: client.character.name
-            }
+
+  group: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Group.Invite", {
+      unknownDword1: Number(args[1]),
+      unknownDword2: Number(args[2]),
+      unknownDword3: Number(args[3]),
+      inviteData: {
+        sourceCharacter: {
+          characterId: client.character.characterId,
+          identity: {
+            characterFirstName: client.character.name,
           },
-          targetCharacter: {
-            characterId: client.character.characterId,
-            identity: {
-              characterFirstName: client.character.name
-            }
-          }
-        }
-      });
+        },
+        targetCharacter: {
+          characterId: client.character.characterId,
+          identity: {
+            characterFirstName: client.character.name,
+          },
+        },
+      },
+    });
   },
-  
+
   spectateflag: function (
     server: ZoneServer2016,
     client: Client,
@@ -685,7 +689,7 @@ const dev: any = {
         break;
     }
   },
-  
+
   vehicledecay: function (
     server: ZoneServer2016,
     client: Client,

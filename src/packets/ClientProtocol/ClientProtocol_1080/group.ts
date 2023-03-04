@@ -11,14 +11,19 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { identitySchema } from "./shared"
+import { identitySchema } from "./shared";
 
 const groupCharacterSchema: Array<any> = [
   { name: "characterId", type: "uint64string", defaultValue: "" },
-  { name: "identity", type: "schema", fields: identitySchema, defaultValue: {} },
+  {
+    name: "identity",
+    type: "schema",
+    fields: identitySchema,
+    defaultValue: {},
+  },
   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
   { name: "unknownString1", type: "string", defaultValue: "" },
-]
+];
 
 const inviteDataSchema: Array<any> = [
   { name: "unknownQword1", type: "uint64string", defaultValue: "" },
@@ -36,12 +41,12 @@ const inviteDataSchema: Array<any> = [
     fields: groupCharacterSchema,
   },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-]
+];
 
 export const groupPackets = [
   [
-    "Group.Invite", 
-    0x1301, 
+    "Group.Invite",
+    0x1301,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -53,12 +58,12 @@ export const groupPackets = [
           defaultValue: {},
           fields: inviteDataSchema,
         },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.Join", 
-    0x1302, 
+    "Group.Join",
+    0x1302,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -71,12 +76,13 @@ export const groupPackets = [
           defaultValue: {},
           fields: inviteDataSchema,
         },
-      ]
-    }
+      ],
+    },
   ],
-  [ // ** UNFINISHED **
-    "Group.AutoGroup", 
-    0x1303, 
+  [
+    // ** UNFINISHED **
+    "Group.AutoGroup",
+    0x1303,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -84,191 +90,191 @@ export const groupPackets = [
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
         { name: "unknownDword4", type: "uint32", defaultValue: 0 },
         // todo: make pack func
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.Leave", 
-    0x1304, 
+    "Group.Leave",
+    0x1304,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.Kick", 
-    0x1305, 
+    "Group.Kick",
+    0x1305,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.Disband", 
-    0x1306, 
+    "Group.Disband",
+    0x1306,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.SetGroupFlags", 
-    0x1307, 
+    "Group.SetGroupFlags",
+    0x1307,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "flags", type: "uint8", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.SetGroupOwner", 
-    0x1308, 
+    "Group.SetGroupOwner",
+    0x1308,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "characterId", type: "uint64string", defaultValue: "" },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.SetGroupDescription", 
-    0x1309, 
+    "Group.SetGroupDescription",
+    0x1309,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "description", type: "string", defaultValue: "" },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.UnknownA", 
-    0x130a, 
+    "Group.UnknownA",
+    0x130a,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "unknownQword1", type: "uint64string", defaultValue: "" },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.MapPingRelated", 
-    0x130b, 
+    "Group.MapPingRelated",
+    0x130b,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "characterId", type: "uint64string", defaultValue: "" },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 }, // X coord?
         { name: "unknownDword3", type: "uint32", defaultValue: 0 }, // Y coord?
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.UnknownC", 
-    0x130c, 
+    "Group.UnknownC",
+    0x130c,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "characterId", type: "uint64string", defaultValue: "" },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.GetGroup", 
-    0x130e, 
+    "Group.GetGroup",
+    0x130e,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.UnknownF", 
-    0x130f, 
+    "Group.UnknownF",
+    0x130f,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "characterId", type: "uint64string", defaultValue: "" },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.JoinLookingForMore", 
-    0x1310, 
+    "Group.JoinLookingForMore",
+    0x1310,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.ToggleSquadLeaderChat", 
-    0x1311, 
+    "Group.ToggleSquadLeaderChat",
+    0x1311,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "characterId", type: "uint64string", defaultValue: "" },
         { name: "leaveState", type: "boolean", defaultValue: false },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.Unknown12", 
-    0x1312, 
+    "Group.Unknown12",
+    0x1312,
     {
       fields: [
         // todo: massive structure
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.PlayerJoined", 
-    0x1313, 
+    "Group.PlayerJoined",
+    0x1313,
     {
       fields: [
         // todo: massive structure
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.Unknown14", 
-    0x1314, 
+    "Group.Unknown14",
+    0x1314,
     {
       fields: [
         // todo: massive structure
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.RemoveGroup", 
-    0x1316, 
+    "Group.RemoveGroup",
+    0x1316,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.RemoveMember", 
-    0x1317, 
+    "Group.RemoveMember",
+    0x1317,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -281,12 +287,12 @@ export const groupPackets = [
         { name: "unknownQword1", type: "uint64string", defaultValue: "" },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
         */
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.RemoveInvitation", 
-    0x1318, 
+    "Group.RemoveInvitation",
+    0x1318,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -297,23 +303,23 @@ export const groupPackets = [
           defaultValue: {},
           fields: inviteDataSchema,
         },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.Unknown19", 
-    0x1319, 
+    "Group.Unknown19",
+    0x1319,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         // todo: extra dword if dword2 passes some condition
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.Unknown1a", 
-    0x131a, 
+    "Group.Unknown1a",
+    0x131a,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -323,15 +329,19 @@ export const groupPackets = [
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownFloatVector", type: "floatvector3", defaultValue: [0, 0, 0] },
+            {
+              name: "unknownFloatVector",
+              type: "floatvector3",
+              defaultValue: [0, 0, 0],
+            },
           ],
         },
-      ]
-    }
+      ],
+    },
   ],
   [
-    "Group.RaidCreate", 
-    0x1323, 
+    "Group.RaidCreate",
+    0x1323,
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
@@ -343,7 +353,7 @@ export const groupPackets = [
           defaultValue: {},
           fields: inviteDataSchema,
         },
-      ]
-    }
+      ],
+    },
   ],
-]
+];
