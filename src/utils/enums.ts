@@ -17,6 +17,12 @@ export enum GAME_VERSIONS {
   H1Z1_KOTK_PS3 = 3,
 }
 
+export enum BAN_INFO {
+  NONE = 0,
+  LOCAL_BAN = 1,
+  GLOBAL_BAN = 2,
+}
+
 export enum NAME_VALIDATION_STATUS {
   AVAILABLE = 1,
   TAKEN = 2,

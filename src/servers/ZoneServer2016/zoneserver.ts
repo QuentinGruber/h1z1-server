@@ -124,7 +124,7 @@ import {
 } from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
-import { DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
+import { BAN_INFO, DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
 
 import {
   ClientUpdateDeathMetrics,
@@ -278,7 +278,9 @@ export class ZoneServer2016 extends EventEmitter {
   private _isSaving: boolean = false;
   saveTimeInterval: number = 600000;
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
+  // TODO: this could be a constant
   observerVehicleGuid: string = "0xFAFAFAFAFAFAFAFA";
+  banInfoAcceptance: BAN_INFO = BAN_INFO.NONE;
 
   constructor(
     serverPort: number,
@@ -449,8 +451,15 @@ export class ZoneServer2016 extends EventEmitter {
                 break;
               }
               case "CharacterAllowedRequest": {
-                const { characterId, reqId } = packet.data;
+                const { characterId,banInfo, reqId } = packet.data;
                 try {
+                  if(banInfo && banInfo <= this.banInfoAcceptance){
+                    this._h1emuZoneServer.sendData(
+                      client,
+                      "CharacterAllowedReply",
+                      { status: 0, reqId: reqId }
+                    );
+                  }
                   const collection = (this._db as Db).collection(
                     DB_COLLECTIONS.CHARACTERS
                   );

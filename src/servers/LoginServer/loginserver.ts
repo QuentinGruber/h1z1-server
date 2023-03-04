@@ -54,6 +54,7 @@ import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
 import LoginClient from "servers/LoginServer/loginclient";
 import {
+    BAN_INFO,
   DB_COLLECTIONS,
   GAME_VERSIONS,
   NAME_VALIDATION_STATUS,
@@ -802,6 +803,10 @@ export class LoginServer extends EventEmitter {
     };
   }
 
+  async getOwnerBanInfo(ownerId:string): Promise<BAN_INFO>{
+      return BAN_INFO.GLOBAL_BAN;
+  }
+
   async CharacterLoginRequest(client: Client, packet: CharacterLoginRequest) {
     let charactersLoginInfo: CharacterLoginReply;
     const { serverId, characterId } = packet;
@@ -812,10 +817,11 @@ export class LoginServer extends EventEmitter {
         characterId,
         client.loginSessionId
       );
+      const banInfo:BAN_INFO= await this.getOwnerBanInfo(client.loginSessionId as string);
       CharacterAllowedOnZone = (await this.askZone(
         serverId,
         "CharacterAllowedRequest",
-        { characterId: characterId }
+        { characterId: characterId, banInfo }
       )) as number;
     } else {
       charactersLoginInfo = await this.getCharactersLoginInfoSolo(
