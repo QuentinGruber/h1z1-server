@@ -677,10 +677,10 @@ export function calculate_falloff(
     return minDamage;
   }
   const damageRange = maxDamage - minDamage,
-  distanceRange = falloffEnd - falloffStart,
-  distanceFromStart = distance - falloffStart,
-  interpolation = 1 - (distanceFromStart / distanceRange),
-  reducedDamage = minDamage + (interpolation * damageRange);
+    distanceRange = falloffEnd - falloffStart,
+    distanceFromStart = distance - falloffStart,
+    interpolation = 1 - distanceFromStart / distanceRange,
+    reducedDamage = minDamage + interpolation * damageRange;
   return Math.round(reducedDamage);
 }
 
