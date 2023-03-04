@@ -682,15 +682,17 @@ export function calculate_falloff(
   falloffStart: number,
   falloffEnd: number
 ): number {
-  if (distance < falloffStart) {
+  if (distance <= falloffStart) {
     return maxDamage;
-  } else if (distance > falloffEnd) {
+  } else if (distance >= falloffEnd) {
     return minDamage;
-  } else {
-    const interpolation =
-      (distance - falloffStart) / (falloffEnd - falloffStart);
-    return minDamage + interpolation * (maxDamage - minDamage);
   }
+  const damageRange = maxDamage - minDamage,
+  distanceRange = falloffEnd - falloffStart,
+  distanceFromStart = distance - falloffStart,
+  interpolation = 1 - (distanceFromStart / distanceRange),
+  reducedDamage = minDamage + (interpolation * damageRange);
+  return Math.round(reducedDamage);
 }
 
 export function flhash(str: string) {
