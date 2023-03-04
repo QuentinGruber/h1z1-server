@@ -836,3 +836,7 @@ export function removeUntransferableFields(data: any) {
     }
   }
 }
+
+export function isFloat(number: number) {
+  return number % 1 != 0;
+}
