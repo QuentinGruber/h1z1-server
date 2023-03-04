@@ -4154,6 +4154,7 @@ export class ZoneServer2016 extends EventEmitter {
             { $set: { active: false, unBanAdminName: client.character.name } }
           )
       )?.value as unknown as Ban;
+    this.sendBanToLogin(unBannedClient.loginSessionId,false)
     return unBannedClient
   }
   banClient(
@@ -4179,6 +4180,7 @@ export class ZoneServer2016 extends EventEmitter {
       object.expirationDate = timestamp;
     }
     this._db?.collection(DB_COLLECTIONS.BANNED).insertOne(object);
+    this.sendBanToLogin(client.loginSessionId,true)
     if (banType === "normal") {
       if (timestamp) {
         this.sendAlert(
@@ -7999,11 +8001,23 @@ export class ZoneServer2016 extends EventEmitter {
     );
     delete this._vehicles[vehicleGuid]?.manager;
   }
+  sendBanToLogin(loginSessionId:string,status: boolean){
+    this._h1emuZoneServer.sendData(
+      {
+        ...this._loginServerInfo,
+        // TODO: what a dirty hack
+        serverId: Infinity,
+      } as any,
+      "ClientBan",
+      { loginSessionId,status }
+    );
+  }
   sendZonePopulationUpdate() {
     const populationNumber = _.size(this._characters);
     this._h1emuZoneServer.sendData(
       {
         ...this._loginServerInfo,
+        // TODO: what a dirty hack
         serverId: Infinity,
       } as any,
       "UpdateZonePopulation",

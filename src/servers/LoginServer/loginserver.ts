@@ -241,8 +241,26 @@ export class LoginServer extends EventEmitter {
                       );
                     break;
                   }
+                  case "ClientBan": {
+                    const { status,loginSessionId } = packet.data;
+                    const serverId = this._zoneConnections[client.clientId];
+                    this._db
+                      ?.collection(DB_COLLECTIONS.BANNED_LIGHT)
+                      .findOneAndUpdate(
+                        { serverId: serverId },
+                        {
+                          $set: {
+                            serverId,
+                            loginSessionId,
+                            status,
+                            isGlobal:this._isServerOfficial(serverId)
+                          },
+                        }, {upsert:true},
+                      );
+                  break;
+                }
                   default:
-                    debug(`Unhandled h1emu packet: ${packet.name}`);
+                    console.log(`Unhandled h1emu packet: ${packet.name}`);
                     break;
                 }
               }
@@ -298,6 +316,10 @@ export class LoginServer extends EventEmitter {
       this._h1emuLoginServer.start();
     }
   }
+    private _isServerOfficial(serverId: number): boolean {
+        // TODO
+        return true;
+    }
 
   parseData(clientProtocol: string, data: Buffer) {
     switch (clientProtocol) {

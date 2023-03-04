@@ -149,6 +149,17 @@ const packets = [
       ],
     },
   ],
+  // Doesn't have a req/rep sys
+  [
+    "ClientBan",
+    0x16,
+    {
+      fields: [
+        { name: "loginSessionId", type: "uint64string", defaultValue: 0 },
+        { name: "status", type: "boolean", defaultValue: 0 },
+      ],
+    },
+  ],
 ];
 
 export const [H1emuPacketsPacketTypes, H1emuPacketsPackets] =
