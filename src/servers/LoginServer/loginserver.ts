@@ -825,8 +825,20 @@ export class LoginServer extends EventEmitter {
     };
   }
 
-  async getOwnerBanInfo(ownerId:string): Promise<BAN_INFO>{
-      return BAN_INFO.GLOBAL_BAN;
+  async getOwnerBanInfo(serverId : number,loginSessionId: number): Promise<BAN_INFO[]>{
+      const ownerBanInfos:any[] = await this._db.collection(DB_COLLECTIONS.BANNED_LIGHT).find({loginSessionId ,status:true}).toArray();
+      const banInfos: BAN_INFO[] = []
+      for(let i = 0; i< ownerBanInfos.length;i++){
+        const ownerBanInfo = ownerBanInfos[i]
+        if(ownerBanInfo.serverId === serverId){
+           banInfos.push(BAN_INFO.LOCAL_BAN) ;
+        }
+        if(ownerBanInfo.isGlobal){
+           banInfos.push(BAN_INFO.GLOBAL_BAN) ;
+        }
+      }
+      
+      return banInfos;
   }
 
   async CharacterLoginRequest(client: Client, packet: CharacterLoginRequest) {
@@ -839,11 +851,11 @@ export class LoginServer extends EventEmitter {
         characterId,
         client.loginSessionId
       );
-      const banInfo:BAN_INFO= await this.getOwnerBanInfo(client.loginSessionId as string);
+      const banInfos:BAN_INFO[] = await this.getOwnerBanInfo(serverId,charactersLoginInfo.applicationData.serverTicket);
       CharacterAllowedOnZone = (await this.askZone(
         serverId,
         "CharacterAllowedRequest",
-        { characterId: characterId, banInfo }
+        { characterId: characterId, banInfos }
       )) as number;
     } else {
       charactersLoginInfo = await this.getCharactersLoginInfoSolo(

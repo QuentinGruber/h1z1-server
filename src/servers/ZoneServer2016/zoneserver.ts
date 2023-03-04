@@ -280,7 +280,7 @@ export class ZoneServer2016 extends EventEmitter {
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
   // TODO: this could be a constant
   observerVehicleGuid: string = "0xFAFAFAFAFAFAFAFA";
-  banInfoAcceptance: BAN_INFO = BAN_INFO.NONE;
+  banInfoAcceptance: BAN_INFO[] = [BAN_INFO.GLOBAL_BAN];
 
   constructor(
     serverPort: number,
@@ -451,15 +451,20 @@ export class ZoneServer2016 extends EventEmitter {
                 break;
               }
               case "CharacterAllowedRequest": {
-                const { characterId,banInfo, reqId } = packet.data;
+                const { characterId,banInfos, reqId } = packet.data;
+                console.log(banInfos);
                 try {
-                  if(banInfo && banInfo <= this.banInfoAcceptance){
+                  for(let i = 0; i < banInfos.length;i++){
+                  const banInfo = banInfos[i];
+                  if(this.banInfoAcceptance.includes(banInfo.banInfo)){
                     this._h1emuZoneServer.sendData(
                       client,
                       "CharacterAllowedReply",
                       { status: 0, reqId: reqId }
                     );
                   }
+                  
+                }
                   const collection = (this._db as Db).collection(
                     DB_COLLECTIONS.CHARACTERS
                   );
@@ -484,6 +489,7 @@ export class ZoneServer2016 extends EventEmitter {
                     );
                   }
                 } catch (error) {
+                  console.log(error)
                   this._h1emuZoneServer.sendData(
                     client,
                     "CharacterAllowedReply",
