@@ -947,6 +947,7 @@ export class zonePacketHandlers {
     debug("Command.PlayerSelect");
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
+    console.log(packet);
     if (!client.character.currentInteractionGuid || packet.data.password === 1)
       return;
     const doorEntity = server._constructionDoors[
@@ -979,7 +980,7 @@ export class zonePacketHandlers {
       };
     } else {
       const damageInfo: DamageInfo = {
-        entity: "",
+        entity: "Server.InvalidLockCode",
         damage: 1000,
       };
       client.character.damage(server, damageInfo);
