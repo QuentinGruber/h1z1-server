@@ -210,6 +210,13 @@ export interface DamageRecord {
   };
 }
 
+export interface fireHint {
+    id: number;
+    position: Float32Array;
+    rotation: Float32Array;
+    hitNumber: number
+}
+
 export interface SpawnLocation {
   id: number;
   name: string;

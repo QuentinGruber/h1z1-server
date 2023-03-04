@@ -50,7 +50,12 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./commands/commandhandler";
 import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
-import { Ban, ConstructionPermissions, DamageInfo } from "types/zoneserver";
+import {
+  Ban,
+  ConstructionPermissions,
+  DamageInfo,
+  fireHint,
+} from "types/zoneserver";
 import { positionUpdate } from "types/savedata";
 import { GameTimeSync } from "types/zone2016packets";
 import { LootableProp } from "./entities/lootableprop";
@@ -1656,6 +1661,8 @@ export class zonePacketHandlers {
     function handleWeaponPacket(p: any) {
       const weaponItem = client.character.getEquippedWeapon();
       if (!weaponItem || !weaponItem.weapon) return;
+      console.log(p.packet);
+      console.log(p.packetName);
       switch (p.packetName) {
         case "Weapon.FireStateUpdate":
           // wrench workaround
@@ -2173,6 +2180,18 @@ export class zonePacketHandlers {
           break;
         case "Weapon.WeaponFireHint":
           debug("WeaponFireHint");
+          const fireHint: fireHint = {
+            id: p.packet.sessionProjectileCount,
+            position: p.packet.position,
+            rotation: p.packet.rotation,
+            hitNumber: 0,
+          };
+          client.fireHints[p.packet.sessionProjectileCount] = fireHint;
+          console.log(client.fireHints);
+          // delete after 500ms
+          setTimeout(() => {
+            delete client.fireHints[p.packet.sessionProjectileCount];
+          }, 500);
           break;
         case "Weapon.ProjectileContactReport":
           debug("ProjectileContactReport");
