@@ -82,10 +82,10 @@ import {
   getRandomFromArray,
   getRandomKeyFromAnObject,
   toBigHex,
-  calculateDamageDistFallOff,
   toHex,
   eul2quat,
   movePoint,
+  calculate_falloff,
   getConstructionSlotId,
   checkConstructionInRange,
   resolveHostAddress,
@@ -2789,10 +2789,12 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.WEAPON_R380:
         return 1500;
       case Items.WEAPON_SHOTGUN:
-        return calculateDamageDistFallOff(
+        return calculate_falloff(
           getDistance(sourcePos, targetPos),
-          1200, // 1 pellet (was 1667)
-          0.5
+          200,
+          1200, //1667,
+          3,
+          20
         );
       case Items.WEAPON_AK47:
         return 2900;

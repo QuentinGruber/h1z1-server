@@ -141,13 +141,6 @@ const dev: any = {
       `/dev commands list: \n/dev ${Object.keys(this).join("\n/dev ")}`
     );
   },
-  d: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    // quick disconnect
-    server.sendData(client, "CharacterSelectSessionResponse", {
-      status: 1,
-      sessionId: client.loginSessionId,
-    });
-  },
   r: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     // quick respawn
     server.respawnPlayer(
@@ -652,7 +645,7 @@ const dev: any = {
       state: Number(args[0]) == 0 ? false : true,
     });
   },
-
+  
   group: function (server: ZoneServer2016, client: Client, args: Array<string>) {
       server.sendData(client, "Group.Invite", {
         unknownDword1: Number(args[1]),
@@ -674,6 +667,25 @@ const dev: any = {
         }
       });
   },
+  
+  spectateflag: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    switch (Number(args[1])) {
+      case 1:
+        server.sendData(client, "Spectator.SetUnknownFlag1", {});
+        break;
+      case 2:
+        server.sendData(client, "Spectator.SetUnknownFlag2", {});
+        break;
+      default:
+        server.sendChatText(client, "Unknown spectator flag");
+        break;
+    }
+  },
+  
   vehicledecay: function (
     server: ZoneServer2016,
     client: Client,

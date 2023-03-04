@@ -2048,11 +2048,28 @@ export interface LockssetLock {
   unknownDword2?: number;
   password?: number;
 }
-export interface SpectatorBase {
+export interface SpectatorEnable {
 }
-export interface SpectatorTP {
+export interface SpectatorUnknown2 {
+  unknownDword1?: number;
+}
+export interface SpectatorUnknown3 {
+}
+export interface SpectatorTeleport {
   x?: number;
   y?: number;
+}
+export interface SpectatorUnknown5 {
+  unknownArray1?: any[];
+}
+export interface SpectatorSetUnknownFlag1 {
+}
+export interface SpectatorSetUnknownFlag2 {
+}
+export interface SpectatorMatchResults {
+  unknownQword1?: string;
+  unknownString1?: string;
+  unknownDword1?: number;
 }
 export interface AccessedCharacterBeginCharacterAccess {
   objectCharacterId?: string;
