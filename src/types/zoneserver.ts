@@ -288,7 +288,7 @@ type Point2D = [number, number];
 
 export type SquareBounds = [Point2D, Point2D, Point2D, Point2D];
 
-export interface Ban {
+export interface ClientBan {
   name:string;
   banType:string;
   banReason: string;
@@ -299,4 +299,14 @@ export interface Ban {
   expirationDate: number;
   active: boolean;
   unBanAdminName: string;
+}
+
+export interface ClientMute {
+  name:string;
+  muteReason: string;
+  loginSessionId: string;
+  adminName: string;
+  expirationDate: number;
+  active: boolean;
+  unmuteAdminName: string;
 }

@@ -53,7 +53,7 @@ import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
 
 import {
-  Ban,
+  ClientBan,
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
@@ -4093,7 +4093,7 @@ export class ZoneServer2016 extends EventEmitter {
     adminName: string,
     timestamp: number
   ) {
-    const object: Ban = {
+    const object: ClientBan = {
       name: client.character.name || "",
       banType: banType,
       banReason: reason ? reason : "no reason",
@@ -4138,7 +4138,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendAlert(
           client,
           reason
-            ? `YOU HAVE BEEN PERMAMENTLY BANNED FROM THE SERVER REASON: ${reason}`
+            ? `YOU HAVE BEEN PERMANENTLY BANNED FROM THE SERVER REASON: ${reason}`
             : "YOU HAVE BEEN BANNED FROM THE SERVER."
         );
         this.sendAlertToAll(
@@ -7918,7 +7918,7 @@ export class ZoneServer2016 extends EventEmitter {
       { population: populationNumber }
     );
   }
-  
+
   private filterOutOfDistance(
     element: BaseEntity,
     playerPosition: Float32Array
@@ -8002,9 +8002,18 @@ export class ZoneServer2016 extends EventEmitter {
     this.chatManager.sendGlobalChatText(this, message, clearChat);
   }
 
-  playerNotFound(client: Client, inputString: string, targetClient: string | Client | undefined) {
+  playerNotFound(
+    client: Client,
+    inputString: string,
+    targetClient: string | Client | undefined
+  ) {
     if (typeof targetClient == "string") {
-      this.chatManager.sendPlayerNotFound(this, client, inputString, targetClient);
+      this.chatManager.sendPlayerNotFound(
+        this,
+        client,
+        inputString,
+        targetClient
+      );
       return true;
     }
     return false;

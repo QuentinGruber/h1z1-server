@@ -456,7 +456,7 @@ export class WorldDataManager {
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
         status: 1,
-        worldSaveVersion: this._worldSaveVersion
+        worldSaveVersion: this._worldSaveVersion,
       };
     }
     return savedCharacter;
@@ -512,7 +512,7 @@ export class WorldDataManager {
       rotation: Array.from(character.state.lookAt),
       isRespawning: character.isRespawning,
       spawnGridData: character.spawnGridData,
-      mutedCharacters: character.mutedCharacters
+      mutedCharacters: character.mutedCharacters,
     };
     return saveData;
   }
