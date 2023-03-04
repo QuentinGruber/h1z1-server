@@ -93,8 +93,8 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     );
     this.health = 1000000;
     this.ownerCharacterId = ownerCharacterId;
-    
-    if(itemDefinitionId != Items.FOUNDATION_EXPANSION) {
+
+    if (itemDefinitionId != Items.FOUNDATION_EXPANSION) {
       const ownerPermission: ConstructionPermissions = {
         characterId: ownerCharacterId,
         characterName: ownerName,

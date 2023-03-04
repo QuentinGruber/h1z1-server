@@ -5524,8 +5524,8 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     let ownerCharacterId = client.character.characterId,
-    ownerName = client.character.name;
-    if(itemDefinitionId == Items.FOUNDATION_EXPANSION) {
+      ownerName = client.character.name;
+    if (itemDefinitionId == Items.FOUNDATION_EXPANSION) {
       ownerCharacterId = parentFoundation.ownerCharacterId;
       ownerName = "";
     }
