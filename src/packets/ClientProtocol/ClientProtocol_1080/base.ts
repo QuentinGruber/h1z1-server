@@ -27,8 +27,6 @@ import {
   objectiveSchema,
   packPositionUpdateData,
   packUnsignedIntWith2bitLengthValue,
-  packInteractionComponent,
-  packNpcComponent,
   readPositionUpdateData,
   readUnsignedIntWith2bitLengthValue,
   recipeData,

@@ -1932,15 +1932,50 @@ export const commands: Array<Command> = [
         [ResourceIds.VIRUS]: 0,
         [ResourceIds.COMFORT]: 5000,
         [ResourceIds.BLEEDING]: -40,
-      }
-      client.character.updateResource(server, client, ResourceIds.HEALTH, ResourceTypes.HEALTH);
-      client.character.updateResource(server, client, ResourceIds.STAMINA, ResourceTypes.STAMINA);
-      client.character.updateResource(server, client, ResourceIds.HUNGER, ResourceTypes.HUNGER);
-      client.character.updateResource(server, client, ResourceIds.HYDRATION, ResourceTypes.HYDRATION);
-      client.character.updateResource(server, client, ResourceIds.VIRUS, ResourceTypes.VIRUS);
-      client.character.updateResource(server, client, ResourceIds.COMFORT, ResourceTypes.COMFORT);
-      client.character.updateResource(server, client, ResourceIds.BLEEDING, ResourceTypes.BLEEDING);
-      
+      };
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.HEALTH,
+        ResourceTypes.HEALTH
+      );
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.STAMINA,
+        ResourceTypes.STAMINA
+      );
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.HUNGER,
+        ResourceTypes.HUNGER
+      );
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.HYDRATION,
+        ResourceTypes.HYDRATION
+      );
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.VIRUS,
+        ResourceTypes.VIRUS
+      );
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.COMFORT,
+        ResourceTypes.COMFORT
+      );
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.BLEEDING,
+        ResourceTypes.BLEEDING
+      );
+
       server.sendChatText(client, `Set resources to maximum values.`);
     },
   },

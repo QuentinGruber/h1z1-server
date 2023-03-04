@@ -134,7 +134,7 @@ export class Character2016 extends BaseFullCharacter {
     this.npcRenderDistance = 250;
     this.healingTicks = 0;
     this.healingMaxTicks = 0;
-    this._resources = {
+    (this._resources = {
       [ResourceIds.HEALTH]: 10000,
       [ResourceIds.STAMINA]: 600,
       [ResourceIds.HUNGER]: 10000,
@@ -142,12 +142,12 @@ export class Character2016 extends BaseFullCharacter {
       [ResourceIds.VIRUS]: 0,
       [ResourceIds.COMFORT]: 5000,
       [ResourceIds.BLEEDING]: -40,
-    },
-    this.characterStates = {
-      knockedOut: false,
-      inWater: false,
-      invincibility: false,
-    };
+    }),
+      (this.characterStates = {
+        knockedOut: false,
+        inWater: false,
+        invincibility: false,
+      });
     this.timeouts = {};
     this.starthealingInterval = (
       client: ZoneClient2016,
@@ -183,13 +183,13 @@ export class Character2016 extends BaseFullCharacter {
 
   startResourceUpdater(client: ZoneClient2016, server: ZoneServer2016) {
     client.character.resourcesUpdater = setTimeout(
-      () => this.updateResources(client, server), 
+      () => this.updateResources(client, server),
       3000
     );
   }
 
   updateResources(client: ZoneClient2016, server: ZoneServer2016) {
-    if(this.isGodMode()) {
+    if (this.isGodMode()) {
       client.character.resourcesUpdater.refresh();
       return;
     }
@@ -204,11 +204,10 @@ export class Character2016 extends BaseFullCharacter {
       virus = this._resources[ResourceIds.VIRUS],
       stamina = this._resources[ResourceIds.STAMINA],
       bleeding = this._resources[ResourceIds.BLEEDING];
-    
+
     if (
       client.character.isRunning &&
-      (client.vehicle.mountedVehicle == "" ||
-        !client.vehicle.mountedVehicle)
+      (client.vehicle.mountedVehicle == "" || !client.vehicle.mountedVehicle)
     ) {
       client.character._resources[ResourceIds.STAMINA] -= 4;
       client.character.isExhausted =
@@ -225,51 +224,96 @@ export class Character2016 extends BaseFullCharacter {
       this.damage(server, {
         entity: "Character.Bleeding",
         damage:
-          Math.ceil(
-            client.character._resources[ResourceIds.BLEEDING] / 40
-          ) * 100,
+          Math.ceil(client.character._resources[ResourceIds.BLEEDING] / 40) *
+          100,
       });
     }
     this.checkResource(server, ResourceIds.BLEEDING);
-    this.checkResource(server, ResourceIds.HUNGER, ()=> {
+    this.checkResource(server, ResourceIds.HUNGER, () => {
       this.damage(server, { entity: "Character.Hunger", damage: 100 });
     });
-    this.checkResource(server, ResourceIds.HUNGER, ()=> {
+    this.checkResource(server, ResourceIds.HUNGER, () => {
       this.damage(server, { entity: "Character.Hunger", damage: 100 });
     });
-    this.checkResource(server, ResourceIds.HYDRATION, ()=> {
+    this.checkResource(server, ResourceIds.HYDRATION, () => {
       this.damage(server, { entity: "Character.Hydration", damage: 100 });
     });
     this.checkResource(server, ResourceIds.HEALTH);
 
-    this.updateResource(server, client, ResourceIds.HUNGER, ResourceTypes.HUNGER, hunger);
-    this.updateResource(server, client, ResourceIds.HYDRATION, ResourceTypes.HYDRATION, hydration);
-    this.updateResource(server, client, ResourceIds.HEALTH, ResourceTypes.HEALTH, health);
-    this.updateResource(server, client, ResourceIds.VIRUS, ResourceTypes.VIRUS, virus);
-    this.updateResource(server, client, ResourceIds.STAMINA, ResourceTypes.STAMINA, stamina);
-    this.updateResource(server, client, ResourceIds.BLEEDING, ResourceTypes.BLEEDING, bleeding);
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.HUNGER,
+      ResourceTypes.HUNGER,
+      hunger
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.HYDRATION,
+      ResourceTypes.HYDRATION,
+      hydration
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.HEALTH,
+      ResourceTypes.HEALTH,
+      health
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.VIRUS,
+      ResourceTypes.VIRUS,
+      virus
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.STAMINA,
+      ResourceTypes.STAMINA,
+      stamina
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.BLEEDING,
+      ResourceTypes.BLEEDING,
+      bleeding
+    );
 
     client.character.resourcesUpdater.refresh();
   }
 
-  checkResource(server: ZoneServer2016, resourceId: ResourceIds, damageCallback?: ()=>void) {
+  checkResource(
+    server: ZoneServer2016,
+    resourceId: ResourceIds,
+    damageCallback?: () => void
+  ) {
     const minValue = resourceId == ResourceIds.BLEEDING ? -40 : 0,
-    maxValue = server.getResourceMaxValue(resourceId);
+      maxValue = server.getResourceMaxValue(resourceId);
     if (this._resources[resourceId] > maxValue) {
       this._resources[resourceId] = maxValue;
     } else if (this._resources[resourceId] < minValue) {
       this._resources[resourceId] = minValue;
-      if(damageCallback) {
+      if (damageCallback) {
         damageCallback();
       }
     }
   }
 
-  updateResource(server: ZoneServer2016, client: ZoneClient2016, resourceId: ResourceIds, resouceType: ResourceTypes, oldValue?: number) {
+  updateResource(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    resourceId: ResourceIds,
+    resouceType: ResourceTypes,
+    oldValue?: number
+  ) {
     const resource = client.character._resources[resourceId];
     if (resource == oldValue) return;
     // only network stamina to other clients
-    if(resourceId == ResourceIds.STAMINA) {
+    if (resourceId == ResourceIds.STAMINA) {
       server.updateResourceToAllWithSpawnedEntity(
         client.character.characterId,
         resource > 0 ? resource : 0,

@@ -6415,7 +6415,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   getResourceMaxValue(resourceId: ResourceIds): number {
-    if(!resourceDefinitions[resourceId]) return 0;
+    if (!resourceDefinitions[resourceId]) return 0;
     return resourceDefinitions[resourceId].MAX_VALUE || 0;
   }
 
