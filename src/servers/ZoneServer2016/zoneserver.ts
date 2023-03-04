@@ -448,7 +448,7 @@ export class ZoneServer2016 extends EventEmitter {
                 this.onClientIsAdminRequest(client, packet);
                 break;
               }
-              case "CharacterExistRequest": {
+              case "CharacterAllowedRequest": {
                 const { characterId, reqId } = packet.data;
                 try {
                   const collection = (this._db as Db).collection(
@@ -464,20 +464,20 @@ export class ZoneServer2016 extends EventEmitter {
                   if (charactersArray.length) {
                     this._h1emuZoneServer.sendData(
                       client,
-                      "CharacterExistReply",
+                      "CharacterAllowedReply",
                       { status: 1, reqId: reqId }
                     );
                   } else {
                     this._h1emuZoneServer.sendData(
                       client,
-                      "CharacterExistReply",
+                      "CharacterAllowedReply",
                       { status: 0, reqId: reqId }
                     );
                   }
                 } catch (error) {
                   this._h1emuZoneServer.sendData(
                     client,
-                    "CharacterExistReply",
+                    "CharacterAllowedReply",
                     { status: 0, reqId: reqId }
                   );
                 }

@@ -805,16 +805,16 @@ export class LoginServer extends EventEmitter {
   async CharacterLoginRequest(client: Client, packet: CharacterLoginRequest) {
     let charactersLoginInfo: CharacterLoginReply;
     const { serverId, characterId } = packet;
-    let characterExistOnZone = 1;
+    let CharacterAllowedOnZone = 1;
     if (!this._soloMode) {
       charactersLoginInfo = await this.getCharactersLoginInfo(
         serverId,
         characterId,
         client.loginSessionId
       );
-      characterExistOnZone = (await this.askZone(
+      CharacterAllowedOnZone = (await this.askZone(
         serverId,
-        "CharacterExistRequest",
+        "CharacterAllowedRequest",
         { characterId: characterId }
       )) as number;
     } else {
@@ -831,7 +831,7 @@ export class LoginServer extends EventEmitter {
     }
     debug(charactersLoginInfo);
     if (charactersLoginInfo.status) {
-      charactersLoginInfo.status = Number(characterExistOnZone);
+      charactersLoginInfo.status = Number(CharacterAllowedOnZone);
     }
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
     debug("CharacterLoginRequest");

@@ -109,7 +109,7 @@ const packets = [
     },
   ],
   [
-    "CharacterExistRequest",
+    "CharacterAllowedRequest",
     0x12,
     {
       fields: [
@@ -119,7 +119,7 @@ const packets = [
     },
   ],
   [
-    "CharacterExistReply",
+    "CharacterAllowedReply",
     0x13,
     {
       fields: [
