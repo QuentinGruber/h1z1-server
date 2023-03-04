@@ -2409,7 +2409,7 @@ export class ZoneServer2016 extends EventEmitter {
         1000 /
         (sequenceTime - client.oldPos.time)) *
       3600000;
-    if (speed > 30 && (verticalSpeed < 20 || verticalSpeed == Infinity)) {
+    if (speed > 35 && verticalSpeed < 20) {
       const soeClient = this.getSoeClient(client.soeClientId);
       if (soeClient) {
         if (soeClient.avgPing >= 250) return;
@@ -2418,7 +2418,7 @@ export class ZoneServer2016 extends EventEmitter {
     } else if (client.speedWarnsNumber > 0) {
       client.speedWarnsNumber -= 1;
     }
-    if (client.speedWarnsNumber > 30) {
+    if (client.speedWarnsNumber > 35) {
       this.kickPlayer(client);
       client.speedWarnsNumber = 0;
       if (!this._soloMode) {
