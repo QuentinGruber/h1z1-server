@@ -5523,6 +5523,13 @@ export class ZoneServer2016 extends EventEmitter {
       rotation = rot;
     }
 
+    let ownerCharacterId = client.character.characterId,
+    ownerName = client.character.name;
+    if(itemDefinitionId == Items.FOUNDATION_EXPANSION) {
+      ownerCharacterId = parentFoundation.ownerCharacterId;
+      ownerName = "";
+    }
+
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       npc = new ConstructionParentEntity(
@@ -5533,8 +5540,8 @@ export class ZoneServer2016 extends EventEmitter {
         rotation,
         this,
         itemDefinitionId,
-        client.character.characterId,
-        client.character.name || "",
+        ownerCharacterId,
+        ownerName,
         parentObjectCharacterId,
         BuildingSlot
       );
