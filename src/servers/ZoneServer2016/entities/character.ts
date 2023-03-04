@@ -267,12 +267,23 @@ export class Character2016 extends BaseFullCharacter {
   updateResource(server: ZoneServer2016, client: ZoneClient2016, resourceId: ResourceIds, resouceType: ResourceTypes, oldValue: number) {
     const resource = client.character._resources[resourceId];
     if (resource == oldValue) return;
-    server.updateResourceToAllWithSpawnedEntity(
-      client.character.characterId,
+    // only network stamina to other clients
+    if(resourceId == ResourceIds.STAMINA) {
+      server.updateResourceToAllWithSpawnedEntity(
+        client.character.characterId,
+        resource > 0 ? resource : 0,
+        resourceId,
+        resouceType,
+        server._characters
+      );
+      return;
+    }
+    server.updateResource(
+      client,
+      this.characterId,
       resource > 0 ? resource : 0,
       resourceId,
-      resouceType,
-      server._characters
+      resouceType
     );
   }
 
