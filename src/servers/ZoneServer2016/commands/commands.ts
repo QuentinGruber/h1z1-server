@@ -2077,14 +2077,12 @@ export const commands: Array<Command> = [
       }
       const name = args.join(" ").toString(),
         mutedClient = (
-          await server._db
-            ?.collection(DB_COLLECTIONS.MUTED)
-            .findOneAndUpdate(
-              { name, active: true },
-              {
-                $set: { active: false, unmuteAdminName: client.character.name },
-              }
-            )
+          await server._db?.collection(DB_COLLECTIONS.MUTED).findOneAndUpdate(
+            { name, active: true },
+            {
+              $set: { active: false, unmuteAdminName: client.character.name },
+            }
+          )
         )?.value as unknown as ClientMute;
       if (mutedClient) {
         server.sendChatText(client, `Removed mute on user ${mutedClient.name}`);
