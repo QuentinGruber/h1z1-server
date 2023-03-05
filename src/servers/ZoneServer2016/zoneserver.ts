@@ -2909,7 +2909,10 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.WEAPON_SHOTGUN:
         maxSpeed = 2600;
     }
-    if (distance > 10 && speed > maxSpeed) {
+    if (
+      distance > 10 &&
+      (speed > maxSpeed || speed <= 0 || speed == Infinity)
+    ) {
       this.sendChatTextToAdmins(
         `FairPlay: ${
           client.character.name
