@@ -16,6 +16,7 @@ import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constru
 import { FilterIds, Items } from "servers/ZoneServer2016/models/enums";
 import { ConstructionDoor } from "servers/ZoneServer2016/entities/constructiondoor";
 import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/lootableconstructionentity";
+import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
 
 export interface npcData {
   guid: string;
@@ -214,7 +215,9 @@ export interface fireHint {
     id: number;
     position: Float32Array;
     rotation: Float32Array;
-    hitNumber: number
+    hitNumber: number;
+    weaponItem: LoadoutItem
+    timeStamp: number,
 }
 
 export interface SpawnLocation {

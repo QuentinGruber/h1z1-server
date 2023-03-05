@@ -2135,7 +2135,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   createProjectileNpc(client: Client, data: any) {
-    const weaponItem = client.character.getEquippedWeapon();
+    const fireHint = client.fireHints[data.projectileId];
+    if (!fireHint) return;
+    const weaponItem = fireHint.weaponItem;
     if (!weaponItem) return;
     const itemDefId = weaponItem.itemDefinitionId;
     if (
@@ -2144,6 +2146,7 @@ export class ZoneServer2016 extends EventEmitter {
       itemDefId == Items.WEAPON_CROSSBOW ||
       itemDefId == Items.WEAPON_BOW_WOOD
     ) {
+      delete client.fireHints[data.projectileId];
       this.worldObjectManager.createLootEntity(
         this,
         this.generateItem(Items.AMMO_ARROW),
@@ -2862,10 +2865,12 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client.character.isAlive) return;
     const entity = this.getEntity(packet.hitReport.characterId);
     if (!entity) return;
-
-    const weaponItem = client.character.getEquippedWeapon();
+    const fireHint = client.fireHints[packet.hitReport.sessionProjectileCount];
+    if (!fireHint) return;
+    const weaponItem = fireHint.weaponItem;
     if (!weaponItem) return;
-
+    if (fireHint.hitNumber > 0) return;
+    fireHint.hitNumber++;
     const hitValidation = this.validateHit(client, entity);
 
     entity.OnProjectileHit(this, {

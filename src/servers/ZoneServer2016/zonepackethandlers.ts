@@ -1968,6 +1968,19 @@ export class zonePacketHandlers {
           if (weaponItem.weapon.ammoCount > 0) {
             weaponItem.weapon.ammoCount -= 1;
           }
+          const fireHint: fireHint = {
+            id: p.packet.sessionProjectileCount,
+            position: p.packet.position,
+            rotation: new Float32Array([0, 0, 0, 0]),
+            hitNumber: 0,
+            weaponItem: client.character.getEquippedWeapon(),
+            timeStamp: Date.now(),
+          };
+          client.fireHints[p.packet.sessionProjectileCount] = fireHint;
+          // delete after 500ms
+          setTimeout(() => {
+            delete client.fireHints[p.packet.sessionProjectileCount];
+          }, 10000);
           server.hitMissFairPlayCheck(client, false, "");
           server.stopHudTimer(client);
           server.sendRemoteWeaponUpdateDataToAllOthers(
@@ -1977,21 +1990,8 @@ export class zonePacketHandlers {
             "Update.ProjectileLaunch",
             {}
           );
-          const projectilesCount =
-            server.getWeaponAmmoId(weaponItem.itemDefinitionId) ==
-            Items.AMMO_12GA
-              ? 12
-              : 1;
-          client.allowedProjectiles += projectilesCount;
           break;
         case "Weapon.ProjectileHitReport":
-          if (!client.allowedProjectiles) {
-            server.sendChatTextToAdmins(
-              `FairPlay: ${client.character.name} is hitting projectiles without ammunition`
-            );
-            return;
-          }
-          client.allowedProjectiles--;
           const weapon = client.character.getEquippedWeapon();
           if (!weapon) return;
           if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
@@ -2020,9 +2020,6 @@ export class zonePacketHandlers {
           if (weaponItem.weapon.reloadTimer) return;
           const maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId); // max clip size
           if (weaponItem.weapon.ammoCount >= maxAmmo) return;
-          setTimeout(() => {
-            client.allowedProjectiles = 0;
-          }, 100);
           // force 0 firestate so gun doesnt shoot randomly after reloading
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,
@@ -2180,18 +2177,6 @@ export class zonePacketHandlers {
           break;
         case "Weapon.WeaponFireHint":
           debug("WeaponFireHint");
-          const fireHint: fireHint = {
-            id: p.packet.sessionProjectileCount,
-            position: p.packet.position,
-            rotation: p.packet.rotation,
-            hitNumber: 0,
-          };
-          client.fireHints[p.packet.sessionProjectileCount] = fireHint;
-          console.log(client.fireHints);
-          // delete after 500ms
-          setTimeout(() => {
-            delete client.fireHints[p.packet.sessionProjectileCount];
-          }, 500);
           break;
         case "Weapon.ProjectileContactReport":
           debug("ProjectileContactReport");
@@ -2432,7 +2417,6 @@ export class zonePacketHandlers {
         break;
       case "Loadout.SelectSlot":
         this.LoadoutSelectSlot(server, client, packet);
-        client.allowedProjectiles = 0; // reset allowed projectile after weapon switch
         break;
       case "Weapon.Weapon":
         this.Weapon(server, client, packet);

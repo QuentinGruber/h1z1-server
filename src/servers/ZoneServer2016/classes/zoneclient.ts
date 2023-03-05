@@ -41,7 +41,6 @@ export class ZoneClient2016 {
   };
   enableChecks: boolean = true;
   speedWarnsNumber: number = 0;
-  allowedProjectiles: number = 0;
   pvpStats: {
     shotsFired: number;
     shotsHit: number;
