@@ -2861,7 +2861,7 @@ export class ZoneServer2016 extends EventEmitter {
     return ret;
   }
 
-  registerHit(client: Client, packet: any) {
+  registerHit(client: Client, packet: any, gameTime: number) {
     if (!client.character.isAlive) return;
     const entity = this.getEntity(packet.hitReport.characterId);
     if (!entity) return;
@@ -2870,7 +2870,7 @@ export class ZoneServer2016 extends EventEmitter {
     const weaponItem = fireHint.weaponItem;
     if (!weaponItem) return;
     if (fireHint.hitNumber > 0) return;
-    fireHint.hitNumber++;
+    if (entity instanceof Character) fireHint.hitNumber++;
     const hitValidation = this.validateHit(client, entity);
 
     entity.OnProjectileHit(this, {

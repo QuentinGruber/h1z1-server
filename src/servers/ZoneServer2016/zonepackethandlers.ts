@@ -1974,7 +1974,7 @@ export class zonePacketHandlers {
             rotation: new Float32Array([0, 0, 0, 0]),
             hitNumber: 0,
             weaponItem: client.character.getEquippedWeapon(),
-            timeStamp: Date.now(),
+            timeStamp: p.gameTime,
           };
           client.fireHints[p.packet.sessionProjectileCount] = fireHint;
           // delete after 500ms
@@ -1991,7 +1991,7 @@ export class zonePacketHandlers {
             {}
           );
           break;
-        case "Weapon.ProjectileHitReport":
+          case "Weapon.ProjectileHitReport":
           const weapon = client.character.getEquippedWeapon();
           if (!weapon) return;
           if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
@@ -2014,7 +2014,7 @@ export class zonePacketHandlers {
             return;
           }
           if (client.banType === "nodamage") return;
-          server.registerHit(client, p.packet);
+          server.registerHit(client, p.packet, p.gameTime);
           break;
         case "Weapon.ReloadRequest":
           if (weaponItem.weapon.reloadTimer) return;
