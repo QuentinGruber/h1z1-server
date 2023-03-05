@@ -2391,11 +2391,11 @@ export class ZoneServer2016 extends EventEmitter {
     const distance = getDistance2d(client.oldPos.position, position);
     if (Number(client.character.lastLoginDate) + 15000 < new Date().getTime()) {
       const drift = Math.abs(sequenceTime - this.getServerTime());
-      if (drift > 2000) {
+      if (drift > 3000) {
         this.kickPlayer(client);
         this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
         this.sendChatTextToAdmins(
-          `FairPlay: ${client.character.name} has been kicked sequenceTime drifting by ${drift}`,
+          `FairPlay: ${client.character.name} has been kicked for sequence time drifting by ${drift}`,
           false
         );
         return true;
@@ -2877,7 +2877,7 @@ export class ZoneServer2016 extends EventEmitter {
     const c = this.getClientByCharId(entity.characterId);
     if (!fireHint) {
       if (c) {
-        this.sendChat(c, message);
+        this.sendChatText(c, message, false);
       }
       return;
     }
@@ -2885,7 +2885,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!weaponItem) return;
     if (fireHint.hitNumber > 0) {
       if (c) {
-        this.sendChat(c, message);
+        this.sendChatText(c, message, false);
       }
       return;
     }
@@ -2917,7 +2917,7 @@ export class ZoneServer2016 extends EventEmitter {
         false
       );
       if (c) {
-        this.sendChat(c, message);
+        this.sendChatText(c, message, false);
       }
       return;
     }
