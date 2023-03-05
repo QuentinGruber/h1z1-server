@@ -1995,7 +1995,7 @@ export class zonePacketHandlers {
           }
           const shotProjectiles =
             weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 12 : 1;
-          for (var x = 0; x < shotProjectiles; x++) {
+          for (let x = 0; x < shotProjectiles; x++) {
             const fireHint: fireHint = {
               id: p.packet.sessionProjectileCount + x,
               position: p.packet.position,
