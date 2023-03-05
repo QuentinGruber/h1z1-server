@@ -841,7 +841,13 @@ export class zonePacketHandlers {
       if (!client.characterReleased) {
         client.characterReleased = true;
       }
-      if (server.speedFairPlayCheck(client, Date.now(), packet.data.position))
+      if (
+        server.speedFairPlayCheck(
+          client,
+          packet.data.sequenceTime,
+          packet.data.position
+        )
+      )
         return;
       /*if (!client.isAdmin) {
         const distance = getDistance(
@@ -1963,6 +1969,16 @@ export class zonePacketHandlers {
           break;
         case "Weapon.Fire":
           if (weaponItem.weapon.ammoCount <= 0) return;
+          if (weaponItem.weapon.ammoCount > 0) {
+            weaponItem.weapon.ammoCount -= 1;
+          }
+          const drift = Math.abs(p.gameTime - server.getServerTime());
+          if (drift > 2000) {
+            server.sendChatText(
+              client,
+              `Your shots didnt register due to packet loss, please wait a little after joining server`
+            );
+          }
           const keys = Object.keys(client.fireHints);
           const lastFireHint = client.fireHints[Number(keys[keys.length - 1])];
           if (lastFireHint) {
@@ -1976,9 +1992,6 @@ export class zonePacketHandlers {
                 break;
             }
             if (p.gameTime - lastFireHint.timeStamp < blockedTime) return;
-          }
-          if (weaponItem.weapon.ammoCount > 0) {
-            weaponItem.weapon.ammoCount -= 1;
           }
           const fireHint: fireHint = {
             id: p.packet.sessionProjectileCount,

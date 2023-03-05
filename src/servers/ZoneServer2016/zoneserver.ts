@@ -2389,12 +2389,19 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     if (client.isAdmin || !this._useFairPlay) return false;
     const distance = getDistance2d(client.oldPos.position, position);
-    if (!client.isLoading && client.enableChecks) {
-      if (distance > 5) {
-        if (
-          Number(client.character.lastLoginDate) + 15000 <
-          new Date().getTime()
-        ) {
+    if (Number(client.character.lastLoginDate) + 15000 < new Date().getTime()) {
+      const drift = Math.abs(sequenceTime - this.getServerTime());
+      if (drift > 2000) {
+        this.kickPlayer(client);
+        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} has been kicked sequenceTime drifting by ${drift}`,
+          false
+        );
+        return true;
+      }
+      if (!client.isLoading && client.enableChecks) {
+        if (distance > 5) {
           this.kickPlayer(client);
           this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
           this.sendChatTextToAdmins(
@@ -8073,7 +8080,6 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
   getServerTime(): number {
-    debug("get server time");
     const delta = Date.now() - this._startTime;
     return this._serverTime + delta;
   }
