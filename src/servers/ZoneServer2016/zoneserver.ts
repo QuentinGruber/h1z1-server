@@ -3757,8 +3757,8 @@ export class ZoneServer2016 extends EventEmitter {
         characterObj.isAlive &&
         !characterObj.isSpectator &&
         (characterObj.isHidden == client.character.isHidden ||
-          client.character.isSpectator) &&
-        client.banType != "hiddenplayers"
+          client.character.isSpectator) /* &&
+        client.banType != "hiddenplayers"*/
       ) {
         const vehicleId = this._clients[c].vehicle.mountedVehicle,
           vehicle = vehicleId ? this._vehicles[vehicleId] : false;
@@ -4312,7 +4312,7 @@ export class ZoneServer2016 extends EventEmitter {
       case "normal":
         this.kickPlayer(client);
         return;
-      case "hiddenplayers":
+      /*case "hiddenplayers":
         const objectsToRemove = client.spawnedEntities.filter(
           (e) => e && !(e instanceof Vehicle2016) && !(e instanceof ItemObject)
         );
@@ -4324,7 +4324,7 @@ export class ZoneServer2016 extends EventEmitter {
             characterId: object.characterId,
           });
         });
-        break;
+        break;*/
       case "rick":
         this.sendData(client, "ClientExitLaunchUrl", {
           url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
