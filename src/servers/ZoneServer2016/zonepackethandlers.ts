@@ -16,7 +16,6 @@
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 
 import { ZoneServer2016 } from "./zoneserver";
-
 const debug = require("debug")("ZoneServer");
 
 import {
@@ -51,7 +50,12 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./commands/commandhandler";
 import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
-import { Ban, ConstructionPermissions, DamageInfo } from "types/zoneserver";
+import {
+  Ban,
+  ConstructionPermissions,
+  DamageInfo,
+  fireHint,
+} from "types/zoneserver";
 import { positionUpdate } from "types/savedata";
 import { GameTimeSync } from "types/zone2016packets";
 import { LootableProp } from "./entities/lootableprop";
@@ -391,43 +395,6 @@ export class zonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
-    if (packet.data.file === "Synchronization.log") {
-      if (
-        packet.data.message
-          .toLowerCase()
-          .includes("client clock drifted forward")
-      ) {
-        const pruned = packet.data.message
-          .replace("Client clock drifted forward by ", "")
-          .replace("ms over the server interval of ", "");
-        const drifted = Number(pruned.match(/\d+/).join("")) / 1000;
-        const interval = Number(
-          pruned.replace(pruned.match(/\d+/).join(""), "").replace(" s", "")
-        );
-        if (!server._soloMode) {
-          logClientActionToMongo(
-            server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
-            client,
-            server._worldId,
-            {
-              type: "time drifted",
-              drifted,
-              interval,
-              accelerating: (drifted / interval) * 100,
-            }
-          );
-        }
-        server.sendChatTextToAdmins(
-          `FairPlay: ${
-            client.character.name
-          } time drifted forward ${drifted} s span of ${interval} s, accelerating by: ${(
-            (drifted / interval) *
-            100
-          ).toFixed(0)}%`,
-          false
-        );
-      }
-    }
     if (
       packet.data.file === "ClientProc.log" &&
       !client.clientLogs.includes(packet.data.message) &&
@@ -670,7 +637,6 @@ export class zonePacketHandlers {
         client.character.state.position = pos;
       return;
     }
-
     //if (!server._soloMode) {
     server.sendDataToAllOthersWithSpawnedEntity(
       server._vehicles,
@@ -687,14 +653,26 @@ export class zonePacketHandlers {
       vehicle.engineRPM = packet.data.positionUpdate.engineRPM;
     }
     if (packet.data.positionUpdate.position) {
-      vehicle.state.position = new Float32Array([
-        packet.data.positionUpdate.position[0],
-        packet.data.positionUpdate.position[1] - 0.4,
-        packet.data.positionUpdate.position[2],
-        1,
-      ]);
+      let kick = false;
+      const dist = getDistance(
+        vehicle.positionUpdate.position,
+        packet.data.positionUpdate.position
+      );
+      if (dist > 120 && client.vehicle.mountedVehicle == vehicle.characterId) {
+        kick = true;
+      }
       vehicle.getPassengerList().forEach((passenger: string) => {
         if (server._characters[passenger]) {
+          if (kick) {
+            const c = server.getClientByCharId(passenger);
+            if (!c) return;
+            server.kickPlayer(client);
+            server.sendChatTextToAdmins(
+              `FairPlay: kicking ${c.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${packet.data.positionUpdate.position[0]} ${packet.data.positionUpdate.position[1]} ${packet.data.positionUpdate.position[2]}]`,
+              false
+            );
+            return;
+          }
           server._characters[passenger].state.position = new Float32Array([
             packet.data.positionUpdate.position[0],
             packet.data.positionUpdate.position[1],
@@ -706,6 +684,13 @@ export class zonePacketHandlers {
           vehicle.removePassenger(passenger);
         }
       });
+      if (kick) return;
+      vehicle.state.position = new Float32Array([
+        packet.data.positionUpdate.position[0],
+        packet.data.positionUpdate.position[1] - 0.4,
+        packet.data.positionUpdate.position[2],
+        1,
+      ]);
       // disabled, dont think we need it and wastes alot of resources
       /*if (client.vehicle.mountedVehicle === characterId) {
         if (
@@ -819,7 +804,14 @@ export class zonePacketHandlers {
       if (!client.characterReleased) {
         client.characterReleased = true;
       }
-      server.speedFairPlayCheck(client, Date.now(), packet.data.position);
+      if (
+        server.speedFairPlayCheck(
+          client,
+          packet.data.sequenceTime,
+          packet.data.position
+        )
+      )
+        return;
       /*if (!client.isAdmin) {
         const distance = getDistance(
           client.character.state.position,
@@ -1943,6 +1935,44 @@ export class zonePacketHandlers {
           if (weaponItem.weapon.ammoCount > 0) {
             weaponItem.weapon.ammoCount -= 1;
           }
+          const drift = Math.abs(p.gameTime - server.getServerTime());
+          if (drift > 500) {
+            server.sendChatText(
+              client,
+              `FairPlay: Your shots didnt register due to packet loss`
+            );
+            return;
+          }
+          const keys = Object.keys(client.fireHints);
+          const lastFireHint = client.fireHints[Number(keys[keys.length - 1])];
+          if (lastFireHint) {
+            let blockedTime = 50;
+            switch (weaponItem.itemDefinitionId) {
+              case Items.WEAPON_308:
+                blockedTime = 1300;
+                break;
+              case Items.WEAPON_SHOTGUN:
+                blockedTime = 400;
+                break;
+            }
+            if (p.gameTime - lastFireHint.timeStamp < blockedTime) return;
+          }
+          const shotProjectiles =
+            weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 12 : 1;
+          for (let x = 0; x < shotProjectiles; x++) {
+            const fireHint: fireHint = {
+              id: p.packet.sessionProjectileCount + x,
+              position: p.packet.position,
+              rotation: new Float32Array([0, 0, 0, 0]),
+              hitNumber: 0,
+              weaponItem: weaponItem,
+              timeStamp: p.gameTime,
+            };
+            client.fireHints[p.packet.sessionProjectileCount + x] = fireHint;
+            setTimeout(() => {
+              delete client.fireHints[p.packet.sessionProjectileCount + x];
+            }, 10000);
+          }
           server.hitMissFairPlayCheck(client, false, "");
           server.stopHudTimer(client);
           server.sendRemoteWeaponUpdateDataToAllOthers(
@@ -1952,21 +1982,8 @@ export class zonePacketHandlers {
             "Update.ProjectileLaunch",
             {}
           );
-          const projectilesCount =
-            server.getWeaponAmmoId(weaponItem.itemDefinitionId) ==
-            Items.AMMO_12GA
-              ? 12
-              : 1;
-          client.allowedProjectiles += projectilesCount;
           break;
         case "Weapon.ProjectileHitReport":
-          if (!client.allowedProjectiles) {
-            server.sendChatTextToAdmins(
-              `FairPlay: ${client.character.name} is hitting projectiles without ammunition`
-            );
-            return;
-          }
-          client.allowedProjectiles--;
           const weapon = client.character.getEquippedWeapon();
           if (!weapon) return;
           if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
@@ -1989,15 +2006,12 @@ export class zonePacketHandlers {
             return;
           }
           if (client.banType === "nodamage") return;
-          server.registerHit(client, p.packet);
+          server.registerHit(client, p.packet, p.gameTime);
           break;
         case "Weapon.ReloadRequest":
           if (weaponItem.weapon.reloadTimer) return;
           const maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId); // max clip size
           if (weaponItem.weapon.ammoCount >= maxAmmo) return;
-          setTimeout(() => {
-            client.allowedProjectiles = 0;
-          }, 100);
           // force 0 firestate so gun doesnt shoot randomly after reloading
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,
@@ -2155,6 +2169,10 @@ export class zonePacketHandlers {
           break;
         case "Weapon.WeaponFireHint":
           debug("WeaponFireHint");
+          const fireHint = client.fireHints[p.packet.sessionProjectileCount];
+          if (!fireHint) return;
+          fireHint.rotation = p.packet.rotation;
+          fireHint.timeStamp = p.gameTime;
           break;
         case "Weapon.ProjectileContactReport":
           debug("ProjectileContactReport");
@@ -2395,7 +2413,6 @@ export class zonePacketHandlers {
         break;
       case "Loadout.SelectSlot":
         this.LoadoutSelectSlot(server, client, packet);
-        client.allowedProjectiles = 0; // reset allowed projectile after weapon switch
         break;
       case "Weapon.Weapon":
         this.Weapon(server, client, packet);
