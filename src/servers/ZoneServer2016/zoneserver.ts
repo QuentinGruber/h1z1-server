@@ -2876,8 +2876,38 @@ export class ZoneServer2016 extends EventEmitter {
     if (!fireHint) return;
     const weaponItem = fireHint.weaponItem;
     if (!weaponItem) return;
-    if (fireHint.hitNumber > 0) return;
+    const allowedHits =
+      weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 11 : 0;
+    if (fireHint.hitNumber > allowedHits) return;
     if (entity instanceof Character) fireHint.hitNumber++;
+    const distance = getDistance(fireHint.position, packet.hitReport.position);
+    const speed = (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
+    let maxSpeed = 2500;
+    switch (weaponItem.itemDefinitionId) {
+      case Items.WEAPON_CROSSBOW:
+        maxSpeed = 500;
+        break;
+      case Items.WEAPON_BOW_MAKESHIFT:
+        maxSpeed = 200;
+        break;
+      case Items.WEAPON_BOW_RECURVE:
+        maxSpeed = 350;
+        break;
+      case Items.WEAPON_BOW_WOOD:
+        maxSpeed = 250;
+        break;
+      case Items.WEAPON_SHOTGUN:
+        maxSpeed = 1300;
+    }
+    if (distance > 6 && speed > maxSpeed) {
+      this.sendChatTextToAdmins(
+        `FairPlay: ${
+          client.character.name
+        } shot has been blocked due to projectile speed: ${speed.toFixed(0)}`,
+        false
+      );
+      return;
+    }
     const hitValidation = this.validateHit(client, entity);
 
     entity.OnProjectileHit(this, {
