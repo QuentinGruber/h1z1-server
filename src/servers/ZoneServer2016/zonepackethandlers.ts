@@ -1661,8 +1661,6 @@ export class zonePacketHandlers {
     function handleWeaponPacket(p: any) {
       const weaponItem = client.character.getEquippedWeapon();
       if (!weaponItem || !weaponItem.weapon) return;
-      console.log(p.packet);
-      console.log(p.packetName);
       switch (p.packetName) {
         case "Weapon.FireStateUpdate":
           // wrench workaround
@@ -1965,6 +1963,20 @@ export class zonePacketHandlers {
           break;
         case "Weapon.Fire":
           if (weaponItem.weapon.ammoCount <= 0) return;
+          const keys = Object.keys(client.fireHints);
+          const lastFireHint = client.fireHints[Number(keys[keys.length - 1])];
+          if (lastFireHint) {
+            let blockedTime = 100;
+            switch (weaponItem.itemDefinitionId) {
+              case Items.WEAPON_308:
+                blockedTime = 1700;
+                break;
+              case Items.WEAPON_SHOTGUN:
+                blockedTime = 700;
+                break;
+            }
+            if (p.gameTime - lastFireHint.timeStamp < blockedTime) return;
+          }
           if (weaponItem.weapon.ammoCount > 0) {
             weaponItem.weapon.ammoCount -= 1;
           }
@@ -1973,7 +1985,7 @@ export class zonePacketHandlers {
             position: p.packet.position,
             rotation: new Float32Array([0, 0, 0, 0]),
             hitNumber: 0,
-            weaponItem: client.character.getEquippedWeapon(),
+            weaponItem: weaponItem,
             timeStamp: p.gameTime,
           };
           client.fireHints[p.packet.sessionProjectileCount] = fireHint;
@@ -1991,7 +2003,7 @@ export class zonePacketHandlers {
             {}
           );
           break;
-          case "Weapon.ProjectileHitReport":
+        case "Weapon.ProjectileHitReport":
           const weapon = client.character.getEquippedWeapon();
           if (!weapon) return;
           if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
