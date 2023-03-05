@@ -694,5 +694,16 @@ const dev: any = {
     })
   },
 
+  messagebox: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "H1emu.MessageBox", {
+      title: "TITLE",
+      message: "MESSAGE"
+    })
+  },
+
 };
 export default dev;

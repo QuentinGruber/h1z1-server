@@ -21,4 +21,14 @@ export const h1emuPackets: any = [
       ]
     }
   ],
+  [
+    "H1emu.MessageBox", 
+    0x9902, 
+    {
+      fields: [
+        { name: "title", type: "string", defaultValue: "" },
+        { name: "message", type: "string", defaultValue: "" },
+      ]
+    }
+  ],
 ]
