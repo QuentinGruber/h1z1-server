@@ -672,6 +672,27 @@ const dev: any = {
     server.sendChatText(client, "Decaying all vehicles");
     server.decayManager.vehicleDecayDamage(server);
   },
-};
 
+  script: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Ui.ExecuteScript", {
+      unknownString1: args[0],
+      unknownArray1: []
+    })
+  },
+
+  print: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "H1emu.PrintToConsole", {
+      message: args.slice(1).join(" ")
+    })
+  },
+
+};
 export default dev;
