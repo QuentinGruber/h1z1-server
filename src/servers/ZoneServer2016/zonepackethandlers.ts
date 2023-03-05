@@ -1993,19 +1993,22 @@ export class zonePacketHandlers {
             }
             if (p.gameTime - lastFireHint.timeStamp < blockedTime) return;
           }
-          const fireHint: fireHint = {
-            id: p.packet.sessionProjectileCount,
-            position: p.packet.position,
-            rotation: new Float32Array([0, 0, 0, 0]),
-            hitNumber: 0,
-            weaponItem: weaponItem,
-            timeStamp: p.gameTime,
-          };
-          client.fireHints[p.packet.sessionProjectileCount] = fireHint;
-          // delete after 500ms
-          setTimeout(() => {
-            delete client.fireHints[p.packet.sessionProjectileCount];
-          }, 10000);
+          const shotProjectiles =
+            weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 12 : 1;
+          for (var x = 0; x < shotProjectiles; x++) {
+            const fireHint: fireHint = {
+              id: p.packet.sessionProjectileCount + x,
+              position: p.packet.position,
+              rotation: new Float32Array([0, 0, 0, 0]),
+              hitNumber: 0,
+              weaponItem: weaponItem,
+              timeStamp: p.gameTime,
+            };
+            client.fireHints[p.packet.sessionProjectileCount + x] = fireHint;
+            setTimeout(() => {
+              delete client.fireHints[p.packet.sessionProjectileCount + x];
+            }, 10000);
+          }
           server.hitMissFairPlayCheck(client, false, "");
           server.stopHudTimer(client);
           server.sendRemoteWeaponUpdateDataToAllOthers(

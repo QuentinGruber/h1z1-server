@@ -2876,9 +2876,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!fireHint) return;
     const weaponItem = fireHint.weaponItem;
     if (!weaponItem) return;
-    const allowedHits =
-      weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 11 : 0;
-    if (fireHint.hitNumber > allowedHits) return;
+    if (fireHint.hitNumber > 0) return;
     if (entity instanceof Character) fireHint.hitNumber++;
     const distance = getDistance(fireHint.position, packet.hitReport.position);
     const speed = (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
