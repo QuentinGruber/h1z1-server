@@ -2913,9 +2913,9 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatTextToAdmins(
         `FairPlay: ${
           client.character.name
-        } shot has been blocked due to projectile speed: ${speed.toFixed(
+        } shot has been blocked due to projectile speed: (${speed.toFixed(
           0
-        )} - weapon: ${
+        )} / ${maxSpeed}) weapon: ${
           this.getItemDefinition(weaponItem.itemDefinitionId).NAME
         }`,
         false
