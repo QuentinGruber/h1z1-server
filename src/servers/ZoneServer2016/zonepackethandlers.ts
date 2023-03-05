@@ -608,11 +608,11 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
-    server.sendData(
-      client,
-      "ProfileStats.PlayerProfileStats",
-      require("../../../data/profilestats.json")
-    );
+    // server.sendData(
+    //   client,
+    //   "ProfileStats.PlayerProfileStats",
+    //   require("../../../data/profilestats.json")
+    // );
   }
   async WallOfDataClientSystemInfo(
     server: ZoneServer2016,
