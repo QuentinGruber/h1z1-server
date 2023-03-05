@@ -2873,11 +2873,23 @@ export class ZoneServer2016 extends EventEmitter {
     const entity = this.getEntity(packet.hitReport.characterId);
     if (!entity) return;
     const fireHint = client.fireHints[packet.hitReport.sessionProjectileCount];
-    if (!fireHint) return;
+    const message = `FairPlay: blocked incoming projectile from ${client.character.name}`;
+    const c = this.getClientByCharId(entity.characterId);
+    if (!fireHint) {
+      if (c) {
+        this.sendChat(c, message);
+      }
+      return;
+    }
     const weaponItem = fireHint.weaponItem;
     if (!weaponItem) return;
-    if (fireHint.hitNumber > 0) return;
-    if (entity instanceof Character) fireHint.hitNumber++;
+    if (fireHint.hitNumber > 0) {
+      if (c) {
+        this.sendChat(c, message);
+      }
+      return;
+    }
+    if (c) fireHint.hitNumber++;
     const distance = getDistance(fireHint.position, packet.hitReport.position);
     const speed = (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
     let maxSpeed = 5000;
@@ -2904,6 +2916,9 @@ export class ZoneServer2016 extends EventEmitter {
         } shot has been blocked due to projectile speed: ${speed.toFixed(0)}`,
         false
       );
+      if (c) {
+        this.sendChat(c, message);
+      }
       return;
     }
     const hitValidation = this.validateHit(client, entity);

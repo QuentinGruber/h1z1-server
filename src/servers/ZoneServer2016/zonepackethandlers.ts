@@ -1973,11 +1973,12 @@ export class zonePacketHandlers {
             weaponItem.weapon.ammoCount -= 1;
           }
           const drift = Math.abs(p.gameTime - server.getServerTime());
-          if (drift > 2000) {
+          if (drift > 500) {
             server.sendChatText(
               client,
-              `Your shots didnt register due to packet loss, please wait a little after joining server`
+              `FairPlay: Your shots didnt register due to packet loss`
             );
+            return;
           }
           const keys = Object.keys(client.fireHints);
           const lastFireHint = client.fireHints[Number(keys[keys.length - 1])];
