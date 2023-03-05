@@ -2169,6 +2169,10 @@ export class zonePacketHandlers {
           break;
         case "Weapon.WeaponFireHint":
           debug("WeaponFireHint");
+          const fireHint = client.fireHints[p.packet.sessionProjectileCount];
+          if (!fireHint) return;
+          fireHint.rotation = p.packet.rotation;
+          fireHint.timeStamp = p.gameTime;
           break;
         case "Weapon.ProjectileContactReport":
           debug("ProjectileContactReport");
