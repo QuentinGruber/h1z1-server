@@ -1982,13 +1982,13 @@ export class zonePacketHandlers {
           const keys = Object.keys(client.fireHints);
           const lastFireHint = client.fireHints[Number(keys[keys.length - 1])];
           if (lastFireHint) {
-            let blockedTime = 100;
+            let blockedTime = 50;
             switch (weaponItem.itemDefinitionId) {
               case Items.WEAPON_308:
-                blockedTime = 1700;
+                blockedTime = 1300;
                 break;
               case Items.WEAPON_SHOTGUN:
-                blockedTime = 700;
+                blockedTime = 400;
                 break;
             }
             if (p.gameTime - lastFireHint.timeStamp < blockedTime) return;

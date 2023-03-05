@@ -2880,22 +2880,22 @@ export class ZoneServer2016 extends EventEmitter {
     if (entity instanceof Character) fireHint.hitNumber++;
     const distance = getDistance(fireHint.position, packet.hitReport.position);
     const speed = (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
-    let maxSpeed = 2500;
+    let maxSpeed = 5000;
     switch (weaponItem.itemDefinitionId) {
       case Items.WEAPON_CROSSBOW:
-        maxSpeed = 500;
+        maxSpeed = 900;
         break;
       case Items.WEAPON_BOW_MAKESHIFT:
-        maxSpeed = 200;
+        maxSpeed = 300;
         break;
       case Items.WEAPON_BOW_RECURVE:
-        maxSpeed = 350;
+        maxSpeed = 500;
         break;
       case Items.WEAPON_BOW_WOOD:
-        maxSpeed = 250;
+        maxSpeed = 400;
         break;
       case Items.WEAPON_SHOTGUN:
-        maxSpeed = 1300;
+        maxSpeed = 2600;
     }
     if (distance > 6 && speed > maxSpeed) {
       this.sendChatTextToAdmins(
