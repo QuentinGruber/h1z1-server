@@ -94,6 +94,7 @@ import {
   getDifference,
   logClientActionToMongo,
   removeUntransferableFields,
+  decrypt,
 } from "../../utils/utils";
 
 import { Collection, Db } from "mongodb";
@@ -164,6 +165,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
+  encryptedData = require("../../../data/2016/encryptedData/encryptedData.json"),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
@@ -177,6 +179,7 @@ export class ZoneServer2016 extends EventEmitter {
   _soloMode = false;
   _useFairPlay = true;
   maxPing = 250;
+  _decryptKey: string = "";
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
@@ -285,6 +288,7 @@ export class ZoneServer2016 extends EventEmitter {
   saveTimeInterval: number = 600000;
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
   observerVehicleGuid: string = "0xFAFAFAFAFAFAFAFA";
+  _suspiciousList: string[] = [];
 
   constructor(
     serverPort: number,
@@ -1126,6 +1130,12 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
+    if (this._decryptKey) {
+      this._suspiciousList = encryptedData.map(
+        (x: { iv: string; encryptedData: string }) =>
+          decrypt(x, this._decryptKey)
+      );
+    }
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
     this.startRoutinesLoop();
     this.smeltingManager.checkSmeltables(this);

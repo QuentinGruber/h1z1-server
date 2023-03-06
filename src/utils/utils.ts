@@ -34,7 +34,7 @@ import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constru
 import { DB_COLLECTIONS, NAME_VALIDATION_STATUS } from "./enums";
 import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
-import * as crypto from 'crypto';
+import * as crypto from "crypto";
 
 export class customLodash {
   sum(pings: number[]): number {
@@ -243,15 +243,18 @@ export const getAppDataFolderPath = (): string => {
   return `${process.env.APPDATA || process.env.HOME}/${folderName}`;
 };
 
-export function decrypt(text: { iv: string, encryptedData: string }, key: string): string {
-    const iv = Buffer.from(text.iv, 'hex');
-    const encryptedText = Buffer.from(text.encryptedData, 'hex');
+export function decrypt(
+  text: { iv: string; encryptedData: string },
+  key: string
+): string {
+  const iv = Buffer.from(text.iv, "hex");
+  const encryptedText = Buffer.from(text.encryptedData, "hex");
 
-    const decipher = crypto.createDecipheriv('aes-256-cbc', Buffer.from(key), iv);
+  const decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(key), iv);
 
-    let decrypted = decipher.update(encryptedText);
-    decrypted = Buffer.concat([decrypted, decipher.final()]);
-    return decrypted.toString();
+  let decrypted = decipher.update(encryptedText);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
 }
 
 export const setupAppDataFolder = (): void => {
