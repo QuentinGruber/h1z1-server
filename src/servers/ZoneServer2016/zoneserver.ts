@@ -2456,6 +2456,63 @@ export class ZoneServer2016 extends EventEmitter {
     return false;
   }
 
+  vehicleSpeedFairPlayCheck(
+    client: Client,
+    sequenceTime: number,
+    position: Float32Array,
+    vehicle: Vehicle
+  ): boolean {
+    if (client.isAdmin || !this._useFairPlay || this._isSaving) return false;
+
+    const drift = Math.abs(sequenceTime - this.getServerTime());
+    if (drift > 10000) {
+      this.kickPlayer(client);
+      this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+      this.sendChatTextToAdmins(
+        `FairPlay: ${client.character.name} has been kicked for sequence time drifting by ${drift}`,
+        false
+      );
+      return true;
+    }
+    const distance = getDistance2d(vehicle.oldPos.position, position);
+    const speed =
+      (distance / 1000 / (sequenceTime - vehicle.oldPos.time)) * 3600000;
+    const verticalSpeed =
+      (getDistance1d(vehicle.oldPos.position[1], position[1]) /
+        1000 /
+        (sequenceTime - vehicle.oldPos.time)) *
+      3600000;
+    if (speed > 130 && verticalSpeed < 20) {
+      const soeClient = this.getSoeClient(client.soeClientId);
+      if (soeClient) {
+        if (soeClient.avgPing >= 250) return false;
+      }
+      client.speedWarnsNumber += 1;
+    } else if (client.speedWarnsNumber > 0) {
+      client.speedWarnsNumber -= 1;
+    }
+    if (client.speedWarnsNumber > 5) {
+      this.kickPlayer(client);
+      client.speedWarnsNumber = 0;
+      if (!this._soloMode) {
+        logClientActionToMongo(
+          this._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+          client,
+          this._worldId,
+          { type: "SpeedHack" }
+        );
+      }
+      this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+      this.sendChatTextToAdmins(
+        `FairPlay: ${client.character.name} has been kicking for vehicle speed hacking: ${speed} m/s at position [${position[0]} ${position[1]} ${position[2]}]`,
+        false
+      );
+      return true;
+    }
+    vehicle.oldPos = { position: position, time: sequenceTime };
+    return false;
+  }
+
   hitMissFairPlayCheck(client: Client, hit: boolean, hitLocation: string) {
     const weaponItem = client.character.getEquippedWeapon();
     if (

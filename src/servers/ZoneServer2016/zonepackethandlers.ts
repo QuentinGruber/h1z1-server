@@ -27,6 +27,7 @@ import {
   logClientActionToMongo,
   eul2quat,
   getDistance,
+  getDistance1d,
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -639,28 +640,30 @@ export class zonePacketHandlers {
     }
     // for cheaters spawning cars on top of peoples heads
     if (client.vehicle.mountedVehicle != vehicle.characterId) return;
-    //if (!server._soloMode) {
-    server.sendDataToAllOthersWithSpawnedEntity(
-      server._vehicles,
-      client,
-      characterId,
-      "PlayerUpdatePosition",
-      {
-        transientId: packet.data.transientId,
-        positionUpdate: packet.data.positionUpdate,
-      }
-    );
-    //}
-    if (packet.data.positionUpdate.engineRPM) {
-      vehicle.engineRPM = packet.data.positionUpdate.engineRPM;
-    }
     if (packet.data.positionUpdate.position) {
+      if (
+        server.vehicleSpeedFairPlayCheck(
+          client,
+          packet.data.positionUpdate.sequenceTime,
+          packet.data.positionUpdate.position,
+          vehicle
+        )
+      )
+        return;
       let kick = false;
       const dist = getDistance(
         vehicle.positionUpdate.position,
         packet.data.positionUpdate.position
       );
-      if (dist > 120 && client.vehicle.mountedVehicle == vehicle.characterId) {
+      if (dist > 120) {
+        kick = true;
+      }
+      if (
+        getDistance1d(
+          vehicle.oldPos.position[1],
+          packet.data.positionUpdate.position[1]
+        ) > 100
+      ) {
         kick = true;
       }
       vehicle.getPassengerList().forEach((passenger: string) => {
@@ -707,6 +710,22 @@ export class zonePacketHandlers {
         }
       }*/
     }
+    //if (!server._soloMode) {
+    server.sendDataToAllOthersWithSpawnedEntity(
+      server._vehicles,
+      client,
+      characterId,
+      "PlayerUpdatePosition",
+      {
+        transientId: packet.data.transientId,
+        positionUpdate: packet.data.positionUpdate,
+      }
+    );
+    //}
+    if (packet.data.positionUpdate.engineRPM) {
+      vehicle.engineRPM = packet.data.positionUpdate.engineRPM;
+    }
+
     const positionUpdate: positionUpdate = packet.data.positionUpdate;
     if (positionUpdate.orientation) {
       vehicle.positionUpdate.orientation = positionUpdate.orientation;
