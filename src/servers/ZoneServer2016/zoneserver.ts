@@ -209,11 +209,16 @@ export class ZoneServer2016 extends EventEmitter {
   } = {};
   _constructionDoors: { [characterId: string]: ConstructionDoor } = {};
   _constructionSimple: { [characterId: string]: ConstructionChildEntity } = {};
-
   _lootableProps: { [characterId: string]: LootableProp } = {};
   _taskProps: { [characterId: string]: TaskProp } = {};
   _crates: { [characterId: string]: Crate } = {};
-
+  _decoys: {
+    [characterId: string]: {
+      characterId: string;
+      position: Float32Array;
+      action: string;
+    };
+  } = {};
   _worldLootableConstruction: {
     [characterId: string]: LootableConstructionEntity;
   } = {};
@@ -2872,6 +2877,17 @@ export class ZoneServer2016 extends EventEmitter {
 
   registerHit(client: Client, packet: any, gameTime: number) {
     if (!client.character.isAlive) return;
+    if (this._decoys[packet.hitReport.characterId]) {
+      const decoy = this._decoys[packet.hitReport.characterId];
+      this.sendChatTextToAdmins(
+        `FairPlay: ${
+          client.character.name
+        } hit a decoy entity at: [${decoy.position[0].toFixed(
+          2
+        )} ${decoy.position[1].toFixed(2)} ${decoy.position[2].toFixed(2)}]`,
+        false
+      );
+    }
     const entity = this.getEntity(packet.hitReport.characterId);
     if (!entity) return;
     const fireHint = client.fireHints[packet.hitReport.sessionProjectileCount];
