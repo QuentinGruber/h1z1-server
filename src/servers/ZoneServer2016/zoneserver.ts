@@ -3402,11 +3402,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.constructionHidePlayer(client, construction.characterId, true);
         return true;
       } else if (!client.isAdmin || !client.isDebugMode) {
-          const damageInfo: DamageInfo = {
-              entity: "Server.Permissions",
-              damage: 99999,
-          };
-          this.killCharacter(client, damageInfo)
+        const damageInfo: DamageInfo = {
+          entity: "Server.Permissions",
+          damage: 99999,
+        };
+        this.killCharacter(client, damageInfo);
         return false;
       }
     }
@@ -3469,7 +3469,11 @@ export class ZoneServer2016 extends EventEmitter {
       }, 500);
       return;
     }
-    const newPos = movePoint(client.character.state.position, currentAngle, 1);
+    const newPos = movePoint(
+      client.character.state.position,
+      currentAngle,
+      2.5
+    );
     this.sendChatText(client, "Construction: no visitor permission");
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
@@ -5999,6 +6003,20 @@ export class ZoneServer2016 extends EventEmitter {
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
+    for (const a in this._constructionFoundations) {
+      const foundation = this._constructionFoundations[a];
+      if (
+        foundation.isSecured &&
+        foundation.isInside(vehicle.state.position) &&
+        !foundation.getHasPermission(
+          this,
+          client.character.characterId,
+          ConstructionPermissionIds.VISIT
+        ) &&
+        (!client.isAdmin || !client.isDebugMode)
+      )
+        return;
+    }
     if (client.hudTimer != null) {
       clearTimeout(client.hudTimer);
       client.hudTimer = null;
