@@ -401,39 +401,28 @@ export class zonePacketHandlers {
       !client.clientLogs.includes(packet.data.message) &&
       !client.isAdmin
     ) {
-      const suspicious = [
-        "cheatengine",
-        "artmoney",
-        "cosmos",
-        "wemod",
-        "injector",
-        "ida.exe",
-        "ida64",
-        "ida32",
-        "idafree",
-        "ghidra",
-        "javaw.exe", // seems like the only way to track ghidra open?
-        "codebrowser",
-        "processhacker",
-        "devenv.exe",
-        "code.exe",
-      ];
       const obj = { log: packet.data.message, isSuspicious: false };
-      for (let x = 0; x < suspicious.length; x++) {
-        if (packet.data.message.toLowerCase().includes(suspicious[x])) {
+      for (let x = 0; x < server._suspiciousList.length; x++) {
+        if (
+          packet.data.message.toLowerCase().includes(server._suspiciousList[x])
+        ) {
           obj.isSuspicious = true;
           if (!server._soloMode) {
             logClientActionToMongo(
               server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
               client,
               server._worldId,
-              { type: "suspicious software", suspicious: suspicious[x] }
+              {
+                type: "suspicious software",
+                suspicious: server._suspiciousList[x],
+              }
             );
           }
           server.sendChatTextToAdmins(
-            `FairPlay: ${client.character.name} is using suspicious software - ${suspicious[x]}`,
+            `FairPlay: kicking ${client.character.name} for using suspicious software - ${server._suspiciousList[x]}`,
             false
           );
+          server.kickPlayer(client);
           break;
         }
       }
