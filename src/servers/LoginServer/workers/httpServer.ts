@@ -65,6 +65,9 @@ httpServer.on("request", async function (req, res) {
     case "servers": {
       const collection = db.collection(DB_COLLECTIONS.SERVERS);
       const serversArray = await collection.find().toArray();
+      serversArray.forEach((server) => {
+        delete server.serverAddress;
+      });
       res.writeHead(200, { "Content-Type": "text/json" });
       res.write(JSON.stringify(serversArray));
       res.end();

@@ -244,7 +244,7 @@ export const commands: Array<Command> = [
           );
         }
       }
-      server.sendData(client, "SpectatorBase", {});
+      server.sendData(client, "Spectator.Enable", {});
     },
   },
   {
@@ -634,10 +634,7 @@ export const commands: Array<Command> = [
       args: Array<string>
     ) => {
       if (!args[0]) {
-        server.sendChatText(
-          client,
-          `Correct usage: /admin unban {name|playerId}`
-        );
+        server.sendChatText(client, `Correct usage: /unban {name|playerId}`);
         return;
       }
       const name = args.join(" ").toString();
@@ -678,7 +675,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin listProcesses {name | ZoneClientId}`
+          `Correct usage: /listprocesses {name | ZoneClientId}`
         );
         return;
       }
@@ -1047,6 +1044,48 @@ export const commands: Array<Command> = [
     },
   },
   {
+    name: "decoy",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(client, "usage /deocay {name}");
+        return;
+      }
+      const mimic = client.character.pGetLightweight();
+      const characterId = server.generateGuid();
+      const decoy = {
+        characterId: characterId,
+        position: new Float32Array(mimic.position),
+        action: "",
+      };
+      server._decoys[characterId] = decoy;
+      mimic.identity.characterName = args[0].toString();
+      mimic.characterId = characterId;
+      mimic.transientId = 0;
+      server.sendDataToAll("AddLightweightPc", {
+        ...mimic,
+        mountGuid: "",
+        mountSeatId: 0,
+        mountRelatedDword1: 0,
+      });
+      const equipment = client.character.pGetEquipment();
+      equipment.characterData.characterId = characterId;
+      server.sendDataToAll("Equipment.SetCharacterEquipment", equipment);
+    },
+  },
+  {
+    name: "deletedecoys",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      for (const a in server._decoys) {
+        server.sendDataToAll("Character.RemovePlayer", {
+          characterId: server._decoys[a].characterId,
+        });
+        delete server._decoys[a];
+      }
+    },
+  },
+  {
     name: "dynamicweather",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
@@ -1407,7 +1446,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `Correct usage: /admin vehiclerespawntimer <time>`
+          `Correct usage: /vehiclerespawntimer <time>`
         );
         return;
       }
@@ -1442,7 +1481,13 @@ export const commands: Array<Command> = [
         client,
         `Players: ${Object.values(server._clients)
           .map((c) => {
-            return `${c.character.name}: ${c.loginSessionId}`;
+            return `${c.character.name}: ${c.loginSessionId} | ${
+              server.getSoeClient(client.soeClientId)?.getNetworkStats()[2]
+            } | ${
+              server.getSoeClient(client.soeClientId)?.getNetworkStats()[0]
+            } | ${
+              server.getSoeClient(client.soeClientId)?.getNetworkStats()[1]
+            }`;
           })
           .join(",\n")}`
       );

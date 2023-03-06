@@ -910,10 +910,10 @@ export const recipes: { [recipeId: number]: Recipe } = {
     components: [
       {
         itemDefinitionId: Items.BLACKBERRY,
-        requiredAmount: 1,
+        requiredAmount: 5,
       },
       {
-        itemDefinitionId: Items.WATER_EMPTY,
+        itemDefinitionId: Items.WATER_PURE,
         requiredAmount: 1,
       },
     ],
