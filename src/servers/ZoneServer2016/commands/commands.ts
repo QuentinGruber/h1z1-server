@@ -1439,7 +1439,13 @@ export const commands: Array<Command> = [
         client,
         `Players: ${Object.values(server._clients)
           .map((c) => {
-            return `${c.character.name}: ${c.loginSessionId}`;
+            return `${c.character.name}: ${c.loginSessionId} | ${
+              server.getSoeClient(client.soeClientId)?.getNetworkStats()[2]
+            } | ${
+              server.getSoeClient(client.soeClientId)?.getNetworkStats()[0]
+            } | ${
+              server.getSoeClient(client.soeClientId)?.getNetworkStats()[1]
+            }`;
           })
           .join(",\n")}`
       );

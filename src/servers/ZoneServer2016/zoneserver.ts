@@ -3405,7 +3405,8 @@ export class ZoneServer2016 extends EventEmitter {
       setTimeout(() => {
         if (
           client.character.isAlive &&
-          foundation.isInside(client.character.state.position)
+          foundation.isInside(client.character.state.position) &&
+          Number(client.character.lastLoginDate) + 15000 < new Date().getTime()
         ) {
           const damageInfo: DamageInfo = {
             entity: "Server.Permission",
