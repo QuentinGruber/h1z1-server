@@ -94,6 +94,7 @@ import {
   getDifference,
   logClientActionToMongo,
   removeUntransferableFields,
+  decrypt,
 } from "../../utils/utils";
 
 import { Collection, Db } from "mongodb";
@@ -164,6 +165,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
+  encryptedData = require("../../../data/2016/encryptedData/encryptedData.json"),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
@@ -177,6 +179,7 @@ export class ZoneServer2016 extends EventEmitter {
   _soloMode = false;
   _useFairPlay = true;
   maxPing = 250;
+  _decryptKey: string = "";
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
@@ -209,11 +212,16 @@ export class ZoneServer2016 extends EventEmitter {
   } = {};
   _constructionDoors: { [characterId: string]: ConstructionDoor } = {};
   _constructionSimple: { [characterId: string]: ConstructionChildEntity } = {};
-
   _lootableProps: { [characterId: string]: LootableProp } = {};
   _taskProps: { [characterId: string]: TaskProp } = {};
   _crates: { [characterId: string]: Crate } = {};
-
+  _decoys: {
+    [characterId: string]: {
+      characterId: string;
+      position: Float32Array;
+      action: string;
+    };
+  } = {};
   _worldLootableConstruction: {
     [characterId: string]: LootableConstructionEntity;
   } = {};
@@ -280,6 +288,7 @@ export class ZoneServer2016 extends EventEmitter {
   saveTimeInterval: number = 600000;
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
   observerVehicleGuid: string = "0xFAFAFAFAFAFAFAFA";
+  _suspiciousList: string[] = [];
 
   constructor(
     serverPort: number,
@@ -1121,6 +1130,12 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
+    if (this._decryptKey) {
+      this._suspiciousList = encryptedData.map(
+        (x: { iv: string; encryptedData: string }) =>
+          decrypt(x, this._decryptKey)
+      );
+    }
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
     this.startRoutinesLoop();
     this.smeltingManager.checkSmeltables(this);
@@ -2387,11 +2402,11 @@ export class ZoneServer2016 extends EventEmitter {
     sequenceTime: number,
     position: Float32Array
   ): boolean {
-    if (client.isAdmin || !this._useFairPlay) return false;
+    if (client.isAdmin || !this._useFairPlay || this._isSaving) return false;
     const distance = getDistance2d(client.oldPos.position, position);
-    if (Number(client.character.lastLoginDate) + 15000 < new Date().getTime()) {
+    if (Number(client.character.lastLoginDate) + 20000 < new Date().getTime()) {
       const drift = Math.abs(sequenceTime - this.getServerTime());
-      if (drift > 3000) {
+      if (drift > 10000) {
         this.kickPlayer(client);
         this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
         this.sendChatTextToAdmins(
@@ -2401,7 +2416,7 @@ export class ZoneServer2016 extends EventEmitter {
         return true;
       }
       if (!client.isLoading && client.enableChecks) {
-        if (distance > 5) {
+        if (distance > 6) {
           this.kickPlayer(client);
           this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
           this.sendChatTextToAdmins(
@@ -2448,6 +2463,63 @@ export class ZoneServer2016 extends EventEmitter {
       return true;
     }
     client.oldPos = { position: position, time: sequenceTime };
+    return false;
+  }
+
+  vehicleSpeedFairPlayCheck(
+    client: Client,
+    sequenceTime: number,
+    position: Float32Array,
+    vehicle: Vehicle
+  ): boolean {
+    if (client.isAdmin || !this._useFairPlay || this._isSaving) return false;
+
+    const drift = Math.abs(sequenceTime - this.getServerTime());
+    if (drift > 10000) {
+      this.kickPlayer(client);
+      this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+      this.sendChatTextToAdmins(
+        `FairPlay: ${client.character.name} has been kicked for sequence time drifting by ${drift}`,
+        false
+      );
+      return true;
+    }
+    const distance = getDistance2d(vehicle.oldPos.position, position);
+    const speed =
+      (distance / 1000 / (sequenceTime - vehicle.oldPos.time)) * 3600000;
+    const verticalSpeed =
+      (getDistance1d(vehicle.oldPos.position[1], position[1]) /
+        1000 /
+        (sequenceTime - vehicle.oldPos.time)) *
+      3600000;
+    if (speed > 130 && verticalSpeed < 20) {
+      const soeClient = this.getSoeClient(client.soeClientId);
+      if (soeClient) {
+        if (soeClient.avgPing >= 250) return false;
+      }
+      client.speedWarnsNumber += 1;
+    } else if (client.speedWarnsNumber > 0) {
+      client.speedWarnsNumber -= 1;
+    }
+    if (client.speedWarnsNumber > 5) {
+      this.kickPlayer(client);
+      client.speedWarnsNumber = 0;
+      if (!this._soloMode) {
+        logClientActionToMongo(
+          this._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+          client,
+          this._worldId,
+          { type: "SpeedHack" }
+        );
+      }
+      this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+      this.sendChatTextToAdmins(
+        `FairPlay: ${client.character.name} has been kicking for vehicle speed hacking: ${speed} m/s at position [${position[0]} ${position[1]} ${position[2]}]`,
+        false
+      );
+      return true;
+    }
+    vehicle.oldPos = { position: position, time: sequenceTime };
     return false;
   }
 
@@ -2872,6 +2944,17 @@ export class ZoneServer2016 extends EventEmitter {
 
   registerHit(client: Client, packet: any, gameTime: number) {
     if (!client.character.isAlive) return;
+    if (this._decoys[packet.hitReport.characterId]) {
+      const decoy = this._decoys[packet.hitReport.characterId];
+      this.sendChatTextToAdmins(
+        `FairPlay: ${
+          client.character.name
+        } hit a decoy entity at: [${decoy.position[0].toFixed(
+          2
+        )} ${decoy.position[1].toFixed(2)} ${decoy.position[2].toFixed(2)}]`,
+        false
+      );
+    }
     const entity = this.getEntity(packet.hitReport.characterId);
     if (!entity) return;
     const fireHint = client.fireHints[packet.hitReport.sessionProjectileCount];
@@ -2912,7 +2995,7 @@ export class ZoneServer2016 extends EventEmitter {
         maxSpeed = 2600;
     }
     if (
-      distance > 10 &&
+      distance > 40 &&
       (speed > maxSpeed || speed <= 0 || speed == Infinity)
     ) {
       this.sendChatTextToAdmins(
@@ -3319,7 +3402,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.constructionHidePlayer(client, construction.characterId, true);
         return true;
       } else if (!client.isAdmin || !client.isDebugMode) {
-        this.tpPlayerOutsideFoundation(client, foundation);
+        const damageInfo: DamageInfo = {
+          entity: "Server.Permissions",
+          damage: 99999,
+        };
+        this.killCharacter(client, damageInfo);
         return false;
       }
     }
@@ -3382,7 +3469,11 @@ export class ZoneServer2016 extends EventEmitter {
       }, 500);
       return;
     }
-    const newPos = movePoint(client.character.state.position, currentAngle, 1);
+    const newPos = movePoint(
+      client.character.state.position,
+      currentAngle,
+      2.5
+    );
     this.sendChatText(client, "Construction: no visitor permission");
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
@@ -3401,18 +3492,21 @@ export class ZoneServer2016 extends EventEmitter {
     setTimeout(() => {
       client.enableChecks = true;
     }, 500);
-    setTimeout(() => {
-      if (
-        client.character.isAlive &&
-        foundation.isInside(client.character.state.position)
-      ) {
-        const damageInfo: DamageInfo = {
-          entity: "Server.Permission",
-          damage: 1000,
-        };
-        this.killCharacter(client, damageInfo);
-      }
-    }, 1500);
+    if (!client.isAdmin || !client.isDebugMode) {
+      setTimeout(() => {
+        if (
+          client.character.isAlive &&
+          foundation.isInside(client.character.state.position) &&
+          Number(client.character.lastLoginDate) + 15000 < new Date().getTime()
+        ) {
+          const damageInfo: DamageInfo = {
+            entity: "Server.Permission",
+            damage: 1000,
+          };
+          this.killCharacter(client, damageInfo);
+        }
+      }, 2500);
+    }
     this.checkFoundationPermission(client, foundation);
   }
 
@@ -5909,6 +6003,20 @@ export class ZoneServer2016 extends EventEmitter {
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle) return;
+    for (const a in this._constructionFoundations) {
+      const foundation = this._constructionFoundations[a];
+      if (
+        foundation.isSecured &&
+        foundation.isInside(vehicle.state.position) &&
+        !foundation.getHasPermission(
+          this,
+          client.character.characterId,
+          ConstructionPermissionIds.VISIT
+        ) &&
+        (!client.isAdmin || !client.isDebugMode)
+      )
+        return;
+    }
     if (client.hudTimer != null) {
       clearTimeout(client.hudTimer);
       client.hudTimer = null;
