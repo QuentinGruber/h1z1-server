@@ -2387,11 +2387,11 @@ export class ZoneServer2016 extends EventEmitter {
     sequenceTime: number,
     position: Float32Array
   ): boolean {
-    if (client.isAdmin || !this._useFairPlay) return false;
+    if (client.isAdmin || !this._useFairPlay || this._isSaving) return false;
     const distance = getDistance2d(client.oldPos.position, position);
-    if (Number(client.character.lastLoginDate) + 15000 < new Date().getTime()) {
+    if (Number(client.character.lastLoginDate) + 20000 < new Date().getTime()) {
       const drift = Math.abs(sequenceTime - this.getServerTime());
-      if (drift > 3000) {
+      if (drift > 10000) {
         this.kickPlayer(client);
         this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
         this.sendChatTextToAdmins(
@@ -2401,7 +2401,7 @@ export class ZoneServer2016 extends EventEmitter {
         return true;
       }
       if (!client.isLoading && client.enableChecks) {
-        if (distance > 5) {
+        if (distance > 6) {
           this.kickPlayer(client);
           this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
           this.sendChatTextToAdmins(
@@ -2912,7 +2912,7 @@ export class ZoneServer2016 extends EventEmitter {
         maxSpeed = 2600;
     }
     if (
-      distance > 10 &&
+      distance > 40 &&
       (speed > maxSpeed || speed <= 0 || speed == Infinity)
     ) {
       this.sendChatTextToAdmins(
@@ -3401,18 +3401,20 @@ export class ZoneServer2016 extends EventEmitter {
     setTimeout(() => {
       client.enableChecks = true;
     }, 500);
-    setTimeout(() => {
-      if (
-        client.character.isAlive &&
-        foundation.isInside(client.character.state.position)
-      ) {
-        const damageInfo: DamageInfo = {
-          entity: "Server.Permission",
-          damage: 1000,
-        };
-        this.killCharacter(client, damageInfo);
-      }
-    }, 1500);
+    if (!client.isAdmin || !client.isDebugMode) {
+      setTimeout(() => {
+        if (
+          client.character.isAlive &&
+          foundation.isInside(client.character.state.position)
+        ) {
+          const damageInfo: DamageInfo = {
+            entity: "Server.Permission",
+            damage: 1000,
+          };
+          this.killCharacter(client, damageInfo);
+        }
+      }, 2500);
+    }
     this.checkFoundationPermission(client, foundation);
   }
 
