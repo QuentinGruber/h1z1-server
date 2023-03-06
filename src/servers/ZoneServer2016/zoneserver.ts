@@ -2402,65 +2402,70 @@ export class ZoneServer2016 extends EventEmitter {
     sequenceTime: number,
     position: Float32Array
   ): boolean {
-    if (client.isAdmin || !this._useFairPlay || this._isSaving) return false;
-    const distance = getDistance2d(client.oldPos.position, position);
-    if (Number(client.character.lastLoginDate) + 20000 < new Date().getTime()) {
-      const drift = Math.abs(sequenceTime - this.getServerTime());
-      if (drift > 10000) {
-        this.kickPlayer(client);
-        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
-        this.sendChatTextToAdmins(
-          `FairPlay: ${client.character.name} has been kicked for sequence time drifting by ${drift}`,
-          false
-        );
-        return true;
-      }
-      if (!client.isLoading && client.enableChecks) {
-        if (distance > 6) {
+    if (client.isAdmin || !this._useFairPlay) return false;
+    if (!this.isSaving) {
+      const distance = getDistance2d(client.oldPos.position, position);
+      if (
+        Number(client.character.lastLoginDate) + 20000 <
+        new Date().getTime()
+      ) {
+        const drift = Math.abs(sequenceTime - this.getServerTime());
+        if (drift > 10000) {
           this.kickPlayer(client);
           this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
           this.sendChatTextToAdmins(
-            `FairPlay: ${client.character.name} has been kicked for suspeced teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
+            `FairPlay: ${client.character.name} has been kicked for sequence time drifting by ${drift}`,
             false
           );
           return true;
         }
+        if (!client.isLoading && client.enableChecks) {
+          if (distance > 6) {
+            this.kickPlayer(client);
+            this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+            this.sendChatTextToAdmins(
+              `FairPlay: ${client.character.name} has been kicked for suspeced teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
+              false
+            );
+            return true;
+          }
+        }
       }
-    }
 
-    const speed =
-      (distance / 1000 / (sequenceTime - client.oldPos.time)) * 3600000;
-    const verticalSpeed =
-      (getDistance1d(client.oldPos.position[1], position[1]) /
-        1000 /
-        (sequenceTime - client.oldPos.time)) *
-      3600000;
-    if (speed > 35 && verticalSpeed < 20) {
-      const soeClient = this.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        if (soeClient.avgPing >= 250) return false;
+      const speed =
+        (distance / 1000 / (sequenceTime - client.oldPos.time)) * 3600000;
+      const verticalSpeed =
+        (getDistance1d(client.oldPos.position[1], position[1]) /
+          1000 /
+          (sequenceTime - client.oldPos.time)) *
+        3600000;
+      if (speed > 35 && verticalSpeed < 20) {
+        const soeClient = this.getSoeClient(client.soeClientId);
+        if (soeClient) {
+          if (soeClient.avgPing >= 250) return false;
+        }
+        client.speedWarnsNumber += 1;
+      } else if (client.speedWarnsNumber > 0) {
+        client.speedWarnsNumber -= 1;
       }
-      client.speedWarnsNumber += 1;
-    } else if (client.speedWarnsNumber > 0) {
-      client.speedWarnsNumber -= 1;
-    }
-    if (client.speedWarnsNumber > 35) {
-      this.kickPlayer(client);
-      client.speedWarnsNumber = 0;
-      if (!this._soloMode) {
-        logClientActionToMongo(
-          this._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
-          client,
-          this._worldId,
-          { type: "SpeedHack" }
+      if (client.speedWarnsNumber > 35) {
+        this.kickPlayer(client);
+        client.speedWarnsNumber = 0;
+        if (!this._soloMode) {
+          logClientActionToMongo(
+            this._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+            client,
+            this._worldId,
+            { type: "SpeedHack" }
+          );
+        }
+        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} has been kicking for speed hacking: ${speed} m/s at position [${position[0]} ${position[1]} ${position[2]}]`,
+          false
         );
+        return true;
       }
-      this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
-      this.sendChatTextToAdmins(
-        `FairPlay: ${client.character.name} has been kicking for speed hacking: ${speed} m/s at position [${position[0]} ${position[1]} ${position[2]}]`,
-        false
-      );
-      return true;
     }
     client.oldPos = { position: position, time: sequenceTime };
     return false;
@@ -2472,52 +2477,53 @@ export class ZoneServer2016 extends EventEmitter {
     position: Float32Array,
     vehicle: Vehicle
   ): boolean {
-    if (client.isAdmin || !this._useFairPlay || this._isSaving) return false;
-
-    const drift = Math.abs(sequenceTime - this.getServerTime());
-    if (drift > 10000) {
-      this.kickPlayer(client);
-      this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
-      this.sendChatTextToAdmins(
-        `FairPlay: ${client.character.name} has been kicked for sequence time drifting by ${drift}`,
-        false
-      );
-      return true;
-    }
-    const distance = getDistance2d(vehicle.oldPos.position, position);
-    const speed =
-      (distance / 1000 / (sequenceTime - vehicle.oldPos.time)) * 3600000;
-    const verticalSpeed =
-      (getDistance1d(vehicle.oldPos.position[1], position[1]) /
-        1000 /
-        (sequenceTime - vehicle.oldPos.time)) *
-      3600000;
-    if (speed > 130 && verticalSpeed < 20) {
-      const soeClient = this.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        if (soeClient.avgPing >= 250) return false;
-      }
-      client.speedWarnsNumber += 1;
-    } else if (client.speedWarnsNumber > 0) {
-      client.speedWarnsNumber -= 1;
-    }
-    if (client.speedWarnsNumber > 5) {
-      this.kickPlayer(client);
-      client.speedWarnsNumber = 0;
-      if (!this._soloMode) {
-        logClientActionToMongo(
-          this._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
-          client,
-          this._worldId,
-          { type: "SpeedHack" }
+    if (client.isAdmin || !this._useFairPlay) return false;
+    if (!this.isSaving) {
+      const drift = Math.abs(sequenceTime - this.getServerTime());
+      if (drift > 10000) {
+        this.kickPlayer(client);
+        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} has been kicked for sequence time drifting by ${drift}`,
+          false
         );
+        return true;
       }
-      this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
-      this.sendChatTextToAdmins(
-        `FairPlay: ${client.character.name} has been kicking for vehicle speed hacking: ${speed} m/s at position [${position[0]} ${position[1]} ${position[2]}]`,
-        false
-      );
-      return true;
+      const distance = getDistance2d(vehicle.oldPos.position, position);
+      const speed =
+        (distance / 1000 / (sequenceTime - vehicle.oldPos.time)) * 3600000;
+      const verticalSpeed =
+        (getDistance1d(vehicle.oldPos.position[1], position[1]) /
+          1000 /
+          (sequenceTime - vehicle.oldPos.time)) *
+        3600000;
+      if (speed > 130 && verticalSpeed < 20) {
+        const soeClient = this.getSoeClient(client.soeClientId);
+        if (soeClient) {
+          if (soeClient.avgPing >= 250) return false;
+        }
+        client.speedWarnsNumber += 1;
+      } else if (client.speedWarnsNumber > 0) {
+        client.speedWarnsNumber -= 1;
+      }
+      if (client.speedWarnsNumber > 5) {
+        this.kickPlayer(client);
+        client.speedWarnsNumber = 0;
+        if (!this._soloMode) {
+          logClientActionToMongo(
+            this._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+            client,
+            this._worldId,
+            { type: "SpeedHack" }
+          );
+        }
+        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} has been kicking for vehicle speed hacking: ${speed} m/s at position [${position[0]} ${position[1]} ${position[2]}]`,
+          false
+        );
+        return true;
+      }
     }
     vehicle.oldPos = { position: position, time: sequenceTime };
     return false;
