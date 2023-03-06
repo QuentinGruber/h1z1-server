@@ -3402,7 +3402,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.constructionHidePlayer(client, construction.characterId, true);
         return true;
       } else if (!client.isAdmin || !client.isDebugMode) {
-        this.tpPlayerOutsideFoundation(client, foundation);
+          const damageInfo: DamageInfo = {
+              entity: "Server.Permissions",
+              damage: 99999,
+          };
+          this.killCharacter(client, damageInfo)
         return false;
       }
     }
