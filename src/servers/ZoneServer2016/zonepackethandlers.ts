@@ -637,6 +637,8 @@ export class zonePacketHandlers {
         client.character.state.position = pos;
       return;
     }
+    // for cheaters spawning cars on top of peoples heads
+    if (client.vehicle.mountedVehicle != vehicle.characterId) return;
     //if (!server._soloMode) {
     server.sendDataToAllOthersWithSpawnedEntity(
       server._vehicles,
