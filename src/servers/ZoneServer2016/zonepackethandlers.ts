@@ -784,6 +784,19 @@ export class zonePacketHandlers {
           triggerLoadingScreen: true,
         });
       }
+      if (packet.data.stance & (1 << 1)) {
+        // started crouching
+        client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
+        if (client.character._resources[ResourceIds.STAMINA] < 0)
+          client.character._resources[ResourceIds.STAMINA] = 0;
+        server.updateResourceToAllWithSpawnedEntity(
+          client.character.characterId,
+          client.character._resources[ResourceIds.STAMINA],
+          ResourceIds.STAMINA,
+          ResourceTypes.STAMINA,
+          server._characters
+        );
+      }
       const byte1 = packet.data.stance & 0xff;
       client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
       if (
@@ -804,6 +817,7 @@ export class zonePacketHandlers {
           server._characters
         );
       }
+      client.character.stance = packet.data.stance;
     }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter) {
