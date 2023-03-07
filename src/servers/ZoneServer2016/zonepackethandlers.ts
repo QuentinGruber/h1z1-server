@@ -784,7 +784,8 @@ export class zonePacketHandlers {
           triggerLoadingScreen: true,
         });
       }
-      if (packet.data.stance & (1 << 1)) {
+      // disabled for now
+      /*if (packet.data.stance & (1 << 1)) {
         // started crouching
         client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
         if (client.character._resources[ResourceIds.STAMINA] < 0)
@@ -796,7 +797,7 @@ export class zonePacketHandlers {
           ResourceTypes.STAMINA,
           server._characters
         );
-      }
+      }*/
       const byte1 = packet.data.stance & 0xff;
       client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
       if (
