@@ -165,11 +165,6 @@ export class zonePacketHandlers {
         });
       });
 
-      server.sendData(client, "Synchronization", {
-        serverTime: Int64String(server.getServerTime()),
-        serverTime2: Int64String(server.getServerTime()),
-      } as Synchronization);
-
       server.sendData(client, "Character.WeaponStance", {
         // activates weaponstance key
         characterId: client.character.characterId,
@@ -380,7 +375,7 @@ export class zonePacketHandlers {
     });
   }
   KeepAlive(server: ZoneServer2016, client: Client, packet: any) {
-    if (client.isLoading && client.characterReleased) {
+    if (client.isLoading && client.characterReleased && client.isSynced) {
       setTimeout(() => {
         client.isLoading = false;
         if (!client.characterReleased) return;
@@ -499,6 +494,10 @@ export class zonePacketHandlers {
       time3: Int64String(Number(packet.data.clientTime)) + 2,
     };
     server.sendData(client, "Synchronization", reflectedPacket);
+    if (client.isSynced) return;
+    client.isSynced = true;
+    client.character.lastLoginDate = toHex(Date.now());
+    server.constructionManager(client);
   }
   CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: any) {
     this.commandHandler.executeCommand(server, client, packet);

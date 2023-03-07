@@ -2402,11 +2402,11 @@ export class ZoneServer2016 extends EventEmitter {
     sequenceTime: number,
     position: Float32Array
   ): boolean {
-    if (client.isAdmin || !this._useFairPlay) return false;
+    if (client.isAdmin || !this._useFairPlay || !client.isSynced) return false;
     if (!this.isSaving) {
       const distance = getDistance2d(client.oldPos.position, position);
       if (
-        Number(client.character.lastLoginDate) + 20000 <
+        Number(client.character.lastLoginDate) + 2000 <
         new Date().getTime()
       ) {
         const drift = Math.abs(sequenceTime - this.getServerTime());
@@ -3503,7 +3503,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           client.character.isAlive &&
           foundation.isInside(client.character.state.position) &&
-          Number(client.character.lastLoginDate) + 15000 < new Date().getTime()
+          Number(client.character.lastLoginDate) + 2000 < new Date().getTime()
         ) {
           const damageInfo: DamageInfo = {
             entity: "Server.Permission",
@@ -3511,7 +3511,7 @@ export class ZoneServer2016 extends EventEmitter {
           };
           this.killCharacter(client, damageInfo);
         }
-      }, 2500);
+      }, 2000);
     }
     this.checkFoundationPermission(client, foundation);
   }
@@ -8096,6 +8096,7 @@ export class ZoneServer2016 extends EventEmitter {
       const client = this._clients[a];
       if (!client.isLoading) {
         client.routineCounter++;
+        this.constructionManager(client);
         this.checkInMapBounds(client);
         this.checkZonePing(client);
         if (client.routineCounter >= 3) {
@@ -8108,7 +8109,6 @@ export class ZoneServer2016 extends EventEmitter {
         this.vehicleManager(client);
         this.spawnCharacters(client);
         this.spawnGridObjects(client);
-        this.constructionManager(client);
         this.worldConstructionManager(client);
         client.posAtLastRoutine = client.character.state.position;
       }
@@ -8118,13 +8118,13 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   executeRoutine(client: Client) {
+    this.constructionManager(client);
     this.spawnConstructionParentsInRange(client);
     this.vehicleManager(client);
     //this.npcManager(client);
     this.removeOutOfDistanceEntities(client);
     this.spawnCharacters(client);
     this.spawnGridObjects(client);
-    this.constructionManager(client);
     this.worldConstructionManager(client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;

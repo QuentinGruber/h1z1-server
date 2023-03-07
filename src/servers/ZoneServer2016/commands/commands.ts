@@ -1483,9 +1483,7 @@ export const commands: Array<Command> = [
           .map((c) => {
             return `${c.character.name}: ${c.loginSessionId} | ${
               server.getSoeClient(c.soeClientId)?.getNetworkStats()[2]
-            } | ${
-              server.getSoeClient(c.soeClientId)?.getNetworkStats()[0]
-            } | ${
+            } | ${server.getSoeClient(c.soeClientId)?.getNetworkStats()[0]} | ${
               server.getSoeClient(c.soeClientId)?.getNetworkStats()[1]
             }`;
           })

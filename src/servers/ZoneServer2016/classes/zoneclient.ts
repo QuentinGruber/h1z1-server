@@ -28,6 +28,7 @@ export class ZoneClient2016 {
   firstLoading: boolean = false;
   isLoading: boolean = true;
   characterReleased: boolean = false;
+  isSynced: boolean = false;
   isInteracting: boolean = false;
   isAdmin: boolean = false;
   isDebugMode: boolean = false;
