@@ -585,7 +585,7 @@ export class zonePacketHandlers {
       ?.collection(DB_COLLECTIONS.BANNED)
       .findOne({ HWID: client.HWID, active: true })) as unknown as Ban;
     if (hwidBanned?.expirationDate < Date.now()) {
-      client.banType = hwidBanned.banType;
+      //client.banType = hwidBanned.banType;
       //server.enforceBan(client);
     }
   }
