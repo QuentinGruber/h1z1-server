@@ -2406,7 +2406,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.isSaving) {
       const distance = getDistance2d(client.oldPos.position, position);
       if (
-        Number(client.character.lastLoginDate) + 2000 <
+        Number(client.character.lastLoginDate) + 5000 <
         new Date().getTime()
       ) {
         const drift = Math.abs(sequenceTime - this.getServerTime());
