@@ -3001,7 +3001,7 @@ export class ZoneServer2016 extends EventEmitter {
         maxSpeed = 2600;
     }
     if (
-      distance > 15 &&
+      distance > 10 &&
       (speed > maxSpeed || speed <= 0 || speed == Infinity)
     ) {
       this.sendChatTextToAdmins(
