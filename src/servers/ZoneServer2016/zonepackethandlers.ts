@@ -404,7 +404,9 @@ export class zonePacketHandlers {
       const obj = { log: packet.data.message, isSuspicious: false };
       for (let x = 0; x < server._suspiciousList.length; x++) {
         if (
-          packet.data.message.toLowerCase().includes(server._suspiciousList[x])
+          packet.data.message
+            .toLowerCase()
+            .includes(server._suspiciousList[x].toLowerCase())
         ) {
           obj.isSuspicious = true;
           if (!server._soloMode) {
