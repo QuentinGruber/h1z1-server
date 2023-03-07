@@ -1482,11 +1482,9 @@ export const commands: Array<Command> = [
         `Players: ${Object.values(server._clients)
           .map((c) => {
             return `${c.character.name}: ${c.loginSessionId} | ${
-              server.getSoeClient(client.soeClientId)?.getNetworkStats()[2]
-            } | ${
-              server.getSoeClient(client.soeClientId)?.getNetworkStats()[0]
-            } | ${
-              server.getSoeClient(client.soeClientId)?.getNetworkStats()[1]
+              server.getSoeClient(c.soeClientId)?.getNetworkStats()[2]
+            } | ${server.getSoeClient(c.soeClientId)?.getNetworkStats()[0]} | ${
+              server.getSoeClient(c.soeClientId)?.getNetworkStats()[1]
             }`;
           })
           .join(",\n")}`

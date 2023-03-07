@@ -178,7 +178,7 @@ export class ZoneServer2016 extends EventEmitter {
   _db!: Db;
   _soloMode = false;
   _useFairPlay = true;
-  maxPing = 250;
+  _maxPing = 250;
   _decryptKey: string = "";
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
@@ -2402,11 +2402,11 @@ export class ZoneServer2016 extends EventEmitter {
     sequenceTime: number,
     position: Float32Array
   ): boolean {
-    if (client.isAdmin || !this._useFairPlay) return false;
+    if (client.isAdmin || !this._useFairPlay || !client.isSynced) return false;
     if (!this.isSaving) {
       const distance = getDistance2d(client.oldPos.position, position);
       if (
-        Number(client.character.lastLoginDate) + 20000 <
+        Number(client.character.lastLoginDate) + 5000 <
         new Date().getTime()
       ) {
         const drift = Math.abs(sequenceTime - this.getServerTime());
@@ -3001,7 +3001,7 @@ export class ZoneServer2016 extends EventEmitter {
         maxSpeed = 2600;
     }
     if (
-      distance > 40 &&
+      distance > 15 &&
       (speed > maxSpeed || speed <= 0 || speed == Infinity)
     ) {
       this.sendChatTextToAdmins(
@@ -3503,7 +3503,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           client.character.isAlive &&
           foundation.isInside(client.character.state.position) &&
-          Number(client.character.lastLoginDate) + 15000 < new Date().getTime()
+          Number(client.character.lastLoginDate) + 2000 < new Date().getTime()
         ) {
           const damageInfo: DamageInfo = {
             entity: "Server.Permission",
@@ -3511,7 +3511,7 @@ export class ZoneServer2016 extends EventEmitter {
           };
           this.killCharacter(client, damageInfo);
         }
-      }, 2500);
+      }, 2000);
     }
     this.checkFoundationPermission(client, foundation);
   }
@@ -6213,6 +6213,28 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
+    if (client.managedObjects.includes(vehicle.characterId)) {
+      setTimeout(() => {
+        this.dropManagedObject(
+          client,
+          vehicle,
+          vehicle.getNextSeatId(this) == "0" ? true : false
+        );
+        this.sendDataToAllWithSpawnedEntity(
+          this._vehicles,
+          vehicle.characterId,
+          "PlayerUpdatePosition",
+          {
+            transientId: vehicle.transientId,
+            positionUpdate: {
+              ...vehicle.positionUpdate,
+              verticalSpeed: 0,
+              horizontalSpeed: 0,
+            },
+          }
+        );
+      }, 3000);
+    }
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
@@ -8074,6 +8096,7 @@ export class ZoneServer2016 extends EventEmitter {
       const client = this._clients[a];
       if (!client.isLoading) {
         client.routineCounter++;
+        this.constructionManager(client);
         this.checkInMapBounds(client);
         this.checkZonePing(client);
         if (client.routineCounter >= 3) {
@@ -8086,7 +8109,6 @@ export class ZoneServer2016 extends EventEmitter {
         this.vehicleManager(client);
         this.spawnCharacters(client);
         this.spawnGridObjects(client);
-        this.constructionManager(client);
         this.worldConstructionManager(client);
         client.posAtLastRoutine = client.character.state.position;
       }
@@ -8096,13 +8118,13 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   executeRoutine(client: Client) {
+    this.constructionManager(client);
     this.spawnConstructionParentsInRange(client);
     this.vehicleManager(client);
     //this.npcManager(client);
     this.removeOutOfDistanceEntities(client);
     this.spawnCharacters(client);
     this.spawnGridObjects(client);
-    this.constructionManager(client);
     this.worldConstructionManager(client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;
@@ -8116,7 +8138,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (soeClient) {
       const ping = soeClient.avgPing;
       client.zonePings.push(ping > 600 ? 600 : ping); // dont push values higher than 600, that would increase average value drasticaly
-      if (ping >= this.maxPing) {
+      if (ping >= this._maxPing) {
         this.sendAlert(
           client,
           `Your ping is very high: ${ping}. You may be kicked soon`
@@ -8125,7 +8147,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (client.zonePings.length >= 15) {
         const averagePing =
           client.zonePings.reduce((a, b) => a + b, 0) / client.zonePings.length;
-        if (averagePing >= this.maxPing) {
+        if (averagePing >= this._maxPing) {
           this.kickPlayer(client);
           this.sendChatTextToAdmins(
             `${client.character.name} has been been kicked for average ping: ${averagePing}`

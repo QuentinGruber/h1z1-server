@@ -165,11 +165,6 @@ export class zonePacketHandlers {
         });
       });
 
-      server.sendData(client, "Synchronization", {
-        serverTime: Int64String(server.getServerTime()),
-        serverTime2: Int64String(server.getServerTime()),
-      } as Synchronization);
-
       server.sendData(client, "Character.WeaponStance", {
         // activates weaponstance key
         characterId: client.character.characterId,
@@ -380,7 +375,7 @@ export class zonePacketHandlers {
     });
   }
   KeepAlive(server: ZoneServer2016, client: Client, packet: any) {
-    if (client.isLoading && client.characterReleased) {
+    if (client.isLoading && client.characterReleased && client.isSynced) {
       setTimeout(() => {
         client.isLoading = false;
         if (!client.characterReleased) return;
@@ -404,7 +399,9 @@ export class zonePacketHandlers {
       const obj = { log: packet.data.message, isSuspicious: false };
       for (let x = 0; x < server._suspiciousList.length; x++) {
         if (
-          packet.data.message.toLowerCase().includes(server._suspiciousList[x])
+          packet.data.message
+            .toLowerCase()
+            .includes(server._suspiciousList[x].toLowerCase())
         ) {
           obj.isSuspicious = true;
           if (!server._soloMode) {
@@ -497,6 +494,10 @@ export class zonePacketHandlers {
       time3: Int64String(Number(packet.data.clientTime)) + 2,
     };
     server.sendData(client, "Synchronization", reflectedPacket);
+    if (client.isSynced) return;
+    client.isSynced = true;
+    client.character.lastLoginDate = toHex(Date.now());
+    server.constructionManager(client);
   }
   CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: any) {
     this.commandHandler.executeCommand(server, client, packet);
@@ -628,7 +629,7 @@ export class zonePacketHandlers {
       return;
     }
     // for cheaters spawning cars on top of peoples heads
-    if (client.vehicle.mountedVehicle != vehicle.characterId) return;
+    if (!client.managedObjects.includes(vehicle.characterId)) return;
     if (packet.data.positionUpdate.position) {
       if (
         server.vehicleSpeedFairPlayCheck(
@@ -654,13 +655,18 @@ export class zonePacketHandlers {
         ) > 100
       ) {
         kick = true;
+        server.kickPlayer(client);
+        server.sendChatTextToAdmins(
+          `FairPlay: kicking ${client.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${packet.data.positionUpdate.position[0]} ${packet.data.positionUpdate.position[1]} ${packet.data.positionUpdate.position[2]}]`,
+          false
+        );
       }
       vehicle.getPassengerList().forEach((passenger: string) => {
         if (server._characters[passenger]) {
           if (kick) {
             const c = server.getClientByCharId(passenger);
             if (!c) return;
-            server.kickPlayer(client);
+            server.kickPlayer(c);
             server.sendChatTextToAdmins(
               `FairPlay: kicking ${c.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${packet.data.positionUpdate.position[0]} ${packet.data.positionUpdate.position[1]} ${packet.data.positionUpdate.position[2]}]`,
               false
@@ -778,6 +784,19 @@ export class zonePacketHandlers {
           triggerLoadingScreen: true,
         });
       }
+      if (packet.data.stance & (1 << 1)) {
+        // started crouching
+        client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
+        if (client.character._resources[ResourceIds.STAMINA] < 0)
+          client.character._resources[ResourceIds.STAMINA] = 0;
+        server.updateResourceToAllWithSpawnedEntity(
+          client.character.characterId,
+          client.character._resources[ResourceIds.STAMINA],
+          ResourceIds.STAMINA,
+          ResourceTypes.STAMINA,
+          server._characters
+        );
+      }
       const byte1 = packet.data.stance & 0xff;
       client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
       if (
@@ -798,6 +817,7 @@ export class zonePacketHandlers {
           server._characters
         );
       }
+      client.character.stance = packet.data.stance;
     }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter) {
@@ -1946,7 +1966,7 @@ export class zonePacketHandlers {
             weaponItem.weapon.ammoCount -= 1;
           }
           const drift = Math.abs(p.gameTime - server.getServerTime());
-          if (drift > 500) {
+          if (drift > server._maxPing) {
             server.sendChatText(
               client,
               `FairPlay: Your shots didnt register due to packet loss`
