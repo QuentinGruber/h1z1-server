@@ -628,7 +628,7 @@ export class zonePacketHandlers {
       return;
     }
     // for cheaters spawning cars on top of peoples heads
-    if (client.vehicle.mountedVehicle != vehicle.characterId) return;
+    if (!client.managedObjects.includes(vehicle.characterId)) return;
     if (packet.data.positionUpdate.position) {
       if (
         server.vehicleSpeedFairPlayCheck(
@@ -654,13 +654,18 @@ export class zonePacketHandlers {
         ) > 100
       ) {
         kick = true;
+        server.kickPlayer(client);
+        server.sendChatTextToAdmins(
+          `FairPlay: kicking ${client.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${packet.data.positionUpdate.position[0]} ${packet.data.positionUpdate.position[1]} ${packet.data.positionUpdate.position[2]}]`,
+          false
+        );
       }
       vehicle.getPassengerList().forEach((passenger: string) => {
         if (server._characters[passenger]) {
           if (kick) {
             const c = server.getClientByCharId(passenger);
             if (!c) return;
-            server.kickPlayer(client);
+            server.kickPlayer(c);
             server.sendChatTextToAdmins(
               `FairPlay: kicking ${c.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${packet.data.positionUpdate.position[0]} ${packet.data.positionUpdate.position[1]} ${packet.data.positionUpdate.position[2]}]`,
               false

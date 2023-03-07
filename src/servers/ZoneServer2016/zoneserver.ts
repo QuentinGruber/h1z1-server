@@ -6213,6 +6213,28 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
+    if (client.managedObjects.includes(vehicle.characterId)) {
+      setTimeout(() => {
+        this.dropManagedObject(
+          client,
+          vehicle,
+          vehicle.getNextSeatId(this) == "0" ? true : false
+        );
+        this.sendDataToAllWithSpawnedEntity(
+          this._vehicles,
+          vehicle.characterId,
+          "PlayerUpdatePosition",
+          {
+            transientId: vehicle.transientId,
+            positionUpdate: {
+              ...vehicle.positionUpdate,
+              verticalSpeed: 0,
+              horizontalSpeed: 0,
+            },
+          }
+        );
+      }, 3000);
+    }
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
