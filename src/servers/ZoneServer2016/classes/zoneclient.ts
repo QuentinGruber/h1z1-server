@@ -17,6 +17,7 @@ import { ZoneClient2016 as Client } from "./zoneclient";
 import { LootableProp } from "../entities/lootableprop";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "../entities/baseentity";
+import { fireHint } from "../../../types/zoneserver";
 //import { h1z1PacketsType2016 } from "../../../types/packets";
 //import { zone2016packets } from "../../../types/zone2016packets";
 
@@ -27,6 +28,7 @@ export class ZoneClient2016 {
   firstLoading: boolean = false;
   isLoading: boolean = true;
   characterReleased: boolean = false;
+  isSynced: boolean = false;
   isInteracting: boolean = false;
   isAdmin: boolean = false;
   isDebugMode: boolean = false;
@@ -38,8 +40,8 @@ export class ZoneClient2016 {
     position: new Float32Array(),
     time: 0,
   };
+  enableChecks: boolean = true;
   speedWarnsNumber: number = 0;
-  allowedProjectiles: number = 0;
   pvpStats: {
     shotsFired: number;
     shotsHit: number;
@@ -84,6 +86,7 @@ export class ZoneClient2016 {
   zonePings: number[] = [];
   properlyLogout: boolean = false;
   permissionLevel: number = 0;
+  fireHints: { [id: number]: fireHint } = {};
   /*(lightWeightNpcQueue: {
     packetName: h1z1PacketsType2016;
     data: zone2016packets;
