@@ -680,8 +680,8 @@ const dev: any = {
   ) {
     server.sendData(client, "Ui.ExecuteScript", {
       unknownString1: args[0],
-      unknownArray1: []
-    })
+      unknownArray1: [],
+    });
   },
 
   print: function (
@@ -690,8 +690,8 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sendData(client, "H1emu.PrintToConsole", {
-      message: args.slice(1).join(" ")
-    })
+      message: args.slice(1).join(" "),
+    });
   },
 
   messagebox: function (
@@ -701,9 +701,8 @@ const dev: any = {
   ) {
     server.sendData(client, "H1emu.MessageBox", {
       title: "TITLE",
-      message: "MESSAGE"
-    })
+      message: "MESSAGE",
+    });
   },
-
 };
 export default dev;

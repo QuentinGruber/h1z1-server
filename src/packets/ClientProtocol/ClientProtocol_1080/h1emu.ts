@@ -13,22 +13,20 @@
 
 export const h1emuPackets: any = [
   [
-    "H1emu.PrintToConsole", 
-    0x9901, 
+    "H1emu.PrintToConsole",
+    0x9901,
     {
-      fields: [
-        { name: "message", type: "string", defaultValue: "" },
-      ]
-    }
+      fields: [{ name: "message", type: "string", defaultValue: "" }],
+    },
   ],
   [
-    "H1emu.MessageBox", 
-    0x9902, 
+    "H1emu.MessageBox",
+    0x9902,
     {
       fields: [
         { name: "title", type: "string", defaultValue: "" },
         { name: "message", type: "string", defaultValue: "" },
-      ]
-    }
+      ],
+    },
   ],
-]
+];

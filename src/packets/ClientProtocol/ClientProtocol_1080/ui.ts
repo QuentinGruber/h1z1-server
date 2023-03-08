@@ -18,8 +18,8 @@ export const uiPackets: any = [
   ["Ui.TaskFail", 0x1a04, {}],
   ["Ui.Unknown", 0x1a05, {}],
   [
-    "Ui.ExecuteScript", 
-    0x1a07, 
+    "Ui.ExecuteScript",
+    0x1a07,
     {
       fields: [
         { name: "unknownString1", type: "string", defaultValue: "" },
@@ -27,12 +27,10 @@ export const uiPackets: any = [
           name: "unknownArray1",
           type: "array",
           defaultValue: [],
-          fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          ],
-        }
-      ]
-    }
+          fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
+        },
+      ],
+    },
   ],
   ["Ui.StartTimer", 0x1a09, {}],
   ["Ui.ResetTimer", 0x1a0a, {}],

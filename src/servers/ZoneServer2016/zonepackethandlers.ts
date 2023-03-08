@@ -41,7 +41,6 @@ import {
   ResourceTypes,
   ItemUseOptions,
   Stances,
-  VehicleIds,
   LoadoutSlots,
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";

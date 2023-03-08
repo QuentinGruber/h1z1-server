@@ -2032,7 +2032,9 @@ export const commands: Array<Command> = [
       server: ZoneServer2016,
       client: Client,
       args: Array<string>
-    ) => {/* handled clientside */},
+    ) => {
+      /* handled clientside */
+    },
   },
   //#endregion
 

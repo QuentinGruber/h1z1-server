@@ -809,7 +809,10 @@ export function isValidCharacterName(name: string) {
   const hasSpecialChars = specialCharRegex.test(name);
 
   // Return false if the string is only made up of blank characters or contains special characters
-  return !onlyBlankChars && !hasSpecialChars && !name.startsWith(' ') && !name.endsWith(' ')
+  return !onlyBlankChars &&
+    !hasSpecialChars &&
+    !name.startsWith(" ") &&
+    !name.endsWith(" ")
     ? NAME_VALIDATION_STATUS.AVAILABLE
     : NAME_VALIDATION_STATUS.INVALID;
 }
