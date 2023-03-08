@@ -62,8 +62,7 @@ export class CommandHandler {
     ) {
       return;
     }
-    const hash = packet.data.commandHash,
-      args: string[] = packet.data.arguments.split(" ");
+    const hash = packet.data.commandHash;
     if (this.commands[hash]) {
       const command = this.commands[hash],
         args: string[] = command.keepCase
