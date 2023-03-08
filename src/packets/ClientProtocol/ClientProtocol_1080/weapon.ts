@@ -179,7 +179,7 @@ const weaponPackets: any = [
     0x831d,
     {
       fields: [
-        { name: "projectileType", type: "uint32", defaultValue: 0 },
+        { name: "projectileId", type: "uint32", defaultValue: 0 },
         { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
         { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
