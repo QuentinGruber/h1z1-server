@@ -34,6 +34,7 @@ import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constru
 import { DB_COLLECTIONS, NAME_VALIDATION_STATUS } from "./enums";
 import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
+import * as crypto from "crypto";
 
 export class customLodash {
   sum(pings: number[]): number {
@@ -242,6 +243,20 @@ export const getAppDataFolderPath = (): string => {
   return `${process.env.APPDATA || process.env.HOME}/${folderName}`;
 };
 
+export function decrypt(
+  text: { iv: string; encryptedData: string },
+  key: string
+): string {
+  const iv = Buffer.from(text.iv, "hex");
+  const encryptedText = Buffer.from(text.encryptedData, "hex");
+
+  const decipher = crypto.createDecipheriv("aes-256-cbc", Buffer.from(key), iv);
+
+  let decrypted = decipher.update(encryptedText);
+  decrypted = Buffer.concat([decrypted, decipher.final()]);
+  return decrypted.toString();
+}
+
 export const setupAppDataFolder = (): void => {
   const AppDataFolderPath = getAppDataFolderPath();
   if (!fs.existsSync(AppDataFolderPath)) {
@@ -387,6 +402,17 @@ export function getDistance(p1: Float32Array, p2: Float32Array) {
   const b = p1[1] - p2[1];
   const c = p1[2] - p2[2];
   return Math.sqrt(a * a + b * b + c * c);
+}
+
+export function getDistance2d(p1: Float32Array, p2: Float32Array) {
+  const dx = p1[0] - p2[0];
+  const dy = p1[2] - p2[2];
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+export function getDistance1d(height1: number, height2: number) {
+  const dh = height1 - height2;
+  return Math.abs(dh);
 }
 
 export function checkConstructionInRange(
@@ -772,18 +798,21 @@ export function registerConstructionSlots(
   }
 }
 // thx GPT i'm not writing regex myself :)
-export function isValidCharacterName(characterName: string) {
+export function isValidCharacterName(name: string) {
   // Regular expression that matches all special characters
   const specialCharRegex = /[^\w\s]/gi;
 
   // Check if the string is only made up of blank characters
-  const onlyBlankChars = characterName.replace(/\s/g, "").length === 0;
+  const onlyBlankChars = name.replace(/\s/g, "").length === 0;
 
   // Check if the string contains any special characters
-  const hasSpecialChars = specialCharRegex.test(characterName);
+  const hasSpecialChars = specialCharRegex.test(name);
 
   // Return false if the string is only made up of blank characters or contains special characters
-  return !onlyBlankChars && !hasSpecialChars
+  return !onlyBlankChars &&
+    !hasSpecialChars &&
+    !name.startsWith(" ") &&
+    !name.endsWith(" ")
     ? NAME_VALIDATION_STATUS.AVAILABLE
     : NAME_VALIDATION_STATUS.INVALID;
 }

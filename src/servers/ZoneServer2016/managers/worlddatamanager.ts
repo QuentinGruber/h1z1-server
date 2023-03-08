@@ -454,6 +454,7 @@ export class WorldDataManager {
         _loadout: loadedCharacter._loadout || {},
         _containers: loadedCharacter._containers || {},
         _resources: loadedCharacter._resources || {},
+        mutedCharacters: loadedCharacter.mutedCharacters || [],
         status: 1,
         worldSaveVersion: this._worldSaveVersion,
       };
@@ -511,6 +512,7 @@ export class WorldDataManager {
       rotation: Array.from(character.state.lookAt),
       isRespawning: character.isRespawning,
       spawnGridData: character.spawnGridData,
+      mutedCharacters: character.mutedCharacters,
     };
     return saveData;
   }
@@ -1005,7 +1007,7 @@ export class WorldDataManager {
       for (let i = 0; i < constructions.length; i++) {
         const construction = constructions[i];
         updatePromises.push(
-          collection.findOneAndUpdate(
+          collection.updateOne(
             { characterId: construction.characterId, serverId: this._worldId },
             { $set: construction },
             { upsert: true }
@@ -1065,7 +1067,7 @@ export class WorldDataManager {
       for (let i = 0; i < crops.length; i++) {
         const construction = crops[i];
         updatePromises.push(
-          collection.findOneAndUpdate(
+          collection.updateOne(
             { characterId: construction.characterId, serverId: this._worldId },
             { $set: construction },
             { upsert: true }
@@ -1191,7 +1193,7 @@ export class WorldDataManager {
       for (let i = 0; i < vehicles.length; i++) {
         const vehicle = vehicles[i];
         updatePromises.push(
-          collection.findOneAndUpdate(
+          collection.updateOne(
             { characterId: vehicle.characterId, serverId: this._worldId },
             { $set: vehicle },
             { upsert: true }
@@ -1225,7 +1227,7 @@ export class WorldDataManager {
       for (let i = 0; i < freeplaces.length; i++) {
         const construction = freeplaces[i];
         updatePromises.push(
-          collection.findOneAndUpdate(
+          collection.updateOne(
             { characterId: construction.characterId, serverId: this._worldId },
             { $set: construction },
             { upsert: true }

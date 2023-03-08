@@ -16,7 +16,6 @@
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 
 import { ZoneServer2016 } from "./zoneserver";
-
 const debug = require("debug")("ZoneServer");
 
 import {
@@ -28,6 +27,7 @@ import {
   logClientActionToMongo,
   eul2quat,
   getDistance,
+  getDistance1d,
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -41,7 +41,6 @@ import {
   ResourceTypes,
   ItemUseOptions,
   Stances,
-  VehicleIds,
   LoadoutSlots,
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
@@ -51,7 +50,12 @@ import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./commands/commandhandler";
 import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
-import { Ban, ConstructionPermissions, DamageInfo } from "types/zoneserver";
+import {
+  ClientBan,
+  ConstructionPermissions,
+  DamageInfo,
+  fireHint,
+} from "types/zoneserver";
 import { positionUpdate } from "types/savedata";
 import { GameTimeSync } from "types/zone2016packets";
 import { LootableProp } from "./entities/lootableprop";
@@ -101,7 +105,7 @@ export class zonePacketHandlers {
 
     server.customizeDTO(client);
 
-    client.character.startRessourceUpdater(client, server);
+    client.character.startResourceUpdater(client, server);
     server.sendData(client, "Character.CharacterStateDelta", {
       guid1: client.guid,
       guid2: "0x0000000000000000",
@@ -159,11 +163,6 @@ export class zonePacketHandlers {
           command: command.name,
         });
       });
-
-      server.sendData(client, "Synchronization", {
-        serverTime: Int64String(server.getServerTime()),
-        serverTime2: Int64String(server.getServerTime()),
-      } as Synchronization);
 
       server.sendData(client, "Character.WeaponStance", {
         // activates weaponstance key
@@ -375,7 +374,7 @@ export class zonePacketHandlers {
     });
   }
   KeepAlive(server: ZoneServer2016, client: Client, packet: any) {
-    if (client.isLoading && client.characterReleased) {
+    if (client.isLoading && client.characterReleased && client.isSynced) {
       setTimeout(() => {
         client.isLoading = false;
         if (!client.characterReleased) return;
@@ -391,81 +390,35 @@ export class zonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
-    if (packet.data.file === "Synchronization.log") {
-      if (
-        packet.data.message
-          .toLowerCase()
-          .includes("client clock drifted forward")
-      ) {
-        const pruned = packet.data.message
-          .replace("Client clock drifted forward by ", "")
-          .replace("ms over the server interval of ", "");
-        const drifted = Number(pruned.match(/\d+/).join("")) / 1000;
-        const interval = Number(
-          pruned.replace(pruned.match(/\d+/).join(""), "").replace(" s", "")
-        );
-        if (!server._soloMode) {
-          logClientActionToMongo(
-            server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
-            client,
-            server._worldId,
-            {
-              type: "time drifted",
-              drifted,
-              interval,
-              accelerating: (drifted / interval) * 100,
-            }
-          );
-        }
-        server.sendChatTextToAdmins(
-          `FairPlay: ${
-            client.character.name
-          } time drifted forward ${drifted} s span of ${interval} s, accelerating by: ${(
-            (drifted / interval) *
-            100
-          ).toFixed(0)}%`,
-          false
-        );
-      }
-    }
     if (
       packet.data.file === "ClientProc.log" &&
       !client.clientLogs.includes(packet.data.message) &&
       !client.isAdmin
     ) {
-      const suspicious = [
-        "cheatengine",
-        "artmoney",
-        "cosmos",
-        "wemod",
-        "injector",
-        "ida.exe",
-        "ida64",
-        "ida32",
-        "idafree",
-        "ghidra",
-        "javaw.exe", // seems like the only way to track ghidra open?
-        "codebrowser",
-        "processhacker",
-        "devenv.exe",
-        "code.exe",
-      ];
       const obj = { log: packet.data.message, isSuspicious: false };
-      for (let x = 0; x < suspicious.length; x++) {
-        if (packet.data.message.toLowerCase().includes(suspicious[x])) {
+      for (let x = 0; x < server._suspiciousList.length; x++) {
+        if (
+          packet.data.message
+            .toLowerCase()
+            .includes(server._suspiciousList[x].toLowerCase())
+        ) {
           obj.isSuspicious = true;
           if (!server._soloMode) {
             logClientActionToMongo(
               server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
               client,
               server._worldId,
-              { type: "suspicious software", suspicious: suspicious[x] }
+              {
+                type: "suspicious software",
+                suspicious: server._suspiciousList[x],
+              }
             );
           }
           server.sendChatTextToAdmins(
-            `FairPlay: ${client.character.name} is using suspicious software - ${suspicious[x]}`,
+            `FairPlay: kicking ${client.character.name} for using suspicious software - ${server._suspiciousList[x]}`,
             false
           );
+          server.kickPlayer(client);
           break;
         }
       }
@@ -497,12 +450,18 @@ export class zonePacketHandlers {
       ],
     });
   }
-  ChatChat(server: ZoneServer2016, client: Client, packet: any) {
+  async ChatChat(server: ZoneServer2016, client: Client, packet: any) {
     const { channel, message } = packet.data; // leave channel for later
+
+    if (await server.chatManager.checkMute(server, client)) {
+      server.sendChatText(client, "You are muted!");
+      return;
+    }
+
     if (!client.radio) {
-      server.sendChatToAllInRange(client, message, 300);
+      server.chatManager.sendChatToAllInRange(server, client, message, 300);
     } else if (client.radio) {
-      server.sendChatToAllWithRadio(client, message);
+      server.chatManager.sendChatToAllWithRadio(server, client, message);
     }
   }
   ClientInitializationDetails(
@@ -540,6 +499,10 @@ export class zonePacketHandlers {
       time3: Int64String(Number(packet.data.clientTime)) + 2,
     };
     server.sendData(client, "Synchronization", reflectedPacket);
+    if (client.isSynced) return;
+    client.isSynced = true;
+    client.character.lastLoginDate = toHex(Date.now());
+    server.constructionManager(client);
   }
   CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: any) {
     this.commandHandler.executeCommand(server, client, packet);
@@ -608,11 +571,11 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
-    server.sendData(
-      client,
-      "ProfileStats.PlayerProfileStats",
-      require("../../../data/profilestats.json")
-    );
+    // server.sendData(
+    //   client,
+    //   "ProfileStats.PlayerProfileStats",
+    //   require("../../../data/profilestats.json")
+    // );
   }
   async WallOfDataClientSystemInfo(
     server: ZoneServer2016,
@@ -623,11 +586,11 @@ export class zonePacketHandlers {
     const startPos = info.search("Device") + 9;
     const cut = info.substring(startPos, info.length);
     client.HWID = cut.substring(0, cut.search(",") - 1);
-    const hwidBanned: Ban = (await server._db
+    const hwidBanned: ClientBan = (await server._db
       ?.collection(DB_COLLECTIONS.BANNED)
-      .findOne({ HWID: client.HWID, active: true })) as unknown as Ban;
+      .findOne({ HWID: client.HWID, active: true })) as unknown as ClientBan;
     if (hwidBanned?.expirationDate < Date.now()) {
-      client.banType = hwidBanned.banType;
+      //client.banType = hwidBanned.banType;
       //server.enforceBan(client);
     }
   }
@@ -670,7 +633,83 @@ export class zonePacketHandlers {
         client.character.state.position = pos;
       return;
     }
-
+    // for cheaters spawning cars on top of peoples heads
+    if (!client.managedObjects.includes(vehicle.characterId)) return;
+    if (packet.data.positionUpdate.position) {
+      if (
+        server.vehicleSpeedFairPlayCheck(
+          client,
+          packet.data.positionUpdate.sequenceTime,
+          packet.data.positionUpdate.position,
+          vehicle
+        )
+      )
+        return;
+      let kick = false;
+      const dist = getDistance(
+        vehicle.positionUpdate.position,
+        packet.data.positionUpdate.position
+      );
+      if (dist > 120) {
+        kick = true;
+      }
+      if (
+        getDistance1d(
+          vehicle.oldPos.position[1],
+          packet.data.positionUpdate.position[1]
+        ) > 100
+      ) {
+        kick = true;
+        server.kickPlayer(client);
+        server.sendChatTextToAdmins(
+          `FairPlay: kicking ${client.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${packet.data.positionUpdate.position[0]} ${packet.data.positionUpdate.position[1]} ${packet.data.positionUpdate.position[2]}]`,
+          false
+        );
+      }
+      vehicle.getPassengerList().forEach((passenger: string) => {
+        if (server._characters[passenger]) {
+          if (kick) {
+            const c = server.getClientByCharId(passenger);
+            if (!c) return;
+            server.kickPlayer(c);
+            server.sendChatTextToAdmins(
+              `FairPlay: kicking ${c.character.name} for suspeced teleport in vehicle by ${dist} from [${vehicle.positionUpdate.position[0]} ${vehicle.positionUpdate.position[1]} ${vehicle.positionUpdate.position[2]}] to [${packet.data.positionUpdate.position[0]} ${packet.data.positionUpdate.position[1]} ${packet.data.positionUpdate.position[2]}]`,
+              false
+            );
+            return;
+          }
+          server._characters[passenger].state.position = new Float32Array([
+            packet.data.positionUpdate.position[0],
+            packet.data.positionUpdate.position[1],
+            packet.data.positionUpdate.position[2],
+            1,
+          ]);
+        } else {
+          debug(`passenger ${passenger} not found`);
+          vehicle.removePassenger(passenger);
+        }
+      });
+      if (kick) return;
+      vehicle.state.position = new Float32Array([
+        packet.data.positionUpdate.position[0],
+        packet.data.positionUpdate.position[1] - 0.4,
+        packet.data.positionUpdate.position[2],
+        1,
+      ]);
+      // disabled, dont think we need it and wastes alot of resources
+      /*if (client.vehicle.mountedVehicle === characterId) {
+        if (
+          !client.posAtLastRoutine ||
+          !isPosInRadius(
+            server._charactersRenderDistance / 2.5,
+            client.character.state.position,
+            client.posAtLastRoutine
+          )
+        ) {
+          server.executeFuncForAllReadyClients(() => server.vehicleManager);
+        }
+      }*/
+    }
     //if (!server._soloMode) {
     server.sendDataToAllOthersWithSpawnedEntity(
       server._vehicles,
@@ -686,40 +725,7 @@ export class zonePacketHandlers {
     if (packet.data.positionUpdate.engineRPM) {
       vehicle.engineRPM = packet.data.positionUpdate.engineRPM;
     }
-    if (packet.data.positionUpdate.position) {
-      vehicle.state.position = new Float32Array([
-        packet.data.positionUpdate.position[0],
-        packet.data.positionUpdate.position[1] - 0.4,
-        packet.data.positionUpdate.position[2],
-        1,
-      ]);
-      vehicle.getPassengerList().forEach((passenger: string) => {
-        if (server._characters[passenger]) {
-          server._characters[passenger].state.position = new Float32Array([
-            packet.data.positionUpdate.position[0],
-            packet.data.positionUpdate.position[1],
-            packet.data.positionUpdate.position[2],
-            1,
-          ]);
-        } else {
-          debug(`passenger ${passenger} not found`);
-          vehicle.removePassenger(passenger);
-        }
-      });
-      // disabled, dont think we need it and wastes alot of resources
-      /*if (client.vehicle.mountedVehicle === characterId) {
-        if (
-          !client.posAtLastRoutine ||
-          !isPosInRadius(
-            server._charactersRenderDistance / 2.5,
-            client.character.state.position,
-            client.posAtLastRoutine
-          )
-        ) {
-          server.executeFuncForAllReadyClients(() => server.vehicleManager);
-        }
-      }*/
-    }
+
     const positionUpdate: positionUpdate = packet.data.positionUpdate;
     if (positionUpdate.orientation) {
       vehicle.positionUpdate.orientation = positionUpdate.orientation;
@@ -783,6 +789,20 @@ export class zonePacketHandlers {
           triggerLoadingScreen: true,
         });
       }
+      // disabled for now
+      /*if (packet.data.stance & (1 << 1)) {
+        // started crouching
+        client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
+        if (client.character._resources[ResourceIds.STAMINA] < 0)
+          client.character._resources[ResourceIds.STAMINA] = 0;
+        server.updateResourceToAllWithSpawnedEntity(
+          client.character.characterId,
+          client.character._resources[ResourceIds.STAMINA],
+          ResourceIds.STAMINA,
+          ResourceTypes.STAMINA,
+          server._characters
+        );
+      }*/
       const byte1 = packet.data.stance & 0xff;
       client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
       if (
@@ -803,6 +823,7 @@ export class zonePacketHandlers {
           server._characters
         );
       }
+      client.character.stance = packet.data.stance;
     }
     const movingCharacter = server._characters[client.character.characterId];
     if (movingCharacter) {
@@ -819,7 +840,14 @@ export class zonePacketHandlers {
       if (!client.characterReleased) {
         client.characterReleased = true;
       }
-      server.speedFairPlayCheck(client, Date.now(), packet.data.position);
+      if (
+        server.speedFairPlayCheck(
+          client,
+          packet.data.sequenceTime,
+          packet.data.position
+        )
+      )
+        return;
       /*if (!client.isAdmin) {
         const distance = getDistance(
           client.character.state.position,
@@ -947,6 +975,7 @@ export class zonePacketHandlers {
     debug("Command.PlayerSelect");
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
+    console.log(packet);
     if (!client.character.currentInteractionGuid || packet.data.password === 1)
       return;
     const doorEntity = server._constructionDoors[
@@ -979,7 +1008,7 @@ export class zonePacketHandlers {
       };
     } else {
       const damageInfo: DamageInfo = {
-        entity: "",
+        entity: "Server.InvalidLockCode",
         damage: 1000,
       };
       client.character.damage(server, damageInfo);
@@ -1488,10 +1517,10 @@ export class zonePacketHandlers {
     )
       return; // add debug admin
     let characterId = "";
-    for (const a in server._characters) {
-      const character = server._characters[a];
-      if (character.name === packet.data.characterName) {
-        characterId = character.characterId;
+    for (const a in foundation.permissions) {
+      const permissions = foundation.permissions[a];
+      if (permissions.characterName === packet.data.characterName) {
+        characterId = permissions.characterId;
       }
     }
     if (!characterId) {
@@ -1943,6 +1972,44 @@ export class zonePacketHandlers {
           if (weaponItem.weapon.ammoCount > 0) {
             weaponItem.weapon.ammoCount -= 1;
           }
+          const drift = Math.abs(p.gameTime - server.getServerTime());
+          if (drift > server._maxPing) {
+            server.sendChatText(
+              client,
+              `FairPlay: Your shots didnt register due to packet loss`
+            );
+            return;
+          }
+          const keys = Object.keys(client.fireHints);
+          const lastFireHint = client.fireHints[Number(keys[keys.length - 1])];
+          if (lastFireHint) {
+            let blockedTime = 50;
+            switch (weaponItem.itemDefinitionId) {
+              case Items.WEAPON_308:
+                blockedTime = 1300;
+                break;
+              case Items.WEAPON_SHOTGUN:
+                blockedTime = 400;
+                break;
+            }
+            if (p.gameTime - lastFireHint.timeStamp < blockedTime) return;
+          }
+          const shotProjectiles =
+            weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 12 : 1;
+          for (let x = 0; x < shotProjectiles; x++) {
+            const fireHint: fireHint = {
+              id: p.packet.sessionProjectileCount + x,
+              position: p.packet.position,
+              rotation: new Float32Array([0, 0, 0, 0]),
+              hitNumber: 0,
+              weaponItem: weaponItem,
+              timeStamp: p.gameTime,
+            };
+            client.fireHints[p.packet.sessionProjectileCount + x] = fireHint;
+            setTimeout(() => {
+              delete client.fireHints[p.packet.sessionProjectileCount + x];
+            }, 10000);
+          }
           server.hitMissFairPlayCheck(client, false, "");
           server.stopHudTimer(client);
           server.sendRemoteWeaponUpdateDataToAllOthers(
@@ -1952,21 +2019,8 @@ export class zonePacketHandlers {
             "Update.ProjectileLaunch",
             {}
           );
-          const projectilesCount =
-            server.getWeaponAmmoId(weaponItem.itemDefinitionId) ==
-            Items.AMMO_12GA
-              ? 12
-              : 1;
-          client.allowedProjectiles += projectilesCount;
           break;
         case "Weapon.ProjectileHitReport":
-          if (!client.allowedProjectiles) {
-            server.sendChatTextToAdmins(
-              `FairPlay: ${client.character.name} is hitting projectiles without ammunition`
-            );
-            return;
-          }
-          client.allowedProjectiles--;
           const weapon = client.character.getEquippedWeapon();
           if (!weapon) return;
           if (weapon.itemDefinitionId == Items.WEAPON_REMOVER) {
@@ -1989,15 +2043,12 @@ export class zonePacketHandlers {
             return;
           }
           if (client.banType === "nodamage") return;
-          server.registerHit(client, p.packet);
+          server.registerHit(client, p.packet, p.gameTime);
           break;
         case "Weapon.ReloadRequest":
           if (weaponItem.weapon.reloadTimer) return;
           const maxAmmo = server.getWeaponMaxAmmo(weaponItem.itemDefinitionId); // max clip size
           if (weaponItem.weapon.ammoCount >= maxAmmo) return;
-          setTimeout(() => {
-            client.allowedProjectiles = 0;
-          }, 100);
           // force 0 firestate so gun doesnt shoot randomly after reloading
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,
@@ -2155,6 +2206,10 @@ export class zonePacketHandlers {
           break;
         case "Weapon.WeaponFireHint":
           debug("WeaponFireHint");
+          const fireHint = client.fireHints[p.packet.sessionProjectileCount];
+          if (!fireHint) return;
+          fireHint.rotation = p.packet.rotation;
+          fireHint.timeStamp = p.gameTime;
           break;
         case "Weapon.ProjectileContactReport":
           debug("ProjectileContactReport");
@@ -2395,7 +2450,6 @@ export class zonePacketHandlers {
         break;
       case "Loadout.SelectSlot":
         this.LoadoutSelectSlot(server, client, packet);
-        client.allowedProjectiles = 0; // reset allowed projectile after weapon switch
         break;
       case "Weapon.Weapon":
         this.Weapon(server, client, packet);

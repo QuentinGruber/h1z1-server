@@ -16,6 +16,7 @@ import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constru
 import { FilterIds, Items } from "servers/ZoneServer2016/models/enums";
 import { ConstructionDoor } from "servers/ZoneServer2016/entities/constructiondoor";
 import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/lootableconstructionentity";
+import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
 
 export interface npcData {
   guid: string;
@@ -210,6 +211,15 @@ export interface DamageRecord {
   };
 }
 
+export interface fireHint {
+    id: number;
+    position: Float32Array;
+    rotation: Float32Array;
+    hitNumber: number;
+    weaponItem: LoadoutItem
+    timeStamp: number,
+}
+
 export interface SpawnLocation {
   id: number;
   name: string;
@@ -288,7 +298,7 @@ type Point2D = [number, number];
 
 export type SquareBounds = [Point2D, Point2D, Point2D, Point2D];
 
-export interface Ban {
+export interface ClientBan {
   name:string;
   banType:string;
   banReason: string;
@@ -299,4 +309,14 @@ export interface Ban {
   expirationDate: number;
   active: boolean;
   unBanAdminName: string;
+}
+
+export interface ClientMute {
+  name:string;
+  muteReason: string;
+  loginSessionId: string;
+  adminName: string;
+  expirationDate: number;
+  active: boolean;
+  unmuteAdminName: string;
 }
