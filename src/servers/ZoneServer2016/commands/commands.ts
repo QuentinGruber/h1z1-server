@@ -1860,68 +1860,6 @@ export const commands: Array<Command> = [
     },
   },
   {
-    name: "whisper",
-    permissionLevel: PermissionLevels.DEFAULT,
-    keepCase: true,
-    execute: async (
-      server: ZoneServer2016,
-      client: Client,
-      args: Array<string>
-    ) => {
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          "[Whisper] You must specify a player name and message!"
-        );
-        return;
-      }
-      if (!args[1]) {
-        server.sendChatText(client, "[Whisper] The message may not be blank!");
-        return;
-      }
-
-      const targetClient = server.getClientByNameOrLoginSession(args[0]);
-      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
-        return;
-      }
-      if (!targetClient || !(targetClient instanceof Client)) {
-        server.sendChatText(client, "Player not found.");
-        return;
-      }
-
-      if (await server.chatManager.checkMute(server, client)) {
-        server.sendChatText(
-          client,
-          "[Whisper] Message blocked, you are globally muted!"
-        );
-        return;
-      }
-      if (
-        targetClient.character.mutedCharacters.includes(
-          client.character.characterId
-        )
-      ) {
-        server.sendChatText(
-          client,
-          `[Whisper] Message blocked, target player has you muted!`
-        );
-        return;
-      }
-
-      args.splice(0, 1);
-      const message = args.join(" ");
-
-      server.sendChatText(
-        client,
-        `[Whisper to ${targetClient.character.name}]: ${message}`
-      );
-      server.sendChatText(
-        targetClient,
-        `[Whisper from ${client.character.name}]: ${message}`
-      );
-    },
-  },
-  {
     name: "heal",
     permissionLevel: PermissionLevels.ADMIN,
     execute: async (
@@ -1985,14 +1923,65 @@ export const commands: Array<Command> = [
     },
   },
   {
-    name: "console",
-    permissionLevel: PermissionLevels.ADMIN,
+    name: "whisper",
+    permissionLevel: PermissionLevels.DEFAULT,
+    keepCase: true,
     execute: async (
       server: ZoneServer2016,
       client: Client,
       args: Array<string>
     ) => {
-      /* handled clientside */
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          "[Whisper] You must specify a player name and message!"
+        );
+        return;
+      }
+      if (!args[1]) {
+        server.sendChatText(client, "[Whisper] The message may not be blank!");
+        return;
+      }
+
+      const targetClient = server.getClientByNameOrLoginSession(args[0]);
+      if (server.playerNotFound(client, args[0].toString(), targetClient)) {
+        return;
+      }
+      if (!targetClient || !(targetClient instanceof Client)) {
+        server.sendChatText(client, "Player not found.");
+        return;
+      }
+
+      if (await server.chatManager.checkMute(server, client)) {
+        server.sendChatText(
+          client,
+          "[Whisper] Message blocked, you are globally muted!"
+        );
+        return;
+      }
+      if (
+        targetClient.character.mutedCharacters.includes(
+          client.character.characterId
+        )
+      ) {
+        server.sendChatText(
+          client,
+          `[Whisper] Message blocked, target player has you muted!`
+        );
+        return;
+      }
+
+      args.splice(0, 1);
+      const message = args.join(" ");
+
+      server.sendChatText(
+        client,
+        `[Whisper to ${targetClient.character.name}]: ${message}`
+      );
+      server.sendChatText(
+        targetClient,
+        `[Whisper from ${client.character.name}]: ${message}`
+      );
     },
   },
   {
@@ -2185,6 +2174,17 @@ export const commands: Array<Command> = [
           `Cannot find any muted user with name ${name}`
         );
       }
+    },
+  },
+  {
+    name: "console",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      /* handled clientside */
     },
   },
   //#endregion

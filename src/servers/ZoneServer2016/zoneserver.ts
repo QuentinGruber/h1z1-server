@@ -145,7 +145,7 @@ import { LootableConstructionEntity } from "./entities/lootableconstructionentit
 import { LootableProp } from "./entities/lootableprop";
 import { PlantingDiameter } from "./entities/plantingdiameter";
 import { Plant } from "./entities/plant";
-import { SmeltingEntity } from "./classes/smeltingentity";
+import { SmeltingEntity } from "./classes/smeltingentity";1
 import { spawn, Worker } from "threads";
 import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 import { logVersion } from "../../utils/processErrorHandling";
