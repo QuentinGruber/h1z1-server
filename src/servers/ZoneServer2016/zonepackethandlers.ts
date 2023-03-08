@@ -55,8 +55,6 @@ import {
   ClientBan,
   ConstructionPermissions,
   DamageInfo,
-  ConstructionPermissions,
-  DamageInfo,
   fireHint,
 } from "types/zoneserver";
 import { positionUpdate } from "types/savedata";
