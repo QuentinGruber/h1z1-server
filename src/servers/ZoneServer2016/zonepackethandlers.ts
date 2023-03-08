@@ -51,7 +51,7 @@ import { CommandHandler } from "./commands/commandhandler";
 import { Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
-  Ban,
+  ClientBan,
   ConstructionPermissions,
   DamageInfo,
   fireHint,
@@ -450,12 +450,18 @@ export class zonePacketHandlers {
       ],
     });
   }
-  ChatChat(server: ZoneServer2016, client: Client, packet: any) {
+  async ChatChat(server: ZoneServer2016, client: Client, packet: any) {
     const { channel, message } = packet.data; // leave channel for later
+
+    if (await server.chatManager.checkMute(server, client)) {
+      server.sendChatText(client, "You are muted!");
+      return;
+    }
+
     if (!client.radio) {
-      server.sendChatToAllInRange(client, message, 300);
+      server.chatManager.sendChatToAllInRange(server, client, message, 300);
     } else if (client.radio) {
-      server.sendChatToAllWithRadio(client, message);
+      server.chatManager.sendChatToAllWithRadio(server, client, message);
     }
   }
   ClientInitializationDetails(
@@ -580,9 +586,9 @@ export class zonePacketHandlers {
     const startPos = info.search("Device") + 9;
     const cut = info.substring(startPos, info.length);
     client.HWID = cut.substring(0, cut.search(",") - 1);
-    const hwidBanned: Ban = (await server._db
+    const hwidBanned: ClientBan = (await server._db
       ?.collection(DB_COLLECTIONS.BANNED)
-      .findOne({ HWID: client.HWID, active: true })) as unknown as Ban;
+      .findOne({ HWID: client.HWID, active: true })) as unknown as ClientBan;
     if (hwidBanned?.expirationDate < Date.now()) {
       //client.banType = hwidBanned.banType;
       //server.enforceBan(client);

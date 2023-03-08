@@ -91,6 +91,7 @@ export class ZoneClient2016 {
     packetName: h1z1PacketsType2016;
     data: zone2016packets;
   }[] = [];*/
+  isMuted = false;
   constructor(
     sessionId: number,
     soeClientId: string,

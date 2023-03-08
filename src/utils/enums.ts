@@ -28,6 +28,7 @@ export enum NAME_VALIDATION_STATUS {
 export enum DB_COLLECTIONS {
   ADMINS = "admins",
   BANNED = "banned",
+  MUTED = "muted",
   BLACK_LIST_ENTRIES = "blackListEntries",
   CHARACTERS = "characters",
   CHARACTERS_LIGHT = "characters-light",
