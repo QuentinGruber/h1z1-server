@@ -1863,10 +1863,10 @@ export const commands: Array<Command> = [
     name: "heal",
     permissionLevel: PermissionLevels.ADMIN,
     execute: async (
-          server: ZoneServer2016,
-          client: Client,
-          args: Array<string>
-        ) => {
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
       client.character._resources = {
         [ResourceIds.HEALTH]: 10000,
         [ResourceIds.STAMINA]: 600,
