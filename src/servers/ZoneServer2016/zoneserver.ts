@@ -8155,7 +8155,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     const ping = soeClient.avgPing;
     client.zonePings.push(ping > 600 ? 600 : ping); // dont push values higher than 600, that would increase average value drasticaly
-    if (ping >= this.maxPing) {
+    if (ping >= this._maxPing) {
       this.sendAlert(
         client,
         `Your ping is very high: ${ping}. You may be kicked soon`
@@ -8165,7 +8165,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     const averagePing =
       client.zonePings.reduce((a, b) => a + b, 0) / client.zonePings.length;
-    if (averagePing >= this.maxPing) {
+    if (averagePing >= this._maxPing) {
       this.kickPlayer(client);
       this.sendChatTextToAdmins(
         `${client.character.name} has been been kicked for average ping: ${averagePing}`
