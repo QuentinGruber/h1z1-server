@@ -30,7 +30,7 @@ import {
   characterBuildKitLoadout,
   characterKitLoadout,
 } from "../data/loadouts";
-import { EquipSlots, Items } from "../models/enums";
+import { EquipSlots, Items, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
 import { ConstructionPermissions } from "types/zoneserver";
@@ -40,29 +40,7 @@ import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { BaseItem } from "../classes/baseItem";
 import { DB_COLLECTIONS } from "../../../utils/enums";
 import { WorldDataManager } from "../managers/worlddatamanager";
-import {
-  ConstructionParentSaveData,
-  LootableConstructionSaveData,
-  PlantingDiameterSaveData,
-} from "types/savedata";
-import { PlantingDiameter } from "../entities/plantingdiameter";
 const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
-
-function getDriveModel(model: string) {
-  switch (model) {
-    case "offroader":
-      return 7225;
-    case "pickup":
-      return 9258;
-    case "policecar":
-      return 9301;
-    case "atv":
-      return 9588;
-    default:
-      // offroader default
-      return 7225;
-  }
-}
 
 export const commands: Array<Command> = [
   //#region DEFAULT PERMISSIONS
@@ -97,8 +75,7 @@ export const commands: Array<Command> = [
     name: "serverinfo",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      const commandName = args[0];
-      if (commandName === "mem") {
+      if (args[0] === "mem") {
         const used = process.memoryUsage().rss / 1024 / 1024;
         server.sendChatText(
           client,
@@ -107,29 +84,12 @@ export const commands: Array<Command> = [
       } else {
         const {
           _clients: clients,
-          _characters: characters,
           _npcs: npcs,
           _spawnedItems: objects,
           _vehicles: vehicles,
-          _doors: doors,
-          _lootableProps: props,
         } = server;
         const serverVersion = require("../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
-        server.sendChatText(
-          client,
-          `clients: ${_.size(clients)} characters : ${_.size(characters)}`
-        );
-        server.sendChatText(
-          client,
-          `npcs : ${_.size(npcs)} doors : ${_.size(doors)}`
-        );
-        server.sendChatText(
-          client,
-          `objects : ${_.size(objects)} props : ${_.size(
-            props
-          )} vehicles : ${_.size(vehicles)}`
-        );
         const uptimeMin = (Date.now() - server._startTime) / 60000;
         server.sendChatText(
           client,
@@ -138,6 +98,14 @@ export const commands: Array<Command> = [
               ? `${uptimeMin.toFixed()}m`
               : `${(uptimeMin / 60).toFixed()}h `
           }`
+        );
+        server.sendChatText(
+          client,
+          `clients : ${_.size(clients)} | npcs : ${_.size(npcs)}`
+        );
+        server.sendChatText(
+          client,
+          `items : ${_.size(objects)} | vehicles : ${_.size(vehicles)}`
         );
       }
     },
@@ -254,7 +222,7 @@ export const commands: Array<Command> = [
       if (!args[0]) {
         server.sendChatText(
           client,
-          `[ERROR] Usage: /getnetstats {name / clientId}"`,
+          `[ERROR] Usage: /getnetstats {name || clientId}"`,
           true
         );
         return;
@@ -568,7 +536,7 @@ export const commands: Array<Command> = [
       } else {
         server.sendChatText(
           client,
-          `You have banned ${targetClient.character.name} permemently`
+          `You have banned ${targetClient.character.name} permanently`
         );
       }
       const reason = args.slice(2).join(" ");
@@ -1992,6 +1960,80 @@ export const commands: Array<Command> = [
       console.log(loottables);
       server.worldObjectManager.createLoot(server, loottables);
       server.sendChatText(client, `Respawned loot`);
+    },
+  },
+  {
+    name: "heal",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      client.character._resources = {
+        [ResourceIds.HEALTH]: 10000,
+        [ResourceIds.STAMINA]: 600,
+        [ResourceIds.HUNGER]: 10000,
+        [ResourceIds.HYDRATION]: 10000,
+        [ResourceIds.VIRUS]: 0,
+        [ResourceIds.COMFORT]: 5000,
+        [ResourceIds.BLEEDING]: -40,
+      };
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.HEALTH,
+        ResourceTypes.HEALTH
+      );
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.STAMINA,
+        ResourceTypes.STAMINA
+      );
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.HUNGER,
+        ResourceTypes.HUNGER
+      );
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.HYDRATION,
+        ResourceTypes.HYDRATION
+      );
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.VIRUS,
+        ResourceTypes.VIRUS
+      );
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.COMFORT,
+        ResourceTypes.COMFORT
+      );
+      client.character.updateResource(
+        server,
+        client,
+        ResourceIds.BLEEDING,
+        ResourceTypes.BLEEDING
+      );
+
+      server.sendChatText(client, `Set resources to maximum values.`);
+    },
+  },
+  {
+    name: "console",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      /* handled clientside */
     },
   },
   //#endregion
