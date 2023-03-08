@@ -66,7 +66,10 @@ import { wallOfDataPackets } from "./wallOfData";
 import { wordFilterPackets } from "./wordFilter";
 import { zoneSettingPackets } from "./zoneSetting";
 import { clientPathPackets } from "./clientPath";
+import { accessedCharacterPackets } from "./accessedCharacter";
+import { replicationPackets } from "./replication";
 import { spectatorPackets } from "./spectator";
+import { h1emuPackets } from "./h1emu";
 
 const packets: any = [
   ...basePackets,
@@ -123,7 +126,10 @@ const packets: any = [
   ...wordFilterPackets,
   ...zoneSettingPackets,
   ...clientPathPackets,
+  ...accessedCharacterPackets,
+  ...replicationPackets,
   ...spectatorPackets,
+  ...h1emuPackets,
 ];
 
 const [packetTypes, packetDescriptors] = PacketTableBuild(packets);

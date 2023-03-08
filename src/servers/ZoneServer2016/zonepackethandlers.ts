@@ -41,7 +41,6 @@ import {
   ResourceTypes,
   ItemUseOptions,
   Stances,
-  VehicleIds,
   LoadoutSlots,
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
@@ -106,7 +105,7 @@ export class zonePacketHandlers {
 
     server.customizeDTO(client);
 
-    client.character.startRessourceUpdater(client, server);
+    client.character.startResourceUpdater(client, server);
     server.sendData(client, "Character.CharacterStateDelta", {
       guid1: client.guid,
       guid2: "0x0000000000000000",
@@ -976,6 +975,7 @@ export class zonePacketHandlers {
     debug("Command.PlayerSelect");
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
+    console.log(packet);
     if (!client.character.currentInteractionGuid || packet.data.password === 1)
       return;
     const doorEntity = server._constructionDoors[
@@ -1008,7 +1008,7 @@ export class zonePacketHandlers {
       };
     } else {
       const damageInfo: DamageInfo = {
-        entity: "",
+        entity: "Server.InvalidLockCode",
         damage: 1000,
       };
       client.character.damage(server, damageInfo);
@@ -1517,10 +1517,10 @@ export class zonePacketHandlers {
     )
       return; // add debug admin
     let characterId = "";
-    for (const a in server._characters) {
-      const character = server._characters[a];
-      if (character.name === packet.data.characterName) {
-        characterId = character.characterId;
+    for (const a in foundation.permissions) {
+      const permissions = foundation.permissions[a];
+      if (permissions.characterName === packet.data.characterName) {
+        characterId = permissions.characterId;
       }
     }
     if (!characterId) {

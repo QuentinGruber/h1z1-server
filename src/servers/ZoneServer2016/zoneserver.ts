@@ -164,8 +164,9 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   projectileDefinitons = require("./../../../data/2016/dataSources/ServerProjectileDefinitions.json"),
   loadoutSlotItemClasses = require("./../../../data/2016/dataSources/LoadoutSlotItemClasses.json"),
   equipSlotItemClasses = require("./../../../data/2016/dataSources/EquipSlotItemClasses.json"),
-  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
+  resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
+  Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   encryptedData = require("../../../data/2016/encryptedData/encryptedData.json"),
   equipmentModelTexturesMapping: Record<
     string,
@@ -5673,6 +5674,13 @@ export class ZoneServer2016 extends EventEmitter {
       rotation = rot;
     }
 
+    let ownerCharacterId = client.character.characterId,
+      ownerName = client.character.name;
+    if (itemDefinitionId == Items.FOUNDATION_EXPANSION) {
+      ownerCharacterId = parentFoundation.ownerCharacterId;
+      ownerName = "";
+    }
+
     const characterId = this.generateGuid(),
       transientId = this.getTransientId(characterId),
       npc = new ConstructionParentEntity(
@@ -5683,8 +5691,8 @@ export class ZoneServer2016 extends EventEmitter {
         rotation,
         this,
         itemDefinitionId,
-        client.character.characterId,
-        client.character.name || "",
+        ownerCharacterId,
+        ownerName,
         parentObjectCharacterId,
         BuildingSlot
       );
@@ -6602,6 +6610,11 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return this._containerDefinitions[119];
     }
+  }
+
+  getResourceMaxValue(resourceId: ResourceIds): number {
+    if (!resourceDefinitions[resourceId]) return 0;
+    return resourceDefinitions[resourceId].MAX_VALUE || 0;
   }
 
   /**
@@ -8059,32 +8072,35 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   checkZonePing(client: Client) {
-    if (client.isAdmin) return;
-    if (Number(client.character.lastLoginDate) + 30000 > new Date().getTime())
-      return;
     const soeClient = this.getSoeClient(client.soeClientId);
-    if (soeClient) {
-      const ping = soeClient.avgPing;
-      client.zonePings.push(ping > 600 ? 600 : ping); // dont push values higher than 600, that would increase average value drasticaly
-      if (ping >= this._maxPing) {
-        this.sendAlert(
-          client,
-          `Your ping is very high: ${ping}. You may be kicked soon`
-        );
-      }
-      if (client.zonePings.length >= 15) {
-        const averagePing =
-          client.zonePings.reduce((a, b) => a + b, 0) / client.zonePings.length;
-        if (averagePing >= this._maxPing) {
-          this.kickPlayer(client);
-          this.sendChatTextToAdmins(
-            `${client.character.name} has been been kicked for average ping: ${averagePing}`
-          );
-          return;
-        }
-        client.zonePings.splice(0, 1); // remove oldest ping val
-      }
+    if (
+      client.isAdmin ||
+      Number(client.character.lastLoginDate) + 30000 > new Date().getTime() ||
+      !soeClient
+    ) {
+      return;
     }
+
+    const ping = soeClient.avgPing;
+    client.zonePings.push(ping > 600 ? 600 : ping); // dont push values higher than 600, that would increase average value drasticaly
+    if (ping >= this._maxPing) {
+      this.sendAlert(
+        client,
+        `Your ping is very high: ${ping}. You may be kicked soon`
+      );
+    }
+    if (client.zonePings.length < 15) return;
+
+    const averagePing =
+      client.zonePings.reduce((a, b) => a + b, 0) / client.zonePings.length;
+    if (averagePing >= this._maxPing) {
+      this.kickPlayer(client);
+      this.sendChatTextToAdmins(
+        `${client.character.name} has been been kicked for average ping: ${averagePing}`
+      );
+      return;
+    }
+    client.zonePings.splice(0, 1); // remove oldest ping val
   }
 
   checkInMapBounds(client: Client) {
