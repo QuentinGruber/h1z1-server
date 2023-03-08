@@ -92,7 +92,6 @@ export class Character2016 extends BaseFullCharacter {
   vehicleExitDate: number = new Date().getTime();
   currentLoadoutSlot = LoadoutSlots.FISTS;
   readonly loadoutId = LoadoutIds.CHARACTER;
-  startRessourceUpdater: any;
   healingInterval?: any;
   healingTicks: number;
   healingMaxTicks: number;
@@ -106,6 +105,7 @@ export class Character2016 extends BaseFullCharacter {
   spawnGridData: number[] = [];
   lastJumpTime: number = 0;
   weaponStance: number = 1;
+  stance: number = 0;
   readonly metrics: CharacterMetrics = {
     recipesDiscovered: 0,
     zombiesKilled: 0,
@@ -119,6 +119,7 @@ export class Character2016 extends BaseFullCharacter {
   lastInteractionTime = 0;
   mountedContainer?: BaseLootableEntity;
   defaultLoadout = characterDefaultLoadout;
+  mutedCharacters: Array<string> = [];
   constructor(
     characterId: string,
     transientId: number,
@@ -180,137 +181,159 @@ export class Character2016 extends BaseFullCharacter {
         }
       }, 1000);
     };
-    this.startRessourceUpdater = (
-      client: ZoneClient2016,
-      server: ZoneServer2016
-    ) => {
-      const hunger = this._resources[ResourceIds.HUNGER],
-        hydration = this._resources[ResourceIds.HYDRATION],
-        health = this._resources[ResourceIds.HEALTH],
-        virus = this._resources[ResourceIds.VIRUS],
-        stamina = this._resources[ResourceIds.STAMINA],
-        bleeding = this._resources[ResourceIds.BLEEDING];
-
-      client.character.resourcesUpdater = setTimeout(() => {
-        // prototype resource manager
-        if (!server._clients[client.sessionId]) {
-          return;
-        }
-        const { isRunning } = client.character;
-        if (
-          isRunning &&
-          (client.vehicle.mountedVehicle == "" ||
-            !client.vehicle.mountedVehicle)
-        ) {
-          client.character._resources[ResourceIds.STAMINA] -= 4;
-          client.character.isExhausted =
-            client.character._resources[ResourceIds.STAMINA] < 120;
-        } else if (!client.character.isBleeding || !client.character.isMoving) {
-          client.character._resources[ResourceIds.STAMINA] += 12;
-        }
-
-        // todo: modify sprint stat
-        client.character._resources[ResourceIds.HUNGER] -= 2;
-        client.character._resources[ResourceIds.HYDRATION] -= 4;
-        if (client.character._resources[ResourceIds.STAMINA] > 600) {
-          client.character._resources[ResourceIds.STAMINA] = 600;
-        } else if (client.character._resources[ResourceIds.STAMINA] < 0) {
-          client.character._resources[ResourceIds.STAMINA] = 0;
-        }
-        if (client.character._resources[ResourceIds.BLEEDING] > 0) {
-          this.damage(server, {
-            entity: "",
-            damage:
-              Math.ceil(
-                client.character._resources[ResourceIds.BLEEDING] / 40
-              ) * 100,
-          });
-        }
-        if (client.character._resources[ResourceIds.BLEEDING] > 80) {
-          client.character._resources[ResourceIds.BLEEDING] = 80;
-        }
-        if (client.character._resources[ResourceIds.BLEEDING] < -40) {
-          client.character._resources[ResourceIds.BLEEDING] = -40;
-        }
-        if (client.character._resources[ResourceIds.HUNGER] > 10000) {
-          client.character._resources[ResourceIds.HUNGER] = 10000;
-        } else if (client.character._resources[ResourceIds.HUNGER] < 0) {
-          client.character._resources[ResourceIds.HUNGER] = 0;
-          this.damage(server, { entity: "", damage: 100 });
-        }
-        if (client.character._resources[ResourceIds.HYDRATION] > 10000) {
-          client.character._resources[ResourceIds.HYDRATION] = 10000;
-        } else if (client.character._resources[ResourceIds.HYDRATION] < 0) {
-          client.character._resources[ResourceIds.HYDRATION] = 0;
-          this.damage(server, { entity: "", damage: 100 });
-        }
-        if (client.character._resources[ResourceIds.HEALTH] > 10000) {
-          client.character._resources[ResourceIds.HEALTH] = 10000;
-        } else if (client.character._resources[ResourceIds.HEALTH] < 0) {
-          client.character._resources[ResourceIds.HEALTH] = 0;
-        }
-
-        if (client.character._resources[ResourceIds.HUNGER] != hunger) {
-          server.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            client.character._resources[ResourceIds.HUNGER],
-            ResourceIds.HUNGER,
-            ResourceTypes.HUNGER,
-            server._characters
-          );
-        }
-        if (client.character._resources[ResourceIds.HYDRATION] != hydration) {
-          server.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            client.character._resources[ResourceIds.HYDRATION],
-            ResourceIds.HYDRATION,
-            ResourceTypes.HYDRATION,
-            server._characters
-          );
-        }
-        if (client.character._resources[ResourceIds.HEALTH] != health) {
-          server.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            client.character._resources[ResourceIds.HEALTH],
-            ResourceIds.HEALTH,
-            ResourceTypes.HEALTH,
-            server._characters
-          );
-        }
-        if (client.character._resources[ResourceIds.VIRUS] != virus) {
-          server.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            client.character._resources[ResourceIds.VIRUS],
-            ResourceIds.VIRUS,
-            ResourceTypes.VIRUS,
-            server._characters
-          );
-        }
-        if (client.character._resources[ResourceIds.STAMINA] != stamina) {
-          server.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            client.character._resources[ResourceIds.STAMINA],
-            ResourceIds.STAMINA,
-            ResourceTypes.STAMINA,
-            server._characters
-          );
-        }
-        if (client.character._resources[ResourceIds.BLEEDING] != bleeding) {
-          server.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            client.character._resources[ResourceIds.BLEEDING] > 0
-              ? client.character._resources[ResourceIds.BLEEDING]
-              : 0,
-            ResourceIds.BLEEDING,
-            ResourceTypes.BLEEDING,
-            server._characters
-          );
-        }
-
-        client.character.resourcesUpdater.refresh();
-      }, 3000);
-    };
   }
+
+  startResourceUpdater(client: ZoneClient2016, server: ZoneServer2016) {
+    client.character.resourcesUpdater = setTimeout(
+      () => this.updateResources(client, server),
+      3000
+    );
+  }
+
+  updateResources(client: ZoneClient2016, server: ZoneServer2016) {
+    if (this.isGodMode()) {
+      client.character.resourcesUpdater.refresh();
+      return;
+    }
+
+    if (!server._clients[client.sessionId]) {
+      return;
+    }
+
+    const hunger = this._resources[ResourceIds.HUNGER],
+      hydration = this._resources[ResourceIds.HYDRATION],
+      health = this._resources[ResourceIds.HEALTH],
+      virus = this._resources[ResourceIds.VIRUS],
+      stamina = this._resources[ResourceIds.STAMINA],
+      bleeding = this._resources[ResourceIds.BLEEDING];
+
+    if (
+      client.character.isRunning &&
+      (client.vehicle.mountedVehicle == "" || !client.vehicle.mountedVehicle)
+    ) {
+      client.character._resources[ResourceIds.STAMINA] -= 4;
+      client.character.isExhausted =
+        client.character._resources[ResourceIds.STAMINA] < 120;
+    } else if (!client.character.isBleeding || !client.character.isMoving) {
+      client.character._resources[ResourceIds.STAMINA] += 12;
+    }
+
+    client.character._resources[ResourceIds.HUNGER] -= 2;
+    client.character._resources[ResourceIds.HYDRATION] -= 4;
+
+    this.checkResource(server, ResourceIds.STAMINA);
+    if (client.character._resources[ResourceIds.BLEEDING] > 0) {
+      this.damage(server, {
+        entity: "Character.Bleeding",
+        damage:
+          Math.ceil(client.character._resources[ResourceIds.BLEEDING] / 40) *
+          100,
+      });
+    }
+    this.checkResource(server, ResourceIds.BLEEDING);
+    this.checkResource(server, ResourceIds.HUNGER, () => {
+      this.damage(server, { entity: "Character.Hunger", damage: 100 });
+    });
+    this.checkResource(server, ResourceIds.HUNGER, () => {
+      this.damage(server, { entity: "Character.Hunger", damage: 100 });
+    });
+    this.checkResource(server, ResourceIds.HYDRATION, () => {
+      this.damage(server, { entity: "Character.Hydration", damage: 100 });
+    });
+    this.checkResource(server, ResourceIds.HEALTH);
+
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.HUNGER,
+      ResourceTypes.HUNGER,
+      hunger
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.HYDRATION,
+      ResourceTypes.HYDRATION,
+      hydration
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.HEALTH,
+      ResourceTypes.HEALTH,
+      health
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.VIRUS,
+      ResourceTypes.VIRUS,
+      virus
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.STAMINA,
+      ResourceTypes.STAMINA,
+      stamina
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.BLEEDING,
+      ResourceTypes.BLEEDING,
+      bleeding
+    );
+
+    client.character.resourcesUpdater.refresh();
+  }
+
+  checkResource(
+    server: ZoneServer2016,
+    resourceId: ResourceIds,
+    damageCallback?: () => void
+  ) {
+    const minValue = resourceId == ResourceIds.BLEEDING ? -40 : 0,
+      maxValue = server.getResourceMaxValue(resourceId);
+    if (this._resources[resourceId] > maxValue) {
+      this._resources[resourceId] = maxValue;
+    } else if (this._resources[resourceId] < minValue) {
+      this._resources[resourceId] = minValue;
+      if (damageCallback) {
+        damageCallback();
+      }
+    }
+  }
+
+  updateResource(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    resourceId: ResourceIds,
+    resouceType: ResourceTypes,
+    oldValue?: number
+  ) {
+    const resource = client.character._resources[resourceId];
+    if (resource == oldValue) return;
+    // only network stamina to other clients
+    if (resourceId == ResourceIds.STAMINA) {
+      server.updateResourceToAllWithSpawnedEntity(
+        client.character.characterId,
+        resource > 0 ? resource : 0,
+        resourceId,
+        resouceType,
+        server._characters
+      );
+      return;
+    }
+    server.updateResource(
+      client,
+      this.characterId,
+      resource > 0 ? resource : 0,
+      resourceId,
+      resouceType
+    );
+  }
+
   isGodMode() {
     return this.godMode || this.tempGodMode;
   }
@@ -763,18 +786,7 @@ export class Character2016 extends BaseFullCharacter {
     if (!client || !c || !damageInfo.hitReport) {
       return;
     }
-    if (
-      !isPosInRadius(
-        c.vehicle?.mountedVehicle ? 50 : 4,
-        damageInfo.hitReport.position,
-        this.state.position
-      )
-    ) {
-      console.log(
-        `${client.character.name} landed a shot with invalid hit position`
-      );
-      return;
-    }
+
     server.hitMissFairPlayCheck(
       client,
       true,

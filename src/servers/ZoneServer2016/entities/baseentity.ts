@@ -60,7 +60,7 @@ export class BaseEntity {
   };
   scale = new Float32Array([1, 1, 1, 1]);
   npcRenderDistance?: number; // when undefined, use the zoneserver._charactersRenderDistance value
-  interactionDistance?: number; // when undefined, use the zoneserver._interactionDistance value
+  interactionDistance: number;
   constructor(
     characterId: string,
     transientId: number,
@@ -77,15 +77,15 @@ export class BaseEntity {
       rotation: rotation,
     };
     this.npcRenderDistance = getRenderDistance(actorModelId);
+    this.interactionDistance = server._interactionDistance;
     server.pushToGridCell(this);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     // default: do nothing
   }
 
-  /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
     server: ZoneServer2016,
     client: ZoneClient2016,
@@ -93,23 +93,20 @@ export class BaseEntity {
   ) {
     // default: do nothing
   }
-  /* eslint-enable @typescript-eslint/no-unused-vars */
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     // default: do nothing
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     // default: do nothing
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   destroy(server: ZoneServer2016): boolean {
     console.log(
       `Attempted to call destroy() on an entity an undefined destroy method! actorModelId ${this.actorModelId}`
     );
     return false;
   }
+  /* eslint-enable @typescript-eslint/no-unused-vars */
 }

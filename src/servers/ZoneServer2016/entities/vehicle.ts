@@ -117,6 +117,10 @@ export class Vehicle2016 extends BaseLootableEntity {
   destroyedState = 0;
   positionUpdateType = 1;
   currentDamageEffect: number = 0;
+  oldPos: { position: Float32Array; time: number } = {
+    position: new Float32Array(),
+    time: 0,
+  };
   droppedManagedClient?: ZoneClient2016; // for temporary fix
   constructor(
     characterId: string,

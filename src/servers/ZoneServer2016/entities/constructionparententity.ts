@@ -93,23 +93,26 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     );
     this.health = 1000000;
     this.ownerCharacterId = ownerCharacterId;
-    const ownerPermission: ConstructionPermissions = {
-      characterId: ownerCharacterId,
-      characterName: ownerName,
-      useContainers: true,
-      build: true,
-      demolish: true,
-      visit: true,
-    };
+
+    if (itemDefinitionId != Items.FOUNDATION_EXPANSION) {
+      const ownerPermission: ConstructionPermissions = {
+        characterId: ownerCharacterId,
+        characterName: ownerName,
+        useContainers: true,
+        build: true,
+        demolish: true,
+        visit: true,
+      };
+      this.permissions[ownerPermission.characterId] = ownerPermission;
+    }
     this.itemDefinitionId = itemDefinitionId;
-    this.permissions[ownerPermission.characterId] = ownerPermission;
     this.parentObjectCharacterId = parentObjectCharacterId;
     this.slot = BuildingSlot || "";
     this.damageRange = getDamageRange(this.itemDefinitionId);
     switch (this.itemDefinitionId) {
       case Items.GROUND_TAMPER:
         this.bounds = this.getSquareBounds([1, 5, 9, 13]);
-        this.interactionDistance = 16; // fix temper interact distance if deck is placed on it
+        this.interactionDistance = 16; // fix tamper interact distance if deck is placed on it
         break;
       case Items.FOUNDATION:
         this.bounds = this.getSquareBounds([1, 4, 7, 10]);

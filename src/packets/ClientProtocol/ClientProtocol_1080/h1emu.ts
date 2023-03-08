@@ -11,19 +11,22 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ZoneClient2016 as Client } from "../classes/zoneclient";
-import { ZoneServer2016 } from "../zoneserver";
-
-export enum PermissionLevels {
-  DEFAULT = 0,
-  MODERATOR = 1,
-  ADMIN = 2,
-  DEV = 3,
-}
-
-export interface Command {
-  name: string;
-  permissionLevel: PermissionLevels;
-  keepCase?: boolean;
-  execute: (server: ZoneServer2016, client: Client, packet: any) => void;
-}
+export const h1emuPackets: any = [
+  [
+    "H1emu.PrintToConsole",
+    0x9901,
+    {
+      fields: [{ name: "message", type: "string", defaultValue: "" }],
+    },
+  ],
+  [
+    "H1emu.MessageBox",
+    0x9902,
+    {
+      fields: [
+        { name: "title", type: "string", defaultValue: "" },
+        { name: "message", type: "string", defaultValue: "" },
+      ],
+    },
+  ],
+];
