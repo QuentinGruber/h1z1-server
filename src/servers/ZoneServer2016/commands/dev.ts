@@ -730,5 +730,32 @@ const dev: any = {
       message: "MESSAGE",
     });
   },
+
+  groupjoin: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendData(client, "Group.Join", {
+      unknownDword1: Number(args[0]),
+      unknownDword2: Number(args[1]),
+      unknownDword3: Number(args[2]),
+      unknownDword4: Number(args[3]),
+      inviteData: {
+        sourceCharacter: {
+          characterId: client.character.characterId,
+          identity: {
+            characterFirstName: client.character.name,
+          },
+        },
+        targetCharacter: {
+          characterId: client.character.characterId,
+          identity: {
+            characterFirstName: client.character.name,
+          },
+        },
+      },
+    });
+  }
 };
 export default dev;

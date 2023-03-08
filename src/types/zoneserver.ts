@@ -320,3 +320,7 @@ export interface ClientMute {
   active: boolean;
   unmuteAdminName: string;
 }
+
+export interface Group {
+  
+}

@@ -2275,25 +2275,7 @@ export class zonePacketHandlers {
     );
     if (!(target instanceof Client)) return;
 
-    server.sendData(target, "Group.Invite", {
-      unknownDword1: 1, // should be 1
-      unknownDword2: 5,
-      unknownDword3: 5,
-      inviteData: {
-        sourceCharacter: {
-          characterId: client.character.characterId,
-          identity: {
-            characterFirstName: client.character.name,
-          },
-        },
-        targetCharacter: {
-          characterId: target.character.characterId,
-          identity: {
-            characterFirstName: target.character.name,
-          },
-        },
-      },
-    });
+    server.groupManager.sendGroupInvite(server, client, target);
   }
   //#endregion
 
