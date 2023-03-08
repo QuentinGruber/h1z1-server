@@ -1979,6 +1979,15 @@ export const commands: Array<Command> = [
       server.sendChatText(client, `Set resources to maximum values.`);
     },
   },
+  {
+    name: "console",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {/* handled clientside */},
+  },
   //#endregion
 
   // depreciation messages
