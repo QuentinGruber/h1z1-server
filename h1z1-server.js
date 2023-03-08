@@ -43,10 +43,6 @@ h1z1Server.__defineGetter__("SOEOutputStream", function () {
     return require("./out/servers/SoeServer/soeoutputstream.js").SOEOutputStream;
 });  
 
-h1z1Server.__defineGetter__("SOEProtocol", function () {
-  return require("./out/protocols/soeprotocol.js").SOEProtocol;
-});  
-
 h1z1Server.__defineGetter__("LoginProtocol", function () {
   return require("./out/protocols/loginprotocol.js").LoginProtocol;
 });  

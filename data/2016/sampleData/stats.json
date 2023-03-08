@@ -288,7 +288,7 @@
             "statValue": {
                 "type": 1,
                 "value": {
-                    "base": 0.4,
+                    "base": 0.6,
                     "modifier": 0
                 }
             }

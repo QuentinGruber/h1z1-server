@@ -106,6 +106,7 @@ export class Character2016 extends BaseFullCharacter {
   spawnGridData: number[] = [];
   lastJumpTime: number = 0;
   weaponStance: number = 1;
+  stance: number = 0;
   readonly metrics: CharacterMetrics = {
     recipesDiscovered: 0,
     zombiesKilled: 0,
@@ -203,11 +204,11 @@ export class Character2016 extends BaseFullCharacter {
           (client.vehicle.mountedVehicle == "" ||
             !client.vehicle.mountedVehicle)
         ) {
-          client.character._resources[ResourceIds.STAMINA] -= 4;
+          client.character._resources[ResourceIds.STAMINA] -= 8;
           client.character.isExhausted =
             client.character._resources[ResourceIds.STAMINA] < 120;
         } else if (!client.character.isBleeding || !client.character.isMoving) {
-          client.character._resources[ResourceIds.STAMINA] += 12;
+          client.character._resources[ResourceIds.STAMINA] += 16;
         }
 
         // todo: modify sprint stat
@@ -764,18 +765,7 @@ export class Character2016 extends BaseFullCharacter {
     if (!client || !c || !damageInfo.hitReport) {
       return;
     }
-    if (
-      !isPosInRadius(
-        c.vehicle?.mountedVehicle ? 50 : 4,
-        damageInfo.hitReport.position,
-        this.state.position
-      )
-    ) {
-      console.log(
-        `${client.character.name} landed a shot with invalid hit position`
-      );
-      return;
-    }
+
     server.hitMissFairPlayCheck(
       client,
       true,
