@@ -2989,6 +2989,9 @@ export class ZoneServer2016 extends EventEmitter {
     const speed = (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
     let maxSpeed = 5000;
     switch (weaponItem.itemDefinitionId) {
+      case Items.WEAPON_308:
+        maxSpeed = 6000;
+        break;
       case Items.WEAPON_CROSSBOW:
         maxSpeed = 900;
         break;

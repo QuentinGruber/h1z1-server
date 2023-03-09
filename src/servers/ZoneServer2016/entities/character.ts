@@ -772,25 +772,23 @@ export class Character2016 extends BaseFullCharacter {
     );
     const hasHelmetBefore = this.hasHelmet(server);
     const hasArmorBefore = this.hasArmor(server);
-      let damage = damageInfo.damage,
-          canStopBleed,
-          armorDmgModifier;
-      damageInfo.weapon == Items.WEAPON_SHOTGUN ? armorDmgModifier = 10 : armorDmgModifier = 4;
-      if (damageInfo.weapon == Items.WEAPON_308) armorDmgModifier * 2
+    let damage = damageInfo.damage,
+      canStopBleed,
+      armorDmgModifier;
+    damageInfo.weapon == Items.WEAPON_SHOTGUN
+      ? (armorDmgModifier = 10)
+      : (armorDmgModifier = 4);
+    if (damageInfo.weapon == Items.WEAPON_308) armorDmgModifier = 2;
     switch (damageInfo.hitReport?.hitLocation) {
       case "HEAD":
       case "GLASSES":
       case "NECK":
         damageInfo.weapon == Items.WEAPON_SHOTGUN ? damage : (damage *= 4);
-        damageInfo.weapon == Items.WEAPON_308 ? damage *= 2 : damage;
+        damageInfo.weapon == Items.WEAPON_308 ? (damage *= 2) : damage;
         damage = server.checkHelmet(this.characterId, damage, 1);
         break;
       default:
-        damage = server.checkArmor(
-          this.characterId,
-          damage,
-          armorDmgModifier
-        );
+        damage = server.checkArmor(this.characterId, damage, armorDmgModifier);
         canStopBleed = true;
         break;
     }
