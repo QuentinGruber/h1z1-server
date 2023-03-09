@@ -179,7 +179,7 @@ export class LoginServer extends EventEmitter {
               if (connectionEstablished || packet.name === "SessionRequest") {
                 switch (packet.name) {
                   case "SessionRequest": {
-                    const { serverId } = packet.data;
+                    const { serverId, h1emuVersion } = packet.data;
                     debug(
                       `Received session request from ${client.address}:${client.port}`
                     );
@@ -204,6 +204,10 @@ export class LoginServer extends EventEmitter {
                       debug(`ZoneConnection established`);
                       client.serverId = serverId;
                       this._zoneConnections[client.clientId] = serverId;
+                      await this.updateZoneServerVersion(
+                        serverId,
+                        h1emuVersion
+                      );
                       await this.updateServerStatus(serverId, true);
                     } else {
                       console.log(
@@ -589,6 +593,17 @@ export class LoginServer extends EventEmitter {
         });
       }
     });
+  }
+
+  async updateZoneServerVersion(serverId: number, version: string) {
+    await this._db.collection(DB_COLLECTIONS.SERVERS).updateOne(
+      { serverId: serverId },
+      {
+        $set: {
+          h1emuVersion: version,
+        },
+      }
+    );
   }
 
   async updateServersStatus(): Promise<void> {
