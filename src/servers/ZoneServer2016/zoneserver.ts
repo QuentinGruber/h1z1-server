@@ -2976,6 +2976,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (!weaponItem) return;
     if (fireHint.hitNumber > 0) {
       if (c) {
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} shot has been blocked due to desync / double usage`,
+          false
+        );
         this.sendChatText(c, message, false);
       }
       return;
@@ -3009,9 +3013,9 @@ export class ZoneServer2016 extends EventEmitter {
           client.character.name
         } shot has been blocked due to projectile speed: (${speed.toFixed(
           0
-        )} / ${maxSpeed}) weapon: ${
+        )} / ${maxSpeed}) | weapon: ${
           this.getItemDefinition(weaponItem.itemDefinitionId).NAME
-        }`,
+        } | location: ${packet.hitReport.hitLocation}`,
         false
       );
       if (c) {
@@ -6212,28 +6216,6 @@ export class ZoneServer2016 extends EventEmitter {
         `Error: ${client.character.name} exited vehicle with no seatId set`
       );
       return;
-    }
-    if (client.managedObjects.includes(vehicle.characterId)) {
-      setTimeout(() => {
-        this.dropManagedObject(
-          client,
-          vehicle,
-          vehicle.getNextSeatId(this) == "0" ? true : false
-        );
-        this.sendDataToAllWithSpawnedEntity(
-          this._vehicles,
-          vehicle.characterId,
-          "PlayerUpdatePosition",
-          {
-            transientId: vehicle.transientId,
-            positionUpdate: {
-              ...vehicle.positionUpdate,
-              verticalSpeed: 0,
-              horizontalSpeed: 0,
-            },
-          }
-        );
-      }, 3000);
     }
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.DismountResponse", {

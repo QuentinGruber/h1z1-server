@@ -759,9 +759,6 @@ export class zonePacketHandlers {
       // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
       return;
     }
-    if (packet.data.flags === 510) {
-      // falling flag, ignore for now
-    }
     if (packet.data.stance) {
       if (
         packet.data.stance == Stances.STANCE_XS ||
@@ -1988,6 +1985,15 @@ export class zonePacketHandlers {
             }
             if (p.gameTime - lastFireHint.timeStamp < blockedTime) return;
           }
+          let hitNumber = 0;
+          if (
+            !isPosInRadius(
+              3,
+              client.character.state.position,
+              p.packet.position
+            )
+          )
+            hitNumber = 1;
           const shotProjectiles =
             weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 12 : 1;
           for (let x = 0; x < shotProjectiles; x++) {
@@ -1995,7 +2001,7 @@ export class zonePacketHandlers {
               id: p.packet.sessionProjectileCount + x,
               position: p.packet.position,
               rotation: new Float32Array([0, 0, 0, 0]),
-              hitNumber: 0,
+              hitNumber: hitNumber,
               weaponItem: weaponItem,
               timeStamp: p.gameTime,
             };
