@@ -839,10 +839,12 @@ export class LoginServer extends EventEmitter {
   }
 
   // need to be self-implemented
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async isClientUsingVpn(_address: string): Promise<boolean> {
     return false;
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async isClientHWIDBanned(_address: string): Promise<boolean> {
     return false;
   }
