@@ -779,7 +779,7 @@ export class Character2016 extends BaseFullCharacter {
       case "GLASSES":
       case "NECK":
         damageInfo.weapon == Items.WEAPON_SHOTGUN ? damage : (damage *= 4);
-        damageInfo.weapon == Items.WEAPON_308 ? damage * 2 : damage;
+        damageInfo.weapon == Items.WEAPON_308 ? damage *= 2 : damage;
         damage = server.checkHelmet(this.characterId, damage, 1);
         break;
       default:
