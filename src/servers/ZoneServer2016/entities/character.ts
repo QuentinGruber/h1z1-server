@@ -772,8 +772,11 @@ export class Character2016 extends BaseFullCharacter {
     );
     const hasHelmetBefore = this.hasHelmet(server);
     const hasArmorBefore = this.hasArmor(server);
-    let damage = damageInfo.damage,
-      canStopBleed;
+      let damage = damageInfo.damage,
+          canStopBleed,
+          armorDmgModifier;
+      damageInfo.weapon == Items.WEAPON_SHOTGUN ? armorDmgModifier = 10 : armorDmgModifier = 4;
+      if (damageInfo.weapon == Items.WEAPON_308) armorDmgModifier * 2
     switch (damageInfo.hitReport?.hitLocation) {
       case "HEAD":
       case "GLASSES":
@@ -786,7 +789,7 @@ export class Character2016 extends BaseFullCharacter {
         damage = server.checkArmor(
           this.characterId,
           damage,
-          (damageInfo.weapon == Items.WEAPON_SHOTGUN || damageInfo.weapon == Items.WEAPON_308) ? 10 : 4
+          armorDmgModifier
         );
         canStopBleed = true;
         break;
