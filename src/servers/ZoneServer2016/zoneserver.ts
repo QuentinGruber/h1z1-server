@@ -7788,7 +7788,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (client.hudTimer != null) {
       clearTimeout(client.hudTimer);
     }
-    client.posAtLogoutStart = client.character.state.position;
+    client.posAtTimerStart = client.character.state.position;
     client.hudTimer = setTimeout(() => {
       callback.apply(this);
     }, timeout);
