@@ -115,14 +115,12 @@ const packets = [
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
         { name: "characterId", type: "uint64string", defaultValue: 0 },
-            {
-              name: "banInfos",
-              type: "array",
-              defaultValue: [],
-              fields: [
-        { name: "banInfo", type: "uint8", defaultValue: 0 },
-              ],
-            },
+        {
+          name: "banInfos",
+          type: "array",
+          defaultValue: [],
+          fields: [{ name: "banInfo", type: "uint8", defaultValue: 0 }],
+        },
       ],
     },
   ],

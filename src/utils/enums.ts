@@ -18,9 +18,9 @@ export enum GAME_VERSIONS {
 }
 
 export enum BAN_INFO {
-  NONE = 0,
   LOCAL_BAN = 1,
   GLOBAL_BAN = 2,
+  VPN = 3,
 }
 
 export enum NAME_VALIDATION_STATUS {
@@ -31,27 +31,26 @@ export enum NAME_VALIDATION_STATUS {
   RESERVED = 5,
 }
 
-
 export enum DB_COLLECTIONS {
-    ADMINS = "admins",
-    BANNED = "banned",
-    BLACK_LIST_ENTRIES = "blackListEntries",
-    CHARACTERS = "characters",
-    CHARACTERS_LIGHT = "characters-light",
-    CHAT = "chat",
-    CONSTRUCTION = "construction",
-    CROPS = "crops",
-    FINGERPRINTS = "fingerprints",
-    PROPS = "props",
-    SERVERS = "servers",
-    USERS_SESSIONS = "user-sessions",
-    VEHICLES = "vehicles",
-    WEATHERS = "weathers",
-    WORLD_CONSTRUCTIONS = "worldconstruction",
-    WORLDS = "worlds",
-    COMMAND_USED = "commands-used",
-    FAIRPLAY = "fairplay-logs",
-    KILLS = "kills",
-    BANNED_LIGHT = "banned-light",
-    MUTED = "muted",
+  ADMINS = "admins",
+  BANNED = "banned",
+  BLACK_LIST_ENTRIES = "blackListEntries",
+  CHARACTERS = "characters",
+  CHARACTERS_LIGHT = "characters-light",
+  CHAT = "chat",
+  CONSTRUCTION = "construction",
+  CROPS = "crops",
+  FINGERPRINTS = "fingerprints",
+  PROPS = "props",
+  SERVERS = "servers",
+  USERS_SESSIONS = "user-sessions",
+  VEHICLES = "vehicles",
+  WEATHERS = "weathers",
+  WORLD_CONSTRUCTIONS = "worldconstruction",
+  WORLDS = "worlds",
+  COMMAND_USED = "commands-used",
+  FAIRPLAY = "fairplay-logs",
+  KILLS = "kills",
+  BANNED_LIGHT = "banned-light",
+  MUTED = "muted",
 }

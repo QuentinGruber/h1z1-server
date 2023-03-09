@@ -294,7 +294,11 @@ export class ZoneServer2016 extends EventEmitter {
   // TODO: this could be a constant
   observerVehicleGuid: string = "0xFAFAFAFAFAFAFAFA";
   _suspiciousList: string[] = [];
-  banInfoAcceptance: BAN_INFO[] = [BAN_INFO.GLOBAL_BAN];
+  banInfoAcceptance: BAN_INFO[] = [
+    BAN_INFO.GLOBAL_BAN,
+    BAN_INFO.LOCAL_BAN,
+    BAN_INFO.VPN,
+  ];
 
   constructor(
     serverPort: number,
@@ -466,20 +470,20 @@ export class ZoneServer2016 extends EventEmitter {
                 break;
               }
               case "CharacterAllowedRequest": {
-                const { characterId,banInfos, reqId } = packet.data;
-                console.log(banInfos);
+                const { characterId, banInfos, reqId } = packet.data;
                 try {
-                  for(let i = 0; i < banInfos.length;i++){
-                  const banInfo = banInfos[i];
-                  if(this.banInfoAcceptance.includes(banInfo.banInfo)){
-                    this._h1emuZoneServer.sendData(
-                      client,
-                      "CharacterAllowedReply",
-                      { status: 0, reqId: reqId }
-                    );
+                  console.log(banInfos);
+                  for (let i = 0; i < banInfos.length; i++) {
+                    const banInfo = banInfos[i];
+                    // TODO: vpn-whitelist
+                    if (this.banInfoAcceptance.includes(banInfo.banInfo)) {
+                      this._h1emuZoneServer.sendData(
+                        client,
+                        "CharacterAllowedReply",
+                        { status: 0, reqId: reqId }
+                      );
+                    }
                   }
-                  
-                }
                   const collection = (this._db as Db).collection(
                     DB_COLLECTIONS.CHARACTERS
                   );
@@ -504,7 +508,7 @@ export class ZoneServer2016 extends EventEmitter {
                     );
                   }
                 } catch (error) {
-                  console.log(error)
+                  console.log(error);
                   this._h1emuZoneServer.sendData(
                     client,
                     "CharacterAllowedReply",
@@ -4304,17 +4308,17 @@ export class ZoneServer2016 extends EventEmitter {
     return false;
   }
 
-  async unbanClient(client: Client,name:string): Promise<ClientBan>{
-     const unBannedClient = (
-        await this._db
-          ?.collection(DB_COLLECTIONS.BANNED)
-          .findOneAndUpdate(
-            { name, active: true },
-            { $set: { active: false, unBanAdminName: client.character.name } }
-          )
-      )?.value as unknown as ClientBan;
-    this.sendBanToLogin(unBannedClient.loginSessionId,false)
-    return unBannedClient
+  async unbanClient(client: Client, name: string): Promise<ClientBan> {
+    const unBannedClient = (
+      await this._db
+        ?.collection(DB_COLLECTIONS.BANNED)
+        .findOneAndUpdate(
+          { name, active: true },
+          { $set: { active: false, unBanAdminName: client.character.name } }
+        )
+    )?.value as unknown as ClientBan;
+    this.sendBanToLogin(unBannedClient.loginSessionId, false);
+    return unBannedClient;
   }
   banClient(
     client: Client,
@@ -4339,7 +4343,7 @@ export class ZoneServer2016 extends EventEmitter {
       object.expirationDate = timestamp;
     }
     this._db?.collection(DB_COLLECTIONS.BANNED).insertOne(object);
-    this.sendBanToLogin(client.loginSessionId,true)
+    this.sendBanToLogin(client.loginSessionId, true);
     if (banType === "normal") {
       if (timestamp) {
         this.sendAlert(
@@ -8193,7 +8197,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     delete this._vehicles[vehicleGuid]?.manager;
   }
-  sendBanToLogin(loginSessionId:string,status: boolean){
+  sendBanToLogin(loginSessionId: string, status: boolean) {
     this._h1emuZoneServer.sendData(
       {
         ...this._loginServerInfo,
@@ -8201,7 +8205,7 @@ export class ZoneServer2016 extends EventEmitter {
         serverId: Infinity,
       } as any,
       "ClientBan",
-      { loginSessionId,status }
+      { loginSessionId, status }
     );
   }
   sendZonePopulationUpdate() {

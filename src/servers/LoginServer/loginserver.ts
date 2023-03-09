@@ -54,7 +54,7 @@ import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
 import LoginClient from "servers/LoginServer/loginclient";
 import {
-    BAN_INFO,
+  BAN_INFO,
   DB_COLLECTIONS,
   GAME_VERSIONS,
   NAME_VALIDATION_STATUS,
@@ -242,7 +242,7 @@ export class LoginServer extends EventEmitter {
                     break;
                   }
                   case "ClientBan": {
-                    const { status,loginSessionId } = packet.data;
+                    const { status, loginSessionId } = packet.data;
                     const serverId = this._zoneConnections[client.clientId];
                     this._db
                       ?.collection(DB_COLLECTIONS.BANNED_LIGHT)
@@ -253,12 +253,13 @@ export class LoginServer extends EventEmitter {
                             serverId,
                             loginSessionId,
                             status,
-                            isGlobal:await this._isServerOfficial(serverId)
+                            isGlobal: await this._isServerOfficial(serverId),
                           },
-                        }, {upsert:true},
+                        },
+                        { upsert: true }
                       );
-                  break;
-                }
+                    break;
+                  }
                   default:
                     console.log(`Unhandled h1emu packet: ${packet.name}`);
                     break;
@@ -316,10 +317,12 @@ export class LoginServer extends EventEmitter {
       this._h1emuLoginServer.start();
     }
   }
-    private async _isServerOfficial(serverId: number): Promise<boolean> {
-        const server = await this._db.collection(DB_COLLECTIONS.SERVERS).findOne({serverId})
-        return !!server.IsOfficial;
-    }
+  private async _isServerOfficial(serverId: number): Promise<boolean> {
+    const server = await this._db
+      .collection(DB_COLLECTIONS.SERVERS)
+      .findOne({ serverId });
+    return !!server.IsOfficial;
+  }
 
   parseData(clientProtocol: string, data: Buffer) {
     switch (clientProtocol) {
@@ -825,20 +828,35 @@ export class LoginServer extends EventEmitter {
     };
   }
 
-  async getOwnerBanInfo(serverId : number,loginSessionId: number): Promise<BAN_INFO[]>{
-      const ownerBanInfos:any[] = await this._db.collection(DB_COLLECTIONS.BANNED_LIGHT).find({loginSessionId ,status:true}).toArray();
-      const banInfos: BAN_INFO[] = []
-      for(let i = 0; i< ownerBanInfos.length;i++){
-        const ownerBanInfo = ownerBanInfos[i]
-        if(ownerBanInfo.serverId === serverId){
-           banInfos.push(BAN_INFO.LOCAL_BAN) ;
-        }
-        if(ownerBanInfo.isGlobal){
-           banInfos.push(BAN_INFO.GLOBAL_BAN) ;
-        }
+  // need to be self-implemented
+  async isClientUsingVpn(_address: string): Promise<boolean> {
+    return false;
+  }
+  async getOwnerBanInfo(
+    serverId: number,
+    client: Client,
+    loginSessionId: string
+  ) {
+    const ownerBanInfos: any[] = await this._db
+      .collection(DB_COLLECTIONS.BANNED_LIGHT)
+      .find({ loginSessionId, status: true })
+      .toArray();
+    const banInfos: { banInfo: BAN_INFO }[] = [];
+    for (let i = 0; i < ownerBanInfos.length; i++) {
+      const ownerBanInfo = ownerBanInfos[i];
+      if (ownerBanInfo.serverId === serverId) {
+        banInfos.push({ banInfo: BAN_INFO.LOCAL_BAN });
       }
-      
-      return banInfos;
+      if (ownerBanInfo.isGlobal) {
+        banInfos.push({ banInfo: BAN_INFO.GLOBAL_BAN });
+      }
+    }
+
+    if (await this.isClientUsingVpn(client.address)) {
+      banInfos.push({ banInfo: BAN_INFO.VPN });
+    }
+
+    return banInfos;
   }
 
   async CharacterLoginRequest(client: Client, packet: CharacterLoginRequest) {
@@ -851,7 +869,11 @@ export class LoginServer extends EventEmitter {
         characterId,
         client.loginSessionId
       );
-      const banInfos:BAN_INFO[] = await this.getOwnerBanInfo(serverId,charactersLoginInfo.applicationData.serverTicket);
+      const banInfos = await this.getOwnerBanInfo(
+        serverId,
+        client,
+        charactersLoginInfo.applicationData.serverTicket
+      );
       CharacterAllowedOnZone = (await this.askZone(
         serverId,
         "CharacterAllowedRequest",
@@ -910,6 +932,7 @@ export class LoginServer extends EventEmitter {
           resolve(0);
         }, 5000);
       } catch (e) {
+        console.error(e);
         resolve(0);
       }
     });

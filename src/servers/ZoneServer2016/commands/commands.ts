@@ -583,9 +583,12 @@ export const commands: Array<Command> = [
         return;
       }
       const name = args.join(" ").toString();
-      const unBannedClient = await server.unbanClient(client,name);
+      const unBannedClient = await server.unbanClient(client, name);
       if (unBannedClient) {
-        server.sendChatText(client, `Removed ban on user ${unBannedClient.name}`);
+        server.sendChatText(
+          client,
+          `Removed ban on user ${unBannedClient.name}`
+        );
       } else {
         server.sendChatText(
           client,
