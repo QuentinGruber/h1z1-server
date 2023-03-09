@@ -2900,8 +2900,8 @@ export class ZoneServer2016 extends EventEmitter {
           getDistance(sourcePos, targetPos),
           200,
           1200, //1667,
-          3,
-          20
+          1,
+          10
         );
       case Items.WEAPON_AK47:
         return 2900;
