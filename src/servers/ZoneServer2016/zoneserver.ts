@@ -2794,7 +2794,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!c || !c.character.hasHelmet(this)) {
       return damage;
     }
-    damage *= 0.75;
+    damage *= 0.25;
     this.damageItem(
       c,
       c.character._loadout[LoadoutSlots.HEAD],

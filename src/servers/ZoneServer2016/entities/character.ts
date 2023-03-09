@@ -782,7 +782,7 @@ export class Character2016 extends BaseFullCharacter {
         damage = server.checkHelmet(
           this.characterId,
           damage,
-          damageInfo.weapon == Items.WEAPON_SHOTGUN ? 100 : 1
+          damageInfo.weapon == Items.WEAPON_SHOTGUN ? 12 : 1
         );
         break;
       default:
