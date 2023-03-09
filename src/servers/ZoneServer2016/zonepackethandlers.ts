@@ -534,7 +534,7 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
-    client.posAtLogoutStart = client.character.state.position;
+    client.posAtTimerStart = client.character.state.position;
     if (!client.character.isAlive) {
       client.properlyLogout = true;
       // Exit to menu button on respawn screen
@@ -690,6 +690,17 @@ export class zonePacketHandlers {
         }
       });
       if (kick) return;
+      if (
+        client.hudTimer != null &&
+        !isPosInRadius(
+          1,
+          client.character.state.position,
+          client.posAtTimerStart
+        )
+      ) {
+        server.stopHudTimer(client);
+        delete client.hudTimer;
+      }
       vehicle.state.position = new Float32Array([
         packet.data.positionUpdate.position[0],
         packet.data.positionUpdate.position[1] - 0.4,
@@ -879,7 +890,7 @@ export class zonePacketHandlers {
         !isPosInRadius(
           1,
           client.character.state.position,
-          client.posAtLogoutStart
+          client.posAtTimerStart
         )
       ) {
         server.stopHudTimer(client);
