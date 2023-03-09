@@ -245,28 +245,29 @@ export class LoginServer extends EventEmitter {
                     const { status, loginSessionId } = packet.data;
                     const serverId = this._zoneConnections[client.clientId];
                     try {
-                    const userSession= await this._db
-                      .collection(DB_COLLECTIONS.USERS_SESSIONS)
-                      .findOne({ guid: loginSessionId });
-                    this._db
-                      ?.collection(DB_COLLECTIONS.BANNED_LIGHT)
-                      .findOneAndUpdate(
-                        { serverId: serverId },
-                        {
-                          $set: {
-                            serverId,
-                            authKey:userSession.authKey,
-                            status,
-                            isGlobal: await this._isServerOfficial(serverId),
+                      const userSession = await this._db
+                        .collection(DB_COLLECTIONS.USERS_SESSIONS)
+                        .findOne({ guid: loginSessionId });
+                      this._db
+                        ?.collection(DB_COLLECTIONS.BANNED_LIGHT)
+                        .findOneAndUpdate(
+                          { serverId: serverId },
+                          {
+                            $set: {
+                              serverId,
+                              authKey: userSession.authKey,
+                              status,
+                              isGlobal: await this._isServerOfficial(serverId),
+                            },
                           },
-                        },
-                        { upsert: true }
+                          { upsert: true }
+                        );
+                    } catch (e) {
+                      console.log(e);
+                      console.log(
+                        `Failed to register clientBan serverId:${serverId} loginSessionId:${loginSessionId}`
                       );
                     }
-                  catch(e){
-                    console.log(e)
-                    console.log(`Failed to register clientBan serverId:${serverId} loginSessionId:${loginSessionId}`)
-                  }
                     break;
                   }
                   default:
@@ -845,13 +846,10 @@ export class LoginServer extends EventEmitter {
   async isClientHWIDBanned(_address: string): Promise<boolean> {
     return false;
   }
-  async getOwnerBanInfo(
-    serverId: number,
-    client: Client
-  ) {
+  async getOwnerBanInfo(serverId: number, client: Client) {
     const ownerBanInfos: any[] = await this._db
       .collection(DB_COLLECTIONS.BANNED_LIGHT)
-      .find({ authKey:client.loginSessionId, status: true })
+      .find({ authKey: client.loginSessionId, status: true })
       .toArray();
     const banInfos: { banInfo: BAN_INFO }[] = [];
     for (let i = 0; i < ownerBanInfos.length; i++) {
@@ -885,10 +883,7 @@ export class LoginServer extends EventEmitter {
         characterId,
         client.loginSessionId
       );
-      const banInfos = await this.getOwnerBanInfo(
-        serverId,
-        client
-      );
+      const banInfos = await this.getOwnerBanInfo(serverId, client);
       CharacterAllowedOnZone = (await this.askZone(
         serverId,
         "CharacterAllowedRequest",

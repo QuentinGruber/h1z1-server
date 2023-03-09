@@ -298,7 +298,7 @@ export class ZoneServer2016 extends EventEmitter {
     BAN_INFO.GLOBAL_BAN,
     BAN_INFO.LOCAL_BAN,
     BAN_INFO.VPN,
-    BAN_INFO.HWID
+    BAN_INFO.HWID,
   ];
 
   constructor(
