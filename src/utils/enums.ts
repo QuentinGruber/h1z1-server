@@ -21,6 +21,7 @@ export enum BAN_INFO {
   LOCAL_BAN = 1,
   GLOBAL_BAN = 2,
   VPN = 3,
+  HWID = 4,
 }
 
 export enum NAME_VALIDATION_STATUS {

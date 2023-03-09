@@ -244,6 +244,10 @@ export class LoginServer extends EventEmitter {
                   case "ClientBan": {
                     const { status, loginSessionId } = packet.data;
                     const serverId = this._zoneConnections[client.clientId];
+                    try {
+                    const userSession= await this._db
+                      .collection(DB_COLLECTIONS.USERS_SESSIONS)
+                      .findOne({ guid: loginSessionId });
                     this._db
                       ?.collection(DB_COLLECTIONS.BANNED_LIGHT)
                       .findOneAndUpdate(
@@ -251,13 +255,18 @@ export class LoginServer extends EventEmitter {
                         {
                           $set: {
                             serverId,
-                            loginSessionId,
+                            authKey:userSession.authKey,
                             status,
                             isGlobal: await this._isServerOfficial(serverId),
                           },
                         },
                         { upsert: true }
                       );
+                    }
+                  catch(e){
+                    console.log(e)
+                    console.log(`Failed to register clientBan serverId:${serverId} loginSessionId:${loginSessionId}`)
+                  }
                     break;
                   }
                   default:
@@ -832,14 +841,17 @@ export class LoginServer extends EventEmitter {
   async isClientUsingVpn(_address: string): Promise<boolean> {
     return false;
   }
+
+  async isClientHWIDBanned(_address: string): Promise<boolean> {
+    return false;
+  }
   async getOwnerBanInfo(
     serverId: number,
-    client: Client,
-    loginSessionId: string
+    client: Client
   ) {
     const ownerBanInfos: any[] = await this._db
       .collection(DB_COLLECTIONS.BANNED_LIGHT)
-      .find({ loginSessionId, status: true })
+      .find({ authKey:client.loginSessionId, status: true })
       .toArray();
     const banInfos: { banInfo: BAN_INFO }[] = [];
     for (let i = 0; i < ownerBanInfos.length; i++) {
@@ -854,6 +866,10 @@ export class LoginServer extends EventEmitter {
 
     if (await this.isClientUsingVpn(client.address)) {
       banInfos.push({ banInfo: BAN_INFO.VPN });
+    }
+
+    if (await this.isClientHWIDBanned(client.address)) {
+      banInfos.push({ banInfo: BAN_INFO.HWID });
     }
 
     return banInfos;
@@ -871,8 +887,7 @@ export class LoginServer extends EventEmitter {
       );
       const banInfos = await this.getOwnerBanInfo(
         serverId,
-        client,
-        charactersLoginInfo.applicationData.serverTicket
+        client
       );
       CharacterAllowedOnZone = (await this.askZone(
         serverId,

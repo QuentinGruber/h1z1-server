@@ -298,6 +298,7 @@ export class ZoneServer2016 extends EventEmitter {
     BAN_INFO.GLOBAL_BAN,
     BAN_INFO.LOCAL_BAN,
     BAN_INFO.VPN,
+    BAN_INFO.HWID
   ];
 
   constructor(
@@ -482,6 +483,7 @@ export class ZoneServer2016 extends EventEmitter {
                         "CharacterAllowedReply",
                         { status: 0, reqId: reqId }
                       );
+                      return;
                     }
                   }
                   const collection = (this._db as Db).collection(
