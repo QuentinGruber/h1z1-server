@@ -1964,7 +1964,7 @@ export class zonePacketHandlers {
             weaponItem.weapon.ammoCount -= 1;
           }
           const drift = Math.abs(p.gameTime - server.getServerTime());
-          if (drift > server._maxPing) {
+          if (drift > server._maxPing + 200) {
             server.sendChatText(
               client,
               `FairPlay: Your shots didnt register due to packet loss`
