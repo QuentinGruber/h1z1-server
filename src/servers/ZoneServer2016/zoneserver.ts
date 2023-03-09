@@ -153,6 +153,8 @@ import { logVersion } from "../../utils/processErrorHandling";
 import { TaskProp } from "./entities/taskprop";
 import { ChatManager } from "./managers/chatmanager";
 import { Crate } from "./entities/crate";
+import { ConfigManager } from "./managers/configmanager";
+import { RConManager } from "./managers/rconmanager";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   Z1_vehicles = require("../../../data/2016/zoneData/Z1_vehicleLocations.json"),
@@ -179,8 +181,8 @@ export class ZoneServer2016 extends EventEmitter {
   private _gatewayServer: GatewayServer;
   readonly _protocol: H1Z1Protocol;
   _db!: Db;
-  _soloMode = false;
-  _useFairPlay = true;
+  readonly _soloMode: boolean;
+  _useFairPlay: boolean;
   _maxPing = 250;
   _decryptKey: string = "";
   _serverName = process.env.SERVER_NAME || "";
@@ -265,6 +267,8 @@ export class ZoneServer2016 extends EventEmitter {
   worldDataManager!: WorldDataManagerThreaded;
   hookManager: HookManager;
   chatManager: ChatManager;
+  configManager: ConfigManager;
+  rconManager: RConManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _weaponDefinitions: { [weaponDefinitionId: number]: any } =
@@ -315,14 +319,21 @@ export class ZoneServer2016 extends EventEmitter {
     this.weatherManager = new WeatherManager();
     this.hookManager = new HookManager();
     this.chatManager = new ChatManager();
+    this.configManager = new ConfigManager();
+    this.rconManager = new RConManager();
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
+
+    
+    this._soloMode = false;
+    this._useFairPlay = this.getConfig().useFairplay;
 
     if (!this._mongoAddress) {
       this._soloMode = true;
       this._useFairPlay = false;
       debug("Server in solo mode !");
     }
+
     this.on("data", this.onZoneDataEvent);
 
     this.on("login", (client) => {
@@ -545,6 +556,10 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
     }
+  }
+
+  getConfig() {
+    return this.configManager.getConfig();
   }
 
   onZoneLoginEvent(client: Client) {
