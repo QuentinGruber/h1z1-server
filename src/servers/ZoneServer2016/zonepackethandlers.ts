@@ -1987,6 +1987,7 @@ export class zonePacketHandlers {
           }
           let hitNumber = 0;
           if (
+            !client.vehicle.mountedVehicle &&
             !isPosInRadius(
               3,
               client.character.state.position,
