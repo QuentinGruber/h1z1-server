@@ -786,7 +786,7 @@ export class Character2016 extends BaseFullCharacter {
         damage = server.checkArmor(
           this.characterId,
           damage,
-          damageInfo.weapon == Items.WEAPON_SHOTGUN ? 10 : 4
+          (damageInfo.weapon == Items.WEAPON_SHOTGUN || damageInfo.weapon == Items.WEAPON_308) ? 10 : 4
         );
         canStopBleed = true;
         break;
