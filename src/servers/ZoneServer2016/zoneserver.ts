@@ -473,7 +473,6 @@ export class ZoneServer2016 extends EventEmitter {
               case "CharacterAllowedRequest": {
                 const { characterId, banInfos, reqId } = packet.data;
                 try {
-                  console.log(banInfos);
                   for (let i = 0; i < banInfos.length; i++) {
                     const banInfo = banInfos[i];
                     // TODO: vpn-whitelist
