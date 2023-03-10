@@ -2244,7 +2244,7 @@ export class zonePacketHandlers {
               p.packet.position
             )
           )
-            hitNumber = 1;
+            hitNumberH = 1;
           const shotProjectilesH =
             weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 12 : 1;
           for (let x = 0; x < shotProjectilesH; x++) {
