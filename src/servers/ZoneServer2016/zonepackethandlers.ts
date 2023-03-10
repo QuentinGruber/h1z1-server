@@ -2284,6 +2284,10 @@ export class zonePacketHandlers {
           break;
         case "Weapon.ProjectileSpawnAttachedNpc":
           debug("Weapon.ProjectileSpawnAttachedNpc");
+          if (client.fireHints[p.packet.sessionProjectileCount]) {
+            client.fireHints[p.packet.sessionProjectileCount].marked =
+              p.packet.characterId;
+          }
           break;
         default:
           debug(`Unhandled weapon packet type: ${p.packetName}`);

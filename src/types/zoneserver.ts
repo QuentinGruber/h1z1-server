@@ -218,6 +218,7 @@ export interface fireHint {
     hitNumber: number;
     weaponItem: LoadoutItem
     timeStamp: number,
+    marked?: string
 }
 
 export interface SpawnLocation {

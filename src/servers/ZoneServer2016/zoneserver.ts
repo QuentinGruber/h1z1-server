@@ -2969,6 +2969,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (!fireHint) {
       if (c) {
         this.sendChatText(c, message, false);
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} has hit ${c.character.name} with non existing projectile`,
+          false
+        );
       }
       return;
     }
@@ -2985,6 +2989,24 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     if (c) fireHint.hitNumber++;
+    const checkWeapons = [
+      Items.WEAPON_BOW_MAKESHIFT,
+      Items.WEAPON_BOW_RECURVE,
+      Items.WEAPON_BOW_WOOD,
+      Items.WEAPON_CROSSBOW,
+    ];
+    if (checkWeapons.includes(weaponItem.itemDefinitionId)) {
+      if (!fireHint.marked || fireHint.marked != entity.characterId) {
+        if (c) {
+          this.sendChatTextToAdmins(
+            `FairPlay: ${client.character.name} is hitting invalid projectiles on player ${c.character.name}`,
+            false
+          );
+          this.sendChatText(c, message, false);
+        }
+        return;
+      }
+    }
     const distance = getDistance(fireHint.position, packet.hitReport.position);
     const speed = (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
     let maxSpeed = 5000;
