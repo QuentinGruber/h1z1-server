@@ -2996,7 +2996,13 @@ export class ZoneServer2016 extends EventEmitter {
       Items.WEAPON_CROSSBOW,
     ];
     if (checkWeapons.includes(weaponItem.itemDefinitionId)) {
-      if (!fireHint.marked || fireHint.marked != entity.characterId) {
+      if (
+        !fireHint.marked ||
+        fireHint.marked.characterId != entity.characterId ||
+        getDistance(fireHint.marked.position, packet.hitReport.position) >
+          0.1 ||
+        Math.abs(gameTime - fireHint.marked.gameTime) > 5
+      ) {
         if (c) {
           this.sendChatTextToAdmins(
             `FairPlay: ${client.character.name} is hitting invalid projectiles on player ${c.character.name}`,

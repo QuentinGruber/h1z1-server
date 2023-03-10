@@ -2285,8 +2285,12 @@ export class zonePacketHandlers {
         case "Weapon.ProjectileSpawnAttachedNpc":
           debug("Weapon.ProjectileSpawnAttachedNpc");
           if (client.fireHints[p.packet.sessionProjectileCount]) {
-            client.fireHints[p.packet.sessionProjectileCount].marked =
-              p.packet.characterId;
+            client.fireHints[p.packet.sessionProjectileCount].marked = {
+              characterId: p.packet.characterId,
+              position: p.packet.position,
+              rotation: p.packet.rotation,
+              gameTime: p.gameTime,
+            };
           }
           break;
         default:
