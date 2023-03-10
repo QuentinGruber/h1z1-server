@@ -126,7 +126,7 @@ import {
 } from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
-import { DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
+import { BAN_INFO, DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
 
 import {
   ClientUpdateDeathMetrics,
@@ -291,8 +291,15 @@ export class ZoneServer2016 extends EventEmitter {
   private _isSaving: boolean = false;
   saveTimeInterval: number = 600000;
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
+  // TODO: this could be a constant
   observerVehicleGuid: string = "0xFAFAFAFAFAFAFAFA";
   _suspiciousList: string[] = [];
+  banInfoAcceptance: BAN_INFO[] = [
+    BAN_INFO.GLOBAL_BAN,
+    BAN_INFO.LOCAL_BAN,
+    BAN_INFO.VPN,
+    BAN_INFO.HWID,
+  ];
 
   constructor(
     serverPort: number,
@@ -463,9 +470,21 @@ export class ZoneServer2016 extends EventEmitter {
                 this.onClientIsAdminRequest(client, packet);
                 break;
               }
-              case "CharacterExistRequest": {
-                const { characterId, reqId } = packet.data;
+              case "CharacterAllowedRequest": {
+                const { characterId, banInfos, reqId } = packet.data;
                 try {
+                  for (let i = 0; i < banInfos.length; i++) {
+                    const banInfo = banInfos[i];
+                    // TODO: vpn-whitelist
+                    if (this.banInfoAcceptance.includes(banInfo.banInfo)) {
+                      this._h1emuZoneServer.sendData(
+                        client,
+                        "CharacterAllowedReply",
+                        { status: 0, reqId: reqId }
+                      );
+                      return;
+                    }
+                  }
                   const collection = (this._db as Db).collection(
                     DB_COLLECTIONS.CHARACTERS
                   );
@@ -479,20 +498,21 @@ export class ZoneServer2016 extends EventEmitter {
                   if (charactersArray.length) {
                     this._h1emuZoneServer.sendData(
                       client,
-                      "CharacterExistReply",
+                      "CharacterAllowedReply",
                       { status: 1, reqId: reqId }
                     );
                   } else {
                     this._h1emuZoneServer.sendData(
                       client,
-                      "CharacterExistReply",
+                      "CharacterAllowedReply",
                       { status: 0, reqId: reqId }
                     );
                   }
                 } catch (error) {
+                  console.log(error);
                   this._h1emuZoneServer.sendData(
                     client,
-                    "CharacterExistReply",
+                    "CharacterAllowedReply",
                     { status: 0, reqId: reqId }
                   );
                 }
@@ -4331,6 +4351,18 @@ export class ZoneServer2016 extends EventEmitter {
     return false;
   }
 
+  async unbanClient(client: Client, name: string): Promise<ClientBan> {
+    const unBannedClient = (
+      await this._db
+        ?.collection(DB_COLLECTIONS.BANNED)
+        .findOneAndUpdate(
+          { name, active: true },
+          { $set: { active: false, unBanAdminName: client.character.name } }
+        )
+    )?.value as unknown as ClientBan;
+    this.sendBanToLogin(unBannedClient.loginSessionId, false);
+    return unBannedClient;
+  }
   banClient(
     client: Client,
     reason: string,
@@ -4354,6 +4386,7 @@ export class ZoneServer2016 extends EventEmitter {
       object.expirationDate = timestamp;
     }
     this._db?.collection(DB_COLLECTIONS.BANNED).insertOne(object);
+    this.sendBanToLogin(client.loginSessionId, true);
     if (banType === "normal") {
       if (timestamp) {
         this.sendAlert(
@@ -8185,11 +8218,23 @@ export class ZoneServer2016 extends EventEmitter {
     );
     delete this._vehicles[vehicleGuid]?.manager;
   }
+  sendBanToLogin(loginSessionId: string, status: boolean) {
+    this._h1emuZoneServer.sendData(
+      {
+        ...this._loginServerInfo,
+        // TODO: what a dirty hack
+        serverId: Infinity,
+      } as any,
+      "ClientBan",
+      { loginSessionId, status }
+    );
+  }
   sendZonePopulationUpdate() {
     const populationNumber = _.size(this._characters);
     this._h1emuZoneServer.sendData(
       {
         ...this._loginServerInfo,
+        // TODO: what a dirty hack
         serverId: Infinity,
       } as any,
       "UpdateZonePopulation",
