@@ -2277,6 +2277,74 @@ export class zonePacketHandlers {
 
     server.groupManager.sendGroupInvite(server, client, target);
   }
+  GroupJoin(server: ZoneServer2016, client: Client, packet: any) {
+    console.log(JSON.stringify(packet, undefined, 2));
+
+    const source = server.getClientByNameOrLoginSession(
+      packet.data.inviteData.sourceCharacter.identity.characterName
+    );
+    if (!(source instanceof Client)) return;
+
+    /*
+    server.sendData(client, "Group.Join", {
+      unknownDword1: 1, // should be 1
+      unknownDword2: 1,
+      joinState: 1,
+      unknownDword3: 1,
+      inviteData: {
+        sourceCharacter: {
+          characterId: source.character.characterId,
+          identity: {
+            characterFirstName: source.character.name,
+            characterName: source.character.name,
+          },
+        },
+        targetCharacter: {
+          characterId: client.character.characterId,
+          identity: {
+            characterName: client.character.name,
+          },
+        },
+      },
+    });
+    */
+    server.sendData(source, "Group.PlayerJoined", {
+      unknownDword1: 1, // should be 1
+      unknownDword2: 1,
+      joinData: {
+        inviteData: {
+          characterId: client.character.characterId,
+          identity: {
+            characterFirstName: client.character.name,
+            characterName: client.character.name,
+          },
+        },
+        unknownData1: {
+          unknownDword1: 1,
+          unknownDword2: 1,
+          unknownDword3: 1,
+          unknownDword4: 1,
+          unknownDword5: 1,
+        },
+        unknownDword1: 1,
+        unknownByte1: 1,
+        unknownDword2: 1,
+        unknownDword3: 1,
+        unknownDword4: 1,
+        unknownQword1: client.character.characterId,
+        unknownDword5: 1,
+        unknownFloatVector3: client.character.state.position,
+        unknownFloatVector4: client.character.state.lookAt,
+        unknownQword2: client.character.characterId,
+        unknownDword6: 1,
+        unknownDword7: 1,
+        unknownDword8: 1,
+        unknownDword9: 1,
+        unknownDword10: 1,
+      }
+    });
+    //server.groupManager.handleGroupJoin(server, source, client);
+  }
   //#endregion
 
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
@@ -2479,8 +2547,13 @@ export class zonePacketHandlers {
         break;
       case "AccessedCharacter.EndCharacterAccess":
         this.EndCharacterAccess(server, client, packet);
+        break;
       case "Group.Invite":
         this.GroupInvite(server, client, packet);
+        break;
+      case "Group.Join":
+        this.GroupJoin(server, client, packet);
+        break;
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");

@@ -68,8 +68,8 @@ export const groupPackets = [
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "joinState", type: "uint32", defaultValue: 0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
         {
           name: "inviteData",
           type: "schema",
@@ -248,7 +248,48 @@ export const groupPackets = [
     0x1313,
     {
       fields: [
-        // todo: massive structure
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        {
+          name: "joinData",
+          type: "schema",
+          defaultValue: {},
+          fields: [
+            {
+              name: "inviteData",
+              type: "schema",
+              defaultValue: {},
+              fields: groupCharacterSchema,
+            },
+            {
+              name: "unknownData1",
+              type: "schema",
+              defaultValue: {},
+              fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+              ],
+            },
+          ],
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+        { name: "unknownQword1", type: "uint64string", defaultValue: "" },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+        { name: "unknownFloatVector3", type: "floatvector3", defaultValue: [0, 0, 0] },
+        { name: "unknownFloatVector4", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
+        { name: "unknownQword2", type: "uint64string", defaultValue: "" },
+        { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword7", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword8", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword9", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword10", type: "uint32", defaultValue: 0 },
       ],
     },
   ],

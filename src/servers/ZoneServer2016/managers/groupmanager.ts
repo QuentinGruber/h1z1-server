@@ -31,12 +31,37 @@ export class GroupManager {
           characterId: source.character.characterId,
           identity: {
             characterFirstName: source.character.name,
+            characterName: source.character.name,
           },
         },
         targetCharacter: {
           characterId: target.character.characterId,
           identity: {
-            characterFirstName: target.character.name,
+            characterName: target.character.name,
+          },
+        },
+      },
+    });
+  }
+
+  handleGroupJoin(server: ZoneServer2016, source: Client, target: Client) {
+    server.sendData(target, "Group.Join", {
+      unknownDword1: 1, // should be 1
+      unknownDword2: 1,
+      joinState: 1,
+      unknownDword3: 1,
+      inviteData: {
+        sourceCharacter: {
+          characterId: source.character.characterId,
+          identity: {
+            characterFirstName: source.character.name,
+            characterName: source.character.name,
+          },
+        },
+        targetCharacter: {
+          characterId: target.character.characterId,
+          identity: {
+            characterName: target.character.name,
           },
         },
       },
