@@ -3019,7 +3019,7 @@ export class ZoneServer2016 extends EventEmitter {
     let maxDistance = 7;
     switch (weaponItem.itemDefinitionId) {
       case Items.WEAPON_308:
-        maxSpeed = 8000;
+        maxSpeed = 7500;
         maxDistance = 10;
         break;
       case Items.WEAPON_CROSSBOW:
@@ -3047,13 +3047,13 @@ export class ZoneServer2016 extends EventEmitter {
       (speed > maxSpeed || speed <= 0 || speed == Infinity)
     ) {
       this.sendChatTextToAdmins(
-        `FairPlay: ${
+        `FairPlay: blocked ${
           client.character.name
-        } shot has been blocked due to projectile speed: (${speed.toFixed(
+        }'s projectile due to speed: (${speed.toFixed(
           0
-        )} / ${maxSpeed}) | weapon: ${
+        )} / ${maxSpeed}) | ${distance.toFixed(2)}m | ${
           this.getItemDefinition(weaponItem.itemDefinitionId).NAME
-        } | location: ${packet.hitReport.hitLocation}`,
+        } | ${packet.hitReport.hitLocation}`,
         false
       );
       if (c) {
