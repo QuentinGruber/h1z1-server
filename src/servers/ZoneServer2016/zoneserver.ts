@@ -2800,7 +2800,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!c || !c.character.hasHelmet(this)) {
       return damage;
     }
-    damage *= 0.75;
+    damage *= 0.25;
     this.damageItem(
       c,
       c.character._loadout[LoadoutSlots.HEAD],
@@ -2906,13 +2906,13 @@ export class ZoneServer2016 extends EventEmitter {
           getDistance(sourcePos, targetPos),
           200,
           1200, //1667,
-          3,
-          20
+          1,
+          10
         );
       case Items.WEAPON_AK47:
         return 2900;
       case Items.WEAPON_308:
-        return 8000;
+        return 6500;
       case Items.WEAPON_MAGNUM:
         return 3000;
       case Items.WEAPON_BOW_MAKESHIFT:
@@ -2975,6 +2975,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (!fireHint) {
       if (c) {
         this.sendChatText(c, message, false);
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} has hit ${c.character.name} with non existing projectile`,
+          false
+        );
       }
       return;
     }
@@ -2982,42 +2986,80 @@ export class ZoneServer2016 extends EventEmitter {
     if (!weaponItem) return;
     if (fireHint.hitNumber > 0) {
       if (c) {
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} shot has been blocked due to desync / double usage`,
+          false
+        );
         this.sendChatText(c, message, false);
       }
       return;
     }
     if (c) fireHint.hitNumber++;
+    const checkWeapons = [
+      Items.WEAPON_BOW_MAKESHIFT,
+      Items.WEAPON_BOW_RECURVE,
+      Items.WEAPON_BOW_WOOD,
+      Items.WEAPON_CROSSBOW,
+    ];
+    if (checkWeapons.includes(weaponItem.itemDefinitionId)) {
+      if (
+        !fireHint.marked ||
+        fireHint.marked.characterId != entity.characterId ||
+        getDistance(fireHint.marked.position, packet.hitReport.position) >
+          0.1 ||
+        Math.abs(gameTime - fireHint.marked.gameTime) > 5
+      ) {
+        if (c) {
+          this.sendChatTextToAdmins(
+            `FairPlay: ${client.character.name} is hitting invalid projectiles on player ${c.character.name}`,
+            false
+          );
+          this.sendChatText(c, message, false);
+        }
+        return;
+      }
+    }
     const distance = getDistance(fireHint.position, packet.hitReport.position);
     const speed = (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
     let maxSpeed = 5000;
+    let maxDistance = 7;
     switch (weaponItem.itemDefinitionId) {
+      case Items.WEAPON_308:
+        maxSpeed = 7500;
+        maxDistance = 10;
+        break;
       case Items.WEAPON_CROSSBOW:
         maxSpeed = 900;
+        maxDistance = 5;
         break;
       case Items.WEAPON_BOW_MAKESHIFT:
         maxSpeed = 300;
+        maxDistance = 2;
         break;
       case Items.WEAPON_BOW_RECURVE:
-        maxSpeed = 500;
+        maxSpeed = 600;
+        maxDistance = 2;
         break;
       case Items.WEAPON_BOW_WOOD:
         maxSpeed = 400;
+        maxDistance = 2;
         break;
       case Items.WEAPON_SHOTGUN:
         maxSpeed = 2600;
+        maxDistance = 5;
     }
     if (
-      distance > 10 &&
+      distance > maxDistance &&
       (speed > maxSpeed || speed <= 0 || speed == Infinity)
     ) {
       this.sendChatTextToAdmins(
-        `FairPlay: ${
+        `FairPlay: blocked ${
           client.character.name
-        } shot has been blocked due to projectile speed: (${speed.toFixed(
+        }'s projectile due to speed: (${speed.toFixed(
           0
-        )} / ${maxSpeed}) weapon: ${
+        )} / ${maxSpeed}) | ${distance.toFixed(2)}m | ${
           this.getItemDefinition(weaponItem.itemDefinitionId).NAME
-        }`,
+        } | ${packet.hitReport.hitLocation}`,
         false
       );
       if (c) {
@@ -6171,28 +6213,6 @@ export class ZoneServer2016 extends EventEmitter {
         `Error: ${client.character.name} exited vehicle with no seatId set`
       );
       return;
-    }
-    if (client.managedObjects.includes(vehicle.characterId)) {
-      setTimeout(() => {
-        this.dropManagedObject(
-          client,
-          vehicle,
-          vehicle.getNextSeatId(this) == "0" ? true : false
-        );
-        this.sendDataToAllWithSpawnedEntity(
-          this._vehicles,
-          vehicle.characterId,
-          "PlayerUpdatePosition",
-          {
-            transientId: vehicle.transientId,
-            positionUpdate: {
-              ...vehicle.positionUpdate,
-              verticalSpeed: 0,
-              horizontalSpeed: 0,
-            },
-          }
-        );
-      }, 3000);
     }
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.DismountResponse", {

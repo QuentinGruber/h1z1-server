@@ -218,6 +218,7 @@ export interface fireHint {
     hitNumber: number;
     weaponItem: LoadoutItem
     timeStamp: number,
+    marked?: {characterId:string, position: Float32Array, rotation: Float32Array, gameTime: number}
 }
 
 export interface SpawnLocation {

@@ -775,9 +775,6 @@ export class zonePacketHandlers {
       // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
       return;
     }
-    if (packet.data.flags === 510) {
-      // falling flag, ignore for now
-    }
     if (packet.data.stance) {
       if (
         packet.data.stance == Stances.STANCE_XS ||
@@ -1979,12 +1976,13 @@ export class zonePacketHandlers {
             server.damageItem(client, weaponItem, 2);
           break;
         case "Weapon.Fire":
+          if (client.fireHints[p.packet.sessionProjectileCount]) return;
           if (weaponItem.weapon.ammoCount <= 0) return;
           if (weaponItem.weapon.ammoCount > 0) {
             weaponItem.weapon.ammoCount -= 1;
           }
           const drift = Math.abs(p.gameTime - server.getServerTime());
-          if (drift > server._maxPing) {
+          if (drift > server._maxPing + 200) {
             server.sendChatText(
               client,
               `FairPlay: Your shots didnt register due to packet loss`
@@ -2005,6 +2003,16 @@ export class zonePacketHandlers {
             }
             if (p.gameTime - lastFireHint.timeStamp < blockedTime) return;
           }
+          let hitNumber = 0;
+          if (
+            !client.vehicle.mountedVehicle &&
+            !isPosInRadius(
+              3,
+              client.character.state.position,
+              p.packet.position
+            )
+          )
+            hitNumber = 1;
           const shotProjectiles =
             weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 12 : 1;
           for (let x = 0; x < shotProjectiles; x++) {
@@ -2012,7 +2020,7 @@ export class zonePacketHandlers {
               id: p.packet.sessionProjectileCount + x,
               position: p.packet.position,
               rotation: new Float32Array([0, 0, 0, 0]),
-              hitNumber: 0,
+              hitNumber: hitNumber,
               weaponItem: weaponItem,
               timeStamp: p.gameTime,
             };
@@ -2217,10 +2225,59 @@ export class zonePacketHandlers {
           break;
         case "Weapon.WeaponFireHint":
           debug("WeaponFireHint");
-          const fireHint = client.fireHints[p.packet.sessionProjectileCount];
-          if (!fireHint) return;
-          fireHint.rotation = p.packet.rotation;
-          fireHint.timeStamp = p.gameTime;
+          if (weaponItem.weapon.ammoCount <= 0) return;
+          if (weaponItem.weapon.ammoCount > 0) {
+            weaponItem.weapon.ammoCount -= 1;
+          }
+          const driftH = Math.abs(p.gameTime - server.getServerTime());
+          if (driftH > server._maxPing + 200) {
+            server.sendChatText(
+              client,
+              `FairPlay: Your shots didnt register due to packet loss`
+            );
+            return;
+          }
+          const keysH = Object.keys(client.fireHints);
+          const lastFireHintH =
+            client.fireHints[Number(keysH[keysH.length - 1])];
+          if (lastFireHintH) {
+            let blockedTime = 50;
+            switch (weaponItem.itemDefinitionId) {
+              case Items.WEAPON_308:
+                blockedTime = 1300;
+                break;
+              case Items.WEAPON_SHOTGUN:
+                blockedTime = 400;
+                break;
+            }
+            if (p.gameTime - lastFireHintH.timeStamp < blockedTime) return;
+          }
+          let hitNumberH = 0;
+          if (
+            !client.vehicle.mountedVehicle &&
+            !isPosInRadius(
+              3,
+              client.character.state.position,
+              p.packet.position
+            )
+          )
+            hitNumberH = 1;
+          const shotProjectilesH =
+            weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 12 : 1;
+          for (let x = 0; x < shotProjectilesH; x++) {
+            const fireHint: fireHint = {
+              id: p.packet.sessionProjectileCount + x,
+              position: p.packet.position,
+              rotation: new Float32Array([...p.packet.rotation, 0]),
+              hitNumber: hitNumberH,
+              weaponItem: weaponItem,
+              timeStamp: p.gameTime,
+            };
+            client.fireHints[p.packet.sessionProjectileCount + x] = fireHint;
+            setTimeout(() => {
+              delete client.fireHints[p.packet.sessionProjectileCount + x];
+            }, 10000);
+          }
           break;
         case "Weapon.ProjectileContactReport":
           debug("ProjectileContactReport");
@@ -2244,6 +2301,14 @@ export class zonePacketHandlers {
           break;
         case "Weapon.ProjectileSpawnAttachedNpc":
           debug("Weapon.ProjectileSpawnAttachedNpc");
+          if (client.fireHints[p.packet.sessionProjectileCount]) {
+            client.fireHints[p.packet.sessionProjectileCount].marked = {
+              characterId: p.packet.characterId,
+              position: p.packet.position,
+              rotation: p.packet.rotation,
+              gameTime: p.gameTime,
+            };
+          }
           break;
         default:
           debug(`Unhandled weapon packet type: ${p.packetName}`);
