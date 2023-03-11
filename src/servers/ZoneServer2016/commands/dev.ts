@@ -323,7 +323,7 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    /*
+    
     if(!args[5]) {
       server.sendChatText(client, "Missing 5 args");
       return;
@@ -342,17 +342,17 @@ const dev: any = {
         }
       },
       attachmentData: {
-        modelName: "SurvivorMale_Chest_Hoodie_Up_Tintable.adr",
+        modelName: "Survivor<gender>_Legs_Pants_Warmups.adr",
         unknownDword1: Number(args[1]),
         unknownDword2: Number(args[2]), // 1, 2, 4
-        effectId: Number(args[3]), // 0 - 16
+        effectId: Number(args[3]), // 0 - 16 // 3 = glow
         slotId: Number(args[4]), // backpack: 10
         unknownDword4: Number(args[5]),
         unknownArray1: []
       }
     };
     server.sendData(client, "Equipment.SetCharacterEquipmentSlot", equipmentEvent);
-    */
+    /*
     const equipment = {
       // not working yet, attachment error (texture related?)
       characterData: {
@@ -390,7 +390,7 @@ const dev: any = {
       ],
     };
     server.sendChatText(client, "Setting character equipment");
-    server.sendData(client, "Equipment.SetCharacterEquipmentSlots", equipment);
+    server.sendData(client, "Equipment.SetCharacterEquipmentSlots", equipment);*/
   },
 
   tpvehicle: function (
@@ -756,6 +756,27 @@ const dev: any = {
         },
       },
     });
+  },
+
+  shader: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    if(!args[4]) {
+      server.sendChatText(client, "Missing 4 args");
+      return;
+    }
+    Object.values(server._clients).forEach((c)=> {
+      server.sendData(client, "ShaderParameterOverrideBase", {
+        characterId: c.character.characterId,
+        unknownDword1: Number(args[1]),
+        slotId: Number(args[2]),
+        unknownDword2: Number(args[3]),
+        unknownDword3: Number(args[4])
+      })
+    })
+    
   },
 };
 export default dev;

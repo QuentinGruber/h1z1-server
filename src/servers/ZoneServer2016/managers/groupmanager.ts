@@ -60,7 +60,7 @@ export class GroupManager {
       groupId: groupId,
       leader: leader.character.characterId,
       members: [leader.character.characterId],
-    }
+    };
     leader.character.groupId = groupId;
 
     this.nextGroupId++;
