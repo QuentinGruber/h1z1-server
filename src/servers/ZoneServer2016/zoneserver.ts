@@ -291,8 +291,6 @@ export class ZoneServer2016 extends EventEmitter {
   private _isSaving: boolean = false;
   saveTimeInterval: number = 600000;
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
-  // TODO: this could be a constant
-  observerVehicleGuid: string = "0xFAFAFAFAFAFAFAFA";
   _suspiciousList: string[] = [];
   banInfoAcceptance: BAN_INFO[] = [
     BAN_INFO.GLOBAL_BAN,
