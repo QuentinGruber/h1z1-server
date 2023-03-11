@@ -469,7 +469,8 @@ export class ZoneServer2016 extends EventEmitter {
                 break;
               }
               case "CharacterAllowedRequest": {
-                const { characterId, banInfos, reqId } = packet.data;
+                const { characterId, reqId } = packet.data;
+                const banInfos = packet.data.banInfos ?? [];
                 try {
                   for (let i = 0; i < banInfos.length; i++) {
                     const banInfo = banInfos[i];
