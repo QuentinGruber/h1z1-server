@@ -120,6 +120,7 @@ export class Character2016 extends BaseFullCharacter {
   mountedContainer?: BaseLootableEntity;
   defaultLoadout = characterDefaultLoadout;
   mutedCharacters: Array<string> = [];
+  groupId: number = 0;
   constructor(
     characterId: string,
     transientId: number,

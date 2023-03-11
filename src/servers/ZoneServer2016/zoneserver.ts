@@ -1465,33 +1465,38 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   deleteClient(client: Client) {
-    if (client) {
-      if (client.character) {
-        client.isLoading = true; // stop anything from acting on character
+    if(!client) {
+      this.setTickRate();
+      return;
+    }
 
-        clearTimeout(client.character?.resourcesUpdater);
-        const characterSave = WorldDataManager.convertToCharacterSaveData(
-          client.character,
-          this._worldId
-        );
-        this.worldDataManager.saveCharacterData(
-          characterSave,
-          this.lastItemGuid
-        );
-        this.dismountVehicle(client);
-        client.managedObjects?.forEach((characterId: any) => {
-          this.dropVehicleManager(client, characterId);
-        });
-        this.deleteEntity(client.character.characterId, this._characters);
-      }
-      delete this._clients[client.sessionId];
-      const soeClient = this.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        this._gatewayServer._soeServer.deleteClient(soeClient);
-      }
-      if (!this._soloMode) {
-        this.sendZonePopulationUpdate();
-      }
+    if (client.character) {
+      client.isLoading = true; // stop anything from acting on character
+
+      clearTimeout(client.character?.resourcesUpdater);
+      const characterSave = WorldDataManager.convertToCharacterSaveData(
+        client.character,
+        this._worldId
+      );
+      this.worldDataManager.saveCharacterData(
+        characterSave,
+        this.lastItemGuid
+      );
+      this.dismountVehicle(client);
+      client.managedObjects?.forEach((characterId: any) => {
+        this.dropVehicleManager(client, characterId);
+      });
+      this.deleteEntity(client.character.characterId, this._characters);
+
+      this.groupManager.handleGroupLeave(this, client);
+    }
+    delete this._clients[client.sessionId];
+    const soeClient = this.getSoeClient(client.soeClientId);
+    if (soeClient) {
+      this._gatewayServer._soeServer.deleteClient(soeClient);
+    }
+    if (!this._soloMode) {
+      this.sendZonePopulationUpdate();
     }
     this.setTickRate();
   }
@@ -8268,12 +8273,10 @@ export class ZoneServer2016 extends EventEmitter {
     targetClient: string | Client | undefined
   ) {
     if (typeof targetClient == "string") {
-      this.chatManager.sendPlayerNotFound(
-        this,
-        client,
-        inputString,
-        targetClient
-      );
+        this.sendChatText(
+          client,
+          `Could not find player "${inputString.toLowerCase()}", did you mean "${targetClient}"?`
+        );
       return true;
     }
     return false;

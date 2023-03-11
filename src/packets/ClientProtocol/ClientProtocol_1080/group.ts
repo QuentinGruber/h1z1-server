@@ -154,8 +154,8 @@ export const groupPackets = [
     0x1306,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "executeType", type: "uint32", defaultValue: 0 },
+        { name: "errorType", type: "uint32", defaultValue: 0 },
       ],
     },
   ],
@@ -164,8 +164,8 @@ export const groupPackets = [
     0x1307,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "executeType", type: "uint32", defaultValue: 0 },
+        { name: "errorType", type: "uint32", defaultValue: 0 },
         { name: "flags", type: "uint8", defaultValue: 0 },
       ],
     },
