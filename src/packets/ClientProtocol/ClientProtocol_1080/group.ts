@@ -69,15 +69,23 @@ const joinDataSchema: Array<any> = [
   { name: "unknownDword4", type: "uint32", defaultValue: 0 },
   { name: "unknownQword1", type: "uint64string", defaultValue: "" },
   { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-  { name: "unknownFloatVector3", type: "floatvector3", defaultValue: [0, 0, 0] },
-  { name: "unknownFloatVector4", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
+  {
+    name: "unknownFloatVector3",
+    type: "floatvector3",
+    defaultValue: [0, 0, 0],
+  },
+  {
+    name: "unknownFloatVector4",
+    type: "floatvector4",
+    defaultValue: [1, 1, 1, 1],
+  },
   { name: "unknownQword2", type: "uint64string", defaultValue: "" },
   { name: "unknownDword6", type: "uint32", defaultValue: 0 },
   { name: "unknownDword7", type: "uint32", defaultValue: 0 },
   { name: "unknownDword8", type: "uint32", defaultValue: 0 },
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
   { name: "unknownDword10", type: "uint32", defaultValue: 0 },
-]
+];
 
 export const groupPackets = [
   [

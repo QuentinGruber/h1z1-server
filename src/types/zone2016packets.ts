@@ -764,8 +764,8 @@ export interface GroupInvite {
 export interface GroupJoin {
   unknownDword1?: number;
   unknownDword2?: number;
+  joinState?: number;
   unknownDword3?: number;
-  unknownDword4?: number;
   inviteData? :{
   unknownQword1?: string;
   unknownDword1?: number;
@@ -817,12 +817,12 @@ export interface GroupKick {
   unknownDword2?: number;
 }
 export interface GroupDisband {
-  unknownDword1?: number;
-  unknownDword2?: number;
+  executeType?: number;
+  errorType?: number;
 }
 export interface GroupSetGroupFlags {
-  unknownDword1?: number;
-  unknownDword2?: number;
+  executeType?: number;
+  errorType?: number;
   flags?: number;
 }
 export interface GroupSetGroupOwner {
@@ -874,8 +874,89 @@ export interface GroupToggleSquadLeaderChat {
 export interface GroupUnknown12 {
 }
 export interface GroupPlayerJoined {
+  unknownDword1?: number;
+  unknownDword2?: number;
+  joinData? :{
+  inviteData? :{
+  characterId?: string;
+  identity? :{
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  characterFirstName?: string;
+  characterLastName?: string;
+  unknownString1?: string;
+  characterName?: string;
+  unknownQword1?: string;
+}
+  unknownByte1?: number;
+  unknownString1?: string;
+}
+  unknownData1? :{
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownDword5?: number;
+}
+  unknownDword1?: number;
+  unknownByte1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownQword1?: string;
+  unknownDword5?: number;
+  unknownFloatVector3?: Float32Array;
+  unknownFloatVector4?: Float32Array;
+  unknownQword2?: string;
+  unknownDword6?: number;
+  unknownDword7?: number;
+  unknownDword8?: number;
+  unknownDword9?: number;
+  unknownDword10?: number;
+}
 }
 export interface GroupUnknown14 {
+  unknownDword1?: number;
+  joinData? :{
+  inviteData? :{
+  characterId?: string;
+  identity? :{
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  characterFirstName?: string;
+  characterLastName?: string;
+  unknownString1?: string;
+  characterName?: string;
+  unknownQword1?: string;
+}
+  unknownByte1?: number;
+  unknownString1?: string;
+}
+  unknownData1? :{
+  unknownDword1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownDword5?: number;
+}
+  unknownDword1?: number;
+  unknownByte1?: number;
+  unknownDword2?: number;
+  unknownDword3?: number;
+  unknownDword4?: number;
+  unknownQword1?: string;
+  unknownDword5?: number;
+  unknownFloatVector3?: Float32Array;
+  unknownFloatVector4?: Float32Array;
+  unknownQword2?: string;
+  unknownDword6?: number;
+  unknownDword7?: number;
+  unknownDword8?: number;
+  unknownDword9?: number;
+  unknownDword10?: number;
+}
 }
 export interface GroupRemoveGroup {
   unknownDword1?: number;

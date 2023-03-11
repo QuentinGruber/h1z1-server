@@ -1465,7 +1465,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   deleteClient(client: Client) {
-    if(!client) {
+    if (!client) {
       this.setTickRate();
       return;
     }
@@ -1478,10 +1478,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character,
         this._worldId
       );
-      this.worldDataManager.saveCharacterData(
-        characterSave,
-        this.lastItemGuid
-      );
+      this.worldDataManager.saveCharacterData(characterSave, this.lastItemGuid);
       this.dismountVehicle(client);
       client.managedObjects?.forEach((characterId: any) => {
         this.dropVehicleManager(client, characterId);
@@ -8273,10 +8270,10 @@ export class ZoneServer2016 extends EventEmitter {
     targetClient: string | Client | undefined
   ) {
     if (typeof targetClient == "string") {
-        this.sendChatText(
-          client,
-          `Could not find player "${inputString.toLowerCase()}", did you mean "${targetClient}"?`
-        );
+      this.sendChatText(
+        client,
+        `Could not find player "${inputString.toLowerCase()}", did you mean "${targetClient}"?`
+      );
       return true;
     }
     return false;
