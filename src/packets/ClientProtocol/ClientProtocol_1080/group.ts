@@ -282,7 +282,7 @@ export const groupPackets = [
     "Group.Unknown12",
     0x1312,
     {
-      fields: [
+      fields: [// confirmed to be used on Z1BR
         // todo: massive structure
       ],
     },

@@ -3451,7 +3451,7 @@ export const basePackets: any = [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "slotId", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+        { name: "shaderGroupId", type: "uint32", defaultValue: 0 },
       ]
     }
   ],

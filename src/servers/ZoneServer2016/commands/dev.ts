@@ -763,8 +763,8 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    if(!args[4]) {
-      server.sendChatText(client, "Missing 4 args");
+    if(!args[3]) {
+      server.sendChatText(client, "Missing 3 args");
       return;
     }
     Object.values(server._clients).forEach((c)=> {
@@ -773,7 +773,7 @@ const dev: any = {
         unknownDword1: Number(args[1]),
         slotId: Number(args[2]),
         unknownDword2: Number(args[3]),
-        unknownDword3: Number(args[4])
+        shaderGroupId: 665 // maybe try setting other character's shaderGroupId on spawn
       })
     })
     
