@@ -1488,7 +1488,7 @@ export class ZoneServer2016 extends EventEmitter {
       });
       this.deleteEntity(client.character.characterId, this._characters);
 
-      this.groupManager.handleGroupLeave(this, client);
+      this.groupManager.handlePlayerDisconnect(this, client);
     }
     delete this._clients[client.sessionId];
     const soeClient = this.getSoeClient(client.soeClientId);

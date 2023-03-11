@@ -2278,14 +2278,14 @@ export class zonePacketHandlers {
     server.groupManager.sendGroupInvite(server, client, target);
   }
   GroupJoin(server: ZoneServer2016, client: Client, packet: any) {
-    //console.log(JSON.stringify(packet, undefined, 2));
+    console.log(JSON.stringify(packet, undefined, 2));
 
     const source = server.getClientByNameOrLoginSession(
       packet.data.inviteData.sourceCharacter.identity.characterName
     );
     if (!(source instanceof Client)) return;
 
-    server.groupManager.handleGroupJoin(server, source, client, packet.data.joinState);
+    server.groupManager.handleGroupJoin(server, source, client, packet.data.joinState == 1);
   }
   //#endregion
 
