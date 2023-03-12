@@ -861,6 +861,13 @@ export class Character2016 extends BaseFullCharacter {
       stance: this.weaponStance,
     });
 
+    // GROUP OUTLINE WORKAROUND
+    server.sendData(
+      client,
+      "Equipment.SetCharacterEquipment",
+      this.pGetEquipment(client.character.groupId)
+    );
+
     if (this.onReadyCallback) {
       this.onReadyCallback(client);
       delete this.onReadyCallback;
