@@ -1213,6 +1213,8 @@ export class ZoneServer2016 extends EventEmitter {
         speedWarnsNumber: decryptedData[25],
         maxTpDist: decryptedData[26],
         dotProductMin: decryptedData[27],
+        dotProductMinShotgun: decryptedData[28],
+        dotProductBlockValue: decryptedData[29],
       };
     }
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
@@ -3103,19 +3105,48 @@ export class ZoneServer2016 extends EventEmitter {
       const dotProduct =
         Math.cos(angle) * Math.cos(fixedRot) +
         Math.sin(angle) * Math.sin(fixedRot);
-      if (dotProduct < this.fairPlayValues.dotProductMin) {
-        if (c) {
-          this.sendChatText(c, message, false);
+      if (
+        dotProduct <
+        (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+          ? this.fairPlayValues.dotProductMinShotgun
+          : this.fairPlayValues.dotProductMin)
+      ) {
+        if (dotProduct < this.fairPlayValues.dotProductBlockValue) {
+          if (c) {
+            this.sendChatText(c, message, false);
+          }
+          this.sendChatTextToAdmins(
+            `FairPlay: ${
+              client.character.name
+            } projectile was blocked due to invalid rotation: ${Number(
+              ((1 - dotProduct) * 100).toFixed(2)
+            )} / ${
+              Number(
+                (1 - this.fairPlayValues.dotProductBlockValue).toFixed(3)
+              ) * 100
+            }% max deviation`,
+            false
+          );
+          return;
         }
+
         this.sendChatTextToAdmins(
           `FairPlay: ${
             client.character.name
-          } projectile was blocked due to invalid rotation: ${
-            100 - Number(dotProduct.toFixed(4)) * 100
-          }% deviation`,
+          } projectile is hitting with possible invalid rotation: ${Number(
+            ((1 - dotProduct) * 100).toFixed(2)
+          )} / ${
+            Number(
+              (
+                1 -
+                (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+                  ? this.fairPlayValues.dotProductMinShotgun
+                  : this.fairPlayValues.dotProductMin)
+              ).toFixed(3)
+            ) * 100
+          }% max deviation`,
           false
         );
-        return;
       }
       const distance = getDistance(
         fireHint.position,
@@ -3123,7 +3154,6 @@ export class ZoneServer2016 extends EventEmitter {
       );
       const speed =
         (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
-      console.log(speed);
       let maxSpeed = this.fairPlayValues.defaultMaxProjectileSpeed;
       let minSpeed = this.fairPlayValues.defaultMinProjectileSpeed;
       let maxDistance = this.fairPlayValues.defaultMaxProjectileSpeed;

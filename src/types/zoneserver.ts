@@ -345,4 +345,6 @@ export interface FairPlayValues {
   WEAPON_BOW_WOOD: FairPlayWeaponStat;
   WEAPON_SHOTGUN: FairPlayWeaponStat;
   dotProductMin: number;
+  dotProductMinShotgun: number;
+  dotProductBlockValue: number;
 }
