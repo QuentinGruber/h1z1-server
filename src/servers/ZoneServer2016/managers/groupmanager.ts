@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { h1z1PacketsType2016 } from "types/packets";
+import { zone2016packets } from "types/zone2016packets";
 import { Group } from "types/zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
@@ -27,6 +29,58 @@ export class GroupManager {
 
   sendGroupError(server: ZoneServer2016, client: Client, error: GroupErrors) {
     server.sendChatText(client, `[GroupError] ${error}`);
+  }
+
+  sendDataToAllOthersInGroup(
+    server: ZoneServer2016,
+    excludedClient: Client,
+    groupId: number,
+    packetName: h1z1PacketsType2016,
+    obj: zone2016packets
+  ) {
+    if (!groupId) return;
+    const group = this.groups[groupId];
+    if(!group) return;
+    for (const a of group.members) {
+      const client = server.getClientByCharId(a);
+      if(!client || !client.spawnedEntities.includes(excludedClient.character) || client == excludedClient) continue;
+      server.sendData(client, packetName, obj);
+    }
+  }
+
+  removeGroupCharacterOutlines(
+    server: ZoneServer2016,
+    client: Client,
+    group: Group
+  ) {
+    for (const a of group.members) {
+      const target = server.getClientByCharId(a);
+      if(!target || !client.spawnedEntities.includes(target.character) || client == target) continue;
+      server.sendData(
+        client,
+        "Equipment.SetCharacterEquipment",
+        target.character.pGetEquipment()
+      );
+    }
+  }
+
+  sendGroupOutlineUpdates(
+    server: ZoneServer2016,
+    group: Group
+  ) {
+    for (const a of group.members) {
+      const client = server.getClientByCharId(a);
+      if(!client) continue;
+      for (const a of group.members) {
+        const target = server.getClientByCharId(a);
+        if(!target || !client.spawnedEntities.includes(target.character) || client == target) continue;
+        server.sendData(
+          client,
+          "Equipment.SetCharacterEquipment",
+          target.character.pGetEquipment(group.groupId)
+        );
+      }
+    }
   }
 
   sendAlertToGroup(server: ZoneServer2016, groupId: number, message: string) {
@@ -139,6 +193,18 @@ export class GroupManager {
     target: Client,
     joinState: boolean
   ) {
+    const pendingInvite = this.pendingInvites[target.character.characterId];
+    if (pendingInvite != source.character.groupId) {
+      server.sendAlert(target, "You have no pending invites!");
+      return;
+    }
+
+    let group = this.groups[source.character.groupId];
+    if(group && source.character.characterId != group.leader) {
+
+      return;
+    }
+
     if (!joinState) {
       server.sendAlert(
         source,
@@ -148,12 +214,6 @@ export class GroupManager {
       delete this.pendingInvites[target.character.characterId];
       return;
     }
-    const pendingInvite = this.pendingInvites[target.character.characterId];
-    if (pendingInvite != source.character.groupId) {
-      server.sendAlert(target, "You have no pending invites!");
-      return;
-    }
-    let group = this.groups[source.character.groupId];
     if (!group) {
       this.createGroup(server, source);
     }
@@ -173,6 +233,21 @@ export class GroupManager {
 
     server.sendAlert(target, "Group joined.");
     delete this.pendingInvites[target.character.characterId];
+    
+    /*
+    this.sendDataToAllOthersInGroup(server, target, source.character.groupId, "Equipment.SetCharacterEquipment",
+    target.character.pGetEquipment(group.groupId));
+    for (const a of group.members) {
+      const client = server.getClientByCharId(a);
+      if(!client || !target.spawnedEntities.includes(client.character) || client == target) continue;
+      server.sendData(
+        target,
+        "Equipment.SetCharacterEquipment",
+        client.character.pGetEquipment(group.groupId)
+      );
+    }
+    */
+    this.sendGroupOutlineUpdates(server, group);
   }
 
   handlePlayerDisconnect(server: ZoneServer2016, client: Client) {
@@ -195,9 +270,14 @@ export class GroupManager {
       this.sendGroupError(server, client, GroupErrors.INVALID_MEMBER);
       return;
     }
+
+    client.character.groupId = 0;
+    
+    this.removeGroupCharacterOutlines(server, client, group);
+    this.sendGroupOutlineUpdates(server, group);
+
     const idx = group.members.indexOf(client.character.characterId);
     group.members.splice(idx, 1);
-    client.character.groupId = 0;
 
     // disband single member / empty group
     if (!disband && group.members.length <= 1) {
@@ -219,8 +299,6 @@ export class GroupManager {
         server.sendAlert(leaderClient, "You have been made the group leader!");
       }
     }
-
-    // TODO: clear glowing effect for all clients, as well as kicked client
   }
 
   handleGroupKick(
