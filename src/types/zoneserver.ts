@@ -338,10 +338,11 @@ export interface FairPlayValues {
   defaultMaxProjectileSpeed: number;
   defaultMinProjectileSpeed: number;
   defaultMaxDistance: number;
-  WEAPON_308:FairPlayWeaponStat
-    WEAPON_CROSSBOW: FairPlayWeaponStat
-    WEAPON_BOW_MAKESHIFT: FairPlayWeaponStat
-    WEAPON_BOW_RECURVE: FairPlayWeaponStat
-    WEAPON_BOW_WOOD: FairPlayWeaponStat
-    WEAPON_SHOTGUN: FairPlayWeaponStat
+  WEAPON_308: FairPlayWeaponStat;
+  WEAPON_CROSSBOW: FairPlayWeaponStat;
+  WEAPON_BOW_MAKESHIFT: FairPlayWeaponStat;
+  WEAPON_BOW_RECURVE: FairPlayWeaponStat;
+  WEAPON_BOW_WOOD: FairPlayWeaponStat;
+  WEAPON_SHOTGUN: FairPlayWeaponStat;
+  dotProductMin: number;
 }

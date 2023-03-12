@@ -1212,6 +1212,7 @@ export class ZoneServer2016 extends EventEmitter {
         maxVerticalSpeed: decryptedData[24],
         speedWarnsNumber: decryptedData[25],
         maxTpDist: decryptedData[26],
+        dotProductMin: decryptedData[27],
       };
     }
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
@@ -3071,26 +3072,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
-    const angle = getAngle(fireHint.position, packet.hitReport.position);
-    const fixedRot = (fireHint.rotation + 2 * Math.PI) % (2 * Math.PI);
-    const dotProduct =
-      Math.cos(angle) * Math.cos(fixedRot) +
-      Math.sin(angle) * Math.sin(fixedRot);
-    console.log(dotProduct);
-    if (dotProduct < 0.995) {
-      if (c) {
-        this.sendChatText(c, message, false);
-      }
-      this.sendChatTextToAdmins(
-        `FairPlay: ${
-          client.character.name
-        } projectile was blocked due to invalid rotation: ${
-          100 - Number(dotProduct.toFixed(4)) * 100
-        }% deviation`,
-        false
-      );
-      return;
-    }
     if (this.fairPlayValues) {
       if (c) fireHint.hitNumber++;
       const checkWeapons = [
@@ -3116,6 +3097,25 @@ export class ZoneServer2016 extends EventEmitter {
           }
           return;
         }
+      }
+      const angle = getAngle(fireHint.position, packet.hitReport.position);
+      const fixedRot = (fireHint.rotation + 2 * Math.PI) % (2 * Math.PI);
+      const dotProduct =
+        Math.cos(angle) * Math.cos(fixedRot) +
+        Math.sin(angle) * Math.sin(fixedRot);
+      if (dotProduct < this.fairPlayValues.dotProductMin) {
+        if (c) {
+          this.sendChatText(c, message, false);
+        }
+        this.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } projectile was blocked due to invalid rotation: ${
+            100 - Number(dotProduct.toFixed(4)) * 100
+          }% deviation`,
+          false
+        );
+        return;
       }
       const distance = getDistance(
         fireHint.position,
