@@ -932,7 +932,7 @@ export class zonePacketHandlers {
         packet.data.rotation[2],
         packet.data.rotation[3],
       ]);
-
+      client.character.state.yaw = packet.data.rotationRaw[0];
       client.character.state.lookAt = new Float32Array([
         packet.data.lookAt[0],
         packet.data.lookAt[1],
@@ -1976,7 +1976,6 @@ export class zonePacketHandlers {
             server.damageItem(client, weaponItem, 2);
           break;
         case "Weapon.Fire":
-          if (client.fireHints[p.packet.sessionProjectileCount]) return;
           if (weaponItem.weapon.ammoCount <= 0) return;
           if (weaponItem.weapon.ammoCount > 0) {
             weaponItem.weapon.ammoCount -= 1;
@@ -2019,7 +2018,7 @@ export class zonePacketHandlers {
             const fireHint: fireHint = {
               id: p.packet.sessionProjectileCount + x,
               position: p.packet.position,
-              rotation: new Float32Array([0, 0, 0, 0]),
+              rotation: client.character.state.yaw,
               hitNumber: hitNumber,
               weaponItem: weaponItem,
               timeStamp: p.gameTime,
@@ -2225,7 +2224,7 @@ export class zonePacketHandlers {
           break;
         case "Weapon.WeaponFireHint":
           debug("WeaponFireHint");
-          if (weaponItem.weapon.ammoCount <= 0) return;
+          /*if (weaponItem.weapon.ammoCount <= 0) return;
           if (weaponItem.weapon.ammoCount > 0) {
             weaponItem.weapon.ammoCount -= 1;
           }
@@ -2277,7 +2276,7 @@ export class zonePacketHandlers {
             setTimeout(() => {
               delete client.fireHints[p.packet.sessionProjectileCount + x];
             }, 10000);
-          }
+          }*/
           break;
         case "Weapon.ProjectileContactReport":
           debug("ProjectileContactReport");

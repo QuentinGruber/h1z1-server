@@ -214,7 +214,7 @@ export interface DamageRecord {
 export interface fireHint {
     id: number;
     position: Float32Array;
-    rotation: Float32Array;
+    rotation: number;
     hitNumber: number;
     weaponItem: LoadoutItem
     timeStamp: number,

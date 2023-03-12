@@ -96,6 +96,7 @@ import {
   logClientActionToMongo,
   removeUntransferableFields,
   decrypt,
+  getAngle,
 } from "../../utils/utils";
 
 import { Collection, Db } from "mongodb";
@@ -3070,6 +3071,26 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
+    const angle = getAngle(fireHint.position, packet.hitReport.position);
+    const fixedRot = (fireHint.rotation + 2 * Math.PI) % (2 * Math.PI);
+    const dotProduct =
+      Math.cos(angle) * Math.cos(fixedRot) +
+      Math.sin(angle) * Math.sin(fixedRot);
+    console.log(dotProduct);
+    if (dotProduct < 0.995) {
+      if (c) {
+        this.sendChatText(c, message, false);
+      }
+      this.sendChatTextToAdmins(
+        `FairPlay: ${
+          client.character.name
+        } projectile was blocked due to invalid rotation: ${
+          100 - Number(dotProduct.toFixed(4)) * 100
+        }% deviation`,
+        false
+      );
+      return;
+    }
     if (this.fairPlayValues) {
       if (c) fireHint.hitNumber++;
       const checkWeapons = [
@@ -3102,6 +3123,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       const speed =
         (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
+      console.log(speed);
       let maxSpeed = this.fairPlayValues.defaultMaxProjectileSpeed;
       let minSpeed = this.fairPlayValues.defaultMinProjectileSpeed;
       let maxDistance = this.fairPlayValues.defaultMaxProjectileSpeed;
