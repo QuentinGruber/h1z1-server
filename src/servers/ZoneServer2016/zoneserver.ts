@@ -2744,6 +2744,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._plants[entityKey] ||
       this._taskProps[entityKey] ||
       this._crates[entityKey] ||
+      this._temporaryObjects[entityKey] ||
       undefined
     );
   }

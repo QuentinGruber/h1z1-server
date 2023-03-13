@@ -33,6 +33,9 @@ export class PlantingDiameter extends TemporaryEntity {
   }
 
   destroy(server: ZoneServer2016) {
+    for(const plant of Object.values(this.seedSlots)) {
+      plant.destroy(server);
+    }
     return server.deleteEntity(this.characterId, server._temporaryObjects);
   }
 }
