@@ -2511,7 +2511,6 @@ export class ZoneServer2016 extends EventEmitter {
               unknownByte1: 1,
             });
             client.isMovementBlocked = true;
-            this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
             this.sendChatTextToAdmins(
               `FairPlay: Reverted ${client.character.name}' position due to suspeced teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
               false
