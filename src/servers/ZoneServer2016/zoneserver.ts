@@ -148,7 +148,6 @@ import { LootableProp } from "./entities/lootableprop";
 import { PlantingDiameter } from "./entities/plantingdiameter";
 import { Plant } from "./entities/plant";
 import { SmeltingEntity } from "./classes/smeltingentity";
-1;
 import { spawn, Worker } from "threads";
 import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 import { logVersion } from "../../utils/processErrorHandling";
@@ -295,8 +294,6 @@ export class ZoneServer2016 extends EventEmitter {
   private _isSaving: boolean = false;
   saveTimeInterval: number = 600000;
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
-  // TODO: this could be a constant
-  observerVehicleGuid: string = "0xFAFAFAFAFAFAFAFA";
   _suspiciousList: string[] = [];
   fairPlayValues?: FairPlayValues;
   banInfoAcceptance: BAN_INFO[] = [
@@ -476,7 +473,8 @@ export class ZoneServer2016 extends EventEmitter {
                 break;
               }
               case "CharacterAllowedRequest": {
-                const { characterId, banInfos, reqId } = packet.data;
+                const { characterId, reqId } = packet.data;
+                const banInfos = packet.data.banInfos ?? [];
                 try {
                   for (let i = 0; i < banInfos.length; i++) {
                     const banInfo = banInfos[i];

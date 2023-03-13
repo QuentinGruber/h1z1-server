@@ -860,7 +860,7 @@ export class LoginServer extends EventEmitter {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async isClientHWIDBanned(_address: string): Promise<boolean> {
+  async isClientHWIDBanned(client: Client): Promise<boolean> {
     return false;
   }
   async getOwnerBanInfo(serverId: number, client: Client) {
@@ -883,7 +883,7 @@ export class LoginServer extends EventEmitter {
       banInfos.push({ banInfo: BAN_INFO.VPN });
     }
 
-    if (await this.isClientHWIDBanned(client.address)) {
+    if (await this.isClientHWIDBanned(client)) {
       banInfos.push({ banInfo: BAN_INFO.HWID });
     }
 

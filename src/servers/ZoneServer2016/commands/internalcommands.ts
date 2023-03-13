@@ -19,6 +19,7 @@ import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
 import { isPosInRadius } from "../../../utils/utils";
+import { OBSERVER_GUID } from "../../../utils/constants";
 
 export const internalCommands: Array<Command> = [
   //#region DEFAULT PERMISSIONS
@@ -43,7 +44,7 @@ export const internalCommands: Array<Command> = [
       client.character.isSpectator = !client.character.isSpectator;
       if (client.character.isSpectator) {
         const vehicle = new Vehicle(
-          server.observerVehicleGuid,
+          OBSERVER_GUID,
           1,
           9371,
           client.character.state.position,
@@ -93,7 +94,7 @@ export const internalCommands: Array<Command> = [
           characterId: client.character.characterId,
         });
         server.sendData(client, "Character.RemovePlayer", {
-          characterId: server.observerVehicleGuid,
+          characterId: OBSERVER_GUID,
         });
       }
       server.sendAlert(

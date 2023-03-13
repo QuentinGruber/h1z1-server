@@ -67,6 +67,7 @@ import { DB_COLLECTIONS } from "../../utils/enums";
 import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
 import { Character2016 } from "./entities/character";
 import { Crate } from "./entities/crate";
+import { OBSERVER_GUID } from "../../utils/constants";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -966,7 +967,7 @@ export class zonePacketHandlers {
       triggerLoadingScreen: false,
     });
     server.sendData(client, "ClientUpdate.UpdateManagedLocation", {
-      characterId: server.observerVehicleGuid,
+      characterId: OBSERVER_GUID,
       position: [
         packet.data.x,
         client.character.state.position[1],
