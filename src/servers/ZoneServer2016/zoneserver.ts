@@ -3750,6 +3750,7 @@ export class ZoneServer2016 extends EventEmitter {
       setTimeout(() => {
         if (
           client.character.isAlive &&
+          foundation.isSecured &&
           foundation.isInside(client.character.state.position) &&
           Number(client.character.lastLoginDate) + 2000 < new Date().getTime()
         ) {
