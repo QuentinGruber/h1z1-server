@@ -48,6 +48,12 @@ export class GroupManager {
     }
   }
 
+  /**
+   * Removes other group member's outlines for the given client
+   * @param server 
+   * @param client 
+   * @param group 
+   */
   removeGroupCharacterOutlines(
     server: ZoneServer2016,
     client: Client,
@@ -56,6 +62,22 @@ export class GroupManager {
     for (const a of group.members) {
       const target = server.getClientByCharId(a);
       if(!target || !client.spawnedEntities.includes(target.character) || client == target) continue;
+      server.sendData(
+        client,
+        "Equipment.SetCharacterEquipment",
+        target.character.pGetEquipment()
+      );
+    }
+  }
+
+  removeGroupOutlinesForCharacter(
+    server: ZoneServer2016,
+    target: Client,
+    group: Group
+  ) {
+    for (const a of group.members) {
+      const client = server.getClientByCharId(a);
+      if(!client || client == target) continue;
       server.sendData(
         client,
         "Equipment.SetCharacterEquipment",
@@ -234,19 +256,6 @@ export class GroupManager {
     server.sendAlert(target, "Group joined.");
     delete this.pendingInvites[target.character.characterId];
     
-    /*
-    this.sendDataToAllOthersInGroup(server, target, source.character.groupId, "Equipment.SetCharacterEquipment",
-    target.character.pGetEquipment(group.groupId));
-    for (const a of group.members) {
-      const client = server.getClientByCharId(a);
-      if(!client || !target.spawnedEntities.includes(client.character) || client == target) continue;
-      server.sendData(
-        target,
-        "Equipment.SetCharacterEquipment",
-        client.character.pGetEquipment(group.groupId)
-      );
-    }
-    */
     this.sendGroupOutlineUpdates(server, group);
   }
 
@@ -274,7 +283,8 @@ export class GroupManager {
     client.character.groupId = 0;
     
     this.removeGroupCharacterOutlines(server, client, group);
-    this.sendGroupOutlineUpdates(server, group);
+    this.removeGroupOutlinesForCharacter(server, client, group);
+    //this.sendGroupOutlineUpdates(server, group);
 
     const idx = group.members.indexOf(client.character.characterId);
     group.members.splice(idx, 1);

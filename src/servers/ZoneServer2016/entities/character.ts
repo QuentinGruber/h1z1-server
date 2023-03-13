@@ -804,7 +804,6 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   pGetAttachmentSlot(slotId: number, groupId?: number) {
-    console.log(`\n\n${this.groupId > 0 && this.groupId == groupId ? 3 : 0}\n\n`)
     const slot = this._equipment[slotId];
     return slot
       ? {
