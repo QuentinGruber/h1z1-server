@@ -986,13 +986,17 @@ export class zonePacketHandlers {
     debug("Command.PlayerSelect");
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
-    console.log(packet);
-    if (!client.character.currentInteractionGuid || packet.data.password === 1)
+    if (!client.character.currentInteractionGuid || packet.data.password === 1) {
+      server.sendAlert(client, "Code lock failed!");
       return;
+    }
     const doorEntity = server._constructionDoors[
       client.character.currentInteractionGuid
     ] as ConstructionDoor;
-    if (!doorEntity) return;
+    if (!doorEntity) {
+      server.sendAlert(client, "Code lock failed!");
+      return;
+    }
     if (doorEntity.ownerCharacterId === client.character.characterId) {
       if (doorEntity.passwordHash != packet.data.password) {
         doorEntity.passwordHash = packet.data.password;
