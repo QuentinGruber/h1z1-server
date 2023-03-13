@@ -390,37 +390,11 @@ export class zonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
-    if (packet.data.file === server.fairPlayValues?.requiredFile) {
-      if (
-        packet.data.message.includes(server.fairPlayValues?.requiredString) &&
-        client.isMovementBlocked
-      )
-        client.isMovementBlocked = false;
-      server.sendDataToAllWithSpawnedEntity(
-        server._characters,
-        client.character.characterId,
-        "Character.RemovePlayer",
-        {
-          characterId: client.character.characterId,
-        }
-      );
-      setTimeout(() => {
-        const vehicleId = client.vehicle.mountedVehicle,
-          vehicle = vehicleId ? server._vehicles[vehicleId] : false;
-        server.sendDataToAllWithSpawnedEntity(
-          server._characters,
-          client.character.characterId,
-          "AddLightweightPc",
-          {
-            ...client.character.pGetLightweight(),
-            mountGuid: vehicleId || "",
-            mountSeatId: vehicle
-              ? vehicle.getCharacterSeat(client.character.characterId)
-              : 0,
-            mountRelatedDword1: vehicle ? 1 : 0,
-          }
-        );
-      }, 100);
+    if (
+      packet.data.file === server.fairPlayValues?.requiredFile &&
+      client.isMovementBlocked
+    ) {
+      client.isMovementBlocked = false;
     }
     if (
       packet.data.file === server.fairPlayValues?.requiredFile2 &&
@@ -810,7 +784,9 @@ export class zonePacketHandlers {
         );
       }
       return;
-    } else if (client.blockedUpdates != 0) client.blockedUpdates = 0;
+    } else {
+      client.blockedUpdates = 0;
+    }
     if (client.character.tempGodMode) {
       server.setTempGodMode(client, false);
     }
