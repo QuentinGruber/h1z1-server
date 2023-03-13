@@ -774,7 +774,18 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
-    if (client.isMovementBlocked) return;
+    if (client.isMovementBlocked) {
+      client.blockedUpdates++;
+      if (client.blockedUpdates >= 10) {
+        server.kickPlayer(client);
+        server.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        server.sendChatTextToAdmins(
+          `FairPlay: Kicking ${client.character.name} for sending too many blocked updates`,
+          false
+        );
+      }
+      return;
+    } else if (client.blockedUpdates != 0) client.blockedUpdates = 0;
     if (client.character.tempGodMode) {
       server.setTempGodMode(client, false);
     }

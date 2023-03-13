@@ -90,6 +90,7 @@ export class ZoneClient2016 {
   isMovementBlocked: boolean = false;
   isInAir: boolean = false;
   startLoc: number = 0;
+  blockedUpdates: number = 0;
   /*(lightWeightNpcQueue: {
     packetName: h1z1PacketsType2016;
     data: zone2016packets;
