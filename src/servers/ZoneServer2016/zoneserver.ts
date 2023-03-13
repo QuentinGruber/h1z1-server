@@ -2526,7 +2526,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.sendChatTextToAdmins(
           `FairPlay: ${
             client.character.name
-          } has been kicked possible flying by ${(
+          } has been kicked for possible flying by ${(
             position[1] - client.startLoc
           ).toFixed(2)} at [${position[0]} ${position[1]} ${position[2]}]`,
           false
@@ -2558,7 +2558,7 @@ export class ZoneServer2016 extends EventEmitter {
             });
             client.isMovementBlocked = true;
             this.sendChatTextToAdmins(
-              `FairPlay: Reverted ${client.character.name}' position due to suspeced teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
+              `FairPlay: Reverted ${client.character.name}' position due to suspected teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
               false
             );
             return true;

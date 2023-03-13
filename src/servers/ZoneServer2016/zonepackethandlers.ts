@@ -396,6 +396,31 @@ export class zonePacketHandlers {
         client.isMovementBlocked
       )
         client.isMovementBlocked = false;
+      server.sendDataToAllWithSpawnedEntity(
+        server._characters,
+        client.character.characterId,
+        "Character.RemovePlayer",
+        {
+          characterId: client.character.characterId,
+        }
+      );
+      setTimeout(() => {
+        const vehicleId = client.vehicle.mountedVehicle,
+          vehicle = vehicleId ? server._vehicles[vehicleId] : false;
+        server.sendDataToAllWithSpawnedEntity(
+          server._characters,
+          client.character.characterId,
+          "AddLightweightPc",
+          {
+            ...client.character.pGetLightweight(),
+            mountGuid: vehicleId || "",
+            mountSeatId: vehicle
+              ? vehicle.getCharacterSeat(client.character.characterId)
+              : 0,
+            mountRelatedDword1: vehicle ? 1 : 0,
+          }
+        );
+      }, 100);
     }
     if (
       packet.data.file === server.fairPlayValues?.requiredFile2 &&
