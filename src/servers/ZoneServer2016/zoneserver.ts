@@ -6248,6 +6248,7 @@ export class ZoneServer2016 extends EventEmitter {
       passenger = this._characters[seat];
     if (seatId < 0) return; // no available seats in vehicle
     client.vehicle.mountedVehicle = vehicle.characterId;
+    client.isInAir = false;
     if (passenger) {
       // dismount the driver
       const client = this.getClientByCharId(passenger.characterId);
