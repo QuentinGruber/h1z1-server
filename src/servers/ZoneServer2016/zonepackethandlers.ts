@@ -690,6 +690,8 @@ export class zonePacketHandlers {
             packet.data.positionUpdate.position[2],
             1,
           ]);
+          const c = server.getClientByCharId(passenger);
+          if (c) c.startLoc = packet.data.positionUpdate.position[1];
         } else {
           debug(`passenger ${passenger} not found`);
           vehicle.removePassenger(passenger);
