@@ -14,7 +14,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
-
 import { ZoneServer2016 } from "./zoneserver";
 const debug = require("debug")("ZoneServer");
 
@@ -806,29 +805,23 @@ export class zonePacketHandlers {
           triggerLoadingScreen: true,
         });
       }
-      // disabled for now
-      /*if (packet.data.stance & (1 << 1)) {
-        // started crouching
-        client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
-        if (client.character._resources[ResourceIds.STAMINA] < 0)
-          client.character._resources[ResourceIds.STAMINA] = 0;
-        server.updateResourceToAllWithSpawnedEntity(
-          client.character.characterId,
-          client.character._resources[ResourceIds.STAMINA],
-          ResourceIds.STAMINA,
-          ResourceTypes.STAMINA,
-          server._characters
-        );
-      }*/
+      if ((packet.data.stance & (1 << 5)) !== 0) {
+        if (!client.isInAir) {
+          client.isInAir = true;
+          client.startLoc = client.character.state.position[1];
+        }
+      } else {
+        client.isInAir = false;
+      }
       const byte1 = packet.data.stance & 0xff;
       client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
       if (
         !!(byte1 & (1 << 4)) &&
         !(byte1 & (1 << 5)) &&
         // temporary fix for multiplying jump penalty until exact flags are found
-        client.character.lastJumpTime < Date.now()
+        client.character.lastJumpTime < packet.data.sequenceTime
       ) {
-        client.character.lastJumpTime = Date.now() + 1100;
+        client.character.lastJumpTime = packet.data.sequenceTime + 1100;
         client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
         if (client.character._resources[ResourceIds.STAMINA] < 0)
           client.character._resources[ResourceIds.STAMINA] = 0;

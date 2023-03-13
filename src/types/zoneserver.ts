@@ -350,4 +350,8 @@ export interface FairPlayValues {
   requiredFile: string;
   requiredString: string;
   requiredFile2: string;
+  respawnCheckRange: number;
+  respawnCheckTime: number;
+  respawnCheckIterations: number;
+  maxFlying: number;
 }

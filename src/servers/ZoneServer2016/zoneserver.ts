@@ -1216,6 +1216,10 @@ export class ZoneServer2016 extends EventEmitter {
         requiredFile: decryptedData[30],
         requiredString: decryptedData[31],
         requiredFile2: decryptedData[32],
+        respawnCheckRange: Number(decryptedData[33]),
+        respawnCheckTime: Number(decryptedData[34]),
+        respawnCheckIterations: Number(decryptedData[35]),
+        maxFlying: Number(decryptedData[36]),
       };
     }
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
@@ -2272,6 +2276,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.isAlive = true;
     client.character.isRunning = false;
     client.character.isRespawning = false;
+    client.isInAir = false;
 
     client.character._resources[ResourceIds.HEALTH] = 10000;
     client.character._resources[ResourceIds.HUNGER] = 10000;
@@ -2293,14 +2298,39 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: client.character.characterId,
         status: 1,
       });
+      const tempPos = client.character.state.position;
+      const tempPos2 = new Float32Array([
+        cell.spawnPoints[randomSpawnIndex][0],
+        cell.spawnPoints[randomSpawnIndex][1] + 1,
+        cell.spawnPoints[randomSpawnIndex][2],
+        1,
+      ]);
+      client.character.state.position = tempPos2;
       this.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: new Float32Array([
-          cell.spawnPoints[randomSpawnIndex][0],
-          cell.spawnPoints[randomSpawnIndex][1] + 1,
-          cell.spawnPoints[randomSpawnIndex][2],
-          1,
-        ]),
+        position: tempPos2,
       });
+      const damageInfo: DamageInfo = {
+        entity: "Server.Respawn",
+        damage: 99999,
+      };
+      if (!this.fairPlayValues) return;
+      for (let x = 1; x < this.fairPlayValues.respawnCheckIterations; x++) {
+        setTimeout(() => {
+          if (
+            isPosInRadius(
+              this.fairPlayValues?.respawnCheckRange || 100,
+              tempPos,
+              client.character.state.position
+            ) ||
+            !isPosInRadius(
+              this.fairPlayValues?.respawnCheckRange || 300,
+              tempPos2,
+              client.character.state.position
+            )
+          )
+            this.killCharacter(client, damageInfo);
+        }, x * this.fairPlayValues.respawnCheckTime);
+      }
     }
     if (clearEquipment) {
       Object.values(client.character._equipment).forEach((equipmentSlot) => {
@@ -2381,7 +2411,6 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }, 2000);
     }
-
     this.hookManager.checkHook("OnPlayerRespawned", client);
   }
 
@@ -2487,6 +2516,22 @@ export class ZoneServer2016 extends EventEmitter {
     if (client.isAdmin || !this.fairPlayValues || !client.isSynced)
       return false;
     if (!this.isSaving) {
+      if (
+        client.isInAir &&
+        position[1] - client.startLoc > this.fairPlayValues.maxFlying
+      ) {
+        this.kickPlayer(client);
+        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        this.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } has been kicked possible flying by ${(
+            position[1] - client.startLoc
+          ).toFixed(2)} at [${position[0]} ${position[1]} ${position[2]}]`,
+          false
+        );
+        return true;
+      }
       const distance = getDistance2d(client.oldPos.position, position);
       if (
         Number(client.character.lastLoginDate) +
