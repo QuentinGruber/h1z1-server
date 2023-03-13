@@ -2306,6 +2306,7 @@ export class ZoneServer2016 extends EventEmitter {
         1,
       ]);
       client.character.state.position = tempPos2;
+      client.oldPos.position = tempPos2;
       this.sendData(client, "ClientUpdate.UpdateLocation", {
         position: tempPos2,
       });
