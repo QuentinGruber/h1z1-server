@@ -3241,7 +3241,7 @@ export class ZoneServer2016 extends EventEmitter {
           maxDistance = this.fairPlayValues.WEAPON_SHOTGUN.maxDistance;
       }
       let block = false;
-      if (speed < minSpeed) block = true;
+      if (distance > maxDistance && speed < minSpeed) block = true;
       if (
         distance > maxDistance &&
         (speed > maxSpeed ||
