@@ -745,17 +745,20 @@ export class Character2016 extends BaseFullCharacter {
     */
     // GROUP OUTLINE WORKAROUND
 
-    server.executeFuncForAllReadyClients((client)=> {
+    server.executeFuncForAllReadyClients((client) => {
       let groupId = 0;
-      if(client.character != this) {
-        groupId = client.character.groupId
+      if (client.character != this) {
+        groupId = client.character.groupId;
       }
       server.sendData(
-        client, 
-        "Equipment.SetCharacterEquipmentSlot", 
-        this.pGetEquipmentSlotFull(slotId, groupId) as EquipmentSetCharacterEquipmentSlot
-      )
-    })
+        client,
+        "Equipment.SetCharacterEquipmentSlot",
+        this.pGetEquipmentSlotFull(
+          slotId,
+          groupId
+        ) as EquipmentSetCharacterEquipmentSlot
+      );
+    });
   }
 
   pGetEquipmentSlotFull(slotId: number, groupId?: number) {

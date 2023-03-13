@@ -40,19 +40,24 @@ export class GroupManager {
   ) {
     if (!groupId) return;
     const group = this.groups[groupId];
-    if(!group) return;
+    if (!group) return;
     for (const a of group.members) {
       const client = server.getClientByCharId(a);
-      if(!client || !client.spawnedEntities.includes(excludedClient.character) || client == excludedClient) continue;
+      if (
+        !client ||
+        !client.spawnedEntities.includes(excludedClient.character) ||
+        client == excludedClient
+      )
+        continue;
       server.sendData(client, packetName, obj);
     }
   }
 
   /**
    * Removes other group member's outlines for the given client
-   * @param server 
-   * @param client 
-   * @param group 
+   * @param server
+   * @param client
+   * @param group
    */
   removeGroupCharacterOutlines(
     server: ZoneServer2016,
@@ -61,7 +66,12 @@ export class GroupManager {
   ) {
     for (const a of group.members) {
       const target = server.getClientByCharId(a);
-      if(!target || !client.spawnedEntities.includes(target.character) || client == target) continue;
+      if (
+        !target ||
+        !client.spawnedEntities.includes(target.character) ||
+        client == target
+      )
+        continue;
       server.sendData(
         client,
         "Equipment.SetCharacterEquipment",
@@ -77,7 +87,7 @@ export class GroupManager {
   ) {
     for (const a of group.members) {
       const client = server.getClientByCharId(a);
-      if(!client || client == target) continue;
+      if (!client || client == target) continue;
       server.sendData(
         client,
         "Equipment.SetCharacterEquipment",
@@ -86,16 +96,18 @@ export class GroupManager {
     }
   }
 
-  sendGroupOutlineUpdates(
-    server: ZoneServer2016,
-    group: Group
-  ) {
+  sendGroupOutlineUpdates(server: ZoneServer2016, group: Group) {
     for (const a of group.members) {
       const client = server.getClientByCharId(a);
-      if(!client) continue;
+      if (!client) continue;
       for (const a of group.members) {
         const target = server.getClientByCharId(a);
-        if(!target || !client.spawnedEntities.includes(target.character) || client == target) continue;
+        if (
+          !target ||
+          !client.spawnedEntities.includes(target.character) ||
+          client == target
+        )
+          continue;
         server.sendData(
           client,
           "Equipment.SetCharacterEquipment",
@@ -222,8 +234,7 @@ export class GroupManager {
     }
 
     let group = this.groups[source.character.groupId];
-    if(group && source.character.characterId != group.leader) {
-
+    if (group && source.character.characterId != group.leader) {
       return;
     }
 
@@ -255,7 +266,7 @@ export class GroupManager {
 
     server.sendAlert(target, "Group joined.");
     delete this.pendingInvites[target.character.characterId];
-    
+
     this.sendGroupOutlineUpdates(server, group);
   }
 
@@ -281,7 +292,7 @@ export class GroupManager {
     }
 
     client.character.groupId = 0;
-    
+
     this.removeGroupCharacterOutlines(server, client, group);
     this.removeGroupOutlinesForCharacter(server, client, group);
     //this.sendGroupOutlineUpdates(server, group);

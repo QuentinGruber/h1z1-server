@@ -2268,22 +2268,22 @@ export class zonePacketHandlers {
   }
 
   GroupInvite(server: ZoneServer2016, client: Client, packet: any) {
-    let characterId = packet.data.inviteData.targetCharacter.characterId,
-    target;
+    const characterId = packet.data.inviteData.targetCharacter.characterId;
+    let target: Client | string | undefined;
 
-    if(Number(characterId)) {
-      target = server.getClientByCharId(characterId)
-    }
-    else {
+    if (Number(characterId)) {
+      target = server.getClientByCharId(characterId);
+    } else {
       target = server.getClientByNameOrLoginSession(
         packet.data.inviteData.targetCharacter.identity.characterFirstName
       );
     }
 
-    if(!(target instanceof Client)) return;
-    
+    if (!(target instanceof Client)) return;
+
     server.groupManager.sendGroupInvite(server, client, target);
   }
+
   GroupJoin(server: ZoneServer2016, client: Client, packet: any) {
     const source = server.getClientByNameOrLoginSession(
       packet.data.inviteData.sourceCharacter.identity.characterName

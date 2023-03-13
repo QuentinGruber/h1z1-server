@@ -323,14 +323,13 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    
-    if(!args[5]) {
+    if (!args[5]) {
       server.sendChatText(client, "Missing 5 args");
       return;
     }
     const equipmentEvent = {
       characterData: {
-        characterId: client.character.characterId
+        characterId: client.character.characterId,
       },
       equipmentSlot: {
         equipmentSlotId: 3,
@@ -338,8 +337,8 @@ const dev: any = {
           equipmentSlotId: 3,
           guid: "0x1", // needs to be non-zero
           tintAlias: "",
-          decalAlias: "#"
-        }
+          decalAlias: "#",
+        },
       },
       attachmentData: {
         modelName: "Survivor<gender>_Legs_Pants_Warmups.adr",
@@ -348,10 +347,14 @@ const dev: any = {
         effectId: Number(args[3]), // 0 - 16 // 3 = glow
         slotId: Number(args[4]), // backpack: 10
         unknownDword4: Number(args[5]),
-        unknownArray1: []
-      }
+        unknownArray1: [],
+      },
     };
-    server.sendData(client, "Equipment.SetCharacterEquipmentSlot", equipmentEvent);
+    server.sendData(
+      client,
+      "Equipment.SetCharacterEquipmentSlot",
+      equipmentEvent
+    );
     /*
     const equipment = {
       // not working yet, attachment error (texture related?)
@@ -763,20 +766,19 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    if(!args[3]) {
+    if (!args[3]) {
       server.sendChatText(client, "Missing 3 args");
       return;
     }
-    Object.values(server._clients).forEach((c)=> {
+    Object.values(server._clients).forEach((c) => {
       server.sendData(client, "ShaderParameterOverrideBase", {
         characterId: c.character.characterId,
         unknownDword1: Number(args[1]),
         slotId: Number(args[2]),
         unknownDword2: Number(args[3]),
-        shaderGroupId: 665 // maybe try setting other character's shaderGroupId on spawn
-      })
-    })
-    
+        shaderGroupId: 665, // maybe try setting other character's shaderGroupId on spawn
+      });
+    });
   },
 };
 export default dev;

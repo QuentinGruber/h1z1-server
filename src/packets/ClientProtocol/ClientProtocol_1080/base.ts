@@ -3443,8 +3443,8 @@ export const basePackets: any = [
   ["CancelQueueOnWorld", 0xef, {}],
   ["DeclineEnterGameOnWorld", 0xf0, {}],
   [
-    "ShaderParameterOverrideBase", 
-    0xf20100, 
+    "ShaderParameterOverrideBase",
+    0xf20100,
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
@@ -3452,8 +3452,8 @@ export const basePackets: any = [
         { name: "slotId", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "shaderGroupId", type: "uint32", defaultValue: 0 },
-      ]
-    }
+      ],
+    },
   ],
   ["VehicleSkinBase", 0xf3, {}],
   ["WeaponLagLockParameters", 0xf5, {}],
