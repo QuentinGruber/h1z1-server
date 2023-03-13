@@ -249,7 +249,19 @@ const weaponPackets: any = [
       fields: [{ name: "materialType", type: "uint32", defaultValue: 0 }],
     },
   ],
-  ["Weapon.ProjectileSpawnAttachedNpc", 0x8323, {}],
+  [
+    "Weapon.ProjectileSpawnAttachedNpc",
+    0x8323,
+    {
+      fields: [
+        { name: "sessionProjectileCount", type: "uint32", defaultValue: 0 },
+        { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+        { name: "rotation", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
+        { name: "characterId", type: "uint64string", defaultValue: "" },
+        // some more unk data
+      ],
+    },
+  ],
   ["Weapon.AddDebugLogEntry", 0x8324, {}],
   ["Weapon.DebugZoneState", 0x8325, {}],
   ["Weapon.GrenadeBounceReport", 0x8326, {}],

@@ -35,7 +35,7 @@ export class ZoneClient2016 {
   banType: string = "";
   HWID: string = "";
   posAtLastRoutine: Float32Array = new Float32Array();
-  posAtLogoutStart: Float32Array = new Float32Array();
+  posAtTimerStart: Float32Array = new Float32Array();
   oldPos: { position: Float32Array; time: number } = {
     position: new Float32Array(),
     time: 0,
