@@ -87,6 +87,7 @@ export class ZoneClient2016 {
   properlyLogout: boolean = false;
   permissionLevel: number = 0;
   fireHints: { [id: number]: fireHint } = {};
+  isMovementBlocked: boolean = false;
   /*(lightWeightNpcQueue: {
     packetName: h1z1PacketsType2016;
     data: zone2016packets;

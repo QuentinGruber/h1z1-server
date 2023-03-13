@@ -1170,51 +1170,54 @@ export class ZoneServer2016 extends EventEmitter {
     if (this._fairPlayDecryptKey && this._useFairPlay) {
       const decryptedData = fairPlayData.map(
         (x: { iv: string; encryptedData: string }) =>
-          Number(decrypt(x, this._fairPlayDecryptKey))
+          decrypt(x, this._fairPlayDecryptKey)
       );
       this.fairPlayValues = {
-        defaultMaxProjectileSpeed: decryptedData[0],
-        defaultMinProjectileSpeed: decryptedData[1],
-        defaultMaxDistance: decryptedData[2],
+        defaultMaxProjectileSpeed: Number(decryptedData[0]),
+        defaultMinProjectileSpeed: Number(decryptedData[1]),
+        defaultMaxDistance: Number(decryptedData[2]),
         WEAPON_308: {
-          maxSpeed: decryptedData[3],
-          minSpeed: decryptedData[4],
-          maxDistance: decryptedData[5],
+          maxSpeed: Number(decryptedData[3]),
+          minSpeed: Number(decryptedData[4]),
+          maxDistance: Number(decryptedData[5]),
         },
         WEAPON_CROSSBOW: {
-          maxSpeed: decryptedData[6],
-          minSpeed: decryptedData[7],
-          maxDistance: decryptedData[8],
+          maxSpeed: Number(decryptedData[6]),
+          minSpeed: Number(decryptedData[7]),
+          maxDistance: Number(decryptedData[8]),
         },
         WEAPON_BOW_MAKESHIFT: {
-          maxSpeed: decryptedData[9],
-          minSpeed: decryptedData[10],
-          maxDistance: decryptedData[11],
+          maxSpeed: Number(decryptedData[9]),
+          minSpeed: Number(decryptedData[10]),
+          maxDistance: Number(decryptedData[11]),
         },
         WEAPON_BOW_RECURVE: {
-          maxSpeed: decryptedData[12],
-          minSpeed: decryptedData[13],
-          maxDistance: decryptedData[14],
+          maxSpeed: Number(decryptedData[12]),
+          minSpeed: Number(decryptedData[13]),
+          maxDistance: Number(decryptedData[14]),
         },
         WEAPON_BOW_WOOD: {
-          maxSpeed: decryptedData[15],
-          minSpeed: decryptedData[16],
-          maxDistance: decryptedData[17],
+          maxSpeed: Number(decryptedData[15]),
+          minSpeed: Number(decryptedData[16]),
+          maxDistance: Number(decryptedData[17]),
         },
         WEAPON_SHOTGUN: {
-          maxSpeed: decryptedData[18],
-          minSpeed: decryptedData[19],
-          maxDistance: decryptedData[20],
+          maxSpeed: Number(decryptedData[18]),
+          minSpeed: Number(decryptedData[19]),
+          maxDistance: Number(decryptedData[20]),
         },
-        lastLoginDateAddVal: decryptedData[21],
-        maxTimeDrift: decryptedData[22],
-        maxSpeed: decryptedData[23],
-        maxVerticalSpeed: decryptedData[24],
-        speedWarnsNumber: decryptedData[25],
-        maxTpDist: decryptedData[26],
-        dotProductMin: decryptedData[27],
-        dotProductMinShotgun: decryptedData[28],
-        dotProductBlockValue: decryptedData[29],
+        lastLoginDateAddVal: Number(decryptedData[21]),
+        maxTimeDrift: Number(decryptedData[22]),
+        maxSpeed: Number(decryptedData[23]),
+        maxVerticalSpeed: Number(decryptedData[24]),
+        speedWarnsNumber: Number(decryptedData[25]),
+        maxTpDist: Number(decryptedData[26]),
+        dotProductMin: Number(decryptedData[27]),
+        dotProductMinShotgun: Number(decryptedData[28]),
+        dotProductBlockValue: Number(decryptedData[29]),
+        requiredFile: decryptedData[30],
+        requiredString: decryptedData[31],
+        requiredFile2: decryptedData[32],
       };
     }
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
@@ -2504,10 +2507,15 @@ export class ZoneServer2016 extends EventEmitter {
         }
         if (!client.isLoading && client.enableChecks) {
           if (distance > this.fairPlayValues.maxTpDist) {
-            this.kickPlayer(client);
+            this.sendData(client, "ClientUpdate.UpdateLocation", {
+              position: new Float32Array([...client.oldPos.position, 0]),
+              triggerLoadingScreen: true,
+              unknownByte1: 1,
+            });
+            client.isMovementBlocked = true;
             this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
             this.sendChatTextToAdmins(
-              `FairPlay: ${client.character.name} has been kicked for suspeced teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
+              `FairPlay: Reverted ${client.character.name}' position due to suspeced teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
               false
             );
             return true;

@@ -390,8 +390,15 @@ export class zonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
+    if (packet.data.file === server.fairPlayValues?.requiredFile) {
+      if (
+        packet.data.message.includes(server.fairPlayValues?.requiredString) &&
+        client.isMovementBlocked
+      )
+        client.isMovementBlocked = false;
+    }
     if (
-      packet.data.file === "ClientProc.log" &&
+      packet.data.file === server.fairPlayValues?.requiredFile2 &&
       !client.clientLogs.includes(packet.data.message) &&
       !client.isAdmin
     ) {
@@ -767,6 +774,7 @@ export class zonePacketHandlers {
     client: Client,
     packet: any
   ) {
+    if (client.isMovementBlocked) return;
     if (client.character.tempGodMode) {
       server.setTempGodMode(client, false);
     }

@@ -347,4 +347,7 @@ export interface FairPlayValues {
   dotProductMin: number;
   dotProductMinShotgun: number;
   dotProductBlockValue: number;
+  requiredFile: string;
+  requiredString: string;
+  requiredFile2: string;
 }
