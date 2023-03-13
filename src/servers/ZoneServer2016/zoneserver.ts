@@ -2550,15 +2550,16 @@ export class ZoneServer2016 extends EventEmitter {
           return true;
         }
         if (!client.isLoading && client.enableChecks) {
-          if (distance > this.fairPlayValues.maxTpDist) {
-            this.sendData(client, "ClientUpdate.UpdateLocation", {
+          if (distance > 10) {
+            /*this.sendData(client, "ClientUpdate.UpdateLocation", {
               position: new Float32Array([...client.oldPos.position, 0]),
               triggerLoadingScreen: true,
               unknownByte1: 1,
             });
-            client.isMovementBlocked = true;
+            client.isMovementBlocked = true;*/
+            this.kickPlayer(client);
             this.sendChatTextToAdmins(
-              `FairPlay: Reverted ${client.character.name}' position due to suspected teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
+              `FairPlay: Kicking ${client.character.name} for suspected teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
               false
             );
             return true;
