@@ -218,6 +218,7 @@ export interface fireHint {
     hitNumber: number;
     weaponItem: LoadoutItem
     timeStamp: number,
+    marked?: {characterId:string, position: Float32Array, rotation: Float32Array, gameTime: number}
 }
 
 export interface SpawnLocation {
@@ -325,4 +326,28 @@ export interface Group {
   groupId: number;
   leader: string;
   members: Array<string>;
+}
+
+export interface FairPlayWeaponStat {
+    maxSpeed: number;
+    minSpeed: number;
+    maxDistance: number;
+}
+
+export interface FairPlayValues {
+  lastLoginDateAddVal:number;
+  maxTimeDrift: number;
+  maxSpeed: number;
+  maxVerticalSpeed: number;
+  speedWarnsNumber: number;
+  maxTpDist: number;
+  defaultMaxProjectileSpeed: number;
+  defaultMinProjectileSpeed: number;
+  defaultMaxDistance: number;
+  WEAPON_308:FairPlayWeaponStat
+    WEAPON_CROSSBOW: FairPlayWeaponStat
+    WEAPON_BOW_MAKESHIFT: FairPlayWeaponStat
+    WEAPON_BOW_RECURVE: FairPlayWeaponStat
+    WEAPON_BOW_WOOD: FairPlayWeaponStat
+    WEAPON_SHOTGUN: FairPlayWeaponStat
 }

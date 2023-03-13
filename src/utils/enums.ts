@@ -17,6 +17,13 @@ export enum GAME_VERSIONS {
   H1Z1_KOTK_PS3 = 3,
 }
 
+export enum BAN_INFO {
+  LOCAL_BAN = 1,
+  GLOBAL_BAN = 2,
+  VPN = 3,
+  HWID = 4,
+}
+
 export enum NAME_VALIDATION_STATUS {
   AVAILABLE = 1,
   TAKEN = 2,
@@ -28,7 +35,6 @@ export enum NAME_VALIDATION_STATUS {
 export enum DB_COLLECTIONS {
   ADMINS = "admins",
   BANNED = "banned",
-  MUTED = "muted",
   BLACK_LIST_ENTRIES = "blackListEntries",
   CHARACTERS = "characters",
   CHARACTERS_LIGHT = "characters-light",
@@ -46,4 +52,6 @@ export enum DB_COLLECTIONS {
   COMMAND_USED = "commands-used",
   FAIRPLAY = "fairplay-logs",
   KILLS = "kills",
+  BANNED_LIGHT = "banned-light",
+  MUTED = "muted",
 }
