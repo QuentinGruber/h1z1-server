@@ -3036,9 +3036,9 @@ export class ZoneServer2016 extends EventEmitter {
         return calculate_falloff(
           getDistance(sourcePos, targetPos),
           200,
-          1200, //1667,
+          1400, //1667,
           1,
-          10
+          12
         );
       case Items.WEAPON_AK47:
         return 2900;
