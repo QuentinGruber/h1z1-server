@@ -96,6 +96,7 @@ import {
   logClientActionToMongo,
   removeUntransferableFields,
   decrypt,
+  getAngle,
 } from "../../utils/utils";
 
 import { Collection, Db } from "mongodb";
@@ -1167,48 +1168,58 @@ export class ZoneServer2016 extends EventEmitter {
     if (this._fairPlayDecryptKey && this._useFairPlay) {
       const decryptedData = fairPlayData.map(
         (x: { iv: string; encryptedData: string }) =>
-          Number(decrypt(x, this._fairPlayDecryptKey))
+          decrypt(x, this._fairPlayDecryptKey)
       );
       this.fairPlayValues = {
-        defaultMaxProjectileSpeed: decryptedData[0],
-        defaultMinProjectileSpeed: decryptedData[1],
-        defaultMaxDistance: decryptedData[2],
+        defaultMaxProjectileSpeed: Number(decryptedData[0]),
+        defaultMinProjectileSpeed: Number(decryptedData[1]),
+        defaultMaxDistance: Number(decryptedData[2]),
         WEAPON_308: {
-          maxSpeed: decryptedData[3],
-          minSpeed: decryptedData[4],
-          maxDistance: decryptedData[5],
+          maxSpeed: Number(decryptedData[3]),
+          minSpeed: Number(decryptedData[4]),
+          maxDistance: Number(decryptedData[5]),
         },
         WEAPON_CROSSBOW: {
-          maxSpeed: decryptedData[6],
-          minSpeed: decryptedData[7],
-          maxDistance: decryptedData[8],
+          maxSpeed: Number(decryptedData[6]),
+          minSpeed: Number(decryptedData[7]),
+          maxDistance: Number(decryptedData[8]),
         },
         WEAPON_BOW_MAKESHIFT: {
-          maxSpeed: decryptedData[9],
-          minSpeed: decryptedData[10],
-          maxDistance: decryptedData[11],
+          maxSpeed: Number(decryptedData[9]),
+          minSpeed: Number(decryptedData[10]),
+          maxDistance: Number(decryptedData[11]),
         },
         WEAPON_BOW_RECURVE: {
-          maxSpeed: decryptedData[12],
-          minSpeed: decryptedData[13],
-          maxDistance: decryptedData[14],
+          maxSpeed: Number(decryptedData[12]),
+          minSpeed: Number(decryptedData[13]),
+          maxDistance: Number(decryptedData[14]),
         },
         WEAPON_BOW_WOOD: {
-          maxSpeed: decryptedData[15],
-          minSpeed: decryptedData[16],
-          maxDistance: decryptedData[17],
+          maxSpeed: Number(decryptedData[15]),
+          minSpeed: Number(decryptedData[16]),
+          maxDistance: Number(decryptedData[17]),
         },
         WEAPON_SHOTGUN: {
-          maxSpeed: decryptedData[18],
-          minSpeed: decryptedData[19],
-          maxDistance: decryptedData[20],
+          maxSpeed: Number(decryptedData[18]),
+          minSpeed: Number(decryptedData[19]),
+          maxDistance: Number(decryptedData[20]),
         },
-        lastLoginDateAddVal: decryptedData[21],
-        maxTimeDrift: decryptedData[22],
-        maxSpeed: decryptedData[23],
-        maxVerticalSpeed: decryptedData[24],
-        speedWarnsNumber: decryptedData[25],
-        maxTpDist: decryptedData[26],
+        lastLoginDateAddVal: Number(decryptedData[21]),
+        maxTimeDrift: Number(decryptedData[22]),
+        maxSpeed: Number(decryptedData[23]),
+        maxVerticalSpeed: Number(decryptedData[24]),
+        speedWarnsNumber: Number(decryptedData[25]),
+        maxTpDist: Number(decryptedData[26]),
+        dotProductMin: Number(decryptedData[27]),
+        dotProductMinShotgun: Number(decryptedData[28]),
+        dotProductBlockValue: Number(decryptedData[29]),
+        requiredFile: decryptedData[30],
+        requiredString: decryptedData[31],
+        requiredFile2: decryptedData[32],
+        respawnCheckRange: Number(decryptedData[33]),
+        respawnCheckTime: Number(decryptedData[34]),
+        respawnCheckIterations: Number(decryptedData[35]),
+        maxFlying: Number(decryptedData[36]),
       };
     }
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
@@ -2265,6 +2276,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.isAlive = true;
     client.character.isRunning = false;
     client.character.isRespawning = false;
+    client.isInAir = false;
 
     client.character._resources[ResourceIds.HEALTH] = 10000;
     client.character._resources[ResourceIds.HUNGER] = 10000;
@@ -2286,14 +2298,40 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: client.character.characterId,
         status: 1,
       });
+      const tempPos = client.character.state.position;
+      const tempPos2 = new Float32Array([
+        cell.spawnPoints[randomSpawnIndex][0],
+        cell.spawnPoints[randomSpawnIndex][1] + 1,
+        cell.spawnPoints[randomSpawnIndex][2],
+        1,
+      ]);
+      client.character.state.position = tempPos2;
+      client.oldPos.position = tempPos2;
       this.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: new Float32Array([
-          cell.spawnPoints[randomSpawnIndex][0],
-          cell.spawnPoints[randomSpawnIndex][1] + 1,
-          cell.spawnPoints[randomSpawnIndex][2],
-          1,
-        ]),
+        position: tempPos2,
       });
+      const damageInfo: DamageInfo = {
+        entity: "Server.Respawn",
+        damage: 99999,
+      };
+      if (!this.fairPlayValues || client.isAdmin) return;
+      for (let x = 1; x < this.fairPlayValues.respawnCheckIterations; x++) {
+        setTimeout(() => {
+          if (
+            isPosInRadius(
+              this.fairPlayValues?.respawnCheckRange || 100,
+              tempPos,
+              client.character.state.position
+            ) ||
+            !isPosInRadius(
+              this.fairPlayValues?.respawnCheckRange || 300,
+              tempPos2,
+              client.character.state.position
+            )
+          )
+            this.killCharacter(client, damageInfo);
+        }, x * this.fairPlayValues.respawnCheckTime);
+      }
     }
     if (clearEquipment) {
       Object.values(client.character._equipment).forEach((equipmentSlot) => {
@@ -2374,7 +2412,6 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }, 2000);
     }
-
     this.hookManager.checkHook("OnPlayerRespawned", client);
   }
 
@@ -2480,6 +2517,22 @@ export class ZoneServer2016 extends EventEmitter {
     if (client.isAdmin || !this.fairPlayValues || !client.isSynced)
       return false;
     if (!this.isSaving) {
+      if (
+        client.isInAir &&
+        position[1] - client.startLoc > this.fairPlayValues.maxFlying
+      ) {
+        this.kickPlayer(client);
+        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        this.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } has been kicked for possible flying by ${(
+            position[1] - client.startLoc
+          ).toFixed(2)} at [${position[0]} ${position[1]} ${position[2]}]`,
+          false
+        );
+        return true;
+      }
       const distance = getDistance2d(client.oldPos.position, position);
       if (
         Number(client.character.lastLoginDate) +
@@ -2498,10 +2551,14 @@ export class ZoneServer2016 extends EventEmitter {
         }
         if (!client.isLoading && client.enableChecks) {
           if (distance > this.fairPlayValues.maxTpDist) {
-            this.kickPlayer(client);
-            this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+            this.sendData(client, "ClientUpdate.UpdateLocation", {
+              position: new Float32Array([...client.oldPos.position, 0]),
+              triggerLoadingScreen: true,
+              unknownByte1: 1,
+            });
+            client.isMovementBlocked = true;
             this.sendChatTextToAdmins(
-              `FairPlay: ${client.character.name} has been kicked for suspeced teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
+              `FairPlay: Reverted ${client.character.name}' position due to suspected teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
               false
             );
             return true;
@@ -2979,9 +3036,9 @@ export class ZoneServer2016 extends EventEmitter {
         return calculate_falloff(
           getDistance(sourcePos, targetPos),
           200,
-          1200, //1667,
+          1400, //1667,
           1,
-          10
+          12
         );
       case Items.WEAPON_AK47:
         return 2900;
@@ -3093,6 +3150,54 @@ export class ZoneServer2016 extends EventEmitter {
           }
           return;
         }
+      }
+      const angle = getAngle(fireHint.position, packet.hitReport.position);
+      const fixedRot = (fireHint.rotation + 2 * Math.PI) % (2 * Math.PI);
+      const dotProduct =
+        Math.cos(angle) * Math.cos(fixedRot) +
+        Math.sin(angle) * Math.sin(fixedRot);
+      if (
+        dotProduct <
+        (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+          ? this.fairPlayValues.dotProductMinShotgun
+          : this.fairPlayValues.dotProductMin)
+      ) {
+        if (dotProduct < this.fairPlayValues.dotProductBlockValue) {
+          if (c) {
+            this.sendChatText(c, message, false);
+          }
+          this.sendChatTextToAdmins(
+            `FairPlay: ${
+              client.character.name
+            } projectile was blocked due to invalid rotation: ${Number(
+              ((1 - dotProduct) * 100).toFixed(2)
+            )} / ${
+              Number(
+                (1 - this.fairPlayValues.dotProductBlockValue).toFixed(3)
+              ) * 100
+            }% max deviation`,
+            false
+          );
+          return;
+        }
+
+        this.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } projectile is hitting with possible invalid rotation: ${Number(
+            ((1 - dotProduct) * 100).toFixed(2)
+          )} / ${
+            Number(
+              (
+                1 -
+                (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+                  ? this.fairPlayValues.dotProductMinShotgun
+                  : this.fairPlayValues.dotProductMin)
+              ).toFixed(3)
+            ) * 100
+          }% max deviation`,
+          false
+        );
       }
       const distance = getDistance(
         fireHint.position,
@@ -3602,6 +3707,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(client, "Construction: Stuck under foundation");
       const foundationY = foundation.state.position[1],
         yOffset = foundation.itemDefinitionId == Items.FOUNDATION ? 2.2 : 0.1;
+      client.startLoc = foundationY + yOffset;
       this.sendData(client, "ClientUpdate.UpdateLocation", {
         position: [
           client.character.state.position[0],
@@ -3644,6 +3750,7 @@ export class ZoneServer2016 extends EventEmitter {
       setTimeout(() => {
         if (
           client.character.isAlive &&
+          foundation.isSecured &&
           foundation.isInside(client.character.state.position) &&
           Number(client.character.lastLoginDate) + 2000 < new Date().getTime()
         ) {
@@ -6141,6 +6248,7 @@ export class ZoneServer2016 extends EventEmitter {
       passenger = this._characters[seat];
     if (seatId < 0) return; // no available seats in vehicle
     client.vehicle.mountedVehicle = vehicle.characterId;
+    client.isInAir = false;
     if (passenger) {
       // dismount the driver
       const client = this.getClientByCharId(passenger.characterId);

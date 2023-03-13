@@ -34,6 +34,7 @@ export class BaseLightweightCharacter extends BaseEntity {
     position: Float32Array;
     rotation: Float32Array;
     lookAt: Float32Array;
+    yaw: number;
   };
   flags = {
     bit0: 0,
@@ -79,6 +80,7 @@ export class BaseLightweightCharacter extends BaseEntity {
       position: position,
       rotation: rotation,
       lookAt: new Float32Array([0, 0, 0, 1]),
+      yaw: 0,
     };
   }
 

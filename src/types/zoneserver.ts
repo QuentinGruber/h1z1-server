@@ -214,7 +214,7 @@ export interface DamageRecord {
 export interface fireHint {
     id: number;
     position: Float32Array;
-    rotation: Float32Array;
+    rotation: number;
     hitNumber: number;
     weaponItem: LoadoutItem
     timeStamp: number,
@@ -338,10 +338,20 @@ export interface FairPlayValues {
   defaultMaxProjectileSpeed: number;
   defaultMinProjectileSpeed: number;
   defaultMaxDistance: number;
-  WEAPON_308:FairPlayWeaponStat
-    WEAPON_CROSSBOW: FairPlayWeaponStat
-    WEAPON_BOW_MAKESHIFT: FairPlayWeaponStat
-    WEAPON_BOW_RECURVE: FairPlayWeaponStat
-    WEAPON_BOW_WOOD: FairPlayWeaponStat
-    WEAPON_SHOTGUN: FairPlayWeaponStat
+  WEAPON_308: FairPlayWeaponStat;
+  WEAPON_CROSSBOW: FairPlayWeaponStat;
+  WEAPON_BOW_MAKESHIFT: FairPlayWeaponStat;
+  WEAPON_BOW_RECURVE: FairPlayWeaponStat;
+  WEAPON_BOW_WOOD: FairPlayWeaponStat;
+  WEAPON_SHOTGUN: FairPlayWeaponStat;
+  dotProductMin: number;
+  dotProductMinShotgun: number;
+  dotProductBlockValue: number;
+  requiredFile: string;
+  requiredString: string;
+  requiredFile2: string;
+  respawnCheckRange: number;
+  respawnCheckTime: number;
+  respawnCheckIterations: number;
+  maxFlying: number;
 }
