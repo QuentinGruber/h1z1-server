@@ -2616,59 +2616,13 @@ export const containerLootSpawners: {
     ],
   },
   // used for crate props
-  Crate: {
-    spawnChance: 50,
-    maxItems: 1,
-    items: [
-      {
-        item: Items.WOOD_PLANK,
-        weight: 15,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
-      {
-        item: Items.FERTILIZER,
-        weight: 2,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
-      {
-        item: Items.CLOTH,
-        weight: 15,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
-      {
-        item: Items.CANNED_FOOD01,
-        weight: 10,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
-      {
-        item: Items.WATER_PURE,
-        weight: 10,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
-    ],
-  },
-  Crate_big: {
-    spawnChance: 73,
+  Crate_buffed: {
+    spawnChance: 60,
     maxItems: 1,
     items: [
       {
         item: Items.FERTILIZER,
-        weight: 27,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2708,7 +2662,7 @@ export const containerLootSpawners: {
       },
     ],
   },
-  Crate_great: {
+  Crate: {
     spawnChance: 50,
     maxItems: 1,
     items: [
@@ -2731,6 +2685,22 @@ export const containerLootSpawners: {
       {
         item: Items.WATER_PURE,
         weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.CLOTH,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.FERTILIZER,
+        weight: 2,
         spawnCount: {
           min: 1,
           max: 1,
