@@ -483,6 +483,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
+    const weapon = client.character.getEquippedWeapon();
+    if(!weapon) return false;
     return (
       this.getHasPermission(
         server,
@@ -490,7 +492,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         ConstructionPermissionIds.BUILD
       ) &&
       Date.now() < this.placementTime + this.undoPlacementTime &&
-      client.character.getEquippedWeapon().itemDefinitionId ==
+      weapon.itemDefinitionId ==
         Items.WEAPON_HAMMER_DEMOLITION
     );
   }
