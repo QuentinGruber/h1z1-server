@@ -2166,13 +2166,13 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     switch (source) {
       case "vehicle":
-        damage /= 10;
+        damage /= 12;
         break;
       case "ethanol":
-        damage /= 2;
+        damage /= 3.2;
         break;
       case "fuel":
-        damage /= 4;
+        damage /= 6;
         break;
     }
     const constructionObject: ConstructionEntity =
