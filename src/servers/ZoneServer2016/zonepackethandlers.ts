@@ -232,17 +232,17 @@ export class zonePacketHandlers {
       if (client.character.vehicleExitDate + 3000 > new Date().getTime()) {
         return;
       }
-      if (!client.vehicle.mountedVehicle) {
-        // if not mounted
-        // fixes collision dmg bug on login
-        if (Number(client.character.lastLoginDate) + 4000 >= Date.now()) {
-          return;
-        }
-        client.character.damage(server, {
-          entity: "Server.CollisionDamage",
-          damage: damage,
-        });
+      if (client.vehicle.mountedVehicle) return;
+      // fixes collision dmg bug on login
+      if (Number(client.character.lastLoginDate) + 4000 >= Date.now()) {
+        return;
       }
+      // damage must pass this threshold to be applied
+      if(damage <= 800) return;
+      client.character.damage(server, {
+        entity: "Server.CollisionDamage",
+        damage: damage,
+      });
     } else if (vehicle) {
       // leave old system with this damage threshold to damage flipped vehicles
       if (damage > 5000 && damage < 5500) {
