@@ -27,6 +27,7 @@ import { LootableConstructionEntity } from "../entities/lootableconstructionenti
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
 import { randomIntFromInterval } from "../../../utils/utils";
+import { BaseLootableEntity } from "../entities/baselootableentity";
 //import { NormanTest } from "../classes/Planting/Test";
 
 const debug = require("debug")("zonepacketHandlers");
@@ -480,7 +481,7 @@ const dev: any = {
   ) {
     server.sendData(client, "Container.ListAll", {
       characterId: client.character.characterId,
-      containers: client.character.pGetContainers(this),
+      containers: client.character.pGetContainers(server),
     });
   },
   shutdown: function (
@@ -627,7 +628,12 @@ const dev: any = {
     args: Array<string>
   ) {
     const characterId = client.vehicle.mountedVehicle,
-    vehicle = server._vehicles[characterId || ""];
+    vehicle = server._vehicles[characterId || ""],
+    container = vehicle?.getContainer();
+    if(!container) {
+      server.sendChatText(client, "No container!");
+      return;
+    }
     console.log(characterId);
     /*
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
@@ -640,10 +646,27 @@ const dev: any = {
       },
     });
     */
-    server.sendData(client, "AccessedCharacter.Unknown2", {
-      characterId: characterId,
-      containerGuid: vehicle.getContainer()?.itemGuid || "",
+    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+      objectCharacterId: vehicle.characterId,
+      containerGuid: container.itemGuid,
+      unknownBool1: false,
+      itemsData: {
+        items: Object.values(container.items).map((item) => {
+          return vehicle.pGetItemData(
+            server,
+            item,
+            container.containerDefinitionId
+          )
+        }),
+        unknownDword1: container.containerDefinitionId,
+      },
     });
+   console.log(vehicle?.getContainer()?.itemGuid);
+   /*
+    server.sendData(client, "AccessedCharacter.Unknown1", {
+      characterId: characterId,
+      containerGuid: client.character.characterId//"",// vehicle.getContainer()?.itemGuid || "",
+    });*/
   },
 
   stop: function (server: ZoneServer2016, client: Client, args: Array<string>) {
@@ -709,6 +732,57 @@ const dev: any = {
     server.sendData(client, "H1emu.MessageBox", {
       title: "TITLE",
       message: "MESSAGE",
+    });
+  },
+
+  access: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const currentInteractionGuid = client.character.currentInteractionGuid;
+    if(!currentInteractionGuid) {
+      server.sendAlert(client, "No interaction object!");
+      return;
+    }
+    const lootableEntity = server.getEntity(currentInteractionGuid);
+    if(!lootableEntity || !(lootableEntity instanceof BaseLootableEntity)) {
+      server.sendAlert(client, "Invalid object!");
+      return;
+    }
+    const container = lootableEntity.getContainer();
+    if(!container) {
+      server.sendAlert(client, "Invalid container!");
+      return;
+    }
+
+    server.sendData(client, "Container.InitEquippedContainers", {
+      ignore: lootableEntity.characterId,
+      characterId: lootableEntity.characterId,
+      containers: lootableEntity.pGetContainers(server),
+    });
+
+    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+      objectCharacterId: lootableEntity.characterId,
+      containerGuid: container.itemGuid,
+      unknownBool1: false,
+      itemsData: {
+        items: [],
+        unknownDword1: 92, // idk
+      },
+    });
+    server.sendData(client, "AccessedCharacter.Unknown2", {
+      characterId: lootableEntity.characterId,
+      itemsData: {
+        items: Object.values(container.items).map((item) => {
+          return lootableEntity.pGetItemData(
+            server,
+            item,
+            container.containerDefinitionId
+          )
+        }),
+        unknownDword1: container.containerDefinitionId,
+      },
     });
   },
 };
