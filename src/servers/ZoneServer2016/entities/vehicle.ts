@@ -485,6 +485,21 @@ export class Vehicle2016 extends BaseLootableEntity {
       );
     }
   }
+
+  updateLoadout(server: ZoneServer2016) {
+    const client = server.getClientByCharId(this.characterId);
+    if (client) {
+      if (!client.character.initialized) return;
+      server.checkConveys(client);
+    }
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      this.characterId,
+      "Loadout.SetLoadoutSlots",
+      this.pGetLoadoutSlots()
+    );
+  }
+
   /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
     server: ZoneServer2016,

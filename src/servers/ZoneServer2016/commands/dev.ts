@@ -626,16 +626,23 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    const characterId = client.vehicle.mountedVehicle;
+    const characterId = client.vehicle.mountedVehicle,
+    vehicle = server._vehicles[characterId || ""];
     console.log(characterId);
+    /*
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-      objectCharacterId: characterId,
-      containerGuid: characterId,
+      objectCharacterId: vehicle.getContainer()?.itemGuid || "",
+      containerGuid: vehicle.getContainer()?.itemGuid || "",
       unknownBool1: true,
       itemsData: {
         items: [],
         unknownDword1: 92,
       },
+    });
+    */
+    server.sendData(client, "AccessedCharacter.Unknown2", {
+      characterId: characterId,
+      containerGuid: vehicle.getContainer()?.itemGuid || "",
     });
   },
 

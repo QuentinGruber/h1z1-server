@@ -6237,42 +6237,6 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
 
-    // this is broken for some reason
-    /*this.initializeContainerList(client, vehicle);
-
-    if (seatId === "0") {
-      const inventory = Object.values(vehicle._containers)[0];
-      this.sendData(client, "Vehicle.InventoryItems", {
-        characterId: vehicle.characterId,
-        itemsData: {
-          items: Object.values(inventory).map((item) => {
-            return vehicle.pGetItemData(
-              this,
-              item,
-              inventory.containerDefinitionId
-            );
-          }),
-          unknownDword1: inventory.containerDefinitionId,
-        },
-      });
-      /*
-      this.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-        objectCharacterId: vehicle.characterId,
-        containerGuid: inventory?.itemGuid,
-        unknownBool1: false,
-        itemsData: {
-          items: Object.values(inventory).map((item) => {
-            return vehicle.pGetItemData(
-              item,
-              inventory.containerDefinitionId
-            )
-          }),
-          unknownDword1: inventory.containerDefinitionId,
-        },
-      });
-      */
-    //}
-
     this.sendData(client, "Vehicle.Occupy", {
       guid: vehicle.characterId,
       characterId: client.character.characterId,
@@ -6294,6 +6258,44 @@ export class ZoneServer2016 extends EventEmitter {
       ],
       unknownArray2: [{}],
     });
+
+    // this is broken for some reason
+    //this.initializeContainerList(client, vehicle);
+    /*
+    if (seatId === "0") {
+      
+      const container = vehicle.getContainer()
+      if(!container) return;
+      this.sendData(client, "Vehicle.InventoryItems", {
+        characterId: vehicle.characterId,
+        itemsData: {
+          items: Object.values(container.items).map((item) => {
+            return vehicle.pGetItemData(
+              this,
+              item,
+              container.containerDefinitionId
+            );
+          }),
+          unknownDword1: container.containerDefinitionId,
+        },
+      });
+      
+      this.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+        objectCharacterId: vehicle.characterId,
+        containerGuid: container.itemGuid,
+        unknownBool1: true,
+        itemsData: {
+          items: Object.values(container.items).map((item) => {
+            return vehicle.pGetItemData(
+              this,
+              item,
+              container.containerDefinitionId
+            )
+          }),
+          unknownDword1: container.containerDefinitionId,
+        },
+      });
+    }*/
   }
 
   dismountVehicle(client: Client) {
