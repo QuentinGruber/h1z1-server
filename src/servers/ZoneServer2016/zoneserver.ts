@@ -3207,7 +3207,7 @@ export class ZoneServer2016 extends EventEmitter {
       const speed =
         (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
       let maxSpeed = this.fairPlayValues.defaultMaxProjectileSpeed;
-      let minSpeed = this.fairPlayValues.defaultMinProjectileSpeed;
+      let minSpeed = this.fairPlayValues.defaultMaxDistance;
       let maxDistance = this.fairPlayValues.defaultMaxProjectileSpeed;
       switch (weaponItem.itemDefinitionId) {
         case Items.WEAPON_308:

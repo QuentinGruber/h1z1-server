@@ -78,7 +78,7 @@ export class Crate extends BaseLightweightCharacter {
   }
 
   spawnLoot(server: ZoneServer2016) {
-    let lootTable = this.isBuffed
+    const lootTable = this.isBuffed
       ? containerLootSpawners["Crate_buffed"]
       : containerLootSpawners["Crate"];
     const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
