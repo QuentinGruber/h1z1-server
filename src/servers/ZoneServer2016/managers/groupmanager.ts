@@ -152,7 +152,7 @@ export class GroupManager {
     leader.character.groupId = groupId;
 
     this.nextGroupId++;
-    server.sendChatText(leader, "Group created.", true);
+    server.sendChatText(leader, "Group created. Use /group for a list of commands.", true);
   }
 
   disbandGroup(server: ZoneServer2016, groupId: number) {
