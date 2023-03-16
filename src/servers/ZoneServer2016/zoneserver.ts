@@ -1667,6 +1667,10 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     const pos = client.character.state.position;
+    if (client.character.spawnGridData.length < 100) {
+      // attemt to fix broken spawn grid after unban
+      client.character.spawnGridData = new Array(100).fill(0);
+    }
     this._spawnGrid.forEach((spawnCell: SpawnCell) => {
       // find current grid and add it to blocked ones
       if (
@@ -1688,7 +1692,6 @@ export class ZoneServer2016 extends EventEmitter {
     });
     const character = client.character,
       sourceClient = this.getClientByCharId(damageInfo.entity);
-
     const gridArr: any[] = [];
     character.spawnGridData.forEach((number: number) => {
       if (number <= new Date().getTime()) number = 0;
