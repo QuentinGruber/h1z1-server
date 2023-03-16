@@ -1778,7 +1778,11 @@ export class ZoneServer2016 extends EventEmitter {
             this.getWeaponAmmoId(slot.itemDefinitionId),
             slot.weapon.ammoCount
           );
-          if (ammo && slot.weapon.ammoCount > 0) {
+          if (
+            ammo &&
+            slot.weapon.ammoCount > 0 &&
+            slot.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+          ) {
             client.character.lootContainerItem(
               this,
               ammo,
@@ -2524,15 +2528,31 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         this.kickPlayer(client);
         this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
-        this.sendChatTextToAdmins(
-          `FairPlay: ${
-            client.character.name
-          } has been kicked for possible flying by ${(
-            position[1] - client.startLoc
-          ).toFixed(2)} at [${position[0]} ${position[1]} ${position[2]}]`,
-          false
-        );
-        return true;
+        let kick = true;
+        for (const a in this._constructionFoundations) {
+          if (
+            this._constructionFoundations[a].getHasPermission(
+              this,
+              client.character.characterId,
+              ConstructionPermissionIds.VISIT
+            ) &&
+            this._constructionFoundations[a].isInside(
+              client.character.state.position
+            )
+          )
+            kick = false;
+        }
+        if (kick) {
+          this.sendChatTextToAdmins(
+            `FairPlay: ${
+              client.character.name
+            } has been kicked for possible flying by ${(
+              position[1] - client.startLoc
+            ).toFixed(2)} at [${position[0]} ${position[1]} ${position[2]}]`,
+            false
+          );
+          return true;
+        }
       }
       const distance = getDistance2d(client.oldPos.position, position);
       if (
@@ -3750,22 +3770,6 @@ export class ZoneServer2016 extends EventEmitter {
     setTimeout(() => {
       client.enableChecks = true;
     }, 500);
-    if (!client.isAdmin || !client.isDebugMode) {
-      setTimeout(() => {
-        if (
-          client.character.isAlive &&
-          foundation.isSecured &&
-          foundation.isInside(client.character.state.position) &&
-          Number(client.character.lastLoginDate) + 2000 < new Date().getTime()
-        ) {
-          const damageInfo: DamageInfo = {
-            entity: "Server.Permission",
-            damage: 1000,
-          };
-          this.killCharacter(client, damageInfo);
-        }
-      }, 2000);
-    }
     this.checkFoundationPermission(client, foundation);
   }
 
@@ -7287,7 +7291,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.getWeaponAmmoId(dropItem.itemDefinitionId),
         dropItem.weapon.ammoCount
       );
-      if (ammo && dropItem.weapon.ammoCount > 0) {
+      if (
+        ammo &&
+        dropItem.weapon.ammoCount > 0 &&
+        dropItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+      ) {
         client.character.lootContainerItem(this, ammo, ammo.stackCount, true);
       }
       dropItem.weapon.ammoCount = 0;
