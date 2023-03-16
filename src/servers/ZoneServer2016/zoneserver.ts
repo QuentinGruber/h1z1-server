@@ -3254,9 +3254,9 @@ export class ZoneServer2016 extends EventEmitter {
           block = true;
         if (block) {
           this.sendChatTextToAdmins(
-            `FairPlay: blocked ${
+            `FairPlay: prevented ${
               client.character.name
-            }'s projectile due to speed: (${speed.toFixed(
+            }'s projectile from hitting ${c.character.name} | speed: (${speed.toFixed(
               0
             )} / ${minSpeed}:${maxSpeed}) | ${distance.toFixed(2)}m | ${
               this.getItemDefinition(weaponItem.itemDefinitionId).NAME
