@@ -2183,6 +2183,18 @@ export const commands: Array<Command> = [
       /* handled clientside */
     },
   },
+  {
+    name: "group",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.groupManager.handleGroupCommand(server, client, args);
+    },
+  },
+
   //#endregion
 
   //#region DEV PERMISSIONS

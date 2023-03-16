@@ -2365,6 +2365,37 @@ export class zonePacketHandlers {
   EndCharacterAccess(server: ZoneServer2016, client: Client, packet: any) {
     client.character.dismountContainer(server);
   }
+
+  GroupInvite(server: ZoneServer2016, client: Client, packet: any) {
+    const characterId = packet.data.inviteData.targetCharacter.characterId;
+    let target: Client | string | undefined;
+
+    if (Number(characterId)) {
+      target = server.getClientByCharId(characterId);
+    } else {
+      target = server.getClientByNameOrLoginSession(
+        packet.data.inviteData.targetCharacter.identity.characterFirstName
+      );
+    }
+
+    if (!(target instanceof Client)) return;
+
+    server.groupManager.sendGroupInvite(server, client, target);
+  }
+
+  GroupJoin(server: ZoneServer2016, client: Client, packet: any) {
+    const source = server.getClientByNameOrLoginSession(
+      packet.data.inviteData.sourceCharacter.identity.characterName
+    );
+    if (!(source instanceof Client)) return;
+
+    server.groupManager.handleGroupJoin(
+      server,
+      source,
+      client,
+      packet.data.joinState == 1
+    );
+  }
   //#endregion
 
   processPacket(server: ZoneServer2016, client: Client, packet: any) {
@@ -2567,6 +2598,13 @@ export class zonePacketHandlers {
         break;
       case "AccessedCharacter.EndCharacterAccess":
         this.EndCharacterAccess(server, client, packet);
+        break;
+      case "Group.Invite":
+        this.GroupInvite(server, client, packet);
+        break;
+      case "Group.Join":
+        this.GroupJoin(server, client, packet);
+        break;
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");

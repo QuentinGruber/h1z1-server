@@ -322,6 +322,12 @@ export interface ClientMute {
   unmuteAdminName: string;
 }
 
+export interface Group {
+  groupId: number;
+  leader: string;
+  members: Array<string>;
+}
+
 export interface FairPlayWeaponStat {
     maxSpeed: number;
     minSpeed: number;

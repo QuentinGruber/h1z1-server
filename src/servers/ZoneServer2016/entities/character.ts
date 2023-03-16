@@ -39,6 +39,7 @@ import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { characterDefaultLoadout } from "../data/loadouts";
+import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -120,6 +121,7 @@ export class Character2016 extends BaseFullCharacter {
   mountedContainer?: BaseLootableEntity;
   defaultLoadout = characterDefaultLoadout;
   mutedCharacters: Array<string> = [];
+  groupId: number = 0;
   constructor(
     characterId: string,
     transientId: number,
@@ -730,12 +732,100 @@ export class Character2016 extends BaseFullCharacter {
     });
   }
 
+  updateEquipmentSlot(server: ZoneServer2016, slotId: number) {
+    if (!server.getClientByCharId(this.characterId)?.character.initialized)
+      return;
+    /*
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      this.characterId,
+      "Equipment.SetCharacterEquipmentSlot",
+      this.pGetEquipmentSlotFull(slotId) as EquipmentSetCharacterEquipmentSlot
+    );
+    */
+    // GROUP OUTLINE WORKAROUND
+
+    server.executeFuncForAllReadyClients((client) => {
+      let groupId = 0;
+      if (client.character != this) {
+        groupId = client.character.groupId;
+      }
+      server.sendData(
+        client,
+        "Equipment.SetCharacterEquipmentSlot",
+        this.pGetEquipmentSlotFull(
+          slotId,
+          groupId
+        ) as EquipmentSetCharacterEquipmentSlot
+      );
+    });
+  }
+
+  pGetEquipmentSlotFull(slotId: number, groupId?: number) {
+    const slot = this._equipment[slotId];
+    return slot
+      ? {
+          characterData: {
+            characterId: this.characterId,
+          },
+          equipmentSlot: this.pGetEquipmentSlot(slotId),
+          attachmentData: this.pGetAttachmentSlot(slotId, groupId),
+        }
+      : undefined;
+  }
+
+  updateEquipment(server: ZoneServer2016, groupId?: number) {
+    if (!server.getClientByCharId(this.characterId)?.character.initialized)
+      return;
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      this.characterId,
+      "Equipment.SetCharacterEquipment",
+      this.pGetEquipment(groupId)
+    );
+  }
+
+  pGetEquipment(groupId?: number) {
+    return {
+      characterData: {
+        profileId: 5,
+        characterId: this.characterId,
+      },
+      unknownDword1: 0,
+      unknownString1: "Default",
+      unknownString2: "#",
+      equipmentSlots: this.pGetEquipmentSlots(),
+      attachmentData: this.pGetAttachmentSlots(groupId),
+      unknownBoolean1: true,
+    };
+  }
+
+  pGetAttachmentSlots(groupId?: number) {
+    return Object.keys(this._equipment).map((slotId: any) => {
+      return this.pGetAttachmentSlot(slotId, groupId);
+    });
+  }
+
+  pGetAttachmentSlot(slotId: number, groupId?: number) {
+    const slot = this._equipment[slotId];
+    return slot
+      ? {
+          modelName: slot.modelName,
+          effectId: this.groupId > 0 && this.groupId == groupId ? 3 : 0,
+          textureAlias: slot.textureAlias || "",
+          tintAlias: slot.tintAlias || "Default",
+          decalAlias: slot.decalAlias || "#",
+          slotId: slot.slotId,
+        }
+      : undefined;
+  }
+
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "LightweightToFullPc", {
       useCompression: false,
       fullPcData: {
         transientId: this.transientId,
-        attachmentData: this.pGetAttachmentSlots(),
+        attachmentData: this.pGetAttachmentSlots(client.character.groupId),
         headActor: this.headActor,
         hairModel: this.hairModel,
         resources: { data: this.pGetResources() },
@@ -772,6 +862,13 @@ export class Character2016 extends BaseFullCharacter {
       characterId: this.characterId,
       stance: this.weaponStance,
     });
+
+    // GROUP OUTLINE WORKAROUND
+    server.sendData(
+      client,
+      "Equipment.SetCharacterEquipment",
+      this.pGetEquipment(client.character.groupId)
+    );
 
     if (this.onReadyCallback) {
       this.onReadyCallback(client);
