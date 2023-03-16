@@ -3201,78 +3201,77 @@ export class ZoneServer2016 extends EventEmitter {
           false
         );
       }
-      const distance = getDistance(
-        fireHint.position,
-        packet.hitReport.position
-      );
-      const speed =
-        (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
-      let maxSpeed = this.fairPlayValues.defaultMaxProjectileSpeed;
-      let minSpeed = this.fairPlayValues.defaultMaxDistance;
-      let maxDistance = this.fairPlayValues.defaultMaxProjectileSpeed;
-      switch (weaponItem.itemDefinitionId) {
-        case Items.WEAPON_308:
-          maxSpeed = this.fairPlayValues.WEAPON_308.maxSpeed;
-          minSpeed = this.fairPlayValues.WEAPON_308.minSpeed;
-          maxDistance = this.fairPlayValues.WEAPON_308.maxDistance;
-          break;
-        case Items.WEAPON_CROSSBOW:
-          maxSpeed = this.fairPlayValues.WEAPON_CROSSBOW.maxSpeed;
-          minSpeed = this.fairPlayValues.WEAPON_CROSSBOW.minSpeed;
-          maxDistance = this.fairPlayValues.WEAPON_CROSSBOW.maxDistance;
-          break;
-        case Items.WEAPON_BOW_MAKESHIFT:
-          maxSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxSpeed;
-          minSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.minSpeed;
-          maxDistance = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxDistance;
-          break;
-        case Items.WEAPON_BOW_RECURVE:
-          maxSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.maxSpeed;
-          minSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.minSpeed;
-          maxDistance = this.fairPlayValues.WEAPON_BOW_RECURVE.maxDistance;
-          break;
-        case Items.WEAPON_BOW_WOOD:
-          maxSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.maxSpeed;
-          minSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.minSpeed;
-          maxDistance = this.fairPlayValues.WEAPON_BOW_WOOD.maxDistance;
-          break;
-        case Items.WEAPON_SHOTGUN:
-          maxSpeed = this.fairPlayValues.WEAPON_SHOTGUN.maxSpeed;
-          minSpeed = this.fairPlayValues.WEAPON_SHOTGUN.minSpeed;
-          maxDistance = this.fairPlayValues.WEAPON_SHOTGUN.maxDistance;
-      }
-      let block = false;
-      if (distance > maxDistance && speed < minSpeed) block = true;
-      if (
-        distance > maxDistance &&
-        (speed > maxSpeed ||
-          speed < minSpeed ||
-          speed <= 0 ||
-          speed == Infinity)
-      )
-        block = true;
-      if (block) {
-        this.sendChatTextToAdmins(
-          `FairPlay: blocked ${
-            client.character.name
-          }'s projectile due to speed: (${speed.toFixed(
-            0
-          )} / ${minSpeed}:${maxSpeed}) | ${distance.toFixed(2)}m | ${
-            this.getItemDefinition(weaponItem.itemDefinitionId).NAME
-          } | ${packet.hitReport.hitLocation}`,
-          false
+      if (c) {
+        const distance = getDistance(
+          fireHint.position,
+          packet.hitReport.position
         );
-        if (c) {
-          this.sendChatText(c, message, false);
+        const speed =
+          (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
+        let maxSpeed = this.fairPlayValues.defaultMaxProjectileSpeed;
+        let minSpeed = this.fairPlayValues.defaultMinProjectileSpeed;
+        let maxDistance = this.fairPlayValues.defaultMaxDistance;
+        switch (weaponItem.itemDefinitionId) {
+          case Items.WEAPON_308:
+            maxSpeed = this.fairPlayValues.WEAPON_308.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_308.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_308.maxDistance;
+            break;
+          case Items.WEAPON_CROSSBOW:
+            maxSpeed = this.fairPlayValues.WEAPON_CROSSBOW.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_CROSSBOW.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_CROSSBOW.maxDistance;
+            break;
+          case Items.WEAPON_BOW_MAKESHIFT:
+            maxSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxDistance;
+            break;
+          case Items.WEAPON_BOW_RECURVE:
+            maxSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_BOW_RECURVE.maxDistance;
+            break;
+          case Items.WEAPON_BOW_WOOD:
+            maxSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_BOW_WOOD.maxDistance;
+            break;
+          case Items.WEAPON_SHOTGUN:
+            maxSpeed = this.fairPlayValues.WEAPON_SHOTGUN.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_SHOTGUN.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_SHOTGUN.maxDistance;
         }
-        return;
+        let block = false;
+        if (distance > maxDistance && speed < minSpeed) block = true;
+        if (
+          distance > maxDistance &&
+          (speed > maxSpeed ||
+            speed < minSpeed ||
+            speed <= 0 ||
+            speed == Infinity)
+        )
+          block = true;
+        if (block) {
+          this.sendChatTextToAdmins(
+            `FairPlay: blocked ${
+              client.character.name
+            }'s projectile due to speed: (${speed.toFixed(
+              0
+            )} / ${minSpeed}:${maxSpeed}) | ${distance.toFixed(2)}m | ${
+              this.getItemDefinition(weaponItem.itemDefinitionId).NAME
+            } | ${packet.hitReport.hitLocation}`,
+            false
+          );
+          this.sendChatText(c, message, false);
+          return;
+        }
       }
     }
     const hitValidation = this.validateHit(client, entity);
 
     entity.OnProjectileHit(this, {
       entity: client.character.characterId,
-      // this could cause issues if a player switches their weapon before a projectile hits or a client desyncs
       weapon: weaponItem.itemDefinitionId,
       damage: hitValidation.isValid
         ? this.getProjectileDamage(
