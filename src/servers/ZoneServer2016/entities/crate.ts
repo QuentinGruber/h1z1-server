@@ -32,6 +32,23 @@ function getActorModelId(actorModel: string): number {
   }
 }
 
+function isBuffedCrate(position: Float32Array): boolean {
+  const buffedPostions: [number, number, number, number][] = [
+    [1814.5, 48.88, 224.07, 1],
+    [2043.44, 46.28, 423.75, 1],
+    [2216.36, 49.72, 772.95, 1],
+    [2652.26, 57.87, 848.76, 1],
+    [2303.37, 54.47, 1203.46, 1],
+    [2333.07, 54.47, 1801.1, 1],
+    [2601.42, 32.0, 2046.66, 1],
+  ];
+  let result = false;
+  for (const a of buffedPostions) {
+    if (isPosInRadius(40, position, new Float32Array(a))) result = true;
+  }
+  return result;
+}
+
 export class Crate extends BaseLightweightCharacter {
   detonated = false;
   spawnerId: number;
@@ -39,6 +56,7 @@ export class Crate extends BaseLightweightCharacter {
   rewardItems: number[] = [];
   health: number = 5000;
   spawnTimestamp: number = 0;
+  isBuffed: boolean;
   constructor(
     characterId: string,
     transientId: number,
@@ -56,27 +74,31 @@ export class Crate extends BaseLightweightCharacter {
     this.scale = scale;
     this.npcRenderDistance = renderDistance;
     this.actorModelId = getActorModelId(actorModel);
+    this.isBuffed = isBuffedCrate(this.state.position);
   }
 
   spawnLoot(server: ZoneServer2016) {
-    let lootTable = this.scale.every((val) => val >= 0.9)
-      ? containerLootSpawners["Crate_big"]
+    const lootTable = this.isBuffed
+      ? containerLootSpawners["Crate_buffed"]
       : containerLootSpawners["Crate"];
-    if (this.actorModelId == 9088)
-      lootTable = containerLootSpawners["Crate_great"];
     const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
     if (chance <= lootTable.spawnChance) {
       const item = getRandomItem(lootTable.items);
       if (item) {
-        const fixedPosition = this.state.position;
-        if (this.actorModelId == 9088) fixedPosition[1] += 0.1;
         const spawnedItem = server.worldObjectManager.createLootEntity(
           server,
           server.generateItem(
             item.item,
             randomIntFromInterval(item.spawnCount.min, item.spawnCount.max)
           ),
-          fixedPosition,
+          new Float32Array([
+            this.state.position[0],
+            this.actorModelId == 9088
+              ? this.state.position[1] + 0.1
+              : this.state.position[1],
+            this.state.position[2],
+            1,
+          ]),
           new Float32Array([0, 0, 0, 0])
         );
         if (!spawnedItem) return;

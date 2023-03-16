@@ -1667,6 +1667,10 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     const pos = client.character.state.position;
+    if (client.character.spawnGridData.length < 100) {
+      // attemt to fix broken spawn grid after unban
+      client.character.spawnGridData = new Array(100).fill(0);
+    }
     this._spawnGrid.forEach((spawnCell: SpawnCell) => {
       // find current grid and add it to blocked ones
       if (
@@ -1688,7 +1692,6 @@ export class ZoneServer2016 extends EventEmitter {
     });
     const character = client.character,
       sourceClient = this.getClientByCharId(damageInfo.entity);
-
     const gridArr: any[] = [];
     character.spawnGridData.forEach((number: number) => {
       if (number <= new Date().getTime()) number = 0;
@@ -1778,7 +1781,11 @@ export class ZoneServer2016 extends EventEmitter {
             this.getWeaponAmmoId(slot.itemDefinitionId),
             slot.weapon.ammoCount
           );
-          if (ammo && slot.weapon.ammoCount > 0) {
+          if (
+            ammo &&
+            slot.weapon.ammoCount > 0 &&
+            slot.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+          ) {
             client.character.lootContainerItem(
               this,
               ammo,
@@ -2166,13 +2173,13 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     switch (source) {
       case "vehicle":
-        damage /= 10;
+        damage /= 12;
         break;
       case "ethanol":
-        damage /= 2;
+        damage /= 3.2;
         break;
       case "fuel":
-        damage /= 4;
+        damage /= 6;
         break;
     }
     const constructionObject: ConstructionEntity =
@@ -2314,23 +2321,24 @@ export class ZoneServer2016 extends EventEmitter {
         entity: "Server.Respawn",
         damage: 99999,
       };
-      if (!this.fairPlayValues || client.isAdmin) return;
-      for (let x = 1; x < this.fairPlayValues.respawnCheckIterations; x++) {
-        setTimeout(() => {
-          if (
-            isPosInRadius(
-              this.fairPlayValues?.respawnCheckRange || 100,
-              tempPos,
-              client.character.state.position
-            ) ||
-            !isPosInRadius(
-              this.fairPlayValues?.respawnCheckRange || 300,
-              tempPos2,
-              client.character.state.position
+      if (this.fairPlayValues && !client.isAdmin) {
+        for (let x = 1; x < this.fairPlayValues.respawnCheckIterations; x++) {
+          setTimeout(() => {
+            if (
+              isPosInRadius(
+                this.fairPlayValues?.respawnCheckRange || 100,
+                tempPos,
+                client.character.state.position
+              ) ||
+              !isPosInRadius(
+                this.fairPlayValues?.respawnCheckRange || 300,
+                tempPos2,
+                client.character.state.position
+              )
             )
-          )
-            this.killCharacter(client, damageInfo);
-        }, x * this.fairPlayValues.respawnCheckTime);
+              this.killCharacter(client, damageInfo);
+          }, x * this.fairPlayValues.respawnCheckTime);
+        }
       }
     }
     if (clearEquipment) {
@@ -2523,15 +2531,31 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         this.kickPlayer(client);
         this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
-        this.sendChatTextToAdmins(
-          `FairPlay: ${
-            client.character.name
-          } has been kicked for possible flying by ${(
-            position[1] - client.startLoc
-          ).toFixed(2)} at [${position[0]} ${position[1]} ${position[2]}]`,
-          false
-        );
-        return true;
+        let kick = true;
+        for (const a in this._constructionFoundations) {
+          if (
+            this._constructionFoundations[a].getHasPermission(
+              this,
+              client.character.characterId,
+              ConstructionPermissionIds.VISIT
+            ) &&
+            this._constructionFoundations[a].isInside(
+              client.character.state.position
+            )
+          )
+            kick = false;
+        }
+        if (kick) {
+          this.sendChatTextToAdmins(
+            `FairPlay: ${
+              client.character.name
+            } has been kicked for possible flying by ${(
+              position[1] - client.startLoc
+            ).toFixed(2)} at [${position[0]} ${position[1]} ${position[2]}]`,
+            false
+          );
+          return true;
+        }
       }
       const distance = getDistance2d(client.oldPos.position, position);
       if (
@@ -3200,78 +3224,79 @@ export class ZoneServer2016 extends EventEmitter {
           false
         );
       }
-      const distance = getDistance(
-        fireHint.position,
-        packet.hitReport.position
-      );
-      const speed =
-        (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
-      let maxSpeed = this.fairPlayValues.defaultMaxProjectileSpeed;
-      let minSpeed = this.fairPlayValues.defaultMinProjectileSpeed;
-      let maxDistance = this.fairPlayValues.defaultMaxProjectileSpeed;
-      switch (weaponItem.itemDefinitionId) {
-        case Items.WEAPON_308:
-          maxSpeed = this.fairPlayValues.WEAPON_308.maxSpeed;
-          minSpeed = this.fairPlayValues.WEAPON_308.minSpeed;
-          maxDistance = this.fairPlayValues.WEAPON_308.maxDistance;
-          break;
-        case Items.WEAPON_CROSSBOW:
-          maxSpeed = this.fairPlayValues.WEAPON_CROSSBOW.maxSpeed;
-          minSpeed = this.fairPlayValues.WEAPON_CROSSBOW.minSpeed;
-          maxDistance = this.fairPlayValues.WEAPON_CROSSBOW.maxDistance;
-          break;
-        case Items.WEAPON_BOW_MAKESHIFT:
-          maxSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxSpeed;
-          minSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.minSpeed;
-          maxDistance = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxDistance;
-          break;
-        case Items.WEAPON_BOW_RECURVE:
-          maxSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.maxSpeed;
-          minSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.minSpeed;
-          maxDistance = this.fairPlayValues.WEAPON_BOW_RECURVE.maxDistance;
-          break;
-        case Items.WEAPON_BOW_WOOD:
-          maxSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.maxSpeed;
-          minSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.minSpeed;
-          maxDistance = this.fairPlayValues.WEAPON_BOW_WOOD.maxDistance;
-          break;
-        case Items.WEAPON_SHOTGUN:
-          maxSpeed = this.fairPlayValues.WEAPON_SHOTGUN.maxSpeed;
-          minSpeed = this.fairPlayValues.WEAPON_SHOTGUN.minSpeed;
-          maxDistance = this.fairPlayValues.WEAPON_SHOTGUN.maxDistance;
-      }
-      let block = false;
-      if (distance > maxDistance && speed < minSpeed) block = true;
-      if (
-        distance > maxDistance &&
-        (speed > maxSpeed ||
-          speed < minSpeed ||
-          speed <= 0 ||
-          speed == Infinity)
-      )
-        block = true;
-      if (block) {
-        this.sendChatTextToAdmins(
-          `FairPlay: blocked ${
-            client.character.name
-          }'s projectile due to speed: (${speed.toFixed(
-            0
-          )} / ${minSpeed}:${maxSpeed}) | ${distance.toFixed(2)}m | ${
-            this.getItemDefinition(weaponItem.itemDefinitionId).NAME
-          } | ${packet.hitReport.hitLocation}`,
-          false
+      if (c) {
+        const distance = getDistance(
+          fireHint.position,
+          packet.hitReport.position
         );
-        if (c) {
-          this.sendChatText(c, message, false);
+        const speed =
+          (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
+        let maxSpeed = this.fairPlayValues.defaultMaxProjectileSpeed;
+        let minSpeed = this.fairPlayValues.defaultMinProjectileSpeed;
+        let maxDistance = this.fairPlayValues.defaultMaxDistance;
+        switch (weaponItem.itemDefinitionId) {
+          case Items.WEAPON_308:
+            maxSpeed = this.fairPlayValues.WEAPON_308.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_308.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_308.maxDistance;
+            break;
+          case Items.WEAPON_CROSSBOW:
+            maxSpeed = this.fairPlayValues.WEAPON_CROSSBOW.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_CROSSBOW.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_CROSSBOW.maxDistance;
+            break;
+          case Items.WEAPON_BOW_MAKESHIFT:
+            maxSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxDistance;
+            break;
+          case Items.WEAPON_BOW_RECURVE:
+            maxSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_BOW_RECURVE.maxDistance;
+            break;
+          case Items.WEAPON_BOW_WOOD:
+            maxSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_BOW_WOOD.maxDistance;
+            break;
+          case Items.WEAPON_SHOTGUN:
+            maxSpeed = this.fairPlayValues.WEAPON_SHOTGUN.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_SHOTGUN.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_SHOTGUN.maxDistance;
         }
-        return;
+        let block = false;
+        if (distance > maxDistance && speed < minSpeed) block = true;
+        if (
+          distance > maxDistance &&
+          (speed > maxSpeed ||
+            speed < minSpeed ||
+            speed <= 0 ||
+            speed == Infinity)
+        )
+          block = true;
+        if (block) {
+          this.sendChatTextToAdmins(
+            `FairPlay: prevented ${
+              client.character.name
+            }'s projectile from hitting ${
+              c.character.name
+            } | speed: (${speed.toFixed(
+              0
+            )} / ${minSpeed}:${maxSpeed}) | ${distance.toFixed(2)}m | ${
+              this.getItemDefinition(weaponItem.itemDefinitionId).NAME
+            } | ${packet.hitReport.hitLocation}`,
+            false
+          );
+          this.sendChatText(c, message, false);
+          return;
+        }
       }
     }
     const hitValidation = this.validateHit(client, entity);
 
     entity.OnProjectileHit(this, {
       entity: client.character.characterId,
-      // this could cause issues if a player switches their weapon before a projectile hits or a client desyncs
       weapon: weaponItem.itemDefinitionId,
       damage: hitValidation.isValid
         ? this.getProjectileDamage(
@@ -3719,6 +3744,7 @@ export class ZoneServer2016 extends EventEmitter {
         triggerLoadingScreen: false,
       });
       client.enableChecks = false;
+      client.isInAir = false;
       setTimeout(() => {
         client.enableChecks = true;
       }, 500);
@@ -3747,22 +3773,6 @@ export class ZoneServer2016 extends EventEmitter {
     setTimeout(() => {
       client.enableChecks = true;
     }, 500);
-    if (!client.isAdmin || !client.isDebugMode) {
-      setTimeout(() => {
-        if (
-          client.character.isAlive &&
-          foundation.isSecured &&
-          foundation.isInside(client.character.state.position) &&
-          Number(client.character.lastLoginDate) + 2000 < new Date().getTime()
-        ) {
-          const damageInfo: DamageInfo = {
-            entity: "Server.Permission",
-            damage: 1000,
-          };
-          this.killCharacter(client, damageInfo);
-        }
-      }, 2000);
-    }
     this.checkFoundationPermission(client, foundation);
   }
 
@@ -6446,6 +6456,7 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: client.character.characterId,
       }
     );
+    client.isInAir = false;
     if (seatId === "0") {
       this.sendDataToAllWithSpawnedEntity(
         this._vehicles,
@@ -7283,7 +7294,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.getWeaponAmmoId(dropItem.itemDefinitionId),
         dropItem.weapon.ammoCount
       );
-      if (ammo && dropItem.weapon.ammoCount > 0) {
+      if (
+        ammo &&
+        dropItem.weapon.ammoCount > 0 &&
+        dropItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+      ) {
         client.character.lootContainerItem(this, ammo, ammo.stackCount, true);
       }
       dropItem.weapon.ammoCount = 0;

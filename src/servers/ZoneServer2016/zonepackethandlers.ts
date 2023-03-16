@@ -1413,7 +1413,11 @@ export class zonePacketHandlers {
               server.getWeaponAmmoId(item.itemDefinitionId),
               item.weapon.ammoCount
             );
-            if (ammo && item.weapon.ammoCount > 0) {
+            if (
+              ammo &&
+              item.weapon.ammoCount > 0 &&
+              item.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+            ) {
               client.character.lootContainerItem(
                 server,
                 ammo,
@@ -1477,7 +1481,11 @@ export class zonePacketHandlers {
                 server.getWeaponAmmoId(loadoutItem.itemDefinitionId),
                 loadoutItem.weapon.ammoCount
               );
-              if (ammo && loadoutItem.weapon.ammoCount > 0) {
+              if (
+                ammo &&
+                loadoutItem.weapon.ammoCount > 0 &&
+                loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+              ) {
                 client.character.lootContainerItem(
                   server,
                   ammo,
