@@ -6735,7 +6735,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (this._containerDefinitions[containerDefinitionId]) {
       return this._containerDefinitions[containerDefinitionId];
     } else {
-      debug(
+      console.log(
         `Tried to get containerDefinition for invalid containerDefinitionId ${containerDefinitionId}`
       );
       return this._containerDefinitions[119];

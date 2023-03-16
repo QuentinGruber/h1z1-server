@@ -898,7 +898,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       unknownArray3: { data: {} },
       unknownArray4: { data: {} },
       unknownArray5: { data: {} },
-      unknownArray6: { data: {} },
       remoteWeapons: { data: {} },
       itemsData: {
         items: this.pGetInventoryItems(server),

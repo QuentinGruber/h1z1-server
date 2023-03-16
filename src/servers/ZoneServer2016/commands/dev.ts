@@ -646,7 +646,7 @@ const dev: any = {
       },
     });
     */
-    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+    /*server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId: vehicle.characterId,
       containerGuid: container.itemGuid,
       unknownBool1: false,
@@ -660,19 +660,62 @@ const dev: any = {
         }),
         unknownDword1: container.containerDefinitionId,
       },
-    });
+    });*/
    console.log(vehicle?.getContainer()?.itemGuid);
-   /*
+
+    server.initializeContainerList(client, vehicle);
+
+    Object.values(vehicle._loadout).forEach((item) => {
+      server.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: client.character.characterId,
+        data: vehicle.pGetItemData(server, item, 101),
+      });
+    });
+
+    vehicle.updateLoadout(server);
+    
     server.sendData(client, "AccessedCharacter.Unknown1", {
       characterId: characterId,
       containerGuid: client.character.characterId//"",// vehicle.getContainer()?.itemGuid || "",
-    });*/
+    });
+
+    server.sendData(client, "AccessedCharacter.Unknown2", {
+      characterId: vehicle.characterId,
+      itemsData: {
+        items: Object.values(vehicle._loadout).map((item) => {
+          return vehicle.pGetItemData(
+            server,
+            item,
+            101//container.containerDefinitionId
+          )
+        }),
+        unknownDword1: 101//container.containerDefinitionId,
+      },
+    });
+    
+   /*
+    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+      objectCharacterId: vehicle.characterId,
+      containerGuid: client.character.characterId,//container.itemGuid,
+      unknownBool1: false ,
+      itemsData: {
+        items: Object.values(vehicle._loadout).map((item) => {
+          return vehicle.pGetItemData(
+            server,
+            item,
+            101//container.containerDefinitionId
+          )
+        }),
+        unknownDword1: 101//container.containerDefinitionId,
+      },
+    });
+    */
   },
 
   stop: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "PlayerStop", {
       transientId: client.character.transientId,
-      state: Number(args[0]) == 0 ? false : true,
+      state: true,
     });
   },
 
@@ -709,7 +752,7 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sendData(client, "Ui.ExecuteScript", {
-      unknownString1: args[0],
+      unknownString1: args[1],
       unknownArray1: [],
     });
   },

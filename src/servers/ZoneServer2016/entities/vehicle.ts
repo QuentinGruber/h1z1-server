@@ -26,6 +26,7 @@ import { DamageInfo } from "types/zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
 import { vehicleDefaultLoadouts } from "../data/loadouts";
 import { LoadoutItem } from "../classes/loadoutItem";
+import { BaseItem } from "../classes/baseItem";
 
 function getActorModelId(vehicleId: number) {
   switch (vehicleId) {
@@ -277,6 +278,34 @@ export class Vehicle2016 extends BaseLootableEntity {
       },
     };
   }
+  
+  pGetFull(server: ZoneServer2016) {
+    return {
+      transientId: this.transientId,
+      attachmentData: this.pGetAttachmentSlots(),
+      characterId: this.characterId,
+      resources: {
+        data: this.pGetResources(),
+      },
+      effectTags: [],
+      unknownData1: {},
+      targetData: {},
+      unknownArray1: [],
+      unknownArray2: [],
+      unknownArray3: { data: {} },
+      unknownArray4: { data: {} },
+      unknownArray5: { data: {} },
+      remoteWeapons: { 
+        isVehicle: true,
+        data: {} 
+      },
+      itemsData: {
+        items: this.pGetInventoryItems(server),
+        unknownDword1: 0,
+      },
+    };
+  }
+
   pGetFullVehicle(server: ZoneServer2016) {
     return {
       npcData: {
@@ -521,6 +550,41 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
   }
 
+  pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
+    let durability: number = 0;
+    const isWeapon = server.isWeapon(item.itemDefinitionId);
+    switch (true) {
+      case server.isWeapon(item.itemDefinitionId):
+        durability = 2000;
+        break;
+      case server.isArmor(item.itemDefinitionId):
+        durability = 1000;
+        break;
+      case server.isHelmet(item.itemDefinitionId):
+        durability = 100;
+        break;
+    }
+    return {
+      itemDefinitionId: item.itemDefinitionId,
+      tintId: 0,
+      guid: item.itemGuid,
+      count: item.stackCount,
+      itemSubData: {
+        hasSubData: false,
+      },
+      containerGuid: item.containerGuid,
+      containerDefinitionId: containerDefId,
+      containerSlotId: item.slotId,
+      baseDurability: durability,
+      currentDurability: durability ? item.currentDurability : 0,
+      maxDurabilityFromDefinition: durability,
+      unknownBoolean1: true,
+      ownerCharacterId: this.characterId,
+      unknownDword9: 1,
+      weaponData: this.pGetItemWeaponData(server, item),
+    };
+  }
+
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     if (
       this.vehicleId == VehicleIds.SPECTATE ||
@@ -532,6 +596,12 @@ export class Vehicle2016 extends BaseLootableEntity {
       "LightweightToFullVehicle",
       this.pGetFullVehicle(server)
     );
+    Object.values(this._loadout).forEach((item)=> {
+      server.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: client.character.characterId,
+        data: this.pGetItemData(server, item, 101),
+      });
+    })
     this.updateLoadout(server);
     // fix seat change crash related to our managed object workaround
     if (this.droppedManagedClient == client) {

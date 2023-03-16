@@ -1210,6 +1210,41 @@ export function packItemWeaponData(obj: any) {
   return DataSchema.pack(unknownData1Schema, obj).data;
 }
 
+function packFullNPCRemoteWeaponsData(obj: any) {
+  const remoteWeaponsSchema = [
+    {
+      name: "remoteWeapons",
+      type: "byteswithlength",
+      defaultValue: {},
+      fields: [
+        {
+          name: "data",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "guid", type: "uint64string", defaultValue: "" },
+            ...remoteWeaponSchema,
+          ],
+        },
+        {
+          name: "remoteWeaponExtra",
+          type: "array",
+          defaultValue: {},
+          fields: [
+            { name: "guid", type: "uint64string", defaultValue: "" },
+            ...remoteWeaponExtraSchema,
+          ],
+        },
+      ],
+    },
+  ]
+
+  if (!obj["isVehicle"]) {
+    return DataSchema.pack([], {}).data;
+  }
+  return DataSchema.pack(remoteWeaponsSchema, {remoteWeapons: obj}).data;
+}
+
 export const currencySchema = [
   { name: "currencyId", type: "uint32", defaultValue: 0 },
   { name: "quantity", type: "uint32", defaultValue: 0 },
@@ -1851,28 +1886,9 @@ export const fullNpcSchema = [
   },
   {
     name: "remoteWeapons",
-    type: "byteswithlength",
+    type: "custom",
     defaultValue: {},
-    fields: [
-      {
-        name: "data",
-        type: "array",
-        defaultValue: [],
-        fields: [
-          { name: "guid", type: "uint64string", defaultValue: "" },
-          ...remoteWeaponSchema,
-        ],
-      },
-      {
-        name: "remoteWeaponExtra",
-        type: "array",
-        defaultValue: {},
-        fields: [
-          { name: "guid", type: "uint64string", defaultValue: "" },
-          ...remoteWeaponExtraSchema,
-        ],
-      },
-    ],
+    packer: packFullNPCRemoteWeaponsData,
   },
   {
     name: "itemsData",
