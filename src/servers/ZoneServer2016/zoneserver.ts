@@ -2314,23 +2314,24 @@ export class ZoneServer2016 extends EventEmitter {
         entity: "Server.Respawn",
         damage: 99999,
       };
-      if (!this.fairPlayValues || client.isAdmin) return;
-      for (let x = 1; x < this.fairPlayValues.respawnCheckIterations; x++) {
-        setTimeout(() => {
-          if (
-            isPosInRadius(
-              this.fairPlayValues?.respawnCheckRange || 100,
-              tempPos,
-              client.character.state.position
-            ) ||
-            !isPosInRadius(
-              this.fairPlayValues?.respawnCheckRange || 300,
-              tempPos2,
-              client.character.state.position
+      if (this.fairPlayValues && !client.isAdmin) {
+        for (let x = 1; x < this.fairPlayValues.respawnCheckIterations; x++) {
+          setTimeout(() => {
+            if (
+              isPosInRadius(
+                this.fairPlayValues?.respawnCheckRange || 100,
+                tempPos,
+                client.character.state.position
+              ) ||
+              !isPosInRadius(
+                this.fairPlayValues?.respawnCheckRange || 300,
+                tempPos2,
+                client.character.state.position
+              )
             )
-          )
-            this.killCharacter(client, damageInfo);
-        }, x * this.fairPlayValues.respawnCheckTime);
+              this.killCharacter(client, damageInfo);
+          }, x * this.fairPlayValues.respawnCheckTime);
+        }
       }
     }
     if (clearEquipment) {
