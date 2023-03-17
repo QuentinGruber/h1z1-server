@@ -1,4 +1,4 @@
-// ======================================================================
+﻿// ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
@@ -174,6 +174,23 @@ export function movePoint(
     position[1],
     position[2] + Math.sin(angle) * distance,
   ]);
+}
+
+export function getAngle(positionA: Float32Array, positionB: Float32Array) {
+  const dx = positionB[0] - positionA[0];
+  const dz = positionB[2] - positionA[2];
+  let angle = Math.atan2(dz, dx);
+
+  // adjust angle if coordinate system is flipped
+  angle = (2 * Math.PI - angle) % (2 * Math.PI);
+
+  // rotate angle by -90 degrees
+  angle += Math.PI / 2;
+
+  // ensure angle is within 0 to 2π range
+  angle = (angle + 2 * Math.PI) % (2 * Math.PI);
+
+  return angle;
 }
 
 export async function zoneShutdown(
@@ -798,18 +815,21 @@ export function registerConstructionSlots(
   }
 }
 // thx GPT i'm not writing regex myself :)
-export function isValidCharacterName(characterName: string) {
+export function isValidCharacterName(name: string) {
   // Regular expression that matches all special characters
   const specialCharRegex = /[^\w\s]/gi;
 
   // Check if the string is only made up of blank characters
-  const onlyBlankChars = characterName.replace(/\s/g, "").length === 0;
+  const onlyBlankChars = name.replace(/\s/g, "").length === 0;
 
   // Check if the string contains any special characters
-  const hasSpecialChars = specialCharRegex.test(characterName);
+  const hasSpecialChars = specialCharRegex.test(name);
 
   // Return false if the string is only made up of blank characters or contains special characters
-  return !onlyBlankChars && !hasSpecialChars
+  return !onlyBlankChars &&
+    !hasSpecialChars &&
+    !name.startsWith(" ") &&
+    !name.endsWith(" ")
     ? NAME_VALIDATION_STATUS.AVAILABLE
     : NAME_VALIDATION_STATUS.INVALID;
 }

@@ -39,6 +39,7 @@ import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { characterDefaultLoadout } from "../data/loadouts";
+import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -92,7 +93,6 @@ export class Character2016 extends BaseFullCharacter {
   vehicleExitDate: number = new Date().getTime();
   currentLoadoutSlot = LoadoutSlots.FISTS;
   readonly loadoutId = LoadoutIds.CHARACTER;
-  startRessourceUpdater: any;
   healingInterval?: any;
   healingTicks: number;
   healingMaxTicks: number;
@@ -106,6 +106,7 @@ export class Character2016 extends BaseFullCharacter {
   spawnGridData: number[] = [];
   lastJumpTime: number = 0;
   weaponStance: number = 1;
+  stance: number = 0;
   readonly metrics: CharacterMetrics = {
     recipesDiscovered: 0,
     zombiesKilled: 0,
@@ -119,6 +120,8 @@ export class Character2016 extends BaseFullCharacter {
   lastInteractionTime = 0;
   mountedContainer?: BaseLootableEntity;
   defaultLoadout = characterDefaultLoadout;
+  mutedCharacters: Array<string> = [];
+  groupId: number = 0;
   constructor(
     characterId: string,
     transientId: number,
@@ -180,137 +183,159 @@ export class Character2016 extends BaseFullCharacter {
         }
       }, 1000);
     };
-    this.startRessourceUpdater = (
-      client: ZoneClient2016,
-      server: ZoneServer2016
-    ) => {
-      const hunger = this._resources[ResourceIds.HUNGER],
-        hydration = this._resources[ResourceIds.HYDRATION],
-        health = this._resources[ResourceIds.HEALTH],
-        virus = this._resources[ResourceIds.VIRUS],
-        stamina = this._resources[ResourceIds.STAMINA],
-        bleeding = this._resources[ResourceIds.BLEEDING];
-
-      client.character.resourcesUpdater = setTimeout(() => {
-        // prototype resource manager
-        if (!server._clients[client.sessionId]) {
-          return;
-        }
-        const { isRunning } = client.character;
-        if (
-          isRunning &&
-          (client.vehicle.mountedVehicle == "" ||
-            !client.vehicle.mountedVehicle)
-        ) {
-          client.character._resources[ResourceIds.STAMINA] -= 4;
-          client.character.isExhausted =
-            client.character._resources[ResourceIds.STAMINA] < 120;
-        } else if (!client.character.isBleeding || !client.character.isMoving) {
-          client.character._resources[ResourceIds.STAMINA] += 12;
-        }
-
-        // todo: modify sprint stat
-        client.character._resources[ResourceIds.HUNGER] -= 2;
-        client.character._resources[ResourceIds.HYDRATION] -= 4;
-        if (client.character._resources[ResourceIds.STAMINA] > 600) {
-          client.character._resources[ResourceIds.STAMINA] = 600;
-        } else if (client.character._resources[ResourceIds.STAMINA] < 0) {
-          client.character._resources[ResourceIds.STAMINA] = 0;
-        }
-        if (client.character._resources[ResourceIds.BLEEDING] > 0) {
-          this.damage(server, {
-            entity: "",
-            damage:
-              Math.ceil(
-                client.character._resources[ResourceIds.BLEEDING] / 40
-              ) * 100,
-          });
-        }
-        if (client.character._resources[ResourceIds.BLEEDING] > 80) {
-          client.character._resources[ResourceIds.BLEEDING] = 80;
-        }
-        if (client.character._resources[ResourceIds.BLEEDING] < -40) {
-          client.character._resources[ResourceIds.BLEEDING] = -40;
-        }
-        if (client.character._resources[ResourceIds.HUNGER] > 10000) {
-          client.character._resources[ResourceIds.HUNGER] = 10000;
-        } else if (client.character._resources[ResourceIds.HUNGER] < 0) {
-          client.character._resources[ResourceIds.HUNGER] = 0;
-          this.damage(server, { entity: "", damage: 100 });
-        }
-        if (client.character._resources[ResourceIds.HYDRATION] > 10000) {
-          client.character._resources[ResourceIds.HYDRATION] = 10000;
-        } else if (client.character._resources[ResourceIds.HYDRATION] < 0) {
-          client.character._resources[ResourceIds.HYDRATION] = 0;
-          this.damage(server, { entity: "", damage: 100 });
-        }
-        if (client.character._resources[ResourceIds.HEALTH] > 10000) {
-          client.character._resources[ResourceIds.HEALTH] = 10000;
-        } else if (client.character._resources[ResourceIds.HEALTH] < 0) {
-          client.character._resources[ResourceIds.HEALTH] = 0;
-        }
-
-        if (client.character._resources[ResourceIds.HUNGER] != hunger) {
-          server.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            client.character._resources[ResourceIds.HUNGER],
-            ResourceIds.HUNGER,
-            ResourceTypes.HUNGER,
-            server._characters
-          );
-        }
-        if (client.character._resources[ResourceIds.HYDRATION] != hydration) {
-          server.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            client.character._resources[ResourceIds.HYDRATION],
-            ResourceIds.HYDRATION,
-            ResourceTypes.HYDRATION,
-            server._characters
-          );
-        }
-        if (client.character._resources[ResourceIds.HEALTH] != health) {
-          server.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            client.character._resources[ResourceIds.HEALTH],
-            ResourceIds.HEALTH,
-            ResourceTypes.HEALTH,
-            server._characters
-          );
-        }
-        if (client.character._resources[ResourceIds.VIRUS] != virus) {
-          server.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            client.character._resources[ResourceIds.VIRUS],
-            ResourceIds.VIRUS,
-            ResourceTypes.VIRUS,
-            server._characters
-          );
-        }
-        if (client.character._resources[ResourceIds.STAMINA] != stamina) {
-          server.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            client.character._resources[ResourceIds.STAMINA],
-            ResourceIds.STAMINA,
-            ResourceTypes.STAMINA,
-            server._characters
-          );
-        }
-        if (client.character._resources[ResourceIds.BLEEDING] != bleeding) {
-          server.updateResourceToAllWithSpawnedEntity(
-            client.character.characterId,
-            client.character._resources[ResourceIds.BLEEDING] > 0
-              ? client.character._resources[ResourceIds.BLEEDING]
-              : 0,
-            ResourceIds.BLEEDING,
-            ResourceTypes.BLEEDING,
-            server._characters
-          );
-        }
-
-        client.character.resourcesUpdater.refresh();
-      }, 3000);
-    };
   }
+
+  startResourceUpdater(client: ZoneClient2016, server: ZoneServer2016) {
+    client.character.resourcesUpdater = setTimeout(
+      () => this.updateResources(client, server),
+      3000
+    );
+  }
+
+  updateResources(client: ZoneClient2016, server: ZoneServer2016) {
+    if (this.isGodMode()) {
+      client.character.resourcesUpdater.refresh();
+      return;
+    }
+
+    if (!server._clients[client.sessionId]) {
+      return;
+    }
+
+    const hunger = this._resources[ResourceIds.HUNGER],
+      hydration = this._resources[ResourceIds.HYDRATION],
+      health = this._resources[ResourceIds.HEALTH],
+      virus = this._resources[ResourceIds.VIRUS],
+      stamina = this._resources[ResourceIds.STAMINA],
+      bleeding = this._resources[ResourceIds.BLEEDING];
+
+    if (
+      client.character.isRunning &&
+      (client.vehicle.mountedVehicle == "" || !client.vehicle.mountedVehicle)
+    ) {
+      client.character._resources[ResourceIds.STAMINA] -= 4;
+      client.character.isExhausted =
+        client.character._resources[ResourceIds.STAMINA] < 120;
+    } else if (!client.character.isBleeding || !client.character.isMoving) {
+      client.character._resources[ResourceIds.STAMINA] += 12;
+    }
+
+    client.character._resources[ResourceIds.HUNGER] -= 2;
+    client.character._resources[ResourceIds.HYDRATION] -= 4;
+
+    this.checkResource(server, ResourceIds.STAMINA);
+    if (client.character._resources[ResourceIds.BLEEDING] > 0) {
+      this.damage(server, {
+        entity: "Character.Bleeding",
+        damage:
+          Math.ceil(client.character._resources[ResourceIds.BLEEDING] / 40) *
+          100,
+      });
+    }
+    this.checkResource(server, ResourceIds.BLEEDING);
+    this.checkResource(server, ResourceIds.HUNGER, () => {
+      this.damage(server, { entity: "Character.Hunger", damage: 100 });
+    });
+    this.checkResource(server, ResourceIds.HUNGER, () => {
+      this.damage(server, { entity: "Character.Hunger", damage: 100 });
+    });
+    this.checkResource(server, ResourceIds.HYDRATION, () => {
+      this.damage(server, { entity: "Character.Hydration", damage: 100 });
+    });
+    this.checkResource(server, ResourceIds.HEALTH);
+
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.HUNGER,
+      ResourceTypes.HUNGER,
+      hunger
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.HYDRATION,
+      ResourceTypes.HYDRATION,
+      hydration
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.HEALTH,
+      ResourceTypes.HEALTH,
+      health
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.VIRUS,
+      ResourceTypes.VIRUS,
+      virus
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.STAMINA,
+      ResourceTypes.STAMINA,
+      stamina
+    );
+    this.updateResource(
+      server,
+      client,
+      ResourceIds.BLEEDING,
+      ResourceTypes.BLEEDING,
+      bleeding
+    );
+
+    client.character.resourcesUpdater.refresh();
+  }
+
+  checkResource(
+    server: ZoneServer2016,
+    resourceId: ResourceIds,
+    damageCallback?: () => void
+  ) {
+    const minValue = resourceId == ResourceIds.BLEEDING ? -40 : 0,
+      maxValue = server.getResourceMaxValue(resourceId);
+    if (this._resources[resourceId] > maxValue) {
+      this._resources[resourceId] = maxValue;
+    } else if (this._resources[resourceId] < minValue) {
+      this._resources[resourceId] = minValue;
+      if (damageCallback) {
+        damageCallback();
+      }
+    }
+  }
+
+  updateResource(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    resourceId: ResourceIds,
+    resouceType: ResourceTypes,
+    oldValue?: number
+  ) {
+    const resource = client.character._resources[resourceId];
+    if (resource == oldValue) return;
+    // only network stamina to other clients
+    if (resourceId == ResourceIds.STAMINA) {
+      server.updateResourceToAllWithSpawnedEntity(
+        client.character.characterId,
+        resource > 0 ? resource : 0,
+        resourceId,
+        resouceType,
+        server._characters
+      );
+      return;
+    }
+    server.updateResource(
+      client,
+      this.characterId,
+      resource > 0 ? resource : 0,
+      resourceId,
+      resouceType
+    );
+  }
+
   isGodMode() {
     return this.godMode || this.tempGodMode;
   }
@@ -707,12 +732,100 @@ export class Character2016 extends BaseFullCharacter {
     });
   }
 
+  updateEquipmentSlot(server: ZoneServer2016, slotId: number) {
+    if (!server.getClientByCharId(this.characterId)?.character.initialized)
+      return;
+    /*
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      this.characterId,
+      "Equipment.SetCharacterEquipmentSlot",
+      this.pGetEquipmentSlotFull(slotId) as EquipmentSetCharacterEquipmentSlot
+    );
+    */
+    // GROUP OUTLINE WORKAROUND
+
+    server.executeFuncForAllReadyClients((client) => {
+      let groupId = 0;
+      if (client.character != this) {
+        groupId = client.character.groupId;
+      }
+      server.sendData(
+        client,
+        "Equipment.SetCharacterEquipmentSlot",
+        this.pGetEquipmentSlotFull(
+          slotId,
+          groupId
+        ) as EquipmentSetCharacterEquipmentSlot
+      );
+    });
+  }
+
+  pGetEquipmentSlotFull(slotId: number, groupId?: number) {
+    const slot = this._equipment[slotId];
+    return slot
+      ? {
+          characterData: {
+            characterId: this.characterId,
+          },
+          equipmentSlot: this.pGetEquipmentSlot(slotId),
+          attachmentData: this.pGetAttachmentSlot(slotId, groupId),
+        }
+      : undefined;
+  }
+
+  updateEquipment(server: ZoneServer2016, groupId?: number) {
+    if (!server.getClientByCharId(this.characterId)?.character.initialized)
+      return;
+    server.sendDataToAllWithSpawnedEntity(
+      server._characters,
+      this.characterId,
+      "Equipment.SetCharacterEquipment",
+      this.pGetEquipment(groupId)
+    );
+  }
+
+  pGetEquipment(groupId?: number) {
+    return {
+      characterData: {
+        profileId: 5,
+        characterId: this.characterId,
+      },
+      unknownDword1: 0,
+      unknownString1: "Default",
+      unknownString2: "#",
+      equipmentSlots: this.pGetEquipmentSlots(),
+      attachmentData: this.pGetAttachmentSlots(groupId),
+      unknownBoolean1: true,
+    };
+  }
+
+  pGetAttachmentSlots(groupId?: number) {
+    return Object.keys(this._equipment).map((slotId: any) => {
+      return this.pGetAttachmentSlot(slotId, groupId);
+    });
+  }
+
+  pGetAttachmentSlot(slotId: number, groupId?: number) {
+    const slot = this._equipment[slotId];
+    return slot
+      ? {
+          modelName: slot.modelName,
+          effectId: this.groupId > 0 && this.groupId == groupId ? 3 : 0,
+          textureAlias: slot.textureAlias || "",
+          tintAlias: slot.tintAlias || "Default",
+          decalAlias: slot.decalAlias || "#",
+          slotId: slot.slotId,
+        }
+      : undefined;
+  }
+
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "LightweightToFullPc", {
       useCompression: false,
       fullPcData: {
         transientId: this.transientId,
-        attachmentData: this.pGetAttachmentSlots(),
+        attachmentData: this.pGetAttachmentSlots(client.character.groupId),
         headActor: this.headActor,
         hairModel: this.hairModel,
         resources: { data: this.pGetResources() },
@@ -750,6 +863,13 @@ export class Character2016 extends BaseFullCharacter {
       stance: this.weaponStance,
     });
 
+    // GROUP OUTLINE WORKAROUND
+    server.sendData(
+      client,
+      "Equipment.SetCharacterEquipment",
+      this.pGetEquipment(client.character.groupId)
+    );
+
     if (this.onReadyCallback) {
       this.onReadyCallback(client);
       delete this.onReadyCallback;
@@ -772,24 +892,22 @@ export class Character2016 extends BaseFullCharacter {
     const hasHelmetBefore = this.hasHelmet(server);
     const hasArmorBefore = this.hasArmor(server);
     let damage = damageInfo.damage,
-      canStopBleed;
+      canStopBleed,
+      armorDmgModifier;
+    damageInfo.weapon == Items.WEAPON_SHOTGUN
+      ? (armorDmgModifier = 10)
+      : (armorDmgModifier = 4);
+    if (damageInfo.weapon == Items.WEAPON_308) armorDmgModifier = 2;
     switch (damageInfo.hitReport?.hitLocation) {
       case "HEAD":
       case "GLASSES":
       case "NECK":
-        damage *= 4;
-        damage = server.checkHelmet(
-          this.characterId,
-          damage,
-          damageInfo.weapon == Items.WEAPON_SHOTGUN ? 100 : 1
-        );
+        damageInfo.weapon == Items.WEAPON_SHOTGUN ? damage * 2 : (damage *= 4);
+        damageInfo.weapon == Items.WEAPON_308 ? (damage *= 2) : damage;
+        damage = server.checkHelmet(this.characterId, damage, 1);
         break;
       default:
-        damage = server.checkArmor(
-          this.characterId,
-          damage,
-          damageInfo.weapon == Items.WEAPON_SHOTGUN ? 10 : 4
-        );
+        damage = server.checkArmor(this.characterId, damage, armorDmgModifier);
         canStopBleed = true;
         break;
     }

@@ -214,10 +214,11 @@ export interface DamageRecord {
 export interface fireHint {
     id: number;
     position: Float32Array;
-    rotation: Float32Array;
+    rotation: number;
     hitNumber: number;
     weaponItem: LoadoutItem
     timeStamp: number,
+    marked?: {characterId:string, position: Float32Array, rotation: Float32Array, gameTime: number}
 }
 
 export interface SpawnLocation {
@@ -298,7 +299,7 @@ type Point2D = [number, number];
 
 export type SquareBounds = [Point2D, Point2D, Point2D, Point2D];
 
-export interface Ban {
+export interface ClientBan {
   name:string;
   banType:string;
   banReason: string;
@@ -309,4 +310,54 @@ export interface Ban {
   expirationDate: number;
   active: boolean;
   unBanAdminName: string;
+}
+
+export interface ClientMute {
+  name:string;
+  muteReason: string;
+  loginSessionId: string;
+  adminName: string;
+  expirationDate: number;
+  active: boolean;
+  unmuteAdminName: string;
+}
+
+export interface Group {
+  groupId: number;
+  leader: string;
+  members: Array<string>;
+}
+
+export interface FairPlayWeaponStat {
+    maxSpeed: number;
+    minSpeed: number;
+    maxDistance: number;
+}
+
+export interface FairPlayValues {
+  lastLoginDateAddVal:number;
+  maxTimeDrift: number;
+  maxSpeed: number;
+  maxVerticalSpeed: number;
+  speedWarnsNumber: number;
+  maxTpDist: number;
+  defaultMaxProjectileSpeed: number;
+  defaultMinProjectileSpeed: number;
+  defaultMaxDistance: number;
+  WEAPON_308: FairPlayWeaponStat;
+  WEAPON_CROSSBOW: FairPlayWeaponStat;
+  WEAPON_BOW_MAKESHIFT: FairPlayWeaponStat;
+  WEAPON_BOW_RECURVE: FairPlayWeaponStat;
+  WEAPON_BOW_WOOD: FairPlayWeaponStat;
+  WEAPON_SHOTGUN: FairPlayWeaponStat;
+  dotProductMin: number;
+  dotProductMinShotgun: number;
+  dotProductBlockValue: number;
+  requiredFile: string;
+  requiredString: string;
+  requiredFile2: string;
+  respawnCheckRange: number;
+  respawnCheckTime: number;
+  respawnCheckIterations: number;
+  maxFlying: number;
 }

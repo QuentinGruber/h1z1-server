@@ -11,12 +11,22 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const MAX_TRANSIENT_ID = 16777215;
-export const MAX_UINT8 = 0xff;
-export const MAX_UINT16 = 0xffff;
-export const MAX_UINT32 = 0xffffffff;
-export const DATA_HEADER_SIZE = 4;
-export const MAX_SEQUENCE = MAX_UINT16;
-export const DEFAULT_CRYPTO_KEY = "F70IaxuU8C/w7FPXY1ibXw==";
-export const DB_NAME = "h1server";
-export const OBSERVER_GUID = "0xFAFAFAFAFAFAFAFA";
+export const h1emuPackets: any = [
+  [
+    "H1emu.PrintToConsole",
+    0x9901,
+    {
+      fields: [{ name: "message", type: "string", defaultValue: "" }],
+    },
+  ],
+  [
+    "H1emu.MessageBox",
+    0x9902,
+    {
+      fields: [
+        { name: "title", type: "string", defaultValue: "" },
+        { name: "message", type: "string", defaultValue: "" },
+      ],
+    },
+  ],
+];
