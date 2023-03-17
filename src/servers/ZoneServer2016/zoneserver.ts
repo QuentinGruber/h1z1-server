@@ -1799,7 +1799,9 @@ export class ZoneServer2016 extends EventEmitter {
             );
           }
           slot.weapon.ammoCount = 0;
-          this.damageItem(client, slot, 350);
+          if (slot.itemDefinitionId != Items.WEAPON_FISTS) {
+            this.damageItem(client, slot, 350);
+          }
         }
       });
       this.worldObjectManager.createLootbag(this, character);
@@ -2426,6 +2428,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }, 2000);
     }
+    client.character.updateEquipment(this);
     this.hookManager.checkHook("OnPlayerRespawned", client);
   }
 
