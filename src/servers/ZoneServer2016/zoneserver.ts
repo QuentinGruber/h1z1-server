@@ -6600,6 +6600,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   combatLog(client: Client) {
+    if (client.character.isAlive) {
+      this.sendChatText(client, "You must be dead to use combatlog");
+      return;
+    }
     if (!client.character.getCombatLog().length) {
       this.sendChatText(client, "No combatlog info available");
       return;
