@@ -1799,6 +1799,9 @@ export class ZoneServer2016 extends EventEmitter {
             );
           }
           slot.weapon.ammoCount = 0;
+          if (slot.itemDefinitionId != Items.WEAPON_FISTS) {
+            this.damageItem(client, slot, 350);
+          }
         }
       });
       this.worldObjectManager.createLootbag(this, character);
@@ -2425,6 +2428,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }, 2000);
     }
+    client.character.updateEquipment(this);
     this.hookManager.checkHook("OnPlayerRespawned", client);
   }
 
@@ -6600,6 +6604,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   combatLog(client: Client) {
+    if (client.character.isAlive) {
+      this.sendChatText(client, "You must be dead to use combatlog");
+      return;
+    }
     if (!client.character.getCombatLog().length) {
       this.sendChatText(client, "No combatlog info available");
       return;
