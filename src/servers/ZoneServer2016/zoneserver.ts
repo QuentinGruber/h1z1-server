@@ -1566,6 +1566,36 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  logPlayerDeath(client: Client, damageInfo: DamageInfo) {
+    debug(client.character.name + " has died");
+    const sourceClient = this.getClientByCharId(damageInfo.entity);
+    if (!sourceClient) return;
+
+    if (
+      !this._soloMode &&
+      client.character.name !== sourceClient.character.name
+    ) {
+      logClientActionToMongo(
+        this._db.collection(DB_COLLECTIONS.KILLS),
+        sourceClient,
+        this._worldId,
+        { type: "player", playerKilled: client.character.name }
+      );
+    }
+    client.lastDeathReport = {
+      position: client.character.state.position,
+      attackerPosition: sourceClient.character.state.position,
+      distance: Number(
+        getDistance(
+          client.character.state.position,
+          sourceClient.character.state.position
+        ).toFixed(2)
+      ),
+      attacker: sourceClient,
+    };
+    //this.sendConsoleTextToAdmins()
+  }
+
   killCharacter(client: Client, damageInfo: DamageInfo) {
     if (!client.character.isAlive) return;
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
@@ -1606,8 +1636,7 @@ export class ZoneServer2016 extends EventEmitter {
         });
       }
     });
-    const character = client.character,
-      sourceClient = this.getClientByCharId(damageInfo.entity);
+    const character = client.character;
 
     const gridArr: any[] = [];
     character.spawnGridData.forEach((number: number) => {
@@ -1624,31 +1653,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     client.character.isRespawning = true;
     this.sendDeathMetrics(client);
-    debug(character.name + " has died");
-    if (sourceClient) {
-      if (
-        !this._soloMode &&
-        client.character.name !== sourceClient.character.name
-      ) {
-        logClientActionToMongo(
-          this._db.collection(DB_COLLECTIONS.KILLS),
-          sourceClient,
-          this._worldId,
-          { type: "player", playerKilled: client.character.name }
-        );
-      }
-      client.lastDeathReport = {
-        position: client.character.state.position,
-        attackerPosition: sourceClient.character.state.position,
-        distance: Number(
-          getDistance(
-            client.character.state.position,
-            sourceClient.character.state.position
-          ).toFixed(2)
-        ),
-        attacker: sourceClient,
-      };
-    }
+    this.logPlayerDeath(client, damageInfo);
+
     client.character.isRunning = false;
     character.isAlive = false;
     this.updateCharacterState(
@@ -8258,6 +8264,17 @@ export class ZoneServer2016 extends EventEmitter {
   }
   sendGlobalChatText(message: string, clearChat = false) {
     this.chatManager.sendGlobalChatText(this, message, clearChat);
+  }
+  sendConsoleText(client: Client, message: string) {
+    this.sendData(client, "H1emu.PrintToConsole", {message})
+  }
+  sendConsoleTextToAdmins(message: string) {
+    for (const a in this._clients) {
+      const client = this._clients[a];
+      if (client.isAdmin) {
+        this.sendData(client, "H1emu.PrintToConsole", {message})
+      }
+    }
   }
 
   playerNotFound(
