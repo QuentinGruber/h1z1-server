@@ -808,12 +808,17 @@ export class zonePacketHandlers {
       if (
         (packet.data.stance & (1 << 4)) !== 0 &&
         (packet.data.stance & (1 << 5)) !== 0 &&
-        !client.isInAir
+        !client.isInAir &&
+        !client.vehicle.mountedVehicle
       ) {
         client.isInAir = true;
         client.startLoc = client.character.state.position[1];
         client.maxFlying = server.fairPlayValues?.maxFlyingScenario1;
-      } else if ((packet.data.stance & (1 << 5)) !== 0 && !client.isInAir) {
+      } else if (
+        (packet.data.stance & (1 << 5)) !== 0 &&
+        !client.isInAir &&
+        !client.vehicle.mountedVehicle
+      ) {
         client.isInAir = true;
         client.startLoc = client.character.state.position[1];
         client.maxFlying = server.fairPlayValues?.maxFlyingScenario2;
