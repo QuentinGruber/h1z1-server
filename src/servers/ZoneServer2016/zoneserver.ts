@@ -1222,7 +1222,8 @@ export class ZoneServer2016 extends EventEmitter {
         respawnCheckRange: Number(decryptedData[33]),
         respawnCheckTime: Number(decryptedData[34]),
         respawnCheckIterations: Number(decryptedData[35]),
-        maxFlying: Number(decryptedData[36]),
+        maxFlyingScenario1: Number(decryptedData[36]),
+        maxFlyingScenario2: Number(decryptedData[37]),
       };
     }
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
@@ -2536,9 +2537,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.isSaving) {
       if (
         client.isInAir &&
-        position[1] - client.startLoc > this.fairPlayValues.maxFlying
+        client.maxFlying &&
+        position[1] - client.startLoc > client.maxFlying
       ) {
-        this.kickPlayer(client);
         this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
         let kick = true;
         for (const a in this._constructionFoundations) {
@@ -2554,7 +2555,19 @@ export class ZoneServer2016 extends EventEmitter {
           )
             kick = false;
         }
+        for (const char in this._characters) {
+          if (
+            isPosInRadiusWithY(
+              3,
+              client.character.state.position,
+              this._characters[char].state.position,
+              4.5
+            )
+          )
+            kick = false;
+        }
         if (kick) {
+          this.kickPlayer(client);
           this.sendChatTextToAdmins(
             `FairPlay: ${
               client.character.name
@@ -2590,7 +2603,7 @@ export class ZoneServer2016 extends EventEmitter {
               unknownByte1: 1,
             });
             client.isMovementBlocked = true;*/
-            this.kickPlayer(client);
+            //this.kickPlayer(client);
             this.sendChatTextToAdmins(
               `FairPlay: Kicking ${client.character.name} for suspected teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
               false
@@ -2615,7 +2628,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (soeClient) {
           if (soeClient.avgPing >= 250) return false;
         }
-        client.speedWarnsNumber += 1;
+        //client.speedWarnsNumber += 1;
       } else if (client.speedWarnsNumber > 0) {
         client.speedWarnsNumber -= 1;
       }

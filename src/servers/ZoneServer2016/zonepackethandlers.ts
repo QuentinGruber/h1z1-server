@@ -656,7 +656,7 @@ export class zonePacketHandlers {
         vehicle.positionUpdate.position,
         packet.data.positionUpdate.position
       );
-      if (dist > 120) {
+      if (dist > 220) {
         kick = true;
       }
       if (
@@ -805,11 +805,18 @@ export class zonePacketHandlers {
           triggerLoadingScreen: true,
         });
       }
-      if ((packet.data.stance & (1 << 5)) !== 0) {
-        if (!client.isInAir) {
-          client.isInAir = true;
-          client.startLoc = client.character.state.position[1];
-        }
+      if (
+        (packet.data.stance & (1 << 4)) !== 0 &&
+        (packet.data.stance & (1 << 5)) !== 0 &&
+        !client.isInAir
+      ) {
+        client.isInAir = true;
+        client.startLoc = client.character.state.position[1];
+        client.maxFlying = server.fairPlayValues?.maxFlyingScenario1;
+      } else if ((packet.data.stance & (1 << 5)) !== 0 && !client.isInAir) {
+        client.isInAir = true;
+        client.startLoc = client.character.state.position[1];
+        client.maxFlying = server.fairPlayValues?.maxFlyingScenario2;
       } else {
         client.isInAir = false;
       }
