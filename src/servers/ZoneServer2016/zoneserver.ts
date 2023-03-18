@@ -58,8 +58,7 @@ import {
   DamageRecord,
   Recipe,
   SlottedConstructionEntity,
-  SpawnLocation,
-  Weather2016 as Weather,
+  SpawnLocation
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
 import {
@@ -160,7 +159,6 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   Z1_vehicles = require("../../../data/2016/zoneData/Z1_vehicleLocations.json"),
   spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
-  localWeatherTemplates = require("../../../data/2016/dataSources/weather.json"),
   itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
   profileDefinitions = require("./../../../data/2016/dataSources/ServerProfileDefinitions.json"),
@@ -188,9 +186,6 @@ export class ZoneServer2016 extends EventEmitter {
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
-  _dynamicWeatherWorker: any;
-  _dynamicWeatherEnabled = true;
-  _defaultWeatherTemplate = "z1br";
   _spawnLocations: Array<SpawnLocation> = spawnLocations;
   private _h1emuZoneServer!: H1emuZoneServer;
   _worldId = 0;
@@ -240,8 +235,6 @@ export class ZoneServer2016 extends EventEmitter {
   _startTime = 0;
   _startGameTime = 0;
   _timeMultiplier = 72;
-  _cycleSpeed = 100;
-  _frozeCycle = false;
   tickRate = 2000;
   worldRoutineRate = 30000;
   _transientIds: { [transientId: number]: string } = {};
@@ -257,9 +250,7 @@ export class ZoneServer2016 extends EventEmitter {
     : [];
   _interactionDistance = 3;
   _pingTimeoutTime = 30000;
-  weather: Weather;
   _packetHandlers: zonePacketHandlers;
-  _weatherTemplates: any;
   worldObjectManager: WorldObjectManager;
   smeltingManager: SmeltingManager;
   decayManager: DecayManager;
@@ -311,8 +302,6 @@ export class ZoneServer2016 extends EventEmitter {
     this._mongoAddress = mongoAddress;
     this._worldId = worldId || 0;
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
-    this._weatherTemplates = localWeatherTemplates;
-    this.weather = this._weatherTemplates[this._defaultWeatherTemplate];
     this.worldObjectManager = new WorldObjectManager();
     this.smeltingManager = new SmeltingManager();
     this.decayManager = new DecayManager();
@@ -999,8 +988,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
-    this.forceTime(971172000000); // force day time by default - not working for now
-    this._frozeCycle = false;
+    this.weatherManager.forceTime(this, 971172000000); // force day time by default - not working for now
 
     this.worldDataManager = (await spawn(
       new Worker("./managers/worlddatamanagerthread")
@@ -1164,20 +1152,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.decayManager.run(this);
     this._startTime += Date.now();
     this._startGameTime += Date.now();
-    if (this._dynamicWeatherEnabled) {
-      this._dynamicWeatherWorker = setTimeout(() => {
-        if (!this._dynamicWeatherEnabled) {
-          return;
-        }
-        this.weather = this.weatherManager.dynamicWeather(
-          this._serverTime,
-          this._startTime,
-          this._timeMultiplier
-        );
-        this.sendDataToAll("UpdateWeatherData", this.weather);
-        this._dynamicWeatherWorker.refresh();
-      }, 360000 / this._timeMultiplier);
-    }
+    this.weatherManager.startWeatherWorker(this)
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(),
@@ -1256,7 +1231,7 @@ export class ZoneServer2016 extends EventEmitter {
       zoneName: "Z1",
       zoneType: 4,
       unknownBoolean1: false,
-      skyData: this.weather,
+      skyData: this.weatherManager.weather,
       zoneId1: 5,
       zoneId2: 5,
       nameId: 7699,
@@ -3178,31 +3153,6 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  sendWeatherUpdatePacket(client: Client, weather: Weather, broadcast = false) {
-    if (!this._soloMode) {
-      this.sendDataToAll("UpdateWeatherData", weather);
-      if (broadcast && client?.character?.name) {
-        this.sendGlobalChatText(
-          `User "${client.character.name}" has changed weather.`
-        );
-      }
-    } else {
-      this.sendData(client, "UpdateWeatherData", weather);
-    }
-  }
-
-  forceTime(time: number) {
-    this._cycleSpeed = 0.1;
-    this._frozeCycle = true;
-    this._gameTime = time;
-  }
-
-  removeForcedTime() {
-    this._cycleSpeed = 100;
-    this._frozeCycle = false;
-    this._gameTime = Date.now();
-  }
-
   private constructionShouldHideEntity(
     client: Client,
     entity: BaseEntity
@@ -4442,20 +4392,20 @@ export class ZoneServer2016 extends EventEmitter {
   getGameTime(): number {
     //debug("get server time");
     const delta = Date.now() - this._startGameTime;
-    return this._frozeCycle
+    return this.weatherManager.frozeCycle
       ? Number(((this._gameTime + delta) / 1000).toFixed(0))
       : Number((this._gameTime / 1000).toFixed(0));
   }
 
   sendGameTimeSync(client: Client) {
     debug("GameTimeSync");
-    if (!this._frozeCycle) {
+    if (!this.weatherManager.frozeCycle) {
       this.sendData(client, "GameTimeSync", {
         time: Int64String(this.getServerTimeTest()),
         cycleSpeed: Math.round(this._timeMultiplier * 0.97222),
         unknownBoolean: false,
       });
-    } else if (this._frozeCycle) {
+    } else if (this.weatherManager.frozeCycle) {
       this.sendData(client, "GameTimeSync", {
         time: Int64String(this.getGameTime()),
         cycleSpeed: 0.1,
@@ -8252,10 +8202,6 @@ export class ZoneServer2016 extends EventEmitter {
       debug(`Client (${client.soeClientId}) disconnected ( ping timeout )`);
       this.deleteClient(client);
     }
-  }
-
-  toggleFog() {
-    return this.weatherManager.changeFog();
   }
 
   pSetImmediate = promisify(setImmediate);

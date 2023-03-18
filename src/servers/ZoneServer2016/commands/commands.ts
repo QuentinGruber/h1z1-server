@@ -12,7 +12,6 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import fs from "node:fs";
 import { ClientBan, ClientMute, DamageInfo } from "types/zoneserver";
 
 import {
@@ -348,7 +347,6 @@ export const commands: Array<Command> = [
         position: locationPosition,
         triggerLoadingScreen: true,
       });
-      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   {
@@ -384,7 +382,6 @@ export const commands: Array<Command> = [
         client,
         `Teleporting ${targetClient.character.name} to your location`
       );
-      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   {
@@ -420,7 +417,6 @@ export const commands: Array<Command> = [
         client,
         `Teleporting to ${targetClient.character.name}'s location`
       );
-      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   {
@@ -752,7 +748,7 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "You need to specify an hour to set !");
         return;
       }
-      server.forceTime(choosenHour * 3600 * 1000);
+      server.weatherManager.forceTime(server, choosenHour * 3600 * 1000);
       server.sendChatText(
         client,
         `Will force time to be ${
@@ -772,7 +768,7 @@ export const commands: Array<Command> = [
     name: "realtime",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.removeForcedTime();
+      server.weatherManager.removeForcedTime(server);
       server.sendChatText(client, "Game time is now based on real time", true);
     },
   },
@@ -783,7 +779,7 @@ export const commands: Array<Command> = [
       server.sendChatText(
         client,
         `Fog has been toggled ${
-          server.toggleFog() ? "ON" : "OFF"
+          server.weatherManager.toggleFog() ? "ON" : "OFF"
         } for the server`,
         true
       );
@@ -966,8 +962,8 @@ export const commands: Array<Command> = [
     name: "dynamicweather",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!server._dynamicWeatherEnabled) {
-        server._dynamicWeatherEnabled = true;
+      if (!server.weatherManager.dynamicEnabled) {
+        server.weatherManager.dynamicEnabled = true;
         server.sendChatText(client, "Dynamic weather enabled !");
       } else {
         server.sendChatText(client, "Dynamic weather already enabled !");
@@ -978,44 +974,7 @@ export const commands: Array<Command> = [
     name: "weather",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (server._dynamicWeatherEnabled) {
-        server._dynamicWeatherEnabled = false;
-        server.sendChatText(client, "Dynamic weather removed !");
-      }
-      const weatherTemplate = server._soloMode
-        ? server._weatherTemplates[args[0]]
-        : _.find(
-            server._weatherTemplates,
-            (template: { templateName: any }) => {
-              return template.templateName === args[0];
-            }
-          );
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          "Please define a weather template to use (data/2016/dataSources/weather.json)"
-        );
-      } else if (weatherTemplate) {
-        server.weather = weatherTemplate;
-        server.sendWeatherUpdatePacket(client, server.weather, true);
-        server.sendChatText(client, `Applied weather template: "${args[0]}"`);
-      } else {
-        if (args[0] === "list") {
-          server.sendChatText(client, `Weather templates :`);
-          _.forEach(
-            server._weatherTemplates,
-            (element: { templateName: any }) => {
-              server.sendChatText(client, `- ${element.templateName}`);
-            }
-          );
-        } else {
-          server.sendChatText(client, `"${args[0]}" isn't a weather template`);
-          server.sendChatText(
-            client,
-            `Use "/weather list" to know all available templates`
-          );
-        }
-      }
+      server.weatherManager.handleWeatherCommand(server, client, args);
     },
   },
   {
@@ -1026,100 +985,14 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          "Please define a name for your weather template '/savecurrentweather {name}'"
-        );
-      } else if (server._weatherTemplates[args[0]]) {
-        server.sendChatText(client, `"${args[0]}" already exists !`);
-      } else {
-        const currentWeather = server.weather;
-        if (currentWeather) {
-          currentWeather.templateName = args[0];
-          if (server._soloMode) {
-            server._weatherTemplates[currentWeather.templateName as string] =
-              currentWeather;
-            fs.writeFileSync(
-              `${__dirname}/../../../../data/2016/dataSources/weather.json`,
-              JSON.stringify(server._weatherTemplates, null, "\t")
-            );
-            delete require.cache[
-              require.resolve("../../../../data/2016/dataSources/weather.json")
-            ];
-            server._weatherTemplates = require("../../../../data/2016/dataSources/weather.json");
-          } else {
-            await server._db?.collection("weathers").insertOne(currentWeather);
-            server._weatherTemplates = await (server._db as any)
-              .collection("weathers")
-              .find()
-              .toArray();
-          }
-          server.sendChatText(client, `template "${args[0]}" saved !`);
-        } else {
-          server.sendChatText(client, `Saving current weather failed...`);
-          server.sendChatText(client, `plz report this`);
-        }
-      }
+      server.weatherManager.handleSaveCommand(server, client, args);
     },
   },
   {
     name: "randomweather",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (server._dynamicWeatherEnabled) {
-        server._dynamicWeatherEnabled = false;
-        server.sendChatText(client, "Dynamic weather removed !");
-      }
-      server.sendChatText(client, `Randomized weather`);
-
-      function rnd_number(max: any, fixed: boolean = false) {
-        const num = Math.random() * max;
-        return Number(fixed ? num.toFixed(0) : num);
-      }
-
-      server.weather = {
-        ...server.weather,
-        //name: "sky_dome_600.dds", todo: use random template from a list
-        /*
-              unknownDword1: 0,
-              unknownDword2: 0,
-              skyBrightness1: 1,
-              skyBrightness2: 1,
-              */
-        rain: rnd_number(200, true),
-        temp: rnd_number(80, true),
-        colorGradient: rnd_number(1),
-        unknownDword8: rnd_number(1),
-        unknownDword9: rnd_number(1),
-        unknownDword10: rnd_number(1),
-        unknownDword11: 0,
-        unknownDword12: 0,
-        sunAxisX: rnd_number(360, true),
-        sunAxisY: rnd_number(360, true),
-        unknownDword15: 0,
-        windDirectionX: rnd_number(360, true),
-        windDirectionY: rnd_number(360, true),
-        windDirectionZ: rnd_number(360, true),
-        wind: rnd_number(100, true),
-        unknownDword20: 0,
-        unknownDword21: 0,
-        unknownDword22: 0,
-        unknownDword23: 0,
-        unknownDword24: 0,
-        unknownDword25: 0,
-        unknownDword26: 0,
-        unknownDword27: 0,
-        unknownDword28: 0,
-        unknownDword29: 0,
-
-        AOSize: rnd_number(0.5),
-        AOGamma: rnd_number(0.2),
-        AOBlackpoint: rnd_number(2),
-
-        unknownDword33: 0,
-      };
-      server.sendWeatherUpdatePacket(client, server.weather, true);
+      server.weatherManager.handleRandomCommand(server, client);
     },
   },
   {
@@ -1218,7 +1091,7 @@ export const commands: Array<Command> = [
         zoneName: "Z1",
         zoneType: 4,
         unknownBoolean1: false,
-        skyData: server.weather,
+        skyData: server.weatherManager.weather,
         zoneId1: 5,
         zoneId2: 5,
         nameId: 7699,
