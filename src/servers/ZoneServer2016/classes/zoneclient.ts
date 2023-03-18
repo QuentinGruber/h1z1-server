@@ -35,7 +35,7 @@ export class ZoneClient2016 {
   banType: string = "";
   HWID: string = "";
   posAtLastRoutine: Float32Array = new Float32Array();
-  posAtLogoutStart: Float32Array = new Float32Array();
+  posAtTimerStart: Float32Array = new Float32Array();
   oldPos: { position: Float32Array; time: number } = {
     position: new Float32Array(),
     time: 0,
@@ -87,6 +87,10 @@ export class ZoneClient2016 {
   properlyLogout: boolean = false;
   permissionLevel: number = 0;
   fireHints: { [id: number]: fireHint } = {};
+  isMovementBlocked: boolean = false;
+  isInAir: boolean = false;
+  startLoc: number = 0;
+  blockedUpdates: number = 0;
   /*(lightWeightNpcQueue: {
     packetName: h1z1PacketsType2016;
     data: zone2016packets;
