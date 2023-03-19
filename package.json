@@ -25,6 +25,7 @@
     "src": "./src"
   },
   "devDependencies": {
+    "@types/js-yaml": "^4.0.5",
     "@typescript-eslint/eslint-plugin": "5.49.0",
     "@typescript-eslint/parser": "5.49.0",
     "eslint": "8.32.0",
