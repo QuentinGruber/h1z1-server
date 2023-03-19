@@ -44,7 +44,6 @@ export class WeatherManager {
   cycleSpeed = 100;
   frozeCycle = false;
   defaultTemplate = "z1br";
-  constructor() {}
 
   handleWeatherCommand(server: ZoneServer2016, client: Client, args: Array<string>) {
     if (this.dynamicEnabled) {
