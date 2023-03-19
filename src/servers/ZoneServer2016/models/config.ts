@@ -11,7 +11,18 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export interface ServerConfig {
+interface FairplayConfig {
   useFairplay: boolean;
   maxPing: number;
+}
+
+interface WeatherConfig {
+  cycleSpeed: number;
+  frozeCycle: boolean;
+  defaultTemplate: string;
+}
+
+export interface ServerConfig {
+  fairplay: FairplayConfig;
+  weather: WeatherConfig
 }

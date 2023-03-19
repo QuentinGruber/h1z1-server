@@ -24,7 +24,7 @@ import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
 import { Resolver } from "node:dns";
 
 import { promisify } from "node:util";
-import { zonePacketHandlers } from "./zonepackethandlers";
+import { ZonePacketHandlers } from "./zonepackethandlers";
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
 import { Vehicle2016 as Vehicle, Vehicle2016 } from "./entities/vehicle";
 import { GridCell } from "./classes/gridcell";
@@ -250,7 +250,7 @@ export class ZoneServer2016 extends EventEmitter {
     : [];
   _interactionDistance = 3;
   _pingTimeoutTime = 30000;
-  _packetHandlers: zonePacketHandlers;
+  _packetHandlers: ZonePacketHandlers;
   worldObjectManager: WorldObjectManager;
   smeltingManager: SmeltingManager;
   decayManager: DecayManager;
@@ -297,8 +297,9 @@ export class ZoneServer2016 extends EventEmitter {
     internalServerPort?: number
   ) {
     super();
+    this.configManager = new ConfigManager(process.env.CONFIG_PATH);
     this._gatewayServer = new GatewayServer(serverPort, gatewayKey);
-    this._packetHandlers = new zonePacketHandlers();
+    this._packetHandlers = new ZonePacketHandlers();
     this._mongoAddress = mongoAddress;
     this._worldId = worldId || 0;
     this._protocol = new H1Z1Protocol("ClientProtocol_1080");
@@ -308,14 +309,13 @@ export class ZoneServer2016 extends EventEmitter {
     this.weatherManager = new WeatherManager();
     this.hookManager = new HookManager();
     this.chatManager = new ChatManager();
-    this.configManager = new ConfigManager();
     this.rconManager = new RConManager();
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
 
     
     this._soloMode = false;
-    this._useFairPlay = this.getConfig().useFairplay;
+    this._useFairPlay = this.getConfig().fairplay.useFairplay;
 
     if (!this._mongoAddress) {
       this._soloMode = true;

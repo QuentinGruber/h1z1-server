@@ -37,11 +37,12 @@ export class WeatherManager {
   seasonStarted = false;
 
   weather: Weather2016;
+  templates = localWeatherTemplates;
   dynamicWorker: any;
   dynamicEnabled = true;
+  
   cycleSpeed = 100;
   frozeCycle = false;
-  templates = localWeatherTemplates;
   defaultTemplate = "z1br";
   constructor() {
     this.weather = this.templates[this.defaultTemplate];

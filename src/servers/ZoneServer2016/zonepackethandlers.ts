@@ -68,7 +68,7 @@ import { LootableConstructionEntity } from "./entities/lootableconstructionentit
 import { Character2016 } from "./entities/character";
 import { Crate } from "./entities/crate";
 
-export class zonePacketHandlers {
+export class ZonePacketHandlers {
   commandHandler: CommandHandler;
   constructor() {
     this.commandHandler = new CommandHandler();

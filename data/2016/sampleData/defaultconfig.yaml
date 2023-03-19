@@ -1,0 +1,9 @@
+# Fairplay / anticheat config
+fairplay:
+  useFairplay: true
+  maxPing: 250
+
+weather:
+  cycleSpeed: 100
+  frozeCycle: false
+  defaultTemplate: "z1br"

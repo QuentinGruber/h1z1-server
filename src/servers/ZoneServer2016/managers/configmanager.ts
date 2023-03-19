@@ -11,10 +11,21 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { defaultServerConfig as d } from "../data/defaultconfig";
+import * as fs from 'fs';
+import * as yaml from 'js-yaml';
+import { ServerConfig } from '../models/config';
+
+const d = yaml.load(fs.readFileSync('../../../../data/2016/sampleData/defaultconfig.yaml', 'utf8')) as any as ServerConfig;
 
 export class ConfigManager {
   config = d;
+
+  constructor(configPath?: string) {
+    if(configPath) {
+      // attempt to load config, or load default
+    }
+  }
+
   getConfig() {
     return this.config;
   }
@@ -22,8 +33,15 @@ export class ConfigManager {
   // TODO: handle actual config file loading
   loadConfig(config: any) {
     this.config = {
-      useFairplay: config.useFairplay ?? d.useFairplay,
-      maxPing: config.maxPing ?? d.maxPing
+      fairplay: {
+        useFairplay: config.useFairplay ?? d.fairplay.useFairplay,
+        maxPing: config.maxPing ?? d.fairplay.maxPing
+      },
+      weather: {
+        cycleSpeed: 100,
+        frozeCycle: false,
+        defaultTemplate: "z1br",
+      }
     }
   }
 }
