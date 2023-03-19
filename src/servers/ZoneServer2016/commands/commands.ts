@@ -199,7 +199,18 @@ export const commands: Array<Command> = [
         client,
         `Set spectate/vanish state to ${client.character.isSpectator}`
       );
-      if (!client.character.isSpectator) return;
+      if (!client.character.isSpectator) {
+        for (const a in server._decoys) {
+          const decoy = server._decoys[a];
+          if (decoy.transientId == client.character.transientId) {
+            server.sendDataToAll("Character.RemovePlayer", {
+              characterId: decoy.characterId,
+            });
+            server.sendChatText(client, `Decoy removed"`, false);
+          }
+        }
+        return;
+      }
       for (const a in server._clients) {
         const iteratedClient = server._clients[a];
         if (iteratedClient.spawnedEntities.includes(client.character)) {
@@ -957,40 +968,52 @@ export const commands: Array<Command> = [
         .join("");
       mimic.characterId = characterId;
       mimic.transientId = client.character.transientId;
-      server.sendDataToAll("AddLightweightPc", {
-        ...mimic,
-        mountGuid: "",
-        mountSeatId: 0,
-        mountRelatedDword1: 0,
-      });
-      const equipment = client.character.pGetEquipment();
-      equipment.characterData.characterId = characterId;
-      server.sendDataToAll("Equipment.SetCharacterEquipment", equipment);
-      server.sendData(client, "LightweightToFullPc", {
-        useCompression: false,
-        fullPcData: {
-          transientId: client.character.transientId,
-          attachmentData: client.character.pGetAttachmentSlots(
-            client.character.groupId
-          ),
-          headActor: client.character.headActor,
-          hairModel: client.character.hairModel,
-          resources: { data: client.character.pGetResources() },
-          remoteWeapons: {
-            data: client.character.pGetRemoteWeaponsData(server),
-          },
-        },
-        positionUpdate: {
-          ...client.character.positionUpdate,
-          sequenceTime: server.getGameTime(),
-          position: client.character.state.position,
-          stance: client.character.stance,
-        },
-        stats: client.character.getStats().map((stat: any) => {
-          return stat.statData;
-        }),
-        remoteWeaponsExtra: client.character.pGetRemoteWeaponsExtraData(server),
-      });
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        if (
+          isPosInRadius(
+            c.character.npcRenderDistance || 250,
+            client.character.state.position,
+            c.character.state.position
+          )
+        ) {
+          server.sendData(c, "AddLightweightPc", {
+            ...mimic,
+            mountGuid: "",
+            mountSeatId: 0,
+            mountRelatedDword1: 0,
+          });
+          const equipment = client.character.pGetEquipment();
+          equipment.characterData.characterId = characterId;
+          server.sendData(c, "Equipment.SetCharacterEquipment", equipment);
+          server.sendData(c, "LightweightToFullPc", {
+            useCompression: false,
+            fullPcData: {
+              transientId: client.character.transientId,
+              attachmentData: client.character.pGetAttachmentSlots(
+                client.character.groupId
+              ),
+              headActor: client.character.headActor,
+              hairModel: client.character.hairModel,
+              resources: { data: client.character.pGetResources() },
+              remoteWeapons: {
+                data: client.character.pGetRemoteWeaponsData(server),
+              },
+            },
+            positionUpdate: {
+              ...client.character.positionUpdate,
+              sequenceTime: server.getGameTime(),
+              position: client.character.state.position,
+              stance: client.character.stance,
+            },
+            stats: client.character.getStats().map((stat: any) => {
+              return stat.statData;
+            }),
+            remoteWeaponsExtra:
+              client.character.pGetRemoteWeaponsExtraData(server),
+          });
+        }
+      }
       client.isDecoy = true;
       server.sendChatText(client, "Decoy replication enabled");
     },
