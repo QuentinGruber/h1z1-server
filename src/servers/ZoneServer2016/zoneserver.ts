@@ -183,8 +183,8 @@ export class ZoneServer2016 extends EventEmitter {
   readonly _protocol: H1Z1Protocol;
   _db!: Db;
   readonly _soloMode: boolean;
-  _useFairPlay: boolean;
-  _maxPing = 250;
+  _useFairPlay!: boolean;
+  _maxPing!: number;
   _decryptKey: string = "";
   _fairPlayDecryptKey: string = "";
   _serverName = process.env.SERVER_NAME || "";
@@ -308,7 +308,6 @@ export class ZoneServer2016 extends EventEmitter {
     internalServerPort?: number
   ) {
     super();
-    this.configManager = new ConfigManager(process.env.CONFIG_PATH);
     this._gatewayServer = new GatewayServer(serverPort, gatewayKey);
     this._packetHandlers = new ZonePacketHandlers();
     this._mongoAddress = mongoAddress;
@@ -322,12 +321,12 @@ export class ZoneServer2016 extends EventEmitter {
     this.chatManager = new ChatManager();
     this.rconManager = new RConManager();
     this.groupManager = new GroupManager();
+    /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
+    this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
-
     
     this._soloMode = false;
-    this._useFairPlay = this.getConfig().fairplay.useFairplay;
 
     if (!this._mongoAddress) {
       this._soloMode = true;
@@ -571,10 +570,6 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
     }
-  }
-
-  getConfig() {
-    return this.configManager.getConfig();
   }
 
   onZoneLoginEvent(client: Client) {
@@ -1015,6 +1010,8 @@ export class ZoneServer2016 extends EventEmitter {
 
   private async setupServer() {
     this.weatherManager.forceTime(this, 971172000000); // force day time by default - not working for now
+    this.weatherManager.weather = this.weatherManager.templates[this.weatherManager.defaultTemplate];
+    this.weatherManager.seasonstart();
 
     this.worldDataManager = (await spawn(
       new Worker("./managers/worlddatamanagerthread")
@@ -1995,7 +1992,7 @@ export class ZoneServer2016 extends EventEmitter {
           if (this._spawnedItems[explosiveObj.characterId]) {
             const object = this._spawnedItems[explosiveObj.characterId];
             this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
-            delete this.worldObjectManager._spawnedLootObjects[
+            delete this.worldObjectManager.spawnedLootObjects[
               object.spawnerId
             ];
           }
@@ -4167,7 +4164,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (Date.now() - itemObject.creationTime >= despawnTime) {
         this.deleteEntity(itemObject.characterId, this._spawnedItems);
         if (itemObject.spawnerId != -1)
-          delete this.worldObjectManager._spawnedLootObjects[
+          delete this.worldObjectManager.spawnedLootObjects[
             itemObject.spawnerId
           ];
         this.sendCompositeEffectToAllWithSpawnedEntity(
@@ -7328,7 +7325,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.deleteEntity(object.characterId, this._explosives);
     }
     this.deleteEntity(guid, this._spawnedItems);
-    delete this.worldObjectManager._spawnedLootObjects[object.spawnerId];
+    delete this.worldObjectManager.spawnedLootObjects[object.spawnerId];
   }
 
   sendWeaponReload(

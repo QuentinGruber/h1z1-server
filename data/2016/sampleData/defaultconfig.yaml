@@ -7,3 +7,29 @@ weather:
   cycleSpeed: 100
   frozeCycle: false
   defaultTemplate: "z1br"
+
+# Anything to do with loot, vehicle, and npc spawning / despawning
+worldobjects:
+  # Respawn timers
+
+  lootRespawnTimer: 1200000 # 30 minutes
+  vehicleRespawnTimer:  600000 # 10 minutes
+  npcRespawnTimer: 600000 # 10 minutes
+
+  # Despawn timers
+
+  # Player dropped items on the ground
+  itemDespawnTimer: 600000 # 10 minutes
+  # Spawned objects on the ground
+  lootDespawnTimer: 2400000 # 40 minutes
+  deadNpcDespawnTimer:  600000 # 10 minutes
+
+  # Misc
+
+  vehicleSpawnCap: 100
+  # How far any other vehicle has to be for another to spawn
+  vehicleSpawnRadius: 50
+  # How far another spawned npc has to be for another to spawn
+  npcSpawnRadius: 3
+  chanceNpc: 100 # To be reworked: 100 max
+  chanceScreamer: 5 # To be reworked: 1000 max

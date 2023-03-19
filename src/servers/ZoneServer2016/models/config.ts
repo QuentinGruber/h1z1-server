@@ -22,7 +22,24 @@ interface WeatherConfig {
   defaultTemplate: string;
 }
 
+interface WorldObjectsConfig {
+  vehicleSpawnCap: number;
+  lootRespawnTimer: number;
+  vehicleRespawnTimer: number;
+  npcRespawnTimer: number;
+
+  itemDespawnTimer: number;
+  lootDespawnTimer: number;
+  deadNpcDespawnTimer: number;
+
+  vehicleSpawnRadius: number;
+  npcSpawnRadius: number;
+  chanceNpc: number;
+  chanceScreamer: number;
+}
+
 export interface ServerConfig {
   fairplay: FairplayConfig;
-  weather: WeatherConfig
+  weather: WeatherConfig;
+  worldobjects: WorldObjectsConfig;
 }

@@ -36,7 +36,7 @@ export class WeatherManager {
   fogAllowed = false;
   seasonStarted = false;
 
-  weather: Weather2016;
+  weather!: Weather2016;
   templates = localWeatherTemplates;
   dynamicWorker: any;
   dynamicEnabled = true;
@@ -44,10 +44,7 @@ export class WeatherManager {
   cycleSpeed = 100;
   frozeCycle = false;
   defaultTemplate = "z1br";
-  constructor() {
-    this.weather = this.templates[this.defaultTemplate];
-    this.seasonstart();
-  }
+  constructor() {}
 
   handleWeatherCommand(server: ZoneServer2016, client: Client, args: Array<string>) {
     if (this.dynamicEnabled) {
@@ -226,6 +223,7 @@ export class WeatherManager {
   }
 
   seasonstart() {
+    console.log(this.defaultTemplate)
     if (!this.seasonStarted) {
       this.seasonStarted = true;
       this.chooseWeather();

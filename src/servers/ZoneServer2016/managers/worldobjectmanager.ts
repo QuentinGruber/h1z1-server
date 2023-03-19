@@ -109,26 +109,27 @@ export function getRandomItem(items: Array<LootDefinition>) {
 }
 
 export class WorldObjectManager {
-  _spawnedNpcs: { [spawnerId: number]: string } = {};
-  _spawnedLootObjects: { [spawnerId: number]: string } = {};
-  vehicleSpawnCap: number = 100;
+  spawnedNpcs: { [spawnerId: number]: string } = {};
+  spawnedLootObjects: { [spawnerId: number]: string } = {};
 
-  private lastLootRespawnTime: number = 0;
-  private lastVehicleRespawnTime: number = 0;
-  private lastNpcRespawnTime: number = 0;
-  lootRespawnTimer: number = 1200000; // 30 min default
-  vehicleRespawnTimer: number = 600000; // 10 minutes // 600000
-  npcRespawnTimer: number = 600000; // 10 minutes
-  // items get despawned after x minutes
-  itemDespawnTimer: number = 600000; // 10 minutes
-  lootDespawnTimer: number = 2400000; // 40 minutes
-  deadNpcDespawnTimer: number = 600000; // 10 minutes
+  private _lastLootRespawnTime: number = 0;
+  private _lastVehicleRespawnTime: number = 0;
+  private _lastNpcRespawnTime: number = 0;
 
-  // objects won't spawn if another object is within this radius
-  vehicleSpawnRadius: number = 50;
-  npcSpawnRadius: number = 3;
-  chanceNpc: number = 100;
-  chanceScreamer: number = 5; // 1000 max
+  // MANAGED BY CONFIGMANAGER
+  vehicleSpawnCap!: number;
+  lootRespawnTimer!: number;
+  vehicleRespawnTimer!: number;
+  npcRespawnTimer!: number;
+
+  itemDespawnTimer!: number;
+  lootDespawnTimer!: number;
+  deadNpcDespawnTimer!: number;
+
+  vehicleSpawnRadius!: number;
+  npcSpawnRadius!: number;
+  chanceNpc!: number;
+  chanceScreamer!: number;
 
   private zombieSlots = [
     EquipSlots.HEAD,
@@ -162,19 +163,19 @@ export class WorldObjectManager {
   run(server: ZoneServer2016) {
     debug("WOM::Run");
     this.getItemRespawnTimer(server);
-    if (this.lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
+    if (this._lastLootRespawnTime + this.lootRespawnTimer <= Date.now()) {
       this.createLoot(server);
       this.createContainerLoot(server);
-      this.lastLootRespawnTime = Date.now();
+      this._lastLootRespawnTime = Date.now();
       server.divideLargeCells(700);
     }
-    if (this.lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
+    if (this._lastNpcRespawnTime + this.npcRespawnTimer <= Date.now()) {
       this.createNpcs(server);
-      this.lastNpcRespawnTime = Date.now();
+      this._lastNpcRespawnTime = Date.now();
     }
-    if (this.lastVehicleRespawnTime + this.vehicleRespawnTimer <= Date.now()) {
+    if (this._lastVehicleRespawnTime + this.vehicleRespawnTimer <= Date.now()) {
       this.createVehicles(server);
-      this.lastVehicleRespawnTime = Date.now();
+      this._lastVehicleRespawnTime = Date.now();
     }
   }
   private equipRandomSkins(
@@ -204,7 +205,7 @@ export class WorldObjectManager {
     );
     this.equipRandomSkins(server, zombie, this.zombieSlots, bannedZombieModels);
     server._npcs[characterId] = zombie;
-    if (spawnerId) this._spawnedNpcs[spawnerId] = characterId;
+    if (spawnerId) this.spawnedNpcs[spawnerId] = characterId;
   }
 
   createLootEntity(
@@ -253,7 +254,7 @@ export class WorldObjectManager {
         item.itemDefinitionId
       );
     }
-    if (itemSpawnerId) this._spawnedLootObjects[itemSpawnerId] = characterId;
+    if (itemSpawnerId) this.spawnedLootObjects[itemSpawnerId] = characterId;
     server._spawnedItems[characterId].creationTime = Date.now();
     return server._spawnedItems[characterId];
   }
@@ -498,12 +499,11 @@ export class WorldObjectManager {
   }
 
   createLoot(server: ZoneServer2016, lTables = lootTables) {
-    // temp logic until item weights are added
     Z1_items.forEach((spawnerType: any) => {
       const lootTable = lTables[spawnerType.actorDefinition];
       if (lootTable) {
         spawnerType.instances.forEach((itemInstance: any) => {
-          if (this._spawnedLootObjects[itemInstance.id]) return;
+          if (this.spawnedLootObjects[itemInstance.id]) return;
           const chance = Math.floor(Math.random() * 100) + 1; // temporary spawnchance
           if (chance <= lootTable.spawnChance) {
             // temporary spawnchance

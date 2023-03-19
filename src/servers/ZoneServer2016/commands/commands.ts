@@ -1718,7 +1718,7 @@ export const commands: Array<Command> = [
             server.deleteEntity(characterId, server._explosives);
           }
           server.deleteEntity(characterId, server._spawnedItems);
-          delete server.worldObjectManager._spawnedLootObjects[item.spawnerId];
+          delete server.worldObjectManager.spawnedLootObjects[item.spawnerId];
         }
       }
 
