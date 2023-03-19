@@ -20,7 +20,7 @@ function loadConfig(path: string, relative = true): Config | undefined {
   return yaml.load(fs.readFileSync(`${relative?__dirname:""}${path}`, 'utf8')) as any as Config;
 }
 
-const defaultConfig = loadConfig("./../../../../data/2016/sampleData/defaultconfig.yaml") as Config;
+const defaultConfig = loadConfig("/../../../../data/2016/sampleData/defaultconfig.yaml") as Config;
 
 export class ConfigManager {
   private config: Config;
