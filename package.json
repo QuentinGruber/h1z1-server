@@ -13,6 +13,7 @@
     "h1z1-server-demo-2016": "scripts/h1z1-server-demo-2016.js"
   },
   "dependencies": {
+    "@types/js-yaml": "^4.0.5",
     "@types/node": "18.13.0",
     "debug": "4.3.4",
     "h1emu-core": "1.1.2",
@@ -25,7 +26,6 @@
     "src": "./src"
   },
   "devDependencies": {
-    "@types/js-yaml": "^4.0.5",
     "@typescript-eslint/eslint-plugin": "5.49.0",
     "@typescript-eslint/parser": "5.49.0",
     "eslint": "8.32.0",
