@@ -96,7 +96,6 @@ import {
   logClientActionToMongo,
   removeUntransferableFields,
   decrypt,
-  getAngle,
 } from "../../utils/utils";
 
 import { Collection, Db } from "mongodb";
