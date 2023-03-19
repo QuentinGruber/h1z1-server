@@ -2353,9 +2353,7 @@ export const basePackets: any = [
   ["Ability.ActivateVehicleAbility", 0x1015, {}],
   ["Ability.DeactivateItemAbility", 0x1016, {}],
   ["Ability.DeactivateVehicleAbility", 0x1017, {}],
-
   ["MiniGame", 0x12, {}],
-  ["Group", 0x13, {}],
   ["Encounter", 0x14, {}],
   ["Inventory", 0x15, {}],
   [
@@ -3444,7 +3442,19 @@ export const basePackets: any = [
   ["PlayerWorldTransferReply", 0xee, {}],
   ["CancelQueueOnWorld", 0xef, {}],
   ["DeclineEnterGameOnWorld", 0xf0, {}],
-  ["ShaderParameterOverrideBase", 0xf2, {}],
+  [
+    "ShaderParameterOverrideBase",
+    0xf20100,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "slotId", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+        { name: "shaderGroupId", type: "uint32", defaultValue: 0 },
+      ],
+    },
+  ],
   ["VehicleSkinBase", 0xf3, {}],
   ["WeaponLagLockParameters", 0xf5, {}],
   ["CrateOpeningBase", 0xf6, {}],

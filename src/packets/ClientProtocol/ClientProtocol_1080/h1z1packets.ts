@@ -66,6 +66,7 @@ import { wallOfDataPackets } from "./wallOfData";
 import { wordFilterPackets } from "./wordFilter";
 import { zoneSettingPackets } from "./zoneSetting";
 import { clientPathPackets } from "./clientPath";
+import { groupPackets } from "./group";
 import { accessedCharacterPackets } from "./accessedCharacter";
 import { replicationPackets } from "./replication";
 import { spectatorPackets } from "./spectator";
@@ -126,6 +127,7 @@ const packets: any = [
   ...wordFilterPackets,
   ...zoneSettingPackets,
   ...clientPathPackets,
+  ...groupPackets,
   ...accessedCharacterPackets,
   ...replicationPackets,
   ...spectatorPackets,
