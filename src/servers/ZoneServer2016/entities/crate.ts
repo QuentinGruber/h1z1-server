@@ -106,9 +106,7 @@ export class Crate extends BaseLightweightCharacter {
           const c = server._clients[a];
           if (
             isPosInRadius(
-              spawnedItem.npcRenderDistance
-                ? spawnedItem.npcRenderDistance
-                : server._charactersRenderDistance,
+              spawnedItem.npcRenderDistance,
               spawnedItem.state.position,
               c.character.state.position
             )

@@ -13,17 +13,17 @@
 
 import * as fs from 'fs';
 import * as yaml from 'js-yaml';
-import { ServerConfig } from '../models/config';
+import { Config } from '../models/config';
 import { ZoneServer2016 } from '../zoneserver';
 
-function loadConfig(path: string, relative = true): ServerConfig | undefined {
-  return yaml.load(fs.readFileSync(`${relative?__dirname:""}${path}`, 'utf8')) as any as ServerConfig;
+function loadConfig(path: string, relative = true): Config | undefined {
+  return yaml.load(fs.readFileSync(`${relative?__dirname:""}${path}`, 'utf8')) as any as Config;
 }
 
-const defaultConfig = loadConfig(".\\..\\..\\..\\..\\data\\2016\\sampleData\\defaultconfig.yaml") as ServerConfig;
+const defaultConfig = loadConfig(".\\..\\..\\..\\..\\data\\2016\\sampleData\\defaultconfig.yaml") as Config;
 
 export class ConfigManager {
-  private config: ServerConfig;
+  private config: Config;
 
   constructor(server: ZoneServer2016, configPath?: string) {
     if(configPath) {
@@ -35,14 +35,19 @@ export class ConfigManager {
       }
     }
     this.config = defaultConfig;
+    this.applyConfig(server);
   }
 
-  loadConfig(config: ServerConfig): ServerConfig {
+  loadConfig(config: Config): Config {
     // in case new config file is missing certain values / out of date, 
     // fill with default values
     return {
       ...defaultConfig,
       ...config,
+      server: {
+        ...defaultConfig.server,
+        ...config.server,
+      },
       fairplay: {
         ...defaultConfig.fairplay,
         ...config.fairplay,
@@ -59,10 +64,21 @@ export class ConfigManager {
   }
 
   applyConfig(server: ZoneServer2016) {
+    //#region server
+    const { proximityItemsDistance, interactionDistance , charactersRenderDistance, tickRate, worldRoutineRate } = this.config.server;
+    server.proximityItemsDistance = proximityItemsDistance;
+    server.interactionDistance = interactionDistance;
+    server.charactersRenderDistance = charactersRenderDistance;
+    server.tickRate = tickRate;
+    server.worldRoutineRate = worldRoutineRate;
+    //#endregion
+
     //#region fairplay
     // to be moved to FairplayManager
-    server._useFairPlay = this.config.fairplay.useFairplay;
-    server._maxPing = this.config.fairplay.maxPing;
+    const { useFairplay, maxPing, pingTimeoutTime } = this.config.fairplay;
+    server.useFairPlay = useFairplay;
+    server.maxPing = maxPing;
+    server.pingTimeoutTime = pingTimeoutTime;
     //#endregion
 
     //#region weather

@@ -1,7 +1,15 @@
+server:
+  proximityItemsDistance: 2
+  interactionDistance: 3
+  charactersRenderDistance: 350
+  tickRate: 2000
+  worldRoutineRate: 30000
+
 # Fairplay / anticheat config
 fairplay:
   useFairplay: true
   maxPing: 250
+  pingTimeoutTime: 30000
 
 weather:
   cycleSpeed: 100

@@ -116,7 +116,7 @@ export class WorldObjectManager {
   private _lastVehicleRespawnTime: number = 0;
   private _lastNpcRespawnTime: number = 0;
 
-  // MANAGED BY CONFIGMANAGER
+  /* MANAGED BY CONFIGMANAGER */
   vehicleSpawnCap!: number;
   lootRespawnTimer!: number;
   vehicleRespawnTimer!: number;

@@ -11,9 +11,18 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+interface ServerConfig {
+  proximityItemsDistance: number;
+  interactionDistance: number;
+  charactersRenderDistance: number;
+  tickRate: number;
+  worldRoutineRate: number;
+}
+
 interface FairplayConfig {
   useFairplay: boolean;
   maxPing: number;
+  pingTimeoutTime: number;
 }
 
 interface WeatherConfig {
@@ -38,7 +47,8 @@ interface WorldObjectsConfig {
   chanceScreamer: number;
 }
 
-export interface ServerConfig {
+export interface Config {
+  server: ServerConfig;
   fairplay: FairplayConfig;
   weather: WeatherConfig;
   worldobjects: WorldObjectsConfig;

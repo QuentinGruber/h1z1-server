@@ -521,7 +521,7 @@ export class ZonePacketHandlers {
       entity instanceof ConstructionDoor;
     if (
       !isPosInRadius(
-        entity.interactionDistance || server._interactionDistance,
+        entity.interactionDistance || server.interactionDistance,
         client.character.state.position,
         isConstruction
           ? entity.fixedPosition || entity.state.position
@@ -1080,7 +1080,7 @@ export class ZonePacketHandlers {
       entity instanceof ConstructionDoor;
     if (
       !isPosInRadius(
-        entity.interactionDistance || server._interactionDistance,
+        entity.interactionDistance || server.interactionDistance,
         client.character.state.position,
         isConstruction
           ? entity.fixedPosition || entity.state.position
@@ -2005,7 +2005,7 @@ export class ZonePacketHandlers {
             weaponItem.weapon.ammoCount -= 1;
           }
           const drift = Math.abs(p.gameTime - server.getServerTime());
-          if (drift > server._maxPing + 200) {
+          if (drift > server.maxPing + 200) {
             server.sendChatText(
               client,
               `FairPlay: Your shots didnt register due to packet loss`
@@ -2253,7 +2253,7 @@ export class ZonePacketHandlers {
             weaponItem.weapon.ammoCount -= 1;
           }
           const driftH = Math.abs(p.gameTime - server.getServerTime());
-          if (driftH > server._maxPing + 200) {
+          if (driftH > server.maxPing + 200) {
             server.sendChatText(
               client,
               `FairPlay: Your shots didnt register due to packet loss`

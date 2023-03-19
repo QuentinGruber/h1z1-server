@@ -223,7 +223,6 @@ export class WeatherManager {
   }
 
   seasonstart() {
-    console.log(this.defaultTemplate)
     if (!this.seasonStarted) {
       this.seasonStarted = true;
       this.chooseWeather();

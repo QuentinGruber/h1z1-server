@@ -183,8 +183,6 @@ export class ZoneServer2016 extends EventEmitter {
   readonly _protocol: H1Z1Protocol;
   _db!: Db;
   readonly _soloMode: boolean;
-  _useFairPlay!: boolean;
-  _maxPing!: number;
   _decryptKey: string = "";
   _fairPlayDecryptKey: string = "";
   _serverName = process.env.SERVER_NAME || "";
@@ -195,6 +193,7 @@ export class ZoneServer2016 extends EventEmitter {
   _worldId = 0;
   _grid: GridCell[] = [];
   _spawnGrid: SpawnCell[] = [];
+
   readonly _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
   _npcs: { [characterId: string]: Npc } = {};
@@ -210,7 +209,6 @@ export class ZoneServer2016 extends EventEmitter {
   _lootbags: { [characterId: string]: Lootbag } = {};
   _lootableConstruction: { [characterId: string]: LootableConstructionEntity } =
     {};
-
   _constructionFoundations: {
     [characterId: string]: ConstructionParentEntity;
   } = {};
@@ -232,15 +230,13 @@ export class ZoneServer2016 extends EventEmitter {
   _worldSimpleConstruction: { [characterId: string]: ConstructionChildEntity } =
     {};
 
-  _speedTrees: any = {};
+  _speedTrees: any = {}; // todo: make a class for this
   _speedTreesCounter: any = {};
-  _gameTime: any;
+  _gameTime: number = 0;
   readonly _serverTime = this.getCurrentTime();
   _startTime = 0;
   _startGameTime = 0;
   _timeMultiplier = 72;
-  tickRate = 2000;
-  worldRoutineRate = 30000;
   _transientIds: { [transientId: number]: string } = {};
   _characterIds: { [characterId: string]: number } = {};
   readonly _loginServerInfo: { address?: string; port: number } = {
@@ -248,12 +244,9 @@ export class ZoneServer2016 extends EventEmitter {
     port: 1110,
   };
   worldRoutineTimer!: NodeJS.Timeout;
-  _charactersRenderDistance = 350;
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
     ? JSON.parse(process.env.ALLOWED_COMMANDS)
     : [];
-  _interactionDistance = 3;
-  _pingTimeoutTime = 30000;
   _packetHandlers: ZonePacketHandlers;
   worldObjectManager: WorldObjectManager;
   smeltingManager: SmeltingManager;
@@ -284,13 +277,11 @@ export class ZoneServer2016 extends EventEmitter {
   private readonly _transientIdGenerator = generateTransientId();
   _packetsStats: Record<string, number> = {};
   enableWorldSaves: boolean;
-  readonly worldSaveVersion: number = 2;
   readonly gameVersion: GAME_VERSIONS = GAME_VERSIONS.H1Z1_6dec_2016;
-  private _proximityItemsDistance: number = 2;
   isSaving: boolean = false;
   private _isSaving: boolean = false;
-  saveTimeInterval: number = 600000;
-  nextSaveTime: number = Date.now() + this.saveTimeInterval;
+  readonly worldSaveVersion: number = 2;
+  
   _suspiciousList: string[] = [];
   fairPlayValues?: FairPlayValues;
   banInfoAcceptance: BAN_INFO[] = [
@@ -299,6 +290,18 @@ export class ZoneServer2016 extends EventEmitter {
     BAN_INFO.VPN,
     BAN_INFO.HWID,
   ];
+
+  /* MANAGED BY CONFIGMANAGER */
+  // TO BE MOVED TO FAIRPLAY MANAGER
+  useFairPlay!: boolean;
+  maxPing!: number;
+  pingTimeoutTime!: number;
+
+  proximityItemsDistance!: number;
+  interactionDistance!: number;
+  charactersRenderDistance!: number;
+  tickRate!: number;
+  worldRoutineRate!: number;
 
   constructor(
     serverPort: number,
@@ -330,7 +333,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (!this._mongoAddress) {
       this._soloMode = true;
-      this._useFairPlay = false;
+      this.useFairPlay = false;
       debug("Server in solo mode !");
     }
 
@@ -396,7 +399,7 @@ export class ZoneServer2016 extends EventEmitter {
         this._characters[characterId] = zoneClient.character;
         zoneClient.pingTimer = setTimeout(() => {
           this.timeoutClient(zoneClient);
-        }, this._pingTimeoutTime);
+        }, this.pingTimeoutTime);
         this.emit("login", zoneClient);
       }
     );
@@ -670,7 +673,7 @@ export class ZoneServer2016 extends EventEmitter {
       const item = items[i];
       if (
         isPosInRadiusWithY(
-          this._proximityItemsDistance,
+          this.proximityItemsDistance,
           character.state.position,
           item.state.position,
           1
@@ -1079,6 +1082,8 @@ export class ZoneServer2016 extends EventEmitter {
     debug("Server ready");
   }
 
+
+  /* TODO: MOVE TO WORLDDATAMANAGER */
   async saveWorld() {
     if (this._isSaving) {
       this.sendChatTextToAdmins("A save is already in progress.");
@@ -1143,7 +1148,7 @@ export class ZoneServer2016 extends EventEmitter {
         .then(() => {
           this._isSaving = false;
           this.sendChatTextToAdmins("World saved!");
-          this.nextSaveTime = Date.now() + this.saveTimeInterval;
+          this.worldDataManager.nextSaveTime = Date.now() + this.worldDataManager.saveTimeInterval;
           debug("World saved!");
         });
     } catch (e) {
@@ -1168,7 +1173,7 @@ export class ZoneServer2016 extends EventEmitter {
           decrypt(x, this._decryptKey)
       );
     }
-    if (this._fairPlayDecryptKey && this._useFairPlay) {
+    if (this._fairPlayDecryptKey && this.useFairPlay) {
       const decryptedData = fairPlayData.map(
         (x: { iv: string; encryptedData: string }) =>
           decrypt(x, this._fairPlayDecryptKey)
@@ -1513,7 +1518,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           this.enableWorldSaves &&
           !this.isSaving &&
-          this.nextSaveTime - Date.now() < 0
+          this.worldDataManager.nextSaveTime - Date.now() < 0
         ) {
           this.saveWorld();
         }
@@ -2635,7 +2640,7 @@ export class ZoneServer2016 extends EventEmitter {
     position: Float32Array,
     vehicle: Vehicle
   ): boolean {
-    if (client.isAdmin || !this._useFairPlay) return false;
+    if (client.isAdmin || !this.useFairPlay) return false;
     if (!this.isSaving) {
       const drift = Math.abs(sequenceTime - this.getServerTime());
       if (drift > 10000) {
@@ -2690,7 +2695,7 @@ export class ZoneServer2016 extends EventEmitter {
   hitMissFairPlayCheck(client: Client, hit: boolean, hitLocation: string) {
     const weaponItem = client.character.getEquippedWeapon();
     if (
-      !this._useFairPlay ||
+      !this.useFairPlay ||
       !weaponItem ||
       weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
     )
@@ -3087,7 +3092,7 @@ export class ZoneServer2016 extends EventEmitter {
     };
     if (
       !isPosInRadius(
-        entity.npcRenderDistance || this._charactersRenderDistance,
+        entity.npcRenderDistance || this.charactersRenderDistance,
         client.character.state.position,
         entity.state.position
       )
@@ -3946,7 +3951,7 @@ export class ZoneServer2016 extends EventEmitter {
           isPosInRadius(
             entity.npcRenderDistance
               ? entity.npcRenderDistance
-              : this._charactersRenderDistance,
+              : this.charactersRenderDistance,
             client.character.state.position,
             entity.state.position
           )
@@ -3966,7 +3971,7 @@ export class ZoneServer2016 extends EventEmitter {
       const foundation = this._constructionFoundations[a];
       if (
         isPosInRadius(
-          foundation.npcRenderDistance || this._charactersRenderDistance,
+          foundation.npcRenderDistance || this.charactersRenderDistance,
           client.character.state.position,
           foundation.state.position
         )
@@ -4050,7 +4055,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         isPosInRadius(
           (entity.npcRenderDistance as number) ||
-            this._charactersRenderDistance,
+            this.charactersRenderDistance,
           client.character.state.position,
           entity.state.position
         )
@@ -4063,7 +4068,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         isPosInRadius(
           (entity.npcRenderDistance as number) ||
-            this._charactersRenderDistance,
+            this.charactersRenderDistance,
           client.character.state.position,
           entity.state.position
         )
@@ -4080,7 +4085,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId != characterObj.characterId &&
         characterObj.isReady &&
         isPosInRadius(
-          characterObj.npcRenderDistance || this._charactersRenderDistance,
+          characterObj.npcRenderDistance || this.charactersRenderDistance,
           client.character.state.position,
           characterObj.state.position
         ) &&
@@ -4112,7 +4117,7 @@ export class ZoneServer2016 extends EventEmitter {
       const c = this._clients[a];
       if (
         isPosInRadius(
-          character.npcRenderDistance || this._charactersRenderDistance,
+          character.npcRenderDistance || this.charactersRenderDistance,
           character.state.position,
           c.character.state.position
         ) &&
@@ -4202,7 +4207,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           !isPosInRadius(
             (object.npcRenderDistance as number) ||
-              this._charactersRenderDistance,
+              this.charactersRenderDistance,
             position,
             object.state.position
           )
@@ -4712,7 +4717,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         // vehicle spawning / managed object assignment logic
         isPosInRadius(
-          vehicle.npcRenderDistance || this._charactersRenderDistance,
+          vehicle.npcRenderDistance || this.charactersRenderDistance,
           client.character.state.position,
           vehicle.state.position
         )
@@ -4735,7 +4740,7 @@ export class ZoneServer2016 extends EventEmitter {
         }*/
       } else if (
         !isPosInRadius(
-          this._charactersRenderDistance,
+          this.charactersRenderDistance,
           client.character.state.position,
           vehicle.state.position
         )
@@ -7292,7 +7297,7 @@ export class ZoneServer2016 extends EventEmitter {
         isPosInRadius(
           obj.npcRenderDistance
             ? obj.npcRenderDistance
-            : this._charactersRenderDistance,
+            : this.charactersRenderDistance,
           obj.state.position,
           c.character.state.position
         )
@@ -8245,7 +8250,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (
         !clientObj.isLoading &&
         isPosInRadius(
-          entity.npcRenderDistance || this._charactersRenderDistance,
+          entity.npcRenderDistance || this.charactersRenderDistance,
           clientObj.character.state.position,
           entity.state.position
         )
@@ -8310,7 +8315,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     const ping = soeClient.avgPing;
     client.zonePings.push(ping > 600 ? 600 : ping); // dont push values higher than 600, that would increase average value drasticaly
-    if (ping >= this._maxPing) {
+    if (ping >= this.maxPing) {
       this.sendAlert(
         client,
         `Your ping is very high: ${ping}. You may be kicked soon`
@@ -8320,7 +8325,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     const averagePing =
       client.zonePings.reduce((a, b) => a + b, 0) / client.zonePings.length;
-    if (averagePing >= this._maxPing) {
+    if (averagePing >= this.maxPing) {
       this.kickPlayer(client);
       this.sendChatTextToAdmins(
         `${client.character.name} has been been kicked for average ping: ${averagePing}`
@@ -8420,7 +8425,7 @@ export class ZoneServer2016 extends EventEmitter {
     playerPosition: Float32Array
   ): boolean {
     return !isPosInRadius(
-      element.npcRenderDistance || this._charactersRenderDistance,
+      element.npcRenderDistance || this.charactersRenderDistance,
       playerPosition,
       element.state.position
     );

@@ -77,7 +77,7 @@ export class BaseEntity {
       rotation: rotation,
     };
     this.npcRenderDistance = getRenderDistance(actorModelId);
-    this.interactionDistance = server._interactionDistance;
+    this.interactionDistance = server.interactionDistance;
     server.pushToGridCell(this);
   }
 

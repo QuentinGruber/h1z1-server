@@ -142,11 +142,16 @@ export function constructContainers(
 
 export class WorldDataManager {
   private _db: any;
-  readonly _appDataFolder = getAppDataFolderPath();
+  private _appDataFolder = getAppDataFolderPath();
   private _worldId: number = 0;
   private _soloMode: boolean = false;
-  //TODO: remove it from zoneserver then
-  private _worldSaveVersion: number = 2;
+  readonly worldSaveVersion: number = 2;
+
+  /* MANAGED BY CONFIGMANAGER */
+  saveTimeInterval: number = 600000;
+
+
+  nextSaveTime: number = Date.now() + this.saveTimeInterval;
 
   static async getDatabase(mongoAddress: string) {
     const mongoClient = new MongoClient(mongoAddress, {
@@ -182,14 +187,14 @@ export class WorldDataManager {
       await this._db?.collection(DB_COLLECTIONS.WORLDS).insertOne({
         worldId: this._worldId,
         lastItemGuid: toBigHex(lastItemGuid),
-        worldSaveVersion: this._worldSaveVersion,
+        worldSaveVersion: this.worldSaveVersion,
       });
       debug("Existing world was not found, created one.");
     } else {
       await this._db?.collection(DB_COLLECTIONS.WORLDS).insertOne({
         worldId: this._worldId,
         lastItemGuid: toBigHex(lastItemGuid),
-        worldSaveVersion: this._worldSaveVersion,
+        worldSaveVersion: this.worldSaveVersion,
       });
     }
   }
@@ -387,7 +392,7 @@ export class WorldDataManager {
     const saveData: ServerSaveData = {
       serverId: this._worldId,
       lastItemGuid: toBigHex(lastItemGuid),
-      worldSaveVersion: this._worldSaveVersion,
+      worldSaveVersion: this.worldSaveVersion,
     };
     if (this._soloMode) {
       fs.writeFileSync(
@@ -456,7 +461,7 @@ export class WorldDataManager {
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
         status: 1,
-        worldSaveVersion: this._worldSaveVersion,
+        worldSaveVersion: this.worldSaveVersion,
       };
     }
     return savedCharacter;

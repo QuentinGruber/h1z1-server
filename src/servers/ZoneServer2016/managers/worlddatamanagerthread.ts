@@ -12,6 +12,9 @@ import {
 
 const worldDataManager = new WorldDataManager();
 export interface WorldDataManagerThreaded {
+  readonly worldSaveVersion: number;
+  saveTimeInterval: number;
+  nextSaveTime: number;
   initialize: (arg0: number, arg1: string) => Promise<void>;
   getServerData: (arg0: number) => Promise<ServerSaveData>;
   fetchWorldData: () => Promise<FetchedWorldData>;

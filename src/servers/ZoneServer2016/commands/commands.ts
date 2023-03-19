@@ -1338,7 +1338,7 @@ export const commands: Array<Command> = [
       }
       server.sendChatText(
         client,
-        `Next save at ${new Date(server.nextSaveTime)}`
+        `Next save at ${new Date(server.worldDataManager.nextSaveTime)}`
       );
     },
   },
