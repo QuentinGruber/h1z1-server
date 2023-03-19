@@ -102,7 +102,8 @@ export const internalCommands: Array<Command> = [
             server.sendDataToAll("Character.RemovePlayer", {
               characterId: decoy.characterId,
             });
-            server.sendChatText(client, `Decoy removed"`, false);
+            client.isDecoy = false;
+            server.sendChatText(client, `Decoy removed`, false);
           }
         }
         return;

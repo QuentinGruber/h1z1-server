@@ -206,7 +206,8 @@ export const commands: Array<Command> = [
             server.sendDataToAll("Character.RemovePlayer", {
               characterId: decoy.characterId,
             });
-            server.sendChatText(client, `Decoy removed"`, false);
+            server.sendChatText(client, `Decoy removed`, false);
+            client.isDecoy = false;
           }
         }
         return;
@@ -1028,6 +1029,12 @@ export const commands: Array<Command> = [
         });
         delete server._decoys[a];
       }
+      for (const a in server._clients) {
+        if (server._clients[a].isDecoy) {
+          server._clients[a].isDecoy = false;
+        }
+      }
+      server.sendChatText(client, `Removed all decoys`, false);
     },
   },
   {
