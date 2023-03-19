@@ -583,16 +583,12 @@ export const commands: Array<Command> = [
         return;
       }
       const name = args.join(" ").toString();
-      const bannedClient = (
-        await server._db
-          ?.collection(DB_COLLECTIONS.BANNED)
-          .findOneAndUpdate(
-            { name, active: true },
-            { $set: { active: false, unBanAdminName: client.character.name } }
-          )
-      )?.value as unknown as ClientBan;
-      if (bannedClient) {
-        server.sendChatText(client, `Removed ban on user ${bannedClient.name}`);
+      const unBannedClient = await server.unbanClient(client, name);
+      if (unBannedClient) {
+        server.sendChatText(
+          client,
+          `Removed ban on user ${unBannedClient.name}`
+        );
       } else {
         server.sendChatText(
           client,
@@ -2187,6 +2183,18 @@ export const commands: Array<Command> = [
       /* handled clientside */
     },
   },
+  {
+    name: "group",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      server.groupManager.handleGroupCommand(server, client, args);
+    },
+  },
+
   //#endregion
 
   //#region DEV PERMISSIONS

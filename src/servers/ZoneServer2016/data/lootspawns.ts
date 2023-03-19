@@ -454,7 +454,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     ],
   },
   "ItemSpawner_WaterContainer_Small_Purified.adr": {
-    spawnChance: 15,
+    spawnChance: 10,
     items: [
       {
         item: Items.WATER_PURE,
@@ -665,7 +665,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 30,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1,
@@ -673,7 +673,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_PURE,
-        weight: 20,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
@@ -970,7 +970,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 20,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1050,7 +1050,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 20,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1170,7 +1170,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 20,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2044,14 +2044,6 @@ export const containerLootSpawners: {
         },
       },
       {
-        item: Items.SUGAR,
-        weight: 15,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
-      {
         item: Items.SALT,
         weight: 20,
         spawnCount: {
@@ -2259,7 +2251,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 30,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2313,7 +2305,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WATER_EMPTY,
-        weight: 30,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2335,7 +2327,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.SUGAR,
-        weight: 15,
+        weight: 13,
         spawnCount: {
           min: 1,
           max: 2,
@@ -2421,7 +2413,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.WATER_STAGNANT,
-        weight: 25,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2616,59 +2608,13 @@ export const containerLootSpawners: {
     ],
   },
   // used for crate props
-  Crate: {
-    spawnChance: 50,
-    maxItems: 1,
-    items: [
-      {
-        item: Items.WOOD_PLANK,
-        weight: 15,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
-      {
-        item: Items.FERTILIZER,
-        weight: 2,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
-      {
-        item: Items.CLOTH,
-        weight: 15,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
-      {
-        item: Items.CANNED_FOOD01,
-        weight: 10,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
-      {
-        item: Items.WATER_PURE,
-        weight: 10,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
-    ],
-  },
-  Crate_big: {
-    spawnChance: 73,
+  Crate_buffed: {
+    spawnChance: 60,
     maxItems: 1,
     items: [
       {
         item: Items.FERTILIZER,
-        weight: 27,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2708,7 +2654,7 @@ export const containerLootSpawners: {
       },
     ],
   },
-  Crate_great: {
+  Crate: {
     spawnChance: 50,
     maxItems: 1,
     items: [
@@ -2731,6 +2677,22 @@ export const containerLootSpawners: {
       {
         item: Items.WATER_PURE,
         weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.CLOTH,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.FERTILIZER,
+        weight: 2,
         spawnCount: {
           min: 1,
           max: 1,

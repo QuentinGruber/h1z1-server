@@ -1,4 +1,4 @@
-// ======================================================================
+﻿// ======================================================================
 //
 //   GNU GENERAL PUBLIC LICENSE
 //   Version 3, 29 June 2007
@@ -174,6 +174,23 @@ export function movePoint(
     position[1],
     position[2] + Math.sin(angle) * distance,
   ]);
+}
+
+export function getAngle(positionA: Float32Array, positionB: Float32Array) {
+  const dx = positionB[0] - positionA[0];
+  const dz = positionB[2] - positionA[2];
+  let angle = Math.atan2(dz, dx);
+
+  // adjust angle if coordinate system is flipped
+  angle = (2 * Math.PI - angle) % (2 * Math.PI);
+
+  // rotate angle by -90 degrees
+  angle += Math.PI / 2;
+
+  // ensure angle is within 0 to 2π range
+  angle = (angle + 2 * Math.PI) % (2 * Math.PI);
+
+  return angle;
 }
 
 export async function zoneShutdown(

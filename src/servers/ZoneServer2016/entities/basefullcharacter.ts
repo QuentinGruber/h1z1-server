@@ -607,23 +607,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       : undefined;
   }
 
-  pGetAttachmentSlotsMod() {
-    return Object.keys(this._equipment).map((slotId: any) => {
-      if (this.pGetAttachmentSlot(slotId)?.modelName == "Weapon_Empty.adr") {
-        return this.pGetAttachmentSlot(slotId);
-      }
-      return {
-        modelName: "",
-        textureAlias: "",
-        tintAlias: "Default",
-        decalAlias: "#",
-        slotId: slotId,
-        unknownArray1: [], // todo: test
-        unknownBool1: false,
-      };
-    });
-  }
-
   pGetEquipment() {
     return {
       characterData: {

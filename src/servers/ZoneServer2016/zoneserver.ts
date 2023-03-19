@@ -56,6 +56,7 @@ import {
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
+  FairPlayValues,
   Recipe,
   SlottedConstructionEntity,
   SpawnLocation,
@@ -95,6 +96,7 @@ import {
   logClientActionToMongo,
   removeUntransferableFields,
   decrypt,
+  getAngle,
 } from "../../utils/utils";
 
 import { Collection, Db } from "mongodb";
@@ -126,7 +128,7 @@ import {
 } from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
-import { DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
+import { BAN_INFO, DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
 
 import {
   ClientUpdateDeathMetrics,
@@ -146,13 +148,13 @@ import { LootableProp } from "./entities/lootableprop";
 import { PlantingDiameter } from "./entities/plantingdiameter";
 import { Plant } from "./entities/plant";
 import { SmeltingEntity } from "./classes/smeltingentity";
-1;
 import { spawn, Worker } from "threads";
 import { WorldDataManagerThreaded } from "./managers/worlddatamanagerthread";
 import { logVersion } from "../../utils/processErrorHandling";
 import { TaskProp } from "./entities/taskprop";
 import { ChatManager } from "./managers/chatmanager";
 import { Crate } from "./entities/crate";
+import { GroupManager } from "./managers/groupmanager";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   Z1_vehicles = require("../../../data/2016/zoneData/Z1_vehicleLocations.json"),
@@ -169,6 +171,7 @@ const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.js
   resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
   encryptedData = require("../../../data/2016/encryptedData/encryptedData.json"),
+  fairPlayData = require("../../../data/2016/encryptedData/fairPlayData.json"),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
@@ -183,6 +186,7 @@ export class ZoneServer2016 extends EventEmitter {
   _useFairPlay = true;
   _maxPing = 250;
   _decryptKey: string = "";
+  _fairPlayDecryptKey: string = "";
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
@@ -265,6 +269,7 @@ export class ZoneServer2016 extends EventEmitter {
   worldDataManager!: WorldDataManagerThreaded;
   hookManager: HookManager;
   chatManager: ChatManager;
+  groupManager: GroupManager;
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _weaponDefinitions: { [weaponDefinitionId: number]: any } =
@@ -291,8 +296,14 @@ export class ZoneServer2016 extends EventEmitter {
   private _isSaving: boolean = false;
   saveTimeInterval: number = 600000;
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
-  observerVehicleGuid: string = "0xFAFAFAFAFAFAFAFA";
   _suspiciousList: string[] = [];
+  fairPlayValues?: FairPlayValues;
+  banInfoAcceptance: BAN_INFO[] = [
+    BAN_INFO.GLOBAL_BAN,
+    BAN_INFO.LOCAL_BAN,
+    BAN_INFO.VPN,
+    BAN_INFO.HWID,
+  ];
 
   constructor(
     serverPort: number,
@@ -315,6 +326,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.weatherManager = new WeatherManager();
     this.hookManager = new HookManager();
     this.chatManager = new ChatManager();
+    this.groupManager = new GroupManager();
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
 
@@ -463,9 +475,22 @@ export class ZoneServer2016 extends EventEmitter {
                 this.onClientIsAdminRequest(client, packet);
                 break;
               }
-              case "CharacterExistRequest": {
+              case "CharacterAllowedRequest": {
                 const { characterId, reqId } = packet.data;
+                const banInfos = packet.data.banInfos ?? [];
                 try {
+                  for (let i = 0; i < banInfos.length; i++) {
+                    const banInfo = banInfos[i];
+                    // TODO: vpn-whitelist
+                    if (this.banInfoAcceptance.includes(banInfo.banInfo)) {
+                      this._h1emuZoneServer.sendData(
+                        client,
+                        "CharacterAllowedReply",
+                        { status: 0, reqId: reqId }
+                      );
+                      return;
+                    }
+                  }
                   const collection = (this._db as Db).collection(
                     DB_COLLECTIONS.CHARACTERS
                   );
@@ -479,20 +504,21 @@ export class ZoneServer2016 extends EventEmitter {
                   if (charactersArray.length) {
                     this._h1emuZoneServer.sendData(
                       client,
-                      "CharacterExistReply",
+                      "CharacterAllowedReply",
                       { status: 1, reqId: reqId }
                     );
                   } else {
                     this._h1emuZoneServer.sendData(
                       client,
-                      "CharacterExistReply",
+                      "CharacterAllowedReply",
                       { status: 0, reqId: reqId }
                     );
                   }
                 } catch (error) {
+                  console.log(error);
                   this._h1emuZoneServer.sendData(
                     client,
-                    "CharacterExistReply",
+                    "CharacterAllowedReply",
                     { status: 0, reqId: reqId }
                   );
                 }
@@ -1142,6 +1168,63 @@ export class ZoneServer2016 extends EventEmitter {
           decrypt(x, this._decryptKey)
       );
     }
+    if (this._fairPlayDecryptKey && this._useFairPlay) {
+      const decryptedData = fairPlayData.map(
+        (x: { iv: string; encryptedData: string }) =>
+          decrypt(x, this._fairPlayDecryptKey)
+      );
+      this.fairPlayValues = {
+        defaultMaxProjectileSpeed: Number(decryptedData[0]),
+        defaultMinProjectileSpeed: Number(decryptedData[1]),
+        defaultMaxDistance: Number(decryptedData[2]),
+        WEAPON_308: {
+          maxSpeed: Number(decryptedData[3]),
+          minSpeed: Number(decryptedData[4]),
+          maxDistance: Number(decryptedData[5]),
+        },
+        WEAPON_CROSSBOW: {
+          maxSpeed: Number(decryptedData[6]),
+          minSpeed: Number(decryptedData[7]),
+          maxDistance: Number(decryptedData[8]),
+        },
+        WEAPON_BOW_MAKESHIFT: {
+          maxSpeed: Number(decryptedData[9]),
+          minSpeed: Number(decryptedData[10]),
+          maxDistance: Number(decryptedData[11]),
+        },
+        WEAPON_BOW_RECURVE: {
+          maxSpeed: Number(decryptedData[12]),
+          minSpeed: Number(decryptedData[13]),
+          maxDistance: Number(decryptedData[14]),
+        },
+        WEAPON_BOW_WOOD: {
+          maxSpeed: Number(decryptedData[15]),
+          minSpeed: Number(decryptedData[16]),
+          maxDistance: Number(decryptedData[17]),
+        },
+        WEAPON_SHOTGUN: {
+          maxSpeed: Number(decryptedData[18]),
+          minSpeed: Number(decryptedData[19]),
+          maxDistance: Number(decryptedData[20]),
+        },
+        lastLoginDateAddVal: Number(decryptedData[21]),
+        maxTimeDrift: Number(decryptedData[22]),
+        maxSpeed: Number(decryptedData[23]),
+        maxVerticalSpeed: Number(decryptedData[24]),
+        speedWarnsNumber: Number(decryptedData[25]),
+        maxTpDist: Number(decryptedData[26]),
+        dotProductMin: Number(decryptedData[27]),
+        dotProductMinShotgun: Number(decryptedData[28]),
+        dotProductBlockValue: Number(decryptedData[29]),
+        requiredFile: decryptedData[30],
+        requiredString: decryptedData[31],
+        requiredFile2: decryptedData[32],
+        respawnCheckRange: Number(decryptedData[33]),
+        respawnCheckTime: Number(decryptedData[34]),
+        respawnCheckIterations: Number(decryptedData[35]),
+        maxFlying: Number(decryptedData[36]),
+      };
+    }
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
     this.startRoutinesLoop();
     this.smeltingManager.checkSmeltables(this);
@@ -1462,33 +1545,35 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   deleteClient(client: Client) {
-    if (client) {
-      if (client.character) {
-        client.isLoading = true; // stop anything from acting on character
+    if (!client) {
+      this.setTickRate();
+      return;
+    }
 
-        clearTimeout(client.character?.resourcesUpdater);
-        const characterSave = WorldDataManager.convertToCharacterSaveData(
-          client.character,
-          this._worldId
-        );
-        this.worldDataManager.saveCharacterData(
-          characterSave,
-          this.lastItemGuid
-        );
-        this.dismountVehicle(client);
-        client.managedObjects?.forEach((characterId: any) => {
-          this.dropVehicleManager(client, characterId);
-        });
-        this.deleteEntity(client.character.characterId, this._characters);
-      }
-      delete this._clients[client.sessionId];
-      const soeClient = this.getSoeClient(client.soeClientId);
-      if (soeClient) {
-        this._gatewayServer._soeServer.deleteClient(soeClient);
-      }
-      if (!this._soloMode) {
-        this.sendZonePopulationUpdate();
-      }
+    if (client.character) {
+      client.isLoading = true; // stop anything from acting on character
+
+      clearTimeout(client.character?.resourcesUpdater);
+      const characterSave = WorldDataManager.convertToCharacterSaveData(
+        client.character,
+        this._worldId
+      );
+      this.worldDataManager.saveCharacterData(characterSave, this.lastItemGuid);
+      this.dismountVehicle(client);
+      client.managedObjects?.forEach((characterId: any) => {
+        this.dropVehicleManager(client, characterId);
+      });
+      this.deleteEntity(client.character.characterId, this._characters);
+
+      this.groupManager.handlePlayerDisconnect(this, client);
+    }
+    delete this._clients[client.sessionId];
+    const soeClient = this.getSoeClient(client.soeClientId);
+    if (soeClient) {
+      this._gatewayServer._soeServer.deleteClient(soeClient);
+    }
+    if (!this._soloMode) {
+      this.sendZonePopulationUpdate();
     }
     this.setTickRate();
   }
@@ -1617,6 +1702,10 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     const pos = client.character.state.position;
+    if (client.character.spawnGridData.length < 100) {
+      // attemt to fix broken spawn grid after unban
+      client.character.spawnGridData = new Array(100).fill(0);
+    }
     this._spawnGrid.forEach((spawnCell: SpawnCell) => {
       // find current grid and add it to blocked ones
       if (
@@ -1636,9 +1725,8 @@ export class ZoneServer2016 extends EventEmitter {
         });
       }
     });
-    const character = client.character;
-
-    const gridArr: any[] = [];
+    const character = client.character,
+    gridArr: any[] = [];
     character.spawnGridData.forEach((number: number) => {
       if (number <= new Date().getTime()) number = 0;
       gridArr.push({
@@ -1704,7 +1792,11 @@ export class ZoneServer2016 extends EventEmitter {
             this.getWeaponAmmoId(slot.itemDefinitionId),
             slot.weapon.ammoCount
           );
-          if (ammo && slot.weapon.ammoCount > 0) {
+          if (
+            ammo &&
+            slot.weapon.ammoCount > 0 &&
+            slot.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+          ) {
             client.character.lootContainerItem(
               this,
               ammo,
@@ -1713,6 +1805,9 @@ export class ZoneServer2016 extends EventEmitter {
             );
           }
           slot.weapon.ammoCount = 0;
+          if (slot.itemDefinitionId != Items.WEAPON_FISTS) {
+            this.damageItem(client, slot, 350);
+          }
         }
       });
       this.worldObjectManager.createLootbag(this, character);
@@ -2092,13 +2187,13 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     switch (source) {
       case "vehicle":
-        damage /= 10;
+        damage /= 12;
         break;
       case "ethanol":
-        damage /= 2;
+        damage /= 3.2;
         break;
       case "fuel":
-        damage /= 4;
+        damage /= 6;
         break;
     }
     const constructionObject: ConstructionEntity =
@@ -2202,6 +2297,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.isAlive = true;
     client.character.isRunning = false;
     client.character.isRespawning = false;
+    client.isInAir = false;
 
     client.character._resources[ResourceIds.HEALTH] = 10000;
     client.character._resources[ResourceIds.HUNGER] = 10000;
@@ -2223,14 +2319,41 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: client.character.characterId,
         status: 1,
       });
+      const tempPos = client.character.state.position;
+      const tempPos2 = new Float32Array([
+        cell.spawnPoints[randomSpawnIndex][0],
+        cell.spawnPoints[randomSpawnIndex][1] + 1,
+        cell.spawnPoints[randomSpawnIndex][2],
+        1,
+      ]);
+      client.character.state.position = tempPos2;
+      client.oldPos.position = tempPos2;
       this.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: new Float32Array([
-          cell.spawnPoints[randomSpawnIndex][0],
-          cell.spawnPoints[randomSpawnIndex][1] + 1,
-          cell.spawnPoints[randomSpawnIndex][2],
-          1,
-        ]),
+        position: tempPos2,
       });
+      const damageInfo: DamageInfo = {
+        entity: "Server.Respawn",
+        damage: 99999,
+      };
+      if (this.fairPlayValues && !client.isAdmin) {
+        for (let x = 1; x < this.fairPlayValues.respawnCheckIterations; x++) {
+          setTimeout(() => {
+            if (
+              isPosInRadius(
+                this.fairPlayValues?.respawnCheckRange || 100,
+                tempPos,
+                client.character.state.position
+              ) ||
+              !isPosInRadius(
+                this.fairPlayValues?.respawnCheckRange || 300,
+                tempPos2,
+                client.character.state.position
+              )
+            )
+              this.killCharacter(client, damageInfo);
+          }, x * this.fairPlayValues.respawnCheckTime);
+        }
+      }
     }
     if (clearEquipment) {
       Object.values(client.character._equipment).forEach((equipmentSlot) => {
@@ -2311,7 +2434,7 @@ export class ZoneServer2016 extends EventEmitter {
         );
       }, 2000);
     }
-
+    client.character.updateEquipment(this);
     this.hookManager.checkHook("OnPlayerRespawned", client);
   }
 
@@ -2414,15 +2537,49 @@ export class ZoneServer2016 extends EventEmitter {
     sequenceTime: number,
     position: Float32Array
   ): boolean {
-    if (client.isAdmin || !this._useFairPlay || !client.isSynced) return false;
+    if (client.isAdmin || !this.fairPlayValues || !client.isSynced)
+      return false;
     if (!this.isSaving) {
+      if (
+        client.isInAir &&
+        position[1] - client.startLoc > this.fairPlayValues.maxFlying
+      ) {
+        this.kickPlayer(client);
+        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        let kick = true;
+        for (const a in this._constructionFoundations) {
+          if (
+            this._constructionFoundations[a].getHasPermission(
+              this,
+              client.character.characterId,
+              ConstructionPermissionIds.VISIT
+            ) &&
+            this._constructionFoundations[a].isInside(
+              client.character.state.position
+            )
+          )
+            kick = false;
+        }
+        if (kick) {
+          this.sendChatTextToAdmins(
+            `FairPlay: ${
+              client.character.name
+            } has been kicked for possible flying by ${(
+              position[1] - client.startLoc
+            ).toFixed(2)} at [${position[0]} ${position[1]} ${position[2]}]`,
+            false
+          );
+          return true;
+        }
+      }
       const distance = getDistance2d(client.oldPos.position, position);
       if (
-        Number(client.character.lastLoginDate) + 5000 <
+        Number(client.character.lastLoginDate) +
+          this.fairPlayValues.lastLoginDateAddVal <
         new Date().getTime()
       ) {
         const drift = Math.abs(sequenceTime - this.getServerTime());
-        if (drift > 10000) {
+        if (drift > this.fairPlayValues.maxTimeDrift) {
           this.kickPlayer(client);
           this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
           this.sendChatTextToAdmins(
@@ -2432,11 +2589,16 @@ export class ZoneServer2016 extends EventEmitter {
           return true;
         }
         if (!client.isLoading && client.enableChecks) {
-          if (distance > 6) {
+          if (distance > 10) {
+            /*this.sendData(client, "ClientUpdate.UpdateLocation", {
+              position: new Float32Array([...client.oldPos.position, 0]),
+              triggerLoadingScreen: true,
+              unknownByte1: 1,
+            });
+            client.isMovementBlocked = true;*/
             this.kickPlayer(client);
-            this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
             this.sendChatTextToAdmins(
-              `FairPlay: ${client.character.name} has been kicked for suspeced teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
+              `FairPlay: Kicking ${client.character.name} for suspected teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
               false
             );
             return true;
@@ -2451,7 +2613,10 @@ export class ZoneServer2016 extends EventEmitter {
           1000 /
           (sequenceTime - client.oldPos.time)) *
         3600000;
-      if (speed > 35 && verticalSpeed < 20) {
+      if (
+        speed > this.fairPlayValues.maxSpeed &&
+        verticalSpeed < this.fairPlayValues.maxVerticalSpeed
+      ) {
         const soeClient = this.getSoeClient(client.soeClientId);
         if (soeClient) {
           if (soeClient.avgPing >= 250) return false;
@@ -2460,7 +2625,7 @@ export class ZoneServer2016 extends EventEmitter {
       } else if (client.speedWarnsNumber > 0) {
         client.speedWarnsNumber -= 1;
       }
-      if (client.speedWarnsNumber > 35) {
+      if (client.speedWarnsNumber > this.fairPlayValues.speedWarnsNumber) {
         this.kickPlayer(client);
         client.speedWarnsNumber = 0;
         if (!this._soloMode) {
@@ -2807,7 +2972,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!c || !c.character.hasHelmet(this)) {
       return damage;
     }
-    damage *= 0.75;
+    damage *= 0.25;
     this.damageItem(
       c,
       c.character._loadout[LoadoutSlots.HEAD],
@@ -2912,14 +3077,14 @@ export class ZoneServer2016 extends EventEmitter {
         return calculate_falloff(
           getDistance(sourcePos, targetPos),
           200,
-          1200, //1667,
-          3,
-          20
+          1400, //1667,
+          1,
+          12
         );
       case Items.WEAPON_AK47:
         return 2900;
       case Items.WEAPON_308:
-        return 8000;
+        return 6500;
       case Items.WEAPON_MAGNUM:
         return 3000;
       case Items.WEAPON_BOW_MAKESHIFT:
@@ -2982,6 +3147,10 @@ export class ZoneServer2016 extends EventEmitter {
     if (!fireHint) {
       if (c) {
         this.sendChatText(c, message, false);
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} has hit ${c.character.name} with non existing projectile`,
+          false
+        );
       }
       return;
     }
@@ -2989,54 +3158,161 @@ export class ZoneServer2016 extends EventEmitter {
     if (!weaponItem) return;
     if (fireHint.hitNumber > 0) {
       if (c) {
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} shot has been blocked due to desync / double usage`,
+          false
+        );
         this.sendChatText(c, message, false);
       }
       return;
     }
-    if (c) fireHint.hitNumber++;
-    const distance = getDistance(fireHint.position, packet.hitReport.position);
-    const speed = (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
-    let maxSpeed = 5000;
-    switch (weaponItem.itemDefinitionId) {
-      case Items.WEAPON_CROSSBOW:
-        maxSpeed = 900;
-        break;
-      case Items.WEAPON_BOW_MAKESHIFT:
-        maxSpeed = 300;
-        break;
-      case Items.WEAPON_BOW_RECURVE:
-        maxSpeed = 500;
-        break;
-      case Items.WEAPON_BOW_WOOD:
-        maxSpeed = 400;
-        break;
-      case Items.WEAPON_SHOTGUN:
-        maxSpeed = 2600;
-    }
-    if (
-      distance > 10 &&
-      (speed > maxSpeed || speed <= 0 || speed == Infinity)
-    ) {
-      this.sendChatTextToAdmins(
-        `FairPlay: ${
-          client.character.name
-        } shot has been blocked due to projectile speed: (${speed.toFixed(
-          0
-        )} / ${maxSpeed}) weapon: ${
-          this.getItemDefinition(weaponItem.itemDefinitionId).NAME
-        }`,
-        false
-      );
+    if (this.fairPlayValues) {
+      if (c) fireHint.hitNumber++;
+      const checkWeapons = [
+        Items.WEAPON_BOW_MAKESHIFT,
+        Items.WEAPON_BOW_RECURVE,
+        Items.WEAPON_BOW_WOOD,
+        Items.WEAPON_CROSSBOW,
+      ];
+      if (checkWeapons.includes(weaponItem.itemDefinitionId)) {
+        if (
+          !fireHint.marked ||
+          fireHint.marked.characterId != entity.characterId ||
+          getDistance(fireHint.marked.position, packet.hitReport.position) >
+            0.1 ||
+          Math.abs(gameTime - fireHint.marked.gameTime) > 5
+        ) {
+          if (c) {
+            this.sendChatTextToAdmins(
+              `FairPlay: ${client.character.name} is hitting invalid projectiles on player ${c.character.name}`,
+              false
+            );
+            this.sendChatText(c, message, false);
+          }
+          return;
+        }
+      }
+      const angle = getAngle(fireHint.position, packet.hitReport.position);
+      const fixedRot = (fireHint.rotation + 2 * Math.PI) % (2 * Math.PI);
+      const dotProduct =
+        Math.cos(angle) * Math.cos(fixedRot) +
+        Math.sin(angle) * Math.sin(fixedRot);
+      if (
+        dotProduct <
+        (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+          ? this.fairPlayValues.dotProductMinShotgun
+          : this.fairPlayValues.dotProductMin)
+      ) {
+        if (dotProduct < this.fairPlayValues.dotProductBlockValue) {
+          if (c) {
+            this.sendChatText(c, message, false);
+          }
+          this.sendChatTextToAdmins(
+            `FairPlay: ${
+              client.character.name
+            } projectile was blocked due to invalid rotation: ${Number(
+              ((1 - dotProduct) * 100).toFixed(2)
+            )} / ${
+              Number(
+                (1 - this.fairPlayValues.dotProductBlockValue).toFixed(3)
+              ) * 100
+            }% max deviation`,
+            false
+          );
+          return;
+        }
+
+        this.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } projectile is hitting with possible invalid rotation: ${Number(
+            ((1 - dotProduct) * 100).toFixed(2)
+          )} / ${
+            Number(
+              (
+                1 -
+                (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+                  ? this.fairPlayValues.dotProductMinShotgun
+                  : this.fairPlayValues.dotProductMin)
+              ).toFixed(3)
+            ) * 100
+          }% max deviation`,
+          false
+        );
+      }
       if (c) {
-        this.sendChatText(c, message, false);
+        const distance = getDistance(
+          fireHint.position,
+          packet.hitReport.position
+        );
+        const speed =
+          (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
+        let maxSpeed = this.fairPlayValues.defaultMaxProjectileSpeed;
+        let minSpeed = this.fairPlayValues.defaultMinProjectileSpeed;
+        let maxDistance = this.fairPlayValues.defaultMaxDistance;
+        switch (weaponItem.itemDefinitionId) {
+          case Items.WEAPON_308:
+            maxSpeed = this.fairPlayValues.WEAPON_308.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_308.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_308.maxDistance;
+            break;
+          case Items.WEAPON_CROSSBOW:
+            maxSpeed = this.fairPlayValues.WEAPON_CROSSBOW.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_CROSSBOW.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_CROSSBOW.maxDistance;
+            break;
+          case Items.WEAPON_BOW_MAKESHIFT:
+            maxSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxDistance;
+            break;
+          case Items.WEAPON_BOW_RECURVE:
+            maxSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_BOW_RECURVE.maxDistance;
+            break;
+          case Items.WEAPON_BOW_WOOD:
+            maxSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_BOW_WOOD.maxDistance;
+            break;
+          case Items.WEAPON_SHOTGUN:
+            maxSpeed = this.fairPlayValues.WEAPON_SHOTGUN.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_SHOTGUN.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_SHOTGUN.maxDistance;
+        }
+        let block = false;
+        if (distance > maxDistance && speed < minSpeed) block = true;
+        if (
+          distance > maxDistance &&
+          (speed > maxSpeed ||
+            speed < minSpeed ||
+            speed <= 0 ||
+            speed == Infinity)
+        )
+          block = true;
+        if (block) {
+          this.sendChatTextToAdmins(
+            `FairPlay: prevented ${
+              client.character.name
+            }'s projectile from hitting ${
+              c.character.name
+            } | speed: (${speed.toFixed(
+              0
+            )} / ${minSpeed}:${maxSpeed}) | ${distance.toFixed(2)}m | ${
+              this.getItemDefinition(weaponItem.itemDefinitionId).NAME
+            } | ${packet.hitReport.hitLocation}`,
+            false
+          );
+          this.sendChatText(c, message, false);
+          return;
+        }
       }
-      return;
     }
     const hitValidation = this.validateHit(client, entity);
 
     entity.OnProjectileHit(this, {
       entity: client.character.characterId,
-      // this could cause issues if a player switches their weapon before a projectile hits or a client desyncs
       weapon: weaponItem.itemDefinitionId,
       damage: hitValidation.isValid
         ? this.getProjectileDamage(
@@ -3473,6 +3749,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(client, "Construction: Stuck under foundation");
       const foundationY = foundation.state.position[1],
         yOffset = foundation.itemDefinitionId == Items.FOUNDATION ? 2.2 : 0.1;
+      client.startLoc = foundationY + yOffset;
       this.sendData(client, "ClientUpdate.UpdateLocation", {
         position: [
           client.character.state.position[0],
@@ -3483,6 +3760,7 @@ export class ZoneServer2016 extends EventEmitter {
         triggerLoadingScreen: false,
       });
       client.enableChecks = false;
+      client.isInAir = false;
       setTimeout(() => {
         client.enableChecks = true;
       }, 500);
@@ -3511,21 +3789,6 @@ export class ZoneServer2016 extends EventEmitter {
     setTimeout(() => {
       client.enableChecks = true;
     }, 500);
-    if (!client.isAdmin || !client.isDebugMode) {
-      setTimeout(() => {
-        if (
-          client.character.isAlive &&
-          foundation.isInside(client.character.state.position) &&
-          Number(client.character.lastLoginDate) + 2000 < new Date().getTime()
-        ) {
-          const damageInfo: DamageInfo = {
-            entity: "Server.Permission",
-            damage: 1000,
-          };
-          this.killCharacter(client, damageInfo);
-        }
-      }, 2000);
-    }
     this.checkFoundationPermission(client, foundation);
   }
 
@@ -4296,6 +4559,18 @@ export class ZoneServer2016 extends EventEmitter {
     return false;
   }
 
+  async unbanClient(client: Client, name: string): Promise<ClientBan> {
+    const unBannedClient = (
+      await this._db
+        ?.collection(DB_COLLECTIONS.BANNED)
+        .findOneAndUpdate(
+          { name, active: true },
+          { $set: { active: false, unBanAdminName: client.character.name } }
+        )
+    )?.value as unknown as ClientBan;
+    this.sendBanToLogin(unBannedClient.loginSessionId, false);
+    return unBannedClient;
+  }
   banClient(
     client: Client,
     reason: string,
@@ -4319,6 +4594,7 @@ export class ZoneServer2016 extends EventEmitter {
       object.expirationDate = timestamp;
     }
     this._db?.collection(DB_COLLECTIONS.BANNED).insertOne(object);
+    this.sendBanToLogin(client.loginSessionId, true);
     if (banType === "normal") {
       if (timestamp) {
         this.sendAlert(
@@ -5999,6 +6275,7 @@ export class ZoneServer2016 extends EventEmitter {
       passenger = this._characters[seat];
     if (seatId < 0) return; // no available seats in vehicle
     client.vehicle.mountedVehicle = vehicle.characterId;
+    client.isInAir = false;
     if (passenger) {
       // dismount the driver
       const client = this.getClientByCharId(passenger.characterId);
@@ -6179,28 +6456,6 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return;
     }
-    if (client.managedObjects.includes(vehicle.characterId)) {
-      setTimeout(() => {
-        this.dropManagedObject(
-          client,
-          vehicle,
-          vehicle.getNextSeatId(this) == "0" ? true : false
-        );
-        this.sendDataToAllWithSpawnedEntity(
-          this._vehicles,
-          vehicle.characterId,
-          "PlayerUpdatePosition",
-          {
-            transientId: vehicle.transientId,
-            positionUpdate: {
-              ...vehicle.positionUpdate,
-              verticalSpeed: 0,
-              horizontalSpeed: 0,
-            },
-          }
-        );
-      }, 3000);
-    }
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.DismountResponse", {
         characterId: client.character.characterId,
@@ -6217,6 +6472,7 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: client.character.characterId,
       }
     );
+    client.isInAir = false;
     if (seatId === "0") {
       this.sendDataToAllWithSpawnedEntity(
         this._vehicles,
@@ -6355,6 +6611,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   combatLog(client: Client) {
+    if (client.character.isAlive) {
+      this.sendChatText(client, "You must be dead to use combatlog");
+      return;
+    }
     if (!client.character.getCombatLog().length) {
       this.sendChatText(client, "No combatlog info available");
       return;
@@ -7054,7 +7314,11 @@ export class ZoneServer2016 extends EventEmitter {
         this.getWeaponAmmoId(dropItem.itemDefinitionId),
         dropItem.weapon.ammoCount
       );
-      if (ammo && dropItem.weapon.ammoCount > 0) {
+      if (
+        ammo &&
+        dropItem.weapon.ammoCount > 0 &&
+        dropItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+      ) {
         client.character.lootContainerItem(this, ammo, ammo.stackCount, true);
       }
       dropItem.weapon.ammoCount = 0;
@@ -8172,11 +8436,23 @@ export class ZoneServer2016 extends EventEmitter {
     );
     delete this._vehicles[vehicleGuid]?.manager;
   }
+  sendBanToLogin(loginSessionId: string, status: boolean) {
+    this._h1emuZoneServer.sendData(
+      {
+        ...this._loginServerInfo,
+        // TODO: what a dirty hack
+        serverId: Infinity,
+      } as any,
+      "ClientBan",
+      { loginSessionId, status }
+    );
+  }
   sendZonePopulationUpdate() {
     const populationNumber = _.size(this._characters);
     this._h1emuZoneServer.sendData(
       {
         ...this._loginServerInfo,
+        // TODO: what a dirty hack
         serverId: Infinity,
       } as any,
       "UpdateZonePopulation",
@@ -8283,11 +8559,9 @@ export class ZoneServer2016 extends EventEmitter {
     targetClient: string | Client | undefined
   ) {
     if (typeof targetClient == "string") {
-      this.chatManager.sendPlayerNotFound(
-        this,
+      this.sendChatText(
         client,
-        inputString,
-        targetClient
+        `Could not find player "${inputString.toLowerCase()}", did you mean "${targetClient}"?`
       );
       return true;
     }
