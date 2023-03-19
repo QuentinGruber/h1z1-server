@@ -968,6 +968,16 @@ export class zonePacketHandlers {
         packet.data.lookAt[3],
       ]);
     }
+    if (
+      client.character.isSpectator &&
+      _.size(server._decoys) > 0 &&
+      client.isDecoy
+    ) {
+      server.sendDataToAll("PlayerUpdatePosition", {
+        transientId: client.character.transientId,
+        positionUpdate: packet.data,
+      });
+    }
   }
   CharacterRespawn(server: ZoneServer2016, client: Client, packet: any) {
     this.commandHandler.executeInternalCommand(

@@ -222,8 +222,9 @@ export class ZoneServer2016 extends EventEmitter {
   _taskProps: { [characterId: string]: TaskProp } = {};
   _crates: { [characterId: string]: Crate } = {};
   _decoys: {
-    [characterId: string]: {
+    [transientId: number]: {
       characterId: string;
+      transientId: number;
       position: Float32Array;
       action: string;
     };
@@ -3133,16 +3134,19 @@ export class ZoneServer2016 extends EventEmitter {
 
   registerHit(client: Client, packet: any, gameTime: number) {
     if (!client.character.isAlive) return;
-    if (this._decoys[packet.hitReport.characterId]) {
-      const decoy = this._decoys[packet.hitReport.characterId];
-      this.sendChatTextToAdmins(
-        `FairPlay: ${
-          client.character.name
-        } hit a decoy entity at: [${decoy.position[0].toFixed(
-          2
-        )} ${decoy.position[1].toFixed(2)} ${decoy.position[2].toFixed(2)}]`,
-        false
-      );
+
+    for (const a in this._decoys) {
+      const decoy = this._decoys[a];
+      if (decoy.characterId === packet.hitReport.characterId) {
+        this.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } hit a decoy entity at: [${decoy.position[0].toFixed(
+            2
+          )} ${decoy.position[1].toFixed(2)} ${decoy.position[2].toFixed(2)}]`,
+          false
+        );
+      }
     }
     const entity = this.getEntity(packet.hitReport.characterId);
     if (!entity) return;
