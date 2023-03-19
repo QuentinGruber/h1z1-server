@@ -176,7 +176,7 @@ export function movePoint(
   ]);
 }
 
-export function getAngle(positionA: Float32Array, positionB: Float32Array) {
+/*export function getAngle(positionA: Float32Array, positionB: Float32Array) {
   const dx = positionB[0] - positionA[0];
   const dz = positionB[2] - positionA[2];
   let angle = Math.atan2(dz, dx);
@@ -191,7 +191,7 @@ export function getAngle(positionA: Float32Array, positionB: Float32Array) {
   angle = (angle + 2 * Math.PI) % (2 * Math.PI);
 
   return angle;
-}
+}*/
 
 export async function zoneShutdown(
   server: ZoneServer2016 | ZoneServer2015,
