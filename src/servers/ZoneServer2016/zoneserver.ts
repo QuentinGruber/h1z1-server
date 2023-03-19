@@ -4559,7 +4559,7 @@ export class ZoneServer2016 extends EventEmitter {
     return false;
   }
 
-  async unbanClient(client: Client, name: string): Promise<ClientBan> {
+  async unbanClient(client: Client, name: string): Promise<ClientBan | undefined> {
     const unBannedClient = (
       await this._db
         ?.collection(DB_COLLECTIONS.BANNED)
@@ -4568,9 +4568,11 @@ export class ZoneServer2016 extends EventEmitter {
           { $set: { active: false, unBanAdminName: client.character.name } }
         )
     )?.value as unknown as ClientBan;
+    if(!unBannedClient) return;
     this.sendBanToLogin(unBannedClient.loginSessionId, false);
     return unBannedClient;
   }
+  
   banClient(
     client: Client,
     reason: string,
