@@ -3198,7 +3198,7 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
       }
-      const angle = getAngle(fireHint.position, packet.hitReport.position);
+      /*const angle = getAngle(fireHint.position, packet.hitReport.position);
       const fixedRot = (fireHint.rotation + 2 * Math.PI) % (2 * Math.PI);
       const dotProduct =
         Math.cos(angle) * Math.cos(fixedRot) +
@@ -3245,7 +3245,7 @@ export class ZoneServer2016 extends EventEmitter {
           }% max deviation`,
           false
         );
-      }
+      }*/
       if (c) {
         const distance = getDistance(
           fireHint.position,
