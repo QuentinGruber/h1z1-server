@@ -2540,7 +2540,6 @@ export class ZoneServer2016 extends EventEmitter {
         client.maxFlying &&
         position[1] - client.startLoc > client.maxFlying
       ) {
-        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
         let kick = true;
         for (const a in this._constructionFoundations) {
           if (
@@ -2568,6 +2567,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
         if (kick) {
           this.kickPlayer(client);
+          this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
           this.sendChatTextToAdmins(
             `FairPlay: ${
               client.character.name
@@ -2668,7 +2668,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.kickPlayer(client);
         this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
         this.sendChatTextToAdmins(
-          `FairPlay: ${client.character.name} has been kicked for sequence time drifting by ${drift}`,
+          `FairPlay: ${client.character.name} has been kicked for sequence time drifting in vehicle by ${drift}`,
           false
         );
         return true;
