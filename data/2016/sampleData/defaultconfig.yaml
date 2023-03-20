@@ -1,4 +1,5 @@
 server:
+  welcomeMessage: "Welcome to H1emu! :D"
   proximityItemsDistance: 2
   interactionDistance: 3
   charactersRenderDistance: 350
@@ -41,3 +42,19 @@ worldobjects:
   npcSpawnRadius: 3
   chanceNpc: 100 # To be reworked: 100 max
   chanceScreamer: 5 # To be reworked: 1000 max
+
+# Trees, blackberry bushes, and sticks
+speedtree:
+  minBlackberryHarvest: 1
+  maxBlackberryHarvest: 2
+  # from blackberry bushes only
+  branchHarvestChance: 0.1 # maximum of 1 for 100% chance
+  
+  minStickHarvest: 1
+  maxStickHarvest: 2
+
+  treeRespawnTimeMS: 1800000 # 30 minutes
+  minWoodLogHarvest: 2
+  maxWoodLogHarvest: 6
+  minTreeHits: 12 # minimum hits it takes to chop a tree
+  maxTreeHits: 20 # maximum hits it takes to chop a tree

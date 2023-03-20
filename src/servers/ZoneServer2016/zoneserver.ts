@@ -156,6 +156,7 @@ import { Crate } from "./entities/crate";
 import { ConfigManager } from "./managers/configmanager";
 import { RConManager } from "./managers/rconmanager";
 import { GroupManager } from "./managers/groupmanager";
+import { SpeedTreeManager } from "./managers/speedtreemanager";
 
 const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
   Z1_vehicles = require("../../../data/2016/zoneData/Z1_vehicleLocations.json"),
@@ -230,8 +231,6 @@ export class ZoneServer2016 extends EventEmitter {
   _worldSimpleConstruction: { [characterId: string]: ConstructionChildEntity } =
     {};
 
-  _speedTrees: any = {}; // todo: make a class for this
-  _speedTreesCounter: any = {};
   _gameTime: number = 0;
   readonly _serverTime = this.getCurrentTime();
   _startTime = 0;
@@ -258,6 +257,8 @@ export class ZoneServer2016 extends EventEmitter {
   configManager: ConfigManager;
   rconManager: RConManager;
   groupManager: GroupManager;
+  speedtreeManager: SpeedTreeManager;
+
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
   _weaponDefinitions: { [weaponDefinitionId: number]: any } =
@@ -302,6 +303,7 @@ export class ZoneServer2016 extends EventEmitter {
   charactersRenderDistance!: number;
   tickRate!: number;
   worldRoutineRate!: number;
+  welcomeMessage!: string;
 
   constructor(
     serverPort: number,
@@ -324,6 +326,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.chatManager = new ChatManager();
     this.rconManager = new RConManager();
     this.groupManager = new GroupManager();
+    this.speedtreeManager = new SpeedTreeManager();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -2424,100 +2427,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.hookManager.checkHook("OnPlayerRespawned", client);
   }
 
-  speedTreeDestroy(packet: any) {
-    this.sendDataToAll("DtoStateChange", {
-      objectId: packet.data.id,
-      modelName: packet.data.name.concat(".Stump"),
-      effectId: 0,
-      unk3: 0,
-      unk4: true,
-    });
-    const { id: objectId, name } = packet.data;
-    this._speedTrees[packet.data.id] = {
-      objectId: objectId,
-      modelName: name,
-    };
-    setTimeout(() => {
-      this.sendDataToAll("DtoStateChange", {
-        objectId: objectId,
-        modelName: this._speedTrees[objectId].modelName,
-        effectId: 0,
-        unk3: 0,
-        unk4: true,
-      });
-      delete this._speedTrees[objectId];
-    }, 1800000);
-  }
-
-  speedTreeUse(client: Client, packet: any) {
-    const elo = this._speedTrees[packet.data.id];
-    let allowDes = false;
-    let count = 1;
-    if (elo) {
-      debug(
-        "\x1b[32m",
-        client.character.name + "\x1b[0m",
-        "tried to use destroyed speedTree id:" + "\x1b[32m",
-        packet.data.id
-      );
-    } else {
-      let itemDefId = 0;
-      switch (packet.data.name) {
-        case "SpeedTree.Blackberry":
-          itemDefId = Items.BLACKBERRY;
-          if (randomIntFromInterval(1, 10) == 1) {
-            client.character.lootItem(
-              this,
-              this.generateItem(Items.WEAPON_BRANCH)
-            );
-          }
-          allowDes = true;
-          count = randomIntFromInterval(1, 2);
-          break;
-        case "SpeedTree.DevilClub":
-        case "SpeedTree.VineMaple":
-          itemDefId = Items.WOOD_STICK;
-          allowDes = true;
-          count = randomIntFromInterval(1, 2);
-          break;
-        case "SpeedTree.RedMaple":
-        case "SpeedTree.WesternRedCedar":
-        case "SpeedTree.GreenMaple":
-        case "SpeedTree.GreenMapleDead":
-        case "SpeedTree.WesternCedarSapling":
-        case "SpeedTree.SaplingMaple":
-        case "SpeedTree.WhiteBirch":
-        case "SpeedTree.RedCedar":
-        case "SpeedTree.PaperBirch":
-        case "SpeedTree.OregonOak":
-          if (!this._speedTreesCounter[packet.data.id]) {
-            this._speedTreesCounter[packet.data.id] = {
-              hitPoints: randomIntFromInterval(12, 19),
-            }; // add a new tree key with random level of hitpoints
-          } else {
-            if (this._speedTreesCounter[packet.data.id].hitPoints-- == 0) {
-              allowDes = true;
-              delete this._speedTreesCounter[packet.data.id]; // If out of health destroy tree and delete its key
-              itemDefId = Items.WOOD_LOG;
-              count = randomIntFromInterval(2, 6);
-            }
-          }
-          break;
-        default: // boulders (do nothing);
-          return;
-      }
-      if (itemDefId) {
-        client.character.lootContainerItem(
-          this,
-          this.generateItem(itemDefId, count)
-        );
-      }
-      if (allowDes) {
-        this.speedTreeDestroy(packet);
-      }
-    }
-  }
-
   speedFairPlayCheck(
     client: Client,
     sequenceTime: number,
@@ -3384,7 +3293,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   customizeDTO(client: Client) {
-    const DTOArray: any = [];
+    const DTOArray: Array<any> = [];
     for (const object in this._lootableProps) {
       const prop = this._lootableProps[object];
       const propInstance = {
@@ -3409,14 +3318,7 @@ export class ZoneServer2016 extends EventEmitter {
       };
       DTOArray.push(propInstance);
     }
-    for (const object in this._speedTrees) {
-      const DTO = this._speedTrees[object];
-      const DTOinstance = {
-        objectId: DTO.objectId,
-        unknownString1: DTO.modelName.concat(".Stump"),
-      };
-      DTOArray.push(DTOinstance);
-    }
+    this.speedtreeManager.customize(DTOArray);
     deprecatedDoors.forEach((door: number) => {
       const DTOinstance = {
         objectId: door,

@@ -138,7 +138,7 @@ export class ZonePacketHandlers {
       client.character.lastLoginDate = toHex(Date.now());
       server.setGodMode(client, false);
       setTimeout(() => {
-        server.sendAlert(client, "Welcome to H1emu! :D");
+        if(server.welcomeMessage) server.sendAlert(client, server.welcomeMessage);
         server.sendChatText(
           client,
           `server population : ${_.size(server._characters)}`
@@ -601,8 +601,7 @@ export class ZonePacketHandlers {
     }
   }
   DtoHitSpeedTreeReport(server: ZoneServer2016, client: Client, packet: any) {
-    debug(packet);
-    server.speedTreeUse(client, packet);
+    server.speedtreeManager.use(server, client, packet.data.id, packet.data.name);
   }
   GetRewardBuffInfo(server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "RewardBuffInfo", {

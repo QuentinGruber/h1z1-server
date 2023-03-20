@@ -17,6 +17,7 @@ interface ServerConfig {
   charactersRenderDistance: number;
   tickRate: number;
   worldRoutineRate: number;
+  welcomeMessage: string;
 }
 
 interface FairplayConfig {
@@ -47,9 +48,23 @@ interface WorldObjectsConfig {
   chanceScreamer: number;
 }
 
+interface SpeedTreeConfig {
+  minBlackberryHarvest: number;
+  maxBlackberryHarvest: number;
+  branchHarvestChance: number;
+  minStickHarvest: number;
+  maxStickHarvest: number;
+  treeRespawnTimeMS: number;
+  minWoodLogHarvest: number;
+  maxWoodLogHarvest: number;
+  minTreeHits: number;
+  maxTreeHits: number;
+}
+
 export interface Config {
   server: ServerConfig;
   fairplay: FairplayConfig;
   weather: WeatherConfig;
   worldobjects: WorldObjectsConfig;
+  speedtree: SpeedTreeConfig;
 }

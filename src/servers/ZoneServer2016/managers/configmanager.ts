@@ -16,61 +16,69 @@ import * as yaml from 'js-yaml';
 import { Config } from '../models/config';
 import { ZoneServer2016 } from '../zoneserver';
 
-function loadConfig(path: string, relative = true): Config | undefined {
-  return yaml.load(fs.readFileSync(`${relative?__dirname:""}${path}`, 'utf8')) as any as Config;
-}
-
-const defaultConfig = loadConfig("/../../../../data/2016/sampleData/defaultconfig.yaml") as Config;
-
 export class ConfigManager {
+  private defaultConfig: Config;
   private config: Config;
 
   constructor(server: ZoneServer2016, configPath?: string) {
+    this.defaultConfig = this.loadYaml("/../../../../data/2016/sampleData/defaultconfig.yaml") as Config;
     if(configPath) {
-      const config = loadConfig(configPath, false);
+      // todo: check if the path exists first
+
+      const config = this.loadYaml(configPath, false);
       if(config) {
         this.config = this.loadConfig(config);
         this.applyConfig(server);
         return;
       }
     }
-    this.config = defaultConfig;
+    this.config = this.defaultConfig;
     this.applyConfig(server);
+  }
+
+  private loadYaml(path: string, relative = true): Config | undefined {
+    return yaml.load(fs.readFileSync(`${relative?__dirname:""}${path}`, 'utf8')) as any as Config;
   }
 
   loadConfig(config: Config): Config {
     // in case new config file is missing certain values / out of date, 
     // fill with default values
+    const { server, fairplay, weather, worldobjects, speedtree } = this.defaultConfig;
     return {
-      ...defaultConfig,
+      ...this.defaultConfig,
       ...config,
       server: {
-        ...defaultConfig.server,
+        ...server,
         ...config.server,
       },
       fairplay: {
-        ...defaultConfig.fairplay,
+        ...fairplay,
         ...config.fairplay,
       },
       weather: {
-        ...defaultConfig.weather,
+        ...weather,
         ...config.weather,
       },
       worldobjects: {
-        ...defaultConfig.worldobjects,
+        ...worldobjects,
         ...config.worldobjects,
+      },
+      speedtree: {
+        ...speedtree,
+        ...config.speedtree,
       }
     }
   }
 
   applyConfig(server: ZoneServer2016) {
     //#region server
-    const { proximityItemsDistance, interactionDistance , charactersRenderDistance, tickRate, worldRoutineRate } = this.config.server;
+    const { proximityItemsDistance, interactionDistance , charactersRenderDistance, tickRate, worldRoutineRate, welcomeMessage } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
     server.charactersRenderDistance = charactersRenderDistance;
     server.tickRate = tickRate;
     server.worldRoutineRate = worldRoutineRate;
+    server.welcomeMessage = welcomeMessage;
     //#endregion
 
     //#region fairplay
@@ -103,6 +111,20 @@ export class ConfigManager {
     server.worldObjectManager.npcSpawnRadius = npcSpawnRadius;
     server.worldObjectManager.chanceNpc = chanceNpc;
     server.worldObjectManager.chanceScreamer = chanceScreamer;
+    //#endregion
+
+    //#region speedtree
+    const { minBlackberryHarvest, maxBlackberryHarvest, branchHarvestChance, minStickHarvest, maxStickHarvest, treeRespawnTimeMS, minWoodLogHarvest, maxWoodLogHarvest, minTreeHits, maxTreeHits } = this.config.speedtree;
+    server.speedtreeManager.minBlackberryHarvest = minBlackberryHarvest;
+    server.speedtreeManager.maxBlackberryHarvest = maxBlackberryHarvest;
+    server.speedtreeManager.branchHarvestChance = branchHarvestChance;
+    server.speedtreeManager.minStickHarvest = minStickHarvest;
+    server.speedtreeManager.maxStickHarvest = maxStickHarvest;
+    server.speedtreeManager.treeRespawnTimeMS = treeRespawnTimeMS;
+    server.speedtreeManager.minWoodLogHarvest = minWoodLogHarvest;
+    server.speedtreeManager.maxWoodLogHarvest = maxWoodLogHarvest;
+    server.speedtreeManager.minTreeHits = minTreeHits;
+    server.speedtreeManager.maxTreeHits = maxTreeHits;
     //#endregion
   }
 }
