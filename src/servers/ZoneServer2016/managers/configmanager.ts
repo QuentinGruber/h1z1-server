@@ -72,7 +72,7 @@ export class ConfigManager {
 
   applyConfig(server: ZoneServer2016) {
     //#region server
-    const { proximityItemsDistance, interactionDistance , charactersRenderDistance, tickRate, worldRoutineRate, welcomeMessage,adminMessage } = this.config.server;
+    const { proximityItemsDistance, interactionDistance , charactersRenderDistance, tickRate, worldRoutineRate, welcomeMessage, adminMessage } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
     server.charactersRenderDistance = charactersRenderDistance;
