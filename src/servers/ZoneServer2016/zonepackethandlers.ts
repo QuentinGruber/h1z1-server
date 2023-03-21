@@ -510,7 +510,7 @@ export class ZonePacketHandlers {
     if (client.isSynced) return;
     client.isSynced = true;
     client.character.lastLoginDate = toHex(Date.now());
-    server.constructionPermissionsManager(client);
+    server.constructionManager.constructionPermissionsManager(server, client);
   }
   CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: any) {
     this.commandHandler.executeCommand(server, client, packet);
@@ -1832,99 +1832,10 @@ export class ZonePacketHandlers {
             weaponItem.itemDefinitionId == Items.WEAPON_HAMMER &&
             client.character.currentInteractionGuid
           ) {
-            const entity = server.getConstructionEntity(
-              client.character.currentInteractionGuid
-            );
-            if (!entity) return;
-            if (!client.character.temporaryScrapSoundTimeout) {
-              let accumulatedItemDamage = 0;
-              server.sendCompositeEffectToAllInRange(
-                15,
-                client.character.characterId,
-                entity.state.position,
-                1605
-              );
-              if (entity instanceof ConstructionParentEntity) {
-                Object.values(entity.occupiedExpansionSlots).forEach(
-                  (expansion: ConstructionParentEntity) => {
-                    // repair every object on each expansion
-                    Object.values(expansion.occupiedShelterSlots).forEach(
-                      (child: ConstructionChildEntity) => {
-                        accumulatedItemDamage = server.repairChildEntity(
-                          child,
-                          accumulatedItemDamage
-                        );
-                      }
-                    );
-                    Object.values(expansion.occupiedWallSlots).forEach(
-                      (child: ConstructionChildEntity | ConstructionDoor) => {
-                        accumulatedItemDamage = server.repairChildEntity(
-                          child,
-                          accumulatedItemDamage
-                        );
-                      }
-                    );
-                    Object.values(expansion.freeplaceEntities).forEach(
-                      (
-                        child:
-                          | ConstructionChildEntity
-                          | ConstructionDoor
-                          | LootableConstructionEntity
-                      ) => {
-                        if (child.health >= 1000000) return;
-                        server.repairConstruction(child, 50000);
-                        accumulatedItemDamage += 15;
-                      }
-                    );
-                  }
-                );
-                // repair every object on main foundation
-                Object.values(entity.occupiedShelterSlots).forEach(
-                  (child: ConstructionChildEntity) => {
-                    accumulatedItemDamage = server.repairChildEntity(
-                      child,
-                      accumulatedItemDamage
-                    );
-                  }
-                );
-                Object.values(entity.occupiedWallSlots).forEach(
-                  (child: ConstructionChildEntity | ConstructionDoor) => {
-                    accumulatedItemDamage = server.repairChildEntity(
-                      child,
-                      accumulatedItemDamage
-                    );
-                  }
-                );
-                Object.values(entity.freeplaceEntities).forEach(
-                  (
-                    child:
-                      | ConstructionChildEntity
-                      | ConstructionDoor
-                      | LootableConstructionEntity
-                  ) => {
-                    if (child.health >= 1000000) return;
-                    server.repairConstruction(child, 50000);
-                    accumulatedItemDamage += 15;
-                  }
-                );
-                if (entity.health < 1000000) {
-                  server.repairConstruction(entity, 50000);
-                  accumulatedItemDamage += 15;
-                }
-                server.damageItem(client, weaponItem, accumulatedItemDamage);
-                client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-                  delete client.character.temporaryScrapSoundTimeout;
-                }, 1000);
-                return;
-              }
-              accumulatedItemDamage = 50;
-              server.repairConstruction(entity, 50000);
-              accumulatedItemDamage += 15;
-              client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-                delete client.character.temporaryScrapSoundTimeout;
-              }, 1000);
-            }
+            server.constructionManager.hammerConstructionEntity(server, client, weaponItem);
+            return;
           }
+          
           // crate damaging workaround
           if (client.character.currentInteractionGuid) {
             const entity =

@@ -15,17 +15,21 @@ const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.
   Z1_POIs = require("../../../../data/2016/zoneData/Z1_POIs"),
   spawnLocations2 = require("../../../../data/2016/zoneData/Z1_gridSpawns.json");
 
-import { ConstructionEntity } from "types/zoneserver";
+import { ConstructionEntity, DamageInfo, SlottedConstructionEntity } from "types/zoneserver";
 import {
   eul2quat,
   getConstructionSlotId,
+  getDistance,
   isInsideSquare,
   isPosInRadius,
   isPosInRadiusWithY,
+  movePoint,
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
+import { LoadoutItem } from "../classes/loadoutItem";
 import { SpawnCell } from "../classes/spawncell";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
+import { BaseEntity } from "../entities/baseentity";
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
 import { ConstructionParentEntity } from "../entities/constructionparententity";
@@ -39,6 +43,8 @@ import {
   ConstructionErrors,
   ConstructionPermissionIds,
   Items,
+  ResourceIds,
+  ResourceTypes,
   StringIds,
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
@@ -535,7 +541,7 @@ export class ConstructionManager {
 
     server.removeInventoryItem(client, item);
     this.sendPlacementFinalize(server, client, 1);
-    server.constructionPermissionsManager(client);
+    this.constructionPermissionsManager(server, client);
   }
 
   handleConstructionPlacement(
@@ -721,7 +727,7 @@ export class ConstructionManager {
           server._worldSimpleConstruction[characterId] = construction;
         }
         server.executeFuncForAllReadyClientsInRange((client) => {
-          server.spawnSimpleConstruction(client, construction);
+          this.spawnSimpleConstruction(server, client, construction);
         }, construction);
         return true;
     }
@@ -787,7 +793,7 @@ export class ConstructionManager {
     server._constructionSimple[characterId] = shelter;
     parent.setShelterSlot(server, shelter);
     server.executeFuncForAllReadyClientsInRange((client) => {
-      server.spawnSimpleConstruction(client, shelter);
+      this.spawnSimpleConstruction(server, client, shelter);
     }, shelter);
     return true;
   }
@@ -867,7 +873,7 @@ export class ConstructionManager {
 
     server._constructionSimple[characterId] = wall;
     server.executeFuncForAllReadyClientsInRange((client) => {
-      server.spawnSimpleConstruction(client, wall);
+      this.spawnSimpleConstruction(server, client, wall);
     }, wall);
     return true;
   }
@@ -933,7 +939,7 @@ export class ConstructionManager {
     parentFoundation.setRampSlot(ramp);
     server._constructionSimple[characterId] = ramp;
     server.executeFuncForAllReadyClientsInRange((client) => {
-      server.spawnSimpleConstruction(client, ramp);
+      this.spawnSimpleConstruction(server, client, ramp);
     }, ramp);
     return true;
   }
@@ -997,7 +1003,7 @@ export class ConstructionManager {
     parentFoundation.setRampSlot(stairs);
     server._constructionSimple[characterId] = stairs;
     server.executeFuncForAllReadyClientsInRange((client) => {
-      server.spawnSimpleConstruction(client, stairs);
+      this.spawnSimpleConstruction(server, client, stairs);
     }, stairs);
     return true;
   }
@@ -1060,7 +1066,7 @@ export class ConstructionManager {
 
     server._constructionDoors[characterId] = door;
     server.executeFuncForAllReadyClientsInRange((client) => {
-      server.spawnConstructionDoor(client, door);
+      this.spawnConstructionDoor(server, client, door);
     }, door);
     return true;
   }
@@ -1160,7 +1166,7 @@ export class ConstructionManager {
     }
     server._constructionFoundations[characterId] = npc;
     server.executeFuncForAllReadyClientsInRange((client) => {
-      server.spawnConstructionParent(client, npc);
+      this.spawnConstructionParent(server, client, npc);
     }, npc);
     return true;
   }
@@ -1279,7 +1285,7 @@ export class ConstructionManager {
     obj.equipLoadout(server);
 
     server.executeFuncForAllReadyClientsInRange((client) => {
-      server.spawnLootableConstruction(client, obj);
+      this.spawnLootableConstruction(server, client, obj);
     }, obj);
 
     return true;
@@ -1318,7 +1324,7 @@ export class ConstructionManager {
     obj.equipLoadout(server);
 
     server.executeFuncForAllReadyClientsInRange((client) => {
-      server.spawnLootableConstruction(client, obj);
+      this.spawnLootableConstruction(server, client, obj);
     }, obj);
 
     return true;
@@ -1367,7 +1373,7 @@ export class ConstructionManager {
       }
     }
     server.executeFuncForAllReadyClientsInRange((client) => {
-      server.spawnLootableConstruction(client, obj);
+      this.spawnLootableConstruction(server, client, obj);
     }, obj);
     server.smeltingManager._collectingEntities[characterId] = characterId;
     return true;
@@ -1429,5 +1435,835 @@ export class ConstructionManager {
     parent.seedSlots[slot] = obj;
     server._plants[characterId] = obj;
     return true;
+  }
+
+  checkFoundationPermission(
+    server: ZoneServer2016,
+    client: Client,
+    foundation: ConstructionParentEntity
+  ): boolean {
+    // under foundation check
+    const permissions = foundation.permissions[client.character.characterId];
+    if (
+      foundation.itemDefinitionId == Items.FOUNDATION ||
+      foundation.itemDefinitionId == Items.FOUNDATION_EXPANSION
+    ) {
+      if (foundation.isUnder(client.character.state.position))
+        if (permissions && permissions.visit) {
+          this.tpPlayerOutsideFoundation(server, client, foundation, true);
+        } else {
+          this.tpPlayerOutsideFoundation(server, client, foundation, false);
+        }
+    }
+    if (!foundation.isSecured) return false;
+    let allowed = false;
+    if (permissions && permissions.visit) allowed = true;
+    if (
+      foundation.itemDefinitionId == Items.SHACK ||
+      foundation.itemDefinitionId == Items.SHACK_SMALL ||
+      foundation.itemDefinitionId == Items.SHACK_BASIC
+    ) {
+      if (foundation.isInside(client.character.state.position)) {
+        if (allowed) {
+          this.constructionHidePlayer(server, client, foundation.characterId, true);
+          return true;
+        } else if (!client.isAdmin || !client.isDebugMode) {
+          this.tpPlayerOutsideFoundation(server, client, foundation);
+        }
+      }
+    }
+    if (allowed) return false;
+    if (
+      foundation.isInside(client.character.state.position) &&
+      (!client.isAdmin || !client.isDebugMode)
+    ) {
+      this.tpPlayerOutsideFoundation(server, client, foundation);
+      return false;
+    }
+
+    return false;
+  }
+
+  checkConstructionChildEntityPermission(
+    server: ZoneServer2016,
+    client: Client,
+    construction: ConstructionChildEntity
+  ): boolean {
+    const allowedIds = [
+      Items.SHELTER,
+      Items.SHELTER_LARGE,
+      Items.SHELTER_UPPER,
+      Items.SHELTER_UPPER_LARGE,
+    ];
+    if (!allowedIds.includes(construction.itemDefinitionId)) return false;
+    let allowed = false;
+    if (!construction.isSecured) return false;
+    let foundation: ConstructionParentEntity | undefined;
+    if (server._constructionFoundations[construction.parentObjectCharacterId]) {
+      foundation =
+      server._constructionFoundations[construction.parentObjectCharacterId];
+    } else if (
+      server._constructionSimple[construction.parentObjectCharacterId] &&
+      server._constructionFoundations[
+        server._constructionSimple[construction.parentObjectCharacterId]
+          .parentObjectCharacterId
+      ]
+    ) {
+      foundation =
+        server._constructionFoundations[
+        server._constructionSimple[construction.parentObjectCharacterId]
+            .parentObjectCharacterId
+        ];
+    } else {
+      for (const a in server._constructionFoundations) {
+        const b = server._constructionFoundations[a];
+        if (!b.isInside(construction.state.position)) continue;
+        foundation = b;
+      }
+    }
+    if (!foundation) return false;
+    const permissions = foundation.permissions[client.character.characterId];
+    if (permissions && permissions.visit) allowed = true;
+    if (construction.isInside(client.character.state.position)) {
+      if (allowed) {
+        this.constructionHidePlayer(server, client, construction.characterId, true);
+        return true;
+      } else if (!client.isAdmin || !client.isDebugMode) {
+        const damageInfo: DamageInfo = {
+          entity: "Server.Permissions",
+          damage: 99999,
+        };
+        server.killCharacter(client, damageInfo);
+        return false;
+      }
+    }
+
+    return false;
+  }
+
+  constructionHidePlayer(
+    server: ZoneServer2016,
+    client: Client,
+    constructionGuid: string,
+    state: boolean
+  ) {
+    if (state) {
+      if (!client.character.isHidden) {
+        client.character.isHidden = constructionGuid;
+        for (const a in server._clients) {
+          const iteratedClient = server._clients[a];
+          if (
+            iteratedClient.spawnedEntities.includes(client.character) &&
+            iteratedClient.character.isHidden != client.character.isHidden
+          ) {
+            server.sendData(iteratedClient, "Character.RemovePlayer", {
+              characterId: client.character.characterId,
+            });
+            iteratedClient.spawnedEntities.splice(
+              iteratedClient.spawnedEntities.indexOf(client.character),
+              1
+            );
+          }
+        }
+      } else return;
+    } else if (client.character.isHidden) client.character.isHidden = "";
+  }
+
+  tpPlayerOutsideFoundation(
+    server: ZoneServer2016,
+    client: Client,
+    foundation: ConstructionParentEntity,
+    tpUp: boolean = false
+  ) {
+    const currentAngle = Math.atan2(
+      client.character.state.position[2] - foundation.state.position[2],
+      client.character.state.position[0] - foundation.state.position[0]
+    );
+    if (tpUp) {
+      server.sendChatText(client, "Construction: Stuck under foundation");
+      const foundationY = foundation.state.position[1],
+        yOffset = foundation.itemDefinitionId == Items.FOUNDATION ? 2.2 : 0.1;
+      client.startLoc = foundationY + yOffset;
+      server.sendData(client, "ClientUpdate.UpdateLocation", {
+        position: [
+          client.character.state.position[0],
+          foundationY + yOffset,
+          client.character.state.position[2],
+          1,
+        ],
+        triggerLoadingScreen: false,
+      });
+      client.enableChecks = false;
+      client.isInAir = false;
+      setTimeout(() => {
+        client.enableChecks = true;
+      }, 500);
+      return;
+    }
+    const newPos = movePoint(
+      client.character.state.position,
+      currentAngle,
+      2.5
+    );
+    server.sendChatText(client, "Construction: no visitor permission");
+    if (client.vehicle.mountedVehicle) {
+      server.dismountVehicle(client);
+    }
+    client.character.state.position = new Float32Array([
+      newPos[0],
+      client.character.state.position[1],
+      newPos[2],
+      1,
+    ]);
+    server.sendData(client, "ClientUpdate.UpdateLocation", {
+      position: client.character.state.position,
+      triggerLoadingScreen: false,
+    });
+    client.enableChecks = false;
+    setTimeout(() => {
+      client.enableChecks = true;
+    }, 500);
+    this.checkFoundationPermission(server, client, foundation);
+  }
+
+  plantManager(server: ZoneServer2016) {
+    const date = new Date().getTime();
+    for (const characterId in server._temporaryObjects) {
+      const object = server._temporaryObjects[characterId] as PlantingDiameter;
+      if (object instanceof PlantingDiameter) {
+        if (
+          object.disappearTimestamp < date &&
+          Object.values(object.seedSlots).length === 0
+        ) {
+          server.deleteEntity(object.characterId, server._temporaryObjects);
+        } else if (object.disappearTimestamp < date)
+          object.disappearTimestamp = date + 86400000;
+        if (object.fertilizedTimestamp < date) object.isFertilized = false;
+        Object.values(object.seedSlots).forEach((plant) => {
+          if (plant.nextStateTime < date) plant.grow(server);
+        });
+      }
+    }
+  }
+
+  constructionShouldHideEntity(
+    server: ZoneServer2016,
+    client: Client,
+    entity: BaseEntity
+  ): boolean {
+    if (!(entity instanceof LootableConstructionEntity)) {
+      return false;
+    }
+    const parent = entity.getParent(server);
+    if (!parent) return false;
+    const parentSecured = parent.isSecured,
+      hasVisitPermission = parent.getHasPermission(
+        server,
+        client.character.characterId,
+        ConstructionPermissionIds.VISIT
+      ),
+      isInside = parent.isInside(entity.state.position);
+
+    return parentSecured && isInside && !hasVisitPermission;
+    // TODO: check if character is in secured shelter / shack
+  }
+
+  private spawnConstructionFreeplace(
+    server: ZoneServer2016,
+    client: Client,
+    parentEntity: ConstructionParentEntity | ConstructionChildEntity
+  ) {
+    for (const entity of Object.values(parentEntity.freeplaceEntities)) {
+      if (entity instanceof ConstructionChildEntity) {
+        this.spawnSimpleConstruction(server, client, entity);
+      } else if (entity instanceof ConstructionDoor) {
+        this.spawnConstructionDoor(server, client, entity);
+      } else if (
+        entity instanceof LootableConstructionEntity &&
+        !this.constructionShouldHideEntity(server, client, entity)
+      ) {
+        this.spawnLootableConstruction(server, client, entity);
+      }
+    }
+  }
+
+  spawnConstructionParent(server: ZoneServer2016, client: Client, entity: ConstructionParentEntity) {
+    if (!client.spawnedEntities.includes(entity)) {
+      server.addLightweightNpc(
+        client,
+        entity,
+        server.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
+      );
+      client.spawnedEntities.push(entity);
+      if (
+        entity.itemDefinitionId == Items.SHACK ||
+        entity.itemDefinitionId == Items.SHACK_SMALL ||
+        entity.itemDefinitionId == Items.SHACK_BASIC
+      ) {
+        server.updateResource(
+          client,
+          entity.characterId,
+          entity.health,
+          ResourceIds.CONSTRUCTION_CONDITION,
+          ResourceTypes.CONDITION
+        );
+      }
+    }
+    // slotted construction spawning
+    this.spawnConstructionTree(server, client, entity);
+
+    // freeplace construction spawning
+    this.spawnConstructionFreeplace(server, client, entity);
+  }
+
+  spawnConstructionDoor(server: ZoneServer2016, client: Client, entity: ConstructionDoor) {
+    if (client.spawnedEntities.includes(entity)) return;
+    server.addLightweightNpc(
+      client,
+      entity,
+      server.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
+    );
+    client.spawnedEntities.push(entity);
+    server.updateResource(
+      client,
+      entity.characterId,
+      entity.health,
+      ResourceIds.CONSTRUCTION_CONDITION,
+      ResourceTypes.CONDITION
+    );
+    if (entity.isOpen) {
+      server.sendData(client, "PlayerUpdatePosition", {
+        transientId: entity.transientId,
+        positionUpdate: {
+          sequenceTime: 0,
+          unknown3_int8: 0,
+          position: entity.state.position,
+          orientation: entity.openAngle,
+        },
+      });
+    }
+  }
+
+  spawnSimpleConstruction(
+    server: ZoneServer2016,
+    client: Client,
+    entity: ConstructionChildEntity,
+    spawnTree = true
+  ) {
+    if (!client.spawnedEntities.includes(entity)) {
+      server.addLightweightNpc(
+        client,
+        entity,
+        server.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
+      );
+      client.spawnedEntities.push(entity);
+      server.updateResource(
+        client,
+        entity.characterId,
+        entity.health,
+        ResourceIds.CONSTRUCTION_CONDITION,
+        ResourceTypes.CONDITION
+      );
+    }
+
+    if (!spawnTree) return;
+    // slotted construction spawning
+    this.spawnConstructionTree(server, client, entity);
+
+    // freeplace construction spawning
+    this.spawnConstructionFreeplace(server, client, entity);
+  }
+
+  spawnLootableConstruction(
+    server: ZoneServer2016,
+    client: Client,
+    entity: LootableConstructionEntity
+  ) {
+    if (client.spawnedEntities.includes(entity)) return;
+    server.addLightweightNpc(
+      client,
+      entity,
+      server.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
+    );
+    server.updateResource(
+      client,
+      entity.characterId,
+      entity.health,
+      ResourceIds.CONSTRUCTION_CONDITION,
+      ResourceTypes.CONDITION
+    );
+    client.spawnedEntities.push(entity);
+  }
+
+  private spawnConstructionTree(
+    server: ZoneServer2016,
+    client: Client,
+    parentEntity: ConstructionParentEntity | ConstructionChildEntity
+  ) {
+    for (const slotMap of parentEntity.getOccupiedSlotMaps()) {
+      for (const entity of Object.values(slotMap)) {
+        if (
+          isPosInRadius(
+            entity.npcRenderDistance
+              ? entity.npcRenderDistance
+              : server.charactersRenderDistance,
+            client.character.state.position,
+            entity.state.position
+          )
+        ) {
+          if (entity instanceof ConstructionChildEntity) {
+            this.spawnSimpleConstruction(server, client, entity);
+          } else if (entity instanceof ConstructionDoor) {
+            this.spawnConstructionDoor(server, client, entity);
+          }
+        }
+      }
+    }
+  }
+
+  spawnConstructionParentsInRange(server: ZoneServer2016, client: Client) {
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      if (
+        isPosInRadius(
+          foundation.npcRenderDistance || server.charactersRenderDistance,
+          client.character.state.position,
+          foundation.state.position
+        )
+      ) {
+        this.spawnConstructionParent(server, client, foundation);
+      }
+    }
+  }
+
+  public constructionPermissionsManager(server: ZoneServer2016, client: Client) {
+    let hide = false;
+    for (const characterId in server._constructionFoundations) {
+      const npc = server._constructionFoundations[characterId];
+      if (server.constructionManager.checkFoundationPermission(server, client, npc)) hide = true;
+    }
+    for (const characterId in server._constructionSimple) {
+      const npc = server._constructionSimple[characterId];
+      if (server.constructionManager.checkConstructionChildEntityPermission(server, client, npc)) hide = true;
+    }
+    if (!hide && client.character.isHidden) {
+      client.character.isHidden = "";
+      server.spawnCharacterToOtherClients(client.character);
+    }
+  }
+
+  public repairChildEntity(
+    server: ZoneServer2016,
+    entity: ConstructionChildEntity | ConstructionDoor,
+    hammerHit: number
+  ): number {
+    if (entity instanceof ConstructionChildEntity) {
+      Object.values(entity.occupiedShelterSlots).forEach(
+        (slot: ConstructionChildEntity) => {
+          hammerHit = this.repairChildEntity(server, slot, hammerHit);
+        }
+      );
+      Object.values(entity.occupiedWallSlots).forEach(
+        (wall: ConstructionDoor | ConstructionChildEntity) => {
+          hammerHit = this.repairChildEntity(server, wall, hammerHit);
+        }
+      );
+      Object.values(entity.occupiedUpperWallSlots).forEach(
+        (slot: ConstructionDoor | ConstructionChildEntity) => {
+          hammerHit = this.repairChildEntity(server, slot, hammerHit);
+        }
+      );
+    }
+    if (entity.health >= 1000000) return hammerHit;
+    this.repairConstruction(server, entity, 50000);
+    hammerHit += 15;
+    return hammerHit;
+  }
+
+  public repairConstruction(
+    server: ZoneServer2016,
+    entity:
+      | ConstructionChildEntity
+      | ConstructionDoor
+      | LootableConstructionEntity,
+    amount: number
+  ) {
+    const damageInfo = {
+      entity: "",
+      damage: (amount *= -1),
+    };
+    entity.damage(server, damageInfo);
+    server.updateResourceToAllWithSpawnedEntity(
+      entity.characterId,
+      entity.health,
+      ResourceIds.CONSTRUCTION_CONDITION,
+      ResourceTypes.CONDITION,
+      server.getConstructionDictionary(entity.characterId)
+    );
+  }
+
+  /**
+   * Manages the spawning of WORLD parented free-place construction entities, such as storage containers placed directly on the ground.
+   *
+   */
+  worldConstructionManager(server: ZoneServer2016, client: Client) {
+    for (const characterId in server._worldSimpleConstruction) {
+      const entity = server._worldSimpleConstruction[characterId];
+      if (
+        isPosInRadius(
+          (entity.npcRenderDistance as number) || server.charactersRenderDistance,
+          client.character.state.position,
+          entity.state.position
+        )
+      ) {
+        this.spawnSimpleConstruction(server, client, entity, false);
+      }
+    }
+    for (const characterId in server._worldLootableConstruction) {
+      const entity = server._worldLootableConstruction[characterId];
+      if (
+        isPosInRadius(
+          (entity.npcRenderDistance as number) || server.charactersRenderDistance,
+          client.character.state.position,
+          entity.state.position
+        )
+      ) {
+        this.spawnLootableConstruction(server, client, entity);
+      }
+    }
+  }
+
+  hammerConstructionEntity(server: ZoneServer2016, client: Client, weaponItem: LoadoutItem ) {
+    const entity = server.getConstructionEntity(
+      client.character.currentInteractionGuid || ""
+    );
+    if (!entity) return;
+    if (!client.character.temporaryScrapSoundTimeout) {
+      let accumulatedItemDamage = 0;
+      server.sendCompositeEffectToAllInRange(
+        15,
+        client.character.characterId,
+        entity.state.position,
+        1605
+      );
+      if (entity instanceof ConstructionParentEntity) {
+        Object.values(entity.occupiedExpansionSlots).forEach(
+          (expansion: ConstructionParentEntity) => {
+            // repair every object on each expansion
+            Object.values(expansion.occupiedShelterSlots).forEach(
+              (child: ConstructionChildEntity) => {
+                accumulatedItemDamage = server.constructionManager.repairChildEntity(
+                  server,
+                  child,
+                  accumulatedItemDamage
+                );
+              }
+            );
+            Object.values(expansion.occupiedWallSlots).forEach(
+              (child: ConstructionChildEntity | ConstructionDoor) => {
+                accumulatedItemDamage = server.constructionManager.repairChildEntity(
+                  server,
+                  child,
+                  accumulatedItemDamage
+                );
+              }
+            );
+            Object.values(expansion.freeplaceEntities).forEach(
+              (
+                child:
+                  | ConstructionChildEntity
+                  | ConstructionDoor
+                  | LootableConstructionEntity
+              ) => {
+                if (child.health >= 1000000) return;
+                server.constructionManager.repairConstruction(server, child, 50000);
+                accumulatedItemDamage += 15;
+              }
+            );
+          }
+        );
+        // repair every object on main foundation
+        Object.values(entity.occupiedShelterSlots).forEach(
+          (child: ConstructionChildEntity) => {
+            accumulatedItemDamage = server.constructionManager.repairChildEntity(
+              server,
+              child,
+              accumulatedItemDamage
+            );
+          }
+        );
+        Object.values(entity.occupiedWallSlots).forEach(
+          (child: ConstructionChildEntity | ConstructionDoor) => {
+            accumulatedItemDamage = this.repairChildEntity(
+              server,
+              child,
+              accumulatedItemDamage
+            );
+          }
+        );
+        Object.values(entity.freeplaceEntities).forEach(
+          (
+            child:
+              | ConstructionChildEntity
+              | ConstructionDoor
+              | LootableConstructionEntity
+          ) => {
+            if (child.health >= 1000000) return;
+            this.repairConstruction(server, child, 50000);
+            accumulatedItemDamage += 15;
+          }
+        );
+        if (entity.health < 1000000) {
+          this.repairConstruction(server, entity, 50000);
+          accumulatedItemDamage += 15;
+        }
+        server.damageItem(client, weaponItem, accumulatedItemDamage);
+        client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+          delete client.character.temporaryScrapSoundTimeout;
+        }, 1000);
+        return;
+      }
+      accumulatedItemDamage = 50;
+      this.repairConstruction(server, entity, 50000);
+      accumulatedItemDamage += 15;
+      client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+        delete client.character.temporaryScrapSoundTimeout;
+      }, 1000);
+    }
+  }
+  isConstructionInSecuredArea(server: ZoneServer2016, construction: SlottedConstructionEntity) {
+    /*switch (type) {
+      case "simple":
+        for (const a in this._constructionFoundations) {
+          const foundation = this._constructionFoundations[a];
+          // Linked to #1160
+          if (!foundation) {
+            return;
+          }
+          if (
+            this._constructionFoundations[foundation.parentObjectCharacterId]
+          ) {
+            if (
+              foundation.isSecured &&
+              foundation.isInside(construction.state.position)
+            )
+              return true;
+            else return false;
+          }
+          if (
+            foundation.isSecured &&
+            foundation.isInside(construction.state.position)
+          )
+            return true;
+        }
+      case "door":
+        if (construction.itemDefinitionId == Items.METAL_GATE) return false;
+        for (const a in this._constructionFoundations) {
+          const foundation = this._constructionFoundations[a];
+          if (
+            this._constructionFoundations[foundation.parentObjectCharacterId]
+          ) {
+            if (
+              foundation.isSecured &&
+              foundation.isInside(construction.state.position)
+            )
+              return true;
+            else return false;
+          }
+          if (
+            foundation.isSecured &&
+            foundation.isInside(construction.state.position)
+          )
+            return true;
+        }
+    }
+    return false;*/
+    const gates: number[] = [
+      Items.METAL_GATE,
+      Items.METAL_WALL,
+      Items.METAL_WALL_UPPER,
+      Items.METAL_DOORWAY,
+    ];
+    const doors: number[] = [
+      Items.DOOR_BASIC,
+      Items.DOOR_METAL,
+      Items.DOOR_WOOD,
+    ];
+    const parent = construction.getParent(server);
+    const parentFoundation = construction.getParentFoundation(server);
+    if (!parent && !parentFoundation) return false;
+    if (parent?.isSecured || parentFoundation?.isSecured) {
+      if (
+        gates.includes(construction.itemDefinitionId) ||
+        doors.includes(construction.itemDefinitionId)
+      ) {
+        if (
+          ((parentFoundation?.itemDefinitionId == Items.FOUNDATION_EXPANSION ||
+            parentFoundation?.itemDefinitionId == Items.GROUND_TAMPER) &&
+            !doors.includes(construction.itemDefinitionId)) ||
+          parentFoundation?.itemDefinitionId == Items.SHACK ||
+          parentFoundation?.itemDefinitionId == Items.SHACK_BASIC ||
+          parentFoundation?.itemDefinitionId == Items.SHACK_SMALL
+        )
+          return false;
+        if (
+          parentFoundation?.itemDefinitionId == Items.FOUNDATION ||
+          parentFoundation?.itemDefinitionId == Items.GROUND_TAMPER
+        ) {
+          if (
+            doors.includes(construction.itemDefinitionId) &&
+            parent &&
+            (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)
+          ) {
+            if (parentFoundation.isSecured) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+          switch (construction.getSlotNumber()) {
+            case 4:
+            case 5:
+            case 6:
+              if (
+                parentFoundation.occupiedExpansionSlots["1"] &&
+                parentFoundation.occupiedExpansionSlots["1"].isSecured
+              )
+                return true;
+              break;
+            case 1:
+            case 2:
+            case 3:
+              if (
+                parentFoundation.occupiedExpansionSlots["2"] &&
+                parentFoundation.occupiedExpansionSlots["2"].isSecured
+              )
+                return true;
+              break;
+            case 10:
+            case 11:
+            case 12:
+              if (
+                parentFoundation.occupiedExpansionSlots["3"] &&
+                parentFoundation.occupiedExpansionSlots["3"].isSecured
+              )
+                return true;
+              break;
+            case 7:
+            case 8:
+            case 9:
+              if (
+                parentFoundation.occupiedExpansionSlots["4"] &&
+                parentFoundation.occupiedExpansionSlots["4"].isSecured
+              )
+                return true;
+              break;
+          }
+          return false;
+        } else if (
+          parentFoundation?.itemDefinitionId == Items.FOUNDATION_EXPANSION
+        ) {
+          if (
+            doors.includes(construction.itemDefinitionId) &&
+            parent &&
+            (parent.itemDefinitionId == Items.SHELTER || Items.SHELTER_LARGE)
+          ) {
+            if (parentFoundation.isSecured) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+        }
+      }
+      return true;
+    } else return false;
+  }
+
+  sendBaseSecuredMessage(server: ZoneServer2016, client: Client) {
+    server.sendAlert(
+      client,
+      "You must destroy the base's gate before affecting interior structures."
+    );
+  }
+
+  checkConstructionDamage(
+    server: ZoneServer2016,
+    constructionCharId: string,
+    damage: number,
+    dictionary: any,
+    position: Float32Array,
+    entityPosition: Float32Array,
+    source: string
+  ) {
+    switch (source) {
+      case "vehicle":
+        damage /= 12;
+        break;
+      case "ethanol":
+        damage /= 3.2;
+        break;
+      case "fuel":
+        damage /= 6;
+        break;
+    }
+    const constructionObject: ConstructionEntity =
+      dictionary[constructionCharId];
+    switch (constructionObject.itemDefinitionId) {
+      case Items.DOOR_METAL:
+        damage *= 1.45;
+        break;
+      case Items.DOOR_WOOD:
+        damage *= 2;
+        break;
+      case Items.SHACK_BASIC:
+      case Items.DOOR_BASIC:
+        damage *= 4;
+        break;
+      default:
+        damage *= 0.8;
+        break;
+    }
+    const distance = getDistance(entityPosition, position);
+    constructionObject.damage(server, {
+      entity: "",
+      damage:
+        distance < constructionObject.damageRange
+          ? damage
+          : damage / Math.sqrt(distance),
+    });
+    server.updateResourceToAllWithSpawnedEntity(
+      constructionObject.characterId,
+      constructionObject.health,
+      ResourceIds.CONSTRUCTION_CONDITION,
+      ResourceTypes.CONDITION,
+      dictionary
+    );
+    server.sendDataToAllWithSpawnedEntity(
+      // play burning effect & remove it after 15s
+      dictionary,
+      constructionCharId,
+      "Command.PlayDialogEffect",
+      {
+        characterId: constructionCharId,
+        effectId: 1214,
+      }
+    );
+    setTimeout(() => {
+      if (dictionary[constructionCharId]) {
+        server.sendDataToAllWithSpawnedEntity(
+          dictionary,
+          constructionCharId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: constructionCharId,
+            effectId: 0,
+          }
+        );
+      }
+    }, 15000);
+    if (constructionObject.health > 0) return;
+
+    constructionObject.destroy(server, 3000);
   }
 }
