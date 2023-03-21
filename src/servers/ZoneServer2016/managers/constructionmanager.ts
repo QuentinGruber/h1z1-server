@@ -50,6 +50,13 @@ import {
 import { ZoneServer2016 } from "../zoneserver";
 
 export class ConstructionManager {
+  overridePlacementItems: Array<number> = [
+    Items.IED,
+    Items.LANDMINE,
+    Items.SNARE,
+  ];
+
+  /* MANAGED BY CONFIGMANAGER */
   allowPOIPlacement!: boolean;
   allowStackedPlacement!: boolean;
   allowOutOfBoundsPlacement!: boolean;
@@ -58,11 +65,6 @@ export class ConstructionManager {
   vehicleSpawnPointBlockedPlacementRange!: number;
   playerFoundationBlockedPlacementRange!: number;
   playerShackBlockedPlacementRange!: number;
-  overridePlacementItems: Array<number> = [
-    Items.IED,
-    Items.LANDMINE,
-    Items.SNARE,
-  ];
 
   sendConstructionData(server: ZoneServer2016, client: Client) {
     const unknownArray1 = [46, 45, 47, 48, 49, 50, 12, 7, 15],

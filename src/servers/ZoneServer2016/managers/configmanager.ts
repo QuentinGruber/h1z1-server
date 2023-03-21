@@ -148,9 +148,9 @@ export class ConfigManager {
     //#region fairplay
     // to be moved to FairplayManager
     const { useFairplay, maxPing, pingTimeoutTime } = this.config.fairplay;
-    server.useFairPlay = useFairplay;
-    server.maxPing = maxPing;
-    server.pingTimeoutTime = pingTimeoutTime;
+    server.fairPlayManager.useFairPlay = useFairplay;
+    server.fairPlayManager.maxPing = maxPing;
+    server.fairPlayManager.pingTimeoutTime = pingTimeoutTime;
     //#endregion
 
     //#region weather

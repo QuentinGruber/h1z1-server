@@ -393,22 +393,22 @@ export class ZonePacketHandlers {
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
     if (
-      packet.data.file === server.fairPlayValues?.requiredFile &&
+      packet.data.file === server.fairPlayManager.fairPlayValues?.requiredFile &&
       client.isMovementBlocked
     ) {
       client.isMovementBlocked = false;
     }
     if (
-      packet.data.file === server.fairPlayValues?.requiredFile2 &&
+      packet.data.file === server.fairPlayManager.fairPlayValues?.requiredFile2 &&
       !client.clientLogs.includes(packet.data.message) &&
       !client.isAdmin
     ) {
       const obj = { log: packet.data.message, isSuspicious: false };
-      for (let x = 0; x < server._suspiciousList.length; x++) {
+      for (let x = 0; x < server.fairPlayManager._suspiciousList.length; x++) {
         if (
           packet.data.message
             .toLowerCase()
-            .includes(server._suspiciousList[x].toLowerCase())
+            .includes(server.fairPlayManager._suspiciousList[x].toLowerCase())
         ) {
           obj.isSuspicious = true;
           if (!server._soloMode) {
@@ -418,12 +418,12 @@ export class ZonePacketHandlers {
               server._worldId,
               {
                 type: "suspicious software",
-                suspicious: server._suspiciousList[x],
+                suspicious: server.fairPlayManager._suspiciousList[x],
               }
             );
           }
           server.sendChatTextToAdmins(
-            `FairPlay: kicking ${client.character.name} for using suspicious software - ${server._suspiciousList[x]}`,
+            `FairPlay: kicking ${client.character.name} for using suspicious software - ${server.fairPlayManager._suspiciousList[x]}`,
             false
           );
           server.kickPlayer(client);
@@ -649,7 +649,8 @@ export class ZonePacketHandlers {
     if (!client.managedObjects.includes(vehicle.characterId)) return;
     if (packet.data.positionUpdate.position) {
       if (
-        server.vehicleSpeedFairPlayCheck(
+        server.fairPlayManager.checkVehicleSpeed(
+          server,
           client,
           packet.data.positionUpdate.sequenceTime,
           packet.data.positionUpdate.position,
@@ -871,7 +872,8 @@ export class ZonePacketHandlers {
         client.characterReleased = true;
       }
       if (
-        server.speedFairPlayCheck(
+        server.fairPlayManager.checkPlayerSpeed(
+          server,
           client,
           packet.data.sequenceTime,
           packet.data.position
@@ -1835,7 +1837,7 @@ export class ZonePacketHandlers {
             server.constructionManager.hammerConstructionEntity(server, client, weaponItem);
             return;
           }
-          
+
           // crate damaging workaround
           if (client.character.currentInteractionGuid) {
             const entity =
@@ -1924,7 +1926,7 @@ export class ZonePacketHandlers {
             weaponItem.weapon.ammoCount -= 1;
           }
           const drift = Math.abs(p.gameTime - server.getServerTime());
-          if (drift > server.maxPing + 200) {
+          if (drift > server.fairPlayManager.maxPing + 200) {
             server.sendChatText(
               client,
               `FairPlay: Your shots didnt register due to packet loss`
@@ -1971,7 +1973,7 @@ export class ZonePacketHandlers {
               delete client.fireHints[p.packet.sessionProjectileCount + x];
             }, 10000);
           }
-          server.hitMissFairPlayCheck(client, false, "");
+          server.fairPlayManager.hitMissFairPlayCheck(server, client, false, "");
           server.stopHudTimer(client);
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,
