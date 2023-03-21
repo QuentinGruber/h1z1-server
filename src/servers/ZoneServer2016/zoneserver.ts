@@ -2002,7 +2002,7 @@ export class ZoneServer2016 extends EventEmitter {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
         if (getDistance(position, explosiveObj.state.position) < 2) {
-          await Scheduler.wait(200);
+          await Scheduler.wait(100);
           if (this._spawnedItems[explosiveObj.characterId]) {
             const object = this._spawnedItems[explosiveObj.characterId];
             this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
@@ -2239,7 +2239,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
 
     // no loop, just going down the construction ladder
-    const parentFoundation = constructionObject.getParentFoundation(this);
+    /*const parentFoundation = constructionObject.getParentFoundation(this);
     if (parentFoundation)
       parentFoundation.lastDamagedTimestamp = Date.now() + 300000;
 
@@ -2249,7 +2249,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     const parentFoundation3 = parentFoundation2?.getParentFoundation(this);
     if (parentFoundation3)
-      parentFoundation3.lastDamagedTimestamp = Date.now() + 300000;
+      parentFoundation3.lastDamagedTimestamp = Date.now() + 300000;*/
     /*
     this.sendDataToAllWithSpawnedEntity(
       // play burning effect & remove it after 15s
@@ -4088,8 +4088,8 @@ export class ZoneServer2016 extends EventEmitter {
       );
     }
     if (entity.health >= 1000000) return hammerHit;
-    this.repairConstruction(entity, 50000);
-    hammerHit += 15;
+    this.repairConstruction(entity, 25000);
+    hammerHit += 7;
     return hammerHit;
   }
 

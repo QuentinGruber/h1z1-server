@@ -1850,8 +1850,8 @@ export class zonePacketHandlers {
               client.character.currentInteractionGuid
             );
             if (!entity) return;
-            const parentFoundation = entity.getParentFoundation(server);
-            /*if (
+            /*const parentFoundation = entity.getParentFoundation(server);
+            if (
               parentFoundation &&
               parentFoundation.lastDamagedTimestamp > Date.now()
             ) {
@@ -1912,8 +1912,8 @@ export class zonePacketHandlers {
                           | LootableConstructionEntity
                       ) => {
                         if (child.health >= 1000000) return;
-                        server.repairConstruction(child, 50000);
-                        accumulatedItemDamage += 15;
+                        server.repairConstruction(child, 25000);
+                        accumulatedItemDamage += 7;
                       }
                     );
                   }
@@ -1943,13 +1943,13 @@ export class zonePacketHandlers {
                       | LootableConstructionEntity
                   ) => {
                     if (child.health >= 1000000) return;
-                    server.repairConstruction(child, 50000);
-                    accumulatedItemDamage += 15;
+                    server.repairConstruction(child, 25000);
+                    accumulatedItemDamage += 7;
                   }
                 );
                 if (entity.health < 1000000) {
-                  server.repairConstruction(entity, 50000);
-                  accumulatedItemDamage += 15;
+                  server.repairConstruction(entity, 25000);
+                  accumulatedItemDamage += 7;
                 }
                 server.damageItem(client, weaponItem, accumulatedItemDamage);
                 client.character.temporaryScrapSoundTimeout = setTimeout(() => {
@@ -1958,8 +1958,9 @@ export class zonePacketHandlers {
                 return;
               }
               accumulatedItemDamage = 50;
-              server.repairConstruction(entity, 50000);
-              accumulatedItemDamage += 15;
+              server.repairConstruction(entity, 25000);
+              accumulatedItemDamage += 7;
+              server.damageItem(client, weaponItem, accumulatedItemDamage);
               client.character.temporaryScrapSoundTimeout = setTimeout(() => {
                 delete client.character.temporaryScrapSoundTimeout;
               }, 1000);
