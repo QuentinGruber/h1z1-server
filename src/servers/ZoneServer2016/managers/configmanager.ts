@@ -126,5 +126,17 @@ export class ConfigManager {
     server.speedtreeManager.minTreeHits = minTreeHits;
     server.speedtreeManager.maxTreeHits = maxTreeHits;
     //#endregion
+
+    //#region construction
+    const { allowPOIPlacement, allowStackedPlacement, allowOutOfBoundsPlacement, placementRange, spawnPointBlockedPlacementRange, vehicleSpawnPointBlockedPlacementRange, playerFoundationBlockedPlacementRange, playerShackBlockedPlacementRange } = this.config.construction
+    server.constructionManager.allowPOIPlacement = allowPOIPlacement;
+    server.constructionManager.allowStackedPlacement = allowStackedPlacement;
+    server.constructionManager.allowOutOfBoundsPlacement = allowOutOfBoundsPlacement;
+    server.constructionManager.placementRange = placementRange;
+    server.constructionManager.spawnPointBlockedPlacementRange = spawnPointBlockedPlacementRange;
+    server.constructionManager.vehicleSpawnPointBlockedPlacementRange = vehicleSpawnPointBlockedPlacementRange;
+    server.constructionManager.playerFoundationBlockedPlacementRange = playerFoundationBlockedPlacementRange;
+    server.constructionManager.playerShackBlockedPlacementRange = playerShackBlockedPlacementRange;
+    //#endregion
   }
 }

@@ -816,7 +816,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.canUndoPlacement(server, client)) {
-      server.undoPlacementInteractionString(this, client);
+      server.constructionManager.undoPlacementInteractionString(server, this, client);
       return;
     }
 

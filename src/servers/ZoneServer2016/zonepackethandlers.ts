@@ -1811,7 +1811,8 @@ export class ZonePacketHandlers {
                 }
                 entity.destroy(server);
               } else {
-                server.placementError(
+                server.constructionManager.placementError(
+                  server,
                   client,
                   ConstructionErrors.DEMOLISH_PERMISSION
                 );

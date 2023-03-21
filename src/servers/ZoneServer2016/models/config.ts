@@ -61,10 +61,22 @@ interface SpeedTreeConfig {
   maxTreeHits: number;
 }
 
+interface ConstructionConfig {
+  allowPOIPlacement: boolean;
+  allowStackedPlacement: boolean;
+  allowOutOfBoundsPlacement: boolean;
+  placementRange: number;
+  spawnPointBlockedPlacementRange: number;
+  vehicleSpawnPointBlockedPlacementRange: number;
+  playerFoundationBlockedPlacementRange: number;
+  playerShackBlockedPlacementRange: number;
+}
+
 export interface Config {
   server: ServerConfig;
   fairplay: FairplayConfig;
   weather: WeatherConfig;
   worldobjects: WorldObjectsConfig;
   speedtree: SpeedTreeConfig;
+  construction: ConstructionConfig;
 }
