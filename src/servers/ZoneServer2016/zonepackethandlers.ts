@@ -144,7 +144,7 @@ export class ZonePacketHandlers {
           `server population : ${_.size(server._characters)}`
         );
         if (client.isAdmin) {
-          server.sendAlert(client, "You are an admin!");
+          if(server.adminMessage) server.sendAlert(client, server.adminMessage);
         }
       }, 10000);
       if (client.banType != "") {
