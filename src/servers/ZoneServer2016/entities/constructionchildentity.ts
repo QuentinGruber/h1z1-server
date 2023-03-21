@@ -172,7 +172,6 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
     const itemDefinition = server.getItemDefinition(this.itemDefinitionId);
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
-    console.log(this.state.rotation);
   }
 
   getOccupiedSlotMaps(): Array<OccupiedSlotMap> {
