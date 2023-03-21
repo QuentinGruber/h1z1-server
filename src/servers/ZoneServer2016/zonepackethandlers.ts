@@ -1851,7 +1851,7 @@ export class zonePacketHandlers {
             );
             if (!entity) return;
             const parentFoundation = entity.getParentFoundation(server);
-            if (
+            /*if (
               parentFoundation &&
               parentFoundation.lastDamagedTimestamp > Date.now()
             ) {
@@ -1875,7 +1875,7 @@ export class zonePacketHandlers {
                 );
                 return;
               }
-            }
+            }*/
             if (!client.character.temporaryScrapSoundTimeout) {
               let accumulatedItemDamage = 0;
               server.sendCompositeEffectToAllInRange(
