@@ -54,7 +54,6 @@ import {
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ConstructionParentEntity } from "./constructionparententity";
-import { eul2quat } from "../../../utils/utils";
 import {
   ConstructionSlots,
   shelterSlotDefinitions,
