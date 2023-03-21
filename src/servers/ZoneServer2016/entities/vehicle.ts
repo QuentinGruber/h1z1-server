@@ -142,6 +142,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       position: position,
       rotation: rotation,
       lookAt: new Float32Array([0, 0, 0, 1]),
+      yaw: 0,
     };
     this.vehicleId = vehicleId;
     if (!this.actorModelId) this.actorModelId = getActorModelId(this.vehicleId);

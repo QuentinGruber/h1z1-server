@@ -14,7 +14,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 // TODO enable @typescript-eslint/no-unused-vars
 import { ZoneClient2016 as Client } from "./classes/zoneclient";
-
 import { ZoneServer2016 } from "./zoneserver";
 const debug = require("debug")("ZoneServer");
 
@@ -392,7 +391,13 @@ export class zonePacketHandlers {
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
     if (
-      packet.data.file === "ClientProc.log" &&
+      packet.data.file === server.fairPlayValues?.requiredFile &&
+      client.isMovementBlocked
+    ) {
+      client.isMovementBlocked = false;
+    }
+    if (
+      packet.data.file === server.fairPlayValues?.requiredFile2 &&
       !client.clientLogs.includes(packet.data.message) &&
       !client.isAdmin
     ) {
@@ -685,6 +690,8 @@ export class zonePacketHandlers {
             packet.data.positionUpdate.position[2],
             1,
           ]);
+          const c = server.getClientByCharId(passenger);
+          if (c) c.startLoc = packet.data.positionUpdate.position[1];
         } else {
           debug(`passenger ${passenger} not found`);
           vehicle.removePassenger(passenger);
@@ -798,29 +805,23 @@ export class zonePacketHandlers {
           triggerLoadingScreen: true,
         });
       }
-      // disabled for now
-      /*if (packet.data.stance & (1 << 1)) {
-        // started crouching
-        client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
-        if (client.character._resources[ResourceIds.STAMINA] < 0)
-          client.character._resources[ResourceIds.STAMINA] = 0;
-        server.updateResourceToAllWithSpawnedEntity(
-          client.character.characterId,
-          client.character._resources[ResourceIds.STAMINA],
-          ResourceIds.STAMINA,
-          ResourceTypes.STAMINA,
-          server._characters
-        );
-      }*/
+      if ((packet.data.stance & (1 << 5)) !== 0) {
+        if (!client.isInAir) {
+          client.isInAir = true;
+          client.startLoc = client.character.state.position[1];
+        }
+      } else {
+        client.isInAir = false;
+      }
       const byte1 = packet.data.stance & 0xff;
       client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
       if (
         !!(byte1 & (1 << 4)) &&
         !(byte1 & (1 << 5)) &&
         // temporary fix for multiplying jump penalty until exact flags are found
-        client.character.lastJumpTime < Date.now()
+        client.character.lastJumpTime < packet.data.sequenceTime
       ) {
-        client.character.lastJumpTime = Date.now() + 1100;
+        client.character.lastJumpTime = packet.data.sequenceTime + 1100;
         client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
         if (client.character._resources[ResourceIds.STAMINA] < 0)
           client.character._resources[ResourceIds.STAMINA] = 0;
@@ -844,6 +845,20 @@ export class zonePacketHandlers {
           movingCharacter.transientId
         )
       );
+    }
+    if (client.isMovementBlocked) {
+      client.blockedUpdates++;
+      if (client.blockedUpdates >= 10) {
+        server.kickPlayer(client);
+        server.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        server.sendChatTextToAdmins(
+          `FairPlay: Kicking ${client.character.name} for sending too many blocked updates`,
+          false
+        );
+      }
+      return;
+    } else {
+      client.blockedUpdates = 0;
     }
     if (packet.data.position) {
       if (!client.characterReleased) {
@@ -933,7 +948,7 @@ export class zonePacketHandlers {
         packet.data.rotation[2],
         packet.data.rotation[3],
       ]);
-
+      client.character.state.yaw = packet.data.rotationRaw[0];
       client.character.state.lookAt = new Float32Array([
         packet.data.lookAt[0],
         packet.data.lookAt[1],
@@ -1398,7 +1413,11 @@ export class zonePacketHandlers {
               server.getWeaponAmmoId(item.itemDefinitionId),
               item.weapon.ammoCount
             );
-            if (ammo && item.weapon.ammoCount > 0) {
+            if (
+              ammo &&
+              item.weapon.ammoCount > 0 &&
+              item.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+            ) {
               client.character.lootContainerItem(
                 server,
                 ammo,
@@ -1462,7 +1481,11 @@ export class zonePacketHandlers {
                 server.getWeaponAmmoId(loadoutItem.itemDefinitionId),
                 loadoutItem.weapon.ammoCount
               );
-              if (ammo && loadoutItem.weapon.ammoCount > 0) {
+              if (
+                ammo &&
+                loadoutItem.weapon.ammoCount > 0 &&
+                loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+              ) {
                 client.character.lootContainerItem(
                   server,
                   ammo,
@@ -1977,7 +2000,6 @@ export class zonePacketHandlers {
             server.damageItem(client, weaponItem, 2);
           break;
         case "Weapon.Fire":
-          if (client.fireHints[p.packet.sessionProjectileCount]) return;
           if (weaponItem.weapon.ammoCount <= 0) return;
           if (weaponItem.weapon.ammoCount > 0) {
             weaponItem.weapon.ammoCount -= 1;
@@ -2020,7 +2042,7 @@ export class zonePacketHandlers {
             const fireHint: fireHint = {
               id: p.packet.sessionProjectileCount + x,
               position: p.packet.position,
-              rotation: new Float32Array([0, 0, 0, 0]),
+              rotation: client.character.state.yaw,
               hitNumber: hitNumber,
               weaponItem: weaponItem,
               timeStamp: p.gameTime,
@@ -2226,7 +2248,7 @@ export class zonePacketHandlers {
           break;
         case "Weapon.WeaponFireHint":
           debug("WeaponFireHint");
-          if (weaponItem.weapon.ammoCount <= 0) return;
+          /*if (weaponItem.weapon.ammoCount <= 0) return;
           if (weaponItem.weapon.ammoCount > 0) {
             weaponItem.weapon.ammoCount -= 1;
           }
@@ -2278,7 +2300,7 @@ export class zonePacketHandlers {
             setTimeout(() => {
               delete client.fireHints[p.packet.sessionProjectileCount + x];
             }, 10000);
-          }
+          }*/
           break;
         case "Weapon.ProjectileContactReport":
           debug("ProjectileContactReport");
@@ -2342,6 +2364,37 @@ export class zonePacketHandlers {
   }
   EndCharacterAccess(server: ZoneServer2016, client: Client, packet: any) {
     client.character.dismountContainer(server);
+  }
+
+  GroupInvite(server: ZoneServer2016, client: Client, packet: any) {
+    const characterId = packet.data.inviteData.targetCharacter.characterId;
+    let target: Client | string | undefined;
+
+    if (Number(characterId)) {
+      target = server.getClientByCharId(characterId);
+    } else {
+      target = server.getClientByNameOrLoginSession(
+        packet.data.inviteData.targetCharacter.identity.characterFirstName
+      );
+    }
+
+    if (!(target instanceof Client)) return;
+
+    server.groupManager.sendGroupInvite(server, client, target);
+  }
+
+  GroupJoin(server: ZoneServer2016, client: Client, packet: any) {
+    const source = server.getClientByNameOrLoginSession(
+      packet.data.inviteData.sourceCharacter.identity.characterName
+    );
+    if (!(source instanceof Client)) return;
+
+    server.groupManager.handleGroupJoin(
+      server,
+      source,
+      client,
+      packet.data.joinState == 1
+    );
   }
   //#endregion
 
@@ -2545,6 +2598,13 @@ export class zonePacketHandlers {
         break;
       case "AccessedCharacter.EndCharacterAccess":
         this.EndCharacterAccess(server, client, packet);
+        break;
+      case "Group.Invite":
+        this.GroupInvite(server, client, packet);
+        break;
+      case "Group.Join":
+        this.GroupJoin(server, client, packet);
+        break;
       default:
         debug(packet);
         debug("Packet not implemented in packetHandlers");
