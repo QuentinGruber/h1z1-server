@@ -199,7 +199,19 @@ export const commands: Array<Command> = [
         client,
         `Set spectate/vanish state to ${client.character.isSpectator}`
       );
-      if (!client.character.isSpectator) return;
+      if (!client.character.isSpectator) {
+        for (const a in server._decoys) {
+          const decoy = server._decoys[a];
+          if (decoy.transientId == client.character.transientId) {
+            server.sendDataToAll("Character.RemovePlayer", {
+              characterId: decoy.characterId,
+            });
+            server.sendChatText(client, `Decoy removed`, false);
+            client.isDecoy = false;
+          }
+        }
+        return;
+      }
       for (const a in server._clients) {
         const iteratedClient = server._clients[a];
         if (iteratedClient.spawnedEntities.includes(client.character)) {
@@ -920,30 +932,91 @@ export const commands: Array<Command> = [
     name: "decoy",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!args[0]) {
-        server.sendChatText(client, "usage /deocay {name}");
+      if (!args[0] && !server._decoys[client.character.transientId]) {
+        server.sendChatText(client, "usage /decoy {name}");
+        return;
+      }
+      if (server._decoys[client.character.transientId]) {
+        if (client.isDecoy) {
+          server.sendChatText(client, "Decoy replication disabled");
+          client.isDecoy = false;
+        } else {
+          server.sendChatText(client, "Decoy replication enabled");
+          client.isDecoy = true;
+        }
+        return;
+      }
+      if (!client.character.isSpectator) {
+        server.sendChatText(client, "You must be in vanish mode to use this");
         return;
       }
       const mimic = client.character.pGetLightweight();
       const characterId = server.generateGuid();
       const decoy = {
         characterId: characterId,
+        transientId: client.character.transientId,
         position: new Float32Array(mimic.position),
         action: "",
       };
-      server._decoys[characterId] = decoy;
-      mimic.identity.characterName = args[0].toString();
+      server._decoys[client.character.transientId] = decoy;
+      mimic.identity.characterName = args[0]
+        .split("")
+        .map((letter) =>
+          Math.random() < 0.7 || !/[a-z]/.test(letter)
+            ? letter
+            : letter.toUpperCase()
+        )
+        .join("");
       mimic.characterId = characterId;
-      mimic.transientId = 0;
-      server.sendDataToAll("AddLightweightPc", {
-        ...mimic,
-        mountGuid: "",
-        mountSeatId: 0,
-        mountRelatedDword1: 0,
-      });
-      const equipment = client.character.pGetEquipment();
-      equipment.characterData.characterId = characterId;
-      server.sendDataToAll("Equipment.SetCharacterEquipment", equipment);
+      mimic.transientId = client.character.transientId;
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        if (
+          isPosInRadius(
+            c.character.npcRenderDistance || 250,
+            client.character.state.position,
+            c.character.state.position
+          )
+        ) {
+          server.sendData(c, "AddLightweightPc", {
+            ...mimic,
+            mountGuid: "",
+            mountSeatId: 0,
+            mountRelatedDword1: 0,
+          });
+          const equipment = client.character.pGetEquipment();
+          equipment.characterData.characterId = characterId;
+          server.sendData(c, "Equipment.SetCharacterEquipment", equipment);
+          server.sendData(c, "LightweightToFullPc", {
+            useCompression: false,
+            fullPcData: {
+              transientId: client.character.transientId,
+              attachmentData: client.character.pGetAttachmentSlots(
+                client.character.groupId
+              ),
+              headActor: client.character.headActor,
+              hairModel: client.character.hairModel,
+              resources: { data: client.character.pGetResources() },
+              remoteWeapons: {
+                data: client.character.pGetRemoteWeaponsData(server),
+              },
+            },
+            positionUpdate: {
+              ...client.character.positionUpdate,
+              sequenceTime: server.getGameTime(),
+              position: client.character.state.position,
+              stance: client.character.stance,
+            },
+            stats: client.character.getStats().map((stat: any) => {
+              return stat.statData;
+            }),
+            remoteWeaponsExtra:
+              client.character.pGetRemoteWeaponsExtraData(server),
+          });
+        }
+      }
+      client.isDecoy = true;
+      server.sendChatText(client, "Decoy replication enabled");
     },
   },
   {
@@ -956,6 +1029,12 @@ export const commands: Array<Command> = [
         });
         delete server._decoys[a];
       }
+      for (const a in server._clients) {
+        if (server._clients[a].isDecoy) {
+          server._clients[a].isDecoy = false;
+        }
+      }
+      server.sendChatText(client, `Removed all decoys`, false);
     },
   },
   {

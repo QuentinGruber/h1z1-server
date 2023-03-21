@@ -96,7 +96,6 @@ import {
   logClientActionToMongo,
   removeUntransferableFields,
   decrypt,
-  getAngle,
 } from "../../utils/utils";
 
 import { Collection, Db } from "mongodb";
@@ -223,8 +222,9 @@ export class ZoneServer2016 extends EventEmitter {
   _taskProps: { [characterId: string]: TaskProp } = {};
   _crates: { [characterId: string]: Crate } = {};
   _decoys: {
-    [characterId: string]: {
+    [transientId: number]: {
       characterId: string;
+      transientId: number;
       position: Float32Array;
       action: string;
     };
@@ -1222,7 +1222,8 @@ export class ZoneServer2016 extends EventEmitter {
         respawnCheckRange: Number(decryptedData[33]),
         respawnCheckTime: Number(decryptedData[34]),
         respawnCheckIterations: Number(decryptedData[35]),
-        maxFlying: Number(decryptedData[36]),
+        maxFlyingScenario1: Number(decryptedData[36]),
+        maxFlyingScenario2: Number(decryptedData[37]),
       };
     }
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
@@ -2536,10 +2537,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this.isSaving) {
       if (
         client.isInAir &&
-        position[1] - client.startLoc > this.fairPlayValues.maxFlying
+        client.maxFlying &&
+        position[1] - client.startLoc > client.maxFlying
       ) {
-        this.kickPlayer(client);
-        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
         let kick = true;
         for (const a in this._constructionFoundations) {
           if (
@@ -2554,7 +2554,20 @@ export class ZoneServer2016 extends EventEmitter {
           )
             kick = false;
         }
+        for (const char in this._characters) {
+          if (
+            isPosInRadiusWithY(
+              3,
+              client.character.state.position,
+              this._characters[char].state.position,
+              4.5
+            )
+          )
+            kick = false;
+        }
         if (kick) {
+          this.kickPlayer(client);
+          this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
           this.sendChatTextToAdmins(
             `FairPlay: ${
               client.character.name
@@ -2590,7 +2603,7 @@ export class ZoneServer2016 extends EventEmitter {
               unknownByte1: 1,
             });
             client.isMovementBlocked = true;*/
-            this.kickPlayer(client);
+            //this.kickPlayer(client);
             this.sendChatTextToAdmins(
               `FairPlay: Kicking ${client.character.name} for suspected teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
               false
@@ -2615,7 +2628,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (soeClient) {
           if (soeClient.avgPing >= 250) return false;
         }
-        client.speedWarnsNumber += 1;
+        //client.speedWarnsNumber += 1;
       } else if (client.speedWarnsNumber > 0) {
         client.speedWarnsNumber -= 1;
       }
@@ -2655,7 +2668,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.kickPlayer(client);
         this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
         this.sendChatTextToAdmins(
-          `FairPlay: ${client.character.name} has been kicked for sequence time drifting by ${drift}`,
+          `FairPlay: ${client.character.name} has been kicked for sequence time drifting in vehicle by ${drift}`,
           false
         );
         return true;
@@ -3121,16 +3134,19 @@ export class ZoneServer2016 extends EventEmitter {
 
   registerHit(client: Client, packet: any, gameTime: number) {
     if (!client.character.isAlive) return;
-    if (this._decoys[packet.hitReport.characterId]) {
-      const decoy = this._decoys[packet.hitReport.characterId];
-      this.sendChatTextToAdmins(
-        `FairPlay: ${
-          client.character.name
-        } hit a decoy entity at: [${decoy.position[0].toFixed(
-          2
-        )} ${decoy.position[1].toFixed(2)} ${decoy.position[2].toFixed(2)}]`,
-        false
-      );
+
+    for (const a in this._decoys) {
+      const decoy = this._decoys[a];
+      if (decoy.characterId === packet.hitReport.characterId) {
+        this.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } hit a decoy entity at: [${decoy.position[0].toFixed(
+            2
+          )} ${decoy.position[1].toFixed(2)} ${decoy.position[2].toFixed(2)}]`,
+          false
+        );
+      }
     }
     const entity = this.getEntity(packet.hitReport.characterId);
     if (!entity) return;
@@ -3185,7 +3201,7 @@ export class ZoneServer2016 extends EventEmitter {
           return;
         }
       }
-      const angle = getAngle(fireHint.position, packet.hitReport.position);
+      /*const angle = getAngle(fireHint.position, packet.hitReport.position);
       const fixedRot = (fireHint.rotation + 2 * Math.PI) % (2 * Math.PI);
       const dotProduct =
         Math.cos(angle) * Math.cos(fixedRot) +
@@ -3232,7 +3248,7 @@ export class ZoneServer2016 extends EventEmitter {
           }% max deviation`,
           false
         );
-      }
+      }*/
       if (c) {
         const distance = getDistance(
           fireHint.position,

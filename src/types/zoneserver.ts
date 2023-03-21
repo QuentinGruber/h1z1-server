@@ -359,5 +359,6 @@ export interface FairPlayValues {
   respawnCheckRange: number;
   respawnCheckTime: number;
   respawnCheckIterations: number;
-  maxFlying: number;
+  maxFlyingScenario1: number;
+  maxFlyingScenario2: number;
 }
