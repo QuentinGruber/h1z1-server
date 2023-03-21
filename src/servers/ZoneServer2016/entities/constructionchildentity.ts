@@ -151,7 +151,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     registerConstructionSlots(this, this.shelterSlots, shelterSlotDefinitions);
     Object.seal(this.shelterSlots);
 
-    const angle = -this.eulerAngle;
+    const angle = -this.state.rotation[1];
     switch (itemDefinitionId) {
       case Items.SHELTER_LARGE:
       case Items.SHELTER_UPPER_LARGE:
@@ -413,7 +413,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           this.bounds,
           position[1],
           this.state.position[1],
-          2
+          1.8
         );
       default:
         return false;
