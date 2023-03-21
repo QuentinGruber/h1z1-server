@@ -133,7 +133,7 @@ export class ZonePacketHandlers {
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
-    server.sendConstructionData(client);
+    server.constructionManager.sendConstructionData(server, client);
     if (client.firstLoading) {
       client.character.lastLoginDate = toHex(Date.now());
       server.setGodMode(client, false);
@@ -508,7 +508,7 @@ export class ZonePacketHandlers {
     if (client.isSynced) return;
     client.isSynced = true;
     client.character.lastLoginDate = toHex(Date.now());
-    server.constructionManager(client);
+    server.constructionPermissionsManager(client);
   }
   CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: any) {
     this.commandHandler.executeCommand(server, client, packet);
@@ -1143,7 +1143,8 @@ export class ZonePacketHandlers {
     const modelId = server.getItemDefinition(
       packet.data.itemDefinitionId
     ).PLACEMENT_MODEL_ID;
-    server.placement(
+    server.constructionManager.placement(
+      server,
       client,
       packet.data.itemDefinitionId,
       modelId,

@@ -157,10 +157,9 @@ import { ConfigManager } from "./managers/configmanager";
 import { RConManager } from "./managers/rconmanager";
 import { GroupManager } from "./managers/groupmanager";
 import { SpeedTreeManager } from "./managers/speedtreemanager";
+import { ConstructionManager } from "./managers/constructionmanager";
 
-const spawnLocations = require("../../../data/2016/zoneData/Z1_spawnLocations.json"),
-  Z1_vehicles = require("../../../data/2016/zoneData/Z1_vehicleLocations.json"),
-  spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
+const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
   itemDefinitions = require("./../../../data/2016/dataSources/ServerItemDefinitions.json"),
   containerDefinitions = require("./../../../data/2016/dataSources/ContainerDefinitions.json"),
@@ -189,7 +188,6 @@ export class ZoneServer2016 extends EventEmitter {
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
-  _spawnLocations: Array<SpawnLocation> = spawnLocations;
   private _h1emuZoneServer!: H1emuZoneServer;
   _worldId = 0;
   _grid: GridCell[] = [];
@@ -258,6 +256,7 @@ export class ZoneServer2016 extends EventEmitter {
   rconManager: RConManager;
   groupManager: GroupManager;
   speedtreeManager: SpeedTreeManager;
+  constructionManager: ConstructionManager;
 
   _ready: boolean = false;
   _itemDefinitions: { [itemDefinitionId: number]: any } = itemDefinitions;
@@ -327,6 +326,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.rconManager = new RConManager();
     this.groupManager = new GroupManager();
     this.speedtreeManager = new SpeedTreeManager();
+    this.constructionManager = new ConstructionManager();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -3883,7 +3883,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  public constructionManager(client: Client) {
+  public constructionPermissionsManager(client: Client) {
     let hide = false;
     for (const characterId in this._constructionFoundations) {
       const npc = this._constructionFoundations[characterId];
@@ -4859,394 +4859,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  sendConstructionData(client: Client) {
-    const unknownArray1 = [46, 45, 47, 48, 49, 50, 12, 7, 15],
-      unknownArray2 = [...unknownArray1, 5, 10, 44, 57, 27, 2, 55, 56];
-
-    this.sendData(client, "Construction.Unknown", {
-      unknownArray1: unknownArray1.map((value) => {
-        return { unknownDword1: value };
-      }),
-
-      /* this array affects certain items placed on direct
-      ground ex. punji sticks, furnace, flare, etc
-      */
-      unknownArray2: unknownArray2.map((value) => {
-        return { unknownDword1: value };
-      }),
-    });
-  }
-
-  placement(
-    client: Client,
-    itemDefinitionId: number,
-    modelId: number,
-    position: Float32Array,
-    rotation: Float32Array,
-    parentObjectCharacterId: string,
-    BuildingSlot: string
-  ) {
-    const item = client.character.getItemById(itemDefinitionId);
-    if (!item) {
-      this.sendData(client, "Construction.PlacementFinalizeResponse", {
-        status: 1,
-        unknownString1: "",
-      });
-      return;
-    }
-    const allowedItems = [Items.IED, Items.LANDMINE, Items.SNARE];
-    // disallow construction stacking
-    // world constructions may not be placed within 1 radius, this problem wont affect stuff inside any foundation
-    let stackedDectector = false;
-    if (
-      !Number(parentObjectCharacterId) &&
-      !allowedItems.includes(itemDefinitionId)
-    ) {
-      for (const a in this._worldSimpleConstruction) {
-        const c = this._worldSimpleConstruction[a];
-        const diff = Math.abs(c.state.position[1] - position[1]);
-        if (
-          isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
-          diff > 0.3
-        ) {
-          stackedDectector = true;
-          break;
-        }
-      }
-      for (const a in this._constructionSimple) {
-        const c = this._constructionSimple[a];
-        const diff = Math.abs(c.state.position[1] - position[1]);
-        if (
-          isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
-          diff > 0.3
-        ) {
-          stackedDectector = true;
-          break;
-        }
-      }
-
-      for (const a in this._lootableConstruction) {
-        const c = this._lootableConstruction[a];
-        const diff = Math.abs(c.state.position[1] - position[1]);
-        if (
-          isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
-          diff > 0.3
-        ) {
-          stackedDectector = true;
-          break;
-        }
-      }
-      for (const a in this._worldLootableConstruction) {
-        const c = this._worldLootableConstruction[a];
-        const diff = Math.abs(c.state.position[1] - position[1]);
-        if (
-          isPosInRadiusWithY(1, c.state.position, position, 1.5) &&
-          diff > 0.3
-        ) {
-          stackedDectector = true;
-          break;
-        }
-      }
-      if (stackedDectector) {
-        this.sendData(client, "Construction.PlacementFinalizeResponse", {
-          status: 0,
-          unknownString1: "",
-        });
-        this.sendAlert(
-          client,
-          "You cant stack that many constructions in one place"
-        );
-        return;
-      }
-    }
-    if (item.itemDefinitionId == Items.GROUND_TAMPER) {
-      // fix for tamper stacking
-      let tampersInRadius = 0;
-      for (const a in this._constructionFoundations) {
-        const foundation = this._constructionFoundations[a];
-        if (foundation.itemDefinitionId != Items.GROUND_TAMPER) continue;
-        if (isPosInRadius(22, foundation.state.position, position))
-          tampersInRadius++;
-      }
-      if (tampersInRadius >= 3) {
-        this.sendData(client, "Construction.PlacementFinalizeResponse", {
-          status: 0,
-          unknownString1: "",
-        });
-        this.sendAlert(client, "You cant place a ground tamper here");
-        return;
-      }
-    }
-    if (
-      item.itemDefinitionId != Items.GROUND_TAMPER &&
-      item.itemDefinitionId != Items.FOUNDATION &&
-      item.itemDefinitionId != Items.FOUNDATION_EXPANSION &&
-      !isPosInRadius(30, client.character.state.position, position)
-    ) {
-      this.sendData(client, "Construction.PlacementFinalizeResponse", {
-        status: 0,
-        unknownString1: "",
-      });
-      this.sendAlert(
-        client,
-        "You have to be in 30m radius of placed construction position"
-      );
-      return;
-    }
-
-    // for construction entities that don't have a parentObjectCharacterId from the client
-    let freeplaceParentCharacterId = "";
-
-    let isInFoundation = false;
-    for (const a in this._constructionFoundations) {
-      const iteratedFoundation = this._constructionFoundations[a];
-      const permissions =
-        iteratedFoundation.permissions[client.character.characterId];
-      if (!permissions || !permissions.build) continue;
-      if (iteratedFoundation.characterId == parentObjectCharacterId) {
-        isInFoundation = true;
-        break;
-      }
-      if (iteratedFoundation.bounds) {
-        if (iteratedFoundation.isInside(position)) isInFoundation = true;
-      }
-    }
-    let isInsidePermissionedFoundation = false;
-    for (const a in this._constructionFoundations) {
-      const iteratedFoundation = this._constructionFoundations[a];
-      if (
-        iteratedFoundation.bounds &&
-        iteratedFoundation.getHasPermission(
-          this,
-          client.character.characterId,
-          ConstructionPermissionIds.BUILD
-        )
-      ) {
-        if (
-          iteratedFoundation.isInside(position) ||
-          (iteratedFoundation.characterId == parentObjectCharacterId &&
-            isPosInRadius(20, iteratedFoundation.state.position, position))
-        )
-          isInsidePermissionedFoundation = true;
-      }
-      for (const c in iteratedFoundation.occupiedWallSlots) {
-        const wall = iteratedFoundation.occupiedWallSlots[c];
-        if (wall instanceof ConstructionDoor) continue;
-        if (
-          wall.characterId == parentObjectCharacterId &&
-          isPosInRadius(
-            1,
-            wall.fixedPosition ? wall.fixedPosition : wall.state.position,
-            position
-          )
-        ) {
-          isInsidePermissionedFoundation = true;
-        }
-      }
-      for (const b in iteratedFoundation.occupiedShelterSlots) {
-        const shelter = iteratedFoundation.occupiedShelterSlots[b];
-        if (
-          (shelter.characterId == parentObjectCharacterId &&
-            isPosInRadius(
-              10,
-              shelter.fixedPosition
-                ? shelter.fixedPosition
-                : shelter.state.position,
-              position
-            )) ||
-          (shelter.bounds && shelter.isInside(position))
-        ) {
-          isInsidePermissionedFoundation = true;
-        }
-        for (const b in shelter.occupiedShelterSlots) {
-          const upperShelter = shelter.occupiedShelterSlots[b];
-          if (
-            (upperShelter.characterId == parentObjectCharacterId &&
-              isPosInRadius(10, upperShelter.state.position, position)) ||
-            (upperShelter.bounds && upperShelter.isInside(position))
-          ) {
-            isInsidePermissionedFoundation = true;
-          }
-        }
-      }
-    }
-
-    for (const a in this._constructionFoundations) {
-      const foundation = this._constructionFoundations[a];
-      let allowBuild = false;
-      const permissions = foundation.permissions[client.character.characterId];
-      if (permissions && permissions.build) allowBuild = true;
-      if (
-        !isInFoundation &&
-        isPosInRadius(
-          foundation.itemDefinitionId === Items.FOUNDATION ||
-            foundation.itemDefinitionId === Items.GROUND_TAMPER
-            ? 70
-            : 20,
-          position,
-          foundation.state.position
-        ) &&
-        allowBuild === false &&
-        !allowedItems.includes(itemDefinitionId) &&
-        !isInsidePermissionedFoundation
-      ) {
-        this.sendAlert(
-          client,
-          "You may not place this object this close to another players foundation"
-        );
-        this.sendData(client, "Construction.PlacementFinalizeResponse", {
-          status: 0,
-          unknownString1: "",
-        });
-        return;
-      }
-
-      // for construction entities that don't have a parentObjectCharacterId from the client
-      if (!Number(parentObjectCharacterId)) {
-        if (foundation.isInside(position)) {
-          freeplaceParentCharacterId = foundation.characterId;
-        }
-        // check if inside a shelter even if not inside foundation (large shelters can extend it)
-        Object.values(foundation.occupiedShelterSlots).forEach((shelter) => {
-          if (shelter.isInside(position)) {
-            freeplaceParentCharacterId = shelter.characterId;
-          }
-          if (!Number(freeplaceParentCharacterId)) {
-            // check upper shelters if its not in lower ones
-            Object.values(shelter.occupiedShelterSlots).forEach(
-              (upperShelter) => {
-                if (upperShelter.isInside(position)) {
-                  freeplaceParentCharacterId = upperShelter.characterId;
-                }
-              }
-            );
-          }
-        });
-      }
-    }
-    // block building around spawn points
-    let isInSpawnPoint = false;
-    spawnLocations2.forEach((point: Float32Array) => {
-      if (isPosInRadius(25, position, point)) isInSpawnPoint = true;
-    });
-    if (
-      isInSpawnPoint &&
-      !isInsidePermissionedFoundation &&
-      !allowedItems.includes(itemDefinitionId)
-    ) {
-      this.sendData(client, "Construction.PlacementFinalizeResponse", {
-        status: 0,
-        unknownString1: "",
-      });
-      this.sendAlert(
-        client,
-        "You may not place this object this close to a spawn point"
-      );
-      return;
-    }
-    // block building near vehicle spawn
-    let isInVehicleSpawnPoint = false;
-    Z1_vehicles.forEach((vehicleSpawn: any) => {
-      if (isPosInRadius(30, position, vehicleSpawn.position))
-        isInVehicleSpawnPoint = true;
-    });
-    if (
-      isInVehicleSpawnPoint &&
-      !isInsidePermissionedFoundation &&
-      !allowedItems.includes(itemDefinitionId)
-    ) {
-      this.sendData(client, "Construction.PlacementFinalizeResponse", {
-        status: 0,
-        unknownString1: "",
-      });
-      this.sendAlert(
-        client,
-        "You may not place this object this close to a vehicle spawn point"
-      );
-      return;
-    }
-    // block building out of map bounds
-    let inMapBounds: boolean = false;
-    this._spawnGrid.forEach((cell: SpawnCell) => {
-      if (
-        position[0] >= cell.position[0] - cell.width / 2 &&
-        position[0] <= cell.position[0] + cell.width / 2 &&
-        position[2] >= cell.position[2] - cell.height / 2 &&
-        position[2] <= cell.position[2] + cell.height / 2
-      ) {
-        inMapBounds = true;
-      }
-    });
-
-    if (!inMapBounds) {
-      this.sendData(client, "Construction.PlacementFinalizeResponse", {
-        status: 0,
-        unknownString1: "",
-      });
-      this.sendAlert(
-        client,
-        "You may not place this object this close to edge of the map"
-      );
-      return;
-    }
-
-    // block building in cities
-    const allowedPoiPlacement = [Items.LANDMINE, Items.IED, Items.SNARE];
-    if (!allowedPoiPlacement.includes(itemDefinitionId)) {
-      let isInPoi = false;
-      let useRange = true;
-      Z1_POIs.forEach((point: any) => {
-        if (point.bounds) {
-          useRange = false;
-          point.bounds.forEach((bound: any) => {
-            if (isInsideSquare([position[0], position[2]], bound)) {
-              isInPoi = true;
-              return;
-            }
-          });
-        }
-        if (useRange && isPosInRadius(point.range, position, point.position))
-          isInPoi = true;
-      });
-      // alow placement in poi if object is parented to a foundation
-      if (isInPoi && !isInsidePermissionedFoundation) {
-        this.sendData(client, "Construction.PlacementFinalizeResponse", {
-          status: 0,
-          unknownString1: "",
-        });
-        this.sendAlert(
-          client,
-          "You may not place this object this close to a town or point of interest."
-        );
-        return;
-      }
-    }
-    if (
-      !this.handleConstructionPlacement(
-        client,
-        itemDefinitionId,
-        modelId,
-        position,
-        rotation,
-        parentObjectCharacterId,
-        BuildingSlot,
-        freeplaceParentCharacterId
-      )
-    ) {
-      this.sendData(client, "Construction.PlacementFinalizeResponse", {
-        status: 0,
-        unknownString1: "",
-      });
-      return;
-    }
-
-    this.removeInventoryItem(client, item);
-    this.sendData(client, "Construction.PlacementFinalizeResponse", {
-      status: 1,
-      unknownString1: "",
-    });
-    this.constructionManager(client);
-  }
+  
 
   handleConstructionPlacement(
     client: Client,
@@ -8171,7 +7784,7 @@ export class ZoneServer2016 extends EventEmitter {
       const client = this._clients[a];
       if (!client.isLoading) {
         client.routineCounter++;
-        this.constructionManager(client);
+        this.constructionPermissionsManager(client);
         this.checkInMapBounds(client);
         this.checkZonePing(client);
         if (client.routineCounter >= 3) {
@@ -8193,7 +7806,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   executeRoutine(client: Client) {
-    this.constructionManager(client);
+    this.constructionPermissionsManager(client);
     this.spawnConstructionParentsInRange(client);
     this.vehicleManager(client);
     //this.npcManager(client);
