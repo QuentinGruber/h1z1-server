@@ -2237,6 +2237,19 @@ export class ZoneServer2016 extends EventEmitter {
         dictionary
       );
     }
+
+    // no loop, just going down the construction ladder
+    const parentFoundation = constructionObject.getParentFoundation(this);
+    if (parentFoundation)
+      parentFoundation.lastDamagedTimestamp = Date.now() + 300000;
+
+    const parentFoundation2 = parentFoundation?.getParentFoundation(this);
+    if (parentFoundation2)
+      parentFoundation2.lastDamagedTimestamp = Date.now() + 300000;
+
+    const parentFoundation3 = parentFoundation2?.getParentFoundation(this);
+    if (parentFoundation3)
+      parentFoundation3.lastDamagedTimestamp = Date.now() + 300000;
     /*
     this.sendDataToAllWithSpawnedEntity(
       // play burning effect & remove it after 15s

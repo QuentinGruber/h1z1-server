@@ -59,6 +59,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
   readonly rampSlots: ConstructionSlotPositionMap = {};
   occupiedRampSlots: { [slot: number]: ConstructionChildEntity } = {};
+  lastDamagedTimestamp: number = 0;
 
   readonly itemDefinitionId: number;
   readonly slot: string;

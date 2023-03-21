@@ -1850,6 +1850,32 @@ export class zonePacketHandlers {
               client.character.currentInteractionGuid
             );
             if (!entity) return;
+            const parentFoundation = entity.getParentFoundation(server);
+            if (
+              parentFoundation &&
+              parentFoundation.lastDamagedTimestamp > Date.now()
+            ) {
+              server.sendChatText(
+                client,
+                `You cannot repair anything on this foundation for next ${(
+                  (parentFoundation.lastDamagedTimestamp - Date.now()) /
+                  1000
+                ).toFixed(0)} seconds`
+              );
+              return;
+            }
+            if (entity instanceof ConstructionParentEntity) {
+              if (entity.lastDamagedTimestamp > Date.now()) {
+                server.sendChatText(
+                  client,
+                  `You cannot repair anything on this foundation for next ${(
+                    (entity.lastDamagedTimestamp - Date.now()) /
+                    1000
+                  ).toFixed(0)} seconds`
+                );
+                return;
+              }
+            }
             if (!client.character.temporaryScrapSoundTimeout) {
               let accumulatedItemDamage = 0;
               server.sendCompositeEffectToAllInRange(
