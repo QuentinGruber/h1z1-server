@@ -4228,6 +4228,14 @@ export class ZoneServer2016 extends EventEmitter {
           delete this.worldObjectManager._spawnedLootObjects[
             itemObject.spawnerId
           ];
+        if (
+          itemObject.item.itemDefinitionId == Items.FUEL_BIOFUEL ||
+          itemObject.item.itemDefinitionId == Items.FUEL_ETHANOL
+        ) {
+          if (this._explosives[itemObject.characterId]) {
+            this.deleteEntity(itemObject.characterId, this._explosives);
+          }
+        }
         this.sendCompositeEffectToAllWithSpawnedEntity(
           this._spawnedItems,
           itemObject,
