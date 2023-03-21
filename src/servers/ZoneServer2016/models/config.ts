@@ -18,6 +18,7 @@ interface ServerConfig {
   tickRate: number;
   worldRoutineRate: number;
   welcomeMessage: string;
+  adminMessage: string;
 }
 
 interface FairplayConfig {

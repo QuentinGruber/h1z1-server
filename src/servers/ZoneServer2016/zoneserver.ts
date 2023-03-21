@@ -297,6 +297,7 @@ export class ZoneServer2016 extends EventEmitter {
   tickRate!: number;
   worldRoutineRate!: number;
   welcomeMessage!: string;
+  adminMessage!: string;
 
   constructor(
     serverPort: number,
