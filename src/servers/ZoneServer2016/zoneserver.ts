@@ -2209,20 +2209,35 @@ export class ZoneServer2016 extends EventEmitter {
         break;
     }
     const distance = getDistance(entityPosition, position);
-    constructionObject.damage(this, {
-      entity: "",
-      damage:
-        distance < constructionObject.damageRange
-          ? damage
-          : damage / Math.sqrt(distance),
-    });
-    this.updateResourceToAllWithSpawnedEntity(
-      constructionObject.characterId,
-      constructionObject.health,
-      ResourceIds.CONSTRUCTION_CONDITION,
-      ResourceTypes.CONDITION,
-      dictionary
-    );
+    if (constructionObject.useSimpleStruct) {
+      constructionObject.damageSimpleNpc(
+        this,
+        {
+          entity: "",
+          damage:
+            distance < constructionObject.damageRange
+              ? damage
+              : damage / Math.sqrt(distance),
+        },
+        dictionary
+      );
+    } else {
+      constructionObject.damage(this, {
+        entity: "",
+        damage:
+          distance < constructionObject.damageRange
+            ? damage
+            : damage / Math.sqrt(distance),
+      });
+      this.updateResourceToAllWithSpawnedEntity(
+        constructionObject.characterId,
+        constructionObject.health,
+        ResourceIds.CONSTRUCTION_CONDITION,
+        ResourceTypes.CONDITION,
+        dictionary
+      );
+    }
+    /*
     this.sendDataToAllWithSpawnedEntity(
       // play burning effect & remove it after 15s
       dictionary,
@@ -2245,7 +2260,7 @@ export class ZoneServer2016 extends EventEmitter {
           }
         );
       }
-    }, 15000);
+    }, 15000);*/
     if (constructionObject.health > 0) return;
 
     constructionObject.destroy(this, 3000);
@@ -3886,11 +3901,7 @@ export class ZoneServer2016 extends EventEmitter {
     entity: ConstructionParentEntity
   ) {
     if (!client.spawnedEntities.includes(entity)) {
-      this.addLightweightNpc(
-        client,
-        entity,
-        this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
-      );
+      this.addSimpleNpc(client, entity);
       client.spawnedEntities.push(entity);
       if (
         entity.itemDefinitionId == Items.SHACK ||
@@ -3947,11 +3958,7 @@ export class ZoneServer2016 extends EventEmitter {
     spawnTree = true
   ) {
     if (!client.spawnedEntities.includes(entity)) {
-      this.addLightweightNpc(
-        client,
-        entity,
-        this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
-      );
+      this.addSimpleNpc(client, entity);
       client.spawnedEntities.push(entity);
       this.updateResource(
         client,
@@ -4275,24 +4282,28 @@ export class ZoneServer2016 extends EventEmitter {
         }
         client.spawnedEntities.push(object);
         if (object instanceof BaseLightweightCharacter) {
-          this.addLightweightNpc(client, object);
-          if (object instanceof DoorEntity) {
-            if (object.isOpen) {
-              this.sendData(client, "PlayerUpdatePosition", {
-                transientId: object.transientId,
-                positionUpdate: {
-                  sequenceTime: 0,
-                  unknown3_int8: 0,
-                  position: object.state.position,
-                  orientation: object.openAngle,
-                },
-              });
+          if (object.useSimpleStruct) {
+            this.addSimpleNpc(client, object);
+          } else {
+            this.addLightweightNpc(client, object);
+            if (object instanceof DoorEntity) {
+              if (object.isOpen) {
+                this.sendData(client, "PlayerUpdatePosition", {
+                  transientId: object.transientId,
+                  positionUpdate: {
+                    sequenceTime: 0,
+                    unknown3_int8: 0,
+                    position: object.state.position,
+                    orientation: object.openAngle,
+                  },
+                });
+              }
+              continue;
             }
-            continue;
-          }
-          if (object instanceof Npc) {
-            object.updateEquipment(this);
-            continue;
+            if (object instanceof Npc) {
+              object.updateEquipment(this);
+              continue;
+            }
           }
         } else if (
           object instanceof TrapEntity ||
@@ -5432,6 +5443,8 @@ export class ZoneServer2016 extends EventEmitter {
           client,
           itemDefinitionId,
           modelId,
+          position,
+          rotation,
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -5456,6 +5469,8 @@ export class ZoneServer2016 extends EventEmitter {
           client,
           itemDefinitionId,
           modelId,
+          position,
+          new Float32Array([0, rotation[0], 0]),
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -5464,7 +5479,8 @@ export class ZoneServer2016 extends EventEmitter {
           client,
           itemDefinitionId,
           modelId,
-          rotation,
+          position,
+          new Float32Array([0, rotation[0], 0]),
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -5506,6 +5522,8 @@ export class ZoneServer2016 extends EventEmitter {
           client,
           itemDefinitionId,
           modelId,
+          position,
+          new Float32Array([0, rotation[0], 0]),
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -5520,7 +5538,8 @@ export class ZoneServer2016 extends EventEmitter {
           client,
           itemDefinitionId,
           modelId,
-          rotation,
+          position,
+          new Float32Array([0, rotation[0], 0]),
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -5572,6 +5591,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     itemDefinitionId: number,
     modelId: number,
+    position: Float32Array,
     rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
@@ -5604,11 +5624,11 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    const position = parent.getSlotPosition(BuildingSlot, parent.shelterSlots);
+    /*const position = parent.getSlotPosition(BuildingSlot, parent.shelterSlots);
     if (!position) {
       this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
-    }
+    }*/
 
     const characterId = this.generateGuid(),
       transientId = 1, // dont think its needed
@@ -5636,6 +5656,8 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     itemDefinitionId: number,
     modelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
   ): boolean {
@@ -5652,7 +5674,7 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    let position, rotation;
+    /*let position, rotation;
     if (itemDefinitionId == Items.METAL_WALL_UPPER) {
       if (
         parent &&
@@ -5682,7 +5704,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       (position = parent.getSlotPosition(BuildingSlot, parent.wallSlots)),
         (rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots));
-    }
+    }*/
     if (!position || !rotation) {
       this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
@@ -5715,6 +5737,8 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     itemDefinitionId: number,
     modelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
   ): boolean {
@@ -5741,14 +5765,14 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    const position = parentFoundation.getSlotPosition(
+    /*const position = parentFoundation.getSlotPosition(
         BuildingSlot,
         parentFoundation.rampSlots
       ),
       rotation = parentFoundation.getSlotRotation(
         BuildingSlot,
         parentFoundation.rampSlots
-      );
+      );*/
     if (!position || !rotation) {
       this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
@@ -5780,6 +5804,7 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     itemDefinitionId: number,
     modelId: number,
+    position: Float32Array,
     rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
@@ -5807,14 +5832,14 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    const position = parentFoundation.getSlotPosition(
+    /*const position = parentFoundation.getSlotPosition(
       BuildingSlot,
       parentFoundation.rampSlots
     );
     if (!position) {
       this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
-    }
+    }*/
 
     // rotation is not slot-locked yet
     const characterId = this.generateGuid(),
@@ -5824,7 +5849,7 @@ export class ZoneServer2016 extends EventEmitter {
         transientId,
         modelId,
         position,
-        new Float32Array([rotation[0], 0, 0]),
+        rotation,
         this,
         itemDefinitionId,
         parentObjectCharacterId,
@@ -5843,6 +5868,8 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     itemDefinitionId: number,
     modelId: number,
+    position: Float32Array,
+    rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
   ): boolean {
@@ -5870,8 +5897,8 @@ export class ZoneServer2016 extends EventEmitter {
       return false;
     }
 
-    const position = parent.getSlotPosition(BuildingSlot, parent.wallSlots),
-      rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);
+    /*const position = parent.getSlotPosition(BuildingSlot, parent.wallSlots),
+      rotation = parent.getSlotRotation(BuildingSlot, parent.wallSlots);*/
     if (!position || !rotation) {
       this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
       return false;
@@ -5951,7 +5978,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.placementError(client, ConstructionErrors.UNKNOWN_SLOT);
         return false;
       }
-      const pos = parentFoundation.getSlotPosition(
+      /*const pos = parentFoundation.getSlotPosition(
           BuildingSlot || "",
           parentFoundation.expansionSlots
         ),
@@ -5964,7 +5991,7 @@ export class ZoneServer2016 extends EventEmitter {
         return false;
       }
       position = pos;
-      rotation = rot;
+      rotation = rot;*/
     }
 
     let ownerCharacterId = client.character.characterId,
@@ -5981,7 +6008,7 @@ export class ZoneServer2016 extends EventEmitter {
         transientId,
         modelId,
         position,
-        rotation,
+        new Float32Array([0, rotation[0], 0]),
         this,
         itemDefinitionId,
         ownerCharacterId,

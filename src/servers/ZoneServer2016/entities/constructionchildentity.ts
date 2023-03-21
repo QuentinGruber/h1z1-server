@@ -129,7 +129,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       this.state.rotation = rotation;
       this.eulerAngle = overrideEulerAngle;
     } else {
-      this.state.rotation = eul2quat(rotation);
+      this.state.rotation = rotation;
       this.eulerAngle = rotation[0];
     }
     this.itemDefinitionId = itemDefinitionId;
@@ -139,6 +139,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.damageRange = getDamageRange(this.itemDefinitionId);
     this.isSecured = this.itemDefinitionId == Items.METAL_WALL ? true : false;
     this.npcRenderDistance = getRenderDistance(this.itemDefinitionId);
+    this.useSimpleStruct = true;
 
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
     Object.seal(this.wallSlots);
@@ -171,6 +172,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
     const itemDefinition = server.getItemDefinition(this.itemDefinitionId);
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
+    console.log(this.state.rotation);
   }
 
   getOccupiedSlotMaps(): Array<OccupiedSlotMap> {
@@ -372,6 +374,21 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     // todo: redo this
     this.health -= damageInfo.damage;
+  }
+
+  damageSimpleNpc(
+    server: ZoneServer2016,
+    damageInfo: DamageInfo,
+    dictionary: any
+  ) {
+    // todo: redo this
+    this.health -= damageInfo.damage;
+    server.sendDataToAllWithSpawnedEntity(
+      dictionary,
+      this.characterId,
+      "Character.UpdateSimpleProxyHealth",
+      this.pGetSimpleProxyHealth()
+    );
   }
 
   isInside(position: Float32Array) {

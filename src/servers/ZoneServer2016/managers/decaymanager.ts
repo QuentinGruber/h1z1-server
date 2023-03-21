@@ -114,10 +114,21 @@ export class DecayManager {
   ) {
     const dictionary = server.getConstructionDictionary(entity.characterId);
     if (!dictionary[entity.characterId]) return;
-    entity.damage(server, {
-      entity: "Server.DecayManager",
-      damage: 125000,
-    });
+    if (entity.useSimpleStruct) {
+      entity.damageSimpleNpc(
+        server,
+        {
+          entity: "Server.DecayManager",
+          damage: 125000,
+        },
+        dictionary
+      );
+    } else {
+      entity.damage(server, {
+        entity: "Server.DecayManager",
+        damage: 125000,
+      });
+    }
     server.updateResourceToAllWithSpawnedEntity(
       entity.characterId,
       entity.health,
