@@ -258,7 +258,10 @@ export class ConstructionDoor extends DoorEntity {
             for (const a in server._clients) {
               const client = server._clients[a];
               if (client.character.isHidden == parent.characterId)
-                server.constructionManager.constructionPermissionsManager(server, client);
+                server.constructionManager.constructionPermissionsManager(
+                  server,
+                  client
+                );
             }
           }
         }

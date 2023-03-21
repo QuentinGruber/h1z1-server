@@ -393,13 +393,15 @@ export class ZonePacketHandlers {
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
     if (
-      packet.data.file === server.fairPlayManager.fairPlayValues?.requiredFile &&
+      packet.data.file ===
+        server.fairPlayManager.fairPlayValues?.requiredFile &&
       client.isMovementBlocked
     ) {
       client.isMovementBlocked = false;
     }
     if (
-      packet.data.file === server.fairPlayManager.fairPlayValues?.requiredFile2 &&
+      packet.data.file ===
+        server.fairPlayManager.fairPlayValues?.requiredFile2 &&
       !client.clientLogs.includes(packet.data.message) &&
       !client.isAdmin
     ) {
@@ -1834,7 +1836,11 @@ export class ZonePacketHandlers {
             weaponItem.itemDefinitionId == Items.WEAPON_HAMMER &&
             client.character.currentInteractionGuid
           ) {
-            server.constructionManager.hammerConstructionEntity(server, client, weaponItem);
+            server.constructionManager.hammerConstructionEntity(
+              server,
+              client,
+              weaponItem
+            );
             return;
           }
 
@@ -1973,7 +1979,12 @@ export class ZonePacketHandlers {
               delete client.fireHints[p.packet.sessionProjectileCount + x];
             }, 10000);
           }
-          server.fairPlayManager.hitMissFairPlayCheck(server, client, false, "");
+          server.fairPlayManager.hitMissFairPlayCheck(
+            server,
+            client,
+            false,
+            ""
+          );
           server.stopHudTimer(client);
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,

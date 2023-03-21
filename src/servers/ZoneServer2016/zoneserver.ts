@@ -54,7 +54,7 @@ import {
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
-  Recipe
+  Recipe,
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
 import {
@@ -83,7 +83,6 @@ import {
   getDifference,
   logClientActionToMongo,
   removeUntransferableFields,
-  decrypt,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -461,7 +460,11 @@ export class ZoneServer2016 extends EventEmitter {
                   for (let i = 0; i < banInfos.length; i++) {
                     const banInfo = banInfos[i];
                     // TODO: vpn-whitelist
-                    if (this.fairPlayManager.banInfoAcceptance.includes(banInfo.banInfo)) {
+                    if (
+                      this.fairPlayManager.banInfoAcceptance.includes(
+                        banInfo.banInfo
+                      )
+                    ) {
                       this._h1emuZoneServer.sendData(
                         client,
                         "CharacterAllowedReply",
@@ -1776,7 +1779,12 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        if (this.constructionManager.isConstructionInSecuredArea(this, constructionObject)) {
+        if (
+          this.constructionManager.isConstructionInSecuredArea(
+            this,
+            constructionObject
+          )
+        ) {
           if (client) {
             this.constructionManager.sendBaseSecuredMessage(this, client);
           }
@@ -1809,7 +1817,12 @@ export class ZoneServer2016 extends EventEmitter {
           position
         )
       ) {
-        if (this.constructionManager.isConstructionInSecuredArea(this, constructionObject)) {
+        if (
+          this.constructionManager.isConstructionInSecuredArea(
+            this,
+            constructionObject
+          )
+        ) {
           if (client) {
             this.constructionManager.sendBaseSecuredMessage(this, client);
           }
@@ -2009,7 +2022,11 @@ export class ZoneServer2016 extends EventEmitter {
         damage: 99999,
       };
       if (this.fairPlayManager.fairPlayValues && !client.isAdmin) {
-        for (let x = 1; x < this.fairPlayManager.fairPlayValues.respawnCheckIterations; x++) {
+        for (
+          let x = 1;
+          x < this.fairPlayManager.fairPlayValues.respawnCheckIterations;
+          x++
+        ) {
           setTimeout(() => {
             if (
               isPosInRadius(
@@ -2466,7 +2483,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client.character.isAlive) return;
 
     const { hitReport } = packet;
-    if(!hitReport) return; // should never trigger
+    if (!hitReport) return; // should never trigger
 
     if (this._decoys[hitReport.characterId]) {
       const decoy = this._decoys[hitReport.characterId];
@@ -2479,7 +2496,7 @@ export class ZoneServer2016 extends EventEmitter {
         false
       );
     }
-    const message = `FairPlay: blocked incoming projectile from ${client.character.name}`
+    const message = `FairPlay: blocked incoming projectile from ${client.character.name}`;
     const entity = this.getEntity(hitReport.characterId);
     if (!entity) return;
     const fireHint = client.fireHints[hitReport.sessionProjectileCount];
@@ -2506,7 +2523,18 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
-    if (this.fairPlayManager.fairPlayValues && !this.fairPlayManager.validateProjectileHit(this, client, entity, fireHint, weaponItem, hitReport, gameTime)) {
+    if (
+      this.fairPlayManager.fairPlayValues &&
+      !this.fairPlayManager.validateProjectileHit(
+        this,
+        client,
+        entity,
+        fireHint,
+        weaponItem,
+        hitReport,
+        gameTime
+      )
+    ) {
       return;
     }
     const hitValidation = this.validateHit(client, entity);
@@ -2645,7 +2673,11 @@ export class ZoneServer2016 extends EventEmitter {
       !(entity instanceof ConstructionParentEntity) &&
       !(entity instanceof Vehicle2016) &&
       (this.filterOutOfDistance(entity, client.character.state.position) ||
-        this.constructionManager.constructionShouldHideEntity(this, client, entity))
+        this.constructionManager.constructionShouldHideEntity(
+          this,
+          client,
+          entity
+        ))
     );
   }
 
