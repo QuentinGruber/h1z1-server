@@ -14,7 +14,7 @@
 import { Collection } from "mongodb";
 import { FairPlayValues, fireHint } from "types/zoneserver";
 import { BAN_INFO, DB_COLLECTIONS } from "../../../utils/enums";
-import { getAngle, getDistance, getDistance1d, getDistance2d, logClientActionToMongo } from "../../../utils/utils";
+import { decrypt, getAngle, getDistance, getDistance1d, getDistance2d, logClientActionToMongo } from "../../../utils/utils";
 import { LoadoutItem } from "../classes/loadoutItem";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { BaseEntity } from "../entities/baseentity";
@@ -22,7 +22,12 @@ import { Vehicle2016 as Vehicle } from "../entities/vehicle";
 import { ConstructionPermissionIds, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 
+const encryptedData = require("../../../../data/2016/encryptedData/encryptedData.json"),
+fairPlayData = require("../../../../data/2016/encryptedData/fairPlayData.json");
+
 export class FairPlayManager {
+  _decryptKey: string = "";
+  _fairPlayDecryptKey: string = "";
   _suspiciousList: string[] = [];
   fairPlayValues?: FairPlayValues;
   banInfoAcceptance: Array<BAN_INFO> = [
@@ -36,6 +41,72 @@ export class FairPlayManager {
   useFairPlay!: boolean;
   maxPing!: number;
   pingTimeoutTime!: number;
+
+  decryptFairPlayValues() {
+    if (this._decryptKey) {
+      this._suspiciousList = encryptedData.map(
+        (x: { iv: string; encryptedData: string }) =>
+          decrypt(x, this._decryptKey)
+      );
+    }
+    if (this._fairPlayDecryptKey && this.useFairPlay) {
+      const decryptedData = fairPlayData.map(
+        (x: { iv: string; encryptedData: string }) =>
+          decrypt(x, this._fairPlayDecryptKey)
+      );
+      this.fairPlayValues = {
+        defaultMaxProjectileSpeed: Number(decryptedData[0]),
+        defaultMinProjectileSpeed: Number(decryptedData[1]),
+        defaultMaxDistance: Number(decryptedData[2]),
+        WEAPON_308: {
+          maxSpeed: Number(decryptedData[3]),
+          minSpeed: Number(decryptedData[4]),
+          maxDistance: Number(decryptedData[5]),
+        },
+        WEAPON_CROSSBOW: {
+          maxSpeed: Number(decryptedData[6]),
+          minSpeed: Number(decryptedData[7]),
+          maxDistance: Number(decryptedData[8]),
+        },
+        WEAPON_BOW_MAKESHIFT: {
+          maxSpeed: Number(decryptedData[9]),
+          minSpeed: Number(decryptedData[10]),
+          maxDistance: Number(decryptedData[11]),
+        },
+        WEAPON_BOW_RECURVE: {
+          maxSpeed: Number(decryptedData[12]),
+          minSpeed: Number(decryptedData[13]),
+          maxDistance: Number(decryptedData[14]),
+        },
+        WEAPON_BOW_WOOD: {
+          maxSpeed: Number(decryptedData[15]),
+          minSpeed: Number(decryptedData[16]),
+          maxDistance: Number(decryptedData[17]),
+        },
+        WEAPON_SHOTGUN: {
+          maxSpeed: Number(decryptedData[18]),
+          minSpeed: Number(decryptedData[19]),
+          maxDistance: Number(decryptedData[20]),
+        },
+        lastLoginDateAddVal: Number(decryptedData[21]),
+        maxTimeDrift: Number(decryptedData[22]),
+        maxSpeed: Number(decryptedData[23]),
+        maxVerticalSpeed: Number(decryptedData[24]),
+        speedWarnsNumber: Number(decryptedData[25]),
+        maxTpDist: Number(decryptedData[26]),
+        dotProductMin: Number(decryptedData[27]),
+        dotProductMinShotgun: Number(decryptedData[28]),
+        dotProductBlockValue: Number(decryptedData[29]),
+        requiredFile: decryptedData[30],
+        requiredString: decryptedData[31],
+        requiredFile2: decryptedData[32],
+        respawnCheckRange: Number(decryptedData[33]),
+        respawnCheckTime: Number(decryptedData[34]),
+        respawnCheckIterations: Number(decryptedData[35]),
+        maxFlying: Number(decryptedData[36]),
+      };
+    }
+  }
 
   checkPlayerSpeed(
     server: ZoneServer2016,

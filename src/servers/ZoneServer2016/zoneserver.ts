@@ -54,7 +54,6 @@ import {
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
-  FairPlayValues,
   Recipe
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
@@ -71,8 +70,6 @@ import {
   isPosInRadius,
   isPosInRadiusWithY,
   getDistance,
-  getDistance1d,
-  getDistance2d,
   randomIntFromInterval,
   Scheduler,
   generateTransientId,
@@ -87,7 +84,6 @@ import {
   logClientActionToMongo,
   removeUntransferableFields,
   decrypt,
-  getAngle,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -119,7 +115,7 @@ import {
 } from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
-import { BAN_INFO, DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
+import { DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
 
 import {
   ClientUpdateDeathMetrics,
@@ -163,8 +159,6 @@ const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"
   weaponDefinitions = require("../../../data/2016/dataSources/ServerWeaponDefinitions"),
   resourceDefinitions = require("../../../data/2016/dataSources/Resources"),
   Z1_POIs = require("../../../data/2016/zoneData/Z1_POIs"),
-  encryptedData = require("../../../data/2016/encryptedData/encryptedData.json"),
-  fairPlayData = require("../../../data/2016/encryptedData/fairPlayData.json"),
   equipmentModelTexturesMapping: Record<
     string,
     Record<string, string[]>
@@ -176,8 +170,6 @@ export class ZoneServer2016 extends EventEmitter {
   readonly _protocol: H1Z1Protocol;
   _db!: Db;
   readonly _soloMode: boolean;
-  _decryptKey: string = "";
-  _fairPlayDecryptKey: string = "";
   _serverName = process.env.SERVER_NAME || "";
   readonly _mongoAddress: string;
   private readonly _clientProtocol = "ClientProtocol_1080";
@@ -1153,69 +1145,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
-    if (this._decryptKey) {
-      this.fairPlayManager._suspiciousList = encryptedData.map(
-        (x: { iv: string; encryptedData: string }) =>
-          decrypt(x, this._decryptKey)
-      );
-    }
-    if (this._fairPlayDecryptKey && this.fairPlayManager.useFairPlay) {
-      const decryptedData = fairPlayData.map(
-        (x: { iv: string; encryptedData: string }) =>
-          decrypt(x, this._fairPlayDecryptKey)
-      );
-      this.fairPlayManager.fairPlayValues = {
-        defaultMaxProjectileSpeed: Number(decryptedData[0]),
-        defaultMinProjectileSpeed: Number(decryptedData[1]),
-        defaultMaxDistance: Number(decryptedData[2]),
-        WEAPON_308: {
-          maxSpeed: Number(decryptedData[3]),
-          minSpeed: Number(decryptedData[4]),
-          maxDistance: Number(decryptedData[5]),
-        },
-        WEAPON_CROSSBOW: {
-          maxSpeed: Number(decryptedData[6]),
-          minSpeed: Number(decryptedData[7]),
-          maxDistance: Number(decryptedData[8]),
-        },
-        WEAPON_BOW_MAKESHIFT: {
-          maxSpeed: Number(decryptedData[9]),
-          minSpeed: Number(decryptedData[10]),
-          maxDistance: Number(decryptedData[11]),
-        },
-        WEAPON_BOW_RECURVE: {
-          maxSpeed: Number(decryptedData[12]),
-          minSpeed: Number(decryptedData[13]),
-          maxDistance: Number(decryptedData[14]),
-        },
-        WEAPON_BOW_WOOD: {
-          maxSpeed: Number(decryptedData[15]),
-          minSpeed: Number(decryptedData[16]),
-          maxDistance: Number(decryptedData[17]),
-        },
-        WEAPON_SHOTGUN: {
-          maxSpeed: Number(decryptedData[18]),
-          minSpeed: Number(decryptedData[19]),
-          maxDistance: Number(decryptedData[20]),
-        },
-        lastLoginDateAddVal: Number(decryptedData[21]),
-        maxTimeDrift: Number(decryptedData[22]),
-        maxSpeed: Number(decryptedData[23]),
-        maxVerticalSpeed: Number(decryptedData[24]),
-        speedWarnsNumber: Number(decryptedData[25]),
-        maxTpDist: Number(decryptedData[26]),
-        dotProductMin: Number(decryptedData[27]),
-        dotProductMinShotgun: Number(decryptedData[28]),
-        dotProductBlockValue: Number(decryptedData[29]),
-        requiredFile: decryptedData[30],
-        requiredString: decryptedData[31],
-        requiredFile2: decryptedData[32],
-        respawnCheckRange: Number(decryptedData[33]),
-        respawnCheckTime: Number(decryptedData[34]),
-        respawnCheckIterations: Number(decryptedData[35]),
-        maxFlying: Number(decryptedData[36]),
-      };
-    }
+
+    this.fairPlayManager.decryptFairPlayValues();
+
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
     this.startRoutinesLoop();
     this.smeltingManager.checkSmeltables(this);
