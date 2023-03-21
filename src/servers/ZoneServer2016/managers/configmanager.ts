@@ -11,10 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import * as fs from 'fs';
-import * as yaml from 'js-yaml';
-import { Config } from '../models/config';
-import { ZoneServer2016 } from '../zoneserver';
+import * as fs from "fs";
+import * as yaml from "js-yaml";
+import { Config } from "../models/config";
+import { ZoneServer2016 } from "../zoneserver";
 
 function fileExists(filePath: string): boolean {
   try {
@@ -27,7 +27,7 @@ function fileExists(filePath: string): boolean {
 
 function copyFile(originalFilePath: string, newFilePath: string) {
   const readStream = fs.createReadStream(originalFilePath),
-  writeStream = fs.createWriteStream(newFilePath);
+    writeStream = fs.createWriteStream(newFilePath);
 
   readStream.pipe(writeStream);
   writeStream.on("finish", () => {
@@ -35,7 +35,7 @@ function copyFile(originalFilePath: string, newFilePath: string) {
     readStream.close();
     writeStream.close();
   });
-  
+
   writeStream.on("error", (err) => {
     console.error("Error copying config file:", err);
     readStream.close();
@@ -47,14 +47,25 @@ export class ConfigManager {
   private defaultConfig: Config;
   private config: Config;
 
-  constructor(server: ZoneServer2016, configPath: string = `${process.cwd()}/config.yaml`) {
-    this.defaultConfig = this.loadYaml("/../../../../data/2016/sampleData/defaultconfig.yaml") as Config;
+  constructor(
+    server: ZoneServer2016,
+    configPath: string = `${process.cwd()}/config.yaml`
+  ) {
+    this.defaultConfig = this.loadYaml(
+      "/../../../../data/2016/sampleData/defaultconfig.yaml"
+    ) as Config;
 
-    if(!configPath || !fileExists(configPath)) {
-      if(!fileExists(configPath)) console.error("Config path is invalid! Using default.");
+    if (!configPath || !fileExists(configPath)) {
+      if (!fileExists(configPath))
+        console.error("Config path is invalid! Using default.");
 
-      console.log("Config file not found, creating it in base directory using default values.")
-      copyFile(`${__dirname}/../../../../data/2016/sampleData/defaultconfig.yaml`, `${process.cwd()}/config.yaml`);
+      console.log(
+        "Config file not found, creating it in base directory using default values."
+      );
+      copyFile(
+        `${__dirname}/../../../../data/2016/sampleData/defaultconfig.yaml`,
+        `${process.cwd()}/config.yaml`
+      );
 
       this.config = this.defaultConfig;
       this.applyConfig(server);
@@ -62,25 +73,28 @@ export class ConfigManager {
     }
 
     const config = this.loadYaml(configPath, false);
-    if(config) {
+    if (config) {
       this.config = this.loadConfig(config);
       this.applyConfig(server);
       return;
     }
 
-    console.error("Config failed to load! Using default.")
+    console.error("Config failed to load! Using default.");
     this.config = this.defaultConfig;
     this.applyConfig(server);
   }
 
   private loadYaml(path: string, relative = true): Config | undefined {
-    return yaml.load(fs.readFileSync(`${relative?__dirname:""}${path}`, 'utf8')) as any as Config;
+    return yaml.load(
+      fs.readFileSync(`${relative ? __dirname : ""}${path}`, "utf8")
+    ) as any as Config;
   }
 
   loadConfig(config: Config): Config {
-    // in case new config file is missing certain values / out of date, 
+    // in case new config file is missing certain values / out of date,
     // fill with default values
-    const { server, fairplay, weather, worldobjects, speedtree } = this.defaultConfig;
+    const { server, fairplay, weather, worldobjects, speedtree, construction } =
+      this.defaultConfig;
     return {
       ...this.defaultConfig,
       ...config,
@@ -103,13 +117,25 @@ export class ConfigManager {
       speedtree: {
         ...speedtree,
         ...config.speedtree,
-      }
-    }
+      },
+      construction: {
+        ...construction,
+        ...config.construction,
+      },
+    };
   }
 
   applyConfig(server: ZoneServer2016) {
     //#region server
-    const { proximityItemsDistance, interactionDistance , charactersRenderDistance, tickRate, worldRoutineRate, welcomeMessage, adminMessage } = this.config.server;
+    const {
+      proximityItemsDistance,
+      interactionDistance,
+      charactersRenderDistance,
+      tickRate,
+      worldRoutineRate,
+      welcomeMessage,
+      adminMessage,
+    } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
     server.charactersRenderDistance = charactersRenderDistance;
@@ -135,7 +161,19 @@ export class ConfigManager {
     //#endregion
 
     //#region worldobjects
-    const { vehicleSpawnCap, lootRespawnTimer, vehicleRespawnTimer, npcRespawnTimer, itemDespawnTimer, lootDespawnTimer, deadNpcDespawnTimer, vehicleSpawnRadius, npcSpawnRadius, chanceNpc, chanceScreamer } = this.config.worldobjects;
+    const {
+      vehicleSpawnCap,
+      lootRespawnTimer,
+      vehicleRespawnTimer,
+      npcRespawnTimer,
+      itemDespawnTimer,
+      lootDespawnTimer,
+      deadNpcDespawnTimer,
+      vehicleSpawnRadius,
+      npcSpawnRadius,
+      chanceNpc,
+      chanceScreamer,
+    } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
     server.worldObjectManager.lootRespawnTimer = lootRespawnTimer;
     server.worldObjectManager.vehicleRespawnTimer = vehicleRespawnTimer;
@@ -152,7 +190,18 @@ export class ConfigManager {
     //#endregion
 
     //#region speedtree
-    const { minBlackberryHarvest, maxBlackberryHarvest, branchHarvestChance, minStickHarvest, maxStickHarvest, treeRespawnTimeMS, minWoodLogHarvest, maxWoodLogHarvest, minTreeHits, maxTreeHits } = this.config.speedtree;
+    const {
+      minBlackberryHarvest,
+      maxBlackberryHarvest,
+      branchHarvestChance,
+      minStickHarvest,
+      maxStickHarvest,
+      treeRespawnTimeMS,
+      minWoodLogHarvest,
+      maxWoodLogHarvest,
+      minTreeHits,
+      maxTreeHits,
+    } = this.config.speedtree;
     server.speedtreeManager.minBlackberryHarvest = minBlackberryHarvest;
     server.speedtreeManager.maxBlackberryHarvest = maxBlackberryHarvest;
     server.speedtreeManager.branchHarvestChance = branchHarvestChance;
@@ -166,15 +215,29 @@ export class ConfigManager {
     //#endregion
 
     //#region construction
-    const { allowPOIPlacement, allowStackedPlacement, allowOutOfBoundsPlacement, placementRange, spawnPointBlockedPlacementRange, vehicleSpawnPointBlockedPlacementRange, playerFoundationBlockedPlacementRange, playerShackBlockedPlacementRange } = this.config.construction
+    const {
+      allowPOIPlacement,
+      allowStackedPlacement,
+      allowOutOfBoundsPlacement,
+      placementRange,
+      spawnPointBlockedPlacementRange,
+      vehicleSpawnPointBlockedPlacementRange,
+      playerFoundationBlockedPlacementRange,
+      playerShackBlockedPlacementRange,
+    } = this.config.construction;
     server.constructionManager.allowPOIPlacement = allowPOIPlacement;
     server.constructionManager.allowStackedPlacement = allowStackedPlacement;
-    server.constructionManager.allowOutOfBoundsPlacement = allowOutOfBoundsPlacement;
+    server.constructionManager.allowOutOfBoundsPlacement =
+      allowOutOfBoundsPlacement;
     server.constructionManager.placementRange = placementRange;
-    server.constructionManager.spawnPointBlockedPlacementRange = spawnPointBlockedPlacementRange;
-    server.constructionManager.vehicleSpawnPointBlockedPlacementRange = vehicleSpawnPointBlockedPlacementRange;
-    server.constructionManager.playerFoundationBlockedPlacementRange = playerFoundationBlockedPlacementRange;
-    server.constructionManager.playerShackBlockedPlacementRange = playerShackBlockedPlacementRange;
+    server.constructionManager.spawnPointBlockedPlacementRange =
+      spawnPointBlockedPlacementRange;
+    server.constructionManager.vehicleSpawnPointBlockedPlacementRange =
+      vehicleSpawnPointBlockedPlacementRange;
+    server.constructionManager.playerFoundationBlockedPlacementRange =
+      playerFoundationBlockedPlacementRange;
+    server.constructionManager.playerShackBlockedPlacementRange =
+      playerShackBlockedPlacementRange;
     //#endregion
   }
 }

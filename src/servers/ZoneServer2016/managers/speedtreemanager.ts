@@ -49,61 +49,73 @@ export class SpeedTreeManager {
     let destroy = false;
     let count = 1;
     if (speedtreeDestroyed) return;
-      let itemDefId = 0;
-      switch (name) {
-        case "SpeedTree.Blackberry":
-          itemDefId = Items.BLACKBERRY;
-          const min = Math.floor(1 / this.branchHarvestChance),
+    let itemDefId = 0;
+    switch (name) {
+      case "SpeedTree.Blackberry":
+        itemDefId = Items.BLACKBERRY;
+        const min = Math.floor(1 / this.branchHarvestChance),
           max = Math.ceil(1 / this.branchHarvestChance);
-          if (randomIntFromInterval(min, max) == 1) {
-            client.character.lootItem(
-              server,
-              server.generateItem(Items.WEAPON_BRANCH)
-            );
-          }
-          destroy = true;
-          count = randomIntFromInterval(this.minBlackberryHarvest, this.maxBlackberryHarvest);
-          break;
-        case "SpeedTree.DevilClub":
-        case "SpeedTree.VineMaple":
-          itemDefId = Items.WOOD_STICK;
-          destroy = true;
-          count = randomIntFromInterval(this.minStickHarvest, this.maxStickHarvest);
-          break;
-        case "SpeedTree.RedMaple":
-        case "SpeedTree.WesternRedCedar":
-        case "SpeedTree.GreenMaple":
-        case "SpeedTree.GreenMapleDead":
-        case "SpeedTree.WesternCedarSapling":
-        case "SpeedTree.SaplingMaple":
-        case "SpeedTree.WhiteBirch":
-        case "SpeedTree.RedCedar":
-        case "SpeedTree.PaperBirch":
-        case "SpeedTree.OregonOak":
-          if (!this._speedTreesCounter[objectId]) {
-            this._speedTreesCounter[objectId] = {
-              hitPoints: randomIntFromInterval(this.minTreeHits - 1, this.maxTreeHits - 1),
-            }; // add a new tree key with random level of hitpoints
-          }
-          if (this._speedTreesCounter[objectId].hitPoints-- == 0) {
-            destroy = true;
-            delete this._speedTreesCounter[objectId]; // If out of health destroy tree and delete its key
-            itemDefId = Items.WOOD_LOG;
-            count = randomIntFromInterval(this.minWoodLogHarvest, this.maxWoodLogHarvest);
-          }
-          break;
-        default: // boulders (do nothing);
-          return;
-      }
-      if (itemDefId) {
-        client.character.lootContainerItem(
-          server,
-          server.generateItem(itemDefId, count)
+        if (randomIntFromInterval(min, max) == 1) {
+          client.character.lootItem(
+            server,
+            server.generateItem(Items.WEAPON_BRANCH)
+          );
+        }
+        destroy = true;
+        count = randomIntFromInterval(
+          this.minBlackberryHarvest,
+          this.maxBlackberryHarvest
         );
-      }
-      if (destroy) {
-        this.destroy(server, objectId, name);
-      }
+        break;
+      case "SpeedTree.DevilClub":
+      case "SpeedTree.VineMaple":
+        itemDefId = Items.WOOD_STICK;
+        destroy = true;
+        count = randomIntFromInterval(
+          this.minStickHarvest,
+          this.maxStickHarvest
+        );
+        break;
+      case "SpeedTree.RedMaple":
+      case "SpeedTree.WesternRedCedar":
+      case "SpeedTree.GreenMaple":
+      case "SpeedTree.GreenMapleDead":
+      case "SpeedTree.WesternCedarSapling":
+      case "SpeedTree.SaplingMaple":
+      case "SpeedTree.WhiteBirch":
+      case "SpeedTree.RedCedar":
+      case "SpeedTree.PaperBirch":
+      case "SpeedTree.OregonOak":
+        if (!this._speedTreesCounter[objectId]) {
+          this._speedTreesCounter[objectId] = {
+            hitPoints: randomIntFromInterval(
+              this.minTreeHits - 1,
+              this.maxTreeHits - 1
+            ),
+          }; // add a new tree key with random level of hitpoints
+        }
+        if (this._speedTreesCounter[objectId].hitPoints-- == 0) {
+          destroy = true;
+          delete this._speedTreesCounter[objectId]; // If out of health destroy tree and delete its key
+          itemDefId = Items.WOOD_LOG;
+          count = randomIntFromInterval(
+            this.minWoodLogHarvest,
+            this.maxWoodLogHarvest
+          );
+        }
+        break;
+      default: // boulders (do nothing);
+        return;
+    }
+    if (itemDefId) {
+      client.character.lootContainerItem(
+        server,
+        server.generateItem(itemDefId, count)
+      );
+    }
+    if (destroy) {
+      this.destroy(server, objectId, name);
+    }
   }
 
   destroy(server: ZoneServer2016, objectId: number, name: string) {
@@ -129,5 +141,4 @@ export class SpeedTreeManager {
       delete this._speedTrees[objectId];
     }, this.treeRespawnTimeMS);
   }
-
 }

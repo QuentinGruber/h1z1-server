@@ -16,7 +16,13 @@ const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.
   spawnLocations2 = require("../../../../data/2016/zoneData/Z1_gridSpawns.json");
 
 import { ConstructionEntity } from "types/zoneserver";
-import { eul2quat, getConstructionSlotId, isInsideSquare, isPosInRadius, isPosInRadiusWithY } from "../../../utils/utils";
+import {
+  eul2quat,
+  getConstructionSlotId,
+  isInsideSquare,
+  isPosInRadius,
+  isPosInRadiusWithY,
+} from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
 import { SpawnCell } from "../classes/spawncell";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
@@ -29,7 +35,12 @@ import { Plant } from "../entities/plant";
 import { PlantingDiameter } from "../entities/plantingdiameter";
 import { TemporaryEntity } from "../entities/temporaryentity";
 import { TrapEntity } from "../entities/trapentity";
-import { ConstructionErrors, ConstructionPermissionIds, Items, StringIds } from "../models/enums";
+import {
+  ConstructionErrors,
+  ConstructionPermissionIds,
+  Items,
+  StringIds,
+} from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 
 export class ConstructionManager {
@@ -41,7 +52,11 @@ export class ConstructionManager {
   vehicleSpawnPointBlockedPlacementRange!: number;
   playerFoundationBlockedPlacementRange!: number;
   playerShackBlockedPlacementRange!: number;
-  overridePlacementItems: Array<number> = [Items.IED, Items.LANDMINE, Items.SNARE];
+  overridePlacementItems: Array<number> = [
+    Items.IED,
+    Items.LANDMINE,
+    Items.SNARE,
+  ];
 
   sendConstructionData(server: ZoneServer2016, client: Client) {
     const unknownArray1 = [46, 45, 47, 48, 49, 50, 12, 7, 15],
@@ -68,12 +83,22 @@ export class ConstructionManager {
     });
   }
 
-  placementError(server: ZoneServer2016, client: Client, error: ConstructionErrors) {
+  placementError(
+    server: ZoneServer2016,
+    client: Client,
+    error: ConstructionErrors
+  ) {
     server.sendAlert(client, `Construction Error: ${error}`);
   }
 
-  detectStackedPlacement(server: ZoneServer2016, client: Client, parentObjectCharacterId: string, position: Float32Array, itemDefinitionId: number): boolean {
-    if(this.allowStackedPlacement) return false;
+  detectStackedPlacement(
+    server: ZoneServer2016,
+    client: Client,
+    parentObjectCharacterId: string,
+    position: Float32Array,
+    itemDefinitionId: number
+  ): boolean {
+    if (this.allowStackedPlacement) return false;
     if (
       !Number(parentObjectCharacterId) &&
       !this.overridePlacementItems.includes(itemDefinitionId)
@@ -123,7 +148,11 @@ export class ConstructionManager {
     return false;
   }
 
-  detectStackedTamperPlacement(server: ZoneServer2016, item: BaseItem, position: Float32Array): boolean {
+  detectStackedTamperPlacement(
+    server: ZoneServer2016,
+    item: BaseItem,
+    position: Float32Array
+  ): boolean {
     if (item.itemDefinitionId == Items.GROUND_TAMPER) {
       // fix for tamper stacking
       let tampersInRadius = 0;
@@ -140,24 +169,37 @@ export class ConstructionManager {
     return false;
   }
 
-  detectOutOfRange(client: Client, item: BaseItem, position: Float32Array): boolean {
-    if(!this.placementRange) return false;
+  detectOutOfRange(
+    client: Client,
+    item: BaseItem,
+    position: Float32Array
+  ): boolean {
+    if (!this.placementRange) return false;
     if (
       item.itemDefinitionId != Items.GROUND_TAMPER &&
       item.itemDefinitionId != Items.FOUNDATION &&
       item.itemDefinitionId != Items.FOUNDATION_EXPANSION &&
-      !isPosInRadius(this.placementRange, client.character.state.position, position)
+      !isPosInRadius(
+        this.placementRange,
+        client.character.state.position,
+        position
+      )
     ) {
       return true;
     }
     return false;
   }
 
-  detectSpawnPointPlacement(itemDefinitionId: number, position: Float32Array, isInsidePermissionedFoundation: boolean): boolean {
-    if(!this.spawnPointBlockedPlacementRange) return false;
+  detectSpawnPointPlacement(
+    itemDefinitionId: number,
+    position: Float32Array,
+    isInsidePermissionedFoundation: boolean
+  ): boolean {
+    if (!this.spawnPointBlockedPlacementRange) return false;
     let isInSpawnPoint = false;
     spawnLocations2.forEach((point: Float32Array) => {
-      if (isPosInRadius(this.spawnPointBlockedPlacementRange, position, point)) isInSpawnPoint = true;
+      if (isPosInRadius(this.spawnPointBlockedPlacementRange, position, point))
+        isInSpawnPoint = true;
     });
     if (
       isInSpawnPoint &&
@@ -169,11 +211,21 @@ export class ConstructionManager {
     return false;
   }
 
-  detectVehicleSpawnPointPlacement(itemDefinitionId: number, position: Float32Array, isInsidePermissionedFoundation: boolean): boolean {
-    if(!this.vehicleSpawnPointBlockedPlacementRange) return false;
+  detectVehicleSpawnPointPlacement(
+    itemDefinitionId: number,
+    position: Float32Array,
+    isInsidePermissionedFoundation: boolean
+  ): boolean {
+    if (!this.vehicleSpawnPointBlockedPlacementRange) return false;
     let isInVehicleSpawnPoint = false;
     Z1_vehicles.forEach((vehicleSpawn: any) => {
-      if (isPosInRadius(this.vehicleSpawnPointBlockedPlacementRange, position, vehicleSpawn.position))
+      if (
+        isPosInRadius(
+          this.vehicleSpawnPointBlockedPlacementRange,
+          position,
+          vehicleSpawn.position
+        )
+      )
         isInVehicleSpawnPoint = true;
     });
     if (
@@ -181,14 +233,16 @@ export class ConstructionManager {
       !isInsidePermissionedFoundation &&
       !this.overridePlacementItems.includes(itemDefinitionId)
     ) {
-      
       return true;
     }
     return false;
   }
 
-  detectOutOfBoundsPlacement(server: ZoneServer2016, position: Float32Array): boolean {
-    if(this.allowOutOfBoundsPlacement) return false;
+  detectOutOfBoundsPlacement(
+    server: ZoneServer2016,
+    position: Float32Array
+  ): boolean {
+    if (this.allowOutOfBoundsPlacement) return false;
     let inMapBounds: boolean = false;
     server._spawnGrid.forEach((cell: SpawnCell) => {
       if (
@@ -207,11 +261,15 @@ export class ConstructionManager {
     return false;
   }
 
-  detectPOIPlacement(itemDefinitionId: number, position: Float32Array, isInsidePermissionedFoundation: boolean): boolean {
-    if(this.allowPOIPlacement) return false;
+  detectPOIPlacement(
+    itemDefinitionId: number,
+    position: Float32Array,
+    isInsidePermissionedFoundation: boolean
+  ): boolean {
+    if (this.allowPOIPlacement) return false;
     if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
     let isInPoi = false,
-    useRange = true;
+      useRange = true;
     Z1_POIs.forEach((point: any) => {
       if (point.bounds) {
         useRange = false;
@@ -223,7 +281,7 @@ export class ConstructionManager {
         });
       }
       if (useRange && isPosInRadius(point.range, position, point.position))
-      isInPoi = true;
+        isInPoi = true;
     });
     // alow placement in poi if object is parented to a foundation
     if (isInPoi && !isInsidePermissionedFoundation) {
@@ -231,12 +289,6 @@ export class ConstructionManager {
     }
     return false;
   }
-
-
-
-
-
-
 
   placement(
     server: ZoneServer2016,
@@ -256,24 +308,32 @@ export class ConstructionManager {
 
     // disallow construction stacking
     // world constructions may not be placed within 1 radius, this problem wont affect stuff inside any foundation
-    if(this.detectStackedPlacement(server, client, parentObjectCharacterId, position, itemDefinitionId)) {
+    if (
+      this.detectStackedPlacement(
+        server,
+        client,
+        parentObjectCharacterId,
+        position,
+        itemDefinitionId
+      )
+    ) {
       this.sendPlacementFinalize(server, client, 0);
       this.placementError(server, client, ConstructionErrors.STACKED);
       return;
     }
 
-    if(this.detectStackedTamperPlacement(server, item, position)) {
+    if (this.detectStackedTamperPlacement(server, item, position)) {
       this.sendPlacementFinalize(server, client, 0);
       this.placementError(server, client, ConstructionErrors.STACKED);
       return;
     }
 
-    if(this.detectOutOfRange(client, item, position)) {
+    if (this.detectOutOfRange(client, item, position)) {
       this.sendPlacementFinalize(server, client, 0);
       this.placementError(server, client, ConstructionErrors.OUT_OF_RANGE);
       return;
     }
-    
+
     // for construction entities that don't have a parentObjectCharacterId from the client
     let freeplaceParentCharacterId = "";
 
@@ -402,7 +462,13 @@ export class ConstructionManager {
       }
     }
 
-    if(this.detectSpawnPointPlacement(itemDefinitionId, position, isInsidePermissionedFoundation)) {
+    if (
+      this.detectSpawnPointPlacement(
+        itemDefinitionId,
+        position,
+        isInsidePermissionedFoundation
+      )
+    ) {
       this.sendPlacementFinalize(server, client, 0);
       server.sendAlert(
         client,
@@ -411,7 +477,13 @@ export class ConstructionManager {
       return;
     }
 
-    if(this.detectVehicleSpawnPointPlacement(itemDefinitionId, position, isInsidePermissionedFoundation)) {
+    if (
+      this.detectVehicleSpawnPointPlacement(
+        itemDefinitionId,
+        position,
+        isInsidePermissionedFoundation
+      )
+    ) {
       this.sendPlacementFinalize(server, client, 0);
       server.sendAlert(
         client,
@@ -420,7 +492,7 @@ export class ConstructionManager {
       return;
     }
 
-    if(this.detectOutOfBoundsPlacement(server, position)) {
+    if (this.detectOutOfBoundsPlacement(server, position)) {
       this.sendPlacementFinalize(server, client, 0);
       server.sendAlert(
         client,
@@ -429,7 +501,13 @@ export class ConstructionManager {
       return;
     }
 
-    if(this.detectPOIPlacement(itemDefinitionId, position, isInsidePermissionedFoundation)) {
+    if (
+      this.detectPOIPlacement(
+        itemDefinitionId,
+        position,
+        isInsidePermissionedFoundation
+      )
+    ) {
       this.sendPlacementFinalize(server, client, 0);
       server.sendAlert(
         client,
@@ -474,7 +552,13 @@ export class ConstructionManager {
     switch (itemDefinitionId) {
       case Items.SNARE:
       case Items.PUNJI_STICKS:
-        return this.placeTrap(server, itemDefinitionId, modelId, position, rotation);
+        return this.placeTrap(
+          server,
+          itemDefinitionId,
+          modelId,
+          position,
+          rotation
+        );
       case Items.FLARE:
         return this.placeTemporaryEntity(
           server,
@@ -700,7 +784,7 @@ export class ConstructionManager {
         BuildingSlot
       );
 
-      server._constructionSimple[characterId] = shelter;
+    server._constructionSimple[characterId] = shelter;
     parent.setShelterSlot(server, shelter);
     server.executeFuncForAllReadyClientsInRange((client) => {
       server.spawnSimpleConstruction(client, shelter);
@@ -1008,7 +1092,7 @@ export class ConstructionManager {
     }
 
     const parentFoundation =
-    server._constructionFoundations[parentObjectCharacterId];
+      server._constructionFoundations[parentObjectCharacterId];
     if (Number(parentObjectCharacterId) && !parentFoundation) {
       this.placementError(server, client, ConstructionErrors.UNKNOWN_PARENT);
       return false;
@@ -1152,7 +1236,11 @@ export class ConstructionManager {
   }
 
   // used by multiple construction classes that don't extend each other
-  undoPlacementInteractionString(server: ZoneServer2016, entity: ConstructionEntity, client: Client) {
+  undoPlacementInteractionString(
+    server: ZoneServer2016,
+    entity: ConstructionEntity,
+    client: Client
+  ) {
     server.sendData(client, "Command.InteractionString", {
       guid: entity.characterId,
       stringId: StringIds.UNDO_PLACEMENT,
@@ -1342,13 +1430,4 @@ export class ConstructionManager {
     server._plants[characterId] = obj;
     return true;
   }
-
-
-
-
-
-
-
-
-
 }

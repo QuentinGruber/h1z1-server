@@ -11,6 +11,4 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export class RConManager {
-
-}
+export class RConManager {}

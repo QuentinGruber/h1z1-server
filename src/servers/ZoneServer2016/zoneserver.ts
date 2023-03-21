@@ -56,7 +56,7 @@ import {
   DamageRecord,
   FairPlayValues,
   Recipe,
-  SlottedConstructionEntity
+  SlottedConstructionEntity,
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
 import {
@@ -275,7 +275,7 @@ export class ZoneServer2016 extends EventEmitter {
   isSaving: boolean = false;
   private _isSaving: boolean = false;
   readonly worldSaveVersion: number = 2;
-  
+
   _suspiciousList: string[] = [];
   fairPlayValues?: FairPlayValues;
   banInfoAcceptance: BAN_INFO[] = [
@@ -326,7 +326,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
       process.env.ENABLE_SAVES?.toLowerCase() == "false" ? false : true;
-    
+
     this._soloMode = false;
 
     if (!this._mongoAddress) {
@@ -1011,7 +1011,8 @@ export class ZoneServer2016 extends EventEmitter {
 
   private async setupServer() {
     this.weatherManager.forceTime(this, 971172000000); // force day time by default - not working for now
-    this.weatherManager.weather = this.weatherManager.templates[this.weatherManager.defaultTemplate];
+    this.weatherManager.weather =
+      this.weatherManager.templates[this.weatherManager.defaultTemplate];
     this.weatherManager.seasonstart();
 
     this.worldDataManager = (await spawn(
@@ -1080,7 +1081,6 @@ export class ZoneServer2016 extends EventEmitter {
     debug("Server ready");
   }
 
-
   /* TODO: MOVE TO WORLDDATAMANAGER */
   async saveWorld() {
     if (this._isSaving) {
@@ -1146,7 +1146,8 @@ export class ZoneServer2016 extends EventEmitter {
         .then(() => {
           this._isSaving = false;
           this.sendChatTextToAdmins("World saved!");
-          this.worldDataManager.nextSaveTime = Date.now() + this.worldDataManager.saveTimeInterval;
+          this.worldDataManager.nextSaveTime =
+            Date.now() + this.worldDataManager.saveTimeInterval;
           debug("World saved!");
         });
     } catch (e) {
@@ -1235,7 +1236,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.decayManager.run(this);
     this._startTime += Date.now();
     this._startGameTime += Date.now();
-    this.weatherManager.startWeatherWorker(this)
+    this.weatherManager.startWeatherWorker(this);
     this._gatewayServer.start();
     this.worldRoutineTimer = setTimeout(
       () => this.worldRoutine.bind(this)(),
@@ -1995,9 +1996,7 @@ export class ZoneServer2016 extends EventEmitter {
           if (this._spawnedItems[explosiveObj.characterId]) {
             const object = this._spawnedItems[explosiveObj.characterId];
             this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
-            delete this.worldObjectManager.spawnedLootObjects[
-              object.spawnerId
-            ];
+            delete this.worldObjectManager.spawnedLootObjects[object.spawnerId];
           }
           if (!explosiveObj.detonated) explosiveObj.detonate(this);
         }
@@ -3729,10 +3728,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnConstructionParent(
-    client: Client,
-    entity: ConstructionParentEntity
-  ) {
+  spawnConstructionParent(client: Client, entity: ConstructionParentEntity) {
     if (!client.spawnedEntities.includes(entity)) {
       this.addLightweightNpc(
         client,
@@ -3951,8 +3947,7 @@ export class ZoneServer2016 extends EventEmitter {
       const entity = this._worldSimpleConstruction[characterId];
       if (
         isPosInRadius(
-          (entity.npcRenderDistance as number) ||
-            this.charactersRenderDistance,
+          (entity.npcRenderDistance as number) || this.charactersRenderDistance,
           client.character.state.position,
           entity.state.position
         )
@@ -3964,8 +3959,7 @@ export class ZoneServer2016 extends EventEmitter {
       const entity = this._worldLootableConstruction[characterId];
       if (
         isPosInRadius(
-          (entity.npcRenderDistance as number) ||
-            this.charactersRenderDistance,
+          (entity.npcRenderDistance as number) || this.charactersRenderDistance,
           client.character.state.position,
           entity.state.position
         )

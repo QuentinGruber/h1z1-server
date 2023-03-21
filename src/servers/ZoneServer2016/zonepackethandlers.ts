@@ -138,13 +138,15 @@ export class ZonePacketHandlers {
       client.character.lastLoginDate = toHex(Date.now());
       server.setGodMode(client, false);
       setTimeout(() => {
-        if(server.welcomeMessage) server.sendAlert(client, server.welcomeMessage);
+        if (server.welcomeMessage)
+          server.sendAlert(client, server.welcomeMessage);
         server.sendChatText(
           client,
           `server population : ${_.size(server._characters)}`
         );
         if (client.isAdmin) {
-          if(server.adminMessage) server.sendAlert(client, server.adminMessage);
+          if (server.adminMessage)
+            server.sendAlert(client, server.adminMessage);
         }
       }, 10000);
       if (client.banType != "") {
@@ -601,7 +603,12 @@ export class ZonePacketHandlers {
     }
   }
   DtoHitSpeedTreeReport(server: ZoneServer2016, client: Client, packet: any) {
-    server.speedtreeManager.use(server, client, packet.data.id, packet.data.name);
+    server.speedtreeManager.use(
+      server,
+      client,
+      packet.data.id,
+      packet.data.name
+    );
   }
   GetRewardBuffInfo(server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "RewardBuffInfo", {

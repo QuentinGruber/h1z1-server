@@ -77,7 +77,7 @@ export enum ConstructionErrors {
   UNKNOWN_SLOT = "Unknown slot",
   UNKNOWN_CONSTRUCTION = "Unknown construction item",
   OUT_OF_RANGE = "Out of range",
-  STACKED = "Construction stacked"
+  STACKED = "Construction stacked",
 }
 
 export enum ConstructionPermissionIds {

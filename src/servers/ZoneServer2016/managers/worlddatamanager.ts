@@ -150,7 +150,6 @@ export class WorldDataManager {
   /* MANAGED BY CONFIGMANAGER */
   saveTimeInterval: number = 600000;
 
-
   nextSaveTime: number = Date.now() + this.saveTimeInterval;
 
   static async getDatabase(mongoAddress: string) {

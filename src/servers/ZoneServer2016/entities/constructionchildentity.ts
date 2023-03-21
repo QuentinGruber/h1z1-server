@@ -545,7 +545,11 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.canUndoPlacement(server, client)) {
-      server.constructionManager.undoPlacementInteractionString(server, this, client);
+      server.constructionManager.undoPlacementInteractionString(
+        server,
+        this,
+        client
+      );
       return;
     }
   }

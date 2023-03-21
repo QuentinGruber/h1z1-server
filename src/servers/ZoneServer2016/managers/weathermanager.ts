@@ -40,24 +40,25 @@ export class WeatherManager {
   templates = localWeatherTemplates;
   dynamicWorker: any;
   dynamicEnabled = true;
-  
+
   cycleSpeed = 100;
   frozeCycle = false;
   defaultTemplate = "z1br";
 
-  handleWeatherCommand(server: ZoneServer2016, client: Client, args: Array<string>) {
+  handleWeatherCommand(
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     if (this.dynamicEnabled) {
       this.dynamicEnabled = false;
       server.sendChatText(client, "Dynamic weather removed !");
     }
     const weatherTemplate = server._soloMode
       ? this.templates[args[0] || ""]
-      : _.find(
-          this.templates,
-          (template: { templateName: any }) => {
-            return template.templateName === args[0];
-          }
-        );
+      : _.find(this.templates, (template: { templateName: any }) => {
+          return template.templateName === args[0];
+        });
     if (!args[0]) {
       server.sendChatText(
         client,
@@ -70,12 +71,9 @@ export class WeatherManager {
     } else {
       if (args[0] === "list") {
         server.sendChatText(client, `Weather templates :`);
-        _.forEach(
-          this.templates,
-          (element: { templateName: any }) => {
-            server.sendChatText(client, `- ${element.templateName}`);
-          }
-        );
+        _.forEach(this.templates, (element: { templateName: any }) => {
+          server.sendChatText(client, `- ${element.templateName}`);
+        });
       } else {
         server.sendChatText(client, `"${args[0]}" isn't a weather template`);
         server.sendChatText(
@@ -86,7 +84,11 @@ export class WeatherManager {
     }
   }
 
-  async handleSaveCommand(server: ZoneServer2016, client: Client, args: Array<string>) {
+  async handleSaveCommand(
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
     if (!args[0]) {
       server.sendChatText(
         client,
