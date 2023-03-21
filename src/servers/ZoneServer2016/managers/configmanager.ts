@@ -16,6 +16,15 @@ import * as yaml from 'js-yaml';
 import { Config } from '../models/config';
 import { ZoneServer2016 } from '../zoneserver';
 
+function fileExists(filePath: string): boolean {
+  try {
+    fs.accessSync(filePath);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
 export class ConfigManager {
   private defaultConfig: Config;
   private config: Config;
@@ -23,7 +32,12 @@ export class ConfigManager {
   constructor(server: ZoneServer2016, configPath?: string) {
     this.defaultConfig = this.loadYaml("/../../../../data/2016/sampleData/defaultconfig.yaml") as Config;
     if(configPath) {
-      // todo: check if the path exists first
+      if(!fileExists(configPath)) {
+        console.error("Config path is invalid! Using default.");
+        this.config = this.defaultConfig;
+        this.applyConfig(server);
+        return;
+      }
 
       const config = this.loadYaml(configPath, false);
       if(config) {
