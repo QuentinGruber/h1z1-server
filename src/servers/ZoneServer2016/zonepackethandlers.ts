@@ -665,7 +665,7 @@ export class ZonePacketHandlers {
         vehicle.positionUpdate.position,
         packet.data.positionUpdate.position
       );
-      if (dist > 120) {
+      if (dist > 220) {
         kick = true;
       }
       if (
@@ -814,11 +814,23 @@ export class ZonePacketHandlers {
           triggerLoadingScreen: true,
         });
       }
-      if ((packet.data.stance & (1 << 5)) !== 0) {
-        if (!client.isInAir) {
-          client.isInAir = true;
-          client.startLoc = client.character.state.position[1];
-        }
+      if (
+        (packet.data.stance & (1 << 4)) !== 0 &&
+        (packet.data.stance & (1 << 5)) !== 0 &&
+        !client.isInAir &&
+        !client.vehicle.mountedVehicle
+      ) {
+        client.isInAir = true;
+        client.startLoc = client.character.state.position[1];
+        client.maxFlying = server.fairPlayValues?.maxFlyingScenario1;
+      } else if (
+        (packet.data.stance & (1 << 5)) !== 0 &&
+        !client.isInAir &&
+        !client.vehicle.mountedVehicle
+      ) {
+        client.isInAir = true;
+        client.startLoc = client.character.state.position[1];
+        client.maxFlying = server.fairPlayValues?.maxFlyingScenario2;
       } else {
         client.isInAir = false;
       }
@@ -965,6 +977,16 @@ export class ZonePacketHandlers {
         packet.data.lookAt[2],
         packet.data.lookAt[3],
       ]);
+    }
+    if (
+      client.character.isSpectator &&
+      _.size(server._decoys) > 0 &&
+      client.isDecoy
+    ) {
+      server.sendDataToAll("PlayerUpdatePosition", {
+        transientId: client.character.transientId,
+        positionUpdate: packet.data,
+      });
     }
   }
   CharacterRespawn(server: ZoneServer2016, client: Client, packet: any) {

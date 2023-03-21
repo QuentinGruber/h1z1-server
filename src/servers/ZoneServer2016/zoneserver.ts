@@ -201,8 +201,9 @@ export class ZoneServer2016 extends EventEmitter {
   _taskProps: { [characterId: string]: TaskProp } = {};
   _crates: { [characterId: string]: Crate } = {};
   _decoys: {
-    [characterId: string]: {
+    [transientId: number]: {
       characterId: string;
+      transientId: number;
       position: Float32Array;
       action: string;
     };
@@ -1150,6 +1151,73 @@ export class ZoneServer2016 extends EventEmitter {
     await this.setupServer();
 
     this.fairPlayManager.decryptFairPlayValues();
+
+    if (this._decryptKey) {
+      this._suspiciousList = encryptedData.map(
+        (x: { iv: string; encryptedData: string }) =>
+          decrypt(x, this._decryptKey)
+      );
+    }
+    if (this._fairPlayDecryptKey && this._useFairPlay) {
+      const decryptedData = fairPlayData.map(
+        (x: { iv: string; encryptedData: string }) =>
+          decrypt(x, this._fairPlayDecryptKey)
+      );
+      this.fairPlayValues = {
+        defaultMaxProjectileSpeed: Number(decryptedData[0]),
+        defaultMinProjectileSpeed: Number(decryptedData[1]),
+        defaultMaxDistance: Number(decryptedData[2]),
+        WEAPON_308: {
+          maxSpeed: Number(decryptedData[3]),
+          minSpeed: Number(decryptedData[4]),
+          maxDistance: Number(decryptedData[5]),
+        },
+        WEAPON_CROSSBOW: {
+          maxSpeed: Number(decryptedData[6]),
+          minSpeed: Number(decryptedData[7]),
+          maxDistance: Number(decryptedData[8]),
+        },
+        WEAPON_BOW_MAKESHIFT: {
+          maxSpeed: Number(decryptedData[9]),
+          minSpeed: Number(decryptedData[10]),
+          maxDistance: Number(decryptedData[11]),
+        },
+        WEAPON_BOW_RECURVE: {
+          maxSpeed: Number(decryptedData[12]),
+          minSpeed: Number(decryptedData[13]),
+          maxDistance: Number(decryptedData[14]),
+        },
+        WEAPON_BOW_WOOD: {
+          maxSpeed: Number(decryptedData[15]),
+          minSpeed: Number(decryptedData[16]),
+          maxDistance: Number(decryptedData[17]),
+        },
+        WEAPON_SHOTGUN: {
+          maxSpeed: Number(decryptedData[18]),
+          minSpeed: Number(decryptedData[19]),
+          maxDistance: Number(decryptedData[20]),
+        },
+        lastLoginDateAddVal: Number(decryptedData[21]),
+        maxTimeDrift: Number(decryptedData[22]),
+        maxSpeed: Number(decryptedData[23]),
+        maxVerticalSpeed: Number(decryptedData[24]),
+        speedWarnsNumber: Number(decryptedData[25]),
+        maxTpDist: Number(decryptedData[26]),
+        dotProductMin: Number(decryptedData[27]),
+        dotProductMinShotgun: Number(decryptedData[28]),
+        dotProductBlockValue: Number(decryptedData[29]),
+        requiredFile: decryptedData[30],
+        requiredString: decryptedData[31],
+        requiredFile2: decryptedData[32],
+        respawnCheckRange: Number(decryptedData[33]),
+        respawnCheckTime: Number(decryptedData[34]),
+        respawnCheckIterations: Number(decryptedData[35]),
+        maxFlyingScenario1: Number(decryptedData[36]),
+        maxFlyingScenario2: Number(decryptedData[37]),
+      };
+    }
+
+
 
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
     this.startRoutinesLoop();
@@ -2128,6 +2196,263 @@ export class ZoneServer2016 extends EventEmitter {
     this.hookManager.checkHook("OnPlayerRespawned", client);
   }
 
+<<<<<< feature/configRconManagers
+
+  speedFairPlayCheck(
+    client: Client,
+    sequenceTime: number,
+    position: Float32Array
+  ): boolean {
+    if (client.isAdmin || !this.fairPlayValues || !client.isSynced)
+      return false;
+    if (!this.isSaving) {
+      if (
+        client.isInAir &&
+        client.maxFlying &&
+        position[1] - client.startLoc > client.maxFlying
+      ) {
+        let kick = true;
+        for (const a in this._constructionFoundations) {
+          if (
+            this._constructionFoundations[a].getHasPermission(
+              this,
+              client.character.characterId,
+              ConstructionPermissionIds.VISIT
+            ) &&
+            this._constructionFoundations[a].isInside(
+              client.character.state.position
+            )
+          )
+            kick = false;
+        }
+        for (const char in this._characters) {
+          if (
+            isPosInRadiusWithY(
+              3,
+              client.character.state.position,
+              this._characters[char].state.position,
+              4.5
+            )
+          )
+            kick = false;
+        }
+        if (kick) {
+          this.kickPlayer(client);
+          this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+          this.sendChatTextToAdmins(
+            `FairPlay: ${
+              client.character.name
+            } has been kicked for possible flying by ${(
+              position[1] - client.startLoc
+            ).toFixed(2)} at [${position[0]} ${position[1]} ${position[2]}]`,
+            false
+          );
+          return true;
+        }
+      }
+      const distance = getDistance2d(client.oldPos.position, position);
+      if (
+        Number(client.character.lastLoginDate) +
+          this.fairPlayValues.lastLoginDateAddVal <
+        new Date().getTime()
+      ) {
+        const drift = Math.abs(sequenceTime - this.getServerTime());
+        if (drift > this.fairPlayValues.maxTimeDrift) {
+          this.kickPlayer(client);
+          this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+          this.sendChatTextToAdmins(
+            `FairPlay: ${client.character.name} has been kicked for sequence time drifting by ${drift}`,
+            false
+          );
+          return true;
+        }
+        if (!client.isLoading && client.enableChecks) {
+          if (distance > 10) {
+            /*this.sendData(client, "ClientUpdate.UpdateLocation", {
+              position: new Float32Array([...client.oldPos.position, 0]),
+              triggerLoadingScreen: true,
+              unknownByte1: 1,
+            });
+            client.isMovementBlocked = true;*/
+            //this.kickPlayer(client);
+            this.sendChatTextToAdmins(
+              `FairPlay: Kicking ${client.character.name} for suspected teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
+              false
+            );
+            return true;
+          }
+        }
+      }
+
+      const speed =
+        (distance / 1000 / (sequenceTime - client.oldPos.time)) * 3600000;
+      const verticalSpeed =
+        (getDistance1d(client.oldPos.position[1], position[1]) /
+          1000 /
+          (sequenceTime - client.oldPos.time)) *
+        3600000;
+      if (
+        speed > this.fairPlayValues.maxSpeed &&
+        verticalSpeed < this.fairPlayValues.maxVerticalSpeed
+      ) {
+        const soeClient = this.getSoeClient(client.soeClientId);
+        if (soeClient) {
+          if (soeClient.avgPing >= 250) return false;
+        }
+        //client.speedWarnsNumber += 1;
+      } else if (client.speedWarnsNumber > 0) {
+        client.speedWarnsNumber -= 1;
+      }
+      if (client.speedWarnsNumber > this.fairPlayValues.speedWarnsNumber) {
+        this.kickPlayer(client);
+        client.speedWarnsNumber = 0;
+        if (!this._soloMode) {
+          logClientActionToMongo(
+            this._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+            client,
+            this._worldId,
+            { type: "SpeedHack" }
+          );
+        }
+        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} has been kicking for speed hacking: ${speed} m/s at position [${position[0]} ${position[1]} ${position[2]}]`,
+          false
+        );
+        return true;
+      }
+    }
+    client.oldPos = { position: position, time: sequenceTime };
+    return false;
+  }
+
+  vehicleSpeedFairPlayCheck(
+    client: Client,
+    sequenceTime: number,
+    position: Float32Array,
+    vehicle: Vehicle
+  ): boolean {
+    if (client.isAdmin || !this._useFairPlay) return false;
+    if (!this.isSaving) {
+      const drift = Math.abs(sequenceTime - this.getServerTime());
+      if (drift > 10000) {
+        this.kickPlayer(client);
+        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} has been kicked for sequence time drifting in vehicle by ${drift}`,
+          false
+        );
+        return true;
+      }
+      const distance = getDistance2d(vehicle.oldPos.position, position);
+      const speed =
+        (distance / 1000 / (sequenceTime - vehicle.oldPos.time)) * 3600000;
+      const verticalSpeed =
+        (getDistance1d(vehicle.oldPos.position[1], position[1]) /
+          1000 /
+          (sequenceTime - vehicle.oldPos.time)) *
+        3600000;
+      if (speed > 130 && verticalSpeed < 20) {
+        const soeClient = this.getSoeClient(client.soeClientId);
+        if (soeClient) {
+          if (soeClient.avgPing >= 250) return false;
+        }
+        client.speedWarnsNumber += 1;
+      } else if (client.speedWarnsNumber > 0) {
+        client.speedWarnsNumber -= 1;
+      }
+      if (client.speedWarnsNumber > 5) {
+        this.kickPlayer(client);
+        client.speedWarnsNumber = 0;
+        if (!this._soloMode) {
+          logClientActionToMongo(
+            this._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+            client,
+            this._worldId,
+            { type: "SpeedHack" }
+          );
+        }
+        this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        this.sendChatTextToAdmins(
+          `FairPlay: ${client.character.name} has been kicking for vehicle speed hacking: ${speed} m/s at position [${position[0]} ${position[1]} ${position[2]}]`,
+          false
+        );
+        return true;
+      }
+    }
+    vehicle.oldPos = { position: position, time: sequenceTime };
+    return false;
+  }
+
+  hitMissFairPlayCheck(client: Client, hit: boolean, hitLocation: string) {
+    const weaponItem = client.character.getEquippedWeapon();
+    if (
+      !this._useFairPlay ||
+      !weaponItem ||
+      weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+    )
+      return;
+    if (hit) {
+      client.pvpStats.shotsHit += 1;
+      switch (hitLocation.toLowerCase()) {
+        case "head":
+        case "glasses":
+        case "neck":
+          client.pvpStats.head += 1;
+          break;
+        case "spineupper":
+        case "spinelower":
+        case "spinemiddle":
+          client.pvpStats.spine += 1;
+          break;
+        case "l_hip":
+        case "r_hip":
+        case "l_knee":
+        case "r_knee":
+        case "l_ankle":
+        case "r_ankle":
+          client.pvpStats.legs += 1;
+          break;
+        case "l_elbow":
+        case "r_elbow":
+        case "r_shoulder":
+        case "l_shoulder":
+        case "r_wrist":
+        case "l_wrist":
+          client.pvpStats.hands += 1;
+          break;
+        default:
+          break;
+      }
+      const hitRatio =
+        (100 * client.pvpStats.shotsHit) / client.pvpStats.shotsFired;
+      if (client.pvpStats.shotsFired > 10 && hitRatio > 80) {
+        if (!this._soloMode) {
+          logClientActionToMongo(
+            this._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+            client,
+            this._worldId,
+            {
+              type: "exceeds hit/miss ratio",
+              hitRatio,
+              totalShotsFired: client.pvpStats.shotsFired,
+            }
+          );
+        }
+        this.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } exceeds hit/miss ratio (${hitRatio.toFixed(4)}% of ${
+            client.pvpStats.shotsFired
+          } shots fired)`,
+          false
+        );
+      }
+    } else {
+      client.pvpStats.shotsFired += 1;
+    }
+  }
+>>>>>> dev
   updateResource(
     client: Client,
     entityId: string,
@@ -2485,16 +2810,18 @@ export class ZoneServer2016 extends EventEmitter {
     const { hitReport } = packet;
     if (!hitReport) return; // should never trigger
 
-    if (this._decoys[hitReport.characterId]) {
-      const decoy = this._decoys[hitReport.characterId];
-      this.sendChatTextToAdmins(
-        `FairPlay: ${
-          client.character.name
-        } hit a decoy entity at: [${decoy.position[0].toFixed(
-          2
-        )} ${decoy.position[1].toFixed(2)} ${decoy.position[2].toFixed(2)}]`,
-        false
-      );
+    for (const a in this._decoys) {
+      const decoy = this._decoys[a];
+      if (decoy.characterId === hitReport.characterId) {
+        this.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } hit a decoy entity at: [${decoy.position[0].toFixed(
+            2
+          )} ${decoy.position[1].toFixed(2)} ${decoy.position[2].toFixed(2)}]`,
+          false
+        );
+      }
     }
     const message = `FairPlay: blocked incoming projectile from ${client.character.name}`;
     const entity = this.getEntity(hitReport.characterId);
@@ -2523,6 +2850,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       return;
     }
+<<<<<< feature/configRconManagers
     if (
       this.fairPlayManager.fairPlayValues &&
       !this.fairPlayManager.validateProjectileHit(
@@ -2536,6 +2864,150 @@ export class ZoneServer2016 extends EventEmitter {
       )
     ) {
       return;
+=======
+    if (this.fairPlayValues) {
+      if (c) fireHint.hitNumber++;
+      const checkWeapons = [
+        Items.WEAPON_BOW_MAKESHIFT,
+        Items.WEAPON_BOW_RECURVE,
+        Items.WEAPON_BOW_WOOD,
+        Items.WEAPON_CROSSBOW,
+      ];
+      if (checkWeapons.includes(weaponItem.itemDefinitionId)) {
+        if (
+          !fireHint.marked ||
+          fireHint.marked.characterId != entity.characterId ||
+          getDistance(fireHint.marked.position, packet.hitReport.position) >
+            0.1 ||
+          Math.abs(gameTime - fireHint.marked.gameTime) > 5
+        ) {
+          if (c) {
+            this.sendChatTextToAdmins(
+              `FairPlay: ${client.character.name} is hitting invalid projectiles on player ${c.character.name}`,
+              false
+            );
+            this.sendChatText(c, message, false);
+          }
+          return;
+        }
+      }
+      /*const angle = getAngle(fireHint.position, packet.hitReport.position);
+      const fixedRot = (fireHint.rotation + 2 * Math.PI) % (2 * Math.PI);
+      const dotProduct =
+        Math.cos(angle) * Math.cos(fixedRot) +
+        Math.sin(angle) * Math.sin(fixedRot);
+      if (
+        dotProduct <
+        (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+          ? this.fairPlayValues.dotProductMinShotgun
+          : this.fairPlayValues.dotProductMin)
+      ) {
+        if (dotProduct < this.fairPlayValues.dotProductBlockValue) {
+          if (c) {
+            this.sendChatText(c, message, false);
+          }
+          this.sendChatTextToAdmins(
+            `FairPlay: ${
+              client.character.name
+            } projectile was blocked due to invalid rotation: ${Number(
+              ((1 - dotProduct) * 100).toFixed(2)
+            )} / ${
+              Number(
+                (1 - this.fairPlayValues.dotProductBlockValue).toFixed(3)
+              ) * 100
+            }% max deviation`,
+            false
+          );
+          return;
+        }
+
+        this.sendChatTextToAdmins(
+          `FairPlay: ${
+            client.character.name
+          } projectile is hitting with possible invalid rotation: ${Number(
+            ((1 - dotProduct) * 100).toFixed(2)
+          )} / ${
+            Number(
+              (
+                1 -
+                (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+                  ? this.fairPlayValues.dotProductMinShotgun
+                  : this.fairPlayValues.dotProductMin)
+              ).toFixed(3)
+            ) * 100
+          }% max deviation`,
+          false
+        );
+      }*/
+      if (c) {
+        const distance = getDistance(
+          fireHint.position,
+          packet.hitReport.position
+        );
+        const speed =
+          (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;
+        let maxSpeed = this.fairPlayValues.defaultMaxProjectileSpeed;
+        let minSpeed = this.fairPlayValues.defaultMinProjectileSpeed;
+        let maxDistance = this.fairPlayValues.defaultMaxDistance;
+        switch (weaponItem.itemDefinitionId) {
+          case Items.WEAPON_308:
+            maxSpeed = this.fairPlayValues.WEAPON_308.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_308.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_308.maxDistance;
+            break;
+          case Items.WEAPON_CROSSBOW:
+            maxSpeed = this.fairPlayValues.WEAPON_CROSSBOW.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_CROSSBOW.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_CROSSBOW.maxDistance;
+            break;
+          case Items.WEAPON_BOW_MAKESHIFT:
+            maxSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_BOW_MAKESHIFT.maxDistance;
+            break;
+          case Items.WEAPON_BOW_RECURVE:
+            maxSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_BOW_RECURVE.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_BOW_RECURVE.maxDistance;
+            break;
+          case Items.WEAPON_BOW_WOOD:
+            maxSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_BOW_WOOD.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_BOW_WOOD.maxDistance;
+            break;
+          case Items.WEAPON_SHOTGUN:
+            maxSpeed = this.fairPlayValues.WEAPON_SHOTGUN.maxSpeed;
+            minSpeed = this.fairPlayValues.WEAPON_SHOTGUN.minSpeed;
+            maxDistance = this.fairPlayValues.WEAPON_SHOTGUN.maxDistance;
+        }
+        let block = false;
+        if (distance > maxDistance && speed < minSpeed) block = true;
+        if (
+          distance > maxDistance &&
+          (speed > maxSpeed ||
+            speed < minSpeed ||
+            speed <= 0 ||
+            speed == Infinity)
+        )
+          block = true;
+        if (block) {
+          this.sendChatTextToAdmins(
+            `FairPlay: prevented ${
+              client.character.name
+            }'s projectile from hitting ${
+              c.character.name
+            } | speed: (${speed.toFixed(
+              0
+            )} / ${minSpeed}:${maxSpeed}) | ${distance.toFixed(2)}m | ${
+              this.getItemDefinition(weaponItem.itemDefinitionId).NAME
+            } | ${packet.hitReport.hitLocation}`,
+            false
+          );
+          this.sendChatText(c, message, false);
+          return;
+        }
+      }
+>>>>>> dev
     }
     const hitValidation = this.validateHit(client, entity);
 
