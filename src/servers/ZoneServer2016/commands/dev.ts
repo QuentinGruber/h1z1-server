@@ -854,6 +854,8 @@ const dev: any = {
         }),
         unknownDword1: container.containerDefinitionId,
       },
+    })
+  },
   groupjoin: function (
     server: ZoneServer2016,
     client: Client,
