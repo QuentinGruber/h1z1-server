@@ -16,10 +16,10 @@ import { FairPlayValues, fireHint } from "types/zoneserver";
 import { BAN_INFO, DB_COLLECTIONS } from "../../../utils/enums";
 import {
   decrypt,
-  getAngle,
   getDistance,
   getDistance1d,
   getDistance2d,
+  isPosInRadiusWithY,
   logClientActionToMongo,
 } from "../../../utils/utils";
 import { LoadoutItem } from "../classes/loadoutItem";
@@ -110,7 +110,8 @@ export class FairPlayManager {
         respawnCheckRange: Number(decryptedData[33]),
         respawnCheckTime: Number(decryptedData[34]),
         respawnCheckIterations: Number(decryptedData[35]),
-        maxFlying: Number(decryptedData[36]),
+        maxFlyingScenario1: Number(decryptedData[36]),
+        maxFlyingScenario2: Number(decryptedData[37]),
       };
     }
   }
@@ -126,10 +127,9 @@ export class FairPlayManager {
     if (!server.isSaving) {
       if (
         client.isInAir &&
-        position[1] - client.startLoc > this.fairPlayValues.maxFlying
+        client.maxFlying &&
+        position[1] - client.startLoc > client.maxFlying
       ) {
-        server.kickPlayer(client);
-        server.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
         let kick = true;
         for (const a in server._constructionFoundations) {
           if (
@@ -144,7 +144,20 @@ export class FairPlayManager {
           )
             kick = false;
         }
+        for (const char in server._characters) {
+          if (
+            isPosInRadiusWithY(
+              3,
+              client.character.state.position,
+              server._characters[char].state.position,
+              4.5
+            )
+          )
+            kick = false;
+        }
         if (kick) {
+          server.kickPlayer(client);
+          server.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
           server.sendChatTextToAdmins(
             `FairPlay: ${
               client.character.name
@@ -180,7 +193,7 @@ export class FairPlayManager {
               unknownByte1: 1,
             });
             client.isMovementBlocked = true;*/
-            server.kickPlayer(client);
+            //this.kickPlayer(client);
             server.sendChatTextToAdmins(
               `FairPlay: Kicking ${client.character.name} for suspected teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
               false
@@ -205,7 +218,7 @@ export class FairPlayManager {
         if (soeClient) {
           if (soeClient.avgPing >= 250) return false;
         }
-        client.speedWarnsNumber += 1;
+        //client.speedWarnsNumber += 1;
       } else if (client.speedWarnsNumber > 0) {
         client.speedWarnsNumber -= 1;
       }
@@ -246,7 +259,7 @@ export class FairPlayManager {
         server.kickPlayer(client);
         server.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
         server.sendChatTextToAdmins(
-          `FairPlay: ${client.character.name} has been kicked for sequence time drifting by ${drift}`,
+          `FairPlay: ${client.character.name} has been kicked for sequence time drifting in vehicle by ${drift}`,
           false
         );
         return true;
@@ -402,53 +415,54 @@ export class FairPlayManager {
         return false;
       }
     }
-    const angle = getAngle(fireHint.position, hitReport.position);
-    const fixedRot = (fireHint.rotation + 2 * Math.PI) % (2 * Math.PI);
-    const dotProduct =
-      Math.cos(angle) * Math.cos(fixedRot) +
-      Math.sin(angle) * Math.sin(fixedRot);
-    if (
-      dotProduct <
-      (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
-        ? this.fairPlayValues.dotProductMinShotgun
-        : this.fairPlayValues.dotProductMin)
-    ) {
-      if (dotProduct < this.fairPlayValues.dotProductBlockValue) {
-        if (targetClient) {
-          server.sendChatText(targetClient, message, false);
+    /*const angle = getAngle(fireHint.position, packet.hitReport.position);
+      const fixedRot = (fireHint.rotation + 2 * Math.PI) % (2 * Math.PI);
+      const dotProduct =
+        Math.cos(angle) * Math.cos(fixedRot) +
+        Math.sin(angle) * Math.sin(fixedRot);
+      if (
+        dotProduct <
+        (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+          ? this.fairPlayValues.dotProductMinShotgun
+          : this.fairPlayValues.dotProductMin)
+      ) {
+        if (dotProduct < this.fairPlayValues.dotProductBlockValue) {
+          if (c) {
+            this.sendChatText(c, message, false);
+          }
+          this.sendChatTextToAdmins(
+            `FairPlay: ${
+              client.character.name
+            } projectile was blocked due to invalid rotation: ${Number(
+              ((1 - dotProduct) * 100).toFixed(2)
+            )} / ${
+              Number(
+                (1 - this.fairPlayValues.dotProductBlockValue).toFixed(3)
+              ) * 100
+            }% max deviation`,
+            false
+          );
+          return;
         }
-        server.sendChatTextToAdmins(
+
+        this.sendChatTextToAdmins(
           `FairPlay: ${
             client.character.name
-          } projectile was blocked due to invalid rotation: ${Number(
+          } projectile is hitting with possible invalid rotation: ${Number(
             ((1 - dotProduct) * 100).toFixed(2)
           )} / ${
-            Number((1 - this.fairPlayValues.dotProductBlockValue).toFixed(3)) *
-            100
+            Number(
+              (
+                1 -
+                (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
+                  ? this.fairPlayValues.dotProductMinShotgun
+                  : this.fairPlayValues.dotProductMin)
+              ).toFixed(3)
+            ) * 100
           }% max deviation`,
           false
         );
-        return false;
-      }
-
-      server.sendChatTextToAdmins(
-        `FairPlay: ${
-          client.character.name
-        } projectile is hitting with possible invalid rotation: ${Number(
-          ((1 - dotProduct) * 100).toFixed(2)
-        )} / ${
-          Number(
-            (
-              1 -
-              (weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN
-                ? this.fairPlayValues.dotProductMinShotgun
-                : this.fairPlayValues.dotProductMin)
-            ).toFixed(3)
-          ) * 100
-        }% max deviation`,
-        false
-      );
-    }
+      }*/
     if (targetClient) {
       const distance = getDistance(fireHint.position, hitReport.position);
       const speed =

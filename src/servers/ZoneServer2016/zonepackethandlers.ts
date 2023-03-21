@@ -822,7 +822,8 @@ export class ZonePacketHandlers {
       ) {
         client.isInAir = true;
         client.startLoc = client.character.state.position[1];
-        client.maxFlying = server.fairPlayValues?.maxFlyingScenario1;
+        client.maxFlying =
+          server.fairPlayManager.fairPlayValues?.maxFlyingScenario1;
       } else if (
         (packet.data.stance & (1 << 5)) !== 0 &&
         !client.isInAir &&
@@ -830,7 +831,8 @@ export class ZonePacketHandlers {
       ) {
         client.isInAir = true;
         client.startLoc = client.character.state.position[1];
-        client.maxFlying = server.fairPlayValues?.maxFlyingScenario2;
+        client.maxFlying =
+          server.fairPlayManager.fairPlayValues?.maxFlyingScenario2;
       } else {
         client.isInAir = false;
       }
