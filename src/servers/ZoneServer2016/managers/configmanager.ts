@@ -25,27 +25,50 @@ function fileExists(filePath: string): boolean {
   }
 }
 
+function copyFile(originalFilePath: string, newFilePath: string) {
+  const readStream = fs.createReadStream(originalFilePath),
+  writeStream = fs.createWriteStream(newFilePath);
+
+  readStream.pipe(writeStream);
+  writeStream.on("finish", () => {
+    console.log("Config copied successfully!");
+    readStream.close();
+    writeStream.close();
+  });
+  
+  writeStream.on("error", (err) => {
+    console.error("Error copying config file:", err);
+    readStream.close();
+    writeStream.close();
+  });
+}
+
 export class ConfigManager {
   private defaultConfig: Config;
   private config: Config;
 
-  constructor(server: ZoneServer2016, configPath?: string) {
+  constructor(server: ZoneServer2016, configPath: string = `${process.cwd()}/config.yaml`) {
     this.defaultConfig = this.loadYaml("/../../../../data/2016/sampleData/defaultconfig.yaml") as Config;
-    if(configPath) {
-      if(!fileExists(configPath)) {
-        console.error("Config path is invalid! Using default.");
-        this.config = this.defaultConfig;
-        this.applyConfig(server);
-        return;
-      }
 
-      const config = this.loadYaml(configPath, false);
-      if(config) {
-        this.config = this.loadConfig(config);
-        this.applyConfig(server);
-        return;
-      }
+    if(!configPath || !fileExists(configPath)) {
+      if(!fileExists(configPath)) console.error("Config path is invalid! Using default.");
+
+      console.log("Config file not found, creating it in base directory using default values.")
+      copyFile(`${__dirname}/../../../../data/2016/sampleData/defaultconfig.yaml`, `${process.cwd()}/config.yaml`);
+
+      this.config = this.defaultConfig;
+      this.applyConfig(server);
+      return;
     }
+
+    const config = this.loadYaml(configPath, false);
+    if(config) {
+      this.config = this.loadConfig(config);
+      this.applyConfig(server);
+      return;
+    }
+
+    console.error("Config failed to load! Using default.")
     this.config = this.defaultConfig;
     this.applyConfig(server);
   }
