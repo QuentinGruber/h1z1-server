@@ -2002,7 +2002,7 @@ export class ZoneServer2016 extends EventEmitter {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
         if (getDistance(position, explosiveObj.state.position) < 2) {
-          await Scheduler.wait(200);
+          await Scheduler.wait(100);
           if (this._spawnedItems[explosiveObj.characterId]) {
             const object = this._spawnedItems[explosiveObj.characterId];
             this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
@@ -2556,8 +2556,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
         for (const char in this._characters) {
           if (
+            this._characters[char].characterId === client.character.characterId
+          )
+            continue;
+          if (
             isPosInRadiusWithY(
-              3,
+              2,
               client.character.state.position,
               this._characters[char].state.position,
               4.5
@@ -2603,7 +2607,7 @@ export class ZoneServer2016 extends EventEmitter {
               unknownByte1: 1,
             });
             client.isMovementBlocked = true;*/
-            //this.kickPlayer(client);
+            this.kickPlayer(client);
             this.sendChatTextToAdmins(
               `FairPlay: Kicking ${client.character.name} for suspected teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
               false
