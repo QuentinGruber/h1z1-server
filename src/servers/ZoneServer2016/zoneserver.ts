@@ -2555,9 +2555,10 @@ export class ZoneServer2016 extends EventEmitter {
             kick = false;
         }
         for (const char in this._characters) {
+          if (this._characters[char].characterId === client.character.characterId) continue
           if (
             isPosInRadiusWithY(
-              3,
+              2,
               client.character.state.position,
               this._characters[char].state.position,
               4.5
@@ -2603,7 +2604,7 @@ export class ZoneServer2016 extends EventEmitter {
               unknownByte1: 1,
             });
             client.isMovementBlocked = true;*/
-            //this.kickPlayer(client);
+            this.kickPlayer(client);
             this.sendChatTextToAdmins(
               `FairPlay: Kicking ${client.character.name} for suspected teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
               false
