@@ -96,6 +96,17 @@ export const internalCommands: Array<Command> = [
         server.sendData(client, "Character.RemovePlayer", {
           characterId: OBSERVER_GUID,
         });
+        for (const a in server._decoys) {
+          const decoy = server._decoys[a];
+          if (decoy.transientId == client.character.transientId) {
+            server.sendDataToAll("Character.RemovePlayer", {
+              characterId: decoy.characterId,
+            });
+            client.isDecoy = false;
+            server.sendChatText(client, `Decoy removed`, false);
+          }
+        }
+        return;
       }
       server.sendAlert(
         client,
