@@ -2002,7 +2002,7 @@ export class ZoneServer2016 extends EventEmitter {
       const explosiveObj = this._explosives[explosive];
       if (explosiveObj.characterId != npcTriggered) {
         if (getDistance(position, explosiveObj.state.position) < 2) {
-          await Scheduler.wait(200);
+          await Scheduler.wait(100);
           if (this._spawnedItems[explosiveObj.characterId]) {
             const object = this._spawnedItems[explosiveObj.characterId];
             this.deleteEntity(explosiveObj.characterId, this._spawnedItems);
@@ -2555,7 +2555,10 @@ export class ZoneServer2016 extends EventEmitter {
             kick = false;
         }
         for (const char in this._characters) {
-          if (this._characters[char].characterId === client.character.characterId) continue
+          if (
+            this._characters[char].characterId === client.character.characterId
+          )
+            continue;
           if (
             isPosInRadiusWithY(
               2,
