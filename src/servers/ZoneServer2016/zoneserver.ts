@@ -2555,7 +2555,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.maxFlying &&
         position[1] - client.startLoc > client.maxFlying
       ) {
-        let kick = true;
+        let msg = true;
         for (const a in this._constructionFoundations) {
           if (
             this._constructionFoundations[a].getHasPermission(
@@ -2567,7 +2567,7 @@ export class ZoneServer2016 extends EventEmitter {
               client.character.state.position
             )
           )
-            kick = false;
+            msg = false;
         }
         for (const char in this._characters) {
           if (
@@ -2582,20 +2582,17 @@ export class ZoneServer2016 extends EventEmitter {
               4.5
             )
           )
-            kick = false;
+            msg = false;
         }
-        if (kick) {
-          this.kickPlayer(client);
-          this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        if (msg) {
+          //this.kickPlayer(client);
+          //this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
           this.sendChatTextToAdmins(
-            `FairPlay: ${
-              client.character.name
-            } has been kicked for possible flying by ${(
+            `FairPlay: ${client.character.name} is possibly flying by ${(
               position[1] - client.startLoc
             ).toFixed(2)} at [${position[0]} ${position[1]} ${position[2]}]`,
             false
           );
-          return true;
         }
       }
       const distance = getDistance2d(client.oldPos.position, position);
