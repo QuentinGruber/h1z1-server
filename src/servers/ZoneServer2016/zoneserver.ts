@@ -1810,8 +1810,23 @@ export class ZoneServer2016 extends EventEmitter {
       this.worldObjectManager.createLootbag(this, character);
     }
     this.clearInventory(client, false);
-
+    this.sendKillFeed(client, damageInfo);
     this.hookManager.checkHook("OnPlayerDied", client, damageInfo);
+  }
+
+  sendKillFeed(client: Client, damageInfo: DamageInfo) {
+    if (!client.currentPOI) return;
+    for (const a in this._clients) {
+      if (
+        this._clients[a].currentPOI != client.currentPOI ||
+        this._clients[a].loginSessionId === client.loginSessionId
+      )
+        continue;
+      this.sendData(this._clients[a], "Character.KilledBy", {
+        killer: damageInfo.entity,
+        killed: client.character.characterId,
+      });
+    }
   }
 
   async explosionDamage(
@@ -2542,7 +2557,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.maxFlying &&
         position[1] - client.startLoc > client.maxFlying
       ) {
-        let kick = true;
+        let msg = true;
         for (const a in this._constructionFoundations) {
           if (
             this._constructionFoundations[a].getHasPermission(
@@ -2554,7 +2569,7 @@ export class ZoneServer2016 extends EventEmitter {
               client.character.state.position
             )
           )
-            kick = false;
+            msg = false;
         }
         for (const char in this._characters) {
           if (
@@ -2569,20 +2584,17 @@ export class ZoneServer2016 extends EventEmitter {
               4.5
             )
           )
-            kick = false;
+            msg = false;
         }
-        if (kick) {
-          this.kickPlayer(client);
-          this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+        if (msg) {
+          //this.kickPlayer(client);
+          //this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
           this.sendChatTextToAdmins(
-            `FairPlay: ${
-              client.character.name
-            } has been kicked for possible flying by ${(
+            `FairPlay: ${client.character.name} is possibly flying by ${(
               position[1] - client.startLoc
             ).toFixed(2)} at [${position[0]} ${position[1]} ${position[2]}]`,
             false
           );
-          return true;
         }
       }
       const distance = getDistance2d(client.oldPos.position, position);
@@ -4048,7 +4060,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (!hide && client.character.isHidden) {
       client.character.isHidden = "";
-      this.spawnCharacterToOtherClients(client.character);
+      this.spawnCharacterToOtherClients(client.character, client.isAdmin);
     }
   }
 
@@ -4160,6 +4172,9 @@ export class ZoneServer2016 extends EventEmitter {
             ? vehicle.getCharacterSeat(characterObj.characterId)
             : 0,
           mountRelatedDword1: vehicle ? 1 : 0,
+          flags1: {
+            isAdmin: client.isAdmin,
+          },
         });
 
         client.spawnedEntities.push(this._characters[characterObj.characterId]);
@@ -4167,7 +4182,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnCharacterToOtherClients(character: Character) {
+  spawnCharacterToOtherClients(character: Character, isAdmin: boolean) {
     for (const a in this._clients) {
       const c = this._clients[a];
       if (
@@ -4184,6 +4199,9 @@ export class ZoneServer2016 extends EventEmitter {
           mountGuid: "",
           mountSeatId: 0,
           mountRelatedDword1: 0,
+          flags1: {
+            isAdmin: isAdmin,
+          },
         });
         c.spawnedEntities.push(character);
       }
@@ -4690,11 +4708,16 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   kickPlayer(client: Client) {
+    client.properlyLogout = true;
     this.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
     });
-    this.deleteClient(client);
+    setTimeout(() => {
+      if (client) {
+        this.deleteClient(client);
+      }
+    }, 11000);
   }
 
   getDateString(timestamp: number) {
