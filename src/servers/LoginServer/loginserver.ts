@@ -211,7 +211,7 @@ export class LoginServer extends EventEmitter {
                       );
                       await this.updateServerStatus(serverId, true);
                     } else {
-                      console.log(
+                      debug(
                         `rejected connection serverId : ${serverId} address: ${client.address} `
                       );
                       delete this._h1emuLoginServer._clients[client.clientId];
