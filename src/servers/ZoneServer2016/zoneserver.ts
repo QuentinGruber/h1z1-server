@@ -4688,11 +4688,16 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   kickPlayer(client: Client) {
+    client.properlyLogout = true;
     this.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
     });
-    this.deleteClient(client);
+    setTimeout(() => {
+      if (client) {
+        this.deleteClient(client);
+      }
+    }, 11000);
   }
 
   getDateString(timestamp: number) {
