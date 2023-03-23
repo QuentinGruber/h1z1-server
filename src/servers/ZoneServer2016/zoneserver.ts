@@ -481,8 +481,10 @@ export class ZoneServer2016 extends EventEmitter {
                 try {
                   for (let i = 0; i < banInfos.length; i++) {
                     const banInfo = banInfos[i];
-                    // TODO: vpn-whitelist
                     if (this.banInfoAcceptance.includes(banInfo.banInfo)) {
+                      console.log(
+                        `Character (${characterId}) connection rejected due to banInfo ${banInfo.banInfo}`
+                      );
                       this._h1emuZoneServer.sendData(
                         client,
                         "CharacterAllowedReply",

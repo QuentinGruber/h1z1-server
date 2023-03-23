@@ -883,7 +883,7 @@ export class LoginServer extends EventEmitter {
       banInfos.push({ banInfo: BAN_INFO.VPN });
     }
 
-    if (await this.isClientHWIDBanned(client,serverId)) {
+    if (await this.isClientHWIDBanned(client, serverId)) {
       banInfos.push({ banInfo: BAN_INFO.HWID });
     }
 
