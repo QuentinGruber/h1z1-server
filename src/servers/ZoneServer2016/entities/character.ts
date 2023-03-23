@@ -869,6 +869,15 @@ export class Character2016 extends BaseFullCharacter {
       "Equipment.SetCharacterEquipment",
       this.pGetEquipment(client.character.groupId)
     );
+    const c = server.getClientByCharId(this.characterId);
+    if (c && !c.firstLoading) {
+      server.updateCharacterState(
+        client,
+        this.characterId,
+        this.characterStates,
+        false
+      );
+    }
 
     if (this.onReadyCallback) {
       this.onReadyCallback(client);
