@@ -4176,7 +4176,7 @@ export class ZoneServer2016 extends EventEmitter {
             : 0,
           mountRelatedDword1: vehicle ? 1 : 0,
           flags1: {
-            isAdmin: client.isAdmin,
+            isAdmin: this.getClientByCharId(characterObj.characterId)?.isAdmin,
           },
         });
 
