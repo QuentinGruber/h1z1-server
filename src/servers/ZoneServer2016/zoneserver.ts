@@ -1224,8 +1224,7 @@ export class ZoneServer2016 extends EventEmitter {
         respawnCheckRange: Number(decryptedData[33]),
         respawnCheckTime: Number(decryptedData[34]),
         respawnCheckIterations: Number(decryptedData[35]),
-        maxFlyingScenario1: Number(decryptedData[36]),
-        maxFlyingScenario2: Number(decryptedData[37]),
+        maxFlying: Number(decryptedData[36]),
       };
     }
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
@@ -1815,7 +1814,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sendKillFeed(client: Client, damageInfo: DamageInfo) {
-    if (!client.currentPOI) return;
+    if (
+      !client.currentPOI ||
+      client.character.characterId === damageInfo.entity
+    )
+      return;
     for (const a in this._clients) {
       if (
         this._clients[a].currentPOI != client.currentPOI ||
@@ -2549,13 +2552,17 @@ export class ZoneServer2016 extends EventEmitter {
     sequenceTime: number,
     position: Float32Array
   ): boolean {
-    if (client.isAdmin || !this.fairPlayValues || !client.isSynced)
+    if (
+      client.isAdmin ||
+      !this.fairPlayValues ||
+      !client.isSynced ||
+      client.kicked
+    )
       return false;
     if (!this.isSaving) {
       if (
         client.isInAir &&
-        client.maxFlying &&
-        position[1] - client.startLoc > client.maxFlying
+        position[1] - client.startLoc > this.fairPlayValues.maxFlying
       ) {
         let msg = true;
         for (const a in this._constructionFoundations) {
@@ -2587,10 +2594,10 @@ export class ZoneServer2016 extends EventEmitter {
             msg = false;
         }
         if (msg) {
-          //this.kickPlayer(client);
-          //this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
+          this.kickPlayer(client);
+          this.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
           this.sendChatTextToAdmins(
-            `FairPlay: ${client.character.name} is possibly flying by ${(
+            `FairPlay: Kicking ${client.character.name} for flying by ${(
               position[1] - client.startLoc
             ).toFixed(2)} at [${position[0]} ${position[1]} ${position[2]}]`,
             false
@@ -4173,7 +4180,7 @@ export class ZoneServer2016 extends EventEmitter {
             : 0,
           mountRelatedDword1: vehicle ? 1 : 0,
           flags1: {
-            isAdmin: client.isAdmin,
+            isAdmin: this.getClientByCharId(characterObj.characterId)?.isAdmin,
           },
         });
 
@@ -4709,6 +4716,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   kickPlayer(client: Client) {
     client.properlyLogout = true;
+    client.kicked = true;
     this.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
