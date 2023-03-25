@@ -611,6 +611,12 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.setGodMode(client, !client.character.godMode);
       server.sendAlert(client, `Set godmode to ${client.character.godMode}`);
+      server.updateCharacterState(
+        client,
+        client.character.characterId,
+        client.character.characterStates,
+        true
+      );
     },
   },
   {
