@@ -3084,7 +3084,7 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.WEAPON_AK47:
         return 2900;
       case Items.WEAPON_308:
-        return 6500;
+        return 6700;
       case Items.WEAPON_MAGNUM:
         return 3000;
       case Items.WEAPON_BOW_MAKESHIFT:
