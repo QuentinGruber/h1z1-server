@@ -69,6 +69,7 @@ export class ConfigManager {
 
       this.config = this.defaultConfig;
       this.applyConfig(server);
+      console.log("Default config loaded!");
       return;
     }
 
@@ -76,6 +77,7 @@ export class ConfigManager {
     if (config) {
       this.config = this.loadConfig(config);
       this.applyConfig(server);
+      console.log("Config Loaded!");
       return;
     }
 

@@ -53,9 +53,7 @@ export class SpeedTreeManager {
     switch (name) {
       case "SpeedTree.Blackberry":
         itemDefId = Items.BLACKBERRY;
-        const min = Math.floor(1 / this.branchHarvestChance),
-          max = Math.ceil(1 / this.branchHarvestChance);
-        if (randomIntFromInterval(min, max) == 1) {
+        if (Math.random() <= this.branchHarvestChance) {
           client.character.lootItem(
             server,
             server.generateItem(Items.WEAPON_BRANCH)
