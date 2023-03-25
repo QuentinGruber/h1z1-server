@@ -1726,7 +1726,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     });
     const character = client.character,
-    gridArr: any[] = [];
+      gridArr: any[] = [];
     character.spawnGridData.forEach((number: number) => {
       if (number <= new Date().getTime()) number = 0;
       gridArr.push({
@@ -4559,7 +4559,10 @@ export class ZoneServer2016 extends EventEmitter {
     return false;
   }
 
-  async unbanClient(client: Client, name: string): Promise<ClientBan | undefined> {
+  async unbanClient(
+    client: Client,
+    name: string
+  ): Promise<ClientBan | undefined> {
     const unBannedClient = (
       await this._db
         ?.collection(DB_COLLECTIONS.BANNED)
@@ -4568,11 +4571,11 @@ export class ZoneServer2016 extends EventEmitter {
           { $set: { active: false, unBanAdminName: client.character.name } }
         )
     )?.value as unknown as ClientBan;
-    if(!unBannedClient) return;
+    if (!unBannedClient) return;
     this.sendBanToLogin(unBannedClient.loginSessionId, false);
     return unBannedClient;
   }
-  
+
   banClient(
     client: Client,
     reason: string,
@@ -8544,13 +8547,13 @@ export class ZoneServer2016 extends EventEmitter {
     this.chatManager.sendGlobalChatText(this, message, clearChat);
   }
   sendConsoleText(client: Client, message: string) {
-    this.sendData(client, "H1emu.PrintToConsole", {message})
+    this.sendData(client, "H1emu.PrintToConsole", { message });
   }
   sendConsoleTextToAdmins(message: string) {
     for (const a in this._clients) {
       const client = this._clients[a];
       if (client.isAdmin) {
-        this.sendData(client, "H1emu.PrintToConsole", {message})
+        this.sendData(client, "H1emu.PrintToConsole", { message });
       }
     }
   }

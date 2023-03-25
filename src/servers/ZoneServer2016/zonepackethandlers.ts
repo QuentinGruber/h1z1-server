@@ -238,7 +238,7 @@ export class zonePacketHandlers {
         return;
       }
       // damage must pass this threshold to be applied
-      if(damage <= 800) return;
+      if (damage <= 800) return;
       client.character.damage(server, {
         entity: "Server.CollisionDamage",
         damage: damage,
@@ -999,7 +999,10 @@ export class zonePacketHandlers {
     debug("Command.PlayerSelect");
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
-    if (!client.character.currentInteractionGuid || packet.data.password === 1) {
+    if (
+      !client.character.currentInteractionGuid ||
+      packet.data.password === 1
+    ) {
       server.sendAlert(client, "Code lock failed!");
       return;
     }

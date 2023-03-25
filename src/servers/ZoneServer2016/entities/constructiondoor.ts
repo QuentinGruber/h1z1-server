@@ -133,7 +133,7 @@ export class ConstructionDoor extends DoorEntity {
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
     const weapon = client.character.getEquippedWeapon();
-    if(!weapon) return false;
+    if (!weapon) return false;
     return (
       this.getHasPermission(
         server,
@@ -141,8 +141,7 @@ export class ConstructionDoor extends DoorEntity {
         ConstructionPermissionIds.BUILD
       ) &&
       Date.now() < this.placementTime + 120000 &&
-      weapon.itemDefinitionId ==
-        Items.WEAPON_HAMMER_DEMOLITION
+      weapon.itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
     );
   }
 
