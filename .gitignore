@@ -5,3 +5,4 @@ tests_out
 benchmarks_out
 bin/*.exe
 .vs
+config.yaml
