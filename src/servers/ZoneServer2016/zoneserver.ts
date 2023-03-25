@@ -460,7 +460,11 @@ export class ZoneServer2016 extends EventEmitter {
                 try {
                   for (let i = 0; i < banInfos.length; i++) {
                     const banInfo = banInfos[i];
-                    if (this.fairPlayManager.banInfoAcceptance.includes(banInfo.banInfo)) {
+                    if (
+                      this.fairPlayManager.banInfoAcceptance.includes(
+                        banInfo.banInfo
+                      )
+                    ) {
                       console.log(
                         `Character (${characterId}) connection rejected due to banInfo ${banInfo.banInfo}`
                       );
