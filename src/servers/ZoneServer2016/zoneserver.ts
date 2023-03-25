@@ -1147,75 +1147,8 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnServerInit"))) return;
 
     await this.setupServer();
-<<<<<< feature/configRconManagers
 
     this.fairPlayManager.decryptFairPlayValues();
-
-=======
-    if (this._decryptKey) {
-      this._suspiciousList = encryptedData.map(
-        (x: { iv: string; encryptedData: string }) =>
-          decrypt(x, this._decryptKey)
-      );
-    }
-    if (this._fairPlayDecryptKey && this._useFairPlay) {
-      const decryptedData = fairPlayData.map(
-        (x: { iv: string; encryptedData: string }) =>
-          decrypt(x, this._fairPlayDecryptKey)
-      );
-      this.fairPlayValues = {
-        defaultMaxProjectileSpeed: Number(decryptedData[0]),
-        defaultMinProjectileSpeed: Number(decryptedData[1]),
-        defaultMaxDistance: Number(decryptedData[2]),
-        WEAPON_308: {
-          maxSpeed: Number(decryptedData[3]),
-          minSpeed: Number(decryptedData[4]),
-          maxDistance: Number(decryptedData[5]),
-        },
-        WEAPON_CROSSBOW: {
-          maxSpeed: Number(decryptedData[6]),
-          minSpeed: Number(decryptedData[7]),
-          maxDistance: Number(decryptedData[8]),
-        },
-        WEAPON_BOW_MAKESHIFT: {
-          maxSpeed: Number(decryptedData[9]),
-          minSpeed: Number(decryptedData[10]),
-          maxDistance: Number(decryptedData[11]),
-        },
-        WEAPON_BOW_RECURVE: {
-          maxSpeed: Number(decryptedData[12]),
-          minSpeed: Number(decryptedData[13]),
-          maxDistance: Number(decryptedData[14]),
-        },
-        WEAPON_BOW_WOOD: {
-          maxSpeed: Number(decryptedData[15]),
-          minSpeed: Number(decryptedData[16]),
-          maxDistance: Number(decryptedData[17]),
-        },
-        WEAPON_SHOTGUN: {
-          maxSpeed: Number(decryptedData[18]),
-          minSpeed: Number(decryptedData[19]),
-          maxDistance: Number(decryptedData[20]),
-        },
-        lastLoginDateAddVal: Number(decryptedData[21]),
-        maxTimeDrift: Number(decryptedData[22]),
-        maxSpeed: Number(decryptedData[23]),
-        maxVerticalSpeed: Number(decryptedData[24]),
-        speedWarnsNumber: Number(decryptedData[25]),
-        maxTpDist: Number(decryptedData[26]),
-        dotProductMin: Number(decryptedData[27]),
-        dotProductMinShotgun: Number(decryptedData[28]),
-        dotProductBlockValue: Number(decryptedData[29]),
-        requiredFile: decryptedData[30],
-        requiredString: decryptedData[31],
-        requiredFile2: decryptedData[32],
-        respawnCheckRange: Number(decryptedData[33]),
-        respawnCheckTime: Number(decryptedData[34]),
-        respawnCheckIterations: Number(decryptedData[35]),
-        maxFlying: Number(decryptedData[36]),
-      };
-    }
->>>>>> dev
     this._spawnGrid = this.divideMapIntoSpawnGrid(7448, 7448, 744);
     this.startRoutinesLoop();
     this.smeltingManager.checkSmeltables(this);

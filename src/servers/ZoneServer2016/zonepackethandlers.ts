@@ -823,22 +823,7 @@ export class ZonePacketHandlers {
       ) {
         client.isInAir = true;
         client.startLoc = client.character.state.position[1];
-<<<<<< feature/configRconManagers
-        client.maxFlying =
-          server.fairPlayManager.fairPlayValues?.maxFlyingScenario1;
-      } else if (
-        (packet.data.stance & (1 << 5)) !== 0 &&
-        !client.isInAir &&
-        !client.vehicle.mountedVehicle
-      ) {
-        client.isInAir = true;
-        client.startLoc = client.character.state.position[1];
-        client.maxFlying =
-          server.fairPlayManager.fairPlayValues?.maxFlyingScenario2;
-      } else {
-=======
       } else if ((packet.data.stance & (1 << 5)) == 0 && client.isInAir) {
->>>>>> dev
         client.isInAir = false;
       }
       const byte1 = packet.data.stance & 0xff;

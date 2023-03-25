@@ -110,8 +110,7 @@ export class FairPlayManager {
         respawnCheckRange: Number(decryptedData[33]),
         respawnCheckTime: Number(decryptedData[34]),
         respawnCheckIterations: Number(decryptedData[35]),
-        maxFlyingScenario1: Number(decryptedData[36]),
-        maxFlyingScenario2: Number(decryptedData[37]),
+        maxFlying: Number(decryptedData[36]),
       };
     }
   }
@@ -127,8 +126,7 @@ export class FairPlayManager {
     if (!server.isSaving) {
       if (
         client.isInAir &&
-        client.maxFlying &&
-        position[1] - client.startLoc > client.maxFlying
+        position[1] - client.startLoc > this.fairPlayValues.maxFlying
       ) {
         let kick = true;
         for (const a in server._constructionFoundations) {
