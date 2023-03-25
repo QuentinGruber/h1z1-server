@@ -16,6 +16,8 @@ import * as yaml from "js-yaml";
 import { Config } from "../models/config";
 import { ZoneServer2016 } from "../zoneserver";
 
+process.env.isBin && require("js-yaml") && require("../../../../data/2016/sampleData/defaultconfig.yaml")
+
 function fileExists(filePath: string): boolean {
   try {
     fs.accessSync(filePath);
@@ -89,7 +91,7 @@ export class ConfigManager {
   private loadYaml(path: string, relative = true): Config | undefined {
     return yaml.load(
       fs.readFileSync(`${relative ? __dirname : ""}${path}`, "utf8")
-    ) as any as Config;
+    ) as unknown as Config;
   }
 
   loadConfig(config: Config): Config {
