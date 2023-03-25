@@ -893,7 +893,8 @@ export class Character2016 extends BaseFullCharacter {
       return;
     }
 
-    server.hitMissFairPlayCheck(
+    server.fairPlayManager.hitMissFairPlayCheck(
+      server,
       client,
       true,
       damageInfo.hitReport?.hitLocation || ""
