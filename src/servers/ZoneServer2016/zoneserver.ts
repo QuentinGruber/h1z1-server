@@ -83,6 +83,7 @@ import {
   getDifference,
   logClientActionToMongo,
   removeUntransferableFields,
+  eul2quat,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -2807,6 +2808,34 @@ export class ZoneServer2016 extends EventEmitter {
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
+  }
+
+  spawnWorkAroundLightWeight(
+    client: Client,
+    entity: BaseLightweightCharacter,
+  ) {
+     const lightWeight = {
+          characterId: entity.characterId,
+          transientId: entity.transientId,
+          actorModelId: entity.actorModelId,
+          // fix players / vehicles spawning in ground
+          position: Array.from(entity.state.position).map((pos, idx) => {
+              return idx == 1 ? pos++ : pos;
+          }),
+          rotation: eul2quat(new Float32Array([entity.state.rotation[1],0,0,0])),
+          scale: entity.scale,
+          positionUpdateType: entity.positionUpdateType,
+          profileId: entity.profileId,
+          isLightweight: entity.isLightweight,
+          flags: {
+              flags1: entity.flags,
+              flags2: entity.flags,
+              flags3: entity.flags,
+          },
+          headActor: entity.headActor,
+      };
+
+    this.sendData(client, "AddLightweightNpc", lightWeight);
   }
 
   private npcDespawner() {
