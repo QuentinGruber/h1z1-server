@@ -10,7 +10,6 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-import { isQuat } from "../../../utils/utils";
 import { BaseLootableEntity } from "./baselootableentity";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";

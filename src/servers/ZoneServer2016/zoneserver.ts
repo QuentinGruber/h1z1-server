@@ -3509,7 +3509,7 @@ export class ZoneServer2016 extends EventEmitter {
         )
       ) {
         // vehicle despawning / managed object drop logic
-        
+
         const index = client.spawnedEntities.indexOf(vehicle);
         if (index > -1) {
           if (vehicle.isManaged) {
