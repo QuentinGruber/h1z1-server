@@ -718,7 +718,7 @@ export class ConstructionManager {
             transientId,
             modelId,
             position,
-            rotation,
+            new Float32Array([0, rotation[0], 0, 0]),
             server,
             itemDefinitionId,
             freeplaceParentCharacterId || "",

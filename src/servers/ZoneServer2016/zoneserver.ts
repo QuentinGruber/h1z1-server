@@ -2825,9 +2825,12 @@ export class ZoneServer2016 extends EventEmitter {
       transientId: entity.transientId,
       actorModelId: entity.actorModelId,
       // fix players / vehicles spawning in ground
-      position: Array.from(entity.state.position).map((pos, idx) => {
-        return idx == 1 ? pos++ : pos;
-      }),
+      position: new Float32Array([
+        entity.state.position[0],
+        entity.state.position[1] - 10,
+        entity.state.position[2],
+        entity.state.position[3],
+      ]),
       rotation: eul2quat(new Float32Array([entity.state.rotation[1], 0, 0, 0])),
       scale: entity.scale,
       positionUpdateType: entity.positionUpdateType,
