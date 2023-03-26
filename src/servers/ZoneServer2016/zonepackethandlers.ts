@@ -536,7 +536,7 @@ export class ZonePacketHandlers {
       return;
     // work around to get external containers working with simpleNpcs
     if (entity instanceof BaseLootableEntity) {
-      server.spawnWorkAroundLightWeight(client, entity)
+      server.spawnWorkAroundLightWeight(client, entity);
     }
     entity.OnPlayerSelect(server, client, packet.data.isInstant);
   }

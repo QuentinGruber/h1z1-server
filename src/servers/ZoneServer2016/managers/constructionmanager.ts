@@ -1060,7 +1060,7 @@ export class ConstructionManager {
         transientId,
         modelId,
         position,
-        eul2quat(new Float32Array([rotation[1], 0, 0, 0])),
+        new Float32Array([rotation[1], 0, 0, 0]),
         server,
         itemDefinitionId,
         client.character.characterId,

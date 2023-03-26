@@ -68,10 +68,10 @@ export class BaseLootableEntity extends BaseFullCharacter {
 
     client.character.mountContainer(server, this);
     setTimeout(() => {
-        server.sendData(client, "Character.RemovePlayer", {
-            characterId: this.characterId,
-        });
-    },1000)
+      server.sendData(client, "Character.RemovePlayer", {
+        characterId: this.characterId,
+      });
+    }, 1000);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
