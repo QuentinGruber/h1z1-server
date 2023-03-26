@@ -67,6 +67,7 @@ import { LootableConstructionEntity } from "./entities/lootableconstructionentit
 import { Character2016 } from "./entities/character";
 import { Crate } from "./entities/crate";
 import { OBSERVER_GUID } from "../../utils/constants";
+import { BaseLootableEntity } from "./entities/baselootableentity";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -529,7 +530,13 @@ export class zonePacketHandlers {
       )
     )
       return;
-
+    // work around to get external containers working with simpleNpcs
+    if (entity instanceof BaseLootableEntity) {
+      const workAroundLightWeight = entity;
+      workAroundLightWeight.state.position[1] =
+        workAroundLightWeight.state.position[1] - 100;
+      server.addLightweightNpc(client, workAroundLightWeight);
+    }
     entity.OnPlayerSelect(server, client, packet.data.isInstant);
   }
   CommandInteractCancel(server: ZoneServer2016, client: Client, packet: any) {

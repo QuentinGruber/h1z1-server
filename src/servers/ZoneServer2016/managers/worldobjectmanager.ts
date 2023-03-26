@@ -291,7 +291,12 @@ export class WorldObjectManager {
           server.getTransientId(characterId), // need transient generated for Interaction Replication
           propInstance.modelId,
           propInstance.position,
-          propInstance.rotation,
+          new Float32Array([
+            propInstance.rotation[1],
+            propInstance.rotation[0],
+            propInstance.rotation[2],
+            0,
+          ]),
           server,
           propInstance.scale,
           propInstance.id,

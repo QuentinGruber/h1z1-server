@@ -3995,11 +3995,7 @@ export class ZoneServer2016 extends EventEmitter {
     entity: LootableConstructionEntity
   ) {
     if (client.spawnedEntities.includes(entity)) return;
-    this.addLightweightNpc(
-      client,
-      entity,
-      this.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
-    );
+    this.addSimpleNpc(client, entity);
     this.updateResource(
       client,
       entity.characterId,
@@ -5511,7 +5507,7 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
+          new Float32Array([0, rotation[0], 0, 0]),
           freeplaceParentCharacterId
         );
       case Items.FURNACE:
@@ -5522,7 +5518,7 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
+          new Float32Array([0, rotation[0], 0, 0]),
           freeplaceParentCharacterId
         );
       case Items.BEE_BOX:
@@ -5533,7 +5529,7 @@ export class ZoneServer2016 extends EventEmitter {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
+          new Float32Array([0, rotation[0], 0, 0]),
           freeplaceParentCharacterId
         );
       case Items.METAL_WALL:

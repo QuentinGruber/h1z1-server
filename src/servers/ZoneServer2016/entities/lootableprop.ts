@@ -165,7 +165,6 @@ export class LootableProp extends BaseLootableEntity {
     this.scale = new Float32Array(scale);
     this.spawnerId = spawnerId;
     this.npcRenderDistance = renderDistance;
-    this.state.rotation = isQuat(rotation);
     this.loadoutId = 5;
     getContainerAndTime(this);
   }
