@@ -178,6 +178,10 @@ export class ZoneServer2016 extends EventEmitter {
   _grid: GridCell[] = [];
   _spawnGrid: SpawnCell[] = [];
 
+  saveTimeInterval: number = 600000;
+
+  nextSaveTime: number = Date.now() + this.saveTimeInterval;
+
   readonly _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
   _npcs: { [characterId: string]: Npc } = {};
@@ -1132,8 +1136,7 @@ export class ZoneServer2016 extends EventEmitter {
         .then(() => {
           this._isSaving = false;
           this.sendChatTextToAdmins("World saved!");
-          this.worldDataManager.nextSaveTime =
-            Date.now() + this.worldDataManager.saveTimeInterval;
+          this.nextSaveTime = Date.now() + this.saveTimeInterval;
           debug("World saved!");
         });
     } catch (e) {
@@ -1442,7 +1445,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           this.enableWorldSaves &&
           !this.isSaving &&
-          this.worldDataManager.nextSaveTime - Date.now() < 0
+          this.nextSaveTime - Date.now() < 0
         ) {
           this.saveWorld();
         }

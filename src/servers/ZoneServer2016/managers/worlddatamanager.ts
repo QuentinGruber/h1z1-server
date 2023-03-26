@@ -148,9 +148,9 @@ export class WorldDataManager {
   readonly worldSaveVersion: number = 2;
 
   /* MANAGED BY CONFIGMANAGER */
-  saveTimeInterval: number = 600000;
+  /*saveTimeInterval: number = 600000;
 
-  nextSaveTime: number = Date.now() + this.saveTimeInterval;
+  nextSaveTime: number = Date.now() + this.saveTimeInterval;*/
 
   static async getDatabase(mongoAddress: string) {
     const mongoClient = new MongoClient(mongoAddress, {
