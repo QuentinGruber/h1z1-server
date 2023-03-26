@@ -1822,7 +1822,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
-      if (isPosInRadius(8, character.state.position, position)) {
+      if (isPosInRadiusWithY(3, character.state.position, position, 1.5)) {
         const distance = getDistance(position, character.state.position);
         const damage = 50000 / distance;
         character.damage(this, {
