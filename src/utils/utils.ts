@@ -806,8 +806,8 @@ export function registerConstructionSlots(
           1,
         ]),
         rotation: new Float32Array([
-          construction.eulerAngle + slots.rotationOffsets[i],
           0,
+          construction.eulerAngle + slots.rotationOffsets[i],
           0,
         ]),
       };

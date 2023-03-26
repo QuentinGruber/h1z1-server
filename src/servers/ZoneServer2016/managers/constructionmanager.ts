@@ -613,7 +613,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          rotation,
+          new Float32Array([0, rotation[0], 0, 0]),
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -642,7 +642,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
+          new Float32Array([0, rotation[0], 0, 0]),
           freeplaceParentCharacterId
         );
       case Items.FURNACE:
@@ -653,7 +653,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
+          new Float32Array([0, rotation[0], 0, 0]),
           freeplaceParentCharacterId
         );
       case Items.BEE_BOX:
@@ -664,7 +664,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
+          new Float32Array([0, rotation[0], 0, 0]),
           freeplaceParentCharacterId
         );
       case Items.METAL_WALL:
@@ -690,7 +690,7 @@ export class ConstructionManager {
           client,
           itemDefinitionId,
           modelId,
-          rotation,
+          new Float32Array([0, rotation[0], 0, 0]),
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -1060,7 +1060,7 @@ export class ConstructionManager {
         transientId,
         modelId,
         position,
-        rotation,
+        eul2quat(new Float32Array([rotation[1], 0, 0, 0])),
         server,
         itemDefinitionId,
         client.character.characterId,
@@ -1709,25 +1709,8 @@ export class ConstructionManager {
     entity: ConstructionParentEntity
   ) {
     if (!client.spawnedEntities.includes(entity)) {
-      server.addLightweightNpc(
-        client,
-        entity,
-        server.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
-      );
+      server.addSimpleNpc(client, entity);
       client.spawnedEntities.push(entity);
-      if (
-        entity.itemDefinitionId == Items.SHACK ||
-        entity.itemDefinitionId == Items.SHACK_SMALL ||
-        entity.itemDefinitionId == Items.SHACK_BASIC
-      ) {
-        server.updateResource(
-          client,
-          entity.characterId,
-          entity.health,
-          ResourceIds.CONSTRUCTION_CONDITION,
-          ResourceTypes.CONDITION
-        );
-      }
     }
     // slotted construction spawning
     this.spawnConstructionTree(server, client, entity);
@@ -1775,19 +1758,8 @@ export class ConstructionManager {
     spawnTree = true
   ) {
     if (!client.spawnedEntities.includes(entity)) {
-      server.addLightweightNpc(
-        client,
-        entity,
-        server.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
-      );
+      server.addSimpleNpc(client, entity);
       client.spawnedEntities.push(entity);
-      server.updateResource(
-        client,
-        entity.characterId,
-        entity.health,
-        ResourceIds.CONSTRUCTION_CONDITION,
-        ResourceTypes.CONDITION
-      );
     }
 
     if (!spawnTree) return;
@@ -1804,18 +1776,7 @@ export class ConstructionManager {
     entity: LootableConstructionEntity
   ) {
     if (client.spawnedEntities.includes(entity)) return;
-    server.addLightweightNpc(
-      client,
-      entity,
-      server.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
-    );
-    server.updateResource(
-      client,
-      entity.characterId,
-      entity.health,
-      ResourceIds.CONSTRUCTION_CONDITION,
-      ResourceTypes.CONDITION
-    );
+    server.addSimpleNpc(client, entity);
     client.spawnedEntities.push(entity);
   }
 
@@ -2282,43 +2243,34 @@ export class ConstructionManager {
         break;
     }
     const distance = getDistance(entityPosition, position);
-    constructionObject.damage(server, {
-      entity: "",
-      damage:
-        distance < constructionObject.damageRange
-          ? damage
-          : damage / Math.sqrt(distance),
-    });
-    server.updateResourceToAllWithSpawnedEntity(
-      constructionObject.characterId,
-      constructionObject.health,
-      ResourceIds.CONSTRUCTION_CONDITION,
-      ResourceTypes.CONDITION,
-      dictionary
-    );
-    server.sendDataToAllWithSpawnedEntity(
-      // play burning effect & remove it after 15s
-      dictionary,
-      constructionCharId,
-      "Command.PlayDialogEffect",
-      {
-        characterId: constructionCharId,
-        effectId: 1214,
-      }
-    );
-    setTimeout(() => {
-      if (dictionary[constructionCharId]) {
-        server.sendDataToAllWithSpawnedEntity(
-          dictionary,
-          constructionCharId,
-          "Command.PlayDialogEffect",
-          {
-            characterId: constructionCharId,
-            effectId: 0,
-          }
-        );
-      }
-    }, 15000);
+    if (constructionObject.useSimpleStruct) {
+      constructionObject.damageSimpleNpc(
+        server,
+        {
+          entity: "",
+          damage:
+            distance < constructionObject.damageRange
+              ? damage
+              : damage / Math.sqrt(distance),
+        },
+        dictionary
+      );
+    } else {
+      constructionObject.damage(server, {
+        entity: "",
+        damage:
+          distance < constructionObject.damageRange
+            ? damage
+            : damage / Math.sqrt(distance),
+      });
+      server.updateResourceToAllWithSpawnedEntity(
+        constructionObject.characterId,
+        constructionObject.health,
+        ResourceIds.CONSTRUCTION_CONDITION,
+        ResourceTypes.CONDITION,
+        dictionary
+      );
+    }
     if (constructionObject.health > 0) return;
 
     constructionObject.destroy(server, 3000);

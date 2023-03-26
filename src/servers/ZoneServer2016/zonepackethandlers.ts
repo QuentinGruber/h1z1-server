@@ -537,8 +537,9 @@ export class ZonePacketHandlers {
     // work around to get external containers working with simpleNpcs
     if (entity instanceof BaseLootableEntity) {
       const workAroundLightWeight = entity;
-      workAroundLightWeight.state.position[1] =
-        workAroundLightWeight.state.position[1] - 100;
+      workAroundLightWeight.state.rotation = eul2quat(
+        new Float32Array([workAroundLightWeight.state.rotation[1], 0, 0, 0])
+      );
       server.addLightweightNpc(client, workAroundLightWeight);
     }
     entity.OnPlayerSelect(server, client, packet.data.isInstant);

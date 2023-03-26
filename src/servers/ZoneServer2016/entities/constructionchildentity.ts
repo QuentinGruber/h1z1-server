@@ -129,7 +129,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       this.eulerAngle = overrideEulerAngle;
     } else {
       this.state.rotation = rotation;
-      this.eulerAngle = rotation[0];
+      this.eulerAngle = rotation[1];
     }
     this.itemDefinitionId = itemDefinitionId;
     this.parentObjectCharacterId = parentObjectCharacterId;
