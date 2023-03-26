@@ -1502,9 +1502,8 @@ export class ZoneServer2016 extends EventEmitter {
       sourceEntity = this.getEntity(damageInfo.entity),
       targetClient = this.getClientByCharId(targetCharacterId),
       sourceClient = this.getClientByCharId(damageInfo.entity);
-    if (!sourceEntity || !targetEntity) return {} as DamageRecord;
 
-    let sourceName = "Generic",
+    let sourceName = damageInfo.entity,
       sourcePing = 0,
       targetName = "Generic",
       targetPing = 0;
@@ -1536,10 +1535,13 @@ export class ZoneServer2016 extends EventEmitter {
       hitInfo: {
         timestamp: Date.now(),
         weapon: damageInfo.weapon,
-        distance: getDistance(
-          sourceEntity.state.position,
-          targetEntity.state.position
-        ).toFixed(1),
+        distance:
+          sourceEntity && targetEntity
+            ? getDistance(
+                sourceEntity.state.position,
+                targetEntity.state.position
+              ).toFixed(1)
+            : "0",
         hitLocation: damageInfo.hitReport?.hitLocation || "Unknown",
         hitPosition:
           damageInfo.hitReport?.position || new Float32Array([0, 0, 0, 0]),
@@ -4108,7 +4110,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(
         client,
         `${time} ${source} ${target} ${
-          this.getItemDefinition(e.hitInfo.weapon).MODEL_NAME || "N/A"
+          this.getItemDefinition(e.hitInfo.weapon || 0)?.MODEL_NAME || "N/A"
         } ${e.hitInfo.distance}m ${
           e.hitInfo.hitLocation
         } ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing} ${
