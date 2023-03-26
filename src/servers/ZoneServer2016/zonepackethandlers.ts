@@ -94,7 +94,7 @@ export class ZonePacketHandlers {
       decalAlias: "#"
     });
     */
-
+    server.executeRoutine(client);
     server.setGodMode(client, true);
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
