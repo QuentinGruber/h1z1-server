@@ -3380,17 +3380,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   kickPlayer(client: Client) {
-    client.properlyLogout = true;
-    client.kicked = true;
     this.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
     });
-    setTimeout(() => {
-      if (client) {
-        this.deleteClient(client);
-      }
-    }, 11000);
+    this.deleteClient(client);
   }
 
   getDateString(timestamp: number) {
