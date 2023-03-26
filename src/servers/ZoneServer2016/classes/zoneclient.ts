@@ -62,6 +62,7 @@ export class ZoneClient2016 {
   hudTimer?: NodeJS.Timeout | null;
   spawnedDTOs: any[] = [];
   spawnedEntities: BaseEntity[] = [];
+  sentInteractionData: BaseEntity[] = [];
   searchedProps: LootableProp[] = [];
   managedObjects: string[] = [];
   vehicle: {

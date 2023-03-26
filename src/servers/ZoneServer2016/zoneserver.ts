@@ -2720,6 +2720,15 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  private removeOODInteractionData(client: Client) {
+    const objectsToRemove = client.sentInteractionData.filter((e) =>
+      this.shouldRemoveEntity(client, e)
+    );
+    client.sentInteractionData = client.sentInteractionData.filter((el) => {
+      return !objectsToRemove.includes(el);
+    });
+  }
+
   despawnEntity(characterId: string) {
     this.sendDataToAll("Character.RemovePlayer", {
       characterId: characterId,
@@ -3418,17 +3427,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   kickPlayer(client: Client) {
-    client.properlyLogout = true;
-    client.kicked = true;
     this.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
     });
-    setTimeout(() => {
-      if (client) {
-        this.deleteClient(client);
-      }
-    }, 11000);
+    this.deleteClient(client);
   }
 
   getDateString(timestamp: number) {
@@ -5788,6 +5791,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (client.routineCounter >= 3) {
           this.assignChunkRenderDistance(client);
           this.removeOutOfDistanceEntities(client);
+          this.removeOODInteractionData(client);
           this.POIManager(client);
           client.routineCounter = 0;
         }

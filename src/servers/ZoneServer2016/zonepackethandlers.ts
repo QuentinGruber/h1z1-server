@@ -1119,7 +1119,10 @@ export class ZonePacketHandlers {
 
     client.character.currentInteractionGuid = packet.data.guid;
     client.character.lastInteractionTime = Date.now();
-    if (entity instanceof BaseLightweightCharacter) {
+    if (
+      entity instanceof BaseLightweightCharacter &&
+      !client.sentInteractionData.includes(entity)
+    ) {
       server.sendData(client, "Replication.NpcComponent", {
         transientId: entity.transientId,
         nameId: entity.nameId,
@@ -1133,6 +1136,7 @@ export class ZonePacketHandlers {
         server.sendData(client, "Replication.InteractionComponent", {
           transientId: entity.transientId,
         });
+        client.sentInteractionData.push(entity);
       }
     }
     entity.OnInteractionString(server, client);
