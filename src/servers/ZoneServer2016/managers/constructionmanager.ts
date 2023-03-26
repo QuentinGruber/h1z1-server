@@ -632,7 +632,7 @@ export class ConstructionManager {
           client,
           itemDefinitionId,
           modelId,
-          rotation,
+          new Float32Array([0, rotation[0], 0, 0]),
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -999,7 +999,7 @@ export class ConstructionManager {
         transientId,
         modelId,
         position,
-        new Float32Array([rotation[0], 0, 0]),
+        rotation,
         server,
         itemDefinitionId,
         parentObjectCharacterId,
