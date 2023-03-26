@@ -1895,13 +1895,22 @@ export class ConstructionManager {
       damage: (amount *= -1),
     };
     entity.damage(server, damageInfo);
-    server.updateResourceToAllWithSpawnedEntity(
-      entity.characterId,
-      entity.health,
-      ResourceIds.CONSTRUCTION_CONDITION,
-      ResourceTypes.CONDITION,
-      server.getConstructionDictionary(entity.characterId)
-    );
+    if (entity.useSimpleStruct) {
+      server.sendDataToAllWithSpawnedEntity(
+        server.getConstructionDictionary(entity.characterId),
+        entity.characterId,
+        "Character.UpdateSimpleProxyHealth",
+        entity.pGetSimpleProxyHealth()
+      );
+    } else {
+      server.updateResourceToAllWithSpawnedEntity(
+        entity.characterId,
+        entity.health,
+        ResourceIds.CONSTRUCTION_CONDITION,
+        ResourceTypes.CONDITION,
+        server.getConstructionDictionary(entity.characterId)
+      );
+    }
   }
 
   /**
