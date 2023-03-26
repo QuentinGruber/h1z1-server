@@ -89,7 +89,7 @@ export class ItemObject extends BaseLightweightCharacter {
       this.triggerExplosionShots -= 1;
       if (this.triggerExplosionShots > 0) return;
       server.deleteEntity(this.characterId, server._spawnedItems);
-      delete server.worldObjectManager._spawnedLootObjects[this.spawnerId];
+      delete server.worldObjectManager.spawnedLootObjects[this.spawnerId];
       server._explosives[this.characterId].detonate(
         server,
         server.getClientByCharId(damageInfo.entity)
@@ -98,7 +98,7 @@ export class ItemObject extends BaseLightweightCharacter {
   }
 
   destroy(server: ZoneServer2016) {
-    delete server.worldObjectManager._spawnedLootObjects[
+    delete server.worldObjectManager.spawnedLootObjects[
       server._spawnedItems[this.characterId].spawnerId
     ];
     return server.deleteEntity(this.characterId, server._spawnedItems);

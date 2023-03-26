@@ -69,7 +69,7 @@ import { Crate } from "./entities/crate";
 import { OBSERVER_GUID } from "../../utils/constants";
 import { BaseLootableEntity } from "./entities/baselootableentity";
 
-export class zonePacketHandlers {
+export class ZonePacketHandlers {
   commandHandler: CommandHandler;
   constructor() {
     this.commandHandler = new CommandHandler();
@@ -134,18 +134,20 @@ export class zonePacketHandlers {
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
-    server.sendConstructionData(client);
+    server.constructionManager.sendConstructionData(server, client);
     if (client.firstLoading) {
       client.character.lastLoginDate = toHex(Date.now());
       server.setGodMode(client, false);
       setTimeout(() => {
-        server.sendAlert(client, "Welcome to H1emu! :D");
+        if (server.welcomeMessage)
+          server.sendAlert(client, server.welcomeMessage);
         server.sendChatText(
           client,
           `server population : ${_.size(server._characters)}`
         );
         if (client.isAdmin) {
-          server.sendAlert(client, "You are an admin!");
+          if (server.adminMessage)
+            server.sendAlert(client, server.adminMessage);
         }
       }, 10000);
       if (client.banType != "") {
@@ -392,22 +394,24 @@ export class zonePacketHandlers {
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
     if (
-      packet.data.file === server.fairPlayValues?.requiredFile &&
+      packet.data.file ===
+        server.fairPlayManager.fairPlayValues?.requiredFile &&
       client.isMovementBlocked
     ) {
       client.isMovementBlocked = false;
     }
     if (
-      packet.data.file === server.fairPlayValues?.requiredFile2 &&
+      packet.data.file ===
+        server.fairPlayManager.fairPlayValues?.requiredFile2 &&
       !client.clientLogs.includes(packet.data.message) &&
       !client.isAdmin
     ) {
       const obj = { log: packet.data.message, isSuspicious: false };
-      for (let x = 0; x < server._suspiciousList.length; x++) {
+      for (let x = 0; x < server.fairPlayManager._suspiciousList.length; x++) {
         if (
           packet.data.message
             .toLowerCase()
-            .includes(server._suspiciousList[x].toLowerCase())
+            .includes(server.fairPlayManager._suspiciousList[x].toLowerCase())
         ) {
           obj.isSuspicious = true;
           if (!server._soloMode) {
@@ -417,12 +421,12 @@ export class zonePacketHandlers {
               server._worldId,
               {
                 type: "suspicious software",
-                suspicious: server._suspiciousList[x],
+                suspicious: server.fairPlayManager._suspiciousList[x],
               }
             );
           }
           server.sendChatTextToAdmins(
-            `FairPlay: kicking ${client.character.name} for using suspicious software - ${server._suspiciousList[x]}`,
+            `FairPlay: kicking ${client.character.name} for using suspicious software - ${server.fairPlayManager._suspiciousList[x]}`,
             false
           );
           server.kickPlayer(client);
@@ -509,7 +513,7 @@ export class zonePacketHandlers {
     if (client.isSynced) return;
     client.isSynced = true;
     client.character.lastLoginDate = toHex(Date.now());
-    server.constructionManager(client);
+    server.constructionManager.constructionPermissionsManager(server, client);
   }
   CommandExecuteCommand(server: ZoneServer2016, client: Client, packet: any) {
     this.commandHandler.executeCommand(server, client, packet);
@@ -522,7 +526,7 @@ export class zonePacketHandlers {
       entity instanceof ConstructionDoor;
     if (
       !isPosInRadius(
-        entity.interactionDistance || server._interactionDistance,
+        entity.interactionDistance || server.interactionDistance,
         client.character.state.position,
         isConstruction
           ? entity.fixedPosition || entity.state.position
@@ -608,8 +612,12 @@ export class zonePacketHandlers {
     }
   }
   DtoHitSpeedTreeReport(server: ZoneServer2016, client: Client, packet: any) {
-    debug(packet);
-    server.speedTreeUse(client, packet);
+    server.speedtreeManager.use(
+      server,
+      client,
+      packet.data.id,
+      packet.data.name
+    );
   }
   GetRewardBuffInfo(server: ZoneServer2016, client: Client, packet: any) {
     server.sendData(client, "RewardBuffInfo", {
@@ -650,7 +658,8 @@ export class zonePacketHandlers {
     if (!client.managedObjects.includes(vehicle.characterId)) return;
     if (packet.data.positionUpdate.position) {
       if (
-        server.vehicleSpeedFairPlayCheck(
+        server.fairPlayManager.checkVehicleSpeed(
+          server,
           client,
           packet.data.positionUpdate.sequenceTime,
           packet.data.positionUpdate.position,
@@ -815,21 +824,13 @@ export class zonePacketHandlers {
       if (
         (packet.data.stance & (1 << 4)) !== 0 &&
         (packet.data.stance & (1 << 5)) !== 0 &&
+        (packet.data.stance & (1 << 10)) == 0 &&
         !client.isInAir &&
         !client.vehicle.mountedVehicle
       ) {
         client.isInAir = true;
         client.startLoc = client.character.state.position[1];
-        client.maxFlying = server.fairPlayValues?.maxFlyingScenario1;
-      } else if (
-        (packet.data.stance & (1 << 5)) !== 0 &&
-        !client.isInAir &&
-        !client.vehicle.mountedVehicle
-      ) {
-        client.isInAir = true;
-        client.startLoc = client.character.state.position[1];
-        client.maxFlying = server.fairPlayValues?.maxFlyingScenario2;
-      } else {
+      } else if ((packet.data.stance & (1 << 5)) == 0 && client.isInAir) {
         client.isInAir = false;
       }
       const byte1 = packet.data.stance & 0xff;
@@ -884,7 +885,8 @@ export class zonePacketHandlers {
         client.characterReleased = true;
       }
       if (
-        server.speedFairPlayCheck(
+        server.fairPlayManager.checkPlayerSpeed(
+          server,
           client,
           packet.data.sequenceTime,
           packet.data.position
@@ -1109,7 +1111,7 @@ export class zonePacketHandlers {
       entity instanceof ConstructionDoor;
     if (
       !isPosInRadius(
-        entity.interactionDistance || server._interactionDistance,
+        entity.interactionDistance || server.interactionDistance,
         client.character.state.position,
         isConstruction
           ? entity.fixedPosition || entity.state.position
@@ -1173,7 +1175,8 @@ export class zonePacketHandlers {
     const modelId = server.getItemDefinition(
       packet.data.itemDefinitionId
     ).PLACEMENT_MODEL_ID;
-    server.placement(
+    server.constructionManager.placement(
+      server,
       client,
       packet.data.itemDefinitionId,
       modelId,
@@ -1840,7 +1843,8 @@ export class zonePacketHandlers {
                 }
                 entity.destroy(server);
               } else {
-                server.placementError(
+                server.constructionManager.placementError(
+                  server,
                   client,
                   ConstructionErrors.DEMOLISH_PERMISSION
                 );
@@ -1853,100 +1857,14 @@ export class zonePacketHandlers {
             weaponItem.itemDefinitionId == Items.WEAPON_HAMMER &&
             client.character.currentInteractionGuid
           ) {
-            const entity = server.getConstructionEntity(
-              client.character.currentInteractionGuid
+            server.constructionManager.hammerConstructionEntity(
+              server,
+              client,
+              weaponItem
             );
-            if (!entity) return;
-            if (!client.character.temporaryScrapSoundTimeout) {
-              let accumulatedItemDamage = 0;
-              server.sendCompositeEffectToAllInRange(
-                15,
-                client.character.characterId,
-                entity.state.position,
-                1605
-              );
-              if (entity instanceof ConstructionParentEntity) {
-                Object.values(entity.occupiedExpansionSlots).forEach(
-                  (expansion: ConstructionParentEntity) => {
-                    // repair every object on each expansion
-                    Object.values(expansion.occupiedShelterSlots).forEach(
-                      (child: ConstructionChildEntity) => {
-                        accumulatedItemDamage = server.repairChildEntity(
-                          child,
-                          accumulatedItemDamage
-                        );
-                      }
-                    );
-                    Object.values(expansion.occupiedWallSlots).forEach(
-                      (child: ConstructionChildEntity | ConstructionDoor) => {
-                        accumulatedItemDamage = server.repairChildEntity(
-                          child,
-                          accumulatedItemDamage
-                        );
-                      }
-                    );
-                    Object.values(expansion.freeplaceEntities).forEach(
-                      (
-                        child:
-                          | ConstructionChildEntity
-                          | ConstructionDoor
-                          | LootableConstructionEntity
-                      ) => {
-                        if (child.health >= 1000000) return;
-                        server.repairConstruction(child, 25000);
-                        accumulatedItemDamage += 7;
-                      }
-                    );
-                  }
-                );
-                // repair every object on main foundation
-                Object.values(entity.occupiedShelterSlots).forEach(
-                  (child: ConstructionChildEntity) => {
-                    accumulatedItemDamage = server.repairChildEntity(
-                      child,
-                      accumulatedItemDamage
-                    );
-                  }
-                );
-                Object.values(entity.occupiedWallSlots).forEach(
-                  (child: ConstructionChildEntity | ConstructionDoor) => {
-                    accumulatedItemDamage = server.repairChildEntity(
-                      child,
-                      accumulatedItemDamage
-                    );
-                  }
-                );
-                Object.values(entity.freeplaceEntities).forEach(
-                  (
-                    child:
-                      | ConstructionChildEntity
-                      | ConstructionDoor
-                      | LootableConstructionEntity
-                  ) => {
-                    if (child.health >= 1000000) return;
-                    server.repairConstruction(child, 25000);
-                    accumulatedItemDamage += 7;
-                  }
-                );
-                if (entity.health < 1000000) {
-                  server.repairConstruction(entity, 25000);
-                  accumulatedItemDamage += 7;
-                }
-                server.damageItem(client, weaponItem, accumulatedItemDamage);
-                client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-                  delete client.character.temporaryScrapSoundTimeout;
-                }, 1000);
-                return;
-              }
-              accumulatedItemDamage = 50;
-              server.repairConstruction(entity, 25000);
-              accumulatedItemDamage += 7;
-              server.damageItem(client, weaponItem, accumulatedItemDamage);
-              client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-                delete client.character.temporaryScrapSoundTimeout;
-              }, 1000);
-            }
+            return;
           }
+
           // crate damaging workaround
           if (client.character.currentInteractionGuid) {
             const entity =
@@ -2035,7 +1953,7 @@ export class zonePacketHandlers {
             weaponItem.weapon.ammoCount -= 1;
           }
           const drift = Math.abs(p.gameTime - server.getServerTime());
-          if (drift > server._maxPing + 200) {
+          if (drift > server.fairPlayManager.maxPing + 200) {
             server.sendChatText(
               client,
               `FairPlay: Your shots didnt register due to packet loss`
@@ -2082,7 +2000,12 @@ export class zonePacketHandlers {
               delete client.fireHints[p.packet.sessionProjectileCount + x];
             }, 10000);
           }
-          server.hitMissFairPlayCheck(client, false, "");
+          server.fairPlayManager.hitMissFairPlayCheck(
+            server,
+            client,
+            false,
+            ""
+          );
           server.stopHudTimer(client);
           server.sendRemoteWeaponUpdateDataToAllOthers(
             client,
@@ -2283,7 +2206,7 @@ export class zonePacketHandlers {
             weaponItem.weapon.ammoCount -= 1;
           }
           const driftH = Math.abs(p.gameTime - server.getServerTime());
-          if (driftH > server._maxPing + 200) {
+          if (driftH > server.maxPing + 200) {
             server.sendChatText(
               client,
               `FairPlay: Your shots didnt register due to packet loss`

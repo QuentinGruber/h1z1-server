@@ -97,7 +97,7 @@ export class ZoneClient2016 {
     data: zone2016packets;
   }[] = [];*/
   isMuted = false;
-  maxFlying?: number;
+  kicked: boolean = false;
   constructor(
     sessionId: number,
     soeClientId: string,
