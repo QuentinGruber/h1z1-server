@@ -41,6 +41,7 @@ export class TaskProp extends BaseLightweightCharacter {
     this.scale = scale;
     this.npcRenderDistance = renderDistance;
     this.getTaskPropData();
+    this.useSimpleStruct = true
   }
 
   getRewardItemCount(itemId: number): number {
