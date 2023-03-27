@@ -394,13 +394,6 @@ export class ZonePacketHandlers {
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
     if (
       packet.data.file ===
-        server.fairPlayManager.fairPlayValues?.requiredFile &&
-      client.isMovementBlocked
-    ) {
-      client.isMovementBlocked = false;
-    }
-    if (
-      packet.data.file ===
         server.fairPlayManager.fairPlayValues?.requiredFile2 &&
       !client.clientLogs.includes(packet.data.message) &&
       !client.isAdmin
@@ -858,20 +851,6 @@ export class ZonePacketHandlers {
           movingCharacter.transientId
         )
       );
-    }
-    if (client.isMovementBlocked) {
-      client.blockedUpdates++;
-      if (client.blockedUpdates >= 10) {
-        server.kickPlayer(client);
-        server.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
-        server.sendChatTextToAdmins(
-          `FairPlay: Kicking ${client.character.name} for sending too many blocked updates`,
-          false
-        );
-      }
-      return;
-    } else {
-      client.blockedUpdates = 0;
     }
     if (packet.data.position) {
       if (!client.characterReleased) {
