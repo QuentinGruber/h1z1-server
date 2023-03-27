@@ -1568,6 +1568,36 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  logPlayerDeath(client: Client, damageInfo: DamageInfo) {
+    debug(client.character.name + " has died");
+    const sourceClient = this.getClientByCharId(damageInfo.entity);
+    if (!sourceClient) return;
+
+    if (
+      !this._soloMode &&
+      client.character.name !== sourceClient.character.name
+    ) {
+      logClientActionToMongo(
+        this._db.collection(DB_COLLECTIONS.KILLS),
+        sourceClient,
+        this._worldId,
+        { type: "player", playerKilled: client.character.name }
+      );
+    }
+    client.lastDeathReport = {
+      position: client.character.state.position,
+      attackerPosition: sourceClient.character.state.position,
+      distance: Number(
+        getDistance(
+          client.character.state.position,
+          sourceClient.character.state.position
+        ).toFixed(2)
+      ),
+      attacker: sourceClient,
+    };
+    //this.sendConsoleTextToAdmins()
+  }
+
   killCharacter(client: Client, damageInfo: DamageInfo) {
     if (!client.character.isAlive) return;
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
@@ -1613,8 +1643,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     });
     const character = client.character,
-      sourceClient = this.getClientByCharId(damageInfo.entity);
-    const gridArr: any[] = [];
+      gridArr: any[] = [];
     character.spawnGridData.forEach((number: number) => {
       if (number <= new Date().getTime()) number = 0;
       gridArr.push({
@@ -1629,31 +1658,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     client.character.isRespawning = true;
     this.sendDeathMetrics(client);
-    debug(character.name + " has died");
-    if (sourceClient) {
-      if (
-        !this._soloMode &&
-        client.character.name !== sourceClient.character.name
-      ) {
-        logClientActionToMongo(
-          this._db.collection(DB_COLLECTIONS.KILLS),
-          sourceClient,
-          this._worldId,
-          { type: "player", playerKilled: client.character.name }
-        );
-      }
-      client.lastDeathReport = {
-        position: client.character.state.position,
-        attackerPosition: sourceClient.character.state.position,
-        distance: Number(
-          getDistance(
-            client.character.state.position,
-            sourceClient.character.state.position
-          ).toFixed(2)
-        ),
-        attacker: sourceClient,
-      };
-    }
+    this.logPlayerDeath(client, damageInfo);
+
     client.character.isRunning = false;
     character.isAlive = false;
     this.updateCharacterState(
@@ -2292,6 +2298,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._plants[entityKey] ||
       this._taskProps[entityKey] ||
       this._crates[entityKey] ||
+      this._temporaryObjects[entityKey] ||
       undefined
     );
   }
@@ -2460,7 +2467,7 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.WEAPON_AK47:
         return 2900;
       case Items.WEAPON_308:
-        return 6500;
+        return 6700;
       case Items.WEAPON_MAGNUM:
         return 3000;
       case Items.WEAPON_BOW_MAKESHIFT:
@@ -3266,7 +3273,10 @@ export class ZoneServer2016 extends EventEmitter {
     return false;
   }
 
-  async unbanClient(client: Client, name: string): Promise<ClientBan> {
+  async unbanClient(
+    client: Client,
+    name: string
+  ): Promise<ClientBan | undefined> {
     const unBannedClient = (
       await this._db
         ?.collection(DB_COLLECTIONS.BANNED)
@@ -3275,9 +3285,11 @@ export class ZoneServer2016 extends EventEmitter {
           { $set: { active: false, unBanAdminName: client.character.name } }
         )
     )?.value as unknown as ClientBan;
+    if (!unBannedClient) return;
     this.sendBanToLogin(unBannedClient.loginSessionId, false);
     return unBannedClient;
   }
+
   banClient(
     client: Client,
     reason: string,
@@ -5967,6 +5979,17 @@ export class ZoneServer2016 extends EventEmitter {
   }
   sendGlobalChatText(message: string, clearChat = false) {
     this.chatManager.sendGlobalChatText(this, message, clearChat);
+  }
+  sendConsoleText(client: Client, message: string) {
+    this.sendData(client, "H1emu.PrintToConsole", { message });
+  }
+  sendConsoleTextToAdmins(message: string) {
+    for (const a in this._clients) {
+      const client = this._clients[a];
+      if (client.isAdmin) {
+        this.sendData(client, "H1emu.PrintToConsole", { message });
+      }
+    }
   }
 
   playerNotFound(
