@@ -222,6 +222,7 @@ export enum EntityTypes {
   TRAP,
   TASK_PROP,
   CRATE,
+  DESTROYABLE,
 }
 
 export enum ResourceIds {

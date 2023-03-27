@@ -147,6 +147,7 @@ import { GroupManager } from "./managers/groupmanager";
 import { SpeedTreeManager } from "./managers/speedtreemanager";
 import { ConstructionManager } from "./managers/constructionmanager";
 import { FairPlayManager } from "./managers/fairplaymanager";
+import { Destroyable } from "./entities/destroyable";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -205,6 +206,7 @@ export class ZoneServer2016 extends EventEmitter {
   _lootableProps: { [characterId: string]: LootableProp } = {};
   _taskProps: { [characterId: string]: TaskProp } = {};
   _crates: { [characterId: string]: Crate } = {};
+  _destroyables: { [characterId: string]: Destroyable } = {};
   _decoys: {
     [transientId: number]: {
       characterId: string;
@@ -2229,6 +2231,8 @@ export class ZoneServer2016 extends EventEmitter {
         return EntityTypes.TASK_PROP;
       case !!this._crates[entityKey]:
         return EntityTypes.CRATE;
+      case !!this._destroyables[entityKey]:
+        return EntityTypes.DESTROYABLE;
       default:
         return EntityTypes.INVALID;
     }
@@ -2294,6 +2298,7 @@ export class ZoneServer2016 extends EventEmitter {
       this._plants[entityKey] ||
       this._taskProps[entityKey] ||
       this._crates[entityKey] ||
+      this._destroyables[entityKey] ||
       undefined
     );
   }
@@ -2673,6 +2678,14 @@ export class ZoneServer2016 extends EventEmitter {
     }
     for (const object in this._crates) {
       const prop = this._crates[object];
+      const propInstance = {
+        objectId: prop.spawnerId,
+        unknownString1: "Weapon_Empty.adr",
+      };
+      DTOArray.push(propInstance);
+    }
+    for (const object in this._destroyables) {
+      const prop = this._destroyables[object];
       const propInstance = {
         objectId: prop.spawnerId,
         unknownString1: "Weapon_Empty.adr",

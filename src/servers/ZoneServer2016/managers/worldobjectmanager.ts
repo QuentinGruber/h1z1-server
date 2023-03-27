@@ -19,6 +19,7 @@ const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
 const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json");
 const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
+const Z1_windows = require("../../../../data/2016/zoneData/Z1_windows.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
@@ -55,6 +56,7 @@ import { LootableProp } from "../entities/lootableprop";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { TaskProp } from "../entities/taskprop";
 import { Crate } from "../entities/crate";
+import { Destroyable } from "../entities/destroyable";
 const debug = require("debug")("ZoneServer");
 
 function getRandomSkin(itemDefinitionId: number) {
@@ -332,7 +334,7 @@ export class WorldObjectManager {
         const characterId = generateRandomGuid();
         const obj = new Crate(
           characterId,
-          server.getTransientId(characterId), // need transient generated for Interaction Replication
+          1, // need transient generated for Interaction Replication
           propType.modelId,
           propInstance.position,
           new Float32Array([0, propInstance.rotation[0], 0, 0]),
@@ -343,6 +345,24 @@ export class WorldObjectManager {
           propType.actorDefinition
         );
         server._crates[characterId] = obj;
+      });
+    });
+    Z1_windows.forEach((propType: any) => {
+      propType.instances.forEach((propInstance: any) => {
+        const characterId = generateRandomGuid();
+        const obj = new Destroyable(
+          characterId,
+          1, // need transient generated for Interaction Replication
+          propInstance.modelId,
+          propInstance.position,
+          new Float32Array([0, propInstance.rotation[0], 0, 0]),
+          server,
+          propInstance.scale,
+          propInstance.id,
+          propType.renderDistance,
+          propType.actor_file
+        );
+        server._destroyables[characterId] = obj;
       });
     });
     debug("All props created");
