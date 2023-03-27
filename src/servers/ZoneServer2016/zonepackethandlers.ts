@@ -67,6 +67,7 @@ import { LootableConstructionEntity } from "./entities/lootableconstructionentit
 import { Character2016 } from "./entities/character";
 import { Crate } from "./entities/crate";
 import { OBSERVER_GUID } from "../../utils/constants";
+import { BaseLootableEntity } from "./entities/baselootableentity";
 
 export class zonePacketHandlers {
   commandHandler: CommandHandler;
@@ -1521,6 +1522,43 @@ export class zonePacketHandlers {
       } else {
         // to external container
         // not used for now with the external container workaround
+        console.log("TO EXTERNAL CONTAINER")
+        console.log(packet.data);
+
+        const sourceContainer = client.character.getItemContainer(itemGuid),
+          targetCharacter = server.getEntity(packet.data.targetCharacterId);
+
+        if(!targetCharacter || !(targetCharacter instanceof BaseLootableEntity) || !(targetCharacter instanceof Vehicle2016)) {
+          console.log("Invalid target character!");
+          return;
+        }
+        
+        const targetContainer = targetCharacter.getContainerFromGuid(containerGuid);
+
+        if(!targetContainer) {
+          console.log("Invalid target container!");
+          return;
+        }
+
+        if(!sourceContainer) {
+          console.log("Invalid source container!");
+          return;
+        }
+
+        const item = sourceContainer.items[itemGuid];
+        if (!item) {
+          server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+          return;
+        }
+
+        sourceContainer.transferItem(
+          server,
+          targetContainer,
+          item,
+          newSlotId,
+          count
+        );
+
       }
     } else {
       // from external container

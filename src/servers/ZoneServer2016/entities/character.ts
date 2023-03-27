@@ -488,10 +488,10 @@ export class Character2016 extends BaseFullCharacter {
     const containers = super.pGetContainers(server),
       mountedContainer = this.mountedContainer.getContainer();
     if (!mountedContainer) return containers;
-    containers.push({
+    /*containers.push({
       loadoutSlotId: mountedContainer.slotId,
       containerData: super.pGetContainerData(server, mountedContainer),
-    });
+    });*/
     return containers;
   }
 
@@ -507,10 +507,10 @@ export class Character2016 extends BaseFullCharacter {
     );
 
     const mountedContainer = this.mountedContainer.getContainer();
-    if (mountedContainer)
-      loadoutSlots.push(
+    if (mountedContainer) {}
+      /*loadoutSlots.push(
         this.mountedContainer.pGetLoadoutSlot(mountedContainer.slotId)
-      );
+      );*/
     return {
       characterId: this.characterId,
       loadoutId: this.loadoutId, // needs to be 3
@@ -631,16 +631,17 @@ export class Character2016 extends BaseFullCharacter {
     lootableEntity.mountedCharacter = this.characterId;
     this.mountedContainer = lootableEntity;
 
-    server.initializeContainerList(client);
+    server.initializeContainerList(client, lootableEntity);
 
-    server.addItem(client, container, 101);
+    server.addItem(client, container, 101, lootableEntity);
 
     Object.values(container.items).forEach((item) => {
-      server.addItem(client, item, container.containerDefinitionId);
+      server.addItem(client, item, container.containerDefinitionId, lootableEntity);
     });
 
-    this.updateLoadout(server);
-
+    //this.updateLoadout(server);
+    lootableEntity.updateLoadout(server);
+    
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId: lootableEntity.characterId,
       containerGuid: container.itemGuid,

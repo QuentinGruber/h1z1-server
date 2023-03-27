@@ -155,7 +155,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   }
 
   updateLoadout(server: ZoneServer2016) {
-    const client = server.getClientByCharId(this.characterId);
+    const client = server.getClientByContainerAccessor(this);
     if (client) {
       if (!client.character.initialized) return;
       server.checkConveys(client);
@@ -839,7 +839,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       maxDurabilityFromDefinition: durability,
       unknownBoolean1: true,
       ownerCharacterId:
-        isWeapon && item.itemDefinitionId !== 85 ? "" : this.characterId,
+        /*isWeapon && item.itemDefinitionId !== 85 ? "" :*/ this.characterId,
       unknownDword9: 1,
       weaponData: this.pGetItemWeaponData(server, item),
     };

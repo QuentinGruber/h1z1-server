@@ -11,6 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { BaseLootableEntity } from "../entities/baselootableentity";
+import { Character2016 } from "../entities/character";
+import { Vehicle2016 } from "../entities/vehicle";
 import { ContainerErrors } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
@@ -24,16 +27,17 @@ function combineItemStack(
   oldStackCount: number,
   targetContainer: LoadoutContainer,
   item: BaseItem,
-  count: number
+  count: number,
+  targetCharacter: BaseLootableEntity | Vehicle2016 | Character2016
 ) {
   if (oldStackCount == count) {
     // if full stack is moved
-    server.addContainerItem(client.character, item, targetContainer, false);
+    server.addContainerItem(targetCharacter, item, targetContainer, false);
     return;
   }
   // if only partial stack is moved
   server.addContainerItem(
-    client.character,
+    targetCharacter,
     server.generateItem(item.itemDefinitionId, count),
     targetContainer,
     false
@@ -216,7 +220,8 @@ export class LoadoutContainer extends LoadoutItem {
         oldStackCount,
         targetContainer,
         item,
-        count
+        count,
+        lootableEntity ? lootableEntity : client.character
       );
     }
   }

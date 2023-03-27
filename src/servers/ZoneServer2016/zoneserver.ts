@@ -2849,7 +2849,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  getLootableEntity(entityKey: string): BaseLootableEntity | undefined {
+  getLootableEntity(entityKey: string): BaseLootableEntity | Vehicle2016 | undefined {
     return (
       this._lootbags[entityKey] ||
       this._vehicles[entityKey] ||
@@ -6677,7 +6677,7 @@ export class ZoneServer2016 extends EventEmitter {
     )
       return;
     this.sendData(client, "ClientUpdate.ItemAdd", {
-      characterId: client.character.characterId,
+      characterId: /*client.*/character.characterId,
       data: character.pGetItemData(this, item, containerDefinitionId),
     });
   }
@@ -7166,7 +7166,7 @@ export class ZoneServer2016 extends EventEmitter {
       // if count > removeItem.stackCount
       return false;
     }
-    if (client) this.updateContainer(client, container);
+    if (client) this.updateContainer(character, container);
     return true;
   }
 
@@ -7403,12 +7403,14 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  updateContainer(client: Client, container?: LoadoutContainer) {
-    if (!container || !client.character.initialized) return;
+  updateContainer(character: BaseFullCharacter, container?: LoadoutContainer) {
+    if (!container) return;
+    const client = this.getClientByContainerAccessor(character);
+    if(!client || !client.character.initialized) return;
     this.sendData(client, "Container.UpdateEquippedContainer", {
-      ignore: client.character.characterId,
-      characterId: client.character.characterId,
-      containerData: client.character.pGetContainerData(this, container),
+      ignore: character.characterId,
+      characterId: character.characterId,
+      containerData: character.pGetContainerData(this, container),
     });
   }
 
@@ -7434,9 +7436,10 @@ export class ZoneServer2016 extends EventEmitter {
     this.addItem(
       client,
       container.items[item.itemGuid],
-      container.containerDefinitionId
+      container.containerDefinitionId,
+      character
     );
-    this.updateContainer(client, container);
+    this.updateContainer(character, container);
     if (sendUpdate && client.character.initialized) {
       this.sendData(client, "Reward.AddNonRewardItem", {
         itemDefId: itemDefId,
@@ -7468,7 +7471,7 @@ export class ZoneServer2016 extends EventEmitter {
         container.containerDefinitionId
       ),
     });
-    this.updateContainer(client, container);
+    this.updateContainer(client.character, container);
   }
 
   /**
