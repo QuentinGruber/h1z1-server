@@ -235,17 +235,17 @@ export class ZonePacketHandlers {
       if (client.character.vehicleExitDate + 3000 > new Date().getTime()) {
         return;
       }
-      if (!client.vehicle.mountedVehicle) {
-        // if not mounted
-        // fixes collision dmg bug on login
-        if (Number(client.character.lastLoginDate) + 4000 >= Date.now()) {
-          return;
-        }
-        client.character.damage(server, {
-          entity: "Server.CollisionDamage",
-          damage: damage,
-        });
+      if (client.vehicle.mountedVehicle) return;
+      // fixes collision dmg bug on login
+      if (Number(client.character.lastLoginDate) + 4000 >= Date.now()) {
+        return;
       }
+      // damage must pass this threshold to be applied
+      if (damage <= 800) return;
+      client.character.damage(server, {
+        entity: "Server.CollisionDamage",
+        damage: damage,
+      });
     } else if (vehicle) {
       // leave old system with this damage threshold to damage flipped vehicles
       if (damage > 5000 && damage < 5500) {
@@ -393,13 +393,6 @@ export class ZonePacketHandlers {
     // nothing for now
   }
   ClientLog(server: ZoneServer2016, client: Client, packet: any) {
-    if (
-      packet.data.file ===
-        server.fairPlayManager.fairPlayValues?.requiredFile &&
-      client.isMovementBlocked
-    ) {
-      client.isMovementBlocked = false;
-    }
     if (
       packet.data.file ===
         server.fairPlayManager.fairPlayValues?.requiredFile2 &&
@@ -863,20 +856,6 @@ export class ZonePacketHandlers {
         )
       );
     }
-    if (client.isMovementBlocked) {
-      client.blockedUpdates++;
-      if (client.blockedUpdates >= 10) {
-        server.kickPlayer(client);
-        server.sendAlertToAll(`FairPlay: kicking ${client.character.name}`);
-        server.sendChatTextToAdmins(
-          `FairPlay: Kicking ${client.character.name} for sending too many blocked updates`,
-          false
-        );
-      }
-      return;
-    } else {
-      client.blockedUpdates = 0;
-    }
     if (packet.data.position) {
       if (!client.characterReleased) {
         client.characterReleased = true;
@@ -1027,13 +1006,20 @@ export class ZonePacketHandlers {
     debug("Command.PlayerSelect");
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
-    console.log(packet);
-    if (!client.character.currentInteractionGuid || packet.data.password === 1)
+    if (
+      !client.character.currentInteractionGuid ||
+      packet.data.password === 1
+    ) {
+      server.sendAlert(client, "Code lock failed!");
       return;
+    }
     const doorEntity = server._constructionDoors[
       client.character.currentInteractionGuid
     ] as ConstructionDoor;
-    if (!doorEntity) return;
+    if (!doorEntity) {
+      server.sendAlert(client, "Code lock failed!");
+      return;
+    }
     if (doorEntity.ownerCharacterId === client.character.characterId) {
       if (doorEntity.passwordHash != packet.data.password) {
         doorEntity.passwordHash = packet.data.password;

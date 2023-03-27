@@ -192,6 +192,8 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
       },
     ],
   },
+  // disabled for now, need to fix requiredAmount for smelting - Meme
+  /*
   14: {
     filterId: FilterIds.FURNACE,
     rewardId: Items.METAL_BAR,
@@ -201,7 +203,7 @@ export const smeltingData: { [recipeId: number]: smeltRecipe } = {
         requiredAmount: 4,
       },
     ],
-  },
+  },*/
   15: {
     filterId: FilterIds.FURNACE,
     rewardId: Items.METAL_BAR,

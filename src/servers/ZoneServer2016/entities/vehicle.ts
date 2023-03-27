@@ -511,14 +511,14 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE
-    )
+    ) {
       return;
+    }
     server.sendData(
       client,
       "LightweightToFullVehicle",
       this.pGetFullVehicle(server)
     );
-    this.updateLoadout(server);
     // fix seat change crash related to our managed object workaround
     if (this.droppedManagedClient == client) {
       const seatId = this.getCharacterSeat(client.character.characterId);
