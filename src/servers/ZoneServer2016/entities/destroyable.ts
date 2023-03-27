@@ -29,8 +29,8 @@ function getDestroyedModels(actorModel: string): number[] {
 
 export class Destroyable extends BaseLightweightCharacter {
   spawnerId: number;
-  health: number = 2000;
-  maxHealth: number = 2000;
+  maxHealth: number;
+  health: number;
   destroyedModel: number;
   destroyedModels: number[] = [];
   destroyed: boolean = false;
@@ -53,6 +53,8 @@ export class Destroyable extends BaseLightweightCharacter {
     this.destroyedModels = getDestroyedModels(actorModel);
     this.destroyedModel =
       this.destroyedModels[(this.destroyedModels.length * Math.random()) | 0];
+    this.maxHealth = actorModel.toLowerCase().includes("fence") ? 30000 : 2000;
+    this.health = this.maxHealth;
     this.useSimpleStruct = true;
   }
 
@@ -69,6 +71,8 @@ export class Destroyable extends BaseLightweightCharacter {
         {
           characterId: this.characterId,
           destroyedModel: this.destroyedModel,
+          unknownWord1: 1,
+          effectId: 165,
         }
       );
       server.sendDataToAllWithSpawnedEntity(
@@ -78,6 +82,7 @@ export class Destroyable extends BaseLightweightCharacter {
         this.pGetLightweight()
       );
     } else {
+      server.deleteEntity(this.characterId, server._destroyables, 242);
     }
   }
 

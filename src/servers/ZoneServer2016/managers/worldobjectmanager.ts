@@ -19,7 +19,7 @@ const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
 const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json");
 const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
-const Z1_windows = require("../../../../data/2016/zoneData/Z1_windows.json");
+const Z1_destroyables = require("../../../../data/2016/zoneData/Z1_destroyables.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
@@ -347,7 +347,7 @@ export class WorldObjectManager {
         server._crates[characterId] = obj;
       });
     });
-    Z1_windows.forEach((propType: any) => {
+    Z1_destroyables.forEach((propType: any) => {
       propType.instances.forEach((propInstance: any) => {
         const characterId = generateRandomGuid();
         const obj = new Destroyable(
@@ -355,7 +355,12 @@ export class WorldObjectManager {
           1, // need transient generated for Interaction Replication
           propInstance.modelId,
           propInstance.position,
-          new Float32Array([0, propInstance.rotation[0], 0, 0]),
+          new Float32Array([
+            propInstance.rotation[1],
+            propInstance.rotation[0],
+            propInstance.rotation[2],
+            0,
+          ]),
           server,
           propInstance.scale,
           propInstance.id,
