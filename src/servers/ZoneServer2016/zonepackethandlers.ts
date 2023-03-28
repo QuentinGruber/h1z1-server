@@ -1894,10 +1894,16 @@ export class ZonePacketHandlers {
               if (!client.character.temporaryScrapSoundTimeout) {
                 client.character.temporaryScrapSoundTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapSoundTimeout;
-                }, 300);
+                }, 375);
+                server.sendCompositeEffectToAllInRange(
+                  15,
+                  client.character.characterId,
+                  entity.state.position,
+                  1667
+                );
                 const damageInfo: DamageInfo = {
                   entity: "Server.WorkAroundMelee",
-                  damage: 1000,
+                  damage: 1250,
                 };
                 entity.OnProjectileHit(server, damageInfo);
               }
@@ -1920,10 +1926,16 @@ export class ZonePacketHandlers {
               if (!client.character.temporaryScrapSoundTimeout) {
                 client.character.temporaryScrapSoundTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapSoundTimeout;
-                }, 300);
+                }, 210);
+                server.sendCompositeEffectToAllInRange(
+                  15,
+                  client.character.characterId,
+                  entity.state.position,
+                  1663
+                );
                 const damageInfo: DamageInfo = {
                   entity: "Server.WorkAroundMelee",
-                  damage: 1000,
+                  damage: 700,
                 };
                 entity.OnProjectileHit(server, damageInfo);
               }

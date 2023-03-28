@@ -2812,7 +2812,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         characterId: crate.characterId,
         unknownWord1: effectId ? 1 : 0,
-        effectId: 242,
+        effectId: 163,
         timeToDisappear: 0,
         effectDelay: 0,
       }
