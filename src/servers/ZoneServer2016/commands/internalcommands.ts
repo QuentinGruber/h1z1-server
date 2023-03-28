@@ -20,6 +20,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
 import { isPosInRadius } from "../../../utils/utils";
 import { OBSERVER_GUID } from "../../../utils/constants";
+import { WorldDataManager } from "../managers/worlddatamanager";
 
 export const internalCommands: Array<Command> = [
   //#region DEFAULT PERMISSIONS
@@ -40,7 +41,7 @@ export const internalCommands: Array<Command> = [
   {
     name: "spectate",
     permissionLevel: PermissionLevels.MODERATOR,
-    execute: (server: ZoneServer2016, client: Client, packetData: any) => {
+    execute: async (server: ZoneServer2016, client: Client, packetData: any) => {
       client.character.isSpectator = !client.character.isSpectator;
       if (client.character.isSpectator) {
         const vehicle = new Vehicle(
@@ -101,6 +102,9 @@ export const internalCommands: Array<Command> = [
         client,
         `Set spectate/vanish state to ${client.character.isSpectator}`
       );
+      
+      const charData = WorldDataManager.convertCharactersToSaveData([client.character], server._worldId);
+      await server.worldDataManager.saveCharacterData(charData[0]);
       server.sendCharacterData(client);
     },
   },
