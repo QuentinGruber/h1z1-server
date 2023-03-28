@@ -15,6 +15,7 @@ import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { DamageInfo } from "../../../types/zoneserver";
 import { eul2quat } from "../../../utils/utils";
+import { Items } from "../models/enums";
 
 function getDestroyedModels(actorModel: string): number[] {
   switch (actorModel) {
@@ -60,6 +61,7 @@ export class Destroyable extends BaseLightweightCharacter {
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     if (this.destroyed) return;
+    if (damageInfo.weapon == Items.WEAPON_SHOTGUN) damageInfo.damage *= 2.5;
     this.damageSimpleNpc(server, damageInfo, server._crates);
     if (this.health > 0) return;
     this.destroyed = true;
