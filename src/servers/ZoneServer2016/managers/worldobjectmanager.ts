@@ -437,8 +437,8 @@ export class WorldObjectManager {
 
   createVehicles(server: ZoneServer2016) {
     if (_.size(server._vehicles) >= this.vehicleSpawnCap) return;
-    const respawnAmount = Math.floor(
-      (this.vehicleSpawnCap - _.size(server._vehicles)) / 5
+    const respawnAmount = Math.ceil(
+      (this.vehicleSpawnCap - _.size(server._vehicles)) / 8
     );
     for (let x = 0; x < respawnAmount; x++) {
       const dataVehicle =
