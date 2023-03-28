@@ -360,6 +360,7 @@ export interface FairPlayValues {
   respawnCheckTime: number;
   respawnCheckIterations: number;
   maxFlying: number;
+  maxPositionDesync: number;
 }
 
 export interface SpeedTree {

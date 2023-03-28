@@ -2039,11 +2039,36 @@ export class ZonePacketHandlers {
           if (weaponItem.weapon.ammoCount > 0) {
             weaponItem.weapon.ammoCount -= 1;
           }
+          if (
+            !client.vehicle.mountedVehicle &&
+            server.fairPlayManager.fairPlayValues
+          ) {
+            if (
+              getDistance(client.character.state.position, p.packet.position) >
+              server.fairPlayManager.fairPlayValues?.maxPositionDesync
+            ) {
+              server.sendChatText(
+                client,
+                `FairPlay: Your shot didnt register due to position desync`
+              );
+              server.sendChatTextToAdmins(
+                `FairPlay: ${
+                  client.character.name
+                }'s shot didnt register due to position desync by ${getDistance(
+                  client.character.state.position,
+                  p.packet.position
+                )}`
+              );
+            }
+          }
           const drift = Math.abs(p.gameTime - server.getServerTime());
           if (drift > server.fairPlayManager.maxPing + 200) {
             server.sendChatText(
               client,
-              `FairPlay: Your shots didnt register due to packet loss`
+              `FairPlay: Your shot didnt register due to packet loss or high ping`
+            );
+            server.sendChatTextToAdmins(
+              `FairPlay: ${client.character.name}'s shot wasnt registered due to time drift by ${drift}`
             );
             return;
           }
