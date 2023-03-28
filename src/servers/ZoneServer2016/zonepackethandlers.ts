@@ -224,7 +224,7 @@ export class ZonePacketHandlers {
   CollisionDamage(server: ZoneServer2016, client: Client, packet: any) {
     if (packet.data.objectCharacterId != client.character.characterId) {
       const objVehicle = server._vehicles[packet.data.objectCharacterId];
-      if (objVehicle.engineRPM > 4500) {
+      if (objVehicle && objVehicle.engineRPM > 4500) {
         for (const a in server._destroyables) {
           const destroyable = server._destroyables[a];
           if (destroyable.destroyedModel) continue;
