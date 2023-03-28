@@ -2011,6 +2011,9 @@ export class ZoneServer2016 extends EventEmitter {
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
     }
+
+    this.dropAllManagedObjects(client);
+
     client.isLoading = true;
     client.characterReleased = false;
     client.character.lastLoginDate = toHex(Date.now());
@@ -3700,6 +3703,19 @@ export class ZoneServer2016 extends EventEmitter {
       }
       this.assignManagedObject(newClient, vehicle);
     }
+  }
+
+  dropAllManagedObjects(client: Client) {
+    client.managedObjects.forEach((characterId: string) => {
+      this.sendManagedObjectResponseControlPacket(client, {
+        control: 0,
+        objectCharacterId: characterId,
+      });
+      client.managedObjects.splice(
+        client.managedObjects.findIndex((e: string) => e === characterId),
+        1
+      );
+    });
   }
 
   sendCompositeEffectToAllWithSpawnedEntity(

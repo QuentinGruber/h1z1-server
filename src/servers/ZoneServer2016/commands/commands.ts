@@ -355,6 +355,7 @@ export const commands: Array<Command> = [
       client.isLoading = true;
       client.characterReleased = false;
       client.character.lastLoginDate = toHex(Date.now());
+      server.dropAllManagedObjects(client);
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: locationPosition,
         triggerLoadingScreen: true,
@@ -386,6 +387,7 @@ export const commands: Array<Command> = [
       targetClient.isLoading = true;
       targetClient.characterReleased = false;
       targetClient.character.lastLoginDate = toHex(Date.now());
+      server.dropAllManagedObjects(targetClient);
       server.sendData(targetClient, "ClientUpdate.UpdateLocation", {
         position: client.character.state.position,
         triggerLoadingScreen: true,
@@ -421,6 +423,7 @@ export const commands: Array<Command> = [
       client.isLoading = true;
       client.characterReleased = false;
       client.character.lastLoginDate = toHex(Date.now());
+      server.dropAllManagedObjects(client);
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: targetClient.character.state.position,
         triggerLoadingScreen: true,
