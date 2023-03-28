@@ -1168,6 +1168,7 @@ export class ZonePacketHandlers {
         transientId: entity.transientId,
         nameId: entity.nameId,
       });
+      client.sentInteractionData.push(entity);
       if (
         !(
           entity instanceof ConstructionParentEntity ||
@@ -1177,7 +1178,6 @@ export class ZonePacketHandlers {
         server.sendData(client, "Replication.InteractionComponent", {
           transientId: entity.transientId,
         });
-        client.sentInteractionData.push(entity);
       }
     }
     entity.OnInteractionString(server, client);
