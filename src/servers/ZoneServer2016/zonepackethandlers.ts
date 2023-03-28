@@ -1853,8 +1853,15 @@ export class ZonePacketHandlers {
                     server,
                     server.generateItem(entity.itemDefinitionId)
                   );
+                  entity.destroy(server);
+                } else {
+                  if (
+                    entity.itemDefinitionId != Items.FOUNDATION_RAMP &&
+                    entity.itemDefinitionId != Items.FOUNDATION_STAIRS
+                  ) {
+                    entity.destroy(server);
+                  }
                 }
-                entity.destroy(server);
               } else {
                 server.constructionManager.placementError(
                   server,
