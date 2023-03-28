@@ -192,7 +192,7 @@ export class FairPlayManager {
               unknownByte1: 1,
             });
             client.isMovementBlocked = true;*/
-            //this.kickPlayer(client);
+            server.kickPlayer(client);
             server.sendChatTextToAdmins(
               `FairPlay: Kicking ${client.character.name} for suspected teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
               false
