@@ -2155,6 +2155,9 @@ export class ZoneServer2016 extends EventEmitter {
               ? vehicle.getCharacterSeat(client.character.characterId)
               : 0,
             mountRelatedDword1: vehicle ? 1 : 0,
+            flags1: {
+              isAdmin: client.isAdmin,
+            },
           }
         );
       }, 2000);
@@ -2913,6 +2916,10 @@ export class ZoneServer2016 extends EventEmitter {
             ? vehicle.getCharacterSeat(characterObj.characterId)
             : 0,
           mountRelatedDword1: vehicle ? 1 : 0,
+          flags1: {
+            isAdmin: this.getClientByCharId(client.character.characterId)
+              ?.isAdmin,
+          },
         });
 
         client.spawnedEntities.push(this._characters[characterObj.characterId]);
@@ -2920,7 +2927,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnCharacterToOtherClients(character: Character) {
+  spawnCharacterToOtherClients(character: Character, isAdmin: boolean) {
     for (const a in this._clients) {
       const c = this._clients[a];
       if (
@@ -2937,6 +2944,9 @@ export class ZoneServer2016 extends EventEmitter {
           mountGuid: "",
           mountSeatId: 0,
           mountRelatedDword1: 0,
+          flags1: {
+            isAdmin: isAdmin,
+          },
         });
         c.spawnedEntities.push(character);
       }
