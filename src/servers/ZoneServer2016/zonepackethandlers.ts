@@ -94,7 +94,7 @@ export class ZonePacketHandlers {
       decalAlias: "#"
     });
     */
-    server.executeRoutine(client);
+    server.firstRoutine(client);
     server.setGodMode(client, true);
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
@@ -102,7 +102,14 @@ export class ZonePacketHandlers {
     }); // Required for WaitForWorldReady
 
     // Required for WaitForWorldReady
-    server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {});
+    setTimeout(() => {
+      // makes loading longer but gives game time to spawn objects and reduce lag
+      server.sendData(
+        client,
+        "ClientUpdate.NetworkProximityUpdatesComplete",
+        {}
+      );
+    }, 5000);
 
     server.customizeDTO(client);
 

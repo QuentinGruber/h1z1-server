@@ -3075,6 +3075,43 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  private spawnLoadingGridObjects(client: Client) {
+    const position = client.character.state.position;
+    for (const gridCell of this._grid) {
+      if (
+        !isPosInRadius(client.chunkRenderDistance, gridCell.position, position)
+      )
+        continue;
+      for (const object of gridCell.objects) {
+        if (
+          !isPosInRadius(
+            (object.npcRenderDistance as number) ||
+              this.charactersRenderDistance,
+            position,
+            object.state.position
+          )
+        ) {
+          continue;
+        }
+        if (client.spawnedEntities.includes(object)) continue;
+        if (object instanceof Crate) {
+          if (object.spawnTimestamp > Date.now()) continue;
+        }
+        if (object instanceof BaseLightweightCharacter) {
+          if (object.useSimpleStruct) {
+            this.addSimpleNpc(client, object);
+          } else continue;
+        } else if (
+          object instanceof TrapEntity ||
+          object instanceof TemporaryEntity
+        ) {
+          this.addSimpleNpc(client, object);
+        }
+        client.spawnedEntities.push(object);
+      }
+    }
+  }
+
   private POIManager(client: Client) {
     // sends POIChangeMessage or clears it based on player location
     let inPOI = false;
@@ -5848,6 +5885,16 @@ export class ZoneServer2016 extends EventEmitter {
     this.removeOutOfDistanceEntities(client);
     this.spawnCharacters(client);
     this.spawnGridObjects(client);
+    this.constructionManager.worldConstructionManager(this, client);
+    this.POIManager(client);
+    client.posAtLastRoutine = client.character.state.position;
+  }
+
+  firstRoutine(client: Client) {
+    this.constructionManager.constructionPermissionsManager(this, client);
+    this.constructionManager.spawnConstructionParentsInRange(this, client);
+    this.spawnLoadingGridObjects(client);
+    this.spawnCharacters(client);
     this.constructionManager.worldConstructionManager(this, client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;
