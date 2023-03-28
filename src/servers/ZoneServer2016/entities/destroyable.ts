@@ -72,7 +72,6 @@ export class Destroyable extends BaseLightweightCharacter {
         "Character.RemovePlayer",
         {
           characterId: this.characterId,
-          destroyedModel: this.destroyedModel,
           unknownWord1: 1,
           effectId: 165,
         }
