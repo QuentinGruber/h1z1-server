@@ -223,19 +223,26 @@ export class ZonePacketHandlers {
   }
   CollisionDamage(server: ZoneServer2016, client: Client, packet: any) {
     if (packet.data.objectCharacterId != client.character.characterId) {
-        const objVehicle = server._vehicles[packet.data.objectCharacterId];
-        if (objVehicle.engineRPM > 4500) {
-            for (const a in server._destroyables) {
-                const destroyable = server._destroyables[a]
-                if (destroyable.destroyedModel) continue
-                if (!isPosInRadius(4.5,destroyable.state.position,packet.data.position)) continue
-                const damageInfo: DamageInfo = {
-                    entity: `${objVehicle.characterId} collision`,
-                    damage: 1000000,
-                }
-                destroyable.OnProjectileHit(server, damageInfo)
-            }
+      const objVehicle = server._vehicles[packet.data.objectCharacterId];
+      if (objVehicle.engineRPM > 4500) {
+        for (const a in server._destroyables) {
+          const destroyable = server._destroyables[a];
+          if (destroyable.destroyedModel) continue;
+          if (
+            !isPosInRadius(
+              4.5,
+              destroyable.state.position,
+              packet.data.position
+            )
+          )
+            continue;
+          const damageInfo: DamageInfo = {
+            entity: `${objVehicle.characterId} collision`,
+            damage: 1000000,
+          };
+          destroyable.OnProjectileHit(server, damageInfo);
         }
+      }
       if (objVehicle && packet.data.characterId != objVehicle.characterId) {
         if (objVehicle.getNextSeatId(server) == "0") return;
       }
