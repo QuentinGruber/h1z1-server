@@ -223,7 +223,19 @@ export class ZonePacketHandlers {
   }
   CollisionDamage(server: ZoneServer2016, client: Client, packet: any) {
     if (packet.data.objectCharacterId != client.character.characterId) {
-      const objVehicle = server._vehicles[packet.data.objectCharacterId];
+        const objVehicle = server._vehicles[packet.data.objectCharacterId];
+        if (objVehicle.engineRPM > 4500) {
+            for (const a in server._destroyables) {
+                const destroyable = server._destroyables[a]
+                if (destroyable.destroyedModel) continue
+                if (!isPosInRadius(4.5,destroyable.state.position,packet.data.position)) continue
+                const damageInfo: DamageInfo = {
+                    entity: `${objVehicle.characterId} collision`,
+                    damage: 1000000,
+                }
+                destroyable.OnProjectileHit(server, damageInfo)
+            }
+        }
       if (objVehicle && packet.data.characterId != objVehicle.characterId) {
         if (objVehicle.getNextSeatId(server) == "0") return;
       }
@@ -1859,6 +1871,32 @@ export class ZonePacketHandlers {
             if (
               entity &&
               entity.spawnTimestamp < Date.now() &&
+              isPosInRadius(
+                3,
+                entity.state.position,
+                client.character.state.position
+              )
+            ) {
+              if (!client.character.temporaryScrapSoundTimeout) {
+                client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+                  delete client.character.temporaryScrapSoundTimeout;
+                }, 300);
+                const damageInfo: DamageInfo = {
+                  entity: "Server.WorkAroundMelee",
+                  damage: 1000,
+                };
+                entity.OnProjectileHit(server, damageInfo);
+              }
+            }
+          }
+
+          // windows damaging workaround
+          if (client.character.currentInteractionGuid) {
+            const entity =
+              server._destroyables[client.character.currentInteractionGuid];
+            if (
+              entity &&
+              entity.destroyedModel &&
               isPosInRadius(
                 3,
                 entity.state.position,
