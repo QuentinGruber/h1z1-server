@@ -101,6 +101,7 @@ export const internalCommands: Array<Command> = [
         client,
         `Set spectate/vanish state to ${client.character.isSpectator}`
       );
+      server.sendCharacterData(client);
     },
   },
   {
