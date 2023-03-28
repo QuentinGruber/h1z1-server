@@ -672,6 +672,22 @@ export class ZonePacketHandlers {
     }
     // for cheaters spawning cars on top of peoples heads
     if (!client.managedObjects.includes(vehicle.characterId)) return;
+    if (!client.character.isAlive) {
+      client.blockedPositionUpdates += 1;
+      if (client.blockedPositionUpdates >= 50) {
+        server.updateCharacterState(
+          client,
+          client.character.characterId,
+          client.character.characterStates,
+          false
+        );
+        server.sendData(client, "Character.StartMultiStateDeath", {
+          characterId: client.character.characterId,
+        });
+        client.blockedPositionUpdates = 0;
+        return;
+      }
+    } else client.blockedPositionUpdates = 0;
     if (packet.data.positionUpdate.position) {
       if (
         server.fairPlayManager.checkVehicleSpeed(
@@ -815,6 +831,21 @@ export class ZonePacketHandlers {
       // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
       return;
     }
+    if (!client.character.isAlive) {
+      client.blockedPositionUpdates += 1;
+      if (client.blockedPositionUpdates >= 30) {
+        server.updateCharacterState(
+          client,
+          client.character.characterId,
+          client.character.characterStates,
+          false
+        );
+        server.sendData(client, "Character.StartMultiStateDeath", {
+          characterId: client.character.characterId,
+        });
+        return;
+      }
+    } else client.blockedPositionUpdates = 0;
     if (packet.data.stance) {
       if (
         packet.data.stance == Stances.STANCE_XS ||

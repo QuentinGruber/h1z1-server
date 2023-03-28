@@ -2016,6 +2016,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     client.isLoading = true;
     client.characterReleased = false;
+    client.blockedPositionUpdates = 0;
     client.character.lastLoginDate = toHex(Date.now());
     client.character.resetMetrics();
     client.character.isAlive = true;
