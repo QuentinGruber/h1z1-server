@@ -193,7 +193,7 @@ export class DecayManager {
     for (const characterId in server._vehicles) {
       const vehicle = server._vehicles[characterId];
       if (!vehicle) continue;
-      const baseDamage = 3000, // 3%
+      const baseDamage = 5000, // 5%
         closeVehicles = this.getCloseVehicles(server, vehicle);
       let damage = baseDamage;
       if (closeVehicles.length > this.maxAreaVehicles) {
