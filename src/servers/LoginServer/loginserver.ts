@@ -187,7 +187,7 @@ export class LoginServer extends EventEmitter {
                     let status = 0;
                     const server = await this._db
                       .collection(DB_COLLECTIONS.SERVERS)
-                      .findOne({ serverId: serverId, isDisabled:false });
+                      .findOne({ serverId: serverId, isDisabled: false });
                     if (server) {
                       const fullServerAddress = server.serverAddress;
                       const serverAddress = fullServerAddress.split(":")[0];
@@ -660,7 +660,7 @@ export class LoginServer extends EventEmitter {
   }
 
   async ServerListRequest(client: Client) {
-    let servers:any[];
+    let servers: any[];
     if (!this._soloMode) {
       servers = await this._db
         .collection(DB_COLLECTIONS.SERVERS)
@@ -668,14 +668,16 @@ export class LoginServer extends EventEmitter {
           gameVersion: client.gameVersion,
         })
         .toArray();
-      servers = servers.map((server: any) => {
-        if (server.locked) {
-          server.allowedAccess = false;
-        }
-        return server;
-      }).filter((v)=>{
-        return !v.isDisabled
-      });
+      servers = servers
+        .map((server: any) => {
+          if (server.locked) {
+            server.allowedAccess = false;
+          }
+          return server;
+        })
+        .filter((v) => {
+          return !v.isDisabled;
+        });
     } else {
       switch (client.gameVersion) {
         default:
