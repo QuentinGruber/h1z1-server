@@ -190,8 +190,7 @@ export class WorldObjectManager {
       // dead npc despawner
       if (
         npc.flags.knockedOut &&
-        Date.now() - npc.deathTime >=
-          this.deadNpcDespawnTimer
+        Date.now() - npc.deathTime >= this.deadNpcDespawnTimer
       ) {
         server.deleteEntity(npc.characterId, server._npcs);
       }
@@ -202,10 +201,7 @@ export class WorldObjectManager {
     for (const characterId in server._lootbags) {
       // lootbag despawner
       const lootbag = server._lootbags[characterId];
-      if (
-        Date.now() - lootbag.creationTime >=
-        this.lootbagDespawnTimer
-      ) {
+      if (Date.now() - lootbag.creationTime >= this.lootbagDespawnTimer) {
         server.deleteEntity(lootbag.characterId, server._lootbags);
       }
     }
@@ -223,11 +219,9 @@ export class WorldObjectManager {
       if (Date.now() - itemObject.creationTime >= despawnTime) {
         server.deleteEntity(itemObject.characterId, server._spawnedItems);
         if (itemObject.spawnerId != -1)
-          delete this.spawnedLootObjects[
-            itemObject.spawnerId
-          ];
-          server.sendCompositeEffectToAllWithSpawnedEntity(
-            server._spawnedItems,
+          delete this.spawnedLootObjects[itemObject.spawnerId];
+        server.sendCompositeEffectToAllWithSpawnedEntity(
+          server._spawnedItems,
           itemObject,
           server.getItemDefinition(itemObject.item.itemDefinitionId)
             .PICKUP_EFFECT ?? 5151
@@ -235,7 +229,6 @@ export class WorldObjectManager {
       }
     }
   }
-
 
   private despawnEntities(server: ZoneServer2016) {
     this.npcDespawner(server);

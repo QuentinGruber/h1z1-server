@@ -201,7 +201,7 @@ export class GroupManager {
     }
 
     const group = this.groups[source.character.groupId];
-    if(group && group.leader != source.character.characterId) {
+    if (group && group.leader != source.character.characterId) {
       server.sendAlert(source, "You are not the group leader!");
       return;
     }

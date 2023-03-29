@@ -470,7 +470,7 @@ export class WeatherManager {
       windDirectionX: -1,
       windDirectionY: -0.5,
       windDirectionZ: -1,
-      wind: Number((this.windStrength / 10).toFixed(5)),
+      wind: Number((this.windStrength / 25).toFixed(5)),
       unknownDword20: 0,
       unknownDword21: 1,
       unknownDword22: 0.3,

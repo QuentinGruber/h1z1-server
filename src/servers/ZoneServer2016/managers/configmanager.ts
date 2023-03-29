@@ -100,8 +100,15 @@ export class ConfigManager {
   loadConfig(config: Config): Config {
     // in case new config file is missing certain values / out of date,
     // fill with default values
-    const { server, fairplay, weather, worldobjects, speedtree, construction, decay } =
-      this.defaultConfig;
+    const {
+      server,
+      fairplay,
+      weather,
+      worldobjects,
+      speedtree,
+      construction,
+      decay,
+    } = this.defaultConfig;
     return {
       ...this.defaultConfig,
       ...config,
@@ -184,7 +191,7 @@ export class ConfigManager {
       npcSpawnRadius,
       chanceNpc,
       chanceScreamer,
-      lootbagDespawnTimer
+      lootbagDespawnTimer,
     } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
     server.worldObjectManager.lootRespawnTimer = lootRespawnTimer;
@@ -261,7 +268,7 @@ export class ConfigManager {
       vehicleDamageTicks,
       baseVehicleDamage,
       maxVehiclesPerArea,
-      vehicleDamageRange
+      vehicleDamageRange,
     } = this.config.decay;
     server.decayManager.decayTickInterval = decayTickInterval;
     server.decayManager.constructionDamageTicks = constructionDamageTicks;
