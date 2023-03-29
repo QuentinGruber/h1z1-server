@@ -373,6 +373,7 @@ export class WorldObjectManager {
           propType.actor_file
         );
         server._destroyables[characterId] = obj;
+        server._destroyableDTOlist.push(propInstance.id);
       });
     });
     debug("All props created");

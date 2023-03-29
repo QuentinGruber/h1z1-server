@@ -207,6 +207,7 @@ export class ZoneServer2016 extends EventEmitter {
   _taskProps: { [characterId: string]: TaskProp } = {};
   _crates: { [characterId: string]: Crate } = {};
   _destroyables: { [characterId: string]: Destroyable } = {};
+  _destroyableDTOlist: number[] = [];
   _decoys: {
     [transientId: number]: {
       characterId: string;
@@ -2700,10 +2701,9 @@ export class ZoneServer2016 extends EventEmitter {
       };
       DTOArray.push(propInstance);
     }
-    for (const object in this._destroyables) {
-      const prop = this._destroyables[object];
+    for (let x = 0; x < this._destroyableDTOlist.length; x++) {
       const propInstance = {
-        objectId: prop.spawnerId,
+        objectId: this._destroyableDTOlist[x],
         unknownString1: "Weapon_Empty.adr",
       };
       DTOArray.push(propInstance);

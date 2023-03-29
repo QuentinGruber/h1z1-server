@@ -68,6 +68,7 @@ import { Character2016 } from "./entities/character";
 import { Crate } from "./entities/crate";
 import { OBSERVER_GUID } from "../../utils/constants";
 import { BaseLootableEntity } from "./entities/baselootableentity";
+import { Destroyable } from "./entities/destroyable";
 
 export class ZonePacketHandlers {
   commandHandler: CommandHandler;
@@ -1162,6 +1163,7 @@ export class ZonePacketHandlers {
     client.character.lastInteractionTime = Date.now();
     if (
       entity instanceof BaseLightweightCharacter &&
+      !(entity instanceof Destroyable) &&
       !client.sentInteractionData.includes(entity)
     ) {
       server.sendData(client, "Replication.NpcComponent", {
