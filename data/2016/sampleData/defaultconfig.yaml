@@ -33,6 +33,7 @@ worldobjects:
   # Spawned objects on the ground
   lootDespawnTimer: 2400000 # 40 minutes
   deadNpcDespawnTimer:  600000 # 10 minutes
+  lootbagDespawnTimer: 1800000 # 30 minutes
 
   # Misc
 

@@ -125,6 +125,7 @@ export class WorldObjectManager {
   itemDespawnTimer!: number;
   lootDespawnTimer!: number;
   deadNpcDespawnTimer!: number;
+  lootbagDespawnTimer!: number;
 
   vehicleSpawnRadius!: number;
   npcSpawnRadius!: number;
@@ -177,7 +178,69 @@ export class WorldObjectManager {
       this.createVehicles(server);
       this._lastVehicleRespawnTime = Date.now();
     }
+
+    this.despawnEntities(server);
   }
+
+  private npcDespawner(server: ZoneServer2016) {
+    for (const characterId in server._npcs) {
+      const npc = server._npcs[characterId];
+      // dead npc despawner
+      if (
+        npc.flags.knockedOut &&
+        Date.now() - npc.deathTime >=
+          this.deadNpcDespawnTimer
+      ) {
+        server.deleteEntity(npc.characterId, server._npcs);
+      }
+    }
+  }
+
+  private lootbagDespawner(server: ZoneServer2016) {
+    for (const characterId in server._lootbags) {
+      // lootbag despawner
+      const lootbag = server._lootbags[characterId];
+      if (
+        Date.now() - lootbag.creationTime >=
+        this.lootbagDespawnTimer
+      ) {
+        server.deleteEntity(lootbag.characterId, server._lootbags);
+      }
+    }
+  }
+
+  private itemDespawner(server: ZoneServer2016) {
+    for (const characterId in server._spawnedItems) {
+      const itemObject = server._spawnedItems[characterId];
+      if (!itemObject) return;
+      // dropped item despawner
+      const despawnTime =
+        itemObject.spawnerId == -1
+          ? this.itemDespawnTimer
+          : this.lootDespawnTimer;
+      if (Date.now() - itemObject.creationTime >= despawnTime) {
+        server.deleteEntity(itemObject.characterId, server._spawnedItems);
+        if (itemObject.spawnerId != -1)
+          delete this.spawnedLootObjects[
+            itemObject.spawnerId
+          ];
+          server.sendCompositeEffectToAllWithSpawnedEntity(
+            server._spawnedItems,
+          itemObject,
+          server.getItemDefinition(itemObject.item.itemDefinitionId)
+            .PICKUP_EFFECT ?? 5151
+        );
+      }
+    }
+  }
+
+
+  private despawnEntities(server: ZoneServer2016) {
+    this.npcDespawner(server);
+    this.lootbagDespawner(server);
+    this.itemDespawner(server);
+  }
+
   private equipRandomSkins(
     server: ZoneServer2016,
     entity: BaseFullCharacter,

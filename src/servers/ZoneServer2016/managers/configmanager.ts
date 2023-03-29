@@ -184,6 +184,7 @@ export class ConfigManager {
       npcSpawnRadius,
       chanceNpc,
       chanceScreamer,
+      lootbagDespawnTimer
     } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
     server.worldObjectManager.lootRespawnTimer = lootRespawnTimer;
@@ -193,6 +194,7 @@ export class ConfigManager {
     server.worldObjectManager.itemDespawnTimer = itemDespawnTimer;
     server.worldObjectManager.lootDespawnTimer = lootDespawnTimer;
     server.worldObjectManager.deadNpcDespawnTimer = deadNpcDespawnTimer;
+    server.worldObjectManager.lootbagDespawnTimer = lootbagDespawnTimer;
 
     server.worldObjectManager.vehicleSpawnRadius = vehicleSpawnRadius;
     server.worldObjectManager.npcSpawnRadius = npcSpawnRadius;

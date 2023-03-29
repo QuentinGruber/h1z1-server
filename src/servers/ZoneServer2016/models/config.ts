@@ -42,6 +42,7 @@ interface WorldObjectsConfig {
   itemDespawnTimer: number;
   lootDespawnTimer: number;
   deadNpcDespawnTimer: number;
+  lootbagDespawnTimer: number;
 
   vehicleSpawnRadius: number;
   npcSpawnRadius: number;
