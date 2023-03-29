@@ -37,7 +37,7 @@ worldobjects:
 
   # Misc
 
-  vehicleSpawnCap: 100
+  vehicleSpawnCap: 120
   # How far any other vehicle has to be for another to spawn
   vehicleSpawnRadius: 50
   # How far another spawned npc has to be for another to spawn

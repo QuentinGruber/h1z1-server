@@ -22,6 +22,7 @@ import {
 } from "types/zoneserver";
 import {
   eul2quat,
+  fixEulerOrder,
   getConstructionSlotId,
   getDistance,
   isInsideSquare,
@@ -145,6 +146,18 @@ export class ConstructionManager {
         ) {
           return true;
         }
+        if (
+          c.itemDefinitionId == Items.STORAGE_BOX &&
+          (itemDefinitionId == Items.BEE_BOX ||
+            itemDefinitionId == Items.FURNACE)
+        ) {
+          if (
+            isPosInRadiusWithY(0.5, c.state.position, position, 1.5) &&
+            diff < 0.5
+          ) {
+            return true;
+          }
+        }
       }
       for (const a in server._worldLootableConstruction) {
         const c = server._worldLootableConstruction[a];
@@ -154,6 +167,18 @@ export class ConstructionManager {
           diff > 0.3
         ) {
           return true;
+        }
+        if (
+          c.itemDefinitionId == Items.STORAGE_BOX &&
+          (itemDefinitionId == Items.BEE_BOX ||
+            itemDefinitionId == Items.FURNACE)
+        ) {
+          if (
+            isPosInRadiusWithY(0.5, c.state.position, position, 1.5) &&
+            diff < 0.5
+          ) {
+            return true;
+          }
         }
       }
     }
@@ -473,6 +498,24 @@ export class ConstructionManager {
         });
       }
     }
+    if (server._constructionSimple[parentObjectCharacterId]) {
+      const simple = server._constructionSimple[parentObjectCharacterId];
+      if (
+        !simple.getHasPermission(
+          server,
+          client.character.characterId,
+          ConstructionPermissionIds.BUILD
+        )
+      ) {
+        this.placementError(
+          server,
+          client,
+          ConstructionErrors.BUILD_PERMISSION
+        );
+        this.sendPlacementFinalize(server, client, 0);
+        return;
+      }
+    }
 
     if (
       this.detectSpawnPointPlacement(
@@ -569,7 +612,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          rotation
+          fixEulerOrder(rotation)
         );
       case Items.FLARE:
         return this.placeTemporaryEntity(
@@ -613,7 +656,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          rotation,
+          fixEulerOrder(rotation),
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -632,7 +675,7 @@ export class ConstructionManager {
           client,
           itemDefinitionId,
           modelId,
-          rotation,
+          fixEulerOrder(rotation),
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -642,7 +685,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
+          fixEulerOrder(rotation),
           freeplaceParentCharacterId
         );
       case Items.FURNACE:
@@ -653,7 +696,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
+          fixEulerOrder(rotation),
           freeplaceParentCharacterId
         );
       case Items.BEE_BOX:
@@ -664,7 +707,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          eul2quat(rotation),
+          fixEulerOrder(rotation),
           freeplaceParentCharacterId
         );
       case Items.METAL_WALL:
@@ -690,12 +733,17 @@ export class ConstructionManager {
           client,
           itemDefinitionId,
           modelId,
-          rotation,
+          fixEulerOrder(rotation),
           parentObjectCharacterId,
           BuildingSlot
         );
       case Items.GROUND_TILLER:
-        return this.placePlantingDiameter(server, modelId, position, rotation);
+        return this.placePlantingDiameter(
+          server,
+          modelId,
+          position,
+          fixEulerOrder(rotation)
+        );
       case Items.SEED_WHEAT:
       case Items.SEED_CORN:
         return this.placePlantOnDiameter(
@@ -718,7 +766,7 @@ export class ConstructionManager {
             transientId,
             modelId,
             position,
-            rotation,
+            fixEulerOrder(rotation),
             server,
             itemDefinitionId,
             freeplaceParentCharacterId || "",
@@ -999,7 +1047,7 @@ export class ConstructionManager {
         transientId,
         modelId,
         position,
-        new Float32Array([rotation[0], 0, 0]),
+        rotation,
         server,
         itemDefinitionId,
         parentObjectCharacterId,
@@ -1060,7 +1108,7 @@ export class ConstructionManager {
         transientId,
         modelId,
         position,
-        rotation,
+        new Float32Array([rotation[1], 0, 0, 0]),
         server,
         itemDefinitionId,
         client.character.characterId,
@@ -1213,7 +1261,7 @@ export class ConstructionManager {
         transientId,
         modelId,
         position,
-        new Float32Array([0, rotation[0], 0]),
+        rotation,
         server,
         itemDefinitionId
       );
@@ -1398,9 +1446,13 @@ export class ConstructionManager {
       transientId,
       modelId,
       position,
-      eul2quat(rotation),
+      rotation,
       server
     );
+    server.executeFuncForAllReadyClientsInRange((client) => {
+      server.addSimpleNpc(client, obj);
+      client.spawnedEntities.push(obj);
+    }, obj);
     server._temporaryObjects[characterId] = obj;
 
     return true;
@@ -1709,25 +1761,8 @@ export class ConstructionManager {
     entity: ConstructionParentEntity
   ) {
     if (!client.spawnedEntities.includes(entity)) {
-      server.addLightweightNpc(
-        client,
-        entity,
-        server.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
-      );
+      server.addSimpleNpc(client, entity);
       client.spawnedEntities.push(entity);
-      if (
-        entity.itemDefinitionId == Items.SHACK ||
-        entity.itemDefinitionId == Items.SHACK_SMALL ||
-        entity.itemDefinitionId == Items.SHACK_BASIC
-      ) {
-        server.updateResource(
-          client,
-          entity.characterId,
-          entity.health,
-          ResourceIds.CONSTRUCTION_CONDITION,
-          ResourceTypes.CONDITION
-        );
-      }
     }
     // slotted construction spawning
     this.spawnConstructionTree(server, client, entity);
@@ -1741,7 +1776,7 @@ export class ConstructionManager {
     client: Client,
     entity: ConstructionDoor
   ) {
-    if (client.spawnedEntities.includes(entity)) return;
+    if (client.spawnedEntities.includes(entity) || !client.isSynced) return;
     server.addLightweightNpc(
       client,
       entity,
@@ -1775,19 +1810,8 @@ export class ConstructionManager {
     spawnTree = true
   ) {
     if (!client.spawnedEntities.includes(entity)) {
-      server.addLightweightNpc(
-        client,
-        entity,
-        server.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
-      );
+      server.addSimpleNpc(client, entity);
       client.spawnedEntities.push(entity);
-      server.updateResource(
-        client,
-        entity.characterId,
-        entity.health,
-        ResourceIds.CONSTRUCTION_CONDITION,
-        ResourceTypes.CONDITION
-      );
     }
 
     if (!spawnTree) return;
@@ -1804,18 +1828,7 @@ export class ConstructionManager {
     entity: LootableConstructionEntity
   ) {
     if (client.spawnedEntities.includes(entity)) return;
-    server.addLightweightNpc(
-      client,
-      entity,
-      server.getItemDefinition(entity.itemDefinitionId)?.NAME_ID
-    );
-    server.updateResource(
-      client,
-      entity.characterId,
-      entity.health,
-      ResourceIds.CONSTRUCTION_CONDITION,
-      ResourceTypes.CONDITION
-    );
+    server.addSimpleNpc(client, entity);
     client.spawnedEntities.push(entity);
   }
 
@@ -1889,7 +1902,7 @@ export class ConstructionManager {
     }
     if (!hide && client.character.isHidden) {
       client.character.isHidden = "";
-      server.spawnCharacterToOtherClients(client.character);
+      server.spawnCharacterToOtherClients(client.character, client.isAdmin);
     }
   }
 
@@ -1934,13 +1947,22 @@ export class ConstructionManager {
       damage: (amount *= -1),
     };
     entity.damage(server, damageInfo);
-    server.updateResourceToAllWithSpawnedEntity(
-      entity.characterId,
-      entity.health,
-      ResourceIds.CONSTRUCTION_CONDITION,
-      ResourceTypes.CONDITION,
-      server.getConstructionDictionary(entity.characterId)
-    );
+    if (entity.useSimpleStruct) {
+      server.sendDataToAllWithSpawnedEntity(
+        server.getConstructionDictionary(entity.characterId),
+        entity.characterId,
+        "Character.UpdateSimpleProxyHealth",
+        entity.pGetSimpleProxyHealth()
+      );
+    } else {
+      server.updateResourceToAllWithSpawnedEntity(
+        entity.characterId,
+        entity.health,
+        ResourceIds.CONSTRUCTION_CONDITION,
+        ResourceTypes.CONDITION,
+        server.getConstructionDictionary(entity.characterId)
+      );
+    }
   }
 
   /**
@@ -2282,43 +2304,34 @@ export class ConstructionManager {
         break;
     }
     const distance = getDistance(entityPosition, position);
-    constructionObject.damage(server, {
-      entity: "",
-      damage:
-        distance < constructionObject.damageRange
-          ? damage
-          : damage / Math.sqrt(distance),
-    });
-    server.updateResourceToAllWithSpawnedEntity(
-      constructionObject.characterId,
-      constructionObject.health,
-      ResourceIds.CONSTRUCTION_CONDITION,
-      ResourceTypes.CONDITION,
-      dictionary
-    );
-    server.sendDataToAllWithSpawnedEntity(
-      // play burning effect & remove it after 15s
-      dictionary,
-      constructionCharId,
-      "Command.PlayDialogEffect",
-      {
-        characterId: constructionCharId,
-        effectId: 1214,
-      }
-    );
-    setTimeout(() => {
-      if (dictionary[constructionCharId]) {
-        server.sendDataToAllWithSpawnedEntity(
-          dictionary,
-          constructionCharId,
-          "Command.PlayDialogEffect",
-          {
-            characterId: constructionCharId,
-            effectId: 0,
-          }
-        );
-      }
-    }, 15000);
+    if (constructionObject.useSimpleStruct) {
+      constructionObject.damageSimpleNpc(
+        server,
+        {
+          entity: "",
+          damage:
+            distance < constructionObject.damageRange
+              ? damage
+              : damage / Math.sqrt(distance),
+        },
+        dictionary
+      );
+    } else {
+      constructionObject.damage(server, {
+        entity: "",
+        damage:
+          distance < constructionObject.damageRange
+            ? damage
+            : damage / Math.sqrt(distance),
+      });
+      server.updateResourceToAllWithSpawnedEntity(
+        constructionObject.characterId,
+        constructionObject.health,
+        ResourceIds.CONSTRUCTION_CONDITION,
+        ResourceTypes.CONDITION,
+        dictionary
+      );
+    }
     if (constructionObject.health > 0) return;
 
     constructionObject.destroy(server, 3000);

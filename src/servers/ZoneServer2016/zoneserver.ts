@@ -83,6 +83,7 @@ import {
   getDifference,
   logClientActionToMongo,
   removeUntransferableFields,
+  eul2quat,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -146,6 +147,7 @@ import { GroupManager } from "./managers/groupmanager";
 import { SpeedTreeManager } from "./managers/speedtreemanager";
 import { ConstructionManager } from "./managers/constructionmanager";
 import { FairPlayManager } from "./managers/fairplaymanager";
+import { Destroyable } from "./entities/destroyable";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -177,6 +179,10 @@ export class ZoneServer2016 extends EventEmitter {
   _grid: GridCell[] = [];
   _spawnGrid: SpawnCell[] = [];
 
+  saveTimeInterval: number = 600000;
+
+  nextSaveTime: number = Date.now() + this.saveTimeInterval;
+
   readonly _clients: { [characterId: string]: Client } = {};
   _characters: { [characterId: string]: Character } = {};
   _npcs: { [characterId: string]: Npc } = {};
@@ -200,6 +206,8 @@ export class ZoneServer2016 extends EventEmitter {
   _lootableProps: { [characterId: string]: LootableProp } = {};
   _taskProps: { [characterId: string]: TaskProp } = {};
   _crates: { [characterId: string]: Crate } = {};
+  _destroyables: { [characterId: string]: Destroyable } = {};
+  _destroyableDTOlist: number[] = [];
   _decoys: {
     [transientId: number]: {
       characterId: string;
@@ -1131,8 +1139,7 @@ export class ZoneServer2016 extends EventEmitter {
         .then(() => {
           this._isSaving = false;
           this.sendChatTextToAdmins("World saved!");
-          this.worldDataManager.nextSaveTime =
-            Date.now() + this.worldDataManager.saveTimeInterval;
+          this.nextSaveTime = Date.now() + this.saveTimeInterval;
           debug("World saved!");
         });
     } catch (e) {
@@ -1438,7 +1445,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (
           this.enableWorldSaves &&
           !this.isSaving &&
-          this.worldDataManager.nextSaveTime - Date.now() < 0
+          this.nextSaveTime - Date.now() < 0
         ) {
           this.saveWorld();
         }
@@ -1499,9 +1506,8 @@ export class ZoneServer2016 extends EventEmitter {
       sourceEntity = this.getEntity(damageInfo.entity),
       targetClient = this.getClientByCharId(targetCharacterId),
       sourceClient = this.getClientByCharId(damageInfo.entity);
-    if (!sourceEntity || !targetEntity) return {} as DamageRecord;
 
-    let sourceName = "Generic",
+    let sourceName = damageInfo.entity,
       sourcePing = 0,
       targetName = "Generic",
       targetPing = 0;
@@ -1533,10 +1539,13 @@ export class ZoneServer2016 extends EventEmitter {
       hitInfo: {
         timestamp: Date.now(),
         weapon: damageInfo.weapon,
-        distance: getDistance(
-          sourceEntity.state.position,
-          targetEntity.state.position
-        ).toFixed(1),
+        distance:
+          sourceEntity && targetEntity
+            ? getDistance(
+                sourceEntity.state.position,
+                targetEntity.state.position
+              ).toFixed(1)
+            : "0",
         hitLocation: damageInfo.hitReport?.hitLocation || "Unknown",
         hitPosition:
           damageInfo.hitReport?.position || new Float32Array([0, 0, 0, 0]),
@@ -1561,6 +1570,36 @@ export class ZoneServer2016 extends EventEmitter {
       "ClientUpdate.DeathMetrics",
       clientUpdateDeathMetricsPacket
     );
+  }
+
+  logPlayerDeath(client: Client, damageInfo: DamageInfo) {
+    debug(client.character.name + " has died");
+    const sourceClient = this.getClientByCharId(damageInfo.entity);
+    if (!sourceClient) return;
+
+    if (
+      !this._soloMode &&
+      client.character.name !== sourceClient.character.name
+    ) {
+      logClientActionToMongo(
+        this._db.collection(DB_COLLECTIONS.KILLS),
+        sourceClient,
+        this._worldId,
+        { type: "player", playerKilled: client.character.name }
+      );
+    }
+    client.lastDeathReport = {
+      position: client.character.state.position,
+      attackerPosition: sourceClient.character.state.position,
+      distance: Number(
+        getDistance(
+          client.character.state.position,
+          sourceClient.character.state.position
+        ).toFixed(2)
+      ),
+      attacker: sourceClient,
+    };
+    //this.sendConsoleTextToAdmins()
   }
 
   killCharacter(client: Client, damageInfo: DamageInfo) {
@@ -1608,8 +1647,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
     });
     const character = client.character,
-      sourceClient = this.getClientByCharId(damageInfo.entity);
-    const gridArr: any[] = [];
+      gridArr: any[] = [];
     character.spawnGridData.forEach((number: number) => {
       if (number <= new Date().getTime()) number = 0;
       gridArr.push({
@@ -1624,31 +1662,8 @@ export class ZoneServer2016 extends EventEmitter {
 
     client.character.isRespawning = true;
     this.sendDeathMetrics(client);
-    debug(character.name + " has died");
-    if (sourceClient) {
-      if (
-        !this._soloMode &&
-        client.character.name !== sourceClient.character.name
-      ) {
-        logClientActionToMongo(
-          this._db.collection(DB_COLLECTIONS.KILLS),
-          sourceClient,
-          this._worldId,
-          { type: "player", playerKilled: client.character.name }
-        );
-      }
-      client.lastDeathReport = {
-        position: client.character.state.position,
-        attackerPosition: sourceClient.character.state.position,
-        distance: Number(
-          getDistance(
-            client.character.state.position,
-            sourceClient.character.state.position
-          ).toFixed(2)
-        ),
-        attacker: sourceClient,
-      };
-    }
+    this.logPlayerDeath(client, damageInfo);
+
     client.character.isRunning = false;
     character.isAlive = false;
     this.updateCharacterState(
@@ -1752,7 +1767,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
-      if (isPosInRadius(8, character.state.position, position)) {
+      if (isPosInRadiusWithY(3, character.state.position, position, 1.5)) {
         const distance = getDistance(position, character.state.position);
         const damage = 50000 / distance;
         character.damage(this, {
@@ -1994,8 +2009,12 @@ export class ZoneServer2016 extends EventEmitter {
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
     }
+
+    this.dropAllManagedObjects(client);
+
     client.isLoading = true;
     client.characterReleased = false;
+    client.blockedPositionUpdates = 0;
     client.character.lastLoginDate = toHex(Date.now());
     client.character.resetMetrics();
     client.character.isAlive = true;
@@ -2138,6 +2157,9 @@ export class ZoneServer2016 extends EventEmitter {
               ? vehicle.getCharacterSeat(client.character.characterId)
               : 0,
             mountRelatedDword1: vehicle ? 1 : 0,
+            flags1: {
+              isAdmin: client.isAdmin,
+            },
           }
         );
       }, 2000);
@@ -2222,6 +2244,8 @@ export class ZoneServer2016 extends EventEmitter {
         return EntityTypes.TASK_PROP;
       case !!this._crates[entityKey]:
         return EntityTypes.CRATE;
+      case !!this._destroyables[entityKey]:
+        return EntityTypes.DESTROYABLE;
       default:
         return EntityTypes.INVALID;
     }
@@ -2287,6 +2311,8 @@ export class ZoneServer2016 extends EventEmitter {
       this._plants[entityKey] ||
       this._taskProps[entityKey] ||
       this._crates[entityKey] ||
+      this._destroyables[entityKey] ||
+      this._temporaryObjects[entityKey] ||
       undefined
     );
   }
@@ -2455,7 +2481,7 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.WEAPON_AK47:
         return 2900;
       case Items.WEAPON_308:
-        return 6500;
+        return 6700;
       case Items.WEAPON_MAGNUM:
         return 3000;
       case Items.WEAPON_BOW_MAKESHIFT:
@@ -2672,6 +2698,13 @@ export class ZoneServer2016 extends EventEmitter {
       };
       DTOArray.push(propInstance);
     }
+    for (let x = 0; x < this._destroyableDTOlist.length; x++) {
+      const propInstance = {
+        objectId: this._destroyableDTOlist[x],
+        unknownString1: "Weapon_Empty.adr",
+      };
+      DTOArray.push(propInstance);
+    }
     this.speedtreeManager.customize(DTOArray);
     deprecatedDoors.forEach((door: number) => {
       const DTOinstance = {
@@ -2713,6 +2746,15 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData(client, "Character.RemovePlayer", {
         characterId: object.characterId,
       });
+    });
+  }
+
+  private removeOODInteractionData(client: Client) {
+    const objectsToRemove = client.sentInteractionData.filter((e) =>
+      this.shouldRemoveEntity(client, e)
+    );
+    client.sentInteractionData = client.sentInteractionData.filter((el) => {
+      return !objectsToRemove.includes(el);
     });
   }
 
@@ -2771,7 +2813,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         characterId: crate.characterId,
         unknownWord1: effectId ? 1 : 0,
-        effectId: 242,
+        effectId: 163,
         timeToDisappear: 0,
         effectDelay: 0,
       }
@@ -2806,6 +2848,34 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
+  spawnWorkAroundLightWeight(client: Client, entity: BaseLightweightCharacter) {
+    const lightWeight = {
+      characterId: entity.characterId,
+      transientId: entity.transientId,
+      actorModelId: entity.actorModelId,
+      // fix players / vehicles spawning in ground
+      position: new Float32Array([
+        entity.state.position[0],
+        entity.state.position[1] - 10,
+        entity.state.position[2],
+        entity.state.position[3],
+      ]),
+      rotation: eul2quat(new Float32Array([entity.state.rotation[1], 0, 0, 0])),
+      scale: entity.scale,
+      positionUpdateType: entity.positionUpdateType,
+      profileId: entity.profileId,
+      isLightweight: entity.isLightweight,
+      flags: {
+        flags1: entity.flags,
+        flags2: entity.flags,
+        flags3: entity.flags,
+      },
+      headActor: entity.headActor,
+    };
+
+    this.sendData(client, "AddLightweightNpc", lightWeight);
+  }
+
   spawnCharacters(client: Client) {
     for (const c in this._clients) {
       const characterObj: Character = this._clients[c].character;
@@ -2833,6 +2903,10 @@ export class ZoneServer2016 extends EventEmitter {
             ? vehicle.getCharacterSeat(characterObj.characterId)
             : 0,
           mountRelatedDword1: vehicle ? 1 : 0,
+          flags1: {
+            isAdmin: this.getClientByCharId(client.character.characterId)
+              ?.isAdmin,
+          },
         });
 
         client.spawnedEntities.push(this._characters[characterObj.characterId]);
@@ -2840,7 +2914,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  spawnCharacterToOtherClients(character: Character) {
+  spawnCharacterToOtherClients(character: Character, isAdmin: boolean) {
     for (const a in this._clients) {
       const c = this._clients[a];
       if (
@@ -2857,6 +2931,9 @@ export class ZoneServer2016 extends EventEmitter {
           mountGuid: "",
           mountSeatId: 0,
           mountRelatedDword1: 0,
+          flags1: {
+            isAdmin: isAdmin,
+          },
         });
         c.spawnedEntities.push(character);
       }
@@ -2916,24 +2993,28 @@ export class ZoneServer2016 extends EventEmitter {
         }
         client.spawnedEntities.push(object);
         if (object instanceof BaseLightweightCharacter) {
-          this.addLightweightNpc(client, object);
-          if (object instanceof DoorEntity) {
-            if (object.isOpen) {
-              this.sendData(client, "PlayerUpdatePosition", {
-                transientId: object.transientId,
-                positionUpdate: {
-                  sequenceTime: 0,
-                  unknown3_int8: 0,
-                  position: object.state.position,
-                  orientation: object.openAngle,
-                },
-              });
+          if (object.useSimpleStruct) {
+            this.addSimpleNpc(client, object);
+          } else {
+            this.addLightweightNpc(client, object);
+            if (object instanceof DoorEntity) {
+              if (object.isOpen) {
+                this.sendData(client, "PlayerUpdatePosition", {
+                  transientId: object.transientId,
+                  positionUpdate: {
+                    sequenceTime: 0,
+                    unknown3_int8: 0,
+                    position: object.state.position,
+                    orientation: object.openAngle,
+                  },
+                });
+              }
+              continue;
             }
-            continue;
-          }
-          if (object instanceof Npc) {
-            object.updateEquipment(this);
-            continue;
+            if (object instanceof Npc) {
+              object.updateEquipment(this);
+              continue;
+            }
           }
         } else if (
           object instanceof TrapEntity ||
@@ -2941,6 +3022,43 @@ export class ZoneServer2016 extends EventEmitter {
         ) {
           this.addSimpleNpc(client, object);
         }
+      }
+    }
+  }
+
+  private spawnLoadingGridObjects(client: Client) {
+    const position = client.character.state.position;
+    for (const gridCell of this._grid) {
+      if (
+        !isPosInRadius(client.chunkRenderDistance, gridCell.position, position)
+      )
+        continue;
+      for (const object of gridCell.objects) {
+        if (
+          !isPosInRadius(
+            (object.npcRenderDistance as number) ||
+              this.charactersRenderDistance,
+            position,
+            object.state.position
+          )
+        ) {
+          continue;
+        }
+        if (client.spawnedEntities.includes(object)) continue;
+        if (object instanceof Crate) {
+          if (object.spawnTimestamp > Date.now()) continue;
+        }
+        if (object instanceof BaseLightweightCharacter) {
+          if (object.useSimpleStruct) {
+            this.addSimpleNpc(client, object);
+          } else continue;
+        } else if (
+          object instanceof TrapEntity ||
+          object instanceof TemporaryEntity
+        ) {
+          this.addSimpleNpc(client, object);
+        }
+        client.spawnedEntities.push(object);
       }
     }
   }
@@ -3209,7 +3327,10 @@ export class ZoneServer2016 extends EventEmitter {
     return false;
   }
 
-  async unbanClient(client: Client, name: string): Promise<ClientBan> {
+  async unbanClient(
+    client: Client,
+    name: string
+  ): Promise<ClientBan | undefined> {
     const unBannedClient = (
       await this._db
         ?.collection(DB_COLLECTIONS.BANNED)
@@ -3218,9 +3339,11 @@ export class ZoneServer2016 extends EventEmitter {
           { $set: { active: false, unBanAdminName: client.character.name } }
         )
     )?.value as unknown as ClientBan;
+    if (!unBannedClient) return;
     this.sendBanToLogin(unBannedClient.loginSessionId, false);
     return unBannedClient;
   }
+
   banClient(
     client: Client,
     reason: string,
@@ -3325,17 +3448,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   kickPlayer(client: Client) {
-    client.properlyLogout = true;
-    client.kicked = true;
     this.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId,
     });
-    setTimeout(() => {
-      if (client) {
-        this.deleteClient(client);
-      }
-    }, 11000);
+    this.deleteClient(client);
   }
 
   getDateString(timestamp: number) {
@@ -3524,6 +3641,19 @@ export class ZoneServer2016 extends EventEmitter {
       }
       this.assignManagedObject(newClient, vehicle);
     }
+  }
+
+  dropAllManagedObjects(client: Client) {
+    client.managedObjects.forEach((characterId: string) => {
+      this.sendManagedObjectResponseControlPacket(client, {
+        control: 0,
+        objectCharacterId: characterId,
+      });
+      client.managedObjects.splice(
+        client.managedObjects.findIndex((e: string) => e === characterId),
+        1
+      );
+    });
   }
 
   sendCompositeEffectToAllWithSpawnedEntity(
@@ -4059,7 +4189,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendChatText(
         client,
         `${time} ${source} ${target} ${
-          this.getItemDefinition(e.hitInfo.weapon).MODEL_NAME || "N/A"
+          this.getItemDefinition(e.hitInfo.weapon || 0)?.MODEL_NAME || "N/A"
         } ${e.hitInfo.distance}m ${
           e.hitInfo.hitLocation
         } ${hitPosition} ${oldHp} ${newHp} ${ping} ${enemyPing} ${
@@ -5695,6 +5825,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (client.routineCounter >= 3) {
           this.assignChunkRenderDistance(client);
           this.removeOutOfDistanceEntities(client);
+          this.removeOODInteractionData(client);
           this.POIManager(client);
           client.routineCounter = 0;
         }
@@ -5718,6 +5849,16 @@ export class ZoneServer2016 extends EventEmitter {
     this.removeOutOfDistanceEntities(client);
     this.spawnCharacters(client);
     this.spawnGridObjects(client);
+    this.constructionManager.worldConstructionManager(this, client);
+    this.POIManager(client);
+    client.posAtLastRoutine = client.character.state.position;
+  }
+
+  firstRoutine(client: Client) {
+    this.constructionManager.constructionPermissionsManager(this, client);
+    this.constructionManager.spawnConstructionParentsInRange(this, client);
+    this.spawnLoadingGridObjects(client);
+    this.spawnCharacters(client);
     this.constructionManager.worldConstructionManager(this, client);
     this.POIManager(client);
     client.posAtLastRoutine = client.character.state.position;
@@ -5916,6 +6057,17 @@ export class ZoneServer2016 extends EventEmitter {
   }
   sendGlobalChatText(message: string, clearChat = false) {
     this.chatManager.sendGlobalChatText(this, message, clearChat);
+  }
+  sendConsoleText(client: Client, message: string) {
+    this.sendData(client, "H1emu.PrintToConsole", { message });
+  }
+  sendConsoleTextToAdmins(message: string) {
+    for (const a in this._clients) {
+      const client = this._clients[a];
+      if (client.isAdmin) {
+        this.sendData(client, "H1emu.PrintToConsole", { message });
+      }
+    }
   }
 
   playerNotFound(

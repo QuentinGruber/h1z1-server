@@ -47,7 +47,7 @@ export class SOEServer extends EventEmitter {
   private _ackTiming: number = 80;
   private _routineTiming: number = 3;
   _allowRawDataReception: boolean = false;
-  private _maxSeqResendRange: number = 100;
+  private _maxSeqResendRange: number = 50;
   constructor(
     serverPort: number,
     cryptoKey: Uint8Array,
