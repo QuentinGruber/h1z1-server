@@ -32,6 +32,7 @@ export class ZoneClient2016 {
   isInteracting: boolean = false;
   isAdmin: boolean = false;
   isDebugMode: boolean = false;
+  isDecoy: boolean = false;
   banType: string = "";
   HWID: string = "";
   posAtLastRoutine: Float32Array = new Float32Array();
@@ -87,15 +88,14 @@ export class ZoneClient2016 {
   properlyLogout: boolean = false;
   permissionLevel: number = 0;
   fireHints: { [id: number]: fireHint } = {};
-  isMovementBlocked: boolean = false;
   isInAir: boolean = false;
   startLoc: number = 0;
-  blockedUpdates: number = 0;
   /*(lightWeightNpcQueue: {
     packetName: h1z1PacketsType2016;
     data: zone2016packets;
   }[] = [];*/
   isMuted = false;
+  kicked: boolean = false;
   constructor(
     sessionId: number,
     soeClientId: string,

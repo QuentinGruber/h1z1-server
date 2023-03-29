@@ -41,6 +41,19 @@ function isBuffedCrate(position: Float32Array): boolean {
     [2303.37, 54.47, 1203.46, 1],
     [2333.07, 54.47, 1801.1, 1],
     [2601.42, 32.0, 2046.66, 1],
+    [-2813.46, 47.66, 2735.36, 1],
+    [-2399.8, 16.19, 1871.99, 1],
+    [-3005.66, 52.51, -2055.08, 1],
+    [418.6, 21.66, -723.23, 1],
+    [-1514.96, 354.0, -832.32, 1],
+    [-1781.56, 75.91, 1717.67, 1],
+    [-448.43, 71.63, 1440.45, 1],
+    [-65.6, 53.75, 847.88, 1],
+    [-66.63, 56.4, 775.5, 1],
+    [101.67, 34.26, 254.99, 1],
+    [1604.81, 47.82, -592.11, 1],
+    [1587.97, 57.38, -222.97, 1],
+    [-2063.19, 62.97, 2722.55, 1],
   ];
   let result = false;
   for (const a of buffedPostions) {
@@ -106,9 +119,7 @@ export class Crate extends BaseLightweightCharacter {
           const c = server._clients[a];
           if (
             isPosInRadius(
-              spawnedItem.npcRenderDistance
-                ? spawnedItem.npcRenderDistance
-                : server._charactersRenderDistance,
+              spawnedItem.npcRenderDistance,
               spawnedItem.state.position,
               c.character.state.position
             )

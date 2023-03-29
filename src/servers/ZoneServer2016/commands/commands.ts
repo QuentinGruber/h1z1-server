@@ -12,7 +12,6 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import fs from "node:fs";
 import { ClientBan, ClientMute, DamageInfo } from "types/zoneserver";
 
 import {
@@ -199,7 +198,19 @@ export const commands: Array<Command> = [
         client,
         `Set spectate/vanish state to ${client.character.isSpectator}`
       );
-      if (!client.character.isSpectator) return;
+      if (!client.character.isSpectator) {
+        for (const a in server._decoys) {
+          const decoy = server._decoys[a];
+          if (decoy.transientId == client.character.transientId) {
+            server.sendDataToAll("Character.RemovePlayer", {
+              characterId: decoy.characterId,
+            });
+            server.sendChatText(client, `Decoy removed`, false);
+            client.isDecoy = false;
+          }
+        }
+        return;
+      }
       for (const a in server._clients) {
         const iteratedClient = server._clients[a];
         if (iteratedClient.spawnedEntities.includes(client.character)) {
@@ -348,7 +359,6 @@ export const commands: Array<Command> = [
         position: locationPosition,
         triggerLoadingScreen: true,
       });
-      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   {
@@ -384,7 +394,6 @@ export const commands: Array<Command> = [
         client,
         `Teleporting ${targetClient.character.name} to your location`
       );
-      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   {
@@ -420,7 +429,6 @@ export const commands: Array<Command> = [
         client,
         `Teleporting to ${targetClient.character.name}'s location`
       );
-      server.sendWeatherUpdatePacket(client, server.weather);
     },
   },
   {
@@ -603,6 +611,12 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.setGodMode(client, !client.character.godMode);
       server.sendAlert(client, `Set godmode to ${client.character.godMode}`);
+      server.updateCharacterState(
+        client,
+        client.character.characterId,
+        client.character.characterStates,
+        true
+      );
     },
   },
   {
@@ -748,7 +762,7 @@ export const commands: Array<Command> = [
         server.sendChatText(client, "You need to specify an hour to set !");
         return;
       }
-      server.forceTime(choosenHour * 3600 * 1000);
+      server.weatherManager.forceTime(server, choosenHour * 3600 * 1000);
       server.sendChatText(
         client,
         `Will force time to be ${
@@ -768,7 +782,7 @@ export const commands: Array<Command> = [
     name: "realtime",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      server.removeForcedTime();
+      server.weatherManager.removeForcedTime(server);
       server.sendChatText(client, "Game time is now based on real time", true);
     },
   },
@@ -779,7 +793,7 @@ export const commands: Array<Command> = [
       server.sendChatText(
         client,
         `Fog has been toggled ${
-          server.toggleFog() ? "ON" : "OFF"
+          server.weatherManager.toggleFog() ? "ON" : "OFF"
         } for the server`,
         true
       );
@@ -920,30 +934,91 @@ export const commands: Array<Command> = [
     name: "decoy",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!args[0]) {
-        server.sendChatText(client, "usage /deocay {name}");
+      if (!args[0] && !server._decoys[client.character.transientId]) {
+        server.sendChatText(client, "usage /decoy {name}");
+        return;
+      }
+      if (server._decoys[client.character.transientId]) {
+        if (client.isDecoy) {
+          server.sendChatText(client, "Decoy replication disabled");
+          client.isDecoy = false;
+        } else {
+          server.sendChatText(client, "Decoy replication enabled");
+          client.isDecoy = true;
+        }
+        return;
+      }
+      if (!client.character.isSpectator) {
+        server.sendChatText(client, "You must be in vanish mode to use this");
         return;
       }
       const mimic = client.character.pGetLightweight();
       const characterId = server.generateGuid();
       const decoy = {
         characterId: characterId,
+        transientId: client.character.transientId,
         position: new Float32Array(mimic.position),
         action: "",
       };
-      server._decoys[characterId] = decoy;
-      mimic.identity.characterName = args[0].toString();
+      server._decoys[client.character.transientId] = decoy;
+      mimic.identity.characterName = args[0]
+        .split("")
+        .map((letter) =>
+          Math.random() < 0.7 || !/[a-z]/.test(letter)
+            ? letter
+            : letter.toUpperCase()
+        )
+        .join("");
       mimic.characterId = characterId;
-      mimic.transientId = 0;
-      server.sendDataToAll("AddLightweightPc", {
-        ...mimic,
-        mountGuid: "",
-        mountSeatId: 0,
-        mountRelatedDword1: 0,
-      });
-      const equipment = client.character.pGetEquipment();
-      equipment.characterData.characterId = characterId;
-      server.sendDataToAll("Equipment.SetCharacterEquipment", equipment);
+      mimic.transientId = client.character.transientId;
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        if (
+          isPosInRadius(
+            c.character.npcRenderDistance || 250,
+            client.character.state.position,
+            c.character.state.position
+          )
+        ) {
+          server.sendData(c, "AddLightweightPc", {
+            ...mimic,
+            mountGuid: "",
+            mountSeatId: 0,
+            mountRelatedDword1: 0,
+          });
+          const equipment = client.character.pGetEquipment();
+          equipment.characterData.characterId = characterId;
+          server.sendData(c, "Equipment.SetCharacterEquipment", equipment);
+          server.sendData(c, "LightweightToFullPc", {
+            useCompression: false,
+            fullPcData: {
+              transientId: client.character.transientId,
+              attachmentData: client.character.pGetAttachmentSlots(
+                client.character.groupId
+              ),
+              headActor: client.character.headActor,
+              hairModel: client.character.hairModel,
+              resources: { data: client.character.pGetResources() },
+              remoteWeapons: {
+                data: client.character.pGetRemoteWeaponsData(server),
+              },
+            },
+            positionUpdate: {
+              ...client.character.positionUpdate,
+              sequenceTime: server.getGameTime(),
+              position: client.character.state.position,
+              stance: client.character.stance,
+            },
+            stats: client.character.getStats().map((stat: any) => {
+              return stat.statData;
+            }),
+            remoteWeaponsExtra:
+              client.character.pGetRemoteWeaponsExtraData(server),
+          });
+        }
+      }
+      client.isDecoy = true;
+      server.sendChatText(client, "Decoy replication enabled");
     },
   },
   {
@@ -956,14 +1031,20 @@ export const commands: Array<Command> = [
         });
         delete server._decoys[a];
       }
+      for (const a in server._clients) {
+        if (server._clients[a].isDecoy) {
+          server._clients[a].isDecoy = false;
+        }
+      }
+      server.sendChatText(client, `Removed all decoys`, false);
     },
   },
   {
     name: "dynamicweather",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (!server._dynamicWeatherEnabled) {
-        server._dynamicWeatherEnabled = true;
+      if (!server.weatherManager.dynamicEnabled) {
+        server.weatherManager.dynamicEnabled = true;
         server.sendChatText(client, "Dynamic weather enabled !");
       } else {
         server.sendChatText(client, "Dynamic weather already enabled !");
@@ -974,44 +1055,7 @@ export const commands: Array<Command> = [
     name: "weather",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (server._dynamicWeatherEnabled) {
-        server._dynamicWeatherEnabled = false;
-        server.sendChatText(client, "Dynamic weather removed !");
-      }
-      const weatherTemplate = server._soloMode
-        ? server._weatherTemplates[args[0]]
-        : _.find(
-            server._weatherTemplates,
-            (template: { templateName: any }) => {
-              return template.templateName === args[0];
-            }
-          );
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          "Please define a weather template to use (data/2016/dataSources/weather.json)"
-        );
-      } else if (weatherTemplate) {
-        server.weather = weatherTemplate;
-        server.sendWeatherUpdatePacket(client, server.weather, true);
-        server.sendChatText(client, `Applied weather template: "${args[0]}"`);
-      } else {
-        if (args[0] === "list") {
-          server.sendChatText(client, `Weather templates :`);
-          _.forEach(
-            server._weatherTemplates,
-            (element: { templateName: any }) => {
-              server.sendChatText(client, `- ${element.templateName}`);
-            }
-          );
-        } else {
-          server.sendChatText(client, `"${args[0]}" isn't a weather template`);
-          server.sendChatText(
-            client,
-            `Use "/weather list" to know all available templates`
-          );
-        }
-      }
+      server.weatherManager.handleWeatherCommand(server, client, args);
     },
   },
   {
@@ -1022,100 +1066,14 @@ export const commands: Array<Command> = [
       client: Client,
       args: Array<string>
     ) => {
-      if (!args[0]) {
-        server.sendChatText(
-          client,
-          "Please define a name for your weather template '/savecurrentweather {name}'"
-        );
-      } else if (server._weatherTemplates[args[0]]) {
-        server.sendChatText(client, `"${args[0]}" already exists !`);
-      } else {
-        const currentWeather = server.weather;
-        if (currentWeather) {
-          currentWeather.templateName = args[0];
-          if (server._soloMode) {
-            server._weatherTemplates[currentWeather.templateName as string] =
-              currentWeather;
-            fs.writeFileSync(
-              `${__dirname}/../../../../data/2016/dataSources/weather.json`,
-              JSON.stringify(server._weatherTemplates, null, "\t")
-            );
-            delete require.cache[
-              require.resolve("../../../../data/2016/dataSources/weather.json")
-            ];
-            server._weatherTemplates = require("../../../../data/2016/dataSources/weather.json");
-          } else {
-            await server._db?.collection("weathers").insertOne(currentWeather);
-            server._weatherTemplates = await (server._db as any)
-              .collection("weathers")
-              .find()
-              .toArray();
-          }
-          server.sendChatText(client, `template "${args[0]}" saved !`);
-        } else {
-          server.sendChatText(client, `Saving current weather failed...`);
-          server.sendChatText(client, `plz report this`);
-        }
-      }
+      server.weatherManager.handleSaveCommand(server, client, args);
     },
   },
   {
     name: "randomweather",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
-      if (server._dynamicWeatherEnabled) {
-        server._dynamicWeatherEnabled = false;
-        server.sendChatText(client, "Dynamic weather removed !");
-      }
-      server.sendChatText(client, `Randomized weather`);
-
-      function rnd_number(max: any, fixed: boolean = false) {
-        const num = Math.random() * max;
-        return Number(fixed ? num.toFixed(0) : num);
-      }
-
-      server.weather = {
-        ...server.weather,
-        //name: "sky_dome_600.dds", todo: use random template from a list
-        /*
-              unknownDword1: 0,
-              unknownDword2: 0,
-              skyBrightness1: 1,
-              skyBrightness2: 1,
-              */
-        rain: rnd_number(200, true),
-        temp: rnd_number(80, true),
-        colorGradient: rnd_number(1),
-        unknownDword8: rnd_number(1),
-        unknownDword9: rnd_number(1),
-        unknownDword10: rnd_number(1),
-        unknownDword11: 0,
-        unknownDword12: 0,
-        sunAxisX: rnd_number(360, true),
-        sunAxisY: rnd_number(360, true),
-        unknownDword15: 0,
-        windDirectionX: rnd_number(360, true),
-        windDirectionY: rnd_number(360, true),
-        windDirectionZ: rnd_number(360, true),
-        wind: rnd_number(100, true),
-        unknownDword20: 0,
-        unknownDword21: 0,
-        unknownDword22: 0,
-        unknownDword23: 0,
-        unknownDword24: 0,
-        unknownDword25: 0,
-        unknownDword26: 0,
-        unknownDword27: 0,
-        unknownDword28: 0,
-        unknownDword29: 0,
-
-        AOSize: rnd_number(0.5),
-        AOGamma: rnd_number(0.2),
-        AOBlackpoint: rnd_number(2),
-
-        unknownDword33: 0,
-      };
-      server.sendWeatherUpdatePacket(client, server.weather, true);
+      server.weatherManager.handleRandomCommand(server, client);
     },
   },
   {
@@ -1214,7 +1172,7 @@ export const commands: Array<Command> = [
         zoneName: "Z1",
         zoneType: 4,
         unknownBoolean1: false,
-        skyData: server.weather,
+        skyData: server.weatherManager.weather,
         zoneId1: 5,
         zoneId2: 5,
         nameId: 7699,
@@ -1465,7 +1423,7 @@ export const commands: Array<Command> = [
       }
       server.sendChatText(
         client,
-        `Next save at ${new Date(server.nextSaveTime)}`
+        `Next save at ${new Date(server.worldDataManager.nextSaveTime)}`
       );
     },
   },
@@ -1845,7 +1803,7 @@ export const commands: Array<Command> = [
             server.deleteEntity(characterId, server._explosives);
           }
           server.deleteEntity(characterId, server._spawnedItems);
-          delete server.worldObjectManager._spawnedLootObjects[item.spawnerId];
+          delete server.worldObjectManager.spawnedLootObjects[item.spawnerId];
         }
       }
 

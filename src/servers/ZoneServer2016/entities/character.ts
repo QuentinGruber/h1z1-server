@@ -573,7 +573,6 @@ export class Character2016 extends BaseFullCharacter {
       unknownDword2: 100,
     });
     server.sendChatText(client, `Received ${damage} damage`);
-    if (!sourceEntity) return;
 
     const damageRecord = server.generateDamageRecord(
       this.characterId,
@@ -870,6 +869,15 @@ export class Character2016 extends BaseFullCharacter {
       "Equipment.SetCharacterEquipment",
       this.pGetEquipment(client.character.groupId)
     );
+    const c = server.getClientByCharId(this.characterId);
+    if (c && !c.firstLoading) {
+      server.updateCharacterState(
+        client,
+        this.characterId,
+        this.characterStates,
+        false
+      );
+    }
 
     if (this.onReadyCallback) {
       this.onReadyCallback(client);
@@ -885,7 +893,8 @@ export class Character2016 extends BaseFullCharacter {
       return;
     }
 
-    server.hitMissFairPlayCheck(
+    server.fairPlayManager.hitMissFairPlayCheck(
+      server,
       client,
       true,
       damageInfo.hitReport?.hitLocation || ""
@@ -903,7 +912,9 @@ export class Character2016 extends BaseFullCharacter {
       case "HEAD":
       case "GLASSES":
       case "NECK":
-        damageInfo.weapon == Items.WEAPON_SHOTGUN ? damage * 2 : (damage *= 4);
+        damageInfo.weapon == Items.WEAPON_SHOTGUN
+          ? (damage *= 2)
+          : (damage *= 4);
         damageInfo.weapon == Items.WEAPON_308 ? (damage *= 2) : damage;
         damage = server.checkHelmet(this.characterId, damage, 1);
         break;

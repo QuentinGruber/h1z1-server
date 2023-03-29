@@ -361,3 +361,8 @@ export interface FairPlayValues {
   respawnCheckIterations: number;
   maxFlying: number;
 }
+
+export interface SpeedTree {
+  objectId: number;
+  modelName: string;
+}

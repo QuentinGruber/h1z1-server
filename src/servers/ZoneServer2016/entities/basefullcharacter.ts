@@ -137,8 +137,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return 0;
   }
 
-  getEquippedWeapon(): LoadoutItem {
-    return this._loadout[this.currentLoadoutSlot];
+  getEquippedWeapon(): LoadoutItem | undefined {
+    return this._loadout[this.currentLoadoutSlot] || undefined;
   }
 
   // gets the amount of items of a specific itemDefinitionId

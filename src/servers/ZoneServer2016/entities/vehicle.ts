@@ -148,7 +148,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (!this.actorModelId) this.actorModelId = getActorModelId(this.vehicleId);
     this.loadoutId = getVehicleLoadoutId(this.vehicleId);
     this.defaultLoadout = getDefaultLoadout(this.loadoutId);
-    this.npcRenderDistance = 250;
+    this.npcRenderDistance = 400;
     this.isInvulnerable =
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE;
@@ -590,8 +590,9 @@ export class Vehicle2016 extends BaseLootableEntity {
     if (
       this.vehicleId == VehicleIds.SPECTATE ||
       this.vehicleId == VehicleIds.PARACHUTE
-    )
+    ) {
       return;
+    }
     server.sendData(
       client,
       "LightweightToFullVehicle",
