@@ -146,6 +146,18 @@ export class ConstructionManager {
         ) {
           return true;
         }
+        if (
+          c.itemDefinitionId == Items.STORAGE_BOX &&
+          (itemDefinitionId == Items.BEE_BOX ||
+            itemDefinitionId == Items.FURNACE)
+        ) {
+          if (
+            isPosInRadiusWithY(0.5, c.state.position, position, 1.5) &&
+            diff < 0.5
+          ) {
+            return true;
+          }
+        }
       }
       for (const a in server._worldLootableConstruction) {
         const c = server._worldLootableConstruction[a];
@@ -155,6 +167,18 @@ export class ConstructionManager {
           diff > 0.3
         ) {
           return true;
+        }
+        if (
+          c.itemDefinitionId == Items.STORAGE_BOX &&
+          (itemDefinitionId == Items.BEE_BOX ||
+            itemDefinitionId == Items.FURNACE)
+        ) {
+          if (
+            isPosInRadiusWithY(0.5, c.state.position, position, 1.5) &&
+            diff < 0.5
+          ) {
+            return true;
+          }
         }
       }
     }
