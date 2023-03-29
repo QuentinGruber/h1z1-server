@@ -79,6 +79,7 @@ function getDamageRange(definitionId: number): number {
 
 export class ConstructionChildEntity extends BaseLightweightCharacter {
   health: number = 1000000;
+  maxHealth: number = 1000000;
   readonly itemDefinitionId: number;
   parentObjectCharacterId: string;
   eulerAngle: number;
@@ -90,6 +91,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly bounds?: SquareBounds;
   undoPlacementTime = 600000;
   interactionDistance = 4;
+  destroyedEffect: number = 242;
 
   // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
   readonly wallSlots: ConstructionSlotPositionMap = {};
@@ -139,6 +141,12 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.isSecured = this.itemDefinitionId == Items.METAL_WALL ? true : false;
     this.npcRenderDistance = getRenderDistance(this.itemDefinitionId);
     this.useSimpleStruct = true;
+
+    if (this.itemDefinitionId == Items.SLEEPING_MAT) {
+      this.maxHealth = 10000;
+      this.health = 10000;
+      this.destroyedEffect = 0;
+    }
 
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
     Object.seal(this.wallSlots);
@@ -426,7 +434,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       server._constructionSimple[this.characterId]
         ? server._constructionSimple
         : server._worldSimpleConstruction,
-      242,
+      this.destroyedEffect,
       destructTime
     );
     const parent = this.getParent(server);

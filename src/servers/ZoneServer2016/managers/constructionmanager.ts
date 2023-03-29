@@ -695,7 +695,12 @@ export class ConstructionManager {
           BuildingSlot
         );
       case Items.GROUND_TILLER:
-        return this.placePlantingDiameter(server, modelId, position, rotation);
+        return this.placePlantingDiameter(
+          server,
+          modelId,
+          position,
+          new Float32Array([0, rotation[0], 0, 0])
+        );
       case Items.SEED_WHEAT:
       case Items.SEED_CORN:
         return this.placePlantOnDiameter(
@@ -1398,9 +1403,13 @@ export class ConstructionManager {
       transientId,
       modelId,
       position,
-      eul2quat(rotation),
+      rotation,
       server
     );
+    server.executeFuncForAllReadyClientsInRange((client) => {
+      server.addSimpleNpc(client, obj);
+      client.spawnedEntities.push(obj);
+    }, obj);
     server._temporaryObjects[characterId] = obj;
 
     return true;
