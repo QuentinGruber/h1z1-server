@@ -200,6 +200,12 @@ export class GroupManager {
       return;
     }
 
+    const group = this.groups[source.character.groupId];
+    if(group && group.leader != source.character.characterId) {
+      server.sendAlert(source, "You are not the group leader!");
+      return;
+    }
+
     this.pendingInvites[target.character.characterId] =
       source.character.groupId;
 
