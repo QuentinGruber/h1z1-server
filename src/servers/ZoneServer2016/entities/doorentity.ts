@@ -202,7 +202,7 @@ export class DoorEntity extends BaseLightweightCharacter {
           characterId: this.characterId,
           destroyedModel: this.destroyedModel,
           disableWeirdPhysic: true,
-          destroyedEffect: 165,
+          destroyedEffect2: 165,
         }
       );
     }
