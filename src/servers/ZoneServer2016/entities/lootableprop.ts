@@ -10,7 +10,6 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
-import { isQuat } from "../../../utils/utils";
 import { BaseLootableEntity } from "./baselootableentity";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 } from "../classes/zoneclient";
@@ -165,7 +164,6 @@ export class LootableProp extends BaseLootableEntity {
     this.scale = new Float32Array(scale);
     this.spawnerId = spawnerId;
     this.npcRenderDistance = renderDistance;
-    this.state.rotation = isQuat(rotation);
     this.loadoutId = 5;
     getContainerAndTime(this);
   }

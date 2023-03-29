@@ -11,12 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import {
-  ConstructionPermissionIds,
-  Items,
-  ResourceIds,
-  StringIds,
-} from "../models/enums";
+import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
@@ -28,12 +23,6 @@ import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { CollectingEntity } from "../classes/collectingentity";
 
 export class LootableConstructionEntity extends BaseLootableEntity {
-  get health() {
-    return this._resources[ResourceIds.CONSTRUCTION_CONDITION];
-  }
-  set health(health: number) {
-    this._resources[ResourceIds.CONSTRUCTION_CONDITION] = health;
-  }
   placementTime = Date.now();
   parentObjectCharacterId: string;
   loadoutId = 5;

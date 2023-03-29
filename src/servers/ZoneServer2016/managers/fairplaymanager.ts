@@ -111,6 +111,7 @@ export class FairPlayManager {
         respawnCheckTime: Number(decryptedData[34]),
         respawnCheckIterations: Number(decryptedData[35]),
         maxFlying: Number(decryptedData[36]),
+        maxPositionDesync: Number(decryptedData[37]),
       };
     }
   }
@@ -191,7 +192,7 @@ export class FairPlayManager {
               unknownByte1: 1,
             });
             client.isMovementBlocked = true;*/
-            //this.kickPlayer(client);
+            server.kickPlayer(client);
             server.sendChatTextToAdmins(
               `FairPlay: Kicking ${client.character.name} for suspected teleport by ${distance} from [${client.oldPos.position[0]} ${client.oldPos.position[1]} ${client.oldPos.position[2]}] to [${position[0]} ${position[1]} ${position[2]}]`,
               false
@@ -461,7 +462,23 @@ export class FairPlayManager {
           false
         );
       }*/
+
     if (targetClient) {
+      if (!targetClient.vehicle.mountedVehicle) {
+        if (
+          getDistance(
+            targetClient.character.state.position,
+            hitReport.position
+          ) > this.fairPlayValues.maxPositionDesync
+        ) {
+          server.sendChatTextToAdmins(
+            `FairPlay: ${targetClient.character.name} shot has been blocked due to position desync`,
+            false
+          );
+          server.sendChatText(targetClient, message, false);
+          return false;
+        }
+      }
       const distance = getDistance(fireHint.position, hitReport.position);
       const speed =
         (distance / 1000 / (gameTime - fireHint.timeStamp)) * 3600000;

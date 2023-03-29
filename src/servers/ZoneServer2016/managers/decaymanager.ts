@@ -114,10 +114,21 @@ export class DecayManager {
   ) {
     const dictionary = server.getConstructionDictionary(entity.characterId);
     if (!dictionary[entity.characterId]) return;
-    entity.damage(server, {
-      entity: "Server.DecayManager",
-      damage: 125000,
-    });
+    if (entity.useSimpleStruct) {
+      entity.damageSimpleNpc(
+        server,
+        {
+          entity: "Server.DecayManager",
+          damage: 125000,
+        },
+        dictionary
+      );
+    } else {
+      entity.damage(server, {
+        entity: "Server.DecayManager",
+        damage: 125000,
+      });
+    }
     server.updateResourceToAllWithSpawnedEntity(
       entity.characterId,
       entity.health,
@@ -182,7 +193,7 @@ export class DecayManager {
     for (const characterId in server._vehicles) {
       const vehicle = server._vehicles[characterId];
       if (!vehicle) continue;
-      const baseDamage = 3000, // 3%
+      const baseDamage = 5000, // 5%
         closeVehicles = this.getCloseVehicles(server, vehicle);
       let damage = baseDamage;
       if (closeVehicles.length > this.maxAreaVehicles) {

@@ -62,6 +62,7 @@ export class ZoneClient2016 {
   hudTimer?: NodeJS.Timeout | null;
   spawnedDTOs: any[] = [];
   spawnedEntities: BaseEntity[] = [];
+  sentInteractionData: BaseEntity[] = [];
   searchedProps: LootableProp[] = [];
   managedObjects: string[] = [];
   vehicle: {
@@ -95,7 +96,7 @@ export class ZoneClient2016 {
     data: zone2016packets;
   }[] = [];*/
   isMuted = false;
-  kicked: boolean = false;
+  blockedPositionUpdates: number = 0;
   constructor(
     sessionId: number,
     soeClientId: string,

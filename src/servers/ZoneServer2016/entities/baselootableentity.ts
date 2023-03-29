@@ -31,6 +31,7 @@ export class BaseLootableEntity extends BaseFullCharacter {
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.isLootbag = actorModelId == 9581 || actorModelId == 9391;
+    this.useSimpleStruct = true;
   }
 
   getContainer(): LoadoutContainer | undefined {
@@ -66,6 +67,18 @@ export class BaseLootableEntity extends BaseFullCharacter {
     }
 
     client.character.mountContainer(server, this);
+    setTimeout(() => {
+      server.sendData(client, "Character.RemovePlayer", {
+        characterId: this.characterId,
+      });
+      server.sendData(client, "Replication.NpcComponent", {
+        transientId: this.transientId,
+        nameId: this.nameId,
+      });
+      server.sendData(client, "Replication.InteractionComponent", {
+        transientId: this.transientId,
+      });
+    }, 1000);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
