@@ -22,6 +22,7 @@ import {
 } from "types/zoneserver";
 import {
   eul2quat,
+  fixEulerOrder,
   getConstructionSlotId,
   getDistance,
   isInsideSquare,
@@ -473,6 +474,24 @@ export class ConstructionManager {
         });
       }
     }
+    if (server._constructionSimple[parentObjectCharacterId]) {
+      const simple = server._constructionSimple[parentObjectCharacterId];
+      if (
+        !simple.getHasPermission(
+          server,
+          client.character.characterId,
+          ConstructionPermissionIds.BUILD
+        )
+      ) {
+        this.placementError(
+          server,
+          client,
+          ConstructionErrors.BUILD_PERMISSION
+        );
+        this.sendPlacementFinalize(server, client, 0);
+        return;
+      }
+    }
 
     if (
       this.detectSpawnPointPlacement(
@@ -569,7 +588,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          rotation
+          fixEulerOrder(rotation)
         );
       case Items.FLARE:
         return this.placeTemporaryEntity(
@@ -613,7 +632,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          new Float32Array([0, rotation[0], 0, 0]),
+          fixEulerOrder(rotation),
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -632,7 +651,7 @@ export class ConstructionManager {
           client,
           itemDefinitionId,
           modelId,
-          new Float32Array([0, rotation[0], 0, 0]),
+          fixEulerOrder(rotation),
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -642,7 +661,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          new Float32Array([0, rotation[0], 0, 0]),
+          fixEulerOrder(rotation),
           freeplaceParentCharacterId
         );
       case Items.FURNACE:
@@ -653,7 +672,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          new Float32Array([0, rotation[0], 0, 0]),
+          fixEulerOrder(rotation),
           freeplaceParentCharacterId
         );
       case Items.BEE_BOX:
@@ -664,7 +683,7 @@ export class ConstructionManager {
           itemDefinitionId,
           modelId,
           position,
-          new Float32Array([0, rotation[0], 0, 0]),
+          fixEulerOrder(rotation),
           freeplaceParentCharacterId
         );
       case Items.METAL_WALL:
@@ -690,7 +709,7 @@ export class ConstructionManager {
           client,
           itemDefinitionId,
           modelId,
-          new Float32Array([0, rotation[0], 0, 0]),
+          fixEulerOrder(rotation),
           parentObjectCharacterId,
           BuildingSlot
         );
@@ -699,7 +718,7 @@ export class ConstructionManager {
           server,
           modelId,
           position,
-          new Float32Array([0, rotation[0], 0, 0])
+          fixEulerOrder(rotation)
         );
       case Items.SEED_WHEAT:
       case Items.SEED_CORN:
@@ -723,7 +742,7 @@ export class ConstructionManager {
             transientId,
             modelId,
             position,
-            new Float32Array([0, rotation[0], 0, 0]),
+            fixEulerOrder(rotation),
             server,
             itemDefinitionId,
             freeplaceParentCharacterId || "",
@@ -1218,7 +1237,7 @@ export class ConstructionManager {
         transientId,
         modelId,
         position,
-        new Float32Array([0, rotation[0], 0]),
+        rotation,
         server,
         itemDefinitionId
       );

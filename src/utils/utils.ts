@@ -163,6 +163,10 @@ export function eul2quatLegacy(angle: number[]) {
   return [qx, qy, -qz, qw];
 }
 
+export function fixEulerOrder(rotation: Float32Array): Float32Array {
+  return new Float32Array([0, rotation[0], 0, 0]);
+}
+
 export function movePoint(
   position: Float32Array,
   angle: number,
