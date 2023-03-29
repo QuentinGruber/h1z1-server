@@ -1985,7 +1985,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.BACKPACK_BLUE_ORANGE,
-        weight: 35,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
