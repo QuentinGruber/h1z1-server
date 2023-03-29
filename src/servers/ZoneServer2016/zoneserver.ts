@@ -1439,9 +1439,6 @@ export class ZoneServer2016 extends EventEmitter {
     else {
       if (this._ready) {
         this.constructionManager.plantManager(this);
-        this.npcDespawner();
-        this.lootbagDespawner();
-        this.itemDespawner();
         this.worldObjectManager.run(this);
         this.checkVehiclesInMapBounds();
         this.setTickRate();
@@ -2879,20 +2876,6 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "AddLightweightNpc", lightWeight);
   }
 
-  private npcDespawner() {
-    for (const characterId in this._npcs) {
-      const npc = this._npcs[characterId];
-      // dead npc despawner
-      if (
-        npc.flags.knockedOut &&
-        Date.now() - npc.deathTime >=
-          this.worldObjectManager.deadNpcDespawnTimer
-      ) {
-        this.deleteEntity(npc.characterId, this._npcs);
-      }
-    }
-  }
-
   spawnCharacters(client: Client) {
     for (const c in this._clients) {
       const characterObj: Character = this._clients[c].character;
@@ -2975,52 +2958,6 @@ export class ZoneServer2016 extends EventEmitter {
 
       if (!inMapBounds || vehicle.state.position[1] < -50) {
         vehicle.destroy(this, true);
-      }
-    }
-  }
-
-  private itemDespawner() {
-    for (const characterId in this._spawnedItems) {
-      const itemObject = this._spawnedItems[characterId];
-      if (!itemObject) return;
-      // dropped item despawner
-      const despawnTime =
-        itemObject.spawnerId == -1
-          ? this.worldObjectManager.itemDespawnTimer
-          : this.worldObjectManager.lootDespawnTimer;
-      if (Date.now() - itemObject.creationTime >= despawnTime) {
-        this.deleteEntity(itemObject.characterId, this._spawnedItems);
-        if (itemObject.spawnerId != -1)
-          delete this.worldObjectManager.spawnedLootObjects[
-            itemObject.spawnerId
-          ];
-        if (
-          itemObject.item.itemDefinitionId == Items.FUEL_BIOFUEL ||
-          itemObject.item.itemDefinitionId == Items.FUEL_ETHANOL
-        ) {
-          if (this._explosives[itemObject.characterId]) {
-            this.deleteEntity(itemObject.characterId, this._explosives);
-          }
-        }
-        this.sendCompositeEffectToAllWithSpawnedEntity(
-          this._spawnedItems,
-          itemObject,
-          this.getItemDefinition(itemObject.item.itemDefinitionId)
-            .PICKUP_EFFECT ?? 5151
-        );
-      }
-    }
-  }
-
-  private lootbagDespawner() {
-    for (const characterId in this._lootbags) {
-      // lootbag despawner
-      const lootbag = this._lootbags[characterId];
-      if (
-        Date.now() - lootbag.creationTime >=
-        1800000 // 30 minutes for now
-      ) {
-        this.deleteEntity(lootbag.characterId, this._lootbags);
       }
     }
   }
