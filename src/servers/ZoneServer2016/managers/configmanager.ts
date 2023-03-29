@@ -100,7 +100,7 @@ export class ConfigManager {
   loadConfig(config: Config): Config {
     // in case new config file is missing certain values / out of date,
     // fill with default values
-    const { server, fairplay, weather, worldobjects, speedtree, construction } =
+    const { server, fairplay, weather, worldobjects, speedtree, construction, decay } =
       this.defaultConfig;
     return {
       ...this.defaultConfig,
@@ -128,6 +128,10 @@ export class ConfigManager {
       construction: {
         ...construction,
         ...config.construction,
+      },
+      decay: {
+        ...decay,
+        ...config.decay,
       },
     };
   }
@@ -245,6 +249,25 @@ export class ConfigManager {
       playerFoundationBlockedPlacementRange;
     server.constructionManager.playerShackBlockedPlacementRange =
       playerShackBlockedPlacementRange;
+    //#endregion
+
+    //#region decay
+    const {
+      decayTickInterval,
+      constructionDamageTicks,
+      baseConstructionDamage,
+      vehicleDamageTicks,
+      baseVehicleDamage,
+      maxVehiclesPerArea,
+      vehicleDamageRange
+    } = this.config.decay;
+    server.decayManager.decayTickInterval = decayTickInterval;
+    server.decayManager.constructionDamageTicks = constructionDamageTicks;
+    server.decayManager.baseConstructionDamage = baseConstructionDamage;
+    server.decayManager.vehicleDamageTicks = vehicleDamageTicks;
+    server.decayManager.baseVehicleDamage = baseVehicleDamage;
+    server.decayManager.maxVehiclesPerArea = maxVehiclesPerArea;
+    server.decayManager.vehicleDamageRange = vehicleDamageRange;
     //#endregion
   }
 }

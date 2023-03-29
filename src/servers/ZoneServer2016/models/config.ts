@@ -73,6 +73,16 @@ interface ConstructionConfig {
   playerShackBlockedPlacementRange: number;
 }
 
+interface DecayConfig {
+  decayTickInterval: number;
+  constructionDamageTicks: number;
+  baseConstructionDamage: number;
+  vehicleDamageTicks: number;
+  baseVehicleDamage: number;
+  maxVehiclesPerArea: number;
+  vehicleDamageRange: number;
+}
+
 export interface Config {
   server: ServerConfig;
   fairplay: FairplayConfig;
@@ -80,4 +90,5 @@ export interface Config {
   worldobjects: WorldObjectsConfig;
   speedtree: SpeedTreeConfig;
   construction: ConstructionConfig;
+  decay: DecayConfig;
 }
