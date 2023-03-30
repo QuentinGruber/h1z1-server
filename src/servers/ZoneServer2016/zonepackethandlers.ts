@@ -568,7 +568,10 @@ export class ZonePacketHandlers {
     )
       return;
     // work around to get external containers working with simpleNpcs
-    if (entity instanceof BaseLootableEntity) {
+    if (
+      entity instanceof BaseLootableEntity &&
+      !(entity instanceof Vehicle2016)
+    ) {
       server.spawnWorkAroundLightWeight(client, entity);
     }
     entity.OnPlayerSelect(server, client, packet.data.isInstant);

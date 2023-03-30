@@ -2875,6 +2875,11 @@ export class ZoneServer2016 extends EventEmitter {
     };
 
     this.sendData(client, "AddLightweightNpc", lightWeight);
+    setTimeout(() => {
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: "0x0000000000000001",
+      });
+    }, 1000);
   }
 
   spawnCharacters(client: Client) {
