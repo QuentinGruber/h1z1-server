@@ -1780,6 +1780,14 @@ export class ConstructionManager {
     parentEntity: ConstructionParentEntity | ConstructionChildEntity
   ) {
     for (const entity of Object.values(parentEntity.freeplaceEntities)) {
+      if (
+        !isPosInRadius(
+          entity.npcRenderDistance || server.charactersRenderDistance,
+          entity.state.position,
+          client.character.state.position
+        )
+      )
+        continue;
       if (entity instanceof ConstructionChildEntity) {
         this.spawnSimpleConstruction(server, client, entity);
       } else if (entity instanceof ConstructionDoor) {

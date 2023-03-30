@@ -59,7 +59,7 @@ export class BaseEntity {
     rotation: Float32Array;
   };
   scale = new Float32Array([1, 1, 1, 1]);
-  npcRenderDistance?: number; // when undefined, use the zoneserver._charactersRenderDistance value
+  npcRenderDistance: number; // when undefined, use the zoneserver._charactersRenderDistance value
   interactionDistance: number;
   constructor(
     characterId: string,
@@ -76,7 +76,8 @@ export class BaseEntity {
       position: position,
       rotation: rotation,
     };
-    this.npcRenderDistance = getRenderDistance(actorModelId);
+    this.npcRenderDistance =
+      getRenderDistance(actorModelId) || server.charactersRenderDistance;
     this.interactionDistance = server.interactionDistance;
     server.pushToGridCell(this);
   }
