@@ -1306,7 +1306,7 @@ export class ZonePacketHandlers {
               loadoutSlotId = server.getLoadoutSlot(item.itemDefinitionId);
             }
             client.character.currentLoadoutSlot = loadoutSlotId;
-            server.equipContainerItem(client, item, loadoutSlotId);
+            server.equipContainerItem(client.character, item, loadoutSlotId);
           } else {
             if (!activeSlotId) {
               server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
@@ -1334,7 +1334,7 @@ export class ZonePacketHandlers {
             return;
           }
           server.equipContainerItem(
-            client,
+            client.character,
             item,
             server.getLoadoutSlot(item.itemDefinitionId)
           );
@@ -1450,15 +1450,15 @@ export class ZonePacketHandlers {
             );
           } else if (containerGuid == "0xffffffffffffffff") {
             // to loadout
-            if (
+            /*if (
               server.validateLoadoutSlot(
                 item.itemDefinitionId,
                 newSlotId,
                 client.character.loadoutId
               )
-            ) {
-              server.equipContainerItem(client, item, newSlotId);
-            }
+            ) {*/
+              server.equipContainerItem(client.character, item, newSlotId);
+            //}
           } else {
             // invalid
             server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
@@ -1484,7 +1484,7 @@ export class ZonePacketHandlers {
               server.containerError(client, ContainerErrors.NO_SPACE);
               return;
             }
-            if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
+            if (!server.removeLoadoutItem(client.character, loadoutItem.slotId)) {
               server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
               return;
             }
@@ -1539,10 +1539,38 @@ export class ZonePacketHandlers {
         const sourceContainer = client.character.getItemContainer(itemGuid),
           targetCharacter = server.getEntity(packet.data.targetCharacterId);
 
-        if(!targetCharacter || !(targetCharacter instanceof BaseLootableEntity) || !(targetCharacter instanceof Vehicle2016)) {
-          console.log("Invalid target character!");
+
+          if(!targetCharacter || !(targetCharacter instanceof BaseLootableEntity) || !(targetCharacter instanceof Vehicle2016)) {
+            console.log("Invalid target character!");
+            return;
+          }
+  
+          if(!sourceContainer) {
+            console.log("Invalid source container!");
+            return;
+          }
+
+        if (containerGuid == "0xffffffffffffffff") {
+          // to loadout
+          const item = sourceContainer.items[itemGuid];
+          if (!item) {
+            server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+            return;
+          }
+          if (
+            server.validateLoadoutSlot(
+              item.itemDefinitionId,
+              newSlotId,
+              targetCharacter.loadoutId
+            )
+          ) {
+            server.equipContainerItem(targetCharacter, item, newSlotId);
+          }
+
           return;
         }
+
+        
         
         const targetContainer = targetCharacter.getContainerFromGuid(containerGuid);
 
@@ -1551,10 +1579,7 @@ export class ZonePacketHandlers {
           return;
         }
 
-        if(!sourceContainer) {
-          console.log("Invalid source container!");
-          return;
-        }
+        
 
         const item = sourceContainer.items[itemGuid];
         if (!item) {
