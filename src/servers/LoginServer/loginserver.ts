@@ -26,6 +26,7 @@ import {
   setupAppDataFolder,
   isValidCharacterName,
   resolveHostAddress,
+  getPopulationLevel,
 } from "../../utils/utils";
 import { GameServer } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
@@ -235,10 +236,9 @@ export class LoginServer extends EventEmitter {
                         {
                           $set: {
                             populationNumber: population,
-                            populationLevel: Number(
-                              ((population / maxPopulationNumber) * 3).toFixed(
-                                0
-                              )
+                            populationLevel: getPopulationLevel(
+                              population,
+                              maxPopulationNumber
                             ),
                           },
                         }
