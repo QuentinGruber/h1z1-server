@@ -420,6 +420,7 @@ export class ZonePacketHandlers {
           });
           client.character.state.position = client.startingPos;
         }
+        client.firstReleased = false;
         server.executeRoutine(client);
       }, 500);
     }
