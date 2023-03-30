@@ -616,11 +616,11 @@ export interface CharacterMoveOnRelativeRail {
 }
 export interface CharacterDestroyed {
   characterId?: string;
-  unknown2?: number;
+  destroyedEffect?: number;
   destroyedModel?: number;
   unknown3?: number;
   disableWeirdPhysic?: boolean;
-  destroyedEffect?: number;
+  destroyedEffect2?: number;
   disableWeirdPhysic2?: boolean;
 }
 export interface CharacterSeekTarget {
