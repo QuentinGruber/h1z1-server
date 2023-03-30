@@ -865,7 +865,7 @@ export const lightWeightPcSchema = [
       { bit: 2, name: "disableEquipment", defaultValue: 0 },
       { bit: 3, name: "useEffect", defaultValue: 0 },
       { bit: 4, name: "flag4", defaultValue: 0 },
-      { bit: 5, name: "flag5", defaultValue: 0 },
+      { bit: 5, name: "isAdmin", defaultValue: 0 },
       { bit: 6, name: "flag6", defaultValue: 0 },
       { bit: 7, name: "flag7", defaultValue: 0 },
     ],

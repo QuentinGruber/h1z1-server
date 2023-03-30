@@ -187,7 +187,7 @@ export class LoginServer extends EventEmitter {
                     let status = 0;
                     const server = await this._db
                       .collection(DB_COLLECTIONS.SERVERS)
-                      .findOne({ serverId: serverId });
+                      .findOne({ serverId: serverId, isDisabled: false });
                     if (server) {
                       const fullServerAddress = server.serverAddress;
                       const serverAddress = fullServerAddress.split(":")[0];
@@ -211,7 +211,7 @@ export class LoginServer extends EventEmitter {
                       );
                       await this.updateServerStatus(serverId, true);
                     } else {
-                      console.log(
+                      debug(
                         `rejected connection serverId : ${serverId} address: ${client.address} `
                       );
                       delete this._h1emuLoginServer._clients[client.clientId];
@@ -660,7 +660,7 @@ export class LoginServer extends EventEmitter {
   }
 
   async ServerListRequest(client: Client) {
-    let servers;
+    let servers: any[];
     if (!this._soloMode) {
       servers = await this._db
         .collection(DB_COLLECTIONS.SERVERS)
@@ -668,12 +668,16 @@ export class LoginServer extends EventEmitter {
           gameVersion: client.gameVersion,
         })
         .toArray();
-      servers = servers.map((server: any) => {
-        if (server.locked) {
-          server.allowedAccess = false;
-        }
-        return server;
-      });
+      servers = servers
+        .map((server: any) => {
+          if (server.locked) {
+            server.allowedAccess = false;
+          }
+          return server;
+        })
+        .filter((v) => {
+          return !v.isDisabled;
+        });
     } else {
       switch (client.gameVersion) {
         default:
@@ -860,7 +864,7 @@ export class LoginServer extends EventEmitter {
   }
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  async isClientHWIDBanned(client: Client): Promise<boolean> {
+  async isClientHWIDBanned(client: Client, serverId: number): Promise<boolean> {
     return false;
   }
   async getOwnerBanInfo(serverId: number, client: Client) {
@@ -883,7 +887,7 @@ export class LoginServer extends EventEmitter {
       banInfos.push({ banInfo: BAN_INFO.VPN });
     }
 
-    if (await this.isClientHWIDBanned(client)) {
+    if (await this.isClientHWIDBanned(client, serverId)) {
       banInfos.push({ banInfo: BAN_INFO.HWID });
     }
 

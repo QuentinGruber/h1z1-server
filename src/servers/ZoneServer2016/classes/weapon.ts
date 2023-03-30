@@ -38,7 +38,8 @@ export class Weapon {
       )
     );
     this.ammoCount = 0;
-    if (client.character.getEquippedWeapon().itemGuid == this.itemGuid) {
+    const weapon = client.character.getEquippedWeapon();
+    if (weapon?.itemGuid == this.itemGuid) {
       server.sendWeaponData(client, "Weapon.Reload", {
         weaponGuid: this.itemGuid,
         unknownDword1: 0,

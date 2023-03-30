@@ -11,12 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import {
-  ConstructionPermissionIds,
-  Items,
-  ResourceIds,
-  StringIds,
-} from "../models/enums";
+import { ConstructionPermissionIds, Items, StringIds } from "../models/enums";
 import { DamageInfo } from "types/zoneserver";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
@@ -28,12 +23,6 @@ import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { CollectingEntity } from "../classes/collectingentity";
 
 export class LootableConstructionEntity extends BaseLootableEntity {
-  get health() {
-    return this._resources[ResourceIds.CONSTRUCTION_CONDITION];
-  }
-  set health(health: number) {
-    this._resources[ResourceIds.CONSTRUCTION_CONDITION] = health;
-  }
   placementTime = Date.now();
   parentObjectCharacterId: string;
   loadoutId = 5;
@@ -99,6 +88,8 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
+    const weapon = client.character.getEquippedWeapon();
+    if (!weapon) return false;
     return (
       this.getHasPermission(
         server,
@@ -106,8 +97,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
         ConstructionPermissionIds.BUILD
       ) &&
       Date.now() < this.placementTime + 120000 &&
-      client.character.getEquippedWeapon().itemDefinitionId ==
-        Items.WEAPON_HAMMER_DEMOLITION
+      weapon.itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
     );
   }
 
@@ -173,7 +163,11 @@ export class LootableConstructionEntity extends BaseLootableEntity {
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.canUndoPlacement(server, client)) {
-      server.undoPlacementInteractionString(this, client);
+      server.constructionManager.undoPlacementInteractionString(
+        server,
+        this,
+        client
+      );
       return;
     }
     if (this.subEntity) {

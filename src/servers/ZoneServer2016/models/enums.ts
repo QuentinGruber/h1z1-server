@@ -69,13 +69,15 @@ export enum ItemUseOptions {
 }
 
 export enum ConstructionErrors {
-  UNKNOWN,
-  OVERLAP,
-  BUILD_PERMISSION,
-  DEMOLISH_PERMISSION,
-  UNKNOWN_PARENT,
-  UNKNOWN_SLOT,
-  UNKNOWN_CONSTRUCTION,
+  UNKNOWN = "Unknown",
+  OVERLAP = "Construction overlap",
+  BUILD_PERMISSION = "No build permission",
+  DEMOLISH_PERMISSION = "No demolish permission",
+  UNKNOWN_PARENT = "Unknown parent",
+  UNKNOWN_SLOT = "Unknown slot",
+  UNKNOWN_CONSTRUCTION = "Unknown construction item",
+  OUT_OF_RANGE = "Out of range",
+  STACKED = "Construction stacked",
 }
 
 export enum ConstructionPermissionIds {
@@ -220,6 +222,7 @@ export enum EntityTypes {
   TRAP,
   TASK_PROP,
   CRATE,
+  DESTROYABLE,
 }
 
 export enum ResourceIds {

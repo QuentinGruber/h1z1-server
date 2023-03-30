@@ -15,6 +15,24 @@ import { eul2quat } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
+import { DamageInfo } from "../../../types/zoneserver";
+
+function getDestroyedModels(actorModel: number): number[] {
+  switch (actorModel) {
+    case 9455:
+      return [9452, 9453, 9454];
+    case 9897:
+      return [9898, 9899, 9900];
+    case 9901:
+      return [9902];
+    case 9183:
+      return [9184, 9185, 9186];
+    case 9333:
+      return [9334, 9335];
+    default:
+      return [];
+  }
+}
 
 function getDoorSound(actorModelId: number) {
   let openSound = 5048;
@@ -115,6 +133,9 @@ export class DoorEntity extends BaseLightweightCharacter {
   isOpen = false;
   openSound: number;
   closeSound: number;
+  destroyed: boolean = false;
+  destroyedModel: number;
+  destroyedModels: number[];
   constructor(
     characterId: string,
     transientId: number,
@@ -139,7 +160,54 @@ export class DoorEntity extends BaseLightweightCharacter {
     const { openSound, closeSound } = getDoorSound(this.actorModelId);
     this.openSound = openSound;
     this.closeSound = closeSound;
+    this.destroyedModels = getDestroyedModels(this.actorModelId);
+    this.destroyedModel =
+      this.destroyedModels[(this.destroyedModels.length * Math.random()) | 0];
+    this.health = 2000;
   }
+
+  pGetLightweight() {
+    return {
+      characterId: this.characterId,
+      transientId: this.transientId,
+      actorModelId: this.destroyed ? this.destroyedModel : this.actorModelId,
+      position: Array.from(this.state.position).map((pos, idx) => {
+        return idx == 1 ? pos++ : pos;
+      }),
+      rotation: this.state.rotation,
+      scale: this.scale,
+      positionUpdateType: this.positionUpdateType,
+      profileId: this.profileId,
+      isLightweight: this.isLightweight,
+      flags: {
+        flags1: this.flags,
+        flags2: this.flags,
+        flags3: this.flags,
+      },
+      headActor: this.headActor,
+    };
+  }
+
+  OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
+    if (this.destroyed) return;
+    this.health -= damageInfo.damage;
+    if (this.health > 0) return;
+    this.destroyed = true;
+    if (this.destroyedModel) {
+      server.sendDataToAllWithSpawnedEntity(
+        server._doors,
+        this.characterId,
+        "Character.Destroyed",
+        {
+          characterId: this.characterId,
+          destroyedModel: this.destroyedModel,
+          disableWeirdPhysic: true,
+          destroyedEffect2: 165,
+        }
+      );
+    }
+  }
+
   /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
     server: ZoneServer2016,

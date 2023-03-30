@@ -172,7 +172,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
 
   // #region TOOLS
   "ItemSpawner_Weapon_Crowbar01.adr": {
-    spawnChance: 30,
+    spawnChance: 35,
     items: [
       {
         item: Items.WEAPON_CROWBAR,
@@ -954,7 +954,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.WEAPON_CROWBAR,
-        weight: 20,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1639,7 +1639,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.GUNPOWDER,
-        weight: 100,
+        weight: 120,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1647,7 +1647,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
       },
       {
         item: Items.LANDMINE,
-        weight: 100,
+        weight: 50,
         spawnCount: {
           min: 1,
           max: 1,
@@ -1985,7 +1985,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.BACKPACK_BLUE_ORANGE,
-        weight: 35,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2173,7 +2173,7 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.WEAPON_CROWBAR,
-        weight: 37,
+        weight: 40,
         spawnCount: {
           min: 1,
           max: 1,

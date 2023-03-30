@@ -132,6 +132,8 @@ export class ConstructionDoor extends DoorEntity {
   }
 
   canUndoPlacement(server: ZoneServer2016, client: ZoneClient2016) {
+    const weapon = client.character.getEquippedWeapon();
+    if (!weapon) return false;
     return (
       this.getHasPermission(
         server,
@@ -139,8 +141,7 @@ export class ConstructionDoor extends DoorEntity {
         ConstructionPermissionIds.BUILD
       ) &&
       Date.now() < this.placementTime + 120000 &&
-      client.character.getEquippedWeapon().itemDefinitionId ==
-        Items.WEAPON_HAMMER_DEMOLITION
+      weapon.itemDefinitionId == Items.WEAPON_HAMMER_DEMOLITION
     );
   }
 
@@ -258,7 +259,10 @@ export class ConstructionDoor extends DoorEntity {
             for (const a in server._clients) {
               const client = server._clients[a];
               if (client.character.isHidden == parent.characterId)
-                server.constructionManager(client);
+                server.constructionManager.constructionPermissionsManager(
+                  server,
+                  client
+                );
             }
           }
         }
@@ -294,7 +298,11 @@ export class ConstructionDoor extends DoorEntity {
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     if (this.canUndoPlacement(server, client)) {
-      server.undoPlacementInteractionString(this, client);
+      server.constructionManager.undoPlacementInteractionString(
+        server,
+        this,
+        client
+      );
       return;
     }
     if (

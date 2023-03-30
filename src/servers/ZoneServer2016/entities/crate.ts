@@ -68,6 +68,7 @@ export class Crate extends BaseLightweightCharacter {
   requiredItemId: number = 0;
   rewardItems: number[] = [];
   health: number = 5000;
+  maxHealth: number = 5000;
   spawnTimestamp: number = 0;
   isBuffed: boolean;
   constructor(
@@ -88,6 +89,7 @@ export class Crate extends BaseLightweightCharacter {
     this.npcRenderDistance = renderDistance;
     this.actorModelId = getActorModelId(actorModel);
     this.isBuffed = isBuffedCrate(this.state.position);
+    this.useSimpleStruct = true;
   }
 
   spawnLoot(server: ZoneServer2016) {
@@ -119,9 +121,7 @@ export class Crate extends BaseLightweightCharacter {
           const c = server._clients[a];
           if (
             isPosInRadius(
-              spawnedItem.npcRenderDistance
-                ? spawnedItem.npcRenderDistance
-                : server._charactersRenderDistance,
+              spawnedItem.npcRenderDistance,
               spawnedItem.state.position,
               c.character.state.position
             )
@@ -135,7 +135,7 @@ export class Crate extends BaseLightweightCharacter {
   }
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
-    this.health -= damageInfo.damage;
+    this.damageSimpleNpc(server, damageInfo, server._crates);
     if (this.health > 0) return;
     this.spawnLoot(server);
     server.deleteCrate(this, 255);
