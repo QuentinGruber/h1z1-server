@@ -2850,7 +2850,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   spawnWorkAroundLightWeight(client: Client, entity: BaseLightweightCharacter) {
     const lightWeight = {
-      characterId: entity.characterId,
+      characterId: "0x0000000000000001",
       transientId: entity.transientId,
       actorModelId: entity.actorModelId,
       // fix players / vehicles spawning in ground
