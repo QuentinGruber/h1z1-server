@@ -409,6 +409,8 @@ export class WorldObjectManager {
       });
     });
     Z1_destroyables.forEach((propType: any) => {
+      // disable fences until we find a fix for glitching graphics
+      if (propType.actor_file.toLowerCase().includes("fence")) return;
       propType.instances.forEach((propInstance: any) => {
         const characterId = generateRandomGuid();
         const obj = new Destroyable(
