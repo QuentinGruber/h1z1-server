@@ -55,7 +55,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     } else if (subEntityType === "CollectingEntity") {
       this.subEntity = new CollectingEntity(this, server);
       this.interactionDistance = 5;
-      this.npcRenderDistance = 20; //this.npcRenderDistance = 250;
+      this.npcRenderDistance = 200;
     } else {
       this.npcRenderDistance = 20;
     }
