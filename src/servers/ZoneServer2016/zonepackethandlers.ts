@@ -408,6 +408,18 @@ export class ZonePacketHandlers {
       setTimeout(() => {
         client.isLoading = false;
         if (!client.characterReleased) return;
+        if (
+          client.firstReleased &&
+          client.startingPos &&
+          client.character.state.position[1] < client.startingPos[1]
+        ) {
+          client.firstReleased = false;
+          server.sendData(client, "ClientUpdate.UpdateLocation", {
+            position: client.startingPos,
+            triggerLoadingScreen: false,
+          });
+          client.character.state.position = client.startingPos;
+        }
         server.executeRoutine(client);
       }, 500);
     }

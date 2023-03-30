@@ -1688,10 +1688,48 @@ export class ConstructionManager {
       triggerLoadingScreen: false,
     });
     client.enableChecks = false;
+
     setTimeout(() => {
       client.enableChecks = true;
     }, 500);
+    this.recheckClientInsideShelter(client, server, currentAngle);
     this.checkFoundationPermission(server, client, foundation);
+  }
+
+  recheckClientInsideShelter(
+    client: Client,
+    server: ZoneServer2016,
+    tpDirection: number
+  ) {
+    for (const a in server._constructionSimple) {
+      const simple = server._constructionSimple[a];
+      const shelters = [
+        Items.SHELTER,
+        Items.SHELTER_LARGE,
+        Items.SHELTER_UPPER,
+        Items.SHELTER_UPPER_LARGE,
+      ];
+      if (!shelters.includes(simple.itemDefinitionId)) continue;
+      if (simple.isInside(client.character.state.position)) {
+        const newPos = movePoint(
+          client.character.state.position,
+          tpDirection,
+          2.5
+        );
+        client.character.state.position = new Float32Array([
+          newPos[0],
+          client.character.state.position[1],
+          newPos[2],
+          1,
+        ]);
+        server.sendData(client, "ClientUpdate.UpdateLocation", {
+          position: client.character.state.position,
+          triggerLoadingScreen: false,
+        });
+        this.recheckClientInsideShelter(client, server, tpDirection);
+        return;
+      }
+    }
   }
 
   plantManager(server: ZoneServer2016) {
