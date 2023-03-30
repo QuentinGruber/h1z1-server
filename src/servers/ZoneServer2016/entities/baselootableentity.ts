@@ -69,14 +69,7 @@ export class BaseLootableEntity extends BaseFullCharacter {
     client.character.mountContainer(server, this);
     setTimeout(() => {
       server.sendData(client, "Character.RemovePlayer", {
-        characterId: this.characterId,
-      });
-      server.sendData(client, "Replication.NpcComponent", {
-        transientId: this.transientId,
-        nameId: this.nameId,
-      });
-      server.sendData(client, "Replication.InteractionComponent", {
-        transientId: this.transientId,
+        characterId: "0x0000000000000001",
       });
     }, 1000);
   }

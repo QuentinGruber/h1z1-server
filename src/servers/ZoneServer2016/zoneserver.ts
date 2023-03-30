@@ -795,6 +795,7 @@ export class ZoneServer2016 extends EventEmitter {
       client,
       savedCharacter as FullCharacterSaveData
     );
+    client.startingPos = client.character.state.position;
     this.sendData(client, "SendSelfToClient", {
       data: client.character.pGetSendSelf(this, client.guid, client),
     });
@@ -2850,7 +2851,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   spawnWorkAroundLightWeight(client: Client, entity: BaseLightweightCharacter) {
     const lightWeight = {
-      characterId: entity.characterId,
+      characterId: "0x0000000000000001",
       transientId: entity.transientId,
       actorModelId: entity.actorModelId,
       // fix players / vehicles spawning in ground
@@ -5854,7 +5855,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   firstRoutine(client: Client) {
-    this.constructionManager.constructionPermissionsManager(this, client);
     this.constructionManager.spawnConstructionParentsInRange(this, client);
     this.spawnLoadingGridObjects(client);
     this.spawnCharacters(client);

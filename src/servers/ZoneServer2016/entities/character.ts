@@ -641,7 +641,7 @@ export class Character2016 extends BaseFullCharacter {
     this.updateLoadout(server);
 
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-      objectCharacterId: lootableEntity.characterId,
+      objectCharacterId: "0x0000000000000001",
       containerGuid: container.itemGuid,
       unknownBool1: false,
       itemsData: {

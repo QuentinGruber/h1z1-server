@@ -391,7 +391,7 @@ export const isInsideCube = (
         yi > y != yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
     if (intersect) inside = !inside;
   }
-  return inside && isBetween(y_radius, y_pos1, y_pos2) && y_pos1 > y_pos2;
+  return inside && isBetween(y_radius, y_pos1, y_pos2) && y_pos1 > y_pos2 - 0.2;
 };
 
 export const isPosInRadius = (
