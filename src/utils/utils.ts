@@ -890,3 +890,23 @@ export function removeUntransferableFields(data: any) {
 export function isFloat(number: number) {
   return number % 1 != 0;
 }
+export enum PopulationLevel {
+  LOW = 0,
+  MEDIUM = 1,
+  HIGH = 2,
+  FULL = 3,
+}
+export function getPopulationLevel(
+  currentPop: number,
+  maxPop: number
+): PopulationLevel {
+  if (currentPop >= maxPop) {
+    return PopulationLevel.FULL;
+  } else if (currentPop >= 100) {
+    return PopulationLevel.HIGH;
+  } else if (currentPop >= 50) {
+    return PopulationLevel.MEDIUM;
+  } else {
+    return PopulationLevel.LOW;
+  }
+}
