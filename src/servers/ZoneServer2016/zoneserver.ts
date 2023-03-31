@@ -324,6 +324,9 @@ export class ZoneServer2016 extends EventEmitter {
     this.on("data", this.onZoneDataEvent);
 
     this.on("login", (client) => {
+      if (!this._soloMode) {
+        this.sendZonePopulationUpdate();
+      }
       this.onZoneLoginEvent(client);
     });
 

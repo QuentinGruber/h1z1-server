@@ -181,9 +181,6 @@ export class ZonePacketHandlers {
       });
       client.character.updateEquipment(server); // needed or third person character will be invisible
       client.character.updateLoadout(server); // needed or all loadout context menu entries aren't shown
-      if (!server._soloMode) {
-        server.sendZonePopulationUpdate();
-      }
       // clear /hax run since switching servers doesn't automatically clear it
       server.sendData(client, "Command.RunSpeed", {
         runSpeed: 0,
