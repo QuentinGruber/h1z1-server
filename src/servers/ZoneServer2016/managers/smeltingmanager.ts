@@ -38,9 +38,11 @@ export class SmeltingManager {
   burningTime: number = 60000;
   smeltingTime: number = 40000;
   collectingTickTime: number = 300000; // 5 min x 4 ticks = 20 min to fill water/honey
+  lastBurnTime: number = 0;
   // 5 min x 144 ticks = 12 hours for wax
 
   public async checkSmeltables(server: ZoneServer2016) {
+    this.lastBurnTime = Date.now();
     for (const a in this._smeltingEntities) {
       const entity = this.getTrueEntity(server, this._smeltingEntities[a]);
       if (!entity) {
@@ -59,6 +61,7 @@ export class SmeltingManager {
       if (items.length <= 0) {
         subEntity!.isWorking = false;
         this.extinguish(server, entity, dictionary);
+        continue;
       } else {
         if (!this.checkFuel(server, entity)) {
           this.extinguish(server, entity, dictionary);
@@ -68,6 +71,17 @@ export class SmeltingManager {
           this.smelt(server, entity);
         }
       }
+      server.sendDataToAllWithSpawnedEntity(
+        subEntity!.dictionary,
+        entity.characterId,
+        "Character.PlayWorldCompositeEffect",
+        {
+          characterId: entity.characterId,
+          effectId: entity.subEntity!.workingEffect,
+          position: entity.state.position,
+          unk3: Math.ceil(this.burningTime / 1000),
+        }
+      );
     }
     await Scheduler.wait(this.burningTime);
     this.checkSmeltables(server);
@@ -124,11 +138,11 @@ export class SmeltingManager {
     dictionary: any
   ) {
     delete this._smeltingEntities[entity.characterId];
-    this.sendWorkingEffect(server, 0, entity.characterId, dictionary);
+    //this.sendWorkingEffect(server, 0, entity.characterId, dictionary);
     entity.subEntity!.isWorking = false;
   }
 
-  private sendWorkingEffect(
+  /*private sendWorkingEffect(
     server: ZoneServer2016,
     effect: number,
     characterId: string,
@@ -143,7 +157,7 @@ export class SmeltingManager {
         effectId: effect,
       }
     );
-  }
+  }*/
 
   private checkFuel(
     server: ZoneServer2016,

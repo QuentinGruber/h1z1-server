@@ -5485,15 +5485,22 @@ export class ZoneServer2016 extends EventEmitter {
           if (smeltable.subEntity instanceof SmeltingEntity) {
             if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
+            const effectTime =
+              Math.ceil(this.smeltingManager.burningTime / 1000) -
+              Math.floor(
+                (Date.now() - this.smeltingManager.lastBurnTime) / 1000
+              );
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
             this.sendDataToAllWithSpawnedEntity(
               smeltable.subEntity.dictionary,
               smeltable.characterId,
-              "Command.PlayDialogEffect",
+              "Character.PlayWorldCompositeEffect",
               {
                 characterId: smeltable.characterId,
                 effectId: smeltable.subEntity.workingEffect,
+                position: smeltable.state.position,
+                unk3: effectTime,
               }
             );
           }
@@ -5513,15 +5520,22 @@ export class ZoneServer2016 extends EventEmitter {
           if (smeltable.subEntity instanceof SmeltingEntity) {
             if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
+            const effectTime =
+              Math.ceil(this.smeltingManager.burningTime / 1000) -
+              Math.floor(
+                (Date.now() - this.smeltingManager.lastBurnTime) / 1000
+              );
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
             this.sendDataToAllWithSpawnedEntity(
               smeltable.subEntity.dictionary,
               smeltable.characterId,
-              "Command.PlayDialogEffect",
+              "Character.PlayWorldCompositeEffect",
               {
                 characterId: smeltable.characterId,
                 effectId: smeltable.subEntity.workingEffect,
+                position: smeltable.state.position,
+                unk3: effectTime,
               }
             );
           }
