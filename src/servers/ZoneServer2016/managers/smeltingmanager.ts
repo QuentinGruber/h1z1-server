@@ -57,7 +57,7 @@ export class SmeltingManager {
         continue;
       }
       const items = Object.values(container.items);
-      const dictionary = subEntity?.dictionary;
+      //const dictionary = subEntity?.dictionary;
       if (items.length <= 0) {
         subEntity!.isWorking = false;
         this.extinguish(server, entity /*dictionary*/);
