@@ -2849,19 +2849,25 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
-  spawnWorkAroundLightWeight(client: Client, entity: BaseLightweightCharacter) {
+  spawnWorkAroundLightWeight(client: Client) {
+    const entity = new LootableProp(
+      "0x0000000000000001",
+      0,
+      1,
+      new Float32Array([0, 0, 0, 0]),
+      new Float32Array([0, 0, 0, 0]),
+      this,
+      new Float32Array([0, 0, 0, 0]),
+      0,
+      99999
+    );
+
     const lightWeight = {
-      characterId: "0x0000000000000001",
+      characterId: entity.characterId,
       transientId: entity.transientId,
       actorModelId: entity.actorModelId,
-      // fix players / vehicles spawning in ground
-      position: new Float32Array([
-        entity.state.position[0],
-        entity.state.position[1] - 10,
-        entity.state.position[2],
-        entity.state.position[3],
-      ]),
-      rotation: eul2quat(new Float32Array([entity.state.rotation[1], 0, 0, 0])),
+      position: entity.state.position,
+      rotation: entity.state.rotation,
       scale: entity.scale,
       positionUpdateType: entity.positionUpdateType,
       profileId: entity.profileId,
@@ -2875,11 +2881,6 @@ export class ZoneServer2016 extends EventEmitter {
     };
 
     this.sendData(client, "AddLightweightNpc", lightWeight);
-    setTimeout(() => {
-      this.sendData(client, "Character.RemovePlayer", {
-        characterId: "0x0000000000000001",
-      });
-    }, 1000);
   }
 
   spawnCharacters(client: Client) {
