@@ -60,11 +60,11 @@ export class SmeltingManager {
       const dictionary = subEntity?.dictionary;
       if (items.length <= 0) {
         subEntity!.isWorking = false;
-        this.extinguish(server, entity, dictionary);
+        this.extinguish(server, entity /*dictionary*/);
         continue;
       } else {
         if (!this.checkFuel(server, entity)) {
-          this.extinguish(server, entity, dictionary);
+          this.extinguish(server, entity /*dictionary*/);
           continue;
         } else if (!subEntity!.isSmelting) {
           subEntity!.isSmelting = true;
@@ -134,8 +134,8 @@ export class SmeltingManager {
 
   private extinguish(
     server: ZoneServer2016,
-    entity: LootableConstructionEntity,
-    dictionary: any
+    entity: LootableConstructionEntity
+    //dictionary: any
   ) {
     delete this._smeltingEntities[entity.characterId];
     //this.sendWorkingEffect(server, 0, entity.characterId, dictionary);

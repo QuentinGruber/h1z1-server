@@ -83,7 +83,6 @@ import {
   getDifference,
   logClientActionToMongo,
   removeUntransferableFields,
-  eul2quat,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
