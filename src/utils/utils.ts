@@ -902,9 +902,9 @@ export function getPopulationLevel(
 ): PopulationLevel {
   if (currentPop >= maxPop) {
     return PopulationLevel.FULL;
-  } else if (currentPop >= 100) {
+  } else if (currentPop >= 80) {
     return PopulationLevel.HIGH;
-  } else if (currentPop >= 50) {
+  } else if (currentPop >= 40) {
     return PopulationLevel.MEDIUM;
   } else {
     return PopulationLevel.LOW;
