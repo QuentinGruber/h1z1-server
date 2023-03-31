@@ -83,7 +83,6 @@ import {
   getDifference,
   logClientActionToMongo,
   removeUntransferableFields,
-  eul2quat,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -2849,37 +2848,22 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
-  spawnWorkAroundLightWeight(client: Client, entity: BaseLightweightCharacter) {
+  spawnWorkAroundLightWeight(client: Client) {
     const lightWeight = {
       characterId: "0x0000000000000001",
-      transientId: entity.transientId,
-      actorModelId: entity.actorModelId,
-      // fix players / vehicles spawning in ground
-      position: new Float32Array([
-        entity.state.position[0],
-        entity.state.position[1] - 10,
-        entity.state.position[2],
-        entity.state.position[3],
-      ]),
-      rotation: eul2quat(new Float32Array([entity.state.rotation[1], 0, 0, 0])),
-      scale: entity.scale,
-      positionUpdateType: entity.positionUpdateType,
-      profileId: entity.profileId,
-      isLightweight: entity.isLightweight,
-      flags: {
-        flags1: entity.flags,
-        flags2: entity.flags,
-        flags3: entity.flags,
-      },
-      headActor: entity.headActor,
+      transientId: 0,
+      actorModelId: 1,
+      position: new Float32Array([0, 0, 0, 0]),
+      rotation: new Float32Array([0, 0, 0, 0]),
+      scale: new Float32Array([0, 0, 0, 0]),
+      positionUpdateType: 0,
+      profileId: 0,
+      isLightweight: true,
+      flags: {},
+      headActor: "",
     };
 
     this.sendData(client, "AddLightweightNpc", lightWeight);
-    setTimeout(() => {
-      this.sendData(client, "Character.RemovePlayer", {
-        characterId: "0x0000000000000001",
-      });
-    }, 1000);
   }
 
   spawnCharacters(client: Client) {
@@ -5500,15 +5484,22 @@ export class ZoneServer2016 extends EventEmitter {
           if (smeltable.subEntity instanceof SmeltingEntity) {
             if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
+            const effectTime =
+              Math.ceil(this.smeltingManager.burningTime / 1000) -
+              Math.floor(
+                (Date.now() - this.smeltingManager.lastBurnTime) / 1000
+              );
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
             this.sendDataToAllWithSpawnedEntity(
               smeltable.subEntity.dictionary,
               smeltable.characterId,
-              "Command.PlayDialogEffect",
+              "Character.PlayWorldCompositeEffect",
               {
                 characterId: smeltable.characterId,
                 effectId: smeltable.subEntity.workingEffect,
+                position: smeltable.state.position,
+                unk3: effectTime,
               }
             );
           }
@@ -5528,15 +5519,22 @@ export class ZoneServer2016 extends EventEmitter {
           if (smeltable.subEntity instanceof SmeltingEntity) {
             if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
+            const effectTime =
+              Math.ceil(this.smeltingManager.burningTime / 1000) -
+              Math.floor(
+                (Date.now() - this.smeltingManager.lastBurnTime) / 1000
+              );
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
             this.sendDataToAllWithSpawnedEntity(
               smeltable.subEntity.dictionary,
               smeltable.characterId,
-              "Command.PlayDialogEffect",
+              "Character.PlayWorldCompositeEffect",
               {
                 characterId: smeltable.characterId,
                 effectId: smeltable.subEntity.workingEffect,
+                position: smeltable.state.position,
+                unk3: effectTime,
               }
             );
           }

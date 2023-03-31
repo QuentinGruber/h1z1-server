@@ -138,7 +138,6 @@ export class ZonePacketHandlers {
   ClientFinishedLoading(server: ZoneServer2016, client: Client, packet: any) {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client))
       return;
-
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
@@ -197,6 +196,7 @@ export class ZonePacketHandlers {
         characterId: client.character.characterId,
       });
     }
+    server.spawnWorkAroundLightWeight(client);
     server.setTickRate();
   }
   Security(server: ZoneServer2016, client: Client, packet: any) {
@@ -567,13 +567,6 @@ export class ZonePacketHandlers {
       )
     )
       return;
-    // work around to get external containers working with simpleNpcs
-    if (
-      entity instanceof BaseLootableEntity &&
-      !(entity instanceof Vehicle2016)
-    ) {
-      server.spawnWorkAroundLightWeight(client, entity);
-    }
     entity.OnPlayerSelect(server, client, packet.data.isInstant);
   }
   CommandInteractCancel(server: ZoneServer2016, client: Client, packet: any) {
