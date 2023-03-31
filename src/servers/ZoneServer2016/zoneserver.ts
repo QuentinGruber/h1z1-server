@@ -2850,34 +2850,18 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   spawnWorkAroundLightWeight(client: Client) {
-    const entity = new LootableProp(
-      "0x0000000000000001",
-      0,
-      1,
-      new Float32Array([0, 0, 0, 0]),
-      new Float32Array([0, 0, 0, 0]),
-      this,
-      new Float32Array([0, 0, 0, 0]),
-      0,
-      99999
-    );
-
     const lightWeight = {
-      characterId: entity.characterId,
-      transientId: entity.transientId,
-      actorModelId: entity.actorModelId,
-      position: entity.state.position,
-      rotation: entity.state.rotation,
-      scale: entity.scale,
-      positionUpdateType: entity.positionUpdateType,
-      profileId: entity.profileId,
-      isLightweight: entity.isLightweight,
-      flags: {
-        flags1: entity.flags,
-        flags2: entity.flags,
-        flags3: entity.flags,
-      },
-      headActor: entity.headActor,
+      characterId: "0x0000000000000001",
+      transientId: 0,
+      actorModelId: 1,
+      position: new Float32Array([0, 0, 0, 0]),
+      rotation: new Float32Array([0, 0, 0, 0]),
+      scale: new Float32Array([0, 0, 0, 0]),
+      positionUpdateType: 0,
+      profileId: 0,
+      isLightweight: true,
+      flags: {},
+      headActor: "",
     };
 
     this.sendData(client, "AddLightweightNpc", lightWeight);
