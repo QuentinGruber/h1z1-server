@@ -283,6 +283,7 @@ export class ZoneServer2016 extends EventEmitter {
   worldRoutineRate!: number;
   welcomeMessage!: string;
   adminMessage!: string;
+  enablePacketInputLogging: boolean = false;
 
   constructor(
     serverPort: number,
@@ -400,6 +401,9 @@ export class ZoneServer2016 extends EventEmitter {
     this._gatewayServer.on(
       "tunneldata",
       (client: SOEClient, data: Buffer, flags: number) => {
+        if(!this._soloMode && this.enablePacketInputLogging){
+          this._db.collection("packets").insertOne({data,loginSessionId:this._clients[client.sessionId].loginSessionId})
+        }
         const packet = this._protocol.parse(data, flags);
         if (packet) {
           this.emit("data", this._clients[client.sessionId], packet);
