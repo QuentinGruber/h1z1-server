@@ -487,7 +487,10 @@ export class ConstructionManager {
             // check upper shelters if its not in lower ones
             Object.values(shelter.occupiedShelterSlots).forEach(
               (upperShelter) => {
-                if (upperShelter.isInside(position) || upperShelter.isOn(position)) {
+                if (
+                  upperShelter.isInside(position) ||
+                  upperShelter.isOn(position)
+                ) {
                   freeplaceParentCharacterId = upperShelter.characterId;
                 }
               }
@@ -495,9 +498,12 @@ export class ConstructionManager {
           }
         });
         // for disconnected upper shelters
-        if(!Number(freeplaceParentCharacterId)) {
+        if (!Number(freeplaceParentCharacterId)) {
           Object.values(foundation.freeplaceEntities).forEach((freeplace) => {
-            if (freeplace instanceof ConstructionChildEntity && (freeplace.isInside(position) || freeplace.isOn(position))) {
+            if (
+              freeplace instanceof ConstructionChildEntity &&
+              (freeplace.isInside(position) || freeplace.isOn(position))
+            ) {
               freeplaceParentCharacterId = freeplace.characterId;
             }
           });

@@ -280,10 +280,7 @@ export class ConfigManager {
     //#endregion
 
     //#region smelting
-    const {
-      burnTime,
-      smeltTime
-    } = this.config.smelting;
+    const { burnTime, smeltTime } = this.config.smelting;
     server.smeltingManager.burnTime = burnTime;
     server.smeltingManager.smeltTime = smeltTime;
     //#endregion

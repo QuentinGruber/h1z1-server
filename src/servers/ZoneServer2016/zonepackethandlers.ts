@@ -1900,9 +1900,12 @@ export class ZonePacketHandlers {
                     entity.itemDefinitionId != Items.FOUNDATION_STAIRS
                   ) {
                     if (!client.character.temporaryScrapSoundTimeout) {
-                      client.character.temporaryScrapSoundTimeout = setTimeout(() => {
-                        delete client.character.temporaryScrapSoundTimeout;
-                      }, 375);
+                      client.character.temporaryScrapSoundTimeout = setTimeout(
+                        () => {
+                          delete client.character.temporaryScrapSoundTimeout;
+                        },
+                        375
+                      );
                       server.sendCompositeEffectToAllInRange(
                         15,
                         client.character.characterId,
@@ -1913,19 +1916,32 @@ export class ZonePacketHandlers {
                         entity: "Server.DemoHammer",
                         damage: 250000,
                       };
-                      if(entity instanceof ConstructionParentEntity) {
-                        entity.damageSimpleNpc(server, damageInfo, server._constructionFoundations);
+                      if (entity instanceof ConstructionParentEntity) {
+                        entity.damageSimpleNpc(
+                          server,
+                          damageInfo,
+                          server._constructionFoundations
+                        );
+                      } else if (entity instanceof ConstructionChildEntity) {
+                        entity.damageSimpleNpc(
+                          server,
+                          damageInfo,
+                          server._constructionSimple
+                        );
+                      } else if (entity instanceof ConstructionDoor) {
+                        entity.damageSimpleNpc(
+                          server,
+                          damageInfo,
+                          server._constructionDoors
+                        );
+                      } else if (entity instanceof LootableConstructionEntity) {
+                        entity.damageSimpleNpc(
+                          server,
+                          damageInfo,
+                          server._lootableConstruction
+                        );
                       }
-                      else if (entity instanceof ConstructionChildEntity) {
-                        entity.damageSimpleNpc(server, damageInfo, server._constructionSimple);
-                      }
-                      else if (entity instanceof ConstructionDoor) {
-                        entity.damageSimpleNpc(server, damageInfo, server._constructionDoors);
-                      }
-                      else if (entity instanceof LootableConstructionEntity) {
-                        entity.damageSimpleNpc(server, damageInfo, server._lootableConstruction);
-                      }
-                      
+
                       if (entity.health > 0) return;
                       entity.destroy(server);
                     }
