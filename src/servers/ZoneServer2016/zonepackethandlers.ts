@@ -1813,6 +1813,32 @@ export class ZonePacketHandlers {
               ) {
                 vehicle.damage(server, { entity: "", damage: -2000 });
                 server.damageItem(client, weaponItem, 40);
+                if (Math.abs(vehicle.positionUpdate.sideTilt) > 2) {
+                  let c: Client | undefined;
+                  for (const a in server._clients) {
+                    if (
+                      server._clients[a].managedObjects.includes(
+                        vehicle.characterId
+                      )
+                    ) {
+                      c = server._clients[a];
+                    }
+                  }
+                  if (c) {
+                    vehicle.positionUpdate.sideTilt = 0;
+                    server.sendData(c, "ClientUpdate.UpdateManagedLocation", {
+                      characterId: vehicle.characterId,
+                      position: vehicle.state.position,
+                      rotation: eul2quat(
+                        new Float32Array([
+                          vehicle.positionUpdate.orientation,
+                          vehicle.positionUpdate.sideTilt,
+                          vehicle.positionUpdate.frontTilt,
+                        ])
+                      ),
+                    });
+                  }
+                }
                 client.character.temporaryScrapTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapTimeout;
                 }, 300);
