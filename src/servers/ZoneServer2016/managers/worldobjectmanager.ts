@@ -28,7 +28,7 @@ import {
   generateRandomGuid,
   isPosInRadius,
   randomIntFromInterval,
-  isQuat,
+  fixEulerOrder,
 } from "../../../utils/utils";
 import {
   EquipSlots,
@@ -375,7 +375,7 @@ export class WorldObjectManager {
           server.getTransientId(characterId), // need transient generated for Interaction Replication
           propType.modelId,
           propInstance.position,
-          isQuat(propInstance.rotation),
+          fixEulerOrder(propInstance.rotation),
           server,
           propInstance.scale,
           propInstance.id,

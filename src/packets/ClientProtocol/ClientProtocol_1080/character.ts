@@ -449,7 +449,7 @@ export const characterPackets: any = [
           type: "floatvector4",
           defaultValue: [0, 0, 0, 0],
         },
-        { name: "unk3", type: "uint32", defaultValue: 0 },
+        { name: "unk3", type: "float", defaultValue: 0 },
       ],
     },
   ],

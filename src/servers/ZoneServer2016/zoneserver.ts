@@ -83,7 +83,6 @@ import {
   getDifference,
   logClientActionToMongo,
   removeUntransferableFields,
-  eul2quat,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -284,6 +283,7 @@ export class ZoneServer2016 extends EventEmitter {
   worldRoutineRate!: number;
   welcomeMessage!: string;
   adminMessage!: string;
+  enablePacketInputLogging: boolean = false;
 
   constructor(
     serverPort: number,
@@ -325,6 +325,9 @@ export class ZoneServer2016 extends EventEmitter {
     this.on("data", this.onZoneDataEvent);
 
     this.on("login", (client) => {
+      if (!this._soloMode) {
+        this.sendZonePopulationUpdate();
+      }
       this.onZoneLoginEvent(client);
     });
 
@@ -398,6 +401,12 @@ export class ZoneServer2016 extends EventEmitter {
     this._gatewayServer.on(
       "tunneldata",
       (client: SOEClient, data: Buffer, flags: number) => {
+        if (!this._soloMode && this.enablePacketInputLogging) {
+          this._db.collection("packets").insertOne({
+            data,
+            loginSessionId: this._clients[client.sessionId].loginSessionId,
+          });
+        }
         const packet = this._protocol.parse(data, flags);
         if (packet) {
           this.emit("data", this._clients[client.sessionId], packet);
@@ -795,6 +804,7 @@ export class ZoneServer2016 extends EventEmitter {
       client,
       savedCharacter as FullCharacterSaveData
     );
+    client.startingPos = client.character.state.position;
     this.sendData(client, "SendSelfToClient", {
       data: client.character.pGetSendSelf(this, client.guid, client),
     });
@@ -2848,29 +2858,19 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "AddSimpleNpc", entity.pGetSimpleNpc());
   }
 
-  spawnWorkAroundLightWeight(client: Client, entity: BaseLightweightCharacter) {
+  spawnWorkAroundLightWeight(client: Client) {
     const lightWeight = {
-      characterId: entity.characterId,
-      transientId: entity.transientId,
-      actorModelId: entity.actorModelId,
-      // fix players / vehicles spawning in ground
-      position: new Float32Array([
-        entity.state.position[0],
-        entity.state.position[1] - 10,
-        entity.state.position[2],
-        entity.state.position[3],
-      ]),
-      rotation: eul2quat(new Float32Array([entity.state.rotation[1], 0, 0, 0])),
-      scale: entity.scale,
-      positionUpdateType: entity.positionUpdateType,
-      profileId: entity.profileId,
-      isLightweight: entity.isLightweight,
-      flags: {
-        flags1: entity.flags,
-        flags2: entity.flags,
-        flags3: entity.flags,
-      },
-      headActor: entity.headActor,
+      characterId: "0x0000000000000001",
+      transientId: 0,
+      actorModelId: 1,
+      position: new Float32Array([0, 0, 0, 0]),
+      rotation: new Float32Array([0, 0, 0, 0]),
+      scale: new Float32Array([0, 0, 0, 0]),
+      positionUpdateType: 0,
+      profileId: 0,
+      isLightweight: true,
+      flags: {},
+      headActor: "",
     };
 
     this.sendData(client, "AddLightweightNpc", lightWeight);
@@ -5494,15 +5494,22 @@ export class ZoneServer2016 extends EventEmitter {
           if (smeltable.subEntity instanceof SmeltingEntity) {
             if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
+            const effectTime =
+              Math.ceil(this.smeltingManager.burningTime / 1000) -
+              Math.floor(
+                (Date.now() - this.smeltingManager.lastBurnTime) / 1000
+              );
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
             this.sendDataToAllWithSpawnedEntity(
               smeltable.subEntity.dictionary,
               smeltable.characterId,
-              "Command.PlayDialogEffect",
+              "Character.PlayWorldCompositeEffect",
               {
                 characterId: smeltable.characterId,
                 effectId: smeltable.subEntity.workingEffect,
+                position: smeltable.state.position,
+                unk3: effectTime,
               }
             );
           }
@@ -5522,15 +5529,22 @@ export class ZoneServer2016 extends EventEmitter {
           if (smeltable.subEntity instanceof SmeltingEntity) {
             if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
+            const effectTime =
+              Math.ceil(this.smeltingManager.burningTime / 1000) -
+              Math.floor(
+                (Date.now() - this.smeltingManager.lastBurnTime) / 1000
+              );
             this.smeltingManager._smeltingEntities[smeltable.characterId] =
               smeltable.characterId;
             this.sendDataToAllWithSpawnedEntity(
               smeltable.subEntity.dictionary,
               smeltable.characterId,
-              "Command.PlayDialogEffect",
+              "Character.PlayWorldCompositeEffect",
               {
                 characterId: smeltable.characterId,
                 effectId: smeltable.subEntity.workingEffect,
+                position: smeltable.state.position,
+                unk3: effectTime,
               }
             );
           }
@@ -5854,7 +5868,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   firstRoutine(client: Client) {
-    this.constructionManager.constructionPermissionsManager(this, client);
     this.constructionManager.spawnConstructionParentsInRange(this, client);
     this.spawnLoadingGridObjects(client);
     this.spawnCharacters(client);

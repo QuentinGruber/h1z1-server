@@ -138,7 +138,6 @@ export class ZonePacketHandlers {
   ClientFinishedLoading(server: ZoneServer2016, client: Client, packet: any) {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client))
       return;
-
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
@@ -182,9 +181,6 @@ export class ZonePacketHandlers {
       });
       client.character.updateEquipment(server); // needed or third person character will be invisible
       client.character.updateLoadout(server); // needed or all loadout context menu entries aren't shown
-      if (!server._soloMode) {
-        server.sendZonePopulationUpdate();
-      }
       // clear /hax run since switching servers doesn't automatically clear it
       server.sendData(client, "Command.RunSpeed", {
         runSpeed: 0,
@@ -197,6 +193,7 @@ export class ZonePacketHandlers {
         characterId: client.character.characterId,
       });
     }
+    server.spawnWorkAroundLightWeight(client);
     server.setTickRate();
   }
   Security(server: ZoneServer2016, client: Client, packet: any) {
@@ -408,6 +405,19 @@ export class ZonePacketHandlers {
       setTimeout(() => {
         client.isLoading = false;
         if (!client.characterReleased) return;
+        if (
+          client.firstReleased &&
+          client.startingPos &&
+          client.character.state.position[1] < client.startingPos[1]
+        ) {
+          client.firstReleased = false;
+          server.sendData(client, "ClientUpdate.UpdateLocation", {
+            position: client.startingPos,
+            triggerLoadingScreen: false,
+          });
+          client.character.state.position = client.startingPos;
+        }
+        client.firstReleased = false;
         server.executeRoutine(client);
       }, 500);
     }
@@ -554,10 +564,6 @@ export class ZonePacketHandlers {
       )
     )
       return;
-    // work around to get external containers working with simpleNpcs
-    if (entity instanceof BaseLootableEntity) {
-      server.spawnWorkAroundLightWeight(client, entity);
-    }
     entity.OnPlayerSelect(server, client, packet.data.isInstant);
   }
   CommandInteractCancel(server: ZoneServer2016, client: Client, packet: any) {
@@ -1807,6 +1813,32 @@ export class ZonePacketHandlers {
               ) {
                 vehicle.damage(server, { entity: "", damage: -2000 });
                 server.damageItem(client, weaponItem, 40);
+                if (Math.abs(vehicle.positionUpdate.sideTilt) > 2) {
+                  let c: Client | undefined;
+                  for (const a in server._clients) {
+                    if (
+                      server._clients[a].managedObjects.includes(
+                        vehicle.characterId
+                      )
+                    ) {
+                      c = server._clients[a];
+                    }
+                  }
+                  if (c) {
+                    vehicle.positionUpdate.sideTilt = 0;
+                    server.sendData(c, "ClientUpdate.UpdateManagedLocation", {
+                      characterId: vehicle.characterId,
+                      position: vehicle.state.position,
+                      rotation: eul2quat(
+                        new Float32Array([
+                          vehicle.positionUpdate.orientation,
+                          vehicle.positionUpdate.sideTilt,
+                          vehicle.positionUpdate.frontTilt,
+                        ])
+                      ),
+                    });
+                  }
+                }
                 client.character.temporaryScrapTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapTimeout;
                 }, 300);
