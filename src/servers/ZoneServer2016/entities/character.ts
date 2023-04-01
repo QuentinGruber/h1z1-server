@@ -938,7 +938,7 @@ export class Character2016 extends BaseFullCharacter {
       );
     }
 
-    c.character.damage(server, {
+    this.damage(server, {
       ...damageInfo,
       damage: damage,
       causeBleed: !(canStopBleed && this.hasArmor(server)),
