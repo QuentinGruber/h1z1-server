@@ -5488,7 +5488,7 @@ export class ZoneServer2016 extends EventEmitter {
             if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
             const effectTime =
-              Math.ceil(this.smeltingManager.burningTime / 1000) -
+              Math.ceil(this.smeltingManager.burnTime / 1000) -
               Math.floor(
                 (Date.now() - this.smeltingManager.lastBurnTime) / 1000
               );
@@ -5523,7 +5523,7 @@ export class ZoneServer2016 extends EventEmitter {
             if (smeltable.subEntity.isWorking) continue;
             smeltable.subEntity.isWorking = true;
             const effectTime =
-              Math.ceil(this.smeltingManager.burningTime / 1000) -
+              Math.ceil(this.smeltingManager.burnTime / 1000) -
               Math.floor(
                 (Date.now() - this.smeltingManager.lastBurnTime) / 1000
               );

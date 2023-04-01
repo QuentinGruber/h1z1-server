@@ -278,5 +278,14 @@ export class ConfigManager {
     server.decayManager.maxVehiclesPerArea = maxVehiclesPerArea;
     server.decayManager.vehicleDamageRange = vehicleDamageRange;
     //#endregion
+
+    //#region smelting
+    const {
+      burnTime,
+      smeltTime
+    } = this.config.smelting;
+    server.smeltingManager.burnTime = burnTime;
+    server.smeltingManager.smeltTime = smeltTime;
+    //#endregion
   }
 }
