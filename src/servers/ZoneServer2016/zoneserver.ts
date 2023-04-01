@@ -401,8 +401,13 @@ export class ZoneServer2016 extends EventEmitter {
     this._gatewayServer.on(
       "tunneldata",
       (client: SOEClient, data: Buffer, flags: number) => {
-        if(!this._soloMode && this.enablePacketInputLogging){
-          this._db.collection("packets").insertOne({data,loginSessionId:this._clients[client.sessionId].loginSessionId})
+        if (!this._soloMode && this.enablePacketInputLogging) {
+          this._db
+            .collection("packets")
+            .insertOne({
+              data,
+              loginSessionId: this._clients[client.sessionId].loginSessionId,
+            });
         }
         const packet = this._protocol.parse(data, flags);
         if (packet) {
