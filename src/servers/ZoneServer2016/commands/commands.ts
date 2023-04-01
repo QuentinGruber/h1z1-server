@@ -1623,7 +1623,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "debug",
-    permissionLevel: PermissionLevels.ADMIN,
+    permissionLevel: PermissionLevels.MODERATOR,
     execute: async (server: ZoneServer2016, client: Client) => {
       client.isDebugMode = !client.isDebugMode;
       server.sendAlert(client, `Set debug mode to ${client.isDebugMode}`);
