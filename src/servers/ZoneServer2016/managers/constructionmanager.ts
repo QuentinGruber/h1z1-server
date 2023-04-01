@@ -106,7 +106,6 @@ export class ConstructionManager {
 
   detectStackedPlacement(
     server: ZoneServer2016,
-    client: Client,
     parentObjectCharacterId: string,
     position: Float32Array,
     itemDefinitionId: number
@@ -348,7 +347,6 @@ export class ConstructionManager {
     if (
       this.detectStackedPlacement(
         server,
-        client,
         parentObjectCharacterId,
         position,
         itemDefinitionId
@@ -482,20 +480,28 @@ export class ConstructionManager {
         }
         // check if inside a shelter even if not inside foundation (large shelters can extend it)
         Object.values(foundation.occupiedShelterSlots).forEach((shelter) => {
-          if (shelter.isInside(position)) {
+          if (shelter.isInside(position) || shelter.isOn(position)) {
             freeplaceParentCharacterId = shelter.characterId;
           }
           if (!Number(freeplaceParentCharacterId)) {
             // check upper shelters if its not in lower ones
             Object.values(shelter.occupiedShelterSlots).forEach(
               (upperShelter) => {
-                if (upperShelter.isInside(position)) {
+                if (upperShelter.isInside(position) || upperShelter.isOn(position)) {
                   freeplaceParentCharacterId = upperShelter.characterId;
                 }
               }
             );
           }
         });
+        // for disconnected upper shelters
+        if(!Number(freeplaceParentCharacterId)) {
+          Object.values(foundation.freeplaceEntities).forEach((freeplace) => {
+            if (freeplace instanceof ConstructionChildEntity && (freeplace.isInside(position) || freeplace.isOn(position))) {
+              freeplaceParentCharacterId = freeplace.characterId;
+            }
+          });
+        }
       }
     }
     if (server._constructionSimple[parentObjectCharacterId]) {
