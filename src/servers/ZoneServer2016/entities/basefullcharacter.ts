@@ -15,6 +15,7 @@ import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
 import { characterEquipment, DamageInfo } from "../../../types/zoneserver";
 import { LoadoutKit } from "../data/loadouts";
 import {
+  ContainerErrors,
   ItemClasses,
   Items,
   LoadoutSlots,
@@ -28,6 +29,7 @@ import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { LoadoutItem } from "../classes/loadoutItem";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { Weapon } from "../classes/weapon";
+import { _ } from "../../../utils/utils";
 
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
@@ -490,6 +492,53 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         );
       }
     });
+  }
+
+  equipContainerItem(server: ZoneServer2016, item: BaseItem, slotId: number, sourceCharacter: BaseFullCharacter = this) {
+    // equips an existing item from a container
+
+    const client = server.getClientByContainerAccessor(this);
+
+    if (
+      this._containers[slotId] &&
+      _.size(this._containers[slotId].items) != 0
+    ) {
+      if(client) server.sendChatText(client, "[ERROR] Container must be empty to unequip!");
+      return;
+    }
+
+    const oldLoadoutItem = sourceCharacter._loadout[slotId],
+      container = sourceCharacter.getItemContainer(item.itemGuid);
+    if ((!oldLoadoutItem || !oldLoadoutItem.itemDefinitionId) && !container) {
+      if(client) server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
+      return;
+    }
+    if (!server.removeContainerItem(sourceCharacter, item, container, 1)) {
+      if(client) server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+      return;
+    }
+    if (oldLoadoutItem?.itemDefinitionId) {
+      // if target loadoutSlot is occupied
+      if (oldLoadoutItem.itemGuid == item.itemGuid) {
+        if(client) server.sendChatText(client, "[ERROR] Item is already equipped!");
+        return;
+      }
+      if (!server.removeLoadoutItem(sourceCharacter, oldLoadoutItem.slotId)) {
+        if(client) server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+        return;
+      }
+      this.lootContainerItem(
+        server,
+        oldLoadoutItem,
+        undefined,
+        false
+      );
+    }
+    if (item.weapon) {
+      clearTimeout(item.weapon.reloadTimer);
+      delete item.weapon.reloadTimer;
+    }
+    this.equipItem(server, item, true, slotId);
   }
 
   getDeathItems(server: ZoneServer2016) {

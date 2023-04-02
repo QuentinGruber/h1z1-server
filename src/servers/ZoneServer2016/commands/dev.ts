@@ -666,22 +666,15 @@ const dev: any = {
 
     server.initializeContainerList(client, vehicle);
 
-    Object.values(vehicle._loadout).forEach((item) => {
-      server.sendData(client, "ClientUpdate.ItemAdd", {
-        characterId: client.character.characterId,
-        data: vehicle.pGetItemData(server, item, 101),
-      });
-    });
-
     vehicle.updateLoadout(server);
     
     server.sendData(client, "AccessedCharacter.Unknown1", {
       characterId: characterId,
       containerGuid: client.character.characterId//"",// vehicle.getContainer()?.itemGuid || "",
     });
-
+    /*
     server.sendData(client, "AccessedCharacter.Unknown2", {
-      characterId: vehicle.characterId,
+      characterId: characterId,//vehicle.characterId,
       itemsData: {
         items: Object.values(vehicle._loadout).map((item) => {
           return vehicle.pGetItemData(
@@ -693,7 +686,7 @@ const dev: any = {
         unknownDword1: 101//container.containerDefinitionId,
       },
     });
-
+    */
     /*
     Object.values(vehicle._loadout).forEach((item) => {
       server.sendData(client, "ClientUpdate.ItemAdd", {
@@ -703,9 +696,20 @@ const dev: any = {
     });
     */
 
+    Object.values(vehicle._loadout).forEach((item) => {
+      server.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: characterId,
+        data: {
+          ...vehicle.pGetItemData(server, item, 101),
+          //containerGuid: "0xfffffffffffffffe",
+          //unknownBoolean1: false,
+        }
+      });
+    });
+
     Object.values(container.items).forEach((item) => {
       server.sendData(client, "ClientUpdate.ItemAdd", {
-        characterId: client.character.characterId,
+        characterId: characterId,
         data: vehicle.pGetItemData(server, item, container.containerDefinitionId),
       });
     });

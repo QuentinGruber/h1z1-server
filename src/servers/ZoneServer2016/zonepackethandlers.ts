@@ -1306,7 +1306,7 @@ export class ZonePacketHandlers {
               loadoutSlotId = server.getLoadoutSlot(item.itemDefinitionId);
             }
             client.character.currentLoadoutSlot = loadoutSlotId;
-            server.equipContainerItem(client.character, item, loadoutSlotId);
+            client.character.equipContainerItem(server, item, loadoutSlotId);
           } else {
             if (!activeSlotId) {
               server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
@@ -1333,8 +1333,8 @@ export class ZonePacketHandlers {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
-          server.equipContainerItem(
-            client.character,
+          client.character.equipContainerItem(
+            server,
             item,
             server.getLoadoutSlot(item.itemDefinitionId)
           );
@@ -1457,7 +1457,7 @@ export class ZonePacketHandlers {
                 client.character.loadoutId
               )
             ) {*/
-              server.equipContainerItem(client.character, item, newSlotId);
+            client.character.equipContainerItem(server, item, newSlotId);
             //}
           } else {
             // invalid
@@ -1564,7 +1564,7 @@ export class ZonePacketHandlers {
               targetCharacter.loadoutId
             )
           ) {
-            server.equipContainerItem(targetCharacter, item, newSlotId);
+          targetCharacter.equipContainerItem(server, item, newSlotId, client.character);
           }
 
           return;

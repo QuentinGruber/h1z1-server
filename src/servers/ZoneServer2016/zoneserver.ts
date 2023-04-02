@@ -4180,53 +4180,6 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  equipContainerItem(character: BaseFullCharacter, item: BaseItem, slotId: number) {
-    // equips an existing item from a container
-
-    const client = this.getClientByContainerAccessor(character);
-
-    if (
-      character._containers[slotId] &&
-      _.size(character._containers[slotId].items) != 0
-    ) {
-      if(client) this.sendChatText(client, "[ERROR] Container must be empty to unequip!");
-      return;
-    }
-
-    const oldLoadoutItem = character._loadout[slotId],
-      container = character.getItemContainer(item.itemGuid);
-    if ((!oldLoadoutItem || !oldLoadoutItem.itemDefinitionId) && !container) {
-      if(client) this.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
-      return;
-    }
-    if (!this.removeContainerItem(character, item, container, 1)) {
-      if(client) this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-      return;
-    }
-    if (oldLoadoutItem?.itemDefinitionId) {
-      // if target loadoutSlot is occupied
-      if (oldLoadoutItem.itemGuid == item.itemGuid) {
-        if(client) this.sendChatText(client, "[ERROR] Item is already equipped!");
-        return;
-      }
-      if (!this.removeLoadoutItem(character, oldLoadoutItem.slotId)) {
-        if(client) this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-        return;
-      }
-      character.lootContainerItem(
-        this,
-        oldLoadoutItem,
-        undefined,
-        false
-      );
-    }
-    if (item.weapon) {
-      clearTimeout(item.weapon.reloadTimer);
-      delete item.weapon.reloadTimer;
-    }
-    character.equipItem(this, item, true, slotId);
-  }
-
   generateRandomEquipmentsFromAnEntity(
     entity: BaseFullCharacter,
     slots: number[],
@@ -4475,6 +4428,7 @@ export class ZoneServer2016 extends EventEmitter {
     loadoutSlotId: number,
     loadoutId: number
   ): boolean {
+    return true; // debug
     if (!this.getItemDefinition(itemDefinitionId)?.FLAG_CAN_EQUIP) return false;
     return !!loadoutSlotItemClasses.find(
       (slot: any) =>
@@ -5694,7 +5648,7 @@ export class ZoneServer2016 extends EventEmitter {
     delete require.cache[require.resolve("./zonepackethandlers")];
     this._packetHandlers = new (
       require("./zonepackethandlers") as any
-    ).zonePacketHandlers();
+    ).ZonePacketHandlers();
     await this._packetHandlers.reloadCommandCache();
   }
   generateGuid(): string {
