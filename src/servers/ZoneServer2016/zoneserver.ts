@@ -404,6 +404,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (!this._soloMode && this.enablePacketInputLogging) {
           this._db.collection("packets").insertOne({
             data,
+            flags,
             loginSessionId: this._clients[client.sessionId].loginSessionId,
           });
         }
