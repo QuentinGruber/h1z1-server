@@ -4621,7 +4621,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (client) this.deleteItem(client, item.itemGuid);
     } else if (item.stackCount > count) {
       item.stackCount -= count;
-      if (client) this.updateContainerItem(client, item, container);
+      if (client) this.updateContainerItem(character, item, container);
     } else {
       // if count > removeItem.stackCount
       return false;
@@ -4918,20 +4918,22 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   updateContainerItem(
-    client: Client,
+    character: BaseFullCharacter,
     item: BaseItem,
     container?: LoadoutContainer
   ) {
+    const client = this.getClientByContainerAccessor(character);
+    if(!client) return;
     if (!container || !client.character.initialized) return;
     this.sendData(client, "ClientUpdate.ItemUpdate", {
-      characterId: client.character.characterId,
-      data: client.character.pGetItemData(
+      characterId: character.characterId,
+      data: character.pGetItemData(
         this,
         item,
         container.containerDefinitionId
       ),
     });
-    this.updateContainer(client.character, container);
+    this.updateContainer(character, container);
   }
 
   /**

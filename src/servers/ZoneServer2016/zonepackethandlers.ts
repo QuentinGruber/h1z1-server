@@ -1409,7 +1409,7 @@ export class ZonePacketHandlers {
     if (characterId == client.character.characterId) {
       // from client container
       if (characterId == targetCharacterId) {
-        // from / to client or mounted container
+        // from / to client container
         const sourceContainer = client.character.getItemContainer(itemGuid),
           targetContainer =
             client.character.getContainerFromGuid(containerGuid);
@@ -1532,7 +1532,6 @@ export class ZonePacketHandlers {
         }
       } else {
         // to external container
-        // not used for now with the external container workaround
         console.log("TO EXTERNAL CONTAINER")
         console.log(packet.data);
 
@@ -1598,7 +1597,25 @@ export class ZonePacketHandlers {
       }
     } else {
       // from external container
-      // not used for now with the external container workaround
+      console.log("FROM EXTERNAL CONTAINER")
+        console.log(packet.data);
+      
+      const sourceCharacter = server.getEntity(characterId);
+      if(!(sourceCharacter instanceof BaseFullCharacter)) {
+
+        return;
+      }
+      const sourceContainer = sourceCharacter.getItemContainer(itemGuid);
+      if(!sourceContainer) {
+
+        return;
+      }
+      const item = sourceContainer.items[itemGuid];
+
+      if(!Number(containerGuid)) {
+        client.character.lootItem(server, item, item.stackCount, true);
+      }
+
     }
   }
   LoadoutSelectSlot(server: ZoneServer2016, client: Client, packet: any) {

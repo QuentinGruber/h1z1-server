@@ -450,7 +450,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       itemStack.stackCount += count;
       if (!client) return;
 
-      server.updateContainerItem(client, itemStack, availableContainer);
+      server.updateContainerItem(this, itemStack, availableContainer);
       if (sendUpdate && client.character.initialized) {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,

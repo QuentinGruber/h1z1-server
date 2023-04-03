@@ -37,7 +37,6 @@ import {
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
-import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { characterDefaultLoadout } from "../data/loadouts";
 import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
 const stats = require("../../../../data/2016/sampleData/stats.json");
@@ -677,6 +676,7 @@ export class Character2016 extends BaseFullCharacter {
     server.initializeContainerList(client);
   }
 
+  /*
   getItemContainer(itemGuid: string): LoadoutContainer | undefined {
     // returns the container that an item is contained in
     let c;
@@ -685,11 +685,6 @@ export class Character2016 extends BaseFullCharacter {
         c = container;
         break;
       }
-    }
-    // check mounted container
-    if (!c && this.mountedContainer) {
-      const container = this.mountedContainer.getContainer();
-      if (container && container.items[itemGuid]) return container;
     }
     return c;
   }
@@ -709,6 +704,7 @@ export class Character2016 extends BaseFullCharacter {
     }
     return c;
   }
+  */
 
   getStats() {
     return stats.map((stat: any) => {

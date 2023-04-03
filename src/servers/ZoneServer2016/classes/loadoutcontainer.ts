@@ -11,9 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { BaseLootableEntity } from "../entities/baselootableentity";
-import { Character2016 } from "../entities/character";
-import { Vehicle2016 } from "../entities/vehicle";
+import { BaseFullCharacter } from "../entities/basefullcharacter";
 import { ContainerErrors } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
@@ -28,7 +26,7 @@ function combineItemStack(
   targetContainer: LoadoutContainer,
   item: BaseItem,
   count: number,
-  targetCharacter: BaseLootableEntity | Vehicle2016 | Character2016
+  targetCharacter: BaseFullCharacter
 ) {
   if (oldStackCount == count) {
     // if full stack is moved
@@ -155,17 +153,22 @@ export class LoadoutContainer extends LoadoutItem {
   ) {
     if (!count) count = item.stackCount;
     const oldStackCount = item.stackCount; // saves stack count before it gets altered
-
+    
     let client;
 
-    const lootableEntity = server.getLootableEntity(this.loadoutItemOwnerGuid);
-    if (lootableEntity) {
-      const mountedCharacterId = lootableEntity.mountedCharacter;
-      if (mountedCharacterId)
-        client = server.getClientByCharId(mountedCharacterId);
-    } else {
-      client = server.getClientByCharId(this.loadoutItemOwnerGuid);
+    const sourceCharacter = server.getEntity(this.loadoutItemOwnerGuid),
+    targetCharacter = server.getEntity(targetContainer.loadoutItemOwnerGuid);
+
+    if(
+      !(sourceCharacter instanceof BaseFullCharacter) || 
+      //!(sourceCharacter instanceof BaseLootableEntity) ||
+      !(targetCharacter instanceof BaseFullCharacter) 
+      //!(targetCharacter instanceof BaseLootableEntity)
+    ) {
+      return;
     }
+
+    client = server.getClientByCharId(sourceCharacter.characterId) || server.getClientByCharId(targetCharacter.characterId)
 
     if (!client) return;
 
@@ -194,7 +197,7 @@ export class LoadoutContainer extends LoadoutItem {
       // allows items in the same container but different stacks to be stacked
       return;
     }
-    if (!server.removeContainerItem(client.character, item, this, count)) {
+    if (!server.removeContainerItem(sourceCharacter, item, this, count)) {
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
@@ -211,7 +214,7 @@ export class LoadoutContainer extends LoadoutItem {
       // add to existing item stack
       const item = targetContainer.items[itemStack];
       item.stackCount += count;
-      server.updateContainerItem(client, item, targetContainer);
+      server.updateContainerItem(targetCharacter, item, targetContainer);
     } else {
       // add item to end
       combineItemStack(
@@ -221,7 +224,7 @@ export class LoadoutContainer extends LoadoutItem {
         targetContainer,
         item,
         count,
-        lootableEntity ? lootableEntity : client.character
+        targetCharacter
       );
     }
   }
