@@ -468,6 +468,11 @@ export const commands: Array<Command> = [
       let time = Number(args[2]) ? Number(args[2]) * 60000 : 0;
       if (time > 0) {
         time += Date.now();
+        const damageInfo: DamageInfo = {
+          entity: client.character.characterId,
+          damage: 999999999,
+        };
+        server.killCharacter(targetClient, damageInfo);
         server.sendChatText(
           client,
           `You have silently banned ${
@@ -518,6 +523,11 @@ export const commands: Array<Command> = [
       let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
       if (time > 0) {
         time += Date.now();
+        const damageInfo: DamageInfo = {
+          entity: client.character.characterId,
+          damage: 999999999,
+        };
+        server.killCharacter(targetClient, damageInfo);
         server.sendChatText(
           client,
           `You have banned ${
