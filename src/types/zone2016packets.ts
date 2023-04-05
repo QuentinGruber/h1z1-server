@@ -2163,8 +2163,8 @@ export interface RagdollUnk {
   characterId?: string;
   unk1?: number;
   unkArray1?: any[];
-  unk1?: number;
-  unkArray1?: any[];
+  unk2?: number;
+  unkArray2?: any[];
 }
 export interface SpectatorEnable {
 }

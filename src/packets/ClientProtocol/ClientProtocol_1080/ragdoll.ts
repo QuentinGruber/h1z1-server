@@ -75,9 +75,9 @@ export const ragdollPackets: any = [
             },
           ],
         },
-        { name: "unk1", type: "int32", defaultValue: 1 },
+        { name: "unk2", type: "int32", defaultValue: 1 },
         {
-          name: "unkArray1",
+          name: "unkArray2",
           type: "array",
           defaultValue: [],
           fields: [

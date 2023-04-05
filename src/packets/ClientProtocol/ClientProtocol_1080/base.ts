@@ -3183,7 +3183,6 @@ export const basePackets: any = [
       ],
     },
   ],
-  ["Ragdoll", 0xce, {}],
   ["CharacterState", 0xd0, {}],
   [
     "AddLightweightPc",
