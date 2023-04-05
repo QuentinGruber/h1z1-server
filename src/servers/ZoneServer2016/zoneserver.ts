@@ -1014,7 +1014,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
-    this.weatherManager.forceTime(this, 971172000000); // force day time by default - not working for now
     this.weatherManager.weather =
       this.weatherManager.templates[this.weatherManager.defaultTemplate];
     this.weatherManager.seasonstart();
