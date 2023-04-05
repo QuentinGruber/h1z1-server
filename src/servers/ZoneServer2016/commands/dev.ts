@@ -635,33 +635,8 @@ const dev: any = {
       server.sendChatText(client, "No container!");
       return;
     }
-    console.log(characterId);
-    /*
-    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-      objectCharacterId: vehicle.getContainer()?.itemGuid || "",
-      containerGuid: vehicle.getContainer()?.itemGuid || "",
-      unknownBool1: true,
-      itemsData: {
-        items: [],
-        unknownDword1: 92,
-      },
-    });
-    */
-    /*server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-      objectCharacterId: vehicle.characterId,
-      containerGuid: container.itemGuid,
-      unknownBool1: false,
-      itemsData: {
-        items: Object.values(container.items).map((item) => {
-          return vehicle.pGetItemData(
-            server,
-            item,
-            container.containerDefinitionId
-          )
-        }),
-        unknownDword1: container.containerDefinitionId,
-      },
-    });*/
+
+   console.log(characterId);
    console.log(vehicle?.getContainer()?.itemGuid);
 
     server.initializeContainerList(client, vehicle);
@@ -672,37 +647,12 @@ const dev: any = {
       characterId: characterId,
       containerGuid: client.character.characterId//"",// vehicle.getContainer()?.itemGuid || "",
     });
-    /*
-    server.sendData(client, "AccessedCharacter.Unknown2", {
-      characterId: characterId,//vehicle.characterId,
-      itemsData: {
-        items: Object.values(vehicle._loadout).map((item) => {
-          return vehicle.pGetItemData(
-            server,
-            item,
-            101//container.containerDefinitionId
-          )
-        }),
-        unknownDword1: 101//container.containerDefinitionId,
-      },
-    });
-    */
-    /*
-    Object.values(vehicle._loadout).forEach((item) => {
-      server.sendData(client, "ClientUpdate.ItemAdd", {
-        characterId: client.character.characterId,
-        data: vehicle.pGetItemData(server, item, 101),
-      });
-    });
-    */
 
     Object.values(vehicle._loadout).forEach((item) => {
       server.sendData(client, "ClientUpdate.ItemAdd", {
         characterId: characterId,
         data: {
           ...vehicle.pGetItemData(server, item, 101),
-          //containerGuid: "0xfffffffffffffffe",
-          //unknownBoolean1: false,
         }
       });
     });
@@ -713,24 +663,6 @@ const dev: any = {
         data: vehicle.pGetItemData(server, item, container.containerDefinitionId),
       });
     });
-
-   /*
-    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-      objectCharacterId: vehicle.characterId,
-      containerGuid: client.character.characterId,//container.itemGuid,
-      unknownBool1: false ,
-      itemsData: {
-        items: Object.values(vehicle._loadout).map((item) => {
-          return vehicle.pGetItemData(
-            server,
-            item,
-            101//container.containerDefinitionId
-          )
-        }),
-        unknownDword1: 101//container.containerDefinitionId,
-      },
-    });
-    */
   },
 
   stop: function (server: ZoneServer2016, client: Client, args: Array<string>) {
@@ -845,6 +777,65 @@ const dev: any = {
       return;
     }
 
+    Object.values(lootableEntity._loadout).forEach((item) => {
+      server.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: lootableEntity.characterId,
+        data: {
+          ...lootableEntity.pGetItemData(server, item, 101),
+        }
+      });
+    });
+
+
+    server.initializeContainerList(client, lootableEntity);
+
+    lootableEntity.updateLoadout(server);
+    
+    
+    server.sendData(client, "AccessedCharacter.Unknown1", {
+      characterId: lootableEntity.characterId,
+      containerGuid: client.character.characterId//"",// vehicle.getContainer()?.itemGuid || "",
+    });
+    
+
+    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+      objectCharacterId: lootableEntity.characterId,
+      containerGuid: client.character.characterId,//container.itemGuid,
+      unknownBool1: false,
+      itemsData: {
+        items: Object.values(container.items).map((item) => {
+          return lootableEntity.pGetItemData(
+            server,
+            item,
+            container.containerDefinitionId
+          )
+        }),
+        unknownDword1: 92, // idk
+      },
+    });
+    /*
+    Object.values(lootableEntity._loadout).forEach((item) => {
+      server.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: lootableEntity.characterId,
+        data: {
+          ...lootableEntity.pGetItemData(server, item, 101),
+        }
+      });
+    });
+    */
+
+    Object.values(container.items).forEach((item) => {
+      server.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: lootableEntity.characterId,
+        data: lootableEntity.pGetItemData(server, item, container.containerDefinitionId),
+      });
+    });
+
+
+
+    /*
+
+
     server.initializeContainerList(client, lootableEntity);
 
     Object.values(lootableEntity._loadout).forEach((item) => {
@@ -862,6 +853,7 @@ const dev: any = {
       containerGuid: client.character.characterId//"",// vehicle.getContainer()?.itemGuid || "",
     });
     */
+   /*
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId: lootableEntity.characterId,
       containerGuid: container.itemGuid,
@@ -894,13 +886,14 @@ const dev: any = {
       });
     });
     */
-
+    /*
     Object.values(container.items).forEach((item) => {
       server.sendData(client, "ClientUpdate.ItemAdd", {
         characterId: client.character.characterId,
         data: lootableEntity.pGetItemData(server, item, container.containerDefinitionId),
       });
     });
+    */
   },
   groupjoin: function (
     server: ZoneServer2016,

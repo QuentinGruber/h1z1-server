@@ -79,7 +79,7 @@ export const characterBuildKitLoadout = [
 
 export const vehicleDefaultLoadouts = {
   offroader: [
-    { item: Items.VEHICLE_CONTAINER_OFFROADER/*CONTAINER_VEHICLE_OFFROADER*/ },
+    { item: Items.CONTAINER_VEHICLE_OFFROADER },
     { item: Items.VEHICLE_MOTOR_OFFROADER },
     { item: Items.VEHICLE_HOTWIRE },
     { item: Items.VEHICLE_HORN },

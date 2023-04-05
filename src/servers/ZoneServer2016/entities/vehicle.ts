@@ -354,13 +354,13 @@ export class Vehicle2016 extends BaseLootableEntity {
   getInventoryItemId(): number {
     switch (this.loadoutId) {
       case LoadoutIds.VEHICLE_OFFROADER:
-        return Items.VEHICLE_CONTAINER_OFFROADER;
+        return Items.CONTAINER_VEHICLE_OFFROADER;
       case LoadoutIds.VEHICLE_PICKUP:
-        return Items.VEHICLE_CONTAINER_PICKUP;
+        return Items.CONTAINER_VEHICLE_PICKUP;
       case LoadoutIds.VEHICLE_POLICECAR:
-        return Items.VEHICLE_CONTAINER_POLICECAR;
+        return Items.CONTAINER_VEHICLE_POLICECAR;
       case LoadoutIds.VEHICLE_ATV:
-        return Items.VEHICLE_CONTAINER_ATV;
+        return Items.CONTAINER_VEHICLE_ATV;
       default:
         return 0;
     }
