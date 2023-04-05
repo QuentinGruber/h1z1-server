@@ -19,6 +19,7 @@ const Z1_npcs = require("../../../../data/2016/zoneData/Z1_npcs.json");
 const Z1_lootableProps = require("../../../../data/2016/zoneData/Z1_lootableProps.json");
 const Z1_taskProps = require("../../../../data/2016/zoneData/Z1_taskProps.json");
 const Z1_crates = require("../../../../data/2016/zoneData/Z1_crates.json");
+const Z1_destroyables = require("../../../../data/2016/zoneData/Z1_destroyables.json");
 const models = require("../../../../data/2016/dataSources/Models.json");
 const bannedZombieModels = require("../../../../data/2016/sampleData/bannedZombiesModels.json");
 import {
@@ -27,7 +28,7 @@ import {
   generateRandomGuid,
   isPosInRadius,
   randomIntFromInterval,
-  isQuat,
+  fixEulerOrder,
 } from "../../../utils/utils";
 import {
   EquipSlots,
@@ -55,6 +56,7 @@ import { LootableProp } from "../entities/lootableprop";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { TaskProp } from "../entities/taskprop";
 import { Crate } from "../entities/crate";
+import { Destroyable } from "../entities/destroyable";
 const debug = require("debug")("ZoneServer");
 
 function getRandomSkin(itemDefinitionId: number) {
@@ -125,6 +127,7 @@ export class WorldObjectManager {
   itemDespawnTimer!: number;
   lootDespawnTimer!: number;
   deadNpcDespawnTimer!: number;
+  lootbagDespawnTimer!: number;
 
   vehicleSpawnRadius!: number;
   npcSpawnRadius!: number;
@@ -177,7 +180,62 @@ export class WorldObjectManager {
       this.createVehicles(server);
       this._lastVehicleRespawnTime = Date.now();
     }
+
+    this.despawnEntities(server);
   }
+
+  private npcDespawner(server: ZoneServer2016) {
+    for (const characterId in server._npcs) {
+      const npc = server._npcs[characterId];
+      // dead npc despawner
+      if (
+        npc.flags.knockedOut &&
+        Date.now() - npc.deathTime >= this.deadNpcDespawnTimer
+      ) {
+        server.deleteEntity(npc.characterId, server._npcs);
+      }
+    }
+  }
+
+  private lootbagDespawner(server: ZoneServer2016) {
+    for (const characterId in server._lootbags) {
+      // lootbag despawner
+      const lootbag = server._lootbags[characterId];
+      if (Date.now() - lootbag.creationTime >= this.lootbagDespawnTimer) {
+        server.deleteEntity(lootbag.characterId, server._lootbags);
+      }
+    }
+  }
+
+  private itemDespawner(server: ZoneServer2016) {
+    for (const characterId in server._spawnedItems) {
+      const itemObject = server._spawnedItems[characterId];
+      if (!itemObject) return;
+      // dropped item despawner
+      const despawnTime =
+        itemObject.spawnerId == -1
+          ? this.itemDespawnTimer
+          : this.lootDespawnTimer;
+      if (Date.now() - itemObject.creationTime >= despawnTime) {
+        server.deleteEntity(itemObject.characterId, server._spawnedItems);
+        if (itemObject.spawnerId != -1)
+          delete this.spawnedLootObjects[itemObject.spawnerId];
+        server.sendCompositeEffectToAllWithSpawnedEntity(
+          server._spawnedItems,
+          itemObject,
+          server.getItemDefinition(itemObject.item.itemDefinitionId)
+            .PICKUP_EFFECT ?? 5151
+        );
+      }
+    }
+  }
+
+  private despawnEntities(server: ZoneServer2016) {
+    this.npcDespawner(server);
+    this.lootbagDespawner(server);
+    this.itemDespawner(server);
+  }
+
   private equipRandomSkins(
     server: ZoneServer2016,
     entity: BaseFullCharacter,
@@ -292,7 +350,12 @@ export class WorldObjectManager {
           server.getTransientId(characterId), // need transient generated for Interaction Replication
           propInstance.modelId,
           propInstance.position,
-          propInstance.rotation,
+          new Float32Array([
+            propInstance.rotation[1],
+            propInstance.rotation[0],
+            propInstance.rotation[2],
+            0,
+          ]),
           server,
           propInstance.scale,
           propInstance.id,
@@ -312,7 +375,7 @@ export class WorldObjectManager {
           server.getTransientId(characterId), // need transient generated for Interaction Replication
           propType.modelId,
           propInstance.position,
-          isQuat(propInstance.rotation),
+          fixEulerOrder(propInstance.rotation),
           server,
           propInstance.scale,
           propInstance.id,
@@ -327,10 +390,15 @@ export class WorldObjectManager {
         const characterId = generateRandomGuid();
         const obj = new Crate(
           characterId,
-          server.getTransientId(characterId), // need transient generated for Interaction Replication
+          1, // need transient generated for Interaction Replication
           propType.modelId,
           propInstance.position,
-          isQuat(propInstance.rotation),
+          new Float32Array([
+            propInstance.rotation[1],
+            propInstance.rotation[0],
+            propInstance.rotation[2],
+            0,
+          ]),
           server,
           propInstance.scale,
           propInstance.zoneId,
@@ -338,6 +406,32 @@ export class WorldObjectManager {
           propType.actorDefinition
         );
         server._crates[characterId] = obj;
+      });
+    });
+    Z1_destroyables.forEach((propType: any) => {
+      // disable fences until we find a fix for glitching graphics
+      if (propType.actor_file.toLowerCase().includes("fence")) return;
+      propType.instances.forEach((propInstance: any) => {
+        const characterId = generateRandomGuid();
+        const obj = new Destroyable(
+          characterId,
+          1, // need transient generated for Interaction Replication
+          propInstance.modelId,
+          propInstance.position,
+          new Float32Array([
+            propInstance.rotation[1],
+            propInstance.rotation[0],
+            propInstance.rotation[2],
+            0,
+          ]),
+          server,
+          propInstance.scale,
+          propInstance.id,
+          propType.renderDistance,
+          propType.actor_file
+        );
+        server._destroyables[characterId] = obj;
+        server._destroyableDTOlist.push(propInstance.id);
       });
     });
     debug("All props created");
@@ -404,8 +498,8 @@ export class WorldObjectManager {
 
   createVehicles(server: ZoneServer2016) {
     if (_.size(server._vehicles) >= this.vehicleSpawnCap) return;
-    const respawnAmount = Math.floor(
-      (this.vehicleSpawnCap - _.size(server._vehicles)) / 5
+    const respawnAmount = Math.ceil(
+      (this.vehicleSpawnCap - _.size(server._vehicles)) / 8
     );
     for (let x = 0; x < respawnAmount; x++) {
       const dataVehicle =

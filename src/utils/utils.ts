@@ -163,6 +163,10 @@ export function eul2quatLegacy(angle: number[]) {
   return [qx, qy, -qz, qw];
 }
 
+export function fixEulerOrder(rotation: Float32Array): Float32Array {
+  return new Float32Array([0, rotation[0], 0, 0]);
+}
+
 export function movePoint(
   position: Float32Array,
   angle: number,
@@ -387,7 +391,7 @@ export const isInsideCube = (
         yi > y != yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
     if (intersect) inside = !inside;
   }
-  return inside && isBetween(y_radius, y_pos1, y_pos2) && y_pos1 > y_pos2;
+  return inside && isBetween(y_radius, y_pos1, y_pos2) && y_pos1 > y_pos2 - 0.2;
 };
 
 export const isPosInRadius = (
@@ -806,8 +810,8 @@ export function registerConstructionSlots(
           1,
         ]),
         rotation: new Float32Array([
-          construction.eulerAngle + slots.rotationOffsets[i],
           0,
+          construction.eulerAngle + slots.rotationOffsets[i],
           0,
         ]),
       };
@@ -885,4 +889,24 @@ export function removeUntransferableFields(data: any) {
 
 export function isFloat(number: number) {
   return number % 1 != 0;
+}
+export enum PopulationLevel {
+  LOW = 0,
+  MEDIUM = 1,
+  HIGH = 2,
+  FULL = 3,
+}
+export function getPopulationLevel(
+  currentPop: number,
+  maxPop: number
+): PopulationLevel {
+  if (currentPop >= maxPop) {
+    return PopulationLevel.FULL;
+  } else if (currentPop >= 70) {
+    return PopulationLevel.HIGH;
+  } else if (currentPop >= 25) {
+    return PopulationLevel.MEDIUM;
+  } else {
+    return PopulationLevel.LOW;
+  }
 }

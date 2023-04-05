@@ -26,6 +26,7 @@ import {
   setupAppDataFolder,
   isValidCharacterName,
   resolveHostAddress,
+  getPopulationLevel,
 } from "../../utils/utils";
 import { GameServer } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
@@ -187,7 +188,7 @@ export class LoginServer extends EventEmitter {
                     let status = 0;
                     const server = await this._db
                       .collection(DB_COLLECTIONS.SERVERS)
-                      .findOne({ serverId: serverId });
+                      .findOne({ serverId: serverId, isDisabled: false });
                     if (server) {
                       const fullServerAddress = server.serverAddress;
                       const serverAddress = fullServerAddress.split(":")[0];
@@ -235,10 +236,9 @@ export class LoginServer extends EventEmitter {
                         {
                           $set: {
                             populationNumber: population,
-                            populationLevel: Number(
-                              ((population / maxPopulationNumber) * 3).toFixed(
-                                0
-                              )
+                            populationLevel: getPopulationLevel(
+                              population,
+                              maxPopulationNumber
                             ),
                           },
                         }
@@ -660,7 +660,7 @@ export class LoginServer extends EventEmitter {
   }
 
   async ServerListRequest(client: Client) {
-    let servers;
+    let servers: any[];
     if (!this._soloMode) {
       servers = await this._db
         .collection(DB_COLLECTIONS.SERVERS)
@@ -668,12 +668,16 @@ export class LoginServer extends EventEmitter {
           gameVersion: client.gameVersion,
         })
         .toArray();
-      servers = servers.map((server: any) => {
-        if (server.locked) {
-          server.allowedAccess = false;
-        }
-        return server;
-      });
+      servers = servers
+        .map((server: any) => {
+          if (server.locked) {
+            server.allowedAccess = false;
+          }
+          return server;
+        })
+        .filter((v) => {
+          return !v.isDisabled;
+        });
     } else {
       switch (client.gameVersion) {
         default:

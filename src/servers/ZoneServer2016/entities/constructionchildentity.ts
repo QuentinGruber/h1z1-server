@@ -54,7 +54,6 @@ import {
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ConstructionParentEntity } from "./constructionparententity";
-import { eul2quat } from "../../../utils/utils";
 import {
   ConstructionSlots,
   shelterSlotDefinitions,
@@ -80,6 +79,7 @@ function getDamageRange(definitionId: number): number {
 
 export class ConstructionChildEntity extends BaseLightweightCharacter {
   health: number = 1000000;
+  maxHealth: number = 1000000;
   readonly itemDefinitionId: number;
   parentObjectCharacterId: string;
   eulerAngle: number;
@@ -91,6 +91,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly bounds?: SquareBounds;
   undoPlacementTime = 600000;
   interactionDistance = 4;
+  destroyedEffect: number = 242;
 
   // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
   readonly wallSlots: ConstructionSlotPositionMap = {};
@@ -129,8 +130,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       this.state.rotation = rotation;
       this.eulerAngle = overrideEulerAngle;
     } else {
-      this.state.rotation = eul2quat(rotation);
-      this.eulerAngle = rotation[0];
+      this.state.rotation = rotation;
+      this.eulerAngle = rotation[1];
     }
     this.itemDefinitionId = itemDefinitionId;
     this.parentObjectCharacterId = parentObjectCharacterId;
@@ -139,6 +140,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.damageRange = getDamageRange(this.itemDefinitionId);
     this.isSecured = this.itemDefinitionId == Items.METAL_WALL ? true : false;
     this.npcRenderDistance = getRenderDistance(this.itemDefinitionId);
+    this.useSimpleStruct = true;
+
+    if (this.itemDefinitionId == Items.SLEEPING_MAT) {
+      this.maxHealth = 10000;
+      this.health = 10000;
+      this.destroyedEffect = 0;
+    }
 
     registerConstructionSlots(this, this.wallSlots, wallSlotDefinitions);
     Object.seal(this.wallSlots);
@@ -151,7 +159,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     registerConstructionSlots(this, this.shelterSlots, shelterSlotDefinitions);
     Object.seal(this.shelterSlots);
 
-    const angle = -this.eulerAngle;
+    const angle = -this.state.rotation[1];
     switch (itemDefinitionId) {
       case Items.SHELTER_LARGE:
       case Items.SHELTER_UPPER_LARGE:
@@ -374,6 +382,21 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     this.health -= damageInfo.damage;
   }
 
+  damageSimpleNpc(
+    server: ZoneServer2016,
+    damageInfo: DamageInfo,
+    dictionary: any
+  ) {
+    // todo: redo this
+    this.health -= damageInfo.damage;
+    server.sendDataToAllWithSpawnedEntity(
+      dictionary,
+      this.characterId,
+      "Character.UpdateSimpleProxyHealth",
+      this.pGetSimpleProxyHealth()
+    );
+  }
+
   isInside(position: Float32Array) {
     if (!this.bounds) {
       switch (this.itemDefinitionId) {
@@ -398,7 +421,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           this.bounds,
           position[1],
           this.state.position[1],
-          2
+          1.8
         );
       default:
         return false;
@@ -411,7 +434,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       server._constructionSimple[this.characterId]
         ? server._constructionSimple
         : server._worldSimpleConstruction,
-      242,
+      this.destroyedEffect,
       destructTime
     );
     const parent = this.getParent(server);

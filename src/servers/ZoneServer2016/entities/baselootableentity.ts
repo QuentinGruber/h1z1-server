@@ -31,6 +31,7 @@ export class BaseLootableEntity extends BaseFullCharacter {
   ) {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this.isLootbag = actorModelId == 9581 || actorModelId == 9391;
+    this.useSimpleStruct = true;
   }
 
   getContainer(): LoadoutContainer | undefined {

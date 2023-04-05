@@ -59,6 +59,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
   readonly rampSlots: ConstructionSlotPositionMap = {};
   occupiedRampSlots: { [slot: number]: ConstructionChildEntity } = {};
+  lastDamagedTimestamp: number = 0;
 
   readonly itemDefinitionId: number;
   readonly slot: string;
@@ -93,7 +94,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     );
     this.health = 1000000;
     this.ownerCharacterId = ownerCharacterId;
-
+    this.useSimpleStruct = true;
     if (itemDefinitionId != Items.FOUNDATION_EXPANSION) {
       const ownerPermission: ConstructionPermissions = {
         characterId: ownerCharacterId,

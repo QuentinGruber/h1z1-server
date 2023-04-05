@@ -20,32 +20,33 @@ import { ConstructionParentEntity } from "../entities/constructionparententity";
 import { Vehicle2016 } from "../entities/vehicle";
 
 export class DecayManager {
-  loopTime = 1200000; // 20 min
-  constructionTicks = 0; // used to run structure damaging once every x loops
-  constructionDamageTicks = 36; // damage structures once every 12 hours
+  constructionDamageTickCount = 0; // used to run structure damaging once every x loops
+  vehicleDamageTickCount = 0; // used to run vehicle damaging once every x loops
 
-  vehicleDamageTicks = 3; // 1 hour
-  vehicleTicks = 0; // used to run vehicle damaging once every x loops
-
-  // the max amount of vehicles that can be in an area before they start taking more damage
-  maxAreaVehicles = 2;
-  closeVehicleRange = 25;
+  /* MANAGED BY CONFIGMANAGER */
+  decayTickInterval!: number;
+  constructionDamageTicks!: number;
+  baseConstructionDamage!: number;
+  vehicleDamageTicks!: number;
+  baseVehicleDamage!: number;
+  maxVehiclesPerArea!: number;
+  vehicleDamageRange!: number;
 
   public async run(server: ZoneServer2016) {
     this.contructionExpirationCheck(server);
-    if (this.constructionTicks >= this.constructionDamageTicks) {
+    if (this.constructionDamageTickCount >= this.constructionDamageTicks) {
       this.contructionDecayDamage(server);
-      this.constructionTicks = -1;
+      this.constructionDamageTickCount = -1;
     }
-    this.constructionTicks++;
+    this.constructionDamageTickCount++;
 
-    if (this.vehicleTicks >= this.vehicleDamageTicks) {
+    if (this.vehicleDamageTickCount >= this.vehicleDamageTicks) {
       this.vehicleDecayDamage(server);
-      this.vehicleTicks = -1;
+      this.vehicleDamageTickCount = -1;
     }
-    this.vehicleTicks++;
+    this.vehicleDamageTickCount++;
 
-    await Scheduler.wait(this.loopTime);
+    await Scheduler.wait(this.decayTickInterval);
     this.run(server);
   }
 
@@ -114,10 +115,21 @@ export class DecayManager {
   ) {
     const dictionary = server.getConstructionDictionary(entity.characterId);
     if (!dictionary[entity.characterId]) return;
-    entity.damage(server, {
-      entity: "Server.DecayManager",
-      damage: 125000,
-    });
+    if (entity.useSimpleStruct) {
+      entity.damageSimpleNpc(
+        server,
+        {
+          entity: "Server.DecayManager",
+          damage: this.baseConstructionDamage,
+        },
+        dictionary
+      );
+    } else {
+      entity.damage(server, {
+        entity: "Server.DecayManager",
+        damage: this.baseConstructionDamage,
+      });
+    }
     server.updateResourceToAllWithSpawnedEntity(
       entity.characterId,
       entity.health,
@@ -170,7 +182,7 @@ export class DecayManager {
       if (!vehicle) continue;
       if (
         getDistance(vehicle.state.position, v.state.position) <=
-        this.closeVehicleRange
+        this.vehicleDamageRange
       ) {
         vehicles.push(v.characterId);
       }
@@ -182,11 +194,10 @@ export class DecayManager {
     for (const characterId in server._vehicles) {
       const vehicle = server._vehicles[characterId];
       if (!vehicle) continue;
-      const baseDamage = 3000, // 3%
-        closeVehicles = this.getCloseVehicles(server, vehicle);
-      let damage = baseDamage;
-      if (closeVehicles.length > this.maxAreaVehicles) {
-        damage *= closeVehicles.length - this.maxAreaVehicles + 1;
+      const closeVehicles = this.getCloseVehicles(server, vehicle);
+      let damage = this.baseVehicleDamage;
+      if (closeVehicles.length > this.maxVehiclesPerArea) {
+        damage *= closeVehicles.length - this.maxVehiclesPerArea + 1;
       }
       vehicle.damage(server, {
         entity: "Server.DecayManager",

@@ -68,6 +68,7 @@ import { Character2016 } from "./entities/character";
 import { Crate } from "./entities/crate";
 import { OBSERVER_GUID } from "../../utils/constants";
 import { BaseLootableEntity } from "./entities/baselootableentity";
+import { Destroyable } from "./entities/destroyable";
 
 export class ZonePacketHandlers {
   commandHandler: CommandHandler;
@@ -94,7 +95,7 @@ export class ZonePacketHandlers {
       decalAlias: "#"
     });
     */
-
+    server.firstRoutine(client);
     server.setGodMode(client, true);
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
@@ -102,7 +103,14 @@ export class ZonePacketHandlers {
     }); // Required for WaitForWorldReady
 
     // Required for WaitForWorldReady
-    server.sendData(client, "ClientUpdate.NetworkProximityUpdatesComplete", {});
+    setTimeout(() => {
+      // makes loading longer but gives game time to spawn objects and reduce lag
+      server.sendData(
+        client,
+        "ClientUpdate.NetworkProximityUpdatesComplete",
+        {}
+      );
+    }, 5000);
 
     server.customizeDTO(client);
 
@@ -130,7 +138,6 @@ export class ZonePacketHandlers {
   ClientFinishedLoading(server: ZoneServer2016, client: Client, packet: any) {
     if (!server.hookManager.checkHook("OnClientFinishedLoading", client))
       return;
-
     server.tempGodMode(client, 15000);
     client.currentPOI = 0; // clears currentPOI for POIManager
     server.sendGameTimeSync(client);
@@ -174,9 +181,6 @@ export class ZonePacketHandlers {
       });
       client.character.updateEquipment(server); // needed or third person character will be invisible
       client.character.updateLoadout(server); // needed or all loadout context menu entries aren't shown
-      if (!server._soloMode) {
-        server.sendZonePopulationUpdate();
-      }
       // clear /hax run since switching servers doesn't automatically clear it
       server.sendData(client, "Command.RunSpeed", {
         runSpeed: 0,
@@ -189,6 +193,7 @@ export class ZonePacketHandlers {
         characterId: client.character.characterId,
       });
     }
+    server.spawnWorkAroundLightWeight(client);
     server.setTickRate();
   }
   Security(server: ZoneServer2016, client: Client, packet: any) {
@@ -224,6 +229,25 @@ export class ZonePacketHandlers {
   CollisionDamage(server: ZoneServer2016, client: Client, packet: any) {
     if (packet.data.objectCharacterId != client.character.characterId) {
       const objVehicle = server._vehicles[packet.data.objectCharacterId];
+      if (objVehicle && objVehicle.engineRPM > 4500) {
+        for (const a in server._destroyables) {
+          const destroyable = server._destroyables[a];
+          if (destroyable.destroyedModel) continue;
+          if (
+            !isPosInRadius(
+              4.5,
+              destroyable.state.position,
+              packet.data.position
+            )
+          )
+            continue;
+          const damageInfo: DamageInfo = {
+            entity: `${objVehicle.characterId} collision`,
+            damage: 1000000,
+          };
+          destroyable.OnProjectileHit(server, damageInfo);
+        }
+      }
       if (objVehicle && packet.data.characterId != objVehicle.characterId) {
         if (objVehicle.getNextSeatId(server) == "0") return;
       }
@@ -381,6 +405,19 @@ export class ZonePacketHandlers {
       setTimeout(() => {
         client.isLoading = false;
         if (!client.characterReleased) return;
+        if (
+          client.firstReleased &&
+          client.startingPos &&
+          client.character.state.position[1] < client.startingPos[1]
+        ) {
+          client.firstReleased = false;
+          server.sendData(client, "ClientUpdate.UpdateLocation", {
+            position: client.startingPos,
+            triggerLoadingScreen: false,
+          });
+          client.character.state.position = client.startingPos;
+        }
+        client.firstReleased = false;
         server.executeRoutine(client);
       }, 500);
     }
@@ -527,7 +564,6 @@ export class ZonePacketHandlers {
       )
     )
       return;
-
     entity.OnPlayerSelect(server, client, packet.data.isInstant);
   }
   CommandInteractCancel(server: ZoneServer2016, client: Client, packet: any) {
@@ -643,6 +679,22 @@ export class ZonePacketHandlers {
     }
     // for cheaters spawning cars on top of peoples heads
     if (!client.managedObjects.includes(vehicle.characterId)) return;
+    if (!client.character.isAlive) {
+      client.blockedPositionUpdates += 1;
+      if (client.blockedPositionUpdates >= 50) {
+        server.updateCharacterState(
+          client,
+          client.character.characterId,
+          client.character.characterStates,
+          false
+        );
+        server.sendData(client, "Character.StartMultiStateDeath", {
+          characterId: client.character.characterId,
+        });
+        client.blockedPositionUpdates = 0;
+        return;
+      }
+    } else client.blockedPositionUpdates = 0;
     if (packet.data.positionUpdate.position) {
       if (
         server.fairPlayManager.checkVehicleSpeed(
@@ -786,6 +838,21 @@ export class ZonePacketHandlers {
       // head rotation when in vehicle, client spams this packet every 1ms even if you dont move, disabled for now(it doesnt work anyway)
       return;
     }
+    if (!client.character.isAlive) {
+      client.blockedPositionUpdates += 1;
+      if (client.blockedPositionUpdates >= 30) {
+        server.updateCharacterState(
+          client,
+          client.character.characterId,
+          client.character.characterStates,
+          false
+        );
+        server.sendData(client, "Character.StartMultiStateDeath", {
+          characterId: client.character.characterId,
+        });
+        return;
+      }
+    } else client.blockedPositionUpdates = 0;
     if (packet.data.stance) {
       if (
         packet.data.stance == Stances.STANCE_XS ||
@@ -970,9 +1037,7 @@ export class ZonePacketHandlers {
     );
   }
   SpectatorTeleport(server: ZoneServer2016, client: Client, packet: any) {
-    client.managedObjects?.forEach((characterId: any) => {
-      server.dropVehicleManager(client, characterId);
-    });
+    server.dropAllManagedObjects(client);
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: [packet.data.x, 355, packet.data.y, 1],
       triggerLoadingScreen: false,
@@ -1102,11 +1167,16 @@ export class ZonePacketHandlers {
 
     client.character.currentInteractionGuid = packet.data.guid;
     client.character.lastInteractionTime = Date.now();
-    if (entity instanceof BaseLightweightCharacter) {
+    if (
+      entity instanceof BaseLightweightCharacter &&
+      !(entity instanceof Destroyable) &&
+      !client.sentInteractionData.includes(entity)
+    ) {
       server.sendData(client, "Replication.NpcComponent", {
         transientId: entity.transientId,
         nameId: entity.nameId,
       });
+      client.sentInteractionData.push(entity);
       if (
         !(
           entity instanceof ConstructionParentEntity ||
@@ -1822,6 +1892,32 @@ export class ZonePacketHandlers {
               ) {
                 vehicle.damage(server, { entity: "", damage: -2000 });
                 server.damageItem(client, weaponItem, 40);
+                if (Math.abs(vehicle.positionUpdate.sideTilt) > 2) {
+                  let c: Client | undefined;
+                  for (const a in server._clients) {
+                    if (
+                      server._clients[a].managedObjects.includes(
+                        vehicle.characterId
+                      )
+                    ) {
+                      c = server._clients[a];
+                    }
+                  }
+                  if (c) {
+                    vehicle.positionUpdate.sideTilt = 0;
+                    server.sendData(c, "ClientUpdate.UpdateManagedLocation", {
+                      characterId: vehicle.characterId,
+                      position: vehicle.state.position,
+                      rotation: eul2quat(
+                        new Float32Array([
+                          vehicle.positionUpdate.orientation,
+                          vehicle.positionUpdate.sideTilt,
+                          vehicle.positionUpdate.frontTilt,
+                        ])
+                      ),
+                    });
+                  }
+                }
                 client.character.temporaryScrapTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapTimeout;
                 }, 300);
@@ -1899,8 +1995,15 @@ export class ZonePacketHandlers {
                     server,
                     server.generateItem(entity.itemDefinitionId)
                   );
+                  entity.destroy(server);
+                } else {
+                  if (
+                    entity.itemDefinitionId != Items.FOUNDATION_RAMP &&
+                    entity.itemDefinitionId != Items.FOUNDATION_STAIRS
+                  ) {
+                    entity.destroy(server);
+                  }
                 }
-                entity.destroy(server);
               } else {
                 server.constructionManager.placementError(
                   server,
@@ -1940,10 +2043,48 @@ export class ZonePacketHandlers {
               if (!client.character.temporaryScrapSoundTimeout) {
                 client.character.temporaryScrapSoundTimeout = setTimeout(() => {
                   delete client.character.temporaryScrapSoundTimeout;
-                }, 300);
+                }, 375);
+                server.sendCompositeEffectToAllInRange(
+                  15,
+                  client.character.characterId,
+                  entity.state.position,
+                  1667
+                );
                 const damageInfo: DamageInfo = {
                   entity: "Server.WorkAroundMelee",
-                  damage: 1000,
+                  damage: 1250,
+                };
+                entity.OnProjectileHit(server, damageInfo);
+              }
+            }
+          }
+
+          // windows damaging workaround
+          if (client.character.currentInteractionGuid) {
+            const entity =
+              server._destroyables[client.character.currentInteractionGuid];
+            if (
+              entity &&
+              entity.destroyedModel &&
+              isPosInRadius(
+                3,
+                entity.state.position,
+                client.character.state.position
+              )
+            ) {
+              if (!client.character.temporaryScrapSoundTimeout) {
+                client.character.temporaryScrapSoundTimeout = setTimeout(() => {
+                  delete client.character.temporaryScrapSoundTimeout;
+                }, 210);
+                server.sendCompositeEffectToAllInRange(
+                  15,
+                  client.character.characterId,
+                  entity.state.position,
+                  1663
+                );
+                const damageInfo: DamageInfo = {
+                  entity: "Server.WorkAroundMelee",
+                  damage: 700,
                 };
                 entity.OnProjectileHit(server, damageInfo);
               }
@@ -2011,11 +2152,36 @@ export class ZonePacketHandlers {
           if (weaponItem.weapon.ammoCount > 0) {
             weaponItem.weapon.ammoCount -= 1;
           }
+          if (
+            !client.vehicle.mountedVehicle &&
+            server.fairPlayManager.fairPlayValues
+          ) {
+            if (
+              getDistance(client.character.state.position, p.packet.position) >
+              server.fairPlayManager.fairPlayValues?.maxPositionDesync
+            ) {
+              server.sendChatText(
+                client,
+                `FairPlay: Your shot didnt register due to position desync`
+              );
+              server.sendChatTextToAdmins(
+                `FairPlay: ${
+                  client.character.name
+                }'s shot didnt register due to position desync by ${getDistance(
+                  client.character.state.position,
+                  p.packet.position
+                )}`
+              );
+            }
+          }
           const drift = Math.abs(p.gameTime - server.getServerTime());
           if (drift > server.fairPlayManager.maxPing + 200) {
             server.sendChatText(
               client,
-              `FairPlay: Your shots didnt register due to packet loss`
+              `FairPlay: Your shot didnt register due to packet loss or high ping`
+            );
+            server.sendChatTextToAdmins(
+              `FairPlay: ${client.character.name}'s shot wasnt registered due to time drift by ${drift}`
             );
             return;
           }

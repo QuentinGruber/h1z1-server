@@ -16,7 +16,8 @@
         "populationNumber": 0,
         "maxPopulationNumber": 100,
         "gameVersion": 1,
-        "serverVersionTag": "2015"
+        "serverVersionTag": "2015",
+        "isDisabled": false
       },
       {
         "serverId": 2,
@@ -35,7 +36,8 @@
         "populationNumber": 0,
         "maxPopulationNumber": 100,
         "gameVersion": 2,
-        "serverVersionTag": "2016"
+        "serverVersionTag": "2016",
+        "isDisabled": false
       },
       {
         "serverId": 3,
@@ -54,6 +56,7 @@
         "populationNumber": 0,
         "maxPopulationNumber": 100,
         "gameVersion": 3,
-        "serverVersionTag": "KOTK"
+        "serverVersionTag": "KOTK",
+        "isDisabled": false
       }
 ]

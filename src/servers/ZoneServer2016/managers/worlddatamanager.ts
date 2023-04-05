@@ -148,9 +148,9 @@ export class WorldDataManager {
   readonly worldSaveVersion: number = 2;
 
   /* MANAGED BY CONFIGMANAGER */
-  saveTimeInterval: number = 600000;
+  /*saveTimeInterval: number = 600000;
 
-  nextSaveTime: number = Date.now() + this.saveTimeInterval;
+  nextSaveTime: number = Date.now() + this.saveTimeInterval;*/
 
   static async getDatabase(mongoAddress: string) {
     const mongoClient = new MongoClient(mongoAddress, {
@@ -764,7 +764,7 @@ export class WorldDataManager {
         transientId,
         entityData.actorModelId,
         new Float32Array(entityData.position),
-        new Float32Array(entityData.rotation),
+        new Float32Array([0, entityData.eulerAngle, 0, 0]),
         server,
         entityData.itemDefinitionId,
         entityData.parentObjectCharacterId,
@@ -790,7 +790,7 @@ export class WorldDataManager {
         transientId,
         entityData.actorModelId,
         new Float32Array(entityData.position),
-        new Float32Array(entityData.rotation),
+        new Float32Array([0, entityData.eulerAngle, 0, 0]),
         server,
         entityData.itemDefinitionId,
         entityData.ownerCharacterId,

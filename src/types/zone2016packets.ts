@@ -620,7 +620,7 @@ export interface CharacterDestroyed {
   destroyedModel?: number;
   unknown3?: number;
   disableWeirdPhysic?: boolean;
-  unknown4?: number;
+  destroyedEffect2?: number;
   disableWeirdPhysic2?: boolean;
 }
 export interface CharacterSeekTarget {
