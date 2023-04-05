@@ -1164,7 +1164,6 @@ export class ZonePacketHandlers {
       )
     )
       return;
-
     client.character.currentInteractionGuid = packet.data.guid;
     client.character.lastInteractionTime = Date.now();
     if (

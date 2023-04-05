@@ -485,16 +485,15 @@ export class ConstructionManager {
           if (shelter.isInside(position)) {
             freeplaceParentCharacterId = shelter.characterId;
           }
-          if (!Number(freeplaceParentCharacterId)) {
-            // check upper shelters if its not in lower ones
-            Object.values(shelter.occupiedShelterSlots).forEach(
-              (upperShelter) => {
-                if (upperShelter.isInside(position)) {
-                  freeplaceParentCharacterId = upperShelter.characterId;
-                }
+
+          // check upper shelters if its not in lower ones
+          Object.values(shelter.occupiedShelterSlots).forEach(
+            (upperShelter) => {
+              if (upperShelter.isInside(position)) {
+                freeplaceParentCharacterId = upperShelter.characterId;
               }
-            );
-          }
+            }
+          );
         });
       }
     }
