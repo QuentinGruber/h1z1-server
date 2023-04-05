@@ -449,6 +449,118 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         spawnCount: {
           min: 1,
           max: 1,
+      },
+            {
+                item: enums_1.Items.CANNED_FOOD01,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {
+                item: enums_1.Items.CANNED_FOOD02,
+                weight: 10,
+                spawnCount: {
+                     min: 1,
+                    max: 1,
+                },
+    
+            },
+            {
+                item: enums_1.Items.CANNED_FOOD03,
+                    weight: 10,
+                    spawnCount: {
+                        min: 1,
+                        max: 1,
+                    },
+            },
+            {
+                        item: enums_1.Items.CANNED_FOOD04,
+                        weight: 10,
+                        spawnCount: {
+                         min: 1,
+                        max: 1,
+                    },
+            },
+            {
+                        item: enums_1.Items.CANNED_FOOD05,
+                        weight: 10,
+                        spawnCount: {
+                            min: 1,
+                            max: 1,
+                    },
+            },
+            {
+                        item: enums_1.Items.CANNED_FOOD06,
+                        weight: 10,
+                        spawnCount: {
+                            min: 1,
+                            max: 1,
+                    },
+                },
+                {
+                        item: enums_1.Items.CANNED_FOOD07,
+                        weight: 10,
+                        spawnCount: {
+                            min: 1,
+                            max: 1,
+                    },
+                },
+                {
+                        item: enums_1.Items.CANNED_FOOD08,
+                        weight: 10,
+                        spawnCount: {
+                            min: 1,
+                            max: 1,
+                    },
+                },
+                {
+                        item: enums_1.Items.CANNED_FOOD09,
+                        weight: 10,
+                        spawnCount: {
+                            min: 1,
+                            max: 1,
+                    },
+                },
+                {
+                        item: enums_1.Items.CANNED_FOOD10,
+                        weight: 10,
+                        spawnCount: {
+                            min: 1,
+                            max: 1,
+                    },
+                },
+                {
+                        item: enums_1.Items.CANNED_FOOD11,
+                        weight: 10,
+                        spawnCount: {
+                            min: 1,
+                            max: 1,
+                    },
+                },
+                {
+                        item: enums_1.Items.CANNED_FOOD21,
+                        weight: 10,
+                        spawnCount: {
+                            min: 1,
+                            max: 1,
+                    },
+                },
+                {
+                        item: enums_1.Items.CANNED_FOOD25,
+                        weight: 10,
+                        spawnCount: {
+                            min: 1,
+                            max: 1,
+                    },
+                },
+                {
+                        item: enums_1.Items.CANNED_FOOD26,
+                        weight: 10,
+                        spawnCount: {
+                            min: 1,
+                            max: 1,
         },
       },
     ],
@@ -654,6 +766,103 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           min: 1,
           max: 1,
         },
+            },
+            {
+                item: enums_1.Items.CANNED_FOOD02,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD03,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {   
+                item: enums_1.Items.CANNED_FOOD05,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD06,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD07,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD08,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD09,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD10,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD11,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD21,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD25,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD26,
+                weight: 15,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
       },
       {
         item: Items.LIGHTER,
@@ -1129,6 +1338,110 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         },
       },
       {
+                item: enums_1.Items.CANNED_FOOD02,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {   
+                item: enums_1.Items.CANNED_FOOD03,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD04,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {   
+                item: enums_1.Items.CANNED_FOOD05,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD06,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD07,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {   
+                item: enums_1.Items.CANNED_FOOD08,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {  
+                item: enums_1.Items.CANNED_FOOD09,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD10,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {   
+                item: enums_1.Items.CANNED_FOOD11,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {   
+                item: enums_1.Items.CANNED_FOOD21,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD25,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD26,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+      },
+      {
         item: Items.EMERGENCY_RADIO,
         weight: 7,
         spawnCount: {
@@ -1191,6 +1504,111 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           min: 1,
           max: 1,
         },
+      },
+      { 
+        item: enums_1.Items.CANNED_FOOD02,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+
+                },
+            },
+            {   
+                item: enums_1.Items.CANNED_FOOD03,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD04,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {   
+                item: enums_1.Items.CANNED_FOOD05,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD06,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD07,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {   
+                item: enums_1.Items.CANNED_FOOD08,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {  
+                item: enums_1.Items.CANNED_FOOD09,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD10,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {   
+                item: enums_1.Items.CANNED_FOOD11,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {   
+                item: enums_1.Items.CANNED_FOOD21,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD25,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.CANNED_FOOD26,
+                weight: 10,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
       },
       {
         item: Items.EMERGENCY_RADIO,
@@ -1279,6 +1697,102 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           min: 1,
           max: 1,
         },
+      },
+      {
+        item: enums_1.Items.MRE01,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.MRE02,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.MRE03,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.MRE04,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.MRE05,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.MRE06,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.MRE07,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.MRE08,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.MRE09,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {   
+                item: enums_1.Items.MRE10,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {   
+                item: enums_1.Items.MRE11,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+            {    
+                item: enums_1.Items.MRE12,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
       },
       {
         item: Items.BANDAGE,
@@ -1424,6 +1938,94 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           min: 1,
           max: 1,
         },
+       },
+       {
+         item: enums_1.Items.MRE01,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {   
+            item: enums_1.Items.MRE02,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE03,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE04,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE05,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE07,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {   
+            item: enums_1.Items.MRE08,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE09,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE10,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE11,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE12,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
       },
       {
         item: Items.BACKPACK_MILITARY_TAN,
@@ -1582,6 +2184,103 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           min: 1,
           max: 1,
         },
+       },
+       {
+         item: enums_1.Items.MRE01,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {
+
+            item: enums_1.Items.MRE02,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE03,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE04,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {  
+            item: enums_1.Items.MRE05,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE06,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE07,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {   
+            item: enums_1.Items.MRE08,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {   
+            item: enums_1.Items.MRE09,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE10,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {   
+            item: enums_1.Items.MRE11,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {    
+            item: enums_1.Items.MRE12,
+            weight: 100,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
       },
       {
         item: Items.BACKPACK_MILITARY_TAN,
@@ -2213,6 +2912,90 @@ export const containerLootSpawners: {
       },
     ],
   },
+  "Drug Cabinets": {
+        spawnChance: 100,
+        maxItems: 1,
+        items: [
+            {
+                item: enums_1.Items.FIRST_AID,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+        ],
+    },
+    "Medical Station": {
+        spawnChance: 100,
+        maxItems: 1,
+        items: [
+            {
+                item: enums_1.Items.FIRST_AID,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+        ],
+    },
+    "Hospital Desk": {
+        spawnChance: 100,
+        maxItems: 1,
+        items: [
+            {
+                item: enums_1.Items.FIRST_AID,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+        ],
+    },
+    "Hospital Cabinets": {
+        spawnChance: 100,
+        maxItems: 1,
+        items: [
+            {
+                item: enums_1.Items.FIRST_AID,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+        ],
+    },
+    "Hospital Refrigerator": {
+        spawnChance: 100,
+        maxItems: 1,
+        items: [
+            {
+                item: enums_1.Items.FIRST_AID,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+        ],
+    },
+    "Grossing Station": {
+        spawnChance: 100,
+        maxItems: 1,
+        items: [
+            {
+                item: enums_1.Items.FIRST_AID,
+                weight: 100,
+                spawnCount: {
+                    min: 1,
+                    max: 1,
+                },
+            },
+        ],
+    },
   Dumpster: {
     spawnChance: 100,
     maxItems: 3,
