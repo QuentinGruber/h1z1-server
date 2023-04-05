@@ -361,6 +361,7 @@ export interface FairPlayValues {
   respawnCheckIterations: number;
   maxFlying: number;
   maxPositionDesync: number;
+  maxFlaggedShots: number;
 }
 
 export interface SpeedTree {

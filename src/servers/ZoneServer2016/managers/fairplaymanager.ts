@@ -112,6 +112,7 @@ export class FairPlayManager {
         respawnCheckIterations: Number(decryptedData[35]),
         maxFlying: Number(decryptedData[36]),
         maxPositionDesync: Number(decryptedData[37]),
+        maxFlaggedShots: Number(decryptedData[38]),
       };
     }
   }

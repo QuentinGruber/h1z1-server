@@ -99,6 +99,8 @@ export class ZoneClient2016 {
   }[] = [];*/
   isMuted = false;
   blockedPositionUpdates: number = 0;
+  flaggedShots: number = 0;
+  isFairPlayFlagged: boolean = false;
   constructor(
     sessionId: number,
     soeClientId: string,

@@ -2530,6 +2530,26 @@ export class ZoneServer2016 extends EventEmitter {
         message: "InvalidTarget",
       };
     }
+
+    const target = this.getClientByCharId(entity.characterId);
+    if (target) {
+      if (!target.spawnedEntities.includes(client.character)) {
+        return {
+          isValid: false,
+          message: "InvalidTarget",
+        };
+      }
+    }
+    if (client.isFairPlayFlagged) {
+      this.sendChatTextToAdmins(
+        `FairPlay: blocked projectile of flagged client: ${client.character.name}`,
+        false
+      );
+      return {
+        isValid: false,
+        message: "InvalidFlag",
+      };
+    }
     return ret;
   }
 
@@ -2591,7 +2611,18 @@ export class ZoneServer2016 extends EventEmitter {
         gameTime
       )
     ) {
+      if (weaponItem.itemDefinitionId != Items.WEAPON_SHOTGUN) {
+        client.flaggedShots++;
+        if (
+          client.flaggedShots >=
+          this.fairPlayManager.fairPlayValues.maxFlaggedShots
+        ) {
+          client.isFairPlayFlagged = true;
+        }
+      }
       return;
+    } else {
+      client.flaggedShots = 0;
     }
     const hitValidation = this.validateHit(client, entity);
 
