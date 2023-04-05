@@ -2155,7 +2155,55 @@ export const commands: Array<Command> = [
       server.groupManager.handleGroupCommand(server, client, args);
     },
   },
+  {
+		name: "deepcover",
+		permissionLevel: PermissionLevels.ADMIN,
+		execute: async (server: ZoneServer2016, client: Client, args: Array<string>) => {
+		const newCharacterName = args[0];
 
+		// Validate the input to ensure that it is a single word without special characters
+		const isValidInput = /^[a-zA-Z0-9_]+$/.test(newCharacterName);
+		if (!isValidInput) {
+        server.sendChatText(client, "Invalid input. Please enter a single word without special characters.");
+        return;
+    }
+
+		// Update the client's character name
+		client.character.name = newCharacterName;
+
+		// Wait for one second before running vanish command
+		await new Promise(resolve => setTimeout(resolve, 1000));
+
+		// Set the client's isSpectator state
+		client.character.isSpectator = !client.character.isSpectator;
+
+		// Remove the client's character from the game if in spectate mode
+		if (client.character.isSpectator) {
+		for (const a in server._clients) {
+			const iteratedClient = server._clients[a];
+			if (iteratedClient.spawnedEntities.includes(client.character)) {
+			server.sendData(iteratedClient, "Character.RemovePlayer", {
+            characterId: client.character.characterId,
+          });
+          iteratedClient.spawnedEntities.splice(
+            iteratedClient.spawnedEntities.indexOf(client.character),
+            1
+          );
+        }
+      }
+      server.sendData(client, "Spectator.Enable", {});
+    }
+
+    // Wait for an additional second before running the second vanish command
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Set the client's isSpectator state again
+    client.character.isSpectator = !client.character.isSpectator;
+
+    // Send a chat message to confirm the name change
+    server.sendChatText(client, `Name changed to ${newCharacterName}`);
+  },
+},
   //#endregion
 
   //#region DEV PERMISSIONS
