@@ -212,10 +212,7 @@ export class LoginServer extends EventEmitter {
                       );
                       await this.updateServerStatus(serverId, true);
                     } else {
-                      debug(
-                        `rejected connection serverId : ${serverId} address: ${client.address} `
-                      );
-                      delete this._h1emuLoginServer._clients[client.clientId];
+                      this.rejectH1emuConnection(serverId, client);
                       return;
                     }
                     this._h1emuLoginServer.sendData(client, "SessionReply", {
@@ -330,6 +327,12 @@ export class LoginServer extends EventEmitter {
 
       this._h1emuLoginServer.start();
     }
+  }
+  rejectH1emuConnection(serverId: number, client: H1emuClient) {
+    debug(
+      `rejected connection serverId : ${serverId} address: ${client.address} `
+    );
+    delete this._h1emuLoginServer._clients[client.clientId];
   }
   private async _isServerOfficial(serverId: number): Promise<boolean> {
     const server = await this._db
