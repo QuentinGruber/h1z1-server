@@ -449,8 +449,9 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         spawnCount: {
           min: 1,
           max: 1,
+         },
       },
-            {
+      {
                 item: enums_1.Items.CANNED_FOOD01,
                 weight: 100,
                 spawnCount: {
