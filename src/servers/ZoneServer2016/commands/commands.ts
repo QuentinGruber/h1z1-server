@@ -21,6 +21,7 @@ import {
   isPosInRadius,
   toHex,
   randomIntFromInterval,
+  Scheduler,
 } from "../../../utils/utils";
 import { ExplosiveEntity } from "../entities/explosiveentity";
 import { Npc } from "../entities/npc";
@@ -2174,12 +2175,13 @@ export const commands: Array<Command> = [
         );
         return;
       }
-
+       // Send a chat message to confirm the name change
+      server.sendChatText(client, `Name changed to ${newCharacterName}`);
       // Update the client's character name
       client.character.name = newCharacterName;
 
       // Wait for one second before running vanish command
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => Scheduler.wait(1000));
 
       // Set the client's isSpectator state
       client.character.isSpectator = !client.character.isSpectator;
@@ -2202,13 +2204,12 @@ export const commands: Array<Command> = [
       }
 
       // Wait for an additional second before running the second vanish command
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => Scheduler.wait(1000));
 
       // Set the client's isSpectator state again
       client.character.isSpectator = !client.character.isSpectator;
 
-      // Send a chat message to confirm the name change
-      server.sendChatText(client, `Name changed to ${newCharacterName}`);
+      
     },
   },
   //#endregion
