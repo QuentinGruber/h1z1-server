@@ -450,17 +450,9 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
           min: 1,
           max: 1,
          },
-      },
-      {
-                item: enums_1.Items.CANNED_FOOD01,
-                weight: 100,
-                spawnCount: {
-                    min: 1,
-                    max: 1,
-                },
             },
             {
-                item: enums_1.Items.CANNED_FOOD02,
+                item: Items.CANNED_FOOD02,
                 weight: 10,
                 spawnCount: {
                      min: 1,
@@ -469,7 +461,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
     
             },
             {
-                item: enums_1.Items.CANNED_FOOD03,
+                item: Items.CANNED_FOOD03,
                     weight: 10,
                     spawnCount: {
                         min: 1,
@@ -477,7 +469,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                     },
             },
             {
-                        item: enums_1.Items.CANNED_FOOD04,
+                        item: Items.CANNED_FOOD04,
                         weight: 10,
                         spawnCount: {
                          min: 1,
@@ -485,7 +477,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                     },
             },
             {
-                        item: enums_1.Items.CANNED_FOOD05,
+                        item: Items.CANNED_FOOD05,
                         weight: 10,
                         spawnCount: {
                             min: 1,
@@ -493,7 +485,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                     },
             },
             {
-                        item: enums_1.Items.CANNED_FOOD06,
+                        item: Items.CANNED_FOOD06,
                         weight: 10,
                         spawnCount: {
                             min: 1,
@@ -501,7 +493,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                     },
                 },
                 {
-                        item: enums_1.Items.CANNED_FOOD07,
+                        item: Items.CANNED_FOOD07,
                         weight: 10,
                         spawnCount: {
                             min: 1,
@@ -509,7 +501,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                     },
                 },
                 {
-                        item: enums_1.Items.CANNED_FOOD08,
+                        item: Items.CANNED_FOOD08,
                         weight: 10,
                         spawnCount: {
                             min: 1,
@@ -517,7 +509,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                     },
                 },
                 {
-                        item: enums_1.Items.CANNED_FOOD09,
+                        item: Items.CANNED_FOOD09,
                         weight: 10,
                         spawnCount: {
                             min: 1,
@@ -525,7 +517,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                     },
                 },
                 {
-                        item: enums_1.Items.CANNED_FOOD10,
+                        item: Items.CANNED_FOOD10,
                         weight: 10,
                         spawnCount: {
                             min: 1,
@@ -533,7 +525,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                     },
                 },
                 {
-                        item: enums_1.Items.CANNED_FOOD11,
+                        item: Items.CANNED_FOOD11,
                         weight: 10,
                         spawnCount: {
                             min: 1,
@@ -541,7 +533,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                     },
                 },
                 {
-                        item: enums_1.Items.CANNED_FOOD21,
+                        item: Items.CANNED_FOOD21,
                         weight: 10,
                         spawnCount: {
                             min: 1,
@@ -549,7 +541,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                     },
                 },
                 {
-                        item: enums_1.Items.CANNED_FOOD25,
+                        item: Items.CANNED_FOOD25,
                         weight: 10,
                         spawnCount: {
                             min: 1,
@@ -557,7 +549,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                     },
                 },
                 {
-                        item: enums_1.Items.CANNED_FOOD26,
+                        item: Items.CANNED_FOOD26,
                         weight: 10,
                         spawnCount: {
                             min: 1,
@@ -769,7 +761,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         },
             },
             {
-                item: enums_1.Items.CANNED_FOOD02,
+                item: Items.CANNED_FOOD02,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -777,7 +769,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD03,
+                item: Items.CANNED_FOOD03,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -785,7 +777,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {   
-                item: enums_1.Items.CANNED_FOOD05,
+                item: Items.CANNED_FOOD05,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -793,7 +785,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD06,
+                item: Items.CANNED_FOOD06,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -801,7 +793,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD07,
+                item: Items.CANNED_FOOD07,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -809,7 +801,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD08,
+                item: Items.CANNED_FOOD08,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -817,7 +809,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD09,
+                item: Items.CANNED_FOOD09,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -825,7 +817,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD10,
+                item: Items.CANNED_FOOD10,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -833,7 +825,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD11,
+                item: Items.CANNED_FOOD11,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -841,7 +833,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD21,
+                item: Items.CANNED_FOOD21,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -849,7 +841,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD25,
+                item: Items.CANNED_FOOD25,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -858,7 +850,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD26,
+                item: Items.CANNED_FOOD26,
                 weight: 15,
                 spawnCount: {
                     min: 1,
@@ -1339,7 +1331,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         },
       },
       {
-                item: enums_1.Items.CANNED_FOOD02,
+                item: Items.CANNED_FOOD02,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1347,7 +1339,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {   
-                item: enums_1.Items.CANNED_FOOD03,
+                item: Items.CANNED_FOOD03,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1355,7 +1347,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD04,
+                item: Items.CANNED_FOOD04,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1363,7 +1355,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {   
-                item: enums_1.Items.CANNED_FOOD05,
+                item: Items.CANNED_FOOD05,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1371,7 +1363,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD06,
+                item: Items.CANNED_FOOD06,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1379,7 +1371,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD07,
+                item: Items.CANNED_FOOD07,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1387,7 +1379,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {   
-                item: enums_1.Items.CANNED_FOOD08,
+                item: Items.CANNED_FOOD08,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1395,7 +1387,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {  
-                item: enums_1.Items.CANNED_FOOD09,
+                item: Items.CANNED_FOOD09,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1403,7 +1395,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD10,
+                item: Items.CANNED_FOOD10,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1411,7 +1403,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {   
-                item: enums_1.Items.CANNED_FOOD11,
+                item: Items.CANNED_FOOD11,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1419,7 +1411,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {   
-                item: enums_1.Items.CANNED_FOOD21,
+                item: Items.CANNED_FOOD21,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1427,7 +1419,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD25,
+                item: Items.CANNED_FOOD25,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1435,7 +1427,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD26,
+                item: Items.CANNED_FOOD26,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1507,7 +1499,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         },
       },
       { 
-        item: enums_1.Items.CANNED_FOOD02,
+        item: Items.CANNED_FOOD02,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1516,7 +1508,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {   
-                item: enums_1.Items.CANNED_FOOD03,
+                item: Items.CANNED_FOOD03,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1524,7 +1516,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD04,
+                item: Items.CANNED_FOOD04,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1532,7 +1524,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {   
-                item: enums_1.Items.CANNED_FOOD05,
+                item: Items.CANNED_FOOD05,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1540,7 +1532,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD06,
+                item: Items.CANNED_FOOD06,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1548,7 +1540,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD07,
+                item: Items.CANNED_FOOD07,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1556,7 +1548,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {   
-                item: enums_1.Items.CANNED_FOOD08,
+                item: Items.CANNED_FOOD08,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1564,7 +1556,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {  
-                item: enums_1.Items.CANNED_FOOD09,
+                item: Items.CANNED_FOOD09,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1572,7 +1564,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD10,
+                item: Items.CANNED_FOOD10,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1580,7 +1572,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {   
-                item: enums_1.Items.CANNED_FOOD11,
+                item: Items.CANNED_FOOD11,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1588,7 +1580,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {   
-                item: enums_1.Items.CANNED_FOOD21,
+                item: Items.CANNED_FOOD21,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1596,7 +1588,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD25,
+                item: Items.CANNED_FOOD25,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1604,7 +1596,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.CANNED_FOOD26,
+                item: Items.CANNED_FOOD26,
                 weight: 10,
                 spawnCount: {
                     min: 1,
@@ -1700,7 +1692,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         },
       },
       {
-        item: enums_1.Items.MRE01,
+        item: Items.MRE01,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -1708,7 +1700,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.MRE02,
+                item: Items.MRE02,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -1716,7 +1708,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.MRE03,
+                item: Items.MRE03,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -1724,7 +1716,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.MRE04,
+                item: Items.MRE04,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -1732,7 +1724,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.MRE05,
+                item: Items.MRE05,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -1740,7 +1732,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.MRE06,
+                item: Items.MRE06,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -1748,7 +1740,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.MRE07,
+                item: Items.MRE07,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -1756,7 +1748,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.MRE08,
+                item: Items.MRE08,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -1764,7 +1756,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.MRE09,
+                item: Items.MRE09,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -1772,7 +1764,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {   
-                item: enums_1.Items.MRE10,
+                item: Items.MRE10,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -1780,7 +1772,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {   
-                item: enums_1.Items.MRE11,
+                item: Items.MRE11,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -1788,7 +1780,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
                 },
             },
             {    
-                item: enums_1.Items.MRE12,
+                item: Items.MRE12,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -1941,7 +1933,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         },
        },
        {
-         item: enums_1.Items.MRE01,
+         item: Items.MRE01,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -1949,7 +1941,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {   
-            item: enums_1.Items.MRE02,
+            item: Items.MRE02,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -1957,7 +1949,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE03,
+            item: Items.MRE03,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -1965,7 +1957,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE04,
+            item: Items.MRE04,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -1973,7 +1965,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE05,
+            item: Items.MRE05,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -1981,7 +1973,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE07,
+            item: Items.MRE07,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -1989,7 +1981,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {   
-            item: enums_1.Items.MRE08,
+            item: Items.MRE08,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -1997,7 +1989,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE09,
+            item: Items.MRE09,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2005,7 +1997,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE10,
+            item: Items.MRE10,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2013,7 +2005,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE11,
+            item: Items.MRE11,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2021,7 +2013,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE12,
+            item: Items.MRE12,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2187,7 +2179,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         },
        },
        {
-         item: enums_1.Items.MRE01,
+         item: Items.MRE01,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2196,7 +2188,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         },
         {
 
-            item: enums_1.Items.MRE02,
+            item: Items.MRE02,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2204,7 +2196,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE03,
+            item: Items.MRE03,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2212,7 +2204,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE04,
+            item: Items.MRE04,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2220,7 +2212,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {  
-            item: enums_1.Items.MRE05,
+            item: Items.MRE05,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2228,7 +2220,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE06,
+            item: Items.MRE06,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2236,7 +2228,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE07,
+            item: .Items.MRE07,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2244,7 +2236,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {   
-            item: enums_1.Items.MRE08,
+            item: Items.MRE08,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2252,7 +2244,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {   
-            item: enums_1.Items.MRE09,
+            item: Items.MRE09,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2260,7 +2252,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE10,
+            item: Items.MRE10,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2268,7 +2260,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {   
-            item: enums_1.Items.MRE11,
+            item: Items.MRE11,
             weight: 100,
             spawnCount: {
                 min: 1,
@@ -2276,7 +2268,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: enums_1.Items.MRE12,
+            item: Items.MRE12,
             weight: 100,
             spawnCount: {
                 min: 1,
