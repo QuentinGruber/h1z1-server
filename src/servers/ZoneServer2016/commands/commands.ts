@@ -2175,7 +2175,7 @@ export const commands: Array<Command> = [
         );
         return;
       }
-       // Send a chat message to confirm the name change
+      // Send a chat message to confirm the name change
       server.sendChatText(client, `Name changed to ${newCharacterName}`);
       // Update the client's character name
       client.character.name = newCharacterName;
@@ -2208,8 +2208,6 @@ export const commands: Array<Command> = [
 
       // Set the client's isSpectator state again
       client.character.isSpectator = !client.character.isSpectator;
-
-      
     },
   },
   //#endregion
