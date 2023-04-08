@@ -2181,7 +2181,7 @@ export const commands: Array<Command> = [
       client.character.name = newCharacterName;
 
       // Wait for one second before running vanish command
-      await new Promise((resolve) => Scheduler.wait(1000));
+      await Scheduler.wait(1000);
 
       // Set the client's isSpectator state
       client.character.isSpectator = !client.character.isSpectator;
@@ -2204,7 +2204,7 @@ export const commands: Array<Command> = [
       }
 
       // Wait for an additional second before running the second vanish command
-      await new Promise((resolve) => Scheduler.wait(1000));
+      await Scheduler.wait(1000);
 
       // Set the client's isSpectator state again
       client.character.isSpectator = !client.character.isSpectator;
