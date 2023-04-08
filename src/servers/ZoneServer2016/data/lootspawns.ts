@@ -2910,7 +2910,7 @@ export const containerLootSpawners: {
         maxItems: 1,
         items: [
             {
-                item: enums_1.Items.FIRST_AID,
+                item: Items.FIRST_AID,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -2924,7 +2924,7 @@ export const containerLootSpawners: {
         maxItems: 1,
         items: [
             {
-                item: enums_1.Items.FIRST_AID,
+                item: Items.FIRST_AID,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -2938,7 +2938,7 @@ export const containerLootSpawners: {
         maxItems: 1,
         items: [
             {
-                item: enums_1.Items.FIRST_AID,
+                item: Items.FIRST_AID,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -2952,7 +2952,7 @@ export const containerLootSpawners: {
         maxItems: 1,
         items: [
             {
-                item: enums_1.Items.FIRST_AID,
+                item: Items.FIRST_AID,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -2966,7 +2966,7 @@ export const containerLootSpawners: {
         maxItems: 1,
         items: [
             {
-                item: enums_1.Items.FIRST_AID,
+                item: Items.FIRST_AID,
                 weight: 100,
                 spawnCount: {
                     min: 1,
@@ -2980,7 +2980,7 @@ export const containerLootSpawners: {
         maxItems: 1,
         items: [
             {
-                item: enums_1.Items.FIRST_AID,
+                item: Items.FIRST_AID,
                 weight: 100,
                 spawnCount: {
                     min: 1,
