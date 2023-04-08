@@ -62,6 +62,7 @@ export enum ItemUseOptions {
   REFUEL = 17,
   SLICE = 18,
   USE_MEDICAL = 52,
+  USE_AIRDROP = 58,
   EQUIP = 60,
   DROP_BATTERY = 73,
   DROP_SPARKS = 79,

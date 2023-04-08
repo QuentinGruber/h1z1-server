@@ -83,6 +83,7 @@ import {
   getDifference,
   logClientActionToMongo,
   removeUntransferableFields,
+  movePoint,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -147,6 +148,7 @@ import { SpeedTreeManager } from "./managers/speedtreemanager";
 import { ConstructionManager } from "./managers/constructionmanager";
 import { FairPlayManager } from "./managers/fairplaymanager";
 import { Destroyable } from "./entities/destroyable";
+import { Plane } from "./entities/plane";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -220,7 +222,18 @@ export class ZoneServer2016 extends EventEmitter {
   } = {};
   _worldSimpleConstruction: { [characterId: string]: ConstructionChildEntity } =
     {};
-
+  _airdrop?: {
+    plane: Plane;
+    cargo?: Plane;
+    planeTarget: string;
+    planeTargetPos: Float32Array;
+    cargoTarget: string;
+    cargoTargetPos: Float32Array;
+    destination: string;
+    destinationPos: Float32Array;
+    cargoSpawned: boolean;
+    containerSpawned: boolean;
+  };
   _gameTime: number = 0;
   readonly _serverTime = this.getCurrentTime();
   _startTime = 0;
@@ -3553,6 +3566,96 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   //#region ********************VEHICLE********************
+
+  airdropManager(client: Client, spawn: boolean) {
+    if (!this._airdrop) return;
+    if (spawn) {
+      const lightWeight = {
+        characterId: this._airdrop.planeTarget,
+        transientId: 0,
+        actorModelId: 9770,
+        position: this._airdrop.planeTargetPos,
+        rotation: new Float32Array([0, 0, 0, 0]),
+        scale: new Float32Array([0, 0, 0, 0]),
+        positionUpdateType: 0,
+        profileId: 0,
+        isLightweight: true,
+        flags: {},
+        headActor: "",
+      };
+      this.sendData(client, "AddLightweightNpc", lightWeight);
+      const lightWeight2 = {
+        characterId: this._airdrop.destination,
+        transientId: 0,
+        actorModelId: 9416,
+        position: this._airdrop.destinationPos,
+        rotation: new Float32Array([0, 0, 0, 0]),
+        scale: new Float32Array([1, 1, 1, 1]),
+        positionUpdateType: 0,
+        profileId: 0,
+        isLightweight: true,
+        flags: {},
+        headActor: "",
+      };
+      const lightWeight3 = {
+        characterId: this._airdrop.cargoTarget,
+        transientId: 0,
+        actorModelId: 9770,
+        position: this._airdrop.cargoTargetPos,
+        rotation: new Float32Array([0, 0, 0, 0]),
+        scale: new Float32Array([0, 0, 0, 0]),
+        positionUpdateType: 0,
+        profileId: 0,
+        isLightweight: true,
+        flags: {},
+        headActor: "",
+      };
+      this.sendData(client, "AddLightweightNpc", lightWeight);
+      this.sendData(client, "AddLightweightNpc", lightWeight2);
+      this.sendData(client, "AddLightweightNpc", lightWeight3);
+      this.sendData(client, "AddLightweightVehicle", {
+        ...this._airdrop.plane.pGetLightweightVehicle(),
+        unknownGuid1: this.generateGuid(),
+      });
+      this.sendData(client, "Character.MovementVersion", {
+        characterId: this._airdrop.plane.characterId,
+        version: 5,
+      });
+      if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
+        this.sendData(client, "AddLightweightVehicle", {
+          ...this._airdrop.cargo.pGetLightweightVehicle(),
+          unknownGuid1: this.generateGuid(),
+        });
+        this.sendData(client, "Character.MovementVersion", {
+          characterId: this._airdrop.cargo.characterId,
+          version: 6,
+        });
+      }
+    } else if (!spawn) {
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.plane.characterId,
+      });
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.planeTarget,
+      });
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.cargoTarget,
+      });
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.destination,
+      });
+      if (this._airdrop.cargo) {
+        this.sendData(client, "Character.RemovePlayer", {
+          characterId: this._airdrop.cargo.characterId,
+          unknownWord1: 1,
+          effectId: 5328,
+          timeToDisappear: 0,
+          effectDelay: 0,
+        });
+      }
+    }
+  }
+
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
@@ -3815,7 +3918,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
-    if (!vehicle) return;
+    if (!vehicle || !vehicle.isMountable) return;
     for (const a in this._constructionFoundations) {
       const foundation = this._constructionFoundations[a];
       if (
@@ -5072,6 +5175,83 @@ export class ZoneServer2016 extends EventEmitter {
       default:
         return false;
     }
+  }
+
+  useAirdrop(client: Client, item: BaseItem) {
+    if (this._airdrop) {
+      this.sendAlert(client, "Airdrop is ");
+      return;
+    }
+    /*if (_.size(this._clients) < 20) {
+            this.sendAlert(client, "Airdrop is ")
+            return
+        }*/
+    if (
+      item.itemDefinitionId != Items.AIRDROP_CODE ||
+      !this.removeInventoryItem(client, item)
+    )
+      return;
+    const pos = new Float32Array([
+      client.character.state.position[0],
+      350,
+      client.character.state.position[2],
+      1,
+    ]);
+    const moved = movePoint(pos, 1, 300);
+    const moved2 = movePoint(moved, 1, 300);
+    const characterId = this.generateGuid();
+    const characterId2 = this.generateGuid();
+    const characterId3 = this.generateGuid();
+    const characterId4 = this.generateGuid();
+    const characterId5 = this.generateGuid();
+    const plane = new Plane(
+      characterId,
+      this.getTransientId(characterId),
+      0,
+      moved,
+      client.character.state.lookAt,
+      this,
+      this.getGameTime(),
+      VehicleIds.OFFROADER
+    );
+
+    const cargo = new Plane(
+      characterId4,
+      this.getTransientId(characterId4),
+      0,
+      pos,
+      client.character.state.lookAt,
+      this,
+      this.getGameTime(),
+      VehicleIds.PICKUP
+    );
+    this._airdrop = {
+      plane: plane,
+      cargo: cargo,
+      planeTarget: characterId2,
+      planeTargetPos: moved2,
+      cargoTarget: characterId5,
+      cargoTargetPos: new Float32Array([pos[0], pos[1] + 100, pos[2], 1]),
+      destination: characterId3,
+      destinationPos: client.character.state.position,
+      cargoSpawned: false,
+      containerSpawned: false,
+    };
+    for (const a in this._clients) {
+      if (!this._clients[a].isLoading) {
+        this.airdropManager(this._clients[a], true);
+      }
+    }
+    setTimeout(() => {
+      if (this._airdrop && this._airdrop.plane.characterId == characterId) {
+        for (const a in this._clients) {
+          if (!this._clients[a].isLoading) {
+            this.airdropManager(this._clients[a], false);
+          }
+        }
+        delete this._airdrop;
+      }
+    }, 600000);
   }
 
   useConsumable(client: Client, item: BaseItem) {

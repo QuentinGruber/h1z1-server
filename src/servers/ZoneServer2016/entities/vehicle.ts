@@ -122,6 +122,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     time: 0,
   };
   droppedManagedClient?: ZoneClient2016; // for temporary fix
+  isMountable: boolean = true;
   constructor(
     characterId: string,
     transientId: number,
