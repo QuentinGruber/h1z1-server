@@ -2228,7 +2228,7 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
             },
         },
         {    
-            item: .Items.MRE07,
+            item: Items.MRE07,
             weight: 100,
             spawnCount: {
                 min: 1,
