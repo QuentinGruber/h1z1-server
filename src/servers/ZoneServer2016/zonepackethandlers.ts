@@ -197,6 +197,7 @@ export class ZonePacketHandlers {
     }
     server.spawnWorkAroundLightWeight(client);
     server.setTickRate();
+    server.airdropManager(client, true);
   }
   Security(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
@@ -674,6 +675,81 @@ export class ZonePacketHandlers {
       console.log(packet);
       return;
     }
+    if (packet.data.positionUpdate.unknown3_int8 == 5) {
+      if (!server._airdrop || !packet.data.positionUpdate.position) return;
+      if (
+        server._airdrop.manager?.character.characterId !=
+        client.character.characterId
+      )
+        return;
+      server._airdrop.plane.state.position =
+        packet.data.positionUpdate.position;
+      server._airdrop.plane.positionUpdate.orientation =
+        packet.data.positionUpdate.orientation;
+      server._airdrop.plane.state.rotation = eul2quat(
+        new Float32Array([packet.data.positionUpdate.orientation, 0, 0, 0])
+      );
+      server._airdrop.plane.positionUpdate.frontTilt =
+        packet.data.positionUpdate.frontTile;
+      server._airdrop.plane.positionUpdate.sideTilt =
+        packet.data.positionUpdate.sideTilt;
+      if (
+        isPosInRadius(
+          100,
+          packet.data.positionUpdate.position,
+          server._airdrop.destinationPos
+        ) &&
+        !server._airdrop.cargoSpawned &&
+        server._airdrop.cargo
+      ) {
+        server._airdrop.cargoSpawned = true;
+        setTimeout(() => {
+          if (server._airdrop && server._airdrop.cargo) {
+            for (const a in server._clients) {
+              server.sendData(server._clients[a], "AddLightweightVehicle", {
+                ...server._airdrop.cargo.pGetLightweightVehicle(),
+                unknownGuid1: server.generateGuid(),
+              });
+              server.sendData(client, "Character.MovementVersion", {
+                characterId: server._airdrop.cargo.characterId,
+                version: 6,
+              });
+            }
+          }
+        }, 3000);
+      }
+      return;
+    } else if (packet.data.positionUpdate.unknown3_int8 == 6) {
+      if (
+        !server._airdrop ||
+        !packet.data.positionUpdate.position ||
+        !server._airdrop.cargo
+      )
+        return;
+      server._airdrop.cargo.state.position =
+        packet.data.positionUpdate.position;
+      server._airdrop.cargo.positionUpdate.orientation =
+        packet.data.positionUpdate.orientation;
+      server._airdrop.cargo.positionUpdate.frontTilt =
+        packet.data.positionUpdate.frontTile;
+      server._airdrop.cargo.positionUpdate.sideTilt =
+        packet.data.positionUpdate.sideTilt;
+      if (
+        packet.data.positionUpdate.position[1] <=
+          server._airdrop.destinationPos[1] + 2 &&
+        !server._airdrop.containerSpawned
+      ) {
+        server._airdrop.containerSpawned = true;
+        server.worldObjectManager.createAirdropContainer(
+          server,
+          server._airdrop.destinationPos
+        );
+        for (const a in server._clients) {
+          server.airdropManager(server._clients[a], false);
+        }
+        delete server._airdrop;
+      }
+    }
     const characterId: string = server._transientIds[packet.data.transientId],
       vehicle = characterId ? server._vehicles[characterId] : undefined;
 
@@ -1064,6 +1140,17 @@ export class ZonePacketHandlers {
     client: Client,
     packet: any
   ) {
+    if (server._airdrop) {
+      if (server._airdrop.plane.characterId == packet.data.characterId) {
+        server._airdrop.plane.OnFullCharacterDataRequest(server, client);
+      } else if (
+        server._airdrop.cargo &&
+        server._airdrop.cargo.characterId == packet.data.characterId
+      ) {
+        server._airdrop.cargo.OnFullCharacterDataRequest(server, client);
+      }
+      return;
+    }
     const entity = server.getEntity(packet.data.characterId);
     if (!(entity instanceof BaseFullCharacter) && !(entity instanceof Plant)) {
       return;
@@ -1422,6 +1509,9 @@ export class ZonePacketHandlers {
       case ItemUseOptions.EAT:
       case ItemUseOptions.USE_MEDICAL:
         server.useConsumable(client, item);
+        break;
+      case ItemUseOptions.USE_AIRDROP:
+        server.useAirdrop(client, item);
         break;
       case ItemUseOptions.USE:
         server.useItem(client, item);

@@ -341,6 +341,59 @@ export class WorldObjectManager {
     server._lootbags[characterId] = lootbag;
   }
 
+  createAirdropContainer(server: ZoneServer2016, pos: Float32Array) {
+    const characterId = generateRandomGuid();
+
+    const lootbag = new Lootbag(
+      characterId,
+      server.getTransientId(characterId),
+      9218,
+      new Float32Array([pos[0], pos[1] + 0.1, pos[2]]),
+      new Float32Array([0, 0, 0, 0]),
+      server
+    );
+    const container = lootbag.getContainer();
+    if (container) {
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.IED, 30),
+        container
+      );
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.WEAPON_SHOTGUN, 1),
+        container
+      );
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.WEAPON_308, 1),
+        container
+      );
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.AMMO_12GA, 50),
+        container
+      );
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.AMMO_308, 50),
+        container
+      );
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.SWIZZLE, 10),
+        container
+      );
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.FUEL_ETHANOL, 50),
+        container
+      );
+    }
+
+    server._lootbags[characterId] = lootbag;
+  }
+
   createProps(server: ZoneServer2016) {
     Z1_lootableProps.forEach((propType: any) => {
       propType.instances.forEach((propInstance: any) => {

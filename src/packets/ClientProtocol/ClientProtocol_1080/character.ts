@@ -294,7 +294,7 @@ export const characterPackets: any = [
         { name: "initSpeed", type: "float", defaultValue: 1 },
         { name: "acceleration", type: "float", defaultValue: 1 },
         { name: "speed", type: "float", defaultValue: 1 },
-        { name: "unknown8", type: "float", defaultValue: 1 },
+        { name: "turn", type: "float", defaultValue: 1 },
         { name: "yRot", type: "float", defaultValue: 1 },
         {
           name: "rotation",
@@ -551,7 +551,16 @@ export const characterPackets: any = [
   ["Character.RequestToggleDoorState", 0x0f52, {}],
   ["Character.SetAllowRespawn", 0x0f54, {}],
   ["Character.UpdateGuildTag", 0x0f55, {}],
-  ["Character.MovementVersion", 0x0f56, {}],
+  [
+    "Character.MovementVersion",
+    0x0f56,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "version", type: "uint8", defaultValue: 1 },
+      ],
+    },
+  ],
   ["Character.RequestMovementVersion", 0x0f57, {}],
   ["Character.DailyRepairMaterials", 0x0f58, {}],
   ["Character.BeginPreviewInteraction", 0x0f59, {}],
