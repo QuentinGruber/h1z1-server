@@ -84,6 +84,8 @@ import {
   logClientActionToMongo,
   removeUntransferableFields,
   movePoint,
+  getAngle,
+  getDistance2d,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -5220,8 +5222,18 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.state.position[2],
       1,
     ]);
-    const moved = movePoint(pos, 1, 300);
-    const moved2 = movePoint(moved, 1, 300);
+    const angle = getAngle(
+      client.character.state.position,
+      new Float32Array([0, 0, 0, 0])
+    );
+    const distance =
+      5000 +
+      getDistance2d(
+        client.character.state.position,
+        new Float32Array([0, 0, 0, 0])
+      );
+    const moved = movePoint(pos, angle, distance);
+    const moved2 = movePoint(moved, angle, 1500);
     const characterId = this.generateGuid();
     const characterId2 = this.generateGuid();
     const characterId3 = this.generateGuid();

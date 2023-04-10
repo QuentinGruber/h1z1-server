@@ -681,7 +681,7 @@ export class ZonePacketHandlers {
         packet.data.positionUpdate.sideTilt;
       if (
         isPosInRadius(
-          20,
+          100,
           packet.data.positionUpdate.position,
           server._airdrop.destinationPos
         ) &&
@@ -689,16 +689,20 @@ export class ZonePacketHandlers {
         server._airdrop.cargo
       ) {
         server._airdrop.cargoSpawned = true;
-        for (const a in server._clients) {
-          server.sendData(server._clients[a], "AddLightweightVehicle", {
-            ...server._airdrop.cargo.pGetLightweightVehicle(),
-            unknownGuid1: server.generateGuid(),
-          });
-          server.sendData(client, "Character.MovementVersion", {
-            characterId: server._airdrop.cargo.characterId,
-            version: 6,
-          });
-        }
+        setTimeout(() => {
+          if (server._airdrop && server._airdrop.cargo) {
+            for (const a in server._clients) {
+              server.sendData(server._clients[a], "AddLightweightVehicle", {
+                ...server._airdrop.cargo.pGetLightweightVehicle(),
+                unknownGuid1: server.generateGuid(),
+              });
+              server.sendData(client, "Character.MovementVersion", {
+                characterId: server._airdrop.cargo.characterId,
+                version: 6,
+              });
+            }
+          }
+        }, 3000);
       }
       return;
     } else if (packet.data.positionUpdate.unknown3_int8 == 6) {

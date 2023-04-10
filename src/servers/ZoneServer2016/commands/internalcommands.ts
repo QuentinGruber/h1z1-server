@@ -18,7 +18,7 @@ import { SpawnCell } from "../classes/spawncell";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
-import { isPosInRadius } from "../../../utils/utils";
+import { getAngle, isPosInRadius } from "../../../utils/utils";
 import { OBSERVER_GUID } from "../../../utils/constants";
 
 export const internalCommands: Array<Command> = [
@@ -154,6 +154,9 @@ export const internalCommands: Array<Command> = [
         server,
         server.getGameTime(),
         packetData.vehicleId
+      );
+      console.log(
+        getAngle(client.character.state.position, packetData.position)
       );
       server.worldObjectManager.createVehicle(server, vehicle);
       client.character.ownedVehicle = vehicle.characterId;
