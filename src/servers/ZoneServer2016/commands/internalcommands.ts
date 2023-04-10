@@ -155,9 +155,6 @@ export const internalCommands: Array<Command> = [
         server.getGameTime(),
         packetData.vehicleId
       );
-      console.log(
-        getAngle(client.character.state.position, packetData.position)
-      );
       server.worldObjectManager.createVehicle(server, vehicle);
       client.character.ownedVehicle = vehicle.characterId;
     },
