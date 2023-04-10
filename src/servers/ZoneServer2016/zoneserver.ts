@@ -5221,6 +5221,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   useAirdrop(client: Client, item: BaseItem) {
+    if (!client.isAdmin) {
+      this.sendAlert(client, "Admin only for now.");
+      return;
+    }
     if (this._airdrop) {
       this.sendAlert(client, "All planes are busy.");
       return;
