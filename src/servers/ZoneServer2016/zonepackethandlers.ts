@@ -27,6 +27,7 @@ import {
   eul2quat,
   getDistance,
   getDistance1d,
+  isPosInRadiusWithY,
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -69,6 +70,7 @@ import { Crate } from "./entities/crate";
 import { OBSERVER_GUID } from "../../utils/constants";
 import { BaseLootableEntity } from "./entities/baselootableentity";
 import { Destroyable } from "./entities/destroyable";
+import { Lootbag } from "./entities/lootbag";
 
 export class ZonePacketHandlers {
   commandHandler: CommandHandler;
@@ -554,13 +556,17 @@ export class ZonePacketHandlers {
     const isConstruction =
       entity instanceof ConstructionParentEntity ||
       entity instanceof ConstructionDoor;
+
+    const isLootable =
+      entity instanceof LootableConstructionEntity || entity instanceof Lootbag;
     if (
-      !isPosInRadius(
+      !isPosInRadiusWithY(
         entity.interactionDistance || server.interactionDistance,
         client.character.state.position,
         isConstruction
           ? entity.fixedPosition || entity.state.position
-          : entity.state.position
+          : entity.state.position,
+        isLootable ? 1.7 : 3
       )
     )
       return;
