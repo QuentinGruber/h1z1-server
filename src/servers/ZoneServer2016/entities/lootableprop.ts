@@ -147,7 +147,6 @@ function getContainerAndTime(entity: LootableProp) {
             break;
         case 9551:
         case 9553:
-        case 9563:
             entity.containerId = Items.CONTAINER_HOSPITAL_DESK;
             entity.searchTime = 1000;
             entity.lootSpawner = "Hospital Desk";
