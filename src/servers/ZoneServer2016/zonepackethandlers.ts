@@ -566,7 +566,7 @@ export class ZonePacketHandlers {
         isConstruction
           ? entity.fixedPosition || entity.state.position
           : entity.state.position,
-        isLootable ? 1.7 : 3
+        isLootable ? 1.7 : 2.5
       )
     )
       return;
@@ -1481,6 +1481,19 @@ export class ZonePacketHandlers {
       count,
       newSlotId,
     } = packet.data;
+    if (client.character.mountedContainer) {
+      if (
+        !isPosInRadiusWithY(
+          client.character.mountedContainer.interactionDistance,
+          client.character.state.position,
+          client.character.mountedContainer.state.position,
+          2.5
+        )
+      ) {
+        client.character.dismountContainer(server);
+        return;
+      }
+    }
     if (characterId == client.character.characterId) {
       // from client container
       if (characterId == targetCharacterId) {
