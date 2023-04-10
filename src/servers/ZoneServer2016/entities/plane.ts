@@ -163,16 +163,21 @@ export class Plane extends Vehicle2016 {
     );
     if (!server._airdrop) return;
     if (this.vehicleId == VehicleIds.OFFROADER) {
-            server.sendData(client, "Character.SeekTarget", {
-                characterId: this.characterId,
-                TargetCharacterId: server._airdrop.planeTarget,
-                initSpeed: -20,
-                acceleration: 0,
-                speed: 0,
-                turn: 5,
-                yRot: 0,
-                rotation: new Float32Array([0, this.positionUpdate.orientation || 0, 0, 0])
-            });
+      server.sendData(client, "Character.SeekTarget", {
+        characterId: this.characterId,
+        TargetCharacterId: server._airdrop.planeTarget,
+        initSpeed: -20,
+        acceleration: 0,
+        speed: 0,
+        turn: 5,
+        yRot: 0,
+        rotation: new Float32Array([
+          0,
+          this.positionUpdate.orientation || 0,
+          0,
+          0,
+        ]),
+      });
     } else {
       server.sendData(client, "Character.SeekTarget", {
         characterId: this.characterId,

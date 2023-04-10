@@ -235,7 +235,7 @@ export class ZoneServer2016 extends EventEmitter {
     destinationPos: Float32Array;
     cargoSpawned: boolean;
     containerSpawned: boolean;
-    manager?: Client
+    manager?: Client;
   };
   _gameTime: number = 0;
   readonly _serverTime = this.getCurrentTime();
@@ -3664,30 +3664,40 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-    syncAirdrop() {
-        if (!this._airdrop) return
-        let choosenClient: Client | undefined;
-        let currentDistance = 999999;
-        for (const a in this._clients) {
-            const client = this._clients[a]
-            this.sendData(client, "Character.RemovePlayer", {
-                characterId: this._airdrop.plane.characterId,
-            });
-            this.sendData(client, "AddLightweightVehicle", {
-                ...this._airdrop.plane.pGetLightweightVehicle(),
-                unknownGuid1: this.generateGuid(),
-            });
-            this.sendData(client, "Character.MovementVersion", {
-                characterId: this._airdrop.plane.characterId,
-                version: 5,
-            });
-            if (!choosenClient || currentDistance > getDistance2d(client.character.state.position, this._airdrop.plane.state.position)) {
-                choosenClient = client;
-                currentDistance = getDistance2d(client.character.state.position, this._airdrop.plane.state.position)
-            }
-        }
-        this._airdrop.manager = choosenClient
+  syncAirdrop() {
+    if (!this._airdrop) return;
+    let choosenClient: Client | undefined;
+    let currentDistance = 999999;
+    for (const a in this._clients) {
+      const client = this._clients[a];
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.plane.characterId,
+      });
+      this.sendData(client, "AddLightweightVehicle", {
+        ...this._airdrop.plane.pGetLightweightVehicle(),
+        unknownGuid1: this.generateGuid(),
+      });
+      this.sendData(client, "Character.MovementVersion", {
+        characterId: this._airdrop.plane.characterId,
+        version: 5,
+      });
+      if (
+        !choosenClient ||
+        currentDistance >
+          getDistance2d(
+            client.character.state.position,
+            this._airdrop.plane.state.position
+          )
+      ) {
+        choosenClient = client;
+        currentDistance = getDistance2d(
+          client.character.state.position,
+          this._airdrop.plane.state.position
+        );
+      }
     }
+    this._airdrop.manager = choosenClient;
+  }
 
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
@@ -5304,16 +5314,26 @@ export class ZoneServer2016 extends EventEmitter {
         this.airdropManager(this._clients[a], true);
       }
     }
-      let choosenClient: Client | undefined;
-      let currentDistance = 999999;
-      for (const a in this._clients) {
-          const client = this._clients[a]
-          if (!choosenClient || currentDistance > getDistance2d(client.character.state.position, this._airdrop.plane.state.position)) {
-              choosenClient = client;
-              currentDistance = getDistance2d(client.character.state.position, this._airdrop.plane.state.position)
-          }
+    let choosenClient: Client | undefined;
+    let currentDistance = 999999;
+    for (const a in this._clients) {
+      const client = this._clients[a];
+      if (
+        !choosenClient ||
+        currentDistance >
+          getDistance2d(
+            client.character.state.position,
+            this._airdrop.plane.state.position
+          )
+      ) {
+        choosenClient = client;
+        currentDistance = getDistance2d(
+          client.character.state.position,
+          this._airdrop.plane.state.position
+        );
       }
-      this._airdrop.manager = choosenClient
+    }
+    this._airdrop.manager = choosenClient;
     setTimeout(() => {
       if (this._airdrop && this._airdrop.plane.characterId == characterId) {
         for (const a in this._clients) {

@@ -671,12 +671,18 @@ export class ZonePacketHandlers {
     }
     if (packet.data.positionUpdate.unknown3_int8 == 5) {
       if (!server._airdrop || !packet.data.positionUpdate.position) return;
-      if (server._airdrop.manager?.character.characterId != client.character.characterId) return
+      if (
+        server._airdrop.manager?.character.characterId !=
+        client.character.characterId
+      )
+        return;
       server._airdrop.plane.state.position =
         packet.data.positionUpdate.position;
       server._airdrop.plane.positionUpdate.orientation =
         packet.data.positionUpdate.orientation;
-      server._airdrop.plane.state.rotation = eul2quat(new Float32Array([packet.data.positionUpdate.orientation, 0, 0, 0]))
+      server._airdrop.plane.state.rotation = eul2quat(
+        new Float32Array([packet.data.positionUpdate.orientation, 0, 0, 0])
+      );
       server._airdrop.plane.positionUpdate.frontTilt =
         packet.data.positionUpdate.frontTile;
       server._airdrop.plane.positionUpdate.sideTilt =

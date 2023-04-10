@@ -354,6 +354,41 @@ export class WorldObjectManager {
     );
     const container = lootbag.getContainer();
     if (container) {
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.IED, 30),
+        container
+      );
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.WEAPON_SHOTGUN, 1),
+        container
+      );
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.WEAPON_308, 1),
+        container
+      );
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.AMMO_12GA, 50),
+        container
+      );
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.AMMO_308, 50),
+        container
+      );
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.SWIZZLE, 10),
+        container
+      );
+      server.addContainerItem(
+        lootbag,
+        server.generateItem(Items.FUEL_ETHANOL, 50),
+        container
+      );
     }
 
     server._lootbags[characterId] = lootbag;
