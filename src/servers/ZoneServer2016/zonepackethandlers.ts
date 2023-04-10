@@ -1143,13 +1143,14 @@ export class ZonePacketHandlers {
     if (server._airdrop) {
       if (server._airdrop.plane.characterId == packet.data.characterId) {
         server._airdrop.plane.OnFullCharacterDataRequest(server, client);
+        return;
       } else if (
         server._airdrop.cargo &&
         server._airdrop.cargo.characterId == packet.data.characterId
       ) {
         server._airdrop.cargo.OnFullCharacterDataRequest(server, client);
+        return;
       }
-      return;
     }
     const entity = server.getEntity(packet.data.characterId);
     if (!(entity instanceof BaseFullCharacter) && !(entity instanceof Plant)) {
