@@ -3681,19 +3681,32 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: this._airdrop.plane.characterId,
         version: 5,
       });
-      if (
-        !choosenClient ||
-        currentDistance >
-          getDistance2d(
-            client.character.state.position,
-            this._airdrop.plane.state.position
-          )
-      ) {
+      if (!choosenClient) {
         choosenClient = client;
         currentDistance = getDistance2d(
           client.character.state.position,
           this._airdrop.plane.state.position
         );
+      }
+      if (
+        currentDistance >
+        getDistance2d(
+          client.character.state.position,
+          this._airdrop.plane.state.position
+        )
+      ) {
+        const soeClient = this.getSoeClient(client.soeClientId);
+        choosenClient = client;
+        if (soeClient) {
+          const ping = soeClient.avgPing;
+          if (ping < 100) {
+            choosenClient = client;
+            currentDistance = getDistance2d(
+              client.character.state.position,
+              this._airdrop.plane.state.position
+            );
+          }
+        }
       }
     }
     this._airdrop.manager = choosenClient;
