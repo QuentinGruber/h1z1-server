@@ -13,7 +13,6 @@
 
 import { createPositionUpdate } from "../../../utils/utils";
 import { VehicleIds } from "../models/enums";
-import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../entities/vehicle";
 
@@ -152,46 +151,6 @@ export class Plane extends Vehicle2016 {
         unknownString1: server._characters[passenger].name,
         unknownByte1: 1,
       };
-    });
-  }
-
-  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-    server.sendData(
-      client,
-      "LightweightToFullVehicle",
-      this.pGetFullVehicle(server)
-    );
-    if (!server._airdrop) return;
-    if (this.vehicleId == VehicleIds.OFFROADER) {
-      server.sendData(client, "Character.SeekTarget", {
-        characterId: this.characterId,
-        TargetCharacterId: server._airdrop.planeTarget,
-        initSpeed: -20,
-        acceleration: 0,
-        speed: 0,
-        turn: 5,
-        yRot: 0,
-        rotation: new Float32Array([
-          0,
-          this.positionUpdate.orientation || 0,
-          0,
-          0,
-        ]),
-      });
-    } else {
-      server.sendData(client, "Character.SeekTarget", {
-        characterId: this.characterId,
-        TargetCharacterId: server._airdrop.cargoTarget,
-        initSpeed: -5,
-        acceleration: 0,
-        speed: 0,
-        turn: 5,
-        yRot: 0,
-      });
-    }
-    server.sendData(client, "Character.ManagedObject", {
-      objectCharacterId: this.characterId,
-      characterId: client.character.characterId,
     });
   }
 }

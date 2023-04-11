@@ -37,6 +37,7 @@ export class Lootbag extends BaseLootableEntity {
         ? lootableContainerDefaultLoadouts.lootbag
         : lootableContainerDefaultLoadouts.military_crate;
     this.equipLoadout(server);
+    this.useSimpleStruct = false;
   }
 
   destroy(server: ZoneServer2016) {
