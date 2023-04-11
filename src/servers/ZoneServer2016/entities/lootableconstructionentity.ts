@@ -160,6 +160,11 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     if (server.fairPlayManager.useFairPlay) {
       for (const a in server._constructionFoundations) {
         const foundation = server._constructionFoundations[a];
+        if (
+          foundation.itemDefinitionId != Items.FOUNDATION &&
+          foundation.itemDefinitionId != Items.FOUNDATION_EXPANSION
+        )
+          continue;
         if (foundation.isInside(this.state.position)) {
           let pos = foundation.state.position[1];
           if (
