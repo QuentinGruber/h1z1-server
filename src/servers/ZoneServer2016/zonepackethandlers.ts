@@ -700,14 +700,34 @@ export class ZonePacketHandlers {
         setTimeout(() => {
           if (server._airdrop && server._airdrop.cargo) {
             for (const a in server._clients) {
-              server.sendData(server._clients[a], "AddLightweightVehicle", {
-                ...server._airdrop.cargo.pGetLightweightVehicle(),
-                unknownGuid1: server.generateGuid(),
-              });
-              server.sendData(client, "Character.MovementVersion", {
-                characterId: server._airdrop.cargo.characterId,
-                version: 6,
-              });
+                if (isPosInRadius(1000, server._clients[a].character.state.position, server._airdrop.cargo.state.position)) {
+                    server.sendData(server._clients[a], "AddLightweightVehicle", {
+                        ...server._airdrop.cargo.pGetLightweightVehicle(),
+                        unknownGuid1: server.generateGuid(),
+                    });
+                    server.sendData(client, "Character.MovementVersion", {
+                        characterId: server._airdrop.cargo.characterId,
+                        version: 6,
+                    });
+                    server.sendData(
+                        client,
+                        "LightweightToFullVehicle",
+                        server._airdrop.cargo.pGetFullVehicle(server)
+                    );
+                    server.sendData(client, "Character.SeekTarget", {
+                        characterId: server._airdrop.cargo.characterId,
+                        TargetCharacterId: server._airdrop.cargoTarget,
+                        initSpeed: -5,
+                        acceleration: 0,
+                        speed: 0,
+                        turn: 5,
+                        yRot: 0,
+                    });
+                    server.sendData(client, "Character.ManagedObject", {
+                        objectCharacterId: server._airdrop.cargo.characterId,
+                        characterId: client.character.characterId,
+                    });
+                }
             }
           }
         }, 3000);

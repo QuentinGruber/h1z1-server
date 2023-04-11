@@ -3625,6 +3625,32 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: this._airdrop.plane.characterId,
         version: 5,
       });
+      this.sendData(
+      client,
+      "LightweightToFullVehicle",
+      this._airdrop.plane.pGetFullVehicle(this)
+      );
+      this.sendData(client, "Character.SeekTarget", {
+        characterId: this._airdrop.plane.characterId,
+        TargetCharacterId: this._airdrop.planeTarget,
+        initSpeed: -20,
+        acceleration: 0,
+        speed: 0,
+        turn: 5,
+        yRot: 0,
+        rotation: new Float32Array([
+          0,
+          this._airdrop.plane.positionUpdate.orientation || 0,
+          0,
+          0,
+        ]),
+      });
+        if (this._airdrop.manager && this._airdrop.manager.character.characterId == client.character.characterId) {
+            this.sendData(client, "Character.ManagedObject", {
+                objectCharacterId: this._airdrop.plane.characterId,
+                characterId: client.character.characterId,
+            });
+        }
       this.sendData(client, "Command.PlayDialogEffect", {
         characterId: this._airdrop.destination,
         effectId: 4538,
@@ -3638,6 +3664,24 @@ export class ZoneServer2016 extends EventEmitter {
           characterId: this._airdrop.cargo.characterId,
           version: 6,
         });
+        this.sendData(
+                        client,
+                        "LightweightToFullVehicle",
+            this._airdrop.cargo.pGetFullVehicle(this)
+                    );
+          this.sendData(client, "Character.SeekTarget", {
+              characterId: this._airdrop.cargo.characterId,
+              TargetCharacterId: this._airdrop.cargoTarget,
+                        initSpeed: -5,
+                        acceleration: 0,
+                        speed: 0,
+                        turn: 5,
+                        yRot: 0,
+                    });
+          this.sendData(client, "Character.ManagedObject", {
+              objectCharacterId: this._airdrop.cargo.characterId,
+                        characterId: client.character.characterId,
+                    });
       }
     } else if (!spawn) {
       this.sendData(client, "Character.RemovePlayer", {
@@ -3681,6 +3725,26 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: this._airdrop.plane.characterId,
         version: 5,
       });
+      this.sendData(
+      client,
+      "LightweightToFullVehicle",
+      this._airdrop.plane.pGetFullVehicle(this)
+      );
+      this.sendData(client, "Character.SeekTarget", {
+        characterId: this._airdrop.plane.characterId,
+        TargetCharacterId: this._airdrop.planeTarget,
+        initSpeed: -20,
+        acceleration: 0,
+        speed: 0,
+        turn: 5,
+        yRot: 0,
+        rotation: new Float32Array([
+          0,
+          this._airdrop.plane.positionUpdate.orientation || 0,
+          0,
+          0,
+        ]),
+      });
       if (!choosenClient) {
         choosenClient = client;
         currentDistance = getDistance2d(
@@ -3709,7 +3773,12 @@ export class ZoneServer2016 extends EventEmitter {
         }
       }
     }
-    this._airdrop.manager = choosenClient;
+      this._airdrop.manager = choosenClient;
+      if (!this._airdrop.manager) return
+      this.sendData(this._airdrop.manager, "Character.ManagedObject", {
+          objectCharacterId: this._airdrop.plane.characterId,
+          characterId: this._airdrop.manager.character.characterId,
+      });
   }
 
   vehicleManager(client: Client) {
@@ -5326,31 +5395,31 @@ export class ZoneServer2016 extends EventEmitter {
       cargoSpawned: false,
       containerSpawned: false,
     };
+      let choosenClient: Client | undefined;
+      let currentDistance = 999999;
+      for (const a in this._clients) {
+          const client = this._clients[a];
+          if (
+              !choosenClient ||
+              currentDistance >
+              getDistance2d(
+                  client.character.state.position,
+                  this._airdrop.plane.state.position
+              )
+          ) {
+              choosenClient = client;
+              currentDistance = getDistance2d(
+                  client.character.state.position,
+                  this._airdrop.plane.state.position
+              );
+          }
+      }
+      this._airdrop.manager = choosenClient;
     for (const a in this._clients) {
       if (!this._clients[a].isLoading) {
         this.airdropManager(this._clients[a], true);
       }
     }
-    let choosenClient: Client | undefined;
-    let currentDistance = 999999;
-    for (const a in this._clients) {
-      const client = this._clients[a];
-      if (
-        !choosenClient ||
-        currentDistance >
-          getDistance2d(
-            client.character.state.position,
-            this._airdrop.plane.state.position
-          )
-      ) {
-        choosenClient = client;
-        currentDistance = getDistance2d(
-          client.character.state.position,
-          this._airdrop.plane.state.position
-        );
-      }
-    }
-    this._airdrop.manager = choosenClient;
     setTimeout(() => {
       if (this._airdrop && this._airdrop.plane.characterId == characterId) {
         for (const a in this._clients) {
