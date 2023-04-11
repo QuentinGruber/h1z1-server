@@ -3691,15 +3691,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData(client, "Character.RemovePlayer", {
         characterId: this._airdrop.plane.characterId,
       });
-      this.sendData(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.planeTarget,
-      });
-      this.sendData(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.cargoTarget,
-      });
-      this.sendData(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.destination,
-      });
       if (this._airdrop.cargo) {
         this.sendData(client, "Character.RemovePlayer", {
           characterId: this._airdrop.cargo.characterId,
@@ -3709,6 +3700,15 @@ export class ZoneServer2016 extends EventEmitter {
           effectDelay: 0,
         });
       }
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.destination,
+      });
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.planeTarget,
+      });
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.cargoTarget,
+      });
     }
   }
 
