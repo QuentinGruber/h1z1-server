@@ -676,8 +676,12 @@ export class ZonePacketHandlers {
         client.character.characterId
       )
         return;
-      server._airdrop.plane.state.position =
-        packet.data.positionUpdate.position;
+      server._airdrop.plane.state.position = new Float32Array([
+        packet.data.positionUpdate.position[0],
+        400,
+        packet.data.positionUpdate.position[2],
+        1,
+      ]);
       server._airdrop.plane.positionUpdate.orientation =
         packet.data.positionUpdate.orientation;
       server._airdrop.plane.state.rotation = eul2quat(
@@ -700,34 +704,40 @@ export class ZonePacketHandlers {
         setTimeout(() => {
           if (server._airdrop && server._airdrop.cargo) {
             for (const a in server._clients) {
-                if (isPosInRadius(1000, server._clients[a].character.state.position, server._airdrop.cargo.state.position)) {
-                    server.sendData(server._clients[a], "AddLightweightVehicle", {
-                        ...server._airdrop.cargo.pGetLightweightVehicle(),
-                        unknownGuid1: server.generateGuid(),
-                    });
-                    server.sendData(client, "Character.MovementVersion", {
-                        characterId: server._airdrop.cargo.characterId,
-                        version: 6,
-                    });
-                    server.sendData(
-                        client,
-                        "LightweightToFullVehicle",
-                        server._airdrop.cargo.pGetFullVehicle(server)
-                    );
-                    server.sendData(client, "Character.SeekTarget", {
-                        characterId: server._airdrop.cargo.characterId,
-                        TargetCharacterId: server._airdrop.cargoTarget,
-                        initSpeed: -5,
-                        acceleration: 0,
-                        speed: 0,
-                        turn: 5,
-                        yRot: 0,
-                    });
-                    server.sendData(client, "Character.ManagedObject", {
-                        objectCharacterId: server._airdrop.cargo.characterId,
-                        characterId: client.character.characterId,
-                    });
-                }
+              if (
+                isPosInRadius(
+                  1000,
+                  server._clients[a].character.state.position,
+                  server._airdrop.cargo.state.position
+                )
+              ) {
+                server.sendData(server._clients[a], "AddLightweightVehicle", {
+                  ...server._airdrop.cargo.pGetLightweightVehicle(),
+                  unknownGuid1: server.generateGuid(),
+                });
+                server.sendData(client, "Character.MovementVersion", {
+                  characterId: server._airdrop.cargo.characterId,
+                  version: 6,
+                });
+                server.sendData(
+                  client,
+                  "LightweightToFullVehicle",
+                  server._airdrop.cargo.pGetFullVehicle(server)
+                );
+                server.sendData(client, "Character.SeekTarget", {
+                  characterId: server._airdrop.cargo.characterId,
+                  TargetCharacterId: server._airdrop.cargoTarget,
+                  initSpeed: -5,
+                  acceleration: 0,
+                  speed: 0,
+                  turn: 5,
+                  yRot: 0,
+                });
+                server.sendData(client, "Character.ManagedObject", {
+                  objectCharacterId: server._airdrop.cargo.characterId,
+                  characterId: client.character.characterId,
+                });
+              }
             }
           }
         }, 3000);
@@ -1156,13 +1166,13 @@ export class ZonePacketHandlers {
   ) {
     if (server._airdrop) {
       if (server._airdrop.plane.characterId == packet.data.characterId) {
-        server._airdrop.plane.OnFullCharacterDataRequest(server, client);
+        //server._airdrop.plane.OnFullCharacterDataRequest(server, client);
         return;
       } else if (
         server._airdrop.cargo &&
         server._airdrop.cargo.characterId == packet.data.characterId
       ) {
-        server._airdrop.cargo.OnFullCharacterDataRequest(server, client);
+        //server._airdrop.cargo.OnFullCharacterDataRequest(server, client);
         return;
       }
     }

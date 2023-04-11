@@ -154,7 +154,4 @@ export class Plane extends Vehicle2016 {
       };
     });
   }
-
-  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
-  }
 }
