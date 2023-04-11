@@ -567,7 +567,7 @@ export class ZonePacketHandlers {
         isConstruction
           ? entity.fixedPosition || entity.state.position
           : entity.state.position,
-        isLootable ? 1.7 : 2.5
+        isLootable ? 1.7 : 3.5
       )
     )
       return;
