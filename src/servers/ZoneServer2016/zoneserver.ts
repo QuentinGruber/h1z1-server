@@ -2911,10 +2911,10 @@ export class ZoneServer2016 extends EventEmitter {
     const lightWeight = {
       characterId: "0x0000000000000001",
       transientId: 0,
-      actorModelId: 1,
+      actorModelId: 2,
       position: new Float32Array([0, 0, 0, 0]),
       rotation: new Float32Array([0, 0, 0, 0]),
-      scale: new Float32Array([0, 0, 0, 0]),
+      scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
       positionUpdateType: 0,
       profileId: 0,
       isLightweight: true,
@@ -3581,7 +3581,7 @@ export class ZoneServer2016 extends EventEmitter {
         actorModelId: 9770,
         position: this._airdrop.planeTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
-        scale: new Float32Array([0, 0, 0, 0]),
+        scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
         positionUpdateType: 0,
         profileId: 0,
         isLightweight: true,
@@ -3589,7 +3589,7 @@ export class ZoneServer2016 extends EventEmitter {
         headActor: "",
       };
       this.sendData(client, "AddLightweightNpc", lightWeight);
-      const lightWeight2 = {
+      /*const lightWeight2 = {
         characterId: this._airdrop.destination,
         transientId: 0,
         actorModelId: 33,
@@ -3601,14 +3601,14 @@ export class ZoneServer2016 extends EventEmitter {
         isLightweight: true,
         flags: {},
         headActor: "",
-      };
+      };*/
       const lightWeight3 = {
         characterId: this._airdrop.cargoTarget,
         transientId: 0,
         actorModelId: 9770,
         position: this._airdrop.cargoTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
-        scale: new Float32Array([0, 0, 0, 0]),
+        scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
         positionUpdateType: 0,
         profileId: 0,
         isLightweight: true,
@@ -3616,7 +3616,7 @@ export class ZoneServer2016 extends EventEmitter {
         headActor: "",
       };
       this.sendData(client, "AddLightweightNpc", lightWeight);
-      this.sendData(client, "AddLightweightNpc", lightWeight2);
+      //this.sendData(client, "AddLightweightNpc", lightWeight2);
       this.sendData(client, "AddLightweightNpc", lightWeight3);
       this.sendData(client, "AddLightweightVehicle", {
         ...this._airdrop.plane.pGetLightweightVehicle(),
@@ -3626,11 +3626,16 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: this._airdrop.plane.characterId,
         version: 5,
       });
-      this.sendData(
-        client,
-        "LightweightToFullVehicle",
-        this._airdrop.plane.pGetFullVehicle(this)
-      );
+      setTimeout(() => {
+        if (this._airdrop) {
+          this.sendData(
+            client,
+            "LightweightToFullVehicle",
+            this._airdrop.plane.pGetFullVehicle(this)
+          );
+        }
+      }, 1000);
+
       this.sendData(client, "Character.SeekTarget", {
         characterId: this._airdrop.plane.characterId,
         TargetCharacterId: this._airdrop.planeTarget,
@@ -3656,10 +3661,7 @@ export class ZoneServer2016 extends EventEmitter {
           characterId: client.character.characterId,
         });
       }
-      this.sendData(client, "Command.PlayDialogEffect", {
-        characterId: this._airdrop.destination,
-        effectId: 4538,
-      });
+
       if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
         this.sendData(client, "AddLightweightVehicle", {
           ...this._airdrop.cargo.pGetLightweightVehicle(),
@@ -3692,15 +3694,6 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData(client, "Character.RemovePlayer", {
         characterId: this._airdrop.plane.characterId,
       });
-      this.sendData(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.planeTarget,
-      });
-      this.sendData(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.cargoTarget,
-      });
-      this.sendData(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.destination,
-      });
       if (this._airdrop.cargo) {
         this.sendData(client, "Character.RemovePlayer", {
           characterId: this._airdrop.cargo.characterId,
@@ -3710,6 +3703,16 @@ export class ZoneServer2016 extends EventEmitter {
           effectDelay: 0,
         });
       }
+      // removing them seems to crash the client somehow
+      /*this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.destination,
+      });
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.planeTarget,
+      });
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.cargoTarget,
+      });*/
     }
   }
 
@@ -3730,11 +3733,15 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: this._airdrop.plane.characterId,
         version: 5,
       });
-      this.sendData(
-        client,
-        "LightweightToFullVehicle",
-        this._airdrop.plane.pGetFullVehicle(this)
-      );
+      setTimeout(() => {
+        if (this._airdrop) {
+          this.sendData(
+            client,
+            "LightweightToFullVehicle",
+            this._airdrop.plane.pGetFullVehicle(this)
+          );
+        }
+      }, 1000);
       this.sendData(client, "Character.SeekTarget", {
         characterId: this._airdrop.plane.characterId,
         TargetCharacterId: this._airdrop.planeTarget,
@@ -5344,6 +5351,7 @@ export class ZoneServer2016 extends EventEmitter {
       !this.removeInventoryItem(client, item)
     )
       return;
+    this.sendAlert(client, "You have called an airdrop.");
     const pos = new Float32Array([
       client.character.state.position[0],
       400,

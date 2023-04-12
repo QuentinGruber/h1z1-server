@@ -41,6 +41,7 @@ import {
   Skins_Kevlar,
   Skins_Military,
   Skins_Glasses,
+  Effects,
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -342,6 +343,19 @@ export class WorldObjectManager {
   }
 
   createAirdropContainer(server: ZoneServer2016, pos: Float32Array) {
+    const airdropTypes: string[] = [
+      "Farmer",
+      "Demolitioner",
+      "Medic",
+      "Builder",
+      "Fighter",
+      "Supplier",
+    ];
+
+    const index = Math.floor(Math.random() * airdropTypes.length);
+    const airdropType = airdropTypes[index];
+    const lootSpawner = containerLootSpawners[airdropType];
+
     const characterId = generateRandomGuid();
 
     const lootbag = new Lootbag(
@@ -354,43 +368,51 @@ export class WorldObjectManager {
     );
     const container = lootbag.getContainer();
     if (container) {
-      server.addContainerItem(
-        lootbag,
-        server.generateItem(Items.IED, 30),
-        container
-      );
-      server.addContainerItem(
-        lootbag,
-        server.generateItem(Items.WEAPON_SHOTGUN, 1),
-        container
-      );
-      server.addContainerItem(
-        lootbag,
-        server.generateItem(Items.WEAPON_308, 1),
-        container
-      );
-      server.addContainerItem(
-        lootbag,
-        server.generateItem(Items.AMMO_12GA, 50),
-        container
-      );
-      server.addContainerItem(
-        lootbag,
-        server.generateItem(Items.AMMO_308, 50),
-        container
-      );
-      server.addContainerItem(
-        lootbag,
-        server.generateItem(Items.SWIZZLE, 10),
-        container
-      );
-      server.addContainerItem(
-        lootbag,
-        server.generateItem(Items.FUEL_ETHANOL, 50),
-        container
-      );
+      lootSpawner.items.forEach((item: LootDefinition) => {
+        server.addContainerItem(
+          lootbag,
+          server.generateItem(item.item, item.spawnCount.max),
+          container
+        );
+      });
     }
-
+    let effectId = Effects.Smoke_Green; // default
+    switch (airdropType) {
+      case "Farmer":
+        effectId = Effects.Smoke_Green;
+        break;
+      case "Demolitioner":
+        effectId = Effects.Smoke_Orange;
+        break;
+      case "Medic":
+        effectId = Effects.Smoke_Blue;
+        break;
+      case "Builder":
+        effectId = Effects.Smoke_Purple;
+        break;
+      case "Fighter":
+        effectId = Effects.Smoke_Red;
+        break;
+      case "Supplier":
+        effectId = Effects.Smoke_Yellow;
+    }
+    if (server._airdrop) {
+      const smokePos = new Float32Array([
+        server._airdrop.destinationPos[0],
+        server._airdrop.destinationPos[1] + 0.3,
+        server._airdrop.destinationPos[2],
+        1,
+      ]);
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        server.sendData(c, "Character.PlayWorldCompositeEffect", {
+          characterId: c.character.characterId,
+          effectId: effectId,
+          position: smokePos,
+          unk3: 60,
+        });
+      }
+    }
     server._lootbags[characterId] = lootbag;
   }
 

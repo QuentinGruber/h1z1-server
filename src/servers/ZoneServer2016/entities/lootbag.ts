@@ -14,6 +14,8 @@
 import { BaseLootableEntity } from "./baselootableentity";
 import { ZoneServer2016 } from "../zoneserver";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
+import { ZoneClient2016 } from "../classes/zoneclient";
+import { StringIds } from "../models/enums";
 
 export class Lootbag extends BaseLootableEntity {
   creationTime = Date.now();
@@ -38,6 +40,42 @@ export class Lootbag extends BaseLootableEntity {
         : lootableContainerDefaultLoadouts.military_crate;
     this.equipLoadout(server);
     this.useSimpleStruct = false;
+  }
+
+  OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
+    if (client.searchedProps.includes(this)) {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.OPEN,
+      });
+    } else {
+      server.sendData(client, "Command.InteractionString", {
+        guid: this.characterId,
+        stringId: StringIds.SEARCH,
+      });
+    }
+  }
+  /* eslint-disable @typescript-eslint/no-unused-vars */
+  OnPlayerSelect(
+    server: ZoneServer2016,
+    client: ZoneClient2016,
+    isInstant?: boolean
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+  ) {
+    if (!client.searchedProps.includes(this)) {
+      server.utilizeHudTimer(
+        client,
+        server.getItemDefinition(this._containers["31"].itemDefinitionId)
+          .NAME_ID,
+        this.actorModelId != 9218 ? 1000 : 10000,
+        () => {
+          super.OnPlayerSelect(server, client);
+          client.searchedProps.push(this);
+        }
+      );
+    } else {
+      super.OnPlayerSelect(server, client);
+    }
   }
 
   destroy(server: ZoneServer2016) {

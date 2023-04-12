@@ -188,6 +188,7 @@ export class ZonePacketHandlers {
         runSpeed: 0,
       });
       client.character.isReady = true;
+      server.airdropManager(client, true);
     }
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
@@ -197,7 +198,6 @@ export class ZonePacketHandlers {
     }
     server.spawnWorkAroundLightWeight(client);
     server.setTickRate();
-    server.airdropManager(client, true);
   }
   Security(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet);
@@ -710,13 +710,7 @@ export class ZonePacketHandlers {
         setTimeout(() => {
           if (server._airdrop && server._airdrop.cargo) {
             for (const a in server._clients) {
-              if (
-                isPosInRadius(
-                  1000,
-                  server._clients[a].character.state.position,
-                  server._airdrop.cargo.state.position
-                )
-              ) {
+              if (!client.firstLoading && !client.isLoading) {
                 server.sendData(server._clients[a], "AddLightweightVehicle", {
                   ...server._airdrop.cargo.pGetLightweightVehicle(),
                   unknownGuid1: server.generateGuid(),
@@ -754,6 +748,14 @@ export class ZonePacketHandlers {
         !server._airdrop ||
         !packet.data.positionUpdate.position ||
         !server._airdrop.cargo
+      )
+        return;
+      if (
+        !isPosInRadius(
+          500,
+          client.character.state.position,
+          server._airdrop.cargo.state.position
+        )
       )
         return;
       server._airdrop.cargo.state.position =
