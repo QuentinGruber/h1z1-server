@@ -1,10 +1,11 @@
 import fs from "fs";
+import {PacketDataType} from "../src/types/packetStructure"
 const h1z1packets2015 = require("../src/packets/ClientProtocol/ClientProtocol_860/h1z1packets");
 const h1z1packets2016 = require("../src/packets/ClientProtocol/ClientProtocol_1080/h1z1packets");
 const LoginUdp_9 = require("../src/packets/LoginUdp/LoginUdp_9/loginpackets");
 const LoginUdp_11 = require("../src/packets/LoginUdp/LoginUdp_11/loginpackets");
 const gatewayPackets = require("../src/packets/gatewaypackets");
-const typeMap: Record<string, string> = {
+const typeMap: Record<PacketDataType, string> = {
   uint8: "number",
   int8: "number",
   uint16: "number",
@@ -27,6 +28,8 @@ const typeMap: Record<string, string> = {
   floatvector4: "Float32Array",
   byteswithlength: "any", // todo
   string: "string",
+  nullstring : "string",
+  schema: "custom handle",
   boolean: "boolean",
 };
 function getSchemaBody(schema: any) {
