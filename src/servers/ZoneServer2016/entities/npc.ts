@@ -77,6 +77,7 @@ export class Npc extends BaseFullCharacter {
       this.flags.knockedOut = 1;
       this.isAlive = 0;
       this.deathTime = Date.now();
+      server.worldObjectManager.createLootbag(server, this);
       if (client) {
         if (!server._soloMode) {
           logClientActionToMongo(
