@@ -3625,11 +3625,16 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: this._airdrop.plane.characterId,
         version: 5,
       });
-      this.sendData(
-        client,
-        "LightweightToFullVehicle",
-        this._airdrop.plane.pGetFullVehicle(this)
-      );
+      setTimeout(() => {
+        if (this._airdrop) {
+          this.sendData(
+            client,
+            "LightweightToFullVehicle",
+            this._airdrop.plane.pGetFullVehicle(this)
+          );
+        }
+      }, 1000);
+
       this.sendData(client, "Character.SeekTarget", {
         characterId: this._airdrop.plane.characterId,
         TargetCharacterId: this._airdrop.planeTarget,
@@ -3727,11 +3732,15 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: this._airdrop.plane.characterId,
         version: 5,
       });
-      this.sendData(
-        client,
-        "LightweightToFullVehicle",
-        this._airdrop.plane.pGetFullVehicle(this)
-      );
+      setTimeout(() => {
+        if (this._airdrop) {
+          this.sendData(
+            client,
+            "LightweightToFullVehicle",
+            this._airdrop.plane.pGetFullVehicle(this)
+          );
+        }
+      }, 1000);
       this.sendData(client, "Character.SeekTarget", {
         characterId: this._airdrop.plane.characterId,
         TargetCharacterId: this._airdrop.planeTarget,
