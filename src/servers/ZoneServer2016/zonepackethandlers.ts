@@ -770,19 +770,7 @@ export class ZonePacketHandlers {
           server,
           server._airdrop.destinationPos
         );
-        const smokePos = new Float32Array([
-          server._airdrop.destinationPos[0],
-          server._airdrop.destinationPos[1] + 0.3,
-          server._airdrop.destinationPos[2],
-          1,
-        ]);
         for (const a in server._clients) {
-          server.sendData(client, "Character.PlayWorldCompositeEffect", {
-            characterId: server._clients[a].character.characterId,
-            effectId: 4538,
-            position: smokePos,
-            unk3: 60,
-          });
           server.airdropManager(server._clients[a], false);
         }
         delete server._airdrop;

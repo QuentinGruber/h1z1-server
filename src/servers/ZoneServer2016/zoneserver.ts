@@ -5340,7 +5340,7 @@ export class ZoneServer2016 extends EventEmitter {
       !this.removeInventoryItem(client, item)
     )
       return;
-    this.sendAlert(client, "An airdrop has been called.");
+    this.sendAlert(client, "You have called an airdrop.");
     const pos = new Float32Array([
       client.character.state.position[0],
       400,

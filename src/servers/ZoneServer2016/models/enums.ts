@@ -671,3 +671,15 @@ export enum Skins_Glasses {
   White_Biker_Glasses = 2252,
   Steampunk_Goggles = 2954,
 }
+
+export enum Effects {
+  Smoke_Orange = 3621,
+  Smoke_Green = 3622,
+  Smoke_Purple = 3623,
+  Smoke_Yellow = 3624,
+  Smoke_LimeGreen = 4537,
+  Smoke_Red = 4538,
+  Smoke_Blue = 4539,
+  Smoke_Teal = 4540,
+  Smoke_Magenta = 4541,
+}
