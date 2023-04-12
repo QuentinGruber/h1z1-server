@@ -18,6 +18,7 @@ import { LootableProp } from "../entities/lootableprop";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "../entities/baseentity";
 import { fireHint } from "../../../types/zoneserver";
+import { Lootbag } from "../entities/lootbag";
 //import { h1z1PacketsType2016 } from "../../../types/packets";
 //import { zone2016packets } from "../../../types/zone2016packets";
 
@@ -63,7 +64,7 @@ export class ZoneClient2016 {
   spawnedDTOs: any[] = [];
   spawnedEntities: BaseEntity[] = [];
   sentInteractionData: BaseEntity[] = [];
-  searchedProps: LootableProp[] = [];
+  searchedProps: (LootableProp | Lootbag)[] = [];
   managedObjects: string[] = [];
   vehicle: {
     mountedVehicle?: string;
