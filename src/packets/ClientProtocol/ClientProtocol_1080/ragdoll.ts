@@ -11,9 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { PacketStructures } from "types/packetStructure";
 import { packPositionUpdateData, readPositionUpdateData } from "./shared";
 
-export const ragdollPackets: any = [
+export const ragdollPackets: PacketStructures = [
   [
     "Ragdoll.Start",
     0xce0100,

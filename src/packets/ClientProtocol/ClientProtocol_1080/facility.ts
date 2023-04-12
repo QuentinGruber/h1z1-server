@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const facilityPackets: any = [
+export const facilityPackets: PacketStructures = [
   [
     "Facility.ReferenceData",
     0x8501,

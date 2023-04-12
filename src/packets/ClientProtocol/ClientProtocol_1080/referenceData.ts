@@ -18,8 +18,9 @@ import {
   packVehicleReferenceData,
   parseVehicleReferenceData,
 } from "./shared";
+import { PacketFields, PacketStructures } from "types/packetStructure";
 
-const weaponDefinitionSchema: any[] = [
+const weaponDefinitionSchema: PacketFields = [
   {
     name: "WEAPON_DEFINITIONS",
     type: "array",
@@ -848,7 +849,7 @@ function packWeaponDefinitionData(obj: any) {
   return Buffer.concat([compressionData, output]);
 }
 
-const projectileDefinitionSchema: any[] = [
+const projectileDefinitionSchema: PacketFields = [
   {
     name: "PROJECTILE_DEFINITIONS",
     type: "array",
@@ -950,7 +951,7 @@ function packProjectileDefinitionData(obj: any) {
   return Buffer.concat([compressionData, output]);
 }
 
-export const referenceDataPackets: any = [
+export const referenceDataPackets: PacketStructures = [
   ["ReferenceData.ItemClassDefinitions", 0x1701, {}],
   ["ReferenceData.ItemCategoryDefinitions", 0x1702, {}],
   [

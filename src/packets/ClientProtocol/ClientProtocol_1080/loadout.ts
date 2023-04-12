@@ -11,9 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { PacketStructures } from "types/packetStructure";
 import { loadoutSlotData, loadoutSlotsSchema } from "./shared";
 
-export const loadoutPackets: any = [
+export const loadoutPackets: PacketStructures = [
   [
     "Loadout.SelectLoadout",
     0x8702,

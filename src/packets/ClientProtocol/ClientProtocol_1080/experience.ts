@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const experiencePackets: any = [
+export const experiencePackets: PacketStructures = [
   ["Experience.SetExperience", 0x8801, {}],
   [
     "Experience.SetExperienceRanks",

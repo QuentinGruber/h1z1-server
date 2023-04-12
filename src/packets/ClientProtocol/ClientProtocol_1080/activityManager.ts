@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const activityManagerPackets: any = [
+export const activityManagerPackets: PacketStructures = [
   ["ActivityManager.ProfileActivityList", 0x6301, {}],
   ["ActivityManager.JoinErrorString", 0x6302, {}],
 ];

@@ -11,9 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { PacketStructures } from "types/packetStructure";
 import { itemSchema, passengerSchema } from "./shared";
 
-export const vehiclePackets: any = [
+export const vehiclePackets: PacketStructures = [
   [
     "Vehicle.Owner",
     0x8901,

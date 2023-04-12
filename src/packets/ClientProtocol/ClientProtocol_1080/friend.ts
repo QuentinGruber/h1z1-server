@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const friendPackets: any = [
+export const friendPackets: PacketStructures = [
   [
     "Friend.List",
     0x2d01,

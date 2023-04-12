@@ -11,9 +11,15 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import {
+  PacketField,
+  PacketFields,
+  PacketObject,
+  PacketStructures,
+} from "types/packetStructure";
 import { identitySchema } from "./shared";
 
-const groupCharacterSchema: Array<any> = [
+const groupCharacterSchema: Array<PacketField> = [
   { name: "characterId", type: "uint64string", defaultValue: "" },
   {
     name: "identity",
@@ -25,7 +31,7 @@ const groupCharacterSchema: Array<any> = [
   { name: "unknownString1", type: "string", defaultValue: "" },
 ];
 
-const inviteDataSchema: Array<any> = [
+const inviteDataSchema: Array<PacketField> = [
   { name: "unknownQword1", type: "uint64string", defaultValue: "" },
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   {
@@ -43,7 +49,7 @@ const inviteDataSchema: Array<any> = [
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
 ];
 
-const joinDataSchema: Array<any> = [
+const joinDataSchema: Array<PacketField> = [
   {
     name: "inviteData",
     type: "schema",
@@ -87,7 +93,7 @@ const joinDataSchema: Array<any> = [
   { name: "unknownDword10", type: "uint32", defaultValue: 0 },
 ];
 
-export const groupPackets = [
+export const groupPackets: PacketStructures = [
   [
     "Group.Invite",
     0x1301,

@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const h1emuPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const h1emuPackets: PacketStructures = [
   [
     "H1emu.PrintToConsole",
     0x9901,

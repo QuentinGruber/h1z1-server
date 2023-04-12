@@ -12,8 +12,9 @@
 // ======================================================================
 
 import { containerData, containers } from "./shared";
+import { PacketStructures } from "types/packetStructure";
 
-export const containerPackets: any = [
+export const containerPackets: PacketStructures = [
   [
     "Container.MoveItem",
     0xc90100,

@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const activityServicePackets: any = [
+export const activityServicePackets: PacketStructures = [
   ["Activity.Activity.ListOfActivities", 0x700101, {}],
   ["Activity.Activity.UpdateActivityFeaturedStatus", 0x700105, {}],
   ["Activity.ScheduledActivity.ListOfActivities", 0x700201, {}],

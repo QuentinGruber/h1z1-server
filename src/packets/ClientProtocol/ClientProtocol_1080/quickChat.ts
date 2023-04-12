@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const quickChatPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const quickChatPackets: PacketStructures = [
   [
     "QuickChat.SendData",
     0x280100,

@@ -11,4 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const targetPackets: any = [["Target", 0x7e, {}]];
+import { PacketStructures } from "types/packetStructure";
+
+export const targetPackets: PacketStructures = [["Target", 0x7e, {}]];
