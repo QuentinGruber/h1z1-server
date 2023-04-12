@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const lobbyPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const lobbyPackets: PacketStructures = [
   ["Lobby.JoinLobbyGame", 0x4101, {}],
   ["Lobby.LeaveLobbyGame", 0x4102, {}],
   ["Lobby.StartLobbyGame", 0x4103, {}],

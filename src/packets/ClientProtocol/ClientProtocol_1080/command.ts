@@ -12,8 +12,9 @@
 // ======================================================================
 
 import { packItemDefinitionData, packTargetData } from "./shared";
+import { PacketStructures } from "types/packetStructure";
 
-export const commandPackets: any = [
+export const commandPackets: PacketStructures = [
   ["Command.ShowDialog", 0x090100, {}],
   ["Command.EndDialog", 0x090200, {}],
   ["Command.StartDialog", 0x090300, {}],

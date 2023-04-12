@@ -11,9 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { PacketStructures } from "types/packetStructure";
 import { identitySchema } from "./shared";
 
-export const mountPackets: any = [
+export const mountPackets: PacketStructures = [
   ["Mount.MountRequest", 0x7101, {}],
   [
     "Mount.MountResponse",

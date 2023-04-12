@@ -1,10 +1,11 @@
 import fs from "fs";
+import {PacketDataType, PacketField, PacketFields} from "../src/types/packetStructure"
 const h1z1packets2015 = require("../src/packets/ClientProtocol/ClientProtocol_860/h1z1packets");
 const h1z1packets2016 = require("../src/packets/ClientProtocol/ClientProtocol_1080/h1z1packets");
 const LoginUdp_9 = require("../src/packets/LoginUdp/LoginUdp_9/loginpackets");
 const LoginUdp_11 = require("../src/packets/LoginUdp/LoginUdp_11/loginpackets");
 const gatewayPackets = require("../src/packets/gatewaypackets");
-const typeMap: Record<string, string> = {
+const typeMap: Record<PacketDataType, string> = {
   uint8: "number",
   int8: "number",
   uint16: "number",
@@ -27,16 +28,18 @@ const typeMap: Record<string, string> = {
   floatvector4: "Float32Array",
   byteswithlength: "any", // todo
   string: "string",
+  nullstring : "string",
+  schema: "custom handle",
   boolean: "boolean",
 };
-function getSchemaBody(schema: any) {
+function getSchemaBody(schema: PacketFields) {
   let bodyInterfaceString = "";
-  schema.forEach((element: any) => {
+  schema.forEach((element: PacketField) => {
     if (element.type === "schema") {
       bodyInterfaceString += "  ";
       bodyInterfaceString += element.name + "?";
       bodyInterfaceString += " :{\n";
-      bodyInterfaceString += getSchemaBody(element.fields);
+      bodyInterfaceString += getSchemaBody(element.fields as PacketFields);
       bodyInterfaceString += "}\n";
     } else {
       const type = typeMap[element.type];

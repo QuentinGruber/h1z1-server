@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const abilitiesPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const abilitiesPackets: PacketStructures = [
   ["Abilities.InitAbility", 0xa101, {}],
   ["Abilities.UpdateAbility", 0xa102, {}],
   ["Abilities.UninitAbility", 0xa103, {}],

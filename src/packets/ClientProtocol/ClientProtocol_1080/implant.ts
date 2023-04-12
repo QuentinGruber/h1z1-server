@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const implantPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const implantPackets: PacketStructures = [
   ["Implant.SelectImplant", 0x9c01, {}],
   ["Implant.UnselectImplant", 0x9c02, {}],
   ["Implant.LoadImplantDefinitionManager", 0x9c03, {}],

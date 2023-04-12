@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const coinStorePackets: any = [
+export const coinStorePackets: PacketStructures = [
   [
     "CoinStore.ItemList",
     0x6e0100,

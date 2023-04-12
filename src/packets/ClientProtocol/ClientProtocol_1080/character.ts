@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const characterPackets: any = [
+export const characterPackets: PacketStructures = [
   ["Character.None", 0x0f00, {}],
   [
     "Character.RemovePlayer",

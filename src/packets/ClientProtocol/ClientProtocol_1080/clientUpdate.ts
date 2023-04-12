@@ -21,8 +21,9 @@ import {
   respawnLocationSchema,
   statSchema,
 } from "./shared";
+import { PacketStructures } from "types/packetStructure";
 
-export const clientUpdatePackets: any = [
+export const clientUpdatePackets: PacketStructures = [
   ["ClientUpdate.Hitpoints", 0x110100, {}],
   [
     "ClientUpdate.ItemAdd",

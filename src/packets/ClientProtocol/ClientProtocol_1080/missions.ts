@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const missionsPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const missionsPackets: PacketStructures = [
   ["Missions.ListMissions", 0x9e01, {}],
   ["Missions.ConquerZone", 0x9e02, {}],
   ["Missions.SelectMission", 0x9e03, {}],

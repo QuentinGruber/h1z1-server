@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const profileStatsPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const profileStatsPackets: PacketStructures = [
   [
     "ProfileStats.GetPlayerProfileStats",
     0x940000,
