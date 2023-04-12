@@ -15,6 +15,8 @@ export interface PacketField {
   export interface PacketObject {
     fields?:PacketFields,
     fn?: unknown,
+    parse?:unknown,
+    pack?:unknown,
   }
   export type PacketStructure = [string,number,PacketObject];
 
