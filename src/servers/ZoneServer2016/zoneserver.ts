@@ -448,6 +448,7 @@ export class ZoneServer2016 extends EventEmitter {
             );
             console.error(err);
           } else {
+            this.sendZonePopulationUpdate();
             debug(`LoginConnection established for ${client.sessionId}`);
           }
         }
