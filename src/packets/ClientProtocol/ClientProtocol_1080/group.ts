@@ -11,12 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import {
-  PacketField,
-  PacketFields,
-  PacketObject,
-  PacketStructures,
-} from "types/packetStructure";
+import { PacketField, PacketStructures } from "types/packetStructure";
 import { identitySchema } from "./shared";
 
 const groupCharacterSchema: Array<PacketField> = [
