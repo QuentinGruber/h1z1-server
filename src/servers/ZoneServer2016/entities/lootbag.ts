@@ -55,7 +55,7 @@ export class Lootbag extends BaseLootableEntity {
       });
     }
   }
-
+  /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
     server: ZoneServer2016,
     client: ZoneClient2016,
