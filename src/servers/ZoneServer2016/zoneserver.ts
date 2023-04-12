@@ -2910,10 +2910,10 @@ export class ZoneServer2016 extends EventEmitter {
     const lightWeight = {
       characterId: "0x0000000000000001",
       transientId: 0,
-      actorModelId: 1,
+      actorModelId: 2,
       position: new Float32Array([0, 0, 0, 0]),
       rotation: new Float32Array([0, 0, 0, 0]),
-      scale: new Float32Array([0, 0, 0, 0]),
+      scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
       positionUpdateType: 0,
       profileId: 0,
       isLightweight: true,
@@ -3580,7 +3580,7 @@ export class ZoneServer2016 extends EventEmitter {
         actorModelId: 9770,
         position: this._airdrop.planeTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
-        scale: new Float32Array([0, 0, 0, 0]),
+        scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
         positionUpdateType: 0,
         profileId: 0,
         isLightweight: true,
@@ -3607,7 +3607,7 @@ export class ZoneServer2016 extends EventEmitter {
         actorModelId: 9770,
         position: this._airdrop.cargoTargetPos,
         rotation: new Float32Array([0, 0, 0, 0]),
-        scale: new Float32Array([0, 0, 0, 0]),
+        scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
         positionUpdateType: 0,
         profileId: 0,
         isLightweight: true,
@@ -3697,15 +3697,16 @@ export class ZoneServer2016 extends EventEmitter {
           effectDelay: 0,
         });
       }
+      // removing them seems to crash the client somehow
       /*this.sendData(client, "Character.RemovePlayer", {
         characterId: this._airdrop.destination,
-      });*/
+      });
       this.sendData(client, "Character.RemovePlayer", {
         characterId: this._airdrop.planeTarget,
       });
       this.sendData(client, "Character.RemovePlayer", {
         characterId: this._airdrop.cargoTarget,
-      });
+      });*/
     }
   }
 
