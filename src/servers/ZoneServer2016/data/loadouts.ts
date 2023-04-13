@@ -111,6 +111,7 @@ export const lootableContainerDefaultLoadouts = {
   barbeque: [{ item: Items.CONTAINER_BARBEQUE }],
   campfire: [{ item: Items.CONTAINER_CAMPFIRE }],
   lootbag: [{ item: Items.CONTAINER_DROPPED_ITEMS }],
+  military_crate: [{ item: Items.CONTAINER_MILITARY_CRATE }],
   bee_box: [{ item: Items.CONTAINER_BEE_BOX }],
   dew_collector: [{ item: Items.CONTAINER_DEW_COLLECTOR }],
   animal_trap: [{ item: Items.CONTAINER_ANIMAL_TRAP }],

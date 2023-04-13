@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const uiPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const uiPackets: PacketStructures = [
   ["Ui.TaskAdd", 0x1a01, {}],
   ["Ui.TaskUpdate", 0x1a02, {}],
   ["Ui.TaskComplete", 0x1a03, {}],

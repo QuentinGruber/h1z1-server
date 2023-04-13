@@ -12,8 +12,9 @@
 // ======================================================================
 
 import { effectTagsSchema } from "./shared";
+import { PacketStructures } from "types/packetStructure";
 
-export const effectsPackets: any = [
+export const effectsPackets: PacketStructures = [
   [
     "Effect.AddEffect",
     0x9f01,

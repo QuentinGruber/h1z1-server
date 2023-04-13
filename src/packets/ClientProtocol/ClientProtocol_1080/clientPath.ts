@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const clientPathPackets: any = [
+export const clientPathPackets: PacketStructures = [
   [
     "ClientPath.Request",
     0x3e01,

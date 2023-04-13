@@ -112,6 +112,7 @@ export class FairPlayManager {
         respawnCheckIterations: Number(decryptedData[35]),
         maxFlying: Number(decryptedData[36]),
         maxPositionDesync: Number(decryptedData[37]),
+        maxFlaggedShots: Number(decryptedData[38]),
       };
     }
   }
@@ -144,6 +145,10 @@ export class FairPlayManager {
             kick = false;
         }
         for (const char in server._characters) {
+          if (
+            server._characters[char].characterId == client.character.characterId
+          )
+            continue;
           if (
             isPosInRadiusWithY(
               3,
@@ -185,7 +190,7 @@ export class FairPlayManager {
           return true;
         }
         if (!client.isLoading && client.enableChecks) {
-          if (distance > 10) {
+          if (distance > this.fairPlayValues.maxTpDist) {
             /*this.sendData(client, "ClientUpdate.UpdateLocation", {
               position: new Float32Array([...client.oldPos.position, 0]),
               triggerLoadingScreen: true,
@@ -217,7 +222,7 @@ export class FairPlayManager {
         if (soeClient) {
           if (soeClient.avgPing >= 250) return false;
         }
-        //client.speedWarnsNumber += 1;
+        client.speedWarnsNumber += 1;
       } else if (client.speedWarnsNumber > 0) {
         client.speedWarnsNumber -= 1;
       }

@@ -11,9 +11,10 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { PacketStructures } from "types/packetStructure";
 import { recipeData } from "./shared";
 
-export const recipePackets: any = [
+export const recipePackets: PacketStructures = [
   ["Recipe.Add", 0x2601, { fields: recipeData }],
   ["Recipe.ComponentUpdate", 0x2602, {}],
   [

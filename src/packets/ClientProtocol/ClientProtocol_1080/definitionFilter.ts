@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const definitionFilterPackets: any = [
+export const definitionFilterPackets: PacketStructures = [
   ["DefinitionFilter.ListDefinitionVariables", 0x9601, {}],
   [
     "DefinitionFilter.SetDefinitionVariable",

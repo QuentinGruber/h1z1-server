@@ -83,6 +83,9 @@ import {
   getDifference,
   logClientActionToMongo,
   removeUntransferableFields,
+  movePoint,
+  getAngle,
+  getDistance2d,
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -147,6 +150,7 @@ import { SpeedTreeManager } from "./managers/speedtreemanager";
 import { ConstructionManager } from "./managers/constructionmanager";
 import { FairPlayManager } from "./managers/fairplaymanager";
 import { Destroyable } from "./entities/destroyable";
+import { Plane } from "./entities/plane";
 
 const spawnLocations2 = require("../../../data/2016/zoneData/Z1_gridSpawns.json"),
   deprecatedDoors = require("../../../data/2016/sampleData/deprecatedDoors.json"),
@@ -220,7 +224,19 @@ export class ZoneServer2016 extends EventEmitter {
   } = {};
   _worldSimpleConstruction: { [characterId: string]: ConstructionChildEntity } =
     {};
-
+  _airdrop?: {
+    plane: Plane;
+    cargo?: Plane;
+    planeTarget: string;
+    planeTargetPos: Float32Array;
+    cargoTarget: string;
+    cargoTargetPos: Float32Array;
+    destination: string;
+    destinationPos: Float32Array;
+    cargoSpawned: boolean;
+    containerSpawned: boolean;
+    manager?: Client;
+  };
   _gameTime: number = 0;
   readonly _serverTime = this.getCurrentTime();
   _startTime = 0;
@@ -404,6 +420,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (!this._soloMode && this.enablePacketInputLogging) {
           this._db.collection("packets").insertOne({
             data,
+            flags,
             loginSessionId: this._clients[client.sessionId].loginSessionId,
           });
         }
@@ -431,6 +448,7 @@ export class ZoneServer2016 extends EventEmitter {
             );
             console.error(err);
           } else {
+            this.sendZonePopulationUpdate();
             debug(`LoginConnection established for ${client.sessionId}`);
           }
         }
@@ -1013,7 +1031,6 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   private async setupServer() {
-    this.weatherManager.forceTime(this, 971172000000); // force day time by default - not working for now
     this.weatherManager.weather =
       this.weatherManager.templates[this.weatherManager.defaultTemplate];
     this.weatherManager.seasonstart();
@@ -1452,6 +1469,7 @@ export class ZoneServer2016 extends EventEmitter {
         this.worldObjectManager.run(this);
         this.checkVehiclesInMapBounds();
         this.setTickRate();
+        this.syncAirdrop();
         if (
           this.enableWorldSaves &&
           !this.isSaving &&
@@ -2530,6 +2548,26 @@ export class ZoneServer2016 extends EventEmitter {
         message: "InvalidTarget",
       };
     }
+
+    const target = this.getClientByCharId(entity.characterId);
+    if (target) {
+      if (!target.spawnedEntities.includes(client.character)) {
+        return {
+          isValid: false,
+          message: "InvalidTarget",
+        };
+      }
+    }
+    if (client.isFairPlayFlagged) {
+      this.sendChatTextToAdmins(
+        `FairPlay: blocked projectile of flagged client: ${client.character.name}`,
+        false
+      );
+      return {
+        isValid: false,
+        message: "InvalidFlag",
+      };
+    }
     return ret;
   }
 
@@ -2591,7 +2629,18 @@ export class ZoneServer2016 extends EventEmitter {
         gameTime
       )
     ) {
+      if (weaponItem.itemDefinitionId != Items.WEAPON_SHOTGUN) {
+        client.flaggedShots++;
+        if (
+          client.flaggedShots >=
+          this.fairPlayManager.fairPlayValues.maxFlaggedShots
+        ) {
+          client.isFairPlayFlagged = true;
+        }
+      }
       return;
+    } else {
+      client.flaggedShots = 0;
     }
     const hitValidation = this.validateHit(client, entity);
 
@@ -2862,10 +2911,10 @@ export class ZoneServer2016 extends EventEmitter {
     const lightWeight = {
       characterId: "0x0000000000000001",
       transientId: 0,
-      actorModelId: 1,
+      actorModelId: 2,
       position: new Float32Array([0, 0, 0, 0]),
       rotation: new Float32Array([0, 0, 0, 0]),
-      scale: new Float32Array([0, 0, 0, 0]),
+      scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
       positionUpdateType: 0,
       profileId: 0,
       isLightweight: true,
@@ -3522,6 +3571,228 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   //#region ********************VEHICLE********************
+
+  airdropManager(client: Client, spawn: boolean) {
+    if (!this._airdrop) return;
+    if (spawn) {
+      const lightWeight = {
+        characterId: this._airdrop.planeTarget,
+        transientId: 0,
+        actorModelId: 9770,
+        position: this._airdrop.planeTargetPos,
+        rotation: new Float32Array([0, 0, 0, 0]),
+        scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
+        positionUpdateType: 0,
+        profileId: 0,
+        isLightweight: true,
+        flags: {},
+        headActor: "",
+      };
+      this.sendData(client, "AddLightweightNpc", lightWeight);
+      /*const lightWeight2 = {
+        characterId: this._airdrop.destination,
+        transientId: 0,
+        actorModelId: 33,
+        position: this._airdrop.destinationPos,
+        rotation: new Float32Array([0, 0, 0, 0]),
+        scale: new Float32Array([1, 1, 1, 1]),
+        positionUpdateType: 0,
+        profileId: 0,
+        isLightweight: true,
+        flags: {},
+        headActor: "",
+      };*/
+      const lightWeight3 = {
+        characterId: this._airdrop.cargoTarget,
+        transientId: 0,
+        actorModelId: 9770,
+        position: this._airdrop.cargoTargetPos,
+        rotation: new Float32Array([0, 0, 0, 0]),
+        scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
+        positionUpdateType: 0,
+        profileId: 0,
+        isLightweight: true,
+        flags: {},
+        headActor: "",
+      };
+      this.sendData(client, "AddLightweightNpc", lightWeight);
+      //this.sendData(client, "AddLightweightNpc", lightWeight2);
+      this.sendData(client, "AddLightweightNpc", lightWeight3);
+      this.sendData(client, "AddLightweightVehicle", {
+        ...this._airdrop.plane.pGetLightweightVehicle(),
+        unknownGuid1: this.generateGuid(),
+      });
+      this.sendData(client, "Character.MovementVersion", {
+        characterId: this._airdrop.plane.characterId,
+        version: 5,
+      });
+      setTimeout(() => {
+        if (this._airdrop) {
+          this.sendData(
+            client,
+            "LightweightToFullVehicle",
+            this._airdrop.plane.pGetFullVehicle(this)
+          );
+        }
+      }, 1000);
+
+      this.sendData(client, "Character.SeekTarget", {
+        characterId: this._airdrop.plane.characterId,
+        TargetCharacterId: this._airdrop.planeTarget,
+        initSpeed: -20,
+        acceleration: 0,
+        speed: 0,
+        turn: 5,
+        yRot: 0,
+        rotation: new Float32Array([
+          0,
+          this._airdrop.plane.positionUpdate.orientation || 0,
+          0,
+          0,
+        ]),
+      });
+      if (
+        this._airdrop.manager &&
+        this._airdrop.manager.character.characterId ==
+          client.character.characterId
+      ) {
+        this.sendData(client, "Character.ManagedObject", {
+          objectCharacterId: this._airdrop.plane.characterId,
+          characterId: client.character.characterId,
+        });
+      }
+
+      if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
+        this.sendData(client, "AddLightweightVehicle", {
+          ...this._airdrop.cargo.pGetLightweightVehicle(),
+          unknownGuid1: this.generateGuid(),
+        });
+        this.sendData(client, "Character.MovementVersion", {
+          characterId: this._airdrop.cargo.characterId,
+          version: 6,
+        });
+        this.sendData(
+          client,
+          "LightweightToFullVehicle",
+          this._airdrop.cargo.pGetFullVehicle(this)
+        );
+        this.sendData(client, "Character.SeekTarget", {
+          characterId: this._airdrop.cargo.characterId,
+          TargetCharacterId: this._airdrop.cargoTarget,
+          initSpeed: -5,
+          acceleration: 0,
+          speed: 0,
+          turn: 5,
+          yRot: 0,
+        });
+        this.sendData(client, "Character.ManagedObject", {
+          objectCharacterId: this._airdrop.cargo.characterId,
+          characterId: client.character.characterId,
+        });
+      }
+    } else if (!spawn) {
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.plane.characterId,
+      });
+      if (this._airdrop.cargo) {
+        this.sendData(client, "Character.RemovePlayer", {
+          characterId: this._airdrop.cargo.characterId,
+          unknownWord1: 1,
+          effectId: 5328,
+          timeToDisappear: 0,
+          effectDelay: 0,
+        });
+      }
+      // removing them seems to crash the client somehow
+      /*this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.destination,
+      });
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.planeTarget,
+      });
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.cargoTarget,
+      });*/
+    }
+  }
+
+  syncAirdrop() {
+    if (!this._airdrop) return;
+    let choosenClient: Client | undefined;
+    let currentDistance = 999999;
+    for (const a in this._clients) {
+      const client = this._clients[a];
+      this.sendData(client, "Character.RemovePlayer", {
+        characterId: this._airdrop.plane.characterId,
+      });
+      this.sendData(client, "AddLightweightVehicle", {
+        ...this._airdrop.plane.pGetLightweightVehicle(),
+        unknownGuid1: this.generateGuid(),
+      });
+      this.sendData(client, "Character.MovementVersion", {
+        characterId: this._airdrop.plane.characterId,
+        version: 5,
+      });
+      setTimeout(() => {
+        if (this._airdrop) {
+          this.sendData(
+            client,
+            "LightweightToFullVehicle",
+            this._airdrop.plane.pGetFullVehicle(this)
+          );
+        }
+      }, 1000);
+      this.sendData(client, "Character.SeekTarget", {
+        characterId: this._airdrop.plane.characterId,
+        TargetCharacterId: this._airdrop.planeTarget,
+        initSpeed: -20,
+        acceleration: 0,
+        speed: 0,
+        turn: 5,
+        yRot: 0,
+        rotation: new Float32Array([
+          0,
+          this._airdrop.plane.positionUpdate.orientation || 0,
+          0,
+          0,
+        ]),
+      });
+      if (!choosenClient) {
+        choosenClient = client;
+        currentDistance = getDistance2d(
+          client.character.state.position,
+          this._airdrop.plane.state.position
+        );
+      }
+      if (
+        currentDistance >
+        getDistance2d(
+          client.character.state.position,
+          this._airdrop.plane.state.position
+        )
+      ) {
+        const soeClient = this.getSoeClient(client.soeClientId);
+        choosenClient = client;
+        if (soeClient) {
+          const ping = soeClient.avgPing;
+          if (ping < 100) {
+            choosenClient = client;
+            currentDistance = getDistance2d(
+              client.character.state.position,
+              this._airdrop.plane.state.position
+            );
+          }
+        }
+      }
+    }
+    this._airdrop.manager = choosenClient;
+    if (!this._airdrop.manager) return;
+    this.sendData(this._airdrop.manager, "Character.ManagedObject", {
+      objectCharacterId: this._airdrop.plane.characterId,
+      characterId: this._airdrop.manager.character.characterId,
+    });
+  }
+
   vehicleManager(client: Client) {
     for (const key in this._vehicles) {
       const vehicle = this._vehicles[key];
@@ -3784,7 +4055,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
-    if (!vehicle) return;
+    if (!vehicle || !vehicle.isMountable) return;
     for (const a in this._constructionFoundations) {
       const foundation = this._constructionFoundations[a];
       if (
@@ -5041,6 +5312,137 @@ export class ZoneServer2016 extends EventEmitter {
       default:
         return false;
     }
+  }
+
+  useAirdrop(client: Client, item: BaseItem) {
+    if (!client.isAdmin) {
+      this.sendAlert(client, "Admin only for now.");
+      return;
+    }
+    if (this._airdrop) {
+      this.sendAlert(client, "All planes are busy.");
+      return;
+    }
+    /*if (_.size(this._clients) < 20) {
+            this.sendAlert(client, "No planes ready. Not enough survivors.")
+            return
+        }*/
+    let blockedArea = false;
+    for (const a in this._constructionFoundations) {
+      if (
+        isPosInRadius(
+          50,
+          this._constructionFoundations[a].state.position,
+          client.character.state.position
+        )
+      ) {
+        blockedArea = true;
+        break;
+      }
+    }
+
+    if (client.currentPOI || blockedArea) {
+      this.sendAlert(client, "You are too close to the restricted area.");
+      return;
+    }
+
+    if (
+      item.itemDefinitionId != Items.AIRDROP_CODE ||
+      !this.removeInventoryItem(client, item)
+    )
+      return;
+    this.sendAlert(client, "You have called an airdrop.");
+    const pos = new Float32Array([
+      client.character.state.position[0],
+      400,
+      client.character.state.position[2],
+      1,
+    ]);
+    const angle = getAngle(
+      client.character.state.position,
+      new Float32Array([0, 0, 0, 0])
+    );
+    const distance =
+      5000 +
+      getDistance2d(
+        client.character.state.position,
+        new Float32Array([0, 0, 0, 0])
+      );
+    const moved = movePoint(pos, angle, distance);
+    const moved2 = movePoint(moved, angle, 1500);
+    const characterId = this.generateGuid();
+    const characterId2 = this.generateGuid();
+    const characterId3 = this.generateGuid();
+    const characterId4 = this.generateGuid();
+    const characterId5 = this.generateGuid();
+    const plane = new Plane(
+      characterId,
+      this.getTransientId(characterId),
+      0,
+      moved,
+      client.character.state.lookAt,
+      this,
+      this.getGameTime(),
+      VehicleIds.OFFROADER
+    );
+
+    const cargo = new Plane(
+      characterId4,
+      this.getTransientId(characterId4),
+      0,
+      pos,
+      client.character.state.lookAt,
+      this,
+      this.getGameTime(),
+      VehicleIds.PICKUP
+    );
+    this._airdrop = {
+      plane: plane,
+      cargo: cargo,
+      planeTarget: characterId2,
+      planeTargetPos: moved2,
+      cargoTarget: characterId5,
+      cargoTargetPos: new Float32Array([pos[0], pos[1] + 100, pos[2], 1]),
+      destination: characterId3,
+      destinationPos: client.character.state.position,
+      cargoSpawned: false,
+      containerSpawned: false,
+    };
+    let choosenClient: Client | undefined;
+    let currentDistance = 999999;
+    for (const a in this._clients) {
+      const client = this._clients[a];
+      if (
+        !choosenClient ||
+        currentDistance >
+          getDistance2d(
+            client.character.state.position,
+            this._airdrop.plane.state.position
+          )
+      ) {
+        choosenClient = client;
+        currentDistance = getDistance2d(
+          client.character.state.position,
+          this._airdrop.plane.state.position
+        );
+      }
+    }
+    this._airdrop.manager = choosenClient;
+    for (const a in this._clients) {
+      if (!this._clients[a].isLoading) {
+        this.airdropManager(this._clients[a], true);
+      }
+    }
+    setTimeout(() => {
+      if (this._airdrop && this._airdrop.plane.characterId == characterId) {
+        for (const a in this._clients) {
+          if (!this._clients[a].isLoading) {
+            this.airdropManager(this._clients[a], false);
+          }
+        }
+        delete this._airdrop;
+      }
+    }, 600000);
   }
 
   useConsumable(client: Client, item: BaseItem) {

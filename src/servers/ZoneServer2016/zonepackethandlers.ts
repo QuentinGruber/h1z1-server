@@ -27,6 +27,7 @@ import {
   eul2quat,
   getDistance,
   getDistance1d,
+  isPosInRadiusWithY,
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -69,6 +70,7 @@ import { Crate } from "./entities/crate";
 import { OBSERVER_GUID } from "../../utils/constants";
 import { BaseLootableEntity } from "./entities/baselootableentity";
 import { Destroyable } from "./entities/destroyable";
+import { Lootbag } from "./entities/lootbag";
 
 export class ZonePacketHandlers {
   commandHandler: CommandHandler;
@@ -186,6 +188,7 @@ export class ZonePacketHandlers {
         runSpeed: 0,
       });
       client.character.isReady = true;
+      server.airdropManager(client, true);
     }
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
@@ -554,13 +557,17 @@ export class ZonePacketHandlers {
     const isConstruction =
       entity instanceof ConstructionParentEntity ||
       entity instanceof ConstructionDoor;
+
+    const isLootable =
+      entity instanceof LootableConstructionEntity || entity instanceof Lootbag;
     if (
-      !isPosInRadius(
+      !isPosInRadiusWithY(
         entity.interactionDistance || server.interactionDistance,
         client.character.state.position,
         isConstruction
           ? entity.fixedPosition || entity.state.position
-          : entity.state.position
+          : entity.state.position,
+        isLootable ? 1.7 : 5
       )
     )
       return;
@@ -667,6 +674,113 @@ export class ZonePacketHandlers {
       console.log("TransientId error detected");
       console.log(packet);
       return;
+    }
+    if (packet.data.positionUpdate.unknown3_int8 == 5) {
+      if (!server._airdrop || !packet.data.positionUpdate.position) return;
+      if (
+        server._airdrop.manager?.character.characterId !=
+        client.character.characterId
+      )
+        return;
+      server._airdrop.plane.state.position = new Float32Array([
+        packet.data.positionUpdate.position[0],
+        400,
+        packet.data.positionUpdate.position[2],
+        1,
+      ]);
+      server._airdrop.plane.positionUpdate.orientation =
+        packet.data.positionUpdate.orientation;
+      server._airdrop.plane.state.rotation = eul2quat(
+        new Float32Array([packet.data.positionUpdate.orientation, 0, 0, 0])
+      );
+      server._airdrop.plane.positionUpdate.frontTilt =
+        packet.data.positionUpdate.frontTile;
+      server._airdrop.plane.positionUpdate.sideTilt =
+        packet.data.positionUpdate.sideTilt;
+      if (
+        isPosInRadius(
+          100,
+          packet.data.positionUpdate.position,
+          server._airdrop.destinationPos
+        ) &&
+        !server._airdrop.cargoSpawned &&
+        server._airdrop.cargo
+      ) {
+        server._airdrop.cargoSpawned = true;
+        setTimeout(() => {
+          if (server._airdrop && server._airdrop.cargo) {
+            for (const a in server._clients) {
+              if (!client.firstLoading && !client.isLoading) {
+                server.sendData(server._clients[a], "AddLightweightVehicle", {
+                  ...server._airdrop.cargo.pGetLightweightVehicle(),
+                  unknownGuid1: server.generateGuid(),
+                });
+                server.sendData(client, "Character.MovementVersion", {
+                  characterId: server._airdrop.cargo.characterId,
+                  version: 6,
+                });
+                server.sendData(
+                  client,
+                  "LightweightToFullVehicle",
+                  server._airdrop.cargo.pGetFullVehicle(server)
+                );
+                server.sendData(client, "Character.SeekTarget", {
+                  characterId: server._airdrop.cargo.characterId,
+                  TargetCharacterId: server._airdrop.cargoTarget,
+                  initSpeed: -5,
+                  acceleration: 0,
+                  speed: 0,
+                  turn: 5,
+                  yRot: 0,
+                });
+                server.sendData(client, "Character.ManagedObject", {
+                  objectCharacterId: server._airdrop.cargo.characterId,
+                  characterId: client.character.characterId,
+                });
+              }
+            }
+          }
+        }, 3000);
+      }
+      return;
+    } else if (packet.data.positionUpdate.unknown3_int8 == 6) {
+      if (
+        !server._airdrop ||
+        !packet.data.positionUpdate.position ||
+        !server._airdrop.cargo
+      )
+        return;
+      if (
+        !isPosInRadius(
+          500,
+          client.character.state.position,
+          server._airdrop.cargo.state.position
+        )
+      )
+        return;
+      server._airdrop.cargo.state.position =
+        packet.data.positionUpdate.position;
+      server._airdrop.cargo.positionUpdate.orientation =
+        packet.data.positionUpdate.orientation;
+      server._airdrop.cargo.positionUpdate.frontTilt =
+        packet.data.positionUpdate.frontTile;
+      server._airdrop.cargo.positionUpdate.sideTilt =
+        packet.data.positionUpdate.sideTilt;
+      if (
+        packet.data.positionUpdate.position[1] <=
+          server._airdrop.destinationPos[1] + 2 &&
+        !server._airdrop.containerSpawned
+      ) {
+        server._airdrop.containerSpawned = true;
+        server.worldObjectManager.createAirdropContainer(
+          server,
+          server._airdrop.destinationPos
+        );
+        for (const a in server._clients) {
+          server.airdropManager(server._clients[a], false);
+        }
+        delete server._airdrop;
+      }
     }
     const characterId: string = server._transientIds[packet.data.transientId],
       vehicle = characterId ? server._vehicles[characterId] : undefined;
@@ -1058,6 +1172,18 @@ export class ZonePacketHandlers {
     client: Client,
     packet: any
   ) {
+    if (server._airdrop) {
+      if (server._airdrop.plane.characterId == packet.data.characterId) {
+        //server._airdrop.plane.OnFullCharacterDataRequest(server, client);
+        return;
+      } else if (
+        server._airdrop.cargo &&
+        server._airdrop.cargo.characterId == packet.data.characterId
+      ) {
+        //server._airdrop.cargo.OnFullCharacterDataRequest(server, client);
+        return;
+      }
+    }
     const entity = server.getEntity(packet.data.characterId);
     if (!(entity instanceof BaseFullCharacter) && !(entity instanceof Plant)) {
       return;
@@ -1164,7 +1290,6 @@ export class ZonePacketHandlers {
       )
     )
       return;
-
     client.character.currentInteractionGuid = packet.data.guid;
     client.character.lastInteractionTime = Date.now();
     if (
@@ -1418,6 +1543,9 @@ export class ZonePacketHandlers {
       case ItemUseOptions.USE_MEDICAL:
         server.useConsumable(client, item);
         break;
+      case ItemUseOptions.USE_AIRDROP:
+        server.useAirdrop(client, item);
+        break;
       case ItemUseOptions.USE:
         server.useItem(client, item);
         break;
@@ -1476,6 +1604,19 @@ export class ZonePacketHandlers {
       count,
       newSlotId,
     } = packet.data;
+    if (client.character.mountedContainer) {
+      if (
+        !isPosInRadiusWithY(
+          client.character.mountedContainer.interactionDistance,
+          client.character.state.position,
+          client.character.mountedContainer.state.position,
+          2.5
+        )
+      ) {
+        client.character.dismountContainer(server);
+        return;
+      }
+    }
     if (characterId == client.character.characterId) {
       // from client container
       if (characterId == targetCharacterId) {

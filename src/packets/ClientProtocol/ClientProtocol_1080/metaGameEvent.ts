@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const MetaGameEventPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const MetaGameEventPackets: PacketStructures = [
   ["MetaGameEvent.StartWarning", 0xb701, {}],
   ["MetaGameEvent.Start", 0xb702, {}],
   ["MetaGameEvent.Update", 0xb703, {}],

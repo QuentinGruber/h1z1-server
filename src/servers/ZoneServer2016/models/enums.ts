@@ -62,6 +62,7 @@ export enum ItemUseOptions {
   REFUEL = 17,
   SLICE = 18,
   USE_MEDICAL = 52,
+  USE_AIRDROP = 58,
   EQUIP = 60,
   DROP_BATTERY = 73,
   DROP_SPARKS = 79,
@@ -615,6 +616,7 @@ export enum Items {
   CONTAINER_GROSSING_STATION = 5034,
   CONTAINER_HOSPITAL_REFRIGERATOR = 5035,
   CONTAINER_HOSPITAL_CABINET = 5036,
+  CONTAINER_MILITARY_CRATE = 5037,
 }
 
 export enum Skins_Shirt {
@@ -698,4 +700,16 @@ export enum Skins_Glasses {
   Default_Goggles = 1693,
   White_Biker_Glasses = 2252,
   Steampunk_Goggles = 2954,
+}
+
+export enum Effects {
+  Smoke_Orange = 3621,
+  Smoke_Green = 3622,
+  Smoke_Purple = 3623,
+  Smoke_Yellow = 3624,
+  Smoke_LimeGreen = 4537,
+  Smoke_Red = 4538,
+  Smoke_Blue = 4539,
+  Smoke_Teal = 4540,
+  Smoke_Magenta = 4541,
 }

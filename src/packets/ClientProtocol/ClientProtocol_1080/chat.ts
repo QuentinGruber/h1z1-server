@@ -12,8 +12,9 @@
 // ======================================================================
 
 import { identitySchema } from "./shared";
+import { PacketStructures } from "types/packetStructure";
 
-export const chatPackets: any = [
+export const chatPackets: PacketStructures = [
   [
     "Chat.Chat",
     0x060100,

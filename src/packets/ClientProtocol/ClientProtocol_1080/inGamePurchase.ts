@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const inGamePurchasePackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const inGamePurchasePackets: PacketStructures = [
   ["InGamePurchase.PreviewOrderRequest", 0x270100, {}],
   ["InGamePurchase.PreviewOrderResponse", 0x270200, {}],
   ["InGamePurchase.PlaceOrderRequest", 0x270300, {}],

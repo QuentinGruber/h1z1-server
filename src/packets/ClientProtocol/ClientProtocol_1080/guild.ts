@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const guildPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const guildPackets: PacketStructures = [
   ["Guild.Disband", 0x5902, {}],
   ["Guild.Rename", 0x5903, {}],
   ["Guild.ChangeMemberRank", 0x590a, {}],

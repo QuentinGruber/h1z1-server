@@ -42,8 +42,9 @@ import {
   statSchema,
 } from "./shared";
 import { packWeaponPacket, parseWeaponPacket } from "./weapon";
+import { PacketStructures } from "types/packetStructure";
 
-export const basePackets: any = [
+export const basePackets: PacketStructures = [
   ["Server", 0x01, {}],
   ["ClientFinishedLoading", 0x02, {}],
   [
@@ -3183,7 +3184,6 @@ export const basePackets: any = [
       ],
     },
   ],
-  ["Ragdoll", 0xce, {}],
   ["CharacterState", 0xd0, {}],
   [
     "AddLightweightPc",

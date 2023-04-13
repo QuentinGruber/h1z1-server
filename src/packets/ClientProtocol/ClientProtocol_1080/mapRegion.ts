@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const mapRegionPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const mapRegionPackets: PacketStructures = [
   [
     "MapRegion.GlobalData",
     0xa401,
