@@ -562,6 +562,7 @@ export class Vehicle2016 extends BaseLootableEntity {
         effectId: this.currentDamageEffect,
       });
     }
+    // has to be sent or vehicle will loose sound after fullVehicle packet
     if (this.engineOn) {
       server.sendData(client, "Vehicle.Engine", {
         guid2: this.characterId,

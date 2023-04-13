@@ -3849,6 +3849,12 @@ export class ZoneServer2016 extends EventEmitter {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
           });
+          if (vehicle.engineOn) {
+            this.sendData(client, "Vehicle.Engine", {
+              guid2: vehicle.characterId,
+              engineOn: true,
+            });
+          }
           /*this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
             passengers: vehicle.pGetPassengers(this),
