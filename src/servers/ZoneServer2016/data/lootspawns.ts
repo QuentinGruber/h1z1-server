@@ -2907,10 +2907,58 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.FIRST_AID,
-        weight: 100,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1,
+        },
+      },
+      {
+        item: Items.GAUZE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 3,
+        },
+      },
+      {
+        item: Items.BANDAGE_DRESSED,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 3,
+        },
+      },
+      {
+        item: Items.BANDAGE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.SALINE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+      {
+        item: Items.SYRINGE_EMPTY,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.VITAMINS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 3
         },
       },
     ],
@@ -2921,10 +2969,58 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.FIRST_AID,
-        weight: 100,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1,
+          },
+        },
+        {
+          item: Items.GAUZE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3,
+          },
+        },
+        {
+          item: Items.BANDAGE_DRESSED,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3,
+          },
+        },
+        {
+          item: Items.BANDAGE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 1,
+          },
+        },
+        {
+          item: Items.SALINE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 2,
+          },
+        },
+        {
+          item: Items.SYRINGE_EMPTY,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 1,
+          },
+        },
+        {
+          item: Items.VITAMINS,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3
         },
       },
     ],
@@ -2935,10 +3031,58 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.FIRST_AID,
-        weight: 100,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1,
+          },
+        },
+        {
+          item: Items.GAUZE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3,
+          },
+        },
+        {
+          item: Items.BANDAGE_DRESSED,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3,
+          },
+        },
+        {
+          item: Items.BANDAGE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 1,
+          },
+        },
+        {
+          item: Items.SALINE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 2,
+          },
+        },
+        {
+          item: Items.SYRINGE_EMPTY,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 1,
+          },
+        },
+        {
+          item: Items.VITAMINS,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3
         },
       },
     ],
@@ -2949,10 +3093,58 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.FIRST_AID,
-        weight: 100,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1,
+          },
+        },
+        {
+          item: Items.GAUZE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3,
+          },
+        },
+        {
+          item: Items.BANDAGE_DRESSED,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3,
+          },
+        },
+        {
+          item: Items.BANDAGE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 1,
+          },
+        },
+        {
+          item: Items.SALINE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 2,
+          },
+        },
+        {
+          item: Items.SYRINGE_EMPTY,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 1,
+          },
+        },
+        {
+          item: Items.VITAMINS,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3
         },
       },
     ],
@@ -2963,10 +3155,58 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.FIRST_AID,
-        weight: 100,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1,
+          },
+        },
+        {
+          item: Items.GAUZE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3,
+          },
+        },
+        {
+          item: Items.BANDAGE_DRESSED,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3,
+          },
+        },
+        {
+          item: Items.BANDAGE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 1,
+          },
+        },
+        {
+          item: Items.SALINE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 2,
+          },
+        },
+        {
+          item: Items.SYRINGE_EMPTY,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 1,
+          },
+        },
+        {
+          item: Items.VITAMINS,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3
         },
       },
     ],
@@ -2977,10 +3217,58 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.FIRST_AID,
-        weight: 100,
+        weight: 10,
         spawnCount: {
           min: 1,
           max: 1,
+          },
+        },
+        {
+          item: Items.GAUZE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3,
+          },
+        },
+        {
+          item: Items.BANDAGE_DRESSED,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3,
+          },
+        },
+        {
+          item: Items.BANDAGE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 1,
+          },
+        },
+        {
+          item: Items.SALINE,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 2,
+          },
+        },
+        {
+          item: Items.SYRINGE_EMPTY,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 1,
+          },
+        },
+        {
+          item: Items.VITAMINS,
+          weight: 10,
+          spawnCount: {
+            min: 1,
+            max: 3
         },
       },
     ],
