@@ -15,6 +15,7 @@ import { createPositionUpdate } from "../../../utils/utils";
 import { VehicleIds } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { Vehicle2016 } from "../entities/vehicle";
+import { ZoneClient2016 } from "../classes/zoneclient";
 
 function getActorModelId(vehicleId: number) {
   switch (vehicleId) {
@@ -152,5 +153,13 @@ export class Plane extends Vehicle2016 {
         unknownByte1: 1,
       };
     });
+  }
+
+  OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
+    server.sendData(
+      client,
+      "LightweightToFullVehicle",
+      this.pGetFullVehicle(server)
+    );
   }
 }

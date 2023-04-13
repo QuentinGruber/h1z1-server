@@ -693,7 +693,7 @@ export class ZonePacketHandlers {
         packet.data.positionUpdate.sideTilt;
       if (
         isPosInRadius(
-          100,
+          150,
           packet.data.positionUpdate.position,
           server._airdrop.destinationPos
         ) &&
@@ -734,7 +734,7 @@ export class ZonePacketHandlers {
               }
             }
           }
-        }, 3000);
+        }, 4500);
       }
       return;
     } else if (packet.data.positionUpdate.unknown3_int8 == 6) {
@@ -746,14 +746,18 @@ export class ZonePacketHandlers {
         return;
       if (
         !isPosInRadius(
-          500,
+          2000,
           client.character.state.position,
           server._airdrop.cargo.state.position
         )
       )
         return;
-      server._airdrop.cargo.state.position =
-        packet.data.positionUpdate.position;
+      server._airdrop.cargo.state.position = new Float32Array([
+        server._airdrop.cargo.state.position[0],
+        packet.data.positionUpdate.position[1],
+        server._airdrop.cargo.state.position[2],
+        1,
+      ]);
       server._airdrop.cargo.positionUpdate.orientation =
         packet.data.positionUpdate.orientation;
       server._airdrop.cargo.positionUpdate.frontTilt =
@@ -1168,13 +1172,13 @@ export class ZonePacketHandlers {
   ) {
     if (server._airdrop) {
       if (server._airdrop.plane.characterId == packet.data.characterId) {
-        //server._airdrop.plane.OnFullCharacterDataRequest(server, client);
+        server._airdrop.plane.OnFullCharacterDataRequest(server, client);
         return;
       } else if (
         server._airdrop.cargo &&
         server._airdrop.cargo.characterId == packet.data.characterId
       ) {
-        //server._airdrop.cargo.OnFullCharacterDataRequest(server, client);
+        server._airdrop.cargo.OnFullCharacterDataRequest(server, client);
         return;
       }
     }
