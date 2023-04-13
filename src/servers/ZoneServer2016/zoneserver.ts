@@ -865,7 +865,11 @@ export class ZoneServer2016 extends EventEmitter {
 
     const defs: any[] = [];
     Object.values(this._itemDefinitions).forEach((itemDef: any) => {
-      if (itemDef.ID > 5000 || itemDef.ID == Items.FANNY_PACK_DEV) {
+      if (
+        itemDef.ID > 5000 ||
+        itemDef.ID == Items.FANNY_PACK_DEV ||
+        itemDef.ID == Items.AIRDROP_CODE
+      ) {
         // custom h1emu definitons start at 5001
         defs.push({
           ID: itemDef.ID,
@@ -3732,15 +3736,7 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: this._airdrop.plane.characterId,
         version: 5,
       });
-      if (
-        this._airdrop.cargoSpawned &&
-        this._airdrop.cargo &&
-        isPosInRadius(
-          2000,
-          client.character.state.position,
-          this._airdrop.cargo.state.position
-        )
-      ) {
+      if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
         this.sendData(client, "Character.RemovePlayer", {
           characterId: this._airdrop.cargo.characterId,
         });
@@ -3800,21 +3796,25 @@ export class ZoneServer2016 extends EventEmitter {
         choosenClient = client;
         currentDistance = getDistance2d(
           client.character.state.position,
-          this._airdrop.plane.state.position
+          this._airdrop.cargo
+            ? this._airdrop.cargo.state.position
+            : this._airdrop.plane.state.position
         );
       }
       if (
         currentDistance >
         getDistance2d(
           client.character.state.position,
-          this._airdrop.plane.state.position
+          this._airdrop.cargo
+            ? this._airdrop.cargo.state.position
+            : this._airdrop.plane.state.position
         )
       ) {
         const soeClient = this.getSoeClient(client.soeClientId);
         choosenClient = client;
         if (soeClient) {
           const ping = soeClient.avgPing;
-          if (ping < 100) {
+          if (ping < 130) {
             choosenClient = client;
             currentDistance = getDistance2d(
               client.character.state.position,
@@ -5413,7 +5413,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.state.position,
         new Float32Array([0, 0, 0, 0])
       );
-    const moved = movePoint(pos, angle, distance);
+    const moved = movePoint(pos, angle, 1500);
     const moved2 = movePoint(moved, angle, 1500);
     const characterId = this.generateGuid();
     const characterId2 = this.generateGuid();

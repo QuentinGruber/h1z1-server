@@ -745,11 +745,8 @@ export class ZonePacketHandlers {
       )
         return;
       if (
-        !isPosInRadius(
-          2000,
-          client.character.state.position,
-          server._airdrop.cargo.state.position
-        )
+        server._airdrop.manager?.character.characterId !=
+        client.character.characterId
       )
         return;
       server._airdrop.cargo.state.position = new Float32Array([
