@@ -2820,8 +2820,8 @@ export const containerLootSpawners: {
         item: Items.LIGHTER,
         weight: 1,
         spawnCount: {
-          min: 10,
-          max: 10,
+          min: 1,
+          max: 1,
         },
       },
     ],
@@ -2912,40 +2912,40 @@ export const containerLootSpawners: {
         item: Items.WEAPON_AXE_WOOD,
         weight: 1,
         spawnCount: {
-          min: 10,
-          max: 10,
+          min: 1,
+          max: 1,
         },
       },
       {
         item: Items.WEAPON_CROWBAR,
         weight: 1,
         spawnCount: {
-          min: 5,
-          max: 5,
+          min: 1,
+          max: 1,
         },
       },
       {
         item: Items.WEAPON_HAMMER,
         weight: 1,
         spawnCount: {
-          min: 5,
-          max: 5,
+          min: 1,
+          max: 1,
         },
       },
       {
         item: Items.SHACK,
         weight: 1,
         spawnCount: {
-          min: 5,
-          max: 5,
+          min: 1,
+          max: 1,
         },
       },
       {
         item: Items.WORKBENCH,
         weight: 1,
         spawnCount: {
-          min: 5,
-          max: 5,
+          min: 1,
+          max: 1,
         },
       },
     ],

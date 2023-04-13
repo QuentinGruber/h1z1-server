@@ -866,7 +866,11 @@ export class ZoneServer2016 extends EventEmitter {
 
     const defs: any[] = [];
     Object.values(this._itemDefinitions).forEach((itemDef: any) => {
-      if (itemDef.ID > 5000 || itemDef.ID == Items.FANNY_PACK_DEV) {
+      if (
+        itemDef.ID > 5000 ||
+        itemDef.ID == Items.FANNY_PACK_DEV ||
+        itemDef.ID == Items.AIRDROP_CODE
+      ) {
         // custom h1emu definitons start at 5001
         defs.push({
           ID: itemDef.ID,
@@ -3733,6 +3737,38 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: this._airdrop.plane.characterId,
         version: 5,
       });
+      if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
+        this.sendData(client, "Character.RemovePlayer", {
+          characterId: this._airdrop.cargo.characterId,
+        });
+        this.sendData(client, "AddLightweightVehicle", {
+          ...this._airdrop.cargo.pGetLightweightVehicle(),
+          unknownGuid1: this.generateGuid(),
+        });
+        this.sendData(client, "Character.MovementVersion", {
+          characterId: this._airdrop.cargo.characterId,
+          version: 6,
+        });
+        this.sendData(client, "Character.SeekTarget", {
+          characterId: this._airdrop.cargo.characterId,
+          TargetCharacterId: this._airdrop.cargoTarget,
+          initSpeed: -5,
+          acceleration: 0,
+          speed: 0,
+          turn: 5,
+          yRot: 0,
+          rotation: new Float32Array([0, 1, 0, 0]),
+        });
+        this.sendData(client, "Character.ManagedObject", {
+          objectCharacterId: this._airdrop.cargo.characterId,
+          characterId: client.character.characterId,
+        });
+        this.sendData(
+          client,
+          "LightweightToFullVehicle",
+          this._airdrop.cargo.pGetFullVehicle(this)
+        );
+      }
       setTimeout(() => {
         if (this._airdrop) {
           this.sendData(
@@ -3761,21 +3797,25 @@ export class ZoneServer2016 extends EventEmitter {
         choosenClient = client;
         currentDistance = getDistance2d(
           client.character.state.position,
-          this._airdrop.plane.state.position
+          this._airdrop.cargo
+            ? this._airdrop.cargo.state.position
+            : this._airdrop.plane.state.position
         );
       }
       if (
         currentDistance >
         getDistance2d(
           client.character.state.position,
-          this._airdrop.plane.state.position
+          this._airdrop.cargo
+            ? this._airdrop.cargo.state.position
+            : this._airdrop.plane.state.position
         )
       ) {
         const soeClient = this.getSoeClient(client.soeClientId);
         choosenClient = client;
         if (soeClient) {
           const ping = soeClient.avgPing;
-          if (ping < 100) {
+          if (ping < 130) {
             choosenClient = client;
             currentDistance = getDistance2d(
               client.character.state.position,
@@ -3810,6 +3850,12 @@ export class ZoneServer2016 extends EventEmitter {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
           });
+          if (vehicle.engineOn) {
+            this.sendData(client, "Vehicle.Engine", {
+              guid2: vehicle.characterId,
+              engineOn: true,
+            });
+          }
           /*this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
             passengers: vehicle.pGetPassengers(this),
@@ -5385,12 +5431,11 @@ export class ZoneServer2016 extends EventEmitter {
       this.getGameTime(),
       VehicleIds.OFFROADER
     );
-
     const cargo = new Plane(
       characterId4,
       this.getTransientId(characterId4),
       0,
-      pos,
+      new Float32Array([pos[0], pos[1] - 20, pos[2], 1]),
       client.character.state.lookAt,
       this,
       this.getGameTime(),
