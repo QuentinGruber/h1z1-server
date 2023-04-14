@@ -840,29 +840,12 @@ const dev: any = {
     /*
     server.initializeContainerList(client, lootableEntity);
     */
-    server.sendData(client, "Container.InitEquippedContainers", {
-      ignore: "0x0000000000000001",
-      characterId: "0x0000000000000001",
-      containers: lootableEntity.pGetContainers(server),
-    });
+    
 
 
     //lootableEntity.updateLoadout(server);
-    server.sendData(
-      client, "Loadout.SetLoadoutSlots",
-      {
-        characterId: "0x0000000000000001",
-        loadoutId: 3,//lootableEntity.loadoutId,
-        loadoutData: {
-          loadoutSlots: Object.values(lootableEntity.getLoadoutSlots()).map(
-            (slotId: any) => {
-              return lootableEntity.pGetLoadoutSlot(slotId);
-            }
-          ),
-        },
-        currentSlotId: lootableEntity.currentLoadoutSlot,
-      }
-    );
+    /* LOADOUTID IN HERE DETERMINES HOW MANY CONTAINERS ARE DISPLAYED ON THE LEFT SIDE */
+    
     
     /*
     server.sendData(client, "AccessedCharacter.Unknown1", {
@@ -887,6 +870,12 @@ const dev: any = {
       },
     });
 
+    server.sendData(client, "Container.InitEquippedContainers", {
+      ignore: "0x0000000000000001",
+      characterId: "0x0000000000000001",
+      containers: lootableEntity.pGetContainers(server),
+    });
+    
     Object.values(lootableEntity._loadout).forEach((item) => {
       server.sendData(client, "ClientUpdate.ItemAdd", {
         characterId: "0x0000000000000001",
@@ -903,6 +892,22 @@ const dev: any = {
       });
     });
 
+
+    server.sendData(
+      client, "Loadout.SetLoadoutSlots",
+      {
+        characterId: "0x0000000000000001",
+        loadoutId: 5,//lootableEntity.loadoutId,
+        loadoutData: {
+          loadoutSlots: Object.values(lootableEntity.getLoadoutSlots()).map(
+            (slotId: any) => {
+              return lootableEntity.pGetLoadoutSlot(slotId);
+            }
+          ),
+        },
+        currentSlotId: lootableEntity.currentLoadoutSlot,
+      }
+    );
   },
   groupjoin: function (
     server: ZoneServer2016,

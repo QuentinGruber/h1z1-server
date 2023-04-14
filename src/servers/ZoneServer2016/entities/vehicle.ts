@@ -615,7 +615,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     Object.values(this._loadout).forEach((item)=> {
       server.sendData(client, "ClientUpdate.ItemAdd", {
-        characterId: client.character.characterId,
+        characterId: this.characterId,
         data: this.pGetItemData(server, item, 101),
       });
     })
