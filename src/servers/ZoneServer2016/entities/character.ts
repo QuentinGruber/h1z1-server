@@ -496,7 +496,7 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   pGetLoadoutSlots() {
-    if (!this.mountedContainer) return super.pGetLoadoutSlots();
+    //if (!this.mountedContainer) return super.pGetLoadoutSlots();
 
     // to avoid a mounted container being dismounted if loadout is updated while mounted
 
@@ -506,8 +506,8 @@ export class Character2016 extends BaseFullCharacter {
       }
     );
 
-    const mountedContainer = this.mountedContainer.getContainer();
-    if (mountedContainer) {}
+    //const mountedContainer = this.mountedContainer.getContainer();
+    //if (mountedContainer) {}
       /*loadoutSlots.push(
         this.mountedContainer.pGetLoadoutSlot(mountedContainer.slotId)
       );*/
@@ -818,6 +818,42 @@ export class Character2016 extends BaseFullCharacter {
           slotId: slot.slotId,
         }
       : undefined;
+  }
+
+  pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
+    let durability: number = 0;
+    const isWeapon = server.isWeapon(item.itemDefinitionId);
+    switch (true) {
+      case server.isWeapon(item.itemDefinitionId):
+        durability = 2000;
+        break;
+      case server.isArmor(item.itemDefinitionId):
+        durability = 1000;
+        break;
+      case server.isHelmet(item.itemDefinitionId):
+        durability = 100;
+        break;
+    }
+    return {
+      itemDefinitionId: item.itemDefinitionId,
+      tintId: 0,
+      guid: item.itemGuid,
+      count: item.stackCount,
+      itemSubData: {
+        hasSubData: false,
+      },
+      containerGuid: item.containerGuid,
+      containerDefinitionId: containerDefId,
+      containerSlotId: item.slotId,
+      baseDurability: durability,
+      currentDurability: durability ? item.currentDurability : 0,
+      maxDurabilityFromDefinition: durability,
+      unknownBoolean1: true,
+      ownerCharacterId:
+        /*isWeapon && item.itemDefinitionId !== 85 ? "" :*/ this.characterId,
+      unknownDword9: 1,
+      weaponData: this.pGetItemWeaponData(server, item),
+    };
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {

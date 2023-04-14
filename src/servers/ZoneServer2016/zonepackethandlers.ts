@@ -1058,6 +1058,41 @@ export class ZonePacketHandlers {
     client: Client,
     packet: any
   ) {
+    if(packet.data.characterId == "0x0000000000000001") {
+      console.log("\n\n\n\n\\n\n\nASDSDASDASDSDAS\n\n\n\n\n\n")
+      server.sendData(
+        client,
+        "LightweightToFullNpc",
+        {
+          transientId: 0,
+          attachmentData: {},
+          characterId: "0x0000000000000001",
+          resources: {
+            data: {},
+          },
+          effectTags: [],
+          unknownData1: {},
+          targetData: {},
+          unknownArray1: [],
+          unknownArray2: [],
+          unknownArray3: { data: {} },
+          unknownArray4: { data: {} },
+          unknownArray5: { data: {} },
+          remoteWeapons: { 
+            isVehicle: false,
+            data: {} 
+          },
+          itemsData: {
+            items: {},
+            unknownDword1: 0,
+          },
+        }
+      );
+      return;
+    }
+
+
+
     const entity = server.getEntity(packet.data.characterId);
     if (!(entity instanceof BaseFullCharacter) && !(entity instanceof Plant)) {
       return;

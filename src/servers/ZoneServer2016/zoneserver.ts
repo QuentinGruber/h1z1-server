@@ -2892,7 +2892,7 @@ export class ZoneServer2016 extends EventEmitter {
       scale: new Float32Array([0, 0, 0, 0]),
       positionUpdateType: 0,
       profileId: 0,
-      isLightweight: true,
+      isLightweight: false,//true,
       flags: {},
       headActor: "",
     };
@@ -4923,9 +4923,10 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     character: BaseFullCharacter = client.character
   ): void {
+    const characterId = (character instanceof Character || character instanceof Vehicle2016)? character.characterId : "0x0000000000000001";
     this.sendData(client, "Container.InitEquippedContainers", {
-      ignore: character.characterId,
-      characterId: character.characterId,
+      ignore: characterId,
+      characterId: characterId,
       containers: character.pGetContainers(this),
     });
   }

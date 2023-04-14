@@ -516,6 +516,21 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
   }
 
+  pGetLoadoutSlots() {
+    return {
+      characterId: this.characterId,
+      loadoutId: this.loadoutId,
+      loadoutData: {
+        loadoutSlots: Object.values(this.getLoadoutSlots()).map(
+          (slotId: any) => {
+            return this.pGetLoadoutSlot(slotId);
+          }
+        ),
+      },
+      currentSlotId: this.currentLoadoutSlot,
+    };
+  }
+
   updateLoadout(server: ZoneServer2016) {
     const client = server.getClientByCharId(this.characterId);
     if (client) {

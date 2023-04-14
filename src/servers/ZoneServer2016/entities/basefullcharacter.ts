@@ -57,7 +57,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   _loadout: { [loadoutSlotId: number]: LoadoutItem } = {};
   _equipment: { [equipmentSlotId: number]: characterEquipment } = {};
   _containers: { [loadoutSlotId: number]: LoadoutContainer } = {};
-  loadoutId = 0;
+  loadoutId = 5;
   currentLoadoutSlot = 0; // idk if other full npcs use this
   isLightweight = false;
   gender: number;
@@ -790,7 +790,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
   pGetLoadoutSlots() {
     return {
-      characterId: this.characterId,
+      characterId: "0x0000000000000001",
       loadoutId: this.loadoutId,
       loadoutData: {
         loadoutSlots: Object.values(this.getLoadoutSlots()).map(
@@ -887,8 +887,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       currentDurability: durability ? item.currentDurability : 0,
       maxDurabilityFromDefinition: durability,
       unknownBoolean1: true,
-      ownerCharacterId:
-        /*isWeapon && item.itemDefinitionId !== 85 ? "" :*/ this.characterId,
+      ownerCharacterId: "0x0000000000000001",
       unknownDword9: 1,
       weaponData: this.pGetItemWeaponData(server, item),
     };
