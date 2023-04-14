@@ -630,32 +630,54 @@ export class Character2016 extends BaseFullCharacter {
     lootableEntity.mountedCharacter = this.characterId;
     this.mountedContainer = lootableEntity;
 
-    server.initializeContainerList(client, lootableEntity);
+    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+      objectCharacterId: "0x0000000000000001",
+      containerGuid: client.character.characterId,//container.itemGuid,
+      unknownBool1: false,
+      itemsData: {
+        items: Object.values(container.items).map((item) => {
+          return lootableEntity.pGetItemData(
+            server,
+            item,
+            container.containerDefinitionId
+          )
+        }),
+        unknownDword1: 92, // idk
+      },
+    });
 
-    server.addItem(client, container, 101, lootableEntity);
+    server.initializeContainerList(client, lootableEntity);
+    
+    Object.values(lootableEntity._loadout).forEach((item) => {
+      server.addItem(client, item, 101, lootableEntity);
+    });
 
     Object.values(container.items).forEach((item) => {
       server.addItem(client, item, container.containerDefinitionId, lootableEntity);
     });
 
-    //this.updateLoadout(server);
-    lootableEntity.updateLoadout(server);
-    
-    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-      objectCharacterId:
-        lootableEntity instanceof Vehicle2016
-          ? lootableEntity.characterId
-          : "0x0000000000000001",
-      containerGuid: container.itemGuid,
-      unknownBool1: false,
-      itemsData: {
-        items: [],
-        unknownDword1: 92, // idk
-      },
-    });
+
+    server.sendData(
+      client, "Loadout.SetLoadoutSlots",
+      {
+        characterId: "0x0000000000000001",
+        loadoutId: 5,
+        loadoutData: {
+          loadoutSlots: Object.values(lootableEntity.getLoadoutSlots()).map(
+            (slotId: any) => {
+              return lootableEntity.pGetLoadoutSlot(slotId);
+            }
+          ),
+        },
+        currentSlotId: lootableEntity.currentLoadoutSlot,
+      }
+    );
   }
 
   dismountContainer(server: ZoneServer2016) {
+    /* TODO: NEED TO DELETE ITEMS AFTER DISMOUNT TO PREVENT POSSIBLE LAG */
+
+
     const client = server.getClientByCharId(this.characterId);
     if (!client || !this.mountedContainer) return;
     const container = this.mountedContainer.getContainer();

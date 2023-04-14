@@ -1347,22 +1347,34 @@ export class ZonePacketHandlers {
   //#region ITEMS
   RequestUseItem(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet.data);
-    if (packet.data.itemSubData?.count < 1) return;
-    const { itemGuid } = packet.data;
+    const { itemGuid, itemUseOption, targetCharacterId, sourceCharacterId } = packet.data;
+    const { count } = packet.data.itemSubData
+
+    if (count < 1) return;
     if (!itemGuid) {
       server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
       return;
     }
-    const item = client.character.getInventoryItem(itemGuid);
+
+    // TODO: Get source character
+
+    const character = server.getEntity(sourceCharacterId);
+
+    if(!character || !(character instanceof BaseLootableEntity) && !(character instanceof Character2016)) {
+      server.sendChatText(client, "Invalid character!");
+      return;
+    }
+
+    const item = character.getInventoryItem(itemGuid);
     if (!item) {
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
-    const loadoutSlotId = client.character.getActiveLoadoutSlot(itemGuid);
+    const loadoutSlotId = character.getActiveLoadoutSlot(itemGuid);
     if (
       loadoutSlotId &&
-      client.character._containers[loadoutSlotId]?.itemGuid == itemGuid &&
-      _.size(client.character._containers[loadoutSlotId].items) != 0
+      character._containers[loadoutSlotId]?.itemGuid == itemGuid &&
+      _.size(character._containers[loadoutSlotId].items) != 0
     ) {
       // prevents duping if client check is bypassed
       server.sendChatText(
@@ -1372,7 +1384,7 @@ export class ZonePacketHandlers {
       return;
     }
 
-    let container = client.character.getItemContainer(itemGuid);
+    let container = character.getItemContainer(itemGuid);
 
     // check for item in mounted container
     if (!container && client.character.mountedContainer) {
@@ -1385,11 +1397,11 @@ export class ZonePacketHandlers {
         container = mountedContainer;
       }
     }
-    switch (packet.data.itemUseOption) {
+    switch (itemUseOption) {
       case ItemUseOptions.DROP:
       case ItemUseOptions.DROP_BATTERY:
       case ItemUseOptions.DROP_SPARKS:
-        server.dropItem(client, item, packet.data.itemSubData?.count);
+        server.dropItem(client, item, count);
         break;
       case ItemUseOptions.SLICE:
         server.sliceItem(client, item);
@@ -1457,7 +1469,7 @@ export class ZonePacketHandlers {
         server.useItem(client, item);
         break;
       case ItemUseOptions.REFUEL:
-        server.refuelVehicle(client, item, packet.data.characterId2);
+        server.refuelVehicle(client, item, targetCharacterId);
         break;
       case ItemUseOptions.IGNITE:
         server.igniteOption(client, item);
@@ -1473,6 +1485,46 @@ export class ZonePacketHandlers {
         break;
       case ItemUseOptions.SALVAGE:
         server.salvageAmmo(client, item);
+        break;
+      case ItemUseOptions.LOOT:
+        server.sendAlert(client, "TODO");
+        break;
+      case ItemUseOptions.MOVE: 
+        const sourceContainer = client.character.getItemContainer(itemGuid),
+          targetCharacter = client.character.mountedContainer;
+
+        if(
+          !targetCharacter || 
+          !(targetCharacter instanceof BaseLootableEntity) ||
+          !isPosInRadius(
+            targetCharacter.interactionDistance,
+            client.character.state.position,
+            targetCharacter.state.position
+          )
+        ) {
+          console.log("Invalid target character!");
+          return;
+        }
+
+        if(!sourceContainer) {
+          console.log("Invalid source container!");
+          return;
+        }
+
+        const targetContainer = targetCharacter.getContainer();
+
+        if(!targetContainer) {
+          console.log("Invalid target container!");
+          return;
+        }
+
+        sourceContainer.transferItem(
+          server,
+          targetContainer,
+          item,
+          0,
+          count
+        );
         break;
       default:
         server.sendChatText(
@@ -1637,22 +1689,26 @@ export class ZonePacketHandlers {
         }
       } else {
         // to external container
-        console.log("TO EXTERNAL CONTAINER")
-        console.log(packet.data);
-
         const sourceContainer = client.character.getItemContainer(itemGuid),
-          targetCharacter = server.getEntity(packet.data.targetCharacterId);
+          targetCharacter = client.character.mountedContainer;
 
-
-          if(!targetCharacter || !(targetCharacter instanceof BaseLootableEntity) || !(targetCharacter instanceof Vehicle2016)) {
-            console.log("Invalid target character!");
-            return;
-          }
+        if(
+          !targetCharacter || 
+          !(targetCharacter instanceof BaseLootableEntity) ||
+          !isPosInRadius(
+            targetCharacter.interactionDistance,
+            client.character.state.position,
+            targetCharacter.state.position
+          )
+        ) {
+          console.log("Invalid target character!");
+          return;
+        }
   
-          if(!sourceContainer) {
-            console.log("Invalid source container!");
-            return;
-          }
+        if(!sourceContainer) {
+          console.log("Invalid source container!");
+          return;
+        }
 
         if (containerGuid == "0xffffffffffffffff") {
           // to loadout
@@ -1674,16 +1730,11 @@ export class ZonePacketHandlers {
           return;
         }
 
-        
-        
-        const targetContainer = targetCharacter.getContainerFromGuid(containerGuid);
-
+        const targetContainer = targetCharacter.getContainer();
         if(!targetContainer) {
           console.log("Invalid target container!");
           return;
         }
-
-        
 
         const item = sourceContainer.items[itemGuid];
         if (!item) {
@@ -1705,20 +1756,43 @@ export class ZonePacketHandlers {
       console.log("FROM EXTERNAL CONTAINER")
         console.log(packet.data);
       
-      const sourceCharacter = server.getEntity(characterId);
-      if(!(sourceCharacter instanceof BaseFullCharacter)) {
-
+      const sourceCharacter = client.character.mountedContainer;
+      if(
+        !sourceCharacter || 
+        !(sourceCharacter instanceof BaseLootableEntity) ||
+        !isPosInRadius(
+          sourceCharacter.interactionDistance,
+          client.character.state.position,
+          sourceCharacter.state.position
+        )
+      ) {
+        console.log("Invalid source character!");
         return;
       }
+
+
+
+
       const sourceContainer = sourceCharacter.getItemContainer(itemGuid);
       if(!sourceContainer) {
-
+        console.log("Invalid source container!");
         return;
       }
       const item = sourceContainer.items[itemGuid];
 
       if(!Number(containerGuid)) {
-        client.character.lootItem(server, item, item.stackCount, true);
+        //client.character.lootItem(server, item, item.stackCount, true);
+
+        // todo: get container with most open space and get item count that it can hold
+        
+        client.character.lootContainerItem(
+          server,
+          item,
+          1,//ammo.stackCount,
+          true
+        );
+
+
       }
 
     }

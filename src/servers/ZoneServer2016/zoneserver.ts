@@ -4242,7 +4242,7 @@ export class ZoneServer2016 extends EventEmitter {
     )
       return;
     this.sendData(client, "ClientUpdate.ItemAdd", {
-      characterId: /*client.*/character.characterId,
+      characterId: (character instanceof Character || character instanceof Vehicle2016)? character.characterId : "0x0000000000000001",
       data: character.pGetItemData(this, item, containerDefinitionId),
     });
   }

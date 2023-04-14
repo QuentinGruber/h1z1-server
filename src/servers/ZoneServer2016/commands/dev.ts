@@ -837,23 +837,6 @@ const dev: any = {
       return;
     }
 
-    /*
-    server.initializeContainerList(client, lootableEntity);
-    */
-    
-
-
-    //lootableEntity.updateLoadout(server);
-    /* LOADOUTID IN HERE DETERMINES HOW MANY CONTAINERS ARE DISPLAYED ON THE LEFT SIDE */
-    
-    
-    /*
-    server.sendData(client, "AccessedCharacter.Unknown1", {
-      characterId: "0x0000000000000001",
-      containerGuid: client.character.characterId//"",// vehicle.getContainer()?.itemGuid || "",
-    });
-    */
-
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId: "0x0000000000000001",
       containerGuid: client.character.characterId,//container.itemGuid,
@@ -870,26 +853,14 @@ const dev: any = {
       },
     });
 
-    server.sendData(client, "Container.InitEquippedContainers", {
-      ignore: "0x0000000000000001",
-      characterId: "0x0000000000000001",
-      containers: lootableEntity.pGetContainers(server),
-    });
+    server.initializeContainerList(client, lootableEntity);
     
     Object.values(lootableEntity._loadout).forEach((item) => {
-      server.sendData(client, "ClientUpdate.ItemAdd", {
-        characterId: "0x0000000000000001",
-        data: {
-          ...lootableEntity.pGetItemData(server, item, 101),
-        }
-      });
+      server.addItem(client, item, 101, lootableEntity);
     });
 
     Object.values(container.items).forEach((item) => {
-      server.sendData(client, "ClientUpdate.ItemAdd", {
-        characterId: "0x0000000000000001",
-        data: lootableEntity.pGetItemData(server, item, container.containerDefinitionId),
-      });
+      server.addItem(client, item, container.containerDefinitionId, lootableEntity);
     });
 
 
