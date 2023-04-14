@@ -2958,7 +2958,7 @@ export const containerLootSpawners: {
         weight: 10,
         spawnCount: {
           min: 1,
-          max: 2
+          max: 2,
         },
       },
       {
@@ -2966,7 +2966,7 @@ export const containerLootSpawners: {
         weight: 10,
         spawnCount: {
           min: 1,
-          max: 2
+          max: 2,
         },
       },
       {
@@ -2974,7 +2974,7 @@ export const containerLootSpawners: {
         weight: 10,
         spawnCount: {
           min: 1,
-          max: 2
+          max: 2,
         },
       },
     ],
@@ -2989,124 +2989,54 @@ export const containerLootSpawners: {
         spawnCount: {
           min: 1,
           max: 1,
-          },
         },
-        {
-          item: Items.GAUZE,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 3,
-          },
+      },
+      {
+        item: Items.GAUZE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 3,
         },
-        {
-          item: Items.BANDAGE_DRESSED,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 1,
-          },
+      },
+      {
+        item: Items.BANDAGE_DRESSED,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
-        {
-          item: Items.BANDAGE,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 2,
-          },
+      },
+      {
+        item: Items.BANDAGE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
         },
-        {
-          item: Items.SALINE,
-          weight: 5,
-          spawnCount: {
-            min: 1,
-            max: 1,
-          },
+      },
+      {
+        item: Items.SALINE,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
-        {
-          item: Items.SYRINGE_EMPTY,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 1,
-          },
+      },
+      {
+        item: Items.SYRINGE_EMPTY,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
-        {
-            item: Items.VITAMINS,
-            weight: 10,
-            spawnCount: {
-                min: 1,
-                max: 2
-            },
-        },
-        {
-            item: Items.ANTIBIOTICS,
-            weight: 10,
-            spawnCount: {
-                min: 1,
-                max: 2
-            },
-        },
-        {
-            item: Items.IMMUNITY_BOOSTERS,
-            weight: 10,
-            spawnCount: {
-                min: 1,
-                max: 2
-            },
-        },
-    ],
-  },
-  "Hospital Desk": {
-    spawnChance: 100,
-    maxItems: 3,
-    items: [
-        {
-            item: Items.EMPTY_SPECIMEN_BAG,
-            weight: 10,
-            spawnCount: {
-                min: 1,
-                max: 1,
-            },
-        },
-        {
-          item: Items.GAUZE,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 1,
-          },
-        },
-        {
-          item: Items.BANDAGE_DRESSED,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 1,
-          },
-        },
-        {
-          item: Items.BANDAGE,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 1,
-          },
-        },
-        {
-          item: Items.SYRINGE_EMPTY,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 1,
-          },
-        },
-        {
+      },
+      {
         item: Items.VITAMINS,
         weight: 10,
         spawnCount: {
           min: 1,
-          max: 2
+          max: 2,
         },
       },
       {
@@ -3114,7 +3044,7 @@ export const containerLootSpawners: {
         weight: 10,
         spawnCount: {
           min: 1,
-          max: 2
+          max: 2,
         },
       },
       {
@@ -3122,7 +3052,77 @@ export const containerLootSpawners: {
         weight: 10,
         spawnCount: {
           min: 1,
-          max: 2
+          max: 2,
+        },
+      },
+    ],
+  },
+  "Hospital Desk": {
+    spawnChance: 100,
+    maxItems: 3,
+    items: [
+      {
+        item: Items.EMPTY_SPECIMEN_BAG,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.GAUZE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.BANDAGE_DRESSED,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.BANDAGE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.SYRINGE_EMPTY,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.VITAMINS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+      {
+        item: Items.ANTIBIOTICS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+      {
+        item: Items.IMMUNITY_BOOSTERS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
         },
       },
     ],
@@ -3131,44 +3131,44 @@ export const containerLootSpawners: {
     spawnChance: 100,
     maxItems: 3,
     items: [
-        {
-          item: Items.GAUZE,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 1,
-          },
+      {
+        item: Items.GAUZE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
-        {
-          item: Items.BANDAGE_DRESSED,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 1,
-          },
+      },
+      {
+        item: Items.BANDAGE_DRESSED,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
-        {
-          item: Items.BANDAGE,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 1,
-          },
+      },
+      {
+        item: Items.BANDAGE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
-        {
-          item: Items.SYRINGE_EMPTY,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 1,
-          },
+      },
+      {
+        item: Items.SYRINGE_EMPTY,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
-        {
-          item: Items.VITAMINS,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 3
+      },
+      {
+        item: Items.VITAMINS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 3,
         },
       },
     ],
@@ -3177,20 +3177,20 @@ export const containerLootSpawners: {
     spawnChance: 100,
     maxItems: 2,
     items: [
-        {
-          item: Items.SYRINGE_H1Z1_REDUCER,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 1,
-          },
+      {
+        item: Items.SYRINGE_H1Z1_REDUCER,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
-        {
-          item: Items.SYRINGE_INFECTED_BLOOD,
-          weight: 10,
-          spawnCount: {
-            min: 1,
-            max: 1
+      },
+      {
+        item: Items.SYRINGE_INFECTED_BLOOD,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
       },
     ],
@@ -3199,21 +3199,21 @@ export const containerLootSpawners: {
     spawnChance: 100,
     maxItems: 2,
     items: [
-        {
-            item: Items.SYRINGE_H1Z1_REDUCER,
-            weight: 10,
-            spawnCount: {
-                min: 1,
-                max: 1,
-            },
+      {
+        item: Items.SYRINGE_H1Z1_REDUCER,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
         },
-        {
-            item: Items.SYRINGE_INFECTED_BLOOD,
-            weight: 10,
-            spawnCount: {
-                min: 1,
-                max: 1
-            },
+      },
+      {
+        item: Items.SYRINGE_INFECTED_BLOOD,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
       },
     ],
   },
