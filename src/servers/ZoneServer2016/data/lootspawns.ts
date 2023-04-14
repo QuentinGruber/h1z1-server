@@ -2021,6 +2021,14 @@ export const containerLootSpawners: {
           max: 1,
         },
       },
+      {
+        item: Items.CODED_MESSAGE,
+        weight: 2,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
     ],
   },
   Cabinets: {
@@ -2051,6 +2059,14 @@ export const containerLootSpawners: {
           max: 1,
         },
       },
+      {
+        item: Items.CODED_MESSAGE,
+        weight: 1,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
     ],
   },
   "Cabinets Cube": {
@@ -2060,6 +2076,14 @@ export const containerLootSpawners: {
       {
         item: Items.SALT,
         weight: 20,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.CODED_MESSAGE,
+        weight: 1,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2699,7 +2723,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CODED_MESSAGE,
-        weight: 1,
+        weight: 2,
         spawnCount: {
           min: 1,
           max: 1,
