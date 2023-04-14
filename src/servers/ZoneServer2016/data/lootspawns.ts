@@ -3062,6 +3062,14 @@ export const containerLootSpawners: {
     maxItems: 3,
     items: [
         {
+            item: Items.EMPTY_SPECIMEN_BAG,
+            weight: 10,
+            spawnCount: {
+                min: 1,
+                max: 1,
+            },
+        },
+        {
           item: Items.GAUZE,
           weight: 10,
           spawnCount: {
