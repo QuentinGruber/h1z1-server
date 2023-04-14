@@ -2213,6 +2213,322 @@ export const containerLootSpawners: {
       },
     ],
   },
+  "Drug Cabinets": {
+    spawnChance: 100,
+    maxItems: 2,
+    items: [
+      {
+        item: Items.FIRST_AID,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.GAUZE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 3,
+        },
+      },
+      {
+        item: Items.BANDAGE_DRESSED,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.BANDAGE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+      {
+        item: Items.SALINE,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.SYRINGE_EMPTY,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.VITAMINS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+      {
+        item: Items.ANTIBIOTICS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+      {
+        item: Items.IMMUNITY_BOOSTERS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+    ],
+  },
+  "Medical Station": {
+    spawnChance: 100,
+    maxItems: 2,
+    items: [
+      {
+        item: Items.FIRST_AID,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.GAUZE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 3,
+        },
+      },
+      {
+        item: Items.BANDAGE_DRESSED,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.BANDAGE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+      {
+        item: Items.SALINE,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.SYRINGE_EMPTY,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.VITAMINS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+      {
+        item: Items.ANTIBIOTICS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+      {
+        item: Items.IMMUNITY_BOOSTERS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+    ],
+  },
+  "Hospital Desk": {
+    spawnChance: 100,
+    maxItems: 3,
+    items: [
+      {
+        item: Items.EMPTY_SPECIMEN_BAG,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.GAUZE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.BANDAGE_DRESSED,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.BANDAGE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.SYRINGE_EMPTY,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.VITAMINS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+      {
+        item: Items.ANTIBIOTICS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+      {
+        item: Items.IMMUNITY_BOOSTERS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 2,
+        },
+      },
+    ],
+  },
+  "Hospital Cabinets": {
+    spawnChance: 100,
+    maxItems: 3,
+    items: [
+      {
+        item: Items.GAUZE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.BANDAGE_DRESSED,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.BANDAGE,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.SYRINGE_EMPTY,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.VITAMINS,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 3,
+        },
+      },
+    ],
+  },
+  "Hospital Refrigerator": {
+    spawnChance: 100,
+    maxItems: 2,
+    items: [
+      {
+        item: Items.SYRINGE_H1Z1_REDUCER,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.SYRINGE_INFECTED_BLOOD,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+    ],
+  },
+  "Grossing Station": {
+    spawnChance: 100,
+    maxItems: 2,
+    items: [
+      {
+        item: Items.SYRINGE_H1Z1_REDUCER,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.SYRINGE_INFECTED_BLOOD,
+        weight: 10,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+    ],
+  },
   Dumpster: {
     spawnChance: 100,
     maxItems: 3,
