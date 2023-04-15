@@ -1696,6 +1696,15 @@ export class ZoneServer2016 extends EventEmitter {
       if (characterEffect.endCallback)
         characterEffect.endCallback(this, client.character);
     }
+    this.sendDataToAllWithSpawnedEntity(
+      this._characters,
+      client.character.characterId,
+      "Command.PlayDialogEffect",
+      {
+        characterId: client.character.characterId,
+        effectId: 0,
+      }
+    );
     client.character._characterEffects = {};
     client.character.isRespawning = true;
     this.sendDeathMetrics(client);
