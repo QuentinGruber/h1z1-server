@@ -870,6 +870,11 @@ export class LoginServer extends EventEmitter {
   async isClientHWIDBanned(client: Client, serverId: number): Promise<boolean> {
     return false;
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async isClientVerified(client: Client): Promise<boolean> {
+    // to implement
+    return false;
+  }
   async getOwnerBanInfo(serverId: number, client: Client) {
     const ownerBanInfos: any[] = await this._db
       .collection(DB_COLLECTIONS.BANNED_LIGHT)
@@ -892,6 +897,10 @@ export class LoginServer extends EventEmitter {
 
     if (await this.isClientHWIDBanned(client, serverId)) {
       banInfos.push({ banInfo: BAN_INFO.HWID });
+    }
+
+    if (await this.isClientVerified(client)) {
+      banInfos.push({ banInfo: BAN_INFO.VERIFIED });
     }
 
     return banInfos;
