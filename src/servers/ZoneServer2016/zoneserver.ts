@@ -5361,18 +5361,14 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   useAirdrop(client: Client, item: BaseItem) {
-    if (!client.isAdmin) {
-      this.sendAlert(client, "Admin only for now.");
-      return;
-    }
     if (this._airdrop) {
       this.sendAlert(client, "All planes are busy.");
       return;
     }
-    /*if (_.size(this._clients) < 20) {
-            this.sendAlert(client, "No planes ready. Not enough survivors.")
-            return
-        }*/
+    if (_.size(this._clients) < 20) {
+      this.sendAlert(client, "No planes ready. Not enough survivors.");
+      return;
+    }
     let blockedArea = false;
     for (const a in this._constructionFoundations) {
       if (

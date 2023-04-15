@@ -33,7 +33,7 @@ export class Lootbag extends BaseLootableEntity {
     const container = this.getContainer();
     if (container) container.canAcceptItems = false;
     this.flags.noCollide = 1;
-    this.npcRenderDistance = 50;
+    this.npcRenderDistance = this.actorModelId != 9218 ? 50 : 200;
     this.defaultLoadout =
       this.actorModelId != 9218
         ? lootableContainerDefaultLoadouts.lootbag
@@ -67,7 +67,7 @@ export class Lootbag extends BaseLootableEntity {
         client,
         server.getItemDefinition(this._containers["31"].itemDefinitionId)
           .NAME_ID,
-        this.actorModelId != 9218 ? 200 : 10000,
+        this.actorModelId != 9218 ? 0 : 10000,
         () => {
           super.OnPlayerSelect(server, client);
           client.searchedProps.push(this);
