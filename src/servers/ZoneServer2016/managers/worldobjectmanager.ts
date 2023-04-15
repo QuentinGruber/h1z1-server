@@ -359,7 +359,7 @@ export class WorldObjectManager {
     ];
 
     const index = Math.floor(Math.random() * airdropTypes.length);
-    const airdropType:string = "Fighter";
+    const airdropType = airdropTypes[index];
     const lootSpawner = containerLootSpawners[airdropType];
 
     const characterId = generateRandomGuid();
@@ -417,6 +417,22 @@ export class WorldObjectManager {
         break;
       case "Supplier":
         effectId = Effects.Smoke_Yellow;
+        if (container) {
+          const experimental =
+            experimentalWeapons[
+              Math.floor(Math.random() * experimentalWeapons.length)
+            ];
+          server.addContainerItem(
+            lootbag,
+            server.generateItem(experimental.weapon, 1),
+            container
+          );
+          server.addContainerItem(
+            lootbag,
+            server.generateItem(experimental.ammo, 30),
+            container
+          );
+        }
     }
     if (server._airdrop) {
       const smokePos = new Float32Array([
