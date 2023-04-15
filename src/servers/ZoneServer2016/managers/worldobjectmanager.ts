@@ -351,6 +351,12 @@ export class WorldObjectManager {
       "Fighter",
       "Supplier",
     ];
+    const experimentalWeapons: { weapon: number; ammo: number }[] = [
+      { weapon: Items.WEAPON_REAPER, ammo: Items.AMMO_308 },
+      { weapon: Items.WEAPON_BLAZE, ammo: Items.AMMO_223 },
+      { weapon: Items.WEAPON_FROSTBITE, ammo: Items.AMMO_762 },
+      { weapon: Items.WEAPON_NAGAFENS_RAGE, ammo: Items.AMMO_12GA },
+    ];
 
     const index = Math.floor(Math.random() * airdropTypes.length);
     const airdropType = airdropTypes[index];
@@ -392,9 +398,41 @@ export class WorldObjectManager {
         break;
       case "Fighter":
         effectId = Effects.Smoke_Red;
+        if (container) {
+          const experimental =
+            experimentalWeapons[
+              Math.floor(Math.random() * experimentalWeapons.length)
+            ];
+          server.addContainerItem(
+            lootbag,
+            server.generateItem(experimental.weapon, 1),
+            container
+          );
+          server.addContainerItem(
+            lootbag,
+            server.generateItem(experimental.ammo, 30),
+            container
+          );
+        }
         break;
       case "Supplier":
         effectId = Effects.Smoke_Yellow;
+        if (container) {
+          const experimental =
+            experimentalWeapons[
+              Math.floor(Math.random() * experimentalWeapons.length)
+            ];
+          server.addContainerItem(
+            lootbag,
+            server.generateItem(experimental.weapon, 1),
+            container
+          );
+          server.addContainerItem(
+            lootbag,
+            server.generateItem(experimental.ammo, 30),
+            container
+          );
+        }
     }
     if (server._airdrop) {
       const smokePos = new Float32Array([
