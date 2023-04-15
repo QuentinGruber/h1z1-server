@@ -224,8 +224,8 @@ export interface fireHint {
 export interface characterEffect {
     id: number;
     duration: number;
-    callback?: Function;
-    endCallback?: Function;
+    callback?: any;
+    endCallback?: any;
 }
 
 export interface SpawnLocation {
