@@ -221,6 +221,13 @@ export interface fireHint {
     marked?: {characterId:string, position: Float32Array, rotation: Float32Array, gameTime: number}
 }
 
+export interface characterEffect {
+    id: number;
+    duration: number;
+    callback: Function;
+    endCallback: Function;
+}
+
 export interface SpawnLocation {
   id: number;
   name: string;

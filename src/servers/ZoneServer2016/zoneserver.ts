@@ -1691,7 +1691,10 @@ export class ZoneServer2016 extends EventEmitter {
       unk: gridArr,
       bool: true,
     });
-
+    for (const a in client.character._characterEffects) {
+        client.character._characterEffects[a].endCallback(this, client.character)
+    }
+    client.character._characterEffects = {}
     client.character.isRespawning = true;
     this.sendDeathMetrics(client);
     this.logPlayerDeath(client, damageInfo);
@@ -2497,6 +2500,7 @@ export class ZoneServer2016 extends EventEmitter {
     switch (itemDefinitionId) {
       case Items.WEAPON_AR15:
       case Items.WEAPON_1911:
+      case Items.WEAPON_BLAZE:
         return 2500;
       case Items.WEAPON_M9:
         return 1800;
@@ -2510,10 +2514,21 @@ export class ZoneServer2016 extends EventEmitter {
           1,
           12
         );
+      case Items.WEAPON_NAGAFENS_RAGE:
+        return calculate_falloff(
+          getDistance(sourcePos, targetPos),
+          400,
+          2800, //1667,
+          3,
+          20
+        );
       case Items.WEAPON_AK47:
+      case Items.WEAPON_FROSTBITE:
         return 2900;
       case Items.WEAPON_308:
         return 6700;
+      case Items.WEAPON_REAPER:
+        return 21000;
       case Items.WEAPON_MAGNUM:
         return 3000;
       case Items.WEAPON_BOW_MAKESHIFT:
