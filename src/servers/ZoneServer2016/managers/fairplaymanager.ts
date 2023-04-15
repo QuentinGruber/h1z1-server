@@ -42,7 +42,7 @@ export class FairPlayManager {
     BAN_INFO.LOCAL_BAN,
     BAN_INFO.VPN,
     BAN_INFO.HWID,
-    BAN_INFO.VERIFIED,
+    BAN_INFO.UNVERIFIED,
   ];
 
   /* MANAGED BY CONFIGMANAGER */
