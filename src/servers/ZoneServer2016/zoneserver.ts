@@ -1692,7 +1692,9 @@ export class ZoneServer2016 extends EventEmitter {
       bool: true,
     });
     for (const a in client.character._characterEffects) {
-      client.character._characterEffects[a].endCallback(this, client.character);
+      const characterEffect = client.character._characterEffects[a];
+      if (characterEffect.endCallback)
+        characterEffect.endCallback(this, client.character);
     }
     client.character._characterEffects = {};
     client.character.isRespawning = true;

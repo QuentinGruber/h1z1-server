@@ -211,12 +211,13 @@ export class Character2016 extends BaseFullCharacter {
     for (const a in this._characterEffects) {
       const characterEffect = this._characterEffects[a];
       if (characterEffect.duration < Date.now()) {
-        characterEffect.endCallback(server, this);
+        if (characterEffect.endCallback)
+          characterEffect.endCallback(server, this);
         effectId = 0;
         delete this._characterEffects[a];
         continue;
       }
-      characterEffect.callback(server, this);
+      if (characterEffect.callback) characterEffect.callback(server, this);
       effectId = characterEffect.id;
     }
     if (effectId == 0 && effectId != undefined) {
@@ -964,7 +965,7 @@ export class Character2016 extends BaseFullCharacter {
         hasArmorBefore
       );
     }
-
+    /* eslint-disable @typescript-eslint/no-unused-vars */
     switch (damageInfo.weapon) {
       case Items.WEAPON_BLAZE:
         this._characterEffects[1212] = {
@@ -988,10 +989,6 @@ export class Character2016 extends BaseFullCharacter {
               }
             );
           },
-          endCallback: function (
-            server: ZoneServer2016,
-            character: Character2016
-          ) {},
         };
         server.sendDataToAllWithSpawnedEntity(
           server._characters,
@@ -1012,10 +1009,6 @@ export class Character2016 extends BaseFullCharacter {
         this._characterEffects[5211] = {
           id: 5211,
           duration: Date.now() + 5000,
-          callback: function (
-            server: ZoneServer2016,
-            character: Character2016
-          ) {},
           endCallback: function (
             server: ZoneServer2016,
             character: Character2016
@@ -1036,6 +1029,7 @@ export class Character2016 extends BaseFullCharacter {
         );
         break;
     }
+    /* eslint-enable @typescript-eslint/no-unused-vars */
     c.character.damage(server, {
       ...damageInfo,
       damage: damage,
