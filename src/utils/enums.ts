@@ -22,7 +22,7 @@ export enum BAN_INFO {
   GLOBAL_BAN = 2,
   VPN = 3,
   HWID = 4,
-  VERIFIED = 5,
+  UNVERIFIED = 5,
 }
 
 export enum NAME_VALIDATION_STATUS {
