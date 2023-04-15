@@ -5431,7 +5431,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.state.position,
         new Float32Array([0, 0, 0, 0])
       );
-    const moved = movePoint(pos, angle, distance);
+    const moved = movePoint(pos, angle, 300);
     const moved2 = movePoint(moved, angle, 1500);
     const characterId = this.generateGuid();
     const characterId2 = this.generateGuid();
