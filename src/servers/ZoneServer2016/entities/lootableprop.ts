@@ -135,6 +135,37 @@ function getContainerAndTime(entity: LootableProp) {
       entity.searchTime = 1000;
       entity.lootSpawner = "Garbage Can";
       break;
+    case 9552:
+      entity.containerId = Items.CONTAINER_DRUG_CABINET;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Drug Cabinets";
+      break;
+    case 9563:
+      entity.containerId = Items.CONTAINER_MEDICAL_STATION;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Medical Station";
+      break;
+    case 9551:
+    case 9553:
+      entity.containerId = Items.CONTAINER_HOSPITAL_DESK;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Hospital Desk";
+      break;
+    case 9556:
+      entity.containerId = Items.CONTAINER_GROSSING_STATION;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Grossing Station";
+      break;
+    case 9555:
+      entity.containerId = Items.CONTAINER_HOSPITAL_REFRIGERATOR;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Hospital Refrigerator";
+      break;
+    case 9554:
+      entity.containerId = Items.CONTAINER_HOSPITAL_CABINET;
+      entity.searchTime = 1000;
+      entity.lootSpawner = "Hospital Cabinets";
+      break;
     default:
       entity.containerId = Items.CONTAINER_STORAGE;
       entity.searchTime = 500;

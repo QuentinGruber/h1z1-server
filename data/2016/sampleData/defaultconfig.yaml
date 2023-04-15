@@ -5,7 +5,7 @@ server:
   interactionDistance: 3
   charactersRenderDistance: 350
   tickRate: 2000
-  worldRoutineRate: 30000
+  worldRoutineRate: 10000
 
 # Fairplay / anticheat config
 fairplay:
@@ -23,7 +23,7 @@ worldobjects:
   # Respawn timers
 
   lootRespawnTimer: 1200000 # 30 minutes
-  vehicleRespawnTimer:  600000 # 10 minutes
+  vehicleRespawnTimer: 600000 # 10 minutes
   npcRespawnTimer: 600000 # 10 minutes
 
   # Despawn timers
@@ -32,7 +32,7 @@ worldobjects:
   itemDespawnTimer: 600000 # 10 minutes
   # Spawned objects on the ground
   lootDespawnTimer: 2400000 # 40 minutes
-  deadNpcDespawnTimer:  600000 # 10 minutes
+  deadNpcDespawnTimer: 600000 # 10 minutes
   lootbagDespawnTimer: 1800000 # 30 minutes
 
   # Misc
@@ -51,7 +51,7 @@ speedtree:
   maxBlackberryHarvest: 2
   # from blackberry bushes only
   branchHarvestChance: 0.1 # maximum of 1 for 100% chance
-  
+
   minStickHarvest: 1
   maxStickHarvest: 2
 

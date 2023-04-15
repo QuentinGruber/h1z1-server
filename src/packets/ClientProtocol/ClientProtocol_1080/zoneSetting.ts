@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const zoneSettingPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const zoneSettingPackets: PacketStructures = [
   [
     "ZoneSetting.Data",
     0xb401,

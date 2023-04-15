@@ -157,6 +157,32 @@ export class LootableConstructionEntity extends BaseLootableEntity {
       );
       return;
     }
+    if (server.fairPlayManager.useFairPlay) {
+      for (const a in server._constructionFoundations) {
+        const foundation = server._constructionFoundations[a];
+        if (
+          foundation.itemDefinitionId != Items.FOUNDATION &&
+          foundation.itemDefinitionId != Items.FOUNDATION_EXPANSION
+        )
+          continue;
+        if (foundation.isInside(this.state.position)) {
+          let pos = foundation.state.position[1];
+          if (
+            foundation.parentObjectCharacterId &&
+            server._constructionFoundations[foundation.parentObjectCharacterId]
+          ) {
+            pos =
+              server._constructionFoundations[
+                foundation.parentObjectCharacterId
+              ].state.position[1];
+          }
+          if (this.state.position[1] - (pos + 2) < 0) {
+            server.sendChatText(client, `FairPlay: Glitched storage detected`);
+            return;
+          }
+        }
+      }
+    }
 
     super.OnPlayerSelect(server, client);
   }

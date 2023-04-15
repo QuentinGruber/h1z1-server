@@ -22,8 +22,9 @@ import {
   writePacketType,
 } from "./shared";
 import { itemWeaponDetailSubSchema1 } from "./shared";
+import { PacketStructures } from "types/packetStructure";
 
-const weaponPackets: any = [
+const weaponPackets: PacketStructures = [
   [
     "Weapon.FireStateUpdate",
     0x8301,

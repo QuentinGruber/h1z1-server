@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const staticFacilityInfoPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const staticFacilityInfoPackets: PacketStructures = [
   ["StaticFacilityInfo.Request", 0xbe01, {}],
   ["StaticFacilityInfo.Reply", 0xbe02, {}],
   [

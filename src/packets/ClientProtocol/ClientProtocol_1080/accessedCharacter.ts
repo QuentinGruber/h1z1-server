@@ -12,8 +12,9 @@
 // ======================================================================
 
 import { itemSchema } from "./shared";
+import { PacketStructures } from "types/packetStructure";
 
-export const accessedCharacterPackets: any = [
+export const accessedCharacterPackets: PacketStructures = [
   [
     "AccessedCharacter.BeginCharacterAccess",
     0xf10100,

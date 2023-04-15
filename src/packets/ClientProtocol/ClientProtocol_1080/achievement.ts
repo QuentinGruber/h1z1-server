@@ -12,8 +12,9 @@
 // ======================================================================
 
 import { achievementSchema, objectiveSchema } from "./shared";
+import { PacketStructures } from "types/packetStructure";
 
-export const achievementPackets: any = [
+export const achievementPackets: PacketStructures = [
   [
     "Achievement.Add",
     0x6602,

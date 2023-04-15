@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { PacketStructures } from "types/packetStructure";
 import {
   packInteractionComponent,
   packNpcComponent,
@@ -18,7 +19,7 @@ import {
   readUnsignedIntWith2bitLengthValue,
 } from "./shared";
 
-export const replicationPackets: any = [
+export const replicationPackets: PacketStructures = [
   [
     "Replication.InteractionComponent",
     0xeb,
