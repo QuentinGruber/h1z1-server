@@ -24,6 +24,7 @@ import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import {
+  characterEffect,
   DamageInfo,
   DamageRecord,
   positionUpdate,
@@ -48,6 +49,7 @@ interface CharacterStates {
   gmHidden?: boolean;
   knockedOut?: boolean;
   inWater?: boolean;
+  userMovementDisabled?: boolean;
 }
 
 interface CharacterMetrics {
@@ -123,6 +125,9 @@ export class Character2016 extends BaseFullCharacter {
   defaultLoadout = characterDefaultLoadout;
   mutedCharacters: Array<string> = [];
   groupId: number = 0;
+  _characterEffects: {
+    [effectId: number]: characterEffect;
+  } = {};
   constructor(
     characterId: string,
     transientId: number,
@@ -202,7 +207,30 @@ export class Character2016 extends BaseFullCharacter {
     if (!server._clients[client.sessionId]) {
       return;
     }
-
+    let effectId;
+    for (const a in this._characterEffects) {
+      const characterEffect = this._characterEffects[a];
+      if (characterEffect.duration < Date.now()) {
+        if (characterEffect.endCallback)
+          characterEffect.endCallback(server, this);
+        effectId = 0;
+        delete this._characterEffects[a];
+        continue;
+      }
+      if (characterEffect.callback) characterEffect.callback(server, this);
+      effectId = characterEffect.id;
+    }
+    if (effectId == 0 && effectId != undefined) {
+      server.sendDataToAllWithSpawnedEntity(
+        server._characters,
+        this.characterId,
+        "Command.PlayDialogEffect",
+        {
+          characterId: this.characterId,
+          effectId: effectId,
+        }
+      );
+    }
     const hunger = this._resources[ResourceIds.HUNGER],
       hydration = this._resources[ResourceIds.HYDRATION],
       health = this._resources[ResourceIds.HEALTH],
@@ -937,7 +965,71 @@ export class Character2016 extends BaseFullCharacter {
         hasArmorBefore
       );
     }
-
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    switch (damageInfo.weapon) {
+      case Items.WEAPON_BLAZE:
+        this._characterEffects[1212] = {
+          id: 1212,
+          duration: Date.now() + 10000,
+          callback: function (
+            server: ZoneServer2016,
+            character: Character2016
+          ) {
+            character.damage(server, {
+              entity: "Character.CharacterEffect",
+              damage: 500,
+            });
+            server.sendDataToAllWithSpawnedEntity(
+              server._characters,
+              character.characterId,
+              "Command.PlayDialogEffect",
+              {
+                characterId: character.characterId,
+                effectId: 1212,
+              }
+            );
+          },
+        };
+        server.sendDataToAllWithSpawnedEntity(
+          server._characters,
+          this.characterId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: this.characterId,
+            effectId: 1212,
+          }
+        );
+        break;
+      case Items.WEAPON_FROSTBITE:
+        if (!this._characterEffects[5211]) {
+          server.sendData(c, "ClientUpdate.ModifyMovementSpeed", {
+            speed: 0.5,
+          });
+        }
+        this._characterEffects[5211] = {
+          id: 5211,
+          duration: Date.now() + 5000,
+          endCallback: function (
+            server: ZoneServer2016,
+            character: Character2016
+          ) {
+            server.sendData(c, "ClientUpdate.ModifyMovementSpeed", {
+              speed: 2,
+            });
+          },
+        };
+        server.sendDataToAllWithSpawnedEntity(
+          server._characters,
+          this.characterId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: this.characterId,
+            effectId: 5211,
+          }
+        );
+        break;
+    }
+    /* eslint-enable @typescript-eslint/no-unused-vars */
     c.character.damage(server, {
       ...damageInfo,
       damage: damage,
