@@ -2023,7 +2023,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CODED_MESSAGE,
-        weight: 2,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2061,7 +2061,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CODED_MESSAGE,
-        weight: 1,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2083,7 +2083,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CODED_MESSAGE,
-        weight: 1,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2723,7 +2723,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CODED_MESSAGE,
-        weight: 2,
+        weight: 3,
         spawnCount: {
           min: 1,
           max: 1,
