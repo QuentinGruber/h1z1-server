@@ -1638,6 +1638,11 @@ export class ZoneServer2016 extends EventEmitter {
     if (!client.character.isAlive) return;
     if (!this.hookManager.checkHook("OnPlayerDeath", client, damageInfo))
       return;
+    for (const a in client.character._characterEffects) {
+      const characterEffect = client.character._characterEffects[a];
+      if (characterEffect.endCallback)
+        characterEffect.endCallback(this, client.character);
+    }
     const weapon = client.character.getEquippedWeapon();
     if (weapon && weapon.weapon) {
       this.sendRemoteWeaponUpdateDataToAllOthers(
@@ -1691,20 +1696,6 @@ export class ZoneServer2016 extends EventEmitter {
       unk: gridArr,
       bool: true,
     });
-    for (const a in client.character._characterEffects) {
-      const characterEffect = client.character._characterEffects[a];
-      if (characterEffect.endCallback)
-        characterEffect.endCallback(this, client.character);
-    }
-    this.sendDataToAllWithSpawnedEntity(
-      this._characters,
-      client.character.characterId,
-      "Command.PlayDialogEffect",
-      {
-        characterId: client.character.characterId,
-        effectId: 0,
-      }
-    );
     client.character._characterEffects = {};
     client.character.isRespawning = true;
     this.sendDeathMetrics(client);
@@ -2067,6 +2058,16 @@ export class ZoneServer2016 extends EventEmitter {
     client.character.isRunning = false;
     client.character.isRespawning = false;
     client.isInAir = false;
+
+    this.sendDataToAllWithSpawnedEntity(
+      this._characters,
+      client.character.characterId,
+      "Command.PlayDialogEffect",
+      {
+        characterId: client.character.characterId,
+        effectId: 0,
+      }
+    );
 
     client.character._resources[ResourceIds.HEALTH] = 10000;
     client.character._resources[ResourceIds.HUNGER] = 10000;
@@ -2528,8 +2529,8 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.WEAPON_NAGAFENS_RAGE:
         return calculate_falloff(
           getDistance(sourcePos, targetPos),
-          400,
-          2800, //1667,
+          200,
+          2400, //1667,
           3,
           20
         );

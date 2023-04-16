@@ -2254,9 +2254,11 @@ export class ZonePacketHandlers {
             let blockedTime = 50;
             switch (weaponItem.itemDefinitionId) {
               case Items.WEAPON_308:
+              case Items.WEAPON_REAPER:
                 blockedTime = 1300;
                 break;
               case Items.WEAPON_SHOTGUN:
+              case Items.WEAPON_NAGAFENS_RAGE:
                 blockedTime = 400;
                 break;
             }
@@ -2273,7 +2275,10 @@ export class ZonePacketHandlers {
           )
             hitNumber = 1;
           const shotProjectiles =
-            weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 12 : 1;
+            weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ||
+            weaponItem.itemDefinitionId == Items.WEAPON_NAGAFENS_RAGE
+              ? 12
+              : 1;
           for (let x = 0; x < shotProjectiles; x++) {
             const fireHint: fireHint = {
               id: p.packet.sessionProjectileCount + x,
