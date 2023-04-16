@@ -2539,7 +2539,7 @@ export class ZoneServer2016 extends EventEmitter {
       case Items.WEAPON_308:
         return 6700;
       case Items.WEAPON_REAPER:
-        return 21000;
+        return 14000;
       case Items.WEAPON_MAGNUM:
         return 3000;
       case Items.WEAPON_BOW_MAKESHIFT:
@@ -4794,6 +4794,14 @@ export class ZoneServer2016 extends EventEmitter {
       case this.isHelmet(itemDefinitionId):
         durability = 100;
         break;
+    }
+    if (
+      itemDefinitionId == Items.WEAPON_REAPER ||
+      itemDefinitionId == Items.WEAPON_NAGAFENS_RAGE ||
+      itemDefinitionId == Items.WEAPON_FROSTBITE ||
+      itemDefinitionId == Items.WEAPON_BLAZE
+    ) {
+      durability = 1000;
     }
     const itemData: BaseItem = new BaseItem(
       itemDefinitionId,
