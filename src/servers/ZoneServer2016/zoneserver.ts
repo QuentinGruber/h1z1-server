@@ -1801,7 +1801,6 @@ export class ZoneServer2016 extends EventEmitter {
     client?: Client
   ) {
     // TODO: REDO THIS WITH AN OnExplosiveDamage method per class
-
     for (const characterId in this._characters) {
       const character = this._characters[characterId];
       if (isPosInRadiusWithY(3, character.state.position, position, 1.5)) {
@@ -2660,7 +2659,10 @@ export class ZoneServer2016 extends EventEmitter {
         gameTime
       )
     ) {
-      if (weaponItem.itemDefinitionId != Items.WEAPON_SHOTGUN) {
+      if (
+        weaponItem.itemDefinitionId != Items.WEAPON_SHOTGUN &&
+        weaponItem.itemDefinitionId != Items.WEAPON_NAGAFENS_RAGE
+      ) {
         client.flaggedShots++;
         if (
           client.flaggedShots >=
