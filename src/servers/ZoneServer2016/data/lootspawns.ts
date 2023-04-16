@@ -3128,16 +3128,16 @@ export const containerLootSpawners: {
         item: Items.IED,
         weight: 1,
         spawnCount: {
-          min: 15,
-          max: 15,
+          min: 20,
+          max: 20,
         },
       },
       {
         item: Items.FUEL_ETHANOL,
         weight: 1,
         spawnCount: {
-          min: 15,
-          max: 15,
+          min: 20,
+          max: 20,
         },
       },
       {
