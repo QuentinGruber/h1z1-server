@@ -1623,7 +1623,7 @@ export const commands: Array<Command> = [
       server.sendChatText(client, `Build kit given`);
     },
   },
-  /*{
+  {
     name: "skins",
     permissionLevel: PermissionLevels.ADMIN,
     execute: async (
@@ -1638,7 +1638,7 @@ export const commands: Array<Command> = [
       client.character.equipLoadout(server, characterskinsloadout);
       server.sendChatText(client, `skins kit given`);
     },
-  },*/
+  },
   {
     name: "debug",
     permissionLevel: PermissionLevels.MODERATOR,
