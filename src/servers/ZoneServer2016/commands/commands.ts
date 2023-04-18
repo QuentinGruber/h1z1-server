@@ -123,7 +123,7 @@ export const commands: Array<Command> = [
   },
   {
     name: "findlog",
-    permissionLevel: PermissionLevels.DEFAULT,
+    permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       if (!args[0]) {
         server.sendChatText(client, "[ERROR] No argument provided", true);
