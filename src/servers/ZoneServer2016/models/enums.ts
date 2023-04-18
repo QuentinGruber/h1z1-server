@@ -710,7 +710,7 @@ export enum Skins_Shirt {
   PRO_GRAMER_HOODIE = 2378,
   PARAMEDIC_UNIFORM = 2535,
   SHIRT_DEFAULT = 2088,
-  Dragon_Lodge_Parka = 3033,
+  DRAGON_LODGE_PARKA = 3033,
 }
 
 export enum Skins_Pants {
@@ -742,39 +742,40 @@ export enum Skins_MotorHelmet {
   GORILLA_WARFARE = 3631,
   ARACHNID = 3721,
   DEFAULT = 2170,
-  /*Infernal_Demon_Mask = 3862,
-  Holiday_Hat = 2887,
-  Mask_of_Jester = 3366,
-  Patchwork_Rudolph_Helmet = 2817,
-  Wasteland_Skull_Helmet = 3064,
-  EZW_Spiked_Helmet = 3124,
-  Dragon_Motorcycle_Helmet = 2828,
-  Cigar_Hog_Mask = 2396,
-  White_Unicorn_Full_Helmet = 3439,
-  Star_Spangled_Hat = 3470,
-  Pumpkin_Mask = 2745,
-  Scarecrow_Mask = 2750,*/
+  /*INFERNAL_DEMON_MASK = 3862,
+  HOLIDAY_HAT = 2887,
+  MASK_OF_JESTER = 3366,
+  PATCHWORK_RUDOLPH_HELMET = 2817,
+  WASTELAND_SKULL_HELMET = 3064,
+  EZW_SPIKED_HELMET = 3124,
+  DRAGON_MOTORCYCLE_HELMET = 2828,
+  CIGAR_HOG_MASK = 2396,
+  WHITE_UNICORN_FULL_HELMET = 3439,
+  STAR_SPANGLED_HAT = 3470,
+  PUMPKIN_MASK = 2745,
+  SCARECROW_MASK = 2750,*/
 }
 export enum Skins_Kevlar {
-  //Toxic_Body_Armor = 2477,
   KEVLAR_DEFAULT = 2271,
- // Police_Body_Armor = 2274,
-  /*Dead_End_Armor = 2860,
-  EZW_Armored_Championship_Belt = 3125,
-  EZW_Armored_Shoulderpads = 3126,*/
+  //TOXIC_BODY_ARMOR = 2477,
+ // POLICE_BODY_ARMOR = 2274,
+  /*DEAD_END_ARMOR = 2860,
+  EZW_ARMORED_CHAMPIONSHIP_BELT = 3125,
+  EZW_ARMORED_SHOULDERPADS = 3126,*/
 }
 export enum Skins_Military {
-  Military_Default = 2124,
-  Rasta_Backpack = 2393,
-  /*Pink_Skulls_Survivor_Backpack = 3046,
-  Sniper_Military_Backpack = 3169,
-  Fully_Geared_Explorer_Backpack = 4009,*/
+  MILITARY_DEFAULT = 2124,
+  BACKPACK_RASTA = 2393,
+  FULLY_GEARED_EXPLORER_BACKPACK = 4009,
+  /*PINK_SKULLS_SURVIVOR_BACKPACK = 3046,
+  SNIPER_MILITARY_BACKPACK = 3169,*/
+  
 }
 export enum Skins_Glasses {
-  Evil_Clown_Glasses = 2253,
-  Default_Goggles = 1693,
-  White_Biker_Glasses = 2252,
-  Steampunk_Goggles = 2954,
+  EVIL_CLOWN_GLASSES = 2253,
+  DEFAULT_GOGGLES = 1693,
+  WHITE_BIKER_GLASSES = 2252,
+  STEAMPUNK_GOGGLES = 2954,
 }
 
 export enum Effects {
