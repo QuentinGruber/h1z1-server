@@ -49,7 +49,7 @@ export const characterKitLoadout = [
   { item: Items.HELMET_MOTORCYCLE },
   { item: Items.CONVEYS_BLUE },
 ];
-export const characterskinsloadout = [
+export const characterSkinsLoadout = [
   { item: Items.CAMO_TAN_FLANNEL_SHIRT },
   { item: Items.BLUE_FLANNEL_SHIRT },
   { item: Items.BROWN_FLANNEL_SHIRT },

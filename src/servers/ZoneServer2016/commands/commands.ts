@@ -29,7 +29,7 @@ import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import {
   characterBuildKitLoadout,
   characterKitLoadout,
-  characterskinsloadout,
+  characterSkinsLoadout,
 } from "../data/loadouts";
 import { EquipSlots, Items, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
@@ -1636,7 +1636,7 @@ export const commands: Array<Command> = [
         server,
         server.generateItem(Items.FANNY_PACK_DEV)
       );
-      client.character.equipLoadout(server, characterskinsloadout);
+      client.character.equipLoadout(server, characterSkinsLoadout);
       server.sendChatText(client, `skins kit given`);
     },
   },
