@@ -17,6 +17,7 @@ import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
 import { ZoneClient2016 } from "../classes/zoneclient";
+import { randomIntFromInterval } from "../../../utils/utils";
 
 export class ItemObject extends BaseLightweightCharacter {
   npcRenderDistance = 25;
@@ -87,6 +88,14 @@ export class ItemObject extends BaseLightweightCharacter {
       this.item.itemDefinitionId === Items.FUEL_ETHANOL
     ) {
       this.triggerExplosionShots -= 1;
+      if (
+        damageInfo.weapon == Items.WEAPON_SHOTGUN ||
+        damageInfo.weapon == Items.WEAPON_NAGAFENS_RAGE
+      ) {
+        // prevent shotguns one shotting gas cans
+        const randomInt = randomIntFromInterval(0, 100);
+        if (randomInt < 90) this.triggerExplosionShots += 1;
+      }
       if (this.triggerExplosionShots > 0) return;
       server.deleteEntity(this.characterId, server._spawnedItems);
       delete server.worldObjectManager.spawnedLootObjects[this.spawnerId];
