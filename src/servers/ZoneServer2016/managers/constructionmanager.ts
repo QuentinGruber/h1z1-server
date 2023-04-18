@@ -297,36 +297,32 @@ export class ConstructionManager {
     }
     return false;
   }
-
-  detectPOIPlacement(
-    itemDefinitionId: number,
-    position: Float32Array,
-    isInsidePermissionedFoundation: boolean
-  ): boolean {
-    if (this.allowPOIPlacement) return false;
-    if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
-    let isInPoi = false,
-      useRange = true;
-    Z1_POIs.forEach((point: any) => {
-      if (point.bounds) {
-        useRange = false;
-        point.bounds.forEach((bound: any) => {
-          if (isInsideSquare([position[0], position[2]], bound)) {
-            isInPoi = true;
-            return;
-          }
-        });
+  detectPOIPlacement(itemDefinitionId: number,position: Float32Array,client: Client,isInsidePermissionedFoundation: boolean): boolean {
+      if (client.isAdmin)  return false 
+      if (this.allowPOIPlacement) return false;
+      if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
+      let useRange = true;
+      let isInPoi = false;
+      Z1_POIs.forEach((point: any) => {
+        if (point.bounds) {
+          useRange = false;
+          point.bounds.forEach((bound: any) => {
+            if (isInsideSquare([position[0], position[2]], bound)) {
+              isInPoi = true;
+              return;
+            }
+          })
+        }
+        if (useRange && isPosInRadius(point.range, position, point.position)) {
+          isInPoi = true;
+        }
+      });
+      // allow placement in poi if object is parented to a foundation
+      if (isInPoi && !isInsidePermissionedFoundation) {
+        return true;
       }
-      if (useRange && isPosInRadius(point.range, position, point.position))
-        isInPoi = true;
-    });
-    // alow placement in poi if object is parented to a foundation
-    if (isInPoi && !isInsidePermissionedFoundation) {
-      return true;
+      return false;
     }
-    return false;
-  }
-
   placement(
     server: ZoneServer2016,
     client: Client,
@@ -336,7 +332,19 @@ export class ConstructionManager {
     rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
+    
   ) {
+     {
+      if (client.isAdmin) {
+        // Handle admin placement logic here
+      } else {
+        const item = client.character.getItemById(itemDefinitionId);
+        if (!item) {
+          this.sendPlacementFinalize(server, client, 1);
+          return;
+        }
+      }
+    }
     const item = client.character.getItemById(itemDefinitionId);
     if (!item) {
       this.sendPlacementFinalize(server, client, 1);
@@ -559,6 +567,7 @@ export class ConstructionManager {
       this.detectPOIPlacement(
         itemDefinitionId,
         position,
+        client,
         isInsidePermissionedFoundation
       )
     ) {
