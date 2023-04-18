@@ -97,11 +97,6 @@ export const characterskinsloadout = [
   { item: Items.STAR_SPANGLED_HAT },
   { item: Items.PUMPKIN_MASK },
   { item: Items.SCARECROW_MASK },
-  { item: Items.MILITARY_DEFAULT },
-  { item: Items.RASTA_BACKPACK },
-  { item: Items.PINK_SKULLS_SURVIVOR_BACKPACK },
-  { item: Items.SNIPER_MILITARY_BACKPACK },
-  { item: Items.FULLY_GEARED_EXPLORER_BACKPACK },
   { item: Items.EVIL_CLOWN_GLASSES },
   { item: Items.DEFAULT_GOGGLES },
   { item: Items.WHITE_BIKER_GLASSES },
@@ -109,6 +104,11 @@ export const characterskinsloadout = [
   { item: Items.HAPPY_SKULL_SCRUBS_SHIRT },
   { item: Items.HAPPY_SKULL_SCRUBS_PANTS },
   { item: Items.PINK_GATORS },
+  { item: Items.MILITARY_DEFAULT },
+  { item: Items.RASTA_BACKPACK },
+  { item: Items.PINK_SKULLS_SURVIVOR_BACKPACK },
+  { item: Items.SNIPER_MILITARY_BACKPACK },
+  { item: Items.FULLY_GEARED_EXPLORER_BACKPACK },
 ];
 
 export const characterBuildKitLoadout = [
