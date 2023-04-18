@@ -332,19 +332,7 @@ export class ConstructionManager {
     rotation: Float32Array,
     parentObjectCharacterId: string,
     BuildingSlot: string
-    
   ) {
-     {
-      if (client.isAdmin) {
-        // Handle admin placement logic here
-      } else {
-        const item = client.character.getItemById(itemDefinitionId);
-        if (!item) {
-          this.sendPlacementFinalize(server, client, 1);
-          return;
-        }
-      }
-    }
     const item = client.character.getItemById(itemDefinitionId);
     if (!item) {
       this.sendPlacementFinalize(server, client, 1);
