@@ -108,6 +108,7 @@ export const internalCommands: Array<Command> = [
         }
         return;
       }
+      //server.sendCharacterData(client); //Vanish fix Kinda But breaks your inventory /////// :/ Walk though a door and the camera will be fixed. -Bryan
       server.sendAlert(
         client,
         `Set spectate/vanish state to ${client.character.isSpectator}`

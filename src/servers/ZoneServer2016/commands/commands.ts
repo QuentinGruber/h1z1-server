@@ -225,6 +225,7 @@ export const commands: Array<Command> = [
           );
         }
       }
+      //server.sendCharacterData(client); //Vanish First Person fix Kinda But breaks your inventory  /////// :/ Walk though a door and the camera will be fixed. -Bryan
       server.sendData(client, "Spectator.Enable", {});
     },
   },
