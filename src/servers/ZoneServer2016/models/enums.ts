@@ -480,6 +480,7 @@ export enum Items {
   WEICHS_REPORT = 2633,
   KLAVISK_NOTE = 2632,
   REFRIGERATOR_NOTE = 3075,
+  DOCTORS_MEMO = 3076,
   //#endregion
 
   //#region Traps
