@@ -1356,8 +1356,6 @@ export class ZonePacketHandlers {
       return;
     }
 
-    // TODO: Get source character
-
     let character = server.getEntity(sourceCharacterId);
     
     if(!character && client.character.mountedContainer) {
@@ -1817,6 +1815,8 @@ export class ZonePacketHandlers {
       }
 
       client.character.lootItemFromContainer(server, sourceContainer, item, item.stackCount);
+      // remount container to keep items from changing slotIds
+      client.character.mountContainer(server, sourceCharacter);
     }
   }
   LoadoutSelectSlot(server: ZoneServer2016, client: Client, packet: any) {

@@ -4681,7 +4681,6 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     if (item) item.debugFlag = "removeContainerItem";
     const client = this.getClientByContainerAccessor(character);
-    console.log(`CLIENT ${client?.character.characterId}`)
     if (!container || !item) return false;
     if (!count) count = item.stackCount;
     if (item.stackCount == count) {

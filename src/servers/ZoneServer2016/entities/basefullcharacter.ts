@@ -398,8 +398,23 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       }
       this.equipItem(server, item, true);
     } else {
-      //this.lootContainerItem(server, item, count, true);
-      console.log("TODO")
+
+      for(const container of Object.values(this._containers)) {
+        const itemDefinition = server.getItemDefinition(item.itemDefinitionId);
+        if(!itemDefinition) return;
+
+        const availableBulk = container.getAvailableBulk(server),
+        itemBulk = itemDefinition.BULK,
+        lootableItemsCount = Math.floor(availableBulk / itemBulk);
+
+        if(lootableItemsCount <= 0) continue;
+        
+        sourceContainer.transferItem(server, container, item, 0, lootableItemsCount > item.stackCount ? item.stackCount : lootableItemsCount);
+        return;
+      }
+
+      if(client) server.sendData(client, "Character.NoSpaceNotification", {characterId: client.character.characterId});
+
     }
   }
 
