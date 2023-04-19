@@ -1,4 +1,4 @@
-import { SOEServer } from "../../h1z1-server";
+import { SOEServer } from "../../../h1z1-server";
 
 export class EchoServer extends SOEServer {
   constructor(serverPort: number, cryptoKey: Uint8Array) {

@@ -1,5 +1,5 @@
-import { SOEInputStream } from "../h1z1-server.js";
-import { DEFAULT_CRYPTO_KEY } from "../out/utils/constants";
+import { SOEInputStream } from "../../h1z1-server.js";
+import { DEFAULT_CRYPTO_KEY } from "../../out/utils/constants";
 
 const InputDataExample = Buffer.from([
   158, 81, 193, 91, 70, 213, 143, 132, 123, 240, 166, 129, 147, 42, 115, 105,

@@ -1,6 +1,6 @@
 import { Worker } from "worker_threads";
 import { Soeprotocol } from "h1emu-core";
-import { Scheduler } from "../../out/utils/utils";
+import { Scheduler } from "../../../out/utils/utils";
 interface ServerTarger {
   address: string;
   port: number;
