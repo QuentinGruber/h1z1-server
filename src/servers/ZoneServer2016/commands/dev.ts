@@ -703,6 +703,7 @@ const dev: any = {
 
     vehicle.updateLoadout(server);
     
+    
     server.sendData(client, "AccessedCharacter.Unknown1", {
       characterId: characterId,
       containerGuid: client.character.characterId//"",// vehicle.getContainer()?.itemGuid || "",
