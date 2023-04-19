@@ -837,6 +837,7 @@ const dev: any = {
       return;
     }
 
+    
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId: "0x0000000000000001",
       containerGuid: client.character.characterId,//container.itemGuid,
@@ -852,19 +853,19 @@ const dev: any = {
         unknownDword1: 92, // idk
       },
     });
-
+    
     server.initializeContainerList(client, lootableEntity);
     
     Object.values(lootableEntity._loadout).forEach((item) => {
       server.addItem(client, item, 101, lootableEntity);
     });
-
+    
     Object.values(container.items).forEach((item) => {
       server.addItem(client, item, container.containerDefinitionId, lootableEntity);
     });
+    
 
-
-    server.sendData(
+    /*server.sendData(
       client, "Loadout.SetLoadoutSlots",
       {
         characterId: "0x0000000000000001",
@@ -878,7 +879,7 @@ const dev: any = {
         },
         currentSlotId: lootableEntity.currentLoadoutSlot,
       }
-    );
+    );*/
   },
   groupjoin: function (
     server: ZoneServer2016,

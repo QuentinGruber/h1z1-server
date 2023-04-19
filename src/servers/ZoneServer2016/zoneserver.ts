@@ -4633,7 +4633,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
     }
-    if(client) this.deleteItem(client, item.itemGuid);
+    if(client) this.deleteItem(character, item.itemGuid);
     delete character._loadout[loadoutSlotId];
     character.updateLoadout(this);
     if (updateEquipment) {
@@ -4681,11 +4681,12 @@ export class ZoneServer2016 extends EventEmitter {
   ): boolean {
     if (item) item.debugFlag = "removeContainerItem";
     const client = this.getClientByContainerAccessor(character);
+    console.log(`CLIENT ${client?.character.characterId}`)
     if (!container || !item) return false;
     if (!count) count = item.stackCount;
     if (item.stackCount == count) {
       delete container.items[item.itemGuid];
-      if (client) this.deleteItem(client, item.itemGuid);
+      if (client) this.deleteItem(character, item.itemGuid);
     } else if (item.stackCount > count) {
       item.stackCount -= count;
       if (client) this.updateContainerItem(character, item, container);
@@ -4911,10 +4912,18 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
-  deleteItem(client: Client, itemGuid: string) {
-    if (!client.character.initialized) return;
+  deleteItem(character: BaseFullCharacter, itemGuid: string) {
+    const client = this.getClientByContainerAccessor(character);
+    if (!client || !client.character.initialized) return;
+
+    if(client.character != character && character instanceof BaseLootableEntity) {
+      // force remount since ItemDelete doesn't seem to work on external containers right now
+      client.character.mountContainer(this, character);
+      return;
+    }
+
     this.sendData(client, "ClientUpdate.ItemDelete", {
-      characterId: client.character.characterId,
+      characterId: character.characterId,
       itemGuid: itemGuid,
     });
   }
@@ -4928,17 +4937,6 @@ export class ZoneServer2016 extends EventEmitter {
       ignore: characterId,
       characterId: characterId,
       containers: character.pGetContainers(this),
-    });
-  }
-
-  updateContainer(character: BaseFullCharacter, container?: LoadoutContainer) {
-    if (!container) return;
-    const client = this.getClientByContainerAccessor(character);
-    if(!client || !client.character.initialized) return;
-    this.sendData(client, "Container.UpdateEquippedContainer", {
-      ignore: character.characterId,
-      characterId: character.characterId,
-      containerData: character.pGetContainerData(this, container),
     });
   }
 
@@ -4985,22 +4983,38 @@ export class ZoneServer2016 extends EventEmitter {
     //this.updateLoadout(client.character);
   }
 
+  updateContainer(character: BaseFullCharacter, container: LoadoutContainer) {
+    const client = this.getClientByContainerAccessor(character);
+    if(!client || !client.character.initialized) return;
+    this.sendData(client, "Container.UpdateEquippedContainer", {
+      ignore: character.characterId,
+      characterId: character.characterId,
+      containerData: character.pGetContainerData(this, container),
+    });
+  }
+
   updateContainerItem(
     character: BaseFullCharacter,
     item: BaseItem,
-    container?: LoadoutContainer
+    container: LoadoutContainer
   ) {
     const client = this.getClientByContainerAccessor(character);
-    if(!client) return;
-    if (!container || !client.character.initialized) return;
-    this.sendData(client, "ClientUpdate.ItemUpdate", {
-      characterId: character.characterId,
-      data: character.pGetItemData(
-        this,
-        item,
-        container.containerDefinitionId
-      ),
-    });
+    if(!client || !client.character.initialized) return;
+    if(client.character != character) {
+      /* ItemUpdate doesn't seem to work on external characters */
+      this.deleteItem(character, item.itemGuid);
+      this.addItem(client, item, container.containerDefinitionId, character);
+    }
+    else {
+      this.sendData(client, "ClientUpdate.ItemUpdate", {
+        characterId: character.characterId,
+        data: character.pGetItemData(
+          this,
+          item,
+          container.containerDefinitionId
+        ),
+      });
+    }
     this.updateContainer(character, container);
   }
 

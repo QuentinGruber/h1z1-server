@@ -686,10 +686,10 @@ export class Character2016 extends BaseFullCharacter {
       return;
     }
 
-    server.deleteItem(client, container.itemGuid);
+    server.deleteItem(this, container.itemGuid);
     Object.values(container.items).forEach((item) => {
       if (!this.mountedContainer) return;
-      server.deleteItem(client, item.itemGuid);
+      server.deleteItem(this, item.itemGuid);
     });
 
     if (this.mountedContainer.isLootbag && !_.size(container.items)) {

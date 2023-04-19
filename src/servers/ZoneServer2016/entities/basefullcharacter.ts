@@ -271,7 +271,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     const client = server.getClientByCharId(this.characterId);
     if (client && this._loadout[loadoutSlotId] && sendPacket) {
       server.deleteItem(
-        client,
+        this,
         client.character._loadout[loadoutSlotId].itemGuid
       );
     }
@@ -372,6 +372,34 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       this.equipItem(server, item, sendUpdate);
     } else {
       this.lootContainerItem(server, item, count, sendUpdate);
+    }
+  }
+
+  lootItemFromContainer(server: ZoneServer2016, sourceContainer: LoadoutContainer, item?: BaseItem, count?: number) {
+    const client = server.getClientByCharId(this.characterId);
+    if (!item || !item.isValid("lootItem")) return;
+    if (!count) count = item.stackCount;
+    if (count > item.stackCount) {
+      count = item.stackCount;
+    }
+    const sourceCharacter = client?.character.mountedContainer,
+    itemDefId = item.itemDefinitionId;
+    if (
+      this.getAvailableLoadoutSlot(server, itemDefId) && 
+      sourceCharacter &&
+      server.removeContainerItem(sourceCharacter, item, sourceContainer, count)
+    ) {
+      if (client && client.character.initialized) {
+        server.sendData(client, "Reward.AddNonRewardItem", {
+          itemDefId: itemDefId,
+          iconId: server.getItemDefinition(itemDefId).IMAGE_SET_ID,
+          count: count,
+        });
+      }
+      this.equipItem(server, item, true);
+    } else {
+      //this.lootContainerItem(server, item, count, true);
+      console.log("TODO")
     }
   }
 
@@ -497,7 +525,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
   equipContainerItem(server: ZoneServer2016, item: BaseItem, slotId: number, sourceCharacter: BaseFullCharacter = this) {
     // equips an existing item from a container
 
-    const client = server.getClientByContainerAccessor(this);
+    const client = server.getClientByContainerAccessor(sourceCharacter);
 
     if (
       this._containers[slotId] &&
