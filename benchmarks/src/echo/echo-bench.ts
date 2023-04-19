@@ -8,6 +8,10 @@ const echoServer = new EchoServer(1119, cryptoKey);
 // echoServer._waitQueueTimeMs = 0;
 
 echoServer.start();
+async function echoAwait(echoClient: EchoClient, clientId: number) {
+  const finalTime = await echoClient.getFinalTime();
+  console.log(`Took ${finalTime}ms #${clientId}`);
+}
 
 const benchParameters: BenchParameters = {
   packetsToExchange: 1000,
@@ -15,14 +19,12 @@ const benchParameters: BenchParameters = {
   stopTimerOnAllAcked: true,
   bytesPerPacket: 200,
 };
-const echoClient = new EchoClient(1119, benchParameters);
 
-echoClient.sendSessionRequest();
+const CLIENTS_NUMBER = 50;
+for (let index = 0; index < CLIENTS_NUMBER; index++) {
+  const echoClient = new EchoClient(1119, benchParameters);
 
-async function echoAwait() {
-  const finalTime = await echoClient.getFinalTime();
-  console.log(`Took ${finalTime}ms`);
-  process.exit(0);
+  echoClient.sendSessionRequest();
+
+  echoAwait(echoClient, index);
 }
-
-echoAwait();
