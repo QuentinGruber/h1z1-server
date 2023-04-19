@@ -104,6 +104,7 @@ export const characterSkinsLoadout = [
   { item: Items.HAPPY_SKULL_SCRUBS_SHIRT },
   { item: Items.HAPPY_SKULL_SCRUBS_PANTS },
   { item: Items.PINK_GATORS },
+  { item: Items.DOOMED_PUFFY_JACKET },
   { item: Items.MILITARY_DEFAULT },
   { item: Items.RASTA_BACKPACK },
   { item: Items.PINK_SKULLS_SURVIVOR_BACKPACK },
