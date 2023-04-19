@@ -479,6 +479,7 @@ export enum Items {
   WEICHS_WALLET = 2703,
   WEICHS_REPORT = 2633,
   KLAVISK_NOTE = 2632,
+  REFRIGERATOR_NOTE = 3075,
   //#endregion
 
   //#region Traps
@@ -722,7 +723,7 @@ export enum Skins_Pants {
   PARAMEDIC_SLACKS = 2534,
   PANTS_DEFAULT = 2177,
   TWIN_GALAXIES_PANTS = 3875,
-  Stars_Stripes_Shorts = 2404,
+  STARS_STRIPES_SHORTS = 2404,
 }
 
 export enum Skins_Beanie {

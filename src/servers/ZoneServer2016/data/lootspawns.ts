@@ -2578,6 +2578,14 @@ export const containerLootSpawners: {
         },
       },
       {
+        item: Items.REFRIGERATOR_NOTE,
+        weight: 15,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
         item: Items.SYRINGE_INFECTED_BLOOD,
         weight: 10,
         spawnCount: {
@@ -2794,6 +2802,14 @@ export const containerLootSpawners: {
       {
         item: Items.CANNED_FOOD01,
         weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.REFRIGERATOR_NOTE,
+        weight: 15,
         spawnCount: {
           min: 1,
           max: 1,
