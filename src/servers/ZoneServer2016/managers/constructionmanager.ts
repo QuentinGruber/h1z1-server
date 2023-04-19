@@ -297,32 +297,37 @@ export class ConstructionManager {
     }
     return false;
   }
-  detectPOIPlacement(itemDefinitionId: number,position: Float32Array,client: Client,isInsidePermissionedFoundation: boolean): boolean {
-      if (client.isAdmin)  return false 
-      if (this.allowPOIPlacement) return false;
-      if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
-      let useRange = true;
-      let isInPoi = false;
-      Z1_POIs.forEach((point: any) => {
-        if (point.bounds) {
-          useRange = false;
-          point.bounds.forEach((bound: any) => {
-            if (isInsideSquare([position[0], position[2]], bound)) {
-              isInPoi = true;
-              return;
-            }
-          })
-        }
-        if (useRange && isPosInRadius(point.range, position, point.position)) {
-          isInPoi = true;
-        }
-      });
-      // allow placement in poi if object is parented to a foundation
-      if (isInPoi && !isInsidePermissionedFoundation) {
-        return true;
+  detectPOIPlacement(
+    itemDefinitionId: number,
+    position: Float32Array,
+    client: Client,
+    isInsidePermissionedFoundation: boolean
+  ): boolean {
+    if (client.isAdmin) return false;
+    if (this.allowPOIPlacement) return false;
+    if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
+    let useRange = true;
+    let isInPoi = false;
+    Z1_POIs.forEach((point: any) => {
+      if (point.bounds) {
+        useRange = false;
+        point.bounds.forEach((bound: any) => {
+          if (isInsideSquare([position[0], position[2]], bound)) {
+            isInPoi = true;
+            return;
+          }
+        });
       }
-      return false;
+      if (useRange && isPosInRadius(point.range, position, point.position)) {
+        isInPoi = true;
+      }
+    });
+    // allow placement in poi if object is parented to a foundation
+    if (isInPoi && !isInsidePermissionedFoundation) {
+      return true;
     }
+    return false;
+  }
   placement(
     server: ZoneServer2016,
     client: Client,
