@@ -375,6 +375,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
   }
 
+  
+
   lootItemFromContainer(server: ZoneServer2016, sourceContainer: LoadoutContainer, item?: BaseItem, count?: number) {
     const client = server.getClientByCharId(this.characterId);
     if (!item || !item.isValid("lootItem")) return;

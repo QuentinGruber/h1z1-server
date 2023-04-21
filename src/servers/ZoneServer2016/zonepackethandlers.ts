@@ -1366,11 +1366,22 @@ export class ZonePacketHandlers {
       server.sendChatText(client, "Invalid character!");
       return;
     }
-    
-    if(itemUseOption != ItemUseOptions.LOOT && !(character instanceof Character2016)) {
-      server.sendAlert(client, "This use option is temporarily disabled from use in containers.");
-      return;
+
+
+    // temporarily block most use options from external containers
+    switch(itemUseOption) {
+      case ItemUseOptions.LOOT:
+      case ItemUseOptions.DROP:
+      case ItemUseOptions.DROP_BATTERY:
+      case ItemUseOptions.DROP_SPARKS:
+        break;
+      default:
+        if(!(character instanceof Character2016)) {
+          server.sendAlert(client, "This use option is temporarily disabled from use in containers.");
+          return;
+        }
     }
+    
 
     const item = character.getInventoryItem(itemGuid);
     if (!item) {
@@ -1408,7 +1419,11 @@ export class ZonePacketHandlers {
       case ItemUseOptions.DROP:
       case ItemUseOptions.DROP_BATTERY:
       case ItemUseOptions.DROP_SPARKS:
-        server.dropItem(client, item, count);
+        server.dropItem(character, item, count);
+        if(character instanceof BaseLootableEntity) {
+          // remount container to keep items from changing slotIds
+          client.character.mountContainer(server, character);
+        }
         break;
       case ItemUseOptions.SLICE:
         server.sliceItem(client, item);

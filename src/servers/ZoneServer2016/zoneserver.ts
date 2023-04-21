@@ -2354,7 +2354,7 @@ export class ZoneServer2016 extends EventEmitter {
   damageItem(client: Client, item: LoadoutItem, damage: number) {
     item.currentDurability -= damage;
     if (item.currentDurability <= 0) {
-      this.removeInventoryItem(client, item);
+      this.removeInventoryItem(client.character, item);
       if (this.isWeapon(item.itemDefinitionId)) {
         client.character.lootContainerItem(
           this,
@@ -4705,7 +4705,7 @@ export class ZoneServer2016 extends EventEmitter {
    * @returns Returns true if the items were successfully removed, false if there was an error.
    */
   removeInventoryItem(
-    client: Client,
+    character: BaseFullCharacter,
     item: BaseItem,
     count: number = 1,
     updateEquipment: boolean = true
@@ -4718,26 +4718,13 @@ export class ZoneServer2016 extends EventEmitter {
       count = item.stackCount;
     }
 
-    // external container
-    if (
-      client.character.mountedContainer &&
-      client.character.mountedContainer.getContainer()?.items[item.itemGuid]
-    ) {
-      return this.removeContainerItem(
-        client.character,
-        item,
-        client.character.mountedContainer.getContainer(),
-        count
-      );
-    }
-
-    if (client.character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
-      return this.removeLoadoutItem(client.character, item.slotId, updateEquipment);
+    if (character._loadout[item.slotId]?.itemGuid == item.itemGuid) {
+      return this.removeLoadoutItem(character, item.slotId, updateEquipment);
     } else {
       return this.removeContainerItem(
-        client.character,
+        character,
         item,
-        client.character.getItemContainer(item.itemGuid),
+        character.getItemContainer(item.itemGuid),
         count
       );
     }
@@ -4811,7 +4798,12 @@ export class ZoneServer2016 extends EventEmitter {
    * @param item The item object.
    * @param count Optional: The number of items to drop on the ground, default 1.
    */
-  dropItem(client: Client, item: BaseItem, count: number = 1): void {
+  dropItem(character: BaseFullCharacter, item: BaseItem, count: number = 1): void {
+
+    const client = this.getClientByContainerAccessor(character);
+
+    if(!client) return;
+
     item.debugFlag = "dropItem";
     if (!item) {
       this.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
@@ -4825,7 +4817,7 @@ export class ZoneServer2016 extends EventEmitter {
     } else {
       return;
     }
-    if (!this.removeInventoryItem(client, item, count)) return;
+    if (!this.removeInventoryItem(character, item, count)) return;
     this.sendData(client, "Character.DroppedIemNotification", {
       characterId: client.character.characterId,
       itemDefId: item.itemDefinitionId,
@@ -5026,12 +5018,12 @@ export class ZoneServer2016 extends EventEmitter {
       if (client.character._containers[item.slotId]) {
         const container = client.character._containers[item.slotId];
         for (const item of Object.values(container.items)) {
-          this.removeInventoryItem(client, item, item.stackCount);
+          this.removeInventoryItem(client.character, item, item.stackCount);
         }
       }
       if (item.slotId != LoadoutSlots.FISTS && item.itemDefinitionId) {
         this.removeInventoryItem(
-          client,
+          client.character,
           item,
           item.stackCount,
           updateEquipment
@@ -5107,7 +5099,7 @@ export class ZoneServer2016 extends EventEmitter {
     removedItem: BaseItem,
     rewardItems: { itemDefinitionId: number; count: number }[]
   ) {
-    if (!this.removeInventoryItem(client, removedItem)) return;
+    if (!this.removeInventoryItem(client.character, removedItem)) return;
     rewardItems.forEach(
       (itemInstance: { itemDefinitionId: number; count: number }) => {
         const item = this.generateItem(
@@ -5161,7 +5153,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   fillPass(client: Client, item: BaseItem) {
     if (client.character.characterStates.inWater) {
-      if (!this.removeInventoryItem(client, item)) return;
+      if (!this.removeInventoryItem(client.character, item)) return;
       client.character.lootContainerItem(this, this.generateItem(1368)); // give dirty water
     } else {
       this.sendAlert(client, "There is no water source nearby");
@@ -5169,12 +5161,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   sniffPass(client: Client, item: BaseItem) {
-    if (!this.removeInventoryItem(client, item)) return;
+    if (!this.removeInventoryItem(client.character, item)) return;
     this.applyMovementModifier(client, MovementModifiers.SWIZZLE);
   }
 
   fertilizePlants(client: Client, item: BaseItem) {
-    if (!this.removeInventoryItem(client, item)) return;
+    if (!this.removeInventoryItem(client.character, item)) return;
     for (const characterId in this._temporaryObjects) {
       const object = this._temporaryObjects[characterId];
       if (
@@ -5409,7 +5401,7 @@ export class ZoneServer2016 extends EventEmitter {
     healCount: number,
     bandagingCount: number
   ) {
-    if (!this.removeInventoryItem(client, item)) return;
+    if (!this.removeInventoryItem(client.character, item)) return;
     if (eatCount) {
       client.character._resources[ResourceIds.HUNGER] += eatCount;
       this.updateResource(
@@ -5466,7 +5458,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   slicePass(client: Client, item: BaseItem) {
-    if (!this.removeInventoryItem(client, item)) return;
+    if (!this.removeInventoryItem(client.character, item)) return;
     if (item.itemDefinitionId == Items.BLACKBERRY_PIE) {
       client.character.lootContainerItem(
         this,
@@ -5566,7 +5558,7 @@ export class ZoneServer2016 extends EventEmitter {
     vehicleGuid: string,
     fuelValue: number
   ) {
-    if (!this.removeInventoryItem(client, item)) return;
+    if (!this.removeInventoryItem(client.character, item)) return;
     const vehicle = this._vehicles[vehicleGuid];
     vehicle._resources[ResourceIds.FUEL] += fuelValue;
     if (vehicle._resources[ResourceIds.FUEL] > 10000) {
@@ -5582,12 +5574,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   shredItemPass(client: Client, item: BaseItem, count: number) {
-    if (!this.removeInventoryItem(client, item)) return;
+    if (!this.removeInventoryItem(client.character, item)) return;
     client.character.lootItem(this, this.generateItem(Items.CLOTH, count));
   }
 
   salvageItemPass(client: Client, item: BaseItem, count: number) {
-    if (!this.removeInventoryItem(client, item)) return;
+    if (!this.removeInventoryItem(client.character, item)) return;
     client.character.lootItem(this, this.generateItem(Items.ALLOY_LEAD, count));
     client.character.lootItem(this, this.generateItem(Items.SHARD_BRASS, 1));
     client.character.lootItem(
