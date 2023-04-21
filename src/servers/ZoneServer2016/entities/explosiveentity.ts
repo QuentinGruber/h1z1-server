@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { DamageInfo } from "types/zoneserver";
-import { getDistance } from "../../../utils/utils";
+import { getDistance, randomIntFromInterval } from "../../../utils/utils";
 import { Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseLightweightCharacter } from "./baselightweightcharacter";
@@ -124,6 +124,14 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
 
   OnProjectileHit(server: ZoneServer2016, damageInfo: DamageInfo) {
     this.triggerExplosionShots -= 1;
+    if (
+      damageInfo.weapon == Items.WEAPON_SHOTGUN ||
+      damageInfo.weapon == Items.WEAPON_NAGAFENS_RAGE
+    ) {
+      // prevent shotguns one shotting gas cans
+      const randomInt = randomIntFromInterval(0, 100);
+      if (randomInt < 90) this.triggerExplosionShots += 1;
+    }
     if (this.triggerExplosionShots > 0) return;
     this.detonate(server, server.getClientByCharId(damageInfo.entity));
   }
