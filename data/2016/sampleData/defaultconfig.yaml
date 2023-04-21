@@ -22,7 +22,8 @@ weather:
 worldobjects:
   # Respawn timers
 
-  lootRespawnTimer: 1200000 # 30 minutes
+  hasCustomLootRespawnTime: false
+  lootRespawnTimer: 600000 # 10 minutes
   vehicleRespawnTimer: 600000 # 10 minutes
   npcRespawnTimer: 600000 # 10 minutes
 

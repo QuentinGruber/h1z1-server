@@ -124,6 +124,7 @@ export class WorldObjectManager {
   lootRespawnTimer!: number;
   vehicleRespawnTimer!: number;
   npcRespawnTimer!: number;
+  hasCustomLootRespawnTime!: boolean;
 
   itemDespawnTimer!: number;
   lootDespawnTimer!: number;
@@ -145,7 +146,11 @@ export class WorldObjectManager {
   ];
 
   private getItemRespawnTimer(server: ZoneServer2016): void {
+    if (this.hasCustomLootRespawnTime)
+      return;
+
     const playerCount = _.size(server._characters);
+
     switch (true) {
       case playerCount <= 20:
         this.lootRespawnTimer = 2400000; // 40 min

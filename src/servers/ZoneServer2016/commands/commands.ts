@@ -1250,13 +1250,24 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       if (!args[0]) {
         server.sendChatText(client, `Correct usage: /lootrespawntimer <time>`);
+        server.sendChatText(client, `Set <time> to -1 to use default settings`);
         return;
       }
-      server.worldObjectManager.lootRespawnTimer = Number(args[0]);
-      server.sendChatText(
-        client,
-        `Loot respawn timer set to ${Number(args[0])}`
-      );
+      server.worldObjectManager.hasCustomLootRespawnTime = Number(args[0]) != -1;
+
+      if (server.worldObjectManager.hasCustomLootRespawnTime) {
+        server.worldObjectManager.lootRespawnTimer = Number(args[0]);
+        server.sendChatText(
+          client,
+          `Loot respawn timer set to ${Number(args[0])}`
+        );
+      } else {
+        server.worldObjectManager.lootRespawnTimer = 1_200_000; // 30 min default
+        server.sendChatText(
+          client,
+          `Loot respawn timer is no longer custom.`
+        );
+      }
     },
   },
   {
