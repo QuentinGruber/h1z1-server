@@ -23,7 +23,7 @@ worldobjects:
   # Respawn timers
 
   hasCustomLootRespawnTime: false
-  lootRespawnTimer: 600000 # 10 minutes
+  lootRespawnTimer: 1200000 # 30 minutes
   vehicleRespawnTimer: 600000 # 10 minutes
   npcRespawnTimer: 600000 # 10 minutes
 
