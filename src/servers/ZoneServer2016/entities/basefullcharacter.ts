@@ -409,7 +409,10 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
         if(lootableItemsCount <= 0) continue;
         
-        sourceContainer.transferItem(server, container, item, 0, lootableItemsCount > item.stackCount ? item.stackCount : lootableItemsCount);
+        // use count param if lootableCount is higher, otherwise use lootableItemsCount or stackCount depending on which is lower
+        const lootCount = count < lootableItemsCount ? count : lootableItemsCount > item.stackCount ? item.stackCount : lootableItemsCount
+        
+        sourceContainer.transferItem(server, container, item, 0, lootCount);
         return;
       }
 

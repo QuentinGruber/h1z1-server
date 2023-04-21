@@ -1495,7 +1495,18 @@ export class ZonePacketHandlers {
         server.salvageAmmo(client, item);
         break;
       case ItemUseOptions.LOOT:
-        server.sendAlert(client, "TODO");
+        const containerEnt = client.character.mountedContainer,
+        c = containerEnt?.getContainer();
+
+        if(!containerEnt || !c) {
+          server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
+          return;
+        }
+
+        client.character.lootItemFromContainer(server, c, item, count);
+
+        // remount container to keep items from changing slotIds
+        client.character.mountContainer(server, containerEnt);
         break;
       case ItemUseOptions.MOVE: 
         const sourceContainer = client.character.getItemContainer(itemGuid),
