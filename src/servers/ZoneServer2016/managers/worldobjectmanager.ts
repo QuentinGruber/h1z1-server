@@ -121,6 +121,7 @@ export class WorldObjectManager {
 
   /* MANAGED BY CONFIGMANAGER */
   vehicleSpawnCap!: number;
+  minAirdropSurvivors!: number;
   lootRespawnTimer!: number;
   vehicleRespawnTimer!: number;
   npcRespawnTimer!: number;
