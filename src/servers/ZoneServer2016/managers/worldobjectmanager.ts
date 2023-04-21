@@ -147,8 +147,7 @@ export class WorldObjectManager {
   ];
 
   private getItemRespawnTimer(server: ZoneServer2016): void {
-    if (this.hasCustomLootRespawnTime)
-      return;
+    if (this.hasCustomLootRespawnTime) return;
 
     const playerCount = _.size(server._characters);
 

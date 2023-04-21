@@ -1253,7 +1253,8 @@ export const commands: Array<Command> = [
         server.sendChatText(client, `Set <time> to -1 to use default settings`);
         return;
       }
-      server.worldObjectManager.hasCustomLootRespawnTime = Number(args[0]) != -1;
+      server.worldObjectManager.hasCustomLootRespawnTime =
+        Number(args[0]) != -1;
 
       if (server.worldObjectManager.hasCustomLootRespawnTime) {
         server.worldObjectManager.lootRespawnTimer = Number(args[0]);
@@ -1263,10 +1264,7 @@ export const commands: Array<Command> = [
         );
       } else {
         server.worldObjectManager.lootRespawnTimer = 1_200_000; // 30 min default
-        server.sendChatText(
-          client,
-          `Loot respawn timer is no longer custom.`
-        );
+        server.sendChatText(client, `Loot respawn timer is no longer custom.`);
       }
     },
   },
