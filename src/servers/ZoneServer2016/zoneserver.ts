@@ -5402,11 +5402,11 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendAlert(client, "All planes are busy.");
       return;
     }
-    
+
     if (
       _.size(this._clients) < this.worldObjectManager.minAirdropSurvivors &&
       !this._soloMode
-      ) {
+    ) {
       this.sendAlert(client, "No planes ready. Not enough survivors.");
       return;
     }
