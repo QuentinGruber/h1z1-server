@@ -494,8 +494,8 @@ export class ConstructionManager {
                   freeplaceParentCharacterId = upperShelter.characterId;
                 }
               }
-            );
-          }
+            }
+          );
         });
         // for disconnected upper shelters
         if (!Number(freeplaceParentCharacterId)) {
@@ -1704,6 +1704,18 @@ export class ConstructionManager {
     setTimeout(() => {
       client.enableChecks = true;
     }, 500);
+    setTimeout(() => {
+      if (
+        foundation.isSecured &&
+        foundation.isInside(client.character.state.position)
+      ) {
+        const damageInfo: DamageInfo = {
+          entity: "Server.Permissions",
+          damage: 99999,
+        };
+        client.character.damage(server, damageInfo);
+      }
+    }, 2000);
     this.recheckClientInsideShelter(client, server, currentAngle);
     this.checkFoundationPermission(server, client, foundation);
   }

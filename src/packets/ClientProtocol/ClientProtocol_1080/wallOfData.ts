@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const wallOfDataPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const wallOfDataPackets: PacketStructures = [
   ["WallOfData.PlayerKeyboard", 0x9b03, {}],
   [
     "WallOfData.UIEvent",

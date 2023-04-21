@@ -180,6 +180,13 @@ export function movePoint(
   ]);
 }
 
+export function getAngle(position1: Float32Array, position2: Float32Array) {
+  const dx = position2[0] - position1[0];
+  const dz = position2[2] - position1[2];
+  const angle = Math.atan2(dz, dx);
+  return angle;
+}
+
 /*export function getAngle(positionA: Float32Array, positionB: Float32Array) {
   const dx = positionB[0] - positionA[0];
   const dz = positionB[2] - positionA[2];
@@ -902,9 +909,9 @@ export function getPopulationLevel(
 ): PopulationLevel {
   if (currentPop >= maxPop) {
     return PopulationLevel.FULL;
-  } else if (currentPop >= 80) {
+  } else if (currentPop >= 70) {
     return PopulationLevel.HIGH;
-  } else if (currentPop >= 40) {
+  } else if (currentPop >= 25) {
     return PopulationLevel.MEDIUM;
   } else {
     return PopulationLevel.LOW;

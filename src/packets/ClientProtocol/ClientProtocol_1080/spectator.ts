@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const spectatorPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const spectatorPackets: PacketStructures = [
   [
     "Spectator.Enable",
     0xe30100,

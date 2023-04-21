@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const voicePackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const voicePackets: PacketStructures = [
   [
     "Voice.Login",
     0x8200,

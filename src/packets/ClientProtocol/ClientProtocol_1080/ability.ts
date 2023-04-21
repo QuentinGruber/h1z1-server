@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const abilityPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const abilityPackets: PacketStructures = [
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
   ["Ability.ClientRequestStopAbility", 0x1002, {}],
   ["Ability.ClientMoveAndCast", 0x1003, {}],

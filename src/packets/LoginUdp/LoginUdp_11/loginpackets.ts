@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { PacketStructures } from "types/packetStructure";
 import PacketTableBuild from "../../packettable";
 
 const serverField: any[] = [
@@ -64,7 +65,7 @@ export const applicationDataKOTK = [
   ...applicationDataJS2016,
 ];
 
-const packets: any[] = [
+const packets: PacketStructures = [
   [
     "LoginRequest",
     0x01,

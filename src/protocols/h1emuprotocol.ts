@@ -15,7 +15,8 @@ const debug = require("debug")("H1emuProtocol");
 import DataSchema from "h1z1-dataschema";
 import { H1emuProtocolReadingFormat } from "types/protocols";
 import PacketTableBuild from "../packets/packettable";
-const packets = [
+import { PacketStructures } from "types/packetStructure";
+const packets: PacketStructures = [
   [
     "SessionRequest",
     0x01,
