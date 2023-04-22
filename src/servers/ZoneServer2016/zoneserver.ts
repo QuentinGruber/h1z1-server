@@ -873,7 +873,6 @@ export class ZoneServer2016 extends EventEmitter {
         case Items.HEADLIGHTS_PICKUP:
         case Items.HEADLIGHTS_POLICE:
         case Items.AIRDROP_CODE:
-        default:
           defs.push({
             ID: itemDef.ID,
             definitionData: {
