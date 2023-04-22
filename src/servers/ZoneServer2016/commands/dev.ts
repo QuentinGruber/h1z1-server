@@ -495,102 +495,6 @@ const dev: any = {
       message: " ",
     });
   },
-  begincharacteraccess: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
-    const objectCharacterId = server.generateGuid(),
-      npc = new Npc(
-        objectCharacterId,
-        server.getTransientId(objectCharacterId),
-        9034,
-        client.character.state.position,
-        client.character.state.lookAt,
-        server
-      );
-    const item = server.generateItem(1504);
-    npc.loadoutId = 5;
-    npc.equipItem(server, item);
-    npc.onReadyCallback = () => {
-      if (!item) return;
-      server.addItem(client, item, 101, npc);
-    };
-    server._npcs[objectCharacterId] = npc; // save npc
-
-    const container = Object.values(npc._containers)[0];
-    if(!container) {
-      server.sendAlert(client, "Invalid container!");
-      return;
-    }
-
-    setTimeout(() => {
-      server.sendData(client, "Container.InitEquippedContainers", {
-        ignore: npc.characterId,
-        characterId: npc.characterId,
-        containers: npc.pGetContainers(server),
-      });
-  
-  
-      //npc.updateLoadout(server);
-      server.sendDataToAllWithSpawnedEntity(
-        server._characters,
-        npc.characterId,
-        "Loadout.SetLoadoutSlots",
-        {
-          characterId: npc.characterId,
-          loadoutId: npc.loadoutId,
-          loadoutData: {
-            loadoutSlots: Object.values(npc.getLoadoutSlots()).map(
-              (slotId: any) => {
-                return npc.pGetLoadoutSlot(slotId);
-              }
-            ),
-          },
-          currentSlotId: npc.currentLoadoutSlot,
-        }
-      );
-
-      /*
-      server.sendData(client, "AccessedCharacter.Unknown1", {
-        characterId: "0x0000000000000001",
-        containerGuid: client.character.characterId//"",// vehicle.getContainer()?.itemGuid || "",
-      });
-      */
-  
-      server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-        objectCharacterId: npc.characterId,
-        containerGuid: client.character.characterId,//container.itemGuid,
-        unknownBool1: false,
-        itemsData: {
-          items: Object.values(container.items).map((item) => {
-            return npc.pGetItemData(
-              server,
-              item,
-              container.containerDefinitionId
-            )
-          }),
-          unknownDword1: 92, // idk
-        },
-      });
-  
-      Object.values(npc._loadout).forEach((item) => {
-        server.sendData(client, "ClientUpdate.ItemAdd", {
-          characterId: npc.characterId,
-          data: {
-            ...npc.pGetItemData(server, item, 101),
-          }
-        });
-      });
-  
-      Object.values(container.items).forEach((item) => {
-        server.sendData(client, "ClientUpdate.ItemAdd", {
-          characterId: npc.characterId,
-          data: npc.pGetItemData(server, item, container.containerDefinitionId),
-        });
-      });
-    }, 2000);
-  },
   fte: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     if (!args[3]) {
       server.sendChatText(client, "Missing 3 args");
@@ -703,10 +607,26 @@ const dev: any = {
 
     vehicle.updateLoadout(server);
     
-    
+    /*
     server.sendData(client, "AccessedCharacter.Unknown1", {
       characterId: characterId,
       containerGuid: client.character.characterId//"",// vehicle.getContainer()?.itemGuid || "",
+    });
+    */
+    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+      objectCharacterId: characterId,
+      containerGuid: client.character.characterId,
+      unknownBool1: true,
+      itemsData: {
+        items: Object.values(container.items).map((item) => {
+          return vehicle.pGetItemData(
+            server,
+            item,
+            container.containerDefinitionId
+          )
+        }),
+        unknownDword1: 92, // idk
+      },
     });
 
     Object.values(vehicle._loadout).forEach((item) => {

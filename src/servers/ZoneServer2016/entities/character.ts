@@ -632,46 +632,21 @@ export class Character2016 extends BaseFullCharacter {
     lootableEntity.mountedCharacter = this.characterId;
     this.mountedContainer = lootableEntity;
 
-    if(lootableEntity instanceof Vehicle2016) {
-      server.sendData(client, "AccessedCharacter.Unknown1", {
-        characterId: "0x0000000000000001",//lootableEntity.characterId,
-        containerGuid: client.character.characterId//"",// vehicle.getContainer()?.itemGuid || "",
-      });
-    }
-    else {
-      if(oldMount) {
-        server.sendData(client, "AccessedCharacter.Unknown2", {
-          characterId: "0x0000000000000001",//lootableEntity.characterId,
-          itemsData: {
-            items: Object.values(container.items).map((item) => {
-              return lootableEntity.pGetItemData(
-                server,
-                item,
-                container.containerDefinitionId
-              )
-            }),
-            unknownDword1: 92, // idk
-          },
-        });
-      }
-      else {
-        server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-          objectCharacterId: "0x0000000000000001",
-          containerGuid: client.character.characterId,
-          unknownBool1: false,
-          itemsData: {
-            items: Object.values(container.items).map((item) => {
-              return lootableEntity.pGetItemData(
-                server,
-                item,
-                container.containerDefinitionId
-              )
-            }),
-            unknownDword1: 92, // idk
-          },
-        });
-      }
-    }
+    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
+      objectCharacterId: lootableEntity instanceof Vehicle2016 ? lootableEntity.characterId : "0x0000000000000001",
+      containerGuid: client.character.characterId,
+      unknownBool1: lootableEntity instanceof Vehicle2016 ? true : !!oldMount,
+      itemsData: {
+        items: Object.values(container.items).map((item) => {
+          return lootableEntity.pGetItemData(
+            server,
+            item,
+            container.containerDefinitionId
+          )
+        }),
+        unknownDword1: 92, // idk
+      },
+    });
 
     server.initializeContainerList(client, lootableEntity);
     
