@@ -494,8 +494,7 @@ export class ConstructionManager {
                   freeplaceParentCharacterId = upperShelter.characterId;
                 }
               }
-            }
-          );
+            )};
         });
         // for disconnected upper shelters
         if (!Number(freeplaceParentCharacterId)) {
