@@ -569,7 +569,6 @@ export class Vehicle2016 extends BaseLootableEntity {
 
   pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
     let durability: number = 0;
-    const isWeapon = server.isWeapon(item.itemDefinitionId);
     switch (true) {
       case server.isWeapon(item.itemDefinitionId):
         durability = 2000;

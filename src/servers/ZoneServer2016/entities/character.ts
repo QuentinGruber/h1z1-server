@@ -879,7 +879,6 @@ export class Character2016 extends BaseFullCharacter {
 
   pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
     let durability: number = 0;
-    const isWeapon = server.isWeapon(item.itemDefinitionId);
     switch (true) {
       case server.isWeapon(item.itemDefinitionId):
         durability = 2000;
@@ -906,8 +905,7 @@ export class Character2016 extends BaseFullCharacter {
       currentDurability: durability ? item.currentDurability : 0,
       maxDurabilityFromDefinition: durability,
       unknownBoolean1: true,
-      ownerCharacterId:
-        /*isWeapon && item.itemDefinitionId !== 85 ? "" :*/ this.characterId,
+      ownerCharacterId: this.characterId,
       unknownDword9: 1,
       weaponData: this.pGetItemWeaponData(server, item),
     };

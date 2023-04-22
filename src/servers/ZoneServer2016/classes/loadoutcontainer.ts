@@ -152,11 +152,8 @@ export class LoadoutContainer extends LoadoutItem {
     count?: number
   ) {
     if (!count) count = item.stackCount;
-    const oldStackCount = item.stackCount; // saves stack count before it gets altered
-
-    let client;
-
-    const sourceCharacter = server.getEntity(this.loadoutItemOwnerGuid),
+    const oldStackCount = item.stackCount, // saves stack count before it gets altered
+      sourceCharacter = server.getEntity(this.loadoutItemOwnerGuid),
       targetCharacter = server.getEntity(targetContainer.loadoutItemOwnerGuid);
 
     if (
@@ -168,7 +165,7 @@ export class LoadoutContainer extends LoadoutItem {
       return;
     }
 
-    client =
+    const client =
       server.getClientByCharId(sourceCharacter.characterId) ||
       server.getClientByCharId(targetCharacter.characterId);
 
