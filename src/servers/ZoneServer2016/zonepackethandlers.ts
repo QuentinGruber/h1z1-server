@@ -1784,27 +1784,40 @@ export class ZonePacketHandlers {
 
       if(Number(containerGuid)) {
         const targetContainer = client.character.getContainerFromGuid(containerGuid);
-        if(!targetContainer) {
-          if(sourceCharacter.getContainerFromGuid(containerGuid)) {
-            // remount container if trying to move around items in one container since slotIds aren't setup yet
-            client.character.mountContainer(server, sourceCharacter);
+
+        if (targetContainer) {
+          // to container
+
+          if(!targetContainer.getHasSpace(server, item.itemDefinitionId, count)) {
+            server.sendData(client, "Character.NoSpaceNotification", {characterId: client.character.characterId});
             return;
           }
-          server.sendChatText(client, "Invalid target container!");
-          return;
-        }
-        if(!targetContainer.getHasSpace(server, item.itemDefinitionId, count)) {
-          server.sendData(client, "Character.NoSpaceNotification", {characterId: client.character.characterId});
-          return;
-        }
 
-        sourceContainer.transferItem(
-          server,
-          targetContainer,
-          item,
-          newSlotId,
-          count
-        );
+          sourceContainer.transferItem(
+            server,
+            targetContainer,
+            item,
+            newSlotId,
+            count
+          );
+        } else if (containerGuid == "0xffffffffffffffff") {
+          // to loadout
+          /*if (
+            server.validateLoadoutSlot(
+              item.itemDefinitionId,
+              newSlotId,
+              client.character.loadoutId
+            )
+          ) {*/
+          client.character.equipContainerItem(server, item, newSlotId, sourceCharacter);
+          //}
+        } else if(sourceCharacter.getContainerFromGuid(containerGuid)){
+          // remount container if trying to move around items in one container since slotIds aren't setup yet
+          client.character.mountContainer(server, sourceCharacter);
+        }
+        else { // invalid
+          server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
+        }
         return;
       }
 
