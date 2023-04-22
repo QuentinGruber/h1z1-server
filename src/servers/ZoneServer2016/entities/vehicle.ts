@@ -280,7 +280,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       },
     };
   }
-  
+
   pGetFull(server: ZoneServer2016) {
     return {
       transientId: this.transientId,
@@ -297,9 +297,9 @@ export class Vehicle2016 extends BaseLootableEntity {
       unknownArray3: { data: {} },
       unknownArray4: { data: {} },
       unknownArray5: { data: {} },
-      remoteWeapons: { 
+      remoteWeapons: {
         isVehicle: true,
-        data: {} 
+        data: {},
       },
       itemsData: {
         items: this.pGetInventoryItems(server),
@@ -614,12 +614,12 @@ export class Vehicle2016 extends BaseLootableEntity {
       "LightweightToFullVehicle",
       this.pGetFullVehicle(server)
     );
-    Object.values(this._loadout).forEach((item)=> {
+    Object.values(this._loadout).forEach((item) => {
       server.sendData(client, "ClientUpdate.ItemAdd", {
         characterId: this.characterId,
         data: this.pGetItemData(server, item, 101),
       });
-    })
+    });
     this.updateLoadout(server);
     // fix seat change crash related to our managed object workaround
     if (this.droppedManagedClient == client) {

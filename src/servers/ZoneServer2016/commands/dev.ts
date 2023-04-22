@@ -593,9 +593,9 @@ const dev: any = {
     args: Array<string>
   ) {
     const characterId = client.vehicle.mountedVehicle,
-    vehicle = server._vehicles[characterId || ""],
-    container = vehicle?.getContainer();
-    if(!container) {
+      vehicle = server._vehicles[characterId || ""],
+      container = vehicle?.getContainer();
+    if (!container) {
       server.sendChatText(client, "No container!");
       return;
     }
@@ -606,15 +606,15 @@ const dev: any = {
 
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId: characterId,
-      containerGuid: client.character.characterId,
-      unknownBool1: true,
+      mutatorCharacterId: client.character.characterId,
+      dontOpenInventory: true,
       itemsData: {
         items: Object.values(container.items).map((item) => {
           return vehicle.pGetItemData(
             server,
             item,
             container.containerDefinitionId
-          )
+          );
         }),
         unknownDword1: 92, // idk
       },
@@ -625,14 +625,18 @@ const dev: any = {
         characterId: characterId,
         data: {
           ...vehicle.pGetItemData(server, item, 101),
-        }
+        },
       });
     });
 
     Object.values(container.items).forEach((item) => {
       server.sendData(client, "ClientUpdate.ItemAdd", {
         characterId: characterId,
-        data: vehicle.pGetItemData(server, item, container.containerDefinitionId),
+        data: vehicle.pGetItemData(
+          server,
+          item,
+          container.containerDefinitionId
+        ),
       });
     });
   },

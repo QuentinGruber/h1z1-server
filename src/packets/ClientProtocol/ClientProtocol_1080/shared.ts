@@ -1238,12 +1238,12 @@ function packFullNPCRemoteWeaponsData(obj: any) {
         },
       ],
     },
-  ]
+  ];
 
   if (!obj["isVehicle"]) {
     return DataSchema.pack([], {}).data;
   }
-  return DataSchema.pack(remoteWeaponsSchema, {remoteWeapons: obj}).data;
+  return DataSchema.pack(remoteWeaponsSchema, { remoteWeapons: obj }).data;
 }
 
 export const currencySchema: PacketFields = [

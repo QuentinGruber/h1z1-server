@@ -375,9 +375,12 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
   }
 
-
-
-  lootItemFromContainer(server: ZoneServer2016, sourceContainer: LoadoutContainer, item?: BaseItem, count?: number) {
+  lootItemFromContainer(
+    server: ZoneServer2016,
+    sourceContainer: LoadoutContainer,
+    item?: BaseItem,
+    count?: number
+  ) {
     const client = server.getClientByCharId(this.characterId);
     if (!item || !item.isValid("lootItem")) return;
     if (!count) count = item.stackCount;
@@ -385,9 +388,9 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       count = item.stackCount;
     }
     const sourceCharacter = client?.character.mountedContainer,
-    itemDefId = item.itemDefinitionId;
+      itemDefId = item.itemDefinitionId;
     if (
-      this.getAvailableLoadoutSlot(server, itemDefId) && 
+      this.getAvailableLoadoutSlot(server, itemDefId) &&
       sourceCharacter &&
       server.removeContainerItem(sourceCharacter, item, sourceContainer, count)
     ) {
@@ -400,26 +403,32 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       }
       this.equipItem(server, item, true);
     } else {
-
-      for(const container of Object.values(this._containers)) {
+      for (const container of Object.values(this._containers)) {
         const itemDefinition = server.getItemDefinition(item.itemDefinitionId);
-        if(!itemDefinition) return;
+        if (!itemDefinition) return;
 
         const availableBulk = container.getAvailableBulk(server),
-        itemBulk = itemDefinition.BULK,
-        lootableItemsCount = Math.floor(availableBulk / itemBulk);
+          itemBulk = itemDefinition.BULK,
+          lootableItemsCount = Math.floor(availableBulk / itemBulk);
 
-        if(lootableItemsCount <= 0) continue;
-        
+        if (lootableItemsCount <= 0) continue;
+
         // use count param if lootableCount is higher, otherwise use lootableItemsCount or stackCount depending on which is lower
-        const lootCount = count < lootableItemsCount ? count : lootableItemsCount > item.stackCount ? item.stackCount : lootableItemsCount
-        
+        const lootCount =
+          count < lootableItemsCount
+            ? count
+            : lootableItemsCount > item.stackCount
+            ? item.stackCount
+            : lootableItemsCount;
+
         sourceContainer.transferItem(server, container, item, 0, lootCount);
         return;
       }
 
-      if(client) server.sendData(client, "Character.NoSpaceNotification", {characterId: client.character.characterId});
-
+      if (client)
+        server.sendData(client, "Character.NoSpaceNotification", {
+          characterId: client.character.characterId,
+        });
     }
   }
 
@@ -429,49 +438,32 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     loadoutItem: LoadoutItem
   ) {
     const client = server.getClientByContainerAccessor(this);
-    if(!client) return;
+    if (!client) return;
 
     // to container
-    if (
-        !targetContainer.getHasSpace(
-          server,
-          loadoutItem.itemDefinitionId,
-          1
-        )
-    ) {
-        server.containerError(client, ContainerErrors.NO_SPACE);
-        return;
-      }
-      if (!server.removeLoadoutItem(this, loadoutItem.slotId)) {
-        server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-        return;
-      }
-      if (loadoutItem.weapon) {
-        const ammo = server.generateItem(
-          server.getWeaponAmmoId(loadoutItem.itemDefinitionId),
-          loadoutItem.weapon.ammoCount
-        );
-        if (
-          ammo &&
-          loadoutItem.weapon.ammoCount > 0 &&
-          loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
-        ) {
-          this.lootContainerItem(
-            server,
-            ammo,
-            ammo.stackCount,
-            true
-          );
-        }
-        loadoutItem.weapon.ammoCount = 0;
-      }
-      server.addContainerItem(
-        this,
-        loadoutItem,
-        targetContainer,
-        false
+    if (!targetContainer.getHasSpace(server, loadoutItem.itemDefinitionId, 1)) {
+      server.containerError(client, ContainerErrors.NO_SPACE);
+      return;
+    }
+    if (!server.removeLoadoutItem(this, loadoutItem.slotId)) {
+      server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+      return;
+    }
+    if (loadoutItem.weapon) {
+      const ammo = server.generateItem(
+        server.getWeaponAmmoId(loadoutItem.itemDefinitionId),
+        loadoutItem.weapon.ammoCount
       );
-    
+      if (
+        ammo &&
+        loadoutItem.weapon.ammoCount > 0 &&
+        loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+      ) {
+        this.lootContainerItem(server, ammo, ammo.stackCount, true);
+      }
+      loadoutItem.weapon.ammoCount = 0;
+    }
+    server.addContainerItem(this, loadoutItem, targetContainer, false);
   }
 
   lootContainerItem(
@@ -593,7 +585,12 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     });
   }
 
-  equipContainerItem(server: ZoneServer2016, item: BaseItem, slotId: number, sourceCharacter: BaseFullCharacter = this) {
+  equipContainerItem(
+    server: ZoneServer2016,
+    item: BaseItem,
+    slotId: number,
+    sourceCharacter: BaseFullCharacter = this
+  ) {
     // equips an existing item from a container
 
     const client = server.getClientByContainerAccessor(sourceCharacter);
@@ -602,36 +599,39 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       this._containers[slotId] &&
       _.size(this._containers[slotId].items) != 0
     ) {
-      if(client) server.sendChatText(client, "[ERROR] Container must be empty to unequip!");
+      if (client)
+        server.sendChatText(
+          client,
+          "[ERROR] Container must be empty to unequip!"
+        );
       return;
     }
 
     const oldLoadoutItem = sourceCharacter._loadout[slotId],
       container = sourceCharacter.getItemContainer(item.itemGuid);
     if ((!oldLoadoutItem || !oldLoadoutItem.itemDefinitionId) && !container) {
-      if(client) server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
+      if (client)
+        server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
       return;
     }
     if (!server.removeContainerItem(sourceCharacter, item, container, 1)) {
-      if(client) server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+      if (client)
+        server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
     if (oldLoadoutItem?.itemDefinitionId) {
       // if target loadoutSlot is occupied
       if (oldLoadoutItem.itemGuid == item.itemGuid) {
-        if(client) server.sendChatText(client, "[ERROR] Item is already equipped!");
+        if (client)
+          server.sendChatText(client, "[ERROR] Item is already equipped!");
         return;
       }
       if (!server.removeLoadoutItem(sourceCharacter, oldLoadoutItem.slotId)) {
-        if(client) server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+        if (client)
+          server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
-      this.lootContainerItem(
-        server,
-        oldLoadoutItem,
-        undefined,
-        false
-      );
+      this.lootContainerItem(server, oldLoadoutItem, undefined, false);
     }
     if (item.weapon) {
       clearTimeout(item.weapon.reloadTimer);

@@ -866,7 +866,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     const defs: any[] = [];
     Object.values(this._itemDefinitions).forEach((itemDef: any) => {
-      switch(itemDef.ID) {
+      switch (itemDef.ID) {
         case Items.FANNY_PACK_DEV:
         case Items.HEADLIGHTS_ATV:
         case Items.HEADLIGHTS_OFFROADER:
@@ -2317,7 +2317,9 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
-  getLootableEntity(entityKey: string): BaseLootableEntity | Vehicle2016 | undefined {
+  getLootableEntity(
+    entityKey: string
+  ): BaseLootableEntity | Vehicle2016 | undefined {
     return (
       this._lootbags[entityKey] ||
       this._vehicles[entityKey] ||
@@ -2970,7 +2972,7 @@ export class ZoneServer2016 extends EventEmitter {
       scale: new Float32Array([0.001, 0.001, 0.001, 0.001]),
       positionUpdateType: 0,
       profileId: 0,
-      isLightweight: false,//true,
+      isLightweight: false, //true,
       flags: {},
       headActor: "",
     };
@@ -4584,7 +4586,10 @@ export class ZoneServer2016 extends EventEmitter {
     )
       return;
     this.sendData(client, "ClientUpdate.ItemAdd", {
-      characterId: (character instanceof Character || character instanceof Vehicle2016)? character.characterId : "0x0000000000000001",
+      characterId:
+        character instanceof Character || character instanceof Vehicle2016
+          ? character.characterId
+          : "0x0000000000000001",
       data: character.pGetItemData(this, item, containerDefinitionId),
     });
   }
@@ -4930,7 +4935,7 @@ export class ZoneServer2016 extends EventEmitter {
     delete character._equipment[equipmentSlotId];
 
     const client = this.getClientByContainerAccessor(character);
-    if(!client) return true;
+    if (!client) return true;
 
     if (client.character.initialized && sendPacket) {
       this.sendDataToAllWithSpawnedEntity(
@@ -4983,7 +4988,7 @@ export class ZoneServer2016 extends EventEmitter {
         }
       );
     }
-    if(client) this.deleteItem(character, item.itemGuid);
+    if (client) this.deleteItem(character, item.itemGuid);
     delete character._loadout[loadoutSlotId];
     character.updateLoadout(this);
     if (updateEquipment) {
@@ -4992,10 +4997,10 @@ export class ZoneServer2016 extends EventEmitter {
         character.getActiveEquipmentSlot(item)
       );
     }
-    if(client) this.checkConveys(client);
+    if (client) this.checkConveys(client);
     if (this.getItemDefinition(itemDefId).ITEM_TYPE === 34) {
       delete character._containers[loadoutSlotId];
-      if(client) this.initializeContainerList(client);
+      if (client) this.initializeContainerList(client);
     }
     return true;
   }
@@ -5148,11 +5153,14 @@ export class ZoneServer2016 extends EventEmitter {
    * @param item The item object.
    * @param count Optional: The number of items to drop on the ground, default 1.
    */
-  dropItem(character: BaseFullCharacter, item: BaseItem, count: number = 1): void {
-
+  dropItem(
+    character: BaseFullCharacter,
+    item: BaseItem,
+    count: number = 1
+  ): void {
     const client = this.getClientByContainerAccessor(character);
 
-    if(!client) return;
+    if (!client) return;
 
     item.debugFlag = "dropItem";
     if (!item) {
@@ -5257,7 +5265,10 @@ export class ZoneServer2016 extends EventEmitter {
     const client = this.getClientByContainerAccessor(character);
     if (!client || !client.character.initialized) return;
 
-    if(client.character != character && character instanceof BaseLootableEntity) {
+    if (
+      client.character != character &&
+      character instanceof BaseLootableEntity
+    ) {
       // force remount since ItemDelete doesn't seem to work on external containers right now
       client.character.mountContainer(this, character);
       return;
@@ -5273,7 +5284,10 @@ export class ZoneServer2016 extends EventEmitter {
     client: Client,
     character: BaseFullCharacter = client.character
   ): void {
-    const characterId = (character instanceof Character || character instanceof Vehicle2016)? character.characterId : "0x0000000000000001";
+    const characterId =
+      character instanceof Character || character instanceof Vehicle2016
+        ? character.characterId
+        : "0x0000000000000001";
     this.sendData(client, "Container.InitEquippedContainers", {
       ignore: characterId,
       characterId: characterId,
@@ -5326,7 +5340,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   updateContainer(character: BaseFullCharacter, container: LoadoutContainer) {
     const client = this.getClientByContainerAccessor(character);
-    if(!client || !client.character.initialized) return;
+    if (!client || !client.character.initialized) return;
     this.sendData(client, "Container.UpdateEquippedContainer", {
       ignore: character.characterId,
       characterId: character.characterId,
@@ -5340,13 +5354,12 @@ export class ZoneServer2016 extends EventEmitter {
     container: LoadoutContainer
   ) {
     const client = this.getClientByContainerAccessor(character);
-    if(!client || !client.character.initialized) return;
-    if(client.character != character) {
+    if (!client || !client.character.initialized) return;
+    if (client.character != character) {
       /* ItemUpdate doesn't seem to work on external characters */
       this.deleteItem(character, item.itemGuid);
       this.addItem(client, item, container.containerDefinitionId, character);
-    }
-    else {
+    } else {
       this.sendData(client, "ClientUpdate.ItemUpdate", {
         characterId: character.characterId,
         data: character.pGetItemData(
@@ -5422,7 +5435,7 @@ export class ZoneServer2016 extends EventEmitter {
 
     if (
       item.itemDefinitionId != Items.AIRDROP_CODE ||
-      !this.removeInventoryItem(client, item)
+      !this.removeInventoryItem(client.character, item)
     )
       return;
     this.sendAlert(client, "You have called an airdrop.");
