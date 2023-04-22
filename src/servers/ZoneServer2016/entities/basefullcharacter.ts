@@ -375,7 +375,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
   }
 
-  
+
 
   lootItemFromContainer(server: ZoneServer2016, sourceContainer: LoadoutContainer, item?: BaseItem, count?: number) {
     const client = server.getClientByCharId(this.characterId);
@@ -421,6 +421,57 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       if(client) server.sendData(client, "Character.NoSpaceNotification", {characterId: client.character.characterId});
 
     }
+  }
+
+  transferItemFromLoadout(
+    server: ZoneServer2016,
+    targetContainer: LoadoutContainer,
+    loadoutItem: LoadoutItem
+  ) {
+    const client = server.getClientByContainerAccessor(this);
+    if(!client) return;
+
+    // to container
+    if (
+        !targetContainer.getHasSpace(
+          server,
+          loadoutItem.itemDefinitionId,
+          1
+        )
+    ) {
+        server.containerError(client, ContainerErrors.NO_SPACE);
+        return;
+      }
+      if (!server.removeLoadoutItem(this, loadoutItem.slotId)) {
+        server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+        return;
+      }
+      if (loadoutItem.weapon) {
+        const ammo = server.generateItem(
+          server.getWeaponAmmoId(loadoutItem.itemDefinitionId),
+          loadoutItem.weapon.ammoCount
+        );
+        if (
+          ammo &&
+          loadoutItem.weapon.ammoCount > 0 &&
+          loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
+        ) {
+          this.lootContainerItem(
+            server,
+            ammo,
+            ammo.stackCount,
+            true
+          );
+        }
+        loadoutItem.weapon.ammoCount = 0;
+      }
+      server.addContainerItem(
+        this,
+        loadoutItem,
+        targetContainer,
+        false
+      );
+    
   }
 
   lootContainerItem(

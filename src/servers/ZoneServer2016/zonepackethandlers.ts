@@ -1584,7 +1584,7 @@ export class ZonePacketHandlers {
       return;
     }
     server.sendData(client, "Construction.PlacementResponse", {
-      itemDefinitionId: packet.data.itemDefinitionId,
+      itemDefinitionId: packet.data.itemDefinitionId, 
       model: modelId,
     });
   }
@@ -1664,46 +1664,7 @@ export class ZonePacketHandlers {
             return;
           }
           if (targetContainer) {
-            // to container
-            if (
-              !targetContainer.getHasSpace(
-                server,
-                loadoutItem.itemDefinitionId,
-                count
-              )
-            ) {
-              server.containerError(client, ContainerErrors.NO_SPACE);
-              return;
-            }
-            if (!server.removeLoadoutItem(client.character, loadoutItem.slotId)) {
-              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-              return;
-            }
-            if (loadoutItem.weapon) {
-              const ammo = server.generateItem(
-                server.getWeaponAmmoId(loadoutItem.itemDefinitionId),
-                loadoutItem.weapon.ammoCount
-              );
-              if (
-                ammo &&
-                loadoutItem.weapon.ammoCount > 0 &&
-                loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
-              ) {
-                client.character.lootContainerItem(
-                  server,
-                  ammo,
-                  ammo.stackCount,
-                  true
-                );
-              }
-              loadoutItem.weapon.ammoCount = 0;
-            }
-            server.addContainerItem(
-              client.character,
-              loadoutItem,
-              targetContainer,
-              false
-            );
+            client.character.transferItemFromLoadout(server, targetContainer, loadoutItem);
           } else if (containerGuid == "0xffffffffffffffff") {
             // to loadout
             const loadoutItem = client.character.getLoadoutItem(itemGuid);
@@ -1738,6 +1699,19 @@ export class ZonePacketHandlers {
           console.log("Invalid target character!");
           return;
         }
+
+        const targetContainer = targetCharacter.getContainer();
+        if(!targetContainer) {
+          console.log("Invalid target container!");
+          return;
+        }
+
+        const loadoutItem = client.character.getLoadoutItem(itemGuid);
+        if(loadoutItem) {
+          client.character.transferItemFromLoadout(server, targetContainer, loadoutItem);
+          client.character.mountContainer(server, targetCharacter);
+          return;
+        }
   
         if(!sourceContainer) {
           console.log("Invalid source container!");
@@ -1761,12 +1735,6 @@ export class ZonePacketHandlers {
           targetCharacter.equipContainerItem(server, item, newSlotId, client.character);
           }
 
-          return;
-        }
-
-        const targetContainer = targetCharacter.getContainer();
-        if(!targetContainer) {
-          console.log("Invalid target container!");
           return;
         }
 
