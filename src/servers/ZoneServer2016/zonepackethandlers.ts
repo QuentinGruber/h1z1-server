@@ -1536,19 +1536,19 @@ export class ZonePacketHandlers {
             targetCharacter.state.position
           )
         ) {
-          console.log("Invalid target character!");
+          server.sendChatText(client, "Invalid target character 1!");
           return;
         }
 
         if(!sourceContainer) {
-          console.log("Invalid source container!");
+          server.sendChatText(client, "Invalid source container 1!");
           return;
         }
 
         const targetContainer = targetCharacter.getContainer();
 
         if(!targetContainer) {
-          console.log("Invalid target container!");
+          server.sendChatText(client, "Invalid target container 1!");
           return;
         }
 
@@ -1696,13 +1696,13 @@ export class ZonePacketHandlers {
             targetCharacter.state.position
           )
         ) {
-          console.log("Invalid target character!");
+          server.sendChatText(client, "Invalid target character 2!");
           return;
         }
 
         const targetContainer = targetCharacter.getContainer();
         if(!targetContainer) {
-          console.log("Invalid target container!");
+          server.sendChatText(client, "Invalid target container 2!");
           return;
         }
 
@@ -1714,17 +1714,19 @@ export class ZonePacketHandlers {
         }
   
         if(!sourceContainer) {
-          console.log("Invalid source container!");
+          server.sendChatText(client, "Invalid source container 2!");
           return;
         }
 
         if (containerGuid == "0xffffffffffffffff") {
           // to loadout
-          const item = sourceContainer.items[itemGuid];
+          /*const item = sourceContainer.items[itemGuid];
           if (!item) {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
+          
+          
           if (
             server.validateLoadoutSlot(
               item.itemDefinitionId,
@@ -1732,12 +1734,13 @@ export class ZonePacketHandlers {
               targetCharacter.loadoutId
             )
           ) {
-          targetCharacter.equipContainerItem(server, item, newSlotId, client.character);
+            targetCharacter.equipContainerItem(server, item, newSlotId, client.character);
           }
-
+          */
+          server.sendAlert(client, "Vehicle loadout is disabled for now.");
           return;
         }
-
+        
         const item = sourceContainer.items[itemGuid];
         if (!item) {
           server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
@@ -1755,9 +1758,6 @@ export class ZonePacketHandlers {
       }
     } else {
       // from external container
-      console.log("FROM EXTERNAL CONTAINER")
-        console.log(packet.data);
-      
       const sourceCharacter = client.character.mountedContainer;
       if(
         !sourceCharacter || 
@@ -1768,16 +1768,13 @@ export class ZonePacketHandlers {
           sourceCharacter.state.position
         )
       ) {
-        console.log("Invalid source character!");
+        server.sendChatText(client, "Invalid source character 1!");
         return;
       }
 
-
-
-
       const sourceContainer = sourceCharacter.getItemContainer(itemGuid);
       if(!sourceContainer) {
-        console.log("Invalid source container!");
+        server.sendChatText(client, "Invalid source container 3!");
         return;
       }
       const item = sourceContainer.items[itemGuid];
@@ -1802,15 +1799,15 @@ export class ZonePacketHandlers {
           );
         } else if (containerGuid == "0xffffffffffffffff") {
           // to loadout
-          /*if (
+          if (
             server.validateLoadoutSlot(
               item.itemDefinitionId,
               newSlotId,
               client.character.loadoutId
             )
-          ) {*/
+          ) {
           client.character.equipContainerItem(server, item, newSlotId, sourceCharacter);
-          //}
+          }
         } else if(sourceCharacter.getContainerFromGuid(containerGuid)){
           // remount container if trying to move around items in one container since slotIds aren't setup yet
           client.character.mountContainer(server, sourceCharacter);

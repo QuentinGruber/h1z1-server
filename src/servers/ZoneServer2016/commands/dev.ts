@@ -600,19 +600,10 @@ const dev: any = {
       return;
     }
 
-   console.log(characterId);
-   console.log(vehicle?.getContainer()?.itemGuid);
-
     server.initializeContainerList(client, vehicle);
 
     vehicle.updateLoadout(server);
-    
-    /*
-    server.sendData(client, "AccessedCharacter.Unknown1", {
-      characterId: characterId,
-      containerGuid: client.character.characterId//"",// vehicle.getContainer()?.itemGuid || "",
-    });
-    */
+
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId: characterId,
       containerGuid: client.character.characterId,
@@ -736,71 +727,6 @@ const dev: any = {
       title: "TITLE",
       message: "MESSAGE",
     });
-  },
-  access: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
-    const currentInteractionGuid = client.character.currentInteractionGuid;
-    if(!currentInteractionGuid) {
-      server.sendAlert(client, "No interaction object!");
-      return;
-    }
-    const lootableEntity = server.getEntity(currentInteractionGuid);
-    if(!lootableEntity || !(lootableEntity instanceof BaseLootableEntity)) {
-      server.sendAlert(client, "Invalid object!");
-      return;
-    }
-    const container = lootableEntity.getContainer();
-    if(!container) {
-      server.sendAlert(client, "Invalid container!");
-      return;
-    }
-
-    
-    server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-      objectCharacterId: "0x0000000000000001",
-      containerGuid: client.character.characterId,//container.itemGuid,
-      unknownBool1: false,
-      itemsData: {
-        items: Object.values(container.items).map((item) => {
-          return lootableEntity.pGetItemData(
-            server,
-            item,
-            container.containerDefinitionId
-          )
-        }),
-        unknownDword1: 92, // idk
-      },
-    });
-    
-    server.initializeContainerList(client, lootableEntity);
-    
-    Object.values(lootableEntity._loadout).forEach((item) => {
-      server.addItem(client, item, 101, lootableEntity);
-    });
-    
-    Object.values(container.items).forEach((item) => {
-      server.addItem(client, item, container.containerDefinitionId, lootableEntity);
-    });
-    
-
-    /*server.sendData(
-      client, "Loadout.SetLoadoutSlots",
-      {
-        characterId: "0x0000000000000001",
-        loadoutId: 5,//lootableEntity.loadoutId,
-        loadoutData: {
-          loadoutSlots: Object.values(lootableEntity.getLoadoutSlots()).map(
-            (slotId: any) => {
-              return lootableEntity.pGetLoadoutSlot(slotId);
-            }
-          ),
-        },
-        currentSlotId: lootableEntity.currentLoadoutSlot,
-      }
-    );*/
   },
   groupjoin: function (
     server: ZoneServer2016,
