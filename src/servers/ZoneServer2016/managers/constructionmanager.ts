@@ -2162,7 +2162,7 @@ export class ConstructionManager {
           this.repairConstruction(server, entity, 50000);
           accumulatedItemDamage += 15;
         }
-        server.damageItem(client, weaponItem, accumulatedItemDamage);
+        server.damageItem(client, weaponItem, Math.ceil(accumulatedItemDamage / 4));
         client.character.temporaryScrapSoundTimeout = setTimeout(() => {
           delete client.character.temporaryScrapSoundTimeout;
         }, 1000);
