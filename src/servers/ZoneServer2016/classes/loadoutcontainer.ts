@@ -197,6 +197,21 @@ export class LoadoutContainer extends LoadoutItem {
       // allows items in the same container but different stacks to be stacked
       return;
     }
+    if (targetContainer.getMaxBulk(server) > 0) {
+      const availableSpace = targetContainer.getAvailableBulk(server),
+        itemBulk = server.getItemDefinition(item.itemDefinitionId).BULK;
+      let lootCount = Math.floor(availableSpace / itemBulk);
+      if (lootCount) {
+        if (lootCount > item.stackCount) {
+          lootCount = item.stackCount;
+        }
+      } else return;
+
+      if (count > lootCount) {
+        count = lootCount;
+      }
+    }
+
     if (!server.removeContainerItem(sourceCharacter, item, this, count)) {
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
@@ -205,6 +220,7 @@ export class LoadoutContainer extends LoadoutItem {
       clearTimeout(item.weapon.reloadTimer);
       delete item.weapon.reloadTimer;
     }
+
     const itemStack = targetContainer.getAvailableItemStack(
       server,
       item.itemDefinitionId,

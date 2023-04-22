@@ -73,9 +73,11 @@ export class Npc extends BaseFullCharacter {
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
     const client = server.getClientByCharId(damageInfo.entity),
       oldHealth = this.health;
-    if ((this.health -= damageInfo.damage) <= 0) {
+    if ((this.health -= damageInfo.damage) <= 0 && this.isAlive) {
       this.flags.knockedOut = 1;
+      this.isAlive = 0;
       this.deathTime = Date.now();
+      server.worldObjectManager.createLootbag(server, this);
       if (client) {
         if (!server._soloMode) {
           logClientActionToMongo(

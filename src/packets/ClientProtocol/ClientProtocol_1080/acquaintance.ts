@@ -10,5 +10,8 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const acquaintancePackets: any = [["Acquaintance", 0x2b, {}]];
+export const acquaintancePackets: PacketStructures = [
+  ["Acquaintance", 0x2b, {}],
+];

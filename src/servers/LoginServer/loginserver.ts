@@ -212,10 +212,7 @@ export class LoginServer extends EventEmitter {
                       );
                       await this.updateServerStatus(serverId, true);
                     } else {
-                      debug(
-                        `rejected connection serverId : ${serverId} address: ${client.address} `
-                      );
-                      delete this._h1emuLoginServer._clients[client.clientId];
+                      this.rejectH1emuConnection(serverId, client);
                       return;
                     }
                     this._h1emuLoginServer.sendData(client, "SessionReply", {
@@ -330,6 +327,12 @@ export class LoginServer extends EventEmitter {
 
       this._h1emuLoginServer.start();
     }
+  }
+  rejectH1emuConnection(serverId: number, client: H1emuClient) {
+    debug(
+      `rejected connection serverId : ${serverId} address: ${client.address} `
+    );
+    delete this._h1emuLoginServer._clients[client.clientId];
   }
   private async _isServerOfficial(serverId: number): Promise<boolean> {
     const server = await this._db
@@ -867,6 +870,11 @@ export class LoginServer extends EventEmitter {
   async isClientHWIDBanned(client: Client, serverId: number): Promise<boolean> {
     return false;
   }
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async isClientVerified(client: Client): Promise<boolean> {
+    // to implement
+    return true;
+  }
   async getOwnerBanInfo(serverId: number, client: Client) {
     const ownerBanInfos: any[] = await this._db
       .collection(DB_COLLECTIONS.BANNED_LIGHT)
@@ -889,6 +897,10 @@ export class LoginServer extends EventEmitter {
 
     if (await this.isClientHWIDBanned(client, serverId)) {
       banInfos.push({ banInfo: BAN_INFO.HWID });
+    }
+
+    if (!(await this.isClientVerified(client))) {
+      banInfos.push({ banInfo: BAN_INFO.UNVERIFIED });
     }
 
     return banInfos;

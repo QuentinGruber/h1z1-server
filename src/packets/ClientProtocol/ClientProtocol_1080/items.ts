@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { h1z1Buffer } from "h1z1-dataschema";
+import { PacketStructures } from "types/packetStructure";
 
 export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   const obj: any = {},
@@ -39,7 +40,7 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
     length: offset - startOffset,
   };
 }
-export const itemsPackets: any = [
+export const itemsPackets: PacketStructures = [
   ["Items.LoadItemRentalDefinitionManager", 0xad01, {}],
   ["Items.SetItemTimerManager", 0xad02, {}],
   ["Items.SetItemLockTimer", 0xad03, {}],

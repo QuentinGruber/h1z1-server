@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { PacketFields } from "types/packetStructure";
 import {
   eul2quat,
   getPacketTypeBytes,
@@ -389,7 +390,7 @@ export const profileSchema = [
   { name: "unknownDword16", type: "uint32", defaultValue: 1 },
 ];
 */
-export const profileSchema = [
+export const profileSchema: PacketFields = [
   { name: "profileId", type: "uint32", defaultValue: 0 },
   { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "descriptionId", type: "uint32", defaultValue: 0 },
@@ -787,7 +788,7 @@ export function packNpcComponent() {
   return Buffer.from(raw);
 }
 
-export const itemSchema = [
+export const itemSchema: PacketFields = [
   { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
   { name: "tintId", type: "uint32", defaultValue: 0 },
   { name: "guid", type: "uint64string", defaultValue: "" },
@@ -809,7 +810,7 @@ export const itemSchema = [
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
 ];
 
-export const identitySchema = [
+export const identitySchema: PacketFields = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
@@ -820,7 +821,7 @@ export const identitySchema = [
   { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
 ];
 
-export const lightWeightPcSchema = [
+export const lightWeightPcSchema: PacketFields = [
   { name: "characterId", type: "uint64string", defaultValue: "0" },
   {
     name: "transientId",
@@ -872,7 +873,7 @@ export const lightWeightPcSchema = [
   },
 ];
 
-export const lightWeightNpcSchema = [
+export const lightWeightNpcSchema: PacketFields = [
   {
     name: "characterId",
     type: "uint64string",
@@ -1003,7 +1004,7 @@ export const lightWeightNpcSchema = [
   { name: "unknownDword15", type: "uint32", defaultValue: 0 },
 ];
 
-export const effectTagsSchema = [
+export const effectTagsSchema: PacketFields = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
@@ -1038,7 +1039,7 @@ export const effectTagsSchema = [
   { name: "unknownDword23", type: "uint32", defaultValue: 0 },
 ];
 
-export const statSchema = [
+export const statSchema: PacketFields = [
   { name: "statId", type: "uint32", defaultValue: 0 },
   {
     name: "statValue",
@@ -1055,7 +1056,7 @@ export const statSchema = [
     },
   },
 ];
-export const itemWeaponDetailSubSchema1 = [
+export const itemWeaponDetailSubSchema1: PacketFields = [
   { name: "statOwnerId", type: "uint32", defaultValue: 0 },
   { name: "statData", type: "schema", fields: statSchema },
 ];
@@ -1245,12 +1246,12 @@ function packFullNPCRemoteWeaponsData(obj: any) {
   return DataSchema.pack(remoteWeaponsSchema, {remoteWeapons: obj}).data;
 }
 
-export const currencySchema = [
+export const currencySchema: PacketFields = [
   { name: "currencyId", type: "uint32", defaultValue: 0 },
   { name: "quantity", type: "uint32", defaultValue: 0 },
 ];
 
-export const rewardBundleSchema = [
+export const rewardBundleSchema: PacketFields = [
   { name: "unknownBoolean1", type: "boolean", defaultValue: false },
   {
     name: "currency",
@@ -1309,7 +1310,7 @@ export const rewardBundleSchema = [
   */
   { name: "unknownDword8", type: "uint32", defaultValue: 0 },
 ];
-export const collectionsSchema = [
+export const collectionsSchema: PacketFields = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
   { name: "unknownDword2", type: "uint32", defaultValue: 0 },
   { name: "unknownDword3", type: "uint32", defaultValue: 0 },
@@ -1342,7 +1343,7 @@ export const collectionsSchema = [
   },
 ];
 
-export const objectiveSchema = [
+export const objectiveSchema: PacketFields = [
   { name: "objectiveId", type: "uint32", defaultValue: 0 },
   { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "descriptionId", type: "uint32", defaultValue: 0 },
@@ -1364,7 +1365,7 @@ export const objectiveSchema = [
   },
   { name: "unknownByte4", type: "uint8", defaultValue: 0 },
 ];
-export const achievementSchema = [
+export const achievementSchema: PacketFields = [
   { name: "achievementId", type: "uint32", defaultValue: 0 },
   { name: "unknownBoolean1", type: "uint32", defaultValue: 0 },
   { name: "nameId", type: "uint32", defaultValue: 0 },
@@ -1390,7 +1391,7 @@ export const achievementSchema = [
   { name: "unknownDword9", type: "uint32", defaultValue: 0 },
 ];
 
-export const characterResourceData = [
+export const characterResourceData: PacketFields = [
   { name: "resourceId", type: "uint32", defaultValue: 0 },
   { name: "resourceType", type: "uint32", defaultValue: 0 },
   {
@@ -1442,7 +1443,7 @@ export const characterResourceData = [
   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
 ];
 
-export const attachmentSchema = [
+export const attachmentSchema: PacketFields = [
   { name: "modelName", type: "string", defaultValue: "" },
   { name: "textureAlias", type: "string", defaultValue: "" },
   { name: "tintAlias", type: "string", defaultValue: "Default" },
@@ -1461,7 +1462,7 @@ export const attachmentSchema = [
   { name: "unknownBool1", type: "boolean", defaultValue: false },
 ];
 
-export const remoteWeaponSchema = [
+export const remoteWeaponSchema: PacketFields = [
   { name: "weaponDefinitionId", type: "uint32", defaultValue: 0 },
   { name: "equipmentSlotId", type: "uint8", defaultValue: 0 },
   {
@@ -1539,7 +1540,7 @@ export const remoteWeaponSchema = [
   },
 ];
 
-export const remoteWeaponExtraSchema = [
+export const remoteWeaponExtraSchema: PacketFields = [
   { name: "unknownByte1", type: "int8", defaultValue: 0 },
   { name: "unknownByte2", type: "int8", defaultValue: 0 },
   { name: "unknownByte3", type: "int8", defaultValue: 0 },
@@ -1560,7 +1561,7 @@ export const remoteWeaponExtraSchema = [
   },
 ];
 
-export const fullNpcSchema = [
+export const fullNpcSchema: PacketFields = [
   {
     name: "transientId",
     type: "custom",
@@ -1915,7 +1916,7 @@ export const fullNpcSchema = [
   { name: "unknownDword21", type: "uint32", defaultValue: 0 },
 ];
 
-export const fullPcSchema = [
+export const fullPcSchema: PacketFields = [
   { name: "useCompression", type: "boolean", defaultValue: false },
   {
     name: "fullPcData",
@@ -2279,7 +2280,7 @@ export const fullPcSchema = [
   },
 ];
 
-export const respawnLocationSchema = [
+export const respawnLocationSchema: PacketFields = [
   { name: "guid", type: "uint64string", defaultValue: "0" },
   { name: "respawnType", type: "uint8", defaultValue: 0 },
   { name: "position", type: "floatvector4", defaultValue: [0, 0, 0, 0] },
@@ -2309,7 +2310,7 @@ export const respawnLocationSchema = [
   { name: "unknownByte4", type: "uint8", defaultValue: 0 },
 ];
 
-export const containerData = [
+export const containerData: PacketFields = [
   { name: "guid", type: "uint64string", defaultValue: "0" },
   { name: "definitionId", type: "uint32", defaultValue: 0 },
   { name: "associatedCharacterId", type: "uint64string", defaultValue: "0" },
@@ -2330,7 +2331,7 @@ export const containerData = [
   { name: "hasBulkLimit", type: "boolean", defaultValue: true },
 ];
 
-export const containers = [
+export const containers: PacketFields = [
   { name: "loadoutSlotId", type: "uint32", defaultValue: 0 },
   {
     name: "containerData",
@@ -2340,7 +2341,7 @@ export const containers = [
   },
 ];
 
-export const skyData = [
+export const skyData: PacketFields = [
   { name: "unknownDword1", type: "float", defaultValue: 0 },
   { name: "fogDensity", type: "float", defaultValue: 0 },
   { name: "fogFloor", type: "float", defaultValue: 1 },
@@ -2377,7 +2378,7 @@ export const skyData = [
   { name: "unknownDword33", type: "float", defaultValue: 0 },
 ];
 
-export const recipeData = [
+export const recipeData: PacketFields = [
   { name: "recipeId", type: "uint32", defaultValue: 0 },
   { name: "nameId", type: "uint32", defaultValue: 0 },
   { name: "iconId", type: "uint32", defaultValue: 0 },
@@ -2406,12 +2407,12 @@ export const recipeData = [
   { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
 ];
 
-export const equipmentCharacterSchema = [
+export const equipmentCharacterSchema: PacketFields = [
   { name: "profileId", type: "uint32", defaultValue: 3 },
   { name: "characterId", type: "uint64string", defaultValue: "0" },
 ];
 
-export const equipmentSlotSchema = [
+export const equipmentSlotSchema: PacketFields = [
   { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
   {
     name: "equipmentSlotData",
@@ -2425,7 +2426,7 @@ export const equipmentSlotSchema = [
   },
 ];
 
-export const itemDefinitionSchema: any[] = [
+export const itemDefinitionSchema: PacketFields = [
   {
     name: "flags1", // 2 sets of 8 bits, the sets might be swapped though
     type: "bitflags",
@@ -2540,7 +2541,7 @@ export const itemDefinitionSchema: any[] = [
   },
 ];
 
-export const loadoutSlotData = [
+export const loadoutSlotData: PacketFields = [
   { name: "loadoutId", type: "uint32", defaultValue: 0 },
   { name: "slotId", type: "uint32", defaultValue: 0 },
   {
@@ -2559,7 +2560,7 @@ export const loadoutSlotData = [
   { name: "unknownDword1", type: "uint32", defaultValue: 0 },
 ];
 
-export const loadoutSlotsSchema = [
+export const loadoutSlotsSchema: PacketFields = [
   { name: "loadoutId", type: "uint32", defaultValue: 3 },
   {
     name: "loadoutData",
@@ -2579,7 +2580,7 @@ export const loadoutSlotsSchema = [
   { name: "currentSlotId", type: "uint32", defaultValue: 7 },
 ];
 
-export const firemodesSchema = [
+export const firemodesSchema: PacketFields = [
   { name: "FIRE_MODE_ID", type: "uint32", defaultValue: 0 },
 ];
 
@@ -2603,7 +2604,7 @@ export function packTargetData(obj: any) {
   return data;
 }
 
-export const passengerSchema = [
+export const passengerSchema: PacketFields = [
   { name: "characterId", type: "uint64string", defaultValue: "0" },
   {
     name: "identity",

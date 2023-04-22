@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const dtoPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const dtoPackets: PacketStructures = [
   [
     "DtoHitReportPacket",
     0xbb0100,

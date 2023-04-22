@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const constructionPackets: any = [
+export const constructionPackets: PacketStructures = [
   [
     "Construction.PlacementRequest",
     0xca0100,

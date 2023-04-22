@@ -16,8 +16,9 @@ import {
   equipmentCharacterSchema,
   equipmentSlotSchema,
 } from "./shared";
+import { PacketStructures } from "types/packetStructure";
 
-export const equipmentPackets: any = [
+export const equipmentPackets: PacketStructures = [
   [
     "Equipment.SetCharacterEquipment",
     0x9501,

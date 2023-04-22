@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const skillPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const skillPackets: PacketStructures = [
   ["Skill.Echo", 0x8601, {}],
   ["Skill.SelectSkillSet", 0x8602, {}],
   ["Skill.SelectSkill", 0x8603, {}],

@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const deployablePackets: any = [
+export const deployablePackets: PacketStructures = [
   ["Deployable.Place", 0xa201, {}],
   ["Deployable.Remove", 0xa202, {}],
   ["Deployable.Pickup", 0xa203, {}],

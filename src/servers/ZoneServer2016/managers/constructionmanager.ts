@@ -485,16 +485,15 @@ export class ConstructionManager {
           if (shelter.isInside(position)) {
             freeplaceParentCharacterId = shelter.characterId;
           }
-          if (!Number(freeplaceParentCharacterId)) {
-            // check upper shelters if its not in lower ones
-            Object.values(shelter.occupiedShelterSlots).forEach(
-              (upperShelter) => {
-                if (upperShelter.isInside(position)) {
-                  freeplaceParentCharacterId = upperShelter.characterId;
-                }
+
+          // check upper shelters if its not in lower ones
+          Object.values(shelter.occupiedShelterSlots).forEach(
+            (upperShelter) => {
+              if (upperShelter.isInside(position)) {
+                freeplaceParentCharacterId = upperShelter.characterId;
               }
-            );
-          }
+            }
+          );
         });
       }
     }
@@ -1692,6 +1691,18 @@ export class ConstructionManager {
     setTimeout(() => {
       client.enableChecks = true;
     }, 500);
+    setTimeout(() => {
+      if (
+        foundation.isSecured &&
+        foundation.isInside(client.character.state.position)
+      ) {
+        const damageInfo: DamageInfo = {
+          entity: "Server.Permissions",
+          damage: 99999,
+        };
+        client.character.damage(server, damageInfo);
+      }
+    }, 2000);
     this.recheckClientInsideShelter(client, server, currentAngle);
     this.checkFoundationPermission(server, client, foundation);
   }

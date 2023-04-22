@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const operationPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const operationPackets: PacketStructures = [
   ["Operation.ClientJoined", 0xbc06, {}],
   ["Operation.ClientLeft", 0xbc07, {}],
   ["Operation.AvailableData", 0xbc09, {}],

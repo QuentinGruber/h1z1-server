@@ -21,6 +21,7 @@ import {
   isPosInRadius,
   toHex,
   randomIntFromInterval,
+  Scheduler,
 } from "../../../utils/utils";
 import { ExplosiveEntity } from "../entities/explosiveentity";
 import { Npc } from "../entities/npc";
@@ -116,6 +117,34 @@ export const commands: Array<Command> = [
       server.sendChatText(
         client,
         `You spawned at "${client.character.spawnLocation}"`,
+        true
+      );
+    },
+  },
+  {
+    name: "findlog",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(client, "[ERROR] No argument provided", true);
+        return;
+      }
+      const listNames: string[] = [];
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        c.clientLogs.forEach((log: { log: string; isSuspicious: boolean }) => {
+          if (
+            log.log.toLowerCase().includes(args[0].toString().toLowerCase())
+          ) {
+            listNames.push(`${c.character.name}: ${log.log}`);
+          }
+        });
+      }
+      server.sendChatText(
+        client,
+        `Displaying list of players and logs matching criteria: ${listNames.join(
+          ",\n"
+        )}`,
         true
       );
     },
@@ -2155,7 +2184,60 @@ export const commands: Array<Command> = [
       server.groupManager.handleGroupCommand(server, client, args);
     },
   },
+  {
+    name: "deepcover",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      const newCharacterName = args[0];
 
+      // Validate the input to ensure that it is a single word without special characters
+      const isValidInput = /^[a-zA-Z0-9_]+$/.test(newCharacterName);
+      if (!isValidInput) {
+        server.sendChatText(
+          client,
+          "Invalid input. Please enter a single word without special characters."
+        );
+        return;
+      }
+      // Send a chat message to confirm the name change
+      server.sendChatText(client, `Name changed to ${newCharacterName}`);
+      // Update the client's character name
+      client.character.name = newCharacterName;
+
+      // Wait for one second before running vanish command
+      await Scheduler.wait(1000);
+
+      // Set the client's isSpectator state
+      client.character.isSpectator = !client.character.isSpectator;
+
+      // Remove the client's character from the game if in spectate mode
+      if (client.character.isSpectator) {
+        for (const a in server._clients) {
+          const iteratedClient = server._clients[a];
+          if (iteratedClient.spawnedEntities.includes(client.character)) {
+            server.sendData(iteratedClient, "Character.RemovePlayer", {
+              characterId: client.character.characterId,
+            });
+            iteratedClient.spawnedEntities.splice(
+              iteratedClient.spawnedEntities.indexOf(client.character),
+              1
+            );
+          }
+        }
+        server.sendData(client, "Spectator.Enable", {});
+      }
+
+      // Wait for an additional second before running the second vanish command
+      await Scheduler.wait(1000);
+
+      // Set the client's isSpectator state again
+      client.character.isSpectator = !client.character.isSpectator;
+    },
+  },
   //#endregion
 
   //#region DEV PERMISSIONS
