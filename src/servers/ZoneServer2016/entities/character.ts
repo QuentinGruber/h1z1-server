@@ -965,6 +965,7 @@ export class Character2016 extends BaseFullCharacter {
         hasArmorBefore
       );
     }
+
     /* eslint-disable @typescript-eslint/no-unused-vars */
     switch (damageInfo.weapon) {
       case Items.WEAPON_BLAZE:
@@ -1030,7 +1031,7 @@ export class Character2016 extends BaseFullCharacter {
         break;
     }
     /* eslint-enable @typescript-eslint/no-unused-vars */
-    c.character.damage(server, {
+    this.damage(server, {
       ...damageInfo,
       damage: damage,
       causeBleed: !(canStopBleed && this.hasArmor(server)),

@@ -79,3 +79,9 @@ decay:
   baseVehicleDamage: 6000 # 6% damage per 3 ticks
   maxVehiclesPerArea: 2 # the max amount of vehicles that can be in an area before they start taking more damage
   vehicleDamageRange: 25 # how large of a range to detect maxVehiclesPerArea
+  
+smelting:
+  burnTime: 120000 # consume fuel every 120 seconds
+  smeltTime: 40000 # smelt 1 item every 40 seconds
+
+misc:
