@@ -1240,7 +1240,7 @@ function packFullNPCRemoteWeaponsData(obj: any) {
     },
   ];
 
-  if (!obj["isVehicle"]) {
+  if (!obj.isVehicle) {
     return DataSchema.pack([], {}).data;
   }
   return DataSchema.pack(remoteWeaponsSchema, { remoteWeapons: obj }).data;
