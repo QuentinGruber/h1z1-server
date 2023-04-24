@@ -1983,7 +1983,7 @@ export class ZonePacketHandlers {
         item.stackCount
       );
       // remount container to keep items from changing slotIds
-      client.character.mountContainer(server, sourceCharacter);
+      //client.character.mountContainer(server, sourceCharacter);
     }
   }
   LoadoutSelectSlot(server: ZoneServer2016, client: Client, packet: any) {

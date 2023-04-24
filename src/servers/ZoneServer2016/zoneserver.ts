@@ -5264,6 +5264,7 @@ export class ZoneServer2016 extends EventEmitter {
     const client = this.getClientByContainerAccessor(character);
     if (!client || !client.character.initialized) return;
 
+    /*
     if (
       client.character != character &&
       character instanceof BaseLootableEntity
@@ -5272,9 +5273,12 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.mountContainer(this, character);
       return;
     }
-
+    */
+   
     this.sendData(client, "ClientUpdate.ItemDelete", {
-      characterId: character.characterId,
+      characterId: character instanceof Character || character instanceof Vehicle2016
+      ? character.characterId
+      : EXTERNAL_CONTAINER_GUID,
       itemGuid: itemGuid,
     });
   }
@@ -5354,20 +5358,16 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     const client = this.getClientByContainerAccessor(character);
     if (!client || !client.character.initialized) return;
-    if (client.character != character) {
-      /* ItemUpdate doesn't seem to work on external characters */
-      this.deleteItem(character, item.itemGuid);
-      this.addItem(client, item, container.containerDefinitionId, character);
-    } else {
-      this.sendData(client, "ClientUpdate.ItemUpdate", {
-        characterId: character.characterId,
-        data: character.pGetItemData(
-          this,
-          item,
-          container.containerDefinitionId
-        ),
-      });
-    }
+    this.sendData(client, "ClientUpdate.ItemUpdate", {
+      characterId: character instanceof Character || character instanceof Vehicle2016
+      ? character.characterId
+      : EXTERNAL_CONTAINER_GUID,
+      data: character.pGetItemData(
+        this,
+        item,
+        container.containerDefinitionId
+      ),
+    });
     this.updateContainer(character, container);
   }
 
