@@ -1174,7 +1174,6 @@ export class ZonePacketHandlers {
     packet: any
   ) {
     if (packet.data.characterId == "0x0000000000000001") {
-      console.log("\n\n\n\n\\n\n\nASDSDASDASDSDAS\n\n\n\n\n\n");
       server.sendData(client, "LightweightToFullNpc", {
         transientId: 0,
         attachmentData: {},
