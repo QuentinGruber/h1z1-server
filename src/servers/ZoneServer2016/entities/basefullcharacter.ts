@@ -30,6 +30,7 @@ import { LoadoutItem } from "../classes/loadoutItem";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { Weapon } from "../classes/weapon";
 import { _ } from "../../../utils/utils";
+import { EXTERNAL_CONTAINER_GUID } from "../../../utils/constants";
 
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
@@ -889,7 +890,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
   pGetLoadoutSlots() {
     return {
-      characterId: "0x0000000000000001",
+      characterId: EXTERNAL_CONTAINER_GUID,
       loadoutId: this.loadoutId,
       loadoutData: {
         loadoutSlots: Object.values(this.getLoadoutSlots()).map(
@@ -985,7 +986,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       currentDurability: durability ? item.currentDurability : 0,
       maxDurabilityFromDefinition: durability,
       unknownBoolean1: true,
-      ownerCharacterId: "0x0000000000000001",
+      ownerCharacterId: EXTERNAL_CONTAINER_GUID,
       unknownDword9: 1,
       weaponData: this.pGetItemWeaponData(server, item),
     };

@@ -67,7 +67,7 @@ import { DB_COLLECTIONS } from "../../utils/enums";
 import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
 import { Character2016 } from "./entities/character";
 import { Crate } from "./entities/crate";
-import { OBSERVER_GUID } from "../../utils/constants";
+import { EXTERNAL_CONTAINER_GUID, LOADOUT_CONTAINER_GUID, OBSERVER_GUID } from "../../utils/constants";
 import { BaseLootableEntity } from "./entities/baselootableentity";
 import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
@@ -1173,12 +1173,11 @@ export class ZonePacketHandlers {
     client: Client,
     packet: any
   ) {
-    if (packet.data.characterId == "0x0000000000000001") {
-      console.log("\n\n\n\n\\n\n\nASDSDASDASDSDAS\n\n\n\n\n\n");
+    if (packet.data.characterId == EXTERNAL_CONTAINER_GUID) {
       server.sendData(client, "LightweightToFullNpc", {
         transientId: 0,
         attachmentData: {},
-        characterId: "0x0000000000000001",
+        characterId: EXTERNAL_CONTAINER_GUID,
         resources: {
           data: {},
         },
@@ -1781,7 +1780,7 @@ export class ZonePacketHandlers {
               newSlotId,
               count
             );
-          } else if (containerGuid == "0xffffffffffffffff") {
+          } else if (containerGuid == LOADOUT_CONTAINER_GUID) {
             // to loadout
             /*if (
               server.validateLoadoutSlot(
@@ -1811,7 +1810,7 @@ export class ZonePacketHandlers {
               targetContainer,
               loadoutItem
             );
-          } else if (containerGuid == "0xffffffffffffffff") {
+          } else if (containerGuid == LOADOUT_CONTAINER_GUID) {
             // to loadout
             const loadoutItem = client.character.getLoadoutItem(itemGuid);
             if (!loadoutItem) {
@@ -1868,7 +1867,7 @@ export class ZonePacketHandlers {
           return;
         }
 
-        if (containerGuid == "0xffffffffffffffff") {
+        if (containerGuid == LOADOUT_CONTAINER_GUID) {
           // to loadout
           /*const item = sourceContainer.items[itemGuid];
           if (!item) {
@@ -1951,7 +1950,7 @@ export class ZonePacketHandlers {
             newSlotId,
             count
           );
-        } else if (containerGuid == "0xffffffffffffffff") {
+        } else if (containerGuid == LOADOUT_CONTAINER_GUID) {
           // to loadout
           if (
             server.validateLoadoutSlot(

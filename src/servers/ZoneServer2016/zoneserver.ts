@@ -91,7 +91,7 @@ import {
 import { Db } from "mongodb";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ItemObject } from "./entities/itemobject";
-import { DEFAULT_CRYPTO_KEY } from "../../utils/constants";
+import { DEFAULT_CRYPTO_KEY, EXTERNAL_CONTAINER_GUID } from "../../utils/constants";
 import { TrapEntity } from "./entities/trapentity";
 import { DoorEntity } from "./entities/doorentity";
 import { Npc } from "./entities/npc";
@@ -2963,7 +2963,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   spawnWorkAroundLightWeight(client: Client) {
     const lightWeight = {
-      characterId: "0x0000000000000001",
+      characterId: EXTERNAL_CONTAINER_GUID,
       transientId: 0,
       actorModelId: 2,
       position: new Float32Array([0, 0, 0, 0]),
@@ -4588,7 +4588,7 @@ export class ZoneServer2016 extends EventEmitter {
       characterId:
         character instanceof Character || character instanceof Vehicle2016
           ? character.characterId
-          : "0x0000000000000001",
+          : EXTERNAL_CONTAINER_GUID,
       data: character.pGetItemData(this, item, containerDefinitionId),
     });
   }
@@ -5286,7 +5286,7 @@ export class ZoneServer2016 extends EventEmitter {
     const characterId =
       character instanceof Character || character instanceof Vehicle2016
         ? character.characterId
-        : "0x0000000000000001";
+        : EXTERNAL_CONTAINER_GUID;
     this.sendData(client, "Container.InitEquippedContainers", {
       ignore: characterId,
       characterId: characterId,
