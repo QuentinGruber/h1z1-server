@@ -1725,6 +1725,7 @@ export class ZonePacketHandlers {
       count,
       newSlotId,
     } = packet.data;
+    const sourceCharacterId = characterId;
     if (client.character.mountedContainer) {
       if (
         !isPosInRadiusWithY(
@@ -1738,9 +1739,13 @@ export class ZonePacketHandlers {
         return;
       }
     }
-    if (characterId == client.character.characterId) {
+    
+    if (sourceCharacterId == client.character.characterId) {
+
+      const sourceCharacter = client.character;
+
       // from client container
-      if (characterId == targetCharacterId) {
+      if (sourceCharacterId == targetCharacterId) {
         // from / to client container
         const sourceContainer = client.character.getItemContainer(itemGuid),
           targetContainer =
@@ -1762,7 +1767,7 @@ export class ZonePacketHandlers {
               item.weapon.ammoCount > 0 &&
               item.weapon.itemDefinitionId != Items.WEAPON_REMOVER
             ) {
-              client.character.lootContainerItem(
+              sourceCharacter.lootContainerItem(
                 server,
                 ammo,
                 ammo.stackCount,
@@ -1789,7 +1794,7 @@ export class ZonePacketHandlers {
                 client.character.loadoutId
               )
             ) {*/
-            client.character.equipContainerItem(server, item, newSlotId);
+            sourceCharacter.equipContainerItem(server, item, newSlotId);
             //}
           } else {
             // invalid
@@ -1799,13 +1804,13 @@ export class ZonePacketHandlers {
           // from loadout or invalid
 
           // loadout
-          const loadoutItem = client.character.getLoadoutItem(itemGuid);
+          const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
           if (!loadoutItem) {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
           if (targetContainer) {
-            client.character.transferItemFromLoadout(
+            sourceCharacter.transferItemFromLoadout(
               server,
               targetContainer,
               loadoutItem
@@ -1829,15 +1834,15 @@ export class ZonePacketHandlers {
         }
       } else {
         // to external container
-        const sourceContainer = client.character.getItemContainer(itemGuid),
-          targetCharacter = client.character.mountedContainer;
+        const sourceContainer = sourceCharacter.getItemContainer(itemGuid),
+          targetCharacter = sourceCharacter.mountedContainer;
 
         if (
           !targetCharacter ||
           !(targetCharacter instanceof BaseLootableEntity) ||
           !isPosInRadius(
             targetCharacter.interactionDistance,
-            client.character.state.position,
+            sourceCharacter.state.position,
             targetCharacter.state.position
           )
         ) {
@@ -1851,14 +1856,14 @@ export class ZonePacketHandlers {
           return;
         }
 
-        const loadoutItem = client.character.getLoadoutItem(itemGuid);
+        const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
         if (loadoutItem) {
-          client.character.transferItemFromLoadout(
+          sourceCharacter.transferItemFromLoadout(
             server,
             targetContainer,
             loadoutItem
           );
-          client.character.mountContainer(server, targetCharacter);
+          sourceCharacter.mountContainer(server, targetCharacter);
           return;
         }
 
@@ -1867,6 +1872,13 @@ export class ZonePacketHandlers {
           return;
         }
 
+        const item = sourceContainer.items[itemGuid];
+        if (!item) {
+          server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+          return;
+        }
+
+        console.log(containerGuid)
         if (containerGuid == LOADOUT_CONTAINER_GUID) {
           // to loadout
           /*const item = sourceContainer.items[itemGuid];
@@ -1883,18 +1895,14 @@ export class ZonePacketHandlers {
               targetCharacter.loadoutId
             )
           ) {
-            targetCharacter.equipContainerItem(server, item, newSlotId, client.character);
+            targetCharacter.equipContainerItem(server, item, newSlotId, sourceCharacter);
           }
           */
           server.sendAlert(client, "Vehicle loadout is disabled for now.");
           return;
         }
 
-        const item = sourceContainer.items[itemGuid];
-        if (!item) {
-          server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-          return;
-        }
+
 
         sourceContainer.transferItem(
           server,
@@ -1925,65 +1933,71 @@ export class ZonePacketHandlers {
         server.sendChatText(client, "Invalid source container 3!");
         return;
       }
+      
       const item = sourceContainer.items[itemGuid];
-
-      if (Number(containerGuid)) {
-        const targetContainer =
-          client.character.getContainerFromGuid(containerGuid);
-
-        if (targetContainer) {
-          // to container
-
-          if (
-            !targetContainer.getHasSpace(server, item.itemDefinitionId, count)
-          ) {
-            server.sendData(client, "Character.NoSpaceNotification", {
-              characterId: client.character.characterId,
-            });
-            return;
-          }
-
-          sourceContainer.transferItem(
-            server,
-            targetContainer,
-            item,
-            newSlotId,
-            count
-          );
-        } else if (containerGuid == LOADOUT_CONTAINER_GUID) {
-          // to loadout
-          if (
-            server.validateLoadoutSlot(
-              item.itemDefinitionId,
-              newSlotId,
-              client.character.loadoutId
-            )
-          ) {
-            client.character.equipContainerItem(
-              server,
-              item,
-              newSlotId,
-              sourceCharacter
-            );
-          }
-        } else if (sourceCharacter.getContainerFromGuid(containerGuid)) {
-          // remount container if trying to move around items in one container since slotIds aren't setup yet
-          client.character.mountContainer(server, sourceCharacter);
-        } else {
-          // invalid
-          server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
-        }
+      if (!item) {
+        server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
 
-      client.character.lootItemFromContainer(
-        server,
-        sourceContainer,
-        item,
-        item.stackCount
-      );
-      // remount container to keep items from changing slotIds
-      //client.character.mountContainer(server, sourceCharacter);
+      if (!Number(containerGuid)) {
+        client.character.lootItemFromContainer(
+          server,
+          sourceContainer,
+          item,
+          item.stackCount
+        );
+        // remount container to keep items from changing slotIds
+        //client.character.mountContainer(server, sourceCharacter);
+        return;
+      }
+
+      const targetContainer =
+        client.character.getContainerFromGuid(containerGuid);
+
+      if (targetContainer) {
+        // to container
+
+        if (
+          !targetContainer.getHasSpace(server, item.itemDefinitionId, count)
+        ) {
+          server.sendData(client, "Character.NoSpaceNotification", {
+            characterId: client.character.characterId,
+          });
+          return;
+        }
+
+        sourceContainer.transferItem(
+          server,
+          targetContainer,
+          item,
+          newSlotId,
+          count
+        );
+      } else if (containerGuid == LOADOUT_CONTAINER_GUID) {
+        // to loadout
+        if (
+          server.validateLoadoutSlot(
+            item.itemDefinitionId,
+            newSlotId,
+            client.character.loadoutId
+          )
+        ) {
+          client.character.equipContainerItem(
+            server,
+            item,
+            newSlotId,
+            sourceCharacter
+          );
+        }
+      } else if (sourceCharacter.getContainerFromGuid(containerGuid)) {
+        // remount container if trying to move around items in one container since slotIds aren't setup yet
+        client.character.mountContainer(server, sourceCharacter);
+      } else {
+        // invalid
+        server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
+      }
+      return;
     }
   }
   LoadoutSelectSlot(server: ZoneServer2016, client: Client, packet: any) {
