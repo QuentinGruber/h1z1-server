@@ -41,7 +41,10 @@ import { BaseLootableEntity } from "./baselootableentity";
 import { characterDefaultLoadout } from "../data/loadouts";
 import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
 import { Vehicle2016 } from "../entities/vehicle";
-import { EXTERNAL_CONTAINER_GUID, LOADOUT_CONTAINER_ID } from "../../../utils/constants";
+import {
+  EXTERNAL_CONTAINER_GUID,
+  LOADOUT_CONTAINER_ID,
+} from "../../../utils/constants";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -698,8 +701,11 @@ export class Character2016 extends BaseFullCharacter {
 
     server.sendData(client, "Loadout.SetLoadoutSlots", {
       characterId:
-        lootableEntity instanceof Vehicle2016 ? lootableEntity.characterId : EXTERNAL_CONTAINER_GUID,
-      loadoutId: lootableEntity instanceof Vehicle2016 ? lootableEntity.loadoutId : 5,
+        lootableEntity instanceof Vehicle2016
+          ? lootableEntity.characterId
+          : EXTERNAL_CONTAINER_GUID,
+      loadoutId:
+        lootableEntity instanceof Vehicle2016 ? lootableEntity.loadoutId : 5,
       loadoutData: {
         loadoutSlots: Object.values(lootableEntity.getLoadoutSlots()).map(
           (slotId: any) => {

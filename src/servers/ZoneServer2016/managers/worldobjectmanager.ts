@@ -593,12 +593,17 @@ export class WorldObjectManager {
     debug("All doors objects created");
   }
 
-  setSpawnchance(server: ZoneServer2016, entity: BaseFullCharacter, percentage: number, item: Items) {
+  setSpawnchance(
+    server: ZoneServer2016,
+    entity: BaseFullCharacter,
+    percentage: number,
+    item: Items
+  ) {
     if (percentage <= 0) return false;
     if (percentage >= 100) return true;
-        
+
     const randomNumber = Math.random() * 100;
-    if(randomNumber <= percentage) {
+    if (randomNumber <= percentage) {
       entity.lootItem(server, server.generateItem(item));
     }
   }
@@ -617,7 +622,7 @@ export class WorldObjectManager {
     this.setSpawnchance(server, vehicle, 50, Items.SPARKPLUGS);
     this.setSpawnchance(server, vehicle, 30, Items.VEHICLE_KEY);
     this.setSpawnchance(server, vehicle, 20, Items.FUEL_BIOFUEL);
-    
+
     server._vehicles[vehicle.characterId] = vehicle;
   }
 

@@ -30,7 +30,10 @@ import { LoadoutItem } from "../classes/loadoutItem";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { Weapon } from "../classes/weapon";
 import { _ } from "../../../utils/utils";
-import { EXTERNAL_CONTAINER_GUID, LOADOUT_CONTAINER_ID } from "../../../utils/constants";
+import {
+  EXTERNAL_CONTAINER_GUID,
+  LOADOUT_CONTAINER_ID,
+} from "../../../utils/constants";
 
 const debugName = "ZoneServer",
   debug = require("debug")(debugName);
@@ -281,10 +284,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     );
     const client = server.getClientByContainerAccessor(this);
     if (this._loadout[loadoutSlotId] && sendPacket) {
-      server.deleteItem(
-        this,
-        this._loadout[loadoutSlotId].itemGuid
-      );
+      server.deleteItem(this, this._loadout[loadoutSlotId].itemGuid);
     }
 
     if (def.ITEM_TYPE === 34) {
@@ -297,7 +297,12 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
     // probably will need to replicate server for vehicles / maybe npcs
     if (client && sendPacket)
-      server.addItem(client, this._loadout[loadoutSlotId], LOADOUT_CONTAINER_ID, this);
+      server.addItem(
+        client,
+        this._loadout[loadoutSlotId],
+        LOADOUT_CONTAINER_ID,
+        this
+      );
 
     if (!sendPacket) return;
     if (client && server.isWeapon(item.itemDefinitionId)) {
@@ -385,8 +390,6 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       this.lootContainerItem(server, item, count, sendUpdate);
     }
   }
-
-
 
   lootItemFromContainer(
     server: ZoneServer2016,
@@ -479,10 +482,17 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       loadoutItem.weapon.ammoCount = 0;
     }
 
-    const targetCharacter = server.getEntity(targetContainer.loadoutItemOwnerGuid);
+    const targetCharacter = server.getEntity(
+      targetContainer.loadoutItemOwnerGuid
+    );
 
-    if(targetCharacter instanceof BaseFullCharacter) {
-      server.addContainerItem(targetCharacter, loadoutItem, targetContainer, true);
+    if (targetCharacter instanceof BaseFullCharacter) {
+      server.addContainerItem(
+        targetCharacter,
+        loadoutItem,
+        targetContainer,
+        true
+      );
     }
   }
 

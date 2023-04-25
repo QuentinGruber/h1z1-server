@@ -67,7 +67,11 @@ import { DB_COLLECTIONS } from "../../utils/enums";
 import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
 import { Character2016 } from "./entities/character";
 import { Crate } from "./entities/crate";
-import { EXTERNAL_CONTAINER_GUID, LOADOUT_CONTAINER_GUID, OBSERVER_GUID } from "../../utils/constants";
+import {
+  EXTERNAL_CONTAINER_GUID,
+  LOADOUT_CONTAINER_GUID,
+  OBSERVER_GUID,
+} from "../../utils/constants";
 import { BaseLootableEntity } from "./entities/baselootableentity";
 import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
@@ -1704,11 +1708,15 @@ export class ZonePacketHandlers {
       case ItemUseOptions.LOOT_SPARKS:
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
         const sourceCharacter = client.character.mountedContainer;
-        if(!sourceCharacter) return;
+        if (!sourceCharacter) return;
         const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
         if (loadoutItem) {
-          const container = client.character.getAvailableContainer(server, loadoutItem.itemDefinitionId, 1);
-          if(!container) {
+          const container = client.character.getAvailableContainer(
+            server,
+            loadoutItem.itemDefinitionId,
+            1
+          );
+          if (!container) {
             server.sendData(client, "Character.NoSpaceNotification", {
               characterId: client.character.characterId,
             });
@@ -1719,7 +1727,7 @@ export class ZonePacketHandlers {
             container,
             loadoutItem
           );
-          if(sourceCharacter instanceof Vehicle2016) {
+          if (sourceCharacter instanceof Vehicle2016) {
             sourceCharacter.checkEngineRequirements(server);
           }
           return;
@@ -1730,7 +1738,7 @@ export class ZonePacketHandlers {
       case ItemUseOptions.HOTWIRE_POLICE:
       case ItemUseOptions.HOTWIRE_ATV:
         const vehicle = server._vehicles[client.vehicle.mountedVehicle || ""];
-        if(!vehicle) return;
+        if (!vehicle) return;
         vehicle.hotwire(server);
         break;
       case ItemUseOptions.HOTWIRE_ATV_NO_PARTS:
@@ -1738,12 +1746,18 @@ export class ZonePacketHandlers {
       case ItemUseOptions.HOTWIRE_PICKUP_NO_PARTS:
       case ItemUseOptions.HOTWIRE_POLICE_NO_PARTS:
         const v = server._vehicles[client.vehicle.mountedVehicle || ""];
-        if(!v) return;
-        if(!v.hasFuel()) {
-          server.sendAlert(client, "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol.");
+        if (!v) return;
+        if (!v.hasFuel()) {
+          server.sendAlert(
+            client,
+            "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol."
+          );
           return;
         }
-        server.sendAlert(client, "Parts may be required. Open vehicle loadout.");
+        server.sendAlert(
+          client,
+          "Parts may be required. Open vehicle loadout."
+        );
         break;
       default:
         server.sendChatText(
@@ -1796,9 +1810,8 @@ export class ZonePacketHandlers {
         return;
       }
     }
-    
-    if (sourceCharacterId == client.character.characterId) {
 
+    if (sourceCharacterId == client.character.characterId) {
       const sourceCharacter = client.character;
 
       // from client container
@@ -1943,10 +1956,16 @@ export class ZonePacketHandlers {
               newSlotId,
               targetCharacter.loadoutId
             )
-          ) return;
+          )
+            return;
 
-          targetCharacter.equipContainerItem(server, item, newSlotId, sourceCharacter);
-          if(targetCharacter instanceof Vehicle2016) {
+          targetCharacter.equipContainerItem(
+            server,
+            item,
+            newSlotId,
+            sourceCharacter
+          );
+          if (targetCharacter instanceof Vehicle2016) {
             targetCharacter.checkEngineRequirements(server);
           }
           return;
@@ -1981,7 +2000,7 @@ export class ZonePacketHandlers {
         server.sendChatText(client, "Invalid source container 3!");
         return;
       }
-      
+
       const item = sourceContainer.items[itemGuid];
       if (!item) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);

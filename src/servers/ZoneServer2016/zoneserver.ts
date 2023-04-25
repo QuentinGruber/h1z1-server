@@ -91,7 +91,11 @@ import {
 import { Db } from "mongodb";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { ItemObject } from "./entities/itemobject";
-import { DEFAULT_CRYPTO_KEY, EXTERNAL_CONTAINER_GUID, LOADOUT_CONTAINER_ID } from "../../utils/constants";
+import {
+  DEFAULT_CRYPTO_KEY,
+  EXTERNAL_CONTAINER_GUID,
+  LOADOUT_CONTAINER_ID,
+} from "../../utils/constants";
 import { TrapEntity } from "./entities/trapentity";
 import { DoorEntity } from "./entities/doorentity";
 import { Npc } from "./entities/npc";
@@ -5203,11 +5207,12 @@ export class ZoneServer2016 extends EventEmitter {
       return;
     }
     */
-   
+
     this.sendData(client, "ClientUpdate.ItemDelete", {
-      characterId: character instanceof Character || character instanceof Vehicle2016
-      ? character.characterId
-      : EXTERNAL_CONTAINER_GUID,
+      characterId:
+        character instanceof Character || character instanceof Vehicle2016
+          ? character.characterId
+          : EXTERNAL_CONTAINER_GUID,
       itemGuid: itemGuid,
     });
   }
@@ -5288,14 +5293,11 @@ export class ZoneServer2016 extends EventEmitter {
     const client = this.getClientByContainerAccessor(character);
     if (!client || !client.character.initialized) return;
     this.sendData(client, "ClientUpdate.ItemUpdate", {
-      characterId: character instanceof Character || character instanceof Vehicle2016
-      ? character.characterId
-      : EXTERNAL_CONTAINER_GUID,
-      data: character.pGetItemData(
-        this,
-        item,
-        container.containerDefinitionId
-      ),
+      characterId:
+        character instanceof Character || character instanceof Vehicle2016
+          ? character.characterId
+          : EXTERNAL_CONTAINER_GUID,
+      data: character.pGetItemData(this, item, container.containerDefinitionId),
     });
     this.updateContainer(character, container);
   }

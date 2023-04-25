@@ -537,7 +537,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     const seat = this.seats[0];
     if (seat) return server._characters[seat];
   }
-  
+
   startEngine(server: ZoneServer2016) {
     server.sendDataToAllWithSpawnedEntity(
       server._vehicles,
@@ -566,13 +566,17 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   hasRequiredEngineParts(): boolean {
-    return !!this.getLoadoutItemById(Items.BATTERY) && 
-    !!this.getLoadoutItemById(Items.SPARKPLUGS);
+    return (
+      !!this.getLoadoutItemById(Items.BATTERY) &&
+      !!this.getLoadoutItemById(Items.SPARKPLUGS)
+    );
   }
 
   hasVehicleKey(server: ZoneServer2016): boolean {
-    return !!this.getItemById(Items.VEHICLE_KEY) ||
-    !!this.getDriver(server)?.getItemById(Items.VEHICLE_KEY)
+    return (
+      !!this.getItemById(Items.VEHICLE_KEY) ||
+      !!this.getDriver(server)?.getItemById(Items.VEHICLE_KEY)
+    );
   }
 
   hasFuel(): boolean {
@@ -580,43 +584,57 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   hasRequiredComponents(server: ZoneServer2016): boolean {
-    return this.hasRequiredEngineParts() && 
-    this.hasVehicleKey(server) &&
-    this.hasFuel()
+    return (
+      this.hasRequiredEngineParts() &&
+      this.hasVehicleKey(server) &&
+      this.hasFuel()
+    );
   }
 
   checkEngineRequirements(server: ZoneServer2016) {
-    if(this.hasRequiredComponents(server) && !this.engineOn) {
+    if (this.hasRequiredComponents(server) && !this.engineOn) {
       this.startEngine(server);
       return;
     }
 
     const driver = this.getDriver(server),
-    client = server.getClientByCharId(driver?.characterId || "");
+      client = server.getClientByCharId(driver?.characterId || "");
 
-    if(!this.hasRequiredEngineParts()) {
-      if(this.engineOn) this.stopEngine(server);
-      if(client) server.sendAlert(client, "Parts may be required. Open vehicle loadout.");
+    if (!this.hasRequiredEngineParts()) {
+      if (this.engineOn) this.stopEngine(server);
+      if (client)
+        server.sendAlert(
+          client,
+          "Parts may be required. Open vehicle loadout."
+        );
       return;
     }
 
-    if(!this.hasVehicleKey(server)) {
-      if(this.engineOn) this.stopEngine(server);
-      if(client) server.sendAlert(client, "You must use the hotwire option or have a key to operate this vehicle.");
+    if (!this.hasVehicleKey(server)) {
+      if (this.engineOn) this.stopEngine(server);
+      if (client)
+        server.sendAlert(
+          client,
+          "You must use the hotwire option or have a key to operate this vehicle."
+        );
       return;
     }
 
-    if(!this.hasFuel()) {
-      if(this.engineOn) this.stopEngine(server);
-      if(client) server.sendAlert(client, "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol.");
+    if (!this.hasFuel()) {
+      if (this.engineOn) this.stopEngine(server);
+      if (client)
+        server.sendAlert(
+          client,
+          "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol."
+        );
       return;
     }
   }
 
   hotwire(server: ZoneServer2016) {
     const driver = this.getDriver(server),
-    client = server.getClientByCharId(driver?.characterId || "");
-    if(!client) return;
+      client = server.getClientByCharId(driver?.characterId || "");
+    if (!client) return;
 
     server.utilizeHudTimer(client, 0, 5000, () => {
       this.startEngine(server);
@@ -626,28 +644,27 @@ export class Vehicle2016 extends BaseLootableEntity {
   startResourceUpdater(server: ZoneServer2016) {
     if (this.resourcesUpdater) return;
     this.resourcesUpdater = setTimeout(() => {
-      if(!server._vehicles[this.characterId]) return;
+      if (!server._vehicles[this.characterId]) return;
       if (!this.engineOn) {
         delete this.resourcesUpdater;
         return;
       }
       if (this.engineRPM) {
         const fuelLoss = this.engineRPM * 0.003;
-        this._resources[ResourceIds.FUEL] -=
-        fuelLoss;
+        this._resources[ResourceIds.FUEL] -= fuelLoss;
       }
       if (this._resources[ResourceIds.FUEL] < 0) {
         this._resources[ResourceIds.FUEL] = 0;
       }
-      if (
-        this.engineOn &&
-        this._resources[ResourceIds.FUEL] <= 0
-      ) {
+      if (this.engineOn && this._resources[ResourceIds.FUEL] <= 0) {
         this.stopEngine(server);
         const driver = this.getDriver(server),
-        client = server.getClientByCharId(driver?.characterId || "");
-        if(client) {
-          server.sendAlert(client, "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol.");
+          client = server.getClientByCharId(driver?.characterId || "");
+        if (client) {
+          server.sendAlert(
+            client,
+            "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol."
+          );
         }
       }
       server.updateResourceToAllWithSpawnedEntity(

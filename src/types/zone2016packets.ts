@@ -1373,7 +1373,7 @@ export interface VehicleAutoMount {
 }
 export interface VehicleEngine {
   guid1?: string;
-  guid2?: string;
+  vehicleCharacterId?: string;
   engineOn?: boolean;
 }
 export interface VehicleOwnerPassengerList {
