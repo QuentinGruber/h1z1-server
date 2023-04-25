@@ -597,15 +597,17 @@ export class WorldObjectManager {
     vehicle.equipLoadout(server);
 
     // TODO - Randomize these
+    
     /*
     vehicle.equipItem(server, server.generateItem(vehicle.getTurboItemId()));
     vehicle.equipItem(
       server,
       server.generateItem(vehicle.getHeadlightsItemId())
-    );
+    );*/
+    
     vehicle.equipItem(server, server.generateItem(Items.BATTERY));
     vehicle.equipItem(server, server.generateItem(Items.SPARKPLUGS));
-    */
+    
     server._vehicles[vehicle.characterId] = vehicle;
   }
 

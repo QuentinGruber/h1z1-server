@@ -1878,27 +1878,21 @@ export class ZonePacketHandlers {
           return;
         }
 
-        console.log(containerGuid)
         if (containerGuid == LOADOUT_CONTAINER_GUID) {
           // to loadout
-          /*const item = sourceContainer.items[itemGuid];
-          if (!item) {
-            server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-            return;
-          }
-          
-          
+        
           if (
-            server.validateLoadoutSlot(
+            !server.validateLoadoutSlot(
               item.itemDefinitionId,
               newSlotId,
               targetCharacter.loadoutId
             )
-          ) {
-            targetCharacter.equipContainerItem(server, item, newSlotId, sourceCharacter);
+          ) return;
+          
+          targetCharacter.equipContainerItem(server, item, newSlotId, sourceCharacter);
+          if(targetCharacter instanceof Vehicle2016 && targetCharacter.hasStartingRequirements()) {
+            targetCharacter.startEngine(server);
           }
-          */
-          server.sendAlert(client, "Vehicle loadout is disabled for now.");
           return;
         }
 

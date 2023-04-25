@@ -3902,7 +3902,7 @@ export class ZoneServer2016 extends EventEmitter {
           });
           if (vehicle.engineOn) {
             this.sendData(client, "Vehicle.Engine", {
-              guid2: vehicle.characterId,
+              vehicleCharacterId: vehicle.characterId,
               engineOn: true,
             });
           }
@@ -4185,58 +4185,8 @@ export class ZoneServer2016 extends EventEmitter {
     vehicle.seats[seatId] = client.character.characterId;
     if (seatId === "0") {
       this.takeoverManagedObject(client, vehicle);
-      if (vehicle._resources[ResourceIds.FUEL] > 0) {
-        this.sendDataToAllWithSpawnedEntity(
-          this._vehicles,
-          vehicleGuid,
-          "Vehicle.Engine",
-          {
-            guid2: vehicleGuid,
-            engineOn: true,
-          }
-        );
-        this._vehicles[vehicleGuid].engineOn = true;
-        if (!this._vehicles[vehicleGuid].resourcesUpdater) {
-          this._vehicles[vehicleGuid].resourcesUpdater = setTimeout(() => {
-            if (!this._vehicles[vehicleGuid]) {
-              return;
-            }
-            if (!this._vehicles[vehicleGuid].engineOn) {
-              delete this._vehicles[vehicleGuid].resourcesUpdater;
-              return;
-            }
-            if (this._vehicles[vehicleGuid].engineRPM) {
-              const fuelLoss = this._vehicles[vehicleGuid].engineRPM * 0.003;
-              this._vehicles[vehicleGuid]._resources[ResourceIds.FUEL] -=
-                fuelLoss;
-            }
-            if (this._vehicles[vehicleGuid]._resources[ResourceIds.FUEL] < 0) {
-              this._vehicles[vehicleGuid]._resources[ResourceIds.FUEL] = 0;
-            }
-            if (
-              this._vehicles[vehicleGuid].engineOn &&
-              this._vehicles[vehicleGuid]._resources[ResourceIds.FUEL] <= 0
-            ) {
-              this.sendDataToAllWithSpawnedEntity(
-                this._vehicles,
-                vehicleGuid,
-                "Vehicle.Engine",
-                {
-                  guid2: vehicleGuid,
-                  engineOn: false,
-                }
-              );
-            }
-            this.updateResourceToAllWithSpawnedEntity(
-              vehicle.characterId,
-              vehicle._resources[ResourceIds.FUEL],
-              ResourceIds.FUEL,
-              ResourceTypes.FUEL,
-              this._vehicles
-            );
-            this._vehicles[vehicleGuid].resourcesUpdater.refresh();
-          }, 3000);
-        }
+      if (vehicle.hasStartingRequirements()) {
+        vehicle.startEngine(this);
       }
       this.sendData(client, "Vehicle.Owner", {
         guid: vehicle.characterId,
@@ -4376,14 +4326,14 @@ export class ZoneServer2016 extends EventEmitter {
       }
     );
     client.isInAir = false;
-    if (seatId === "0") {
+    if (seatId === "0" && vehicle.engineOn) {
       this.sendDataToAllWithSpawnedEntity(
         this._vehicles,
         client.vehicle.mountedVehicle,
         "Vehicle.Engine",
         {
           // stops engine
-          guid2: client.vehicle.mountedVehicle,
+          vehicleCharacterId: client.vehicle.mountedVehicle,
           engineOn: false,
         }
       );
@@ -4452,14 +4402,14 @@ export class ZoneServer2016 extends EventEmitter {
       );
       vehicle.seats[oldSeatId] = "";
       vehicle.seats[packet.data.seatId] = client.character.characterId;
-      if (oldSeatId === "0") {
+      if (oldSeatId === "0" && vehicle.engineOn) {
         this.sendDataToAllWithSpawnedEntity(
           this._vehicles,
           client.vehicle.mountedVehicle,
           "Vehicle.Engine",
           {
             // stops engine
-            guid2: client.vehicle.mountedVehicle,
+            vehicleCharacterId: client.vehicle.mountedVehicle,
             engineOn: false,
           }
         );
@@ -4473,7 +4423,7 @@ export class ZoneServer2016 extends EventEmitter {
           "Vehicle.Engine",
           {
             // stops engine
-            guid2: client.vehicle.mountedVehicle,
+            vehicleCharacterId: client.vehicle.mountedVehicle,
             engineOn: true,
           }
         );
@@ -4849,7 +4799,7 @@ export class ZoneServer2016 extends EventEmitter {
     loadoutSlotId: number,
     loadoutId: number
   ): boolean {
-    return true; // debug
+    //return true; // debug
     if (!this.getItemDefinition(itemDefinitionId)?.FLAG_CAN_EQUIP) return false;
     return !!loadoutSlotItemClasses.find(
       (slot: any) =>

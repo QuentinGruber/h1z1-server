@@ -517,6 +517,82 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
   }
 
+  updateLoadout(server: ZoneServer2016) {
+    const client = server.getClientByCharId(this.characterId);
+    if (client) {
+      if (!client.character.initialized) return;
+      server.checkConveys(client);
+    }
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      this.characterId,
+      "Loadout.SetLoadoutSlots",
+      this.pGetLoadoutSlots()
+    );
+  }
+
+  hasStartingRequirements(): boolean {
+    return this._resources[ResourceIds.FUEL] > 0 && 
+    !!this.getLoadoutItemById(Items.BATTERY) && 
+    !!this.getLoadoutItemById(Items.SPARKPLUGS);
+  }
+  
+  startEngine(server: ZoneServer2016) {
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      this.characterId,
+      "Vehicle.Engine",
+      {
+        vehicleCharacterId: this.characterId,
+        engineOn: true,
+      }
+    );
+    this.engineOn = true;
+    this.startResourceUpdater(server);
+  }
+
+  startResourceUpdater(server: ZoneServer2016) {
+    if (this.resourcesUpdater) return;
+    this.resourcesUpdater = setTimeout(() => {
+      if(!server._vehicles[this.characterId]) return;
+      if (!this.engineOn) {
+        delete this.resourcesUpdater;
+        return;
+      }
+      if (this.engineRPM) {
+        const fuelLoss = this.engineRPM * 0.003;
+        this._resources[ResourceIds.FUEL] -=
+        fuelLoss;
+      }
+      if (this._resources[ResourceIds.FUEL] < 0) {
+        this._resources[ResourceIds.FUEL] = 0;
+      }
+      if (
+        this.engineOn &&
+        !this.hasStartingRequirements()
+        //this._resources[ResourceIds.FUEL] <= 0
+      ) {
+        server.sendDataToAllWithSpawnedEntity(
+          server._vehicles,
+          this.characterId,
+          "Vehicle.Engine",
+          {
+            vehicleCharacterId: this.characterId,
+            engineOn: false,
+          }
+        );
+      }
+      server.updateResourceToAllWithSpawnedEntity(
+        this.characterId,
+        this._resources[ResourceIds.FUEL],
+        ResourceIds.FUEL,
+        ResourceTypes.FUEL,
+        server._vehicles
+      );
+      this.resourcesUpdater.refresh();
+    }, 3000);
+  }
+
   pGetLoadoutSlots() {
     return {
       characterId: this.characterId,
@@ -530,20 +606,6 @@ export class Vehicle2016 extends BaseLootableEntity {
       },
       currentSlotId: this.currentLoadoutSlot,
     };
-  }
-
-  updateLoadout(server: ZoneServer2016) {
-    const client = server.getClientByCharId(this.characterId);
-    if (client) {
-      if (!client.character.initialized) return;
-      server.checkConveys(client);
-    }
-    server.sendDataToAllWithSpawnedEntity(
-      server._vehicles,
-      this.characterId,
-      "Loadout.SetLoadoutSlots",
-      this.pGetLoadoutSlots()
-    );
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */

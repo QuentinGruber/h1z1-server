@@ -66,9 +66,13 @@ export enum ItemUseOptions {
   LOOT = 59,
   EQUIP = 60,
   MOVE = 61,
+  LOOT_VEHICLE_LOADOUT = 66,
   DROP_BATTERY = 73,
+  LOOT_BATTERY = 75,
   DROP_SPARKS = 79,
+  LOOT_SPARKS = 81,
   SALVAGE = 87,
+  HOTWIRE = 92,
 }
 
 export enum ConstructionErrors {

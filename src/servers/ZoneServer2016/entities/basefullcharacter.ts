@@ -131,6 +131,16 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     }
     return undefined;
   }
+
+  getLoadoutItemById(itemDefId: number): LoadoutItem | undefined {
+    for (const item of Object.values(this._loadout)) {
+      if (item.itemDefinitionId == itemDefId) {
+        return item;
+      }
+    }
+    return undefined;
+  }
+
   getActiveEquipmentSlot(item: BaseItem) {
     for (const equipment of Object.values(this._equipment)) {
       if (item.itemGuid == equipment.guid) {
