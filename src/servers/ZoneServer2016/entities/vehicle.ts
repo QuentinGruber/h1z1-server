@@ -28,6 +28,7 @@ import { vehicleDefaultLoadouts } from "../data/loadouts";
 import { LoadoutItem } from "../classes/loadoutItem";
 import { BaseItem } from "../classes/baseItem";
 import { LOADOUT_CONTAINER_ID } from "../../../utils/constants";
+import { Character2016 } from "./character";
 
 function getActorModelId(vehicleId: number) {
   switch (vehicleId) {
@@ -138,7 +139,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this._resources = {
       [ResourceIds.CONDITION]: 100000,
-      [ResourceIds.FUEL]: 7590,
+      [ResourceIds.FUEL]: 7500,
     };
     this.state = {
       position: position,
@@ -532,10 +533,9 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
   }
 
-  hasRequiredComponents(): boolean {
-    return this._resources[ResourceIds.FUEL] > 0 && 
-    !!this.getLoadoutItemById(Items.BATTERY) && 
-    !!this.getLoadoutItemById(Items.SPARKPLUGS);
+  getDriver(server: ZoneServer2016): Character2016 | undefined {
+    const seat = this.seats[0];
+    if (seat) return server._characters[seat];
   }
   
   startEngine(server: ZoneServer2016) {
@@ -565,14 +565,62 @@ export class Vehicle2016 extends BaseLootableEntity {
     this.engineOn = false;
   }
 
+  hasRequiredEngineParts(): boolean {
+    return !!this.getLoadoutItemById(Items.BATTERY) && 
+    !!this.getLoadoutItemById(Items.SPARKPLUGS);
+  }
+
+  hasVehicleKey(server: ZoneServer2016): boolean {
+    return !!this.getItemById(Items.VEHICLE_KEY) ||
+    !!this.getDriver(server)?.getItemById(Items.VEHICLE_KEY)
+  }
+
+  hasFuel(): boolean {
+    return this._resources[ResourceIds.FUEL] > 0;
+  }
+
+  hasRequiredComponents(server: ZoneServer2016): boolean {
+    return this.hasRequiredEngineParts() && 
+    this.hasVehicleKey(server) &&
+    this.hasFuel()
+  }
+
   checkEngineRequirements(server: ZoneServer2016) {
-    if(this.hasRequiredComponents() && !this.engineOn) {
+    if(this.hasRequiredComponents(server) && !this.engineOn) {
       this.startEngine(server);
       return;
     }
-    if(!this.hasRequiredComponents() && this.engineOn) {
-      this.stopEngine(server);
+
+    const driver = this.getDriver(server),
+    client = server.getClientByCharId(driver?.characterId || "");
+
+    if(!this.hasRequiredEngineParts()) {
+      if(this.engineOn) this.stopEngine(server);
+      if(client) server.sendAlert(client, "Parts may be required. Open vehicle loadout.");
+      return;
     }
+
+    if(!this.hasVehicleKey(server)) {
+      if(this.engineOn) this.stopEngine(server);
+      if(client) server.sendAlert(client, "You must use the hotwire option or have a key to operate this vehicle.");
+      return;
+    }
+
+    if(!this.hasFuel()) {
+      if(this.engineOn) this.stopEngine(server);
+      if(client) server.sendAlert(client, "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol.");
+      return;
+    }
+  }
+
+  hotwire(server: ZoneServer2016) {
+    const driver = this.getDriver(server),
+    client = server.getClientByCharId(driver?.characterId || "");
+    if(!client) return;
+
+    server.utilizeHudTimer(client, 0, 5000, () => {
+      this.startEngine(server);
+    });
   }
 
   startResourceUpdater(server: ZoneServer2016) {
@@ -593,17 +641,14 @@ export class Vehicle2016 extends BaseLootableEntity {
       }
       if (
         this.engineOn &&
-        !this.hasRequiredComponents()
+        this._resources[ResourceIds.FUEL] <= 0
       ) {
-        server.sendDataToAllWithSpawnedEntity(
-          server._vehicles,
-          this.characterId,
-          "Vehicle.Engine",
-          {
-            vehicleCharacterId: this.characterId,
-            engineOn: false,
-          }
-        );
+        this.stopEngine(server);
+        const driver = this.getDriver(server),
+        client = server.getClientByCharId(driver?.characterId || "");
+        if(client) {
+          server.sendAlert(client, "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol.");
+        }
       }
       server.updateResourceToAllWithSpawnedEntity(
         this.characterId,

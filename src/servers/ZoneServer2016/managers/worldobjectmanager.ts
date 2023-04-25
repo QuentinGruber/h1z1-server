@@ -593,20 +593,30 @@ export class WorldObjectManager {
     debug("All doors objects created");
   }
 
+  setSpawnchance(server: ZoneServer2016, entity: BaseFullCharacter, percentage: number, item: Items) {
+    if (percentage <= 0) return false;
+    if (percentage >= 100) return true;
+        
+    const randomNumber = Math.random() * 100;
+    if(randomNumber <= percentage) {
+      entity.lootItem(server, server.generateItem(item));
+    }
+  }
+
   createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
     vehicle.equipLoadout(server);
 
-    // TODO - Randomize these
-    
     /*
     vehicle.equipItem(server, server.generateItem(vehicle.getTurboItemId()));
     vehicle.equipItem(
       server,
       server.generateItem(vehicle.getHeadlightsItemId())
     );*/
-    
-    vehicle.equipItem(server, server.generateItem(Items.BATTERY));
-    vehicle.equipItem(server, server.generateItem(Items.SPARKPLUGS));
+
+    this.setSpawnchance(server, vehicle, 50, Items.BATTERY);
+    this.setSpawnchance(server, vehicle, 50, Items.SPARKPLUGS);
+    this.setSpawnchance(server, vehicle, 30, Items.VEHICLE_KEY);
+    this.setSpawnchance(server, vehicle, 20, Items.FUEL_BIOFUEL);
     
     server._vehicles[vehicle.characterId] = vehicle;
   }

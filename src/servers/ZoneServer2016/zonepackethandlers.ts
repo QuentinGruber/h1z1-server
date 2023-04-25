@@ -1498,10 +1498,17 @@ export class ZonePacketHandlers {
       case ItemUseOptions.LOOT_BATTERY:
       case ItemUseOptions.LOOT_SPARKS:
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
-      case ItemUseOptions.HOTWIRE:
       case ItemUseOptions.DROP:
       case ItemUseOptions.DROP_BATTERY:
       case ItemUseOptions.DROP_SPARKS:
+      case ItemUseOptions.HOTWIRE_OFFROADER:
+      case ItemUseOptions.HOTWIRE_PICKUP:
+      case ItemUseOptions.HOTWIRE_POLICE:
+      case ItemUseOptions.HOTWIRE_ATV:
+      case ItemUseOptions.HOTWIRE_ATV_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_OFFROADER_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_PICKUP_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_POLICE_NO_PARTS:
         break;
       default:
         if (!(character instanceof Character2016)) {
@@ -1696,8 +1703,6 @@ export class ZonePacketHandlers {
       case ItemUseOptions.LOOT_BATTERY:
       case ItemUseOptions.LOOT_SPARKS:
       case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
-
-
         const sourceCharacter = client.character.mountedContainer;
         if(!sourceCharacter) return;
         const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
@@ -1719,12 +1724,26 @@ export class ZonePacketHandlers {
           }
           return;
         }
-
-
-
         break;
-      case ItemUseOptions.HOTWIRE:
-        server.sendAlert(client, "Todo");
+      case ItemUseOptions.HOTWIRE_OFFROADER:
+      case ItemUseOptions.HOTWIRE_PICKUP:
+      case ItemUseOptions.HOTWIRE_POLICE:
+      case ItemUseOptions.HOTWIRE_ATV:
+        const vehicle = server._vehicles[client.vehicle.mountedVehicle || ""];
+        if(!vehicle) return;
+        vehicle.hotwire(server);
+        break;
+      case ItemUseOptions.HOTWIRE_ATV_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_OFFROADER_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_PICKUP_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_POLICE_NO_PARTS:
+        const v = server._vehicles[client.vehicle.mountedVehicle || ""];
+        if(!v) return;
+        if(!v.hasFuel()) {
+          server.sendAlert(client, "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol.");
+          return;
+        }
+        server.sendAlert(client, "Parts may be required. Open vehicle loadout.");
         break;
       default:
         server.sendChatText(
@@ -1918,7 +1937,6 @@ export class ZonePacketHandlers {
 
         if (containerGuid == LOADOUT_CONTAINER_GUID) {
           // to loadout
-        
           if (
             !server.validateLoadoutSlot(
               item.itemDefinitionId,
@@ -1933,8 +1951,6 @@ export class ZonePacketHandlers {
           }
           return;
         }
-
-
 
         sourceContainer.transferItem(
           server,
