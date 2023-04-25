@@ -1495,6 +1495,10 @@ export class ZonePacketHandlers {
     // temporarily block most use options from external containers
     switch (itemUseOption) {
       case ItemUseOptions.LOOT:
+      case ItemUseOptions.LOOT_BATTERY:
+      case ItemUseOptions.LOOT_SPARKS:
+      case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
+      case ItemUseOptions.HOTWIRE:
       case ItemUseOptions.DROP:
       case ItemUseOptions.DROP_BATTERY:
       case ItemUseOptions.DROP_SPARKS:
@@ -1687,6 +1691,40 @@ export class ZonePacketHandlers {
         }
 
         sourceContainer.transferItem(server, targetContainer, item, 0, count);
+        break;
+
+      case ItemUseOptions.LOOT_BATTERY:
+      case ItemUseOptions.LOOT_SPARKS:
+      case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
+
+
+        const sourceCharacter = client.character.mountedContainer;
+        if(!sourceCharacter) return;
+        const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
+        if (loadoutItem) {
+          const container = client.character.getAvailableContainer(server, loadoutItem.itemDefinitionId, 1);
+          if(!container) {
+            server.sendData(client, "Character.NoSpaceNotification", {
+              characterId: client.character.characterId,
+            });
+            return;
+          }
+          sourceCharacter.transferItemFromLoadout(
+            server,
+            container,
+            loadoutItem
+          );
+          if(sourceCharacter instanceof Vehicle2016) {
+            sourceCharacter.checkEngineRequirements(server);
+          }
+          return;
+        }
+
+
+
+        break;
+      case ItemUseOptions.HOTWIRE:
+        server.sendAlert(client, "Todo");
         break;
       default:
         server.sendChatText(
@@ -1888,10 +1926,10 @@ export class ZonePacketHandlers {
               targetCharacter.loadoutId
             )
           ) return;
-          
+
           targetCharacter.equipContainerItem(server, item, newSlotId, sourceCharacter);
-          if(targetCharacter instanceof Vehicle2016 && targetCharacter.hasStartingRequirements()) {
-            targetCharacter.startEngine(server);
+          if(targetCharacter instanceof Vehicle2016) {
+            targetCharacter.checkEngineRequirements(server);
           }
           return;
         }

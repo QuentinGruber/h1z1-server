@@ -27,6 +27,7 @@ import { BaseLootableEntity } from "./baselootableentity";
 import { vehicleDefaultLoadouts } from "../data/loadouts";
 import { LoadoutItem } from "../classes/loadoutItem";
 import { BaseItem } from "../classes/baseItem";
+import { LOADOUT_CONTAINER_ID } from "../../../utils/constants";
 
 function getActorModelId(vehicleId: number) {
   switch (vehicleId) {
@@ -531,7 +532,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
   }
 
-  hasStartingRequirements(): boolean {
+  hasRequiredComponents(): boolean {
     return this._resources[ResourceIds.FUEL] > 0 && 
     !!this.getLoadoutItemById(Items.BATTERY) && 
     !!this.getLoadoutItemById(Items.SPARKPLUGS);
@@ -549,6 +550,29 @@ export class Vehicle2016 extends BaseLootableEntity {
     );
     this.engineOn = true;
     this.startResourceUpdater(server);
+  }
+
+  stopEngine(server: ZoneServer2016) {
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      this.characterId,
+      "Vehicle.Engine",
+      {
+        vehicleCharacterId: this.characterId,
+        engineOn: false,
+      }
+    );
+    this.engineOn = false;
+  }
+
+  checkEngineRequirements(server: ZoneServer2016) {
+    if(this.hasRequiredComponents() && !this.engineOn) {
+      this.startEngine(server);
+      return;
+    }
+    if(!this.hasRequiredComponents() && this.engineOn) {
+      this.stopEngine(server);
+    }
   }
 
   startResourceUpdater(server: ZoneServer2016) {
@@ -569,8 +593,7 @@ export class Vehicle2016 extends BaseLootableEntity {
       }
       if (
         this.engineOn &&
-        !this.hasStartingRequirements()
-        //this._resources[ResourceIds.FUEL] <= 0
+        !this.hasRequiredComponents()
       ) {
         server.sendDataToAllWithSpawnedEntity(
           server._vehicles,
@@ -678,7 +701,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     Object.values(this._loadout).forEach((item) => {
       server.sendData(client, "ClientUpdate.ItemAdd", {
         characterId: this.characterId,
-        data: this.pGetItemData(server, item, 101),
+        data: this.pGetItemData(server, item, LOADOUT_CONTAINER_ID),
       });
     });
     this.updateLoadout(server);

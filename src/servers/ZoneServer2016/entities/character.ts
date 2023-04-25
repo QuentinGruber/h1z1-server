@@ -41,7 +41,7 @@ import { BaseLootableEntity } from "./baselootableentity";
 import { characterDefaultLoadout } from "../data/loadouts";
 import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
 import { Vehicle2016 } from "../entities/vehicle";
-import { EXTERNAL_CONTAINER_GUID } from "../../../utils/constants";
+import { EXTERNAL_CONTAINER_GUID, LOADOUT_CONTAINER_ID } from "../../../utils/constants";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -684,7 +684,7 @@ export class Character2016 extends BaseFullCharacter {
     server.initializeContainerList(client, lootableEntity);
 
     Object.values(lootableEntity._loadout).forEach((item) => {
-      server.addItem(client, item, 101, lootableEntity);
+      server.addItem(client, item, LOADOUT_CONTAINER_ID, lootableEntity);
     });
 
     Object.values(container.items).forEach((item) => {
@@ -712,10 +712,9 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   dismountContainer(server: ZoneServer2016) {
-    /* TODO: NEED TO DELETE ITEMS AFTER DISMOUNT TO PREVENT POSSIBLE LAG */
-
     const client = server.getClientByCharId(this.characterId);
     if (!client || !this.mountedContainer) return;
+
     const container = this.mountedContainer.getContainer();
     if (!container) {
       server.containerError(client, ContainerErrors.NOT_CONSTRUCTED);
@@ -736,6 +735,8 @@ export class Character2016 extends BaseFullCharacter {
     delete this.mountedContainer;
     this.updateLoadout(server);
     server.initializeContainerList(client);
+
+    server.sendData(client, "AccessedCharacter.EndCharacterAccess", {});
   }
 
   getStats() {

@@ -22,3 +22,4 @@ export const DB_NAME = "h1server";
 export const OBSERVER_GUID = "0xFAFAFAFAFAFAFAFA";
 export const LOADOUT_CONTAINER_GUID = "0xffffffffffffffff";
 export const EXTERNAL_CONTAINER_GUID = "0x0000000000000001";
+export const LOADOUT_CONTAINER_ID = 101;
