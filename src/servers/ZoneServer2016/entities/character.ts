@@ -630,6 +630,7 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     if (
+      !(lootableEntity instanceof Vehicle2016) &&
       !isPosInRadius(
         lootableEntity.interactionDistance,
         this.state.position,
