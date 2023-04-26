@@ -493,6 +493,7 @@ export class FairPlayManager {
       let maxDistance = this.fairPlayValues.defaultMaxDistance;
       switch (weaponItem.itemDefinitionId) {
         case Items.WEAPON_308:
+        case Items.WEAPON_REAPER:
           maxSpeed = this.fairPlayValues.WEAPON_308.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_308.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_308.maxDistance;
@@ -518,6 +519,7 @@ export class FairPlayManager {
           maxDistance = this.fairPlayValues.WEAPON_BOW_WOOD.maxDistance;
           break;
         case Items.WEAPON_SHOTGUN:
+        case Items.WEAPON_NAGAFENS_RAGE:
           maxSpeed = this.fairPlayValues.WEAPON_SHOTGUN.maxSpeed;
           minSpeed = this.fairPlayValues.WEAPON_SHOTGUN.minSpeed;
           maxDistance = this.fairPlayValues.WEAPON_SHOTGUN.maxDistance;

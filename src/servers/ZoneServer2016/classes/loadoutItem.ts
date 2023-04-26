@@ -54,12 +54,12 @@ export class LoadoutItem extends BaseItem {
       return;
     }
     if (oldLoadoutItem) {
-      if (!server.removeLoadoutItem(client, oldLoadoutItem.slotId)) {
+      if (!server.removeLoadoutItem(client.character, oldLoadoutItem.slotId)) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return;
       }
     }
-    if (!server.removeLoadoutItem(client, this.slotId)) {
+    if (!server.removeLoadoutItem(client.character, this.slotId)) {
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }

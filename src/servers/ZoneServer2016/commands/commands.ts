@@ -122,6 +122,34 @@ export const commands: Array<Command> = [
     },
   },
   {
+    name: "findlog",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!args[0]) {
+        server.sendChatText(client, "[ERROR] No argument provided", true);
+        return;
+      }
+      const listNames: string[] = [];
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        c.clientLogs.forEach((log: { log: string; isSuspicious: boolean }) => {
+          if (
+            log.log.toLowerCase().includes(args[0].toString().toLowerCase())
+          ) {
+            listNames.push(`${c.character.name}: ${log.log}`);
+          }
+        });
+      }
+      server.sendChatText(
+        client,
+        `Displaying list of players and logs matching criteria: ${listNames.join(
+          ",\n"
+        )}`,
+        true
+      );
+    },
+  },
+  {
     name: "netstats",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {

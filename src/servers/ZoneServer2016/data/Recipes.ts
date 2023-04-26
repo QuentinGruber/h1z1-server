@@ -743,7 +743,7 @@ export const recipes: { [recipeId: number]: Recipe } = {
     components: [
       {
         itemDefinitionId: Items.CODED_MESSAGE,
-        requiredAmount: 4,
+        requiredAmount: 5,
       },
     ],
   },

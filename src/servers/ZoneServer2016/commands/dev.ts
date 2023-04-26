@@ -27,6 +27,7 @@ import { LootableConstructionEntity } from "../entities/lootableconstructionenti
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
 import { randomIntFromInterval } from "../../../utils/utils";
+import { BaseLootableEntity } from "../entities/baselootableentity";
 //import { NormanTest } from "../classes/Planting/Test";
 
 const debug = require("debug")("zonepacketHandlers");
@@ -481,7 +482,7 @@ const dev: any = {
   ) {
     server.sendData(client, "Container.ListAll", {
       characterId: client.character.characterId,
-      containers: client.character.pGetContainers(this),
+      containers: client.character.pGetContainers(server),
     });
   },
   shutdown: function (
@@ -493,42 +494,6 @@ const dev: any = {
       timeLeft: 0,
       message: " ",
     });
-  },
-  begincharacteraccess: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
-    const objectCharacterId = server.generateGuid(),
-      npc = new Npc(
-        objectCharacterId,
-        server.getTransientId(objectCharacterId),
-        9034,
-        client.character.state.position,
-        client.character.state.lookAt,
-        server
-      );
-    const item = server.generateItem(1504);
-    npc.loadoutId = 5;
-    npc.equipItem(server, item);
-    npc.onReadyCallback = () => {
-      if (!item) return;
-      server.addItem(client, item, 101, npc);
-    };
-    server._npcs[objectCharacterId] = npc; // save npc
-    setTimeout(() => {
-      server.sendChatText(client, "ASDASDSAD");
-      server.initializeContainerList(client, npc);
-      server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-        objectCharacterId: objectCharacterId,
-        containerGuid: item?.itemGuid,
-        unknownBool1: false,
-        itemsData: {
-          items: [],
-          unknownDword1: 92,
-        },
-      });
-    }, 2000);
   },
   fte: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     if (!args[3]) {
@@ -627,23 +592,59 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    const characterId = client.vehicle.mountedVehicle;
-    console.log(characterId);
+    const characterId = client.vehicle.mountedVehicle,
+      vehicle = server._vehicles[characterId || ""],
+      container = vehicle?.getContainer();
+    if (!container) {
+      server.sendChatText(client, "No container!");
+      return;
+    }
+
+    server.initializeContainerList(client, vehicle);
+
+    vehicle.updateLoadout(server);
+
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId: characterId,
-      containerGuid: characterId,
-      unknownBool1: true,
+      mutatorCharacterId: client.character.characterId,
+      dontOpenInventory: true,
       itemsData: {
-        items: [],
-        unknownDword1: 92,
+        items: Object.values(container.items).map((item) => {
+          return vehicle.pGetItemData(
+            server,
+            item,
+            container.containerDefinitionId
+          );
+        }),
+        unknownDword1: 92, // idk
       },
+    });
+
+    Object.values(vehicle._loadout).forEach((item) => {
+      server.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: characterId,
+        data: {
+          ...vehicle.pGetItemData(server, item, 101),
+        },
+      });
+    });
+
+    Object.values(container.items).forEach((item) => {
+      server.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: characterId,
+        data: vehicle.pGetItemData(
+          server,
+          item,
+          container.containerDefinitionId
+        ),
+      });
     });
   },
 
   stop: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "PlayerStop", {
       transientId: client.character.transientId,
-      state: Number(args[0]) == 0 ? false : true,
+      state: true,
     });
   },
 
@@ -706,7 +707,7 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sendData(client, "Ui.ExecuteScript", {
-      unknownString1: args[0],
+      unknownString1: args[1],
       unknownArray1: [],
     });
   },
@@ -731,7 +732,6 @@ const dev: any = {
       message: "MESSAGE",
     });
   },
-
   groupjoin: function (
     server: ZoneServer2016,
     client: Client,

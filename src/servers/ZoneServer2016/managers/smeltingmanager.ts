@@ -35,11 +35,13 @@ import { Scheduler } from "../../../utils/utils";
 export class SmeltingManager {
   _smeltingEntities: { [characterId: string]: string } = {};
   _collectingEntities: { [characterId: string]: string } = {};
-  burningTime: number = 60000;
-  smeltingTime: number = 40000;
   collectingTickTime: number = 300000; // 5 min x 4 ticks = 20 min to fill water/honey
   lastBurnTime: number = 0;
   // 5 min x 144 ticks = 12 hours for wax
+
+  /* MANAGED BY CONFIGMANAGER */
+  burnTime!: number;
+  smeltTime!: number;
 
   public async checkSmeltables(server: ZoneServer2016) {
     this.lastBurnTime = Date.now();
@@ -79,11 +81,11 @@ export class SmeltingManager {
           characterId: entity.characterId,
           effectId: entity.subEntity!.workingEffect,
           position: entity.state.position,
-          unk3: Math.ceil(this.burningTime / 1000),
+          unk3: Math.ceil(this.burnTime / 1000),
         }
       );
     }
-    await Scheduler.wait(this.burningTime);
+    await Scheduler.wait(this.burnTime);
     this.checkSmeltables(server);
   }
 
@@ -187,7 +189,7 @@ export class SmeltingManager {
     server: ZoneServer2016,
     entity: LootableConstructionEntity
   ) {
-    await Scheduler.wait(this.smeltingTime);
+    await Scheduler.wait(this.smeltTime);
     if (!entity.subEntity?.isWorking) {
       entity.subEntity!.isSmelting = false;
       return;

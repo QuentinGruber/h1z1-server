@@ -190,7 +190,7 @@ export const vehiclePackets: PacketStructures = [
     {
       fields: [
         { name: "guid1", type: "uint64string", defaultValue: "0" },
-        { name: "guid2", type: "uint64string", defaultValue: "0" },
+        { name: "vehicleCharacterId", type: "uint64string", defaultValue: "0" },
         { name: "engineOn", type: "boolean", defaultValue: false },
       ],
     },
