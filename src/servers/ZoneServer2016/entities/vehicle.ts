@@ -26,6 +26,9 @@ import { DamageInfo } from "types/zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
 import { vehicleDefaultLoadouts } from "../data/loadouts";
 import { LoadoutItem } from "../classes/loadoutItem";
+import { BaseItem } from "../classes/baseItem";
+import { LOADOUT_CONTAINER_ID } from "../../../utils/constants";
+import { Character2016 } from "./character";
 
 function getActorModelId(vehicleId: number) {
   switch (vehicleId) {
@@ -136,7 +139,7 @@ export class Vehicle2016 extends BaseLootableEntity {
     super(characterId, transientId, actorModelId, position, rotation, server);
     this._resources = {
       [ResourceIds.CONDITION]: 100000,
-      [ResourceIds.FUEL]: 7590,
+      [ResourceIds.FUEL]: 7500,
     };
     this.state = {
       position: position,
@@ -279,6 +282,34 @@ export class Vehicle2016 extends BaseLootableEntity {
       },
     };
   }
+
+  pGetFull(server: ZoneServer2016) {
+    return {
+      transientId: this.transientId,
+      attachmentData: this.pGetAttachmentSlots(),
+      characterId: this.characterId,
+      resources: {
+        data: this.pGetResources(),
+      },
+      effectTags: [],
+      unknownData1: {},
+      targetData: {},
+      unknownArray1: [],
+      unknownArray2: [],
+      unknownArray3: { data: {} },
+      unknownArray4: { data: {} },
+      unknownArray5: { data: {} },
+      remoteWeapons: {
+        isVehicle: true,
+        data: {},
+      },
+      itemsData: {
+        items: this.pGetInventoryItems(server),
+        unknownDword1: 0,
+      },
+    };
+  }
+
   pGetFullVehicle(server: ZoneServer2016) {
     return {
       npcData: {
@@ -326,13 +357,13 @@ export class Vehicle2016 extends BaseLootableEntity {
   getInventoryItemId(): number {
     switch (this.loadoutId) {
       case LoadoutIds.VEHICLE_OFFROADER:
-        return Items.VEHICLE_CONTAINER_OFFROADER;
+        return Items.CONTAINER_VEHICLE_OFFROADER;
       case LoadoutIds.VEHICLE_PICKUP:
-        return Items.VEHICLE_CONTAINER_PICKUP;
+        return Items.CONTAINER_VEHICLE_PICKUP;
       case LoadoutIds.VEHICLE_POLICECAR:
-        return Items.VEHICLE_CONTAINER_POLICECAR;
+        return Items.CONTAINER_VEHICLE_POLICECAR;
       case LoadoutIds.VEHICLE_ATV:
-        return Items.VEHICLE_CONTAINER_ATV;
+        return Items.CONTAINER_VEHICLE_ATV;
       default:
         return 0;
     }
@@ -487,6 +518,181 @@ export class Vehicle2016 extends BaseLootableEntity {
       );
     }
   }
+
+  updateLoadout(server: ZoneServer2016) {
+    const client = server.getClientByCharId(this.characterId);
+    if (client) {
+      if (!client.character.initialized) return;
+      server.checkConveys(client);
+    }
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      this.characterId,
+      "Loadout.SetLoadoutSlots",
+      this.pGetLoadoutSlots()
+    );
+  }
+
+  getDriver(server: ZoneServer2016): Character2016 | undefined {
+    const seat = this.seats[0];
+    if (seat) return server._characters[seat];
+  }
+
+  startEngine(server: ZoneServer2016) {
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      this.characterId,
+      "Vehicle.Engine",
+      {
+        vehicleCharacterId: this.characterId,
+        engineOn: true,
+      }
+    );
+    this.engineOn = true;
+    this.startResourceUpdater(server);
+  }
+
+  stopEngine(server: ZoneServer2016) {
+    server.sendDataToAllWithSpawnedEntity(
+      server._vehicles,
+      this.characterId,
+      "Vehicle.Engine",
+      {
+        vehicleCharacterId: this.characterId,
+        engineOn: false,
+      }
+    );
+    this.engineOn = false;
+  }
+
+  hasRequiredEngineParts(): boolean {
+    return (
+      !!this.getLoadoutItemById(Items.BATTERY) &&
+      !!this.getLoadoutItemById(Items.SPARKPLUGS)
+    );
+  }
+
+  hasVehicleKey(server: ZoneServer2016): boolean {
+    return (
+      !!this.getItemById(Items.VEHICLE_KEY) ||
+      !!this.getDriver(server)?.getItemById(Items.VEHICLE_KEY)
+    );
+  }
+
+  hasFuel(): boolean {
+    return this._resources[ResourceIds.FUEL] > 0;
+  }
+
+  hasRequiredComponents(server: ZoneServer2016): boolean {
+    return (
+      this.hasRequiredEngineParts() &&
+      this.hasVehicleKey(server) &&
+      this.hasFuel()
+    );
+  }
+
+  checkEngineRequirements(server: ZoneServer2016) {
+    if (this.hasRequiredComponents(server) && !this.engineOn) {
+      this.startEngine(server);
+      return;
+    }
+
+    const driver = this.getDriver(server),
+      client = server.getClientByCharId(driver?.characterId || "");
+
+    if (!this.hasRequiredEngineParts()) {
+      if (this.engineOn) this.stopEngine(server);
+      if (client)
+        server.sendAlert(
+          client,
+          "Parts may be required. Open vehicle loadout."
+        );
+      return;
+    }
+
+    if (!this.hasVehicleKey(server)) {
+      if (this.engineOn) this.stopEngine(server);
+      if (client)
+        server.sendAlert(
+          client,
+          "You must use the hotwire option or have a key to operate this vehicle."
+        );
+      return;
+    }
+
+    if (!this.hasFuel()) {
+      if (this.engineOn) this.stopEngine(server);
+      if (client)
+        server.sendAlert(
+          client,
+          "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol."
+        );
+      return;
+    }
+  }
+
+  hotwire(server: ZoneServer2016) {
+    const driver = this.getDriver(server),
+      client = server.getClientByCharId(driver?.characterId || "");
+    if (!client) return;
+
+    server.utilizeHudTimer(client, 0, 5000, () => {
+      this.startEngine(server);
+    });
+  }
+
+  startResourceUpdater(server: ZoneServer2016) {
+    if (this.resourcesUpdater) return;
+    this.resourcesUpdater = setTimeout(() => {
+      if (!server._vehicles[this.characterId]) return;
+      if (!this.engineOn) {
+        delete this.resourcesUpdater;
+        return;
+      }
+      if (this.engineRPM) {
+        const fuelLoss = this.engineRPM * 0.003;
+        this._resources[ResourceIds.FUEL] -= fuelLoss;
+      }
+      if (this._resources[ResourceIds.FUEL] < 0) {
+        this._resources[ResourceIds.FUEL] = 0;
+      }
+      if (this.engineOn && this._resources[ResourceIds.FUEL] <= 0) {
+        this.stopEngine(server);
+        const driver = this.getDriver(server),
+          client = server.getClientByCharId(driver?.characterId || "");
+        if (client) {
+          server.sendAlert(
+            client,
+            "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol."
+          );
+        }
+      }
+      server.updateResourceToAllWithSpawnedEntity(
+        this.characterId,
+        this._resources[ResourceIds.FUEL],
+        ResourceIds.FUEL,
+        ResourceTypes.FUEL,
+        server._vehicles
+      );
+      this.resourcesUpdater.refresh();
+    }, 3000);
+  }
+
+  pGetLoadoutSlots() {
+    return {
+      characterId: this.characterId,
+      loadoutId: this.loadoutId,
+      loadoutData: {
+        loadoutSlots: Object.values(this.getLoadoutSlots()).map(
+          (slotId: any) => {
+            return this.pGetLoadoutSlot(slotId);
+          }
+        ),
+      },
+      currentSlotId: this.currentLoadoutSlot,
+    };
+  }
+
   /* eslint-disable @typescript-eslint/no-unused-vars */
   OnPlayerSelect(
     server: ZoneServer2016,
@@ -508,6 +714,40 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
   }
 
+  pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
+    let durability: number = 0;
+    switch (true) {
+      case server.isWeapon(item.itemDefinitionId):
+        durability = 2000;
+        break;
+      case server.isArmor(item.itemDefinitionId):
+        durability = 1000;
+        break;
+      case server.isHelmet(item.itemDefinitionId):
+        durability = 100;
+        break;
+    }
+    return {
+      itemDefinitionId: item.itemDefinitionId,
+      tintId: 0,
+      guid: item.itemGuid,
+      count: item.stackCount,
+      itemSubData: {
+        hasSubData: false,
+      },
+      containerGuid: item.containerGuid,
+      containerDefinitionId: containerDefId,
+      containerSlotId: item.slotId,
+      baseDurability: durability,
+      currentDurability: durability ? item.currentDurability : 0,
+      maxDurabilityFromDefinition: durability,
+      unknownBoolean1: true,
+      ownerCharacterId: this.characterId,
+      unknownDword9: 1,
+      weaponData: this.pGetItemWeaponData(server, item),
+    };
+  }
+
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
     if (
       this.vehicleId == VehicleIds.SPECTATE ||
@@ -520,6 +760,13 @@ export class Vehicle2016 extends BaseLootableEntity {
       "LightweightToFullVehicle",
       this.pGetFullVehicle(server)
     );
+    Object.values(this._loadout).forEach((item) => {
+      server.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: this.characterId,
+        data: this.pGetItemData(server, item, LOADOUT_CONTAINER_ID),
+      });
+    });
+    this.updateLoadout(server);
     // fix seat change crash related to our managed object workaround
     if (this.droppedManagedClient == client) {
       const seatId = this.getCharacterSeat(client.character.characterId);

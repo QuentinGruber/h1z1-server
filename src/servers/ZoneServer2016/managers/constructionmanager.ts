@@ -600,7 +600,7 @@ export class ConstructionManager {
       return;
     }
 
-    server.removeInventoryItem(client, item);
+    server.removeInventoryItem(client.character, item);
     this.sendPlacementFinalize(server, client, 1);
     this.constructionPermissionsManager(server, client);
   }

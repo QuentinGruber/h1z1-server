@@ -21,8 +21,8 @@ export const accessedCharacterPackets: PacketStructures = [
     {
       fields: [
         { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
-        { name: "containerGuid", type: "uint64string", defaultValue: "0" },
-        { name: "unknownBool1", type: "boolean", defaultValue: false },
+        { name: "mutatorCharacterId", type: "uint64string", defaultValue: "0" },
+        { name: "dontOpenInventory", type: "boolean", defaultValue: false },
         {
           name: "itemsData",
           type: "byteswithlength",
@@ -61,7 +61,7 @@ export const accessedCharacterPackets: PacketStructures = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "containerGuid", type: "uint64string", defaultValue: "0" },
+        { name: "mutatorCharacterId", type: "uint64string", defaultValue: "0" },
       ],
     },
   ],

@@ -11,6 +11,7 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { BaseFullCharacter } from "../entities/basefullcharacter";
 import { ContainerErrors } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "./baseItem";
@@ -24,16 +25,17 @@ function combineItemStack(
   oldStackCount: number,
   targetContainer: LoadoutContainer,
   item: BaseItem,
-  count: number
+  count: number,
+  targetCharacter: BaseFullCharacter
 ) {
   if (oldStackCount == count) {
     // if full stack is moved
-    server.addContainerItem(client.character, item, targetContainer, false);
+    server.addContainerItem(targetCharacter, item, targetContainer, false);
     return;
   }
   // if only partial stack is moved
   server.addContainerItem(
-    client.character,
+    targetCharacter,
     server.generateItem(item.itemDefinitionId, count),
     targetContainer,
     false
@@ -150,18 +152,22 @@ export class LoadoutContainer extends LoadoutItem {
     count?: number
   ) {
     if (!count) count = item.stackCount;
-    const oldStackCount = item.stackCount; // saves stack count before it gets altered
+    const oldStackCount = item.stackCount, // saves stack count before it gets altered
+      sourceCharacter = server.getEntity(this.loadoutItemOwnerGuid),
+      targetCharacter = server.getEntity(targetContainer.loadoutItemOwnerGuid);
 
-    let client;
-
-    const lootableEntity = server.getLootableEntity(this.loadoutItemOwnerGuid);
-    if (lootableEntity) {
-      const mountedCharacterId = lootableEntity.mountedCharacter;
-      if (mountedCharacterId)
-        client = server.getClientByCharId(mountedCharacterId);
-    } else {
-      client = server.getClientByCharId(this.loadoutItemOwnerGuid);
+    if (
+      !(sourceCharacter instanceof BaseFullCharacter) ||
+      //!(sourceCharacter instanceof BaseLootableEntity) ||
+      !(targetCharacter instanceof BaseFullCharacter)
+      //!(targetCharacter instanceof BaseLootableEntity)
+    ) {
+      return;
     }
+
+    const client =
+      server.getClientByCharId(sourceCharacter.characterId) ||
+      server.getClientByCharId(targetCharacter.characterId);
 
     if (!client) return;
 
@@ -205,7 +211,7 @@ export class LoadoutContainer extends LoadoutItem {
       }
     }
 
-    if (!server.removeContainerItem(client.character, item, this, count)) {
+    if (!server.removeContainerItem(sourceCharacter, item, this, count)) {
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
@@ -223,7 +229,7 @@ export class LoadoutContainer extends LoadoutItem {
       // add to existing item stack
       const item = targetContainer.items[itemStack];
       item.stackCount += count;
-      server.updateContainerItem(client, item, targetContainer);
+      server.updateContainerItem(targetCharacter, item, targetContainer);
     } else {
       // add item to end
       combineItemStack(
@@ -232,7 +238,8 @@ export class LoadoutContainer extends LoadoutItem {
         oldStackCount,
         targetContainer,
         item,
-        count
+        count,
+        targetCharacter
       );
     }
   }
