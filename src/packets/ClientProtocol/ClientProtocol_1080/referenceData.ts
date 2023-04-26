@@ -15,8 +15,6 @@ import DataSchema from "h1z1-dataschema";
 import { LZ4 } from "../../../utils/utils";
 import {
   firemodesSchema,
-  packVehicleReferenceData,
-  parseVehicleReferenceData,
 } from "./shared";
 import { PacketFields, PacketStructures } from "types/packetStructure";
 
@@ -1061,15 +1059,69 @@ export const referenceDataPackets: PacketStructures = [
     },
   ],
   [
-    "ReferenceData.VehicleDefinitions",
+    "ReferenceData.DynamicAppearance",
     0x1706,
     {
       fields: [
         {
-          name: "data",
-          type: "custom",
-          parser: parseVehicleReferenceData,
-          packer: packVehicleReferenceData,
+          name: "array1",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            {
+              name: "unknownData1",
+              type: "schema",
+              defaultValue: {},
+              fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+              ]
+            }
+          ]
+        },
+        {
+          name: "array2",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            {
+              name: "unknownArray1",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+              ],
+            },
+          ]
+        },
+        {
+          name: "array3",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            {
+              name: "unknownData1",
+              type: "schema",
+              defaultValue: {},
+              fields: [
+                { name: "unknownString1", type: "string", defaultValue: "" },
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+                { name: "unknownDword5", type: "uint32", defaultValue: 0 },
+                { name: "unknownBoolean1", type: "boolean", defaultValue: false },
+                { name: "unknownString2", type: "string", defaultValue: "" },
+                { name: "unknownDword6", type: "uint32", defaultValue: 0 },
+              ]
+            }
+          ]
         },
       ],
     },
