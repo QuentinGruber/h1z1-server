@@ -1064,61 +1064,61 @@ export const referenceDataPackets: PacketStructures = [
     {
       fields: [
         {
-          name: "array1",
+          name: "ITEM_APPEARANCE_DEFINITIONS",
           type: "array",
           defaultValue: [],
           fields: [
             { name: "ID", type: "uint32", defaultValue: 0 },
             {
-              name: "unknownData1",
+              name: "ITEM_APPEARANCE_DATA",
               type: "schema",
               defaultValue: {},
               fields: [
                 { name: "ID", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword4", type: "uint32", defaultValue: 0 },
+                { name: "ITEM_ID", type: "uint32", defaultValue: 0 },
+                { name: "MODEL_ID", type: "uint32", defaultValue: 0 },
+                { name: "GENDER_ID", type: "uint32", defaultValue: 0 },
+                { name: "SHADER_PARAMETER_GROUP_ID", type: "uint32", defaultValue: 0 },
               ]
             }
           ]
         },
         {
-          name: "array2",
+          name: "SHADER_SEMANTIC_DEFINITIONS",
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "SHADER_PARAMETER_GROUP_ID", type: "uint32", defaultValue: 0 },
             {
-              name: "unknownArray1",
+              name: "SHADER_PARAMETER_GROUP",
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                { name: "SHADER_SEMANTIC_ID", type: "uint32", defaultValue: 0 },
               ],
             },
           ]
         },
         {
-          name: "array3",
+          name: "SHADER_PARAMETER_DEFINITIONS",
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+            { name: "ID", type: "uint32", defaultValue: 0 },
             {
-              name: "unknownData1",
+              name: "SHADER_PARAMETER_DATA",
               type: "schema",
               defaultValue: {},
               fields: [
-                { name: "unknownString1", type: "string", defaultValue: "" },
-                { name: "unknownFloat1", type: "uint32", defaultValue: 0 },
-                { name: "unknownFloat2", type: "uint32", defaultValue: 0 },
-                { name: "unknownFloat3", type: "uint32", defaultValue: 0 },
-                { name: "unknownFloat4", type: "uint32", defaultValue: 0 },
+                { name: "SEMANTIC", type: "string", defaultValue: "" },
+                { name: "FLOAT1_DEFAULT", type: "float", defaultValue: 0 },
+                { name: "FLOAT2_DEFAULT", type: "float", defaultValue: 0 },
+                { name: "FLOAT3_DEFAULT", type: "float", defaultValue: 0 },
+                { name: "FLOAT4_DEFAULT", type: "float", defaultValue: 0 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-                { name: "unknownString2", type: "string", defaultValue: "" },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
+                { name: "BOOLEAN_DEFAULT", type: "boolean", defaultValue: false },
+                { name: "TEXTURE_DEFAULT", type: "string", defaultValue: "" },
+                { name: "SHADER_VALUE_TYPE_ID", type: "uint32", defaultValue: 0 },
               ]
             }
           ]

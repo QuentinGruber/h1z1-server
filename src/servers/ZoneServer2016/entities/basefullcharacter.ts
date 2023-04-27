@@ -203,7 +203,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     server: ZoneServer2016,
     item?: BaseItem,
     sendPacket: boolean = true,
-    loadoutSlotId: number = 0
+    loadoutSlotId: number = 0, switchLoadoutSlot:boolean = false
   ) {
     if (!item || !item.isValid("equipItem")) return;
     const def = server.getItemDefinition(item.itemDefinitionId);
@@ -311,7 +311,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         }
       );
     }
-    this.updateLoadout(server);
+    if(!switchLoadoutSlot) this.updateLoadout(server);
     if (equipmentSlotId) this.updateEquipmentSlot(server, equipmentSlotId);
   }
 
