@@ -84,6 +84,11 @@ interface DecayConfig {
   vehicleDamageRange: number;
 }
 
+interface SmeltingConfig {
+  burnTime: number;
+  smeltTime: number;
+}
+
 export interface Config {
   server: ServerConfig;
   fairplay: FairplayConfig;
@@ -92,4 +97,5 @@ export interface Config {
   speedtree: SpeedTreeConfig;
   construction: ConstructionConfig;
   decay: DecayConfig;
+  smelting: SmeltingConfig;
 }

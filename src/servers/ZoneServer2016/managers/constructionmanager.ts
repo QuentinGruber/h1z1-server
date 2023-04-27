@@ -106,7 +106,6 @@ export class ConstructionManager {
 
   detectStackedPlacement(
     server: ZoneServer2016,
-    client: Client,
     parentObjectCharacterId: string,
     position: Float32Array,
     itemDefinitionId: number
@@ -353,7 +352,6 @@ export class ConstructionManager {
     if (
       this.detectStackedPlacement(
         server,
-        client,
         parentObjectCharacterId,
         position,
         itemDefinitionId
@@ -487,19 +485,34 @@ export class ConstructionManager {
         }
         // check if inside a shelter even if not inside foundation (large shelters can extend it)
         Object.values(foundation.occupiedShelterSlots).forEach((shelter) => {
-          if (shelter.isInside(position)) {
+          if (shelter.isInside(position) || shelter.isOn(position)) {
             freeplaceParentCharacterId = shelter.characterId;
           }
-
-          // check upper shelters if its not in lower ones
-          Object.values(shelter.occupiedShelterSlots).forEach(
-            (upperShelter) => {
-              if (upperShelter.isInside(position)) {
-                freeplaceParentCharacterId = upperShelter.characterId;
+          if (!Number(freeplaceParentCharacterId)) {
+            // check upper shelters if its not in lower ones
+            Object.values(shelter.occupiedShelterSlots).forEach(
+              (upperShelter) => {
+                if (
+                  upperShelter.isInside(position) ||
+                  upperShelter.isOn(position)
+                ) {
+                  freeplaceParentCharacterId = upperShelter.characterId;
+                }
               }
-            }
-          );
+            );
+          }
         });
+        // for disconnected upper shelters
+        if (!Number(freeplaceParentCharacterId)) {
+          Object.values(foundation.freeplaceEntities).forEach((freeplace) => {
+            if (
+              freeplace instanceof ConstructionChildEntity &&
+              (freeplace.isInside(position) || freeplace.isOn(position))
+            ) {
+              freeplaceParentCharacterId = freeplace.characterId;
+            }
+          });
+        }
       }
     }
     if (server._constructionSimple[parentObjectCharacterId]) {
@@ -595,7 +608,7 @@ export class ConstructionManager {
       return;
     }
 
-    server.removeInventoryItem(client, item);
+    server.removeInventoryItem(client.character, item);
     this.sendPlacementFinalize(server, client, 1);
     this.constructionPermissionsManager(server, client);
   }
@@ -2158,7 +2171,11 @@ export class ConstructionManager {
           this.repairConstruction(server, entity, 50000);
           accumulatedItemDamage += 15;
         }
-        server.damageItem(client, weaponItem, accumulatedItemDamage);
+        server.damageItem(
+          client,
+          weaponItem,
+          Math.ceil(accumulatedItemDamage / 4)
+        );
         client.character.temporaryScrapSoundTimeout = setTimeout(() => {
           delete client.character.temporaryScrapSoundTimeout;
         }, 1000);

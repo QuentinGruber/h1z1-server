@@ -2031,7 +2031,15 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CODED_MESSAGE,
-        weight: 3,
+        weight: 5,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.VEHICLE_KEY,
+        weight: 25,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2061,7 +2069,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.SALT,
-        weight: 20,
+        weight: 18,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2069,7 +2077,15 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CODED_MESSAGE,
-        weight: 3,
+        weight: 2,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.VEHICLE_KEY,
+        weight: 5,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2083,7 +2099,15 @@ export const containerLootSpawners: {
     items: [
       {
         item: Items.SALT,
-        weight: 20,
+        weight: 18,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.VEHICLE_KEY,
+        weight: 5,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2091,7 +2115,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CODED_MESSAGE,
-        weight: 3,
+        weight: 2,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2803,7 +2827,7 @@ export const containerLootSpawners: {
       },
       {
         item: Items.CODED_MESSAGE,
-        weight: 3,
+        weight: 2,
         spawnCount: {
           min: 1,
           max: 1,
@@ -2909,6 +2933,14 @@ export const containerLootSpawners: {
           max: 1,
         },
       },
+      {
+        item: Items.VEHICLE_KEY,
+        weight: 25,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
     ],
   },
   Dresser: {
@@ -2950,6 +2982,14 @@ export const containerLootSpawners: {
       {
         item: Items.TWINE,
         weight: 50,
+        spawnCount: {
+          min: 1,
+          max: 1,
+        },
+      },
+      {
+        item: Items.VEHICLE_KEY,
+        weight: 20,
         spawnCount: {
           min: 1,
           max: 1,
@@ -3216,32 +3256,16 @@ export const containerLootSpawners: {
         item: Items.IED,
         weight: 1,
         spawnCount: {
-          min: 25,
-          max: 25,
-        },
-      },
-      {
-        item: Items.FUEL_BIOFUEL,
-        weight: 1,
-        spawnCount: {
-          min: 5,
-          max: 5,
+          min: 20,
+          max: 20,
         },
       },
       {
         item: Items.FUEL_ETHANOL,
         weight: 1,
         spawnCount: {
-          min: 25,
-          max: 25,
-        },
-      },
-      {
-        item: Items.LANDMINE,
-        weight: 1,
-        spawnCount: {
-          min: 10,
-          max: 10,
+          min: 20,
+          max: 20,
         },
       },
       {
@@ -3324,16 +3348,16 @@ export const containerLootSpawners: {
         item: Items.METAL_SCRAP,
         weight: 1,
         spawnCount: {
-          min: 60,
-          max: 60,
+          min: 50,
+          max: 50,
         },
       },
       {
         item: Items.WOOD_LOG,
         weight: 1,
         spawnCount: {
-          min: 60,
-          max: 60,
+          min: 50,
+          max: 50,
         },
       },
       {
@@ -3383,14 +3407,6 @@ export const containerLootSpawners: {
     maxItems: 1,
     items: [
       {
-        item: Items.WEAPON_308,
-        weight: 1,
-        spawnCount: {
-          min: 1,
-          max: 1,
-        },
-      },
-      {
         item: Items.WEAPON_SHOTGUN,
         weight: 1,
         spawnCount: {
@@ -3412,14 +3428,6 @@ export const containerLootSpawners: {
         spawnCount: {
           min: 50,
           max: 50,
-        },
-      },
-      {
-        item: Items.AMMO_308,
-        weight: 1,
-        spawnCount: {
-          min: 15,
-          max: 15,
         },
       },
       {
@@ -3480,8 +3488,8 @@ export const containerLootSpawners: {
         item: Items.MOONSHINE,
         weight: 1,
         spawnCount: {
-          min: 15,
-          max: 15,
+          min: 10,
+          max: 10,
         },
       },
       {

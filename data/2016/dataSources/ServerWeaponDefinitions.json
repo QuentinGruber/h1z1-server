@@ -39789,7 +39789,7 @@
           "LOCK_ON_ACQUIRE_TIME_CLOSE_MS": 0,
           "LOCK_ON_ACQUIRE_TIME_FAR_MS": 0,
           "LOCK_ON_LOSE_TIME_MS": 0,
-          "DEFAULT_ZOOM": 1,
+          "DEFAULT_ZOOM": 3.4000000953674316,
           "FIRST_PERSON_OFFSET": {
             "FIRST_PERSON_OFFSET_X": 0,
             "FIRST_PERSON_OFFSET_Y": 0,
