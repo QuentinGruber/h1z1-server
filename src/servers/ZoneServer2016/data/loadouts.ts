@@ -30,7 +30,6 @@ export const characterDefaultLoadout = [
   { item: Items.MAP },
   { item: Items.COMPASS },
   { item: Items.GAUZE, count: 5 },
-  { item: Items.FLARE },
 ];
 
 export const characterKitLoadout = [
