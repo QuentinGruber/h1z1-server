@@ -1375,7 +1375,7 @@ export interface VehicleAutoMount {
 }
 export interface VehicleEngine {
   guid1?: string;
-  guid2?: string;
+  vehicleCharacterId?: string;
   engineOn?: boolean;
 }
 export interface VehicleOwnerPassengerList {
@@ -1633,8 +1633,8 @@ export interface ItemsRequestUseItem {
   unknownDword1?: number;
   itemUseOption?: number;
   characterId?: string;
-  characterId2?: string;
-  characterId3?: string;
+  targetCharacterId?: string;
+  sourceCharacterId?: string;
   itemGuid?: string;
   itemSubData?: any;
 }
@@ -2197,15 +2197,15 @@ export interface SpectatorMatchResults {
 }
 export interface AccessedCharacterBeginCharacterAccess {
   objectCharacterId?: string;
-  containerGuid?: string;
-  unknownBool1?: boolean;
+  mutatorCharacterId?: string;
+  dontOpenInventory?: boolean;
   itemsData?: any;
 }
 export interface AccessedCharacterEndCharacterAccess {
 }
 export interface AccessedCharacterUnknown1 {
   characterId?: string;
-  containerGuid?: string;
+  mutatorCharacterId?: string;
 }
 export interface AccessedCharacterUnknown2 {
   characterId?: string;

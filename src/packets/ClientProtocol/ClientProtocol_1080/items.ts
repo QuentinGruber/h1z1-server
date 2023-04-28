@@ -91,8 +91,8 @@ export const itemsPackets: PacketStructures = [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "itemUseOption", type: "uint32", defaultValue: 0 },
         { name: "characterId", type: "uint64string", defaultValue: "" },
-        { name: "characterId2", type: "uint64string", defaultValue: "" },
-        { name: "characterId3", type: "uint64string", defaultValue: "" },
+        { name: "targetCharacterId", type: "uint64string", defaultValue: "" },
+        { name: "sourceCharacterId", type: "uint64string", defaultValue: "" },
         { name: "itemGuid", type: "uint64string", defaultValue: "" },
         {
           name: "itemSubData",
