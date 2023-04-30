@@ -22,6 +22,8 @@ export class PerSecClient extends EventEmitter {
   private _crcLen: number = 0;
   private _lastAck: number = 0;
   private _lastAckReport: number = 0;
+  private _packetStore: Record<string, Uint8Array> = {};
+  isReady: boolean = false;
   constructor(serverPort: number, benchParameters: BenchParameters) {
     super();
     this._benchParameters = benchParameters;
@@ -81,6 +83,7 @@ export class PerSecClient extends EventEmitter {
       this._dummyData,
       this._sequenceNumber
     );
+    this._packetStore[this._sequenceNumber] = dataPacket;
     this._sequenceNumber++;
     return dataPacket;
   }
@@ -95,15 +98,17 @@ export class PerSecClient extends EventEmitter {
     this._receivedPacketsLast = this._receivedPackets;
     this._lastAckReport = this._lastAck;
     this.emit("report", packetsThisRoutine, ackThisRoutine);
+    for (const packetKey in this._packetStore) {
+      const packet = this._packetStore[packetKey];
+      this._sendPhysicalPacket(packet);
+    }
     this.sendMultipleDataPackets();
   }
 
   handlePacket(packet: any): void {
     switch (packet.name) {
       case "SessionReply":
-        setInterval(() => {
-          this.routine();
-        }, 1000);
+        this.isReady = true;
         break;
       case "MultiPacket":
         for (let i = 0; i < packet.sub_packets.length; i++) {
@@ -116,8 +121,17 @@ export class PerSecClient extends EventEmitter {
         this.sendAck(packet.sequence);
         break;
       case "Ack":
+        for (let index = this._lastAck; index < packet.sequence; index++) {
+          delete this._packetStore[index];
+        }
         this._lastAck = packet.sequence;
         break;
+      case "OutOfOrder": {
+        delete this._packetStore[packet.sequence];
+        // console.log("last sent " + this._sequenceNumber);
+        // console.log("last ack" + this._lastAck);
+        // console.log("out " + packet.sequence);
+      }
     }
   }
   sendAck(sequence: number) {
@@ -128,6 +142,7 @@ export class PerSecClient extends EventEmitter {
   receiveData(data: Uint8Array): void {
     const raw_parsed_data: string = this._protocol.parse(data);
     const parsed_data = JSON.parse(raw_parsed_data);
+    // console.log("client " + parsed_data.name);
     this.handlePacket(parsed_data);
   }
 }

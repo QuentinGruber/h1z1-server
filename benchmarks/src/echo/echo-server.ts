@@ -6,7 +6,6 @@ export class EchoServer extends SOEServer {
     this._crcLength = 0;
     this.packetRatePerClient = Infinity;
     this.on("appdata", (client: any, data: Buffer) => {
-      // console.log(`Got data from ${client.sessionId} of size ${data.length}`)
       this.sendAppData(client, data);
     });
   }
