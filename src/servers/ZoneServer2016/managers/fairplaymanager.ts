@@ -32,6 +32,10 @@ import { ZoneServer2016 } from "../zoneserver";
 const encryptedData = require("../../../../data/2016/encryptedData/encryptedData.json"),
   fairPlayData = require("../../../../data/2016/encryptedData/fairPlayData.json");
 
+
+/**
+ * Manages all anticheat functionality for the zoneserver
+ */
 export class FairPlayManager {
   _decryptKey: string = "";
   _fairPlayDecryptKey: string = "";

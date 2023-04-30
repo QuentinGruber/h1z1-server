@@ -3450,6 +3450,56 @@ export class ZoneServer2016 extends EventEmitter {
     return unBannedClient;
   }
 
+  banClientOffline(
+    loadedCharacter: any,
+    reason: string,
+    banType: string,
+    adminName: string,
+    timestamp: number
+  ) {
+    const { characterName, ownerId } = loadedCharacter;
+    const object: ClientBan = {
+      name: characterName,
+      banType: banType,
+      banReason: reason ? reason : "no reason",
+      loginSessionId: ownerId,
+      IP: "", // TODO
+      HWID: "",  // TODO
+      adminName: adminName ? adminName : "",
+      expirationDate: 0,
+      active: true,
+      unBanAdminName: "",
+    };
+    if (timestamp) {
+      object.expirationDate = timestamp;
+    }
+    this._db?.collection(DB_COLLECTIONS.BANNED).insertOne(object);
+    this.sendBanToLogin(ownerId, true);
+    if (banType === "normal") {
+      if (timestamp) {
+        this.sendAlertToAll(
+          reason
+            ? `${
+                characterName
+              } HAS BEEN BANNED FROM THE SERVER UNTIL ${this.getDateString(
+                timestamp
+              )}. REASON: ${reason}`
+            : `${
+                characterName
+              } HAS BEEN BANNED FROM THE SERVER UNTIL: ${this.getDateString(
+                timestamp
+              )}`
+        );
+      } else {
+        this.sendAlertToAll(
+          reason
+            ? `${characterName} HAS BEEN BANNED FROM THE SERVER! REASON: ${reason}`
+            : `${characterName} HAS BEEN BANNED FROM THE SERVER!`
+        );
+      }
+    }
+  }
+
   banClient(
     client: Client,
     reason: string,

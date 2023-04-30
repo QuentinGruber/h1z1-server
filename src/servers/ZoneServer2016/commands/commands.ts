@@ -570,6 +570,69 @@ export const commands: Array<Command> = [
     },
   },
   {
+    name: "offlineban",
+    permissionLevel: PermissionLevels.MODERATOR,
+    keepCase: true,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      if (!args[0]) {
+        server.sendChatText(
+          client,
+          `Correct usage: /offlineban {name|playerId} optional: {time} {reason}`
+        );
+        return;
+      }
+
+      const loadedCharacter = await server._db
+        ?.collection("characters")
+        .findOne({ characterName: args[0] }) || await server._db
+        ?.collection("characters")
+        .findOne({ ownerId: args[0] });
+
+      if(!loadedCharacter) {
+        server.sendChatText(client, "Player not found.");
+        return;
+      }
+
+      if(!loadedCharacter.characterName || !loadedCharacter.ownerId) {
+        server.sendChatText(client, "Invalid player.");
+        return;
+      }
+
+      if(loadedCharacter.characterName == client.character.name) {
+        server.sendChatText(client, "You can't ban yourself!");
+        return;
+      }
+
+      let time = Number(args[1]) ? Number(args[1]) * 60000 : 0;
+      if (time > 0) {
+        time += Date.now();
+        server.sendChatText(
+          client,
+          `You have banned ${
+            loadedCharacter.characterName
+          } until ${server.getDateString(time)}`
+        );
+      } else {
+        server.sendChatText(
+          client,
+          `You have banned ${loadedCharacter.characterName} permanently`
+        );
+      }
+      const reason = args.slice(2).join(" ");
+      server.banClientOffline(
+        loadedCharacter,
+        reason,
+        "normal",
+        client.character.name,
+        time
+      );
+    },
+  },
+  {
     name: "kick",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
