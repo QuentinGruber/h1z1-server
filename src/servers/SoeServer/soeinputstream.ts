@@ -132,9 +132,7 @@ export class SOEInputStream extends EventEmitter {
 
       if (appData.length) {
         if (this._fragments.has(this._lastProcessedSequence + 1)) {
-          queueMicrotask(() => {
-            this._processData();
-          });
+          setImmediate(() => this._processData());
         }
         this.processAppData(appData);
       }
