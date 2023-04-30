@@ -86,14 +86,14 @@ export class SOEInputStream extends EventEmitter {
             "error",
             new Error(
               "processDataFragments: offset > totalSize: " +
-                this.cpf_dataSize +
-                " > " +
-                this.cpf_totalSize +
-                " (sequence " +
-                fragmentSequence +
-                ") (fragment length " +
-                fragment.payload.length +
-                ")"
+              this.cpf_dataSize +
+              " > " +
+              this.cpf_totalSize +
+              " (sequence " +
+              fragmentSequence +
+              ") (fragment length " +
+              fragment.payload.length +
+              ")"
             )
           );
         }
@@ -132,9 +132,7 @@ export class SOEInputStream extends EventEmitter {
 
       if (appData.length) {
         if (this._fragments.has(this._lastProcessedSequence + 1)) {
-          queueMicrotask(() => {
-            this._processData();
-          });
+          this._processData();
         }
         this.processAppData(appData);
       }
@@ -160,9 +158,9 @@ export class SOEInputStream extends EventEmitter {
     if (sequence > this._nextSequence.get()) {
       debug(
         "Sequence out of order, expected " +
-          this._nextSequence.get() +
-          " but received " +
-          sequence
+        this._nextSequence.get() +
+        " but received " +
+        sequence
       );
       // acknowledge that we receive this sequence but do not process it
       // until we're back in order
