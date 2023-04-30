@@ -51,7 +51,7 @@
     "build-zone-2015": "tsc -p ./tsconfigs/tsconfig-2015-zone.json",
     "build-zone-2016": "tsc -p ./tsconfigs/tsconfig-2016-zone.json",
     "build-tests": "npx tsc -p tsconfigs/tsconfig-tests.json",
-    "build-benchs": "npx swc benchmarks -d benchmarks_out",
+    "build-benchs": "npx tsc -p ./benchmarks/tsconfig.json",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
     "build-binaries-win": "cd ./bin/ && build.bat",
     "build-binaries-unix": "chmod +x ./bin/build.sh && ./bin/build.sh",
