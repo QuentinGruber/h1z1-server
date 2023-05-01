@@ -1,12 +1,12 @@
 {
   "name": "h1z1-server",
-  "version": "0.27.1-3",
+  "version": "0.27.2-0",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
   "main": "h1z1-server.js",
   "engines": {
-    "node": ">=0.16.0 <20"
+    "node": ">=0.16.0 <21"
   },
   "bin": {
     "h1z1-server-demo": "scripts/h1z1-server-demo.js",
@@ -51,7 +51,7 @@
     "build-zone-2015": "tsc -p ./tsconfigs/tsconfig-2015-zone.json",
     "build-zone-2016": "tsc -p ./tsconfigs/tsconfig-2016-zone.json",
     "build-tests": "npx tsc -p tsconfigs/tsconfig-tests.json",
-    "build-benchs": "npx swc benchmarks -d benchmarks_out",
+    "build-benchs": "npx tsc -p ./benchmarks/tsconfig.json",
     "build-docker-images": "npx ts-node ./docker/buildDocker.ts",
     "build-binaries-win": "cd ./bin/ && build.bat",
     "build-binaries-unix": "chmod +x ./bin/build.sh && ./bin/build.sh",

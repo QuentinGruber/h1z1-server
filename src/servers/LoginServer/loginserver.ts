@@ -873,7 +873,7 @@ export class LoginServer extends EventEmitter {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   async isClientVerified(client: Client): Promise<boolean> {
     // to implement
-    return false;
+    return true;
   }
   async getOwnerBanInfo(serverId: number, client: Client) {
     const ownerBanInfos: any[] = await this._db

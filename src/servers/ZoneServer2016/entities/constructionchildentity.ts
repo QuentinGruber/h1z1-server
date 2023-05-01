@@ -428,6 +428,37 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     }
   }
 
+  isOn(position: Float32Array) {
+    if (!this.bounds) {
+      switch (this.itemDefinitionId) {
+        case Items.STRUCTURE_STAIRS:
+        case Items.STRUCTURE_STAIRS_UPPER:
+        case Items.LOOKOUT_TOWER:
+          return false;
+      }
+      console.error(
+        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+      );
+      return false; // this should never occur
+    }
+
+    switch (this.itemDefinitionId) {
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER_LARGE:
+      case Items.SHELTER:
+      case Items.SHELTER_UPPER:
+        return isInsideCube(
+          [position[0], position[2]],
+          this.bounds,
+          position[1],
+          this.state.position[1] + 2.4,
+          1.8
+        );
+      default:
+        return false;
+    }
+  }
+
   destroy(server: ZoneServer2016, destructTime = 0) {
     const deleted = server.deleteEntity(
       this.characterId,
