@@ -2065,6 +2065,8 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnPlayerRespawn", client)))
       return;
 
+    if (!client.character.isRespawning) return;
+
     if (client.vehicle.mountedVehicle) {
       this.dismountVehicle(client);
     }
