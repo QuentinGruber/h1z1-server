@@ -3473,9 +3473,11 @@ export class ZoneServer2016 extends EventEmitter {
     };
     if (timestamp) {
       object.expirationDate = timestamp;
+    } else {
+      // Do not send temp bans to loginserver
+      this.sendBanToLogin(client.loginSessionId, true);
     }
     this._db?.collection(DB_COLLECTIONS.BANNED).insertOne(object);
-    this.sendBanToLogin(client.loginSessionId, true);
     if (banType === "normal") {
       if (timestamp) {
         this.sendAlert(
