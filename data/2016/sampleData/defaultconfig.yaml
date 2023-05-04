@@ -22,6 +22,7 @@ weather:
 worldobjects:
   # Respawn timers
 
+  hasCustomLootRespawnTime: false
   lootRespawnTimer: 1200000 # 30 minutes
   vehicleRespawnTimer: 600000 # 10 minutes
   npcRespawnTimer: 600000 # 10 minutes
@@ -36,7 +37,7 @@ worldobjects:
   lootbagDespawnTimer: 1800000 # 30 minutes
 
   # Misc
-
+  minAirdropSurvivors: 20
   vehicleSpawnCap: 120
   # How far any other vehicle has to be for another to spawn
   vehicleSpawnRadius: 50

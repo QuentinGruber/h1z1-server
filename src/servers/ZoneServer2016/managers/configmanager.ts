@@ -181,6 +181,8 @@ export class ConfigManager {
     //#region worldobjects
     const {
       vehicleSpawnCap,
+      minAirdropSurvivors,
+      hasCustomLootRespawnTime,
       lootRespawnTimer,
       vehicleRespawnTimer,
       npcRespawnTimer,
@@ -194,6 +196,9 @@ export class ConfigManager {
       lootbagDespawnTimer,
     } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
+    server.worldObjectManager.minAirdropSurvivors = minAirdropSurvivors;
+    server.worldObjectManager.hasCustomLootRespawnTime =
+      hasCustomLootRespawnTime;
     server.worldObjectManager.lootRespawnTimer = lootRespawnTimer;
     server.worldObjectManager.vehicleRespawnTimer = vehicleRespawnTimer;
     server.worldObjectManager.npcRespawnTimer = npcRespawnTimer;
