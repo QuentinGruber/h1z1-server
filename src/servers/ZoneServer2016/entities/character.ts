@@ -131,6 +131,7 @@ export class Character2016 extends BaseFullCharacter {
   _characterEffects: {
     [effectId: number]: characterEffect;
   } = {};
+  lastLockFailure: number = 0;
   constructor(
     characterId: string,
     transientId: number,

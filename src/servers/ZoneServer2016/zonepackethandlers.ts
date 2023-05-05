@@ -1229,6 +1229,7 @@ export class ZonePacketHandlers {
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
     if (
+      !client.character.isAlive ||
       !client.character.currentInteractionGuid ||
       packet.data.password === 1
     ) {
@@ -1239,6 +1240,22 @@ export class ZonePacketHandlers {
       client.character.currentInteractionGuid
     ] as ConstructionDoor;
     if (!doorEntity) {
+      server.sendAlert(client, "Code lock failed!");
+      return;
+    }
+    const now = Date.now();
+    const then = client.character.lastLockFailure;
+    const diff = now - then;
+    if (
+      diff <= 1000 ||
+      !isPosInRadius(
+        client.character.interactionDistance * 4.0,
+        client.character.state.position,
+        doorEntity.fixedPosition
+          ? doorEntity.fixedPosition
+          : doorEntity.state.position
+      )
+    ) {
       server.sendAlert(client, "Code lock failed!");
       return;
     }
@@ -1267,6 +1284,7 @@ export class ZonePacketHandlers {
         visit: true,
       };
     } else {
+      client.character.lastLockFailure = now;
       const damageInfo: DamageInfo = {
         entity: "Server.InvalidLockCode",
         damage: 1000,
