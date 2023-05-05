@@ -1247,7 +1247,7 @@ export class ZonePacketHandlers {
     const then = client.character.lastLockFailure;
     const diff = now - then;
     if (
-      diff <= 1000 ||
+      diff <= 5000 ||
       !isPosInRadius(
         client.character.interactionDistance * 4.0,
         client.character.state.position,
