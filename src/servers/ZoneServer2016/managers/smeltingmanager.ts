@@ -37,7 +37,7 @@ export class SmeltingManager {
   _collectingEntities: { [characterId: string]: string } = {};
   collectingTickTime: number = 300000; // 5 min x 4 ticks = 20 min to fill water/honey
   lastBurnTime: number = 0;
-  // 5 min x 144 ticks = 12 hours for wax
+  // 5 min x 144 ticks = 12 hours for honeycomb
 
   /* MANAGED BY CONFIGMANAGER */
   burnTime!: number;
@@ -109,7 +109,7 @@ export class SmeltingManager {
       switch (entity.itemDefinitionId) {
         case Items.BEE_BOX:
           this.checkCollector(server, entity, subEntity, container);
-          this.checkWax(server, entity, subEntity, container);
+          this.checkHoneycomb(server, entity, subEntity, container);
           break;
         case Items.DEW_COLLECTOR:
           this.checkCollector(server, entity, subEntity, container);
@@ -257,16 +257,25 @@ export class SmeltingManager {
       if (item.itemDefinitionId != Items.WATER_EMPTY) continue;
       if (subEntity.currentTicks >= subEntity.requiredTicks) {
         subEntity.currentTicks = 0;
-        server.removeContainerItem(entity, item, container, 1);
+        if(!server.removeContainerItem(entity, item, container, 1)) {
+          return;
+        }
         const reward = getRewardId(entity.itemDefinitionId);
         if (reward) {
-          entity.lootContainerItem(
-            server,
-            server.generateItem(reward),
-            1,
-            true
-          );
           if (reward == Items.HONEY) {
+            const honeycombItem = entity.getItemById(Items.HONEYCOMB);
+            if(
+              !honeycombItem || 
+              !server.removeContainerItem(entity, honeycombItem, container, 1)
+            ) {
+              return;
+            }
+            entity.lootContainerItem(
+              server,
+              server.generateItem(Items.WAX),
+              1,
+              true
+            );
             server.sendDataToAllWithSpawnedEntity(
               subEntity.dictionary,
               entity.characterId,
@@ -277,6 +286,13 @@ export class SmeltingManager {
               }
             );
           }
+          entity.lootContainerItem(
+            server,
+            server.generateItem(reward),
+            1,
+            true
+          );
+          
         }
         return;
       }
@@ -284,43 +300,41 @@ export class SmeltingManager {
     }
   }
 
-  private checkWax(
+  private checkHoneycomb(
     server: ZoneServer2016,
     entity: LootableConstructionEntity,
     subEntity: CollectingEntity,
     container: LoadoutContainer
   ) {
-    let checkEmpty = true;
+    let isEmpty = true;
     for (const a in container.items) {
       const item = container.items[a];
-      if (
-        item.itemDefinitionId != Items.WATER_EMPTY &&
-        item.itemDefinitionId != Items.HONEY
-      )
-        checkEmpty = false;
-    }
-    if (checkEmpty) {
-      if (subEntity.currentWaxTicks >= subEntity.requiredWaxTicks) {
-        subEntity.currentWaxTicks = 0;
-        entity.lootContainerItem(
-          server,
-          server.generateItem(Items.WAX),
-          1,
-          true
-        );
-        server.sendDataToAllWithSpawnedEntity(
-          subEntity.dictionary,
-          entity.characterId,
-          "Command.PlayDialogEffect",
-          {
-            characterId: entity.characterId,
-            effectId: subEntity.workingEffect,
-          }
-        );
-        return;
+      if (item.itemDefinitionId == Items.HONEYCOMB) {
+        isEmpty = false;
       }
-      subEntity.currentWaxTicks++;
     }
+    if (!isEmpty) return;
+    
+    if (subEntity.currentHoneycombTicks >= subEntity.requiredHoneycombTicks) {
+      subEntity.currentHoneycombTicks = 0;
+      entity.lootContainerItem(
+        server,
+        server.generateItem(Items.HONEYCOMB),
+        1,
+        true
+      );
+      server.sendDataToAllWithSpawnedEntity(
+        subEntity.dictionary,
+        entity.characterId,
+        "Command.PlayDialogEffect",
+        {
+          characterId: entity.characterId,
+          effectId: subEntity.workingEffect,
+        }
+      );
+      return;
+    }
+    subEntity.currentHoneycombTicks++;
   }
 
   private checkAnimalTrap(
