@@ -1830,10 +1830,11 @@ export const recipes: { [recipeId: number]: Recipe } = {
   },
   [Items.SHARD_PLASTIC]: {
     filterId: FilterIds.COMPONENT,
+    bundleCount: 5,
     components: [
       {
         itemDefinitionId: Items.WATER_EMPTY,
-        requiredAmount: 3,
+        requiredAmount: 1,
       },
     ],
   },
