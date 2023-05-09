@@ -632,7 +632,7 @@ export const commands: Array<Command> = [
       } else {
         server.sendChatText(
           client,
-          `Cannot find any banned user with name ${name}`
+          `Cannot find any locally banned user with name ${name} but sent the unban to the loginserver`
         );
       }
     },

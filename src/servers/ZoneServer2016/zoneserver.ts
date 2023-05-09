@@ -3447,9 +3447,10 @@ export class ZoneServer2016 extends EventEmitter {
           { $set: { active: false, unBanAdminName: client.character.name } }
         )
     )?.value as unknown as ClientBan;
-    if (!unBannedClient) return;
+    // if (!unBannedClient) return;
     this.sendBanToLogin(unBannedClient.loginSessionId, false);
-    return unBannedClient;
+    // force to be undefined if falsy
+    return unBannedClient || undefined;
   }
 
   banClient(
