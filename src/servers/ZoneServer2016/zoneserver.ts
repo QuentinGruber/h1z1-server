@@ -3418,14 +3418,17 @@ export class ZoneServer2016 extends EventEmitter {
     )?.address;
     const addressBanned = await this._db
       ?.collection(DB_COLLECTIONS.BANNED)
-      .findOne({ IP: address, active: true });
-    const idBanned = await this._db
-      ?.collection(DB_COLLECTIONS.BANNED)
-      .findOne({ loginSessionId: client.loginSessionId, active: true });
-    if (
-      addressBanned?.expirationDate < Date.now() ||
-      idBanned?.expirationDate < Date.now()
-    ) {
+      .findOne({
+        IP: address,
+        active: true,
+        expirationDate: { $gt: Date.now() },
+      });
+    const idBanned = await this._db?.collection(DB_COLLECTIONS.BANNED).findOne({
+      loginSessionId: client.loginSessionId,
+      active: true,
+      expirationDate: { $gt: Date.now() },
+    });
+    if (addressBanned || idBanned) {
       client.banType = addressBanned
         ? addressBanned.banType
         : idBanned?.banType;
