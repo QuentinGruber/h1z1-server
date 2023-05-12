@@ -3912,12 +3912,14 @@ export class ZoneServer2016 extends EventEmitter {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid(),
           });
+          /*
           if (vehicle.engineOn) {
             this.sendData(client, "Vehicle.Engine", {
               vehicleCharacterId: vehicle.characterId,
               engineOn: true,
             });
           }
+          */
           /*this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
             passengers: vehicle.pGetPassengers(this),
@@ -4186,7 +4188,7 @@ export class ZoneServer2016 extends EventEmitter {
     const seatId = vehicle.getNextSeatId(this),
       seat = vehicle.seats[seatId],
       passenger = this._characters[seat];
-    if (seatId < 0) return; // no available seats in vehicle
+    if (Number(seatId) < 0) return; // no available seats in vehicle
     client.vehicle.mountedVehicle = vehicle.characterId;
     client.isInAir = false;
     if (passenger) {
@@ -4408,17 +4410,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       if (packet.data.seatId === 0) {
         this.takeoverManagedObject(client, vehicle);
-        this.sendDataToAllWithSpawnedEntity(
-          this._vehicles,
-          client.vehicle.mountedVehicle,
-          "Vehicle.Engine",
-          {
-            // stops engine
-            vehicleCharacterId: client.vehicle.mountedVehicle,
-            engineOn: true,
-          }
-        );
-
+        vehicle.startEngine(this);
         if (vehicle.getContainer()) {
           client.character.mountContainer(this, vehicle);
         }
