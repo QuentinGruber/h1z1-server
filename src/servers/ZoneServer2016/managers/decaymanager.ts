@@ -28,6 +28,7 @@ export class DecayManager {
   constructionDamageTicks!: number;
   baseConstructionDamage!: number;
   vehicleDamageTicks!: number;
+  vacantFoundationTicks!: number;
   baseVehicleDamage!: number;
   maxVehiclesPerArea!: number;
   vehicleDamageRange!: number;
@@ -56,9 +57,10 @@ export class DecayManager {
       if (
         foundation.itemDefinitionId != Items.FOUNDATION &&
         foundation.itemDefinitionId != Items.GROUND_TAMPER
-      )
+      ) {
         continue;
-      let expansionshaveChild = false;
+      }
+      let expansionsEmpty = true;
       Object.values(foundation.occupiedExpansionSlots).forEach(
         (exp: ConstructionParentEntity) => {
           if (
@@ -66,17 +68,17 @@ export class DecayManager {
             Object.keys(exp.occupiedShelterSlots).length != 0 ||
             Object.keys(exp.occupiedUpperWallSlots).length != 0
           ) {
-            expansionshaveChild = true;
+            expansionsEmpty = false;
           }
         }
       );
-      if (expansionshaveChild) continue;
+      if (!expansionsEmpty) continue;
       if (
         Object.keys(foundation.occupiedWallSlots).length == 0 &&
         Object.keys(foundation.occupiedShelterSlots).length == 0 &&
         Object.keys(foundation.occupiedUpperWallSlots).length == 0
       ) {
-        if (foundation.objectLessTicks >= foundation.objectLessMaxTicks) {
+        if (foundation.ticksWithoutObjects >= this.vacantFoundationTicks) {
           for (const a in foundation.occupiedExpansionSlots) {
             const expansion = foundation.occupiedExpansionSlots[a];
             for (const a in expansion.occupiedRampSlots) {
@@ -99,9 +101,9 @@ export class DecayManager {
           );
           foundation.destroy(server);
         }
-        foundation.objectLessTicks++;
+        foundation.ticksWithoutObjects++;
       } else {
-        foundation.objectLessTicks = 0;
+        foundation.ticksWithoutObjects = 0;
       }
     }
   }

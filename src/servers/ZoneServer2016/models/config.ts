@@ -79,6 +79,7 @@ interface DecayConfig {
   constructionDamageTicks: number;
   baseConstructionDamage: number;
   vehicleDamageTicks: number;
+  vacantFoundationTicks: number;
   baseVehicleDamage: number;
   maxVehiclesPerArea: number;
   vehicleDamageRange: number;
