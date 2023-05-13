@@ -649,22 +649,32 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   isInside(position: Float32Array) {
-    if (!this.bounds) {
-      console.error(
-        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
-      );
-      return false; // this should never occur
+    switch (this.itemDefinitionId) {
+      case Items.FOUNDATION:
+      case Items.FOUNDATION_EXPANSION:
+      case Items.GROUND_TAMPER:
+      case Items.SHACK:
+      case Items.SHACK_BASIC:
+      case Items.SHACK_SMALL:
+        if (!this.bounds) {
+          console.error(
+            `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+          );
+          return false; // this should never occur
+        }
     }
+
+    const bounds = this.bounds as SquareBounds;
 
     switch (this.itemDefinitionId) {
       case Items.FOUNDATION:
       case Items.FOUNDATION_EXPANSION:
       case Items.GROUND_TAMPER:
-        return isInsideSquare([position[0], position[2]], this.bounds);
+        return isInsideSquare([position[0], position[2]], bounds);
       case Items.SHACK:
         return isInsideCube(
           [position[0], position[2]],
-          this.bounds,
+          bounds,
           position[1],
           this.state.position[1],
           2.1
@@ -672,7 +682,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.SHACK_BASIC:
         return isInsideCube(
           [position[0], position[2]],
-          this.bounds,
+          bounds,
           position[1],
           this.state.position[1],
           1.7
@@ -680,7 +690,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.SHACK_SMALL:
         return isInsideCube(
           [position[0], position[2]],
-          this.bounds,
+          bounds,
           position[1],
           this.state.position[1],
           2.1
