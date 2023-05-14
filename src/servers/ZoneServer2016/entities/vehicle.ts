@@ -848,10 +848,6 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
     this.state.position[1] -= 0.4;
     // fix floating vehicle lootbags
-    Object.values(this._loadout).forEach((item: LoadoutItem) => {
-      delete this._loadout[item.slotId];
-    });
-    // delete vehicle loadout parts from lootbag
     server.worldObjectManager.createLootbag(server, this);
     return deleted;
   }

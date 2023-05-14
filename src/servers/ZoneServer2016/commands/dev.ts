@@ -27,9 +27,6 @@ import { LootableConstructionEntity } from "../entities/lootableconstructionenti
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
 import { randomIntFromInterval } from "../../../utils/utils";
-import { BaseLootableEntity } from "../entities/baselootableentity";
-import { TemporaryEntity } from "../entities/temporaryentity";
-//import { NormanTest } from "../classes/Planting/Test";
 
 const debug = require("debug")("zonepacketHandlers");
 
