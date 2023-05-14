@@ -48,7 +48,7 @@ import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./commands/commandhandler";
-import { Synchronization } from "types/zone2016packets";
+import { ChatChat, Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
   ClientBan,
@@ -498,8 +498,21 @@ export class ZonePacketHandlers {
       ],
     });
   }
-  async ChatChat(server: ZoneServer2016, client: Client, packet: any) {
+  async ChatChat(
+    server: ZoneServer2016,
+    client: Client,
+    packet: { data: ChatChat }
+  ) {
     const { channel, message } = packet.data; // leave channel for later
+
+    if (!server._soloMode) {
+      server._db.collection(DB_COLLECTIONS.CHAT).insertOne({
+        loginSessionId: client.loginSessionId,
+        characterName: client.character.name,
+        serverId: server._worldId,
+        message,
+      });
+    }
 
     if (await server.chatManager.checkMute(server, client)) {
       server.sendChatText(client, "You are muted!");
@@ -507,9 +520,18 @@ export class ZonePacketHandlers {
     }
 
     if (!client.radio) {
-      server.chatManager.sendChatToAllInRange(server, client, message, 300);
+      server.chatManager.sendChatToAllInRange(
+        server,
+        client,
+        message as string,
+        300
+      );
     } else if (client.radio) {
-      server.chatManager.sendChatToAllWithRadio(server, client, message);
+      server.chatManager.sendChatToAllWithRadio(
+        server,
+        client,
+        message as string
+      );
     }
   }
   ClientInitializationDetails(
