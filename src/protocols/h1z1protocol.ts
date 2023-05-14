@@ -530,7 +530,7 @@ export class H1Z1Protocol {
   }
 }
 
-const readSignedIntWith2bitLengthValue = function(
+const readSignedIntWith2bitLengthValue = function (
   data: Buffer,
   offset: number
 ) {
@@ -549,7 +549,7 @@ const readSignedIntWith2bitLengthValue = function(
     length: n + 1
   };
 };
-const readUnsignedIntWith2bitLengthValue = function(
+const readUnsignedIntWith2bitLengthValue = function (
   data: Buffer,
   offset: number
 ) {
@@ -565,7 +565,7 @@ const readUnsignedIntWith2bitLengthValue = function(
   };
 };
 
-const parseUpdatePositionData = function(data: Buffer, offset: number) {
+const parseUpdatePositionData = function (data: Buffer, offset: number) {
   const obj = {} as UpdatePositionObject;
   obj.raw = data;
   try {
