@@ -28,12 +28,12 @@ export const skillPackets: PacketStructures = [
       fields: [
         { name: "unknown1", type: "uint32", defaultValue: 0 },
         { name: "unknown2", type: "float", defaultValue: 0.0 },
-        { name: "unknown3", type: "float", defaultValue: 0.0 },
-      ],
-    },
+        { name: "unknown3", type: "float", defaultValue: 0.0 }
+      ]
+    }
   ],
   ["Skill.AddSkill", 0x8609, {}],
   ["Skill.ReportSkillGrant", 0x860a, {}],
   ["Skill.ReportOfflineEarnedSkillPoints", 0x860b, {}],
-  ["Skill.ReportDeprecatedSkillLine", 0x860c, {}],
+  ["Skill.ReportDeprecatedSkillLine", 0x860c, {}]
 ];

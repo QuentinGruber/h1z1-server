@@ -21,5 +21,5 @@ export const MetaGameEventPackets: PacketStructures = [
   ["MetaGameEvent.CompleteStandard", 0xb705, {}],
   ["MetaGameEvent.CompleteCancel", 0xb706, {}],
   ["MetaGameEvent.ExperienceBonusUpdate", 0xb707, {}],
-  ["MetaGameEvent.ClearExperienceBonus", 0xb708, {}],
+  ["MetaGameEvent.ClearExperienceBonus", 0xb708, {}]
 ];

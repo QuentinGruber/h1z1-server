@@ -35,10 +35,10 @@ export const equipmentPackets: any = [
                 { name: "equipmentSlotId", type: "uint32", defaultValue: 0 },
                 { name: "guid", type: "uint64string", defaultValue: "0" },
                 { name: "unknownString1", type: "string", defaultValue: "" },
-                { name: "unknownString2", type: "string", defaultValue: "#" },
-              ],
-            },
-          ],
+                { name: "unknownString2", type: "string", defaultValue: "#" }
+              ]
+            }
+          ]
         },
         {
           name: "attachmentData",
@@ -51,11 +51,11 @@ export const equipmentPackets: any = [
             { name: "unknownString2", type: "string", defaultValue: "" },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "enableDebug", type: "uint32", defaultValue: 0 },
-            { name: "slotId", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "slotId", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   ["Equipment.SetCharacterEquipmentSlot", 0x9402, {}],
   ["Equipment.UnsetCharacterEquipmentSlot", 0x9403, {}],
@@ -73,8 +73,8 @@ export const equipmentPackets: any = [
           defaultValue: [],
           fields: [
             { name: "index", type: "uint32", defaultValue: 0 },
-            { name: "slotId", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "slotId", type: "uint32", defaultValue: 0 }
+          ]
         },
         { name: "unknown1", type: "uint32", defaultValue: 0 },
         { name: "unknown2", type: "uint32", defaultValue: 0 },
@@ -89,8 +89,8 @@ export const equipmentPackets: any = [
             { name: "itemId", type: "uint32", defaultValue: 0 },
             { name: "unknown1", type: "uint32", defaultValue: 0 },
             { name: "textureAlias", type: "string", defaultValue: "" },
-            { name: "unknown2", type: "string", defaultValue: "" },
-          ],
+            { name: "unknown2", type: "string", defaultValue: "" }
+          ]
         },
         {
           name: "models",
@@ -103,10 +103,10 @@ export const equipmentPackets: any = [
             { name: "unknown3", type: "string", defaultValue: "" },
             { name: "unknown4", type: "uint32", defaultValue: 0 },
             { name: "unknown5", type: "uint32", defaultValue: 0 },
-            { name: "slotId", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
-  ],
+            { name: "slotId", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ]
 ];

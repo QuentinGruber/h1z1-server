@@ -26,17 +26,17 @@ export const referenceDataPackets: any = [
           name: "profiles",
           type: "array",
           defaultValue: [],
-          fields: profileDataSchema,
-        },
-      ],
-    },
+          fields: profileDataSchema
+        }
+      ]
+    }
   ],
   [
     "ReferenceData.WeaponDefinitions",
     0x1704,
     {
-      fields: [{ name: "data", type: "byteswithlength" }],
-    },
+      fields: [{ name: "data", type: "byteswithlength" }]
+    }
   ],
   ["ReferenceData.ProjectileDefinitions", 0x1705, {}],
   [
@@ -48,9 +48,9 @@ export const referenceDataPackets: any = [
           name: "data",
           type: "custom",
           parser: parseVehicleReferenceData,
-          packer: packVehicleReferenceData,
-        },
-      ],
-    },
-  ],
+          packer: packVehicleReferenceData
+        }
+      ]
+    }
+  ]
 ];

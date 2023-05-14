@@ -35,7 +35,7 @@ export const friendPackets: PacketStructures = [
               types: {
                 0: [
                   { name: "unknown5", type: "uint32", defaultValue: 0 },
-                  { name: "unknown6", type: "uint32", defaultValue: 0 },
+                  { name: "unknown6", type: "uint32", defaultValue: 0 }
                 ],
                 1: [
                   { name: "unknown5", type: "uint32", defaultValue: 0 },
@@ -49,14 +49,14 @@ export const friendPackets: PacketStructures = [
                   { name: "unknown11", type: "uint32", defaultValue: 0 },
                   { name: "unknown12", type: "uint32", defaultValue: 0 },
                   { name: "unknown13", type: "uint32", defaultValue: 0 },
-                  { name: "unknown14", type: "uint8", defaultValue: 0 },
-                ],
-              },
-            },
-          ],
-        },
-      ],
-    },
+                  { name: "unknown14", type: "uint8", defaultValue: 0 }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
   ],
   ["Friend.Online", 0x2d02, {}],
   ["Friend.Offline", 0x2d03, {}],
@@ -79,8 +79,8 @@ export const friendPackets: PacketStructures = [
             { name: "unknowndDword2", type: "uint32", defaultValue: 0 },
             { name: "unknowndDword3", type: "uint32", defaultValue: 0 },
             { name: "characterName", type: "string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
-          ],
+            { name: "unknownString1", type: "string", defaultValue: "" }
+          ]
         },
         {
           name: "messageData2",
@@ -90,12 +90,12 @@ export const friendPackets: PacketStructures = [
             { name: "unknowndDword2", type: "uint32", defaultValue: 0 },
             { name: "unknowndDword3", type: "uint32", defaultValue: 0 },
             { name: "characterName", type: "string", defaultValue: "" },
-            { name: "unknownString1", type: "string", defaultValue: "" },
-          ],
-        },
-      ],
-    },
+            { name: "unknownString1", type: "string", defaultValue: "" }
+          ]
+        }
+      ]
+    }
   ],
   ["Friend.Status", 0x2d09, {}],
-  ["Friend.Rename", 0x2d0a, {}],
+  ["Friend.Rename", 0x2d0a, {}]
 ];

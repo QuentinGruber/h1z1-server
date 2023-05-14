@@ -202,7 +202,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     }
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: StringIds.OPEN,
+      stringId: StringIds.OPEN
     });
   }
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {

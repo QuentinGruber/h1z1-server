@@ -20,9 +20,9 @@ export const mapRegionPackets: PacketStructures = [
     {
       fields: [
         { name: "unknown1", type: "float", defaultValue: 0.0 },
-        { name: "unknown2", type: "float", defaultValue: 0.0 },
-      ],
-    },
+        { name: "unknown2", type: "float", defaultValue: 0.0 }
+      ]
+    }
   ],
   [
     "MapRegion.Data",
@@ -50,33 +50,33 @@ export const mapRegionPackets: PacketStructures = [
               fields: [
                 { name: "x", type: "int32", defaultValue: 0 },
                 { name: "y", type: "int32", defaultValue: 0 },
-                { name: "type", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "type", type: "uint32", defaultValue: 0 }
+              ]
             },
             { name: "flags", type: "uint8", defaultValue: 0 },
             {
               name: "unknown4",
               type: "array",
               defaultValue: [{}],
-              elementType: "uint8",
+              elementType: "uint8"
             },
             {
               name: "unknown5",
               type: "array",
               defaultValue: [{}],
-              elementType: "uint8",
+              elementType: "uint8"
             },
             {
               name: "unknown6",
               type: "array",
               defaultValue: [{}],
-              elementType: "uint8",
+              elementType: "uint8"
             },
-            { name: "connectionFacilityId", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "connectionFacilityId", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   ["MapRegion.ExternalData", 0xa403, {}],
   ["MapRegion.Update", 0xa404, {}],
@@ -88,17 +88,17 @@ export const mapRegionPackets: PacketStructures = [
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   ["MapRegion.Population", 0xa407, {}],
   [
     "MapRegion.RequestContinentData",
     0xa408,
     {
-      fields: [{ name: "zoneId", type: "uint32", defaultValue: 0 }],
-    },
+      fields: [{ name: "zoneId", type: "uint32", defaultValue: 0 }]
+    }
   ],
   ["MapRegion.InfoRequest", 0xa409, {}],
   ["MapRegion.InfoReply", 0xa40a, {}],
@@ -108,5 +108,5 @@ export const mapRegionPackets: PacketStructures = [
   ["MapRegion.ExternalFacilityEmpireScoreUpdate", 0xa40e, {}],
   ["MapRegion.NextTick", 0xa40f, {}],
   ["MapRegion.HexActivityUpdate", 0xa410, {}],
-  ["MapRegion.ConquerFactionUpdate", 0xa411, {}],
+  ["MapRegion.ConquerFactionUpdate", 0xa411, {}]
 ];

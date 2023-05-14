@@ -17,7 +17,7 @@ const benchParameters: BenchParameters = {
   packetsToExchange: 1000,
   packetsAtATime: 50,
   stopTimerOnAllAcked: true,
-  bytesPerPacket: 200,
+  bytesPerPacket: 200
 };
 
 const CLIENTS_NUMBER = 50;

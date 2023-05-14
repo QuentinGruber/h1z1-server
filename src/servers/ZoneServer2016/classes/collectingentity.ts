@@ -67,7 +67,7 @@ export class CollectingEntity {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "Command.InteractionString", {
       guid: this.parentObject.characterId,
-      stringId: StringIds.OPEN,
+      stringId: StringIds.OPEN
     });
   }
 
@@ -83,7 +83,7 @@ export class CollectingEntity {
       ) {
         server.sendData(client, "Command.PlayDialogEffect", {
           characterId: this.parentObject.characterId,
-          effectId: this.workingEffect,
+          effectId: this.workingEffect
         });
         return;
       }

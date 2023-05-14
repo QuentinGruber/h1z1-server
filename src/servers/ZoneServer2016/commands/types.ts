@@ -18,7 +18,7 @@ export enum PermissionLevels {
   DEFAULT = 0,
   MODERATOR = 1,
   ADMIN = 2,
-  DEV = 3,
+  DEV = 3
 }
 
 export interface Command {

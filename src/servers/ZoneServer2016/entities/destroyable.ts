@@ -73,7 +73,7 @@ export class Destroyable extends BaseLightweightCharacter {
         {
           characterId: this.characterId,
           unknownWord1: 1,
-          effectId: 165,
+          effectId: 165
         }
       );
       server.sendDataToAllWithSpawnedEntity(
@@ -96,7 +96,7 @@ export class Destroyable extends BaseLightweightCharacter {
       modelId: this.destroyed ? this.destroyedModel : this.actorModelId,
       scale: this.scale,
       showHealth: true,
-      health: (this.health / this.maxHealth) * 100,
+      health: (this.health / this.maxHealth) * 100
     };
   }
   pGetLightweight() {
@@ -115,9 +115,9 @@ export class Destroyable extends BaseLightweightCharacter {
       flags: {
         flags1: this.flags,
         flags2: this.flags,
-        flags3: this.flags,
+        flags3: this.flags
       },
-      headActor: this.headActor,
+      headActor: this.headActor
     };
   }
 

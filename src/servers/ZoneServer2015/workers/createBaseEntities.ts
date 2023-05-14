@@ -86,7 +86,7 @@ function createEntity(
     scale: scale,
     texture: texture,
     position: position,
-    rotation: rotation,
+    rotation: rotation
   };
 }
 
@@ -128,7 +128,7 @@ function createDTO(
     renderDistance: renderDistance,
 
     dontRequestFullData: true,
-    color: { g: 127 },
+    color: { g: 127 }
   };
 }
 
@@ -180,7 +180,7 @@ function createDoor(
     rotationRaw: startRot,
     openAngle: openAngle,
     closedAngle: startRot[0],
-    color: { g: 127 },
+    color: { g: 127 }
   };
 }
 
@@ -211,7 +211,7 @@ export function createAllEntities(server: ZoneServer2015): any {
     vehicles: vehicles,
     doors: doors,
     props: props,
-    destroyable: destroyable,
+    destroyable: destroyable
   };
 }
 

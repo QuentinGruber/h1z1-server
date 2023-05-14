@@ -17,7 +17,7 @@ import { wrappedUint16 } from "../../utils/utils";
 import {
   DATA_HEADER_SIZE,
   MAX_SEQUENCE,
-  MAX_UINT8,
+  MAX_UINT8
 } from "../../utils/constants";
 
 const debug = require("debug")("SOEInputStream");
@@ -232,7 +232,7 @@ function readDataLength(
   }
   return {
     length,
-    sizeValueBytes,
+    sizeValueBytes
   };
 }
 

@@ -66,13 +66,13 @@ export class Character {
       {
         modelName: "SurvivorMale_Ivan_Shirt_Base.adr",
         defaultTextureAlias: "Ivan_Tshirt_Navy_Shoulder_Stripes",
-        slotId: 3,
+        slotId: 3
       },
       {
         modelName: "SurvivorMale_Ivan_Pants_Base.adr",
         defaultTextureAlias: "Ivan_Pants_Jeans_Blue",
-        slotId: 4,
-      },
+        slotId: 4
+      }
     ];
     this.healingTicks = 0;
     this.healingMaxTicks = 0;
@@ -81,7 +81,7 @@ export class Character {
       stamina: 10000,
       food: 10000,
       water: 10000,
-      virus: 0,
+      virus: 0
     };
     this.godMode = false;
     this.state = {
@@ -89,11 +89,11 @@ export class Character {
       rotation: new Float32Array([0, 0, 0, 0]),
       lookAt: new Float32Array([0, 0, 0, 0]),
       health: 0,
-      shield: 0,
+      shield: 0
     };
     this.characterStates = {
       visible: true,
-      revivable: true,
+      revivable: true
     };
   }
 
@@ -158,7 +158,7 @@ export class Character {
         server.sendDataToAll("PlayerUpdate.EffectPackage", {
           characterId: this.characterId,
           stringId: 1,
-          effectId: 5042,
+          effectId: 5042
         });
         if (
           this.resources.health < 10000 &&

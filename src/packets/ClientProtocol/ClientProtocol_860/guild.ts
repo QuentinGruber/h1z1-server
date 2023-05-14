@@ -27,5 +27,5 @@ export const guildPackets: any = [
   ["Guild.TagsUpdated", 0x5816, {}],
   ["Guild.Notification", 0x5817, {}],
   ["Guild.UpdateAppData", 0x5820, {}],
-  ["Guild.RecruitingGuildsForBrowserReply", 0x5826, {}],
+  ["Guild.RecruitingGuildsForBrowserReply", 0x5826, {}]
 ];

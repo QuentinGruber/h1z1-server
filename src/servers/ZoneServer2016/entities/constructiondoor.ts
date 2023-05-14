@@ -93,7 +93,7 @@ export class ConstructionDoor extends DoorEntity {
   pGetConstructionHealth() {
     return {
       characterId: this.characterId,
-      health: this.health / 10000,
+      health: this.health / 10000
     };
   }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -224,8 +224,8 @@ export class ConstructionDoor extends DoorEntity {
               sequenceTime: 0,
               unknown3_int8: 0,
               position: this.state.position,
-              orientation: this.isOpen ? this.closedAngle : this.openAngle,
-            },
+              orientation: this.isOpen ? this.closedAngle : this.openAngle
+            }
           }
         );
         server.sendDataToAllWithSpawnedEntity(
@@ -234,7 +234,7 @@ export class ConstructionDoor extends DoorEntity {
           "Command.PlayDialogEffect",
           {
             characterId: this.characterId,
-            effectId: this.isOpen ? this.closeSound : this.openSound,
+            effectId: this.isOpen ? this.closeSound : this.openSound
           }
         );
         this.isOpen = !this.isOpen;
@@ -250,7 +250,7 @@ export class ConstructionDoor extends DoorEntity {
             Items.SHELTER_UPPER_LARGE,
             Items.SHACK,
             Items.SHACK_BASIC,
-            Items.SHACK_SMALL,
+            Items.SHACK_SMALL
           ];
           if (
             this.isOpen &&
@@ -272,7 +272,7 @@ export class ConstructionDoor extends DoorEntity {
           characterId: client.character.characterId,
           unknownDword1: 2,
           lockType: 2,
-          objectCharacterId: this.characterId,
+          objectCharacterId: this.characterId
         });
         return;
       }
@@ -282,7 +282,7 @@ export class ConstructionDoor extends DoorEntity {
           characterId: client.character.characterId,
           unknownDword1: 2,
           lockType: 1,
-          objectCharacterId: this.characterId,
+          objectCharacterId: this.characterId
         });
         return;
       } else if (!this.grantedAccess.includes(client.character.characterId)) {
@@ -290,7 +290,7 @@ export class ConstructionDoor extends DoorEntity {
           characterId: client.character.characterId,
           unknownDword1: 2,
           lockType: 2,
-          objectCharacterId: this.characterId,
+          objectCharacterId: this.characterId
         });
       }
     }
@@ -311,12 +311,12 @@ export class ConstructionDoor extends DoorEntity {
     ) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
-        stringId: StringIds.OPEN_AND_LOCK,
+        stringId: StringIds.OPEN_AND_LOCK
       });
     } else {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
-        stringId: StringIds.OPEN,
+        stringId: StringIds.OPEN
       });
     }
   }

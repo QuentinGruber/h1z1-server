@@ -20,7 +20,7 @@ import {
   Items,
   LoadoutSlots,
   ResourceIds,
-  ResourceTypes,
+  ResourceTypes
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseItem } from "../classes/baseItem";
@@ -32,7 +32,7 @@ import { Weapon } from "../classes/weapon";
 import { _ } from "../../../utils/utils";
 import {
   EXTERNAL_CONTAINER_GUID,
-  LOADOUT_CONTAINER_ID,
+  LOADOUT_CONTAINER_ID
 } from "../../../utils/constants";
 
 const debugName = "ZoneServer",
@@ -273,7 +273,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         slotId: equipmentSlotId,
         guid: item.itemGuid,
         textureAlias: def.TEXTURE_ALIAS || "default0",
-        tintAlias: "",
+        tintAlias: ""
       };
       this._equipment[equipmentSlotId] = equipmentData;
     }
@@ -314,8 +314,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           data: {
             remoteWeapons: client.character.pGetRemoteWeaponsData(server),
             remoteWeaponsExtra:
-              client.character.pGetRemoteWeaponsExtraData(server),
-          },
+              client.character.pGetRemoteWeaponsExtraData(server)
+          }
         }
       );
       server.sendRemoteWeaponUpdateData(
@@ -325,7 +325,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         "Update.SwitchFireMode",
         {
           firegroupIndex: 0,
-          firemodeIndex: 0,
+          firemodeIndex: 0
         }
       );
     }
@@ -357,7 +357,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           slotId: equipmentSlotId,
           guid: slot.itemGuid,
           textureAlias: def.TEXTURE_ALIAS || "default0",
-          tintAlias: "",
+          tintAlias: ""
         };
         this._equipment[equipmentSlotId] = equipmentData;
       }
@@ -382,7 +382,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: server.getItemDefinition(itemDefId).IMAGE_SET_ID,
-          count: count,
+          count: count
         });
       }
       this.equipItem(server, item, sendUpdate);
@@ -414,7 +414,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: server.getItemDefinition(itemDefId).IMAGE_SET_ID,
-          count: count,
+          count: count
         });
       }
       this.equipItem(server, item, true);
@@ -443,7 +443,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
 
       if (client)
         server.sendData(client, "Character.NoSpaceNotification", {
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         });
     }
   }
@@ -524,7 +524,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       // container error full
       if (client) {
         server.sendData(client, "Character.NoSpaceNotification", {
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         });
       }
 
@@ -576,7 +576,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
         server.sendData(client, "Reward.AddNonRewardItem", {
           itemDefId: itemDefId,
           iconId: server.getItemDefinition(itemDefId).IMAGE_SET_ID,
-          count: count,
+          count: count
         });
       }
     } else {
@@ -741,8 +741,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
             equipmentSlotId: slot.slotId,
             guid: slot.guid || "",
             tintAlias: slot.tintAlias || "Default",
-            decalAlias: slot.decalAlias || "#",
-          },
+            decalAlias: slot.decalAlias || "#"
+          }
         }
       : undefined;
   }
@@ -761,7 +761,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId,
+          slotId: slot.slotId
         }
       : undefined;
   }
@@ -777,10 +777,10 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return slot
       ? {
           characterData: {
-            characterId: this.characterId,
+            characterId: this.characterId
           },
           equipmentSlot: this.pGetEquipmentSlot(slotId),
-          attachmentData: this.pGetAttachmentSlot(slotId),
+          attachmentData: this.pGetAttachmentSlot(slotId)
         }
       : undefined;
   }
@@ -789,14 +789,14 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return {
       characterData: {
         profileId: 5,
-        characterId: this.characterId,
+        characterId: this.characterId
       },
       unknownDword1: 0,
       unknownString1: "Default",
       unknownString2: "#",
       equipmentSlots: this.pGetEquipmentSlots(),
       attachmentData: this.pGetAttachmentSlots(),
-      unknownBoolean1: true,
+      unknownBoolean1: true
     };
   }
 
@@ -809,9 +809,9 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       loadoutItemData: {
         itemDefinitionId: slot?.itemDefinitionId || 0,
         loadoutItemGuid: slot?.itemGuid || "0x0",
-        unknownByte1: 255, // flags?
+        unknownByte1: 255 // flags?
       },
-      unknownDword1: slotId,
+      unknownDword1: slotId
     };
   }
 
@@ -926,9 +926,9 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           (slotId: any) => {
             return this.pGetLoadoutSlot(slotId);
           }
-        ),
+        )
       },
-      currentSlotId: this.currentLoadoutSlot,
+      currentSlotId: this.currentLoadoutSlot
     };
   }
 
@@ -937,7 +937,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       return {
         isWeapon: true, // not sent to client, only used as a flag for pack function
         unknownData1: {
-          unknownBoolean1: false,
+          unknownBoolean1: false
         },
         unknownData2: {
           ammoSlots: server.getWeaponAmmoId(slot.itemDefinitionId)
@@ -954,16 +954,16 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
                   unknownByte1: 0,
                   unknownDword1: 0,
                   unknownDword2: 0,
-                  unknownDword3: 0,
+                  unknownDword3: 0
                 },
                 {
                   unknownByte1: 0,
                   unknownDword1: 0,
                   unknownDword2: 0,
-                  unknownDword3: 0,
-                },
-              ],
-            },
+                  unknownDword3: 0
+                }
+              ]
+            }
           ],
           equipmentSlotId: this.getActiveEquipmentSlot(slot),
           unknownByte2: 1,
@@ -975,15 +975,15 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           unknownByte6: 0,
           unknownDword2: 0,
           unknownByte7: 0,
-          unknownDword3: -1,
+          unknownDword3: -1
         },
         characterStats: [],
-        unknownArray1: [],
+        unknownArray1: []
       };
     }
     return {
       isWeapon: false, // not sent to client, only used as a flag for pack function
-      unknownBoolean1: false,
+      unknownBoolean1: false
     };
   }
 
@@ -1006,7 +1006,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       guid: item.itemGuid,
       count: item.stackCount,
       itemSubData: {
-        hasSubData: false,
+        hasSubData: false
       },
       containerGuid: item.containerGuid,
       containerDefinitionId: containerDefId,
@@ -1017,7 +1017,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       unknownBoolean1: true,
       ownerCharacterId: EXTERNAL_CONTAINER_GUID,
       unknownDword9: 1,
-      weaponData: this.pGetItemWeaponData(server, item),
+      weaponData: this.pGetItemWeaponData(server, item)
     };
   }
 
@@ -1047,7 +1047,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       attachmentData: this.pGetAttachmentSlots(),
       characterId: this.characterId,
       resources: {
-        data: this.pGetResources(),
+        data: this.pGetResources()
       },
       effectTags: [],
       unknownData1: {},
@@ -1060,8 +1060,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
       remoteWeapons: { data: {} },
       itemsData: {
         items: this.pGetInventoryItems(server),
-        unknownDword1: 0,
-      },
+        unknownDword1: 0
+      }
     };
   }
 
@@ -1079,14 +1079,14 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
             server,
             item,
             container.containerDefinitionId
-          ),
+          )
         };
       }),
       showBulk: true,
       maxBulk: container.getMaxBulk(server),
       unknownDword1: 28,
       bulkUsed: container.getUsedBulk(server),
-      hasBulkLimit: !!container.getMaxBulk(server),
+      hasBulkLimit: !!container.getMaxBulk(server)
     };
   }
 
@@ -1094,7 +1094,7 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
     return Object.values(this._containers).map((container) => {
       return {
         loadoutSlotId: container.slotId,
-        containerData: this.pGetContainerData(server, container),
+        containerData: this.pGetContainerData(server, container)
       };
     });
   }
@@ -1134,8 +1134,8 @@ export class BaseFullCharacter extends BaseLightweightCharacter {
           resourceId: resourceId,
           resourceType: resourceType,
           value:
-            this._resources[resourceId] > 0 ? this._resources[resourceId] : 0,
-        },
+            this._resources[resourceId] > 0 ? this._resources[resourceId] : 0
+        }
       };
     });
   }

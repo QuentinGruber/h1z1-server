@@ -20,11 +20,11 @@ export const containerPackets: any = [
     {
       fields: [
         { name: "Unknown2", type: "uint16", defaultValue: 0 },
-        EquippedContainersSchema,
-      ],
-    },
+        EquippedContainersSchema
+      ]
+    }
   ],
   ["Container.Error", 0xcb03, {}],
   ["Container.PacketListAll", 0xcb05, {}],
-  ["Container.UpdateEquippedContainer", 0xcb06, {}],
+  ["Container.UpdateEquippedContainer", 0xcb06, {}]
 ];

@@ -16,5 +16,5 @@ export const deployablePackets: PacketStructures = [
   ["Deployable.Place", 0xa201, {}],
   ["Deployable.Remove", 0xa202, {}],
   ["Deployable.Pickup", 0xa203, {}],
-  ["Deployable.ActionResponse", 0xa204, {}],
+  ["Deployable.ActionResponse", 0xa204, {}]
 ];

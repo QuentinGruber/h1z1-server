@@ -45,7 +45,7 @@ export class Weapon {
         unknownDword1: 0,
         ammoCount: 0,
         unknownDword3: 0,
-        currentReloadCount: toHex(++this.currentReloadCount),
+        currentReloadCount: toHex(++this.currentReloadCount)
       });
     }
   }

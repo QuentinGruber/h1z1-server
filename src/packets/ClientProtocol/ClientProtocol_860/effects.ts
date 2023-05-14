@@ -25,16 +25,16 @@ export const effectsPackets: any = [
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+          ]
         },
         {
           name: "unknownData2",
           type: "schema",
           fields: [
             { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
-          ],
+            { name: "unknownQword2", type: "uint64string", defaultValue: "0" }
+          ]
         },
         {
           name: "unknownData3",
@@ -45,12 +45,12 @@ export const effectsPackets: any = [
             {
               name: "unknownVector1",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 0],
-            },
-          ],
-        },
-      ],
-    },
+              defaultValue: [0, 0, 0, 0]
+            }
+          ]
+        }
+      ]
+    }
   ],
   [
     "Effect.UpdateEffect",
@@ -63,16 +63,16 @@ export const effectsPackets: any = [
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+          ]
         },
         {
           name: "unknownData2",
           type: "schema",
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-          ],
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+          ]
         },
         {
           name: "unknownData3",
@@ -83,12 +83,12 @@ export const effectsPackets: any = [
             {
               name: "unknownVector1",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 0],
-            },
-          ],
-        },
-      ],
-    },
+              defaultValue: [0, 0, 0, 0]
+            }
+          ]
+        }
+      ]
+    }
   ],
   [
     "Effect.RemoveEffect",
@@ -101,15 +101,15 @@ export const effectsPackets: any = [
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+          ]
         },
         {
           name: "unknownData2",
           type: "schema",
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-          ],
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+          ]
         },
         {
           name: "unknownData3",
@@ -120,19 +120,19 @@ export const effectsPackets: any = [
             {
               name: "unknownVector1",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 0],
-            },
-          ],
-        },
-      ],
-    },
+              defaultValue: [0, 0, 0, 0]
+            }
+          ]
+        }
+      ]
+    }
   ],
   [
     "Effect.AddEffectTag",
     0x9e04,
     {
-      fields: effectTagDataSchema,
-    },
+      fields: effectTagDataSchema
+    }
   ],
   [
     "Effect.RemoveEffectTag",
@@ -143,8 +143,8 @@ export const effectsPackets: any = [
           name: "unknownData1",
           type: "schema",
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-          ],
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+          ]
         },
         {
           name: "unknownData2",
@@ -152,11 +152,11 @@ export const effectsPackets: any = [
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-            { name: "unknownQword2", type: "uint64string", defaultValue: "0" },
-          ],
-        },
-      ],
-    },
+            { name: "unknownQword2", type: "uint64string", defaultValue: "0" }
+          ]
+        }
+      ]
+    }
   ],
   [
     "Effect.TargetBlockedEffect",
@@ -167,10 +167,10 @@ export const effectsPackets: any = [
           name: "unknownData1",
           type: "schema",
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-          ],
-        },
-      ],
-    },
-  ],
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+          ]
+        }
+      ]
+    }
+  ]
 ];

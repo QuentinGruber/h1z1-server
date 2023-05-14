@@ -27,7 +27,7 @@ const dev: any = {
   },
   testpacket: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendData(client, "PlayerUpdate.PlayAnimation", {
-      characterId: client.character.characterId,
+      characterId: client.character.characterId
     });
   },
   clearspawnedentities: function (
@@ -62,15 +62,15 @@ const dev: any = {
       color: {},
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
-      array18: [{ unknown1: 0 }],
+      array18: [{ unknown1: 0 }]
     };
     npc.onReadyCallback = () => {
       server.sendData(client, "PlayerUpdate.SetSpotted", {
-        unkArray: [{ guid: client.character.characterId }],
+        unkArray: [{ guid: client.character.characterId }]
       });
       server.sendData(client, "PlayerUpdate.AggroLevel", {
         characterId: characterId,
-        aggroLevel: 1000,
+        aggroLevel: 1000
       });
       /* server.sendData(client, "PlayerUpdate.SeekTarget", {
               characterId: characterId,
@@ -87,9 +87,9 @@ const dev: any = {
           resourceType: 1,
           initialValue: 500,
           unknownArray1: [],
-          unknownArray2: [],
-        },
-      },
+          unknownArray2: []
+        }
+      }
     });
     server._npcs[characterId] = npc; // save npc
   },
@@ -100,7 +100,7 @@ const dev: any = {
         characterId: npc.characterId,
         positionUpdate: server.createPositionUpdate(
           new Float32Array([10, 10, 10, 1])
-        ),
+        )
       });
     }
   },
@@ -122,7 +122,7 @@ const dev: any = {
         unknownArray1: [],
         array5: [{ unknown1: 0 }],
         array17: [{ unknown1: 0 }],
-        array18: [{ unknown1: 0 }],
+        array18: [{ unknown1: 0 }]
       },
       unknownGuid1: vehicleId,
       unknownDword1: 0,
@@ -131,13 +131,13 @@ const dev: any = {
         new Float32Array([0, 0, 0, 0]),
         [0, 0, 0, 0]
       ),
-      unknownString1: "",
+      unknownString1: ""
     };
 
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
     server.sendData(client, "PlayerUpdate.ManagedObject", {
       guid: vehicleId,
-      characterId: client.character.characterId,
+      characterId: client.character.characterId
     });
   },
   hideme: function (server: ZoneServer2015, client: Client, args: any[]) {
@@ -145,7 +145,7 @@ const dev: any = {
     server.toggleHiddenMode(client);
     if (client.character.isHidden) {
       server.sendDataToAllOthers(client, "PlayerUpdate.RemovePlayer", {
-        characterId: client.character.characterId,
+        characterId: client.character.characterId
       });
     } else {
       server.sendDataToAllOthers(client, "PlayerUpdate.AddLightweightPc", {
@@ -153,7 +153,7 @@ const dev: any = {
         transientId: characterObj.transientId,
         characterFirstName: characterObj.name,
         position: characterObj.state.position,
-        rotation: characterObj.state.lookAt,
+        rotation: characterObj.state.lookAt
       });
     }
   },
@@ -166,14 +166,14 @@ const dev: any = {
       return { guid: npc.characterId };
     });
     server.sendData(client, "PlayerUpdate.NpcRelevance", {
-      npcs: npcs,
+      npcs: npcs
     });
   },
   d: function (server: ZoneServer2015, client: Client, args: any[]) {
     // quick disconnect
     server.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
-      sessionId: client.loginSessionId,
+      sessionId: client.loginSessionId
     });
   },
   testnpc: function (server: ZoneServer2015, client: Client, args: any[]) {
@@ -189,12 +189,12 @@ const dev: any = {
         unknownVector2: client.character.state.position,
         unknownVector3: [0, 0, 0, 0],
         unknown4: 0,
-        unknown33: 0,
+        unknown33: 0
       },
       color: { r: 0, g: 0, b: 0 },
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
-      array18: [{ unknown1: 0 }],
+      array18: [{ unknown1: 0 }]
     });
     /* setInterval(() => {
           server.sendData(client, "PlayerUpdate.SeekTarget", {
@@ -218,7 +218,7 @@ const dev: any = {
         unknownArray1: [],
         array5: [{ unknown1: 0 }],
         array17: [{ unknown1: 0 }],
-        array18: [{ unknown1: 0 }],
+        array18: [{ unknown1: 0 }]
       },
       unknownGuid1: characterId,
       unknownDword1: 0,
@@ -227,7 +227,7 @@ const dev: any = {
         new Float32Array([0, 0, 0, 0]),
         [0, 0, 0, 0]
       ),
-      unknownString1: "",
+      unknownString1: ""
     };
 
     server.sendData(client, "PlayerUpdate.AddLightweightVehicle", vehicleData);
@@ -254,7 +254,7 @@ const dev: any = {
     args: any[]
   ) {
     server.reloadPackets(client);
-  },
+  }
 };
 
 export default dev;

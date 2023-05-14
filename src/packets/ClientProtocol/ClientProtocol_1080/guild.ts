@@ -29,5 +29,5 @@ export const guildPackets: PacketStructures = [
   ["Guild.TagsUpdated", 0x5916, {}],
   ["Guild.Notification", 0x5917, {}],
   ["Guild.UpdateAppData", 0x5920, {}],
-  ["Guild.RecruitingGuildsForBrowserReply", 0x5926, {}],
+  ["Guild.RecruitingGuildsForBrowserReply", 0x5926, {}]
 ];

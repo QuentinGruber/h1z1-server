@@ -36,5 +36,5 @@ export const abilityPackets: PacketStructures = [
   ["Ability.ActivateItemAbility", 0x1014, {}],
   ["Ability.ActivateVehicleAbility", 0x1015, {}],
   ["Ability.DeactivateItemAbility", 0x1016, {}],
-  ["Ability.DeactivateVehicleAbility", 0x1017, {}],
+  ["Ability.DeactivateVehicleAbility", 0x1017, {}]
 ];

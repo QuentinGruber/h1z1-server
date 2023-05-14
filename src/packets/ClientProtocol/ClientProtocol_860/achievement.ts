@@ -23,10 +23,10 @@ export const achievementPackets: any = [
         {
           name: "achievementData",
           type: "schema",
-          fields: objectiveDataSchema,
-        },
-      ],
-    },
+          fields: objectiveDataSchema
+        }
+      ]
+    }
   ],
   [
     "Achievement.Initialize",
@@ -37,7 +37,7 @@ export const achievementPackets: any = [
           name: "clientAchievements",
           type: "array",
           defaultValue: [],
-          fields: achievementDataSchema,
+          fields: achievementDataSchema
         },
         {
           name: "achievementData",
@@ -47,16 +47,16 @@ export const achievementPackets: any = [
               name: "achievements",
               type: "array",
               defaultValue: [],
-              fields: achievementDataSchema,
-            },
-          ],
-        },
-      ],
-    },
+              fields: achievementDataSchema
+            }
+          ]
+        }
+      ]
+    }
   ],
   ["Achievement.Complete", 0x6504, {}],
   ["Achievement.ObjectiveAdded", 0x6505, {}],
   ["Achievement.ObjectiveActivated", 0x6506, {}],
   ["Achievement.ObjectiveUpdate", 0x6507, {}],
-  ["Achievement.ObjectiveComplete", 0x6508, {}],
+  ["Achievement.ObjectiveComplete", 0x6508, {}]
 ];

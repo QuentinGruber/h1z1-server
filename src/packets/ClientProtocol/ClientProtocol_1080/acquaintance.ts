@@ -13,5 +13,5 @@
 import { PacketStructures } from "types/packetStructure";
 
 export const acquaintancePackets: PacketStructures = [
-  ["Acquaintance", 0x2b, {}],
+  ["Acquaintance", 0x2b, {}]
 ];

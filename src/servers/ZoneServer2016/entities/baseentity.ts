@@ -74,7 +74,7 @@ export class BaseEntity {
     this.actorModelId = actorModelId;
     this.state = {
       position: position,
-      rotation: rotation,
+      rotation: rotation
     };
     this.npcRenderDistance =
       getRenderDistance(actorModelId) || server.charactersRenderDistance;

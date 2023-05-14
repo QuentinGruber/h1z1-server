@@ -107,39 +107,39 @@ export class ConfigManager {
       worldobjects,
       speedtree,
       construction,
-      decay,
+      decay
     } = this.defaultConfig;
     return {
       ...this.defaultConfig,
       ...config,
       server: {
         ...server,
-        ...config.server,
+        ...config.server
       },
       fairplay: {
         ...fairplay,
-        ...config.fairplay,
+        ...config.fairplay
       },
       weather: {
         ...weather,
-        ...config.weather,
+        ...config.weather
       },
       worldobjects: {
         ...worldobjects,
-        ...config.worldobjects,
+        ...config.worldobjects
       },
       speedtree: {
         ...speedtree,
-        ...config.speedtree,
+        ...config.speedtree
       },
       construction: {
         ...construction,
-        ...config.construction,
+        ...config.construction
       },
       decay: {
         ...decay,
-        ...config.decay,
-      },
+        ...config.decay
+      }
     };
   }
 
@@ -152,7 +152,7 @@ export class ConfigManager {
       tickRate,
       worldRoutineRate,
       welcomeMessage,
-      adminMessage,
+      adminMessage
     } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
@@ -193,7 +193,7 @@ export class ConfigManager {
       npcSpawnRadius,
       chanceNpc,
       chanceScreamer,
-      lootbagDespawnTimer,
+      lootbagDespawnTimer
     } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
     server.worldObjectManager.minAirdropSurvivors = minAirdropSurvivors;
@@ -225,7 +225,7 @@ export class ConfigManager {
       minWoodLogHarvest,
       maxWoodLogHarvest,
       minTreeHits,
-      maxTreeHits,
+      maxTreeHits
     } = this.config.speedtree;
     server.speedtreeManager.minBlackberryHarvest = minBlackberryHarvest;
     server.speedtreeManager.maxBlackberryHarvest = maxBlackberryHarvest;
@@ -248,7 +248,7 @@ export class ConfigManager {
       spawnPointBlockedPlacementRange,
       vehicleSpawnPointBlockedPlacementRange,
       playerFoundationBlockedPlacementRange,
-      playerShackBlockedPlacementRange,
+      playerShackBlockedPlacementRange
     } = this.config.construction;
     server.constructionManager.allowPOIPlacement = allowPOIPlacement;
     server.constructionManager.allowStackedPlacement = allowStackedPlacement;
@@ -273,7 +273,7 @@ export class ConfigManager {
       vehicleDamageTicks,
       baseVehicleDamage,
       maxVehiclesPerArea,
-      vehicleDamageRange,
+      vehicleDamageRange
     } = this.config.decay;
     server.decayManager.decayTickInterval = decayTickInterval;
     server.decayManager.constructionDamageTicks = constructionDamageTicks;

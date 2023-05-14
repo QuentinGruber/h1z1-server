@@ -17,7 +17,7 @@ import fs, { readdirSync } from "node:fs";
 import { normalize, resolve } from "node:path";
 import {
   setImmediate as setImmediatePromise,
-  setTimeout as setTimeoutPromise,
+  setTimeout as setTimeoutPromise
 } from "node:timers/promises";
 import { Collection, MongoClient } from "mongodb";
 import { DB_NAME, MAX_TRANSIENT_ID, MAX_UINT16 } from "./constants";
@@ -26,7 +26,7 @@ import { ZoneServer2015 } from "servers/ZoneServer2015/zoneserver";
 import {
   ConstructionSlotPositionMap,
   positionUpdate,
-  SquareBounds,
+  SquareBounds
 } from "types/zoneserver";
 import { ConstructionSlots } from "servers/ZoneServer2016/data/constructionslots";
 import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
@@ -139,7 +139,7 @@ export function quat2matrix(angle: Float32Array): any {
     yz - wx,
     xz - wy,
     yz + wx,
-    1 - (xx + yy),
+    1 - (xx + yy)
   ];
 }
 
@@ -176,7 +176,7 @@ export function movePoint(
   return new Float32Array([
     position[0] + Math.cos(angle) * distance,
     position[1],
-    position[2] + Math.sin(angle) * distance,
+    position[2] + Math.sin(angle) * distance
   ]);
 }
 
@@ -215,12 +215,12 @@ export async function zoneShutdown(
   if (currentTimeLeft < 0) {
     server.sendDataToAll("WorldShutdownNotice", {
       timeLeft: 0,
-      message: message,
+      message: message
     });
     Object.values(server._clients).forEach((client: ZoneClient2016) => {
       server.sendData(client as any, "CharacterSelectSessionResponse", {
         status: 1,
-        sessionId: client.loginSessionId,
+        sessionId: client.loginSessionId
       });
     });
     setTimeout(() => {
@@ -229,7 +229,7 @@ export async function zoneShutdown(
   } else {
     server.sendDataToAll("WorldShutdownNotice", {
       timeLeft: currentTimeLeft / 1000,
-      message: message,
+      message: message
     });
     setTimeout(
       () => zoneShutdown(server, startedTime, timeLeft, message),
@@ -467,7 +467,7 @@ export function createPositionUpdate(
   const obj: positionUpdate = {
     flags: 4095,
     sequenceTime: gameTime,
-    position: [...position],
+    position: [...position]
   };
   if (rotation) {
     obj.rotation = rotation;
@@ -511,7 +511,7 @@ export function getRectangleCorners(
     [pointA[0], pointA[2]],
     [pointB[0], pointB[2]],
     [pointC[0], pointC[2]],
-    [pointD[0], pointD[2]],
+    [pointD[0], pointD[2]]
   ];
 }
 
@@ -669,7 +669,7 @@ export class Scheduler {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static async wait(delay: number, options?: any) {
     return await setTimeoutPromise(delay, undefined, {
-      signal: options?.signal,
+      signal: options?.signal
     });
   }
 }
@@ -814,13 +814,13 @@ export function registerConstructionSlots(
           point[0],
           construction.state.position[1] + slots.yOffset,
           point[2],
-          1,
+          1
         ]),
         rotation: new Float32Array([
           0,
           construction.eulerAngle + slots.rotationOffsets[i],
-          0,
-        ]),
+          0
+        ])
       };
     });
   }
@@ -873,7 +873,7 @@ export async function logClientActionToMongo(
     ...logMessage,
     serverId,
     characterName: client.character.name,
-    loginSessionId: client.loginSessionId,
+    loginSessionId: client.loginSessionId
   });
 }
 
@@ -901,7 +901,7 @@ export enum PopulationLevel {
   LOW = 0,
   MEDIUM = 1,
   HIGH = 2,
-  FULL = 3,
+  FULL = 3
 }
 export function getPopulationLevel(
   currentPop: number,
