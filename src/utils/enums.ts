@@ -39,7 +39,7 @@ export enum DB_COLLECTIONS {
   BLACK_LIST_ENTRIES = "blackListEntries",
   CHARACTERS = "characters",
   CHARACTERS_LIGHT = "characters-light",
-  CHAT = "chat",
+  CHAT = "chats",
   CONSTRUCTION = "construction",
   CROPS = "crops",
   FINGERPRINTS = "fingerprints",
