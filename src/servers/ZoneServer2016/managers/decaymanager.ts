@@ -84,10 +84,18 @@ export class DecayManager {
             for (const a in expansion.occupiedRampSlots) {
               expansion.occupiedRampSlots[a].destroy(server);
             }
+             // clear floating shelters / other entities on expansion
+            for (const a in expansion.freeplaceEntities) {
+              expansion.freeplaceEntities[a].destroy(server);
+            }
             expansion.destroy(server);
           }
           for (const a in foundation.occupiedRampSlots) {
             foundation.occupiedRampSlots[a].destroy(server);
+          }
+           // clear floating shelters / other entities
+          for (const a in foundation.freeplaceEntities) {
+            foundation.freeplaceEntities[a].destroy(server);
           }
           Object.values(foundation.freeplaceEntities).forEach(
             (

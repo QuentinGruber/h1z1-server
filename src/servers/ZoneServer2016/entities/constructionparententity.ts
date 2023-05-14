@@ -54,7 +54,6 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   permissions: { [characterId: string]: ConstructionPermissions } = {};
   ownerCharacterId: string;
   ticksWithoutObjects: number = 0;
-  maxTicksWithoutObjects: number = 3;
   readonly expansionSlots: ConstructionSlotPositionMap = {};
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
   readonly rampSlots: ConstructionSlotPositionMap = {};
@@ -724,6 +723,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       242,
       destructTime
     );
+
+    if(!deleted) return false;
+
     if (
       this.itemDefinitionId == Items.SHACK ||
       this.itemDefinitionId == Items.SHACK_SMALL ||
