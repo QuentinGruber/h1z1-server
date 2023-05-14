@@ -32,12 +32,12 @@ export const staticFacilityInfoPackets: PacketStructures = [
             { name: "facilityType", type: "uint8", defaultValue: 0 },
             { name: "locationX", type: "float", defaultValue: 0.0 },
             { name: "locationY", type: "float", defaultValue: 0.0 },
-            { name: "locationZ", type: "float", defaultValue: 0.0 },
-          ],
-        },
-      ],
-    },
+            { name: "locationZ", type: "float", defaultValue: 0.0 }
+          ]
+        }
+      ]
+    }
   ],
   ["StaticFacilityInfo.ReplyWarpgate", 0xbe04, {}],
-  ["StaticFacilityInfo.AllWarpgateRespawns", 0xbe05, {}],
+  ["StaticFacilityInfo.AllWarpgateRespawns", 0xbe05, {}]
 ];

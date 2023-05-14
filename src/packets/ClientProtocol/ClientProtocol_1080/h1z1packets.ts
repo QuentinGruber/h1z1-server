@@ -132,7 +132,7 @@ const packets: PacketStructures = [
   ...accessedCharacterPackets,
   ...replicationPackets,
   ...spectatorPackets,
-  ...h1emuPackets,
+  ...h1emuPackets
 ];
 
 const [packetTypes, packetDescriptors] = PacketTableBuild(packets);

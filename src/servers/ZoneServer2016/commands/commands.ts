@@ -21,14 +21,14 @@ import {
   isPosInRadius,
   toHex,
   randomIntFromInterval,
-  Scheduler,
+  Scheduler
 } from "../../../utils/utils";
 import { ExplosiveEntity } from "../entities/explosiveentity";
 import { Npc } from "../entities/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import {
   characterBuildKitLoadout,
-  characterKitLoadout,
+  characterKitLoadout
 } from "../data/loadouts";
 import { EquipSlots, Items, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
@@ -49,7 +49,7 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendChatText(client, `ZoneClientId :${client.loginSessionId}`);
-    },
+    }
   },
   {
     name: "respawn",
@@ -59,7 +59,7 @@ export const commands: Array<Command> = [
         client,
         server._spawnGrid[randomIntFromInterval(0, 99)]
       );
-    },
+    }
   },
   {
     name: "clientinfo",
@@ -69,7 +69,7 @@ export const commands: Array<Command> = [
         client,
         `Spawned entities count : ${client.spawnedEntities.length}`
       );
-    },
+    }
   },
   {
     name: "serverinfo",
@@ -86,7 +86,7 @@ export const commands: Array<Command> = [
           _clients: clients,
           _npcs: npcs,
           _spawnedItems: objects,
-          _vehicles: vehicles,
+          _vehicles: vehicles
         } = server;
         const serverVersion = require("../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
@@ -108,7 +108,7 @@ export const commands: Array<Command> = [
           `items : ${_.size(objects)} | vehicles : ${_.size(vehicles)}`
         );
       }
-    },
+    }
   },
   {
     name: "spawninfo",
@@ -119,7 +119,7 @@ export const commands: Array<Command> = [
         `You spawned at "${client.character.spawnLocation}"`,
         true
       );
-    },
+    }
   },
   {
     name: "findlog",
@@ -147,7 +147,7 @@ export const commands: Array<Command> = [
         )}`,
         true
       );
-    },
+    }
   },
   {
     name: "netstats",
@@ -161,7 +161,7 @@ export const commands: Array<Command> = [
           server.sendChatText(client, stat, index == 0);
         }
       }
-    },
+    }
   },
   {
     name: "location",
@@ -180,14 +180,14 @@ export const commands: Array<Command> = [
           2
         )},${rotation[2].toFixed(2)}`
       );
-    },
+    }
   },
   {
     name: "combatlog",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.combatLog(client);
-    },
+    }
   },
   {
     name: "hood",
@@ -213,7 +213,7 @@ export const commands: Array<Command> = [
             ));
         client.character.updateEquipmentSlot(server, EquipSlots.CHEST);
       }
-    },
+    }
   },
   //#endregion
 
@@ -232,7 +232,7 @@ export const commands: Array<Command> = [
           const decoy = server._decoys[a];
           if (decoy.transientId == client.character.transientId) {
             server.sendDataToAll("Character.RemovePlayer", {
-              characterId: decoy.characterId,
+              characterId: decoy.characterId
             });
             server.sendChatText(client, `Decoy removed`, false);
             client.isDecoy = false;
@@ -244,7 +244,7 @@ export const commands: Array<Command> = [
         const iteratedClient = server._clients[a];
         if (iteratedClient.spawnedEntities.includes(client.character)) {
           server.sendData(iteratedClient, "Character.RemovePlayer", {
-            characterId: client.character.characterId,
+            characterId: client.character.characterId
           });
           iteratedClient.spawnedEntities.splice(
             iteratedClient.spawnedEntities.indexOf(client.character),
@@ -253,7 +253,7 @@ export const commands: Array<Command> = [
         }
       }
       server.sendData(client, "Spectator.Enable", {});
-    },
+    }
   },
   {
     name: "getnetstats",
@@ -290,7 +290,7 @@ export const commands: Array<Command> = [
           server.sendChatText(client, stat);
         }
       }
-    },
+    }
   },
   {
     name: "d",
@@ -299,9 +299,9 @@ export const commands: Array<Command> = [
       client.properlyLogout = true;
       server.sendData(client, "CharacterSelectSessionResponse", {
         status: 1,
-        sessionId: client.loginSessionId,
+        sessionId: client.loginSessionId
       });
-    },
+    }
   },
   {
     name: "tp",
@@ -372,7 +372,7 @@ export const commands: Array<Command> = [
             Number(args[0]),
             Number(args[1]),
             Number(args[2]),
-            1,
+            1
           ]);
           break;
       }
@@ -387,9 +387,9 @@ export const commands: Array<Command> = [
       server.dropAllManagedObjects(client);
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: locationPosition,
-        triggerLoadingScreen: true,
+        triggerLoadingScreen: true
       });
-    },
+    }
   },
   {
     name: "tphere",
@@ -419,13 +419,13 @@ export const commands: Array<Command> = [
       server.dropAllManagedObjects(targetClient);
       server.sendData(targetClient, "ClientUpdate.UpdateLocation", {
         position: client.character.state.position,
-        triggerLoadingScreen: true,
+        triggerLoadingScreen: true
       });
       server.sendChatText(
         client,
         `Teleporting ${targetClient.character.name} to your location`
       );
-    },
+    }
   },
   {
     name: "tpto",
@@ -455,13 +455,13 @@ export const commands: Array<Command> = [
       server.dropAllManagedObjects(client);
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: targetClient.character.state.position,
-        triggerLoadingScreen: true,
+        triggerLoadingScreen: true
       });
       server.sendChatText(
         client,
         `Teleporting to ${targetClient.character.name}'s location`
       );
-    },
+    }
   },
   {
     name: "silentban",
@@ -517,7 +517,7 @@ export const commands: Array<Command> = [
         client.character.name ? client.character.name : "",
         time
       );
-    },
+    }
   },
   {
     name: "ban",
@@ -567,7 +567,7 @@ export const commands: Array<Command> = [
         client.character.name ? client.character.name : "",
         time
       );
-    },
+    }
   },
   {
     name: "kick",
@@ -607,7 +607,7 @@ export const commands: Array<Command> = [
         );
         server.kickPlayer(targetClient);
       }, 2000);
-    },
+    }
   },
   {
     name: "unban",
@@ -635,7 +635,7 @@ export const commands: Array<Command> = [
           `Cannot find any locally banned user with name ${name} but sent the unban to the loginserver`
         );
       }
-    },
+    }
   },
   {
     name: "gm", // "god" also works
@@ -649,7 +649,7 @@ export const commands: Array<Command> = [
         client.character.characterStates,
         true
       );
-    },
+    }
   },
   {
     name: "listprocesses",
@@ -684,7 +684,7 @@ export const commands: Array<Command> = [
         const element = targetClient.clientLogs[index];
         server.sendChatText(client, `${element.log}`);
       }
-    },
+    }
   },
   //#endregion
 
@@ -723,7 +723,7 @@ export const commands: Array<Command> = [
       };
       server.worldObjectManager.createVehicle(server, vehicle);
       */
-    },
+    }
   },
   {
     name: "titan",
@@ -731,10 +731,10 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendDataToAll("Character.UpdateScale", {
         characterId: client.character.characterId,
-        scale: [20, 20, 20, 1],
+        scale: [20, 20, 20, 1]
       });
       server.sendChatText(client, "TITAN size");
-    },
+    }
   },
   {
     name: "poutine",
@@ -742,10 +742,10 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendDataToAll("Character.UpdateScale", {
         characterId: client.character.characterId,
-        scale: [20, 5, 20, 1],
+        scale: [20, 5, 20, 1]
       });
       server.sendChatText(client, "The meme become a reality.....");
-    },
+    }
   },
   {
     name: "rat",
@@ -753,10 +753,10 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendDataToAll("Character.UpdateScale", {
         characterId: client.character.characterId,
-        scale: [0.2, 0.2, 0.2, 1],
+        scale: [0.2, 0.2, 0.2, 1]
       });
       server.sendChatText(client, "Rat size");
-    },
+    }
   },
   {
     name: "normalsize",
@@ -764,10 +764,10 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendDataToAll("Character.UpdateScale", {
         characterId: client.character.characterId,
-        scale: [1, 1, 1, 1],
+        scale: [1, 1, 1, 1]
       });
       server.sendChatText(client, "Back to normal size");
-    },
+    }
   },
   {
     name: "despawnobjects",
@@ -783,7 +783,7 @@ export const commands: Array<Command> = [
       server._vehicles = {};
       server._doors = {};
       server.sendChatText(client, "Objects removed from the game.", true);
-    },
+    }
   },
   {
     name: "time",
@@ -808,7 +808,7 @@ export const commands: Array<Command> = [
         } on next sync...`,
         true
       );
-    },
+    }
   },
   {
     name: "realtime",
@@ -816,7 +816,7 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.weatherManager.removeForcedTime(server);
       server.sendChatText(client, "Game time is now based on real time", true);
-    },
+    }
   },
   {
     name: "sfog",
@@ -829,7 +829,7 @@ export const commands: Array<Command> = [
         } for the server`,
         true
       );
-    },
+    }
   },
   {
     name: "spamzombies",
@@ -878,12 +878,12 @@ export const commands: Array<Command> = [
             obj[0],
             client.character.state.position[1],
             obj[1],
-            1,
+            1
           ]),
           client.character.state.lookAt
         );
       });
-    },
+    }
   },
   {
     name: "spamied",
@@ -931,14 +931,14 @@ export const commands: Array<Command> = [
             obj[0],
             client.character.state.position[1],
             obj[1],
-            1,
+            1
           ]),
           client.character.state.lookAt,
           server,
           Items.IED
         ); // save explosive
       });
-    },
+    }
   },
   {
     name: "spawnnpc",
@@ -960,7 +960,7 @@ export const commands: Array<Command> = [
         server
       );
       server._npcs[characterId] = npc; // save npc
-    },
+    }
   },
   {
     name: "decoy",
@@ -990,7 +990,7 @@ export const commands: Array<Command> = [
         characterId: characterId,
         transientId: client.character.transientId,
         position: new Float32Array(mimic.position),
-        action: "",
+        action: ""
       };
       server._decoys[client.character.transientId] = decoy;
       mimic.identity.characterName = args[0]
@@ -1016,7 +1016,7 @@ export const commands: Array<Command> = [
             ...mimic,
             mountGuid: "",
             mountSeatId: 0,
-            mountRelatedDword1: 0,
+            mountRelatedDword1: 0
           });
           const equipment = client.character.pGetEquipment();
           equipment.characterData.characterId = characterId;
@@ -1032,26 +1032,26 @@ export const commands: Array<Command> = [
               hairModel: client.character.hairModel,
               resources: { data: client.character.pGetResources() },
               remoteWeapons: {
-                data: client.character.pGetRemoteWeaponsData(server),
-              },
+                data: client.character.pGetRemoteWeaponsData(server)
+              }
             },
             positionUpdate: {
               ...client.character.positionUpdate,
               sequenceTime: server.getGameTime(),
               position: client.character.state.position,
-              stance: client.character.stance,
+              stance: client.character.stance
             },
             stats: client.character.getStats().map((stat: any) => {
               return stat.statData;
             }),
             remoteWeaponsExtra:
-              client.character.pGetRemoteWeaponsExtraData(server),
+              client.character.pGetRemoteWeaponsExtraData(server)
           });
         }
       }
       client.isDecoy = true;
       server.sendChatText(client, "Decoy replication enabled");
-    },
+    }
   },
   {
     name: "deletedecoys",
@@ -1059,7 +1059,7 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       for (const a in server._decoys) {
         server.sendDataToAll("Character.RemovePlayer", {
-          characterId: server._decoys[a].characterId,
+          characterId: server._decoys[a].characterId
         });
         delete server._decoys[a];
       }
@@ -1069,7 +1069,7 @@ export const commands: Array<Command> = [
         }
       }
       server.sendChatText(client, `Removed all decoys`, false);
-    },
+    }
   },
   {
     name: "dynamicweather",
@@ -1081,14 +1081,14 @@ export const commands: Array<Command> = [
       } else {
         server.sendChatText(client, "Dynamic weather already enabled !");
       }
-    },
+    }
   },
   {
     name: "weather",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.weatherManager.handleWeatherCommand(server, client, args);
-    },
+    }
   },
   {
     name: "savecurrentweather",
@@ -1099,14 +1099,14 @@ export const commands: Array<Command> = [
       args: Array<string>
     ) => {
       server.weatherManager.handleSaveCommand(server, client, args);
-    },
+    }
   },
   {
     name: "randomweather",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.weatherManager.handleRandomCommand(server, client);
-    },
+    }
   },
   {
     name: "additem",
@@ -1189,7 +1189,7 @@ export const commands: Array<Command> = [
         );
         client.character.lootItem(server, item);
       }
-    },
+    }
   },
   {
     name: "lighting",
@@ -1210,16 +1210,16 @@ export const commands: Array<Command> = [
         nameId: 7699,
         unknownBoolean2: true,
         lighting: args[0],
-        unknownBoolean3: false,
+        unknownBoolean3: false
       });
-    },
+    }
   },
   {
     name: "kit",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       client.character.equipLoadout(server, characterKitLoadout);
-    },
+    }
   },
   {
     name: "addallitems",
@@ -1232,7 +1232,7 @@ export const commands: Array<Command> = [
         server.lootItem(client, server.generateItem(itemDef.ID));
       }
       */
-    },
+    }
   },
   {
     name: "shutdown",
@@ -1246,7 +1246,7 @@ export const commands: Array<Command> = [
       const message = args[1] ? args[1] : " ";
       const startedTime = Date.now();
       await zoneShutdown(server, startedTime, Number(timeLeft), message);
-    },
+    }
   },
   {
     name: "spawnloot",
@@ -1254,7 +1254,7 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.worldObjectManager.createLoot(server);
       server.sendChatText(client, `Respawned loot`);
-    },
+    }
   },
   {
     name: "respawnnpcs",
@@ -1262,7 +1262,7 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.worldObjectManager.createNpcs(server);
       server.sendChatText(client, `Respawned npcs`);
-    },
+    }
   },
   {
     name: "respawnvehicles",
@@ -1270,7 +1270,7 @@ export const commands: Array<Command> = [
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.worldObjectManager.createVehicles(server);
       server.sendChatText(client, `Respawned vehicles`);
-    },
+    }
   },
   {
     name: "lootrespawntimer",
@@ -1294,7 +1294,7 @@ export const commands: Array<Command> = [
         server.worldObjectManager.lootRespawnTimer = 1_200_000; // 30 min default
         server.sendChatText(client, `Loot respawn timer is no longer custom.`);
       }
-    },
+    }
   },
   {
     name: "npcrespawntimer",
@@ -1309,7 +1309,7 @@ export const commands: Array<Command> = [
         client,
         `Npc respawn timer set to ${Number(args[0])}`
       );
-    },
+    }
   },
   {
     name: "vehiclerespawntimer",
@@ -1327,7 +1327,7 @@ export const commands: Array<Command> = [
         client,
         `Vehicle respawn timer set to ${Number(args[0])}`
       );
-    },
+    }
   },
   {
     name: "alert",
@@ -1335,7 +1335,7 @@ export const commands: Array<Command> = [
     keepCase: true,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.sendAlertToAll(args.join(" "));
-    },
+    }
   },
   {
     name: "remover",
@@ -1344,7 +1344,7 @@ export const commands: Array<Command> = [
       const wep = server.generateItem(Items.WEAPON_REMOVER);
       if (wep && wep.weapon) wep.weapon.ammoCount = 1000;
       client.character.lootItem(server, wep);
-    },
+    }
   },
   {
     name: "players",
@@ -1362,7 +1362,7 @@ export const commands: Array<Command> = [
           })
           .join(",\n")}`
       );
-    },
+    }
   },
   {
     name: "slay",
@@ -1391,10 +1391,10 @@ export const commands: Array<Command> = [
       );
       const damageInfo: DamageInfo = {
         entity: client.character.characterId,
-        damage: 999999999,
+        damage: 999999999
       };
       server.killCharacter(targetClient, damageInfo);
-    },
+    }
   },
   {
     name: "savecharacters",
@@ -1415,7 +1415,7 @@ export const commands: Array<Command> = [
       );
       await server.worldDataManager.saveCharacters(characters);
       server.sendChatText(client, "Character data has been saved!");
-    },
+    }
   },
   {
     name: "savevehicles",
@@ -1432,7 +1432,7 @@ export const commands: Array<Command> = [
       server.sendChatText(client, "VehicleData save started.");
       // await server.worldDataManager.saveVehicles(server);
       server.sendChatText(client, "Vehicles have been saved!");
-    },
+    }
   },
   {
     name: "save",
@@ -1448,7 +1448,7 @@ export const commands: Array<Command> = [
       }
 
       await server.saveWorld();
-    },
+    }
   },
   {
     name: "nextsave",
@@ -1466,7 +1466,7 @@ export const commands: Array<Command> = [
         client,
         `Next save at ${new Date(server.worldDataManager.nextSaveTime)}`
       );
-    },
+    }
   },
   {
     name: "disablesave",
@@ -1483,7 +1483,7 @@ export const commands: Array<Command> = [
 
       server.enableWorldSaves = false;
       server.sendAlertToAll("World saving has been disabled");
-    },
+    }
   },
   {
     name: "enablesave",
@@ -1500,7 +1500,7 @@ export const commands: Array<Command> = [
 
       server.enableWorldSaves = true;
       server.sendAlertToAll("World saving has been enabled");
-    },
+    }
   },
   {
     name: "deletebase",
@@ -1595,7 +1595,7 @@ export const commands: Array<Command> = [
         ) {
           entitiesToDelete.push({
             characterId: construction.characterId,
-            dictionary: server._temporaryObjects,
+            dictionary: server._temporaryObjects
           });
         }
       }
@@ -1611,7 +1611,7 @@ export const commands: Array<Command> = [
         ) {
           entitiesToDelete.push({
             characterId: construction.characterId,
-            dictionary: server._traps,
+            dictionary: server._traps
           });
         }
       }
@@ -1627,7 +1627,7 @@ export const commands: Array<Command> = [
         ) {
           entitiesToDelete.push({
             characterId: construction.characterId,
-            dictionary: server._plants,
+            dictionary: server._plants
           });
         }
       }
@@ -1641,7 +1641,7 @@ export const commands: Array<Command> = [
         client,
         `Removed all constructions in range of ${Number(args[0])}`
       );
-    },
+    }
   },
   {
     name: "build",
@@ -1657,7 +1657,7 @@ export const commands: Array<Command> = [
       );
       client.character.equipLoadout(server, characterBuildKitLoadout);
       server.sendChatText(client, `Build kit given`);
-    },
+    }
   },
   {
     name: "debug",
@@ -1665,7 +1665,7 @@ export const commands: Array<Command> = [
     execute: async (server: ZoneServer2016, client: Client) => {
       client.isDebugMode = !client.isDebugMode;
       server.sendAlert(client, `Set debug mode to ${client.isDebugMode}`);
-    },
+    }
   },
   {
     name: "listbases",
@@ -1724,7 +1724,7 @@ export const commands: Array<Command> = [
           }
         );
       }
-    },
+    }
   },
   {
     name: "getinventory",
@@ -1800,7 +1800,7 @@ export const commands: Array<Command> = [
           });
         }
       );
-    },
+    }
   },
   {
     name: "listpermissions",
@@ -1824,7 +1824,7 @@ export const commands: Array<Command> = [
       Object.values(foundation.permissions).forEach((permission: any) => {
         server.sendChatText(client, JSON.stringify(permission));
       });
-    },
+    }
   },
   {
     name: "respawnloot",
@@ -1852,7 +1852,7 @@ export const commands: Array<Command> = [
       const loottables = require("../data/lootspawns").lootTables;
       server.worldObjectManager.createLoot(server, loottables);
       server.sendChatText(client, `Respawned loot`);
-    },
+    }
   },
   {
     name: "heal",
@@ -1869,7 +1869,7 @@ export const commands: Array<Command> = [
         [ResourceIds.HYDRATION]: 10000,
         [ResourceIds.VIRUS]: 0,
         [ResourceIds.COMFORT]: 5000,
-        [ResourceIds.BLEEDING]: -40,
+        [ResourceIds.BLEEDING]: -40
       };
       client.character.updateResource(
         server,
@@ -1915,7 +1915,7 @@ export const commands: Array<Command> = [
       );
 
       server.sendChatText(client, `Set resources to maximum values.`);
-    },
+    }
   },
   {
     name: "whisper",
@@ -1977,7 +1977,7 @@ export const commands: Array<Command> = [
         targetClient,
         `[Whisper from ${client.character.name}]: ${message}`
       );
-    },
+    }
   },
   {
     name: "mute",
@@ -2018,7 +2018,7 @@ export const commands: Array<Command> = [
         client,
         `You have muted ${targetClient.character.name}.`
       );
-    },
+    }
   },
   {
     name: "unmute",
@@ -2067,7 +2067,7 @@ export const commands: Array<Command> = [
         client,
         `You have unmuted ${targetClient.character.name}.`
       );
-    },
+    }
   },
   {
     name: "globalmute",
@@ -2099,7 +2099,7 @@ export const commands: Array<Command> = [
         ?.collection(DB_COLLECTIONS.MUTED)
         .findOne({
           name: client.character.name.toLowerCase(),
-          active: true,
+          active: true
         })) as unknown as ClientMute;
       if (mutedClient) {
         server.sendChatText(client, "Client is already muted!");
@@ -2129,7 +2129,7 @@ export const commands: Array<Command> = [
         client.character.name ? client.character.name : "",
         time
       );
-    },
+    }
   },
   {
     name: "globalunmute",
@@ -2151,7 +2151,7 @@ export const commands: Array<Command> = [
           await server._db?.collection(DB_COLLECTIONS.MUTED).findOneAndUpdate(
             { name, active: true },
             {
-              $set: { active: false, unmuteAdminName: client.character.name },
+              $set: { active: false, unmuteAdminName: client.character.name }
             }
           )
         )?.value as unknown as ClientMute;
@@ -2169,7 +2169,7 @@ export const commands: Array<Command> = [
           `Cannot find any muted user with name ${name}`
         );
       }
-    },
+    }
   },
   {
     name: "console",
@@ -2180,7 +2180,7 @@ export const commands: Array<Command> = [
       args: Array<string>
     ) => {
       /* handled clientside */
-    },
+    }
   },
   {
     name: "group",
@@ -2191,7 +2191,7 @@ export const commands: Array<Command> = [
       args: Array<string>
     ) => {
       server.groupManager.handleGroupCommand(server, client, args);
-    },
+    }
   },
   {
     name: "deepcover",
@@ -2229,7 +2229,7 @@ export const commands: Array<Command> = [
           const iteratedClient = server._clients[a];
           if (iteratedClient.spawnedEntities.includes(client.character)) {
             server.sendData(iteratedClient, "Character.RemovePlayer", {
-              characterId: client.character.characterId,
+              characterId: client.character.characterId
             });
             iteratedClient.spawnedEntities.splice(
               iteratedClient.spawnedEntities.indexOf(client.character),
@@ -2245,7 +2245,7 @@ export const commands: Array<Command> = [
 
       // Set the client's isSpectator state again
       client.character.isSpectator = !client.character.isSpectator;
-    },
+    }
   },
   //#endregion
 
@@ -2274,7 +2274,7 @@ export const commands: Array<Command> = [
           `Unknown command: "/dev ${commandName}", display dev all commands by using "/dev list"`
         );
       }
-    },
-  },
+    }
+  }
   //#endregion
 ];

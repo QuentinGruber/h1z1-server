@@ -54,7 +54,7 @@ export default class SOEClient {
   stats: SOEClientStats = {
     totalPacketSent: 0,
     packetsOutOfOrder: 0,
-    packetResend: 0,
+    packetResend: 0
   };
   lastAckTime: number = 0;
   avgPing: number = 0;
@@ -87,7 +87,7 @@ export default class SOEClient {
     return [
       `Packet loss rate ${packetLossRate}%`,
       `Packet outOfOrder rate ${packetOutOfOrderRate}%`,
-      `Avg ping ${this.avgPing}ms`,
+      `Avg ping ${this.avgPing}ms`
     ];
   }
   addPing(ping: number) {

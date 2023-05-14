@@ -32,7 +32,7 @@ client.on("characterinfo", (err, res) => {
     client.requestCharacterLogin("0x0000000000000001", 1, {
       locale: "EnUS",
       localeId: 1,
-      preferredGatewayId: 8,
+      preferredGatewayId: 8
     });
   }, 2000);
 });

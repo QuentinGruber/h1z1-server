@@ -61,7 +61,7 @@ export class BaseLightweightCharacter extends BaseEntity {
     noCollide: 0,
     knockedOut: 0,
     bit22: 0,
-    bit23: 0,
+    bit23: 0
   };
   isLightweight = true;
   positionUpdateType = 0;
@@ -84,7 +84,7 @@ export class BaseLightweightCharacter extends BaseEntity {
       position: position,
       rotation: rotation,
       lookAt: new Float32Array([0, 0, 0, 1]),
-      yaw: 0,
+      yaw: 0
     };
   }
 
@@ -97,14 +97,14 @@ export class BaseLightweightCharacter extends BaseEntity {
       modelId: this.actorModelId,
       scale: this.scale,
       showHealth: true,
-      health: (this.health / this.maxHealth) * 100,
+      health: (this.health / this.maxHealth) * 100
     };
   }
 
   pGetSimpleProxyHealth() {
     return {
       characterId: this.characterId,
-      healthPercentage: (this.health / this.maxHealth) * 100,
+      healthPercentage: (this.health / this.maxHealth) * 100
     };
   }
 
@@ -143,9 +143,9 @@ export class BaseLightweightCharacter extends BaseEntity {
       flags: {
         flags1: this.flags,
         flags2: this.flags,
-        flags3: this.flags,
+        flags3: this.flags
       },
-      headActor: this.headActor,
+      headActor: this.headActor
     };
   }
 }

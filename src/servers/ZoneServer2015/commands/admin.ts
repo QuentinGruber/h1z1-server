@@ -33,7 +33,7 @@ const admin: any = {
     const message = args[2] ? args[2] : " ";
     const startedTime = Date.now();
     await zoneShutdown(server, startedTime, timeLeft, message);
-  },
+  }
 };
 
 export default admin;

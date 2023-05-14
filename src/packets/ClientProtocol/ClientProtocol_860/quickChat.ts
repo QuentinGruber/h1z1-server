@@ -36,14 +36,14 @@ export const quickChatPackets: any = [
                 { name: "unknownDword4", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword5", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+                { name: "unknownDword7", type: "uint32", defaultValue: 0 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ],
   ["QuickChat.SendTell", 0x2802, {}],
-  ["QuickChat.SendChatToChannel", 0x2803, {}],
+  ["QuickChat.SendChatToChannel", 0x2803, {}]
 ];

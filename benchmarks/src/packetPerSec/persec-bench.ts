@@ -11,7 +11,7 @@ echoServer.start();
 
 const benchParameters: BenchParameters = {
   packetsPerSec: 50,
-  bytesPerPacket: 50,
+  bytesPerPacket: 50
 };
 
 const CLIENTS_NUMBER = 140;

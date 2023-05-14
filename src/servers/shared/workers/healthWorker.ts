@@ -19,7 +19,7 @@ interface Target {
 
 export function healthThreadDecorator(target: Target) {
   target.prototype._healthWorker = new Worker(`${__dirname}/healthWorker.js`, {
-    workerData: { threadToWatchPid: process.pid },
+    workerData: { threadToWatchPid: process.pid }
   });
   if (!process.env.VSCODE_DEBUG) {
     target.prototype._healthWorker.on("message", () => {

@@ -30,7 +30,7 @@ setTimeout(() => {
       client.requestCharacterLogin(res.characterId, 1, {
         locale: "EnUS",
         localeId: 1,
-        preferredGatewayId: 8,
+        preferredGatewayId: 8
       });
     }, 2000);
   });

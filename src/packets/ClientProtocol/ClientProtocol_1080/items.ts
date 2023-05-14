@@ -37,7 +37,7 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
 
   return {
     value: obj,
-    length: offset - startOffset,
+    length: offset - startOffset
   };
 }
 export const itemsPackets: PacketStructures = [
@@ -98,10 +98,10 @@ export const itemsPackets: PacketStructures = [
           name: "itemSubData",
           type: "custom",
           defaultValue: {},
-          parser: parseItemRequestSubData,
-        },
-      ],
-    },
+          parser: parseItemRequestSubData
+        }
+      ]
+    }
   ],
   ["Items.RequestUseAccountItem", 0xad2b, {}],
   ["Items.RequestRemoveNewAccountItemRec", 0xad2c, {}],
@@ -116,5 +116,5 @@ export const itemsPackets: PacketStructures = [
   ["Items.SetSkinItemCollectionCustomName", 0xad35, {}],
   ["Items.RequestSelectSkinItemCollection", 0xad36, {}],
   ["Items.RequestOpenAccountCrate", 0xad37, {}],
-  ["Items.RequestPreviewAccountCrateRewards", 0xad38, {}],
+  ["Items.RequestPreviewAccountCrateRewards", 0xad38, {}]
 ];

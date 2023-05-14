@@ -14,7 +14,7 @@
 import {
   attachmentSchema,
   equipmentCharacterSchema,
-  equipmentSlotSchema,
+  equipmentSlotSchema
 } from "./shared";
 import { PacketStructures } from "types/packetStructure";
 
@@ -27,7 +27,7 @@ export const equipmentPackets: PacketStructures = [
         {
           name: "characterData",
           type: "schema",
-          fields: equipmentCharacterSchema,
+          fields: equipmentCharacterSchema
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownString1", type: "string", defaultValue: "" },
@@ -36,17 +36,17 @@ export const equipmentPackets: PacketStructures = [
           name: "equipmentSlots",
           type: "array",
           defaultValue: [],
-          fields: equipmentSlotSchema,
+          fields: equipmentSlotSchema
         },
         {
           name: "attachmentData",
           type: "array",
           defaultValue: [],
-          fields: attachmentSchema,
+          fields: attachmentSchema
         },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   [
     "Equipment.SetCharacterEquipmentSlot",
@@ -56,20 +56,20 @@ export const equipmentPackets: PacketStructures = [
         {
           name: "characterData",
           type: "schema",
-          fields: equipmentCharacterSchema,
+          fields: equipmentCharacterSchema
         },
         {
           name: "equipmentSlot",
           type: "schema",
-          fields: equipmentSlotSchema,
+          fields: equipmentSlotSchema
         },
         {
           name: "attachmentData",
           type: "schema",
-          fields: attachmentSchema,
-        },
-      ],
-    },
+          fields: attachmentSchema
+        }
+      ]
+    }
   ],
   [
     "Equipment.UnsetCharacterEquipmentSlot",
@@ -79,12 +79,12 @@ export const equipmentPackets: PacketStructures = [
         {
           name: "characterData",
           type: "schema",
-          fields: equipmentCharacterSchema,
+          fields: equipmentCharacterSchema
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "slotId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "slotId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Equipment.SetCharacterEquipmentSlots",
@@ -94,7 +94,7 @@ export const equipmentPackets: PacketStructures = [
         {
           name: "characterData",
           type: "schema",
-          fields: equipmentCharacterSchema,
+          fields: equipmentCharacterSchema
         },
         { name: "gameTime", type: "uint32", defaultValue: 0 },
         {
@@ -103,8 +103,8 @@ export const equipmentPackets: PacketStructures = [
           defaultValue: [],
           fields: [
             { name: "index", type: "uint32", defaultValue: 0 },
-            { name: "slotId", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "slotId", type: "uint32", defaultValue: 0 }
+          ]
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 1 },
         { name: "unknownString1", type: "string", defaultValue: "" },
@@ -113,15 +113,15 @@ export const equipmentPackets: PacketStructures = [
           name: "equipmentSlots",
           type: "array",
           defaultValue: [],
-          fields: equipmentSlotSchema,
+          fields: equipmentSlotSchema
         },
         {
           name: "attachmentData",
           type: "array",
           defaultValue: [],
-          fields: attachmentSchema,
-        },
-      ],
-    },
-  ],
+          fields: attachmentSchema
+        }
+      ]
+    }
+  ]
 ];

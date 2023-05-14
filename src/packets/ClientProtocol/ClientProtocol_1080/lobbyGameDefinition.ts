@@ -18,8 +18,8 @@ export const lobbyGameDefinitionPackets: PacketStructures = [
     "LobbyGameDefinition.DefinitionsRequest",
     0x420100,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "LobbyGameDefinition.DefinitionsResponse",
@@ -29,9 +29,9 @@ export const lobbyGameDefinitionPackets: PacketStructures = [
         {
           name: "definitionsData",
           type: "byteswithlength",
-          fields: [{ name: "data", type: "string", defaultValue: "" }],
-        },
-      ],
-    },
-  ],
+          fields: [{ name: "data", type: "string", defaultValue: "" }]
+        }
+      ]
+    }
+  ]
 ];

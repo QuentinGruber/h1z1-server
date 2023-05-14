@@ -77,7 +77,7 @@ export class Plane extends Vehicle2016 {
       position: position,
       rotation: rotation,
       lookAt: new Float32Array([0, 0, 0, 1]),
-      yaw: 0,
+      yaw: 0
     };
     this.vehicleId = vehicleId;
     this.actorModelId = getActorModelId(this.vehicleId);
@@ -95,7 +95,7 @@ export class Plane extends Vehicle2016 {
       vehicle: this,
       get position() {
         return this.vehicle.state.position;
-      },
+      }
     };
   }
 
@@ -104,22 +104,22 @@ export class Plane extends Vehicle2016 {
       npcData: {
         ...this.pGetLightweight(),
         position: this.state.position,
-        vehicleId: this.vehicleId,
+        vehicleId: this.vehicleId
       },
       positionUpdate: {
-        ...this.positionUpdate,
-      },
+        ...this.positionUpdate
+      }
     };
   }
   pGetFullVehicle(server: ZoneServer2016) {
     return {
       npcData: {
-        ...this.pGetFull(server),
+        ...this.pGetFull(server)
       },
       positionUpdate: {
         ...this.positionUpdate,
         sequenceTime: server.getGameTime(),
-        position: this.state.position, // trying to fix invisible characters/vehicles until they move
+        position: this.state.position // trying to fix invisible characters/vehicles until they move
       },
       unknownArray1: [],
       unknownArray2: [],
@@ -128,17 +128,17 @@ export class Plane extends Vehicle2016 {
       unknownArray5: [
         {
           unknownData1: {
-            unknownData1: {},
-          },
-        },
+            unknownData1: {}
+          }
+        }
       ],
       unknownArray6: [],
       unknownArray7: [],
       unknownArray8: [
         {
-          unknownArray1: [],
-        },
-      ],
+          unknownArray1: []
+        }
+      ]
     };
   }
 
@@ -147,10 +147,10 @@ export class Plane extends Vehicle2016 {
       return {
         characterId: passenger,
         identity: {
-          characterName: server._characters[passenger].name,
+          characterName: server._characters[passenger].name
         },
         unknownString1: server._characters[passenger].name,
-        unknownByte1: 1,
+        unknownByte1: 1
       };
     });
   }

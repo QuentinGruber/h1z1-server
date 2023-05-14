@@ -36,7 +36,7 @@ export abstract class H1emuServer extends EventEmitter {
     this._connection = new Worker(
       `${__dirname}/../../shared/workers/udpServerWorker.js`,
       {
-        workerData: { serverPort: serverPort },
+        workerData: { serverPort: serverPort }
       }
     );
   }
@@ -96,8 +96,8 @@ export abstract class H1emuServer extends EventEmitter {
           data: {
             packetData: data,
             port: client.port,
-            address: client.address,
-          },
+            address: client.address
+          }
         },
         [data.buffer]
       );

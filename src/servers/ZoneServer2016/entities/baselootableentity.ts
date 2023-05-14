@@ -41,7 +41,7 @@ export class BaseLootableEntity extends BaseFullCharacter {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: StringIds.OPEN,
+      stringId: StringIds.OPEN
     });
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */

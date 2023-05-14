@@ -47,7 +47,7 @@ export class Npc extends BaseFullCharacter {
     noCollide: 0,
     knockedOut: 0,
     bit22: 0,
-    bit23: 0,
+    bit23: 0
   };
   static isAlive = true;
   public set isAlive(state) {
@@ -94,7 +94,7 @@ export class Npc extends BaseFullCharacter {
         this.characterId,
         "Character.StartMultiStateDeath",
         {
-          characterId: this.characterId,
+          characterId: this.characterId
         }
       );
     }

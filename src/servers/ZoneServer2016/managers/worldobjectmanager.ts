@@ -28,7 +28,7 @@ import {
   generateRandomGuid,
   isPosInRadius,
   randomIntFromInterval,
-  fixEulerOrder,
+  fixEulerOrder
 } from "../../../utils/utils";
 import {
   EquipSlots,
@@ -41,7 +41,7 @@ import {
   Skins_Kevlar,
   Skins_Military,
   Skins_Glasses,
-  Effects,
+  Effects
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -143,7 +143,7 @@ export class WorldObjectManager {
     EquipSlots.LEGS,
     EquipSlots.HANDS,
     EquipSlots.FEET,
-    EquipSlots.HAIR,
+    EquipSlots.HAIR
   ];
 
   private getItemRespawnTimer(server: ZoneServer2016): void {
@@ -354,13 +354,13 @@ export class WorldObjectManager {
       "Medic",
       "Builder",
       "Fighter",
-      "Supplier",
+      "Supplier"
     ];
     const experimentalWeapons: { weapon: number; ammo: number }[] = [
       { weapon: Items.WEAPON_REAPER, ammo: Items.AMMO_308 },
       { weapon: Items.WEAPON_BLAZE, ammo: Items.AMMO_223 },
       { weapon: Items.WEAPON_FROSTBITE, ammo: Items.AMMO_762 },
-      { weapon: Items.WEAPON_NAGAFENS_RAGE, ammo: Items.AMMO_12GA },
+      { weapon: Items.WEAPON_NAGAFENS_RAGE, ammo: Items.AMMO_12GA }
     ];
 
     const index = Math.floor(Math.random() * airdropTypes.length);
@@ -444,7 +444,7 @@ export class WorldObjectManager {
         server._airdrop.destinationPos[0],
         server._airdrop.destinationPos[1] + 0.3,
         server._airdrop.destinationPos[2],
-        1,
+        1
       ]);
       for (const a in server._clients) {
         const c = server._clients[a];
@@ -452,7 +452,7 @@ export class WorldObjectManager {
           characterId: c.character.characterId,
           effectId: effectId,
           position: smokePos,
-          unk3: 60,
+          unk3: 60
         });
       }
     }
@@ -472,7 +472,7 @@ export class WorldObjectManager {
             propInstance.rotation[1],
             propInstance.rotation[0],
             propInstance.rotation[2],
-            0,
+            0
           ]),
           server,
           propInstance.scale,
@@ -515,7 +515,7 @@ export class WorldObjectManager {
             propInstance.rotation[1],
             propInstance.rotation[0],
             propInstance.rotation[2],
-            0,
+            0
           ]),
           server,
           propInstance.scale,
@@ -540,7 +540,7 @@ export class WorldObjectManager {
             propInstance.rotation[1],
             propInstance.rotation[0],
             propInstance.rotation[2],
-            0,
+            0
           ]),
           server,
           propInstance.scale,

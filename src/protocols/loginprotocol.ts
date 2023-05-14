@@ -45,7 +45,7 @@ export class LoginProtocol {
           subPacketName: name,
           packetLength: data.readUInt32LE(9),
           name: packet.name,
-          result: result,
+          result: result
         };
       } else if (packet.schema) {
         debug(packet.name);
@@ -60,7 +60,7 @@ export class LoginProtocol {
         return {
           type: packet.type,
           name: packet.name,
-          result: result,
+          result: result
         };
       } else {
         debug("parse()", "No schema for packet ", packet.name);
