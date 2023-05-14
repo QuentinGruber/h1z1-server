@@ -122,23 +122,12 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         const bounds = this.getSquareBounds([1, 2, 5, 0]),
           parent = this.getParentFoundation(server);
         if (parent) {
-          // get 3rd dependent foundation wall pos
           const dependentWallPos = parent.getSlotPosition(
-              this.getDependentWalls()[2],
+              this.getExpansion4thBoundWall(),
               parent.wallSlots
-            ),
-            dependentWallRot = parent.getSlotRotation(
-              this.getDependentWalls()[2],
-              parent.wallSlots
-            );
-
-          if (dependentWallPos && dependentWallRot) {
-            const point = movePoint(
-              dependentWallPos,
-              -dependentWallRot[0] + (270 * Math.PI) / 180,
-              5
-            );
-            bounds[3] = [point[0], point[2]];
+          );
+          if(dependentWallPos) {
+            bounds[3] = [dependentWallPos[0], dependentWallPos[2]];
             this.bounds = bounds;
           }
         }
@@ -232,6 +221,23 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       }
     }
     return `Structure${slot > 9 ? slot.toString() : `0${slot.toString()}`}`;
+  }
+
+  /**
+   * [Expansions only] Returns the wall slot on the deck that is required to complete the expansion's square bounds
+   */
+  getExpansion4thBoundWall(): number {
+    switch (this.getSlotNumber()) {
+      case 1:
+        return 7;
+      case 2:
+        return 4;
+      case 3:
+        return 1;
+      case 4:
+        return 10;
+    }
+    return 1;
   }
 
   /**
