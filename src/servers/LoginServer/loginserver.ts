@@ -100,7 +100,7 @@ export class LoginServer extends EventEmitter {
     this._soloMode = false;
     this._mongoAddress = mongoAddress;
     this._appDataFolder = getAppDataFolderPath();
-    this._enableHttpServer = true;
+    this._enableHttpServer = false;
     this.clients = new Map();
 
     // reminders
