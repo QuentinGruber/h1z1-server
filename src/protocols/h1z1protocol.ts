@@ -21,6 +21,7 @@ import {
   getPacketTypeBytes,
   lz4_decompress
 } from "../utils/utils";
+import { GatewayChannels } from "h1emu-core";
 
 export interface UpdatePositionObject {
   raw: Buffer;
@@ -419,14 +420,14 @@ export class H1Z1Protocol {
       packet,
       result;
     switch (flag) {
-      case 1: // don't know the purpose of that flag, is used for some logs and exec command
-      case 0: {
+      case GatewayChannels.World:
+      case GatewayChannels.Zone: {
         {
           [packet, offset] = this.resolveOpcode(opCode, data);
           break;
         }
       }
-      case 2: {
+      case GatewayChannels.UpdatePosition: {
         try {
           packet = {
             name: "PlayerUpdateUpdatePositionClientToZone",
@@ -437,7 +438,7 @@ export class H1Z1Protocol {
         }
         break;
       }
-      case 3: {
+      case GatewayChannels.ShortCircuitZone: {
         switch (opCode) {
           case this.PlayerUpdateManagedPositionOpcode: {
             packet =
