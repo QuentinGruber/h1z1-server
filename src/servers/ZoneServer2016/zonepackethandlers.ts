@@ -1034,6 +1034,8 @@ export class ZonePacketHandlers {
       
       server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
 
+      server.fairPlayManager.detectDroneMovement(server, client, stanceFlags);
+
       if (
         stanceFlags.JUMPING &&
         stanceFlags.FLOATING &&

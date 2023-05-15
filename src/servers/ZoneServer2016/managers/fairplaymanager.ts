@@ -577,4 +577,38 @@ export class FairPlayManager {
       });
     }
   }
+  detectDroneMovement(server: ZoneServer2016, client: Client, stanceFlags: StanceFlags) {
+    if (
+      stanceFlags.SITTING
+    ) {
+      if(Date.now() - client.character.lastSitTime <= 200) {
+        client.character.sitCount++;
+      }
+      else {
+        client.character.sitCount = 0;
+        client.character.lastSitTime = 0;
+      }
+      client.character.lastSitTime = Date.now();
+      if(client.character.sitCount >= 10) {
+        const pos = client.character.state.position;
+        if (!server._soloMode) {
+          logClientActionToMongo(
+            server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+            client,
+            server._worldId,
+            { type: "Drone exploit", pos }
+          );
+        }
+        server.sendChatTextToAdmins(
+          `FairPlay: Possible drone exploit detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
+        );
+        server.sendData(client, "ClientUpdate.UpdateLocation", {
+          position: pos,
+          triggerLoadingScreen: true
+        });
+        client.character.sitCount = 0;
+      }
+    }
+  }
+  
 }
