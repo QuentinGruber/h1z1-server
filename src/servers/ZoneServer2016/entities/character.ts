@@ -738,12 +738,15 @@ export class Character2016 extends BaseFullCharacter {
       server.deleteEntity(this.mountedContainer.characterId, server._lootbags);
     }
 
+    server.sendData(client, "AccessedCharacter.EndCharacterAccess", {
+      characterId: this.mountedContainer.characterId || ""
+    });
+
     delete this.mountedContainer.mountedCharacter;
     delete this.mountedContainer;
     this.updateLoadout(server);
     server.initializeContainerList(client);
 
-    server.sendData(client, "AccessedCharacter.EndCharacterAccess", {});
   }
 
   getStats() {
