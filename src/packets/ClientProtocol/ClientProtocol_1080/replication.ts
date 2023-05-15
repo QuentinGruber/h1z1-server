@@ -16,7 +16,7 @@ import {
   packInteractionComponent,
   packNpcComponent,
   packUnsignedIntWith2bitLengthValue,
-  readUnsignedIntWith2bitLengthValue,
+  readUnsignedIntWith2bitLengthValue
 } from "./shared";
 
 export const replicationPackets: PacketStructures = [
@@ -30,17 +30,17 @@ export const replicationPackets: PacketStructures = [
           name: "transientId",
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue
         },
         {
           name: "rawComponent",
           type: "custom",
           parser: packInteractionComponent,
           packer: packInteractionComponent,
-          defaultValue: packInteractionComponent,
-        },
-      ],
-    },
+          defaultValue: packInteractionComponent
+        }
+      ]
+    }
   ],
   [
     "Replication.NpcComponent",
@@ -51,19 +51,19 @@ export const replicationPackets: PacketStructures = [
           name: "transientId",
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue
         },
         { name: "stringLength", type: "uint16", defaultValue: 18 },
         //{ name: "componentName", type: "fixedlengthstring", defaultValue: "ClientNpcComponent" }, avoid test errors
         {
           name: "componentName",
           type: "uint64string",
-          defaultValue: "0x704E746E65696C43",
+          defaultValue: "0x704E746E65696C43"
         },
         {
           name: "componentName2",
           type: "uint64string",
-          defaultValue: "0x656E6F706D6F4363",
+          defaultValue: "0x656E6F706D6F4363"
         },
         { name: "componentName3", type: "uint16", defaultValue: 29806 },
         { name: "unkByte1", type: "uint8", defaultValue: 0 },
@@ -82,9 +82,9 @@ export const replicationPackets: PacketStructures = [
           type: "custom",
           parser: packNpcComponent,
           packer: packNpcComponent,
-          defaultValue: packNpcComponent,
-        },
-      ],
-    },
-  ],
+          defaultValue: packNpcComponent
+        }
+      ]
+    }
+  ]
 ];

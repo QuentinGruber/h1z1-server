@@ -21,17 +21,17 @@ export const abilityPackets: any = [
       fields: [
         { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
         { name: "unk1", type: "uint32", defaultValue: 0 },
-        { name: "unk2", type: "uint32", defaultValue: 0 },
+        { name: "unk2", type: "uint32", defaultValue: 0 }
         // maybe also an uint16
-      ],
-    },
+      ]
+    }
   ],
   [
     "Ability.Failed",
     0x1004,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "Ability.StartCasting",
@@ -47,13 +47,13 @@ export const abilityPackets: any = [
           name: "unkArray1",
           type: "array",
           defaultValue: [],
-          fields: [],
+          fields: []
         },
         { name: "unk4", type: "uint32", defaultValue: 0 },
         { name: "unk5", type: "uint32", defaultValue: 0 },
-        { name: "unk6", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unk6", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Ability.Launch",
@@ -69,7 +69,7 @@ export const abilityPackets: any = [
           name: "unkArray1",
           type: "array",
           defaultValue: [],
-          fields: [],
+          fields: []
         },
         { name: "unk2", type: "uint32", defaultValue: 0 },
         { name: "unk3", type: "uint32", defaultValue: 0 },
@@ -93,9 +93,9 @@ export const abilityPackets: any = [
         { name: "unk20", type: "uint32", defaultValue: 0 },
         { name: "unkGuid2", type: "uint64string", defaultValue: "0" },
         { name: "unk21", type: "boolean", defaultValue: 0 },
-        { name: "unk22", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "unk22", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Ability.Land",
@@ -105,7 +105,7 @@ export const abilityPackets: any = [
         {
           name: "unknown3",
           type: "uint64",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unknown4", type: "uint8", defaultValue: 0 },
         { name: "weirdAskedByte", type: "uint8", defaultValue: 0 }, // linked to targets i'm not sure about this one
@@ -114,16 +114,16 @@ export const abilityPackets: any = [
         {
           name: "position2",
           type: "floatvector4",
-          defaultValue: [0, 50, 0, 1],
+          defaultValue: [0, 50, 0, 1]
         },
         { name: "unknown9", type: "uint8", defaultValue: 0 },
         { name: "unknown10", type: "uint8", defaultValue: 0 },
         { name: "unknown11", type: "uint8", defaultValue: 0 },
         { name: "unknown12", type: "uint8", defaultValue: 0 },
         { name: "unknown13", type: "uint8", defaultValue: 0 },
-        { name: "unknown14", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown14", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Ability.StartChanneling",
@@ -133,21 +133,21 @@ export const abilityPackets: any = [
         {
           name: "unknown3",
           type: "uint64",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "unknown4",
           type: "uint64",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unknown5", type: "uint32", defaultValue: 0 },
         { name: "unknown6", type: "uint32", defaultValue: 0 },
         { name: "unknown7", type: "uint32", defaultValue: 0 },
         { name: "position", type: "floatvector4", defaultValue: [0, 50, 0, 1] },
         { name: "unknown9", type: "uint32", defaultValue: 0 },
-        { name: "unknown10", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown10", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Ability.StopCasting",
@@ -158,9 +158,9 @@ export const abilityPackets: any = [
         { name: "unkGuid", type: "uint64string", defaultValue: "0" },
         { name: "unk1", type: "uint32", defaultValue: 0 },
         { name: "unk2", type: "uint32", defaultValue: 0 },
-        { name: "unk3", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unk3", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Ability.StopAura",
@@ -168,9 +168,9 @@ export const abilityPackets: any = [
     {
       fields: [
         { name: "unknown1", type: "uint32", defaultValue: 0 },
-        { name: "unknown2", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown2", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Ability.MeleeRefresh", 0x100b, {}],
   [
@@ -186,9 +186,9 @@ export const abilityPackets: any = [
         { name: "unk3", type: "uint32", defaultValue: 0 },
         { name: "unk4", type: "boolean", defaultValue: 0 },
         { name: "unk5", type: "boolean", defaultValue: 0 },
-        { name: "unk6", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unk6", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Ability.PurchaseAbility", 0x100d, {}],
   ["Ability.UpdateAbilityExperience", 0x100e, {}],
@@ -205,16 +205,16 @@ export const abilityPackets: any = [
         {
           name: "unknown6",
           type: "uint64",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unknown7", type: "uint32", defaultValue: 0 },
         { name: "unknown8", type: "uint32", defaultValue: 0 },
         { name: "unknown9", type: "uint32", defaultValue: 0 },
         { name: "unknown10", type: "uint32", defaultValue: 0 },
         { name: "unknown11", type: "uint32", defaultValue: 0 },
-        { name: "unknown12", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown12", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Ability.RequestAbilityDefinition", 0x1010, {}],
   [
@@ -227,7 +227,7 @@ export const abilityPackets: any = [
         {
           name: "array1",
           type: "array",
-          fields: [{ name: "unknown2", type: "boolean", defaultValue: 0 }],
+          fields: [{ name: "unknown2", type: "boolean", defaultValue: 0 }]
         },
         { name: "unknown3", type: "uint32", defaultValue: 0 },
         { name: "unknown4", type: "uint32", defaultValue: 0 },
@@ -335,8 +335,8 @@ export const abilityPackets: any = [
             { name: "unknown45", type: "uint32", defaultValue: 0 },
             { name: "unknown46", type: "uint32", defaultValue: 0 },
             { name: "unknown47", type: "uint32", defaultValue: 0 },
-            { name: "unknown48", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "unknown48", type: "uint32", defaultValue: 0 }
+          ]
         },
         {
           name: "array7",
@@ -346,16 +346,16 @@ export const abilityPackets: any = [
             { name: "unknown2", type: "uint32", defaultValue: 0 },
             { name: "unknown3", type: "uint32", defaultValue: 0 },
             { name: "unknown4", type: "uint32", defaultValue: 0 },
-            { name: "unknown5", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "unknown5", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   ["Ability.PulseLocationTargeting", 0x1012, {}],
   ["Ability.ReceivePulseLocation", 0x1013, {}],
   ["Ability.ActivateItemAbility", 0x1014, {}],
   ["Ability.ActivateVehicleAbility", 0x1015, {}],
   ["Ability.DeactivateItemAbility", 0x1016, {}],
-  ["Ability.DeactivateVehicleAbility", 0x1017, {}],
+  ["Ability.DeactivateVehicleAbility", 0x1017, {}]
 ];

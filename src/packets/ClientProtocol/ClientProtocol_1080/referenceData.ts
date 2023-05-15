@@ -16,7 +16,7 @@ import { LZ4 } from "../../../utils/utils";
 import {
   firemodesSchema,
   packVehicleReferenceData,
-  parseVehicleReferenceData,
+  parseVehicleReferenceData
 } from "./shared";
 import { PacketFields, PacketStructures } from "types/packetStructure";
 
@@ -59,19 +59,19 @@ const weaponDefinitionSchema: PacketFields = [
             defaultValue: {},
             fields: [
               { name: "MELEE_DETECT_WIDTH", type: "uint32", defaultValue: 0 },
-              { name: "MELEE_DETECT_HEIGHT", type: "uint32", defaultValue: 0 },
-            ],
+              { name: "MELEE_DETECT_HEIGHT", type: "uint32", defaultValue: 0 }
+            ]
           },
           { name: "ANIMATION_SET_NAME", type: "string", defaultValue: "" },
           {
             name: "VEHICLE_FIRST_PERSON_CAMERA_ID",
             type: "uint32",
-            defaultValue: 0,
+            defaultValue: 0
           },
           {
             name: "VEHICLE_THIRD_PERSON_CAMERA_ID",
             type: "uint32",
-            defaultValue: 0,
+            defaultValue: 0
           },
           { name: "OVERHEAT_EFFECT_ID", type: "uint32", defaultValue: 0 },
           { name: "MIN_PITCH", type: "float", defaultValue: 0 },
@@ -94,21 +94,19 @@ const weaponDefinitionSchema: PacketFields = [
               {
                 name: "RELOAD_CHARACTER_BONE",
                 type: "string",
-                defaultValue: "",
-              },
-            ],
+                defaultValue: ""
+              }
+            ]
           },
           {
             name: "FIRE_GROUPS",
             type: "array",
             defaultValue: [],
-            fields: [
-              { name: "FIRE_GROUP_ID", type: "uint32", defaultValue: 0 },
-            ],
-          },
-        ],
-      },
-    ],
+            fields: [{ name: "FIRE_GROUP_ID", type: "uint32", defaultValue: 0 }]
+          }
+        ]
+      }
+    ]
   },
   {
     name: "FIRE_GROUP_DEFINITIONS",
@@ -126,7 +124,7 @@ const weaponDefinitionSchema: PacketFields = [
             name: "FIRE_MODES",
             type: "array",
             defaultValue: [],
-            fields: firemodesSchema,
+            fields: firemodesSchema
           },
           { name: "FLAGS", type: "uint8", defaultValue: 0 },
           { name: "CHAMBER_DURATION_MS", type: "uint32", defaultValue: 0 },
@@ -138,22 +136,22 @@ const weaponDefinitionSchema: PacketFields = [
           {
             name: "SPIN_UP_MOVEMENT_MODIFIER",
             type: "uint32",
-            defaultValue: 0,
+            defaultValue: 0
           },
           {
             name: "SPIN_UP_TURN_RATE_MODIFIER",
             type: "uint32",
-            defaultValue: 0,
+            defaultValue: 0
           },
           { name: "SPOOL_UP_TIME_MS", type: "uint32", defaultValue: 0 },
           {
             name: "SPOOL_UP_INITIAL_REFIRE_MS",
             type: "uint32",
-            defaultValue: 0,
-          },
-        ],
-      },
-    ],
+            defaultValue: 0
+          }
+        ]
+      }
+    ]
   },
   {
     name: "FIRE_MODE_DEFINITIONS",
@@ -179,8 +177,8 @@ const weaponDefinitionSchema: PacketFields = [
                 fields: [
                   { name: "unknownByte1", type: "uint8", defaultValue: 0 },
                   { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-                  { name: "unknownByte3", type: "uint8", defaultValue: 0 },
-                ],
+                  { name: "unknownByte3", type: "uint8", defaultValue: 0 }
+                ]
               },
               { name: "TYPE", type: "uint8", defaultValue: 0 },
               { name: "AMMO_ITEM_ID", type: "uint32", defaultValue: 0 },
@@ -190,7 +188,7 @@ const weaponDefinitionSchema: PacketFields = [
               {
                 name: "FIRE_COOLDOWN_DURATION_MS",
                 type: "uint16",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "REFIRE_TIME_MS", type: "uint16", defaultValue: 0 },
               { name: "FIRE_DELAY_MS", type: "uint16", defaultValue: 0 },
@@ -202,22 +200,22 @@ const weaponDefinitionSchema: PacketFields = [
               {
                 name: "RELOAD_CHAMBER_TIME_MS",
                 type: "uint16",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "RELOAD_AMMO_FILL_TIME_MS",
                 type: "uint16",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "RELOAD_LOOP_START_TIME_MS",
                 type: "uint16",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "RELOAD_LOOP_END_TIME_MS",
                 type: "uint16",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "PELLETS_PER_SHOT", type: "uint8", defaultValue: 0 },
               { name: "PELLET_SPREAD", type: "float", defaultValue: 0 },
@@ -230,7 +228,7 @@ const weaponDefinitionSchema: PacketFields = [
               {
                 name: "RECOIL_HORIZONTAL_TOLERANCE",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "RECOIL_HORIZONTAL_MIN", type: "float", defaultValue: 0 },
               { name: "RECOIL_HORIZONTAL_MAX", type: "float", defaultValue: 0 },
@@ -239,44 +237,44 @@ const weaponDefinitionSchema: PacketFields = [
               {
                 name: "RECOIL_RECOVERY_DELAY_MS",
                 type: "uint16",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "RECOIL_RECOVERY_RATE", type: "float", defaultValue: 0 },
               {
                 name: "RECOIL_RECOVERY_ACCELERATION",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "RECOIL_SHOTS_AT_MIN_MAGNITUDE",
                 type: "uint8",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "RECOIL_MAX_TOTAL_MAGNITUDE",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "RECOIL_INCREASE", type: "float", defaultValue: 0 },
               {
                 name: "RECOIL_INCREASE_CROUCHED",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "RECOIL_FIRST_SHOT_MODIFIER",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "RECOIL_HORIZONTAL_MIN_INCREASE",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "RECOIL_HORIZONTAL_MAX_INCREASE",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "FIRE_DETECT_RANGE", type: "uint16", defaultValue: 0 },
               { name: "EFFECT_GROUP", type: "float", defaultValue: 0 },
@@ -292,17 +290,17 @@ const weaponDefinitionSchema: PacketFields = [
               {
                 name: "LOCK_ON_ACQUIRE_TIME_MS",
                 type: "uint16",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "LOCK_ON_ACQUIRE_TIME_CLOSE_MS",
                 type: "uint16",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "LOCK_ON_ACQUIRE_TIME_FAR_MS",
                 type: "uint16",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "LOCK_ON_LOSE_TIME_MS", type: "uint16", defaultValue: 0 },
               { name: "DEFAULT_ZOOM", type: "float", defaultValue: 0 },
@@ -314,19 +312,19 @@ const weaponDefinitionSchema: PacketFields = [
                   {
                     name: "FIRST_PERSON_OFFSET_X",
                     type: "float",
-                    defaultValue: 0,
+                    defaultValue: 0
                   },
                   {
                     name: "FIRST_PERSON_OFFSET_Y",
                     type: "float",
-                    defaultValue: 0,
+                    defaultValue: 0
                   },
                   {
                     name: "FIRST_PERSON_OFFSET_Z",
                     type: "float",
-                    defaultValue: 0,
-                  },
-                ],
+                    defaultValue: 0
+                  }
+                ]
               },
               { name: "RETICLE_ID", type: "uint8", defaultValue: 0 },
               { name: "FULL_SCREEN_EFFECT", type: "uint8", defaultValue: 0 },
@@ -335,7 +333,7 @@ const weaponDefinitionSchema: PacketFields = [
               {
                 name: "HEAT_RECOVERY_DELAY_MS",
                 type: "uint16",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "SWAY_AMPLITUDE",
@@ -343,8 +341,8 @@ const weaponDefinitionSchema: PacketFields = [
                 defaultValue: {},
                 fields: [
                   { name: "SWAY_AMPLITUDE_X", type: "float", defaultValue: 0 },
-                  { name: "SWAY_AMPLITUDE_Y", type: "float", defaultValue: 0 },
-                ],
+                  { name: "SWAY_AMPLITUDE_Y", type: "float", defaultValue: 0 }
+                ]
               },
               {
                 name: "SWAY_PERIOD",
@@ -352,8 +350,8 @@ const weaponDefinitionSchema: PacketFields = [
                 defaultValue: {},
                 fields: [
                   { name: "SWAY_PERIOD_X", type: "float", defaultValue: 0 },
-                  { name: "SWAY_PERIOD_Y", type: "float", defaultValue: 0 },
-                ],
+                  { name: "SWAY_PERIOD_Y", type: "float", defaultValue: 0 }
+                ]
               },
               { name: "SWAY_INITIAL_Y_OFFSET", type: "float", defaultValue: 0 },
               { name: "ARMS_FOV_SCALAR", type: "float", defaultValue: 0 },
@@ -365,30 +363,30 @@ const weaponDefinitionSchema: PacketFields = [
               {
                 name: "PROJECTILE_SPEED_OVERRIDE",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "INHERIT_FROM_ID", type: "uint32", defaultValue: 0 },
               {
                 name: "INHERIT_FROM_CHARGE_POWER",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "HUD_IMAGE_ID", type: "uint32", defaultValue: 0 },
               { name: "TARGET_REQUIREMENT", type: "uint32", defaultValue: 0 },
               {
                 name: "FIRE_ANIM_DURATION_MS",
                 type: "uint32",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "SEQUENTIAL_FIRE_ANIM_START",
                 type: "uint8",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "SEQUENTIAL_FIRE_ANIM_COUNT",
                 type: "uint8",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "CYLOF_RECOIL", type: "float", defaultValue: 0 },
               { name: "CYLOF_SCALAR", type: "float", defaultValue: 0 },
@@ -397,7 +395,7 @@ const weaponDefinitionSchema: PacketFields = [
               {
                 name: "MELEE_COMPOSITE_EFFECT_ID",
                 type: "uint32",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "MELEE_ABILITY_ID", type: "uint32", defaultValue: 0 },
               { name: "SWAY_CROUCH_SCALAR", type: "float", defaultValue: 0 },
@@ -405,221 +403,221 @@ const weaponDefinitionSchema: PacketFields = [
               {
                 name: "LAUNCH_PITCH_ADDITIVE_DEGREES",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_FORCE_CAMERA_OVERRIDES",
                 type: "boolean",
-                defaultValue: false,
+                defaultValue: false
               },
               {
                 name: "TP_CAMERA_LOOK_OFFSET_X",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CAMERA_LOOK_OFFSET_Y",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CAMERA_LOOK_OFFSET_Z",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CAMERA_POSITION_OFFSET_X",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CAMERA_POSITION_OFFSET_Y",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CAMERA_POSITION_OFFSET_Z",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "TP_CAMERA_FOV", type: "float", defaultValue: 0 },
               {
                 name: "FP_FORCE_CAMERA_OVERRIDES",
                 type: "boolean",
-                defaultValue: false,
+                defaultValue: false
               },
               {
                 name: "TP_EXTRA_LEAD_FROM_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_EXTRA_LEAD_FROM_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "TP_EXTRA_LEAD_PITCH_A", type: "float", defaultValue: 0 },
               { name: "TP_EXTRA_LEAD_PITCH_B", type: "float", defaultValue: 0 },
               {
                 name: "TP_EXTRA_HEIGHT_FROM_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_EXTRA_HEIGHT_FROM_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_EXTRA_HEIGHT_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_EXTRA_HEIGHT_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "FP_CAMERA_FOV", type: "float", defaultValue: 0 },
               {
                 name: "TP_CR_CAMERA_LOOK_OFFSET_X",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_CAMERA_LOOK_OFFSET_Y",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_CAMERA_LOOK_OFFSET_Z",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_CAMERA_POSITION_OFFSET_X",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_CAMERA_POSITION_OFFSET_Y",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_CAMERA_POSITION_OFFSET_Z",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_CAMERA_LOOK_OFFSET_X",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_CAMERA_LOOK_OFFSET_Y",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_CAMERA_LOOK_OFFSET_Z",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_CAMERA_POSITION_OFFSET_X",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_CAMERA_POSITION_OFFSET_Y",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_CAMERA_POSITION_OFFSET_Z",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_EXTRA_LEAD_FROM_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_EXTRA_LEAD_FROM_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_EXTRA_LEAD_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_EXTRA_LEAD_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_EXTRA_HEIGHT_FROM_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_EXTRA_HEIGHT_FROM_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_EXTRA_HEIGHT_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_EXTRA_HEIGHT_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_EXTRA_LEAD_FROM_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_EXTRA_LEAD_FROM_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_EXTRA_LEAD_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_EXTRA_LEAD_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_EXTRA_HEIGHT_FROM_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_EXTRA_HEIGHT_FROM_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_EXTRA_HEIGHT_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_PR_EXTRA_HEIGHT_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "TP_CAMERA_DISTANCE", type: "float", defaultValue: 0 },
               { name: "TP_CR_CAMERA_DISTANCE", type: "float", defaultValue: 0 },
@@ -633,70 +631,70 @@ const weaponDefinitionSchema: PacketFields = [
               {
                 name: "ALLOW_DEPTH_ADJUSTMENT",
                 type: "boolean",
-                defaultValue: false,
+                defaultValue: false
               },
               {
                 name: "TP_EXTRA_DRAW_FROM_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_EXTRA_DRAW_FROM_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "TP_EXTRA_DRAW_PITCH_A", type: "float", defaultValue: 0 },
               { name: "TP_EXTRA_DRAW_PITCH_B", type: "float", defaultValue: 0 },
               {
                 name: "TP_CR_EXTRA_DRAW_FROM_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_EXTRA_DRAW_FROM_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_EXTRA_DRAW_PITCH_A",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_EXTRA_DRAW_PITCH_B",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CAMERA_POS_OFFSET_Y_MOV",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CAMERA_LOOK_OFFSET_Y_MOV",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_CAMERA_POS_OFFSET_Y_MOV",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_CR_CAMERA_LOOK_OFFSET_Y_MOV",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "TP_ALLOW_MOVE_HEIGHTS",
                 type: "boolean",
-                defaultValue: false,
-              },
-            ],
-          },
-        ],
-      },
-    ],
+                defaultValue: false
+              }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     name: "PLAYER_STATE_GROUP_DEFINITIONS",
@@ -725,17 +723,17 @@ const weaponDefinitionSchema: PacketFields = [
               {
                 name: "SHOTS_BEFORE_COF_PENALTY",
                 type: "uint32",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "COF_RECOVERY_DELAY_THRESHOLD",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "COF_RECOVERY_DELAY_MS",
                 type: "uint32",
-                defaultValue: 0,
+                defaultValue: 0
               },
               { name: "COF_GROW_RATE", type: "float", defaultValue: 0 },
               { name: "MIN_CYL_OF_FIRE", type: "float", defaultValue: 0 },
@@ -745,24 +743,24 @@ const weaponDefinitionSchema: PacketFields = [
               {
                 name: "SHOTS_BEFORE_CYLOF_PENALTY",
                 type: "uint32",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "CYLOF_RECOVERY_DELAY_THRESHOLD",
                 type: "float",
-                defaultValue: 0,
+                defaultValue: 0
               },
               {
                 name: "CYLOF_RECOVERY_DELAY_MS",
                 type: "uint32",
-                defaultValue: 0,
+                defaultValue: 0
               },
-              { name: "CYLOF_GROW_RATE", type: "float", defaultValue: 0 },
-            ],
-          },
-        ],
-      },
-    ],
+              { name: "CYLOF_GROW_RATE", type: "float", defaultValue: 0 }
+            ]
+          }
+        ]
+      }
+    ]
   },
   {
     name: "FIRE_MODE_PROJECTILE_MAPPING_DATA",
@@ -777,10 +775,10 @@ const weaponDefinitionSchema: PacketFields = [
         fields: [
           { name: "ID", type: "uint32", defaultValue: 0 },
           { name: "INDEX", type: "uint32", defaultValue: 0 },
-          { name: "PROJECTILE_DEFINITION_ID", type: "uint32", defaultValue: 0 },
-        ],
-      },
-    ],
+          { name: "PROJECTILE_DEFINITION_ID", type: "uint32", defaultValue: 0 }
+        ]
+      }
+    ]
   },
   {
     name: "AIM_ASSIST_DEFINITIONS",
@@ -808,12 +806,12 @@ const weaponDefinitionSchema: PacketFields = [
           {
             name: "MIN_INPUT_WEIGHT_DELAY_OUT",
             type: "float",
-            defaultValue: 0,
+            defaultValue: 0
           },
           {
             name: "MAX_INPUT_WEIGHT_DELAY_OUT",
             type: "float",
-            defaultValue: 0,
+            defaultValue: 0
           },
           { name: "MIN_INPUT_FACTOR", type: "float", defaultValue: 0 },
           { name: "MAX_INPUT_FACTOR", type: "float", defaultValue: 0 },
@@ -825,17 +823,17 @@ const weaponDefinitionSchema: PacketFields = [
           {
             name: "MIN_INPUT_STRAFE_ARRIVE_TIME",
             type: "float",
-            defaultValue: 0,
+            defaultValue: 0
           },
           {
             name: "MAX_INPUT_STRAFE_ARRIVE_TIME",
             type: "float",
-            defaultValue: 0,
-          },
-        ],
-      },
-    ],
-  },
+            defaultValue: 0
+          }
+        ]
+      }
+    ]
+  }
 ];
 
 function packWeaponDefinitionData(obj: any) {
@@ -868,8 +866,8 @@ const projectileDefinitionSchema: PacketFields = [
             defaultValue: {},
             fields: [
               { name: "FLAGS1", type: "uint8", defaultValue: 0 },
-              { name: "FLAGS2", type: "uint8", defaultValue: 0 },
-            ],
+              { name: "FLAGS2", type: "uint8", defaultValue: 0 }
+            ]
           },
           { name: "MODEL_FILE_NAME", type: "string", defaultValue: "" },
           { name: "FP_MODEL_FILE_NAME", type: "string", defaultValue: "" },
@@ -883,7 +881,7 @@ const projectileDefinitionSchema: PacketFields = [
           {
             name: "INDIRECT_DAMAGE_EFFECT_ID",
             type: "uint32",
-            defaultValue: 0,
+            defaultValue: 0
           },
           { name: "LIFESPAN", type: "float", defaultValue: 0 },
           { name: "MAX_SPEED", type: "float", defaultValue: 0 },
@@ -891,7 +889,7 @@ const projectileDefinitionSchema: PacketFields = [
           {
             name: "BONE_ATTACHMENT_OVERRIDE",
             type: "string",
-            defaultValue: "",
+            defaultValue: ""
           },
           { name: "DRAG", type: "float", defaultValue: 0 },
           { name: "GRAVITY", type: "float", defaultValue: 0 },
@@ -909,7 +907,7 @@ const projectileDefinitionSchema: PacketFields = [
           {
             name: "TRIGGER_DETONATE_REQUIREMENT",
             type: "uint8",
-            defaultValue: 0,
+            defaultValue: 0
           },
           { name: "ARM_DISTANCE", type: "uint32", defaultValue: 0 },
           { name: "DETONATE_DISTANCE", type: "uint32", defaultValue: 0 },
@@ -923,8 +921,8 @@ const projectileDefinitionSchema: PacketFields = [
             type: "array",
             defaultValue: [],
             fields: [
-              { name: "PLAYER_BULLET_RADIUS", type: "uint32", defaultValue: 0 },
-            ],
+              { name: "PLAYER_BULLET_RADIUS", type: "uint32", defaultValue: 0 }
+            ]
           },
           { name: "ITEM_PICKUP_ID", type: "uint32", defaultValue: 0 },
           { name: "BOUNCE_MODEL_ID", type: "uint32", defaultValue: 0 },
@@ -933,11 +931,11 @@ const projectileDefinitionSchema: PacketFields = [
           { name: "ANGULAR_VELOCITY_Y_MIN", type: "float", defaultValue: 0 },
           { name: "ANGULAR_VELOCITY_Y_MAX", type: "float", defaultValue: 0 },
           { name: "ANGULAR_VELOCITY_Z_MIN", type: "float", defaultValue: 0 },
-          { name: "ANGULAR_VELOCITY_Z_MAX", type: "float", defaultValue: 0 },
-        ],
-      },
-    ],
-  },
+          { name: "ANGULAR_VELOCITY_Z_MAX", type: "float", defaultValue: 0 }
+        ]
+      }
+    ]
+  }
 ];
 
 function packProjectileDefinitionData(obj: any) {
@@ -982,12 +980,12 @@ export const referenceDataPackets: PacketStructures = [
                 {
                   name: "unknownBoolean1",
                   type: "boolean",
-                  defaultValue: false,
+                  defaultValue: false
                 },
                 {
                   name: "unknownBoolean2",
                   type: "boolean",
-                  defaultValue: false,
+                  defaultValue: false
                 },
                 { name: "unknownDword9", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword10", type: "uint32", defaultValue: 0 },
@@ -998,8 +996,8 @@ export const referenceDataPackets: PacketStructures = [
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                  ],
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+                  ]
                 },
                 { name: "unknownDword11", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword12", type: "uint32", defaultValue: 0 },
@@ -1009,8 +1007,8 @@ export const referenceDataPackets: PacketStructures = [
                   type: "array",
                   defaultValue: [],
                   fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                  ],
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+                  ]
                 },
                 { name: "unknownFloat1", type: "float", defaultValue: 0 },
                 { name: "unknownFloat2", type: "float", defaultValue: 0 },
@@ -1020,13 +1018,13 @@ export const referenceDataPackets: PacketStructures = [
                 { name: "unknownDword16", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword17", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword18", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword19", type: "uint32", defaultValue: 0 },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+                { name: "unknownDword19", type: "uint32", defaultValue: 0 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ],
   [
     "ReferenceData.WeaponDefinitions",
@@ -1040,12 +1038,12 @@ export const referenceDataPackets: PacketStructures = [
             {
               name: "definitionsData",
               type: "custom",
-              packer: packWeaponDefinitionData,
-            },
-          ],
-        },
-      ],
-    },
+              packer: packWeaponDefinitionData
+            }
+          ]
+        }
+      ]
+    }
   ],
   [
     "ReferenceData.ProjectileDefinitions",
@@ -1055,10 +1053,10 @@ export const referenceDataPackets: PacketStructures = [
         {
           name: "definitionsData",
           type: "custom",
-          packer: packProjectileDefinitionData,
-        },
-      ],
-    },
+          packer: packProjectileDefinitionData
+        }
+      ]
+    }
   ],
   [
     "ReferenceData.VehicleDefinitions",
@@ -1069,9 +1067,9 @@ export const referenceDataPackets: PacketStructures = [
           name: "data",
           type: "custom",
           parser: parseVehicleReferenceData,
-          packer: packVehicleReferenceData,
-        },
-      ],
-    },
-  ],
+          packer: packVehicleReferenceData
+        }
+      ]
+    }
+  ]
 ];

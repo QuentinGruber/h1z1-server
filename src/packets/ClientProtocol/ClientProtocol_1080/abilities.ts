@@ -36,18 +36,18 @@ export const abilitiesPackets: PacketStructures = [
                 {
                   name: "unknownQword1",
                   type: "uint64string",
-                  defaultValue: "0",
+                  defaultValue: "0"
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+              ]
             },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   ["Abilities.SetVehicleActivatableAbilityManager", 0xa106, {}],
   ["Abilities.SetAbilityTimerManager", 0xa107, {}],
@@ -94,13 +94,13 @@ export const abilitiesPackets: PacketStructures = [
                 { name: "abilityId", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "guid1", type: "uint64string", defaultValue: "0" },
-                { name: "guid2", type: "uint64string", defaultValue: "0" },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+                { name: "guid2", type: "uint64string", defaultValue: "0" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ],
   ["Abilities.AddLoadoutAbility", 0xa121, {}],
   ["Abilities.RemoveLoadoutAbility", 0xa122, {}],
@@ -112,5 +112,5 @@ export const abilitiesPackets: PacketStructures = [
   ["Abilities.RemovePersistentAbility", 0xa128, {}],
   ["Abilities.SetProfileRankAbilities", 0xa129, {}],
   ["Abilities.AddProfileRankAbility", 0xa12a, {}],
-  ["Abilities.RemoveProfileRankAbility", 0xa12b, {}],
+  ["Abilities.RemoveProfileRankAbility", 0xa12b, {}]
 ];

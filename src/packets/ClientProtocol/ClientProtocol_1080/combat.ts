@@ -22,5 +22,5 @@ export const combatPackets: PacketStructures = [
   ["Combat.AttackProcessed", 0x0c07, {}],
   ["Combat.EnableBossDisplay", 0x0c09, {}],
   ["Combat.AttackTargetBlocked", 0x0c0a, {}],
-  ["Combat.AttackTargetParried", 0x0c0b, {}],
+  ["Combat.AttackTargetParried", 0x0c0b, {}]
 ];

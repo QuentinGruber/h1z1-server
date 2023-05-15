@@ -80,7 +80,7 @@ export class CommandHandler {
             {
               name: command.name,
               permissionLevel: command.permissionLevel,
-              args,
+              args
             }
           );
         }

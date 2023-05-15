@@ -35,6 +35,8 @@ interface WeatherConfig {
 
 interface WorldObjectsConfig {
   vehicleSpawnCap: number;
+  minAirdropSurvivors: number;
+  hasCustomLootRespawnTime: boolean;
   lootRespawnTimer: number;
   vehicleRespawnTimer: number;
   npcRespawnTimer: number;

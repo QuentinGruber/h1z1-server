@@ -32,13 +32,13 @@ import {
   PlantSaveData,
   positionUpdate,
   ServerSaveData,
-  WeaponSaveData,
+  WeaponSaveData
 } from "types/savedata";
 import {
   getAppDataFolderPath,
   initMongo,
   removeUntransferableFields,
-  toBigHex,
+  toBigHex
 } from "../../../utils/utils";
 import { ZoneServer2016 } from "../zoneserver";
 import { LoadoutItem } from "../classes/loadoutItem";
@@ -154,7 +154,7 @@ export class WorldDataManager {
 
   static async getDatabase(mongoAddress: string) {
     const mongoClient = new MongoClient(mongoAddress, {
-      maxPoolSize: 100,
+      maxPoolSize: 100
     });
     try {
       await mongoClient.connect();
@@ -186,14 +186,14 @@ export class WorldDataManager {
       await this._db?.collection(DB_COLLECTIONS.WORLDS).insertOne({
         worldId: this._worldId,
         lastItemGuid: toBigHex(lastItemGuid),
-        worldSaveVersion: this.worldSaveVersion,
+        worldSaveVersion: this.worldSaveVersion
       });
       debug("Existing world was not found, created one.");
     } else {
       await this._db?.collection(DB_COLLECTIONS.WORLDS).insertOne({
         worldId: this._worldId,
         lastItemGuid: toBigHex(lastItemGuid),
-        worldSaveVersion: this.worldSaveVersion,
+        worldSaveVersion: this.worldSaveVersion
       });
     }
   }
@@ -211,7 +211,7 @@ export class WorldDataManager {
       freeplace,
       crops,
       lastTransientId: 0,
-      vehicles,
+      vehicles
     };
   }
   async deleteServerData() {
@@ -222,7 +222,7 @@ export class WorldDataManager {
       );
     } else {
       await this._db?.collection(DB_COLLECTIONS.WORLDS).deleteOne({
-        worldId: this._worldId,
+        worldId: this._worldId
       });
     }
   }
@@ -236,7 +236,7 @@ export class WorldDataManager {
     } else {
       await this._db?.collection(DB_COLLECTIONS.CHARACTERS).updateMany(
         {
-          serverId: this._worldId,
+          serverId: this._worldId
         },
         { $set: { status: 0 } }
       );
@@ -264,7 +264,7 @@ export class WorldDataManager {
 
   static getBaseSaveData(serverId: number): BaseSaveData {
     return {
-      serverId: serverId,
+      serverId: serverId
     };
   }
 
@@ -273,7 +273,7 @@ export class WorldDataManager {
   ): BaseEntityUpdateSaveData {
     return {
       position: Array.from(entity.state.position),
-      rotation: Array.from(entity.state.rotation),
+      rotation: Array.from(entity.state.rotation)
     };
   }
 
@@ -281,7 +281,7 @@ export class WorldDataManager {
     return {
       orientation: entity.positionUpdate.orientation,
       frontTilt: entity.positionUpdate.frontTilt,
-      sideTilt: entity.positionUpdate.sideTilt,
+      sideTilt: entity.positionUpdate.sideTilt
     };
   }
 
@@ -293,13 +293,13 @@ export class WorldDataManager {
       ...this.getBaseEntityUpdateSaveData(entity),
       ...this.getBaseSaveData(serverId),
       characterId: entity.characterId,
-      actorModelId: entity.actorModelId,
+      actorModelId: entity.actorModelId
     };
   }
 
   static getWeaponSaveData(weapon: Weapon): WeaponSaveData {
     return {
-      ammoCount: weapon.ammoCount,
+      ammoCount: weapon.ammoCount
     };
   }
 
@@ -311,14 +311,14 @@ export class WorldDataManager {
       containerGuid: item.containerGuid,
       currentDurability: item.currentDurability,
       stackCount: item.stackCount,
-      weapon: item.weapon ? this.getWeaponSaveData(item.weapon) : undefined,
+      weapon: item.weapon ? this.getWeaponSaveData(item.weapon) : undefined
     };
   }
 
   static getLoadoutItemSaveData(item: LoadoutItem): LoadoutItemSaveData {
     return {
       ...this.getItemSaveData(item),
-      loadoutItemOwnerGuid: item.loadoutItemOwnerGuid,
+      loadoutItemOwnerGuid: item.loadoutItemOwnerGuid
     };
   }
 
@@ -328,14 +328,14 @@ export class WorldDataManager {
     const items: { [itemGuid: string]: ItemSaveData } = {};
     Object.values(container.items).forEach((item) => {
       items[item.itemGuid] = {
-        ...this.getItemSaveData(item),
+        ...this.getItemSaveData(item)
       };
     });
 
     return {
       ...this.getLoadoutItemSaveData(container),
       containerDefinitionId: container.containerDefinitionId,
-      items: items,
+      items: items
     };
   }
 
@@ -347,12 +347,12 @@ export class WorldDataManager {
       containers: { [loadoutSlotId: number]: LoadoutContainerSaveData } = {};
     Object.values(entity._loadout).forEach((item) => {
       loadout[item.slotId] = {
-        ...this.getLoadoutItemSaveData(item),
+        ...this.getLoadoutItemSaveData(item)
       };
     });
     Object.values(entity._containers).forEach((container) => {
       containers[container.slotId] = {
-        ...this.getLoadoutContainerSaveData(container),
+        ...this.getLoadoutContainerSaveData(container)
       };
     });
 
@@ -361,7 +361,7 @@ export class WorldDataManager {
       _loadout: loadout,
       _containers: containers,
       _resources: entity._resources,
-      worldSaveVersion: worldSaveVersion,
+      worldSaveVersion: worldSaveVersion
     };
   }
 
@@ -391,7 +391,7 @@ export class WorldDataManager {
     const saveData: ServerSaveData = {
       serverId: this._worldId,
       lastItemGuid: toBigHex(lastItemGuid),
-      worldSaveVersion: this.worldSaveVersion,
+      worldSaveVersion: this.worldSaveVersion
     };
     if (this._soloMode) {
       fs.writeFileSync(
@@ -403,8 +403,8 @@ export class WorldDataManager {
         { worldId: this._worldId },
         {
           $set: {
-            ...saveData,
-          },
+            ...saveData
+          }
         }
       );
     }
@@ -460,7 +460,7 @@ export class WorldDataManager {
         _resources: loadedCharacter._resources || {},
         mutedCharacters: loadedCharacter.mutedCharacters || [],
         status: 1,
-        worldSaveVersion: this.worldSaveVersion,
+        worldSaveVersion: this.worldSaveVersion
       };
     }
     return savedCharacter;
@@ -501,7 +501,7 @@ export class WorldDataManager {
       characterId: vehicle.characterId,
       serverId: worldId,
       rotation: Array.from(vehicle.state.lookAt),
-      positionUpdate: WorldDataManager.getPositionUpdateSaveData(vehicle),
+      positionUpdate: WorldDataManager.getPositionUpdateSaveData(vehicle)
     };
     return saveData;
   }
@@ -516,7 +516,7 @@ export class WorldDataManager {
       rotation: Array.from(character.state.lookAt),
       isRespawning: character.isRespawning,
       spawnGridData: character.spawnGridData,
-      mutedCharacters: character.mutedCharacters,
+      mutedCharacters: character.mutedCharacters
     };
     return saveData;
   }
@@ -541,7 +541,7 @@ export class WorldDataManager {
       }
       singlePlayerCharacter = {
         ...singlePlayerCharacter,
-        ...characterSaveData,
+        ...characterSaveData
       };
       fs.writeFileSync(
         `${this._appDataFolder}/single_player_characters2016.json`,
@@ -551,12 +551,12 @@ export class WorldDataManager {
       await this._db?.collection(DB_COLLECTIONS.CHARACTERS).updateOne(
         {
           serverId: this._worldId,
-          characterId: characterSaveData.characterId,
+          characterId: characterSaveData.characterId
         },
         {
           $set: {
-            ...characterSaveData,
-          },
+            ...characterSaveData
+          }
         }
       );
     }
@@ -881,7 +881,7 @@ export class WorldDataManager {
       placementTime: entity.placementTime,
       parentObjectCharacterId: entity.parentObjectCharacterId,
       itemDefinitionId: entity.itemDefinitionId,
-      slot: entity instanceof LootableConstructionEntity ? "" : entity.slot,
+      slot: entity instanceof LootableConstructionEntity ? "" : entity.slot
     };
   }
 
@@ -894,7 +894,7 @@ export class WorldDataManager {
       ownerCharacterId: entity.ownerCharacterId,
       passwordHash: entity.passwordHash,
       grantedAccess: entity.grantedAccess,
-      rotation: Array.from(entity.startRot), // override quaternion rotation
+      rotation: Array.from(entity.startRot) // override quaternion rotation
     };
   }
 
@@ -905,7 +905,7 @@ export class WorldDataManager {
     return {
       ...this.getBaseConstructionSaveData(entity, serverId),
       container: entity.getContainer(),
-      subEntityType: entity.subEntity?.subType || "",
+      subEntityType: entity.subEntity?.subType || ""
     };
   }
 
@@ -968,7 +968,7 @@ export class WorldDataManager {
       occupiedWallSlots: wallSlots,
       occupiedUpperWallSlots: upperWallSlots,
       occupiedShelterSlots: shelterSlots,
-      freeplaceEntities: freePlaceEntities,
+      freeplaceEntities: freePlaceEntities
     };
   }
 
@@ -993,7 +993,7 @@ export class WorldDataManager {
       permissions: entity.permissions,
       ownerCharacterId: entity.ownerCharacterId,
       occupiedExpansionSlots: expansionSlots,
-      occupiedRampSlots: rampSlots,
+      occupiedRampSlots: rampSlots
     };
   }
 
@@ -1024,7 +1024,7 @@ export class WorldDataManager {
       });
       await collection.deleteMany({
         serverId: this._worldId,
-        characterId: { $nin: allCharactersIds },
+        characterId: { $nin: allCharactersIds }
       });
     }
   }
@@ -1036,7 +1036,7 @@ export class WorldDataManager {
       nextStateTime: entity.nextStateTime,
       parentObjectCharacterId: entity.parentObjectCharacterId,
       slot: entity.slot,
-      item: this.getItemSaveData(entity.item),
+      item: this.getItemSaveData(entity.item)
     };
   }
 
@@ -1053,7 +1053,7 @@ export class WorldDataManager {
       ...this.getBaseFullEntitySaveData(entity, serverId),
       seedSlots: slots,
       fertilizedTimestamp: entity.fertilizedTimestamp,
-      isFertilized: entity.isFertilized,
+      isFertilized: entity.isFertilized
     };
   }
 
@@ -1084,7 +1084,7 @@ export class WorldDataManager {
       });
       await collection.deleteMany({
         serverId: this._worldId,
-        characterId: { $nin: allCharactersIds },
+        characterId: { $nin: allCharactersIds }
       });
     }
   }
@@ -1210,7 +1210,7 @@ export class WorldDataManager {
       });
       await collection.deleteMany({
         serverId: this._worldId,
-        characterId: { $nin: allCharactersIds },
+        characterId: { $nin: allCharactersIds }
       });
     }
   }
@@ -1244,7 +1244,7 @@ export class WorldDataManager {
       });
       await collection.deleteMany({
         serverId: this._worldId,
-        characterId: { $nin: allCharactersIds },
+        characterId: { $nin: allCharactersIds }
       });
     }
   }

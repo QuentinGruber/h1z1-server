@@ -22,16 +22,16 @@ export const wallOfDataPackets: PacketStructures = [
       fields: [
         { name: "object", type: "string", defaultValue: "" },
         { name: "function", type: "string", defaultValue: "" },
-        { name: "argument", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "argument", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   [
     "WallOfData.ClientSystemInfo",
     0x9b06,
     {
-      fields: [{ name: "info", type: "string", defaultValue: "" }],
-    },
+      fields: [{ name: "info", type: "string", defaultValue: "" }]
+    }
   ],
   ["WallOfData.VoiceChatEvent", 0x9b07, {}],
   ["WallOfData.NudgeEvent", 0x9b09, {}],
@@ -44,8 +44,8 @@ export const wallOfDataPackets: PacketStructures = [
       fields: [
         { name: "oldState", type: "uint32", defaultValue: 0 },
         { name: "newState", type: "uint32", defaultValue: 0 },
-        { name: "msElapsed", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  ],
+        { name: "msElapsed", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ]
 ];

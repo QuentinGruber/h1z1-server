@@ -17,29 +17,29 @@ export const targetPackets: any = [
     "Target.CharacterGuid",
     0x7e01,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "Target.Location",
     0x7e02,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "Target.CharacterBone",
     0x7e03,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "Target.CharacterBoneId",
     0x7e04,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "Target.ActorBone",
@@ -50,24 +50,24 @@ export const targetPackets: any = [
         {
           name: "unk2",
           type: "uint64string",
-          defaultValue: "0x0000000000000010",
-        },
-      ],
-    },
+          defaultValue: "0x0000000000000010"
+        }
+      ]
+    }
   ],
   [
     "Target.ActorBoneId",
     0x7e06,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "Target.Facility",
     0x7e07,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
 
   // for some reason the opcode of a Target packet is 0x{BasePacketOpcode byte}{SubPacketOpcode byte}{emptyByte}
@@ -79,12 +79,12 @@ export const targetPackets: any = [
         {
           name: "Unk1",
           type: "uint64string",
-          defaultValue: "0x0000000000000010",
+          defaultValue: "0x0000000000000010"
         },
         { name: "Unk2", type: "string", defaultValue: "10" },
-        { name: "Unk3", type: "boolean", defaultValue: true }, // the packet is ignored if falsy
-      ],
-    },
+        { name: "Unk3", type: "boolean", defaultValue: true } // the packet is ignored if falsy
+      ]
+    }
   ],
   [
     "Target.SetTarget",
@@ -94,12 +94,12 @@ export const targetPackets: any = [
         {
           name: "Unk1",
           type: "uint64string",
-          defaultValue: "0x0000000000000010",
+          defaultValue: "0x0000000000000010"
         },
         { name: "Unk2", type: "string", defaultValue: "10" },
-        { name: "Unk3", type: "boolean", defaultValue: true }, // the packet is ignored if falsy
-      ],
-    },
+        { name: "Unk3", type: "boolean", defaultValue: true } // the packet is ignored if falsy
+      ]
+    }
   ],
   [
     "Target.RemoveTarget",
@@ -107,9 +107,9 @@ export const targetPackets: any = [
     {
       fields: [
         { name: "Unk2", type: "string", defaultValue: "10" },
-        { name: "Unk3", type: "boolean", defaultValue: true }, // the packet is ignored if falsy
-      ],
-    },
+        { name: "Unk3", type: "boolean", defaultValue: true } // the packet is ignored if falsy
+      ]
+    }
   ],
   [
     "Target.ClearTarget",
@@ -117,8 +117,8 @@ export const targetPackets: any = [
     {
       fields: [
         { name: "Unk2", type: "string", defaultValue: "10" },
-        { name: "Unk3", type: "boolean", defaultValue: true }, // the packet is ignored if falsy
-      ],
-    },
-  ],
+        { name: "Unk3", type: "boolean", defaultValue: true } // the packet is ignored if falsy
+      ]
+    }
+  ]
 ];

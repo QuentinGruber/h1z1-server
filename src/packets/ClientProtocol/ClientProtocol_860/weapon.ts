@@ -17,7 +17,7 @@ import {
   packUnsignedIntWith2bitLengthValue,
   readPacketType,
   readUnsignedIntWith2bitLengthValue,
-  writePacketType,
+  writePacketType
 } from "./shared";
 import { itemWeaponDetailSubSchema1 } from "./shared";
 
@@ -29,9 +29,9 @@ const weaponPackets: any = [
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   ["Weapon.FireStateTargetedUpdate", 0x8202, {}],
   [
@@ -43,9 +43,9 @@ const weaponPackets: any = [
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Weapon.FireWithDefinitionMapping", 0x8204, {}],
   ["Weapon.FireNoProjectile", 0x8205, {}],
@@ -54,8 +54,8 @@ const weaponPackets: any = [
     "Weapon.ReloadRequest",
     0x8207,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
-    },
+      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }]
+    }
   ],
   ["Weapon.Reload", 0x8208, {}],
   ["Weapon.ReloadInterrupt", 0x8209, {}],
@@ -68,9 +68,9 @@ const weaponPackets: any = [
         { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-        { name: "unknownByte3", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownByte3", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   ["Weapon.LockOnGuidUpdate", 0x820c, {}],
   ["Weapon.LockOnLocationUpdate", 0x820d, {}],
@@ -95,14 +95,14 @@ const weaponPackets: any = [
                 {
                   name: "statUpdateData",
                   type: "schema",
-                  fields: itemWeaponDetailSubSchema1,
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+                  fields: itemWeaponDetailSubSchema1
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ],
   ["Weapon.DebugProjectile", 0x820f, {}],
   ["Weapon.AddFireGroup", 0x8210, {}],
@@ -121,7 +121,7 @@ const weaponPackets: any = [
           name: "unknownUint1",
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue
         },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
@@ -130,10 +130,10 @@ const weaponPackets: any = [
           name: "unknownUint2",
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
-        },
-      ],
-    },
+          packer: packUnsignedIntWith2bitLengthValue
+        }
+      ]
+    }
   ],
   ["Weapon.RemoteWeapon.Update.FireState", 0x82140401, {}],
   ["Weapon.RemoteWeapon.Update.Empty", 0x82140402, {}],
@@ -166,9 +166,9 @@ const weaponPackets: any = [
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "unknownBoolean1", type: "boolean", defaultValue: true },
-        { name: "unknownByte1", type: "uint8", defaultValue: 1 },
-      ],
-    },
+        { name: "unknownByte1", type: "uint8", defaultValue: 1 }
+      ]
+    }
   ],
   ["Weapon.ProjectileSpawnNpc", 0x821c, {}],
   ["Weapon.FireRejected", 0x821d, {}],
@@ -181,16 +181,16 @@ const weaponPackets: any = [
           name: "packets",
           type: "custom",
           parser: parseMultiWeaponPacket,
-          packer: packMultiWeaponPacket,
-        },
-      ],
-    },
+          packer: packMultiWeaponPacket
+        }
+      ]
+    }
   ],
   ["Weapon.WeaponFireHint", 0x821f, {}],
   ["Weapon.ProjectileContactReport", 0x8220, {}],
   ["Weapon.MeleeHitMaterial", 0x8221, {}],
   ["Weapon.ProjectileSpawnAttachedNp", 0x8222, {}],
-  ["Weapon.AddDebugLogEntry", 0x8223, {}],
+  ["Weapon.AddDebugLogEntry", 0x8223, {}]
 ];
 
 const [weaponPacketTypes, weaponPacketDescriptors] =
@@ -213,7 +213,7 @@ function parseMultiWeaponPacket(data: Buffer, offset: number) {
   }
   return {
     value: packets,
-    length: startOffset - offset,
+    length: startOffset - offset
   };
 }
 
@@ -251,7 +251,7 @@ export function parseWeaponPacket(data: Buffer, offset: number) {
   }
   return {
     value: obj,
-    length: data.length - offset,
+    length: data.length - offset
   };
 }
 

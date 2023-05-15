@@ -121,7 +121,7 @@ export class DoorEntity extends BaseLightweightCharacter {
     noCollide: 0,
     knockedOut: 0,
     bit22: 0,
-    bit23: 0,
+    bit23: 0
   };
   spawnerId: number;
   npcRenderDistance = 150;
@@ -182,9 +182,9 @@ export class DoorEntity extends BaseLightweightCharacter {
       flags: {
         flags1: this.flags,
         flags2: this.flags,
-        flags3: this.flags,
+        flags3: this.flags
       },
-      headActor: this.headActor,
+      headActor: this.headActor
     };
   }
 
@@ -202,7 +202,7 @@ export class DoorEntity extends BaseLightweightCharacter {
           characterId: this.characterId,
           destroyedModel: this.destroyedModel,
           disableWeirdPhysic: true,
-          destroyedEffect2: 165,
+          destroyedEffect2: 165
         }
       );
     }
@@ -235,8 +235,8 @@ export class DoorEntity extends BaseLightweightCharacter {
           sequenceTime: 0,
           unknown3_int8: 0,
           position: this.state.position,
-          orientation: this.isOpen ? this.closedAngle : this.openAngle,
-        },
+          orientation: this.isOpen ? this.closedAngle : this.openAngle
+        }
       }
     );
     server.sendDataToAllWithSpawnedEntity(
@@ -245,7 +245,7 @@ export class DoorEntity extends BaseLightweightCharacter {
       "Command.PlayDialogEffect",
       {
         characterId: this.characterId,
-        effectId: this.isOpen ? this.closeSound : this.openSound,
+        effectId: this.isOpen ? this.closeSound : this.openSound
       }
     );
     this.isOpen = !this.isOpen;
@@ -254,7 +254,7 @@ export class DoorEntity extends BaseLightweightCharacter {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: 78,
+      stringId: 78
     });
   }
 

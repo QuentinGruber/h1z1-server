@@ -24,8 +24,8 @@ export const collisionPackets: any = [
         { name: "damage", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "position", type: "floatvector3", defaultValue: 0 },
-        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-      ],
-    },
-  ],
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ]
 ];

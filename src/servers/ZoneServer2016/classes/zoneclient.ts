@@ -40,7 +40,7 @@ export class ZoneClient2016 {
   posAtTimerStart: Float32Array = new Float32Array();
   oldPos: { position: Float32Array; time: number } = {
     position: new Float32Array(),
-    time: 0,
+    time: 0
   };
   enableChecks: boolean = true;
   speedWarnsNumber: number = 0;

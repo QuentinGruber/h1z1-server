@@ -21,7 +21,7 @@ function sendMessageToServer(type: string, requestId: number, data: any) {
   const message: httpServerMessage = {
     type: type,
     requestId: requestId,
-    data: data,
+    data: data
   };
   parentPort?.postMessage(message);
 }
@@ -29,7 +29,7 @@ function sendMessageToServer(type: string, requestId: number, data: any) {
 const { MONGO_URL, SERVER_PORT } = workerData;
 
 const client = new MongoClient(MONGO_URL, {
-  maxPoolSize: 5,
+  maxPoolSize: 5
 });
 const dbName = DB_NAME;
 const db = client.db(dbName);
@@ -48,13 +48,13 @@ function parseQueryString(queryString: string) {
 }
 const agent = new http.Agent({
   keepAlive: true,
-  maxSockets: 45,
+  maxSockets: 45
 });
 http.request({
   agent: agent,
   method: "GET",
   hostname: "localhost",
-  port: SERVER_PORT,
+  port: SERVER_PORT
 });
 const httpServer = http.createServer().listen(SERVER_PORT);
 httpServer.on("request", async function (req, res) {

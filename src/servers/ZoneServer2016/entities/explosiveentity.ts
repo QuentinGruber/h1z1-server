@@ -55,7 +55,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
       "Command.PlayDialogEffect",
       {
         characterId: this.characterId,
-        effectId: 5034,
+        effectId: 5034
       }
     );
     server.sendDataToAllWithSpawnedEntity(
@@ -64,7 +64,7 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
       "Command.PlayDialogEffect",
       {
         characterId: this.characterId,
-        effectId: 185,
+        effectId: 185
       }
     );
     setTimeout(() => {

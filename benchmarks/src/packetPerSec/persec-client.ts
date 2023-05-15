@@ -33,7 +33,7 @@ export class PerSecClient extends EventEmitter {
     this._connection = new Worker(
       `${__dirname}/../../../out/servers/shared/workers/udpServerWorker.js`,
       {
-        workerData: { serverPort: 0, disableAntiDdos: true },
+        workerData: { serverPort: 0, disableAntiDdos: true }
       }
     );
 
@@ -66,8 +66,8 @@ export class PerSecClient extends EventEmitter {
         packetData: packet,
         length: packet.length,
         port: this._serverTarget.port,
-        address: this._serverTarget.address,
-      },
+        address: this._serverTarget.address
+      }
     });
   }
 

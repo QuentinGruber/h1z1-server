@@ -44,7 +44,7 @@ import {
   ResourceTypes,
   VehicleIds,
   ConstructionPermissionIds,
-  ItemUseOptions,
+  ItemUseOptions
 } from "./models/enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
@@ -54,13 +54,13 @@ import {
   ConstructionEntity,
   DamageInfo,
   DamageRecord,
-  Recipe,
+  Recipe
 } from "../../types/zoneserver";
 import { h1z1PacketsType2016 } from "../../types/packets";
 import {
   remoteWeaponPacketsType,
   remoteWeaponUpdatePacketsType,
-  weaponPacketsType,
+  weaponPacketsType
 } from "../../types/weaponPackets";
 import { Character2016 as Character } from "./entities/character";
 import {
@@ -85,7 +85,7 @@ import {
   removeUntransferableFields,
   movePoint,
   getAngle,
-  getDistance2d,
+  getDistance2d
 } from "../../utils/utils";
 
 import { Db } from "mongodb";
@@ -94,7 +94,7 @@ import { ItemObject } from "./entities/itemobject";
 import {
   DEFAULT_CRYPTO_KEY,
   EXTERNAL_CONTAINER_GUID,
-  LOADOUT_CONTAINER_ID,
+  LOADOUT_CONTAINER_ID
 } from "../../utils/constants";
 import { TrapEntity } from "./entities/trapentity";
 import { DoorEntity } from "./entities/doorentity";
@@ -111,13 +111,13 @@ import {
   ConstructionParentSaveData,
   FullCharacterSaveData,
   LootableConstructionSaveData,
-  PlantingDiameterSaveData,
+  PlantingDiameterSaveData
 } from "types/savedata";
 import {
   constructContainers,
   constructLoadout,
   FetchedWorldData,
-  WorldDataManager,
+  WorldDataManager
 } from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
@@ -126,7 +126,7 @@ import { DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
 import {
   ClientUpdateDeathMetrics,
   ClientUpdateProximateItems,
-  zone2016packets,
+  zone2016packets
 } from "types/zone2016packets";
 import { getCharacterModelData } from "../shared/functions";
 import { HookManager } from "./managers/hookmanager";
@@ -250,7 +250,7 @@ export class ZoneServer2016 extends EventEmitter {
   _characterIds: { [characterId: string]: number } = {};
   readonly _loginServerInfo: { address?: string; port: number } = {
     address: process.env.LOGINSERVER_IP,
-    port: 1110,
+    port: 1110
   };
   worldRoutineTimer!: NodeJS.Timeout;
   _allowedCommands: string[] = process.env.ALLOWED_COMMANDS
@@ -387,7 +387,7 @@ export class ZoneServer2016 extends EventEmitter {
           const adminData = (await this._db
             ?.collection(DB_COLLECTIONS.ADMINS)
             .findOne({
-              sessionId: zoneClient.loginSessionId,
+              sessionId: zoneClient.loginSessionId
             })) as unknown as { permissionLevel: number };
           if (adminData) {
             zoneClient.isAdmin = true;
@@ -425,7 +425,7 @@ export class ZoneServer2016 extends EventEmitter {
           this._db.collection("packets").insertOne({
             data,
             flags,
-            loginSessionId: this._clients[client.sessionId].loginSessionId,
+            loginSessionId: this._clients[client.sessionId].loginSessionId
           });
         }
         const packet = this._protocol.parse(data, flags);
@@ -522,7 +522,7 @@ export class ZoneServer2016 extends EventEmitter {
                     .find({
                       characterId: characterId,
                       serverId: this._worldId,
-                      status: 1,
+                      status: 1
                     })
                     .toArray();
                   if (charactersArray.length) {
@@ -562,8 +562,8 @@ export class ZoneServer2016 extends EventEmitter {
                       { characterId: characterId },
                       {
                         $set: {
-                          status: 0,
-                        },
+                          status: 0
+                        }
                       }
                     );
                     this._h1emuZoneServer.sendData(
@@ -648,23 +648,23 @@ export class ZoneServer2016 extends EventEmitter {
         hairModel: characterModelData.hairModel,
         gender: characterData.payload.gender,
         status: 1,
-        worldSaveVersion: this.worldSaveVersion,
+        worldSaveVersion: this.worldSaveVersion
       };
       const collection = (this._db as Db).collection(DB_COLLECTIONS.CHARACTERS);
       const charactersArray = await collection.findOne({
-        characterId: character.characterId,
+        characterId: character.characterId
       });
       if (!charactersArray) {
         await collection.insertOne(character);
       }
       this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
         reqId: reqId,
-        status: 1,
+        status: 1
       });
     } catch (error) {
       this._h1emuZoneServer.sendData(client, "CharacterCreateReply", {
         reqId: reqId,
-        status: 0,
+        status: 0
       });
     }
   }
@@ -678,12 +678,12 @@ export class ZoneServer2016 extends EventEmitter {
       );
       this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
-        status: isAdmin,
+        status: isAdmin
       });
     } catch (error) {
       this._h1emuZoneServer.sendData(client, "ClientIsAdminReply", {
         reqId: reqId,
-        status: 0,
+        status: 0
       });
     }
   }
@@ -704,7 +704,7 @@ export class ZoneServer2016 extends EventEmitter {
         const proximityItem = {
           itemDefinitionId: item.item.itemDefinitionId,
           associatedCharacterGuid: character.characterId,
-          itemData: item.item, // should change to it use getItemData method later
+          itemData: item.item // should change to it use getItemData method later
         };
         (proximityItems.items as any[]).push(proximityItem);
       }
@@ -739,7 +739,7 @@ export class ZoneServer2016 extends EventEmitter {
                 this,
                 item,
                 container.containerDefinitionId
-              ),
+              )
             };
             (proximityItems.items as any[]).push(proximityItem);
           });
@@ -766,7 +766,7 @@ export class ZoneServer2016 extends EventEmitter {
                 this,
                 item,
                 container.containerDefinitionId
-              ),
+              )
             };
             (proximityItems.items as any[]).push(proximityItem);
           });
@@ -802,9 +802,9 @@ export class ZoneServer2016 extends EventEmitter {
             requiredAmount: component.requiredAmount,
             unknownQword1: "0x0", // idk
             unknownDword3: 0, // idk
-            itemDefinitionId: def.ID,
+            itemDefinitionId: def.ID
           };
-        }),
+        })
       };
     });
   }
@@ -828,7 +828,7 @@ export class ZoneServer2016 extends EventEmitter {
     );
     client.startingPos = client.character.state.position;
     this.sendData(client, "SendSelfToClient", {
-      data: client.character.pGetSendSelf(this, client.guid, client),
+      data: client.character.pGetSendSelf(this, client.guid, client)
     });
     client.character.initialized = true;
     this.initializeContainerList(client);
@@ -884,13 +884,13 @@ export class ZoneServer2016 extends EventEmitter {
               HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
               ITEM_TYPE_1: itemDef.ITEM_TYPE,
               flags1: {
-                ...itemDef,
+                ...itemDef
               },
               flags2: {
-                ...itemDef,
+                ...itemDef
               },
-              stats: [],
-            },
+              stats: []
+            }
           });
       }
       if (itemDef.ID > 5000) {
@@ -902,21 +902,21 @@ export class ZoneServer2016 extends EventEmitter {
             HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
             ITEM_TYPE_1: itemDef.ITEM_TYPE,
             flags1: {
-              ...itemDef,
+              ...itemDef
             },
             flags2: {
-              ...itemDef,
+              ...itemDef
             },
-            stats: [],
-          },
+            stats: []
+          }
         });
       }
     });
 
     this.itemDefinitionsCache = this._protocol.pack("Command.ItemDefinitions", {
       data: {
-        itemDefinitions: defs,
-      },
+        itemDefinitions: defs
+      }
     });
   }
 
@@ -946,9 +946,9 @@ export class ZoneServer2016 extends EventEmitter {
             ),
             AIM_ASSIST_DEFINITIONS: Object.values(
               weaponDefinitions.AIM_ASSIST_DEFINITIONS
-            ),
-          },
-        },
+            )
+          }
+        }
       }
     );
   }
@@ -960,7 +960,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.projectileDefinitionsCache = this._protocol.pack(
       "ReferenceData.ProjectileDefinitions",
       {
-        definitionsData: projectileDefinitons,
+        definitionsData: projectileDefinitons
       }
     );
   }
@@ -973,8 +973,8 @@ export class ZoneServer2016 extends EventEmitter {
       "ReferenceData.ProfileDefinitions",
       {
         data: {
-          profiles: profileDefinitions,
-        },
+          profiles: profileDefinitions
+        }
       }
     );
   }
@@ -986,7 +986,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     this._h1emuZoneServer.setLoginInfo(this._loginServerInfo, {
       serverId: this._worldId,
-      h1emuVersion: process.env.H1Z1_SERVER_VERSION,
+      h1emuVersion: process.env.H1Z1_SERVER_VERSION
     });
     this._h1emuZoneServer.start();
     await this._db
@@ -1188,7 +1188,7 @@ export class ZoneServer2016 extends EventEmitter {
           worldConstructions,
           crops,
           constructions,
-          vehicles,
+          vehicles
         })
         .then(() => {
           this._isSaving = false;
@@ -1293,7 +1293,7 @@ export class ZoneServer2016 extends EventEmitter {
             
           ]
         },*/
-      ],
+      ]
     });
 
     this.sendData(client, "SendZoneDetails", {
@@ -1306,7 +1306,7 @@ export class ZoneServer2016 extends EventEmitter {
       nameId: 7699,
       unknownBoolean2: true,
       lighting: "Lighting.txt",
-      unknownBoolean3: false,
+      unknownBoolean3: false
     });
 
     if (!this.itemDefinitionsCache) {
@@ -1337,7 +1337,7 @@ export class ZoneServer2016 extends EventEmitter {
       Unknown5: 1,
       unknownFloat1: 0.0,
       unknownFloat2: 15,
-      damageMultiplier: 11,
+      damageMultiplier: 11
     });
 
     this.sendCharacterData(client);
@@ -1585,11 +1585,11 @@ export class ZoneServer2016 extends EventEmitter {
     return {
       source: {
         name: sourceName,
-        ping: sourcePing,
+        ping: sourcePing
       },
       target: {
         name: targetName,
-        ping: targetPing,
+        ping: targetPing
       },
       hitInfo: {
         timestamp: Date.now(),
@@ -1607,8 +1607,8 @@ export class ZoneServer2016 extends EventEmitter {
         oldHP: oldHealth,
         newHP:
           oldHealth - damageInfo.damage < 0 ? 0 : oldHealth - damageInfo.damage,
-        message: damageInfo.message || "",
-      },
+        message: damageInfo.message || ""
+      }
     };
   }
 
@@ -1618,7 +1618,7 @@ export class ZoneServer2016 extends EventEmitter {
       zombiesKilled: client.character.metrics.zombiesKilled,
       minutesSurvived:
         (Date.now() - client.character.metrics.startedSurvivingTP) / 60000,
-      wildlifeKilled: client.character.metrics.wildlifeKilled,
+      wildlifeKilled: client.character.metrics.wildlifeKilled
     };
     this.sendData(
       client,
@@ -1652,7 +1652,7 @@ export class ZoneServer2016 extends EventEmitter {
           sourceClient.character.state.position
         ).toFixed(2)
       ),
-      attacker: sourceClient,
+      attacker: sourceClient
     };
     //this.sendConsoleTextToAdmins()
   }
@@ -1677,8 +1677,8 @@ export class ZoneServer2016 extends EventEmitter {
           state: {
             firestate: 0,
             transientId: client.character.transientId,
-            position: client.character.state.position,
-          },
+            position: client.character.state.position
+          }
         }
       );
     }
@@ -1711,13 +1711,13 @@ export class ZoneServer2016 extends EventEmitter {
     character.spawnGridData.forEach((number: number) => {
       if (number <= new Date().getTime()) number = 0;
       gridArr.push({
-        unk: number ? Math.floor((number - new Date().getTime()) / 1000) : 0,
+        unk: number ? Math.floor((number - new Date().getTime()) / 1000) : 0
       });
     });
 
     this.sendData(client, "ClientUpdate.UpdateLockoutTimes", {
       unk: gridArr,
-      bool: true,
+      bool: true
     });
     client.character._characterEffects = {};
     client.character.isRespawning = true;
@@ -1738,7 +1738,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId,
         "Character.StartMultiStateDeath",
         {
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         }
       );
     } else {
@@ -1748,7 +1748,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId,
         "Character.StartMultiStateDeath",
         {
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         }
       );
     }
@@ -1762,7 +1762,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (vehicle && container) {
         container.items = {
           ...container.items,
-          ...client.character.getDeathItems(this),
+          ...client.character.getDeathItems(this)
         };
       }
     } else {
@@ -1812,7 +1812,7 @@ export class ZoneServer2016 extends EventEmitter {
         continue;
       this.sendData(this._clients[a], "Character.KilledBy", {
         killer: damageInfo.entity,
-        killed: client.character.characterId,
+        killed: client.character.characterId
       });
     }
   }
@@ -1831,7 +1831,7 @@ export class ZoneServer2016 extends EventEmitter {
         const damage = 50000 / distance;
         character.damage(this, {
           entity: npcTriggered,
-          damage: damage,
+          damage: damage
         });
       }
     }
@@ -2089,7 +2089,7 @@ export class ZoneServer2016 extends EventEmitter {
       "Command.PlayDialogEffect",
       {
         characterId: client.character.characterId,
-        effectId: 0,
+        effectId: 0
       }
     );
 
@@ -2111,23 +2111,23 @@ export class ZoneServer2016 extends EventEmitter {
       });
       this.sendData(client, "Character.RespawnReply", {
         characterId: client.character.characterId,
-        status: 1,
+        status: 1
       });
       const tempPos = client.character.state.position;
       const tempPos2 = new Float32Array([
         cell.spawnPoints[randomSpawnIndex][0],
         cell.spawnPoints[randomSpawnIndex][1] + 1,
         cell.spawnPoints[randomSpawnIndex][2],
-        1,
+        1
       ]);
       client.character.state.position = tempPos2;
       client.oldPos.position = tempPos2;
       this.sendData(client, "ClientUpdate.UpdateLocation", {
-        position: tempPos2,
+        position: tempPos2
       });
       const damageInfo: DamageInfo = {
         entity: "Server.Respawn",
-        damage: 99999,
+        damage: 99999
       };
       if (this.fairPlayManager.fairPlayValues && !client.isAdmin) {
         for (
@@ -2206,7 +2206,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.characterId,
         "Character.RemovePlayer",
         {
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         }
       );
       const vehicleId = client.vehicle.mountedVehicle,
@@ -2221,7 +2221,7 @@ export class ZoneServer2016 extends EventEmitter {
           {
             ...client.character.pGetLightweight(),
             identity: {
-              characterName: client.character.name,
+              characterName: client.character.name
             },
             mountGuid: vehicleId || "",
             mountSeatId: vehicle
@@ -2229,8 +2229,8 @@ export class ZoneServer2016 extends EventEmitter {
               : 0,
             mountRelatedDword1: vehicle ? 1 : 0,
             flags1: {
-              isAdmin: client.isAdmin,
-            },
+              isAdmin: client.isAdmin
+            }
           }
         );
       }, 2000);
@@ -2253,9 +2253,9 @@ export class ZoneServer2016 extends EventEmitter {
           characterId: entityId,
           resourceId: resourceId,
           resourceType: resourceType ? resourceType : resourceId,
-          initialValue: value >= 0 ? value : 0,
-        },
-      },
+          initialValue: value >= 0 ? value : 0
+        }
+      }
     });
   }
 
@@ -2273,9 +2273,9 @@ export class ZoneServer2016 extends EventEmitter {
           characterId: entityId,
           resourceId: resourceId,
           resourceType: resourceType,
-          initialValue: value >= 0 ? value : 0,
-        },
-      },
+          initialValue: value >= 0 ? value : 0
+        }
+      }
     });
   }
 
@@ -2514,8 +2514,8 @@ export class ZoneServer2016 extends EventEmitter {
             ? 1
             : 0 || (!isHeadshot && hasArmorBefore && !hasArmor)
             ? 1
-            : 0,
-      },
+            : 0
+      }
     });
   }
 
@@ -2585,7 +2585,7 @@ export class ZoneServer2016 extends EventEmitter {
   validateHit(client: Client, entity: BaseEntity) {
     const ret = {
       isValid: true,
-      message: "",
+      message: ""
     };
     if (
       !isPosInRadius(
@@ -2596,13 +2596,13 @@ export class ZoneServer2016 extends EventEmitter {
     ) {
       return {
         isValid: false,
-        message: "ProjectileDistance",
+        message: "ProjectileDistance"
       };
     }
     if (!client.spawnedEntities.includes(entity)) {
       return {
         isValid: false,
-        message: "InvalidTarget",
+        message: "InvalidTarget"
       };
     }
 
@@ -2611,7 +2611,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (!target.spawnedEntities.includes(client.character)) {
         return {
           isValid: false,
-          message: "InvalidTarget",
+          message: "InvalidTarget"
         };
       }
     }
@@ -2622,7 +2622,7 @@ export class ZoneServer2016 extends EventEmitter {
       );
       return {
         isValid: false,
-        message: "InvalidFlag",
+        message: "InvalidFlag"
       };
     }
     return ret;
@@ -2715,7 +2715,7 @@ export class ZoneServer2016 extends EventEmitter {
           )
         : 0,
       hitReport: packet.hitReport,
-      message: hitValidation.message,
+      message: hitValidation.message
     });
   }
 
@@ -2771,7 +2771,7 @@ export class ZoneServer2016 extends EventEmitter {
       states4: object,
       states5: object,
       states6: object,
-      states7: object,
+      states7: object
     };
 
     if (!sendToAll) {
@@ -2797,7 +2797,7 @@ export class ZoneServer2016 extends EventEmitter {
       const prop = this._lootableProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
-        unknownString1: "Weapon_Empty.adr",
+        unknownString1: "Weapon_Empty.adr"
       };
       DTOArray.push(propInstance);
     }
@@ -2805,7 +2805,7 @@ export class ZoneServer2016 extends EventEmitter {
       const prop = this._taskProps[object];
       const propInstance = {
         objectId: prop.spawnerId,
-        unknownString1: "Weapon_Empty.adr",
+        unknownString1: "Weapon_Empty.adr"
       };
       DTOArray.push(propInstance);
     }
@@ -2813,14 +2813,14 @@ export class ZoneServer2016 extends EventEmitter {
       const prop = this._crates[object];
       const propInstance = {
         objectId: prop.spawnerId,
-        unknownString1: "Weapon_Empty.adr",
+        unknownString1: "Weapon_Empty.adr"
       };
       DTOArray.push(propInstance);
     }
     for (let x = 0; x < this._destroyableDTOlist.length; x++) {
       const propInstance = {
         objectId: this._destroyableDTOlist[x],
-        unknownString1: "Weapon_Empty.adr",
+        unknownString1: "Weapon_Empty.adr"
       };
       DTOArray.push(propInstance);
     }
@@ -2828,14 +2828,14 @@ export class ZoneServer2016 extends EventEmitter {
     deprecatedDoors.forEach((door: number) => {
       const DTOinstance = {
         objectId: door,
-        unknownString1: "Weapon_Empty.adr",
+        unknownString1: "Weapon_Empty.adr"
       };
       DTOArray.push(DTOinstance);
     });
     this.sendData(client, "DtoObjectInitialData", {
       unknownDword1: 1,
       unknownArray1: DTOArray,
-      unknownArray2: [{}],
+      unknownArray2: [{}]
     });
   }
 
@@ -2863,7 +2863,7 @@ export class ZoneServer2016 extends EventEmitter {
     });
     objectsToRemove.forEach((object: any) => {
       this.sendData(client, "Character.RemovePlayer", {
-        characterId: object.characterId,
+        characterId: object.characterId
       });
     });
   }
@@ -2879,7 +2879,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   despawnEntity(characterId: string) {
     this.sendDataToAll("Character.RemovePlayer", {
-      characterId: characterId,
+      characterId: characterId
     });
   }
 
@@ -2899,7 +2899,7 @@ export class ZoneServer2016 extends EventEmitter {
         unknownWord1: effectId ? 1 : 0,
         effectId: effectId ? effectId : 0,
         timeToDisappear: timeToDisappear ? timeToDisappear : 0,
-        effectDelay: timeToDisappear ? timeToDisappear : 0,
+        effectDelay: timeToDisappear ? timeToDisappear : 0
       }
     );
     this._grid.forEach((cell: GridCell) => {
@@ -2934,7 +2934,7 @@ export class ZoneServer2016 extends EventEmitter {
         unknownWord1: effectId ? 1 : 0,
         effectId: 163,
         timeToDisappear: 0,
-        effectDelay: 0,
+        effectDelay: 0
       }
     );
     crate.spawnTimestamp = Date.now() + 900000; // 15min respawn time
@@ -2960,7 +2960,7 @@ export class ZoneServer2016 extends EventEmitter {
   ) {
     this.sendData(client, "AddLightweightNpc", {
       ...entity.pGetLightweight(),
-      nameId,
+      nameId
     });
   }
   addSimpleNpc(client: Client, entity: BaseSimpleNpc) {
@@ -2979,7 +2979,7 @@ export class ZoneServer2016 extends EventEmitter {
       profileId: 0,
       isLightweight: false, //true,
       flags: {},
-      headActor: "",
+      headActor: ""
     };
 
     this.sendData(client, "AddLightweightNpc", lightWeight);
@@ -3013,8 +3013,8 @@ export class ZoneServer2016 extends EventEmitter {
             : 0,
           mountRelatedDword1: vehicle ? 1 : 0,
           flags1: {
-            isAdmin: this.getClientByCharId(characterObj.characterId)?.isAdmin,
-          },
+            isAdmin: this.getClientByCharId(characterObj.characterId)?.isAdmin
+          }
         });
 
         client.spawnedEntities.push(this._characters[characterObj.characterId]);
@@ -3040,8 +3040,8 @@ export class ZoneServer2016 extends EventEmitter {
           mountSeatId: 0,
           mountRelatedDword1: 0,
           flags1: {
-            isAdmin: isAdmin,
-          },
+            isAdmin: isAdmin
+          }
         });
         c.spawnedEntities.push(character);
       }
@@ -3113,8 +3113,8 @@ export class ZoneServer2016 extends EventEmitter {
                     sequenceTime: 0,
                     unknown3_int8: 0,
                     position: object.state.position,
-                    orientation: object.openAngle,
-                  },
+                    orientation: object.openAngle
+                  }
                 });
               }
               continue;
@@ -3187,7 +3187,7 @@ export class ZoneServer2016 extends EventEmitter {
           // checks if player already was sent POIChangeMessage
           this.sendData(client, "POIChangeMessage", {
             messageStringId: point.stringId,
-            id: point.POIid,
+            id: point.POIid
           });
           client.currentPOI = point.stringId;
         }
@@ -3197,7 +3197,7 @@ export class ZoneServer2016 extends EventEmitter {
       // checks if POIChangeMessage was already cleared
       this.sendData(client, "POIChangeMessage", {
         messageStringId: 0,
-        id: 115,
+        id: 115
       });
       client.currentPOI = 0;
     }
@@ -3271,8 +3271,8 @@ export class ZoneServer2016 extends EventEmitter {
       weaponPacket: {
         packetName: packetName,
         gameTime: this.getGameTime(),
-        packet: obj,
-      },
+        packet: obj
+      }
     });
   }
 
@@ -3289,9 +3289,9 @@ export class ZoneServer2016 extends EventEmitter {
         remoteWeaponPacket: {
           packetName: packetName,
           transientId: transientId,
-          packet: obj,
-        },
-      },
+          packet: obj
+        }
+      }
     });
   }
 
@@ -3313,9 +3313,9 @@ export class ZoneServer2016 extends EventEmitter {
           remoteWeaponPacket: {
             packetName: packetName,
             transientId: transientId,
-            packet: obj,
-          },
-        },
+            packet: obj
+          }
+        }
       }
     );
   }
@@ -3337,10 +3337,10 @@ export class ZoneServer2016 extends EventEmitter {
           remoteWeaponUpdatePacket: {
             packetName: packetName,
             weaponGuid: weaponGuid,
-            packet: obj,
-          },
-        },
-      },
+            packet: obj
+          }
+        }
+      }
     });
   }
 
@@ -3366,10 +3366,10 @@ export class ZoneServer2016 extends EventEmitter {
             remoteWeaponUpdatePacket: {
               packetName: packetName,
               weaponGuid: weaponGuid,
-              packet: obj,
-            },
-          },
-        },
+              packet: obj
+            }
+          }
+        }
       }
     );
   }
@@ -3379,7 +3379,7 @@ export class ZoneServer2016 extends EventEmitter {
       client,
       "ClientUpdate.TextAlert",
       {
-        message: message,
+        message: message
       },
       false
     );
@@ -3388,7 +3388,7 @@ export class ZoneServer2016 extends EventEmitter {
     this._sendDataToAll(
       "ClientUpdate.TextAlert",
       {
-        message: message,
+        message: message
       },
       false
     );
@@ -3418,14 +3418,17 @@ export class ZoneServer2016 extends EventEmitter {
     )?.address;
     const addressBanned = await this._db
       ?.collection(DB_COLLECTIONS.BANNED)
-      .findOne({ IP: address, active: true });
-    const idBanned = await this._db
-      ?.collection(DB_COLLECTIONS.BANNED)
-      .findOne({ loginSessionId: client.loginSessionId, active: true });
-    if (
-      addressBanned?.expirationDate < Date.now() ||
-      idBanned?.expirationDate < Date.now()
-    ) {
+      .findOne({
+        IP: address,
+        active: true,
+        expirationDate: { $gt: Date.now() }
+      });
+    const idBanned = await this._db?.collection(DB_COLLECTIONS.BANNED).findOne({
+      loginSessionId: client.loginSessionId,
+      active: true,
+      expirationDate: { $gt: Date.now() }
+    });
+    if (addressBanned || idBanned) {
       client.banType = addressBanned
         ? addressBanned.banType
         : idBanned?.banType;
@@ -3447,9 +3450,10 @@ export class ZoneServer2016 extends EventEmitter {
           { $set: { active: false, unBanAdminName: client.character.name } }
         )
     )?.value as unknown as ClientBan;
-    if (!unBannedClient) return;
+    // if (!unBannedClient) return;
     this.sendBanToLogin(unBannedClient.loginSessionId, false);
-    return unBannedClient;
+    // force to be undefined if falsy
+    return unBannedClient || undefined;
   }
 
   banClient(
@@ -3469,13 +3473,15 @@ export class ZoneServer2016 extends EventEmitter {
       adminName: adminName ? adminName : "",
       expirationDate: 0,
       active: true,
-      unBanAdminName: "",
+      unBanAdminName: ""
     };
     if (timestamp) {
       object.expirationDate = timestamp;
+    } else {
+      // Do not send temp bans to loginserver
+      this.sendBanToLogin(client.loginSessionId, true);
     }
     this._db?.collection(DB_COLLECTIONS.BANNED).insertOne(object);
-    this.sendBanToLogin(client.loginSessionId, true);
     if (banType === "normal") {
       if (timestamp) {
         this.sendAlert(
@@ -3543,7 +3549,7 @@ export class ZoneServer2016 extends EventEmitter {
         break;*/
       case "rick":
         this.sendData(client, "ClientExitLaunchUrl", {
-          url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+          url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
         });
         this.sendData(client, "LoginFailed", {});
         this.deleteClient(client);
@@ -3558,7 +3564,7 @@ export class ZoneServer2016 extends EventEmitter {
   kickPlayer(client: Client) {
     this.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
-      sessionId: client.loginSessionId,
+      sessionId: client.loginSessionId
     });
     this.deleteClient(client);
   }
@@ -3576,7 +3582,7 @@ export class ZoneServer2016 extends EventEmitter {
       "SEP",
       "OCT",
       "NOV",
-      "DEC",
+      "DEC"
     ];
     const date = new Date(timestamp);
     return `${date.getDate()} ${
@@ -3602,13 +3608,13 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData(client, "GameTimeSync", {
         time: Int64String(this.getServerTimeTest()),
         cycleSpeed: Math.round(this._timeMultiplier * 0.97222),
-        unknownBoolean: false,
+        unknownBoolean: false
       });
     } else if (this.weatherManager.frozeCycle) {
       this.sendData(client, "GameTimeSync", {
         time: Int64String(this.getGameTime()),
         cycleSpeed: 0.1,
-        unknownBoolean: false,
+        unknownBoolean: false
       });
     }
   }
@@ -3646,7 +3652,7 @@ export class ZoneServer2016 extends EventEmitter {
         profileId: 0,
         isLightweight: true,
         flags: {},
-        headActor: "",
+        headActor: ""
       };
       this.sendData(client, "AddLightweightNpc", lightWeight);
       /*const lightWeight2 = {
@@ -3673,18 +3679,18 @@ export class ZoneServer2016 extends EventEmitter {
         profileId: 0,
         isLightweight: true,
         flags: {},
-        headActor: "",
+        headActor: ""
       };
       this.sendData(client, "AddLightweightNpc", lightWeight);
       //this.sendData(client, "AddLightweightNpc", lightWeight2);
       this.sendData(client, "AddLightweightNpc", lightWeight3);
       this.sendData(client, "AddLightweightVehicle", {
         ...this._airdrop.plane.pGetLightweightVehicle(),
-        unknownGuid1: this.generateGuid(),
+        unknownGuid1: this.generateGuid()
       });
       this.sendData(client, "Character.MovementVersion", {
         characterId: this._airdrop.plane.characterId,
-        version: 5,
+        version: 5
       });
       setTimeout(() => {
         if (this._airdrop) {
@@ -3708,8 +3714,8 @@ export class ZoneServer2016 extends EventEmitter {
           0,
           this._airdrop.plane.positionUpdate.orientation || 0,
           0,
-          0,
-        ]),
+          0
+        ])
       });
       if (
         this._airdrop.manager &&
@@ -3718,18 +3724,18 @@ export class ZoneServer2016 extends EventEmitter {
       ) {
         this.sendData(client, "Character.ManagedObject", {
           objectCharacterId: this._airdrop.plane.characterId,
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         });
       }
 
       if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
         this.sendData(client, "AddLightweightVehicle", {
           ...this._airdrop.cargo.pGetLightweightVehicle(),
-          unknownGuid1: this.generateGuid(),
+          unknownGuid1: this.generateGuid()
         });
         this.sendData(client, "Character.MovementVersion", {
           characterId: this._airdrop.cargo.characterId,
-          version: 6,
+          version: 6
         });
         this.sendData(
           client,
@@ -3743,16 +3749,16 @@ export class ZoneServer2016 extends EventEmitter {
           acceleration: 0,
           speed: 0,
           turn: 5,
-          yRot: 0,
+          yRot: 0
         });
         this.sendData(client, "Character.ManagedObject", {
           objectCharacterId: this._airdrop.cargo.characterId,
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         });
       }
     } else if (!spawn) {
       this.sendData(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.plane.characterId,
+        characterId: this._airdrop.plane.characterId
       });
       if (this._airdrop.cargo) {
         this.sendData(client, "Character.RemovePlayer", {
@@ -3760,7 +3766,7 @@ export class ZoneServer2016 extends EventEmitter {
           unknownWord1: 1,
           effectId: 5328,
           timeToDisappear: 0,
-          effectDelay: 0,
+          effectDelay: 0
         });
       }
       // removing them seems to crash the client somehow
@@ -3783,27 +3789,27 @@ export class ZoneServer2016 extends EventEmitter {
     for (const a in this._clients) {
       const client = this._clients[a];
       this.sendData(client, "Character.RemovePlayer", {
-        characterId: this._airdrop.plane.characterId,
+        characterId: this._airdrop.plane.characterId
       });
       this.sendData(client, "AddLightweightVehicle", {
         ...this._airdrop.plane.pGetLightweightVehicle(),
-        unknownGuid1: this.generateGuid(),
+        unknownGuid1: this.generateGuid()
       });
       this.sendData(client, "Character.MovementVersion", {
         characterId: this._airdrop.plane.characterId,
-        version: 5,
+        version: 5
       });
       if (this._airdrop.cargoSpawned && this._airdrop.cargo) {
         this.sendData(client, "Character.RemovePlayer", {
-          characterId: this._airdrop.cargo.characterId,
+          characterId: this._airdrop.cargo.characterId
         });
         this.sendData(client, "AddLightweightVehicle", {
           ...this._airdrop.cargo.pGetLightweightVehicle(),
-          unknownGuid1: this.generateGuid(),
+          unknownGuid1: this.generateGuid()
         });
         this.sendData(client, "Character.MovementVersion", {
           characterId: this._airdrop.cargo.characterId,
-          version: 6,
+          version: 6
         });
         this.sendData(client, "Character.SeekTarget", {
           characterId: this._airdrop.cargo.characterId,
@@ -3813,11 +3819,11 @@ export class ZoneServer2016 extends EventEmitter {
           speed: 0,
           turn: 5,
           yRot: 0,
-          rotation: new Float32Array([0, 1, 0, 0]),
+          rotation: new Float32Array([0, 1, 0, 0])
         });
         this.sendData(client, "Character.ManagedObject", {
           objectCharacterId: this._airdrop.cargo.characterId,
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         });
         this.sendData(
           client,
@@ -3846,8 +3852,8 @@ export class ZoneServer2016 extends EventEmitter {
           0,
           this._airdrop.plane.positionUpdate.orientation || 0,
           0,
-          0,
-        ]),
+          0
+        ])
       });
       if (!choosenClient) {
         choosenClient = client;
@@ -3885,7 +3891,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!this._airdrop.manager) return;
     this.sendData(this._airdrop.manager, "Character.ManagedObject", {
       objectCharacterId: this._airdrop.plane.characterId,
-      characterId: this._airdrop.manager.character.characterId,
+      characterId: this._airdrop.manager.character.characterId
     });
   }
 
@@ -3904,14 +3910,16 @@ export class ZoneServer2016 extends EventEmitter {
         if (!client.spawnedEntities.includes(vehicle)) {
           this.sendData(client, "AddLightweightVehicle", {
             ...vehicle.pGetLightweightVehicle(),
-            unknownGuid1: this.generateGuid(),
+            unknownGuid1: this.generateGuid()
           });
+          /*
           if (vehicle.engineOn) {
             this.sendData(client, "Vehicle.Engine", {
               vehicleCharacterId: vehicle.characterId,
               engineOn: true,
             });
           }
+          */
           /*this.sendData(client, "Vehicle.OwnerPassengerList", {
             characterId: client.character.characterId,
             passengers: vehicle.pGetPassengers(this),
@@ -3938,7 +3946,7 @@ export class ZoneServer2016 extends EventEmitter {
             this.dropManagedObject(client, vehicle);
           }
           this.sendData(client, "Character.RemovePlayer", {
-            characterId: vehicle.characterId,
+            characterId: vehicle.characterId
           });
           client.spawnedEntities.splice(index, 1);
         }
@@ -3952,11 +3960,11 @@ export class ZoneServer2016 extends EventEmitter {
 
     this.sendData(client, "Character.ManagedObject", {
       objectCharacterId: vehicle.characterId,
-      characterId: client.character.characterId,
+      characterId: client.character.characterId
     });
     this.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
       control: true,
-      objectCharacterId: vehicle.characterId,
+      objectCharacterId: vehicle.characterId
     });
     client.managedObjects.push(vehicle.characterId);
     vehicle.isManaged = true;
@@ -3980,17 +3988,17 @@ export class ZoneServer2016 extends EventEmitter {
       // workaround for managed object issue
       if (client.vehicle.mountedVehicle == vehicle.characterId) {
         this.sendData(client, "Mount.DismountResponse", {
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         });
         vehicle.droppedManagedClient = client;
       }
       this.sendData(client, "Character.RemovePlayer", {
-        characterId: vehicle.characterId,
+        characterId: vehicle.characterId
       });
 
       this.sendData(client, "AddLightweightVehicle", {
         ...vehicle.pGetLightweightVehicle(),
-        unknownGuid1: this.generateGuid(),
+        unknownGuid1: this.generateGuid()
       });
       client.managedObjects.splice(index, 1);
       // blocks vehicleManager from taking over management during a takeover
@@ -4019,7 +4027,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.managedObjects.forEach((characterId: string) => {
       this.sendManagedObjectResponseControlPacket(client, {
         control: 0,
-        objectCharacterId: characterId,
+        objectCharacterId: characterId
       });
       client.managedObjects.splice(
         client.managedObjects.findIndex((e: string) => e === characterId),
@@ -4040,7 +4048,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         characterId: object.characterId,
         effectId: effectId,
-        position: object.state.position,
+        position: object.state.position
       }
     );
   }
@@ -4058,7 +4066,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         characterId: characterId,
         effectId: effectId,
-        position: position,
+        position: position
       }
     );
   }
@@ -4180,7 +4188,7 @@ export class ZoneServer2016 extends EventEmitter {
     const seatId = vehicle.getNextSeatId(this),
       seat = vehicle.seats[seatId],
       passenger = this._characters[seat];
-    if (seatId < 0) return; // no available seats in vehicle
+    if (Number(seatId) < 0) return; // no available seats in vehicle
     client.vehicle.mountedVehicle = vehicle.characterId;
     client.isInAir = false;
     if (passenger) {
@@ -4201,12 +4209,12 @@ export class ZoneServer2016 extends EventEmitter {
           {
             characterId: client.character.characterId,
             identity: {
-              characterName: client.character.name,
+              characterName: client.character.name
             },
             unknownString1: "",
-            unknownByte1: 1,
-          },
-        ],
+            unknownByte1: 1
+          }
+        ]
       });
 
       if (vehicle.getContainer()) {
@@ -4223,7 +4231,7 @@ export class ZoneServer2016 extends EventEmitter {
         vehicleGuid: vehicle.characterId, // vehicle guid
         seatId: Number(seatId),
         isDriver: seatId === "0" ? 1 : 0, //isDriver
-        identity: {},
+        identity: {}
       }
     );
 
@@ -4235,18 +4243,18 @@ export class ZoneServer2016 extends EventEmitter {
       unknownArray1: [
         {
           unknownDword1: 0,
-          unknownBoolean1: 0,
-        },
+          unknownBoolean1: 0
+        }
       ],
       passengers: [
         {
           characterId: client.character.characterId,
           identity: {
-            characterName: client.character.name,
-          },
-        },
+            characterName: client.character.name
+          }
+        }
       ],
-      unknownArray2: [{}],
+      unknownArray2: [{}]
     });
 
     // this is broken for some reason
@@ -4301,7 +4309,7 @@ export class ZoneServer2016 extends EventEmitter {
         `Error: ${client.character.name} exited non existing vehicle`
       );
       this.sendData(client, "Mount.DismountResponse", {
-        characterId: client.character.characterId,
+        characterId: client.character.characterId
       });
       return;
     }
@@ -4315,7 +4323,7 @@ export class ZoneServer2016 extends EventEmitter {
     }
     if (vehicle.vehicleId == VehicleIds.SPECTATE) {
       this.sendData(client, "Mount.DismountResponse", {
-        characterId: client.character.characterId,
+        characterId: client.character.characterId
       });
       this.deleteEntity(vehicle.characterId, this._vehicles);
       return;
@@ -4326,7 +4334,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.characterId,
       "Mount.DismountResponse",
       {
-        characterId: client.character.characterId,
+        characterId: client.character.characterId
       }
     );
     client.isInAir = false;
@@ -4342,11 +4350,11 @@ export class ZoneServer2016 extends EventEmitter {
       unknownArray1: [
         {
           unknownDword1: 0,
-          unknownBoolean1: 0,
-        },
+          unknownBoolean1: 0
+        }
       ],
       passengers: [],
-      unknownArray2: [],
+      unknownArray2: []
     });
     this.sendDataToAllWithSpawnedEntity(
       this._vehicles,
@@ -4357,7 +4365,7 @@ export class ZoneServer2016 extends EventEmitter {
         characterId: "",
         unknownDword1: 0,
         vehicleId: 0,
-        passengers: [],
+        passengers: []
       }
     );
     client.character.dismountContainer(this);
@@ -4391,7 +4399,7 @@ export class ZoneServer2016 extends EventEmitter {
           vehicleGuid: vehicle.characterId,
           identity: {},
           seatId: packet.data.seatId,
-          unknownDword2: packet.data.seatId === 0 ? 1 : 0, // if set to 1 the select character will have drive access
+          unknownDword2: packet.data.seatId === 0 ? 1 : 0 // if set to 1 the select character will have drive access
         }
       );
       vehicle.seats[oldSeatId] = "";
@@ -4402,17 +4410,7 @@ export class ZoneServer2016 extends EventEmitter {
       }
       if (packet.data.seatId === 0) {
         this.takeoverManagedObject(client, vehicle);
-        this.sendDataToAllWithSpawnedEntity(
-          this._vehicles,
-          client.vehicle.mountedVehicle,
-          "Vehicle.Engine",
-          {
-            // stops engine
-            vehicleCharacterId: client.vehicle.mountedVehicle,
-            engineOn: true,
-          }
-        );
-
+        vehicle.startEngine(this);
         if (vehicle.getContainer()) {
           client.character.mountContainer(this, vehicle);
         }
@@ -4424,7 +4422,7 @@ export class ZoneServer2016 extends EventEmitter {
   startTimer(client: Client, stringId: number, time: number) {
     this.sendData(client, "ClientUpdate.StartTimer", {
       stringId: stringId,
-      time: time,
+      time: time
     });
   }
 
@@ -4437,7 +4435,7 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword1: weaponItem.weapon.ammoCount,
       ammoCount: weaponItem.weapon.ammoCount,
       unknownDword3: weaponItem.weapon.ammoCount,
-      currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
+      currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount)
     });
     this.sendRemoteWeaponUpdateDataToAllOthers(
       client,
@@ -4524,7 +4522,7 @@ export class ZoneServer2016 extends EventEmitter {
         character instanceof Character || character instanceof Vehicle2016
           ? character.characterId
           : EXTERNAL_CONTAINER_GUID,
-      data: character.pGetItemData(this, item, containerDefinitionId),
+      data: character.pGetItemData(this, item, containerDefinitionId)
     });
   }
 
@@ -4567,7 +4565,7 @@ export class ZoneServer2016 extends EventEmitter {
       modelName: model.replace("<gender>", gender == 1 ? "Male" : "Female"),
       slotId,
       textureAlias: skin,
-      guid: toBigHex(this.generateItemGuid()),
+      guid: toBigHex(this.generateItemGuid())
     };
   }
 
@@ -4837,7 +4835,7 @@ export class ZoneServer2016 extends EventEmitter {
         "Update.SwitchFireMode",
         {
           firegroupIndex: 0,
-          firemodeIndex: 0,
+          firemodeIndex: 0
         }
       );
 
@@ -4848,7 +4846,7 @@ export class ZoneServer2016 extends EventEmitter {
         "Character.WeaponStance",
         {
           characterId: client.character.characterId,
-          stance: client.character.weaponStance,
+          stance: client.character.weaponStance
         }
       );
     }
@@ -4878,9 +4876,9 @@ export class ZoneServer2016 extends EventEmitter {
         "Equipment.UnsetCharacterEquipmentSlot",
         {
           characterData: {
-            characterId: client.character.characterId,
+            characterId: client.character.characterId
           },
-          slotId: equipmentSlotId,
+          slotId: equipmentSlotId
         }
       );
     }
@@ -4918,7 +4916,7 @@ export class ZoneServer2016 extends EventEmitter {
         client.character.transientId,
         "RemoteWeapon.RemoveWeapon",
         {
-          guid: item.itemGuid,
+          guid: item.itemGuid
         }
       );
     }
@@ -5113,7 +5111,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "Character.DroppedIemNotification", {
       characterId: client.character.characterId,
       itemDefId: item.itemDefinitionId,
-      count: count,
+      count: count
     });
     if (dropItem && dropItem.weapon) {
       const ammo = this.generateItem(
@@ -5191,7 +5189,7 @@ export class ZoneServer2016 extends EventEmitter {
       unknownDword1: maxAmmo,
       ammoCount: ammoCount || weaponItem.weapon.ammoCount,
       unknownDword3: maxAmmo,
-      currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount),
+      currentReloadCount: toHex(++weaponItem.weapon.currentReloadCount)
     });
   }
 
@@ -5215,7 +5213,7 @@ export class ZoneServer2016 extends EventEmitter {
         character instanceof Character || character instanceof Vehicle2016
           ? character.characterId
           : EXTERNAL_CONTAINER_GUID,
-      itemGuid: itemGuid,
+      itemGuid: itemGuid
     });
   }
 
@@ -5230,7 +5228,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "Container.InitEquippedContainers", {
       ignore: characterId,
       characterId: characterId,
-      containers: character.pGetContainers(this),
+      containers: character.pGetContainers(this)
     });
   }
 
@@ -5264,7 +5262,7 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendData(client, "Reward.AddNonRewardItem", {
         itemDefId: itemDefId,
         iconId: this.getItemDefinition(itemDefId).IMAGE_SET_ID,
-        count: item.stackCount,
+        count: item.stackCount
       });
     }
   }
@@ -5272,7 +5270,7 @@ export class ZoneServer2016 extends EventEmitter {
   updateLoadoutItem(client: Client, item: LoadoutItem) {
     this.sendData(client, "ClientUpdate.ItemUpdate", {
       characterId: client.character.characterId,
-      data: client.character.pGetItemData(this, item, LOADOUT_CONTAINER_ID),
+      data: client.character.pGetItemData(this, item, LOADOUT_CONTAINER_ID)
     });
     //this.updateLoadout(client.character);
   }
@@ -5283,7 +5281,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.sendData(client, "Container.UpdateEquippedContainer", {
       ignore: character.characterId,
       characterId: character.characterId,
-      containerData: character.pGetContainerData(this, container),
+      containerData: character.pGetContainerData(this, container)
     });
   }
 
@@ -5299,7 +5297,7 @@ export class ZoneServer2016 extends EventEmitter {
         character instanceof Character || character instanceof Vehicle2016
           ? character.characterId
           : EXTERNAL_CONTAINER_GUID,
-      data: character.pGetItemData(this, item, container.containerDefinitionId),
+      data: character.pGetItemData(this, item, container.containerDefinitionId)
     });
     this.updateContainer(character, container);
   }
@@ -5342,7 +5340,11 @@ export class ZoneServer2016 extends EventEmitter {
       this.sendAlert(client, "All planes are busy.");
       return;
     }
-    if (_.size(this._clients) < 20 && !this._soloMode) {
+
+    if (
+      _.size(this._clients) < this.worldObjectManager.minAirdropSurvivors &&
+      !this._soloMode
+    ) {
       this.sendAlert(client, "No planes ready. Not enough survivors.");
       return;
     }
@@ -5375,7 +5377,7 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.state.position[0],
       400,
       client.character.state.position[2],
-      1,
+      1
     ]);
     const angle = getAngle(
       client.character.state.position,
@@ -5424,7 +5426,7 @@ export class ZoneServer2016 extends EventEmitter {
       destination: characterId3,
       destinationPos: client.character.state.position,
       cargoSpawned: false,
-      containerSpawned: false,
+      containerSpawned: false
     };
     let choosenClient: Client | undefined;
     let currentDistance = 999999;
@@ -5608,7 +5610,7 @@ export class ZoneServer2016 extends EventEmitter {
             "Command.PlayDialogEffect",
             {
               characterId: plant.characterId,
-              effectId: 5056,
+              effectId: 5056
             }
           );
         });
@@ -5771,7 +5773,7 @@ export class ZoneServer2016 extends EventEmitter {
       Items.AMMO_44,
       Items.AMMO_45,
       Items.AMMO_762,
-      Items.AMMO_9MM,
+      Items.AMMO_9MM
     ];
     if (!allowedItems.includes(item.itemDefinitionId)) {
       this.sendAlert(
@@ -5854,7 +5856,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (item.itemDefinitionId == Items.MEAT_ROTTEN) {
       const damageInfo: DamageInfo = {
         entity: "",
-        damage: 1000,
+        damage: 1000
       };
       client.character.damage(this, damageInfo);
     }
@@ -5929,7 +5931,7 @@ export class ZoneServer2016 extends EventEmitter {
                 characterId: smeltable.characterId,
                 effectId: smeltable.subEntity.workingEffect,
                 position: smeltable.state.position,
-                unk3: effectTime,
+                unk3: effectTime
               }
             );
           }
@@ -5964,7 +5966,7 @@ export class ZoneServer2016 extends EventEmitter {
                 characterId: smeltable.characterId,
                 effectId: smeltable.subEntity.workingEffect,
                 position: smeltable.state.position,
-                unk3: effectTime,
+                unk3: effectTime
               }
             );
           }
@@ -6061,7 +6063,7 @@ export class ZoneServer2016 extends EventEmitter {
       default:
         this.sendData(client, "Container.Error", {
           characterId: client.character.characterId,
-          containerError: error,
+          containerError: error
         });
         break;
     }
@@ -6114,7 +6116,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   multiplyMovementModifier(client: Client, modifier: number) {
     this.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
-      speed: modifier,
+      speed: modifier
     });
   }
 
@@ -6122,7 +6124,7 @@ export class ZoneServer2016 extends EventEmitter {
     const modifierFixed = 1 / modifier;
     if (!client.character.initialized) return;
     this.sendData(client, "ClientUpdate.ModifyMovementSpeed", {
-      speed: modifierFixed,
+      speed: modifierFixed
     });
   }
 
@@ -6345,7 +6347,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!inMapBounds && !client.isAdmin) {
       const damageInfo: DamageInfo = {
         entity: "Server.OutOfMapBounds",
-        damage: 1000,
+        damage: 1000
       };
       this.sendAlert(client, `The radiation here seems to be dangerously high`);
       client.character.damage(this, damageInfo);
@@ -6381,7 +6383,7 @@ export class ZoneServer2016 extends EventEmitter {
   dropVehicleManager(client: Client, vehicleGuid: string) {
     this.sendManagedObjectResponseControlPacket(client, {
       control: 0,
-      objectCharacterId: vehicleGuid,
+      objectCharacterId: vehicleGuid
     });
     client.managedObjects.splice(
       client.managedObjects.findIndex((e: string) => e === vehicleGuid),
@@ -6394,7 +6396,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         ...this._loginServerInfo,
         // TODO: what a dirty hack
-        serverId: Infinity,
+        serverId: Infinity
       } as any,
       "ClientBan",
       { loginSessionId, status }
@@ -6406,7 +6408,7 @@ export class ZoneServer2016 extends EventEmitter {
       {
         ...this._loginServerInfo,
         // TODO: what a dirty hack
-        serverId: Infinity,
+        serverId: Infinity
       } as any,
       "UpdateZonePopulation",
       { population: populationNumber }
@@ -6436,7 +6438,7 @@ export class ZoneServer2016 extends EventEmitter {
   }
   dismissVehicle(vehicleGuid: string) {
     this.sendDataToAll("Character.RemovePlayer", {
-      characterId: vehicleGuid,
+      characterId: vehicleGuid
     });
     this.deleteEntity(vehicleGuid, this._vehicles);
   }

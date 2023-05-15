@@ -32,20 +32,20 @@ export const coinStorePackets: any = [
                 {
                   name: "unknownBoolean1",
                   type: "boolean",
-                  defaultValue: false,
+                  defaultValue: false
                 },
                 {
                   name: "unknownBoolean2",
                   type: "boolean",
-                  defaultValue: false,
-                },
-              ],
-            },
-          ],
+                  defaultValue: false
+                }
+              ]
+            }
+          ]
         },
-        { name: "unknown1", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown1", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["CoinStore.ItemDefinitionsRequest", 0x6d0200, {}],
   ["CoinStore.ItemDefinitionsResponse", 0x6d0300, {}],
@@ -59,9 +59,9 @@ export const coinStorePackets: any = [
         { name: "itemId", type: "uint32", defaultValue: 0 },
         { name: "unknown4", type: "uint32", defaultValue: 0 },
         { name: "quantity", type: "uint32", defaultValue: 0 },
-        { name: "unknown6", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown6", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["CoinStore.BuyFromClientRequest", 0x6d0500, {}],
   [
@@ -83,9 +83,9 @@ export const coinStorePackets: any = [
         { name: "unknown10", type: "uint32", defaultValue: 0 },
         { name: "quantity", type: "uint32", defaultValue: 0 },
         { name: "unknown11", type: "uint32", defaultValue: 0 },
-        { name: "unknown12", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown12", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   ["CoinStore.Open", 0x6d0700, {}],
   ["CoinStore.ItemDynamicListUpdateRequest", 0x6d0800, {}],
@@ -96,5 +96,5 @@ export const coinStorePackets: any = [
   ["CoinStore.BuyBackResponse", 0x6d0d00, {}],
   ["CoinStore.SellToClientAndGiftRequest", 0x6d0e00, {}],
   ["CoinStore.ReceiveGiftItem", 0x6d1100, {}],
-  ["CoinStore.GiftTransactionComplete", 0x6d1200, {}],
+  ["CoinStore.GiftTransactionComplete", 0x6d1200, {}]
 ];

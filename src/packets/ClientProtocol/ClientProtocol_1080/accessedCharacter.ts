@@ -37,16 +37,16 @@ export const accessedCharacterPackets: PacketStructures = [
                   name: "item",
                   type: "schema",
                   defaultValue: {},
-                  fields: itemSchema,
+                  fields: itemSchema
                 },
-                { name: "unknownBool1", type: "boolean", defaultValue: false },
-              ],
+                { name: "unknownBool1", type: "boolean", defaultValue: false }
+              ]
             },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   [
     "AccessedCharacter.EndCharacterAccess",
@@ -63,9 +63,9 @@ export const accessedCharacterPackets: PacketStructures = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "mutatorCharacterId", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+        { name: "mutatorCharacterId", type: "uint64string", defaultValue: "0" }
+      ]
+    }
   ],
   [
     "AccessedCharacter.Unknown2",
@@ -87,15 +87,15 @@ export const accessedCharacterPackets: PacketStructures = [
                   name: "item",
                   type: "schema",
                   defaultValue: {},
-                  fields: itemSchema,
+                  fields: itemSchema
                 },
-                { name: "unknownBool1", type: "boolean", defaultValue: false },
-              ],
+                { name: "unknownBool1", type: "boolean", defaultValue: false }
+              ]
             },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
-  ],
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ]
 ];

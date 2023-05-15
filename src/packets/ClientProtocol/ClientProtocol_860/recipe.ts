@@ -53,44 +53,44 @@ export const recipePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "descriptionId",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "requiredCount",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword3",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword4",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
-                        { name: "itemId", type: "uint32", defaultValue: 0 },
-                      ],
-                    },
-                  ],
+                        { name: "itemId", type: "uint32", defaultValue: 0 }
+                      ]
+                    }
+                  ]
                 },
-                { name: "rewardItemId", type: "uint32", defaultValue: 0 },
-              ],
-            },
-          ],
-        },
-      ],
-    },
-  ],
+                { name: "rewardItemId", type: "uint32", defaultValue: 0 }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 ];

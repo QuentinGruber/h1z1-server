@@ -60,7 +60,7 @@ if (workerData) {
 
     parentPort?.postMessage({
       data: data,
-      remote: remote,
+      remote: remote
     });
   });
 

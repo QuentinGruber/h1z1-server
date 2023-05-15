@@ -177,7 +177,7 @@ export class WeatherManager {
       AOGamma: rnd_number(0.2),
       AOBlackpoint: rnd_number(2),
 
-      unknownDword33: 0,
+      unknownDword33: 0
     };
     this.sendUpdateToAll(server, client, true);
   }
@@ -484,7 +484,7 @@ export class WeatherManager {
       AOSize: 0.1,
       AOGamma: 0.8,
       AOBlackpoint: 0.2,
-      unknownDword33: 0.5,
+      unknownDword33: 0.5
     };
     return weather;
   }

@@ -81,7 +81,7 @@ export class SmeltingManager {
           characterId: entity.characterId,
           effectId: entity.subEntity!.workingEffect,
           position: entity.state.position,
-          unk3: Math.ceil(this.burnTime / 1000),
+          unk3: Math.ceil(this.burnTime / 1000)
         }
       );
     }
@@ -282,7 +282,7 @@ export class SmeltingManager {
               "Command.PlayDialogEffect",
               {
                 characterId: entity.characterId,
-                effectId: subEntity.workingEffect,
+                effectId: subEntity.workingEffect
               }
             );
           }
@@ -364,7 +364,7 @@ export class SmeltingManager {
           "Character.ReplaceBaseModel",
           {
             characterId: entity.characterId,
-            modelId: entity.actorModelId,
+            modelId: entity.actorModelId
           }
         );
         subEntity.wasUsed = true;

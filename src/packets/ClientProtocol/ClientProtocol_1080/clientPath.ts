@@ -17,8 +17,8 @@ export const clientPathPackets: PacketStructures = [
     "ClientPath.Request",
     0x3e01,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "ClientPath.Reply",
@@ -35,11 +35,11 @@ export const clientPathPackets: PacketStructures = [
             {
               name: "node",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 0],
-            },
-          ],
-        },
-      ],
-    },
-  ],
+              defaultValue: [0, 0, 0, 0]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 ];
