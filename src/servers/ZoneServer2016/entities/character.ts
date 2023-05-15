@@ -123,6 +123,8 @@ export class Character2016 extends BaseFullCharacter {
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
   currentInteractionGuid?: string;
+  lastInteractionRequestGuid?: string;
+  lastInteractionStringTime = 0;
   lastInteractionTime = 0;
   mountedContainer?: BaseLootableEntity;
   defaultLoadout = characterDefaultLoadout;

@@ -595,8 +595,10 @@ export class ZonePacketHandlers {
           : entity.state.position,
         isLootable ? 1.7 : 5
       )
-    )
+    ) {
       return;
+    }
+    client.character.lastInteractionRequestGuid = entity.characterId;
     entity.OnPlayerSelect(server, client, packet.data.isInstant);
   }
   CommandInteractCancel(server: ZoneServer2016, client: Client, packet: any) {
@@ -1127,11 +1129,22 @@ export class ZonePacketHandlers {
         }
       }
 
+      // mainly for melee workaround (3s timeout)
       if (
         client.character.currentInteractionGuid &&
-        client.character.lastInteractionTime + 1100 > Date.now()
+        client.character.lastInteractionStringTime + 3000 > Date.now()
       ) {
         client.character.currentInteractionGuid = "";
+        client.character.lastInteractionStringTime = 0;
+      }
+      
+      // for door locks (1m timeout)
+      if (
+        client.character.lastInteractionRequestGuid &&
+        client.character.lastInteractionTime + 60000 > Date.now()
+      ) {
+        // should timeout lock ui here if possible
+        client.character.lastInteractionRequestGuid = "";
         client.character.lastInteractionTime = 0;
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
@@ -1250,26 +1263,32 @@ export class ZonePacketHandlers {
     debug("Command.PlayerSelect");
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
+    if(!client.character.isAlive || client.isLoading) return;
+
+    // if player hits cancel
+    if(packet.data.password === 1) return;
+
     if (
-      !client.character.isAlive ||
-      !client.character.currentInteractionGuid ||
-      packet.data.password === 1
+      !client.character.lastInteractionRequestGuid
     ) {
-      server.sendAlert(client, "Code lock failed!");
+      server.sendAlert(client, "Invalid door entity!");
       return;
     }
     const doorEntity = server._constructionDoors[
-      client.character.currentInteractionGuid
+      client.character.lastInteractionRequestGuid
     ] as ConstructionDoor;
     if (!doorEntity) {
-      server.sendAlert(client, "Code lock failed!");
+      server.sendAlert(client, "Invalid door entity!");
       return;
     }
-    const now = Date.now();
-    const then = client.character.lastLockFailure;
-    const diff = now - then;
+    const now = Date.now(),
+    then = client.character.lastLockFailure,
+    diff = now - then;
+    if(diff <= 5000) {
+      server.sendAlert(client, "Please wait 5 seconds between attempts.");
+      return;
+    }
     if (
-      diff <= 5000 ||
       !isPosInRadius(
         client.character.interactionDistance * 4.0,
         client.character.state.position,
@@ -1365,7 +1384,7 @@ export class ZonePacketHandlers {
     )
       return;
     client.character.currentInteractionGuid = packet.data.guid;
-    client.character.lastInteractionTime = Date.now();
+    client.character.lastInteractionStringTime = Date.now();
     if (
       entity instanceof BaseLightweightCharacter &&
       !(entity instanceof Destroyable) &&

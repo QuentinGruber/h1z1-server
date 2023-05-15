@@ -775,7 +775,6 @@ const dev: any = {
         shaderGroupId: 665 // maybe try setting other character's shaderGroupId on spawn
       });
     });
-<<<<<<< HEAD
   },
 
   bounds: function (
@@ -806,8 +805,5 @@ const dev: any = {
       )
     }
   },
-=======
-  }
->>>>>>> dev
 };
 export default dev;
