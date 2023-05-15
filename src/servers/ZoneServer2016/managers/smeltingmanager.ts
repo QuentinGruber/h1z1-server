@@ -257,15 +257,15 @@ export class SmeltingManager {
       if (item.itemDefinitionId != Items.WATER_EMPTY) continue;
       if (subEntity.currentTicks >= subEntity.requiredTicks) {
         subEntity.currentTicks = 0;
-        if(!server.removeContainerItem(entity, item, container, 1)) {
+        if (!server.removeContainerItem(entity, item, container, 1)) {
           return;
         }
         const reward = getRewardId(entity.itemDefinitionId);
         if (reward) {
           if (reward == Items.HONEY) {
             const honeycombItem = entity.getItemById(Items.HONEYCOMB);
-            if(
-              !honeycombItem || 
+            if (
+              !honeycombItem ||
               !server.removeContainerItem(entity, honeycombItem, container, 1)
             ) {
               return;
@@ -292,7 +292,6 @@ export class SmeltingManager {
             1,
             true
           );
-          
         }
         return;
       }
@@ -314,7 +313,7 @@ export class SmeltingManager {
       }
     }
     if (!isEmpty) return;
-    
+
     if (subEntity.currentHoneycombTicks >= subEntity.requiredHoneycombTicks) {
       subEntity.currentHoneycombTicks = 0;
       entity.lootContainerItem(
@@ -329,7 +328,7 @@ export class SmeltingManager {
         "Command.PlayDialogEffect",
         {
           characterId: entity.characterId,
-          effectId: subEntity.workingEffect,
+          effectId: subEntity.workingEffect
         }
       );
       return;

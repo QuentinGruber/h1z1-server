@@ -749,7 +749,6 @@ export class Character2016 extends BaseFullCharacter {
     delete this.mountedContainer;
     this.updateLoadout(server);
     server.initializeContainerList(client);
-
   }
 
   getStats() {

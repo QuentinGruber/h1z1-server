@@ -52,10 +52,8 @@ export const accessedCharacterPackets: PacketStructures = [
     "AccessedCharacter.EndCharacterAccess",
     0xf10200,
     {
-      fields: [
-        { name: "characterId", type: "uint64string", defaultValue: "0" }
-      ],
-    },
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }]
+    }
   ],
   [
     "AccessedCharacter.Unknown1",

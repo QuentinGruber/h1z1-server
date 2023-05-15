@@ -20,8 +20,7 @@ import {
   isInsideSquare,
   isInsideCube,
   registerConstructionSlots,
-  getRectangleCorners,
-  movePoint
+  getRectangleCorners
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import {
@@ -123,10 +122,10 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           parent = this.getParentFoundation(server);
         if (parent) {
           const dependentWallPos = parent.getSlotPosition(
-              this.getExpansion4thBoundWall(),
-              parent.wallSlots
+            this.getExpansion4thBoundWall(),
+            parent.wallSlots
           );
-          if(dependentWallPos) {
+          if (dependentWallPos) {
             bounds[3] = [dependentWallPos[0], dependentWallPos[2]];
             this.bounds = bounds;
           }
@@ -730,7 +729,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       destructTime
     );
 
-    if(!deleted) return false;
+    if (!deleted) return false;
 
     if (
       this.itemDefinitionId == Items.SHACK ||

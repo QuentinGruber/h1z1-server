@@ -783,27 +783,31 @@ const dev: any = {
     args: Array<string>
   ) {
     const entityId = client.character.currentInteractionGuid,
-    entity = server.getEntity(entityId || "");
-    if(!entity || !(entity instanceof ConstructionChildEntity)) {
+      entity = server.getEntity(entityId || "");
+    if (!entity || !(entity instanceof ConstructionChildEntity)) {
       server.sendChatText(client, "Invalid entity!");
       return;
     }
 
     const bounds = entity.bounds;
-    if(!bounds) {
+    if (!bounds) {
       server.sendChatText(client, "Bounds not defined!");
       return;
     }
 
-    for(const point of bounds) {
+    for (const point of bounds) {
       server.constructionManager.placeTemporaryEntity(
         server,
         1,
-        new Float32Array([point[0], client.character.state.position[1], point[1]]),
-        new Float32Array([0,0,0,1]),
+        new Float32Array([
+          point[0],
+          client.character.state.position[1],
+          point[1]
+        ]),
+        new Float32Array([0, 0, 0, 1]),
         30000
-      )
+      );
     }
-  },
+  }
 };
 export default dev;

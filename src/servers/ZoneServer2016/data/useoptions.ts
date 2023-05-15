@@ -324,7 +324,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     timeout: 1000,
     eatCount: 4000,
     drinkCount: 3000,
-    staminaCount: 300,
+    staminaCount: 300
   },
   46: {
     itemDef: Items.SURVIVAL_BORSCHT,

@@ -23,7 +23,8 @@ export class ExplosiveEntity extends BaseLightweightCharacter {
   mineTimer?: NodeJS.Timeout;
   npcRenderDistance = 300;
   detonated = false;
-  triggerExplosionShots = this.isLandmine() || this.isIED() ? 1 : Math.floor(Math.random() * 2) + 1; // random number 1-2 neccesary shots if fuel
+  triggerExplosionShots =
+    this.isLandmine() || this.isIED() ? 1 : Math.floor(Math.random() * 2) + 1; // random number 1-2 neccesary shots if fuel
   constructor(
     characterId: string,
     transientId: number,

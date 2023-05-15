@@ -1834,9 +1834,9 @@ export const recipes: { [recipeId: number]: Recipe } = {
     components: [
       {
         itemDefinitionId: Items.WATER_EMPTY,
-        requiredAmount: 1,
-      },
-    ],
+        requiredAmount: 1
+      }
+    ]
   },
   [Items.ARMOR_PLATED]: {
     filterId: FilterIds.SURVIVAL,

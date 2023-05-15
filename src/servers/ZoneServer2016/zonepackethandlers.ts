@@ -1137,7 +1137,7 @@ export class ZonePacketHandlers {
         client.character.currentInteractionGuid = "";
         client.character.lastInteractionStringTime = 0;
       }
-      
+
       // for door locks (1m timeout)
       if (
         client.character.lastInteractionRequestGuid &&
@@ -1263,14 +1263,12 @@ export class ZonePacketHandlers {
     debug("Command.PlayerSelect");
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
-    if(!client.character.isAlive || client.isLoading) return;
+    if (!client.character.isAlive || client.isLoading) return;
 
     // if player hits cancel
-    if(packet.data.password === 1) return;
+    if (packet.data.password === 1) return;
 
-    if (
-      !client.character.lastInteractionRequestGuid
-    ) {
+    if (!client.character.lastInteractionRequestGuid) {
       server.sendAlert(client, "Invalid door entity!");
       return;
     }
@@ -1282,9 +1280,9 @@ export class ZonePacketHandlers {
       return;
     }
     const now = Date.now(),
-    then = client.character.lastLockFailure,
-    diff = now - then;
-    if(diff <= 5000) {
+      then = client.character.lastLockFailure,
+      diff = now - then;
+    if (diff <= 5000) {
       server.sendAlert(client, "Please wait 5 seconds between attempts.");
       return;
     }
