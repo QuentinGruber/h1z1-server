@@ -375,3 +375,28 @@ export interface SpeedTree {
   objectId: number;
   modelName: string;
 }
+
+export interface StanceFlags {
+  FIRST_PERSON: boolean,
+  FLAG1: boolean,
+  SITTING: boolean,
+  STRAFE_RIGHT: boolean,
+  STRAFE_LEFT: boolean,
+  FORWARD: boolean,
+  BACKWARD: boolean,
+  FLAG7: boolean,
+  FLAG8: boolean,
+  PRONED: boolean,
+  FLAG10: boolean,
+  ON_GROUND: boolean,
+  FLAG12: boolean,
+  FLAG13: boolean,
+  FLAG14: boolean,
+  STATIONARY: boolean,
+  FLOATING: boolean,
+  JUMPING: boolean,
+  FLAG18: boolean,
+  SPRINTING: boolean,
+  CROUCHING: boolean,
+  FLAG21: boolean,
+}

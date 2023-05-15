@@ -40,7 +40,6 @@ import {
   ResourceIds,
   ResourceTypes,
   ItemUseOptions,
-  Stances,
   LoadoutSlots
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
@@ -54,6 +53,7 @@ import {
   ClientBan,
   ConstructionPermissions,
   DamageInfo,
+  StanceFlags,
   fireHint
 } from "types/zoneserver";
 import { positionUpdate } from "types/savedata";
@@ -75,6 +75,38 @@ import {
 import { BaseLootableEntity } from "./entities/baselootableentity";
 import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
+
+function getStanceFlags(num: number): StanceFlags {
+  function getBit(bin: string, bit: number) {
+    return bin.charAt(bit) === '1';
+  }
+
+  const bin = num.toString(2).padStart(22, '0'); // Convert integer to binary string and pad with zeros
+  return {
+    FIRST_PERSON: getBit(bin, 0),
+    FLAG1: getBit(bin, 1),
+    SITTING: getBit(bin, 2),
+    STRAFE_RIGHT: getBit(bin, 3),
+    STRAFE_LEFT: getBit(bin, 4),
+    FORWARD: getBit(bin, 5),
+    BACKWARD: getBit(bin, 6),
+    FLAG7: getBit(bin, 7),
+    FLAG8: getBit(bin, 8),
+    PRONED: getBit(bin, 9),
+    FLAG10: getBit(bin, 10),
+    ON_GROUND: getBit(bin, 11),
+    FLAG12: getBit(bin, 12),
+    FLAG13: getBit(bin, 13),
+    FLAG14: getBit(bin, 14),
+    STATIONARY: getBit(bin, 15),
+    FLOATING: getBit(bin, 16),
+    JUMPING: getBit(bin, 17),
+    FLAG18: getBit(bin, 18),
+    SPRINTING: getBit(bin, 19),
+    CROUCHING: getBit(bin, 20),
+    FLAG21: getBit(bin, 21),
+  };
+}
 
 export class ZonePacketHandlers {
   commandHandler: CommandHandler;
@@ -996,10 +1028,13 @@ export class ZonePacketHandlers {
         return;
       }
     } else client.blockedPositionUpdates = 0;
+    
     if (packet.data.stance) {
+      const stanceFlags = getStanceFlags(packet.data.stance)
+      console.log(stanceFlags);
       if (
-        packet.data.stance == Stances.STANCE_XS ||
-        packet.data.stance == Stances.STANCE_XS_FP
+        stanceFlags.SITTING &&
+        stanceFlags.JUMPING
       ) {
         const pos = client.character.state.position;
         if (!server._soloMode) {
@@ -1019,24 +1054,24 @@ export class ZonePacketHandlers {
         });
       }
       if (
-        (packet.data.stance & (1 << 4)) !== 0 &&
-        (packet.data.stance & (1 << 5)) !== 0 &&
-        (packet.data.stance & (1 << 10)) == 0 &&
+        stanceFlags.JUMPING &&
+        stanceFlags.FLOATING &&
+        !stanceFlags.ON_GROUND &&
         !client.isInAir &&
         !client.vehicle.mountedVehicle
       ) {
         client.isInAir = true;
         client.startLoc = client.character.state.position[1];
-      } else if ((packet.data.stance & (1 << 5)) == 0 && client.isInAir) {
+      } else if (!stanceFlags.FLOATING && client.isInAir) {
         client.isInAir = false;
       }
-      const byte1 = packet.data.stance & 0xff;
-      client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
+      client.character.isRunning = stanceFlags.SPRINTING;
       if (
-        !!(byte1 & (1 << 4)) &&
-        !(byte1 & (1 << 5)) &&
+        stanceFlags.JUMPING &&
+        !stanceFlags.FLOATING &&
         // temporary fix for multiplying jump penalty until exact flags are found
-        client.character.lastJumpTime < packet.data.sequenceTime
+        client.character.lastJumpTime < packet.data.sequenceTime &&
+        !client.character.isGodMode()
       ) {
         client.character.lastJumpTime = packet.data.sequenceTime + 1100;
         client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
