@@ -1031,28 +1031,9 @@ export class ZonePacketHandlers {
     
     if (packet.data.stance) {
       const stanceFlags = getStanceFlags(packet.data.stance)
-      console.log(stanceFlags);
-      if (
-        stanceFlags.SITTING &&
-        stanceFlags.JUMPING
-      ) {
-        const pos = client.character.state.position;
-        if (!server._soloMode) {
-          logClientActionToMongo(
-            server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
-            client,
-            server._worldId,
-            { type: "XS glitching", pos }
-          );
-        }
-        server.sendChatTextToAdmins(
-          `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
-        );
-        server.sendData(client, "ClientUpdate.UpdateLocation", {
-          position: pos,
-          triggerLoadingScreen: true
-        });
-      }
+      
+      server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
+
       if (
         stanceFlags.JUMPING &&
         stanceFlags.FLOATING &&

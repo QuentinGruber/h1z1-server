@@ -27,7 +27,8 @@ import {
   characterEffect,
   DamageInfo,
   DamageRecord,
-  positionUpdate
+  positionUpdate,
+  StanceFlags
 } from "../../../types/zoneserver";
 import {
   calculateOrientation,
@@ -112,7 +113,7 @@ export class Character2016 extends BaseFullCharacter {
   spawnGridData: number[] = [];
   lastJumpTime: number = 0;
   weaponStance: number = 1;
-  stance: number = 0;
+  stance?: StanceFlags;
   readonly metrics: CharacterMetrics = {
     recipesDiscovered: 0,
     zombiesKilled: 0,

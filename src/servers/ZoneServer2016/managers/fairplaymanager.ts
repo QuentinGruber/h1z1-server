@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { Collection } from "mongodb";
-import { FairPlayValues, fireHint } from "types/zoneserver";
+import { FairPlayValues, StanceFlags, fireHint } from "types/zoneserver";
 import { BAN_INFO, DB_COLLECTIONS } from "../../../utils/enums";
 import {
   decrypt,
@@ -552,5 +552,29 @@ export class FairPlayManager {
       }
     }
     return true;
+  }
+
+  detectJumpXSMovement(server: ZoneServer2016, client: Client, stanceFlags: StanceFlags) {
+    if (
+      stanceFlags.SITTING &&
+      stanceFlags.JUMPING
+    ) {
+      const pos = client.character.state.position;
+      if (!server._soloMode) {
+        logClientActionToMongo(
+          server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+          client,
+          server._worldId,
+          { type: "XS glitching", pos }
+        );
+      }
+      server.sendChatTextToAdmins(
+        `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
+      );
+      server.sendData(client, "ClientUpdate.UpdateLocation", {
+        position: pos,
+        triggerLoadingScreen: true
+      });
+    }
   }
 }
