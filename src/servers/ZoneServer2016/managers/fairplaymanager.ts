@@ -554,11 +554,12 @@ export class FairPlayManager {
     return true;
   }
 
-  detectJumpXSMovement(server: ZoneServer2016, client: Client, stanceFlags: StanceFlags) {
-    if (
-      stanceFlags.SITTING &&
-      stanceFlags.JUMPING
-    ) {
+  detectJumpXSMovement(
+    server: ZoneServer2016,
+    client: Client,
+    stanceFlags: StanceFlags
+  ) {
+    if (stanceFlags.SITTING && stanceFlags.JUMPING) {
       const pos = client.character.state.position;
       if (!server._soloMode) {
         logClientActionToMongo(
@@ -577,19 +578,20 @@ export class FairPlayManager {
       });
     }
   }
-  detectDroneMovement(server: ZoneServer2016, client: Client, stanceFlags: StanceFlags) {
-    if (
-      stanceFlags.SITTING
-    ) {
-      if(Date.now() - client.character.lastSitTime <= 200) {
+  detectDroneMovement(
+    server: ZoneServer2016,
+    client: Client,
+    stanceFlags: StanceFlags
+  ) {
+    if (stanceFlags.SITTING) {
+      if (Date.now() - client.character.lastSitTime <= 200) {
         client.character.sitCount++;
-      }
-      else {
+      } else {
         client.character.sitCount = 0;
         client.character.lastSitTime = 0;
       }
       client.character.lastSitTime = Date.now();
-      if(client.character.sitCount >= 10) {
+      if (client.character.sitCount >= 10) {
         const pos = client.character.state.position;
         if (!server._soloMode) {
           logClientActionToMongo(
@@ -610,5 +612,4 @@ export class FairPlayManager {
       }
     }
   }
-  
 }

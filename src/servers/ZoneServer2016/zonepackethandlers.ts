@@ -78,10 +78,10 @@ import { Lootbag } from "./entities/lootbag";
 
 function getStanceFlags(num: number): StanceFlags {
   function getBit(bin: string, bit: number) {
-    return bin.charAt(bit) === '1';
+    return bin.charAt(bit) === "1";
   }
 
-  const bin = num.toString(2).padStart(22, '0'); // Convert integer to binary string and pad with zeros
+  const bin = num.toString(2).padStart(22, "0"); // Convert integer to binary string and pad with zeros
   return {
     FIRST_PERSON: getBit(bin, 0),
     FLAG1: getBit(bin, 1),
@@ -104,7 +104,7 @@ function getStanceFlags(num: number): StanceFlags {
     FLAG18: getBit(bin, 18),
     SPRINTING: getBit(bin, 19),
     CROUCHING: getBit(bin, 20),
-    FLAG21: getBit(bin, 21),
+    FLAG21: getBit(bin, 21)
   };
 }
 
@@ -1028,10 +1028,10 @@ export class ZonePacketHandlers {
         return;
       }
     } else client.blockedPositionUpdates = 0;
-    
+
     if (packet.data.stance) {
-      const stanceFlags = getStanceFlags(packet.data.stance)
-      
+      const stanceFlags = getStanceFlags(packet.data.stance);
+
       server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
 
       server.fairPlayManager.detectDroneMovement(server, client, stanceFlags);
