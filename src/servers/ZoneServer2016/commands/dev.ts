@@ -27,13 +27,14 @@ import { LootableConstructionEntity } from "../entities/lootableconstructionenti
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
 import { randomIntFromInterval } from "../../../utils/utils";
+import { Zombie } from "../entities/zombie";
 
 const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
-    const npc = new BaseLightweightCharacter(
+    const npc = new Zombie(
       characterId,
       server.getTransientId(characterId),
       9510,
