@@ -375,3 +375,10 @@ export interface SpeedTree {
   objectId: number;
   modelName: string;
 }
+
+export abstract class BasePlugin {
+  public abstract name: string;
+  public abstract description: string;
+  public abstract version: string;
+  public abstract init(): void;
+}
