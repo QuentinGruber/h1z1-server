@@ -106,3 +106,7 @@ h1z1Server.__defineGetter__("ZoneServer2015", function () {
 h1z1Server.__defineGetter__("ZoneServer2016", function () {
   return require("./out/servers/ZoneServer2016/zoneserver.js").ZoneServer2016;
 });
+
+h1z1Server.__defineGetter__("BasePlugin", function () {
+  return require("./out/servers/ZoneServer2016/managers/pluginmanager.js").BasePlugin;
+});

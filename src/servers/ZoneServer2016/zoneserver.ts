@@ -153,6 +153,7 @@ import { GroupManager } from "./managers/groupmanager";
 import { SpeedTreeManager } from "./managers/speedtreemanager";
 import { ConstructionManager } from "./managers/constructionmanager";
 import { FairPlayManager } from "./managers/fairplaymanager";
+import { PluginManager } from "./managers/pluginmanager";
 import { Destroyable } from "./entities/destroyable";
 import { Plane } from "./entities/plane";
 
@@ -269,6 +270,8 @@ export class ZoneServer2016 extends EventEmitter {
   speedtreeManager: SpeedTreeManager;
   constructionManager: ConstructionManager;
   fairPlayManager: FairPlayManager;
+  pluginManager: PluginManager;
+
   configManager: ConfigManager;
 
   _ready: boolean = false;
@@ -329,6 +332,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.speedtreeManager = new SpeedTreeManager();
     this.constructionManager = new ConstructionManager();
     this.fairPlayManager = new FairPlayManager();
+    this.pluginManager = new PluginManager();
     /* CONFIG MANAGER MUST BE INSTANTIATED LAST ! */
     this.configManager = new ConfigManager(this, process.env.CONFIG_PATH);
     this.enableWorldSaves =
@@ -1120,6 +1124,8 @@ export class ZoneServer2016 extends EventEmitter {
     this.packProfileDefinitions();
     this.worldObjectManager.createDoors(this);
     this.worldObjectManager.createProps(this);
+
+    this.pluginManager.initializePlugins(this);
 
     this._ready = true;
     console.log(
