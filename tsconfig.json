@@ -9,7 +9,7 @@
     "sourceMap": true,
     "baseUrl": "./src" /* Base directory to resolve non-absolute module names. */,
     "paths": {
-      "h1z1-server/*": ["./h1z1-server/src/*"]
+      "@h1z1-server/*": ["../*"],
     },
     "esModuleInterop": true /* Enables emit interoperability between CommonJS and ES Modules via creation of namespace objects for all imports. Implies 'allowSyntheticDefaultImports'. */,
     "skipLibCheck": true /* Skip type checking of declaration files. */,
