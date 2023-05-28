@@ -523,6 +523,7 @@ const packets: PacketStructures = [
         { name: "__opcode__", type: "uint8", defaultValue: 1 },
         { name: "message", type: "string", defaultValue: "" },
         { name: "showConsole", type: "boolean", defaultValue: false },
+        { name: "clearOutput", type: "boolean", defaultValue: false },
       ]
     }
   ],

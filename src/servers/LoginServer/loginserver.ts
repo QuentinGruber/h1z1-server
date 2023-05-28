@@ -771,11 +771,6 @@ export class LoginServer extends EventEmitter {
       Payload: "\0"
     };
     this.sendData(client, "CharacterDeleteReply", characterDeleteReply);
-
-    this.sendData(client, "H1emu.PrintToConsole", {
-      message: "HELLO WORLD",
-      showConsole: true,
-    });
   }
 
   async getCharactersLoginInfo(
@@ -944,8 +939,15 @@ export class LoginServer extends EventEmitter {
     if (charactersLoginInfo.status) {
       charactersLoginInfo.status = Number(CharacterAllowedOnZone);
     }
+    else {
+      this.sendData(client, "H1emu.PrintToConsole", {
+        message: `Invalid character status! If this is a new character, please delete and recreate it.`,
+        showConsole: true,
+        clearOutput: true,
+      });
+    }
     if(!CharacterAllowedOnZone) {
-      let reason = "UNDEFINED";
+      let reason = "UNDEFINED. If this is a new character, please delete and recreate it.";
       switch(banInfos[0]?.banInfo) {
         case 1:
           reason = "LOCAL_BAN";
@@ -964,10 +966,10 @@ export class LoginServer extends EventEmitter {
           break;
       }
       this.sendData(client, "H1emu.PrintToConsole", {
-        message: `\n\n\n\n\n\n\n\n\n\nCONNECTION REJECTED! Reason: ${reason}`,
+        message: `CONNECTION REJECTED! Reason: ${reason}`,
         showConsole: true,
+        clearOutput: true,
       });
-      
     }
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
     debug("CharacterLoginRequest");
