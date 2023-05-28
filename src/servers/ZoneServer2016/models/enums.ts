@@ -47,7 +47,7 @@ export enum Stances {
 
   SITTING = 525377,
   STANCE_XS = 525393,
-  STANCE_XS_FP = 2622545,
+  STANCE_XS_FP = 2622545
   // havent seen this stance anywhere else than during XS glitching
 }
 
@@ -79,7 +79,7 @@ export enum ItemUseOptions {
   HOTWIRE_ATV_NO_PARTS = 90,
   HOTWIRE_OFFROADER_NO_PARTS = 91,
   HOTWIRE_PICKUP_NO_PARTS = 92,
-  HOTWIRE_POLICE_NO_PARTS = 93,
+  HOTWIRE_POLICE_NO_PARTS = 93
 }
 
 export enum ConstructionErrors {
@@ -91,14 +91,14 @@ export enum ConstructionErrors {
   UNKNOWN_SLOT = "Unknown slot",
   UNKNOWN_CONSTRUCTION = "Unknown construction item",
   OUT_OF_RANGE = "Out of range",
-  STACKED = "Construction stacked",
+  STACKED = "Construction stacked"
 }
 
 export enum ConstructionPermissionIds {
   BUILD = 1,
   DEMOLISH = 2,
   CONTAINERS = 3,
-  VISIT = 4,
+  VISIT = 4
 }
 
 export enum StringIds {
@@ -115,14 +115,14 @@ export enum StringIds {
   POLICE_CAR = 12538,
   CORN = 628,
   WHEAT = 1184,
-  USE_IGNITABLE = 9224,
+  USE_IGNITABLE = 9224
 }
 
 export enum MovementModifiers {
   RESTED = 1.1,
   SWIZZLE = 1.1,
   SNARED = 0.5,
-  BOOTS = 1.15,
+  BOOTS = 1.15
 }
 
 export enum ContainerErrors {
@@ -142,7 +142,7 @@ export enum ContainerErrors {
   NO_SPACE = 10,
   INVALID_LOADOUT_SLOT = 11,
   NO_PERMISSION = 12,
-  UNACCEPTED_ITEM = 13,
+  UNACCEPTED_ITEM = 13
 }
 
 export enum FilterIds {
@@ -153,7 +153,7 @@ export enum FilterIds {
   SURVIVAL = 7,
   COMPONENT = 8,
   DEW_COLLECTOR = 9,
-  ANIMAL_TRAP = 10,
+  ANIMAL_TRAP = 10
 }
 
 export enum ItemClasses {
@@ -163,7 +163,7 @@ export enum ItemClasses {
   WEAPONS_MELEES0 = 25037,
   WEAPONS_GENERIC = 25054,
   WEAPONS_CROSSBOW = 25047,
-  WEAPONS_BOW = 25038,
+  WEAPONS_BOW = 25038
 }
 
 export enum VehicleIds {
@@ -172,7 +172,7 @@ export enum VehicleIds {
   POLICECAR = 3,
   ATV = 5,
   PARACHUTE = 13,
-  SPECTATE = 1337,
+  SPECTATE = 1337
 }
 
 export enum Characters {
@@ -181,7 +181,7 @@ export enum Characters {
   FEMALE_WHITE_YOUNG = 3,
   FEMALE_WHITE = 4,
   MALE_BLACK = 5,
-  FEMALE_BLACK = 6,
+  FEMALE_BLACK = 6
 }
 
 export enum LoadoutIds {
@@ -189,7 +189,7 @@ export enum LoadoutIds {
   VEHICLE_OFFROADER = 4,
   VEHICLE_PICKUP = 6,
   VEHICLE_POLICECAR = 8,
-  VEHICLE_ATV = 14,
+  VEHICLE_ATV = 14
 }
 
 export enum LoadoutSlots {
@@ -200,7 +200,7 @@ export enum LoadoutSlots {
   HEAD = 11,
   ARMOR = 38,
   RADIO = 39,
-  ITEM2 = 41,
+  ITEM2 = 41
 }
 
 export enum EquipSlots {
@@ -214,7 +214,7 @@ export enum EquipSlots {
   HAIR = 27,
   FACE = 28,
   EYES = 29,
-  ARMOR = 100,
+  ARMOR = 100
 }
 
 export enum EntityTypes {
@@ -236,7 +236,7 @@ export enum EntityTypes {
   TRAP,
   TASK_PROP,
   CRATE,
-  DESTROYABLE,
+  DESTROYABLE
 }
 
 export enum ResourceIds {
@@ -249,7 +249,7 @@ export enum ResourceIds {
   COMFORT = 68,
   FUEL = 396,
   CONDITION = 561,
-  CONSTRUCTION_CONDITION = 567,
+  CONSTRUCTION_CONDITION = 567
 }
 
 export enum ResourceTypes {
@@ -261,7 +261,7 @@ export enum ResourceTypes {
   BLEEDING = 21,
   COMFORT = 68,
   FUEL = 50,
-  CONDITION = 1,
+  CONDITION = 1
 }
 
 export enum Items {
@@ -744,14 +744,14 @@ export enum Skins_Pants {
 export enum Skins_Beanie {
   AVIATOR_CAP = 2058,
   BLACK_BEANIE = 2162,
-  POLICE_HAT = 2344,
+  POLICE_HAT = 2344
 }
 
 export enum Skins_Cap {
   CAMO_GREEN_OUTBACK_HAT = 2046,
   TAN_CANVAS_OUTBACK_HAT = 2066,
   BROWN_LEATHER_OUTBACK_HAT = 2067,
-  HAT_CAP = 12,
+  HAT_CAP = 12
 }
 
 export enum Skins_MotorHelmet {
@@ -802,5 +802,5 @@ export enum Effects {
   Smoke_Red = 4538,
   Smoke_Blue = 4539,
   Smoke_Teal = 4540,
-  Smoke_Magenta = 4541,
+  Smoke_Magenta = 4541
 }

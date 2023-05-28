@@ -72,12 +72,12 @@ class SOEClient {
       if (fragment) {
         me._sendPacket("DataFragment", {
           sequence: sequence,
-          data: data,
+          data: data
         });
       } else {
         me._sendPacket("Data", {
           sequence: sequence,
-          data: data,
+          data: data
         });
       }
     });
@@ -91,7 +91,7 @@ class SOEClient {
         lastAck = nextAck;
         me._sendPacket("Ack", {
           channel: 0,
-          sequence: nextAck,
+          sequence: nextAck
         });
       }
       me._ackTimer = setTimeout(checkAck, 50);
@@ -109,8 +109,8 @@ class SOEClient {
             name: "OutOfOrder",
             soePacket: {
               channel: 0,
-              sequence: sequence,
-            },
+              sequence: sequence
+            }
           });
           if (!outOfOrderPackets.length) {
             break;
@@ -120,7 +120,7 @@ class SOEClient {
         me._sendPacket(
           "MultiPacket",
           {
-            subPackets: packets,
+            subPackets: packets
           },
           true
         );
@@ -184,7 +184,7 @@ class SOEClient {
                 break;
               default:
                 handlePacket({
-                  soePacket: subPacket,
+                  soePacket: subPacket
                 });
             }
           }
@@ -260,7 +260,7 @@ class SOEClient {
         protocol: me._protocolName,
         crc_length: 3,
         session_id: me._sessionId,
-        udp_length: 512,
+        udp_length: 512
       });
     });
   }

@@ -21,20 +21,20 @@ import {
   isInsideCube,
   registerConstructionSlots,
   getRectangleCorners,
-  movePoint,
+  movePoint
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import {
   ConstructionPermissions,
   ConstructionSlotPositionMap,
   OccupiedSlotMap,
-  SquareBounds,
+  SquareBounds
 } from "types/zoneserver";
 import {
   foundationExpansionSlotDefinitions,
   foundationRampSlotDefinitions,
   shelterSlotDefinitions,
-  wallSlotDefinitions,
+  wallSlotDefinitions
 } from "../data/constructionslots";
 
 function getDamageRange(definitionId: number): number {
@@ -102,7 +102,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         useContainers: true,
         build: true,
         demolish: true,
-        visit: true,
+        visit: true
       };
       this.permissions[ownerPermission.characterId] = ownerPermission;
     }
@@ -188,7 +188,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     return [
       ...super.getOccupiedSlotMaps(),
       this.occupiedExpansionSlots,
-      this.occupiedRampSlots,
+      this.occupiedRampSlots
     ];
   }
 
@@ -199,7 +199,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       [0, 0],
       [0, 0],
       [0, 0],
-      [0, 0],
+      [0, 0]
     ];
     slots.forEach((slot, idx) => {
       const pos = this.getSlotPosition(slot, this.wallSlots);
@@ -811,7 +811,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         permissions: Object.values(this.permissions).filter(
           (perm: ConstructionPermissions) =>
             perm.characterId != this.ownerCharacterId
-        ),
+        )
       }
     );
   }
@@ -833,7 +833,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       return; // debug mode give permission interact string
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: StringIds.PERMISSIONS_TARGET,
+      stringId: StringIds.PERMISSIONS_TARGET
     });
   }
 }

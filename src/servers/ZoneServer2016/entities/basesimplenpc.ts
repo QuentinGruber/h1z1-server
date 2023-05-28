@@ -35,13 +35,13 @@ export class BaseSimpleNpc extends BaseEntity {
       modelId: this.actorModelId,
       scale: this.scale,
       showHealth: true,
-      health: this.health / 1000,
+      health: this.health / 1000
     };
   }
   pGetSimpleProxyHealth() {
     return {
       characterId: this.characterId,
-      healthPercentage: this.health / 1000,
+      healthPercentage: this.health / 1000
     };
   }
 }

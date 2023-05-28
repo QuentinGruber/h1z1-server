@@ -71,7 +71,7 @@ export class TaskProp extends BaseLightweightCharacter {
           Items.PANTS_SCRUBS_BLUE,
           Items.SHIRT_SCRUBS_BLUE,
           Items.SURGEON_MASK_AQUA,
-          Items.FIRST_AID,
+          Items.FIRST_AID
         ];
         break;
       case "Task_Hospital_Researcher_Locker02.adr":
@@ -86,7 +86,7 @@ export class TaskProp extends BaseLightweightCharacter {
           Items.PANTS_SCRUBS_BLUE,
           Items.SHIRT_SCRUBS_BLUE,
           Items.SURGEON_MASK_AQUA,
-          Items.FIRST_AID,
+          Items.FIRST_AID
         ];
         break;
       case "Task_Hospital_Researcher_Locker03.adr":
@@ -101,7 +101,7 @@ export class TaskProp extends BaseLightweightCharacter {
           Items.PANTS_SCRUBS_BLUE,
           Items.SHIRT_SCRUBS_BLUE,
           Items.SURGEON_MASK_AQUA,
-          Items.FIRST_AID,
+          Items.FIRST_AID
         ];
         break;
       case "Task_Hospital_Researcher_Locker04.adr":
@@ -116,7 +116,7 @@ export class TaskProp extends BaseLightweightCharacter {
           Items.PANTS_SCRUBS_BLUE,
           Items.SHIRT_SCRUBS_BLUE,
           Items.SURGEON_MASK_AQUA,
-          Items.FIRST_AID,
+          Items.FIRST_AID
         ];
         break;
     }
@@ -129,7 +129,7 @@ export class TaskProp extends BaseLightweightCharacter {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: StringIds.OPEN,
+      stringId: StringIds.OPEN
     });
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */
@@ -153,7 +153,7 @@ export class TaskProp extends BaseLightweightCharacter {
         this.rewardItems[randomIntFromInterval(0, this.rewardItems.length - 1)];
       itemsPassed.push({
         itemDefinitionId: item,
-        count: this.getRewardItemCount(item),
+        count: this.getRewardItemCount(item)
       });
     }
     server.taskOption(client, 1000, this.nameId, removedItem, itemsPassed);

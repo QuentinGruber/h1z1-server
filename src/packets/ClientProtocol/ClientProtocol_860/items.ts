@@ -34,5 +34,5 @@ export const itemsPackets: any = [
   ["Items.RequestTrialItem", 0xaf14, {}],
   ["Items.RequestRentalItem", 0xaf15, {}],
   ["Items.RequestUseItem", 0xaf16, {}],
-  ["Items.RequestUseAccountItem", 0xaf17, {}],
+  ["Items.RequestUseAccountItem", 0xaf17, {}]
 ];

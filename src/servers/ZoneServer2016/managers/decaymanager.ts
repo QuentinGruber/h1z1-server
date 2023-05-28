@@ -120,14 +120,14 @@ export class DecayManager {
         server,
         {
           entity: "Server.DecayManager",
-          damage: this.baseConstructionDamage,
+          damage: this.baseConstructionDamage
         },
         dictionary
       );
     } else {
       entity.damage(server, {
         entity: "Server.DecayManager",
-        damage: this.baseConstructionDamage,
+        damage: this.baseConstructionDamage
       });
     }
     server.updateResourceToAllWithSpawnedEntity(
@@ -201,7 +201,7 @@ export class DecayManager {
       }
       vehicle.damage(server, {
         entity: "Server.DecayManager",
-        damage: damage,
+        damage: damage
       });
       server.updateResourceToAllWithSpawnedEntity(
         vehicle.characterId,

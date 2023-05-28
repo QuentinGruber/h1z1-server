@@ -17,7 +17,7 @@ import { wrappedUint16 } from "../../utils/utils";
 import {
   DATA_HEADER_SIZE,
   MAX_SEQUENCE,
-  MAX_UINT8,
+  MAX_UINT8
 } from "../../utils/constants";
 
 const debug = require("debug")("SOEInputStream");
@@ -132,9 +132,7 @@ export class SOEInputStream extends EventEmitter {
 
       if (appData.length) {
         if (this._fragments.has(this._lastProcessedSequence + 1)) {
-          queueMicrotask(() => {
-            this._processData();
-          });
+          setImmediate(() => this._processData());
         }
         this.processAppData(appData);
       }
@@ -234,7 +232,7 @@ function readDataLength(
   }
   return {
     length,
-    sizeValueBytes,
+    sizeValueBytes
   };
 }
 

@@ -26,7 +26,7 @@ import {
   setupAppDataFolder,
   isValidCharacterName,
   resolveHostAddress,
-  getPopulationLevel,
+  getPopulationLevel
 } from "../../utils/utils";
 import { GameServer } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
@@ -49,7 +49,7 @@ import {
   CharacterLoginRequest,
   CharacterCreateRequest,
   LoginUdp_11packets,
-  LoginRequest,
+  LoginRequest
 } from "types/LoginUdp_11packets";
 import { LoginUdp_9packets } from "types/LoginUdp_9packets";
 import { getCharacterModelData } from "../shared/functions";
@@ -58,7 +58,7 @@ import {
   BAN_INFO,
   DB_COLLECTIONS,
   GAME_VERSIONS,
-  NAME_VALIDATION_STATUS,
+  NAME_VALIDATION_STATUS
 } from "../../utils/enums";
 import DataSchema from "h1z1-dataschema";
 import { applicationDataKOTK } from "../../packets/LoginUdp/LoginUdp_11/loginpackets";
@@ -100,7 +100,7 @@ export class LoginServer extends EventEmitter {
     this._soloMode = false;
     this._mongoAddress = mongoAddress;
     this._appDataFolder = getAppDataFolderPath();
-    this._enableHttpServer = true;
+    this._enableHttpServer = false;
     this.clients = new Map();
 
     // reminders
@@ -216,7 +216,7 @@ export class LoginServer extends EventEmitter {
                       return;
                     }
                     this._h1emuLoginServer.sendData(client, "SessionReply", {
-                      status: status,
+                      status: status
                     });
                     break;
                   }
@@ -236,8 +236,8 @@ export class LoginServer extends EventEmitter {
                             populationLevel: getPopulationLevel(
                               population,
                               maxPopulationNumber
-                            ),
-                          },
+                            )
+                          }
                         }
                       );
                     break;
@@ -258,8 +258,8 @@ export class LoginServer extends EventEmitter {
                               serverId,
                               authKey: userSession.authKey,
                               status,
-                              isGlobal: await this._isServerOfficial(serverId),
-                            },
+                              isGlobal: await this._isServerOfficial(serverId)
+                            }
                           },
                           { upsert: true }
                         );
@@ -423,7 +423,7 @@ export class LoginServer extends EventEmitter {
       const charactersQuery = {
         authKey: client.loginSessionId,
         gameVersion: client.gameVersion,
-        status: 1,
+        status: 1
       };
       return await this._db
         .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
@@ -478,19 +478,19 @@ export class LoginServer extends EventEmitter {
             id: 2,
             active: true,
             remainingCount: 2,
-            rawData: "test",
-          },
-        },
+            rawData: "test"
+          }
+        }
       ],
       errorDetails: [
         {
           unknownDword1: 0,
           name: "None",
-          value: "None",
-        },
+          value: "None"
+        }
       ],
       ipCountryCode: "US",
-      applicationPayload: "US",
+      applicationPayload: "US"
     };
     this.clients.set(client.soeClientId, client);
     this.sendData(client, "LoginReply", loginReply);
@@ -507,7 +507,7 @@ export class LoginServer extends EventEmitter {
           const blackListedEntry = await this._db
             .collection(DB_COLLECTIONS.BLACK_LIST_ENTRIES)
             .findOne({
-              WORD: characterName.toUpperCase(),
+              WORD: characterName.toUpperCase()
             });
           if (blackListedEntry) {
             if (blackListedEntry.FILTER_TYPE === 3) {
@@ -521,7 +521,7 @@ export class LoginServer extends EventEmitter {
               .findOne({
                 "payload.name": characterName,
                 serverId: baseResponse.serverId,
-                status: 1,
+                status: 1
               });
             if (duplicateCharacter) {
               status = NAME_VALIDATION_STATUS.TAKEN;
@@ -532,7 +532,7 @@ export class LoginServer extends EventEmitter {
           ...baseResponse,
           subPacketOpcode: 0x02,
           firstName: characterName,
-          status: status,
+          status: status
         };
         break;
       default:
@@ -560,17 +560,17 @@ export class LoginServer extends EventEmitter {
         loadoutId: 3,
         unknownData1: {
           unknownDword1: 22,
-          unknownByte1: 1,
+          unknownByte1: 1
         },
         unknownDword1: 0,
         unknownData2: {
           unknownDword1: 0,
-          loadoutName: "",
+          loadoutName: ""
         },
         tintItemId: 0,
         unknownDword2: 0,
         decalItemId: 0,
-        loadoutSlots: [],
+        loadoutSlots: []
       };
       PlayerCharacter.payload.attachmentDefinitions = [];
     }
@@ -592,8 +592,8 @@ export class LoginServer extends EventEmitter {
             payload: {
               name: character.characterName,
               modelId: character.actorModelId,
-              gender: character.gender,
-            },
+              gender: character.gender
+            }
           };
         });
         characters = this.addDummyDataToCharacters(characterList);
@@ -604,7 +604,7 @@ export class LoginServer extends EventEmitter {
     const characterSelectInfoReply: CharacterSelectInfoReply = {
       status: 1,
       canBypassServerLock: true,
-      characters: characters,
+      characters: characters
     };
     this.sendData(client, "CharacterSelectInfoReply", characterSelectInfoReply);
     debug("CharacterSelectInfoRequest");
@@ -620,15 +620,15 @@ export class LoginServer extends EventEmitter {
             allowedAccess: status,
             statusTimestamp: Date.now(),
             populationNumber: 0,
-            populationLevel: 0,
-          },
+            populationLevel: 0
+          }
         }
       );
     this.clients.forEach((client: Client) => {
       if (client.gameVersion === server.value.gameVersion) {
         this.sendData(client, "ServerUpdate", {
           ...server.value,
-          allowedAccess: !server.value.locked ? status : false,
+          allowedAccess: !server.value.locked ? status : false
         });
       }
     });
@@ -639,8 +639,8 @@ export class LoginServer extends EventEmitter {
       { serverId: serverId },
       {
         $set: {
-          h1emuVersion: version,
-        },
+          h1emuVersion: version
+        }
       }
     );
   }
@@ -668,7 +668,7 @@ export class LoginServer extends EventEmitter {
       servers = await this._db
         .collection(DB_COLLECTIONS.SERVERS)
         .find({
-          gameVersion: client.gameVersion,
+          gameVersion: client.gameVersion
         })
         .toArray();
       servers = servers
@@ -758,8 +758,8 @@ export class LoginServer extends EventEmitter {
             .collection(DB_COLLECTIONS.CHARACTERS_LIGHT)
             .updateOne(characterQuery, {
               $set: {
-                status: 0,
-              },
+                status: 0
+              }
             });
           debug(`Character ${packet.characterId} deleted !`);
         }
@@ -768,7 +768,7 @@ export class LoginServer extends EventEmitter {
     const characterDeleteReply: CharacterDeleteReply = {
       characterId: packet.characterId,
       status: deletionStatus,
-      Payload: "\0",
+      Payload: "\0"
     };
     this.sendData(client, "CharacterDeleteReply", characterDeleteReply);
   }
@@ -801,7 +801,7 @@ export class LoginServer extends EventEmitter {
     if (!connectionStatus && hiddenSession.guid) {
       // Admins bypass max pop
       connectionStatus = (await this.askZone(serverId, "ClientIsAdminRequest", {
-        guid: hiddenSession.guid,
+        guid: hiddenSession.guid
       })) as boolean;
     }
     return {
@@ -817,8 +817,8 @@ export class LoginServer extends EventEmitter {
         unknownQword2: "0x0",
         stationName: "",
         characterName: character ? character.payload.name : "error",
-        unknownString: "",
-      },
+        unknownString: ""
+      }
     };
   }
 
@@ -855,8 +855,8 @@ export class LoginServer extends EventEmitter {
         unknownQword2: "0x0",
         stationName: "",
         characterName: character.characterName,
-        unknownString: "",
-      },
+        unknownString: ""
+      }
     };
   }
 
@@ -963,7 +963,7 @@ export class LoginServer extends EventEmitter {
             address: address,
             port: port,
             clientId: zoneConnectionString,
-            serverId: 1, // TODO: that's a hack
+            serverId: 1 // TODO: that's a hack
           } as any,
           packetName,
           { reqId: reqId, ...packetObj }
@@ -986,7 +986,7 @@ export class LoginServer extends EventEmitter {
     const {
       payload: { characterName },
       serverId,
-      payload,
+      payload
     } = packet;
     // create character object
     let sampleCharacter, newCharacter;
@@ -1028,7 +1028,7 @@ export class LoginServer extends EventEmitter {
             actorModelId: characterModelData.modelId,
             headActor: characterModelData.headActor,
             gender: payload.gender,
-            hairModel: characterModelData.hairModel,
+            hairModel: characterModelData.hairModel
           };
           SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
           fs.writeFileSync(
@@ -1044,7 +1044,7 @@ export class LoginServer extends EventEmitter {
             actorModelId: characterModelData.modelId,
             headActor: characterModelData.headActor,
             gender: payload.gender,
-            hairModel: characterModelData.hairModel,
+            hairModel: characterModelData.hairModel
           };
           SinglePlayerCharacters[SinglePlayerCharacters.length] = newCharacter;
           fs.writeFileSync(
@@ -1064,7 +1064,7 @@ export class LoginServer extends EventEmitter {
       } else {
         sessionObj = {
           authKey: client.loginSessionId,
-          guid: generateRandomGuid(),
+          guid: generateRandomGuid()
         };
         await this._db
           ?.collection(DB_COLLECTIONS.USERS_SESSIONS)
@@ -1084,13 +1084,13 @@ export class LoginServer extends EventEmitter {
             serverId: newCharacter.serverId,
             ownerId: sessionObj.guid,
             payload: packet.payload,
-            status: 1,
+            status: 1
           };
           break;
         }
       }
       creationStatus = (await this.askZone(serverId, "CharacterCreateRequest", {
-        characterObjStringify: JSON.stringify(newCharacterData),
+        characterObjStringify: JSON.stringify(newCharacterData)
       }))
         ? 1
         : 0;
@@ -1102,14 +1102,14 @@ export class LoginServer extends EventEmitter {
           gameVersion: client.gameVersion,
           payload: { name: characterName },
           characterId: newCharacter.characterId,
-          status: 1,
+          status: 1
         });
       }
       newCharacter;
     }
     const characterCreateReply: CharacterCreateReply = {
       status: creationStatus,
-      characterId: newCharacter.characterId,
+      characterId: newCharacter.characterId
     };
     this.sendData(client, "CharacterCreateReply", characterCreateReply);
   }
@@ -1118,7 +1118,7 @@ export class LoginServer extends EventEmitter {
     debug("Starting server");
     if (this._mongoAddress) {
       const mongoClient = new MongoClient(this._mongoAddress, {
-        maxPoolSize: 100,
+        maxPoolSize: 100
       });
       try {
         await mongoClient.connect();
@@ -1146,8 +1146,8 @@ export class LoginServer extends EventEmitter {
       this._httpServer = new Worker(`${__dirname}/workers/httpServer.js`, {
         workerData: {
           MONGO_URL: this._mongoAddress,
-          SERVER_PORT: this._httpServerPort,
-        },
+          SERVER_PORT: this._httpServerPort
+        }
       });
       this._httpServer.on("message", (message: httpServerMessage) => {
         const { type, requestId, data } = message;
@@ -1158,7 +1158,7 @@ export class LoginServer extends EventEmitter {
               requestId: requestId,
               data: Object.values(this._zoneConnections).includes(data)
                 ? "pong"
-                : "error",
+                : "error"
             };
             this._httpServer.postMessage(response);
             break;
@@ -1167,7 +1167,7 @@ export class LoginServer extends EventEmitter {
             const response: httpServerMessage = {
               type: "ping",
               requestId: requestId,
-              data: "pong",
+              data: "pong"
             };
             this._httpServer.postMessage(response);
             break;

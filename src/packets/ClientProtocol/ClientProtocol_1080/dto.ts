@@ -18,8 +18,8 @@ export const dtoPackets: PacketStructures = [
     "DtoHitReportPacket",
     0xbb0100,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "DtoStateChange",
@@ -35,9 +35,9 @@ export const dtoPackets: PacketStructures = [
         { name: "unk5", type: "boolean", defaultValue: true },
         { name: "unk6", type: "boolean", defaultValue: true },
         { name: "unk7", type: "boolean", defaultValue: true },
-        { name: "unk8", type: "boolean", defaultValue: true },
-      ],
-    },
+        { name: "unk8", type: "boolean", defaultValue: true }
+      ]
+    }
   ],
   [
     "DtoObjectInitialData",
@@ -55,8 +55,8 @@ export const dtoPackets: PacketStructures = [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownBool1", type: "boolean", defaultValue: true },
             { name: "unknownBool2", type: "boolean", defaultValue: true },
-            { name: "unknownBool3", type: "boolean", defaultValue: true },
-          ],
+            { name: "unknownBool3", type: "boolean", defaultValue: true }
+          ]
         },
         {
           name: "unknownArray2",
@@ -64,11 +64,11 @@ export const dtoPackets: PacketStructures = [
           defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   [
     "DtoHitSpeedTreeReport",
@@ -77,8 +77,8 @@ export const dtoPackets: PacketStructures = [
       fields: [
         { name: "id", type: "uint32" },
         { name: "treeId", type: "uint32" },
-        { name: "name", type: "string" },
-      ],
-    },
-  ],
+        { name: "name", type: "string" }
+      ]
+    }
+  ]
 ];

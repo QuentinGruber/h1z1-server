@@ -25,17 +25,17 @@ export const combatPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "targetId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unknown5", type: "uint32", defaultValue: 100 },
-        { name: "unknown6", type: "boolean", defaultValue: true },
-      ],
-    },
+        { name: "unknown6", type: "boolean", defaultValue: true }
+      ]
+    }
   ],
   [
     "Combat.AttackAttackerMissed",
@@ -47,15 +47,15 @@ export const combatPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "targetId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
-        },
-      ],
-    },
+          defaultValue: "0x0000000000000000"
+        }
+      ]
+    }
   ],
   [
     "Combat.AttackTargetDodged",
@@ -67,15 +67,15 @@ export const combatPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "targetId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
-        },
-      ],
-    },
+          defaultValue: "0x0000000000000000"
+        }
+      ]
+    }
   ],
   [
     "Combat.AttackProcessed",
@@ -91,9 +91,9 @@ export const combatPackets: any = [
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
         { name: "unknownBoolean2", type: "boolean", defaultValue: false },
         { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Combat.EnableBossDisplay",
@@ -104,11 +104,11 @@ export const combatPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
-        { name: "unknown6", type: "boolean", defaultValue: true },
-      ],
-    },
+        { name: "unknown6", type: "boolean", defaultValue: true }
+      ]
+    }
   ],
   [
     "Combat.AttackTargetBlocked",
@@ -119,15 +119,15 @@ export const combatPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "targetId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
-        },
-      ],
-    },
+          defaultValue: "0x0000000000000000"
+        }
+      ]
+    }
   ],
   [
     "Combat.AttackTargetParried",
@@ -138,15 +138,15 @@ export const combatPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "targetId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
-        },
-      ],
-    },
+          defaultValue: "0x0000000000000000"
+        }
+      ]
+    }
   ],
   [
     "Combat.UpdateGrappling",
@@ -158,16 +158,16 @@ export const combatPackets: any = [
         {
           name: "unknown3",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unknown4", type: "uint32", defaultValue: 0 },
         {
           name: "unknown5",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
-        { name: "unknown6", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  ],
+        { name: "unknown6", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ]
 ];

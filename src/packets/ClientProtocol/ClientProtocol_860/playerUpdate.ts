@@ -20,7 +20,7 @@ import {
   readUnsignedIntWith2bitLengthValue,
   packUnsignedIntWith2bitLengthValue,
   fullPcDataSchema,
-  fullNpcDataSchema,
+  fullNpcDataSchema
 } from "./shared";
 
 export const playerUpdatePackets: any = [
@@ -29,10 +29,8 @@ export const playerUpdatePackets: any = [
     "PlayerUpdate.RemovePlayer",
     0x0f010000,
     {
-      fields: [
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }]
+    }
   ],
   [
     "PlayerUpdate.RemovePlayerGracefully",
@@ -45,9 +43,9 @@ export const playerUpdatePackets: any = [
         { name: "effectDelay", type: "uint32", defaultValue: 0 },
         { name: "effectId", type: "uint32", defaultValue: 0 }, // effect that stays at first object position
         { name: "stickyEffectId", type: "uint32", defaultValue: 0 }, // effect that follows object
-        { name: "timeToDisappear", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "timeToDisappear", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.Knockback",
@@ -59,16 +57,16 @@ export const playerUpdatePackets: any = [
         {
           name: "position",
           type: "floatvector4",
-          defaultValue: [0, 50, 0, 1],
+          defaultValue: [0, 50, 0, 1]
         },
         {
           name: "rotation",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 1],
+          defaultValue: [0, 0, 0, 1]
         },
-        { name: "unk2", type: "uint32", defaultValue: 1 },
-      ],
-    },
+        { name: "unk2", type: "uint32", defaultValue: 1 }
+      ]
+    }
   ],
   ["PlayerUpdate.UpdateHitpoints", 0x0f03, {}],
   [
@@ -79,30 +77,30 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "unk1",
           type: "uint32",
-          defaultValue: 1,
+          defaultValue: 1
         },
         {
           name: "unk2",
           type: "uint32",
-          defaultValue: 2,
+          defaultValue: 2
         },
         {
           name: "unk3",
           type: "uint8",
-          defaultValue: 3,
+          defaultValue: 3
         },
         {
           name: "unk4",
           type: "uint32",
-          defaultValue: 4,
-        },
-      ],
-    },
+          defaultValue: 4
+        }
+      ]
+    }
   ],
   ["PlayerUpdate.AddNotifications", 0x0f05, {}],
   ["PlayerUpdate.RemoveNotifications", 0x0f06, {}],
@@ -119,11 +117,11 @@ export const playerUpdatePackets: any = [
             { name: "guid", type: "uint64string", defaultValue: "0" },
             { name: "unknownBoolean1", type: "boolean", defaultValue: true },
             { name: "unknownByte1", type: "uint8", defaultValue: 1 },
-            { name: "unknownByte2", type: "uint8", defaultValue: 1 },
-          ],
-        },
-      ],
-    },
+            { name: "unknownByte2", type: "uint8", defaultValue: 1 }
+          ]
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.UpdateScale",
@@ -133,15 +131,15 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "scale",
           type: "floatvector4",
-          defaultValue: [20, 5, 20, 1],
-        },
-      ],
-    },
+          defaultValue: [20, 5, 20, 1]
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.UpdateTemporaryAppearance",
@@ -151,15 +149,15 @@ export const playerUpdatePackets: any = [
         {
           name: "modelId",
           type: "uint32",
-          defaultValue: 9008,
+          defaultValue: 9008
         },
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
-        },
-      ],
-    },
+          defaultValue: "0x0000000000000000"
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.RemoveTemporaryAppearance",
@@ -169,15 +167,15 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "modelId",
           type: "uint32",
-          defaultValue: 9008,
-        },
-      ],
-    },
+          defaultValue: 9008
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.PlayCompositeEffect",
@@ -189,9 +187,9 @@ export const playerUpdatePackets: any = [
         { name: "unk2", type: "uint32", defaultValue: 0 },
         { name: "unk3", type: "uint32", defaultValue: 0 },
         { name: "unk4", type: "boolean", defaultValue: 0 },
-        { name: "unk5", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "unk5", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.SetLookAt",
@@ -199,9 +197,9 @@ export const playerUpdatePackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "targetCharacterId", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+        { name: "targetCharacterId", type: "uint64string", defaultValue: "0" }
+      ]
+    }
   ],
   ["PlayerUpdate.RenamePlayer", 0x0f0d, {}],
   [
@@ -221,8 +219,8 @@ export const playerUpdatePackets: any = [
             { bit: 4, name: "bound", defaultValue: false },
             { bit: 5, name: "rooted", defaultValue: false },
             { bit: 6, name: "stunned", defaultValue: false },
-            { bit: 7, name: "knockedOut", defaultValue: false },
-          ],
+            { bit: 7, name: "knockedOut", defaultValue: false }
+          ]
         },
         {
           name: "states2",
@@ -235,8 +233,8 @@ export const playerUpdatePackets: any = [
             { bit: 4, name: "inCombat", defaultValue: false },
             { bit: 5, name: "frozen", defaultValue: false },
             { bit: 6, name: "berserk", defaultValue: false },
-            { bit: 7, name: "inScriptedAnimation", defaultValue: false },
-          ],
+            { bit: 7, name: "inScriptedAnimation", defaultValue: false }
+          ]
         },
         {
           name: "states3",
@@ -249,8 +247,8 @@ export const playerUpdatePackets: any = [
             { bit: 4, name: "interactBlocked", defaultValue: false },
             { bit: 5, name: "nonHealable", defaultValue: false },
             { bit: 6, name: "weaponFireBlocked", defaultValue: false },
-            { bit: 7, name: "nonResuppliable", defaultValue: false },
-          ],
+            { bit: 7, name: "nonResuppliable", defaultValue: false }
+          ]
         },
         {
           name: "states4",
@@ -263,8 +261,8 @@ export const playerUpdatePackets: any = [
             { bit: 4, name: "userMovementDisabled", defaultValue: false },
             { bit: 5, name: "flying", defaultValue: false },
             { bit: 6, name: "hideCorpse", defaultValue: false },
-            { bit: 7, name: "gmHidden", defaultValue: false },
-          ],
+            { bit: 7, name: "gmHidden", defaultValue: false }
+          ]
         },
         {
           name: "states5",
@@ -277,8 +275,8 @@ export const playerUpdatePackets: any = [
             { bit: 4, name: "friendlyFireImmunity", defaultValue: false },
             { bit: 5, name: "riotShielded", defaultValue: false },
             { bit: 6, name: "supplyingAmmo", defaultValue: false },
-            { bit: 7, name: "supplyingRepairs", defaultValue: false },
-          ],
+            { bit: 7, name: "supplyingRepairs", defaultValue: false }
+          ]
         },
         {
           name: "states6",
@@ -291,8 +289,8 @@ export const playerUpdatePackets: any = [
             { bit: 4, name: "dormant", defaultValue: false },
             { bit: 5, name: "ignoreStatusNotUsed", defaultValue: false },
             { bit: 6, name: "inWater", defaultValue: false },
-            { bit: 7, name: "disarmed", defaultValue: false },
-          ],
+            { bit: 7, name: "disarmed", defaultValue: false }
+          ]
         },
         {
           name: "states7",
@@ -305,13 +303,13 @@ export const playerUpdatePackets: any = [
             { bit: 4, name: "handsUp", defaultValue: false },
             { bit: 5, name: "bit5", defaultValue: false },
             { bit: 6, name: "bit6", defaultValue: false },
-            { bit: 7, name: "bit7", defaultValue: false },
-          ],
+            { bit: 7, name: "bit7", defaultValue: false }
+          ]
         },
         { name: "placeholder", type: "uint8", defaultValue: 0 },
-        { name: "gameTime", type: "uint32", defaultValue: 1 },
-      ],
-    },
+        { name: "gameTime", type: "uint32", defaultValue: 1 }
+      ]
+    }
   ],
   ["PlayerUpdate.QueueAnimation", 0x0f0f, {}], // have been removed from the game
   [
@@ -323,10 +321,10 @@ export const playerUpdatePackets: any = [
         {
           name: "speed",
           type: "uint32",
-          defaultValue: 0,
-        },
-      ],
-    },
+          defaultValue: 0
+        }
+      ]
+    }
   ],
   ["PlayerUpdate.ScriptedAnimation", 0x0f11, {}], // have been removed from the game
   [
@@ -338,20 +336,20 @@ export const playerUpdatePackets: any = [
         {
           name: "unk1",
           type: "uint32",
-          defaultValue: 0,
+          defaultValue: 0
         },
         {
           name: "unk2",
           type: "uint32",
-          defaultValue: 0,
+          defaultValue: 0
         },
         {
           name: "unk3",
           type: "boolean",
-          defaultValue: false,
-        },
-      ],
-    },
+          defaultValue: false
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.SetDisposition",
@@ -363,10 +361,10 @@ export const playerUpdatePackets: any = [
         {
           name: "disposition",
           type: "uint32",
-          defaultValue: 0,
-        },
-      ],
-    },
+          defaultValue: 0
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.LootEvent",
@@ -378,20 +376,20 @@ export const playerUpdatePackets: any = [
         {
           name: "position",
           type: "floatvector4",
-          defaultValue: [0, 50, 0, 1],
+          defaultValue: [0, 50, 0, 1]
         },
         {
           name: "rotation",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 1],
+          defaultValue: [0, 0, 0, 1]
         },
         {
           name: "modelFileName",
           type: "string",
-          defaultValue: "ZombieMale001.adr",
-        },
-      ],
-    },
+          defaultValue: "ZombieMale001.adr"
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.SlotCompositeEffectOverride",
@@ -400,9 +398,9 @@ export const playerUpdatePackets: any = [
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0x000" },
         { name: "slotId", type: "uint32", defaultValue: 1 },
-        { name: "effectId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "effectId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.EffectPackage",
@@ -417,9 +415,9 @@ export const playerUpdatePackets: any = [
         { name: "unknownBoolean2", type: "boolean", defaultValue: false },
         { name: "effectId", type: "uint32", defaultValue: 0 },
         { name: "unknownDword4", type: "float", defaultValue: 0 },
-        { name: "unknownDword5", type: "float", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownDword5", type: "float", defaultValue: 0 }
+      ]
+    }
   ],
   ["PlayerUpdate.PreferredLanguages", 0x0f17, {}],
   ["PlayerUpdate.CustomizationChange", 0x0f18, {}],
@@ -434,9 +432,9 @@ export const playerUpdatePackets: any = [
         { name: "unk2", type: "uint32", defaultValue: 3 },
         { name: "unk3", type: "uint64string", defaultValue: "0" },
         { name: "unk4", type: "uint64string", defaultValue: "0" },
-        { name: "unk5", type: "uint32", defaultValue: 4 },
-      ],
-    },
+        { name: "unk5", type: "uint32", defaultValue: 4 }
+      ]
+    }
   ],
   ["PlayerUpdate.RemoveEffectTagCompositeEffect", 0x0f1b, {}],
   ["PlayerUpdate.SetSpawnAnimation", 0x0f1c, {}],
@@ -452,21 +450,21 @@ export const playerUpdatePackets: any = [
         {
           name: "unk1",
           type: "string",
-          defaultValue: "0",
+          defaultValue: "0"
         },
         {
           name: "unk2",
           type: "string",
-          defaultValue: "0",
+          defaultValue: "0"
         },
         { name: "c", type: "uint32", defaultValue: 0 },
         {
           name: "unk3",
           type: "boolean",
-          defaultValue: 1,
-        },
-      ],
-    },
+          defaultValue: 1
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.SetSpawnerActivationEffect",
@@ -474,9 +472,9 @@ export const playerUpdatePackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "effectId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "effectId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["PlayerUpdate.SetComboState", 0x0f1f, {}],
   ["PlayerUpdate.SetSurpriseState", 0x0f20, {}],
@@ -489,12 +487,12 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "modelId", type: "uint32", defaultValue: 0 },
-        { name: "unknown3", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown3", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.SetCollidable",
@@ -504,11 +502,11 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
-        { name: "collisionEnabled", type: "boolean", defaultValue: true },
-      ],
-    },
+        { name: "collisionEnabled", type: "boolean", defaultValue: true }
+      ]
+    }
   ],
   [
     "PlayerUpdate.UpdateOwner",
@@ -516,9 +514,9 @@ export const playerUpdatePackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unk", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "unk", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.WeaponStance",
@@ -526,9 +524,9 @@ export const playerUpdatePackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "stance", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "stance", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["PlayerUpdate.UpdateTintAlias", 0x0f26, {}],
   [
@@ -539,17 +537,17 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unknown4", type: "uint32", defaultValue: 50 },
         { name: "unknown5", type: "uint32", defaultValue: 50 },
         {
           name: "position",
           type: "floatvector4",
-          defaultValue: [10, 0, 0, 1],
-        },
-      ],
-    },
+          defaultValue: [10, 0, 0, 1]
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.ClearMovementRail",
@@ -559,10 +557,10 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
-        },
-      ],
-    },
+          defaultValue: "0x0000000000000000"
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.MoveOnRelativeRail",
@@ -572,7 +570,7 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unknown4", type: "uint32", defaultValue: 0 },
         { name: "unknown5", type: "uint32", defaultValue: 0 },
@@ -582,10 +580,10 @@ export const playerUpdatePackets: any = [
         {
           name: "unknownVector1",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 0],
-        },
-      ],
-    },
+          defaultValue: [0, 0, 0, 0]
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.Destroyed",
@@ -596,9 +594,9 @@ export const playerUpdatePackets: any = [
         { name: "unknown1", type: "uint32", defaultValue: 9001 },
         { name: "unknown2", type: "uint32", defaultValue: 200 },
         { name: "unknown3", type: "uint32", defaultValue: 300 },
-        { name: "disableWeirdPhysics", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "disableWeirdPhysics", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.SeekTarget",
@@ -608,12 +606,12 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "TargetCharacterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "initSpeed", type: "float", defaultValue: 90 },
         { name: "acceleration", type: "float", defaultValue: 10 },
@@ -623,10 +621,10 @@ export const playerUpdatePackets: any = [
         {
           name: "rotation",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 1],
-        },
-      ],
-    },
+          defaultValue: [0, 0, 0, 1]
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.SeekTargetUpdate",
@@ -636,15 +634,15 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "TargetCharacterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
-        },
-      ],
-    },
+          defaultValue: "0x0000000000000000"
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.UpdateActiveWieldType",
@@ -653,9 +651,9 @@ export const playerUpdatePackets: any = [
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         //  "Melee"=0,"Handgun"=1,"SubmachineGun"=2,"Rifle"=3,"Shoulder"=4,"Heavy"=5,"Hip"=6
-        { name: "filterType", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "filterType", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.LaunchProjectile",
@@ -677,28 +675,28 @@ export const playerUpdatePackets: any = [
             {
               name: "unknownVector1",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 1],
+              defaultValue: [0, 0, 0, 1]
             },
             {
               name: "unknownVector2",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 1],
+              defaultValue: [0, 0, 0, 1]
             },
             {
               name: "unknownVector3",
               type: "floatvector3",
-              defaultValue: [0, 0, 0, 1],
+              defaultValue: [0, 0, 0, 1]
             },
             {
               name: "unknownVector4",
               type: "floatvector3",
-              defaultValue: [0, 0, 0, 1],
+              defaultValue: [0, 0, 0, 1]
             },
             { name: "unkstring", type: "string", defaultValue: "test" },
             {
               name: "unknownVector5",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 1],
+              defaultValue: [0, 0, 0, 1]
             },
 
             { name: "unknownDword6", type: "uint32", defaultValue: 0 },
@@ -757,7 +755,7 @@ export const playerUpdatePackets: any = [
             {
               name: "unknownVector6",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 1],
+              defaultValue: [0, 0, 0, 1]
             },
 
             { name: "unknownDword46", type: "uint32", defaultValue: 0 },
@@ -775,12 +773,12 @@ export const playerUpdatePackets: any = [
             { name: "unknownDword54", type: "uint32", defaultValue: 0 },
             { name: "unknownDword55", type: "uint32", defaultValue: 0 },
             { name: "unknownDword56", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword57", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "unknownDword57", type: "uint32", defaultValue: 0 }
+          ]
         },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["PlayerUpdate.SetSynchronizedAnimations", 0x0f2f, {}],
   [
@@ -792,16 +790,16 @@ export const playerUpdatePackets: any = [
         {
           name: "unkguid2",
           type: "uint64string",
-          defaultValue: "0x0000000000000011",
+          defaultValue: "0x0000000000000011"
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 1 },
         { name: "unknownDword2", type: "uint32", defaultValue: 2 },
         { name: "unknownDword3", type: "uint32", defaultValue: 3 },
         { name: "unknownDword4", type: "uint32", defaultValue: 4 },
         { name: "unknownDword5", type: "uint32", defaultValue: 5 },
-        { name: "unknownDword6", type: "uint32", defaultValue: 6 },
-      ],
-    },
+        { name: "unknownDword6", type: "uint32", defaultValue: 6 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.CustomizationData",
@@ -816,11 +814,11 @@ export const playerUpdatePackets: any = [
             { name: "unknown1", type: "uint32", defaultValue: 0 },
             { name: "modelName", type: "string", defaultValue: "" },
             { name: "unknown3", type: "uint32", defaultValue: 0 },
-            { name: "unknown4", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "unknown4", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   ["PlayerUpdate.MemberStatus", 0x0f32, {}],
   ["PlayerUpdate.SetCurrentAdventure", 0x0f33, {}],
@@ -832,7 +830,7 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unknown4", type: "uint32", defaultValue: 10 },
         { name: "timeMs", type: "uint32", defaultValue: 1000 },
@@ -841,10 +839,10 @@ export const playerUpdatePackets: any = [
         {
           name: "unknownGuid",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
-        },
-      ],
-    },
+          defaultValue: "0x0000000000000000"
+        }
+      ]
+    }
   ],
   ["PlayerUpdate.StopHarvest", 0x0f35, {}],
   [
@@ -869,8 +867,8 @@ export const playerUpdatePackets: any = [
             { name: "unknownDword9", type: "uint32", defaultValue: 0 },
             { name: "unknownDword10", type: "uint32", defaultValue: 0 },
             { name: "unknownDword11", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword12", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "unknownDword12", type: "uint32", defaultValue: 0 }
+          ]
         },
         {
           name: "unknownData2", // same schema as unknownData1
@@ -888,8 +886,8 @@ export const playerUpdatePackets: any = [
             { name: "unknownDword9", type: "uint32", defaultValue: 0 },
             { name: "unknownDword10", type: "uint32", defaultValue: 0 },
             { name: "unknownDword11", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword12", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "unknownDword12", type: "uint32", defaultValue: 0 }
+          ]
         },
         {
           name: "unknownData3",
@@ -901,8 +899,8 @@ export const playerUpdatePackets: any = [
               defaultValue: [],
               fields: [
                 { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-                { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-              ],
+                { name: "unknownByte2", type: "uint8", defaultValue: 0 }
+              ]
             },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
@@ -918,17 +916,17 @@ export const playerUpdatePackets: any = [
             {
               name: "unknownVector1",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 1],
+              defaultValue: [0, 0, 0, 1]
             },
             { name: "unknownDword9", type: "uint32", defaultValue: 0 },
             { name: "unknownDword10", type: "uint32", defaultValue: 0 },
             { name: "unknownDword11", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword12", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "unknownDword12", type: "uint32", defaultValue: 0 }
+          ]
         },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["PlayerUpdate.KnockedOutDamageReport", 0x0f37, {}],
   [
@@ -938,9 +936,9 @@ export const playerUpdatePackets: any = [
       fields: [
         { name: "respawnType", type: "uint8", defaultValue: 0 },
         { name: "respawnGuid", type: "uint64string", defaultValue: "0" },
-        { name: "profileId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "profileId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.RespawnReply",
@@ -950,11 +948,11 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
-        { name: "unk", type: "uint8", defaultValue: 1 },
-      ],
-    },
+        { name: "unk", type: "uint8", defaultValue: 1 }
+      ]
+    }
   ],
   ["PlayerUpdate.ReadyToReviveResponse", 0x0f3a, {}],
   ["PlayerUpdate.ActivateProfile", 0x0f3b, {}],
@@ -967,12 +965,12 @@ export const playerUpdatePackets: any = [
           name: "unkArray",
           type: "array",
           defaultValue: [],
-          fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
+          fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }]
         },
         { name: "unk1", type: "uint32", defaultValue: 100 },
-        { name: "unk2", type: "uint8", defaultValue: 1 },
-      ],
-    },
+        { name: "unk2", type: "uint8", defaultValue: 1 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.Jet",
@@ -980,9 +978,9 @@ export const playerUpdatePackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "state", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "state", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   ["PlayerUpdate.Turbo", 0x0f3e, {}],
   ["PlayerUpdate.StartRevive", 0x0f3f, {}],
@@ -994,9 +992,9 @@ export const playerUpdatePackets: any = [
     {
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "factionId", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "factionId", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.SetBattleRank",
@@ -1004,9 +1002,9 @@ export const playerUpdatePackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "battleRank", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "battleRank", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["PlayerUpdate.StartHeal", 0x0f44, {}],
   ["PlayerUpdate.StopHeal", 0x0f45, {}],
@@ -1019,9 +1017,9 @@ export const playerUpdatePackets: any = [
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "guid2", type: "uint64string", defaultValue: "0" },
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+        { name: "characterId", type: "uint64string", defaultValue: "0" }
+      ]
+    }
   ],
   ["PlayerUpdate.ManagedObjectRequestControl", 0x0f49, {}],
   [
@@ -1030,9 +1028,9 @@ export const playerUpdatePackets: any = [
     {
       fields: [
         { name: "control", type: "uint8", defaultValue: 0 },
-        { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+        { name: "objectCharacterId", type: "uint64string", defaultValue: "0" }
+      ]
+    }
   ],
   ["PlayerUpdate.ManagedObjectReleaseControl", 0x0f4b, {}],
   [
@@ -1041,9 +1039,9 @@ export const playerUpdatePackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "materialType", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "materialType", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.DebrisLaunch",
@@ -1053,9 +1051,9 @@ export const playerUpdatePackets: any = [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "unk1", type: "uint32", defaultValue: 0 },
         { name: "unk2", type: "uint32", defaultValue: 0 },
-        { name: "unk3", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+        { name: "unk3", type: "uint64string", defaultValue: "0" }
+      ]
+    }
   ],
   [
     "PlayerUpdate.HideCorpse",
@@ -1063,9 +1061,9 @@ export const playerUpdatePackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownBoolean", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownBoolean", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.CharacterStateDelta",
@@ -1076,9 +1074,9 @@ export const playerUpdatePackets: any = [
         { name: "guid2", type: "uint64string", defaultValue: "0" },
         { name: "guid3", type: "uint64string", defaultValue: "0" },
         { name: "guid4", type: "uint64string", defaultValue: "0" },
-        { name: "gameTime", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "gameTime", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.UpdateStat",
@@ -1090,10 +1088,10 @@ export const playerUpdatePackets: any = [
           name: "stats",
           type: "array",
           defaultValue: [],
-          fields: statDataSchema,
-        },
-      ],
-    },
+          fields: statDataSchema
+        }
+      ]
+    }
   ],
   ["PlayerUpdate.AnimationRequest", 0x0f51, {}],
   ["PlayerUpdate.NonPriorityCharacters", 0x0f53, {}],
@@ -1106,26 +1104,26 @@ export const playerUpdatePackets: any = [
         {
           name: "position",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 0],
+          defaultValue: [0, 0, 0, 0]
         },
-        { name: "unk3", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unk3", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["PlayerUpdate.AFK", 0x0f55, {}],
   [
     "PlayerUpdate.AddLightweightPc",
     0x0f56,
     {
-      fields: lightWeightPcSchema,
-    },
+      fields: lightWeightPcSchema
+    }
   ],
   [
     "PlayerUpdate.AddLightweightNpc",
     0x0f57,
     {
-      fields: lightWeightNpcSchema,
-    },
+      fields: lightWeightNpcSchema
+    }
   ],
   [
     "PlayerUpdate.AddLightweightVehicle",
@@ -1140,11 +1138,11 @@ export const playerUpdatePackets: any = [
           name: "positionUpdate",
           type: "custom",
           parser: readPositionUpdateData,
-          packer: packPositionUpdateData,
+          packer: packPositionUpdateData
         },
-        { name: "unknownString1", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "unknownString1", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   [
     "PlayerUpdate.AddProxiedObject",
@@ -1154,42 +1152,42 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "transientId",
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue
         },
         { name: "unknown5", type: "uint8", defaultValue: 1 },
         {
           name: "position",
           type: "floatvector3",
-          defaultValue: [0, 40, 0],
+          defaultValue: [0, 40, 0]
         },
         {
           name: "rotation",
           type: "floatvector3",
-          defaultValue: [0, 0, 0],
+          defaultValue: [0, 0, 0]
         },
         { name: "unknown6", type: "uint32", defaultValue: 11 },
 
         {
           name: "NetworkObjectComponent", // can't be empty
           type: "array",
-          fields: [{ name: "unknown1", type: "uint8", defaultValue: 0 }],
-        },
-      ],
-    },
+          fields: [{ name: "unknown1", type: "uint8", defaultValue: 0 }]
+        }
+      ]
+    }
   ],
   ["PlayerUpdate.LightweightToFullPc", 0x0f5a, { fields: fullPcDataSchema }],
   [
     "PlayerUpdate.LightweightToFullNpc",
     0x0f5b,
     {
-      fields: fullNpcDataSchema,
-    },
+      fields: fullNpcDataSchema
+    }
   ],
   [
     "PlayerUpdate.LightweightToFullVehicle",
@@ -1205,8 +1203,8 @@ export const playerUpdatePackets: any = [
           defaultValue: [],
           fields: [
             { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-            { name: "unknownBoolean2", type: "boolean", defaultValue: false },
-          ],
+            { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+          ]
         },
         {
           name: "unknownArray2",
@@ -1214,18 +1212,18 @@ export const playerUpdatePackets: any = [
           defaultValue: [],
           fields: [
             { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-            { name: "unknownBoolean2", type: "boolean", defaultValue: false },
-          ],
+            { name: "unknownBoolean2", type: "boolean", defaultValue: false }
+          ]
         },
         {
           name: "unknownVector1",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 0],
+          defaultValue: [0, 0, 0, 0]
         },
         {
           name: "unknownVector2",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 0],
+          defaultValue: [0, 0, 0, 0]
         },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
         {
@@ -1234,7 +1232,7 @@ export const playerUpdatePackets: any = [
           defaultValue: [],
           fields: [
             //TODO
-          ],
+          ]
         },
         {
           name: "unknownArray4",
@@ -1242,7 +1240,7 @@ export const playerUpdatePackets: any = [
           defaultValue: [],
           fields: [
             // TODO: 1401ab630
-          ],
+          ]
         },
         {
           name: "vehicleStats",
@@ -1250,7 +1248,7 @@ export const playerUpdatePackets: any = [
           defaultValue: [],
           fields: [
             // using the "stat" schema
-          ],
+          ]
         },
         {
           name: "characterStats", // not sure about the name
@@ -1258,19 +1256,17 @@ export const playerUpdatePackets: any = [
           defaultValue: [],
           fields: [
             // TODO: 1401f48c0
-          ],
-        },
-      ],
-    },
+          ]
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.FullCharacterDataRequest",
     0x0f5d,
     {
-      fields: [
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }]
+    }
   ],
   [
     "PlayerUpdate.InitiateNameChange",
@@ -1280,10 +1276,10 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
-        },
-      ],
-    },
+          defaultValue: "0x0000000000000000"
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.NameChangeResult",
@@ -1293,13 +1289,13 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "result", type: "uint32", defaultValue: 1 },
         { name: "unknown5", type: "uint8", defaultValue: 1 },
-        { name: "unknown6", type: "uint8", defaultValue: 1 },
-      ],
-    },
+        { name: "unknown6", type: "uint8", defaultValue: 1 }
+      ]
+    }
   ],
   ["PlayerUpdate.NameValidationResult", 0x0f60, {}],
   [
@@ -1310,11 +1306,11 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
-        { name: "status", type: "uint32", defaultValue: 1 },
-      ],
-    },
+        { name: "status", type: "uint32", defaultValue: 1 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.LowAmmoUpdate",
@@ -1324,11 +1320,11 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
-        { name: "status", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "status", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.KilledBy",
@@ -1338,16 +1334,16 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "characterId2",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
-        { name: "isCheater", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "isCheater", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.MotorRunning",
@@ -1357,15 +1353,15 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "isRunning",
           type: "boolean",
-          defaultValue: "true",
-        },
-      ],
-    },
+          defaultValue: "true"
+        }
+      ]
+    }
   ],
   [
     "PlayerUpdate.DroppedIemNotification",
@@ -1375,11 +1371,11 @@ export const playerUpdatePackets: any = [
         {
           name: "itemId",
           type: "uint32",
-          defaultValue: "2",
+          defaultValue: "2"
         },
-        { name: "quantity", type: "uint32", defaultValue: 10 },
-      ],
-    },
+        { name: "quantity", type: "uint32", defaultValue: 10 }
+      ]
+    }
   ],
   ["PlayerUpdate.NoSpaceNotification", 0x0f66, { fields: [] }],
   [
@@ -1390,15 +1386,15 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unknown4", type: "uint8", defaultValue: 0 }, // die by falling to there left
         { name: "unknown5", type: "uint8", defaultValue: 1 }, // weird accrobatic stuff
         // when unknown4 & unknown5 are > 0 then the animation play in a loop forever
-        { name: "unknown6", type: "uint8", defaultValue: 0 },
+        { name: "unknown6", type: "uint8", defaultValue: 0 }
         // seems like some bytes can be added after that but not required
-      ],
-    },
+      ]
+    }
   ],
   [
     "PlayerUpdate.AggroLevel",
@@ -1408,11 +1404,11 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
-        { name: "aggroLevel", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "aggroLevel", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.DoorState",
@@ -1422,12 +1418,12 @@ export const playerUpdatePackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "doorState", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownBoolean", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   ["PlayerUpdate.RequestToggleDoorState", 0x0f6b, {}],
   [
@@ -1437,16 +1433,16 @@ export const playerUpdatePackets: any = [
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "state", type: "boolean", defaultValue: 0 },
-        { name: "unk1", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unk1", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerUpdate.EndCharacterAccess",
     0x0f6d,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "PlayerUpdate.UpdateMutateRights",
@@ -1454,10 +1450,10 @@ export const playerUpdatePackets: any = [
     {
       fields: [
         { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   ["PlayerUpdate.UpdateFogOfWar", 0x0f70, {}],
-  ["PlayerUpdate.SetAllowRespawn", 0x0f71, {}],
+  ["PlayerUpdate.SetAllowRespawn", 0x0f71, {}]
 ];

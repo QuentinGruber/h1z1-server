@@ -28,10 +28,10 @@ export const vehiclePackets: PacketStructures = [
           name: "passengers",
           type: "array",
           defaultValue: [{}],
-          fields: passengerSchema,
-        },
-      ],
-    },
+          fields: passengerSchema
+        }
+      ]
+    }
   ],
   [
     "Vehicle.Occupy",
@@ -48,43 +48,43 @@ export const vehiclePackets: PacketStructures = [
           defaultValue: [{}],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-          ],
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+          ]
         },
         {
           name: "passengers",
           type: "array",
           defaultValue: [],
-          fields: passengerSchema,
+          fields: passengerSchema
         },
         {
           name: "unknownArray2",
           type: "array",
           defaultValue: [{}],
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-          ],
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+          ]
         },
         {
           name: "unknownBytes1",
           type: "byteswithlength",
           defaultValue: null,
           fields: [
-            { name: "itemData", type: "schema", fields: itemSchema },
+            { name: "itemData", type: "schema", fields: itemSchema }
             // unfinished
-          ],
+          ]
         },
         {
           name: "unknownBytes2",
           type: "byteswithlength",
           defaultValue: null,
           fields: [
-            { name: "itemData", type: "schema", fields: itemSchema },
+            { name: "itemData", type: "schema", fields: itemSchema }
             // unfinished
-          ],
-        },
-      ],
-    },
+          ]
+        }
+      ]
+    }
   ],
   [
     "Vehicle.StateData",
@@ -99,8 +99,8 @@ export const vehiclePackets: PacketStructures = [
           defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-          ],
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+          ]
         },
         {
           name: "unknownArray2",
@@ -108,11 +108,11 @@ export const vehiclePackets: PacketStructures = [
           defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   ["Vehicle.StateDamage", 0x8904, {}],
   ["Vehicle.PlayerManager", 0x8905, {}],
@@ -122,9 +122,9 @@ export const vehiclePackets: PacketStructures = [
     {
       fields: [
         { name: "vehicleId", type: "uint32", defaultValue: 0 },
-        { name: "loadoutTab", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "loadoutTab", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Vehicle.Tint", 0x8907, {}],
   ["Vehicle.LoadVehicleTerminalDefinitionManager", 0x8908, {}],
@@ -138,16 +138,16 @@ export const vehiclePackets: PacketStructures = [
     "Vehicle.UpdateQueuePosition",
     0x890f,
     {
-      fields: [{ name: "queuePosition", type: "uint32", defaultValue: 0 }],
-    },
+      fields: [{ name: "queuePosition", type: "uint32", defaultValue: 0 }]
+    }
   ],
   ["Vehicle.PadDestroyNotify", 0x8910, {}],
   [
     "Vehicle.SetAutoDrive",
     0x8911,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
-    },
+      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }]
+    }
   ],
   ["Vehicle.LockOnInfo", 0x8912, {}],
   ["Vehicle.LockOnState", 0x8913, {}],
@@ -164,11 +164,11 @@ export const vehiclePackets: PacketStructures = [
           defaultValue: [{}],
           fields: [
             { name: "vehicleId", type: "uint32", defaultValue: 0 },
-            { name: "modelId", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "modelId", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   ["Vehicle.AcquireState", 0x8917, {}],
   ["Vehicle.Dismiss", 0x8918, {}],
@@ -179,9 +179,9 @@ export const vehiclePackets: PacketStructures = [
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Vehicle.Deploy", 0x891a, {}],
   [
@@ -191,9 +191,9 @@ export const vehiclePackets: PacketStructures = [
       fields: [
         { name: "guid1", type: "uint64string", defaultValue: "0" },
         { name: "vehicleCharacterId", type: "uint64string", defaultValue: "0" },
-        { name: "engineOn", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "engineOn", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   ["Vehicle.AccessType", 0x891c, {}],
   ["Vehicle.KickPlayer", 0x891d, {}],
@@ -208,10 +208,10 @@ export const vehiclePackets: PacketStructures = [
           name: "passengers",
           type: "array",
           defaultValue: [],
-          fields: passengerSchema,
-        },
-      ],
-    },
+          fields: passengerSchema
+        }
+      ]
+    }
   ],
   ["Vehicle.Kick", 0x8920, {}],
   ["Vehicle.NoAccess", 0x8921, {}],
@@ -219,8 +219,8 @@ export const vehiclePackets: PacketStructures = [
     "Vehicle.Expiration",
     0x8922,
     {
-      fields: [{ name: "expireTime", type: "uint32", defaultValue: 0 }],
-    },
+      fields: [{ name: "expireTime", type: "uint32", defaultValue: 0 }]
+    }
   ],
   ["Vehicle.Group", 0x8923, {}],
   ["Vehicle.DeployResponse", 0x8924, {}],
@@ -232,9 +232,9 @@ export const vehiclePackets: PacketStructures = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "moveMode", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "moveMode", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   ["Vehicle.ItemDefinitionRequest", 0x8928, {}],
   ["Vehicle.ItemDefinitionReply", 0x8929, {}],
@@ -258,15 +258,15 @@ export const vehiclePackets: PacketStructures = [
                   name: "item",
                   type: "schema",
                   defaultValue: {},
-                  fields: itemSchema,
+                  fields: itemSchema
                 },
-                { name: "unknownBool1", type: "boolean", defaultValue: false },
-              ],
+                { name: "unknownBool1", type: "boolean", defaultValue: false }
+              ]
             },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
-  ],
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ]
 ];

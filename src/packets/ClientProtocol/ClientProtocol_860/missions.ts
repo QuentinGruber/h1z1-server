@@ -29,5 +29,5 @@ export const missionsPackets: any = [
   ["Missions.SetMissionChangeList", 0x9d0f, {}],
   ["Missions.SetConqueredZone", 0x9d10, {}],
   ["Missions.UnsetConqueredZone", 0x9d11, {}],
-  ["Missions.SetConqueredZones", 0x9d12, {}],
+  ["Missions.SetConqueredZones", 0x9d12, {}]
 ];

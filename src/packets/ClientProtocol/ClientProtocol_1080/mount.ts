@@ -28,16 +28,16 @@ export const mountPackets: PacketStructures = [
         { name: "isDriver", type: "uint32", defaultValue: 0 }, // is driver? (you can be on seat 3 and still have control)
         { name: "debugStuff", type: "uint32", defaultValue: 0 }, // colored lines on screen
         { name: "identity", type: "schema", fields: identitySchema },
-        { name: "tagString", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "tagString", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   [
     "Mount.DismountRequest",
     0x7103,
     {
-      fields: [{ name: "unknownByte1", type: "uint8", defaultValue: 0 }],
-    },
+      fields: [{ name: "unknownByte1", type: "uint8", defaultValue: 0 }]
+    }
   ],
   [
     "Mount.DismountResponse",
@@ -48,9 +48,9 @@ export const mountPackets: PacketStructures = [
         { name: "vehicleGuid", type: "uint64string", defaultValue: "0" },
         { name: "debugStuff", type: "uint32", defaultValue: 0 },
         { name: "removePlayerControl", type: "boolean", defaultValue: false },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   ["Mount.List", 0x7105, {}],
   ["Mount.Spawn", 0x7106, {}],
@@ -63,9 +63,9 @@ export const mountPackets: PacketStructures = [
     {
       fields: [
         { name: "seatId", type: "uint32", defaultValue: 0 },
-        { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Mount.SeatChangeResponse",
@@ -77,11 +77,11 @@ export const mountPackets: PacketStructures = [
         { name: "identity", type: "schema", fields: identitySchema },
         { name: "seatId", type: "uint32", defaultValue: 0 },
         { name: "unknownDword1", type: "uint32", defaultValue: 1 }, // needs to be 1
-        { name: "unknownDword2", type: "uint32", defaultValue: 1 }, // needs to be 1
-      ],
-    },
+        { name: "unknownDword2", type: "uint32", defaultValue: 1 } // needs to be 1
+      ]
+    }
   ],
   ["Mount.SeatSwapRequest", 0x710c, {}],
   ["Mount.SeatSwapResponse", 0x710d, {}],
-  ["Mount.TypeCount", 0x710e, {}],
+  ["Mount.TypeCount", 0x710e, {}]
 ];

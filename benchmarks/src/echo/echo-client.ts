@@ -1,6 +1,6 @@
 import { Worker } from "worker_threads";
 import { Soeprotocol } from "h1emu-core";
-import { Scheduler } from "../../out/utils/utils";
+import { Scheduler } from "../../../out/utils/utils";
 interface ServerTarger {
   address: string;
   port: number;
@@ -31,9 +31,9 @@ export class EchoClient {
     this._serverTarget = { address: "127.0.0.1", port: serverPort };
     this._protocol = new Soeprotocol(false, 0);
     this._connection = new Worker(
-      `${__dirname}/../../out/servers/shared/workers/udpServerWorker.js`,
+      `${__dirname}/../../../out/servers/shared/workers/udpServerWorker.js`,
       {
-        workerData: { serverPort: 0, disableAntiDdos: true },
+        workerData: { serverPort: 0, disableAntiDdos: true }
       }
     );
 
@@ -51,7 +51,7 @@ export class EchoClient {
   }
   sendSessionRequest() {
     const sessionRequestPacket = this._protocol.pack_session_request_packet(
-      1245,
+      Math.floor(Math.random() * 100000),
       0,
       512,
       "Echo"
@@ -66,8 +66,8 @@ export class EchoClient {
         packetData: packet,
         length: packet.length,
         port: this._serverTarget.port,
-        address: this._serverTarget.address,
-      },
+        address: this._serverTarget.address
+      }
     });
   }
 

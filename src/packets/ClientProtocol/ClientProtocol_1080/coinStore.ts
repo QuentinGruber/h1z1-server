@@ -33,20 +33,20 @@ export const coinStorePackets: PacketStructures = [
                 {
                   name: "unknownBoolean1",
                   type: "boolean",
-                  defaultValue: false,
+                  defaultValue: false
                 },
                 {
                   name: "unknownBoolean2",
                   type: "boolean",
-                  defaultValue: false,
-                },
-              ],
-            },
-          ],
+                  defaultValue: false
+                }
+              ]
+            }
+          ]
         },
-        { name: "unknown1", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown1", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["CoinStore.ItemDefinitionsRequest", 0x6e0200, {}],
   ["CoinStore.ItemDefinitionsResponse", 0x6e0300, {}],
@@ -60,9 +60,9 @@ export const coinStorePackets: PacketStructures = [
         { name: "itemId", type: "uint32", defaultValue: 0 },
         { name: "unknown4", type: "uint32", defaultValue: 0 },
         { name: "quantity", type: "uint32", defaultValue: 0 },
-        { name: "unknown6", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown6", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["CoinStore.BuyFromClientRequest", 0x6e0500, {}],
   [
@@ -84,9 +84,9 @@ export const coinStorePackets: PacketStructures = [
         { name: "unknown10", type: "uint32", defaultValue: 0 },
         { name: "quantity", type: "uint32", defaultValue: 0 },
         { name: "unknown11", type: "uint32", defaultValue: 0 },
-        { name: "unknown12", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown12", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   ["CoinStore.Open", 0x6e0700, {}],
   ["CoinStore.ItemDynamicListUpdateRequest", 0x6e0800, {}],
@@ -97,5 +97,5 @@ export const coinStorePackets: PacketStructures = [
   ["CoinStore.BuyBackResponse", 0x6e0d00, {}],
   ["CoinStore.SellToClientAndGiftRequest", 0x6e0e00, {}],
   ["CoinStore.ReceiveGiftItem", 0x6e1100, {}],
-  ["CoinStore.GiftTransactionComplete", 0x6e1200, {}],
+  ["CoinStore.GiftTransactionComplete", 0x6e1200, {}]
 ];

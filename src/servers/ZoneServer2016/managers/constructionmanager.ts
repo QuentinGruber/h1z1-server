@@ -18,7 +18,7 @@ const Z1_vehicles = require("../../../../data/2016/zoneData/Z1_vehicleLocations.
 import {
   ConstructionEntity,
   DamageInfo,
-  SlottedConstructionEntity,
+  SlottedConstructionEntity
 } from "types/zoneserver";
 import {
   eul2quat,
@@ -28,7 +28,7 @@ import {
   isInsideSquare,
   isPosInRadius,
   isPosInRadiusWithY,
-  movePoint,
+  movePoint
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
 import { LoadoutItem } from "../classes/loadoutItem";
@@ -50,7 +50,7 @@ import {
   Items,
   ResourceIds,
   ResourceTypes,
-  StringIds,
+  StringIds
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 
@@ -58,7 +58,7 @@ export class ConstructionManager {
   overridePlacementItems: Array<number> = [
     Items.IED,
     Items.LANDMINE,
-    Items.SNARE,
+    Items.SNARE
   ];
 
   /* MANAGED BY CONFIGMANAGER */
@@ -85,14 +85,14 @@ export class ConstructionManager {
       */
       unknownArray2: unknownArray2.map((value) => {
         return { unknownDword1: value };
-      }),
+      })
     });
   }
 
   sendPlacementFinalize(server: ZoneServer2016, client: Client, status: 0 | 1) {
     server.sendData(client, "Construction.PlacementFinalizeResponse", {
       status: status,
-      unknownString1: "",
+      unknownString1: ""
     });
   }
 
@@ -1323,7 +1323,7 @@ export class ConstructionManager {
   ) {
     server.sendData(client, "Command.InteractionString", {
       guid: entity.characterId,
-      stringId: StringIds.UNDO_PLACEMENT,
+      stringId: StringIds.UNDO_PLACEMENT
     });
   }
 
@@ -1576,7 +1576,7 @@ export class ConstructionManager {
       Items.SHELTER,
       Items.SHELTER_LARGE,
       Items.SHELTER_UPPER,
-      Items.SHELTER_UPPER_LARGE,
+      Items.SHELTER_UPPER_LARGE
     ];
     if (!allowedIds.includes(construction.itemDefinitionId)) return false;
     let allowed = false;
@@ -1619,7 +1619,7 @@ export class ConstructionManager {
       } else if (!client.isAdmin || !client.isDebugMode) {
         const damageInfo: DamageInfo = {
           entity: "Server.Permissions",
-          damage: 99999,
+          damage: 99999
         };
         server.killCharacter(client, damageInfo);
         return false;
@@ -1645,7 +1645,7 @@ export class ConstructionManager {
             iteratedClient.character.isHidden != client.character.isHidden
           ) {
             server.sendData(iteratedClient, "Character.RemovePlayer", {
-              characterId: client.character.characterId,
+              characterId: client.character.characterId
             });
             iteratedClient.spawnedEntities.splice(
               iteratedClient.spawnedEntities.indexOf(client.character),
@@ -1677,9 +1677,9 @@ export class ConstructionManager {
           client.character.state.position[0],
           foundationY + yOffset,
           client.character.state.position[2],
-          1,
+          1
         ],
-        triggerLoadingScreen: false,
+        triggerLoadingScreen: false
       });
       client.enableChecks = false;
       client.isInAir = false;
@@ -1701,11 +1701,11 @@ export class ConstructionManager {
       newPos[0],
       client.character.state.position[1],
       newPos[2],
-      1,
+      1
     ]);
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: client.character.state.position,
-      triggerLoadingScreen: false,
+      triggerLoadingScreen: false
     });
     client.enableChecks = false;
 
@@ -1719,7 +1719,7 @@ export class ConstructionManager {
       ) {
         const damageInfo: DamageInfo = {
           entity: "Server.Permissions",
-          damage: 99999,
+          damage: 99999
         };
         client.character.damage(server, damageInfo);
       }
@@ -1739,7 +1739,7 @@ export class ConstructionManager {
         Items.SHELTER,
         Items.SHELTER_LARGE,
         Items.SHELTER_UPPER,
-        Items.SHELTER_UPPER_LARGE,
+        Items.SHELTER_UPPER_LARGE
       ];
       if (!shelters.includes(simple.itemDefinitionId)) continue;
       if (simple.isInside(client.character.state.position)) {
@@ -1752,11 +1752,11 @@ export class ConstructionManager {
           newPos[0],
           client.character.state.position[1],
           newPos[2],
-          1,
+          1
         ]);
         server.sendData(client, "ClientUpdate.UpdateLocation", {
           position: client.character.state.position,
-          triggerLoadingScreen: false,
+          triggerLoadingScreen: false
         });
         this.recheckClientInsideShelter(client, server, tpDirection);
         return;
@@ -1875,8 +1875,8 @@ export class ConstructionManager {
           sequenceTime: 0,
           unknown3_int8: 0,
           position: entity.state.position,
-          orientation: entity.openAngle,
-        },
+          orientation: entity.openAngle
+        }
       });
     }
   }
@@ -2022,7 +2022,7 @@ export class ConstructionManager {
   ) {
     const damageInfo = {
       entity: "",
-      damage: (amount *= -1),
+      damage: (amount *= -1)
     };
     entity.damage(server, damageInfo);
     if (entity.useSimpleStruct) {
@@ -2243,12 +2243,12 @@ export class ConstructionManager {
       Items.METAL_GATE,
       Items.METAL_WALL,
       Items.METAL_WALL_UPPER,
-      Items.METAL_DOORWAY,
+      Items.METAL_DOORWAY
     ];
     const doors: number[] = [
       Items.DOOR_BASIC,
       Items.DOOR_METAL,
-      Items.DOOR_WOOD,
+      Items.DOOR_WOOD
     ];
     const parent = construction.getParent(server);
     const parentFoundation = construction.getParentFoundation(server);
@@ -2394,7 +2394,7 @@ export class ConstructionManager {
           damage:
             distance < constructionObject.damageRange
               ? damage
-              : damage / Math.sqrt(distance),
+              : damage / Math.sqrt(distance)
         },
         dictionary
       );
@@ -2404,7 +2404,7 @@ export class ConstructionManager {
         damage:
           distance < constructionObject.damageRange
             ? damage
-            : damage / Math.sqrt(distance),
+            : damage / Math.sqrt(distance)
       });
       server.updateResourceToAllWithSpawnedEntity(
         constructionObject.characterId,
