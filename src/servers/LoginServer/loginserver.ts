@@ -771,6 +771,11 @@ export class LoginServer extends EventEmitter {
       Payload: "\0"
     };
     this.sendData(client, "CharacterDeleteReply", characterDeleteReply);
+
+    this.sendData(client, "H1emu.PrintToConsole", {
+      message: "HELLO WORLD",
+      showConsole: true,
+    });
   }
 
   async getCharactersLoginInfo(
@@ -910,13 +915,14 @@ export class LoginServer extends EventEmitter {
     let charactersLoginInfo: CharacterLoginReply;
     const { serverId, characterId } = packet;
     let CharacterAllowedOnZone = 1;
+    let banInfos: Array<{banInfo: BAN_INFO}> = [];
     if (!this._soloMode) {
       charactersLoginInfo = await this.getCharactersLoginInfo(
         serverId,
         characterId,
         client.loginSessionId
       );
-      const banInfos = await this.getOwnerBanInfo(serverId, client);
+      banInfos = await this.getOwnerBanInfo(serverId, client);
       CharacterAllowedOnZone = (await this.askZone(
         serverId,
         "CharacterAllowedRequest",
@@ -937,6 +943,31 @@ export class LoginServer extends EventEmitter {
     debug(charactersLoginInfo);
     if (charactersLoginInfo.status) {
       charactersLoginInfo.status = Number(CharacterAllowedOnZone);
+    }
+    if(!CharacterAllowedOnZone) {
+      let reason = "UNDEFINED";
+      switch(banInfos[0]?.banInfo) {
+        case 1:
+          reason = "LOCAL_BAN";
+          break;
+        case 2:
+          reason = "GLOBAL_BAN";
+          break;
+        case 3:
+          reason = "VPN";
+          break;
+        case 4:
+          reason = "HWID_BAN";
+          break;
+        case 5:
+          reason = "UNVERIFIED";
+          break;
+      }
+      this.sendData(client, "H1emu.PrintToConsole", {
+        message: `\n\n\n\n\n\n\n\n\n\nCONNECTION REJECTED! Reason: ${reason}`,
+        showConsole: true,
+      });
+      
     }
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
     debug("CharacterLoginRequest");

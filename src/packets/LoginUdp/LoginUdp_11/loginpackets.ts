@@ -512,7 +512,31 @@ const packets: PacketStructures = [
     }
   ],
   ["CharacterTransferRequest", 0x12, {}],
-  ["CharacterTransferReply", 0x13, {}]
+  ["CharacterTransferReply", 0x13, {}],
+
+  // __opcode__ is used since loginserver opcodes are only a byte serverside and I don't feel like fixing that -Meme
+  [
+    "H1emu.PrintToConsole",
+    0x20,
+    {
+      fields: [
+        { name: "__opcode__", type: "uint8", defaultValue: 1 },
+        { name: "message", type: "string", defaultValue: "" },
+        { name: "showConsole", type: "boolean", defaultValue: false },
+      ]
+    }
+  ],
+  [
+    "H1emu.MessageBox",
+    0x21,
+    {
+      fields: [
+        { name: "__opcode__", type: "uint8", defaultValue: 2 },
+        { name: "title", type: "string", defaultValue: "" },
+        { name: "message", type: "string", defaultValue: "" }
+      ]
+    }
+  ]
 ];
 
 export const [packetTypes, packetDescriptors] = PacketTableBuild(packets);
