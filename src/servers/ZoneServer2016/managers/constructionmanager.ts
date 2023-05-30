@@ -635,14 +635,14 @@ export class ConstructionManager {
           position,
           fixEulerOrder(rotation)
         );
-        case Items.PUNJI_STICK_ROW:
-          return this.placeTrap(
-            server,
-            itemDefinitionId,
-            modelId,
-            position,
-            fixEulerOrder(rotation)
-          );
+      case Items.PUNJI_STICK_ROW:
+        return this.placeTrap(
+          server,
+          itemDefinitionId,
+          modelId,
+          position,
+          fixEulerOrder(rotation)
+        );
       case Items.FLARE:
         return this.placeTemporaryEntity(
           server,

@@ -1341,8 +1341,8 @@ export const lootTables: { [lootSpawner: string]: LootSpawner } = {
         weight: 10,
         spawnCount: {
           min: 1,
-          max: 1,
-        },
+          max: 1
+        }
       },
       {
         item: Items.CLOTH,
@@ -2490,34 +2490,34 @@ export const containerLootSpawners: {
         weight: 10,
         spawnCount: {
           min: 1,
-          max: 2,
-        },
+          max: 2
+        }
       },
       {
         item: Items.CRACKED_CLIPBOARD,
         weight: 5,
         spawnCount: {
           min: 1,
-          max: 1,
-        },
+          max: 1
+        }
       },
       {
         item: Items.DEAD_CELL_PHONE,
         weight: 3,
         spawnCount: {
           min: 1,
-          max: 1,
-        },
+          max: 1
+        }
       },
       {
         item: Items.DOCTORS_FILE,
         weight: 3,
         spawnCount: {
           min: 1,
-          max: 1,
-        },
-      },
-    ],
+          max: 1
+        }
+      }
+    ]
   },
   "Hospital Cabinets": {
     spawnChance: 100,
@@ -2536,40 +2536,40 @@ export const containerLootSpawners: {
         weight: 10,
         spawnCount: {
           min: 1,
-          max: 1,
-        },
+          max: 1
+        }
       },
       {
         item: Items.WEAK_CELL_PHONE_BATTERY,
         weight: 10,
         spawnCount: {
           min: 1,
-          max: 1,
-        },
+          max: 1
+        }
       },
       {
         item: Items.WEICHS_WALLET,
         weight: 4,
         spawnCount: {
           min: 1,
-          max: 1,
-        },
+          max: 1
+        }
       },
       {
         item: Items.WEICHS_REPORT,
         weight: 4,
         spawnCount: {
           min: 1,
-          max: 1,
-        },
+          max: 1
+        }
       },
       {
         item: Items.KLAVISK_NOTE,
         weight: 4,
         spawnCount: {
           min: 1,
-          max: 1,
-        },
+          max: 1
+        }
       },
       {
         item: Items.BANDAGE_DRESSED,
@@ -2622,8 +2622,8 @@ export const containerLootSpawners: {
         weight: 15,
         spawnCount: {
           min: 1,
-          max: 1,
-        },
+          max: 1
+        }
       },
       {
         item: Items.SYRINGE_INFECTED_BLOOD,
@@ -2852,8 +2852,8 @@ export const containerLootSpawners: {
         weight: 15,
         spawnCount: {
           min: 1,
-          max: 1,
-        },
+          max: 1
+        }
       },
       {
         item: Items.MEAT_VENISON,

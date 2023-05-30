@@ -1674,7 +1674,7 @@ export const commands: Array<Command> = [
       );
       client.character.equipLoadout(server, characterSkinsLoadout);
       server.sendChatText(client, `skins kit given`);
-    },
+    }
   },
   {
     name: "debug",

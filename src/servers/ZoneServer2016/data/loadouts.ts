@@ -108,7 +108,7 @@ export const characterSkinsLoadout = [
   { item: Items.RASTA_BACKPACK },
   { item: Items.PINK_SKULLS_SURVIVOR_BACKPACK },
   { item: Items.SNIPER_MILITARY_BACKPACK },
-  { item: Items.FULLY_GEARED_EXPLORER_BACKPACK },
+  { item: Items.FULLY_GEARED_EXPLORER_BACKPACK }
 ];
 
 export const characterBuildKitLoadout = [
