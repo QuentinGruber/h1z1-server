@@ -232,7 +232,7 @@ export class ConstructionManager {
     position: Float32Array,
     isInsidePermissionedFoundation: boolean
   ): boolean {
-    if (client.isAdmin) return false;
+    if (client.isDebugMode) return false;
     if (!this.spawnPointBlockedPlacementRange) return false;
     let isInSpawnPoint = false;
     spawnLocations2.forEach((point: Float32Array) => {
@@ -255,7 +255,7 @@ export class ConstructionManager {
     client: Client,
     isInsidePermissionedFoundation: boolean
   ): boolean {
-    if (client.isAdmin) return false;
+    if (client.isDebugMode) return false;
     if (!this.vehicleSpawnPointBlockedPlacementRange) return false;
     let isInVehicleSpawnPoint = false;
     Z1_vehicles.forEach((vehicleSpawn: any) => {
@@ -306,7 +306,7 @@ export class ConstructionManager {
     client: Client,
     isInsidePermissionedFoundation: boolean
   ): boolean {
-    if (client.isAdmin) return false;
+    if (client.isDebugMode) return false;
     if (this.allowPOIPlacement) return false;
     if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
     let useRange = true;
@@ -454,6 +454,7 @@ export class ConstructionManager {
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
       let allowBuild = false;
+      if (client.isDebugMode) allowBuild = true;
       const permissions = foundation.permissions[client.character.characterId];
       if (permissions && permissions.build) allowBuild = true;
       if (
@@ -634,6 +635,14 @@ export class ConstructionManager {
           position,
           fixEulerOrder(rotation)
         );
+        case Items.PUNJI_STICK_ROW:
+          return this.placeTrap(
+            server,
+            itemDefinitionId,
+            modelId,
+            position,
+            fixEulerOrder(rotation)
+          );
       case Items.FLARE:
         return this.placeTemporaryEntity(
           server,
