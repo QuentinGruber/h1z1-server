@@ -50,7 +50,7 @@ export const characterKitLoadout = [
 ];
 
 export const characterVehicleKit = [
-  { item: Items.SPARKPLUGS  },
+  { item: Items.SPARKPLUGS },
   { item: Items.VEHICLE_KEY },
   { item: Items.BATTERY }
 ];
