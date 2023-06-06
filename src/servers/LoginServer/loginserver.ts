@@ -25,7 +25,7 @@ import {
   initMongo,
   setupAppDataFolder,
   isValidCharacterName,
-  resolveHostAddress,
+  resolveHostAddress
 } from "../../utils/utils";
 import { GameServer } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
@@ -229,8 +229,8 @@ export class LoginServer extends EventEmitter {
                         {
                           $set: {
                             populationNumber: population,
-                            populationLevel: population,
-                          },
+                            populationLevel: population
+                          }
                         }
                       );
                     break;
