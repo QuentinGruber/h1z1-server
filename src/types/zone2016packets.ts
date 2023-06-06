@@ -1490,6 +1490,7 @@ export interface DefinitionFilterUnknownWithVariable2 {
 export interface H1emuPrintToConsole {
   message?: string;
   showConsole?: boolean;
+  clearOutput?: boolean;
 }
 export interface H1emuMessageBox {
   title?: string;

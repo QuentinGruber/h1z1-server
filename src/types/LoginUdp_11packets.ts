@@ -88,10 +88,13 @@ export interface TunnelAppPacketServerToClient {
   unknown1: boolean;
 }
 export interface H1emuPrintToConsole {
+  __opcode__?: number;
   message?: string;
   showConsole?: boolean;
+  clearOutput?: boolean;
 }
 export interface H1emuMessageBox {
+  __opcode__?: number;
   title?: string;
   message?: string;
 }

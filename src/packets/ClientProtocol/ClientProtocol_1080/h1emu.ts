@@ -21,7 +21,7 @@ export const h1emuPackets: PacketStructures = [
       fields: [
         { name: "message", type: "string", defaultValue: "" },
         { name: "showConsole", type: "boolean", defaultValue: false },
-        { name: "clearOutput", type: "boolean", defaultValue: false },
+        { name: "clearOutput", type: "boolean", defaultValue: false }
       ]
     }
   ],

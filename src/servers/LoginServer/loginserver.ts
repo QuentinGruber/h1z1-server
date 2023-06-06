@@ -910,7 +910,7 @@ export class LoginServer extends EventEmitter {
     let charactersLoginInfo: CharacterLoginReply;
     const { serverId, characterId } = packet;
     let CharacterAllowedOnZone = 1;
-    let banInfos: Array<{banInfo: BAN_INFO}> = [];
+    let banInfos: Array<{ banInfo: BAN_INFO }> = [];
     if (!this._soloMode) {
       charactersLoginInfo = await this.getCharactersLoginInfo(
         serverId,
@@ -938,17 +938,17 @@ export class LoginServer extends EventEmitter {
     debug(charactersLoginInfo);
     if (charactersLoginInfo.status) {
       charactersLoginInfo.status = Number(CharacterAllowedOnZone);
-    }
-    else {
+    } else {
       this.sendData(client, "H1emu.PrintToConsole", {
         message: `Invalid character status! If this is a new character, please delete and recreate it.`,
         showConsole: true,
-        clearOutput: true,
+        clearOutput: true
       });
     }
-    if(!CharacterAllowedOnZone) {
-      let reason = "UNDEFINED. If this is a new character, please delete and recreate it.";
-      switch(banInfos[0]?.banInfo) {
+    if (!CharacterAllowedOnZone) {
+      let reason =
+        "UNDEFINED. If this is a new character, please delete and recreate it.";
+      switch (banInfos[0]?.banInfo) {
         case 1:
           reason = "LOCAL_BAN";
           break;
@@ -968,7 +968,7 @@ export class LoginServer extends EventEmitter {
       this.sendData(client, "H1emu.PrintToConsole", {
         message: `CONNECTION REJECTED! Reason: ${reason}`,
         showConsole: true,
-        clearOutput: true,
+        clearOutput: true
       });
     }
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
