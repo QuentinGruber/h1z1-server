@@ -44,8 +44,8 @@ export class CollectingEntity {
   dictionary: { [characterId: string]: BaseEntity };
   requiredTicks: number = 4; // 20 min to fill
   currentTicks: number = 0;
-  requiredWaxTicks: number = 144; // 12 hours to collect wax
-  currentWaxTicks: number = 0;
+  requiredHoneycombTicks: number = 144; // 12 hours to collect honeycomb
+  currentHoneycombTicks: number = 0;
   wasUsed: boolean = false;
   isWorking: boolean = true; // some values below arent used, keeping them to avoid compile errors related to 2 different subclasses
   isSmelting: boolean = true;
@@ -67,7 +67,7 @@ export class CollectingEntity {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "Command.InteractionString", {
       guid: this.parentObject.characterId,
-      stringId: StringIds.OPEN,
+      stringId: StringIds.OPEN
     });
   }
 
@@ -83,7 +83,7 @@ export class CollectingEntity {
       ) {
         server.sendData(client, "Command.PlayDialogEffect", {
           characterId: this.parentObject.characterId,
-          effectId: this.workingEffect,
+          effectId: this.workingEffect
         });
         return;
       }

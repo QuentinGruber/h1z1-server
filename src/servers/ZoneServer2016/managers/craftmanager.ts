@@ -36,7 +36,7 @@ function getCraftComponentsDataSource(client: Client): {
       } else {
         inventory[item.itemDefinitionId] = {
           ...item,
-          stackCount: item.stackCount,
+          stackCount: item.stackCount
         }; // push new itemstack
       }
     });
@@ -248,7 +248,7 @@ export class CraftManager {
     } else {
       this.componentsDataSource[recipeId] = {
         itemDefinitionId: recipeId,
-        stackCount: craftCount,
+        stackCount: craftCount
       };
     }
     //#endregion

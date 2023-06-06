@@ -60,7 +60,7 @@ export class ZoneClient {
     this.vehicle = {
       vehicleState: 0,
       falling: -1,
-      vehicleSeat: 0,
+      vehicleSeat: 0
     };
     this.character = new Character(characterId, generatedTransient);
     this.spawnedEntities = [];

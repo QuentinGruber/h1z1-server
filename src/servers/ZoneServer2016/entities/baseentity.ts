@@ -50,7 +50,7 @@ function getRenderDistance(actorModelId: number) {
   return range ? range : undefined;
 }
 
-export class BaseEntity {
+export abstract class BaseEntity {
   characterId: string;
   transientId: number;
   actorModelId!: number;
@@ -74,7 +74,7 @@ export class BaseEntity {
     this.actorModelId = actorModelId;
     this.state = {
       position: position,
-      rotation: rotation,
+      rotation: rotation
     };
     this.npcRenderDistance =
       getRenderDistance(actorModelId) || server.charactersRenderDistance;

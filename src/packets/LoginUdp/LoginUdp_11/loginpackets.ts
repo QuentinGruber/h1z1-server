@@ -27,7 +27,7 @@ const serverField: any[] = [
   { name: "populationLevel", type: "uint32" },
   { name: "populationData", type: "string" },
   { name: "AccessExpression", type: "string", defaultValue: "" },
-  { name: "allowedAccess", type: "boolean" },
+  { name: "allowedAccess", type: "boolean" }
 ];
 
 export const applicationDataJS2016 = [
@@ -39,7 +39,7 @@ export const applicationDataJS2016 = [
   {
     name: "unknownQword1",
     type: "uint64string",
-    defaultValue: "0x0000000000000000",
+    defaultValue: "0x0000000000000000"
   },
   { name: "unknownString1", type: "string", defaultValue: "" },
   { name: "unknownString2", type: "string", defaultValue: "" },
@@ -47,22 +47,22 @@ export const applicationDataJS2016 = [
   {
     name: "serverFeatureBit",
     type: "uint64string",
-    defaultValue: "0x0000000000000000",
-  },
+    defaultValue: "0x0000000000000000"
+  }
 ];
 
 export const applicationDataKOTK = [
   {
     name: "unknownByte1",
     type: "uint8",
-    defaultValue: 0,
+    defaultValue: 0
   },
   {
     name: "unknownByte2",
     type: "uint8",
-    defaultValue: 0,
+    defaultValue: 0
   },
-  ...applicationDataJS2016,
+  ...applicationDataJS2016
 ];
 
 const packets: PacketStructures = [
@@ -76,9 +76,9 @@ const packets: PacketStructures = [
         { name: "Locale", type: "uint32", defaultValue: 0 },
         { name: "ThirdPartyAuthTicket", type: "uint32", defaultValue: 0 },
         { name: "ThirdPartyUserId", type: "uint32", defaultValue: 0 },
-        { name: "ThirdPartyId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "ThirdPartyId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "LoginReply",
@@ -103,15 +103,15 @@ const packets: PacketStructures = [
                 { name: "id", type: "uint32" },
                 { name: "active", type: "boolean" },
                 { name: "remainingCount", type: "uint32" },
-                { name: "rawData", type: "string" },
-              ],
-            },
-          ],
+                { name: "rawData", type: "string" }
+              ]
+            }
+          ]
         },
         {
           name: "applicationPayload",
           type: "byteswithlength",
-          defaultValue: 0,
+          defaultValue: 0
         },
         {
           name: "errorDetails",
@@ -119,26 +119,26 @@ const packets: PacketStructures = [
           fields: [
             { name: "unknownDword1", type: "uint32" },
             { name: "name", type: "string" },
-            { name: "value", type: "string" },
-          ],
+            { name: "value", type: "string" }
+          ]
         },
-        { name: "ipCountryCode", type: "string" },
-      ],
-    },
+        { name: "ipCountryCode", type: "string" }
+      ]
+    }
   ],
   [
     "Logout",
     0x03,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "ForceDisconnect",
     0x04,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "CharacterCreateRequest",
@@ -155,11 +155,11 @@ const packets: PacketStructures = [
             { name: "headType", type: "uint32" },
             { name: "profileType", type: "uint32" },
             { name: "gender", type: "uint32" },
-            { name: "characterName", type: "string" },
-          ],
-        },
-      ],
-    },
+            { name: "characterName", type: "string" }
+          ]
+        }
+      ]
+    }
   ],
   [
     "CharacterCreateReply",
@@ -167,9 +167,9 @@ const packets: PacketStructures = [
     {
       fields: [
         { name: "status", type: "uint32" },
-        { name: "characterId", type: "uint64string" },
-      ],
-    },
+        { name: "characterId", type: "uint64string" }
+      ]
+    }
   ],
   [
     "CharacterLoginRequest",
@@ -185,11 +185,11 @@ const packets: PacketStructures = [
           fields: [
             { name: "locale", type: "string" },
             { name: "localeId", type: "uint32" },
-            { name: "preferredGatewayId", type: "uint32" },
-          ],
-        },
-      ],
-    },
+            { name: "preferredGatewayId", type: "uint32" }
+          ]
+        }
+      ]
+    }
   ],
   [
     "CharacterLoginReply",
@@ -203,17 +203,17 @@ const packets: PacketStructures = [
         {
           name: "applicationData",
           type: "byteswithlength",
-          fields: applicationDataJS2016, // default
-        },
-      ],
-    },
+          fields: applicationDataJS2016 // default
+        }
+      ]
+    }
   ],
   [
     "CharacterDeleteRequest",
     0x09,
     {
-      fields: [{ name: "characterId", type: "uint64string" }],
-    },
+      fields: [{ name: "characterId", type: "uint64string" }]
+    }
   ],
   [
     "CharacterDeleteReply",
@@ -222,16 +222,16 @@ const packets: PacketStructures = [
       fields: [
         { name: "characterId", type: "uint64string" },
         { name: "status", type: "uint32" },
-        { name: "Payload", type: "string" },
-      ],
-    },
+        { name: "Payload", type: "string" }
+      ]
+    }
   ],
   [
     "CharacterSelectInfoRequest",
     0x0b,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "CharacterSelectInfoReply",
@@ -259,7 +259,7 @@ const packets: PacketStructures = [
                 {
                   name: "nextBattleRankPercent",
                   type: "uint32",
-                  defaultValue: 0,
+                  defaultValue: 0
                 },
                 { name: "headId", type: "uint32", defaultValue: 1 },
                 { name: "modelId", type: "uint32", defaultValue: 9240 },
@@ -280,14 +280,14 @@ const packets: PacketStructures = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 22,
+                          defaultValue: 22
                         },
                         {
                           name: "unknownByte1",
                           type: "uint8",
-                          defaultValue: 1,
-                        },
-                      ],
+                          defaultValue: 1
+                        }
+                      ]
                     },
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
@@ -298,14 +298,14 @@ const packets: PacketStructures = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "loadoutName",
                           type: "string",
-                          defaultValue: "",
-                        },
-                      ],
+                          defaultValue: ""
+                        }
+                      ]
                     },
                     { name: "tintItemId", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -334,8 +334,8 @@ const packets: PacketStructures = [
                                   type: "array",
                                   defaultValue: [],
                                   fields: [
-                                    { name: "attachmentId", type: "uint32" },
-                                  ],
+                                    { name: "attachmentId", type: "uint32" }
+                                  ]
                                 },
                                 {
                                   name: "attachmentClasses",
@@ -343,18 +343,18 @@ const packets: PacketStructures = [
                                   defaultValue: [],
                                   fields: [
                                     { name: "classId", type: "uint32" },
-                                    { name: "attachmentId", type: "uint32" },
-                                  ],
-                                },
-                              ],
+                                    { name: "attachmentId", type: "uint32" }
+                                  ]
+                                }
+                              ]
                             },
                             { name: "tintItemId", type: "uint32" },
-                            { name: "itemSlot", type: "uint32" },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
+                            { name: "itemSlot", type: "uint32" }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   name: "itemDefinitions",
@@ -416,10 +416,10 @@ const packets: PacketStructures = [
                         { name: "clientUseRequirementId", type: "uint32" },
                         { name: "overrideAppearance", type: "string" },
                         { name: "unknownDword19", type: "uint32" },
-                        { name: "clientUseRequirementId2", type: "uint32" },
-                      ],
-                    },
-                  ],
+                        { name: "clientUseRequirementId2", type: "uint32" }
+                      ]
+                    }
+                  ]
                 },
                 {
                   name: "attachmentDefinitions",
@@ -446,33 +446,33 @@ const packets: PacketStructures = [
                             { bit: 4, name: "bit4" },
                             { bit: 5, name: "bit5" },
                             { bit: 6, name: "bit6" },
-                            { bit: 7, name: "required" },
-                          ],
+                            { bit: 7, name: "required" }
+                          ]
                         },
                         {
                           name: "classes",
                           type: "array",
                           defaultValue: [],
-                          elementType: "uint32",
-                        },
-                      ],
-                    },
-                  ],
+                          elementType: "uint32"
+                        }
+                      ]
+                    }
+                  ]
                 },
-                { name: "lastUseDate", type: "uint64string", defaultValue: "" },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+                { name: "lastUseDate", type: "uint64string", defaultValue: "" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ],
   [
     "ServerListRequest",
     0x0d,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "ServerListReply",
@@ -482,17 +482,17 @@ const packets: PacketStructures = [
         {
           name: "servers",
           type: "array",
-          fields: serverField,
-        },
-      ],
-    },
+          fields: serverField
+        }
+      ]
+    }
   ],
   [
     "ServerUpdate",
     0x0f,
     {
-      fields: serverField,
-    },
+      fields: serverField
+    }
   ],
   [
     "TunnelAppPacketClientToServer",
@@ -500,19 +500,19 @@ const packets: PacketStructures = [
     {
       fields: [
         { name: "unknown", type: "string" },
-        { name: "data", type: "string" },
-      ],
-    },
+        { name: "data", type: "string" }
+      ]
+    }
   ],
   [
     "TunnelAppPacketServerToClient",
     0x11,
     {
-      fields: [{ name: "unknown1", type: "boolean" }],
-    },
+      fields: [{ name: "unknown1", type: "boolean" }]
+    }
   ],
   ["CharacterTransferRequest", 0x12, {}],
-  ["CharacterTransferReply", 0x13, {}],
+  ["CharacterTransferReply", 0x13, {}]
 ];
 
 export const [packetTypes, packetDescriptors] = PacketTableBuild(packets);

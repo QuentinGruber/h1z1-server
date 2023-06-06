@@ -15,7 +15,7 @@ import {
   facilityStatsDataSchema,
   profileStatsSubSchema1,
   vehicleStatsDataSchema,
-  weaponStatsDataSchema,
+  weaponStatsDataSchema
 } from "./shared";
 
 export const profileStatsPackets: any = [
@@ -23,10 +23,8 @@ export const profileStatsPackets: any = [
     "ProfileStats.GetPlayerProfileStats",
     0x930000,
     {
-      fields: [
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }]
+    }
   ],
   ["ProfileStats.GetZonePlayerProfileStats", 0x930100, {}],
   [
@@ -41,14 +39,14 @@ export const profileStatsPackets: any = [
             {
               name: "unknownData1",
               type: "schema",
-              fields: profileStatsSubSchema1,
+              fields: profileStatsSubSchema1
             },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
             {
               name: "unknownArray1",
               type: "array",
               defaultValue: [],
-              elementType: "uint32",
+              elementType: "uint32"
             },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
             { name: "characterName", type: "string", defaultValue: "" },
@@ -62,7 +60,7 @@ export const profileStatsPackets: any = [
               name: "unknownArray2",
               type: "array",
               defaultValue: [],
-              elementType: "uint32",
+              elementType: "uint32"
             },
             { name: "unknownDword8", type: "uint32", defaultValue: 0 },
             { name: "unknownDword9", type: "uint32", defaultValue: 0 },
@@ -73,14 +71,14 @@ export const profileStatsPackets: any = [
               name: "unknownArray3",
               type: "array",
               defaultValue: [],
-              elementType: "uint32",
+              elementType: "uint32"
             },
             { name: "unknownDword13", type: "uint32", defaultValue: 0 },
             {
               name: "unknownArray4",
               type: "array",
               defaultValue: [],
-              elementType: "uint32",
+              elementType: "uint32"
             },
             {
               name: "unknownArray5",
@@ -93,56 +91,56 @@ export const profileStatsPackets: any = [
                   name: "unknownArray1",
                   type: "array",
                   defaultValue: [],
-                  elementType: "uint32",
+                  elementType: "uint32"
                 },
                 {
                   name: "unknownArray2",
                   type: "array",
                   defaultValue: [],
-                  elementType: "uint32",
+                  elementType: "uint32"
                 },
                 {
                   name: "unknownArray3",
                   type: "array",
                   defaultValue: [],
-                  elementType: "uint32",
-                },
-              ],
-            },
-          ],
+                  elementType: "uint32"
+                }
+              ]
+            }
+          ]
         },
         {
           name: "weaponStats1",
           type: "array",
           defaultValue: [],
-          fields: weaponStatsDataSchema,
+          fields: weaponStatsDataSchema
         },
         {
           name: "weaponStats2",
           type: "array",
           defaultValue: [],
-          fields: weaponStatsDataSchema,
+          fields: weaponStatsDataSchema
         },
         {
           name: "vehicleStats",
           type: "array",
           defaultValue: [],
-          fields: vehicleStatsDataSchema,
+          fields: vehicleStatsDataSchema
         },
         {
           name: "facilityStats1",
           type: "array",
           defaultValue: [],
-          fields: facilityStatsDataSchema,
+          fields: facilityStatsDataSchema
         },
         {
           name: "facilityStats2",
           type: "array",
           defaultValue: [],
-          fields: facilityStatsDataSchema,
-        },
-      ],
-    },
+          fields: facilityStatsDataSchema
+        }
+      ]
+    }
   ],
   ["ProfileStats.ZonePlayerProfileStats", 0x930300, {}],
   ["ProfileStats.UpdatePlayerLeaderboards", 0x930400, {}],
@@ -150,5 +148,5 @@ export const profileStatsPackets: any = [
   ["ProfileStats.GetLeaderboard", 0x930600, {}],
   ["ProfileStats.Leaderboard", 0x930700, {}],
   ["ProfileStats.GetZoneCharacterStats", 0x930800, {}],
-  ["ProfileStats.ZoneCharacterStats", 0x930900, {}],
+  ["ProfileStats.ZoneCharacterStats", 0x930900, {}]
 ];

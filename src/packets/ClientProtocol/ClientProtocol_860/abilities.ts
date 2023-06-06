@@ -31,19 +31,19 @@ export const abilitiesPackets: any = [
             {
               name: "unknownQword3",
               type: "uint64string",
-              defaultValue: "0x000",
+              defaultValue: "0x000"
             },
             {
               name: "unknownQword4",
               type: "uint64string",
-              defaultValue: "0x000",
+              defaultValue: "0x000"
             },
             {
               name: "unknownFloatVector1",
               type: "floatvector4",
-              defaultValue: 0,
-            },
-          ],
+              defaultValue: 0
+            }
+          ]
         },
         { name: "unknownWord1", type: "uint8", defaultValue: 0 },
         {
@@ -58,8 +58,8 @@ export const abilitiesPackets: any = [
               defaultValue: [],
               fields: [
                 { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword7", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownArray2",
@@ -67,8 +67,8 @@ export const abilitiesPackets: any = [
               defaultValue: [],
               fields: [
                 { name: "unknownDword8", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword9", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword9", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownArray3",
@@ -76,8 +76,8 @@ export const abilitiesPackets: any = [
               defaultValue: [],
               fields: [
                 { name: "unknownDword10", type: "uint32", defaultValue: 0 },
-                { name: "unknownWord1", type: "uint8", defaultValue: 0 },
-              ],
+                { name: "unknownWord1", type: "uint8", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownArray4",
@@ -88,9 +88,9 @@ export const abilitiesPackets: any = [
                 {
                   name: "unknownFloatVector2",
                   type: "floatvector4",
-                  defaultValue: 0,
-                },
-              ],
+                  defaultValue: 0
+                }
+              ]
             },
             {
               name: "unknownArray5",
@@ -98,13 +98,13 @@ export const abilitiesPackets: any = [
               defaultValue: [],
               fields: [
                 { name: "unknownDword13", type: "uint32", defaultValue: 0 },
-                { name: "unknownString1", type: "string", defaultValue: "0" },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+                { name: "unknownString1", type: "string", defaultValue: "0" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ],
   ["Abilities.UpdateAbility", 0xa002, {}],
   ["Abilities.UninitAbility", 0xa003, {}],
@@ -127,18 +127,18 @@ export const abilitiesPackets: any = [
                 {
                   name: "unknownQword1",
                   type: "uint64string",
-                  defaultValue: "0",
+                  defaultValue: "0"
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+              ]
             },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   ["Abilities.SetVehicleActivatableAbilityManager", 0xa006, {}],
   ["Abilities.SetAbilityTimerManager", 0xa007, {}],
@@ -185,13 +185,13 @@ export const abilitiesPackets: any = [
                 { name: "abilityId", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "guid1", type: "uint64string", defaultValue: "0" },
-                { name: "guid2", type: "uint64string", defaultValue: "0" },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+                { name: "guid2", type: "uint64string", defaultValue: "0" }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ],
   ["Abilities.AddLoadoutAbility", 0xa021, {}],
   ["Abilities.RemoveLoadoutAbility", 0xa022, {}],
@@ -203,5 +203,5 @@ export const abilitiesPackets: any = [
   ["Abilities.RemovePersistentAbility", 0xa028, {}],
   ["Abilities.SetProfileRankAbilities", 0xa029, {}],
   ["Abilities.AddProfileRankAbility", 0xa02a, {}],
-  ["Abilities.RemoveProfileRankAbility", 0xa02b, {}],
+  ["Abilities.RemoveProfileRankAbility", 0xa02b, {}]
 ];

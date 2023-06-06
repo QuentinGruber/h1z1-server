@@ -17,7 +17,7 @@ import { BaseFullCharacter } from "./basefullcharacter";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { ZoneClient2016 } from "../classes/zoneclient";
 
-export class BaseLootableEntity extends BaseFullCharacter {
+export abstract class BaseLootableEntity extends BaseFullCharacter {
   mountedCharacter?: string;
   interactionDistance = 4;
   isLootbag: boolean;
@@ -41,7 +41,7 @@ export class BaseLootableEntity extends BaseFullCharacter {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: StringIds.OPEN,
+      stringId: StringIds.OPEN
     });
   }
   /* eslint-disable @typescript-eslint/no-unused-vars */

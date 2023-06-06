@@ -61,7 +61,7 @@ export class SOEServer extends EventEmitter {
     this._connection = new Worker(
       `${__dirname}/../shared/workers/udpServerWorker.js`,
       {
-        workerData: { serverPort: serverPort, disableAntiDdos },
+        workerData: { serverPort: serverPort, disableAntiDdos }
       }
     );
     setInterval(() => {
@@ -87,8 +87,8 @@ export class SOEServer extends EventEmitter {
       data: {
         packetData: packet,
         port: client.port,
-        address: client.address,
-      },
+        address: client.address
+      }
     });
   }
 
@@ -165,7 +165,7 @@ export class SOEServer extends EventEmitter {
     if (client.lastAck.get() != client.nextAck.get()) {
       client.lastAck.set(client.nextAck.get());
       this._sendLogicalPacket(client, "Ack", {
-        sequence: client.nextAck.get(),
+        sequence: client.nextAck.get()
       });
     }
   }
@@ -197,7 +197,7 @@ export class SOEServer extends EventEmitter {
       this._sendLogicalPacket(client, "MultiPacket", {
         sub_packets: queue.packets.map((packet) => {
           return Array.from(packet.data);
-        }),
+        })
       });
       // if a packet in the waiting queue is a reliable packet, then we need to set the timeout
       this.setupResendForQueuedPackets(client, queue);
@@ -211,7 +211,7 @@ export class SOEServer extends EventEmitter {
         const sequence = client.outOfOrderPackets.shift();
         if (sequence > client.lastAck.get()) {
           this._sendLogicalPacket(client, "OutOfOrder", {
-            sequence: sequence,
+            sequence: sequence
           });
         }
       }
@@ -253,7 +253,7 @@ export class SOEServer extends EventEmitter {
             crc_seed: client.crcSeed,
             crc_length: client.crcLength,
             encrypt_method: 0,
-            udp_length: client.serverUdpLength,
+            udp_length: client.serverUdpLength
           },
           true
         );
@@ -377,7 +377,7 @@ export class SOEServer extends EventEmitter {
                 fragment ? "DataFragment" : "Data",
                 {
                   sequence: sequence,
-                  data: data,
+                  data: data
                 },
                 unbuffered
               );
@@ -394,7 +394,7 @@ export class SOEServer extends EventEmitter {
                 fragment ? "DataFragment" : "Data",
                 {
                   sequence: sequence,
-                  data: data,
+                  data: data
                 }
               );
             }

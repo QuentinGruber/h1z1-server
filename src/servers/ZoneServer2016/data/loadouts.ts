@@ -29,7 +29,7 @@ export const characterDefaultLoadout = [
 
   { item: Items.MAP },
   { item: Items.COMPASS },
-  { item: Items.GAUZE, count: 5 },
+  { item: Items.GAUZE, count: 5 }
 ];
 
 export const characterKitLoadout = [
@@ -46,9 +46,14 @@ export const characterKitLoadout = [
   { item: Items.HELMET_MOTORCYCLE },
   { item: Items.KEVLAR_DEFAULT },
   { item: Items.HELMET_MOTORCYCLE },
-  { item: Items.CONVEYS_BLUE },
+  { item: Items.CONVEYS_BLUE }
 ];
 
+export const characterVehicleKit = [
+  { item: Items.SPARKPLUGS },
+  { item: Items.VEHICLE_KEY },
+  { item: Items.BATTERY }
+];
 export const characterBuildKitLoadout = [
   { item: Items.FOUNDATION, count: 10 },
   { item: Items.FOUNDATION_EXPANSION, count: 40 },
@@ -74,7 +79,7 @@ export const characterBuildKitLoadout = [
   { item: Items.METAL_WALL_UPPER, count: 40 },
   { item: Items.METAL_DOORWAY, count: 40 },
   { item: Items.GROUND_TAMPER, count: 10 },
-  { item: Items.WEAPON_HAMMER_DEMOLITION },
+  { item: Items.WEAPON_HAMMER_DEMOLITION }
 ];
 
 export const vehicleDefaultLoadouts = {
@@ -82,27 +87,27 @@ export const vehicleDefaultLoadouts = {
     { item: Items.CONTAINER_VEHICLE_OFFROADER },
     { item: Items.VEHICLE_MOTOR_OFFROADER },
     { item: Items.VEHICLE_HOTWIRE },
-    { item: Items.VEHICLE_HORN },
+    { item: Items.VEHICLE_HORN }
   ],
   policecar: [
     { item: Items.CONTAINER_VEHICLE_POLICECAR },
     { item: Items.VEHICLE_MOTOR_POLICECAR },
     { item: Items.VEHICLE_HOTWIRE },
     { item: Items.VEHICLE_HORN_POLICECAR },
-    { item: Items.VEHICLE_SIREN_POLICECAR },
+    { item: Items.VEHICLE_SIREN_POLICECAR }
   ],
   atv: [
     { item: Items.CONTAINER_VEHICLE_ATV },
     { item: Items.VEHICLE_MOTOR_ATV },
     { item: Items.VEHICLE_HOTWIRE },
-    { item: Items.VEHICLE_HORN },
+    { item: Items.VEHICLE_HORN }
   ],
   pickup: [
     { item: Items.CONTAINER_VEHICLE_PICKUP },
     { item: Items.VEHICLE_MOTOR_PICKUP },
     { item: Items.VEHICLE_HOTWIRE },
-    { item: Items.VEHICLE_HORN },
-  ],
+    { item: Items.VEHICLE_HORN }
+  ]
 };
 
 export const lootableContainerDefaultLoadouts = {
@@ -114,5 +119,5 @@ export const lootableContainerDefaultLoadouts = {
   military_crate: [{ item: Items.CONTAINER_MILITARY_CRATE }],
   bee_box: [{ item: Items.CONTAINER_BEE_BOX }],
   dew_collector: [{ item: Items.CONTAINER_DEW_COLLECTOR }],
-  animal_trap: [{ item: Items.CONTAINER_ANIMAL_TRAP }],
+  animal_trap: [{ item: Items.CONTAINER_ANIMAL_TRAP }]
 };

@@ -30,12 +30,12 @@ export const staticFacilityInfoPackets: any = [
             { name: "facilityType", type: "uint8", defaultValue: 0 },
             { name: "locationX", type: "float", defaultValue: 0.0 },
             { name: "locationY", type: "float", defaultValue: 0.0 },
-            { name: "locationZ", type: "float", defaultValue: 0.0 },
-          ],
-        },
-      ],
-    },
+            { name: "locationZ", type: "float", defaultValue: 0.0 }
+          ]
+        }
+      ]
+    }
   ],
   ["StaticFacilityInfo.ReplyWarpgate", 0xc104, {}],
-  ["StaticFacilityInfo.AllWarpgateRespawns", 0xc105, {}],
+  ["StaticFacilityInfo.AllWarpgateRespawns", 0xc105, {}]
 ];

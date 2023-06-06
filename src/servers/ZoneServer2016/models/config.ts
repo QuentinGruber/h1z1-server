@@ -35,6 +35,8 @@ interface WeatherConfig {
 
 interface WorldObjectsConfig {
   vehicleSpawnCap: number;
+  minAirdropSurvivors: number;
+  hasCustomLootRespawnTime: boolean;
   lootRespawnTimer: number;
   vehicleRespawnTimer: number;
   npcRespawnTimer: number;
@@ -79,6 +81,7 @@ interface DecayConfig {
   constructionDamageTicks: number;
   baseConstructionDamage: number;
   vehicleDamageTicks: number;
+  vacantFoundationTicks: number;
   baseVehicleDamage: number;
   maxVehiclesPerArea: number;
   vehicleDamageRange: number;

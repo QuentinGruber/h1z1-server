@@ -18,5 +18,5 @@ export const implantPackets: PacketStructures = [
   ["Implant.UnselectImplant", 0x9c02, {}],
   ["Implant.LoadImplantDefinitionManager", 0x9c03, {}],
   ["Implant.SetImplants", 0x9c04, {}],
-  ["Implant.UpdateImplantSlot", 0x9c05, {}],
+  ["Implant.UpdateImplantSlot", 0x9c05, {}]
 ];

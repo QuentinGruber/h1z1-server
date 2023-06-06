@@ -23,9 +23,9 @@ export const recipePackets: PacketStructures = [
     {
       fields: [
         { name: "recipeId", type: "uint32", defaultValue: 1 },
-        { name: "bool", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "bool", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   ["Recipe.Discovery", 0x2604, { fields: [] }],
   [
@@ -37,10 +37,10 @@ export const recipePackets: PacketStructures = [
           name: "recipes",
           type: "array",
           defaultValue: [{}],
-          fields: recipeData,
-        },
-      ],
-    },
+          fields: recipeData
+        }
+      ]
+    }
   ],
   [
     "Recipe.Add",
@@ -51,10 +51,10 @@ export const recipePackets: PacketStructures = [
           name: "recipes",
           type: "array",
           defaultValue: [{}],
-          fields: recipeData,
-        },
-      ],
-    },
+          fields: recipeData
+        }
+      ]
+    }
   ],
   [
     "Recipe.Discoveries",
@@ -90,28 +90,28 @@ export const recipePackets: PacketStructures = [
                 {
                   name: "unknownQword1",
                   type: "uint64string",
-                  defaultValue: "0",
+                  defaultValue: "0"
                 },
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                { name: "itemDefinitionId2", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "itemDefinitionId2", type: "uint32", defaultValue: 0 }
+              ]
             },
-            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "itemDefinitionId", type: "uint32", defaultValue: 0 }
+          ]
         },
         {
           name: "unkArray1",
           type: "array",
           defaultValue: [{}],
-          fields: [],
+          fields: []
         },
         {
           name: "unkArray2",
           type: "array",
           defaultValue: [{}],
-          fields: [],
-        },
-      ],
-    },
-  ],
+          fields: []
+        }
+      ]
+    }
+  ]
 ];

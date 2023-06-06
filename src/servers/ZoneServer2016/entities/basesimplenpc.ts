@@ -14,7 +14,7 @@
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
 
-export class BaseSimpleNpc extends BaseEntity {
+export abstract class BaseSimpleNpc extends BaseEntity {
   health = 100000;
   constructor(
     characterId: string,
@@ -35,13 +35,13 @@ export class BaseSimpleNpc extends BaseEntity {
       modelId: this.actorModelId,
       scale: this.scale,
       showHealth: true,
-      health: this.health / 1000,
+      health: this.health / 1000
     };
   }
   pGetSimpleProxyHealth() {
     return {
       characterId: this.characterId,
-      healthPercentage: this.health / 1000,
+      healthPercentage: this.health / 1000
     };
   }
 }

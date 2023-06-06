@@ -15,7 +15,7 @@ import {
   AsyncHooks,
   AsyncHookType,
   FunctionHookType,
-  Hooks,
+  Hooks
 } from "../models/hooks";
 
 export class HookManager {

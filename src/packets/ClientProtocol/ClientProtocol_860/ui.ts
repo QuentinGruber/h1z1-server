@@ -28,9 +28,9 @@ export const uiPackets: any = [
         { name: "Unknown8", type: "uint32", defaultValue: 0 },
         { name: "Unknown9", type: "boolean", defaultValue: 0 },
         { name: "Unknown10", type: "uint32", defaultValue: 0 },
-        { name: "Unknown11", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "Unknown11", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Ui.TaskUpdate", 0x1a02, {}],
   ["Ui.TaskComplete", 0x1a03, {}],
@@ -40,14 +40,14 @@ export const uiPackets: any = [
   [
     "Ui.StartTimer",
     0x1a09,
-    { fields: [{ name: "time", type: "uint32", defaultValue: 0 }] },
+    { fields: [{ name: "time", type: "uint32", defaultValue: 0 }] }
   ],
   ["Ui.ResetTimer", 0x1a0a, { fields: [] }],
   ["Ui.ObjectiveTargetUpdate", 0x1a0d, {}],
   [
     "Ui.Message",
     0x1a0e,
-    { fields: [{ name: "stringId", type: "uint32", defaultValue: 0 }] },
+    { fields: [{ name: "stringId", type: "uint32", defaultValue: 0 }] }
   ],
   ["Ui.CinematicStartLookAt", 0x1a0f, {}],
   [
@@ -57,9 +57,9 @@ export const uiPackets: any = [
       fields: [
         { name: "Unknown1", type: "uint32", defaultValue: 0 },
         { name: "isEnemy", type: "boolean", defaultValue: 0 },
-        { name: "Unknown2", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "Unknown2", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Ui.HeadShotFeedback",
@@ -67,9 +67,9 @@ export const uiPackets: any = [
     {
       fields: [
         { name: "Unknown3", type: "boolean", defaultValue: 0 },
-        { name: "Unknown4", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "Unknown4", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   ["Ui.WaypointCooldown", 0x1a14, {}],
   ["Ui.ZoneWaypoint", 0x1a15, {}],
@@ -79,5 +79,5 @@ export const uiPackets: any = [
   ["Ui.SomeInteractionThing", 0x1a19, {}],
   ["Ui.RewardNotification", 0x1a1a, {}],
   ["Ui.WarpgateRotateWarning", 0x1a1b, {}],
-  ["Ui.SystemBroadcast", 0x1a1c, {}],
+  ["Ui.SystemBroadcast", 0x1a1c, {}]
 ];
