@@ -17,7 +17,7 @@ import { BaseFullCharacter } from "./basefullcharacter";
 import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { ZoneClient2016 } from "../classes/zoneclient";
 
-export class BaseLootableEntity extends BaseFullCharacter {
+export abstract class BaseLootableEntity extends BaseFullCharacter {
   mountedCharacter?: string;
   interactionDistance = 4;
   isLootbag: boolean;
