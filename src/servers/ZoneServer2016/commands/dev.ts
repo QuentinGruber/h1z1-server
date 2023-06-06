@@ -777,6 +777,18 @@ const dev: any = {
         shaderGroupId: 665 // maybe try setting other character's shaderGroupId on spawn
       });
     });
+  },
+
+  reloadplugins: async function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    // THIS IS CURRENTLY UNSAFE AND CAN RESULT IN THE SAME HOOK BEING CALLED MULTIPLE TIMES!
+
+    server.sendChatText(client, "Reloading plugins...");
+    await server.pluginManager.initializePlugins(server);
+    server.sendChatText(client, `Loaded ${server.pluginManager.pluginCount}`);
   }
 };
 export default dev;
