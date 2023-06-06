@@ -14,6 +14,7 @@ export abstract class BasePlugin {
 export class PluginManager {
   private plugins: Array<BasePlugin> = [];
   private pluginDir = path.join(process.cwd(), 'plugins');
+  private outDir = path.join(this.pluginDir, 'out');
 
   private checkPluginsFolder(): void {
     if (!fs.existsSync(this.pluginDir)) {
@@ -22,8 +23,35 @@ export class PluginManager {
     }
   }
 
+  private checkOutFolder(): void {
+    if (!fs.existsSync(this.outDir)) {
+      fs.mkdirSync(this.outDir);
+      console.log(`Created out folder: ${this.outDir}`);
+    }
+  }
+
   private async loadPlugin(file: string) {
-    const filePath = path.join(this.pluginDir, file),
+    // TODO: CLEAR OUT FOLDER BEFORE LOADING ALL
+    const filePath = path.join(this.pluginDir, file);
+      const source = fs.readFileSync(filePath, 'utf-8');
+      const output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS } });
+      const compiledPath = path.join(this.outDir, file.replace(/\.ts$/, ".js"));
+      fs.writeFileSync(compiledPath, output.outputText);
+
+      const module = await import(compiledPath);
+
+
+
+      //const module = eval(output.outputText);
+
+      for (const exportedItem in module) {
+        if (true/*module[exportedItem].prototype instanceof Plugin*/) {
+          const plugin = new module[exportedItem]();
+          this.plugins.push(plugin);
+          console.log(`Loaded plugin: ${plugin.name}`);
+        }
+      }
+    /*const filePath = path.join(this.pluginDir, file),
       source = fs.readFileSync(filePath, 'utf-8'),
       output = ts.transpileModule(source, { compilerOptions: 
         { 
@@ -35,66 +63,36 @@ export class PluginManager {
         } });
 
 
+  
       
+      console.log(output.outputText)
 
-        async function runCode(compiledCode: string): Promise<any> {
-          const sandbox = {
-            require: require,
-            module: module,
-            exports: exports,
-          };
-        
-          const script = new vm.Script(compiledCode);
-          const context = vm.createContext(sandbox);
-          script.runInContext(context);
-        
-          return sandbox.module.exports;
-        }
-        
-        async function loadAndRunPlugin(compiledCode: string): Promise<any> {
-          return runCode(compiledCode);
-        }
-        runCode(output.outputText)
-          .then((result) => {
-            console.log('Plugin executed successfully:', result.default);
-            const test = new result.default();
-            console.log(test)
-            this.plugins.push(test);
-          })
-          .catch((error) => {
-            console.error('Error executing plugin:', error);
-          });
+      output.outputText = output.outputText.replace("@h1z1-server", "../h1z1-server");
 
-
-
+      console.log(output.outputText)
       
-      //console.log(output.outputText)
-
-      //output.outputText = output.outputText.replace("@h1z1-server", "../h1z1-server");
-
-      //console.log(output.outputText)
       
-      /*
       const module = import(`${output.outputText}`).then((m)=> {
         const test = new m();
         console.log("Loaded!")
         console.log(test)
       });
-      */
+      
      
-      /*
-      if (true/*module?.default?.prototype instanceof BasePlugin*//*) {
+      
+      if (truemodule?.default?.prototype instanceof BasePlugin) {
         const plugin = new module();
         this.plugins.push(plugin);
         console.log(`Loaded plugin: ${plugin.name}`);
       } else {
         console.warn(`Failed to load plugin ${file}`);
-      }
-      */
+      }*/
+      
   }
 
   private async loadPlugins() {
     this.checkPluginsFolder();
+    this.checkOutFolder();
     const pluginFiles = fs.readdirSync(this.pluginDir).filter(file => file.endsWith('.ts'));
 
     for (const file of pluginFiles) {
