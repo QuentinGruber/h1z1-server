@@ -903,6 +903,8 @@ export enum PopulationLevel {
   HIGH = 2,
   FULL = 3
 }
+
+// not used anymore, may have some use in the future
 export function getPopulationLevel(
   currentPop: number,
   maxPop: number

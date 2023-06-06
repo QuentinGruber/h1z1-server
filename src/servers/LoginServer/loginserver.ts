@@ -25,8 +25,7 @@ import {
   initMongo,
   setupAppDataFolder,
   isValidCharacterName,
-  resolveHostAddress,
-  getPopulationLevel
+  resolveHostAddress
 } from "../../utils/utils";
 import { GameServer } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
@@ -223,9 +222,6 @@ export class LoginServer extends EventEmitter {
                   case "UpdateZonePopulation": {
                     const { population } = packet.data;
                     const serverId = this._zoneConnections[client.clientId];
-                    const { maxPopulationNumber } = await this._db
-                      .collection(DB_COLLECTIONS.SERVERS)
-                      .findOne({ serverId: serverId });
                     this._db
                       ?.collection(DB_COLLECTIONS.SERVERS)
                       .findOneAndUpdate(
@@ -233,10 +229,7 @@ export class LoginServer extends EventEmitter {
                         {
                           $set: {
                             populationNumber: population,
-                            populationLevel: getPopulationLevel(
-                              population,
-                              maxPopulationNumber
-                            )
+                            populationLevel: population
                           }
                         }
                       );
