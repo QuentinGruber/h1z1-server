@@ -31,7 +31,7 @@ export class ChatManager {
           color: [255, 255, 255, 0],
           unknownDword2: 13951728,
           unknownByte3: 0,
-          unknownByte4: 1,
+          unknownByte4: 1
         });
       }
     }
@@ -41,7 +41,7 @@ export class ChatManager {
       color: [255, 255, 255, 0],
       unknownDword2: 13951728,
       unknownByte3: 0,
-      unknownByte4: 1,
+      unknownByte4: 1
     });
   }
   sendChatTextToAllOthers(
@@ -92,7 +92,7 @@ export class ChatManager {
         color: [255, 255, 255, 0],
         unknownDword2: 13951728,
         unknownByte3: 0,
-        unknownByte4: 1,
+        unknownByte4: 1
       }
     );
   }
@@ -111,7 +111,7 @@ export class ChatManager {
           color: [255, 255, 255, 0],
           unknownDword2: 13951728,
           unknownByte3: 0,
-          unknownByte4: 1,
+          unknownByte4: 1
         });
       }
     }
@@ -131,7 +131,7 @@ export class ChatManager {
       adminName: adminName ? adminName : "",
       expirationDate: 0,
       active: true,
-      unmuteAdminName: "",
+      unmuteAdminName: ""
     };
     if (timestamp) {
       object.expirationDate = timestamp;
@@ -179,7 +179,7 @@ export class ChatManager {
       ?.collection(DB_COLLECTIONS.MUTED)
       .findOne({
         name: client.character.name.toLowerCase(),
-        active: true,
+        active: true
       })) as unknown as ClientMute;
     if (mutedClient) {
       if (

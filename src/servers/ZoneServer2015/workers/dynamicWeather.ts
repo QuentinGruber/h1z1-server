@@ -399,8 +399,8 @@ export default function dynamicWeather(
       unknownDword4: 0,
       unknownDword5: 0,
       unknownDword6: 0,
-      unknownDword7: 0,
-    }),
+      unknownDword7: 0
+    })
   };
 
   const data = protocol.pack("SkyChanged", rnd_weather);

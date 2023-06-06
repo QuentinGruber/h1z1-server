@@ -35,7 +35,7 @@ export const vehiclePackets: any = [
                 {
                   name: "characterId",
                   type: "uint64string",
-                  defaultValue: "0",
+                  defaultValue: "0"
                 },
                 {
                   name: "characterData",
@@ -48,19 +48,19 @@ export const vehiclePackets: any = [
                     {
                       name: "unknownString1",
                       type: "string",
-                      defaultValue: "",
-                    },
-                  ],
+                      defaultValue: ""
+                    }
+                  ]
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownString1", type: "string", defaultValue: "" },
-              ],
+                { name: "unknownString1", type: "string", defaultValue: "" }
+              ]
             },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   [
     "Vehicle.Occupy",
@@ -77,8 +77,8 @@ export const vehiclePackets: any = [
           defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-          ],
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+          ]
         },
         {
           name: "passengers",
@@ -92,7 +92,7 @@ export const vehiclePackets: any = [
                 {
                   name: "characterId",
                   type: "uint64string",
-                  defaultValue: "0",
+                  defaultValue: "0"
                 },
                 {
                   name: "characterData",
@@ -105,24 +105,24 @@ export const vehiclePackets: any = [
                     {
                       name: "unknownString1",
                       type: "string",
-                      defaultValue: "",
-                    },
-                  ],
+                      defaultValue: ""
+                    }
+                  ]
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownString1", type: "string", defaultValue: "" },
-              ],
+                { name: "unknownString1", type: "string", defaultValue: "" }
+              ]
             },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-          ],
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+          ]
         },
         {
           name: "unknownArray2",
           type: "array",
           defaultValue: [],
           fields: [
-            { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-          ],
+            { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+          ]
         },
         {
           name: "unknownData1",
@@ -134,8 +134,8 @@ export const vehiclePackets: any = [
               type: "schema",
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-              ],
+                { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+              ]
             },
             { name: "unknownString1", type: "string", defaultValue: "" },
             { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -160,12 +160,12 @@ export const vehiclePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownByte1",
                           type: "uint8",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownArray1",
@@ -175,9 +175,9 @@ export const vehiclePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
-                            },
-                          ],
+                              defaultValue: 0
+                            }
+                          ]
                         },
                         {
                           name: "unknownArray2",
@@ -187,24 +187,24 @@ export const vehiclePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword2",
                               type: "uint32",
-                              defaultValue: 0,
-                            },
-                          ],
-                        },
-                      ],
+                              defaultValue: 0
+                            }
+                          ]
+                        }
+                      ]
                     },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                  ],
-                },
-              ],
-            },
-          ],
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+                  ]
+                }
+              ]
+            }
+          ]
         },
         {
           name: "unknownBytes1",
@@ -215,13 +215,13 @@ export const vehiclePackets: any = [
               name: "itemData",
               type: "custom",
               parser: parseItemData,
-              packer: packItemData,
-            },
-          ],
+              packer: packItemData
+            }
+          ]
         },
-        { name: "unknownBytes2", type: "byteswithlength", defaultValue: null },
-      ],
-    },
+        { name: "unknownBytes2", type: "byteswithlength", defaultValue: null }
+      ]
+    }
   ],
   [
     "Vehicle.StateData",
@@ -236,8 +236,8 @@ export const vehiclePackets: any = [
           defaultValue: [],
           fields: [
             { name: "unknown1", type: "uint32", defaultValue: 0 },
-            { name: "unknown2", type: "uint8", defaultValue: 0 },
-          ],
+            { name: "unknown2", type: "uint8", defaultValue: 0 }
+          ]
         },
         {
           name: "unknown5",
@@ -245,11 +245,11 @@ export const vehiclePackets: any = [
           defaultValue: [],
           fields: [
             { name: "unknown1", type: "uint32", defaultValue: 0 },
-            { name: "unknown2", type: "uint8", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "unknown2", type: "uint8", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   [
     "Vehicle.StateDamage",
@@ -260,15 +260,15 @@ export const vehiclePackets: any = [
         {
           name: "unknownVector1",
           type: "floatvector4",
-          defaultValue: [0, 50, 0, 0],
+          defaultValue: [0, 50, 0, 0]
         },
         {
           name: "unknownVector2",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 0],
-        },
-      ],
-    },
+          defaultValue: [0, 0, 0, 0]
+        }
+      ]
+    }
   ],
   ["Vehicle.PlayerManager", 0x8805, {}],
   [
@@ -277,9 +277,9 @@ export const vehiclePackets: any = [
     {
       fields: [
         { name: "vehicleId", type: "uint32", defaultValue: 0 },
-        { name: "loadoutTab", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "loadoutTab", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Vehicle.Tint", 0x8807, {}],
   ["Vehicle.LoadVehicleTerminalDefinitionManager", 0x8808, {}],
@@ -293,16 +293,16 @@ export const vehiclePackets: any = [
     "Vehicle.UpdateQueuePosition",
     0x880f,
     {
-      fields: [{ name: "queuePosition", type: "uint32", defaultValue: 0 }],
-    },
+      fields: [{ name: "queuePosition", type: "uint32", defaultValue: 0 }]
+    }
   ],
   ["Vehicle.PadDestroyNotify", 0x8810, {}],
   [
     "Vehicle.SetAutoDrive",
     0x8811,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
-    },
+      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }]
+    }
   ],
   ["Vehicle.LockOnInfo", 0x8812, {}],
   ["Vehicle.LockOnState", 0x8813, {}],
@@ -319,11 +319,11 @@ export const vehiclePackets: any = [
           defaultValue: [],
           fields: [
             { name: "vehicleId", type: "uint32", defaultValue: 0 },
-            { name: "modelId", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "modelId", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   ["Vehicle.AcquireState", 0x8817, {}],
   ["Vehicle.Dismiss", 0x8818, { fields: [] }],
@@ -334,9 +334,9 @@ export const vehiclePackets: any = [
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
         { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Vehicle.Deploy", 0x881a, {}],
   [
@@ -346,9 +346,9 @@ export const vehiclePackets: any = [
       fields: [
         { name: "guid1", type: "uint64string", defaultValue: "0" },
         { name: "guid2", type: "uint64string", defaultValue: "0" },
-        { name: "unknownBoolean", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "unknownBoolean", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   [
     "Vehicle.AccessType",
@@ -358,11 +358,11 @@ export const vehiclePackets: any = [
         {
           name: "vehicleGuid",
           type: "uint64string",
-          defaultValue: "0x000000000000000000",
+          defaultValue: "0x000000000000000000"
         },
-        { name: "accessType", type: "uint16", defaultValue: 0 },
-      ],
-    },
+        { name: "accessType", type: "uint16", defaultValue: 0 }
+      ]
+    }
   ],
   ["Vehicle.KickPlayer", 0x881d, {}],
   [
@@ -371,9 +371,9 @@ export const vehiclePackets: any = [
     {
       fields: [
         { name: "vehicleGuid", type: "uint64string", defaultValue: "0" },
-        { name: "health", type: "float", defaultValue: 0 },
-      ],
-    },
+        { name: "health", type: "float", defaultValue: 0 }
+      ]
+    }
   ],
   ["Vehicle.OwnerPassengerList", 0x881f, {}],
   ["Vehicle.Kick", 0x8820, {}],
@@ -382,8 +382,8 @@ export const vehiclePackets: any = [
     "Vehicle.Expiration",
     0x8822,
     {
-      fields: [{ name: "expireTime", type: "uint32", defaultValue: 0 }],
-    },
+      fields: [{ name: "expireTime", type: "uint32", defaultValue: 0 }]
+    }
   ],
   ["Vehicle.Group", 0x8823, {}],
   ["Vehicle.DeployResponse", 0x8824, {}],
@@ -395,17 +395,17 @@ export const vehiclePackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "moveMode", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "moveMode", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Vehicle.ItemDefinitionRequest",
     0x8828,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   ["Vehicle.ItemDefinitionReply", 0x8829, {}],
-  ["Vehicle.InventoryItems", 0x882a, {}],
+  ["Vehicle.InventoryItems", 0x882a, {}]
 ];

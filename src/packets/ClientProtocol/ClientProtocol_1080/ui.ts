@@ -11,7 +11,9 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const uiPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const uiPackets: PacketStructures = [
   ["Ui.TaskAdd", 0x1a01, {}],
   ["Ui.TaskUpdate", 0x1a02, {}],
   ["Ui.TaskComplete", 0x1a03, {}],
@@ -27,10 +29,10 @@ export const uiPackets: any = [
           name: "unknownArray1",
           type: "array",
           defaultValue: [],
-          fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
-        },
-      ],
-    },
+          fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+        }
+      ]
+    }
   ],
   ["Ui.StartTimer", 0x1a09, {}],
   ["Ui.ResetTimer", 0x1a0a, {}],
@@ -44,9 +46,9 @@ export const uiPackets: any = [
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Ui.HeadShotFeedback", 0x1a11, {}],
   ["Ui.WaypointCooldown", 0x1a14, {}],
@@ -74,10 +76,10 @@ export const uiPackets: any = [
             { bit: 4, name: "bit4", defaultValue: 0 },
             { bit: 5, name: "bit5", defaultValue: 0 },
             { bit: 6, name: "bit6", defaultValue: 0 },
-            { bit: 7, name: "bit7", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
-  ],
+            { bit: 7, name: "bit7", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ]
 ];

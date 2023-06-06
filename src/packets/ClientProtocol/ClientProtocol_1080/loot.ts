@@ -11,4 +11,6 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const lootPackets: any = [["Loot", 0x6a, {}]];
+import { PacketStructures } from "types/packetStructure";
+
+export const lootPackets: PacketStructures = [["Loot", 0x6a, {}]];

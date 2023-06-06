@@ -53,7 +53,7 @@ function isBuffedCrate(position: Float32Array): boolean {
     [101.67, 34.26, 254.99, 1],
     [1604.81, 47.82, -592.11, 1],
     [1587.97, 57.38, -222.97, 1],
-    [-2063.19, 62.97, 2722.55, 1],
+    [-2063.19, 62.97, 2722.55, 1]
   ];
   let result = false;
   for (const a of buffedPostions) {
@@ -112,7 +112,7 @@ export class Crate extends BaseLightweightCharacter {
               ? this.state.position[1] + 0.1
               : this.state.position[1],
             this.state.position[2],
-            1,
+            1
           ]),
           new Float32Array([0, 0, 0, 0])
         );

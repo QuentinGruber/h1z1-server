@@ -12,16 +12,17 @@
 // ======================================================================
 
 import { itemSchema } from "./shared";
+import { PacketStructures } from "types/packetStructure";
 
-export const accessedCharacterPackets: any = [
+export const accessedCharacterPackets: PacketStructures = [
   [
     "AccessedCharacter.BeginCharacterAccess",
     0xf10100,
     {
       fields: [
         { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
-        { name: "containerGuid", type: "uint64string", defaultValue: "0" },
-        { name: "unknownBool1", type: "boolean", defaultValue: false },
+        { name: "mutatorCharacterId", type: "uint64string", defaultValue: "0" },
+        { name: "dontOpenInventory", type: "boolean", defaultValue: false },
         {
           name: "itemsData",
           type: "byteswithlength",
@@ -36,23 +37,23 @@ export const accessedCharacterPackets: any = [
                   name: "item",
                   type: "schema",
                   defaultValue: {},
-                  fields: itemSchema,
+                  fields: itemSchema
                 },
-                { name: "unknownBool1", type: "boolean", defaultValue: false },
-              ],
+                { name: "unknownBool1", type: "boolean", defaultValue: false }
+              ]
             },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   [
     "AccessedCharacter.EndCharacterAccess",
     0xf10200,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "AccessedCharacter.Unknown1",
@@ -60,9 +61,9 @@ export const accessedCharacterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "containerGuid", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+        { name: "mutatorCharacterId", type: "uint64string", defaultValue: "0" }
+      ]
+    }
   ],
   [
     "AccessedCharacter.Unknown2",
@@ -84,15 +85,15 @@ export const accessedCharacterPackets: any = [
                   name: "item",
                   type: "schema",
                   defaultValue: {},
-                  fields: itemSchema,
+                  fields: itemSchema
                 },
-                { name: "unknownBool1", type: "boolean", defaultValue: false },
-              ],
+                { name: "unknownBool1", type: "boolean", defaultValue: false }
+              ]
             },
-            { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
-  ],
+            { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ]
 ];

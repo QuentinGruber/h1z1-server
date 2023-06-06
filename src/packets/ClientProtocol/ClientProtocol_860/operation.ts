@@ -27,13 +27,13 @@ export const operationPackets: any = [
     "Operation.ClientClearMissions",
     0xbf0c,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   ["Operation.InstanceAreaUpdate", 0xbf0d, {}],
   ["Operation.ClientInArea", 0xbf0e, {}],
   ["Operation.InstanceLocationUpdate", 0xbf0f, {}],
   ["Operation.GroupOperationListRequest", 0xbf10, {}],
   ["Operation.GroupOperationListReply", 0xbf11, {}],
-  ["Operation.GroupOperationSelect", 0xbf12, {}],
+  ["Operation.GroupOperationSelect", 0xbf12, {}]
 ];

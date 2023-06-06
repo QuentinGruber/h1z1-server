@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const characterPackets: any = [
+export const characterPackets: PacketStructures = [
   ["Character.None", 0x0f00, {}],
   [
     "Character.RemovePlayer",
@@ -25,9 +26,9 @@ export const characterPackets: any = [
         { name: "effectDelay", type: "uint32", defaultValue: 0 },
         { name: "effectId", type: "uint32", defaultValue: 0 },
         { name: "stickyEffectId", type: "uint32", defaultValue: 0 },
-        { name: "timeToDisappear", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "timeToDisappear", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Character.Knockback", 0x0f02, {}],
   ["Character.UpdateHitpoints", 0x0f03, {}],
@@ -40,11 +41,11 @@ export const characterPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
-        { name: "scale", type: "floatvector4", defaultValue: [20, 5, 20, 1] },
-      ],
-    },
+        { name: "scale", type: "floatvector4", defaultValue: [20, 5, 20, 1] }
+      ]
+    }
   ],
   ["Character.UpdateTemporaryAppearance", 0x0f06, {}],
   ["Character.RemoveTemporaryAppearance", 0x0f07, {}],
@@ -67,8 +68,8 @@ export const characterPackets: any = [
             { bit: 4, name: "bound", defaultValue: false },
             { bit: 5, name: "rooted", defaultValue: false },
             { bit: 6, name: "stunned", defaultValue: false },
-            { bit: 7, name: "knockedOut", defaultValue: false },
-          ],
+            { bit: 7, name: "knockedOut", defaultValue: false }
+          ]
         },
         {
           name: "states2",
@@ -81,8 +82,8 @@ export const characterPackets: any = [
             { bit: 4, name: "inCombat", defaultValue: false },
             { bit: 5, name: "frozen", defaultValue: false },
             { bit: 6, name: "berserk", defaultValue: false },
-            { bit: 7, name: "inScriptedAnimation", defaultValue: false },
-          ],
+            { bit: 7, name: "inScriptedAnimation", defaultValue: false }
+          ]
         },
         {
           name: "states3",
@@ -95,8 +96,8 @@ export const characterPackets: any = [
             { bit: 4, name: "interactBlocked", defaultValue: false },
             { bit: 5, name: "nonHealable", defaultValue: false },
             { bit: 6, name: "weaponFireBlocked", defaultValue: false },
-            { bit: 7, name: "nonResuppliable", defaultValue: false },
-          ],
+            { bit: 7, name: "nonResuppliable", defaultValue: false }
+          ]
         },
         {
           name: "states4",
@@ -109,8 +110,8 @@ export const characterPackets: any = [
             { bit: 4, name: "userMovementDisabled", defaultValue: false },
             { bit: 5, name: "flying", defaultValue: false },
             { bit: 6, name: "hideCorpse", defaultValue: false },
-            { bit: 7, name: "gmHidden", defaultValue: false },
-          ],
+            { bit: 7, name: "gmHidden", defaultValue: false }
+          ]
         },
         {
           name: "states5",
@@ -123,8 +124,8 @@ export const characterPackets: any = [
             { bit: 4, name: "friendlyFireImmunity", defaultValue: false },
             { bit: 5, name: "riotShielded", defaultValue: false },
             { bit: 6, name: "supplyingAmmo", defaultValue: false },
-            { bit: 7, name: "supplyingRepairs", defaultValue: false },
-          ],
+            { bit: 7, name: "supplyingRepairs", defaultValue: false }
+          ]
         },
         {
           name: "states6",
@@ -137,8 +138,8 @@ export const characterPackets: any = [
             { bit: 4, name: "dormant", defaultValue: false },
             { bit: 5, name: "ignoreStatusNotUsed", defaultValue: false },
             { bit: 6, name: "inWater", defaultValue: false },
-            { bit: 7, name: "disarmed", defaultValue: false },
-          ],
+            { bit: 7, name: "disarmed", defaultValue: false }
+          ]
         },
         {
           name: "states7",
@@ -151,13 +152,13 @@ export const characterPackets: any = [
             { bit: 4, name: "handsUp", defaultValue: false },
             { bit: 5, name: "bit5", defaultValue: false },
             { bit: 6, name: "bit6", defaultValue: false },
-            { bit: 7, name: "bit7", defaultValue: false },
-          ],
+            { bit: 7, name: "bit7", defaultValue: false }
+          ]
         },
         { name: "placeholder", type: "uint8", defaultValue: 0 },
-        { name: "gameTime", type: "uint32", defaultValue: 1 },
-      ],
-    },
+        { name: "gameTime", type: "uint32", defaultValue: 1 }
+      ]
+    }
   ],
   ["Character.ExpectedSpeed", 0x0f0b, {}],
   ["Character.ScriptedAnimation", 0x0f0c, {}],
@@ -185,12 +186,12 @@ export const characterPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "modelId", type: "uint32", defaultValue: 0 },
-        { name: "effectId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "effectId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Character.SetCollidable", 0x0f1e, {}],
   ["Character.UpdateOwner", 0x0f1f, {}],
@@ -200,9 +201,9 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "stance", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "stance", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Character.UpdateTintAlias", 0x0f21, {}],
   [
@@ -213,17 +214,17 @@ export const characterPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unknown4", type: "uint32", defaultValue: 50 },
         { name: "unknown5", type: "uint32", defaultValue: 50 },
         {
           name: "position",
           type: "floatvector4",
-          defaultValue: [10, 0, 0, 1],
-        },
-      ],
-    },
+          defaultValue: [10, 0, 0, 1]
+        }
+      ]
+    }
   ],
   [
     "Character.ClearMovementRail",
@@ -233,10 +234,10 @@ export const characterPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
-        },
-      ],
-    },
+          defaultValue: "0x0000000000000000"
+        }
+      ]
+    }
   ],
   [
     "Character.MoveOnRelativeRail",
@@ -246,7 +247,7 @@ export const characterPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unknown4", type: "uint32", defaultValue: 0 },
         { name: "unknown5", type: "uint32", defaultValue: 0 },
@@ -256,10 +257,10 @@ export const characterPackets: any = [
         {
           name: "unknownVector1",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 0],
-        },
-      ],
-    },
+          defaultValue: [0, 0, 0, 0]
+        }
+      ]
+    }
   ],
   [
     "Character.Destroyed",
@@ -272,9 +273,9 @@ export const characterPackets: any = [
         { name: "unknown3", type: "uint32", defaultValue: 0 },
         { name: "disableWeirdPhysic", type: "boolean", defaultValue: 0 },
         { name: "destroyedEffect2", type: "uint32", defaultValue: 0 },
-        { name: "disableWeirdPhysic2", type: "boolean", defaultValue: true },
-      ],
-    },
+        { name: "disableWeirdPhysic2", type: "boolean", defaultValue: true }
+      ]
+    }
   ],
   [
     "Character.SeekTarget",
@@ -284,25 +285,25 @@ export const characterPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "TargetCharacterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "initSpeed", type: "float", defaultValue: 1 },
         { name: "acceleration", type: "float", defaultValue: 1 },
         { name: "speed", type: "float", defaultValue: 1 },
-        { name: "unknown8", type: "float", defaultValue: 1 },
+        { name: "turn", type: "float", defaultValue: 1 },
         { name: "yRot", type: "float", defaultValue: 1 },
         {
           name: "rotation",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 1],
-        },
-      ],
-    },
+          defaultValue: [0, 0, 0, 1]
+        }
+      ]
+    }
   ],
   [
     "Character.SeekTargetUpdate",
@@ -312,15 +313,15 @@ export const characterPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "TargetCharacterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
-        },
-      ],
-    },
+          defaultValue: "0x0000000000000000"
+        }
+      ]
+    }
   ],
   [
     "Character.UpdateActiveWieldType",
@@ -328,9 +329,9 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Character.LaunchProjectile", 0x0f29, {}],
   ["Character.SetSynchronizedAnimations", 0x0f2a, {}],
@@ -339,8 +340,8 @@ export const characterPackets: any = [
     "Character.KnockedOut",
     0x0f2c,
     {
-      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }],
-    },
+      fields: [{ name: "guid", type: "uint64string", defaultValue: "0" }]
+    }
   ],
   ["Character.KnockedOutDamageReport", 0x0f2d, {}],
   [
@@ -356,10 +357,10 @@ export const characterPackets: any = [
         {
           name: "gridPosition",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 0],
-        },
-      ],
-    },
+          defaultValue: [0, 0, 0, 0]
+        }
+      ]
+    }
   ],
   [
     "Character.RespawnReply",
@@ -367,9 +368,9 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "status", type: "boolean", defaultValue: true },
-      ],
-    },
+        { name: "status", type: "boolean", defaultValue: true }
+      ]
+    }
   ],
   ["Character.ActivateProfile", 0x0f31, {}],
   [
@@ -378,9 +379,9 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "state", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "state", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   ["Character.Turbo", 0x0f33, {}],
   ["Character.StartRevive", 0x0f34, {}],
@@ -392,9 +393,9 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "factionId", type: "uint8", defaultValue: 0 },
-      ],
-    },
+        { name: "factionId", type: "uint8", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Character.SetBattleRank",
@@ -402,9 +403,9 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "battleRank", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "battleRank", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Character.StartHeal", 0x0f39, {}],
   ["Character.StopHeal", 0x0f3a, {}],
@@ -415,9 +416,9 @@ export const characterPackets: any = [
       fields: [
         { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
         { name: "guid2", type: "uint64string", defaultValue: "0" },
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+        { name: "characterId", type: "uint64string", defaultValue: "0" }
+      ]
+    }
   ],
   ["Character.MaterialTypeOverride", 0x0f3c, {}],
   ["Character.DebrisLaunch", 0x0f3d, {}],
@@ -431,9 +432,9 @@ export const characterPackets: any = [
         { name: "guid2", type: "uint64string", defaultValue: "0" },
         { name: "guid3", type: "uint64string", defaultValue: "0" },
         { name: "guid4", type: "uint64string", defaultValue: "0" },
-        { name: "gameTime", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "gameTime", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Character.UpdateStat", 0x0f40, {}],
   ["Character.NonPriorityCharacters", 0x0f42, {}],
@@ -447,21 +448,19 @@ export const characterPackets: any = [
         {
           name: "position",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 0],
+          defaultValue: [0, 0, 0, 0]
         },
-        { name: "unk3", type: "float", defaultValue: 0 },
-      ],
-    },
+        { name: "unk3", type: "float", defaultValue: 0 }
+      ]
+    }
   ],
   ["Character.AFK", 0x0f44, {}],
   [
     "Character.FullCharacterDataRequest",
     0x0f45,
     {
-      fields: [
-        { name: "characterId", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "0" }]
+    }
   ],
   ["Character.Deploy", 0x0f46, {}],
   ["Character.LowAmmoUpdate", 0x0f47, {}],
@@ -473,16 +472,16 @@ export const characterPackets: any = [
         {
           name: "killer",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "killed",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
-        { name: "isCheater", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "isCheater", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Character.MotorRunning",
@@ -490,9 +489,9 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "unknownBool1", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "unknownBool1", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   [
     "Character.DroppedIemNotification",
@@ -503,18 +502,18 @@ export const characterPackets: any = [
         {
           name: "itemDefId",
           type: "uint32",
-          defaultValue: "2",
+          defaultValue: "2"
         },
-        { name: "count", type: "uint32", defaultValue: 10 },
-      ],
-    },
+        { name: "count", type: "uint32", defaultValue: 10 }
+      ]
+    }
   ],
   [
     "Character.NoSpaceNotification",
     0x0f4b,
     {
-      fields: [{ name: "characterId", type: "uint64string", defaultValue: "" }],
-    },
+      fields: [{ name: "characterId", type: "uint64string", defaultValue: "" }]
+    }
   ],
   ["Character.ReloadNotification", 0x0f4c, {}],
   ["Character.MountBlockedNotification", 0x0f4d, {}],
@@ -526,15 +525,15 @@ export const characterPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unknown4", type: "uint8", defaultValue: 0 }, // die by falling to there left
         { name: "unknown5", type: "uint8", defaultValue: 1 }, // weird accrobatic stuff
         // when unknown4 & unknown5 are > 0 then the animation play in a loop forever
-        { name: "unknown6", type: "uint8", defaultValue: 0 },
+        { name: "unknown6", type: "uint8", defaultValue: 0 }
         // seems like some bytes can be added after that but not required
-      ],
-    },
+      ]
+    }
   ],
   ["Character.AggroLevel", 0x0f50, {}],
   [
@@ -544,14 +543,23 @@ export const characterPackets: any = [
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownBool1", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "unknownBool1", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   ["Character.RequestToggleDoorState", 0x0f52, {}],
   ["Character.SetAllowRespawn", 0x0f54, {}],
   ["Character.UpdateGuildTag", 0x0f55, {}],
-  ["Character.MovementVersion", 0x0f56, {}],
+  [
+    "Character.MovementVersion",
+    0x0f56,
+    {
+      fields: [
+        { name: "characterId", type: "uint64string", defaultValue: "0" },
+        { name: "version", type: "uint8", defaultValue: 1 }
+      ]
+    }
+  ],
   ["Character.RequestMovementVersion", 0x0f57, {}],
   ["Character.DailyRepairMaterials", 0x0f58, {}],
   ["Character.BeginPreviewInteraction", 0x0f59, {}],
@@ -566,8 +574,8 @@ export const characterPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "healthPercentage", type: "float", defaultValue: 0 },
-      ],
-    },
-  ],
+        { name: "healthPercentage", type: "float", defaultValue: 0 }
+      ]
+    }
+  ]
 ];

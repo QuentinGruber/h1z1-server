@@ -11,13 +11,15 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const h1emuPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const h1emuPackets: PacketStructures = [
   [
     "H1emu.PrintToConsole",
     0x9901,
     {
-      fields: [{ name: "message", type: "string", defaultValue: "" }],
-    },
+      fields: [{ name: "message", type: "string", defaultValue: "" }]
+    }
   ],
   [
     "H1emu.MessageBox",
@@ -25,8 +27,8 @@ export const h1emuPackets: any = [
     {
       fields: [
         { name: "title", type: "string", defaultValue: "" },
-        { name: "message", type: "string", defaultValue: "" },
-      ],
-    },
-  ],
+        { name: "message", type: "string", defaultValue: "" }
+      ]
+    }
+  ]
 ];

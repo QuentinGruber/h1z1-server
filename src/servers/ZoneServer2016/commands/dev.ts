@@ -16,7 +16,7 @@
 import { h1z1PacketsType2016 } from "types/packets";
 import {
   CharacterManagedObject,
-  CharacterSeekTarget,
+  CharacterSeekTarget
 } from "types/zone2016packets";
 import { BaseLightweightCharacter } from "../entities/baselightweightcharacter";
 import { Npc } from "../entities/npc";
@@ -27,6 +27,7 @@ import { LootableConstructionEntity } from "../entities/lootableconstructionenti
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
 import { randomIntFromInterval } from "../../../utils/utils";
+import { BaseLootableEntity } from "../entities/baselootableentity";
 //import { NormanTest } from "../classes/Planting/Test";
 
 const debug = require("debug")("zonepacketHandlers");
@@ -46,7 +47,7 @@ const dev: any = {
     setTimeout(() => {
       server.sendData(client, "ClientPath.Reply", {
         unknownDword2: npc.transientId,
-        nodes: [{ node: client.character.state.position }],
+        nodes: [{ node: client.character.state.position }]
       });
     }, 2000);
   },
@@ -114,11 +115,11 @@ const dev: any = {
     setTimeout(() => {
       server.sendData(client, "Character.ManagedObject", {
         characterId: client.character.characterId,
-        objectCharacterId: characterId,
+        objectCharacterId: characterId
       } as CharacterManagedObject);
       server.sendData(client, "Character.SeekTarget", {
         characterId,
-        TargetCharacterId: client.character.characterId,
+        TargetCharacterId: client.character.characterId
       } as CharacterSeekTarget);
     }, 5000);
   },
@@ -196,7 +197,7 @@ const dev: any = {
       unknownDword1: 0,
       message: args[1],
       unknownDword2: 0,
-      color: 2,
+      color: 2
     };
     server.sendChatText(client, "Sending system message");
     server.sendData(client, "ShowSystemMessage", msg);
@@ -223,10 +224,10 @@ const dev: any = {
             resourceType: Number(args[2]),
             unknownArray1: [],
             value: Number(args[3]),
-            unknownArray2: [],
-          },
-        },
-      },
+            unknownArray2: []
+          }
+        }
+      }
     };
     server.sendChatText(client, "Setting character resource");
     server.sendData(client, "ResourceEvent", resourceEvent);
@@ -242,7 +243,7 @@ const dev: any = {
     }
     server.sendChatText(client, "Sending selectloadout packet");
     server.sendData(client, "Loadout.SelectLoadout", {
-      loadoutId: Number(args[1]),
+      loadoutId: Number(args[1])
     });
   },
   selectslot: function (
@@ -257,7 +258,7 @@ const dev: any = {
     server.sendChatText(client, "Sending SelectSlot packet");
     server.sendData(client, "Loadout.SelectSlot", {
       characterId: client.character.characterId,
-      loadoutSlotId: Number(args[1]),
+      loadoutSlotId: Number(args[1])
     });
   },
   createcustomloadout: function (
@@ -271,7 +272,7 @@ const dev: any = {
     }
     const loadout = {
       slotId: Number(args[1]),
-      loadoutSlotId: Number(args[2]),
+      loadoutSlotId: Number(args[2])
     };
     server.sendChatText(client, "Sending setcurrentloadout packet");
     server.sendData(client, "Loadout.CreateCustomLoadout", loadout);
@@ -295,11 +296,11 @@ const dev: any = {
         unknownData1: {
           itemDefinitionId: Number(args[2]),
           loadoutItemGuid: client.character.characterId,
-          unknownByte1: 17,
+          unknownByte1: 17
         },
-        unknownDword1: 16,
+        unknownDword1: 16
       },
-      unknownDword1: 18,
+      unknownDword1: 18
     });
   },
   containererror: function (
@@ -313,7 +314,7 @@ const dev: any = {
     }
     const container = {
       characterId: client.character.characterId,
-      containerError: parseInt(args[1]),
+      containerError: parseInt(args[1])
     };
 
     server.sendData(client, "Container.Error", container);
@@ -329,7 +330,7 @@ const dev: any = {
     }
     const equipmentEvent = {
       characterData: {
-        characterId: client.character.characterId,
+        characterId: client.character.characterId
       },
       equipmentSlot: {
         equipmentSlotId: 3,
@@ -337,8 +338,8 @@ const dev: any = {
           equipmentSlotId: 3,
           guid: "0x1", // needs to be non-zero
           tintAlias: "",
-          decalAlias: "#",
-        },
+          decalAlias: "#"
+        }
       },
       attachmentData: {
         modelName: "Survivor<gender>_Legs_Pants_Warmups.adr",
@@ -347,8 +348,8 @@ const dev: any = {
         effectId: Number(args[3]), // 0 - 16 // 3 = glow
         slotId: Number(args[4]), // backpack: 10
         unknownDword4: Number(args[5]),
-        unknownArray1: [],
-      },
+        unknownArray1: []
+      }
     };
     server.sendData(
       client,
@@ -408,7 +409,7 @@ const dev: any = {
     const location = {
       position: new Float32Array([0, 80, 0, 1]),
       rotation: [0, 0, 0, 1],
-      triggerLoadingScreen: true,
+      triggerLoadingScreen: true
     };
     let found = false;
     for (const v in server._vehicles) {
@@ -439,7 +440,7 @@ const dev: any = {
     const location = {
       position: new Float32Array([0, 80, 0, 1]),
       rotation: new Float32Array([0, 0, 0, 1]),
-      triggerLoadingScreen: true,
+      triggerLoadingScreen: true
     };
     let found = false;
     for (const n in server._npcs) {
@@ -469,9 +470,9 @@ const dev: any = {
         type: 0,
         value: {
           baseValue: Number(args[2]),
-          modifierValue: Number(args[3]),
-        },
-      },
+          modifierValue: Number(args[3])
+        }
+      }
     });
   },
   listcontainers: function (
@@ -481,7 +482,7 @@ const dev: any = {
   ) {
     server.sendData(client, "Container.ListAll", {
       characterId: client.character.characterId,
-      containers: client.character.pGetContainers(this),
+      containers: client.character.pGetContainers(server)
     });
   },
   shutdown: function (
@@ -491,44 +492,8 @@ const dev: any = {
   ) {
     server.sendData(client, "WorldShutdownNotice", {
       timeLeft: 0,
-      message: " ",
+      message: " "
     });
-  },
-  begincharacteraccess: function (
-    server: ZoneServer2016,
-    client: Client,
-    args: Array<string>
-  ) {
-    const objectCharacterId = server.generateGuid(),
-      npc = new Npc(
-        objectCharacterId,
-        server.getTransientId(objectCharacterId),
-        9034,
-        client.character.state.position,
-        client.character.state.lookAt,
-        server
-      );
-    const item = server.generateItem(1504);
-    npc.loadoutId = 5;
-    npc.equipItem(server, item);
-    npc.onReadyCallback = () => {
-      if (!item) return;
-      server.addItem(client, item, 101, npc);
-    };
-    server._npcs[objectCharacterId] = npc; // save npc
-    setTimeout(() => {
-      server.sendChatText(client, "ASDASDSAD");
-      server.initializeContainerList(client, npc);
-      server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-        objectCharacterId: objectCharacterId,
-        containerGuid: item?.itemGuid,
-        unknownBool1: false,
-        itemsData: {
-          items: [],
-          unknownDword1: 92,
-        },
-      });
-    }, 2000);
   },
   fte: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     if (!args[3]) {
@@ -538,7 +503,7 @@ const dev: any = {
     server.sendData(client, "FirstTimeEvent.State", {
       unknownDword1: Number(args[1]),
       unknownDword2: Number(args[2]),
-      unknownBoolean1: Boolean(args[3]),
+      unknownBoolean1: Boolean(args[3])
     });
   },
   proximateitems: function (
@@ -569,7 +534,7 @@ const dev: any = {
                   unknownQword1: guid4,
                   unknownDword1: 99,
                   unknownDword2: 101,
-                }*/,
+                }*/
             },
             containerGuid: guid1,
             containerDefinitionId: 45,
@@ -579,11 +544,11 @@ const dev: any = {
             maxDurabilityFromDefinition: 49,
             unknownBoolean1: true,
             unknownQword3: guid2,
-            unknownDword9: 54,
+            unknownDword9: 54
           },
-          associatedCharacterGuid: guid3,
-        },
-      ],
+          associatedCharacterGuid: guid3
+        }
+      ]
     });
   },
   /*
@@ -618,7 +583,7 @@ const dev: any = {
   poi: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "POIChangeMessage", {
       messageStringId: Number(args[1]) || 0,
-      id: Number(args[1]) || 0,
+      id: Number(args[1]) || 0
     });
   },
 
@@ -627,23 +592,59 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    const characterId = client.vehicle.mountedVehicle;
-    console.log(characterId);
+    const characterId = client.vehicle.mountedVehicle,
+      vehicle = server._vehicles[characterId || ""],
+      container = vehicle?.getContainer();
+    if (!container) {
+      server.sendChatText(client, "No container!");
+      return;
+    }
+
+    server.initializeContainerList(client, vehicle);
+
+    vehicle.updateLoadout(server);
+
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId: characterId,
-      containerGuid: characterId,
-      unknownBool1: true,
+      mutatorCharacterId: client.character.characterId,
+      dontOpenInventory: true,
       itemsData: {
-        items: [],
-        unknownDword1: 92,
-      },
+        items: Object.values(container.items).map((item) => {
+          return vehicle.pGetItemData(
+            server,
+            item,
+            container.containerDefinitionId
+          );
+        }),
+        unknownDword1: 92 // idk
+      }
+    });
+
+    Object.values(vehicle._loadout).forEach((item) => {
+      server.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: characterId,
+        data: {
+          ...vehicle.pGetItemData(server, item, 101)
+        }
+      });
+    });
+
+    Object.values(container.items).forEach((item) => {
+      server.sendData(client, "ClientUpdate.ItemAdd", {
+        characterId: characterId,
+        data: vehicle.pGetItemData(
+          server,
+          item,
+          container.containerDefinitionId
+        )
+      });
     });
   },
 
   stop: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     server.sendData(client, "PlayerStop", {
       transientId: client.character.transientId,
-      state: Number(args[0]) == 0 ? false : true,
+      state: true
     });
   },
 
@@ -660,16 +661,16 @@ const dev: any = {
         sourceCharacter: {
           characterId: client.character.characterId,
           identity: {
-            characterFirstName: client.character.name,
-          },
+            characterFirstName: client.character.name
+          }
         },
         targetCharacter: {
           characterId: client.character.characterId,
           identity: {
-            characterFirstName: client.character.name,
-          },
-        },
-      },
+            characterFirstName: client.character.name
+          }
+        }
+      }
     });
   },
 
@@ -706,8 +707,8 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sendData(client, "Ui.ExecuteScript", {
-      unknownString1: args[0],
-      unknownArray1: [],
+      unknownString1: args[1],
+      unknownArray1: []
     });
   },
 
@@ -717,7 +718,7 @@ const dev: any = {
     args: Array<string>
   ) {
     server.sendData(client, "H1emu.PrintToConsole", {
-      message: args.slice(1).join(" "),
+      message: args.slice(1).join(" ")
     });
   },
 
@@ -728,10 +729,9 @@ const dev: any = {
   ) {
     server.sendData(client, "H1emu.MessageBox", {
       title: "TITLE",
-      message: "MESSAGE",
+      message: "MESSAGE"
     });
   },
-
   groupjoin: function (
     server: ZoneServer2016,
     client: Client,
@@ -746,16 +746,16 @@ const dev: any = {
         sourceCharacter: {
           characterId: client.character.characterId,
           identity: {
-            characterFirstName: client.character.name,
-          },
+            characterFirstName: client.character.name
+          }
         },
         targetCharacter: {
           characterId: client.character.characterId,
           identity: {
-            characterFirstName: client.character.name,
-          },
-        },
-      },
+            characterFirstName: client.character.name
+          }
+        }
+      }
     });
   },
 
@@ -774,9 +774,9 @@ const dev: any = {
         unknownDword1: Number(args[1]),
         slotId: Number(args[2]),
         unknownDword2: Number(args[3]),
-        shaderGroupId: 665, // maybe try setting other character's shaderGroupId on spawn
+        shaderGroupId: 665 // maybe try setting other character's shaderGroupId on spawn
       });
     });
-  },
+  }
 };
 export default dev;

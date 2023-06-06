@@ -19,5 +19,5 @@ export const MetaGameEventPackets: any = [
   ["MetaGameEvent.CompleteStandard", 0xb905, {}],
   ["MetaGameEvent.CompleteCancel", 0xb906, {}],
   ["MetaGameEvent.ExperienceBonusUpdate", 0xb907, {}],
-  ["MetaGameEvent.ClearExperienceBonus", 0xb908, {}],
+  ["MetaGameEvent.ClearExperienceBonus", 0xb908, {}]
 ];

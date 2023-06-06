@@ -28,7 +28,7 @@ import {
   generateRandomGuid,
   isPosInRadius,
   randomIntFromInterval,
-  fixEulerOrder,
+  fixEulerOrder
 } from "../../../utils/utils";
 import {
   EquipSlots,
@@ -41,6 +41,7 @@ import {
   Skins_Kevlar,
   Skins_Military,
   Skins_Glasses,
+  Effects
 } from "../models/enums";
 import { Vehicle2016 } from "../entities/vehicle";
 import { LootDefinition } from "types/zoneserver";
@@ -120,9 +121,11 @@ export class WorldObjectManager {
 
   /* MANAGED BY CONFIGMANAGER */
   vehicleSpawnCap!: number;
+  minAirdropSurvivors!: number;
   lootRespawnTimer!: number;
   vehicleRespawnTimer!: number;
   npcRespawnTimer!: number;
+  hasCustomLootRespawnTime!: boolean;
 
   itemDespawnTimer!: number;
   lootDespawnTimer!: number;
@@ -140,11 +143,14 @@ export class WorldObjectManager {
     EquipSlots.LEGS,
     EquipSlots.HANDS,
     EquipSlots.FEET,
-    EquipSlots.HAIR,
+    EquipSlots.HAIR
   ];
 
   private getItemRespawnTimer(server: ZoneServer2016): void {
+    if (this.hasCustomLootRespawnTime) return;
+
     const playerCount = _.size(server._characters);
+
     switch (true) {
       case playerCount <= 20:
         this.lootRespawnTimer = 2400000; // 40 min
@@ -341,6 +347,118 @@ export class WorldObjectManager {
     server._lootbags[characterId] = lootbag;
   }
 
+  createAirdropContainer(server: ZoneServer2016, pos: Float32Array) {
+    const airdropTypes: string[] = [
+      "Farmer",
+      "Demolitioner",
+      "Medic",
+      "Builder",
+      "Fighter",
+      "Supplier"
+    ];
+    const experimentalWeapons: { weapon: number; ammo: number }[] = [
+      { weapon: Items.WEAPON_REAPER, ammo: Items.AMMO_308 },
+      { weapon: Items.WEAPON_BLAZE, ammo: Items.AMMO_223 },
+      { weapon: Items.WEAPON_FROSTBITE, ammo: Items.AMMO_762 },
+      { weapon: Items.WEAPON_NAGAFENS_RAGE, ammo: Items.AMMO_12GA }
+    ];
+
+    const index = Math.floor(Math.random() * airdropTypes.length);
+    const airdropType = airdropTypes[index];
+    const lootSpawner = containerLootSpawners[airdropType];
+
+    const characterId = generateRandomGuid();
+
+    const lootbag = new Lootbag(
+      characterId,
+      server.getTransientId(characterId),
+      9218,
+      new Float32Array([pos[0], pos[1] + 0.1, pos[2]]),
+      new Float32Array([0, 0, 0, 0]),
+      server
+    );
+    const container = lootbag.getContainer();
+    if (container) {
+      lootSpawner.items.forEach((item: LootDefinition) => {
+        server.addContainerItem(
+          lootbag,
+          server.generateItem(item.item, item.spawnCount.max),
+          container
+        );
+      });
+    }
+    let effectId = Effects.Smoke_Green; // default
+    switch (airdropType) {
+      case "Farmer":
+        effectId = Effects.Smoke_Green;
+        break;
+      case "Demolitioner":
+        effectId = Effects.Smoke_Orange;
+        break;
+      case "Medic":
+        effectId = Effects.Smoke_Blue;
+        break;
+      case "Builder":
+        effectId = Effects.Smoke_Purple;
+        break;
+      case "Fighter":
+        effectId = Effects.Smoke_Red;
+        if (container) {
+          const experimental =
+            experimentalWeapons[
+              Math.floor(Math.random() * experimentalWeapons.length)
+            ];
+          server.addContainerItem(
+            lootbag,
+            server.generateItem(experimental.weapon, 1),
+            container
+          );
+          server.addContainerItem(
+            lootbag,
+            server.generateItem(experimental.ammo, 30),
+            container
+          );
+        }
+        break;
+      case "Supplier":
+        effectId = Effects.Smoke_Yellow;
+        if (container) {
+          const experimental =
+            experimentalWeapons[
+              Math.floor(Math.random() * experimentalWeapons.length)
+            ];
+          server.addContainerItem(
+            lootbag,
+            server.generateItem(experimental.weapon, 1),
+            container
+          );
+          server.addContainerItem(
+            lootbag,
+            server.generateItem(experimental.ammo, 30),
+            container
+          );
+        }
+    }
+    if (server._airdrop) {
+      const smokePos = new Float32Array([
+        server._airdrop.destinationPos[0],
+        server._airdrop.destinationPos[1] + 0.3,
+        server._airdrop.destinationPos[2],
+        1
+      ]);
+      for (const a in server._clients) {
+        const c = server._clients[a];
+        server.sendData(c, "Character.PlayWorldCompositeEffect", {
+          characterId: c.character.characterId,
+          effectId: effectId,
+          position: smokePos,
+          unk3: 60
+        });
+      }
+    }
+    server._lootbags[characterId] = lootbag;
+  }
+
   createProps(server: ZoneServer2016) {
     Z1_lootableProps.forEach((propType: any) => {
       propType.instances.forEach((propInstance: any) => {
@@ -354,7 +472,7 @@ export class WorldObjectManager {
             propInstance.rotation[1],
             propInstance.rotation[0],
             propInstance.rotation[2],
-            0,
+            0
           ]),
           server,
           propInstance.scale,
@@ -397,7 +515,7 @@ export class WorldObjectManager {
             propInstance.rotation[1],
             propInstance.rotation[0],
             propInstance.rotation[2],
-            0,
+            0
           ]),
           server,
           propInstance.scale,
@@ -422,7 +540,7 @@ export class WorldObjectManager {
             propInstance.rotation[1],
             propInstance.rotation[0],
             propInstance.rotation[2],
-            0,
+            0
           ]),
           server,
           propInstance.scale,
@@ -480,17 +598,36 @@ export class WorldObjectManager {
     debug("All doors objects created");
   }
 
+  setSpawnchance(
+    server: ZoneServer2016,
+    entity: BaseFullCharacter,
+    percentage: number,
+    item: Items
+  ) {
+    if (percentage <= 0) return false;
+    if (percentage >= 100) return true;
+
+    const randomNumber = Math.random() * 100;
+    if (randomNumber <= percentage) {
+      entity.lootItem(server, server.generateItem(item));
+    }
+  }
+
   createVehicle(server: ZoneServer2016, vehicle: Vehicle2016) {
     vehicle.equipLoadout(server);
 
-    // TODO - Randomize these
+    /*
     vehicle.equipItem(server, server.generateItem(vehicle.getTurboItemId()));
     vehicle.equipItem(
       server,
       server.generateItem(vehicle.getHeadlightsItemId())
-    );
-    vehicle.equipItem(server, server.generateItem(Items.BATTERY));
-    vehicle.equipItem(server, server.generateItem(Items.SPARKPLUGS));
+    );*/
+
+    this.setSpawnchance(server, vehicle, 50, Items.BATTERY);
+    this.setSpawnchance(server, vehicle, 50, Items.SPARKPLUGS);
+    this.setSpawnchance(server, vehicle, 30, Items.VEHICLE_KEY);
+    this.setSpawnchance(server, vehicle, 20, Items.FUEL_BIOFUEL);
+
     server._vehicles[vehicle.characterId] = vehicle;
   }
 

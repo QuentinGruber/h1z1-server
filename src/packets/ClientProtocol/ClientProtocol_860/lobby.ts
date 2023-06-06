@@ -20,5 +20,5 @@ export const lobbyPackets: any = [
   ["Lobby.SendLeaveLobbyToClient", 0x4107, {}],
   ["Lobby.RemoveLobbyGame", 0x4108, {}],
   ["Lobby.LobbyErrorMessage", 0x410b, {}],
-  ["Lobby.ShowLobbyUi", 0x410c, {}],
+  ["Lobby.ShowLobbyUi", 0x410c, {}]
 ];

@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const definitionFilterPackets: any = [
+export const definitionFilterPackets: PacketStructures = [
   ["DefinitionFilter.ListDefinitionVariables", 0x9601, {}],
   [
     "DefinitionFilter.SetDefinitionVariable",
@@ -25,11 +26,11 @@ export const definitionFilterPackets: any = [
           type: "schema",
           fields: [
             { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
-            { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
-          ],
-        },
-      ],
-    },
+            { name: "unknownFloat2", type: "float", defaultValue: 0.0 }
+          ]
+        }
+      ]
+    }
   ],
   [
     "DefinitionFilter.SetDefinitionIntSet",
@@ -44,11 +45,11 @@ export const definitionFilterPackets: any = [
           defaultValue: [{}],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   [
     "DefinitionFilter.UnknownWithVariable1",
@@ -56,9 +57,9 @@ export const definitionFilterPackets: any = [
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+      ]
+    }
   ],
   [
     "DefinitionFilter.UnknownWithVariable2",
@@ -66,8 +67,8 @@ export const definitionFilterPackets: any = [
     {
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownQword1", type: "uint64string", defaultValue: "0" },
-      ],
-    },
-  ],
+        { name: "unknownQword1", type: "uint64string", defaultValue: "0" }
+      ]
+    }
+  ]
 ];

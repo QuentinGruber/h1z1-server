@@ -11,15 +11,16 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { PacketStructures } from "types/packetStructure";
 import { loadoutSlotData, loadoutSlotsSchema } from "./shared";
 
-export const loadoutPackets: any = [
+export const loadoutPackets: PacketStructures = [
   [
     "Loadout.SelectLoadout",
     0x8702,
     {
-      fields: [{ name: "loadoutId", type: "uint32", defaultValue: 0 }],
-    },
+      fields: [{ name: "loadoutId", type: "uint32", defaultValue: 0 }]
+    }
   ],
 
   [
@@ -28,9 +29,9 @@ export const loadoutPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        { name: "loadoutSlotId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "loadoutSlotId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Loadout.SetLoadoutSlots",
@@ -38,9 +39,9 @@ export const loadoutPackets: any = [
     {
       fields: [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
-        ...loadoutSlotsSchema,
-      ],
-    },
+        ...loadoutSlotsSchema
+      ]
+    }
   ],
   [
     "Loadout.SetLoadoutSlot",
@@ -52,11 +53,11 @@ export const loadoutPackets: any = [
           name: "loadoutSlot",
           type: "schema",
           defaultValue: {},
-          fields: loadoutSlotData,
+          fields: loadoutSlotData
         },
-        { name: "currentSlotId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "currentSlotId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Loadout.SelectSlot",
@@ -65,9 +66,9 @@ export const loadoutPackets: any = [
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "slotId", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Loadout.CreateCustomLoadout",
@@ -75,8 +76,8 @@ export const loadoutPackets: any = [
     {
       fields: [
         { name: "slotId", type: "uint32", defaultValue: 0 },
-        { name: "loadoutId", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  ],
+        { name: "loadoutId", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ]
 ];

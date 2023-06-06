@@ -20,9 +20,9 @@ export const loadoutPackets: any = [
     {
       fields: [
         { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "loadoutId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "loadoutId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Loadout.SelectSlot",
@@ -33,9 +33,9 @@ export const loadoutPackets: any = [
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "unknownByte2", type: "uint8", defaultValue: 0 },
         { name: "loadoutSlotId", type: "uint32", defaultValue: 0 },
-        { name: "gameTime", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "gameTime", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Loadout.SelectClientSlot", 0x8605, {}],
   [
@@ -45,9 +45,9 @@ export const loadoutPackets: any = [
       fields: [
         { name: "type", type: "uint8", defaultValue: 0 },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "slotId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "slotId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Loadout.CreateCustomLoadout", 0x8607, {}],
   ["Loadout.SelectSlotItem", 0x8608, {}],
@@ -74,9 +74,9 @@ export const loadoutPackets: any = [
     {
       fields: [
         { name: "type", type: "uint8", defaultValue: 0 },
-        { name: "guid", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+        { name: "guid", type: "uint64string", defaultValue: "0" }
+      ]
+    }
   ],
   [
     "Loadout.SetLoadouts",
@@ -85,9 +85,9 @@ export const loadoutPackets: any = [
       fields: [
         { name: "type", type: "uint8", defaultValue: 0 },
         { name: "guid", type: "uint64string", defaultValue: "0" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Loadout.AddLoadout", 0x861c, {}],
   ["Loadout.UpdateCurrentLoadout", 0x861d, {}],
@@ -106,5 +106,5 @@ export const loadoutPackets: any = [
   ["Loadout.UnsetDecalItem", 0x862a, {}],
   ["Loadout.SetCustomName", 0x862b, {}],
   ["Loadout.UnsetCustomName", 0x862c, {}],
-  ["Loadout.UpdateLoadoutSlotItemLineConfig", 0x862d, {}],
+  ["Loadout.UpdateLoadoutSlotItemLineConfig", 0x862d, {}]
 ];

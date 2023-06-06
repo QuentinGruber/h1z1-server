@@ -10,17 +10,18 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const currencyPackets: any = [
+export const currencyPackets: PacketStructures = [
   [
     "Currency.SetCurrencyDiscount",
     0xae01,
     {
       fields: [
         { name: "currencyId", type: "uint32", defaultValue: 0 },
-        { name: "discount", type: "float", defaultValue: 0.0 },
-      ],
-    },
+        { name: "discount", type: "float", defaultValue: 0.0 }
+      ]
+    }
   ],
-  ["Currency.SetCurrencyRateTier", 0xae02, {}],
+  ["Currency.SetCurrencyRateTier", 0xae02, {}]
 ];

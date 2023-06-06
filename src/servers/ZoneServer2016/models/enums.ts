@@ -47,7 +47,7 @@ export enum Stances {
 
   SITTING = 525377,
   STANCE_XS = 525393,
-  STANCE_XS_FP = 2622545,
+  STANCE_XS_FP = 2622545
   // havent seen this stance anywhere else than during XS glitching
 }
 
@@ -62,10 +62,24 @@ export enum ItemUseOptions {
   REFUEL = 17,
   SLICE = 18,
   USE_MEDICAL = 52,
+  USE_AIRDROP = 58,
+  LOOT = 59,
   EQUIP = 60,
+  MOVE = 61,
+  HOTWIRE_ATV = 62,
+  LOOT_VEHICLE_LOADOUT = 66,
+  HOTWIRE_OFFROADER = 70,
+  HOTWIRE_PICKUP = 71,
+  HOTWIRE_POLICE = 72,
   DROP_BATTERY = 73,
+  LOOT_BATTERY = 75,
   DROP_SPARKS = 79,
+  LOOT_SPARKS = 81,
   SALVAGE = 87,
+  HOTWIRE_ATV_NO_PARTS = 90,
+  HOTWIRE_OFFROADER_NO_PARTS = 91,
+  HOTWIRE_PICKUP_NO_PARTS = 92,
+  HOTWIRE_POLICE_NO_PARTS = 93
 }
 
 export enum ConstructionErrors {
@@ -77,14 +91,14 @@ export enum ConstructionErrors {
   UNKNOWN_SLOT = "Unknown slot",
   UNKNOWN_CONSTRUCTION = "Unknown construction item",
   OUT_OF_RANGE = "Out of range",
-  STACKED = "Construction stacked",
+  STACKED = "Construction stacked"
 }
 
 export enum ConstructionPermissionIds {
   BUILD = 1,
   DEMOLISH = 2,
   CONTAINERS = 3,
-  VISIT = 4,
+  VISIT = 4
 }
 
 export enum StringIds {
@@ -101,14 +115,14 @@ export enum StringIds {
   POLICE_CAR = 12538,
   CORN = 628,
   WHEAT = 1184,
-  USE_IGNITABLE = 9224,
+  USE_IGNITABLE = 9224
 }
 
 export enum MovementModifiers {
   RESTED = 1.1,
   SWIZZLE = 1.1,
   SNARED = 0.5,
-  BOOTS = 1.15,
+  BOOTS = 1.15
 }
 
 export enum ContainerErrors {
@@ -128,7 +142,7 @@ export enum ContainerErrors {
   NO_SPACE = 10,
   INVALID_LOADOUT_SLOT = 11,
   NO_PERMISSION = 12,
-  UNACCEPTED_ITEM = 13,
+  UNACCEPTED_ITEM = 13
 }
 
 export enum FilterIds {
@@ -139,7 +153,7 @@ export enum FilterIds {
   SURVIVAL = 7,
   COMPONENT = 8,
   DEW_COLLECTOR = 9,
-  ANIMAL_TRAP = 10,
+  ANIMAL_TRAP = 10
 }
 
 export enum ItemClasses {
@@ -149,7 +163,7 @@ export enum ItemClasses {
   WEAPONS_MELEES0 = 25037,
   WEAPONS_GENERIC = 25054,
   WEAPONS_CROSSBOW = 25047,
-  WEAPONS_BOW = 25038,
+  WEAPONS_BOW = 25038
 }
 
 export enum VehicleIds {
@@ -158,7 +172,7 @@ export enum VehicleIds {
   POLICECAR = 3,
   ATV = 5,
   PARACHUTE = 13,
-  SPECTATE = 1337,
+  SPECTATE = 1337
 }
 
 export enum Characters {
@@ -167,7 +181,7 @@ export enum Characters {
   FEMALE_WHITE_YOUNG = 3,
   FEMALE_WHITE = 4,
   MALE_BLACK = 5,
-  FEMALE_BLACK = 6,
+  FEMALE_BLACK = 6
 }
 
 export enum LoadoutIds {
@@ -175,7 +189,7 @@ export enum LoadoutIds {
   VEHICLE_OFFROADER = 4,
   VEHICLE_PICKUP = 6,
   VEHICLE_POLICECAR = 8,
-  VEHICLE_ATV = 14,
+  VEHICLE_ATV = 14
 }
 
 export enum LoadoutSlots {
@@ -186,7 +200,7 @@ export enum LoadoutSlots {
   HEAD = 11,
   ARMOR = 38,
   RADIO = 39,
-  ITEM2 = 41,
+  ITEM2 = 41
 }
 
 export enum EquipSlots {
@@ -200,7 +214,7 @@ export enum EquipSlots {
   HAIR = 27,
   FACE = 28,
   EYES = 29,
-  ARMOR = 100,
+  ARMOR = 100
 }
 
 export enum EntityTypes {
@@ -222,7 +236,7 @@ export enum EntityTypes {
   TRAP,
   TASK_PROP,
   CRATE,
-  DESTROYABLE,
+  DESTROYABLE
 }
 
 export enum ResourceIds {
@@ -235,7 +249,7 @@ export enum ResourceIds {
   COMFORT = 68,
   FUEL = 396,
   CONDITION = 561,
-  CONSTRUCTION_CONDITION = 567,
+  CONSTRUCTION_CONDITION = 567
 }
 
 export enum ResourceTypes {
@@ -247,7 +261,7 @@ export enum ResourceTypes {
   BLEEDING = 21,
   COMFORT = 68,
   FUEL = 50,
-  CONDITION = 1,
+  CONDITION = 1
 }
 
 export enum Items {
@@ -321,6 +335,19 @@ export enum Items {
   SWIZZLE = 1709,
   GROUND_COFFEE = 56, // TODO = expand with more canned food types
   CANNED_FOOD01 = 7,
+  CANNED_FOOD02 = 1393,
+  CANNED_FOOD03 = 1394,
+  CANNED_FOOD04 = 1391,
+  CANNED_FOOD05 = 1392,
+  CANNED_FOOD06 = 1396,
+  CANNED_FOOD07 = 1397,
+  CANNED_FOOD08 = 1398,
+  CANNED_FOOD09 = 1399,
+  CANNED_FOOD10 = 1400,
+  CANNED_FOOD11 = 1401,
+  CANNED_FOOD25 = 1431,
+  CANNED_FOOD21 = 1395,
+  CANNED_FOOD26 = 2536,
   BLACKBERRY = 105,
   BLACKBERRY_JUICE = 1361,
   BLACKBERRY_PIE = 1706,
@@ -330,6 +357,18 @@ export enum Items {
   WATER_STAGNANT = 1535,
   WATER_DIRTY = 1368,
   MRE_APPLE = 1402, // TODO = add other MRE types
+  MRE01 = 1403,
+  MRE02 = 1404,
+  MRE03 = 1405,
+  MRE04 = 1406,
+  MRE05 = 1407,
+  MRE06 = 1409,
+  MRE07 = 1410,
+  MRE08 = 1411,
+  MRE09 = 1412,
+  MRE10 = 1413,
+  MRE11 = 1408,
+  MRE12 = 1414,
   SANDWICH_BEAR = 1459,
   STEAK_BEAR = 1451,
   SURVIVAL_BREAD = 1456,
@@ -548,42 +587,49 @@ export enum Items {
   VEHICLE_HORN_POLICECAR = 1735,
   VEHICLE_SIREN_POLICECAR = 1732,
 
-  // NOT USED FOR NOW
-  VEHICLE_CONTAINER_OFFROADER = 1541,
-  VEHICLE_CONTAINER_PICKUP = 1783,
-  VEHICLE_CONTAINER_POLICECAR = 1723,
-  VEHICLE_CONTAINER_ATV = 2728,
+  CONTAINER_VEHICLE_OFFROADER = 1541,
+  CONTAINER_VEHICLE_PICKUP = 1783,
+  CONTAINER_VEHICLE_POLICECAR = 1723,
+  CONTAINER_VEHICLE_ATV = 2728,
 
-  CONTAINER_DROPPED_ITEMS = 5001,
-  CONTAINER_VEHICLE_OFFROADER = 5002,
-  CONTAINER_VEHICLE_PICKUP = 5003,
-  CONTAINER_VEHICLE_POLICECAR = 5004,
-  CONTAINER_VEHICLE_ATV = 5005,
-  CONTAINER_STORAGE = 5006,
-  CONTAINER_WRECKED_VAN = 5007,
-  CONTAINER_WRECKED_CAR = 5008,
-  CONTAINER_WRECKED_TRUCK = 5009,
-  CONTAINER_WEAPONS_LOCKER = 5010,
-  CONTAINER_DESK = 5011,
-  CONTAINER_CABINETS = 5012,
-  CONTAINER_TOOL_CABINETS = 5013,
-  CONTAINER_DUMPSTER = 5014,
-  CONTAINER_FILE_CABINET = 5015,
-  CONTAINER_LOCKER = 5016,
-  CONTAINER_FRIDGE = 5017,
-  CONTAINER_OTTOMAN = 5018,
-  CONTAINER_DRESSER = 5019,
-  CONTAINER_ARMOIRE = 5020,
-  CONTAINER_CABINETS_BATHROOM = 5021,
-  CONTAINER_CABINETS_CUBE = 5022,
-  CONTAINER_CABINETS_KITCHEN = 5023,
-  CONTAINER_GARBAGE_CAN = 5024,
-  CONTAINER_FURNACE = 5025,
-  CONTAINER_BARBEQUE = 5026,
-  CONTAINER_CAMPFIRE = 5027,
-  CONTAINER_DEW_COLLECTOR = 5028,
-  CONTAINER_ANIMAL_TRAP = 5029,
-  CONTAINER_BEE_BOX = 5030,
+  CONTAINER_DROPPED_ITEMS = 3089,
+
+  CONTAINER_STORAGE = 1506,
+  CONTAINER_WRECKED_VAN = 1476,
+  CONTAINER_WRECKED_CAR = 1474,
+  CONTAINER_WRECKED_TRUCK = 1475,
+  CONTAINER_WEAPONS_LOCKER = 1705,
+  CONTAINER_DESK = 1503,
+
+  CONTAINER_TOOL_CABINETS = 1507,
+  CONTAINER_DUMPSTER = 1490,
+  CONTAINER_FILE_CABINET = 1504,
+  CONTAINER_LOCKER = 1704,
+  CONTAINER_FRIDGE = 1472,
+  CONTAINER_OTTOMAN = 1497,
+  CONTAINER_DRESSER = 1493,
+  CONTAINER_ARMOIRE = 1491,
+
+  // COMBINE THESE
+  CONTAINER_CABINETS = 1480,
+  CONTAINER_CABINETS_BATHROOM = 1480,
+  CONTAINER_CABINETS_CUBE = 1480,
+  CONTAINER_CABINETS_KITCHEN = 1480,
+
+  CONTAINER_GARBAGE_CAN = 1500,
+  CONTAINER_FURNACE = 1711,
+  CONTAINER_BARBEQUE = 1477,
+  CONTAINER_CAMPFIRE = 1473,
+  CONTAINER_DEW_COLLECTOR = 1540,
+  CONTAINER_ANIMAL_TRAP = 1539,
+  CONTAINER_BEE_BOX = 2035,
+  CONTAINER_DRUG_CABINET = 2525,
+  CONTAINER_MEDICAL_STATION = 2524,
+  CONTAINER_HOSPITAL_DESK = 2677,
+  CONTAINER_GROSSING_STATION = 2529,
+  CONTAINER_HOSPITAL_REFRIGERATOR = 1472,
+  CONTAINER_HOSPITAL_CABINET = 2676,
+  CONTAINER_MILITARY_CRATE = 1501
 }
 
 export enum Skins_Shirt {
@@ -603,7 +649,7 @@ export enum Skins_Shirt {
   PRO_GRAMER_HOODIE = 2378,
   PARAMEDIC_UNIFORM = 2535,
   SHIRT_DEFAULT = 2088,
-  Dragon_Lodge_Parka = 3033,
+  Dragon_Lodge_Parka = 3033
 }
 
 export enum Skins_Pants {
@@ -615,26 +661,26 @@ export enum Skins_Pants {
   PARAMEDIC_SLACKS = 2534,
   PANTS_DEFAULT = 2177,
   TWIN_GALAXIES_PANTS = 3875,
-  Stars_Stripes_Shorts = 2404,
+  Stars_Stripes_Shorts = 2404
 }
 
 export enum Skins_Beanie {
   AVIATOR_CAP = 2058,
   BLACK_BEANIE = 2162,
-  POLICE_HAT = 2344,
+  POLICE_HAT = 2344
 }
 
 export enum Skins_Cap {
   CAMO_GREEN_OUTBACK_HAT = 2046,
   TAN_CANVAS_OUTBACK_HAT = 2066,
   BROWN_LEATHER_OUTBACK_HAT = 2067,
-  HAT_CAP = 12,
+  HAT_CAP = 12
 }
 
 export enum Skins_MotorHelmet {
   GORILLA_WARFARE = 3631,
   ARACHNID = 3721,
-  DEFAULT = 2170,
+  DEFAULT = 2170
   /*Infernal_Demon_Mask = 3862,
   Holiday_Hat = 2887,
   Mask_of_Jester = 3366,
@@ -650,14 +696,14 @@ export enum Skins_MotorHelmet {
 }
 export enum Skins_Kevlar {
   //Toxic_Body_Armor = 2477,
-  KEVLAR_DEFAULT = 2271,
+  KEVLAR_DEFAULT = 2271
   /*Dead_End_Armor = 2860,
   EZW_Armored_Championship_Belt = 3125,
   EZW_Armored_Shoulderpads = 3126,*/
 }
 export enum Skins_Military {
   Military_Default = 2124,
-  Rasta_Backpack = 2393,
+  Rasta_Backpack = 2393
   /*Pink_Skulls_Survivor_Backpack = 3046,
   Sniper_Military_Backpack = 3169,
   Fully_Geared_Explorer_Backpack = 4009,*/
@@ -666,5 +712,17 @@ export enum Skins_Glasses {
   Evil_Clown_Glasses = 2253,
   Default_Goggles = 1693,
   White_Biker_Glasses = 2252,
-  Steampunk_Goggles = 2954,
+  Steampunk_Goggles = 2954
+}
+
+export enum Effects {
+  Smoke_Orange = 3621,
+  Smoke_Green = 3622,
+  Smoke_Purple = 3623,
+  Smoke_Yellow = 3624,
+  Smoke_LimeGreen = 4537,
+  Smoke_Red = 4538,
+  Smoke_Blue = 4539,
+  Smoke_Teal = 4540,
+  Smoke_Magenta = 4541
 }

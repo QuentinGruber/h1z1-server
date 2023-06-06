@@ -23,12 +23,12 @@ export const lootPackets: any = [
           name: "items",
           type: "array",
           defaultValue: [],
-          fields: [...lootItemSchema],
-        },
-      ],
-    },
+          fields: [...lootItemSchema]
+        }
+      ]
+    }
   ],
   ["Loot.Request", 0x6902, {}],
   ["Loot.DiscardRequest", 0x6903, {}],
-  ["Loot.LootAllRequest", 0x6904, {}],
+  ["Loot.LootAllRequest", 0x6904, {}]
 ];

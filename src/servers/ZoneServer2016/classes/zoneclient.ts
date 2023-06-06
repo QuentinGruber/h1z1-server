@@ -18,6 +18,7 @@ import { LootableProp } from "../entities/lootableprop";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "../entities/baseentity";
 import { fireHint } from "../../../types/zoneserver";
+import { Lootbag } from "../entities/lootbag";
 //import { h1z1PacketsType2016 } from "../../../types/packets";
 //import { zone2016packets } from "../../../types/zone2016packets";
 
@@ -39,7 +40,7 @@ export class ZoneClient2016 {
   posAtTimerStart: Float32Array = new Float32Array();
   oldPos: { position: Float32Array; time: number } = {
     position: new Float32Array(),
-    time: 0,
+    time: 0
   };
   enableChecks: boolean = true;
   speedWarnsNumber: number = 0;
@@ -63,7 +64,7 @@ export class ZoneClient2016 {
   spawnedDTOs: any[] = [];
   spawnedEntities: BaseEntity[] = [];
   sentInteractionData: BaseEntity[] = [];
-  searchedProps: LootableProp[] = [];
+  searchedProps: (LootableProp | Lootbag)[] = [];
   managedObjects: string[] = [];
   vehicle: {
     mountedVehicle?: string;
@@ -99,6 +100,8 @@ export class ZoneClient2016 {
   }[] = [];*/
   isMuted = false;
   blockedPositionUpdates: number = 0;
+  flaggedShots: number = 0;
+  isFairPlayFlagged: boolean = false;
   constructor(
     sessionId: number,
     soeClientId: string,

@@ -31,7 +31,7 @@ import {
   readUnsignedIntWith2bitLengthValue,
   recipeData,
   packItemWeaponData,
-  containers,
+  containers
 } from "./shared";
 import {
   achievementSchema,
@@ -39,11 +39,12 @@ import {
   profileSchema,
   rewardBundleSchema,
   skyData,
-  statSchema,
+  statSchema
 } from "./shared";
 import { packWeaponPacket, parseWeaponPacket } from "./weapon";
+import { PacketStructures } from "types/packetStructure";
 
-export const basePackets: any = [
+export const basePackets: PacketStructures = [
   ["Server", 0x01, {}],
   ["ClientFinishedLoading", 0x02, {}],
   [
@@ -61,7 +62,7 @@ export const basePackets: any = [
               name: "transientId",
               type: "custom",
               parser: readUnsignedIntWith2bitLengthValue,
-              packer: packUnsignedIntWith2bitLengthValue,
+              packer: packUnsignedIntWith2bitLengthValue
             },
             { name: "lastLoginDate", type: "uint64string", defaultValue: "" },
             { name: "actorModelId", type: "uint32", defaultValue: 0 },
@@ -85,7 +86,7 @@ export const basePackets: any = [
               name: "currency",
               type: "array",
               defaultValue: [],
-              fields: currencySchema,
+              fields: currencySchema
             },
             { name: "creationDate", type: "uint64string", defaultValue: "" },
             { name: "unknownDword15", type: "uint32", defaultValue: 0 },
@@ -109,7 +110,7 @@ export const basePackets: any = [
               name: "profiles",
               type: "array",
               defaultValue: [],
-              fields: profileSchema,
+              fields: profileSchema
             },
             { name: "currentProfile", type: "uint32", defaultValue: 0 },
 
@@ -119,14 +120,14 @@ export const basePackets: any = [
               defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "int32", defaultValue: 0 },
-                { name: "unknownDword2", type: "int32", defaultValue: 0 },
-              ],
+                { name: "unknownDword2", type: "int32", defaultValue: 0 }
+              ]
             },
             {
               name: "collections",
               type: "array",
               defaultValue: [],
-              fields: collectionsSchema,
+              fields: collectionsSchema
             },
             {
               name: "inventory",
@@ -143,12 +144,12 @@ export const basePackets: any = [
                       name: "weaponData",
                       type: "custom",
                       defaultValue: {},
-                      packer: packItemWeaponData,
-                    },
-                  ],
+                      packer: packItemWeaponData
+                    }
+                  ]
                 },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+              ]
             },
             { name: "gender", type: "uint32", defaultValue: 0 },
             {
@@ -168,25 +169,25 @@ export const basePackets: any = [
                     {
                       name: "unknownBoolean1",
                       type: "boolean",
-                      defaultValue: true,
+                      defaultValue: true
                     },
                     {
                       name: "unknownGuid1",
                       type: "uint64string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
                     { name: "unknownDword5", type: "uint32", defaultValue: 0 },
                     {
                       name: "unknownBoolean2",
                       type: "boolean",
-                      defaultValue: true,
+                      defaultValue: true
                     },
                     { name: "unknownDword6", type: "uint32", defaultValue: 0 },
                     {
                       name: "reward",
                       type: "schema",
                       defaultValue: {},
-                      fields: rewardBundleSchema,
+                      fields: rewardBundleSchema
                     },
                     {
                       name: "unknownArray1",
@@ -196,7 +197,7 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownData1",
@@ -206,63 +207,63 @@ export const basePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword2",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword3",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownBoolean1",
                               type: "boolean",
-                              defaultValue: true,
+                              defaultValue: true
                             },
                             {
                               name: "reward",
                               type: "schema",
                               defaultValue: {},
-                              fields: rewardBundleSchema,
+                              fields: rewardBundleSchema
                             },
                             {
                               name: "unknownDword4",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword5",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword6",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword7",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownBoolean2",
                               type: "boolean",
-                              defaultValue: true,
+                              defaultValue: true
                             },
                             {
                               name: "unknownDword8",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword9",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownData1",
@@ -272,58 +273,58 @@ export const basePackets: any = [
                                 {
                                   name: "unknownDword1",
                                   type: "uint32",
-                                  defaultValue: 0,
+                                  defaultValue: 0
                                 },
                                 {
                                   name: "unknownDword2",
                                   type: "uint32",
-                                  defaultValue: 0,
+                                  defaultValue: 0
                                 },
                                 {
                                   name: "unknownDword3",
                                   type: "uint32",
-                                  defaultValue: 0,
+                                  defaultValue: 0
                                 },
                                 {
                                   name: "unknownDword4",
                                   type: "uint32",
-                                  defaultValue: 0,
-                                },
-                              ],
-                            },
-                          ],
-                        },
-                      ],
+                                  defaultValue: 0
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
                     },
                     { name: "unknownDword7", type: "uint32", defaultValue: 0 },
                     {
                       name: "unknownBoolean3",
                       type: "boolean",
-                      defaultValue: true,
+                      defaultValue: true
                     },
                     {
                       name: "unknownBoolean4",
                       type: "boolean",
-                      defaultValue: true,
-                    },
-                  ],
+                      defaultValue: true
+                    }
+                  ]
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                 {
                   name: "unknownBoolean1",
                   type: "boolean",
-                  defaultValue: true,
+                  defaultValue: true
                 },
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword4", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "characterAchievements",
               type: "array",
               defaultValue: [],
-              fields: achievementSchema,
+              fields: achievementSchema
             },
             {
               name: "acquaintances",
@@ -333,27 +334,27 @@ export const basePackets: any = [
                 {
                   name: "unknownGuid1",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
                 { name: "unknownString1", type: "string", defaultValue: "" },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 {
                   name: "unknownGuid2",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
                 {
                   name: "unknownBoolean1",
                   type: "boolean",
-                  defaultValue: true,
-                },
-              ],
+                  defaultValue: true
+                }
+              ]
             },
             {
               name: "recipes",
               type: "array",
               defaultValue: [],
-              fields: recipeData,
+              fields: recipeData
             },
             {
               name: "mounts",
@@ -366,21 +367,21 @@ export const basePackets: any = [
                 {
                   name: "unknownQword1",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
                 {
                   name: "unknownBoolean1",
                   type: "boolean",
-                  defaultValue: true,
+                  defaultValue: true
                 },
                 { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-                { name: "unknownString1", type: "string", defaultValue: "" },
-              ],
+                { name: "unknownString1", type: "string", defaultValue: "" }
+              ]
             },
             {
               name: "sendFirstTimeEvents",
               type: "boolean",
-              defaultValue: true,
+              defaultValue: true
             },
             {
               name: "unknownCoinStoreData",
@@ -392,18 +393,18 @@ export const basePackets: any = [
                   type: "array",
                   defaultValue: [],
                   fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                  ],
-                },
-              ],
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+                  ]
+                }
+              ]
             },
             {
               name: "unknownArray2",
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownEffectArray",
@@ -414,13 +415,13 @@ export const basePackets: any = [
                   name: "effectTag",
                   type: "schema",
                   defaultValue: {},
-                  fields: effectTagsSchema,
+                  fields: effectTagsSchema
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 {
                   name: "unknownBoolean1",
                   type: "boolean",
-                  defaultValue: true,
+                  defaultValue: true
                 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 },
@@ -429,10 +430,10 @@ export const basePackets: any = [
                   type: "array",
                   defaultValue: [],
                   fields: [
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                  ],
-                },
-              ],
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+                  ]
+                }
+              ]
             },
             {
               name: "stats",
@@ -444,9 +445,9 @@ export const basePackets: any = [
                   name: "statData",
                   type: "schema",
                   defaultValue: {},
-                  fields: statSchema,
-                },
-              ],
+                  fields: statSchema
+                }
+              ]
             },
             {
               name: "playerTitles",
@@ -455,8 +456,8 @@ export const basePackets: any = [
               fields: [
                 { name: "titleId", type: "uint32", defaultValue: 0 },
                 { name: "titleType", type: "uint32", defaultValue: 0 },
-                { name: "stringId", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "stringId", type: "uint32", defaultValue: 0 }
+              ]
             },
             { name: "currentPlayerTitle", type: "uint32", defaultValue: 0 },
 
@@ -466,29 +467,29 @@ export const basePackets: any = [
               defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownArray14",
               type: "array",
               defaultValue: [],
               fields: [
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+              ]
             },
             { name: "unknownDword33", type: "uint32", defaultValue: 0 },
             {
               name: "FIRE_MODES_1",
               type: "array",
               defaultValue: [],
-              fields: firemodesSchema,
+              fields: firemodesSchema
             },
             {
               name: "FIRE_MODES_2",
               type: "array",
               defaultValue: [],
-              fields: firemodesSchema,
+              fields: firemodesSchema
             },
             {
               name: "unknownArray17",
@@ -498,9 +499,9 @@ export const basePackets: any = [
                 {
                   name: "unknownBoolean1",
                   type: "boolean",
-                  defaultValue: true,
-                },
-              ],
+                  defaultValue: true
+                }
+              ]
             },
 
             { name: "unknownDword34", type: "uint32", defaultValue: 0 },
@@ -524,7 +525,7 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownArray1",
@@ -534,38 +535,38 @@ export const basePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword2",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword3",
                               type: "uint32",
-                              defaultValue: 0,
-                            },
-                          ],
+                              defaultValue: 0
+                            }
+                          ]
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword3",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownByte1",
                           type: "uint8",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                  ],
+                          defaultValue: 0
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   name: "unknownArray2",
@@ -581,7 +582,7 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownArray1",
@@ -591,38 +592,38 @@ export const basePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword2",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword3",
                               type: "uint32",
-                              defaultValue: 0,
-                            },
-                          ],
+                              defaultValue: 0
+                            }
+                          ]
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword3",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownByte1",
                           type: "uint8",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                  ],
+                          defaultValue: 0
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   name: "unknownArray3",
@@ -630,10 +631,10 @@ export const basePackets: any = [
                   defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                  ],
-                },
-              ],
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+                  ]
+                }
+              ]
             },
 
             {
@@ -655,17 +656,17 @@ export const basePackets: any = [
                         {
                           name: "abilityLineId",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         { name: "abilityId", type: "uint32", defaultValue: 0 },
                         {
                           name: "abilityLineIndex",
                           type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                  ],
+                          defaultValue: 0
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   name: "abilityLines2",
@@ -681,17 +682,17 @@ export const basePackets: any = [
                         {
                           name: "abilityLineId",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         { name: "abilityId", type: "uint32", defaultValue: 0 },
                         {
                           name: "abilityLineIndex",
                           type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                  ],
+                          defaultValue: 0
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   name: "abilityLines3",
@@ -707,17 +708,17 @@ export const basePackets: any = [
                         {
                           name: "abilityLineId",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         { name: "abilityId", type: "uint32", defaultValue: 0 },
                         {
                           name: "abilityLineIndex",
                           type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                  ],
+                          defaultValue: 0
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   name: "abilityLines4",
@@ -733,17 +734,17 @@ export const basePackets: any = [
                         {
                           name: "abilityLineId",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         { name: "abilityId", type: "uint32", defaultValue: 0 },
                         {
                           name: "abilityLineIndex",
                           type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                  ],
+                          defaultValue: 0
+                        }
+                      ]
+                    }
+                  ]
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -761,31 +762,31 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword3",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownGuid1",
                           type: "uint64string",
-                          defaultValue: "",
+                          defaultValue: ""
                         },
                         {
                           name: "unknownGuid2",
                           type: "uint64string",
-                          defaultValue: "",
-                        },
-                      ],
-                    },
-                  ],
+                          defaultValue: ""
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   name: "unknownArray2",
@@ -801,26 +802,26 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword3",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownGuid1",
                           type: "uint64string",
-                          defaultValue: "",
-                        },
-                      ],
-                    },
-                  ],
+                          defaultValue: ""
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   name: "unknownArray3",
@@ -828,8 +829,8 @@ export const basePackets: any = [
                   defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                  ],
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+                  ]
                 },
                 {
                   name: "unknownArray4",
@@ -837,10 +838,10 @@ export const basePackets: any = [
                   defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                  ],
-                },
-              ],
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+                  ]
+                }
+              ]
             },
             {
               name: "unknownData1",
@@ -861,22 +862,22 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
-                        },
-                      ],
+                          defaultValue: ""
+                        }
+                      ]
                     },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                  ],
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+                  ]
                 },
                 {
                   name: "unknownArray2",
@@ -898,36 +899,36 @@ export const basePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword2",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownQword1",
                               type: "uint64string",
-                              defaultValue: "",
-                            },
-                          ],
+                              defaultValue: ""
+                            }
+                          ]
                         },
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownByte1",
                           type: "uint8",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                  ],
+                          defaultValue: 0
+                        }
+                      ]
+                    }
+                  ]
                 },
-                { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-              ],
+                { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownData2",
@@ -942,8 +943,8 @@ export const basePackets: any = [
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                  ],
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+                  ]
                 },
                 {
                   name: "unknownData1",
@@ -952,11 +953,11 @@ export const basePackets: any = [
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                  ],
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+                  ]
                 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+              ]
             },
             { name: "unknownDword37", type: "uint32", defaultValue: 0 },
             {
@@ -967,7 +968,7 @@ export const basePackets: any = [
                 {
                   name: "unknownQword1",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
                 {
                   name: "unknownData1",
@@ -982,24 +983,24 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
-                        },
-                      ],
+                          defaultValue: ""
+                        }
+                      ]
                     },
                     {
                       name: "unknownQword1",
                       type: "uint64string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1012,34 +1013,34 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword3",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword4",
                           type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
+                          defaultValue: 0
+                        }
+                      ]
                     },
                     {
                       name: "unknownString1",
                       type: "string",
-                      defaultValue: "",
-                    },
-                  ],
+                      defaultValue: ""
+                    }
+                  ]
                 },
-                { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-              ],
+                { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownArray18",
@@ -1047,8 +1048,8 @@ export const basePackets: any = [
               defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownData4",
@@ -1059,8 +1060,8 @@ export const basePackets: any = [
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword5", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownArray19",
@@ -1069,8 +1070,8 @@ export const basePackets: any = [
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownArray20",
@@ -1081,11 +1082,11 @@ export const basePackets: any = [
                 {
                   name: "unknownQword1",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownArray21",
@@ -1096,7 +1097,7 @@ export const basePackets: any = [
                 {
                   name: "unknownGuid1",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
                 {
                   name: "unknownArray1",
@@ -1104,10 +1105,10 @@ export const basePackets: any = [
                   defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                  ],
-                },
-              ],
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+                  ]
+                }
+              ]
             },
             {
               name: "unknownArray22",
@@ -1117,7 +1118,7 @@ export const basePackets: any = [
                 {
                   name: "unknownQword1",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
                 {
                   name: "unknownEffectData",
@@ -1127,7 +1128,7 @@ export const basePackets: any = [
                     {
                       name: "unknownQword1",
                       type: "uint64string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     {
@@ -1138,19 +1139,19 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword3",
                           type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
+                          defaultValue: 0
+                        }
+                      ]
                     },
                     {
                       name: "unknownData2",
@@ -1160,19 +1161,19 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword3",
                           type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
+                          defaultValue: 0
+                        }
+                      ]
                     },
                     {
                       name: "unknownData3",
@@ -1182,19 +1183,19 @@ export const basePackets: any = [
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
+                          defaultValue: ""
                         },
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownQword2",
                           type: "uint64string",
-                          defaultValue: "",
-                        },
-                      ],
+                          defaultValue: ""
+                        }
+                      ]
                     },
                     {
                       name: "unknownData4",
@@ -1204,19 +1205,19 @@ export const basePackets: any = [
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
+                          defaultValue: ""
                         },
                         {
                           name: "unknownQword2",
                           type: "uint64string",
-                          defaultValue: "",
+                          defaultValue: ""
                         },
                         {
                           name: "unknownFloatVector4",
                           type: "floatvector4",
-                          defaultValue: [0, 0, 0, 0],
-                        },
-                      ],
+                          defaultValue: [0, 0, 0, 0]
+                        }
+                      ]
                     },
                     {
                       name: "unknownData5",
@@ -1226,25 +1227,25 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword3",
                           type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
+                          defaultValue: 0
+                        }
+                      ]
                     },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-                  ],
-                },
-              ],
+                    { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+                  ]
+                }
+              ]
             },
             {
               name: "unknownArray23",
@@ -1254,7 +1255,7 @@ export const basePackets: any = [
                 {
                   name: "unknownQword1",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
                 {
                   name: "unknownData1",
@@ -1264,7 +1265,7 @@ export const basePackets: any = [
                     {
                       name: "unknownQword1",
                       type: "uint64string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
@@ -1272,12 +1273,12 @@ export const basePackets: any = [
                     {
                       name: "unknownQword2",
                       type: "uint64string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
-                    { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-                  ],
-                },
-              ],
+                    { name: "unknownDword4", type: "uint32", defaultValue: 0 }
+                  ]
+                }
+              ]
             },
             {
               name: "equipmentSlots", // equipment probably
@@ -1294,22 +1295,22 @@ export const basePackets: any = [
                     {
                       name: "unknownString1",
                       type: "string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
                     {
                       name: "unknownString1",
                       type: "string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
                     {
                       name: "equipmentSlot",
                       type: "schema",
                       defaultValue: {},
-                      fields: equipmentSlotSchema,
-                    },
-                  ],
-                },
-              ],
+                      fields: equipmentSlotSchema
+                    }
+                  ]
+                }
+              ]
             },
             {
               name: "unknownArray25", // playerRanks (from ps2 sendself dump)
@@ -1328,10 +1329,10 @@ export const basePackets: any = [
                     { name: "unknownDword4", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword5", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword6", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword7", type: "uint32", defaultValue: 0 },
-                  ],
-                },
-              ],
+                    { name: "unknownDword7", type: "uint32", defaultValue: 0 }
+                  ]
+                }
+              ]
             },
             {
               name: "unknownData5",
@@ -1342,8 +1343,8 @@ export const basePackets: any = [
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword3", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword5", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownData6",
@@ -1352,8 +1353,8 @@ export const basePackets: any = [
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                 { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "implantSlots",
@@ -1375,26 +1376,26 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
-                        },
-                      ],
+                          defaultValue: ""
+                        }
+                      ]
                     },
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                  ],
-                },
-              ],
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+                  ]
+                }
+              ]
             },
             {
               name: "itemTimerData",
@@ -1409,7 +1410,7 @@ export const basePackets: any = [
                     {
                       name: "unknownQword1",
                       type: "uint64string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
                     {
                       name: "unknownData1",
@@ -1419,26 +1420,26 @@ export const basePackets: any = [
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
+                          defaultValue: ""
                         },
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword3",
                           type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                  ],
+                          defaultValue: 0
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   name: "unknownArray2",
@@ -1448,11 +1449,11 @@ export const basePackets: any = [
                     {
                       name: "unknownQword1",
                       type: "uint64string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                  ],
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+                  ]
                 },
                 {
                   name: "unknownArray3",
@@ -1462,17 +1463,17 @@ export const basePackets: any = [
                     {
                       name: "unknownQword1",
                       type: "uint64string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
                     {
                       name: "unknownQword2",
                       type: "uint64string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                  ],
-                },
-              ],
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+                  ]
+                }
+              ]
             },
             {
               name: "unknownArray26",
@@ -1482,7 +1483,7 @@ export const basePackets: any = [
                 {
                   name: "unknownQword1",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
                 {
                   name: "unknownData1",
@@ -1497,34 +1498,34 @@ export const basePackets: any = [
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
+                          defaultValue: ""
                         },
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword3",
                           type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
+                          defaultValue: 0
+                        }
+                      ]
                     },
                     {
                       name: "unknownQword1",
                       type: "uint64string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
-                    { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                  ],
-                },
-              ],
+                    { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+                  ]
+                }
+              ]
             },
             {
               name: "unknownData7",
@@ -1541,14 +1542,14 @@ export const basePackets: any = [
                     {
                       name: "unknownQword1",
                       type: "uint64string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
                     {
                       name: "unknownQword2",
                       type: "uint64string",
-                      defaultValue: "",
-                    },
-                  ],
+                      defaultValue: ""
+                    }
+                  ]
                 },
                 {
                   name: "unknownArray1",
@@ -1564,27 +1565,27 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
+                          defaultValue: ""
                         },
                         {
                           name: "unknownQword2",
                           type: "uint64string",
-                          defaultValue: "",
-                        },
-                      ],
+                          defaultValue: ""
+                        }
+                      ]
                     },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                  ],
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+                  ]
                 },
                 {
                   name: "unknownData2",
@@ -1596,9 +1597,9 @@ export const basePackets: any = [
                     {
                       name: "unknownQword1",
                       type: "uint64string",
-                      defaultValue: "",
-                    },
-                  ],
+                      defaultValue: ""
+                    }
+                  ]
                 },
                 {
                   name: "unknownArray2",
@@ -1619,38 +1620,38 @@ export const basePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword2",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownQword1",
                               type: "uint64string",
-                              defaultValue: "",
-                            },
-                          ],
+                              defaultValue: ""
+                            }
+                          ]
                         },
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownByte1",
                           type: "uint8",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                  ],
+                          defaultValue: 0
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   name: "unknownArray3",
@@ -1671,41 +1672,41 @@ export const basePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword2",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownQword1",
                               type: "uint64string",
-                              defaultValue: "",
-                            },
-                          ],
+                              defaultValue: ""
+                            }
+                          ]
                         },
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownByte1",
                           type: "uint8",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                  ],
+                          defaultValue: 0
+                        }
+                      ]
+                    }
+                  ]
                 },
-                { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-              ],
+                { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownData8",
@@ -1729,26 +1730,26 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
+                          defaultValue: ""
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownByte1",
                           type: "uint8",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                  ],
+                          defaultValue: 0
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   name: "unknownArray2",
@@ -1757,8 +1758,8 @@ export const basePackets: any = [
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                  ],
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+                  ]
                 },
                 {
                   name: "unknownArray3",
@@ -1770,7 +1771,7 @@ export const basePackets: any = [
                     {
                       name: "unknownString1",
                       type: "string",
-                      defaultValue: "",
+                      defaultValue: ""
                     },
                     {
                       name: "unknownArray1",
@@ -1780,7 +1781,7 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownData1",
@@ -1790,26 +1791,26 @@ export const basePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownQword1",
                               type: "uint64string",
-                              defaultValue: "",
+                              defaultValue: ""
                             },
                             {
                               name: "unknownDword2",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownByte1",
                               type: "uint8",
-                              defaultValue: 0,
-                            },
-                          ],
-                        },
-                      ],
+                              defaultValue: 0
+                            }
+                          ]
+                        }
+                      ]
                     },
                     {
                       name: "unknownArray2",
@@ -1819,29 +1820,29 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword2",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownDword3",
                           type: "uint32",
-                          defaultValue: 0,
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
+                          defaultValue: 0
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             },
             {
               name: "loadoutSlots",
               type: "schema",
               defaultValue: {},
-              fields: loadoutSlotsSchema,
+              fields: loadoutSlotsSchema
             },
             {
               name: "unknownArray27",
@@ -1849,8 +1850,8 @@ export const basePackets: any = [
               defaultValue: [],
               fields: [
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "unknownData9",
@@ -1870,24 +1871,24 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
+                          defaultValue: ""
                         },
                         {
                           name: "unknownByte1",
                           type: "uint8",
-                          defaultValue: 0,
-                        },
-                      ],
+                          defaultValue: 0
+                        }
+                      ]
                     },
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                  ],
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+                  ]
                 },
                 {
                   name: "unknownArray2",
@@ -1902,24 +1903,24 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
+                          defaultValue: ""
                         },
                         {
                           name: "unknownByte1",
                           type: "uint8",
-                          defaultValue: 0,
-                        },
-                      ],
+                          defaultValue: 0
+                        }
+                      ]
                     },
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword3", type: "uint32", defaultValue: 0 },
-                  ],
+                    { name: "unknownDword3", type: "uint32", defaultValue: 0 }
+                  ]
                 },
                 {
                   name: "unknownArray3",
@@ -1934,28 +1935,28 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
+                          defaultValue: ""
                         },
                         {
                           name: "unknownByte1",
                           type: "uint8",
-                          defaultValue: 0,
-                        },
-                      ],
+                          defaultValue: 0
+                        }
+                      ]
                     },
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
                     { name: "unknownDword2", type: "uint32", defaultValue: 0 },
                     {
                       name: "unknownQword1",
                       type: "uint64string",
-                      defaultValue: "",
-                    },
-                  ],
+                      defaultValue: ""
+                    }
+                  ]
                 },
                 {
                   name: "unknownArray4",
@@ -1970,19 +1971,19 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
+                          defaultValue: ""
                         },
                         {
                           name: "unknownByte1",
                           type: "uint8",
-                          defaultValue: 0,
-                        },
-                      ],
+                          defaultValue: 0
+                        }
+                      ]
                     },
                     {
                       name: "unknownData2",
@@ -1997,19 +1998,19 @@ export const basePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownQword1",
                               type: "uint64string",
-                              defaultValue: "",
+                              defaultValue: ""
                             },
                             {
                               name: "unknownByte1",
                               type: "uint8",
-                              defaultValue: 0,
-                            },
-                          ],
+                              defaultValue: 0
+                            }
+                          ]
                         },
                         {
                           name: "unknownData2",
@@ -2019,24 +2020,24 @@ export const basePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword2",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword3",
                               type: "uint32",
-                              defaultValue: 0,
-                            },
-                          ],
+                              defaultValue: 0
+                            }
+                          ]
                         },
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownData3",
@@ -2046,23 +2047,23 @@ export const basePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword2",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownFloatVector4",
                               type: "floatvector4",
-                              defaultValue: [0, 0, 0, 0],
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
+                              defaultValue: [0, 0, 0, 0]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   name: "unknownArray5",
@@ -2077,19 +2078,19 @@ export const basePackets: any = [
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownQword1",
                           type: "uint64string",
-                          defaultValue: "",
+                          defaultValue: ""
                         },
                         {
                           name: "unknownByte1",
                           type: "uint8",
-                          defaultValue: 0,
-                        },
-                      ],
+                          defaultValue: 0
+                        }
+                      ]
                     },
                     {
                       name: "unknownData2",
@@ -2104,19 +2105,19 @@ export const basePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownQword1",
                               type: "uint64string",
-                              defaultValue: "",
+                              defaultValue: ""
                             },
                             {
                               name: "unknownByte1",
                               type: "uint8",
-                              defaultValue: 0,
-                            },
-                          ],
+                              defaultValue: 0
+                            }
+                          ]
                         },
                         {
                           name: "unknownData2",
@@ -2126,24 +2127,24 @@ export const basePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword2",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword3",
                               type: "uint32",
-                              defaultValue: 0,
-                            },
-                          ],
+                              defaultValue: 0
+                            }
+                          ]
                         },
                         {
                           name: "unknownDword1",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "unknownData3",
@@ -2153,25 +2154,25 @@ export const basePackets: any = [
                             {
                               name: "unknownDword1",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownDword2",
                               type: "uint32",
-                              defaultValue: 0,
+                              defaultValue: 0
                             },
                             {
                               name: "unknownFloatVector4",
                               type: "floatvector4",
-                              defaultValue: [0, 0, 0, 0],
-                            },
-                          ],
-                        },
-                      ],
-                    },
-                  ],
-                },
-              ],
+                              defaultValue: [0, 0, 0, 0]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
             },
             {
               name: "characterResources",
@@ -2183,9 +2184,9 @@ export const basePackets: any = [
                   name: "resourceData",
                   type: "schema",
                   defaultValue: {},
-                  fields: characterResourceData,
-                },
-              ],
+                  fields: characterResourceData
+                }
+              ]
             },
             {
               name: "skillPointData",
@@ -2195,30 +2196,30 @@ export const basePackets: any = [
                 {
                   name: "skillPointsGranted",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
                 {
                   name: "skillPointsTotal",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
                 {
                   name: "skillPointsSpent",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
                 {
                   name: "unknownQword1",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
                 {
                   name: "unknownQword2",
                   type: "uint64string",
-                  defaultValue: "",
+                  defaultValue: ""
                 },
-                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "skills",
@@ -2226,14 +2227,14 @@ export const basePackets: any = [
               defaultValue: [],
               fields: [
                 { name: "skillLineId", type: "uint32", defaultValue: 0 },
-                { name: "skillId", type: "uint32", defaultValue: 0 },
-              ],
+                { name: "skillId", type: "uint32", defaultValue: 0 }
+              ]
             },
             {
               name: "containers",
               type: "array",
               defaultValue: [],
-              fields: containers,
+              fields: containers
             },
             {
               name: "unknownArray28",
@@ -2247,9 +2248,9 @@ export const basePackets: any = [
                   name: "currency",
                   type: "array",
                   defaultValue: [],
-                  fields: currencySchema,
-                },
-              ],
+                  fields: currencySchema
+                }
+              ]
             },
             {
               name: "unknownArray29",
@@ -2263,10 +2264,10 @@ export const basePackets: any = [
                   defaultValue: [],
                   fields: [
                     { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                    { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-                  ],
-                },
-              ],
+                    { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+                  ]
+                }
+              ]
             },
             { name: "quizComplete", type: "boolean", defaultValue: false },
             { name: "unknownQword1", type: "uint64string", defaultValue: "" },
@@ -2274,36 +2275,36 @@ export const basePackets: any = [
             {
               name: "vehicleLoadoutRelatedQword",
               type: "uint64string",
-              defaultValue: "0x0",
+              defaultValue: "0x0"
             },
             { name: "unknownQword3", type: "uint64string", defaultValue: "" },
             {
               name: "vehicleLoadoutRelatedDword",
               type: "uint32",
-              defaultValue: 0,
+              defaultValue: 0
             },
             { name: "unknownDword40", type: "uint32", defaultValue: 0 },
             { name: "isAdmin", type: "boolean", defaultValue: true },
             { name: "firstPersonOnly", type: "boolean", defaultValue: false },
-            { name: "spectatorFlags", type: "uint8", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "spectatorFlags", type: "uint8", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   [
     "ClientIsReady",
     0x04,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "ZoneDoneSendingInitialData",
     0x05,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   ["ClientLogout", 0x07, {}],
   ["TargetClientNotOnline", 0x08, {}],
@@ -2325,9 +2326,9 @@ export const basePackets: any = [
         { name: "unknownDword10", type: "uint32", defaultValue: 674234378 },
         { name: "unknownBoolean1", type: "boolean", defaultValue: true },
         { name: "waitForZoneReady", type: "boolean", defaultValue: false },
-        { name: "unknownBoolean3", type: "boolean", defaultValue: true },
-      ],
-    },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: true }
+      ]
+    }
   ],
   ["Mail", 0x0e, {}],
   ["Ability.ClientRequestStartAbility", 0x1001, {}],
@@ -2370,9 +2371,9 @@ export const basePackets: any = [
         { name: "nameId", type: "uint32", defaultValue: 0 },
         { name: "unknownBoolean2", type: "boolean", defaultValue: false },
         { name: "lighting", type: "string", defaultValue: "" },
-        { name: "unknownBoolean3", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "unknownBoolean3", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   ["Objective", 0x18, {}],
   ["Debug", 0x19, {}],
@@ -2389,9 +2390,9 @@ export const basePackets: any = [
         { name: "iconId", type: "uint32", defaultValue: 7 },
         { name: "time4", type: "uint32", defaultValue: 1 },
         { name: "count", type: "uint32", defaultValue: 2 },
-        { name: "time6", type: "uint32", defaultValue: 1 },
-      ],
-    },
+        { name: "time6", type: "uint32", defaultValue: 1 }
+      ]
+    }
   ],
   [
     "GameTimeSync",
@@ -2400,9 +2401,9 @@ export const basePackets: any = [
       fields: [
         { name: "time", type: "uint64string", defaultValue: "0" },
         { name: "cycleSpeed", type: "float", defaultValue: 0.0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   ["Pet", 0x1e, {}],
   ["PointOfInterestDefinitionRequest", 0x1f, {}],
@@ -2431,25 +2432,25 @@ export const basePackets: any = [
         { name: "unknownString1", type: "string", defaultValue: "" },
         { name: "unknownString2", type: "string", defaultValue: "" },
         { name: "stationCode", type: "string", defaultValue: "" },
-        { name: "unknownString3", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "unknownString3", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   ["BugSubmission", 0x31, {}],
   [
     "WorldDisplayInfo",
     0x32,
     {
-      fields: [{ name: "worldId", type: "uint32", defaultValue: 0 }],
-    },
+      fields: [{ name: "worldId", type: "uint32", defaultValue: 0 }]
+    }
   ],
   ["MOTD", 0x33, {}],
   [
     "SetLocale",
     0x34,
     {
-      fields: [{ name: "locale", type: "string", defaultValue: "" }],
-    },
+      fields: [{ name: "locale", type: "string", defaultValue: "" }]
+    }
   ],
   ["SetClientArea", 0x35, {}],
   ["ZoneTeleportRequest", 0x36, {}],
@@ -2462,11 +2463,11 @@ export const basePackets: any = [
         {
           name: "timeBeforeShutdown",
           type: "uint64string",
-          defaultValue: "600EB251",
+          defaultValue: "600EB251"
         },
-        { name: "message", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "message", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   ["LoadWelcomeScreen", 0x39, {}],
   ["ShipCombat", 0x3a, {}],
@@ -2475,23 +2476,23 @@ export const basePackets: any = [
     "KeepAlive",
     0x3c,
     {
-      fields: [{ name: "gameTime", type: "uint32", defaultValue: 0 }],
-    },
+      fields: [{ name: "gameTime", type: "uint32", defaultValue: 0 }]
+    }
   ],
   [
     "ClientExitLaunchUrl",
     0x3d,
     {
-      fields: [{ name: "url", type: "string", defaultValue: "" }],
-    },
+      fields: [{ name: "url", type: "string", defaultValue: "" }]
+    }
   ],
   ["ClientPendingKickFromServer", 0x3f, {}],
   [
     "MembershipActivation",
     0x40,
     {
-      fields: [{ name: "unknown", type: "uint32", defaultValue: 0 }],
-    },
+      fields: [{ name: "unknown", type: "uint32", defaultValue: 0 }]
+    }
   ],
   [
     "ShowSystemMessage",
@@ -2501,9 +2502,9 @@ export const basePackets: any = [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "message", type: "string", defaultValue: "" },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "color", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "color", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "POIChangeMessage",
@@ -2512,17 +2513,17 @@ export const basePackets: any = [
       fields: [
         { name: "messageStringId", type: "uint32", defaultValue: 0 },
         { name: "id", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["ClientMetrics", 0x45, {}],
   [
     "FirstTimeEvent.Unknown1",
     0x4601,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "FirstTimeEvent.State",
@@ -2531,23 +2532,23 @@ export const basePackets: any = [
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   [
     "FirstTimeEvent.Unknown2",
     0x4603,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "FirstTimeEvent.Unknown3",
     0x4604,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "FirstTimeEvent.Script",
@@ -2559,12 +2560,12 @@ export const basePackets: any = [
           name: "unknownArray1",
           type: "array",
           defaultValue: [],
-          fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
+          fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
         },
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   ["Claim", 0x47, {}],
   [
@@ -2573,9 +2574,9 @@ export const basePackets: any = [
     {
       fields: [
         { name: "file", type: "string", defaultValue: "" },
-        { name: "message", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "message", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   ["Ignore", 0x49, {}],
   ["SnoopedPlayer", 0x4a, {}],
@@ -2589,8 +2590,8 @@ export const basePackets: any = [
     "LoginFailed",
     0x51,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   ["LoginToUChat", 0x52, {}],
   ["ZoneSafeTeleportRequest", 0x53, {}],
@@ -2601,8 +2602,8 @@ export const basePackets: any = [
     "UnknownPacketName", // unknown name, sent from client, same dword value every time ?
     0x58,
     {
-      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
-    },
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+    }
   ],
 
   ["AdminGuild", 0x5a, {}],
@@ -2625,9 +2626,9 @@ export const basePackets: any = [
         { name: "Unknown5", type: "uint32", defaultValue: 0 },
         { name: "unknownFloat1", type: "float", defaultValue: 0.0 },
         { name: "unknownFloat2", type: "float", defaultValue: 0.0 },
-        { name: "damageMultiplier", type: "float", defaultValue: 1.0 }, // 0 = crash
-      ],
-    },
+        { name: "damageMultiplier", type: "float", defaultValue: 1.0 } // 0 = crash
+      ]
+    }
   ],
   ["ClientTrialProfileUpsell", 0x62, {}],
   ["ActivityManager.ProfileActivityList", 0x6301, {}],
@@ -2643,10 +2644,10 @@ export const basePackets: any = [
         {
           name: "achievementData",
           type: "schema",
-          fields: objectiveSchema,
-        },
-      ],
-    },
+          fields: objectiveSchema
+        }
+      ]
+    }
   ],
   [
     "Achievement.Initialize",
@@ -2657,7 +2658,7 @@ export const basePackets: any = [
           name: "clientAchievements",
           type: "array",
           defaultValue: [{}],
-          fields: achievementSchema,
+          fields: achievementSchema
         },
         {
           name: "achievementData",
@@ -2667,12 +2668,12 @@ export const basePackets: any = [
               name: "achievements",
               type: "array",
               defaultValue: [{}],
-              fields: achievementSchema,
-            },
-          ],
-        },
-      ],
-    },
+              fields: achievementSchema
+            }
+          ]
+        }
+      ]
+    }
   ],
   ["Achievement.Complete", 0x6604, {}],
   ["Achievement.ObjectiveAdded", 0x6605, {}],
@@ -2685,9 +2686,9 @@ export const basePackets: any = [
     {
       fields: [
         { name: "unknown1", type: "uint8", defaultValue: 0 },
-        { name: "titleId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "titleId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["MatchHistory", 0x68, {}],
   ["UpdateUserAge", 0x69, {}],
@@ -2728,29 +2729,29 @@ export const basePackets: any = [
                     {
                       name: "CONTENT_PACK_ID",
                       type: "uint32",
-                      defaultValue: 0,
+                      defaultValue: 0
                     },
                     {
                       name: "CONTENT_PACK_ACTION_ID",
                       type: "uint32",
-                      defaultValue: 0,
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+                      defaultValue: 0
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ],
 
   [
     "ClientInitializationDetails",
     0x72,
     {
-      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }],
-    },
+      fields: [{ name: "unknownDword1", type: "uint32", defaultValue: 0 }]
+    }
   ],
   ["ClientAreaTimer", 0x73, {}],
   ["LoyaltyReward.GiveLoyaltyReward", 0x7401, {}],
@@ -2767,16 +2768,16 @@ export const basePackets: any = [
           name: "transientId",
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue
         },
         {
           name: "positionUpdate",
           type: "custom",
           parser: readPositionUpdateData,
-          packer: packPositionUpdateData,
-        },
-      ],
-    },
+          packer: packPositionUpdateData
+        }
+      ]
+    }
   ],
   ["InviteAndStartMiniGame", 0x7a, {}],
   ["Quiz", 0x7b, {}],
@@ -2794,10 +2795,10 @@ export const basePackets: any = [
           name: "weaponPacket",
           type: "custom",
           parser: parseWeaponPacket,
-          packer: packWeaponPacket,
-        },
-      ],
-    },
+          packer: packWeaponPacket
+        }
+      ]
+    }
   ],
   ["MatchSchedule", 0x84, {}],
   ["Grief", 0x8a, {}],
@@ -2813,9 +2814,9 @@ export const basePackets: any = [
         { name: "clientTime", type: "uint64string", defaultValue: "0" },
         { name: "serverTime", type: "uint64string", defaultValue: "0" },
         { name: "serverTime2", type: "uint64string", defaultValue: "0" },
-        { name: "time3", type: "uint64string", defaultValue: "0" }, // maybe drift ?
-      ],
-    },
+        { name: "time3", type: "uint64string", defaultValue: "0" } // maybe drift ?
+      ]
+    }
   ],
   [
     "ResourceEvent",
@@ -2839,10 +2840,10 @@ export const basePackets: any = [
                   {
                     name: "resourceData",
                     type: "schema",
-                    fields: characterResourceData,
-                  },
-                ],
-              },
+                    fields: characterResourceData
+                  }
+                ]
+              }
             ],
             2: [
               // SetCharacterResource
@@ -2850,8 +2851,8 @@ export const basePackets: any = [
               {
                 name: "resourceData",
                 type: "schema",
-                fields: characterResourceData,
-              },
+                fields: characterResourceData
+              }
             ],
             3: [
               // UpdateCharacterResource
@@ -2874,15 +2875,15 @@ export const basePackets: any = [
               { name: "unknownGuid4", type: "uint64string", defaultValue: "0" },
               { name: "unknownGuid5", type: "uint64string", defaultValue: "0" },
 
-              { name: "unknownBoolean", type: "boolean", defaultValue: false },
+              { name: "unknownBoolean", type: "boolean", defaultValue: false }
             ],
             4: [
               // RemoveCharacterResource
-            ],
-          },
-        },
-      ],
-    },
+            ]
+          }
+        }
+      ]
+    }
   ],
 
   ["Leaderboard", 0x90, {}],
@@ -2896,17 +2897,17 @@ export const basePackets: any = [
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
           packer: packUnsignedIntWith2bitLengthValue,
-          defaultValue: 1,
+          defaultValue: 1
         },
         {
           name: "positionUpdate",
           type: "custom",
           parser: readPositionUpdateData,
           packer: packPositionUpdateData,
-          defaultValue: 1,
-        },
-      ],
-    },
+          defaultValue: 1
+        }
+      ]
+    }
   ],
 
   [
@@ -2919,7 +2920,7 @@ export const basePackets: any = [
           name: "transientId",
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue
         },
         { name: "unknownByte1", type: "uint8", defaultValue: 50 },
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
@@ -2930,9 +2931,9 @@ export const basePackets: any = [
         { name: "scale", type: "floatvector4", defaultValue: [1, 1, 1, 1] },
         { name: "unknownDword3", type: "uint32", defaultValue: 23 },
         { name: "showHealth", type: "boolean", defaultValue: true },
-        { name: "health", type: "float", defaultValue: 100 },
-      ],
-    },
+        { name: "health", type: "float", defaultValue: 100 }
+      ]
+    }
   ],
   ["PlayerUpdateUpdateVehicleWeapon", 0x93, {}],
 
@@ -2953,54 +2954,54 @@ export const basePackets: any = [
               name: "population",
               type: "array",
               defaultValue: [{}],
-              elementType: "uint8",
+              elementType: "uint8"
             },
             {
               name: "regionPercent",
               type: "array",
               defaultValue: [{}],
-              elementType: "uint8",
+              elementType: "uint8"
             },
             {
               name: "populationBuff",
               type: "array",
               defaultValue: [{}],
-              elementType: "uint8",
+              elementType: "uint8"
             },
             {
               name: "populationTargetPercent",
               type: "array",
               defaultValue: [{}],
-              elementType: "uint8",
+              elementType: "uint8"
             },
             { name: "name", type: "string", defaultValue: "" },
             { name: "hexSize", type: "float", defaultValue: 0.0 },
-            { name: "isProductionZone", type: "uint8", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "isProductionZone", type: "uint8", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   [
     "GetContinentBattleInfo",
     0x98,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "SendSecurityPacketAndSelfDestruct",
     0x99,
     {
-      fields: [{ name: "unk", type: "uint32", defaultValue: 4294967295 }],
-    },
+      fields: [{ name: "unk", type: "uint32", defaultValue: 4294967295 }]
+    }
   ],
   [
     "GetRespawnLocations",
     0x9a,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
 
   ["ClientInGamePurchase", 0x9d, {}],
@@ -3009,8 +3010,8 @@ export const basePackets: any = [
     "Security",
     0xa3,
     {
-      fields: [{ name: "code", type: "uint32", defaultValue: 0 }],
-    },
+      fields: [{ name: "code", type: "uint32", defaultValue: 0 }]
+    }
   ],
   ["HudManager", 0xa5, {}],
   ["AcquireTimers", 0xa6, {}],
@@ -3024,29 +3025,29 @@ export const basePackets: any = [
           name: "population",
           type: "array",
           defaultValue: [{}],
-          elementtype: "uint16",
+          elementtype: "uint16"
         },
         {
           name: "populationPercent",
           type: "array",
           defaultValue: [{}],
-          elementType: "uint8",
+          elementType: "uint8"
         },
         {
           name: "populationBuff",
           type: "array",
           defaultValue: [{}],
-          elementType: "uint8",
-        },
-      ],
-    },
+          elementType: "uint8"
+        }
+      ]
+    }
   ],
   [
     "GetServerPopulationInfo",
     0xa9,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "VehicleCollision",
@@ -3057,11 +3058,11 @@ export const basePackets: any = [
           name: "transientId",
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue
         },
-        { name: "damage", type: "float", defaultValue: 0 },
-      ],
-    },
+        { name: "damage", type: "float", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "PlayerStop",
@@ -3072,11 +3073,11 @@ export const basePackets: any = [
           name: "transientId",
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue
         },
-        { name: "state", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "state", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
 
   ["PlayerUpdate.AttachObject", 0xae, {}],
@@ -3088,9 +3089,9 @@ export const basePackets: any = [
       fields: [
         { name: "helpUrl", type: "string", defaultValue: "" },
         { name: "shopUrl", type: "string", defaultValue: "" },
-        { name: "shop2Url", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "shop2Url", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   [
     "RewardBuffInfo",
@@ -3108,16 +3109,16 @@ export const basePackets: any = [
         { name: "unknownFloat9", type: "float", defaultValue: 0.0 },
         { name: "unknownFloat10", type: "float", defaultValue: 0.0 },
         { name: "unknownFloat11", type: "float", defaultValue: 0.0 },
-        { name: "unknownFloat12", type: "float", defaultValue: 0.0 },
-      ],
-    },
+        { name: "unknownFloat12", type: "float", defaultValue: 0.0 }
+      ]
+    }
   ],
   [
     "GetRewardBuffInfo",
     0xb2,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   ["Cais", 0xb3, {}],
 
@@ -3129,8 +3130,8 @@ export const basePackets: any = [
     "WordFilter.Data",
     0xbd01,
     {
-      fields: [{ name: "wordFilterData", type: "byteswithlength" }],
-    },
+      fields: [{ name: "wordFilterData", type: "byteswithlength" }]
+    }
   ],
 
   ["ProxiedPlayer", 0xbf, {}],
@@ -3145,9 +3146,9 @@ export const basePackets: any = [
     {
       fields: [
         { name: "status", type: "uint8", defaultValue: 0 },
-        { name: "sessionId", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "sessionId", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   ["Stats", 0xc6, {}],
   ["Score", 0xc7, {}],
@@ -3156,8 +3157,8 @@ export const basePackets: any = [
     "UpdateWeatherData",
     0xcb,
     {
-      fields: skyData,
-    },
+      fields: skyData
+    }
   ],
   ["NavGen", 0xcc, {}],
   [
@@ -3168,9 +3169,9 @@ export const basePackets: any = [
         { name: "characterId", type: "uint64string", defaultValue: "0" },
         { name: "unknownDword1", type: "uint32", defaultValue: 1 },
         { name: "lockType", type: "uint32", defaultValue: 1 }, // 1-lock, 2-enter password
-        { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
-      ],
-    },
+        { name: "objectCharacterId", type: "uint64string", defaultValue: "0" }
+      ]
+    }
   ],
   [
     "Locks.setLock",
@@ -3179,25 +3180,24 @@ export const basePackets: any = [
       fields: [
         { name: "unknownDword1", type: "uint32", defaultValue: 1 },
         { name: "unknownDword2", type: "uint32", defaultValue: 1 },
-        { name: "password", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "password", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
-  ["Ragdoll", 0xce, {}],
   ["CharacterState", 0xd0, {}],
   [
     "AddLightweightPc",
     0xd6,
     {
-      fields: lightWeightPcSchema,
-    },
+      fields: lightWeightPcSchema
+    }
   ],
   [
     "AddLightweightNpc",
     0xd7,
     {
-      fields: lightWeightNpcSchema,
-    },
+      fields: lightWeightNpcSchema
+    }
   ],
   [
     "AddLightweightVehicle",
@@ -3212,11 +3212,11 @@ export const basePackets: any = [
           name: "positionUpdate",
           type: "custom",
           parser: readPositionUpdateData,
-          packer: packPositionUpdateData,
+          packer: packPositionUpdateData
         },
-        { name: "unknownString1", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "unknownString1", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   [
     "AddProxiedObject",
@@ -3228,21 +3228,21 @@ export const basePackets: any = [
           name: "transientId",
           type: "custom",
           parser: readUnsignedIntWith2bitLengthValue,
-          packer: packUnsignedIntWith2bitLengthValue,
+          packer: packUnsignedIntWith2bitLengthValue
         },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
         { name: "position", type: "floatvector3", defaultValue: [0, 0, 0] },
-        { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] },
-      ],
-    },
+        { name: "rotation", type: "floatvector3", defaultValue: [0, 0, 0] }
+      ]
+    }
   ],
   ["LightweightToFullPc", 0xda, { fields: fullPcSchema }],
   [
     "LightweightToFullNpc",
     0xdb,
     {
-      fields: fullNpcSchema,
-    },
+      fields: fullNpcSchema
+    }
   ],
   [
     "LightweightToFullVehicle",
@@ -3258,8 +3258,8 @@ export const basePackets: any = [
           defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-          ],
+            { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+          ]
         },
         {
           name: "unknownArray2",
@@ -3267,18 +3267,18 @@ export const basePackets: any = [
           defaultValue: [],
           fields: [
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownByte1", type: "boolean", defaultValue: false },
-          ],
+            { name: "unknownByte1", type: "boolean", defaultValue: false }
+          ]
         },
         {
           name: "unknownVector1",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 0],
+          defaultValue: [0, 0, 0, 0]
         },
         {
           name: "unknownVector2",
           type: "floatvector4",
-          defaultValue: [0, 0, 0, 0],
+          defaultValue: [0, 0, 0, 0]
         },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
         {
@@ -3293,7 +3293,7 @@ export const basePackets: any = [
                 {
                   name: "characterId",
                   type: "uint64string",
-                  defaultValue: "0",
+                  defaultValue: "0"
                 },
                 {
                   name: "characterData",
@@ -3306,16 +3306,16 @@ export const basePackets: any = [
                     {
                       name: "unknownString1",
                       type: "string",
-                      defaultValue: "",
-                    },
-                  ],
+                      defaultValue: ""
+                    }
+                  ]
                 },
                 { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-                { name: "unknownString1", type: "string", defaultValue: "" },
-              ],
+                { name: "unknownString1", type: "string", defaultValue: "" }
+              ]
             },
-            { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-          ],
+            { name: "unknownByte1", type: "uint8", defaultValue: 0 }
+          ]
         },
         {
           name: "unknownArray3",
@@ -3325,9 +3325,9 @@ export const basePackets: any = [
             {
               name: "unknownString1",
               type: "string",
-              defaultValue: "",
-            },
-          ],
+              defaultValue: ""
+            }
+          ]
         },
         {
           name: "stats",
@@ -3339,9 +3339,9 @@ export const basePackets: any = [
               name: "statData",
               type: "schema",
               defaultValue: {},
-              fields: statSchema,
-            },
-          ],
+              fields: statSchema
+            }
+          ]
         },
         {
           name: "unknownArray4",
@@ -3365,16 +3365,16 @@ export const basePackets: any = [
                       name: "statData",
                       type: "schema",
                       defaultValue: {},
-                      fields: statSchema,
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+                      fields: statSchema
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ],
   ["CheckLocalValues", 0xde, {}],
   ["ChronicleBase", 0xdf, {}],
@@ -3399,11 +3399,11 @@ export const basePackets: any = [
             { name: "useContainers", type: "boolean", defaultValue: false },
             { name: "build", type: "boolean", defaultValue: false },
             { name: "demolish", type: "boolean", defaultValue: false },
-            { name: "visit", type: "boolean", defaultValue: false },
-          ],
-        },
-      ],
-    },
+            { name: "visit", type: "boolean", defaultValue: false }
+          ]
+        }
+      ]
+    }
   ],
 
   [
@@ -3414,9 +3414,9 @@ export const basePackets: any = [
         { name: "objectCharacterId", type: "uint64string", defaultValue: "0" },
         { name: "characterName", type: "string", defaultValue: "" },
         { name: "unk", type: "uint64string", defaultValue: "0" },
-        { name: "permissionSlot", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "permissionSlot", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
 
   [
@@ -3428,9 +3428,9 @@ export const basePackets: any = [
         { name: "unk", type: "uint64string", defaultValue: "0" },
         { name: "characterName", type: "string", defaultValue: "" },
 
-        { name: "permissionSlot", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "permissionSlot", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["BattlEyeData", 0xe6, {}],
   ["OnlineIdBase", 0xe7, {}],
@@ -3451,13 +3451,13 @@ export const basePackets: any = [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "slotId", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-        { name: "shaderGroupId", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "shaderGroupId", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["VehicleSkinBase", 0xf3, {}],
   ["WeaponLagLockParameters", 0xf5, {}],
   ["CrateOpeningBase", 0xf6, {}],
   ["PlayerHeatWarning", 0xf7, {}],
-  ["AnimationBase", 0xf8, {}],
+  ["AnimationBase", 0xf8, {}]
 ];

@@ -18,7 +18,7 @@ import { SpawnCell } from "../classes/spawncell";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { Command, PermissionLevels } from "./types";
-import { isPosInRadius } from "../../../utils/utils";
+import { getAngle, isPosInRadius } from "../../../utils/utils";
 import { OBSERVER_GUID } from "../../../utils/constants";
 
 export const internalCommands: Array<Command> = [
@@ -35,7 +35,7 @@ export const internalCommands: Array<Command> = [
           doReturn = true;
         }
       });
-    },
+    }
   },
   {
     name: "spectate",
@@ -57,7 +57,7 @@ export const internalCommands: Array<Command> = [
           const iteratedClient = server._clients[a];
           if (iteratedClient.spawnedEntities.includes(client.character)) {
             server.sendData(iteratedClient, "Character.RemovePlayer", {
-              characterId: client.character.characterId,
+              characterId: client.character.characterId
             });
             iteratedClient.spawnedEntities.splice(
               iteratedClient.spawnedEntities.indexOf(client.character),
@@ -71,36 +71,36 @@ export const internalCommands: Array<Command> = [
           npcData: {
             ...vehicle,
             ...vehicle.state,
-            actorModelId: vehicle.actorModelId,
-          },
+            actorModelId: vehicle.actorModelId
+          }
         });
         server.sendData(client, "Mount.MountResponse", {
           characterId: client.character.characterId,
           vehicleGuid: vehicle.characterId,
           seatId: 0,
           isDriver: 1,
-          identity: {},
+          identity: {}
         });
         server.sendData(client, "Character.ManagedObject", {
           objectCharacterId: vehicle.characterId,
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         });
         server.sendData(client, "ClientUpdate.ManagedObjectResponseControl", {
           control: true,
-          objectCharacterId: vehicle.characterId,
+          objectCharacterId: vehicle.characterId
         });
       } else {
         server.sendData(client, "Mount.DismountResponse", {
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         });
         server.sendData(client, "Character.RemovePlayer", {
-          characterId: OBSERVER_GUID,
+          characterId: OBSERVER_GUID
         });
         for (const a in server._decoys) {
           const decoy = server._decoys[a];
           if (decoy.transientId == client.character.transientId) {
             server.sendDataToAll("Character.RemovePlayer", {
-              characterId: decoy.characterId,
+              characterId: decoy.characterId
             });
             client.isDecoy = false;
             server.sendChatText(client, `Decoy removed`, false);
@@ -112,16 +112,16 @@ export const internalCommands: Array<Command> = [
         client,
         `Set spectate/vanish state to ${client.character.isSpectator}`
       );
-    },
+    }
   },
   {
     name: "run",
     permissionLevel: PermissionLevels.MODERATOR,
     execute: (server: ZoneServer2016, client: Client, packetData: any) => {
       server.sendData(client, "Command.RunSpeed", {
-        runSpeed: packetData.runSpeed,
+        runSpeed: packetData.runSpeed
       });
-    },
+    }
   },
   {
     name: "vehicle",
@@ -131,7 +131,7 @@ export const internalCommands: Array<Command> = [
         VehicleIds.POLICECAR,
         VehicleIds.PICKUP,
         VehicleIds.ATV,
-        VehicleIds.OFFROADER,
+        VehicleIds.OFFROADER
       ];
       if (!allowedIds.includes(packetData.vehicleId)) {
         server.sendChatText(
@@ -157,6 +157,6 @@ export const internalCommands: Array<Command> = [
       );
       server.worldObjectManager.createVehicle(server, vehicle);
       client.character.ownedVehicle = vehicle.characterId;
-    },
-  },
+    }
+  }
 ];

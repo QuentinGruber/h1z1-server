@@ -18,29 +18,33 @@ import {
   LoadoutIds,
   LoadoutSlots,
   ResourceIds,
-  ResourceTypes,
+  ResourceTypes
 } from "../models/enums";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseFullCharacter } from "./basefullcharacter";
 import {
+  characterEffect,
   DamageInfo,
   DamageRecord,
-  positionUpdate,
+  positionUpdate
 } from "../../../types/zoneserver";
 import {
   calculateOrientation,
   isFloat,
   isPosInRadius,
   randomIntFromInterval,
-  _,
+  _
 } from "../../../utils/utils";
 import { BaseItem } from "../classes/baseItem";
 import { BaseLootableEntity } from "./baselootableentity";
-import { LoadoutContainer } from "../classes/loadoutcontainer";
 import { characterDefaultLoadout } from "../data/loadouts";
 import { EquipmentSetCharacterEquipmentSlot } from "types/zone2016packets";
 import { Vehicle2016 } from "../entities/vehicle";
+import {
+  EXTERNAL_CONTAINER_GUID,
+  LOADOUT_CONTAINER_ID
+} from "../../../utils/constants";
 const stats = require("../../../../data/2016/sampleData/stats.json");
 
 interface CharacterStates {
@@ -48,6 +52,7 @@ interface CharacterStates {
   gmHidden?: boolean;
   knockedOut?: boolean;
   inWater?: boolean;
+  userMovementDisabled?: boolean;
 }
 
 interface CharacterMetrics {
@@ -112,7 +117,7 @@ export class Character2016 extends BaseFullCharacter {
     recipesDiscovered: 0,
     zombiesKilled: 0,
     wildlifeKilled: 0,
-    startedSurvivingTP: Date.now(),
+    startedSurvivingTP: Date.now()
   };
   private combatlog: DamageRecord[] = [];
   // characterId of vehicle spawned by /hax drive or spawnvehicle
@@ -123,6 +128,10 @@ export class Character2016 extends BaseFullCharacter {
   defaultLoadout = characterDefaultLoadout;
   mutedCharacters: Array<string> = [];
   groupId: number = 0;
+  _characterEffects: {
+    [effectId: number]: characterEffect;
+  } = {};
+  lastLockFailure: number = 0;
   constructor(
     characterId: string,
     transientId: number,
@@ -136,7 +145,7 @@ export class Character2016 extends BaseFullCharacter {
       new Float32Array([0, 0, 0, 1]),
       server
     );
-    this.npcRenderDistance = 250;
+    this.npcRenderDistance = 400;
     this.healingTicks = 0;
     this.healingMaxTicks = 0;
     (this._resources = {
@@ -146,12 +155,12 @@ export class Character2016 extends BaseFullCharacter {
       [ResourceIds.HYDRATION]: 10000,
       [ResourceIds.VIRUS]: 0,
       [ResourceIds.COMFORT]: 5000,
-      [ResourceIds.BLEEDING]: -40,
+      [ResourceIds.BLEEDING]: -40
     }),
       (this.characterStates = {
         knockedOut: false,
         inWater: false,
-        invincibility: false,
+        invincibility: false
       });
     this.timeouts = {};
     this.starthealingInterval = (
@@ -194,6 +203,30 @@ export class Character2016 extends BaseFullCharacter {
   }
 
   updateResources(client: ZoneClient2016, server: ZoneServer2016) {
+    let effectId;
+    for (const a in this._characterEffects) {
+      const characterEffect = this._characterEffects[a];
+      if (characterEffect.duration < Date.now()) {
+        if (characterEffect.endCallback)
+          characterEffect.endCallback(server, this);
+        effectId = 0;
+        delete this._characterEffects[a];
+        continue;
+      }
+      if (characterEffect.callback) characterEffect.callback(server, this);
+      effectId = characterEffect.id;
+    }
+    if (effectId == 0 && effectId != undefined) {
+      server.sendDataToAllWithSpawnedEntity(
+        server._characters,
+        this.characterId,
+        "Command.PlayDialogEffect",
+        {
+          characterId: this.characterId,
+          effectId: effectId
+        }
+      );
+    }
     if (this.isGodMode()) {
       client.character.resourcesUpdater.refresh();
       return;
@@ -202,7 +235,6 @@ export class Character2016 extends BaseFullCharacter {
     if (!server._clients[client.sessionId]) {
       return;
     }
-
     const hunger = this._resources[ResourceIds.HUNGER],
       hydration = this._resources[ResourceIds.HYDRATION],
       health = this._resources[ResourceIds.HEALTH],
@@ -230,7 +262,7 @@ export class Character2016 extends BaseFullCharacter {
         entity: "Character.Bleeding",
         damage:
           Math.ceil(client.character._resources[ResourceIds.BLEEDING] / 40) *
-          100,
+          100
       });
     }
     this.checkResource(server, ResourceIds.BLEEDING);
@@ -365,8 +397,8 @@ export class Character2016 extends BaseFullCharacter {
       ...super.pGetLightweight(),
       rotation: this.state.lookAt,
       identity: {
-        characterName: this.name,
-      },
+        characterName: this.name
+      }
     };
   }
 
@@ -380,10 +412,10 @@ export class Character2016 extends BaseFullCharacter {
       creationDate: this.creationDate,
       lastLoginDate: this.lastLoginDate,
       identity: {
-        characterName: this.name,
+        characterName: this.name
       },
       inventory: {
-        items: this.pGetInventoryItems(server),
+        items: this.pGetInventoryItems(server)
         //unknownDword1: 2355
       },
       recipes: server.pGetRecipes(), // todo: change to per-character recipe lists
@@ -398,7 +430,7 @@ export class Character2016 extends BaseFullCharacter {
       //unknownQword3: this.characterId,
       //vehicleLoadoutRelatedDword: 1,
       //unknownDword40: 1
-      isAdmin: client.isAdmin,
+      isAdmin: client.isAdmin
     };
   }
 
@@ -424,12 +456,12 @@ export class Character2016 extends BaseFullCharacter {
             ? firemodes.map((firemode: any, j: number) => {
                 return {
                   unknownDword1: j,
-                  unknownDword2: firemode.FIRE_MODE_ID,
+                  unknownDword2: firemode.FIRE_MODE_ID
                 };
               })
-            : [], // probably firemodes
+            : [] // probably firemodes
         };
-      }),
+      })
     };
   }
 
@@ -453,9 +485,9 @@ export class Character2016 extends BaseFullCharacter {
           // setting unknownDword1 makes the 308 sound when fullpc packet it sent
           unknownDword1: 0, //firegroup.FIRE_GROUP_ID,
           unknownBoolean1: false,
-          unknownBoolean2: false,
+          unknownBoolean2: false
         };
-      }),
+      })
     };
   }
 
@@ -465,7 +497,7 @@ export class Character2016 extends BaseFullCharacter {
       if (server.isWeapon(item.itemDefinitionId)) {
         remoteWeapons.push({
           guid: item.itemGuid,
-          ...this.pGetRemoteWeaponData(server, item),
+          ...this.pGetRemoteWeaponData(server, item)
         });
       }
     });
@@ -489,15 +521,15 @@ export class Character2016 extends BaseFullCharacter {
     const containers = super.pGetContainers(server),
       mountedContainer = this.mountedContainer.getContainer();
     if (!mountedContainer) return containers;
-    containers.push({
+    /*containers.push({
       loadoutSlotId: mountedContainer.slotId,
       containerData: super.pGetContainerData(server, mountedContainer),
-    });
+    });*/
     return containers;
   }
 
   pGetLoadoutSlots() {
-    if (!this.mountedContainer) return super.pGetLoadoutSlots();
+    //if (!this.mountedContainer) return super.pGetLoadoutSlots();
 
     // to avoid a mounted container being dismounted if loadout is updated while mounted
 
@@ -507,18 +539,18 @@ export class Character2016 extends BaseFullCharacter {
       }
     );
 
-    const mountedContainer = this.mountedContainer.getContainer();
-    if (mountedContainer)
-      loadoutSlots.push(
+    //const mountedContainer = this.mountedContainer.getContainer();
+    //if (mountedContainer) {}
+    /*loadoutSlots.push(
         this.mountedContainer.pGetLoadoutSlot(mountedContainer.slotId)
-      );
+      );*/
     return {
       characterId: this.characterId,
       loadoutId: this.loadoutId, // needs to be 3
       loadoutData: {
-        loadoutSlots: loadoutSlots,
+        loadoutSlots: loadoutSlots
       },
-      currentSlotId: this.currentLoadoutSlot,
+      currentSlotId: this.currentLoadoutSlot
     };
   }
 
@@ -571,7 +603,7 @@ export class Character2016 extends BaseFullCharacter {
     server.sendData(client, "ClientUpdate.DamageInfo", {
       transientId: 0,
       orientationToSource: orientation,
-      unknownDword2: 100,
+      unknownDword2: 100
     });
     server.sendChatText(client, `Received ${damage} damage`);
 
@@ -599,6 +631,7 @@ export class Character2016 extends BaseFullCharacter {
     }
 
     if (
+      !(lootableEntity instanceof Vehicle2016) &&
       !isPosInRadius(
         lootableEntity.interactionDistance,
         this.state.position,
@@ -628,46 +661,78 @@ export class Character2016 extends BaseFullCharacter {
       }
     }
 
+    const oldMount = this.mountedContainer?.characterId;
+
     lootableEntity.mountedCharacter = this.characterId;
     this.mountedContainer = lootableEntity;
-
-    server.initializeContainerList(client);
-
-    server.addItem(client, container, 101);
-
-    Object.values(container.items).forEach((item) => {
-      server.addItem(client, item, container.containerDefinitionId);
-    });
-
-    this.updateLoadout(server);
 
     server.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
       objectCharacterId:
         lootableEntity instanceof Vehicle2016
           ? lootableEntity.characterId
-          : "0x0000000000000001",
-      containerGuid: container.itemGuid,
-      unknownBool1: false,
+          : EXTERNAL_CONTAINER_GUID,
+      mutatorCharacterId: client.character.characterId,
+      dontOpenInventory:
+        lootableEntity instanceof Vehicle2016 ? true : !!oldMount,
       itemsData: {
-        items: [],
-        unknownDword1: 92, // idk
+        items: Object.values(container.items).map((item) => {
+          return lootableEntity.pGetItemData(
+            server,
+            item,
+            container.containerDefinitionId
+          );
+        }),
+        unknownDword1: 92 // idk
+      }
+    });
+
+    server.initializeContainerList(client, lootableEntity);
+
+    Object.values(lootableEntity._loadout).forEach((item) => {
+      server.addItem(client, item, LOADOUT_CONTAINER_ID, lootableEntity);
+    });
+
+    Object.values(container.items).forEach((item) => {
+      server.addItem(
+        client,
+        item,
+        container.containerDefinitionId,
+        lootableEntity
+      );
+    });
+
+    server.sendData(client, "Loadout.SetLoadoutSlots", {
+      characterId:
+        lootableEntity instanceof Vehicle2016
+          ? lootableEntity.characterId
+          : EXTERNAL_CONTAINER_GUID,
+      loadoutId:
+        lootableEntity instanceof Vehicle2016 ? lootableEntity.loadoutId : 5,
+      loadoutData: {
+        loadoutSlots: Object.values(lootableEntity.getLoadoutSlots()).map(
+          (slotId: any) => {
+            return lootableEntity.pGetLoadoutSlot(slotId);
+          }
+        )
       },
+      currentSlotId: lootableEntity.currentLoadoutSlot
     });
   }
 
   dismountContainer(server: ZoneServer2016) {
     const client = server.getClientByCharId(this.characterId);
     if (!client || !this.mountedContainer) return;
+
     const container = this.mountedContainer.getContainer();
     if (!container) {
       server.containerError(client, ContainerErrors.NOT_CONSTRUCTED);
       return;
     }
 
-    server.deleteItem(client, container.itemGuid);
+    server.deleteItem(this, container.itemGuid);
     Object.values(container.items).forEach((item) => {
       if (!this.mountedContainer) return;
-      server.deleteItem(client, item.itemGuid);
+      server.deleteItem(this, item.itemGuid);
     });
 
     if (this.mountedContainer.isLootbag && !_.size(container.items)) {
@@ -678,39 +743,8 @@ export class Character2016 extends BaseFullCharacter {
     delete this.mountedContainer;
     this.updateLoadout(server);
     server.initializeContainerList(client);
-  }
 
-  getItemContainer(itemGuid: string): LoadoutContainer | undefined {
-    // returns the container that an item is contained in
-    let c;
-    for (const container of Object.values(this._containers)) {
-      if (container.items[itemGuid]) {
-        c = container;
-        break;
-      }
-    }
-    // check mounted container
-    if (!c && this.mountedContainer) {
-      const container = this.mountedContainer.getContainer();
-      if (container && container.items[itemGuid]) return container;
-    }
-    return c;
-  }
-
-  getContainerFromGuid(containerGuid: string): LoadoutContainer | undefined {
-    let c;
-    for (const container of Object.values(this._containers)) {
-      if (container.itemGuid == containerGuid) {
-        c = container;
-      }
-    }
-    if (
-      !c &&
-      this.mountedContainer?.getContainer()?.itemGuid == containerGuid
-    ) {
-      c = this.mountedContainer.getContainer();
-    }
-    return c;
+    server.sendData(client, "AccessedCharacter.EndCharacterAccess", {});
   }
 
   getStats() {
@@ -727,10 +761,10 @@ export class Character2016 extends BaseFullCharacter {
                 : 0,
             value: {
               base: stat.statData.statValue.value.base,
-              modifier: stat.statData.statValue.value.modifier,
-            },
-          },
-        },
+              modifier: stat.statData.statValue.value.modifier
+            }
+          }
+        }
       };
     });
   }
@@ -769,10 +803,10 @@ export class Character2016 extends BaseFullCharacter {
     return slot
       ? {
           characterData: {
-            characterId: this.characterId,
+            characterId: this.characterId
           },
           equipmentSlot: this.pGetEquipmentSlot(slotId),
-          attachmentData: this.pGetAttachmentSlot(slotId, groupId),
+          attachmentData: this.pGetAttachmentSlot(slotId, groupId)
         }
       : undefined;
   }
@@ -792,14 +826,14 @@ export class Character2016 extends BaseFullCharacter {
     return {
       characterData: {
         profileId: 5,
-        characterId: this.characterId,
+        characterId: this.characterId
       },
       unknownDword1: 0,
       unknownString1: "Default",
       unknownString2: "#",
       equipmentSlots: this.pGetEquipmentSlots(),
       attachmentData: this.pGetAttachmentSlots(groupId),
-      unknownBoolean1: true,
+      unknownBoolean1: true
     };
   }
 
@@ -818,9 +852,43 @@ export class Character2016 extends BaseFullCharacter {
           textureAlias: slot.textureAlias || "",
           tintAlias: slot.tintAlias || "Default",
           decalAlias: slot.decalAlias || "#",
-          slotId: slot.slotId,
+          slotId: slot.slotId
         }
       : undefined;
+  }
+
+  pGetItemData(server: ZoneServer2016, item: BaseItem, containerDefId: number) {
+    let durability: number = 0;
+    switch (true) {
+      case server.isWeapon(item.itemDefinitionId):
+        durability = 2000;
+        break;
+      case server.isArmor(item.itemDefinitionId):
+        durability = 1000;
+        break;
+      case server.isHelmet(item.itemDefinitionId):
+        durability = 100;
+        break;
+    }
+    return {
+      itemDefinitionId: item.itemDefinitionId,
+      tintId: 0,
+      guid: item.itemGuid,
+      count: item.stackCount,
+      itemSubData: {
+        hasSubData: false
+      },
+      containerGuid: item.containerGuid,
+      containerDefinitionId: containerDefId,
+      containerSlotId: item.slotId,
+      baseDurability: durability,
+      currentDurability: durability ? item.currentDurability : 0,
+      maxDurabilityFromDefinition: durability,
+      unknownBoolean1: true,
+      ownerCharacterId: this.characterId,
+      unknownDword9: 1,
+      weaponData: this.pGetItemWeaponData(server, item)
+    };
   }
 
   OnFullCharacterDataRequest(server: ZoneServer2016, client: ZoneClient2016) {
@@ -832,18 +900,18 @@ export class Character2016 extends BaseFullCharacter {
         headActor: this.headActor,
         hairModel: this.hairModel,
         resources: { data: this.pGetResources() },
-        remoteWeapons: { data: this.pGetRemoteWeaponsData(server) },
+        remoteWeapons: { data: this.pGetRemoteWeaponsData(server) }
       },
       positionUpdate: {
         ...this.positionUpdate,
         sequenceTime: server.getGameTime(),
         position: this.state.position, // trying to fix invisible characters/vehicles until they move
-        stance: 66561,
+        stance: 66561
       },
       stats: this.getStats().map((stat: any) => {
         return stat.statData;
       }),
-      remoteWeaponsExtra: this.pGetRemoteWeaponsExtraData(server),
+      remoteWeaponsExtra: this.pGetRemoteWeaponsExtraData(server)
     });
 
     // needed so all weapons replicate reload and projectile impact
@@ -856,14 +924,14 @@ export class Character2016 extends BaseFullCharacter {
         "Update.SwitchFireMode",
         {
           firegroupIndex: 0,
-          firemodeIndex: 0,
+          firemodeIndex: 0
         }
       );
     });
 
     server.sendData(client, "Character.WeaponStance", {
       characterId: this.characterId,
-      stance: this.weaponStance,
+      stance: this.weaponStance
     });
 
     // GROUP OUTLINE WORKAROUND
@@ -938,10 +1006,75 @@ export class Character2016 extends BaseFullCharacter {
       );
     }
 
-    c.character.damage(server, {
+    /* eslint-disable @typescript-eslint/no-unused-vars */
+    switch (damageInfo.weapon) {
+      case Items.WEAPON_BLAZE:
+        this._characterEffects[1212] = {
+          id: 1212,
+          duration: Date.now() + 10000,
+          callback: function (
+            server: ZoneServer2016,
+            character: Character2016
+          ) {
+            character.damage(server, {
+              entity: "Character.CharacterEffect",
+              damage: 500
+            });
+            server.sendDataToAllWithSpawnedEntity(
+              server._characters,
+              character.characterId,
+              "Command.PlayDialogEffect",
+              {
+                characterId: character.characterId,
+                effectId: 1212
+              }
+            );
+          }
+        };
+        server.sendDataToAllWithSpawnedEntity(
+          server._characters,
+          this.characterId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: this.characterId,
+            effectId: 1212
+          }
+        );
+        break;
+      case Items.WEAPON_FROSTBITE:
+        if (!this._characterEffects[5211]) {
+          server.sendData(c, "ClientUpdate.ModifyMovementSpeed", {
+            speed: 0.5
+          });
+        }
+        this._characterEffects[5211] = {
+          id: 5211,
+          duration: Date.now() + 5000,
+          endCallback: function (
+            server: ZoneServer2016,
+            character: Character2016
+          ) {
+            server.sendData(c, "ClientUpdate.ModifyMovementSpeed", {
+              speed: 2
+            });
+          }
+        };
+        server.sendDataToAllWithSpawnedEntity(
+          server._characters,
+          this.characterId,
+          "Command.PlayDialogEffect",
+          {
+            characterId: this.characterId,
+            effectId: 5211
+          }
+        );
+        break;
+    }
+    /* eslint-enable @typescript-eslint/no-unused-vars */
+    this.damage(server, {
       ...damageInfo,
       damage: damage,
-      causeBleed: !(canStopBleed && this.hasArmor(server)),
+      causeBleed: !(canStopBleed && this.hasArmor(server))
     });
   }
 }

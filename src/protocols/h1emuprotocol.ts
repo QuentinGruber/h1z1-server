@@ -15,30 +15,31 @@ const debug = require("debug")("H1emuProtocol");
 import DataSchema from "h1z1-dataschema";
 import { H1emuProtocolReadingFormat } from "types/protocols";
 import PacketTableBuild from "../packets/packettable";
-const packets = [
+import { PacketStructures } from "types/packetStructure";
+const packets: PacketStructures = [
   [
     "SessionRequest",
     0x01,
     {
       fields: [
         { name: "serverId", type: "uint32", defaultValue: 0 },
-        { name: "h1emuVersion", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "h1emuVersion", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   [
     "SessionReply",
     0x02,
     {
-      fields: [{ name: "status", type: "uint8", defaultValue: 0 }],
-    },
+      fields: [{ name: "status", type: "uint8", defaultValue: 0 }]
+    }
   ],
   [
     "Ping",
     0x03,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   ["Ack", 0x04, {}],
   [
@@ -47,9 +48,9 @@ const packets = [
     {
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
-        { name: "characterObjStringify", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "characterObjStringify", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   [
     "CharacterCreateReply",
@@ -57,9 +58,9 @@ const packets = [
     {
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
-        { name: "status", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "status", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "CharacterDeleteRequest",
@@ -67,9 +68,9 @@ const packets = [
     {
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
-        { name: "characterId", type: "uint64string", defaultValue: 0 },
-      ],
-    },
+        { name: "characterId", type: "uint64string", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "CharacterDeleteReply",
@@ -77,16 +78,16 @@ const packets = [
     {
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
-        { name: "status", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "status", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "UpdateZonePopulation",
     0x09,
     {
-      fields: [{ name: "population", type: "uint8", defaultValue: 0 }],
-    },
+      fields: [{ name: "population", type: "uint8", defaultValue: 0 }]
+    }
   ],
   [
     "ZonePingRequest",
@@ -94,9 +95,9 @@ const packets = [
     {
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
-        { name: "address", type: "string", defaultValue: 0 },
-      ],
-    },
+        { name: "address", type: "string", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "ZonePingReply",
@@ -104,9 +105,9 @@ const packets = [
     {
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
-        { name: "status", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "status", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "CharacterAllowedRequest",
@@ -119,10 +120,10 @@ const packets = [
           name: "banInfos",
           type: "array",
           defaultValue: [],
-          fields: [{ name: "banInfo", type: "uint8", defaultValue: 0 }],
-        },
-      ],
-    },
+          fields: [{ name: "banInfo", type: "uint8", defaultValue: 0 }]
+        }
+      ]
+    }
   ],
   [
     "CharacterAllowedReply",
@@ -130,9 +131,9 @@ const packets = [
     {
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
-        { name: "status", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "status", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "ClientIsAdminRequest",
@@ -140,9 +141,9 @@ const packets = [
     {
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
-        { name: "guid", type: "uint64string", defaultValue: 0 },
-      ],
-    },
+        { name: "guid", type: "uint64string", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "ClientIsAdminReply",
@@ -150,9 +151,9 @@ const packets = [
     {
       fields: [
         { name: "reqId", type: "uint32", defaultValue: 0 },
-        { name: "status", type: "boolean", defaultValue: 0 },
-      ],
-    },
+        { name: "status", type: "boolean", defaultValue: 0 }
+      ]
+    }
   ],
   // Doesn't have a req/rep sys
   [
@@ -161,10 +162,10 @@ const packets = [
     {
       fields: [
         { name: "loginSessionId", type: "uint64string", defaultValue: 0 },
-        { name: "status", type: "boolean", defaultValue: 0 },
-      ],
-    },
-  ],
+        { name: "status", type: "boolean", defaultValue: 0 }
+      ]
+    }
+  ]
 ];
 
 export const [H1emuPacketsPacketTypes, H1emuPacketsPackets] =
@@ -172,7 +173,7 @@ export const [H1emuPacketsPacketTypes, H1emuPacketsPackets] =
 
 const H1emuPackets = {
   PacketTypes: H1emuPacketsPacketTypes,
-  Packets: H1emuPacketsPackets,
+  Packets: H1emuPacketsPackets
 };
 
 export class H1emuProtocol {
@@ -191,7 +192,7 @@ export class H1emuProtocol {
         return {
           type: packet.type,
           name: packet.name,
-          data: result,
+          data: result
         };
       } else {
         debug("parse()", "No parser for packet " + packet.name);

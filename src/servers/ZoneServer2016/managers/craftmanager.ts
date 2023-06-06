@@ -36,7 +36,7 @@ function getCraftComponentsDataSource(client: Client): {
       } else {
         inventory[item.itemDefinitionId] = {
           ...item,
-          stackCount: item.stackCount,
+          stackCount: item.stackCount
         }; // push new itemstack
       }
     });
@@ -248,7 +248,7 @@ export class CraftManager {
     } else {
       this.componentsDataSource[recipeId] = {
         itemDefinitionId: recipeId,
-        stackCount: craftCount,
+        stackCount: craftCount
       };
     }
     //#endregion
@@ -277,13 +277,17 @@ export class CraftManager {
       }
       for (const item of inventory[component.itemDefinitionId]) {
         if (item.stackCount >= remainingItems) {
-          if (!server.removeInventoryItem(client, item, remainingItems)) {
+          if (
+            !server.removeInventoryItem(client.character, item, remainingItems)
+          ) {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return false; // return if not enough items
           }
           remainingItems = 0;
         } else {
-          if (server.removeInventoryItem(client, item, item.stackCount)) {
+          if (
+            server.removeInventoryItem(client.character, item, item.stackCount)
+          ) {
             remainingItems -= item.stackCount;
           } else {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);

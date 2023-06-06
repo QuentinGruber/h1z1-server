@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const experiencePackets: any = [
+export const experiencePackets: PacketStructures = [
   ["Experience.SetExperience", 0x8801, {}],
   [
     "Experience.SetExperienceRanks",
@@ -50,24 +51,24 @@ export const experiencePackets: any = [
                         {
                           name: "itemCountMin",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
                         {
                           name: "itemCountMax",
                           type: "uint32",
-                          defaultValue: 0,
+                          defaultValue: 0
                         },
-                        { name: "itemType", type: "uint32", defaultValue: 0 },
-                      ],
-                    },
-                  ],
-                },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+                        { name: "itemType", type: "uint32", defaultValue: 0 }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
   ],
   [
     "Experience.SetExperienceRateTier",
@@ -78,8 +79,8 @@ export const experiencePackets: any = [
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "unknownDword3", type: "uint32", defaultValue: 0 },
         { name: "unknownDword4", type: "uint32", defaultValue: 0 },
-        { name: "unknownDword5", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  ],
+        { name: "unknownDword5", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ]
 ];

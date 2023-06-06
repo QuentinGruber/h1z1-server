@@ -16,7 +16,7 @@ import {
   Items,
   MovementModifiers,
   ResourceIds,
-  ResourceTypes,
+  ResourceTypes
 } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseSimpleNpc } from "./basesimplenpc";
@@ -59,7 +59,7 @@ export class TrapEntity extends BaseSimpleNpc {
               client.character.damage(server, {
                 entity: this.characterId,
                 causeBleed: true,
-                damage: 501,
+                damage: 501
               });
               server.sendDataToAllWithSpawnedEntity(
                 server._traps,
@@ -68,7 +68,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 {
                   characterId: "0x0",
                   effectId: 5116,
-                  position: server._clients[a].character.state.position,
+                  position: server._clients[a].character.state.position
                 }
               );
 
@@ -92,7 +92,7 @@ export class TrapEntity extends BaseSimpleNpc {
               {
                 characterId: "0x0",
                 effectId: 163,
-                position: this.state.position,
+                position: this.state.position
               }
             );
             this.destroy(server);
@@ -115,7 +115,7 @@ export class TrapEntity extends BaseSimpleNpc {
             ) {
               client.character.damage(server, {
                 entity: this.characterId,
-                damage: 2000,
+                damage: 2000
               });
               client.character._resources[ResourceIds.BLEEDING] += 41;
               server.updateResourceToAllWithSpawnedEntity(
@@ -134,7 +134,7 @@ export class TrapEntity extends BaseSimpleNpc {
                 {
                   characterId: this.characterId,
                   effectId: 1630,
-                  position: server._traps[this.characterId].state.position,
+                  position: server._traps[this.characterId].state.position
                 }
               );
               this.isTriggered = true;

@@ -15,7 +15,7 @@ import {
   npcData,
   seats,
   passengers,
-  positionUpdate,
+  positionUpdate
 } from "../../../types/zoneserver";
 import { generateRandomGuid } from "../../../utils/utils";
 import { ZoneClient } from "./zoneclient";
@@ -100,7 +100,7 @@ export class Vehicle {
       destroyedState: 0,
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
-      array18: [{ unknown1: 0 }],
+      array18: [{ unknown1: 0 }]
     };
     this.unknownGuid1 = generateRandomGuid();
     this.positionUpdate = {};
@@ -108,7 +108,7 @@ export class Vehicle {
       seat1: false,
       seat2: false,
       seat3: false,
-      seat4: false,
+      seat4: false
     };
     this.passengers = {};
     this.vehicleType = getVehicleType(modelId);

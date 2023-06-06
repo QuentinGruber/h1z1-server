@@ -11,10 +11,12 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const rewardBuffsPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const rewardBuffsPackets: PacketStructures = [
   ["RewardBuffs.ReceivedBundlePacket", 0xa001, {}],
   ["RewardBuffs.NonBundledItem", 0xa002, {}],
   ["RewardBuffs.AddBonus", 0xa003, {}],
   ["RewardBuffs.RemoveBonus", 0xa004, {}],
-  ["RewardBuffs.GiveRewardToPlayer", 0xa005, {}],
+  ["RewardBuffs.GiveRewardToPlayer", 0xa005, {}]
 ];

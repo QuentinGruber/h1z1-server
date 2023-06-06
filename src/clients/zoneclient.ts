@@ -114,13 +114,13 @@ export class ZoneClient extends EventEmitter {
 
               this._gatewayClient.sendTunnelData(
                 this._protocol.pack("ClientInitializationDetails", {
-                  unknownDword1: 7200,
+                  unknownDword1: 7200
                 }),
                 0
               );
               this._gatewayClient.sendTunnelData(
                 this._protocol.pack("SetLocale", {
-                  locale: "en_US",
+                  locale: "en_US"
                 }),
                 1
               );

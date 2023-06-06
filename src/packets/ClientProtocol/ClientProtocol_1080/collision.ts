@@ -10,8 +10,9 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const collisionPackets: any = [
+export const collisionPackets: PacketStructures = [
   [
     "Collision.Damage",
     0x8f01,
@@ -24,8 +25,8 @@ export const collisionPackets: any = [
         { name: "damage", type: "uint32", defaultValue: 0 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "position", type: "floatvector3", defaultValue: 0 },
-        { name: "unknownByte2", type: "uint8", defaultValue: 0 },
-      ],
-    },
-  ],
+        { name: "unknownByte2", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ]
 ];

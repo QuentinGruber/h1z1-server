@@ -43,14 +43,14 @@ import {
   DamageInfo,
   OccupiedSlotMap,
   SlottedConstructionEntity,
-  SquareBounds,
+  SquareBounds
 } from "types/zoneserver";
 import {
   getConstructionSlotId,
   getRectangleCorners,
   isInsideCube,
   movePoint,
-  registerConstructionSlots,
+  registerConstructionSlots
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ConstructionParentEntity } from "./constructionparententity";
@@ -58,7 +58,7 @@ import {
   ConstructionSlots,
   shelterSlotDefinitions,
   upperWallSlotDefinitions,
-  wallSlotDefinitions,
+  wallSlotDefinitions
 } from "../data/constructionslots";
 import { ConstructionDoor } from "./constructiondoor";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
@@ -185,7 +185,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     return [
       this.occupiedWallSlots,
       this.occupiedUpperWallSlots,
-      this.occupiedShelterSlots,
+      this.occupiedShelterSlots
     ];
   }
 
@@ -374,7 +374,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   pGetConstructionHealth() {
     return {
       characterId: this.characterId,
-      health: this.health / 10000,
+      health: this.health / 10000
     };
   }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -421,6 +421,37 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           this.bounds,
           position[1],
           this.state.position[1],
+          1.8
+        );
+      default:
+        return false;
+    }
+  }
+
+  isOn(position: Float32Array) {
+    if (!this.bounds) {
+      switch (this.itemDefinitionId) {
+        case Items.STRUCTURE_STAIRS:
+        case Items.STRUCTURE_STAIRS_UPPER:
+        case Items.LOOKOUT_TOWER:
+          return false;
+      }
+      console.error(
+        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+      );
+      return false; // this should never occur
+    }
+
+    switch (this.itemDefinitionId) {
+      case Items.SHELTER_LARGE:
+      case Items.SHELTER_UPPER_LARGE:
+      case Items.SHELTER:
+      case Items.SHELTER_UPPER:
+        return isInsideCube(
+          [position[0], position[2]],
+          this.bounds,
+          position[1],
+          this.state.position[1] + 2.4,
           1.8
         );
       default:

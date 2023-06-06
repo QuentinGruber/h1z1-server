@@ -26,14 +26,14 @@ function getAllowedFuel(itemDefinitionId: number): number[] {
         Items.WEAPON_BRANCH,
         Items.WOOD_PLANK,
         Items.WOOD_STICK,
-        Items.CHARCOAL,
+        Items.CHARCOAL
       ];
     case Items.BARBEQUE:
       return [
         Items.WEAPON_BRANCH,
         Items.WOOD_STICK,
         Items.WOOD_PLANK,
-        Items.CHARCOAL,
+        Items.CHARCOAL
       ];
     case Items.CAMPFIRE:
       return [
@@ -41,14 +41,14 @@ function getAllowedFuel(itemDefinitionId: number): number[] {
         Items.WEAPON_BRANCH,
         Items.WOOD_PLANK,
         Items.WOOD_STICK,
-        Items.CHARCOAL,
+        Items.CHARCOAL
       ];
     default:
       return [
         Items.WOOD_LOG,
         Items.WEAPON_BRANCH,
         Items.WOOD_PLANK,
-        Items.CHARCOAL,
+        Items.CHARCOAL
       ];
   }
 }
@@ -106,7 +106,7 @@ export class SmeltingEntity {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {
     server.sendData(client, "Command.InteractionString", {
       guid: this.parentObject.characterId,
-      stringId: StringIds.USE_IGNITABLE,
+      stringId: StringIds.USE_IGNITABLE
     });
   }
 
@@ -114,7 +114,7 @@ export class SmeltingEntity {
     if (!this.isWorking) return;
     server.sendData(client, "Command.PlayDialogEffect", {
       characterId: this.parentObject.characterId,
-      effectId: this.workingEffect,
+      effectId: this.workingEffect
     });
   }
 }

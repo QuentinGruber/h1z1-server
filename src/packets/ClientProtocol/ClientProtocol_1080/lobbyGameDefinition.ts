@@ -11,13 +11,15 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-export const lobbyGameDefinitionPackets: any = [
+import { PacketStructures } from "types/packetStructure";
+
+export const lobbyGameDefinitionPackets: PacketStructures = [
   [
     "LobbyGameDefinition.DefinitionsRequest",
     0x420100,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "LobbyGameDefinition.DefinitionsResponse",
@@ -27,9 +29,9 @@ export const lobbyGameDefinitionPackets: any = [
         {
           name: "definitionsData",
           type: "byteswithlength",
-          fields: [{ name: "data", type: "string", defaultValue: "" }],
-        },
-      ],
-    },
-  ],
+          fields: [{ name: "data", type: "string", defaultValue: "" }]
+        }
+      ]
+    }
+  ]
 ];

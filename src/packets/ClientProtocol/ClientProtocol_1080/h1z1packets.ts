@@ -71,8 +71,9 @@ import { accessedCharacterPackets } from "./accessedCharacter";
 import { replicationPackets } from "./replication";
 import { spectatorPackets } from "./spectator";
 import { h1emuPackets } from "./h1emu";
+import { PacketStructures } from "types/packetStructure";
 
-const packets: any = [
+const packets: PacketStructures = [
   ...basePackets,
   ...abilitiesPackets,
   ...abilityPackets,
@@ -131,7 +132,7 @@ const packets: any = [
   ...accessedCharacterPackets,
   ...replicationPackets,
   ...spectatorPackets,
-  ...h1emuPackets,
+  ...h1emuPackets
 ];
 
 const [packetTypes, packetDescriptors] = PacketTableBuild(packets);

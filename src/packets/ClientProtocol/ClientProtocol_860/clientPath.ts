@@ -16,8 +16,8 @@ export const clientPathPackets: any = [
     "ClientPath.Request",
     0x3e01,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "ClientPath.Reply",
@@ -34,11 +34,11 @@ export const clientPathPackets: any = [
             {
               name: "node",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 0],
-            },
-          ],
-        },
-      ],
-    },
-  ],
+              defaultValue: [0, 0, 0, 0]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 ];

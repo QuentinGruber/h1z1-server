@@ -12,6 +12,7 @@
 // ======================================================================
 
 import { h1z1Buffer } from "h1z1-dataschema";
+import { PacketStructures } from "types/packetStructure";
 
 export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
   const obj: any = {},
@@ -36,10 +37,10 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
 
   return {
     value: obj,
-    length: offset - startOffset,
+    length: offset - startOffset
   };
 }
-export const itemsPackets: any = [
+export const itemsPackets: PacketStructures = [
   ["Items.LoadItemRentalDefinitionManager", 0xad01, {}],
   ["Items.SetItemTimerManager", 0xad02, {}],
   ["Items.SetItemLockTimer", 0xad03, {}],
@@ -90,17 +91,17 @@ export const itemsPackets: any = [
         { name: "unknownDword1", type: "uint32", defaultValue: 0 },
         { name: "itemUseOption", type: "uint32", defaultValue: 0 },
         { name: "characterId", type: "uint64string", defaultValue: "" },
-        { name: "characterId2", type: "uint64string", defaultValue: "" },
-        { name: "characterId3", type: "uint64string", defaultValue: "" },
+        { name: "targetCharacterId", type: "uint64string", defaultValue: "" },
+        { name: "sourceCharacterId", type: "uint64string", defaultValue: "" },
         { name: "itemGuid", type: "uint64string", defaultValue: "" },
         {
           name: "itemSubData",
           type: "custom",
           defaultValue: {},
-          parser: parseItemRequestSubData,
-        },
-      ],
-    },
+          parser: parseItemRequestSubData
+        }
+      ]
+    }
   ],
   ["Items.RequestUseAccountItem", 0xad2b, {}],
   ["Items.RequestRemoveNewAccountItemRec", 0xad2c, {}],
@@ -115,5 +116,5 @@ export const itemsPackets: any = [
   ["Items.SetSkinItemCollectionCustomName", 0xad35, {}],
   ["Items.RequestSelectSkinItemCollection", 0xad36, {}],
   ["Items.RequestOpenAccountCrate", 0xad37, {}],
-  ["Items.RequestPreviewAccountCrateRewards", 0xad38, {}],
+  ["Items.RequestPreviewAccountCrateRewards", 0xad38, {}]
 ];

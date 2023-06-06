@@ -127,7 +127,7 @@ const packets: any = [
   ...warpgatePackets,
   ...wordFilterPackets,
   ...zoneSettingPackets,
-  ...clientPathPackets,
+  ...clientPathPackets
 ];
 
 const [packetTypes, packetDescriptors] = PacketTableBuild(packets);

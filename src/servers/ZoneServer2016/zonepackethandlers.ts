@@ -27,6 +27,7 @@ import {
   eul2quat,
   getDistance,
   getDistance1d,
+  isPosInRadiusWithY
 } from "../../utils/utils";
 
 import { CraftManager } from "./managers/craftmanager";
@@ -40,20 +41,20 @@ import {
   ResourceTypes,
   ItemUseOptions,
   Stances,
-  LoadoutSlots,
+  LoadoutSlots
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionDoor } from "./entities/constructiondoor";
 import { CommandHandler } from "./commands/commandhandler";
-import { Synchronization } from "types/zone2016packets";
+import { ChatChat, Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
   ClientBan,
   ConstructionPermissions,
   DamageInfo,
-  fireHint,
+  fireHint
 } from "types/zoneserver";
 import { positionUpdate } from "types/savedata";
 import { GameTimeSync } from "types/zone2016packets";
@@ -66,9 +67,14 @@ import { DB_COLLECTIONS } from "../../utils/enums";
 import { LootableConstructionEntity } from "./entities/lootableconstructionentity";
 import { Character2016 } from "./entities/character";
 import { Crate } from "./entities/crate";
-import { OBSERVER_GUID } from "../../utils/constants";
+import {
+  EXTERNAL_CONTAINER_GUID,
+  LOADOUT_CONTAINER_GUID,
+  OBSERVER_GUID
+} from "../../utils/constants";
 import { BaseLootableEntity } from "./entities/baselootableentity";
 import { Destroyable } from "./entities/destroyable";
+import { Lootbag } from "./entities/lootbag";
 
 export class ZonePacketHandlers {
   commandHandler: CommandHandler;
@@ -99,7 +105,7 @@ export class ZonePacketHandlers {
     server.setGodMode(client, true);
 
     server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
-      done: true,
+      done: true
     }); // Required for WaitForWorldReady
 
     // Required for WaitForWorldReady
@@ -120,7 +126,7 @@ export class ZonePacketHandlers {
       guid2: "0x0000000000000000",
       guid3: "0x0000000040000000",
       guid4: "0x0000000000000000",
-      gameTime: (server.getServerTime() & 0xffffffff) >>> 0,
+      gameTime: (server.getServerTime() & 0xffffffff) >>> 0
     });
 
     server.sendRawData(client, server.projectileDefinitionsCache);
@@ -166,31 +172,32 @@ export class ZonePacketHandlers {
       client.pingTimer?.refresh();
 
       server.sendData(client, "Command.AddWorldCommand", {
-        command: "help",
+        command: "help"
       });
       Object.values(this.commandHandler.commands).forEach((command) => {
         server.sendData(client, "Command.AddWorldCommand", {
-          command: command.name,
+          command: command.name
         });
       });
 
       server.sendData(client, "Character.WeaponStance", {
         // activates weaponstance key
         characterId: client.character.characterId,
-        stance: 1,
+        stance: 1
       });
       client.character.updateEquipment(server); // needed or third person character will be invisible
       client.character.updateLoadout(server); // needed or all loadout context menu entries aren't shown
       // clear /hax run since switching servers doesn't automatically clear it
       server.sendData(client, "Command.RunSpeed", {
-        runSpeed: 0,
+        runSpeed: 0
       });
       client.character.isReady = true;
+      server.airdropManager(client, true);
     }
     if (!client.character.isAlive || client.character.isRespawning) {
       // try to fix stuck on death screen
       server.sendData(client, "Character.StartMultiStateDeath", {
-        characterId: client.character.characterId,
+        characterId: client.character.characterId
       });
     }
     server.spawnWorkAroundLightWeight(client);
@@ -243,7 +250,7 @@ export class ZonePacketHandlers {
             continue;
           const damageInfo: DamageInfo = {
             entity: `${objVehicle.characterId} collision`,
-            damage: 1000000,
+            damage: 1000000
           };
           destroyable.OnProjectileHit(server, damageInfo);
         }
@@ -268,14 +275,14 @@ export class ZonePacketHandlers {
       if (damage <= 800) return;
       client.character.damage(server, {
         entity: "Server.CollisionDamage",
-        damage: damage,
+        damage: damage
       });
     } else if (vehicle) {
       // leave old system with this damage threshold to damage flipped vehicles
       if (damage > 5000 && damage < 5500) {
         vehicle.damage(server, {
           entity: "Server.CollisionDamage",
-          damage: damage / 50,
+          damage: damage / 50
         });
       }
     }
@@ -345,15 +352,15 @@ export class ZonePacketHandlers {
     const obj = [
       {
         title: "Reported player:",
-        info: `name: ${targetClient.character.name}, id:${targetClient.loginSessionId}`,
+        info: `name: ${targetClient.character.name}, id:${targetClient.loginSessionId}`
       },
       {
         title: "Reported player position:",
-        info: `${targetClient.character.state.position[0]}   ${targetClient.character.state.position[1]}   ${targetClient.character.state.position[2]}`,
+        info: `${targetClient.character.state.position[0]}   ${targetClient.character.state.position[1]}   ${targetClient.character.state.position[2]}`
       },
       {
         title: "Distance between players:",
-        info: `${client.lastDeathReport?.distance}`,
+        info: `${client.lastDeathReport?.distance}`
       },
       {
         title: "Reported player pvp stats:",
@@ -374,19 +381,19 @@ export class ZonePacketHandlers {
         ).toFixed(0)}% | legs ${(
           (targetClient.pvpStats.legs * 100) /
           targetClient.pvpStats.shotsHit
-        ).toFixed(0)}%`,
+        ).toFixed(0)}%`
       },
       { title: "Reported player suspicious processes:", info: `:${logs}` },
       {
         title: "Reported by:",
-        info: `name: ${client.character.name}, id: ${client.loginSessionId}`,
+        info: `name: ${client.character.name}, id: ${client.loginSessionId}`
       },
       {
         title: "Position:",
-        info: `${client.character.state.position[0]}   ${client.character.state.position[1]}   ${client.character.state.position[2]}`,
+        info: `${client.character.state.position[0]}   ${client.character.state.position[1]}   ${client.character.state.position[2]}`
       },
       { title: "Time:", info: `${server.getDateString(Date.now())}` },
-      { title: "Total reports this session:", info: `${targetClient.reports}` },
+      { title: "Total reports this session:", info: `${targetClient.reports}` }
     ];
     delete client.lastDeathReport;
   }
@@ -397,7 +404,7 @@ export class ZonePacketHandlers {
     packet: any
   ) {
     server.sendData(client, "LobbyGameDefinition.DefinitionsResponse", {
-      definitionsData: { data: "" },
+      definitionsData: { data: "" }
     });
   }
   KeepAlive(server: ZoneServer2016, client: Client, packet: any) {
@@ -413,7 +420,7 @@ export class ZonePacketHandlers {
           client.firstReleased = false;
           server.sendData(client, "ClientUpdate.UpdateLocation", {
             position: client.startingPos,
-            triggerLoadingScreen: false,
+            triggerLoadingScreen: false
           });
           client.character.state.position = client.startingPos;
         }
@@ -451,7 +458,7 @@ export class ZonePacketHandlers {
               server._worldId,
               {
                 type: "suspicious software",
-                suspicious: server.fairPlayManager._suspiciousList[x],
+                suspicious: server.fairPlayManager._suspiciousList[x]
               }
             );
           }
@@ -486,13 +493,26 @@ export class ZonePacketHandlers {
           populationTargetPercent: [],
           name: "Z1", // could use this field to load a specific TileInfo
           hexSize: 100,
-          isProductionZone: 1,
-        },
-      ],
+          isProductionZone: 1
+        }
+      ]
     });
   }
-  async ChatChat(server: ZoneServer2016, client: Client, packet: any) {
+  async ChatChat(
+    server: ZoneServer2016,
+    client: Client,
+    packet: { data: ChatChat }
+  ) {
     const { channel, message } = packet.data; // leave channel for later
+
+    if (!server._soloMode) {
+      server._db.collection(DB_COLLECTIONS.CHAT).insertOne({
+        loginSessionId: client.loginSessionId,
+        characterName: client.character.name,
+        serverId: server._worldId,
+        message
+      });
+    }
 
     if (await server.chatManager.checkMute(server, client)) {
       server.sendChatText(client, "You are muted!");
@@ -500,9 +520,18 @@ export class ZonePacketHandlers {
     }
 
     if (!client.radio) {
-      server.chatManager.sendChatToAllInRange(server, client, message, 300);
+      server.chatManager.sendChatToAllInRange(
+        server,
+        client,
+        message as string,
+        300
+      );
     } else if (client.radio) {
-      server.chatManager.sendChatToAllWithRadio(server, client, message);
+      server.chatManager.sendChatToAllWithRadio(
+        server,
+        client,
+        message as string
+      );
     }
   }
   ClientInitializationDetails(
@@ -537,7 +566,7 @@ export class ZonePacketHandlers {
       ...packet.data,
       serverTime: serverTime,
       serverTime2: serverTime,
-      time3: Int64String(Number(packet.data.clientTime)) + 2,
+      time3: Int64String(Number(packet.data.clientTime)) + 2
     };
     server.sendData(client, "Synchronization", reflectedPacket);
     if (client.isSynced) return;
@@ -554,13 +583,17 @@ export class ZonePacketHandlers {
     const isConstruction =
       entity instanceof ConstructionParentEntity ||
       entity instanceof ConstructionDoor;
+
+    const isLootable =
+      entity instanceof LootableConstructionEntity || entity instanceof Lootbag;
     if (
-      !isPosInRadius(
+      !isPosInRadiusWithY(
         entity.interactionDistance || server.interactionDistance,
         client.character.state.position,
         isConstruction
           ? entity.fixedPosition || entity.state.position
-          : entity.state.position
+          : entity.state.position,
+        isLootable ? 1.7 : 5
       )
     )
       return;
@@ -586,7 +619,7 @@ export class ZonePacketHandlers {
     const timerTime = 10000;
     server.sendData(client, "ClientUpdate.StartTimer", {
       stringId: 0,
-      time: timerTime,
+      time: timerTime
     });
     if (client.hudTimer != null) {
       clearTimeout(client.hudTimer);
@@ -603,7 +636,7 @@ export class ZonePacketHandlers {
   ) {
     server.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
-      sessionId: client.loginSessionId,
+      sessionId: client.loginSessionId
     });
   }
   ProfileStatsGetPlayerProfileStats(
@@ -655,7 +688,7 @@ export class ZonePacketHandlers {
       unknownFloat9: 9,
       unknownFloat10: 10,
       unknownFloat11: 11,
-      unknownFloat12: 12,
+      unknownFloat12: 12
     });
   }
   PlayerUpdateManagedPosition(
@@ -667,6 +700,114 @@ export class ZonePacketHandlers {
       console.log("TransientId error detected");
       console.log(packet);
       return;
+    }
+    if (packet.data.positionUpdate.unknown3_int8 == 5) {
+      if (!server._airdrop || !packet.data.positionUpdate.position) return;
+      if (
+        server._airdrop.manager?.character.characterId !=
+        client.character.characterId
+      )
+        return;
+      server._airdrop.plane.state.position = new Float32Array([
+        packet.data.positionUpdate.position[0],
+        400,
+        packet.data.positionUpdate.position[2],
+        1
+      ]);
+      server._airdrop.plane.positionUpdate.orientation =
+        packet.data.positionUpdate.orientation;
+      server._airdrop.plane.state.rotation = eul2quat(
+        new Float32Array([packet.data.positionUpdate.orientation, 0, 0, 0])
+      );
+      server._airdrop.plane.positionUpdate.frontTilt =
+        packet.data.positionUpdate.frontTile;
+      server._airdrop.plane.positionUpdate.sideTilt =
+        packet.data.positionUpdate.sideTilt;
+      if (
+        isPosInRadius(
+          150,
+          packet.data.positionUpdate.position,
+          server._airdrop.destinationPos
+        ) &&
+        !server._airdrop.cargoSpawned &&
+        server._airdrop.cargo
+      ) {
+        server._airdrop.cargoSpawned = true;
+        setTimeout(() => {
+          if (server._airdrop && server._airdrop.cargo) {
+            for (const a in server._clients) {
+              if (!client.firstLoading && !client.isLoading) {
+                server.sendData(server._clients[a], "AddLightweightVehicle", {
+                  ...server._airdrop.cargo.pGetLightweightVehicle(),
+                  unknownGuid1: server.generateGuid()
+                });
+                server.sendData(client, "Character.MovementVersion", {
+                  characterId: server._airdrop.cargo.characterId,
+                  version: 6
+                });
+                server.sendData(
+                  client,
+                  "LightweightToFullVehicle",
+                  server._airdrop.cargo.pGetFullVehicle(server)
+                );
+                server.sendData(client, "Character.SeekTarget", {
+                  characterId: server._airdrop.cargo.characterId,
+                  TargetCharacterId: server._airdrop.cargoTarget,
+                  initSpeed: -5,
+                  acceleration: 0,
+                  speed: 0,
+                  turn: 5,
+                  yRot: 0
+                });
+                server.sendData(client, "Character.ManagedObject", {
+                  objectCharacterId: server._airdrop.cargo.characterId,
+                  characterId: client.character.characterId
+                });
+              }
+            }
+          }
+        }, 4500);
+      }
+      return;
+    } else if (packet.data.positionUpdate.unknown3_int8 == 6) {
+      if (
+        !server._airdrop ||
+        !packet.data.positionUpdate.position ||
+        !server._airdrop.cargo
+      )
+        return;
+      if (
+        server._airdrop.manager?.character.characterId !=
+        client.character.characterId
+      )
+        return;
+      server._airdrop.cargo.state.position = new Float32Array([
+        server._airdrop.cargo.state.position[0],
+        packet.data.positionUpdate.position[1],
+        server._airdrop.cargo.state.position[2],
+        1
+      ]);
+      server._airdrop.cargo.positionUpdate.orientation =
+        packet.data.positionUpdate.orientation;
+      server._airdrop.cargo.positionUpdate.frontTilt =
+        packet.data.positionUpdate.frontTile;
+      server._airdrop.cargo.positionUpdate.sideTilt =
+        packet.data.positionUpdate.sideTilt;
+      if (
+        packet.data.positionUpdate.position[1] <=
+          server._airdrop.destinationPos[1] + 2 &&
+        !server._airdrop.containerSpawned
+      ) {
+        server._airdrop.containerSpawned = true;
+        server.worldObjectManager.createAirdropContainer(
+          server,
+          server._airdrop.destinationPos
+        );
+        for (const a in server._clients) {
+          server.airdropManager(server._clients[a], false);
+        }
+        delete server._airdrop;
+      }
     }
     const characterId: string = server._transientIds[packet.data.transientId],
       vehicle = characterId ? server._vehicles[characterId] : undefined;
@@ -689,7 +830,7 @@ export class ZonePacketHandlers {
           false
         );
         server.sendData(client, "Character.StartMultiStateDeath", {
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         });
         client.blockedPositionUpdates = 0;
         return;
@@ -743,7 +884,7 @@ export class ZonePacketHandlers {
             packet.data.positionUpdate.position[0],
             packet.data.positionUpdate.position[1],
             packet.data.positionUpdate.position[2],
-            1,
+            1
           ]);
           const c = server.getClientByCharId(passenger);
           if (c) c.startLoc = packet.data.positionUpdate.position[1];
@@ -768,7 +909,7 @@ export class ZonePacketHandlers {
         packet.data.positionUpdate.position[0],
         packet.data.positionUpdate.position[1] - 0.4,
         packet.data.positionUpdate.position[2],
-        1,
+        1
       ]);
       // disabled, dont think we need it and wastes alot of resources
       /*if (client.vehicle.mountedVehicle === characterId) {
@@ -792,7 +933,7 @@ export class ZonePacketHandlers {
       "PlayerUpdatePosition",
       {
         transientId: packet.data.transientId,
-        positionUpdate: packet.data.positionUpdate,
+        positionUpdate: packet.data.positionUpdate
       }
     );
     //}
@@ -821,7 +962,7 @@ export class ZonePacketHandlers {
       packet.data.guid,
       "Vehicle.StateData",
       {
-        ...packet.data,
+        ...packet.data
       }
     );
   }
@@ -848,7 +989,7 @@ export class ZonePacketHandlers {
           false
         );
         server.sendData(client, "Character.StartMultiStateDeath", {
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         });
         return;
       }
@@ -872,7 +1013,7 @@ export class ZonePacketHandlers {
         );
         server.sendData(client, "ClientUpdate.UpdateLocation", {
           position: pos,
-          triggerLoadingScreen: true,
+          triggerLoadingScreen: true
         });
       }
       if (
@@ -957,7 +1098,7 @@ export class ZonePacketHandlers {
         packet.data.position[0],
         packet.data.position[1],
         packet.data.position[2],
-        0,
+        0
       ]);
       if (
         client.hudTimer != null &&
@@ -999,7 +1140,7 @@ export class ZonePacketHandlers {
           packet.data.vehicle_position[0],
           packet.data.vehicle_position[1],
           packet.data.vehicle_position[2],
-          0,
+          0
         ]);
     }
     if (packet.data.rotation) {
@@ -1007,14 +1148,14 @@ export class ZonePacketHandlers {
         packet.data.rotation[0],
         packet.data.rotation[1],
         packet.data.rotation[2],
-        packet.data.rotation[3],
+        packet.data.rotation[3]
       ]);
       client.character.state.yaw = packet.data.rotationRaw[0];
       client.character.state.lookAt = new Float32Array([
         packet.data.lookAt[0],
         packet.data.lookAt[1],
         packet.data.lookAt[2],
-        packet.data.lookAt[3],
+        packet.data.lookAt[3]
       ]);
     }
     if (
@@ -1024,7 +1165,7 @@ export class ZonePacketHandlers {
     ) {
       server.sendDataToAll("PlayerUpdatePosition", {
         transientId: client.character.transientId,
-        positionUpdate: packet.data,
+        positionUpdate: packet.data
       });
     }
   }
@@ -1040,7 +1181,7 @@ export class ZonePacketHandlers {
     server.dropAllManagedObjects(client);
     server.sendData(client, "ClientUpdate.UpdateLocation", {
       position: [packet.data.x, 355, packet.data.y, 1],
-      triggerLoadingScreen: false,
+      triggerLoadingScreen: false
     });
     server.sendData(client, "ClientUpdate.UpdateManagedLocation", {
       characterId: OBSERVER_GUID,
@@ -1048,9 +1189,9 @@ export class ZonePacketHandlers {
         packet.data.x,
         client.character.state.position[1],
         packet.data.y,
-        1,
+        1
       ],
-      triggerLoadingScreen: false,
+      triggerLoadingScreen: false
     });
   }
   CharacterFullCharacterDataRequest(
@@ -1058,6 +1199,47 @@ export class ZonePacketHandlers {
     client: Client,
     packet: any
   ) {
+    if (packet.data.characterId == EXTERNAL_CONTAINER_GUID) {
+      server.sendData(client, "LightweightToFullNpc", {
+        transientId: 0,
+        attachmentData: {},
+        characterId: EXTERNAL_CONTAINER_GUID,
+        resources: {
+          data: {}
+        },
+        effectTags: [],
+        unknownData1: {},
+        targetData: {},
+        unknownArray1: [],
+        unknownArray2: [],
+        unknownArray3: { data: {} },
+        unknownArray4: { data: {} },
+        unknownArray5: { data: {} },
+        remoteWeapons: {
+          isVehicle: false,
+          data: {}
+        },
+        itemsData: {
+          items: {},
+          unknownDword1: 0
+        }
+      });
+      return;
+    }
+
+    if (server._airdrop) {
+      if (server._airdrop.plane.characterId == packet.data.characterId) {
+        server._airdrop.plane.OnFullCharacterDataRequest(server, client);
+        return;
+      } else if (
+        server._airdrop.cargo &&
+        server._airdrop.cargo.characterId == packet.data.characterId
+      ) {
+        server._airdrop.cargo.OnFullCharacterDataRequest(server, client);
+        return;
+      }
+    }
+
     const entity = server.getEntity(packet.data.characterId);
     if (!(entity instanceof BaseFullCharacter) && !(entity instanceof Plant)) {
       return;
@@ -1069,6 +1251,7 @@ export class ZonePacketHandlers {
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
     if (
+      !client.character.isAlive ||
       !client.character.currentInteractionGuid ||
       packet.data.password === 1
     ) {
@@ -1079,6 +1262,22 @@ export class ZonePacketHandlers {
       client.character.currentInteractionGuid
     ] as ConstructionDoor;
     if (!doorEntity) {
+      server.sendAlert(client, "Code lock failed!");
+      return;
+    }
+    const now = Date.now();
+    const then = client.character.lastLockFailure;
+    const diff = now - then;
+    if (
+      diff <= 5000 ||
+      !isPosInRadius(
+        client.character.interactionDistance * 4.0,
+        client.character.state.position,
+        doorEntity.fixedPosition
+          ? doorEntity.fixedPosition
+          : doorEntity.state.position
+      )
+    ) {
       server.sendAlert(client, "Code lock failed!");
       return;
     }
@@ -1104,12 +1303,13 @@ export class ZonePacketHandlers {
         useContainers: false,
         build: false,
         demolish: false,
-        visit: true,
+        visit: true
       };
     } else {
+      client.character.lastLockFailure = now;
       const damageInfo: DamageInfo = {
         entity: "Server.InvalidLockCode",
-        damage: 1000,
+        damage: 1000
       };
       client.character.damage(server, damageInfo);
     }
@@ -1164,7 +1364,6 @@ export class ZonePacketHandlers {
       )
     )
       return;
-
     client.character.currentInteractionGuid = packet.data.guid;
     client.character.lastInteractionTime = Date.now();
     if (
@@ -1174,7 +1373,7 @@ export class ZonePacketHandlers {
     ) {
       server.sendData(client, "Replication.NpcComponent", {
         transientId: entity.transientId,
-        nameId: entity.nameId,
+        nameId: entity.nameId
       });
       client.sentInteractionData.push(entity);
       if (
@@ -1184,7 +1383,7 @@ export class ZonePacketHandlers {
         )
       ) {
         server.sendData(client, "Replication.InteractionComponent", {
-          transientId: entity.transientId,
+          transientId: entity.transientId
         });
       }
     }
@@ -1202,7 +1401,7 @@ export class ZonePacketHandlers {
     const array = new Float32Array([
       packet.data.rotation1[3],
       packet.data.rotation1[1],
-      packet.data.rotation2[2],
+      packet.data.rotation2[2]
     ]);
     const matrix = quat2matrix(array);
     const euler = [
@@ -1211,7 +1410,7 @@ export class ZonePacketHandlers {
         -matrix[6],
         Math.sqrt(Math.pow(matrix[7], 2) + Math.pow(matrix[8], 2))
       ),
-      Math.atan2(matrix[3], matrix[0]),
+      Math.atan2(matrix[3], matrix[0])
     ];
     let final;
     if (euler[0] >= 0) {
@@ -1259,14 +1458,14 @@ export class ZonePacketHandlers {
           HUD_IMAGE_SET_ID: itemDef.IMAGE_SET_ID,
           ITEM_TYPE_1: itemDef.ITEM_TYPE,
           flags1: {
-            ...itemDef,
+            ...itemDef
           },
           flags2: {
-            ...itemDef,
+            ...itemDef
           },
-          stats: [],
-        },
-      },
+          stats: []
+        }
+      }
     });
     if (server.isContainer(itemDef.ID)) {
       // Fixes containers missing an itemdefinition not showing in inventory
@@ -1284,14 +1483,14 @@ export class ZonePacketHandlers {
       "Character.WeaponStance",
       {
         characterId: client.character.characterId,
-        stance: packet.data.stance,
+        stance: packet.data.stance
       }
     );
   }
   CommandRedeploy(server: ZoneServer2016, client: Client, packet: any) {
     const damageInfo: DamageInfo = {
       entity: "",
-      damage: 0,
+      damage: 0
     };
     server.killCharacter(client, damageInfo);
   }
@@ -1306,28 +1505,75 @@ export class ZonePacketHandlers {
   CommandSuicide(server: ZoneServer2016, client: Client, packet: any) {
     server.killCharacter(client, {
       entity: client.character.characterId,
-      damage: 9999,
+      damage: 9999
     });
   }
   //#region ITEMS
   RequestUseItem(server: ZoneServer2016, client: Client, packet: any) {
     debug(packet.data);
-    if (packet.data.itemSubData?.count < 1) return;
-    const { itemGuid } = packet.data;
+    const { itemGuid, itemUseOption, targetCharacterId, sourceCharacterId } =
+      packet.data;
+    const { count } = packet.data.itemSubData;
+
+    if (count < 1) return;
     if (!itemGuid) {
       server.sendChatText(client, "[ERROR] ItemGuid is invalid!");
       return;
     }
-    const item = client.character.getInventoryItem(itemGuid);
+
+    let character = server.getEntity(sourceCharacterId);
+
+    if (!character && client.character.mountedContainer) {
+      character = client.character.mountedContainer;
+    }
+
+    if (
+      !character ||
+      (!(character instanceof BaseLootableEntity) &&
+        !(character instanceof Character2016))
+    ) {
+      server.sendChatText(client, "Invalid character!");
+      return;
+    }
+
+    // temporarily block most use options from external containers
+    switch (itemUseOption) {
+      case ItemUseOptions.LOOT:
+      case ItemUseOptions.LOOT_BATTERY:
+      case ItemUseOptions.LOOT_SPARKS:
+      case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
+      case ItemUseOptions.DROP:
+      case ItemUseOptions.DROP_BATTERY:
+      case ItemUseOptions.DROP_SPARKS:
+      case ItemUseOptions.HOTWIRE_OFFROADER:
+      case ItemUseOptions.HOTWIRE_PICKUP:
+      case ItemUseOptions.HOTWIRE_POLICE:
+      case ItemUseOptions.HOTWIRE_ATV:
+      case ItemUseOptions.HOTWIRE_ATV_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_OFFROADER_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_PICKUP_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_POLICE_NO_PARTS:
+        break;
+      default:
+        if (!(character instanceof Character2016)) {
+          server.sendAlert(
+            client,
+            "This use option is temporarily disabled from use in containers."
+          );
+          return;
+        }
+    }
+
+    const item = character.getInventoryItem(itemGuid);
     if (!item) {
       server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
       return;
     }
-    const loadoutSlotId = client.character.getActiveLoadoutSlot(itemGuid);
+    const loadoutSlotId = character.getActiveLoadoutSlot(itemGuid);
     if (
       loadoutSlotId &&
-      client.character._containers[loadoutSlotId]?.itemGuid == itemGuid &&
-      _.size(client.character._containers[loadoutSlotId].items) != 0
+      character._containers[loadoutSlotId]?.itemGuid == itemGuid &&
+      _.size(character._containers[loadoutSlotId].items) != 0
     ) {
       // prevents duping if client check is bypassed
       server.sendChatText(
@@ -1337,7 +1583,7 @@ export class ZonePacketHandlers {
       return;
     }
 
-    let container = client.character.getItemContainer(itemGuid);
+    let container = character.getItemContainer(itemGuid);
 
     // check for item in mounted container
     if (!container && client.character.mountedContainer) {
@@ -1350,11 +1596,15 @@ export class ZonePacketHandlers {
         container = mountedContainer;
       }
     }
-    switch (packet.data.itemUseOption) {
+    switch (itemUseOption) {
       case ItemUseOptions.DROP:
       case ItemUseOptions.DROP_BATTERY:
       case ItemUseOptions.DROP_SPARKS:
-        server.dropItem(client, item, packet.data.itemSubData?.count);
+        server.dropItem(character, item, count);
+        if (character instanceof BaseLootableEntity) {
+          // remount container to keep items from changing slotIds
+          client.character.mountContainer(server, character);
+        }
         break;
       case ItemUseOptions.SLICE:
         server.sliceItem(client, item);
@@ -1376,7 +1626,12 @@ export class ZonePacketHandlers {
               loadoutSlotId = server.getLoadoutSlot(item.itemDefinitionId);
             }
             client.character.currentLoadoutSlot = loadoutSlotId;
-            server.equipContainerItem(client, item, loadoutSlotId);
+            client.character.equipContainerItem(
+              server,
+              item,
+              loadoutSlotId,
+              character
+            );
           } else {
             if (!activeSlotId) {
               server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
@@ -1403,10 +1658,11 @@ export class ZonePacketHandlers {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
-          server.equipContainerItem(
-            client,
+          client.character.equipContainerItem(
+            server,
             item,
-            server.getLoadoutSlot(item.itemDefinitionId)
+            server.getLoadoutSlot(item.itemDefinitionId),
+            character
           );
         }
         break;
@@ -1418,11 +1674,14 @@ export class ZonePacketHandlers {
       case ItemUseOptions.USE_MEDICAL:
         server.useConsumable(client, item);
         break;
+      case ItemUseOptions.USE_AIRDROP:
+        server.useAirdrop(client, item);
+        break;
       case ItemUseOptions.USE:
         server.useItem(client, item);
         break;
       case ItemUseOptions.REFUEL:
-        server.refuelVehicle(client, item, packet.data.characterId2);
+        server.refuelVehicle(client, item, targetCharacterId);
         break;
       case ItemUseOptions.IGNITE:
         server.igniteOption(client, item);
@@ -1438,6 +1697,107 @@ export class ZonePacketHandlers {
         break;
       case ItemUseOptions.SALVAGE:
         server.salvageAmmo(client, item);
+        break;
+      case ItemUseOptions.LOOT:
+        const containerEnt = client.character.mountedContainer,
+          c = containerEnt?.getContainer();
+
+        if (!containerEnt || !c) {
+          server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
+          return;
+        }
+
+        client.character.lootItemFromContainer(server, c, item, count);
+
+        // remount container to keep items from changing slotIds
+        client.character.mountContainer(server, containerEnt);
+        break;
+      case ItemUseOptions.MOVE:
+        const sourceContainer = client.character.getItemContainer(itemGuid),
+          targetCharacter = client.character.mountedContainer;
+
+        if (
+          !targetCharacter ||
+          !(targetCharacter instanceof BaseLootableEntity) ||
+          !isPosInRadius(
+            targetCharacter.interactionDistance,
+            client.character.state.position,
+            targetCharacter.state.position
+          )
+        ) {
+          server.sendChatText(client, "Invalid target character 1!");
+          return;
+        }
+
+        if (!sourceContainer) {
+          server.sendChatText(client, "Invalid source container 1!");
+          return;
+        }
+
+        const targetContainer = targetCharacter.getContainer();
+
+        if (!targetContainer) {
+          server.sendChatText(client, "Invalid target container 1!");
+          return;
+        }
+
+        sourceContainer.transferItem(server, targetContainer, item, 0, count);
+        break;
+
+      case ItemUseOptions.LOOT_BATTERY:
+      case ItemUseOptions.LOOT_SPARKS:
+      case ItemUseOptions.LOOT_VEHICLE_LOADOUT:
+        const sourceCharacter = client.character.mountedContainer;
+        if (!sourceCharacter) return;
+        const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
+        if (loadoutItem) {
+          const container = client.character.getAvailableContainer(
+            server,
+            loadoutItem.itemDefinitionId,
+            1
+          );
+          if (!container) {
+            server.sendData(client, "Character.NoSpaceNotification", {
+              characterId: client.character.characterId
+            });
+            return;
+          }
+          sourceCharacter.transferItemFromLoadout(
+            server,
+            container,
+            loadoutItem
+          );
+          if (sourceCharacter instanceof Vehicle2016) {
+            sourceCharacter.checkEngineRequirements(server);
+          }
+          return;
+        }
+        break;
+      case ItemUseOptions.HOTWIRE_OFFROADER:
+      case ItemUseOptions.HOTWIRE_PICKUP:
+      case ItemUseOptions.HOTWIRE_POLICE:
+      case ItemUseOptions.HOTWIRE_ATV:
+        const vehicle = server._vehicles[client.vehicle.mountedVehicle || ""];
+        if (!vehicle) return;
+        vehicle.hotwire(server);
+        break;
+      case ItemUseOptions.HOTWIRE_ATV_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_OFFROADER_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_PICKUP_NO_PARTS:
+      case ItemUseOptions.HOTWIRE_POLICE_NO_PARTS:
+        const v = server._vehicles[client.vehicle.mountedVehicle || ""];
+        if (!v) return;
+        if (!v.hasFuel()) {
+          server.sendAlert(
+            client,
+            "This vehicle will not run without fuel.  It can be created from animal fat or from corn based ethanol."
+          );
+          return;
+        }
+        server.sendAlert(
+          client,
+          "Parts may be required. Open vehicle loadout."
+        );
         break;
       default:
         server.sendChatText(
@@ -1464,7 +1824,7 @@ export class ZonePacketHandlers {
     }
     server.sendData(client, "Construction.PlacementResponse", {
       itemDefinitionId: packet.data.itemDefinitionId,
-      model: modelId,
+      model: modelId
     });
   }
   ContainerMoveItem(server: ZoneServer2016, client: Client, packet: any) {
@@ -1474,12 +1834,29 @@ export class ZonePacketHandlers {
       itemGuid,
       targetCharacterId,
       count,
-      newSlotId,
+      newSlotId
     } = packet.data;
-    if (characterId == client.character.characterId) {
+    const sourceCharacterId = characterId;
+    if (client.character.mountedContainer) {
+      if (
+        !isPosInRadiusWithY(
+          client.character.mountedContainer.interactionDistance,
+          client.character.state.position,
+          client.character.mountedContainer.state.position,
+          2.5
+        )
+      ) {
+        client.character.dismountContainer(server);
+        return;
+      }
+    }
+
+    if (sourceCharacterId == client.character.characterId) {
+      const sourceCharacter = client.character;
+
       // from client container
-      if (characterId == targetCharacterId) {
-        // from / to client or mounted container
+      if (sourceCharacterId == targetCharacterId) {
+        // from / to client container
         const sourceContainer = client.character.getItemContainer(itemGuid),
           targetContainer =
             client.character.getContainerFromGuid(containerGuid);
@@ -1500,7 +1877,7 @@ export class ZonePacketHandlers {
               item.weapon.ammoCount > 0 &&
               item.weapon.itemDefinitionId != Items.WEAPON_REMOVER
             ) {
-              client.character.lootContainerItem(
+              sourceCharacter.lootContainerItem(
                 server,
                 ammo,
                 ammo.stackCount,
@@ -1518,17 +1895,17 @@ export class ZonePacketHandlers {
               newSlotId,
               count
             );
-          } else if (containerGuid == "0xffffffffffffffff") {
+          } else if (containerGuid == LOADOUT_CONTAINER_GUID) {
             // to loadout
-            if (
+            /*if (
               server.validateLoadoutSlot(
                 item.itemDefinitionId,
                 newSlotId,
                 client.character.loadoutId
               )
-            ) {
-              server.equipContainerItem(client, item, newSlotId);
-            }
+            ) {*/
+            sourceCharacter.equipContainerItem(server, item, newSlotId);
+            //}
           } else {
             // invalid
             server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
@@ -1537,53 +1914,18 @@ export class ZonePacketHandlers {
           // from loadout or invalid
 
           // loadout
-          const loadoutItem = client.character.getLoadoutItem(itemGuid);
+          const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
           if (!loadoutItem) {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return;
           }
           if (targetContainer) {
-            // to container
-            if (
-              !targetContainer.getHasSpace(
-                server,
-                loadoutItem.itemDefinitionId,
-                count
-              )
-            ) {
-              server.containerError(client, ContainerErrors.NO_SPACE);
-              return;
-            }
-            if (!server.removeLoadoutItem(client, loadoutItem.slotId)) {
-              server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
-              return;
-            }
-            if (loadoutItem.weapon) {
-              const ammo = server.generateItem(
-                server.getWeaponAmmoId(loadoutItem.itemDefinitionId),
-                loadoutItem.weapon.ammoCount
-              );
-              if (
-                ammo &&
-                loadoutItem.weapon.ammoCount > 0 &&
-                loadoutItem.weapon.itemDefinitionId != Items.WEAPON_REMOVER
-              ) {
-                client.character.lootContainerItem(
-                  server,
-                  ammo,
-                  ammo.stackCount,
-                  true
-                );
-              }
-              loadoutItem.weapon.ammoCount = 0;
-            }
-            server.addContainerItem(
-              client.character,
-              loadoutItem,
+            sourceCharacter.transferItemFromLoadout(
+              server,
               targetContainer,
-              false
+              loadoutItem
             );
-          } else if (containerGuid == "0xffffffffffffffff") {
+          } else if (containerGuid == LOADOUT_CONTAINER_GUID) {
             // to loadout
             const loadoutItem = client.character.getLoadoutItem(itemGuid);
             if (!loadoutItem) {
@@ -1602,11 +1944,167 @@ export class ZonePacketHandlers {
         }
       } else {
         // to external container
-        // not used for now with the external container workaround
+        const sourceContainer = sourceCharacter.getItemContainer(itemGuid),
+          targetCharacter = sourceCharacter.mountedContainer;
+
+        if (
+          !targetCharacter ||
+          !(targetCharacter instanceof BaseLootableEntity) ||
+          !isPosInRadius(
+            targetCharacter.interactionDistance,
+            sourceCharacter.state.position,
+            targetCharacter.state.position
+          )
+        ) {
+          server.sendChatText(client, "Invalid target character 2!");
+          return;
+        }
+
+        const targetContainer = targetCharacter.getContainer();
+        if (!targetContainer) {
+          server.sendChatText(client, "Invalid target container 2!");
+          return;
+        }
+
+        const loadoutItem = sourceCharacter.getLoadoutItem(itemGuid);
+        if (loadoutItem) {
+          sourceCharacter.transferItemFromLoadout(
+            server,
+            targetContainer,
+            loadoutItem
+          );
+          sourceCharacter.mountContainer(server, targetCharacter);
+          return;
+        }
+
+        if (!sourceContainer) {
+          server.sendChatText(client, "Invalid source container 2!");
+          return;
+        }
+
+        const item = sourceContainer.items[itemGuid];
+        if (!item) {
+          server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+          return;
+        }
+
+        if (containerGuid == LOADOUT_CONTAINER_GUID) {
+          // to loadout
+          if (
+            !server.validateLoadoutSlot(
+              item.itemDefinitionId,
+              newSlotId,
+              targetCharacter.loadoutId
+            )
+          )
+            return;
+
+          targetCharacter.equipContainerItem(
+            server,
+            item,
+            newSlotId,
+            sourceCharacter
+          );
+          if (targetCharacter instanceof Vehicle2016) {
+            targetCharacter.checkEngineRequirements(server);
+          }
+          return;
+        }
+
+        sourceContainer.transferItem(
+          server,
+          targetContainer,
+          item,
+          newSlotId,
+          count
+        );
       }
     } else {
       // from external container
-      // not used for now with the external container workaround
+      const sourceCharacter = client.character.mountedContainer;
+      if (
+        !sourceCharacter ||
+        !(sourceCharacter instanceof BaseLootableEntity) ||
+        !isPosInRadius(
+          sourceCharacter.interactionDistance,
+          client.character.state.position,
+          sourceCharacter.state.position
+        )
+      ) {
+        server.sendChatText(client, "Invalid source character 1!");
+        return;
+      }
+
+      const sourceContainer = sourceCharacter.getItemContainer(itemGuid);
+      if (!sourceContainer) {
+        server.sendChatText(client, "Invalid source container 3!");
+        return;
+      }
+
+      const item = sourceContainer.items[itemGuid];
+      if (!item) {
+        server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
+        return;
+      }
+
+      if (!Number(containerGuid)) {
+        client.character.lootItemFromContainer(
+          server,
+          sourceContainer,
+          item,
+          item.stackCount
+        );
+        // remount container to keep items from changing slotIds
+        //client.character.mountContainer(server, sourceCharacter);
+        return;
+      }
+
+      const targetContainer =
+        client.character.getContainerFromGuid(containerGuid);
+
+      if (targetContainer) {
+        // to container
+
+        if (
+          !targetContainer.getHasSpace(server, item.itemDefinitionId, count)
+        ) {
+          server.sendData(client, "Character.NoSpaceNotification", {
+            characterId: client.character.characterId
+          });
+          return;
+        }
+
+        sourceContainer.transferItem(
+          server,
+          targetContainer,
+          item,
+          newSlotId,
+          count
+        );
+      } else if (containerGuid == LOADOUT_CONTAINER_GUID) {
+        // to loadout
+        if (
+          server.validateLoadoutSlot(
+            item.itemDefinitionId,
+            newSlotId,
+            client.character.loadoutId
+          )
+        ) {
+          client.character.equipContainerItem(
+            server,
+            item,
+            newSlotId,
+            sourceCharacter
+          );
+        }
+      } else if (sourceCharacter.getContainerFromGuid(containerGuid)) {
+        // remount container if trying to move around items in one container since slotIds aren't setup yet
+        client.character.mountContainer(server, sourceCharacter);
+      } else {
+        // invalid
+        server.containerError(client, ContainerErrors.UNKNOWN_CONTAINER);
+      }
+      return;
     }
   }
   LoadoutSelectSlot(server: ZoneServer2016, client: Client, packet: any) {
@@ -1685,7 +2183,7 @@ export class ZonePacketHandlers {
         permissions: Object.values(foundation.permissions).filter(
           (perm: ConstructionPermissions) =>
             perm.characterId != foundation.ownerCharacterId
-        ),
+        )
       }
     );
   }
@@ -1723,7 +2221,7 @@ export class ZonePacketHandlers {
         useContainers: false,
         build: false,
         demolish: false,
-        visit: false,
+        visit: false
       };
     }
     switch (packet.data.permissionSlot) {
@@ -1759,7 +2257,7 @@ export class ZonePacketHandlers {
         permissions: Object.values(foundation.permissions).filter(
           (perm: ConstructionPermissions) =>
             perm.characterId != foundation.ownerCharacterId
-        ),
+        )
       }
     );
   }
@@ -1778,6 +2276,9 @@ export class ZonePacketHandlers {
         handleWeaponPacket(packet.data.weaponPacket);
         break;
     }
+
+    // this function is disgusting: TODO: FIX IT - MEME
+
     function handleWeaponPacket(p: any) {
       const weaponItem = client.character.getEquippedWeapon();
       if (!weaponItem || !weaponItem.weapon) return;
@@ -1833,9 +2334,9 @@ export class ZonePacketHandlers {
                         new Float32Array([
                           vehicle.positionUpdate.orientation,
                           vehicle.positionUpdate.sideTilt,
-                          vehicle.positionUpdate.frontTilt,
+                          vehicle.positionUpdate.frontTilt
                         ])
-                      ),
+                      )
                     });
                   }
                 }
@@ -1857,7 +2358,7 @@ export class ZonePacketHandlers {
               const allowedSpawners = [
                 "Wrecked Van",
                 "Wrecked Car",
-                "Wrecked Truck",
+                "Wrecked Truck"
               ];
               if (!client.character.temporaryScrapSoundTimeout) {
                 server.sendCompositeEffectToAllInRange(
@@ -1922,7 +2423,52 @@ export class ZonePacketHandlers {
                     entity.itemDefinitionId != Items.FOUNDATION_RAMP &&
                     entity.itemDefinitionId != Items.FOUNDATION_STAIRS
                   ) {
-                    entity.destroy(server);
+                    if (!client.character.temporaryScrapSoundTimeout) {
+                      client.character.temporaryScrapSoundTimeout = setTimeout(
+                        () => {
+                          delete client.character.temporaryScrapSoundTimeout;
+                        },
+                        375
+                      );
+                      server.sendCompositeEffectToAllInRange(
+                        15,
+                        client.character.characterId,
+                        entity.state.position,
+                        1667
+                      );
+                      const damageInfo: DamageInfo = {
+                        entity: "Server.DemoHammer",
+                        damage: 250000
+                      };
+                      if (entity instanceof ConstructionParentEntity) {
+                        entity.damageSimpleNpc(
+                          server,
+                          damageInfo,
+                          server._constructionFoundations
+                        );
+                      } else if (entity instanceof ConstructionChildEntity) {
+                        entity.damageSimpleNpc(
+                          server,
+                          damageInfo,
+                          server._constructionSimple
+                        );
+                      } else if (entity instanceof ConstructionDoor) {
+                        entity.damageSimpleNpc(
+                          server,
+                          damageInfo,
+                          server._constructionDoors
+                        );
+                      } else if (entity instanceof LootableConstructionEntity) {
+                        entity.damageSimpleNpc(
+                          server,
+                          damageInfo,
+                          server._lootableConstruction
+                        );
+                      }
+
+                      if (entity.health > 0) return;
+                      entity.destroy(server);
+                    }
                   }
                 }
               } else {
@@ -1973,7 +2519,7 @@ export class ZonePacketHandlers {
                 );
                 const damageInfo: DamageInfo = {
                   entity: "Server.WorkAroundMelee",
-                  damage: 1250,
+                  damage: 1250
                 };
                 entity.OnProjectileHit(server, damageInfo);
               }
@@ -2005,7 +2551,7 @@ export class ZonePacketHandlers {
                 );
                 const damageInfo: DamageInfo = {
                   entity: "Server.WorkAroundMelee",
-                  damage: 700,
+                  damage: 700
                 };
                 entity.OnProjectileHit(server, damageInfo);
               }
@@ -2030,8 +2576,8 @@ export class ZonePacketHandlers {
                 state: {
                   firestate: 64,
                   transientId: client.character.transientId,
-                  position: client.character.state.position,
-                },
+                  position: client.character.state.position
+                }
               }
             );
           }
@@ -2061,8 +2607,8 @@ export class ZonePacketHandlers {
               state: {
                 firestate: p.packet.firestate,
                 transientId: client.character.transientId,
-                position: client.character.state.position,
-              },
+                position: client.character.state.position
+              }
             }
           );
           if (weaponItem.weapon.ammoCount)
@@ -2112,9 +2658,11 @@ export class ZonePacketHandlers {
             let blockedTime = 50;
             switch (weaponItem.itemDefinitionId) {
               case Items.WEAPON_308:
+              case Items.WEAPON_REAPER:
                 blockedTime = 1300;
                 break;
               case Items.WEAPON_SHOTGUN:
+              case Items.WEAPON_NAGAFENS_RAGE:
                 blockedTime = 400;
                 break;
             }
@@ -2131,7 +2679,10 @@ export class ZonePacketHandlers {
           )
             hitNumber = 1;
           const shotProjectiles =
-            weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ? 12 : 1;
+            weaponItem.itemDefinitionId == Items.WEAPON_SHOTGUN ||
+            weaponItem.itemDefinitionId == Items.WEAPON_NAGAFENS_RAGE
+              ? 12
+              : 1;
           for (let x = 0; x < shotProjectiles; x++) {
             const fireHint: fireHint = {
               id: p.packet.sessionProjectileCount + x,
@@ -2139,7 +2690,7 @@ export class ZonePacketHandlers {
               rotation: client.character.state.yaw,
               hitNumber: hitNumber,
               weaponItem: weaponItem,
-              timeStamp: p.gameTime,
+              timeStamp: p.gameTime
             };
             client.fireHints[p.packet.sessionProjectileCount + x] = fireHint;
             setTimeout(() => {
@@ -2200,8 +2751,8 @@ export class ZonePacketHandlers {
               state: {
                 firestate: 0,
                 transientId: client.character.transientId,
-                position: client.character.state.position,
-              },
+                position: client.character.state.position
+              }
             }
           );
           server.sendRemoteWeaponUpdateDataToAllOthers(
@@ -2270,7 +2821,7 @@ export class ZonePacketHandlers {
                   weaponItem.itemGuid,
                   "Update.ReloadLoopEnd",
                   {
-                    endLoop: true,
+                    endLoop: true
                   }
                 );
                 client.character.clearReloadTimeout();
@@ -2285,7 +2836,7 @@ export class ZonePacketHandlers {
                   weaponItem.itemGuid,
                   "Update.ReloadLoopEnd",
                   {
-                    endLoop: true,
+                    endLoop: true
                   }
                 );
                 client.character.clearReloadTimeout();
@@ -2341,7 +2892,7 @@ export class ZonePacketHandlers {
             "Update.SwitchFireMode",
             {
               firegroupIndex: p.packet.firegroupIndex,
-              firemodeIndex: p.packet.firemodeIndex,
+              firemodeIndex: p.packet.firemodeIndex
             }
           );
           break;
@@ -2414,7 +2965,7 @@ export class ZonePacketHandlers {
             weaponItem.itemGuid,
             "Update.AimBlocked",
             {
-              aimBlocked: p.packet.aimBlocked,
+              aimBlocked: p.packet.aimBlocked
             }
           );
           break;
@@ -2428,7 +2979,7 @@ export class ZonePacketHandlers {
               characterId: p.packet.characterId,
               position: p.packet.position,
               rotation: p.packet.rotation,
-              gameTime: p.gameTime,
+              gameTime: p.gameTime
             };
           }
           break;

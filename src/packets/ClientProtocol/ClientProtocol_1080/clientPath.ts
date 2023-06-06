@@ -10,14 +10,15 @@
 //
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
+import { PacketStructures } from "types/packetStructure";
 
-export const clientPathPackets: any = [
+export const clientPathPackets: PacketStructures = [
   [
     "ClientPath.Request",
     0x3e01,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "ClientPath.Reply",
@@ -34,11 +35,11 @@ export const clientPathPackets: any = [
             {
               name: "node",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 0],
-            },
-          ],
-        },
-      ],
-    },
-  ],
+              defaultValue: [0, 0, 0, 0]
+            }
+          ]
+        }
+      ]
+    }
+  ]
 ];
