@@ -494,6 +494,13 @@ export class ZoneServer2016 extends EventEmitter {
                 break;
               }
               case "CharacterAllowedRequest": {
+                /*
+                this._h1emuZoneServer.sendData(
+                  client,
+                  "ClientMessage",
+                  { loginSessionId: "", message: "HELLO WORLD", showConsole: true, clearOutput: true }
+                );
+                */
                 const { characterId, reqId } = packet.data;
                 const banInfos = packet.data.banInfos ?? [];
                 try {

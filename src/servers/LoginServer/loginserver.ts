@@ -271,6 +271,25 @@ export class LoginServer extends EventEmitter {
                     }
                     break;
                   }
+                  /*
+                  case "ClientMessage": {
+                    const { loginSessionId, message, showConsole, clearOutput } = packet.data;
+
+                    console.log("CLIENTMESSAGE");
+                    console.log(message)
+
+                    const client = this.clients.get(loginSessionId);
+
+                    if(!client) return;
+
+                    this.sendData(client, "H1emu.PrintToConsole", {
+                      message: message,
+                      showConsole: showConsole,
+                      clearOutput: clearOutput
+                    });
+                    break;
+                  }
+                  */
                   default:
                     console.log(`Unhandled h1emu packet: ${packet.name}`);
                     break;
