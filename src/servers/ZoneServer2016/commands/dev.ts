@@ -782,7 +782,7 @@ const dev: any = {
     client: Client,
     args: Array<string>
   ) {
-    // THIS IS CURRENTLY UNSAFE AND CAN RESULT IN THE SAME HOOK BEING CALLED MULTIPLE TIMES!
+    // THIS IS CURRENTLY UNSAFE AND WILL RESULT IN THE SAME HOOK BEING CALLED MULTIPLE TIMES!
 
     server.sendChatText(client, "Reloading plugins...");
     await server.pluginManager.initializePlugins(server);

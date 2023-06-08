@@ -1,3 +1,16 @@
+// ======================================================================
+//
+//   GNU GENERAL PUBLIC LICENSE
+//   Version 3, 29 June 2007
+//   copyright (C) 2020 - 2021 Quentin Gruber
+//   copyright (C) 2021 - 2023 H1emu community
+//
+//   https://github.com/QuentinGruber/h1z1-server
+//   https://www.npmjs.com/package/h1z1-server
+//
+//   Based on https://github.com/psemu/soe-network
+// ======================================================================
+
 import * as fs from 'fs';
 import * as path from 'path';
 import * as ts from 'typescript';
@@ -10,6 +23,28 @@ export abstract class BasePlugin {
   public abstract init(server: ZoneServer2016): void;
 }
 
+function searchFolder(directory: string, folderName: string): string | null {
+  const files = fs.readdirSync(directory);
+
+  for (const file of files) {
+    const filePath = path.join(directory, file);
+    const stats = fs.statSync(filePath);
+
+    if (stats.isDirectory()) {
+      if (file === folderName) {
+        return filePath; // Found the folder!
+      } else {
+        const subFolder = searchFolder(filePath, folderName);
+        if (subFolder) {
+          return subFolder; // Found the folder in a sub-folder!
+        }
+      }
+    }
+  }
+
+  return null; // Folder not found
+}
+
 export class PluginManager {
   private plugins: Array<BasePlugin> = [];
   get pluginCount() {
@@ -17,41 +52,13 @@ export class PluginManager {
   }
   private pluginDir = path.join(process.cwd(), 'plugins');
   private outDir = path.join(this.pluginDir, 'out');
+  private moduleDir = searchFolder(process.cwd(), "h1z1-server") || "";
 
   private checkPluginsFolder(): void {
     if (!fs.existsSync(this.pluginDir)) {
       fs.mkdirSync(this.pluginDir);
       console.log(`Created plugins folder: ${this.pluginDir}`);
     }
-  }
-
-  private checkOutFolder(): void {
-    if (!fs.existsSync(this.outDir)) {
-      fs.mkdirSync(this.outDir);
-      console.log(`Created out folder: ${this.outDir}`);
-    }
-  }
-
-  private async loadPluginFile(file: string) {
-    // TODO: CLEAR "OUT" FOLDER BEFORE LOADING ALL
-
-    const filePath = path.join(this.pluginDir, file),
-      source = fs.readFileSync(filePath, 'utf-8'),
-      output = ts.transpileModule(source, { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2021} }),
-      compiledPath = path.join(this.outDir, file.replace(/\.ts$/, ".js"));
-      
-      fs.writeFileSync(compiledPath, output.outputText.replaceAll("@h1z1-server", "../../h1z1-server"));
-
-      // clear previous import in case of plugin reload
-      delete require.cache[require.resolve(compiledPath)];
-      const module = await import(compiledPath);
-      for (const exportedItem in module) {
-        if (module[exportedItem].prototype instanceof BasePlugin) {
-          const plugin = new module[exportedItem]();
-          this.plugins.push(plugin);
-          console.log(`Loaded plugin: ${plugin.name}`);
-        }
-      }
   }
 
   // For loading entire plugin folders
@@ -81,18 +88,15 @@ export class PluginManager {
       'plugin.js' // Replace with the appropriate file name of the compiled module
     );
     
-    this.traverseAndReplace(path.join(this.pluginDir, projectPath), "@h1z1-server", "../../../h1z1-server");
+    this.traverseAndReplace(path.join(this.pluginDir, projectPath), "@h1z1-server", this.moduleDir);
 
     delete require.cache[require.resolve(compiledPath)];
-      const module = await import(compiledPath);
-      //for (const exportedItem in module) {
-        if (module.default.ServerPlugin.default.prototype instanceof BasePlugin) {
-          console.log(module)
-          const plugin = new module.default.ServerPlugin.default();//[exportedItem]()
-          this.plugins.push(plugin);
-          console.log(`Loaded plugin: ${plugin.name}`);
-        }
-      //}
+    const module = await import(compiledPath);
+    if (module.default.ServerPlugin.default.prototype instanceof BasePlugin) {
+      const plugin = new module.default.ServerPlugin.default();
+      this.plugins.push(plugin);
+      console.log(`Loaded plugin: ${plugin.name}`);
+    }
   }
 
   private traverseAndReplace(directory: string, searchString: string, replaceString: string): void {
@@ -110,13 +114,10 @@ export class PluginManager {
   }
   
   private replaceInFile(filePath: string, searchString: string, replaceString: string): void {
-    const content = fs.readFileSync(filePath, 'utf8')
+    const content = fs.readFileSync(filePath, 'utf8'),
+    replacedContent = content.replace(new RegExp(searchString, 'g'), replaceString);
   
-    const replacedContent = content.replace(new RegExp(searchString, 'g'), replaceString);
-  
-    fs.writeFileSync(filePath, replacedContent, 'utf8')
-
-    console.log(`Replaced in file: ${filePath}`);
+    fs.writeFileSync(filePath, replacedContent, 'utf8');
   }
 
 
@@ -138,13 +139,9 @@ export class PluginManager {
     }
     */
 
-    const pluginFolders = fs.readdirSync(this.pluginDir).filter(folder => 
-     // const stats = fs.statSync(folder);
-      !(folder == "node_modules") /*&& stats.isDirectory()*/
-    );
+    const pluginFolders = fs.readdirSync(this.pluginDir).filter(folder => !(folder == "node_modules"));
     
     for (const folder of pluginFolders) {
-      console.log(folder)
       try {
         await this.loadPluginFolder(folder)
       }
@@ -155,6 +152,13 @@ export class PluginManager {
   }
 
   public async initializePlugins(server: ZoneServer2016) {
+
+    if(!this.moduleDir) {
+      console.error("[PluginManager] moduleDir is undefined!");
+      console.log(`No plugins loaded.`);
+      return;
+    }
+
     this.plugins = [];
     await this.loadPlugins();
 
