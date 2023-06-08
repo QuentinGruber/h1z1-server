@@ -313,10 +313,18 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     itemDef: Items.HONEY,
     type: ItemUseOptions.EAT,
     timeout: 1000,
-    eatCount: 4000,
+    eatCount: 3000,
     drinkCount: 4000,
     staminaCount: 200,
     givetrash: Items.WATER_EMPTY
+  },
+  49: {
+    itemDef: Items.HONEYCOMB,
+    type: ItemUseOptions.EAT,
+    timeout: 1000,
+    eatCount: 4000,
+    drinkCount: 3000,
+    staminaCount: 300
   },
   46: {
     itemDef: Items.SURVIVAL_BORSCHT,

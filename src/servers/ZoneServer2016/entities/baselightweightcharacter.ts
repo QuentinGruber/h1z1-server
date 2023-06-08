@@ -30,7 +30,7 @@ function getHeadActor(modelId: number): string {
   }
 }
 
-export class BaseLightweightCharacter extends BaseEntity {
+export abstract class BaseLightweightCharacter extends BaseEntity {
   state: {
     position: Float32Array;
     rotation: Float32Array;

@@ -1489,6 +1489,8 @@ export interface DefinitionFilterUnknownWithVariable2 {
 }
 export interface H1emuPrintToConsole {
   message?: string;
+  showConsole?: boolean;
+  clearOutput?: boolean;
 }
 export interface H1emuMessageBox {
   title?: string;
@@ -2200,6 +2202,7 @@ export interface AccessedCharacterBeginCharacterAccess {
   itemsData?: any;
 }
 export interface AccessedCharacterEndCharacterAccess {
+  characterId?: string;
 }
 export interface AccessedCharacterUnknown1 {
   characterId?: string;

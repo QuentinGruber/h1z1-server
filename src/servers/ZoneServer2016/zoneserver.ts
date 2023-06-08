@@ -5733,8 +5733,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (doReturn) {
       this.sendChatText(
         client,
-        "[ERROR] consumable not mapped to item Definition " +
-          item.itemDefinitionId
+        "[ERROR] fuel not mapped to item Definition " + item.itemDefinitionId
       );
       return;
     }

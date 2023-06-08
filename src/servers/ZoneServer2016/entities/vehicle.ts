@@ -25,7 +25,6 @@ import { ZoneServer2016 } from "../zoneserver";
 import { DamageInfo } from "types/zoneserver";
 import { BaseLootableEntity } from "./baselootableentity";
 import { vehicleDefaultLoadouts } from "../data/loadouts";
-import { LoadoutItem } from "../classes/loadoutItem";
 import { BaseItem } from "../classes/baseItem";
 import { LOADOUT_CONTAINER_ID } from "../../../utils/constants";
 import { Character2016 } from "./character";
@@ -848,10 +847,6 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
     this.state.position[1] -= 0.4;
     // fix floating vehicle lootbags
-    Object.values(this._loadout).forEach((item: LoadoutItem) => {
-      delete this._loadout[item.slotId];
-    });
-    // delete vehicle loadout parts from lootbag
     server.worldObjectManager.createLootbag(server, this);
     return deleted;
   }

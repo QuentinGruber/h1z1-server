@@ -25,8 +25,7 @@ import {
   initMongo,
   setupAppDataFolder,
   isValidCharacterName,
-  resolveHostAddress,
-  getPopulationLevel
+  resolveHostAddress
 } from "../../utils/utils";
 import { GameServer } from "../../types/loginserver";
 import Client from "servers/LoginServer/loginclient";
@@ -223,9 +222,6 @@ export class LoginServer extends EventEmitter {
                   case "UpdateZonePopulation": {
                     const { population } = packet.data;
                     const serverId = this._zoneConnections[client.clientId];
-                    const { maxPopulationNumber } = await this._db
-                      .collection(DB_COLLECTIONS.SERVERS)
-                      .findOne({ serverId: serverId });
                     this._db
                       ?.collection(DB_COLLECTIONS.SERVERS)
                       .findOneAndUpdate(
@@ -233,10 +229,7 @@ export class LoginServer extends EventEmitter {
                         {
                           $set: {
                             populationNumber: population,
-                            populationLevel: getPopulationLevel(
-                              population,
-                              maxPopulationNumber
-                            )
+                            populationLevel: population
                           }
                         }
                       );
@@ -910,13 +903,14 @@ export class LoginServer extends EventEmitter {
     let charactersLoginInfo: CharacterLoginReply;
     const { serverId, characterId } = packet;
     let CharacterAllowedOnZone = 1;
+    let banInfos: Array<{ banInfo: BAN_INFO }> = [];
     if (!this._soloMode) {
       charactersLoginInfo = await this.getCharactersLoginInfo(
         serverId,
         characterId,
         client.loginSessionId
       );
-      const banInfos = await this.getOwnerBanInfo(serverId, client);
+      banInfos = await this.getOwnerBanInfo(serverId, client);
       CharacterAllowedOnZone = (await this.askZone(
         serverId,
         "CharacterAllowedRequest",
@@ -937,6 +931,38 @@ export class LoginServer extends EventEmitter {
     debug(charactersLoginInfo);
     if (charactersLoginInfo.status) {
       charactersLoginInfo.status = Number(CharacterAllowedOnZone);
+    } else {
+      this.sendData(client, "H1emu.PrintToConsole", {
+        message: `Invalid character status! If this is a new character, please delete and recreate it.`,
+        showConsole: true,
+        clearOutput: true
+      });
+    }
+    if (!CharacterAllowedOnZone) {
+      let reason =
+        "UNDEFINED. If this is a new character, please delete and recreate it.";
+      switch (banInfos[0]?.banInfo) {
+        case 1:
+          reason = "LOCAL_BAN";
+          break;
+        case 2:
+          reason = "GLOBAL_BAN";
+          break;
+        case 3:
+          reason = "VPN";
+          break;
+        case 4:
+          reason = "HWID_BAN";
+          break;
+        case 5:
+          reason = "UNVERIFIED";
+          break;
+      }
+      this.sendData(client, "H1emu.PrintToConsole", {
+        message: `CONNECTION REJECTED! Reason: ${reason}`,
+        showConsole: true,
+        clearOutput: true
+      });
     }
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
     debug("CharacterLoginRequest");

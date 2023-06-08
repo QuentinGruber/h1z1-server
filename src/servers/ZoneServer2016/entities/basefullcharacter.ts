@@ -55,7 +55,7 @@ function getGender(actorModelId: number): number {
   }
 }
 
-export class BaseFullCharacter extends BaseLightweightCharacter {
+export abstract class BaseFullCharacter extends BaseLightweightCharacter {
   onReadyCallback?: (clientTriggered: ZoneClient2016) => void;
   _resources: { [resourceId: number]: number } = {};
   _loadout: { [loadoutSlotId: number]: LoadoutItem } = {};

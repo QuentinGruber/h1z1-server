@@ -14,7 +14,7 @@
 import { ZoneServer2016 } from "../zoneserver";
 import { BaseEntity } from "./baseentity";
 
-export class BaseSimpleNpc extends BaseEntity {
+export abstract class BaseSimpleNpc extends BaseEntity {
   health = 100000;
   constructor(
     characterId: string,
