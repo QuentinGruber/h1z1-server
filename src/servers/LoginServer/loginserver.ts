@@ -174,8 +174,9 @@ export class LoginServer extends EventEmitter {
         async (err: string, client: H1emuClient, packet: any) => {
           if (err) {
             console.error(err);
-          } else {
-            try {
+            return;
+          }
+          try {
               const connectionEstablished: boolean =
                 !!this._zoneConnections[client.clientId];
               if (connectionEstablished || packet.name === "SessionRequest") {
@@ -271,7 +272,6 @@ export class LoginServer extends EventEmitter {
                     }
                     break;
                   }
-                  /*
                   case "ClientMessage": {
                     const { loginSessionId, message, showConsole, clearOutput } = packet.data;
 
@@ -289,7 +289,6 @@ export class LoginServer extends EventEmitter {
                     });
                     break;
                   }
-                  */
                   default:
                     console.log(`Unhandled h1emu packet: ${packet.name}`);
                     break;
@@ -299,7 +298,6 @@ export class LoginServer extends EventEmitter {
               console.log(e);
             }
           }
-        }
       );
       this._h1emuLoginServer.on(
         "processInternalReq",

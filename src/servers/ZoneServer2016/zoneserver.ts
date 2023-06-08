@@ -372,6 +372,16 @@ export class ZoneServer2016 extends EventEmitter {
         debug(
           `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
         );
+        console.log("CLIENTMESSAGE SENDDATA")
+        this._h1emuZoneServer.sendData(
+          {
+            ...this._loginServerInfo,
+            // TODO: what a dirty hack
+            serverId: this._worldId
+          } as any,
+          "ClientMessage",
+          { loginSessionId: loginSessionId, message: "HELLO WORLD", showConsole: true, clearOutput: true }
+        );
         const generatedTransient = this.getTransientId(characterId);
         const zoneClient = this.createClient(
           client.sessionId,
@@ -494,13 +504,6 @@ export class ZoneServer2016 extends EventEmitter {
                 break;
               }
               case "CharacterAllowedRequest": {
-                /*
-                this._h1emuZoneServer.sendData(
-                  client,
-                  "ClientMessage",
-                  { loginSessionId: "", message: "HELLO WORLD", showConsole: true, clearOutput: true }
-                );
-                */
                 const { characterId, reqId } = packet.data;
                 const banInfos = packet.data.banInfos ?? [];
                 try {
