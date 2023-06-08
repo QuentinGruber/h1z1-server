@@ -32,7 +32,7 @@ export class PluginManager {
     }
   }
 
-  private async loadPlugin(file: string) {
+  private async loadPluginFile(file: string) {
     // TODO: CLEAR "OUT" FOLDER BEFORE LOADING ALL
 
     const filePath = path.join(this.pluginDir, file),
@@ -54,14 +54,99 @@ export class PluginManager {
       }
   }
 
+  // For loading entire plugin folders
+  private async loadPluginFolder(projectPath: string) {
+
+    const configPath = path.resolve(projectPath, 'tsconfig.json');
+
+    // Load the tsconfig.json file
+    const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
+
+    // Parse the JSON configuration file
+    const config = ts.parseJsonConfigFileContent(
+      configFile.config,
+      ts.sys,
+      projectPath
+    );
+
+    // Create the TypeScript program using the parsed configuration
+    const program = ts.createProgram(config.fileNames, config.options);
+
+    // Perform the actual transpilation
+    program.emit();
+
+    const compiledPath = path.join(
+      this.pluginDir,
+      projectPath,
+      'plugin.js' // Replace with the appropriate file name of the compiled module
+    );
+    
+    this.traverseAndReplace(path.join(this.pluginDir, projectPath), "@h1z1-server", "../../../h1z1-server");
+
+    delete require.cache[require.resolve(compiledPath)];
+      const module = await import(compiledPath);
+      //for (const exportedItem in module) {
+        if (module.default.ServerPlugin.default.prototype instanceof BasePlugin) {
+          console.log(module)
+          const plugin = new module.default.ServerPlugin.default();//[exportedItem]()
+          this.plugins.push(plugin);
+          console.log(`Loaded plugin: ${plugin.name}`);
+        }
+      //}
+  }
+
+  private traverseAndReplace(directory: string, searchString: string, replaceString: string): void {
+    const files = fs.readdirSync(directory)
+    files.forEach(file => {
+      const filePath = path.join(directory, file);
+  
+      const stats = fs.statSync(filePath)
+      if (stats.isDirectory()) {
+        this.traverseAndReplace(filePath, searchString, replaceString);
+      } else if (stats.isFile() && file.endsWith('.js')) {
+        this.replaceInFile(filePath, searchString, replaceString);
+      }
+    });
+  }
+  
+  private replaceInFile(filePath: string, searchString: string, replaceString: string): void {
+    const content = fs.readFileSync(filePath, 'utf8')
+  
+    const replacedContent = content.replace(new RegExp(searchString, 'g'), replaceString);
+  
+    fs.writeFileSync(filePath, replacedContent, 'utf8')
+
+    console.log(`Replaced in file: ${filePath}`);
+  }
+
+
+
+
   private async loadPlugins() {
     this.checkPluginsFolder();
+    /*
     this.checkOutFolder();
     const pluginFiles = fs.readdirSync(this.pluginDir).filter(file => file.endsWith('.ts'));
-
+    
     for (const file of pluginFiles) {
       try {
-        await this.loadPlugin(file)
+        await this.loadPluginFile(file)
+      }
+      catch(e: any) {
+        console.error(e);
+      }
+    }
+    */
+
+    const pluginFolders = fs.readdirSync(this.pluginDir).filter(folder => 
+     // const stats = fs.statSync(folder);
+      !(folder == "node_modules") /*&& stats.isDirectory()*/
+    );
+    
+    for (const folder of pluginFolders) {
+      console.log(folder)
+      try {
+        await this.loadPluginFolder(folder)
       }
       catch(e: any) {
         console.error(e);
