@@ -92,8 +92,8 @@ export class PluginManager {
 
     delete require.cache[require.resolve(compiledPath)];
     const module = await import(compiledPath);
-    if (module.default.ServerPlugin.default.prototype instanceof BasePlugin) {
-      const plugin = new module.default.ServerPlugin.default();
+    if (module.default.prototype instanceof BasePlugin) {
+      const plugin = new module.default();
       this.plugins.push(plugin);
       console.log(`Loaded plugin: ${plugin.name}`);
     }
