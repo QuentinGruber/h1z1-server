@@ -29,7 +29,7 @@ import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import {
   characterBuildKitLoadout,
   characterSkinsLoadout,
-  characterKitLoadout
+  characterKitLoadout,
   characterVehicleKit
 } from "../data/loadouts";
 import { EquipSlots, Items, ResourceIds, ResourceTypes } from "../models/enums";
