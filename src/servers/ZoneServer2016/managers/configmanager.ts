@@ -91,7 +91,7 @@ export class ConfigManager {
     this.applyConfig(server);
   }
 
-  private loadYaml(path: string, relative = true): Config | undefined {
+  public loadYaml(path: string, relative = true): Config | undefined {
     return yaml.load(
       fs.readFileSync(`${relative ? __dirname : ""}${path}`, "utf8")
     ) as unknown as Config;

@@ -919,3 +919,12 @@ export function getPopulationLevel(
     return PopulationLevel.LOW;
   }
 }
+
+export function fileExists(filePath: string): boolean {
+  try {
+    fs.accessSync(filePath);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}

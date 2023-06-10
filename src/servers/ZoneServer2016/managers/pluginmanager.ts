@@ -23,6 +23,22 @@ export abstract class BasePlugin {
   public abstract init(server: ZoneServer2016): void;
 }
 
+function folderExists(path: string): boolean {
+  // shoutout chatGPT
+  try {
+    const stats = fs.statSync(path);
+    return stats.isDirectory();
+  } catch (err: any) {
+    if (err.code === 'ENOENT') {
+      // Folder doesn't exist
+      return false;
+    } else {
+      // Other error occurred
+      throw err;
+    }
+  }
+}
+
 function searchFolder(directory: string, folderName: string): string | null {
   // shoutout chatGPT
   const files = fs.readdirSync(directory);
@@ -81,7 +97,7 @@ export class PluginManager {
   private checkPluginsFolder(): void {
     if (!fs.existsSync(this.pluginsDir)) {
       fs.mkdirSync(this.pluginsDir);
-      console.log(`Created plugins folder: ${this.pluginsDir}`);
+      console.log(`[PluginManager] Created plugins folder: ${this.pluginsDir}`);
     }
   }
 
@@ -102,21 +118,21 @@ export class PluginManager {
       return;
     }
   
-    console.log('Installing dependencies...');
+    console.log('[PluginManager] Installing dependencies...');
   
     const installCommand = `npm install ${dependencies.join(' ')}`;
   
     try {
       execSync(installCommand, { cwd: path.join(this.pluginsDir, pluginPath), stdio: 'inherit' });
-      console.log('Dependencies installed successfully.');
+      console.log('[PluginManager] Dependencies installed successfully.');
     } catch (error) {
-      console.error('Failed to install dependencies.');
+      console.error('[PluginManager] Failed to install dependencies.');
       process.exit(1);
     }
   }
 
   // For loading entire plugin folders
-  private async loadPluginFolder(pluginPath: string) {
+  private async loadPlugin(pluginPath: string) {
 
     const runPath = path.join(
       this.pluginsDir,
@@ -124,9 +140,14 @@ export class PluginManager {
       'plugin.js' // Replace with the appropriate file name of the compiled module
     );
 
-    // Install dependencies into the node_modules directory
-    const dependencies = this.getDependencies(pluginPath);
-    this.installDependencies(pluginPath, dependencies);
+    if(!folderExists(path.join(this.pluginsDir, pluginPath, "node_modules"))) {
+      // Install dependencies into the node_modules directory
+      const dependencies = this.getDependencies(pluginPath);
+      this.installDependencies(pluginPath, dependencies);
+    }
+    else {
+      console.log(`[PluginManager] Dependencies detected for ${pluginPath}`)
+    }
     
     traverseAndReplace(path.join(this.pluginsDir, pluginPath), "@h1z1-server", this.moduleDir);
 
@@ -135,7 +156,7 @@ export class PluginManager {
     if (module.default.prototype instanceof BasePlugin) {
       const plugin = new module.default();
       this.plugins.push(plugin);
-      console.log(`Loaded plugin: ${plugin.name}`);
+      console.log(`[PluginManager] Loaded: ${plugin.name}`);
     }
   }
 
@@ -145,8 +166,9 @@ export class PluginManager {
     const pluginFolders = fs.readdirSync(this.pluginsDir);
     
     for (const folder of pluginFolders) {
+      if(!folderExists(path.join(this.pluginsDir, folder))) continue; // if not folder
       try {
-        await this.loadPluginFolder(folder)
+        await this.loadPlugin(folder)
       }
       catch(e: any) {
         console.error(e);
@@ -158,7 +180,7 @@ export class PluginManager {
 
     if(!this.moduleDir) {
       console.error("[PluginManager] moduleDir is undefined!");
-      console.log(`No plugins loaded.`);
+      console.log(`[PluginManager] No plugins loaded.`);
       return;
     }
 
@@ -176,7 +198,7 @@ export class PluginManager {
     }
 
     if(this.plugins.length == 0) {
-      console.log(`No plugins loaded.`);
+      console.log(`[PluginManager] No plugins loaded.`);
     }
   }
 }
