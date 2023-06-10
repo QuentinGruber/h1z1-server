@@ -1125,7 +1125,7 @@ export class ZoneServer2016 extends EventEmitter {
     this.worldObjectManager.createDoors(this);
     this.worldObjectManager.createProps(this);
 
-    this.pluginManager.initializePlugins(this);
+    await this.pluginManager.initializePlugins(this);
 
     this._ready = true;
     console.log(

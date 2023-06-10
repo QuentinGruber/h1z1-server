@@ -13,8 +13,8 @@
 
 import * as fs from 'fs';
 import * as path from 'path';
-import * as ts from 'typescript';
 import { ZoneServer2016 } from "../zoneserver";
+import { execSync } from 'child_process';
 
 export abstract class BasePlugin {
   public abstract name: string;
@@ -24,10 +24,12 @@ export abstract class BasePlugin {
 }
 
 function searchFolder(directory: string, folderName: string): string | null {
+  // shoutout chatGPT
   const files = fs.readdirSync(directory);
 
   for (const file of files) {
-    const filePath = path.join(directory, file);
+    // this only puts a single backslash for some reason, so manually replace all with a double
+    const filePath = path.join(directory, file).replaceAll("\\", "\\\\");
     const stats = fs.statSync(filePath);
 
     if (stats.isDirectory()) {
@@ -45,53 +47,91 @@ function searchFolder(directory: string, folderName: string): string | null {
   return null; // Folder not found
 }
 
+function traverseAndReplace(directory: string, searchString: string, replaceString: string): void {
+  // shoutout chatGPT
+  const files = fs.readdirSync(directory)
+  files.forEach(file => {
+    const filePath = path.join(directory, file);
+
+    const stats = fs.statSync(filePath)
+    if (stats.isDirectory()) {
+      traverseAndReplace(filePath, searchString, replaceString);
+    } else if (stats.isFile() && file.endsWith('.js')) {
+      replaceInFile(filePath, searchString, replaceString);
+    }
+  });
+}
+
+function replaceInFile(filePath: string, searchString: string, replaceString: string): void {
+  // shoutout chatGPT
+  const content = fs.readFileSync(filePath, 'utf8'),
+  replacedContent = content.replace(new RegExp(searchString, 'g'), replaceString);
+
+  fs.writeFileSync(filePath, replacedContent, 'utf8');
+}
+
 export class PluginManager {
   private plugins: Array<BasePlugin> = [];
   get pluginCount() {
     return this.plugins.length;
   }
-  private pluginDir = path.join(process.cwd(), 'plugins');
-  private outDir = path.join(this.pluginDir, 'out');
+  private pluginsDir = path.join(process.cwd(), 'plugins');
   private moduleDir = searchFolder(process.cwd(), "h1z1-server") || "";
 
   private checkPluginsFolder(): void {
-    if (!fs.existsSync(this.pluginDir)) {
-      fs.mkdirSync(this.pluginDir);
-      console.log(`Created plugins folder: ${this.pluginDir}`);
+    if (!fs.existsSync(this.pluginsDir)) {
+      fs.mkdirSync(this.pluginsDir);
+      console.log(`Created plugins folder: ${this.pluginsDir}`);
+    }
+  }
+
+  private getDependencies(projectPath: string): string[] {
+    // shoutout chatGPT
+  
+    const packageJsonPath = path.join(this.pluginsDir, projectPath, 'package.json'),
+    packageJsonContent = fs.readFileSync(packageJsonPath, 'utf-8'),
+    packageJson = JSON.parse(packageJsonContent),
+    dependencies = Object.keys(packageJson.dependencies || {});
+    return dependencies;
+  }
+  
+  private installDependencies(pluginPath: string, dependencies: string[]): void {
+    // shoutout chatGPT
+  
+    if (dependencies.length === 0) {
+      return;
+    }
+  
+    console.log('Installing dependencies...');
+  
+    const installCommand = `npm install ${dependencies.join(' ')}`;
+  
+    try {
+      execSync(installCommand, { cwd: path.join(this.pluginsDir, pluginPath), stdio: 'inherit' });
+      console.log('Dependencies installed successfully.');
+    } catch (error) {
+      console.error('Failed to install dependencies.');
+      process.exit(1);
     }
   }
 
   // For loading entire plugin folders
-  private async loadPluginFolder(projectPath: string) {
+  private async loadPluginFolder(pluginPath: string) {
 
-    const configPath = path.resolve(projectPath, 'tsconfig.json');
-
-    // Load the tsconfig.json file
-    const configFile = ts.readConfigFile(configPath, ts.sys.readFile);
-
-    // Parse the JSON configuration file
-    const config = ts.parseJsonConfigFileContent(
-      configFile.config,
-      ts.sys,
-      projectPath
-    );
-
-    // Create the TypeScript program using the parsed configuration
-    const program = ts.createProgram(config.fileNames, config.options);
-
-    // Perform the actual transpilation
-    program.emit();
-
-    const compiledPath = path.join(
-      this.pluginDir,
-      projectPath,
+    const runPath = path.join(
+      this.pluginsDir,
+      pluginPath,
       'plugin.js' // Replace with the appropriate file name of the compiled module
     );
-    
-    this.traverseAndReplace(path.join(this.pluginDir, projectPath), "@h1z1-server", this.moduleDir);
 
-    delete require.cache[require.resolve(compiledPath)];
-    const module = await import(compiledPath);
+    // Install dependencies into the node_modules directory
+    const dependencies = this.getDependencies(pluginPath);
+    this.installDependencies(pluginPath, dependencies);
+    
+    traverseAndReplace(path.join(this.pluginsDir, pluginPath), "@h1z1-server", this.moduleDir);
+
+    delete require.cache[require.resolve(runPath)];
+    const module = await import(runPath);
     if (module.default.prototype instanceof BasePlugin) {
       const plugin = new module.default();
       this.plugins.push(plugin);
@@ -99,47 +139,10 @@ export class PluginManager {
     }
   }
 
-  private traverseAndReplace(directory: string, searchString: string, replaceString: string): void {
-    const files = fs.readdirSync(directory)
-    files.forEach(file => {
-      const filePath = path.join(directory, file);
-  
-      const stats = fs.statSync(filePath)
-      if (stats.isDirectory()) {
-        this.traverseAndReplace(filePath, searchString, replaceString);
-      } else if (stats.isFile() && file.endsWith('.js')) {
-        this.replaceInFile(filePath, searchString, replaceString);
-      }
-    });
-  }
-  
-  private replaceInFile(filePath: string, searchString: string, replaceString: string): void {
-    const content = fs.readFileSync(filePath, 'utf8'),
-    replacedContent = content.replace(new RegExp(searchString, 'g'), replaceString);
-  
-    fs.writeFileSync(filePath, replacedContent, 'utf8');
-  }
-
-
-
-
   private async loadPlugins() {
     this.checkPluginsFolder();
-    /*
-    this.checkOutFolder();
-    const pluginFiles = fs.readdirSync(this.pluginDir).filter(file => file.endsWith('.ts'));
-    
-    for (const file of pluginFiles) {
-      try {
-        await this.loadPluginFile(file)
-      }
-      catch(e: any) {
-        console.error(e);
-      }
-    }
-    */
 
-    const pluginFolders = fs.readdirSync(this.pluginDir).filter(folder => !(folder == "node_modules"));
+    const pluginFolders = fs.readdirSync(this.pluginsDir);
     
     for (const folder of pluginFolders) {
       try {
