@@ -156,12 +156,15 @@ export class PluginManager {
 
     delete require.cache[require.resolve(runPath)];
     const module = await import(runPath);
-    if (module.default.prototype instanceof BasePlugin) {
-      const plugin = new module.default();
-      plugin.dir = path.join(this.pluginsDir, pluginPath);
-      this.plugins.push(plugin);
-      console.log(`[PluginManager] Loaded: ${plugin.name}`);
+    if (!(module.default.prototype instanceof BasePlugin)) {
+      console.log(`[PluginManager] Invalid plugin detected! ${runPath}`);
+      return;
     }
+
+    const plugin = new module.default();
+    plugin.dir = path.join(this.pluginsDir, pluginPath);
+    this.plugins.push(plugin);
+    console.log(`[PluginManager] Loaded: ${plugin.name}`);
   }
 
   private async loadPlugins() {

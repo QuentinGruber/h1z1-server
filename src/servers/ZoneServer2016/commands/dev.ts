@@ -788,6 +788,7 @@ const dev: any = {
     await server.pluginManager.initializePlugins(server);
     server.sendChatText(client, `Loaded ${server.pluginManager.pluginCount}`);
   },
+  
     bounds: function (
     server: ZoneServer2016,
     client: Client,
