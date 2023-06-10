@@ -15,12 +15,15 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { ZoneServer2016 } from "../zoneserver";
 import { execSync } from 'child_process';
+import { copyFile, fileExists } from '../../../utils/utils';
 
 export abstract class BasePlugin {
   public abstract name: string;
   public abstract description: string;
   public abstract version: string;
+  public abstract loadConfig(config: any): void;
   public abstract init(server: ZoneServer2016): void;
+  public dir!: string;
 }
 
 function folderExists(path: string): boolean {
@@ -155,6 +158,7 @@ export class PluginManager {
     const module = await import(runPath);
     if (module.default.prototype instanceof BasePlugin) {
       const plugin = new module.default();
+      plugin.dir = path.join(this.pluginsDir, pluginPath);
       this.plugins.push(plugin);
       console.log(`[PluginManager] Loaded: ${plugin.name}`);
     }
@@ -176,6 +180,31 @@ export class PluginManager {
     }
   }
 
+  private async loadPluginConfig(server: ZoneServer2016, plugin: BasePlugin) {
+    const defaultConfigPath = path.join(plugin.dir, "data", "defaultconfig.yaml"),
+    defaultConfig = server.configManager.loadYaml(defaultConfigPath, false) as any,
+    fileName = `${plugin.name.toLowerCase().replaceAll(" ", "-")}-config.yaml`,
+    configPath = path.join(this.pluginsDir, fileName);
+
+    if(!fileExists(path.join(this.pluginsDir, fileName))) {
+      console.log(`[PluginManager] Generated config file for ${plugin.name} at base plugins directory: ${fileName}`);
+      await copyFile(
+        defaultConfigPath,
+        configPath
+      );
+    }
+
+    const configFile = server.configManager.loadYaml(configPath, false) as any;
+
+    const config = {
+      // in case a config file is outdated, load missing values using default
+      ...defaultConfig,
+      ...configFile
+    }
+
+    plugin.loadConfig(config);
+  }
+
   public async initializePlugins(server: ZoneServer2016) {
 
     if(!this.moduleDir) {
@@ -188,9 +217,9 @@ export class PluginManager {
     await this.loadPlugins();
 
     for (const plugin of this.plugins) {
-      
       try {
         plugin.init(server);
+        await this.loadPluginConfig(server, plugin);
       }
       catch(e: any) {
         console.error(e);
