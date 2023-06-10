@@ -111,6 +111,11 @@ export const characterSkinsLoadout = [
   { item: Items.FULLY_GEARED_EXPLORER_BACKPACK }
 ];
 
+export const characterVehicleKit = [
+  { item: Items.SPARKPLUGS },
+  { item: Items.VEHICLE_KEY },
+  { item: Items.BATTERY }
+];
 export const characterBuildKitLoadout = [
   { item: Items.FOUNDATION, count: 10 },
   { item: Items.FOUNDATION_EXPANSION, count: 40 },

@@ -30,6 +30,7 @@ import {
   characterBuildKitLoadout,
   characterSkinsLoadout,
   characterKitLoadout
+  characterVehicleKit
 } from "../data/loadouts";
 import { EquipSlots, Items, ResourceIds, ResourceTypes } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
@@ -1220,6 +1221,14 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       client.character.equipLoadout(server, characterKitLoadout);
+    }
+  },
+  {
+    name: "vehicleparts",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      client.character.equipLoadout(server, characterVehicleKit);
+      server.sendChatText(client, `Vehicle Parts Given`);
     }
   },
   {

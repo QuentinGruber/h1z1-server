@@ -27,7 +27,8 @@ import {
   characterEffect,
   DamageInfo,
   DamageRecord,
-  positionUpdate
+  positionUpdate,
+  StanceFlags
 } from "../../../types/zoneserver";
 import {
   calculateOrientation,
@@ -111,8 +112,10 @@ export class Character2016 extends BaseFullCharacter {
   initialized = false; // if sendself has been sent
   spawnGridData: number[] = [];
   lastJumpTime: number = 0;
+  lastSitTime: number = 0;
+  sitCount: number = 0;
   weaponStance: number = 1;
-  stance: number = 0;
+  stance?: StanceFlags;
   readonly metrics: CharacterMetrics = {
     recipesDiscovered: 0,
     zombiesKilled: 0,
@@ -123,6 +126,8 @@ export class Character2016 extends BaseFullCharacter {
   // characterId of vehicle spawned by /hax drive or spawnvehicle
   ownedVehicle?: string;
   currentInteractionGuid?: string;
+  lastInteractionRequestGuid?: string;
+  lastInteractionStringTime = 0;
   lastInteractionTime = 0;
   mountedContainer?: BaseLootableEntity;
   defaultLoadout = characterDefaultLoadout;
@@ -739,12 +744,14 @@ export class Character2016 extends BaseFullCharacter {
       server.deleteEntity(this.mountedContainer.characterId, server._lootbags);
     }
 
+    server.sendData(client, "AccessedCharacter.EndCharacterAccess", {
+      characterId: this.mountedContainer.characterId || ""
+    });
+
     delete this.mountedContainer.mountedCharacter;
     delete this.mountedContainer;
     this.updateLoadout(server);
     server.initializeContainerList(client);
-
-    server.sendData(client, "AccessedCharacter.EndCharacterAccess", {});
   }
 
   getStats() {
