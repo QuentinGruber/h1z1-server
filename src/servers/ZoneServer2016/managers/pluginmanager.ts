@@ -22,7 +22,7 @@ export abstract class BasePlugin {
   public abstract description: string;
   public abstract version: string;
   public abstract loadConfig(config: any): void;
-  public abstract init(server: ZoneServer2016): void;
+  public abstract init(server: ZoneServer2016): Promise<void>;
   public dir!: string;
 }
 
@@ -221,7 +221,7 @@ export class PluginManager {
 
     for (const plugin of this.plugins) {
       try {
-        plugin.init(server);
+        await plugin.init(server);
         await this.loadPluginConfig(server, plugin);
       }
       catch(e: any) {
