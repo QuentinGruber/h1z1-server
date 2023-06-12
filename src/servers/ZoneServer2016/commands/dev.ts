@@ -131,7 +131,7 @@ const dev: any = {
   },
   spam: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const spamNb = args[1] || 1;
-    for (let i = 0; i < spamNb; i++) {
+    for (let i = 0; i < Number(spamNb); i++) {
       server.sendChatText(client, `spam ${i}`);
     }
   },
