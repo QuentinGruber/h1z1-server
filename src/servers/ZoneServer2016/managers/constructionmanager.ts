@@ -228,9 +228,11 @@ export class ConstructionManager {
 
   detectSpawnPointPlacement(
     itemDefinitionId: number,
+    client: Client,
     position: Float32Array,
     isInsidePermissionedFoundation: boolean
   ): boolean {
+    if (client.isDebugMode) return false;
     if (!this.spawnPointBlockedPlacementRange) return false;
     let isInSpawnPoint = false;
     spawnLocations2.forEach((point: Float32Array) => {
@@ -250,8 +252,10 @@ export class ConstructionManager {
   detectVehicleSpawnPointPlacement(
     itemDefinitionId: number,
     position: Float32Array,
+    client: Client,
     isInsidePermissionedFoundation: boolean
   ): boolean {
+    if (client.isDebugMode) return false;
     if (!this.vehicleSpawnPointBlockedPlacementRange) return false;
     let isInVehicleSpawnPoint = false;
     Z1_vehicles.forEach((vehicleSpawn: any) => {
@@ -296,16 +300,17 @@ export class ConstructionManager {
     }
     return false;
   }
-
   detectPOIPlacement(
     itemDefinitionId: number,
     position: Float32Array,
+    client: Client,
     isInsidePermissionedFoundation: boolean
   ): boolean {
+    if (client.isDebugMode) return false;
     if (this.allowPOIPlacement) return false;
     if (this.overridePlacementItems.includes(itemDefinitionId)) return false;
-    let isInPoi = false,
-      useRange = true;
+    let useRange = true;
+    let isInPoi = false;
     Z1_POIs.forEach((point: any) => {
       if (point.bounds) {
         useRange = false;
@@ -316,16 +321,16 @@ export class ConstructionManager {
           }
         });
       }
-      if (useRange && isPosInRadius(point.range, position, point.position))
+      if (useRange && isPosInRadius(point.range, position, point.position)) {
         isInPoi = true;
+      }
     });
-    // alow placement in poi if object is parented to a foundation
+    // allow placement in poi if object is parented to a foundation
     if (isInPoi && !isInsidePermissionedFoundation) {
       return true;
     }
     return false;
   }
-
   placement(
     server: ZoneServer2016,
     client: Client,
@@ -449,6 +454,7 @@ export class ConstructionManager {
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
       let allowBuild = false;
+      if (client.isDebugMode) allowBuild = true;
       const permissions = foundation.permissions[client.character.characterId];
       if (permissions && permissions.build) allowBuild = true;
       if (
@@ -532,6 +538,7 @@ export class ConstructionManager {
     if (
       this.detectSpawnPointPlacement(
         itemDefinitionId,
+        client,
         position,
         isInsidePermissionedFoundation
       )
@@ -548,6 +555,7 @@ export class ConstructionManager {
       this.detectVehicleSpawnPointPlacement(
         itemDefinitionId,
         position,
+        client,
         isInsidePermissionedFoundation
       )
     ) {
@@ -572,6 +580,7 @@ export class ConstructionManager {
       this.detectPOIPlacement(
         itemDefinitionId,
         position,
+        client,
         isInsidePermissionedFoundation
       )
     ) {
@@ -619,6 +628,14 @@ export class ConstructionManager {
     switch (itemDefinitionId) {
       case Items.SNARE:
       case Items.PUNJI_STICKS:
+        return this.placeTrap(
+          server,
+          itemDefinitionId,
+          modelId,
+          position,
+          fixEulerOrder(rotation)
+        );
+      case Items.PUNJI_STICK_ROW:
         return this.placeTrap(
           server,
           itemDefinitionId,

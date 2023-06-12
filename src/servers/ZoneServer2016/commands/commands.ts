@@ -28,6 +28,7 @@ import { Npc } from "../entities/npc";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import {
   characterBuildKitLoadout,
+  characterSkinsLoadout,
   characterKitLoadout,
   characterVehicleKit
 } from "../data/loadouts";
@@ -1666,6 +1667,22 @@ export const commands: Array<Command> = [
       );
       client.character.equipLoadout(server, characterBuildKitLoadout);
       server.sendChatText(client, `Build kit given`);
+    }
+  },
+  {
+    name: "skins",
+    permissionLevel: PermissionLevels.ADMIN,
+    execute: async (
+      server: ZoneServer2016,
+      client: Client,
+      args: Array<string>
+    ) => {
+      client.character.equipItem(
+        server,
+        server.generateItem(Items.FANNY_PACK_DEV)
+      );
+      client.character.equipLoadout(server, characterSkinsLoadout);
+      server.sendChatText(client, `skins kit given`);
     }
   },
   {

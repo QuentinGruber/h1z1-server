@@ -41,7 +41,7 @@ export class TrapEntity extends BaseSimpleNpc {
 
   arm(server: ZoneServer2016) {
     switch (this.itemDefinitionId) {
-      case Items.PUNJI_STICKS:
+      case (Items.PUNJI_STICKS, Items.PUNJI_STICK_ROW):
         this.trapTimer = setTimeout(() => {
           if (!server._traps[this.characterId]) {
             return;
