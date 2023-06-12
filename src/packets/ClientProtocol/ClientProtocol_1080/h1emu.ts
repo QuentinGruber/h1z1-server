@@ -18,7 +18,11 @@ export const h1emuPackets: PacketStructures = [
     "H1emu.PrintToConsole",
     0x9901,
     {
-      fields: [{ name: "message", type: "string", defaultValue: "" }]
+      fields: [
+        { name: "message", type: "string", defaultValue: "" },
+        { name: "showConsole", type: "boolean", defaultValue: false },
+        { name: "clearOutput", type: "boolean", defaultValue: false }
+      ]
     }
   ],
   [
