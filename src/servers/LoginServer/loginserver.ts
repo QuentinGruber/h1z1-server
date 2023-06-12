@@ -963,6 +963,13 @@ export class LoginServer extends EventEmitter {
         showConsole: true,
         clearOutput: true
       });
+      if(reason == "UNVERIFIED") {
+        this.sendData(client, "H1emu.PrintToConsole", {
+          message: `Please follow the steps to verify your account using the #how-to-play channel in the discord. discord.gg/h1emu`,
+          showConsole: false,
+          clearOutput: false
+        });
+      }
     }
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
     debug("CharacterLoginRequest");
