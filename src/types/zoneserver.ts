@@ -17,7 +17,6 @@ import { FilterIds, Items } from "servers/ZoneServer2016/models/enums";
 import { ConstructionDoor } from "servers/ZoneServer2016/entities/constructiondoor";
 import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/lootableconstructionentity";
 import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
-import { ZoneServer2016 } from "servers/ZoneServer2016/zoneserver";
 
 export interface npcData {
   guid: string;

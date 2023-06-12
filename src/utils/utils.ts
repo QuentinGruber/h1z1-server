@@ -929,22 +929,25 @@ export function fileExists(filePath: string): boolean {
   }
 }
 
-export async function copyFile(originalFilePath: string, newFilePath: string): Promise<void> {
+export async function copyFile(
+  originalFilePath: string,
+  newFilePath: string
+): Promise<void> {
   return new Promise<void>((resolve, reject) => {
     const readStream = fs.createReadStream(originalFilePath);
     const writeStream = fs.createWriteStream(newFilePath);
 
     readStream.pipe(writeStream);
 
-    writeStream.on('finish', () => {
-      console.log('File copied successfully!');
+    writeStream.on("finish", () => {
+      console.log("File copied successfully!");
       readStream.close();
       writeStream.close();
       resolve();
     });
 
-    writeStream.on('error', (err) => {
-      console.error('Error copying file:', err);
+    writeStream.on("error", (err) => {
+      console.error("Error copying file:", err);
       readStream.close();
       writeStream.close();
       reject(err);
