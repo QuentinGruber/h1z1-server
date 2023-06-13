@@ -252,6 +252,7 @@ export class PluginManager {
       try {
         await plugin.init(server);
         await this.loadPluginConfig(server, plugin);
+        console.log(`[PluginManager] ${plugin.name} initialized!`);
       } catch (e: any) {
         console.error(e);
       }
