@@ -155,12 +155,11 @@ export class PluginManager {
     }
   }
 
-  // For loading entire plugin folders
   private async loadPlugin(pluginPath: string) {
     const runPath = path.join(
       this.pluginsDir,
       pluginPath,
-      "plugin.js" // Replace with the appropriate file name of the compiled module
+      "plugin.js"
     );
 
     if (!folderExists(path.join(this.pluginsDir, pluginPath, "node_modules"))) {
@@ -201,6 +200,7 @@ export class PluginManager {
         await this.loadPlugin(folder);
       } catch (e: any) {
         console.error(e);
+        console.log(`[PluginManager] Plugin "${folder}" not loaded, make sure you've compiled the plugin before attempting to load it.`)
       }
     }
   }
