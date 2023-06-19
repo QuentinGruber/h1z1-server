@@ -101,7 +101,7 @@ export class CraftManager {
     } else if (removeItem.stackCount > count) {
       this.componentsDataSource[itemDefinitionId].stackCount -= count;
     } else {
-      // if count > removeItem.stackCount
+      // if removeItem.stackCount < count
       return false;
     }
     return true;
@@ -112,7 +112,7 @@ export class CraftManager {
     itemDS: ItemDataSource,
     remainingItems: number
   ): boolean {
-    // todo: check all available container datasources
+    // todo: check items on ground and proximity containers
     return server.removeInventoryItem(
       itemDS.character,
       itemDS.item,
@@ -300,13 +300,11 @@ export class CraftManager {
     recipeId: number,
     recipeCount: number
   ): Promise<boolean> {
-    //#region GENERATE CRAFT QUEUE
     if (!recipeCount) return true;
     this.craftLoopCount++;
     if (this.craftLoopCount > this.maxCraftLoopCount) {
       return false;
     }
-    debug(`[CraftManager] Crafting ${recipeCount} of recipe ${recipeId}`);
     const recipe = server._recipes[recipeId],
       bundleCount = recipe?.bundleCount || 1, // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
       craftCount = recipeCount * bundleCount; // the actual amount of items to craft
