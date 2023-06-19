@@ -15,9 +15,14 @@ import { ContainerErrors, FilterIds, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { checkConstructionInRange } from "../../../utils/utils";
+import { BaseFullCharacter } from "../entities/basefullcharacter";
+import { Recipe } from "types/zoneserver";
+import { Character2016 } from "../entities/character";
+import { BaseItem } from "../classes/baseItem";
 const debug = require("debug")("ZoneServer");
 
 interface craftComponentDSEntry {
+  sourceCharacter: BaseFullCharacter;
   itemDefinitionId: number;
   stackCount: number;
 }
@@ -25,6 +30,8 @@ interface craftComponentDSEntry {
 function getCraftComponentsDataSource(client: Client): {
   [itemDefinitionId: number]: craftComponentDSEntry;
 } {
+  // ignoring proximity container items for now
+
   // todo: include other datasources when they are available ex. proximity items, accessed container
   const inventory: { [itemDefinitionId: number]: craftComponentDSEntry } = {};
   Object.keys(client.character._containers).forEach((loadoutSlotId) => {
@@ -35,8 +42,8 @@ function getCraftComponentsDataSource(client: Client): {
         inventory[item.itemDefinitionId].stackCount += item.stackCount;
       } else {
         inventory[item.itemDefinitionId] = {
-          ...item,
-          stackCount: item.stackCount
+          sourceCharacter: client.character,
+          ...item
         }; // push new itemstack
       }
     });
@@ -61,7 +68,7 @@ export class CraftManager {
   }
 
   // used for removing items from internal recipe components data source (only for inventory rn)
-  removeCraftComponent(itemDefinitionId: number, count: number): boolean {
+  removeSimulatedCraftComponent(itemDefinitionId: number, count: number): boolean {
     const removeItem = this.componentsDataSource[itemDefinitionId];
     if (!removeItem) return false;
     if (removeItem.stackCount == count) {
@@ -75,57 +82,12 @@ export class CraftManager {
     return true;
   }
 
-  async craftItem(
-    server: ZoneServer2016,
-    client: Client,
-    recipeId: number,
-    recipeCount: number
-  ): Promise<boolean> {
-    // if craftItem gets stuck in an infinite loop somehow, setImmediate will prevent the server from crashing
-    // Scheduler.yield(); well this is not a good idea, it will make the server being overloaded, while an infinite loop will be detected and the server will be restarted
+  removeCraftComponent(server: ZoneServer2016, character: Character2016, item: BaseItem, remainingItems: number): boolean {
+    // todo: check all available container datasources
+    return server.removeInventoryItem(character, item, remainingItems)
+  }
 
-    //#region GENERATE CRAFT QUEUE
-    if (!recipeCount) return true;
-    this.craftLoopCount++;
-    if (this.craftLoopCount > this.maxCraftLoopCount) {
-      return false;
-    }
-    debug(`[CraftManager] Crafting ${recipeCount} of recipe ${recipeId}`);
-    const recipe = server._recipes[recipeId],
-      bundleCount = recipe?.bundleCount || 1, // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
-      craftCount = recipeCount * bundleCount; // the actual amount of items to craft
-    if (!recipe) return false;
-    switch (recipe.filterId) {
-      case FilterIds.COOKING:
-      case FilterIds.FURNACE:
-        server.sendAlert(
-          client,
-          "This recipe requires a furnace, barbeque, or campfire to craft"
-        );
-        return false;
-    }
-    if (recipe.requireWorkbench) {
-      if (
-        !checkConstructionInRange(
-          server._constructionSimple,
-          client.character.state.position,
-          3,
-          Items.WORKBENCH
-        ) &&
-        !checkConstructionInRange(
-          server._worldSimpleConstruction,
-          client.character.state.position,
-          3,
-          Items.WORKBENCH
-        )
-      ) {
-        server.sendAlert(
-          client,
-          "You must be near a workbench to complete this recipe"
-        );
-        return false;
-      }
-    }
+  async generateCraftQueue(server: ZoneServer2016, client: Client, recipe: Recipe, recipeCount: number, recipeId: number, craftCount: number): Promise<boolean> {
     for (const component of recipe.components) {
       const remainingItems = component.requiredAmount * recipeCount;
       // if component isn't found at all
@@ -236,7 +198,7 @@ export class CraftManager {
       }
 
       if (
-        !this.removeCraftComponent(component.itemDefinitionId, remainingItems)
+        !this.removeSimulatedCraftComponent(component.itemDefinitionId, remainingItems)
       ) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return false;
@@ -247,11 +209,67 @@ export class CraftManager {
       this.componentsDataSource[recipeId].stackCount += craftCount;
     } else {
       this.componentsDataSource[recipeId] = {
+        sourceCharacter: client.character,
         itemDefinitionId: recipeId,
         stackCount: craftCount
       };
     }
-    //#endregion
+
+    return true;
+  }
+  
+  async craftItem(
+    server: ZoneServer2016,
+    client: Client,
+    recipeId: number,
+    recipeCount: number
+  ): Promise<boolean> {
+    //#region GENERATE CRAFT QUEUE
+    if (!recipeCount) return true;
+    this.craftLoopCount++;
+    if (this.craftLoopCount > this.maxCraftLoopCount) {
+      return false;
+    }
+    debug(`[CraftManager] Crafting ${recipeCount} of recipe ${recipeId}`);
+    const recipe = server._recipes[recipeId],
+      bundleCount = recipe?.bundleCount || 1, // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
+      craftCount = recipeCount * bundleCount; // the actual amount of items to craft
+    if (!recipe) return false;
+    switch (recipe.filterId) {
+      case FilterIds.COOKING:
+      case FilterIds.FURNACE:
+        server.sendAlert(
+          client,
+          "This recipe requires a furnace, barbeque, or campfire to craft"
+        );
+        return false;
+    }
+    if (recipe.requireWorkbench) {
+      if (
+        !checkConstructionInRange(
+          server._constructionSimple,
+          client.character.state.position,
+          3,
+          Items.WORKBENCH
+        ) &&
+        !checkConstructionInRange(
+          server._worldSimpleConstruction,
+          client.character.state.position,
+          3,
+          Items.WORKBENCH
+        )
+      ) {
+        server.sendAlert(
+          client,
+          "You must be near a workbench to complete this recipe"
+        );
+        return false;
+      }
+    }
+
+    if(!await this.generateCraftQueue(server, client, recipe, recipeCount, recipeId, craftCount)) {
+      return false;
+    }
 
     //#region CRAFTING
     await server.pUtilizeHudTimer(
@@ -278,7 +296,7 @@ export class CraftManager {
       for (const item of inventory[component.itemDefinitionId]) {
         if (item.stackCount >= remainingItems) {
           if (
-            !server.removeInventoryItem(client.character, item, remainingItems)
+            !this.removeCraftComponent(server, client.character, item, remainingItems)
           ) {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return false; // return if not enough items
@@ -286,7 +304,7 @@ export class CraftManager {
           remainingItems = 0;
         } else {
           if (
-            server.removeInventoryItem(client.character, item, item.stackCount)
+            this.removeCraftComponent(server, client.character, item, item.stackCount)
           ) {
             remainingItems -= item.stackCount;
           } else {
