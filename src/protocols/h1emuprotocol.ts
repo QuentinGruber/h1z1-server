@@ -165,6 +165,18 @@ const packets: PacketStructures = [
         { name: "status", type: "boolean", defaultValue: 0 }
       ]
     }
+  ],
+  [
+    "ClientMessage",
+    0x17,
+    {
+      fields: [
+        { name: "loginSessionId", type: "uint64string", defaultValue: 0 },
+        { name: "message", type: "string", defaultValue: "" },
+        { name: "showConsole", type: "boolean", defaultValue: false },
+        { name: "clearOutput", type: "boolean", defaultValue: false }
+      ]
+    }
   ]
 ];
 
