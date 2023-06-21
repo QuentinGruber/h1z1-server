@@ -34,6 +34,11 @@ type InventoryDataSource = {
   [itemDefinitionId: number]: Array<ItemDataSource>;
 };
 
+/**
+ * Retrieves the craft components data source from the client's inventory and mounted container.
+ * @param client The client to get the craft components data source for.
+ * @returns The craft components data source object.
+ */
 function getCraftComponentsDataSource(client: Client): {
   [itemDefinitionId: number]: CraftComponentDSEntry;
 } {
@@ -73,12 +78,23 @@ function getCraftComponentsDataSource(client: Client): {
   return inventory;
 }
 
+/**
+ * CraftManager handles the crafting of a recipe by a client.
+ */
 export class CraftManager {
   private craftLoopCount: number = 0;
   private maxCraftLoopCount: number = 500;
   private componentsDataSource: {
     [itemDefinitionId: number]: CraftComponentDSEntry;
   } = {};
+
+  /**
+   * Constructs a new instance of the CraftManager class.
+   * @param client - The client object.
+   * @param server - The server object.
+   * @param recipeId - The ID of the recipe to craft.
+   * @param count - The number of times to craft the recipe.
+   */
   constructor(
     client: Client,
     server: ZoneServer2016,
@@ -89,7 +105,12 @@ export class CraftManager {
     this.start(client, server, recipeId, count);
   }
 
-  // used for removing items from internal recipe components data source (only for inventory rn)
+  /**
+   * Removes simulated craft components from the internal recipe components data source.
+   * @param itemDefinitionId The item definition ID of the craft component to remove.
+   * @param count The number of craft components to remove.
+   * @returns A boolean indicating if the removal was successful.
+   */
   removeSimulatedCraftComponent(
     itemDefinitionId: number,
     count: number
@@ -107,19 +128,32 @@ export class CraftManager {
     return true;
   }
 
+  /**
+   * Removes a craft component from the character and updates the remaining items.
+   * @param server The ZoneServer2016 instance.
+   * @param itemDS The item data source containing the craft component.
+   * @param count The number of craft components to remove.
+   * @returns A boolean indicating if the removal was successful.
+   */
   removeCraftComponent(
     server: ZoneServer2016,
     itemDS: ItemDataSource,
-    remainingItems: number
+    count: number
   ): boolean {
     // todo: check items on ground and proximity containers
-    return server.removeInventoryItem(
-      itemDS.character,
-      itemDS.item,
-      remainingItems
-    );
+    return server.removeInventoryItem(itemDS.character, itemDS.item, count);
   }
 
+  /**
+   * Generates the craft queue based on the recipe and its components.
+   * @param server The ZoneServer2016 instance.
+   * @param client The client performing the craft.
+   * @param recipe The recipe object.
+   * @param recipeCount The number of times to repeat the recipe.
+   * @param recipeId The ID of the recipe being crafted.
+   * @param craftCount The total number of items to craft.
+   * @returns A promise resolving to a boolean indicating if the craft queue generation was successful.
+   */
   async generateCraftQueue(
     server: ZoneServer2016,
     client: Client,
@@ -260,6 +294,11 @@ export class CraftManager {
     return true;
   }
 
+  /**
+   * Retrieves the inventory data source for a character.
+   * @param character The Character2016 instance.
+   * @returns The inventory data source object.
+   */
   getInventoryDataSource(character: Character2016): InventoryDataSource {
     const inv: InventoryDataSource = {};
 
@@ -294,13 +333,21 @@ export class CraftManager {
     return inv;
   }
 
+  /**
+   * Crafts an item using the given recipe and adds it to the client's inventory.
+   * @param server The ZoneServer2016 instance.
+   * @param client The client performing the craft.
+   * @param recipeId The ID of the recipe being crafted.
+   * @param recipeCount The number of times to repeat the recipe.
+   * @returns A promise resolving to a boolean indicating if the crafting process was successful.
+   */
   async craftItem(
     server: ZoneServer2016,
     client: Client,
     recipeId: number,
     recipeCount: number
   ): Promise<boolean> {
-    if (!recipeCount) return true;
+    if (!recipeCount) return false;
     this.craftLoopCount++;
     if (this.craftLoopCount > this.maxCraftLoopCount) {
       return false;
