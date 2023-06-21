@@ -344,8 +344,10 @@ export class PluginManager {
   ) {
     const originalFunction = thisArg[methodName];
 
-    if(!originalFunction) {
-      console.log("\n\n\n[PluginManager] A plugin tried to hook an invalid method!\n\n\n");
+    if (!originalFunction) {
+      console.log(
+        "\n\n\n[PluginManager] A plugin tried to hook an invalid method!\n\n\n"
+      );
       return;
     }
 
