@@ -3924,7 +3924,7 @@ export class ZoneServer2016 extends EventEmitter {
           });*/
           client.spawnedEntities.push(vehicle);
         }
-        // disable managing vehicles with routine, leaving only managind when entering it
+        // disable managing vehicles with routine, leaving only managed when entering it
         /*if (!vehicle.isManaged) {
           // assigns management to first client within radius
           this.assignManagedObject(client, vehicle);
@@ -4254,44 +4254,6 @@ export class ZoneServer2016 extends EventEmitter {
       ],
       unknownArray2: [{}]
     });
-
-    // this is broken for some reason
-    //this.initializeContainerList(client, vehicle);
-    /*
-    if (seatId === "0") {
-      
-      const container = vehicle.getContainer()
-      if(!container) return;
-      this.sendData(client, "Vehicle.InventoryItems", {
-        characterId: vehicle.characterId,
-        itemsData: {
-          items: Object.values(container.items).map((item) => {
-            return vehicle.pGetItemData(
-              this,
-              item,
-              container.containerDefinitionId
-            );
-          }),
-          unknownDword1: container.containerDefinitionId,
-        },
-      });
-      
-      this.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-        objectCharacterId: vehicle.characterId,
-        containerGuid: container.itemGuid,
-        unknownBool1: true,
-        itemsData: {
-          items: Object.values(container.items).map((item) => {
-            return vehicle.pGetItemData(
-              this,
-              item,
-              container.containerDefinitionId
-            )
-          }),
-          unknownDword1: container.containerDefinitionId,
-        },
-      });
-    }*/
   }
 
   dismountVehicle(client: Client) {
@@ -5194,17 +5156,6 @@ export class ZoneServer2016 extends EventEmitter {
   deleteItem(character: BaseFullCharacter, itemGuid: string) {
     const client = this.getClientByContainerAccessor(character);
     if (!client || !client.character.initialized) return;
-
-    /*
-    if (
-      client.character != character &&
-      character instanceof BaseLootableEntity
-    ) {
-      // force remount since ItemDelete doesn't seem to work on external containers right now
-      client.character.mountContainer(this, character);
-      return;
-    }
-    */
 
     this.sendData(client, "ClientUpdate.ItemDelete", {
       characterId:
