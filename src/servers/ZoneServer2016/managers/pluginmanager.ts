@@ -17,15 +17,32 @@ import { ZoneServer2016 } from "../zoneserver";
 import { execSync } from "child_process";
 import { copyFile, fileExists } from "../../../utils/utils";
 
+/**
+ * Abstract class representing a base plugin.
+ */
 export abstract class BasePlugin {
   public abstract name: string;
   public abstract description: string;
   public abstract version: string;
+  /**
+   * Loads the configuration for the plugin.
+   * @param config - The configuration object for the plugin.
+   */
   public abstract loadConfig(config: any): void;
+  /**
+   * Initializes the plugin.
+   * @param server - The ZoneServer2016 instance.
+   * @returns A promise that resolves when the initialization is complete.
+   */
   public abstract init(server: ZoneServer2016): Promise<void>;
   public dir!: string;
 }
 
+/**
+ * Checks if a folder exists at the specified path.
+ * @param path - The path of the folder to check.
+ * @returns A boolean indicating whether the folder exists.
+ */
 function folderExists(path: string): boolean {
   // shoutout chatGPT
   try {
@@ -42,6 +59,12 @@ function folderExists(path: string): boolean {
   }
 }
 
+/**
+ * Searches for a folder within a directory.
+ * @param directory - The directory to search in.
+ * @param folderName - The name of the folder to search for.
+ * @returns The path of the found folder, or null if not found.
+ */
 function searchFolder(directory: string, folderName: string): string | null {
   // shoutout chatGPT
   const files = fs.readdirSync(directory);
@@ -66,6 +89,12 @@ function searchFolder(directory: string, folderName: string): string | null {
   return null; // Folder not found
 }
 
+/**
+ * Recursively traverses a directory and replaces a search string with a replace string in all files.
+ * @param directory - The directory to traverse.
+ * @param searchString - The string to search for.
+ * @param replaceString - The string to replace with.
+ */
 function traverseAndReplace(
   directory: string,
   searchString: string,
@@ -85,6 +114,12 @@ function traverseAndReplace(
   });
 }
 
+/**
+ * Replaces a search string with a replace string in a specific file.
+ * @param filePath - The path of the file.
+ * @param searchString - The string to search for.
+ * @param replaceString - The string to replace with.
+ */
 function replaceInFile(
   filePath: string,
   searchString: string,
@@ -105,9 +140,13 @@ export class PluginManager {
   get pluginCount() {
     return this.plugins.length;
   }
-  private pluginsDir = path.join(process.cwd(), "plugins");
+  private pluginsDir =
+    process.env.PLUGINS_DIR || path.join(process.cwd(), "plugins");
   private moduleDir = searchFolder(process.cwd(), "h1z1-server") || "";
 
+  /**
+   * Checks if the plugins directory exists and creates it if it doesn't.
+   */
   private checkPluginsFolder(): void {
     if (!fs.existsSync(this.pluginsDir)) {
       fs.mkdirSync(this.pluginsDir);
@@ -115,6 +154,11 @@ export class PluginManager {
     }
   }
 
+  /**
+   * Retrieves the dependencies for a plugin.
+   * @param projectPath - The path of the plugin.
+   * @returns An array of dependencies.
+   */
   private getDependencies(projectPath: string): string[] {
     // shoutout chatGPT
 
@@ -129,6 +173,11 @@ export class PluginManager {
     return dependencies;
   }
 
+  /**
+   * Installs the dependencies for a plugin.
+   * @param pluginPath - The path of the plugin.
+   * @param dependencies - An array of dependencies to install.
+   */
   private installDependencies(
     pluginPath: string,
     dependencies: string[]
@@ -155,12 +204,13 @@ export class PluginManager {
     }
   }
 
+  /**
+   * Loads a plugin from the specified path.
+   * @param pluginPath - The path of the plugin.
+   * @returns A promise that resolves when the plugin is loaded.
+   */
   private async loadPlugin(pluginPath: string) {
-    const runPath = path.join(
-      this.pluginsDir,
-      pluginPath,
-      "plugin.js"
-    );
+    const runPath = path.join(this.pluginsDir, pluginPath, "plugin.js");
 
     if (!folderExists(path.join(this.pluginsDir, pluginPath, "node_modules"))) {
       // Install dependencies into the node_modules directory
@@ -189,6 +239,10 @@ export class PluginManager {
     console.log(`[PluginManager] Loaded: ${plugin.name}`);
   }
 
+  /**
+   * Loads all plugins from the plugins directory.
+   * @returns A promise that resolves when all plugins are loaded.
+   */
   private async loadPlugins() {
     this.checkPluginsFolder();
 
@@ -200,11 +254,18 @@ export class PluginManager {
         await this.loadPlugin(folder);
       } catch (e: any) {
         console.error(e);
-        console.log(`[PluginManager] Plugin "${folder}" not loaded, make sure you've compiled the plugin before attempting to load it.`)
+        console.log(
+          `[PluginManager] Plugin "${folder}" not loaded, make sure you've compiled the plugin before attempting to load it.`
+        );
       }
     }
   }
 
+  /**
+   * Loads the configuration for a plugin.
+   * @param server - The ZoneServer2016 instance.
+   * @param plugin - The plugin instance.
+   */
   private async loadPluginConfig(server: ZoneServer2016, plugin: BasePlugin) {
     const defaultConfigPath = path.join(
         plugin.dir,
@@ -238,6 +299,10 @@ export class PluginManager {
     plugin.loadConfig(config);
   }
 
+  /**
+   * Initializes the plugins and loads their configurations.
+   * @param server - The ZoneServer2016 instance.
+   */
   public async initializePlugins(server: ZoneServer2016) {
     if (!this.moduleDir) {
       console.error("[PluginManager] moduleDir is undefined!");
@@ -261,5 +326,33 @@ export class PluginManager {
     if (this.plugins.length == 0) {
       console.log(`[PluginManager] No plugins loaded.`);
     }
+  }
+
+  /**
+   * Hooks a method by overriding its default behavior.
+   * @param thisArg - The object on which the method is defined.
+   * @param methodName - The name of the method to be hooked.
+   * @param hook - A function that will be called during the hooking process.
+   * @param options - Options for controlling the hooking behavior. Specifies whether to call the original method before/after the hook.
+   * @returns
+   */
+  public hookMethod(
+    thisArg: any,
+    methodName: string,
+    hook: (...args: any[]) => any,
+    options: { callBefore: boolean; callAfter: boolean }
+  ) {
+    const originalFunction = thisArg[methodName];
+
+    if(!originalFunction) {
+      console.log("\n\n\n[PluginManager] A plugin tried to hook an invalid method!\n\n\n");
+      return;
+    }
+
+    thisArg[methodName] = function (...args: any[]) {
+      if (options.callBefore) originalFunction.call(thisArg, args);
+      hook(args);
+      if (options.callAfter) originalFunction.call(thisArg, args);
+    };
   }
 }
