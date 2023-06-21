@@ -36,17 +36,44 @@ import { Resolver } from "node:dns";
 import { ZoneClient2016 } from "servers/ZoneServer2016/classes/zoneclient";
 import * as crypto from "crypto";
 
+/**
+ * Represents a custom implementation of lodash library.
+ */
 export class customLodash {
+  /**
+   * Calculate the sum of numbers in an array.
+   * @param pings - The array of numbers.
+   * @returns The sum of numbers.
+   */
   sum(pings: number[]): number {
     return pings.reduce((a, b) => a + b, 0);
   }
+
+  /**
+   * Create a deep clone of the given value.
+   * @param value - The value to clone.
+   * @returns The cloned value.
+   */
   cloneDeep(value: unknown): unknown {
     return structuredClone(value);
   }
+
+  /**
+   * Find the first element in the array that satisfies the filter function.
+   * @param array - The array to search in.
+   * @param filter - The filter function.
+   * @returns The first matching element, or undefined if not found.
+   */
   find(array: any[], filter: any) {
     return array.find(filter);
   }
 
+  /**
+   * Check if two arrays are equal.
+   * @param array1 - The first array.
+   * @param array2 - The second array.
+   * @returns True if the arrays are equal, false otherwise.
+   */
   isEqual(array1: any[], array2: any[]) {
     return (
       Array.isArray(array1) &&
@@ -56,6 +83,12 @@ export class customLodash {
     );
   }
 
+  /**
+ * Iterates over each property in the given object and invokes the provided callback function.
+ *
+ * @param object - The object to iterate over.
+ * @param callback - The function to be called for each property in the object.
+ */
   forEach(object: Record<string, unknown>, callback: (arg0: any) => void) {
     const objectLength = Object.keys(object).length;
     const objectValues = Object.values(object);
@@ -64,16 +97,36 @@ export class customLodash {
     }
   }
 
+  /**
+ * Calculates and returns the number of properties in the given object.
+ *
+ * @param object - The object to get the size of.
+ * @returns The number of properties in the object.
+ */
   size(object: Record<string, unknown>) {
     return Object.keys(object).length;
   }
 
+  /**
+ * Fills the provided array with the specified object.
+ *
+ * @param array - The array to fill.
+ * @param object - The object to fill the array with.
+ * @returns The modified array after filling.
+ */
   fill(array: any[], object: any) {
     for (let index = 0; index < array.length; index++) {
       array[index] = object;
     }
     return array;
   }
+
+  /**
+ * Deletes the specified entry from the given array.
+ *
+ * @param array - The array to delete the entry from.
+ * @param entry - The entry to delete from the array.
+ */
   delete(array: any[], entry: any) {
     const index = array.indexOf(entry);
     if (index > -1) {
@@ -84,14 +137,26 @@ export class customLodash {
 
 export const _ = new customLodash();
 
+/**
+ * Checks if the given rotation is a quaternion. If not, converts the Euler angles to a quaternion.
+ *
+ * @param rotation - The rotation to check or convert, represented as a Float32Array.
+ * @returns The quaternion representation of the rotation.
+ */
 export function isQuat(rotation: Float32Array) {
   return rotation[1] != 0 && rotation[2] != 0 && rotation[3] != 0
     ? rotation
     : eul2quat(rotation);
 }
 
-// Original code from GuinnessRules
+/**
+ * Converts Euler angles to a quaternion representation.
+ *
+ * @param angle - The Euler angles to convert, represented as a Float32Array.
+ * @returns The quaternion representation of the Euler angles.
+ */
 export function eul2quat(angle: Float32Array): Float32Array {
+  // Original code from GuinnessRules. 
   // Assuming the angles are in radians.
   const heading = angle[0],
     attitude = angle[1],
@@ -111,8 +176,14 @@ export function eul2quat(angle: Float32Array): Float32Array {
   return new Float32Array([qx, qy, -qz, qw]);
 }
 
+/**
+ * Converts a quaternion to a matrix representation.
+ *
+ * @param angle - The quaternion to convert, represented as a Float32Array.
+ * @returns The matrix representation of the quaternion.
+ */
 export function quat2matrix(angle: Float32Array): any {
-  // a little modified for my needs, may not work for other things than construction
+  //  may not work for other things than construction
   const x = angle[0];
   const y = angle[1];
   const z = angle[2];
@@ -143,6 +214,12 @@ export function quat2matrix(angle: Float32Array): any {
   ];
 }
 
+/**
+ * Converts Euler angles to a legacy quaternion representation.
+ *
+ * @param angle - The Euler angles to convert, represented as an array of numbers.
+ * @returns The legacy quaternion representation of the Euler angles.
+ */
 export function eul2quatLegacy(angle: number[]) {
   // Assuming the angles are in radians.
   const heading = angle[0],
@@ -163,16 +240,29 @@ export function eul2quatLegacy(angle: number[]) {
   return [qx, qy, -qz, qw];
 }
 
+/**
+ * Fixes the Euler order of the rotation by modifying the rotation array.
+ *
+ * @param rotation - The rotation to fix, represented as a Float32Array.
+ * @returns The fixed rotation as a Float32Array.
+ */
 export function fixEulerOrder(rotation: Float32Array): Float32Array {
   return new Float32Array([0, rotation[0], 0, 0]);
 }
 
+/**
+ * Moves a point in a given direction by a specified distance.
+ *
+ * @param position - The initial position of the point, represented as a Float32Array.
+ * @param angle - The angle in radians representing the direction of movement.
+ * @param distance - The distance to move the point.
+ * @returns The new position of the point after movement as a Float32Array.
+ */
 export function movePoint(
   position: Float32Array,
   angle: number,
   distance: number
 ) {
-  // angle in radians
   return new Float32Array([
     position[0] + Math.cos(angle) * distance,
     position[1],
@@ -180,6 +270,13 @@ export function movePoint(
   ]);
 }
 
+/**
+ * Calculates the angle between two points in a 2D space.
+ *
+ * @param position1 - The position of the first point, represented as a Float32Array.
+ * @param position2 - The position of the second point, represented as a Float32Array.
+ * @returns The angle between the two points in radians.
+ */
 export function getAngle(position1: Float32Array, position2: Float32Array) {
   const dx = position2[0] - position1[0];
   const dz = position2[2] - position1[2];
@@ -187,23 +284,15 @@ export function getAngle(position1: Float32Array, position2: Float32Array) {
   return angle;
 }
 
-/*export function getAngle(positionA: Float32Array, positionB: Float32Array) {
-  const dx = positionB[0] - positionA[0];
-  const dz = positionB[2] - positionA[2];
-  let angle = Math.atan2(dz, dx);
-
-  // adjust angle if coordinate system is flipped
-  angle = (2 * Math.PI - angle) % (2 * Math.PI);
-
-  // rotate angle by -90 degrees
-  angle += Math.PI / 2;
-
-  // ensure angle is within 0 to 2π range
-  angle = (angle + 2 * Math.PI) % (2 * Math.PI);
-
-  return angle;
-}*/
-
+/**
+ * Shuts down the zone server with a countdown timer and performs necessary cleanup operations.
+ *
+ * @param server - The zone server instance (ZoneServer2016 or ZoneServer2015).
+ * @param startedTime - The timestamp when the server shutdown started.
+ * @param timeLeft - The duration of the shutdown timer in seconds.
+ * @param message - The message to display during the shutdown process.
+ * @returns A promise that resolves after the shutdown process is completed.
+ */
 export async function zoneShutdown(
   server: ZoneServer2016 | ZoneServer2015,
   startedTime: number,
@@ -238,6 +327,13 @@ export async function zoneShutdown(
   }
 }
 
+/**
+ * Calculates the difference between two strings using the Levenshtein distance algorithm.
+ *
+ * @param s1 - The first string to compare.
+ * @param s2 - The second string to compare.
+ * @returns The difference between the two strings as a number.
+ */
 export function getDifference(s1: string, s2: string) {
   s1 = s1.toLowerCase();
   s2 = s2.toLowerCase();
@@ -261,16 +357,35 @@ export function getDifference(s1: string, s2: string) {
   return costs[s2.length];
 }
 
+/**
+ * Generates a random integer within the specified range (inclusive).
+ *
+ * @param min - The minimum value of the range.
+ * @param max - The maximum value of the range.
+ * @returns The random integer generated.
+ */
 export const randomIntFromInterval = (min: number, max: number) => {
   // min and max included
   return Math.floor(Math.random() * (max - min + 1) + min);
 };
 
+/**
+ * Retrieves the application data folder path.
+ *
+ * @returns The path to the application data folder.
+ */
 export const getAppDataFolderPath = (): string => {
   const folderName = "h1emu";
   return `${process.env.APPDATA || process.env.HOME}/${folderName}`;
 };
 
+/**
+ * Decrypts the encrypted text using the provided key and initialization vector (IV).
+ *
+ * @param text - The encrypted data and IV.
+ * @param key - The decryption key.
+ * @returns The decrypted text.
+ */
 export function decrypt(
   text: { iv: string; encryptedData: string },
   key: string
@@ -285,6 +400,9 @@ export function decrypt(
   return decrypted.toString();
 }
 
+/**
+ * Sets up the application data folder by creating necessary files and directories if they don't exist (Singleplayer windows usage only).
+ */
 export const setupAppDataFolder = (): void => {
   const AppDataFolderPath = getAppDataFolderPath();
   if (!fs.existsSync(AppDataFolderPath)) {
@@ -350,14 +468,35 @@ export const setupAppDataFolder = (): void => {
   }
 };
 
+/**
+ * Checks if an object is empty (has no enumerable properties).
+ *
+ * @param obj - The object to check.
+ * @returns A boolean indicating whether the object is empty.
+ */
 export const objectIsEmpty = (obj: Record<string, unknown>) => {
   return Object.keys(obj).length === 0;
 };
 
+/**
+ * Checks if a value is within a specified range.
+ *
+ * @param radius - The range around the value.
+ * @param value1 - The value to check.
+ * @param value2 - The reference value.
+ * @returns A boolean indicating whether the value is within the range.
+ */
 const isBetween = (radius: number, value1: number, value2: number): boolean => {
   return value1 <= value2 + radius && value1 >= value2 - radius;
 };
 
+/**
+ * Checks if a point is inside a square region defined by its vertices.
+ *
+ * @param point - The point to check.
+ * @param vs - The vertices of the square.
+ * @returns A boolean indicating whether the point is inside the square.
+ */
 export const isInsideSquare = (
   point: [number, number],
   vs: SquareBounds | number[][]
@@ -378,6 +517,16 @@ export const isInsideSquare = (
   return inside;
 };
 
+/**
+ * Checks if a point is inside a cube region defined by a square base and height.
+ *
+ * @param point - The point to check.
+ * @param vs - The vertices of the square base.
+ * @param y_pos1 - The bottom y-coordinate of the cube.
+ * @param y_pos2 - The top y-coordinate of the cube.
+ * @param y_radius - The radius around the y-axis for the cube.
+ * @returns A boolean indicating whether the point is inside the cube.
+ */
 export const isInsideCube = (
   point: [number, number],
   vs: SquareBounds,
@@ -401,30 +550,55 @@ export const isInsideCube = (
   return inside && isBetween(y_radius, y_pos1, y_pos2) && y_pos1 > y_pos2 - 0.2;
 };
 
+/**
+ * Checks if a position is within a specified radius from another position in 2D space.
+ *
+ * @param radius - The radius to check.
+ * @param position1 - The position of the first point.
+ * @param position2 - The position of the second point.
+ * @returns A boolean indicating whether the second point is within the specified radius of the first point.
+ */
 export const isPosInRadius = (
   radius: number,
-  player_position: Float32Array,
-  enemi_position: Float32Array
+  position1: Float32Array,
+  position2: Float32Array
 ): boolean => {
-  const xDiff = player_position[0] - enemi_position[0];
-  const zDiff = player_position[2] - enemi_position[2];
+  const xDiff = position1[0] - position2[0];
+  const zDiff = position1[2] - position2[2];
   const radiusSquared = radius * radius;
 
   return xDiff * xDiff + zDiff * zDiff <= radiusSquared;
 };
+
+/**
+ * Checks if a position is within a specified radius from another position in 3D space, taking into account the y-axis.
+ *
+ * @param radius - The radius to check.
+ * @param position1 - The position of the first point.
+ * @param position2 - The position of the second point.
+ * @param y_radius - The radius around the y-axis.
+ * @returns A boolean indicating whether the second point is within the specified radius of the first point in both x-z and y axes.
+ */
 export const isPosInRadiusWithY = (
   radius: number,
-  player_position: Float32Array,
-  enemi_position: Float32Array,
+  position1: Float32Array,
+  position2: Float32Array,
   y_radius: number
 ): boolean => {
   return (
-    isBetween(radius, player_position[0], enemi_position[0]) &&
-    isBetween(radius, player_position[2], enemi_position[2]) &&
-    isBetween(y_radius, player_position[1], enemi_position[1])
+    isBetween(radius, position1[0], position2[0]) &&
+    isBetween(radius, position1[2], position2[2]) &&
+    isBetween(y_radius, position1[1], position2[1])
   );
 };
 
+/**
+ * Calculates the Euclidean distance between two 3D points.
+ *
+ * @param p1 - The position of the first point.
+ * @param p2 - The position of the second point.
+ * @returns The Euclidean distance between the two points.
+ */
 export function getDistance(p1: Float32Array, p2: Float32Array) {
   const a = p1[0] - p2[0];
   const b = p1[1] - p2[1];
@@ -432,17 +606,40 @@ export function getDistance(p1: Float32Array, p2: Float32Array) {
   return Math.sqrt(a * a + b * b + c * c);
 }
 
+/**
+ * Calculates the Euclidean distance between two 2D points (ignoring the y-axis).
+ *
+ * @param p1 - The position of the first point.
+ * @param p2 - The position of the second point.
+ * @returns The Euclidean distance between the two points in 2D space.
+ */
 export function getDistance2d(p1: Float32Array, p2: Float32Array) {
   const dx = p1[0] - p2[0];
   const dy = p1[2] - p2[2];
   return Math.sqrt(dx * dx + dy * dy);
 }
 
+/**
+ * Calculates the absolute difference between two 1D values.
+ *
+ * @param height1 - The first height value.
+ * @param height2 - The second height value.
+ * @returns The absolute difference between the two heights.
+ */
 export function getDistance1d(height1: number, height2: number) {
   const dh = height1 - height2;
   return Math.abs(dh);
 }
 
+/**
+ * Checks if any construction in the dictionary is within the specified range of the given position and has a matching itemDefinitionId.
+ *
+ * @param dictionary - The dictionary of constructions to check.
+ * @param position - The position to check against.
+ * @param range - The range to check.
+ * @param itemDefinitionId - The item definition ID to match.
+ * @returns A boolean indicating whether a matching construction is within range of the position.
+ */
 export function checkConstructionInRange(
   dictionary: any,
   position: Float32Array,
@@ -459,6 +656,14 @@ export function checkConstructionInRange(
   return false;
 }
 
+/**
+ * Creates a position update object with the given position, rotation, and game time.
+ *
+ * @param position - The position for the update.
+ * @param rotation - The rotation for the update.
+ * @param gameTime - The game time for the update.
+ * @returns The position update object.
+ */
 export function createPositionUpdate(
   position: Float32Array,
   rotation: Float32Array,
@@ -475,6 +680,15 @@ export function createPositionUpdate(
   return obj;
 }
 
+/**
+ * Calculates the coordinates of the corners of a rectangle given the center point, angle, offset, and euler rotation.
+ *
+ * @param centerPoint - The center point of the rectangle.
+ * @param angle - The angle of the rectangle.
+ * @param offset - The offset of the rectangle.
+ * @param eulerRot - The euler rotation of the rectangle.
+ * @returns An array containing the coordinates of the rectangle's corners.
+ */
 export function getRectangleCorners(
   centerPoint: Float32Array,
   angle: number,
@@ -515,18 +729,41 @@ export function getRectangleCorners(
   ];
 }
 
+/**
+ * Converts a number to an integer by rounding it down.
+ *
+ * @param value - The number to convert.
+ * @returns The converted integer value.
+ */
 export const toInt = (value: number) => {
   return Number(value.toFixed(0));
 };
 
+/**
+ * Converts a number to a hexadecimal string representation.
+ *
+ * @param value - The number to convert.
+ * @returns The hexadecimal string representation of the number.
+ */
 export const Int64String = function (value: number): string {
   return "0x" + ("0000000000000000" + value.toString(16)).substr(-16);
 };
 
+/**
+ * Generates a random GUID string.
+ *
+ * @returns The generated GUID string.
+ */
 export const generateRandomGuid = function (): string {
   return "0x" + generate_random_guid();
 };
 
+/**
+ * Generates a transient ID starting from the specified ID.
+ *
+ * @param startId - The starting ID for the generator.
+ * @yields The generated transient ID.
+ */
 export function* generateTransientId(startId: number = 0) {
   let id = startId;
   for (let index = 0; index < MAX_TRANSIENT_ID; index++) {
@@ -534,6 +771,11 @@ export function* generateTransientId(startId: number = 0) {
   }
 }
 
+/**
+ * Removes the cache for all files in the specified directory path.
+ *
+ * @param directoryPath - The path of the directory to remove the cache for.
+ */
 export const removeCacheFullDir = function (directoryPath: string): void {
   const files = readdirSync(directoryPath); // need to be sync
   for (const file of files) {
@@ -547,6 +789,13 @@ export const removeCacheFullDir = function (directoryPath: string): void {
   }
 };
 
+/**
+ * Generates a list of command strings from the command object and namespace.
+ *
+ * @param commandObject - The command object containing the commands.
+ * @param commandNamespace - The namespace of the commands.
+ * @returns An array of command strings.
+ */
 export const generateCommandList = (
   commandObject: string[],
   commandNamespace: string
@@ -558,13 +807,39 @@ export const generateCommandList = (
   return commandList;
 };
 
+/**
+ * LZ4 compression class with static methods for encoding blocks and calculating the encoding bound.
+ */
 export class LZ4 {
+  /**
+   * Encodes a block of data using LZ4 compression.
+   *
+   * @param src - The source data to compress.
+   * @param dst - The destination buffer to store the compressed data.
+   * @param sIdx - The starting index in the source data.
+   * @param eIdx - The ending index in the source data.
+   * @returns The size of the compressed block.
+   */
   static encodeBlock: (src: any, dst: any, sIdx?: any, eIdx?: any) => number;
+   /**
+   * Calculates the size of the encoded block given the input size.
+   *
+   * @param isize - The input size.
+   * @returns The size of the encoded block.
+   */
   static encodeBound: (isize: number) => number;
 }
 LZ4.encodeBlock = compress;
 LZ4.encodeBound = compressBound;
 
+/**
+ * Decompresses LZ4-compressed data.
+ *
+ * @param data - The compressed data.
+ * @param inSize - The size of the input data.
+ * @param outSize - The size of the output data.
+ * @returns The decompressed data.
+ */
 export const lz4_decompress = function (
   // from original implementation
   data: any,
@@ -622,6 +897,13 @@ export const lz4_decompress = function (
   return outdata;
 };
 
+/**
+ * Initializes the MongoDB database.
+ *
+ * @param mongoClient - The MongoDB client.
+ * @param serverName - The name of the server.
+ * @returns A promise that resolves once the database is initialized.
+ */
 export const initMongo = async function (
   mongoClient: MongoClient,
   serverName: string
@@ -637,6 +919,12 @@ export const initMongo = async function (
   debug("h1server database was missing... created one with samples.");
 };
 
+/**
+ * Converts a packet type to an array of bytes.
+ *
+ * @param packetType - The packet type.
+ * @returns An array of bytes representing the packet type.
+ */
 export const getPacketTypeBytes = function (packetType: number): number[] {
   const packetTypeBytes = [];
   for (let i = 0; i < 4; i++) {
@@ -649,6 +937,12 @@ export const getPacketTypeBytes = function (packetType: number): number[] {
   return packetTypeBytes;
 };
 
+/**
+ * Clears the cache for a folder by deleting cached modules that belong to the folder.
+ *
+ * @param currentFolderDirname - The dirname of the current folder.
+ * @param folderPath - The path of the folder to clear the cache for.
+ */
 export const clearFolderCache = (
   currentFolderDirname: string,
   folderPath: string
@@ -661,11 +955,26 @@ export const clearFolderCache = (
   });
 };
 
-// experimental custom implementation of the scheduler API
+/**
+ * Experimental custom implementation of the scheduler API.
+ */
 export class Scheduler {
+  /**
+   * Yields execution to the event loop.
+   *
+   * @returns A promise that resolves immediately after the next event loop iteration.
+   */
   static async yield() {
     return await setImmediatePromise();
   }
+
+  /**
+   * Pauses execution for a specified duration.
+   *
+   * @param delay - The delay in milliseconds.
+   * @param options - Optional options for the wait operation.
+   * @returns A promise that resolves after the specified delay.
+   */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   static async wait(delay: number, options?: any) {
     return await setTimeoutPromise(delay, undefined, {
@@ -674,6 +983,9 @@ export class Scheduler {
   }
 }
 
+/**
+ * A wrapped Uint16 class that ensures the value stays within the range of 0 to 65535.
+ */
 export class wrappedUint16 {
   private value: number;
   constructor(initValue: number) {
@@ -682,6 +994,13 @@ export class wrappedUint16 {
     }
     this.value = initValue;
   }
+
+   /**
+   * Wraps the given value to ensure it stays within the range of 0 to 65535.
+   *
+   * @param value - The value to wrap.
+   * @returns The wrapped value.
+   */
   static wrap(value: number) {
     let uint16 = value;
     if (uint16 > MAX_UINT16) {
@@ -689,37 +1008,93 @@ export class wrappedUint16 {
     }
     return uint16;
   }
+
+  /**
+   * Adds a value to the wrappedUint16 value.
+   *
+   * @param value - The value to add.
+   */
   add(value: number): void {
     this.value = wrappedUint16.wrap(this.value + value);
   }
+
+  /**
+   * Sets the wrappedUint16 value.
+   *
+   * @param value - The value to set.
+   */
   set(value: number): void {
     this.value = wrappedUint16.wrap(value);
   }
+
+  /**
+   * Retrieves the wrappedUint16 value.
+   *
+   * @returns The wrappedUint16 value.
+   */
   get(): number {
     return this.value;
   }
+
+  /**
+   * Increments the wrappedUint16 value by 1.
+   */
   increment(): void {
     this.add(1);
   }
 }
 
+/**
+ * Converts a BigInt to a hexadecimal string.
+ *
+ * @param bigInt - The BigInt to convert.
+ * @returns The hexadecimal string representation of the BigInt.
+ */
 export const toBigHex = (bigInt: bigint): string => {
   return `0x${bigInt.toString(16)}`;
 };
 
+/**
+ * Converts a number to a hexadecimal string.
+ *
+ * @param number - The number to convert.
+ * @returns The hexadecimal string representation of the number.
+ */
 export const toHex = (number: number): string => {
   return `0x${number.toString(16)}`;
 };
 
+/**
+ * Retrieves a random element from an array.
+ *
+ * @param array - The array from which to retrieve a random element.
+ * @returns A random element from the array.
+ */
 export const getRandomFromArray = (array: any[]): any => {
   return array[Math.floor(Math.random() * array.length)];
 };
 
+/**
+ * Retrieves a random key from an object.
+ *
+ * @param object - The object from which to retrieve a random key.
+ * @returns A random key from the object.
+ */
 export const getRandomKeyFromAnObject = (object: any): string => {
   const keys = Object.keys(object);
   return keys[Math.floor(Math.random() * keys.length)];
 };
 
+/**
+ * Calculates the damage reduction based on distance using a linear falloff formula.
+ *
+ * @param distance - The distance between the target and the source.
+ * @param minDamage - The minimum damage value.
+ * @param maxDamage - The maximum damage value.
+ * @param falloffStart - The distance at which damage falloff begins.
+ * @param falloffEnd - The distance at which damage reaches its minimum value.
+ * @returns The calculated damage after falloff.
+ */
 export function calculate_falloff(
   distance: number,
   minDamage: number,
@@ -740,6 +1115,12 @@ export function calculate_falloff(
   return Math.round(reducedDamage);
 }
 
+/**
+ * A typescript port of the ForgeLight engine's hashing algorithm used in the game.
+ *
+ * @param str - The string to calculate the hash for.
+ * @returns The calculated hash value.
+ */
 export function flhash(str: string) {
   let hashvar1 = 0,
     hashvar2 = 0;
@@ -754,6 +1135,13 @@ export function flhash(str: string) {
   return Number(`0x${hash.toString(16).slice(-8)}`);
 }
 
+/**
+ * Calculates the orientation (rotation) between two positions.
+ *
+ * @param pos1 - The first position.
+ * @param pos2 - The second position.
+ * @returns The calculated orientation.
+ */
 export function calculateOrientation(
   pos1: Float32Array,
   pos2: Float32Array
@@ -761,6 +1149,15 @@ export function calculateOrientation(
   return Math.atan2(pos1[2] - pos2[2], pos1[0] - pos2[0]) * -1 - 1.4;
 }
 
+/**
+ * Calculates the position offset based on rotation, angle, and distance from a given position.
+ *
+ * @param position - The base position.
+ * @param rotation - The rotation angle in radians.
+ * @param angle - The additional angle in degrees.
+ * @param distance - The distance from the base position.
+ * @returns The offset position.
+ */
 export function getOffsetPoint(
   position: Float32Array,
   rotation: number,
@@ -770,6 +1167,13 @@ export function getOffsetPoint(
   return movePoint(position, -rotation + (angle * Math.PI) / 180, distance);
 }
 
+/**
+ * Calculates the angle and distance between two points in a 2D plane.
+ *
+ * @param p1 - The first point.
+ * @param p2 - The second point.
+ * @returns An object containing the calculated angle (in degrees) and distance.
+ */
 export function getAngleAndDistance(
   p1: Float32Array,
   p2: Float32Array
@@ -781,6 +1185,12 @@ export function getAngleAndDistance(
   return { angle, distance };
 }
 
+/**
+ * Retrieves the construction slot ID based on the building slot name.
+ *
+ * @param buildingSlot - The name of the building slot.
+ * @returns The corresponding construction slot ID.
+ */
 export function getConstructionSlotId(buildingSlot: string) {
   switch (buildingSlot) {
     case "LoveShackDoor":
@@ -795,6 +1205,13 @@ export function getConstructionSlotId(buildingSlot: string) {
   }
 }
 
+/**
+ * Registers construction slots for a construction entity based on slot definitions.
+ *
+ * @param construction - The construction entity.
+ * @param setSlots - The construction slot position map.
+ * @param slotDefinitions - The slot definitions for the construction entity.
+ */
 export function registerConstructionSlots(
   construction: ConstructionParentEntity | ConstructionChildEntity,
   setSlots: ConstructionSlotPositionMap,
@@ -825,7 +1242,13 @@ export function registerConstructionSlots(
     });
   }
 }
-// thx GPT i'm not writing regex myself :)
+
+/**
+ * Checks if a character name is valid.
+ *
+ * @param name - The character name to validate.
+ * @returns The validation status of the character name.
+ */
 export function isValidCharacterName(name: string) {
   // Regular expression that matches all special characters
   const specialCharRegex = /[^\w\s]/gi;
@@ -845,6 +1268,13 @@ export function isValidCharacterName(name: string) {
     : NAME_VALIDATION_STATUS.INVALID;
 }
 
+/**
+ * Resolves the host address using a resolver.
+ *
+ * @param resolver - The resolver object.
+ * @param hostName - The hostname to resolve.
+ * @returns A Promise that resolves to an array of resolved IP addresses.
+ */
 export async function resolveHostAddress(
   resolver: Resolver,
   hostName: string
@@ -863,6 +1293,15 @@ export async function resolveHostAddress(
   });
   return resolvedAddress as string[];
 }
+
+/**
+ * Logs a client action to MongoDB.
+ *
+ * @param collection - The MongoDB collection to log to.
+ * @param client - The ZoneClient2016 instance representing the client.
+ * @param serverId - The ID of the server.
+ * @param logMessage - The log message to insert.
+ */
 export async function logClientActionToMongo(
   collection: Collection,
   client: ZoneClient2016,
@@ -877,6 +1316,11 @@ export async function logClientActionToMongo(
   });
 }
 
+/**
+ * Removes untransferable fields from an object recursively.
+ *
+ * @param data - The object to remove untransferable fields from.
+ */
 export function removeUntransferableFields(data: any) {
   const allowedTypes = ["string", "number", "boolean", "undefined", "bigint"];
 
@@ -894,28 +1338,12 @@ export function removeUntransferableFields(data: any) {
   }
 }
 
+/**
+ * Checks if a number is a float.
+ *
+ * @param number - The number to check.
+ * @returns A boolean indicating whether the number is a float.
+ */
 export function isFloat(number: number) {
   return number % 1 != 0;
-}
-export enum PopulationLevel {
-  LOW = 0,
-  MEDIUM = 1,
-  HIGH = 2,
-  FULL = 3
-}
-
-// not used anymore, may have some use in the future
-export function getPopulationLevel(
-  currentPop: number,
-  maxPop: number
-): PopulationLevel {
-  if (currentPop >= maxPop) {
-    return PopulationLevel.FULL;
-  } else if (currentPop >= 70) {
-    return PopulationLevel.HIGH;
-  } else if (currentPop >= 25) {
-    return PopulationLevel.MEDIUM;
-  } else {
-    return PopulationLevel.LOW;
-  }
 }
