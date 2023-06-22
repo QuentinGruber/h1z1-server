@@ -17,4 +17,5 @@ export var GatewayServer: typeof import("./out/servers/GatewayServer/gatewayserv
 export var ZoneServer: typeof import("./out/servers/ZoneServer2015/zoneserver.js").ZoneServer2015; // legacy 
 export var ZoneServer2015: typeof import("./out/servers/ZoneServer2015/zoneserver.js").ZoneServer2015; 
 export var ZoneServer2016: typeof import("./out/servers/ZoneServer2016/zoneserver.js").ZoneServer2016;
+export var BasePlugin: typeof import("./out/servers/ZoneServer2016/managers/pluginmanager.js").BasePlugin;
 export var Utils: typeof import("./out/utils/utils");

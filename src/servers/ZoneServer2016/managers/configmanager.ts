@@ -16,6 +16,7 @@ import * as yaml from "js-yaml";
 import { Config } from "../models/config";
 import { ZoneServer2016 } from "../zoneserver";
 import * as path from "node:path";
+import { copyFile } from "../../../utils/utils";
 
 process.env.isBin &&
   require("js-yaml") &&
@@ -28,24 +29,6 @@ function fileExists(filePath: string): boolean {
   } catch (error) {
     return false;
   }
-}
-
-function copyFile(originalFilePath: string, newFilePath: string) {
-  const readStream = fs.createReadStream(originalFilePath),
-    writeStream = fs.createWriteStream(newFilePath);
-
-  readStream.pipe(writeStream);
-  writeStream.on("finish", () => {
-    console.log("Config copied successfully!");
-    readStream.close();
-    writeStream.close();
-  });
-
-  writeStream.on("error", (err) => {
-    console.error("Error copying config file:", err);
-    readStream.close();
-    writeStream.close();
-  });
 }
 
 export class ConfigManager {
@@ -91,7 +74,7 @@ export class ConfigManager {
     this.applyConfig(server);
   }
 
-  private loadYaml(path: string, relative = true): Config | undefined {
+  public loadYaml(path: string, relative = true): Config | undefined {
     return yaml.load(
       fs.readFileSync(`${relative ? __dirname : ""}${path}`, "utf8")
     ) as unknown as Config;
