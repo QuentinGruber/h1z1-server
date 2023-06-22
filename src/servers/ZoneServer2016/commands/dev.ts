@@ -27,15 +27,14 @@ import { LootableConstructionEntity } from "../entities/lootableconstructionenti
 import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { ConstructionDoor } from "../entities/constructiondoor";
 import { randomIntFromInterval } from "../../../utils/utils";
-import { BaseLootableEntity } from "../entities/baselootableentity";
-//import { NormanTest } from "../classes/Planting/Test";
+import { Zombie } from "../entities/zombie";
 
 const debug = require("debug")("zonepacketHandlers");
 
 const dev: any = {
   path: function (server: ZoneServer2016, client: Client, args: Array<string>) {
     const characterId = server.generateGuid();
-    const npc = new BaseLightweightCharacter(
+    const npc = new Zombie(
       characterId,
       server.getTransientId(characterId),
       9510,
@@ -777,6 +776,39 @@ const dev: any = {
         shaderGroupId: 665 // maybe try setting other character's shaderGroupId on spawn
       });
     });
+  },
+
+  bounds: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    const entityId = client.character.currentInteractionGuid,
+      entity = server.getEntity(entityId || "");
+    if (!entity || !(entity instanceof ConstructionChildEntity)) {
+      server.sendChatText(client, "Invalid entity!");
+      return;
+    }
+
+    const bounds = entity.bounds;
+    if (!bounds) {
+      server.sendChatText(client, "Bounds not defined!");
+      return;
+    }
+
+    for (const point of bounds) {
+      server.constructionManager.placeTemporaryEntity(
+        server,
+        1,
+        new Float32Array([
+          point[0],
+          client.character.state.position[1],
+          point[1]
+        ]),
+        new Float32Array([0, 0, 0, 1]),
+        30000
+      );
+    }
   }
 };
 export default dev;

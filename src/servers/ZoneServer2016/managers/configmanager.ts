@@ -271,6 +271,7 @@ export class ConfigManager {
       constructionDamageTicks,
       baseConstructionDamage,
       vehicleDamageTicks,
+      vacantFoundationTicks,
       baseVehicleDamage,
       maxVehiclesPerArea,
       vehicleDamageRange
@@ -279,6 +280,7 @@ export class ConfigManager {
     server.decayManager.constructionDamageTicks = constructionDamageTicks;
     server.decayManager.baseConstructionDamage = baseConstructionDamage;
     server.decayManager.vehicleDamageTicks = vehicleDamageTicks;
+    server.decayManager.vacantFoundationTicks = vacantFoundationTicks;
     server.decayManager.baseVehicleDamage = baseVehicleDamage;
     server.decayManager.maxVehiclesPerArea = maxVehiclesPerArea;
     server.decayManager.vehicleDamageRange = vehicleDamageRange;

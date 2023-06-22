@@ -2202,6 +2202,7 @@ export interface AccessedCharacterBeginCharacterAccess {
   itemsData?: any;
 }
 export interface AccessedCharacterEndCharacterAccess {
+  characterId?: string;
 }
 export interface AccessedCharacterUnknown1 {
   characterId?: string;

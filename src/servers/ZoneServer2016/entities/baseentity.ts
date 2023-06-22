@@ -50,7 +50,7 @@ function getRenderDistance(actorModelId: number) {
   return range ? range : undefined;
 }
 
-export class BaseEntity {
+export abstract class BaseEntity {
   characterId: string;
   transientId: number;
   actorModelId!: number;

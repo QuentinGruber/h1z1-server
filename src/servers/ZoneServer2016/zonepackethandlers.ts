@@ -40,7 +40,6 @@ import {
   ResourceIds,
   ResourceTypes,
   ItemUseOptions,
-  Stances,
   LoadoutSlots
 } from "./models/enums";
 import { BaseFullCharacter } from "./entities/basefullcharacter";
@@ -54,6 +53,7 @@ import {
   ClientBan,
   ConstructionPermissions,
   DamageInfo,
+  StanceFlags,
   fireHint
 } from "types/zoneserver";
 import { positionUpdate } from "types/savedata";
@@ -75,6 +75,38 @@ import {
 import { BaseLootableEntity } from "./entities/baselootableentity";
 import { Destroyable } from "./entities/destroyable";
 import { Lootbag } from "./entities/lootbag";
+
+function getStanceFlags(num: number): StanceFlags {
+  function getBit(bin: string, bit: number) {
+    return bin.charAt(bit) === "1";
+  }
+
+  const bin = num.toString(2).padStart(22, "0"); // Convert integer to binary string and pad with zeros
+  return {
+    FIRST_PERSON: getBit(bin, 0),
+    FLAG1: getBit(bin, 1),
+    SITTING: getBit(bin, 2),
+    STRAFE_RIGHT: getBit(bin, 3),
+    STRAFE_LEFT: getBit(bin, 4),
+    FORWARD: getBit(bin, 5),
+    BACKWARD: getBit(bin, 6),
+    FLAG7: getBit(bin, 7),
+    FLAG8: getBit(bin, 8),
+    PRONED: getBit(bin, 9),
+    FLAG10: getBit(bin, 10),
+    ON_GROUND: getBit(bin, 11),
+    FLAG12: getBit(bin, 12),
+    FLAG13: getBit(bin, 13),
+    FLAG14: getBit(bin, 14),
+    STATIONARY: getBit(bin, 15),
+    FLOATING: getBit(bin, 16),
+    JUMPING: getBit(bin, 17),
+    FLAG18: getBit(bin, 18),
+    SPRINTING: getBit(bin, 19),
+    CROUCHING: getBit(bin, 20),
+    FLAG21: getBit(bin, 21)
+  };
+}
 
 export class ZonePacketHandlers {
   commandHandler: CommandHandler;
@@ -595,8 +627,10 @@ export class ZonePacketHandlers {
           : entity.state.position,
         isLootable ? 1.7 : 5
       )
-    )
+    ) {
       return;
+    }
+    client.character.lastInteractionRequestGuid = entity.characterId;
     entity.OnPlayerSelect(server, client, packet.data.isInstant);
   }
   CommandInteractCancel(server: ZoneServer2016, client: Client, packet: any) {
@@ -994,47 +1028,33 @@ export class ZonePacketHandlers {
         return;
       }
     } else client.blockedPositionUpdates = 0;
+
     if (packet.data.stance) {
+      const stanceFlags = getStanceFlags(packet.data.stance);
+
+      server.fairPlayManager.detectJumpXSMovement(server, client, stanceFlags);
+
+      server.fairPlayManager.detectDroneMovement(server, client, stanceFlags);
+
       if (
-        packet.data.stance == Stances.STANCE_XS ||
-        packet.data.stance == Stances.STANCE_XS_FP
-      ) {
-        const pos = client.character.state.position;
-        if (!server._soloMode) {
-          logClientActionToMongo(
-            server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
-            client,
-            server._worldId,
-            { type: "XS glitching", pos }
-          );
-        }
-        server.sendChatTextToAdmins(
-          `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
-        );
-        server.sendData(client, "ClientUpdate.UpdateLocation", {
-          position: pos,
-          triggerLoadingScreen: true
-        });
-      }
-      if (
-        (packet.data.stance & (1 << 4)) !== 0 &&
-        (packet.data.stance & (1 << 5)) !== 0 &&
-        (packet.data.stance & (1 << 10)) == 0 &&
+        stanceFlags.JUMPING &&
+        stanceFlags.FLOATING &&
+        !stanceFlags.ON_GROUND &&
         !client.isInAir &&
         !client.vehicle.mountedVehicle
       ) {
         client.isInAir = true;
         client.startLoc = client.character.state.position[1];
-      } else if ((packet.data.stance & (1 << 5)) == 0 && client.isInAir) {
+      } else if (!stanceFlags.FLOATING && client.isInAir) {
         client.isInAir = false;
       }
-      const byte1 = packet.data.stance & 0xff;
-      client.character.isRunning = !!(byte1 & (1 << 2)) ? true : false;
+      client.character.isRunning = stanceFlags.SPRINTING;
       if (
-        !!(byte1 & (1 << 4)) &&
-        !(byte1 & (1 << 5)) &&
+        stanceFlags.JUMPING &&
+        !stanceFlags.FLOATING &&
         // temporary fix for multiplying jump penalty until exact flags are found
-        client.character.lastJumpTime < packet.data.sequenceTime
+        client.character.lastJumpTime < packet.data.sequenceTime &&
+        !client.character.isGodMode()
       ) {
         client.character.lastJumpTime = packet.data.sequenceTime + 1100;
         client.character._resources[ResourceIds.STAMINA] -= 12; // 2% stamina jump penalty
@@ -1127,11 +1147,22 @@ export class ZonePacketHandlers {
         }
       }
 
+      // mainly for melee workaround (3s timeout)
       if (
         client.character.currentInteractionGuid &&
-        client.character.lastInteractionTime + 1100 > Date.now()
+        client.character.lastInteractionStringTime + 3000 > Date.now()
       ) {
         client.character.currentInteractionGuid = "";
+        client.character.lastInteractionStringTime = 0;
+      }
+
+      // for door locks (1m timeout)
+      if (
+        client.character.lastInteractionRequestGuid &&
+        client.character.lastInteractionTime + 60000 > Date.now()
+      ) {
+        // should timeout lock ui here if possible
+        client.character.lastInteractionRequestGuid = "";
         client.character.lastInteractionTime = 0;
       }
     } else if (packet.data.vehicle_position && client.vehicle.mountedVehicle) {
@@ -1250,26 +1281,30 @@ export class ZonePacketHandlers {
     debug("Command.PlayerSelect");
   }
   LockssetLock(server: ZoneServer2016, client: Client, packet: any) {
-    if (
-      !client.character.isAlive ||
-      !client.character.currentInteractionGuid ||
-      packet.data.password === 1
-    ) {
-      server.sendAlert(client, "Code lock failed!");
+    if (!client.character.isAlive || client.isLoading) return;
+
+    // if player hits cancel
+    if (packet.data.password === 1) return;
+
+    if (!client.character.lastInteractionRequestGuid) {
+      server.sendAlert(client, "Invalid door entity!");
       return;
     }
     const doorEntity = server._constructionDoors[
-      client.character.currentInteractionGuid
+      client.character.lastInteractionRequestGuid
     ] as ConstructionDoor;
     if (!doorEntity) {
-      server.sendAlert(client, "Code lock failed!");
+      server.sendAlert(client, "Invalid door entity!");
       return;
     }
-    const now = Date.now();
-    const then = client.character.lastLockFailure;
-    const diff = now - then;
+    const now = Date.now(),
+      then = client.character.lastLockFailure,
+      diff = now - then;
+    if (diff <= 5000) {
+      server.sendAlert(client, "Please wait 5 seconds between attempts.");
+      return;
+    }
     if (
-      diff <= 5000 ||
       !isPosInRadius(
         client.character.interactionDistance * 4.0,
         client.character.state.position,
@@ -1365,7 +1400,7 @@ export class ZonePacketHandlers {
     )
       return;
     client.character.currentInteractionGuid = packet.data.guid;
-    client.character.lastInteractionTime = Date.now();
+    client.character.lastInteractionStringTime = Date.now();
     if (
       entity instanceof BaseLightweightCharacter &&
       !(entity instanceof Destroyable) &&
