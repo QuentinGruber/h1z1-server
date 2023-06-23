@@ -777,6 +777,17 @@ const dev: any = {
       });
     });
   },
+  reloadplugins: async function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    // THIS IS CURRENTLY UNSAFE AND WILL RESULT IN THE SAME HOOK BEING CALLED MULTIPLE TIMES!
+
+    server.sendChatText(client, "Reloading plugins...");
+    await server.pluginManager.initializePlugins(server);
+    server.sendChatText(client, `Loaded ${server.pluginManager.pluginCount}`);
+  },
 
   bounds: function (
     server: ZoneServer2016,
