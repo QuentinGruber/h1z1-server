@@ -130,7 +130,7 @@ const dev: any = {
     server.logStats();
   },
   spam: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    const spamNb = args[1] || 1;
+    const spamNb = Number(args[1]) || 1;
     for (let i = 0; i < spamNb; i++) {
       server.sendChatText(client, `spam ${i}`);
     }

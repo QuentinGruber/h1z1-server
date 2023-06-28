@@ -376,22 +376,22 @@ export class ZoneServer2016 extends EventEmitter {
         debug(
           `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
         );
-
-        this._h1emuZoneServer.sendData(
-          {
-            ...this._loginServerInfo,
-            // TODO: what a dirty hack
-            serverId: this._worldId
-          } as any,
-          "ClientMessage",
-          {
-            guid,
-            message: `Connected to server with id: ${this._worldId}`,
-            showConsole: false,
-            clearOutput: true
-          }
-        );
-
+        if (!this._soloMode) {
+          this._h1emuZoneServer.sendData(
+            {
+              ...this._loginServerInfo,
+              // TODO: what a dirty hack
+              serverId: this._worldId
+            } as any,
+            "ClientMessage",
+            {
+              guid,
+              message: `Connected to server with id: ${this._worldId}`,
+              showConsole: false,
+              clearOutput: true
+            }
+          );
+        }
         const generatedTransient = this.getTransientId(characterId);
         const zoneClient = this.createClient(
           client.sessionId,
