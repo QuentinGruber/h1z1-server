@@ -593,22 +593,7 @@ export const commands: Array<Command> = [
         return;
       }
       const reason = args[1] ? args.slice(1).join(" ") : "Undefined";
-      for (let i = 0; i < 5; i++) {
-        server.sendAlert(
-          targetClient,
-          `You are being kicked from the server. Reason: ${reason}`
-        );
-      }
-
-      setTimeout(() => {
-        if (!targetClient) {
-          return;
-        }
-        server.sendGlobalChatText(
-          `${targetClient.character.name} has been kicked from the server!`
-        );
-        server.kickPlayer(targetClient);
-      }, 2000);
+      server.kickPlayerWithReason(targetClient, reason, true);
     }
   },
   {

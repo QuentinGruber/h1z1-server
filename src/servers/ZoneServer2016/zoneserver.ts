@@ -121,7 +121,11 @@ import {
 } from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
-import { DB_COLLECTIONS, GAME_VERSIONS } from "../../utils/enums";
+import {
+  DB_COLLECTIONS,
+  GAME_VERSIONS,
+  LOGIN_KICK_REASON
+} from "../../utils/enums";
 
 import {
   ClientUpdateDeathMetrics,
@@ -297,6 +301,7 @@ export class ZoneServer2016 extends EventEmitter {
   isSaving: boolean = false;
   private _isSaving: boolean = false;
   readonly worldSaveVersion: number = 2;
+  enablePacketInputLogging: boolean = false;
 
   /* MANAGED BY CONFIGMANAGER */
   proximityItemsDistance!: number;
@@ -306,7 +311,8 @@ export class ZoneServer2016 extends EventEmitter {
   worldRoutineRate!: number;
   welcomeMessage!: string;
   adminMessage!: string;
-  enablePacketInputLogging: boolean = false;
+  enableLoginServerKickRequests!: boolean;
+  /*                          */
 
   constructor(
     serverPort: number,
@@ -605,6 +611,49 @@ export class ZoneServer2016 extends EventEmitter {
                     { status: 0, reqId: reqId }
                   );
                 }
+                break;
+              }
+              case "LoginKickRequest": {
+                const { guid, reason } = packet.data;
+
+                if (!this.enableLoginServerKickRequests) {
+                  console.log(
+                    `LoginServer requested to kick client with guid ${guid} for reason: ${reason}! Ignored due to configuration setting.`
+                  );
+                  return;
+                }
+
+                let reasonString = "";
+
+                switch (reason) {
+                  case LOGIN_KICK_REASON.UNDEFINED:
+                    reasonString = "UNDEFINED";
+                    break;
+                  case LOGIN_KICK_REASON.GLOBAL_BAN:
+                    reasonString = "Global ban.";
+                    break;
+                  case LOGIN_KICK_REASON.ASSET_VALIDATION:
+                    reasonString = "Failed asset integrity check.";
+                    break;
+                  default:
+                    reasonString = "INVALID";
+                    break;
+                }
+
+                const client = this.getClientByGuid(guid);
+
+                if (!client) {
+                  console.log(
+                    "LoginServer requested to kick INVALID client with guid ${guid} for reason: ${reason}!"
+                  );
+                  return;
+                }
+
+                console.log(
+                  `LoginServer kicking ${client.character.name} for reason: ${reasonString}`
+                );
+
+                this.kickPlayerWithReason(client, reasonString);
                 break;
               }
               default:
@@ -2435,6 +2484,15 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  getClientByGuid(guid: string) {
+    for (const a in this._clients) {
+      const c: Client = this._clients[a];
+      if (c.guid === guid) {
+        return c;
+      }
+    }
+  }
+
   getClientByNameOrLoginSession(name: string): Client | string | undefined {
     let similar: string = "";
     const targetClient: Client | undefined = Object.values(this._clients).find(
@@ -3582,12 +3640,36 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  kickPlayerWithReason(client: Client, reason: string, sendGlobal = false) {
+    for (let i = 0; i < 5; i++) {
+      this.sendAlert(
+        client,
+        `You are being kicked from the server. Reason: ${reason}`
+      );
+    }
+
+    setTimeout(() => {
+      if (!client) {
+        return;
+      }
+      if (sendGlobal) {
+        this.sendGlobalChatText(
+          `${client.character.name} has been kicked from the server!`
+        );
+      }
+      this.kickPlayer(client);
+    }, 2000);
+  }
+
   kickPlayer(client: Client) {
     this.sendData(client, "CharacterSelectSessionResponse", {
       status: 1,
       sessionId: client.loginSessionId
     });
-    this.deleteClient(client);
+    setTimeout(() => {
+      if (!client) return;
+      this.deleteClient(client);
+    }, 2000);
   }
 
   getDateString(timestamp: number) {

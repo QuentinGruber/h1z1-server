@@ -331,6 +331,14 @@ export class LoginServer extends EventEmitter {
     }
   }
 
+  async getGuidByAuthkey(authKey: string): Promise<string | undefined> {
+    const session = await this._db
+      .collection(DB_COLLECTIONS.USERS_SESSIONS)
+      .findOne({ authKey });
+    if (!session) return;
+    return session.guid;
+  }
+
   async getClientByGuid(guid: string): Promise<Client | undefined> {
     const session = await this._db
       .collection(DB_COLLECTIONS.USERS_SESSIONS)
