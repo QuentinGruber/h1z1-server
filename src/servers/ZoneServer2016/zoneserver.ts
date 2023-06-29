@@ -121,7 +121,11 @@ import {
 } from "./managers/worlddatamanager";
 import { recipes } from "./data/Recipes";
 import { UseOptions } from "./data/useoptions";
-import { DB_COLLECTIONS, GAME_VERSIONS, LOGIN_KICK_REASON } from "../../utils/enums";
+import {
+  DB_COLLECTIONS,
+  GAME_VERSIONS,
+  LOGIN_KICK_REASON
+} from "../../utils/enums";
 
 import {
   ClientUpdateDeathMetrics,
@@ -612,14 +616,16 @@ export class ZoneServer2016 extends EventEmitter {
               case "LoginKickRequest": {
                 const { guid, reason } = packet.data;
 
-                if(!this.enableLoginServerKickRequests) {
-                  console.log(`LoginServer requested to kick client with guid ${guid} for reason: ${reason}! Ignored due to configuration setting.`);
+                if (!this.enableLoginServerKickRequests) {
+                  console.log(
+                    `LoginServer requested to kick client with guid ${guid} for reason: ${reason}! Ignored due to configuration setting.`
+                  );
                   return;
                 }
 
                 let reasonString = "";
 
-                switch(reason) {
+                switch (reason) {
                   case LOGIN_KICK_REASON.UNDEFINED:
                     reasonString = "UNDEFINED";
                     break;
@@ -636,12 +642,16 @@ export class ZoneServer2016 extends EventEmitter {
 
                 const client = this.getClientByGuid(guid);
 
-                if(!client) {
-                  console.log("LoginServer requested to kick INVALID client with guid ${guid} for reason: ${reason}!");
+                if (!client) {
+                  console.log(
+                    "LoginServer requested to kick INVALID client with guid ${guid} for reason: ${reason}!"
+                  );
                   return;
                 }
 
-                console.log(`LoginServer kicking ${client.character.name} for reason: ${reasonString}`)
+                console.log(
+                  `LoginServer kicking ${client.character.name} for reason: ${reasonString}`
+                );
 
                 this.kickPlayerWithReason(client, reasonString);
                 break;
@@ -3642,7 +3652,7 @@ export class ZoneServer2016 extends EventEmitter {
       if (!client) {
         return;
       }
-      if(sendGlobal) {
+      if (sendGlobal) {
         this.sendGlobalChatText(
           `${client.character.name} has been kicked from the server!`
         );
