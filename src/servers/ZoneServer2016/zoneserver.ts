@@ -365,7 +365,7 @@ export class ZoneServer2016 extends EventEmitter {
       async (
         client: SOEClient,
         characterId: string,
-        loginSessionId: string,
+        guid: string,
         clientProtocol: string
       ) => {
         if (clientProtocol !== this._clientProtocol) {
@@ -376,11 +376,27 @@ export class ZoneServer2016 extends EventEmitter {
         debug(
           `Client logged in from ${client.address}:${client.port} with character id: ${characterId}`
         );
+        if (!this._soloMode) {
+          this._h1emuZoneServer.sendData(
+            {
+              ...this._loginServerInfo,
+              // TODO: what a dirty hack
+              serverId: this._worldId
+            } as any,
+            "ClientMessage",
+            {
+              guid,
+              message: `Connected to server with id: ${this._worldId}`,
+              showConsole: false,
+              clearOutput: true
+            }
+          );
+        }
         const generatedTransient = this.getTransientId(characterId);
         const zoneClient = this.createClient(
           client.sessionId,
           client.soeClientId,
-          loginSessionId,
+          guid,
           characterId,
           generatedTransient
         );
@@ -831,8 +847,9 @@ export class ZoneServer2016 extends EventEmitter {
       savedCharacter as FullCharacterSaveData
     );
     client.startingPos = client.character.state.position;
+    // guid is sensitive for now, so don't send real one to client rn
     this.sendData(client, "SendSelfToClient", {
-      data: client.character.pGetSendSelf(this, client.guid, client)
+      data: client.character.pGetSendSelf(this, "0x665a2bff2b44c034", client)
     });
     client.character.initialized = true;
     this.initializeContainerList(client);
@@ -1009,7 +1026,7 @@ export class ZoneServer2016 extends EventEmitter {
     if (!(await this.hookManager.checkAsyncHook("OnLoadCharacterData", client)))
       return;
 
-    client.guid = "0x665a2bff2b44c034"; // default, only matters for multiplayer
+    client.guid = savedCharacter.ownerId;
     client.character.name = savedCharacter.characterName;
     client.character.actorModelId = savedCharacter.actorModelId;
     client.character.headActor = savedCharacter.headActor;

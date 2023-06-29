@@ -161,8 +161,20 @@ const packets: PacketStructures = [
     0x16,
     {
       fields: [
-        { name: "loginSessionId", type: "uint64string", defaultValue: 0 },
+        { name: "loginSessionId", type: "uint64string", defaultValue: "" },
         { name: "status", type: "boolean", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "ClientMessage",
+    0x17,
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "" },
+        { name: "message", type: "string", defaultValue: "" },
+        { name: "showConsole", type: "boolean", defaultValue: false },
+        { name: "clearOutput", type: "boolean", defaultValue: false }
       ]
     }
   ]
