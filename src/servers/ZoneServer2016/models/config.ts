@@ -19,6 +19,7 @@ interface ServerConfig {
   worldRoutineRate: number;
   welcomeMessage: string;
   adminMessage: string;
+  enableLoginServerKickRequests: boolean;
 }
 
 interface FairplayConfig {
