@@ -56,3 +56,9 @@ export enum DB_COLLECTIONS {
   BANNED_LIGHT = "banned-light",
   MUTED = "muted"
 }
+
+export enum LOGIN_KICK_REASON {
+  UNDEFINED = 0,
+  GLOBAL_BAN = 1,
+  ASSET_VALIDATION = 2
+}

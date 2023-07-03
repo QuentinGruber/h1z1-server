@@ -177,6 +177,16 @@ const packets: PacketStructures = [
         { name: "clearOutput", type: "boolean", defaultValue: false }
       ]
     }
+  ],
+  [
+    "LoginKickRequest",
+    0x18,
+    {
+      fields: [
+        { name: "guid", type: "uint64string", defaultValue: "" },
+        { name: "reason", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ]
 ];
 

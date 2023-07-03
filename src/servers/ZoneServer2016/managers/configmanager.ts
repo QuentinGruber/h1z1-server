@@ -135,7 +135,8 @@ export class ConfigManager {
       tickRate,
       worldRoutineRate,
       welcomeMessage,
-      adminMessage
+      adminMessage,
+      enableLoginServerKickRequests
     } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
@@ -144,6 +145,7 @@ export class ConfigManager {
     server.worldRoutineRate = worldRoutineRate;
     server.welcomeMessage = welcomeMessage;
     server.adminMessage = adminMessage;
+    server.enableLoginServerKickRequests = enableLoginServerKickRequests;
     //#endregion
 
     //#region fairplay
