@@ -2243,6 +2243,16 @@ export class ZonePacketHandlers {
       }
     }
 
+    // check existing characters in foundation permissions
+    if(!characterId) {
+      for (const a in foundation.permissions) {
+        const permissions = foundation.permissions[a];
+        if (permissions.characterName === packet.data.characterName) {
+          characterId = permissions.characterId;
+        }
+      }
+    }
+
     if (characterId == foundation.ownerCharacterId) {
       server.sendAlert(client, "You can't edit your own permissions.");
       return;
