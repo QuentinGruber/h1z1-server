@@ -344,7 +344,7 @@ export class PluginManager {
     plugin: BasePlugin,
     thisArg: any,
     methodName: string,
-    hook: (...args: any[]) => any,
+    hook: (...args: any[]) => boolean | undefined,
     options: { callBefore: boolean; callAfter: boolean }
   ) {
     const originalFunction = thisArg[methodName];
@@ -358,8 +358,8 @@ export class PluginManager {
 
     thisArg[methodName] = function (...args: any[]) {
       if (options.callBefore) originalFunction.call(thisArg, args);
-      hook(args);
-      if (options.callAfter) originalFunction.call(thisArg, args);
+      const ret = hook(args);
+      if (ret !== false && options.callAfter) originalFunction.call(thisArg, args);
     };
   }
 
