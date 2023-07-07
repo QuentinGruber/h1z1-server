@@ -357,9 +357,9 @@ export class PluginManager {
     }
 
     thisArg[methodName] = function (...args: any[]) {
-      if (options.callBefore) originalFunction.call(thisArg, args);
-      const ret = hook(args);
-      if (ret !== false && options.callAfter) originalFunction.call(thisArg, args);
+      if (options.callBefore) originalFunction.call(thisArg, ...args);
+      const ret = hook(...args);
+      if (ret !== false && options.callAfter) originalFunction.call(thisArg, ...args);
     };
   }
 
