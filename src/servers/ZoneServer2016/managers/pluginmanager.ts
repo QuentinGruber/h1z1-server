@@ -16,7 +16,7 @@ import * as path from "path";
 import { ZoneServer2016 } from "../zoneserver";
 import { execSync } from "child_process";
 import { copyFile, fileExists, flhash } from "../../../utils/utils";
-import { Command } from "../commands/types";
+import { Command } from "../handlers/commands/types";
 
 /**
  * Abstract class representing a base plugin.

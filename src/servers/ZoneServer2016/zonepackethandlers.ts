@@ -46,7 +46,7 @@ import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionDoor } from "./entities/constructiondoor";
-import { CommandHandler } from "./commands/commandhandler";
+import { CommandHandler } from "./handlers/commands/commandhandler";
 import { ChatChat, Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {

@@ -12,14 +12,14 @@
 // ======================================================================
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import { VehicleIds } from "../models/enums";
-import { Vehicle2016 as Vehicle, Vehicle2016 } from "../entities/vehicle";
-import { SpawnCell } from "../classes/spawncell";
-import { ZoneClient2016 as Client } from "../classes/zoneclient";
-import { ZoneServer2016 } from "../zoneserver";
+import { VehicleIds } from "../../models/enums";
+import { Vehicle2016 as Vehicle, Vehicle2016 } from "../../entities/vehicle";
+import { SpawnCell } from "../../classes/spawncell";
+import { ZoneClient2016 as Client } from "../../classes/zoneclient";
+import { ZoneServer2016 } from "../../zoneserver";
 import { Command, PermissionLevels } from "./types";
-import { getAngle, isPosInRadius } from "../../../utils/utils";
-import { OBSERVER_GUID } from "../../../utils/constants";
+import { getAngle, isPosInRadius } from "../../../../utils/utils";
+import { OBSERVER_GUID } from "../../../../utils/constants";
 
 export const internalCommands: Array<Command> = [
   //#region DEFAULT PERMISSIONS
