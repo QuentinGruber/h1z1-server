@@ -108,7 +108,11 @@ export class Character2016 extends BaseFullCharacter {
   };
   healingTicks: number;
   healingMaxTicks: number;
-  starthealingInterval: any;
+  starthealingInterval: (
+    client: ZoneClient2016,
+    server: ZoneServer2016,
+    healType: HealTypes
+  ) => void;
   timeouts: any;
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
