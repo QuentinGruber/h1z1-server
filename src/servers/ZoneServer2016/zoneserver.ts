@@ -3492,9 +3492,8 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async isClientBanned(client: Client): Promise<boolean> {
-    const address: string | undefined = this.getSoeClient(
-      client.soeClientId
-    )?.address;
+    const address: string | undefined = this.getSoeClient(client.soeClientId)
+      ?.address;
     const addressBanned = await this._db
       ?.collection(DB_COLLECTIONS.BANNED)
       .findOne({
