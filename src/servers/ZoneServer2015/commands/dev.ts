@@ -236,8 +236,11 @@ const dev: any = {
     const models = require("../../../../data/2015/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
-      const result = models.filter((word: any) =>
-        word?.MODEL_FILE_NAME?.toLowerCase().includes(wordFilter.toLowerCase())
+      const result = models.filter(
+        (word: any) =>
+          word?.MODEL_FILE_NAME?.toLowerCase().includes(
+            wordFilter.toLowerCase()
+          )
       );
       server.sendChatText(client, `Found models for ${wordFilter}:`);
       for (let index = 0; index < result.length; index++) {
