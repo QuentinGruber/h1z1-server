@@ -5966,19 +5966,21 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.lootContainerItem(this, this.generateItem(givetrash));
     }
     if (bandagingCount && healCount) {
-      client.character.healingMaxTicks += healCount;
-      client.character._resources[ResourceIds.BLEEDING] -= bandagingCount;
-      const bleeding = client.character._resources[ResourceIds.BLEEDING];
       if (!client.character.healingInterval) {
         client.character.starthealingInterval(client, this);
       }
-      this.updateResourceToAllWithSpawnedEntity(
-        client.character.characterId,
-        bleeding,
-        ResourceIds.BLEEDING,
-        ResourceTypes.BLEEDING,
-        this._characters
-      );
+      client.character.healingMaxTicks += healCount;
+      if (client.character._resources[ResourceIds.BLEEDING] > 0) {
+        client.character._resources[ResourceIds.BLEEDING] -= bandagingCount;
+        const bleeding = client.character._resources[ResourceIds.BLEEDING];
+        this.updateResourceToAllWithSpawnedEntity(
+          client.character.characterId,
+          bleeding,
+          ResourceIds.BLEEDING,
+          ResourceTypes.BLEEDING,
+          this._characters
+        );
+      }
     }
   }
 
