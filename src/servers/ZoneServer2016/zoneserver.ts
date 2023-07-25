@@ -44,7 +44,8 @@ import {
   ResourceTypes,
   VehicleIds,
   ConstructionPermissionIds,
-  ItemUseOptions
+  ItemUseOptions,
+  HealTypes
 } from "./models/enums";
 import { healthThreadDecorator } from "../shared/workers/healthWorker";
 import { WeatherManager } from "./managers/weathermanager";
@@ -5578,6 +5579,7 @@ export class ZoneServer2016 extends EventEmitter {
     let healCount = 0;
     let bandagingCount = 0;
     let timeout = 0;
+    let healType: HealTypes;
     for (const a in UseOptions) {
       if (
         UseOptions[a].itemDef == item.itemDefinitionId &&
@@ -5594,6 +5596,7 @@ export class ZoneServer2016 extends EventEmitter {
         if (useOption.givetrash) givetrash = useOption.givetrash;
         if (useOption.healCount) healCount = useOption.healCount;
         if (useOption.bandagingCount) bandagingCount = useOption.bandagingCount;
+        if (useOption.healType) healType = useOption.healType;
       }
     }
     if (doReturn) {
@@ -5614,7 +5617,8 @@ export class ZoneServer2016 extends EventEmitter {
         staminaCount,
         givetrash,
         healCount,
-        bandagingCount
+        bandagingCount,
+        healType
       );
     });
   }
@@ -5923,7 +5927,8 @@ export class ZoneServer2016 extends EventEmitter {
     staminaCount: number,
     givetrash: number,
     healCount: number,
-    bandagingCount: number
+    bandagingCount: number,
+    healType: HealTypes
   ) {
     if (!this.removeInventoryItem(client.character, item)) return;
     if (eatCount) {
@@ -5965,8 +5970,8 @@ export class ZoneServer2016 extends EventEmitter {
       client.character.lootContainerItem(this, this.generateItem(givetrash));
     }
     if (bandagingCount && healCount) {
-      if (!client.character.healingInterval) {
-        client.character.starthealingInterval(client, this);
+      if (!client.character.healingIntervals[healType]) {
+        client.character.starthealingInterval(client, this, healType);
       }
       client.character.healingMaxTicks += healCount;
       if (client.character._resources[ResourceIds.BLEEDING] > 0) {
