@@ -42,7 +42,7 @@ import { LoadoutContainer } from "../../classes/loadoutcontainer";
 import { BaseItem } from "../../classes/baseItem";
 import { DB_COLLECTIONS } from "../../../../utils/enums";
 import { WorldDataManager } from "../../managers/worlddatamanager";
-const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
+const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
   //#region DEFAULT PERMISSIONS
