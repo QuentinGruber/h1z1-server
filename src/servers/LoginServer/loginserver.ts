@@ -324,6 +324,7 @@ export class LoginServer extends EventEmitter {
           if (client.serverId) {
             for (const key in this._zoneConnections) {
               if (this._zoneConnections[key] === client.serverId) {
+                delete this._h1emuLoginServer._clients[client.clientId];
                 delete this._zoneConnections[key];
               }
             }
