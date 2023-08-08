@@ -2537,5 +2537,25 @@ export const recipes: { [recipeId: number]: Recipe } = {
         requiredAmount: 1
       }
     ]
-  }
+  },
+
+  /* CUSTOM */
+  /*
+  [Items.WEAPON_REPAIR_KIT]: {
+    filterId: FilterIds.SURVIVAL,
+    components: [
+      {
+        itemDefinitionId: Items.DUCT_TAPE,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.TWINE,
+        requiredAmount: 2
+      },
+      {
+        itemDefinitionId: Items.SHARD_METAL,
+        requiredAmount: 8
+      }
+    ]
+  },*/
 };

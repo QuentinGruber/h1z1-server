@@ -3529,10 +3529,9 @@ export class ZoneServer2016 extends EventEmitter {
           { $set: { active: false, unBanAdminName: client.character.name } }
         )
     )?.value as unknown as ClientBan;
-    // if (!unBannedClient) return;
+    if (!unBannedClient) return;
     this.sendBanToLogin(unBannedClient.loginSessionId, false);
-    // force to be undefined if falsy
-    return unBannedClient || undefined;
+    return unBannedClient;
   }
 
   banClient(
@@ -4029,7 +4028,7 @@ export class ZoneServer2016 extends EventEmitter {
           });*/
           client.spawnedEntities.push(vehicle);
         }
-        // disable managing vehicles with routine, leaving only managind when entering it
+        // disable managing vehicles with routine, leaving only managed when entering it
         /*if (!vehicle.isManaged) {
           // assigns management to first client within radius
           this.assignManagedObject(client, vehicle);
@@ -4359,44 +4358,6 @@ export class ZoneServer2016 extends EventEmitter {
       ],
       unknownArray2: [{}]
     });
-
-    // this is broken for some reason
-    //this.initializeContainerList(client, vehicle);
-    /*
-    if (seatId === "0") {
-      
-      const container = vehicle.getContainer()
-      if(!container) return;
-      this.sendData(client, "Vehicle.InventoryItems", {
-        characterId: vehicle.characterId,
-        itemsData: {
-          items: Object.values(container.items).map((item) => {
-            return vehicle.pGetItemData(
-              this,
-              item,
-              container.containerDefinitionId
-            );
-          }),
-          unknownDword1: container.containerDefinitionId,
-        },
-      });
-      
-      this.sendData(client, "AccessedCharacter.BeginCharacterAccess", {
-        objectCharacterId: vehicle.characterId,
-        containerGuid: container.itemGuid,
-        unknownBool1: true,
-        itemsData: {
-          items: Object.values(container.items).map((item) => {
-            return vehicle.pGetItemData(
-              this,
-              item,
-              container.containerDefinitionId
-            )
-          }),
-          unknownDword1: container.containerDefinitionId,
-        },
-      });
-    }*/
   }
 
   dismountVehicle(client: Client) {
@@ -4609,6 +4570,14 @@ export class ZoneServer2016 extends EventEmitter {
 
   //#region ********************INVENTORY********************   } }
 
+  /**
+   * Adds an item to a character's inventory.
+   *
+   * @param client - The client adding the item.
+   * @param item - The item to add.
+   * @param containerDefinitionId - The id of the container definition.
+   * @param character [character=client.character] - The character to add the item to.
+   */
   addItem(
     client: Client,
     item: BaseItem,
@@ -4629,6 +4598,14 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  /**
+   * Generates random equipment for the specified entity and slots (Zombies only).
+   * To be deprecated soon
+   *
+   * @param entity - The entity to generate equipment for.
+   * @param slots - The slots to generate equipment for.
+   * @param excludedModels [excludedModels=[]] - The excluded equipment models.
+   */
   generateRandomEquipmentsFromAnEntity(
     entity: BaseFullCharacter,
     slots: number[],
@@ -4643,6 +4620,14 @@ export class ZoneServer2016 extends EventEmitter {
     });
   }
 
+  /**
+   * Generates random equipment for a specific slot (Zombies only).
+   *
+   * @param slotId - The ID of the slot.
+   * @param gender - The gender of the entity.
+   * @param excludedModels [excludedModels=[]] - The excluded equipment models.
+   * @returns The generated equipment.
+   */
   generateRandomEquipmentForSlot(
     slotId: number,
     gender: number,
@@ -4673,8 +4658,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Gets the item definition for a given itemDefinitionId
-   * @param itemDefinitionId The id of the itemdefinition to retrieve.
+   * Gets the item definition for a given itemDefinitionId.
+   *
+   * @param {number} [itemDefinitionId] - The ID of the item definition to retrieve.
+   * @returns {ItemDefinition|undefined} The item definition or undefined.
    */
   getItemDefinition(itemDefinitionId?: number) {
     if (!itemDefinitionId) return;
@@ -4683,7 +4670,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Gets the weapon definition for a given weaponDefinitionId.
-   * @param weaponDefinitionId The id of the weapondefinition to retrieve.
+   *
+   * @param {number} weaponDefinitionId - The ID of the weapon definition to retrieve.
+   * @returns {WeaponDefinition|undefined} The weapon definition or undefined.
    */
   getWeaponDefinition(weaponDefinitionId: number) {
     if (!weaponDefinitionId) return;
@@ -4692,7 +4681,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Gets the firegroup definition for a given firegroupId.
-   * @param firegroupId The id of the firegroupDefinition to retrieve.
+   *
+   * @param {number} firegroupId - The ID of the firegroup definition to retrieve.
+   * @returns {FiregroupDefinition|undefined} The firegroup definition or undefined.
    */
   getFiregroupDefinition(firegroupId: number) {
     return this._firegroupDefinitions[firegroupId]?.DATA;
@@ -4700,7 +4691,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Gets the firemode definition for a given firemodeId.
-   * @param firemodeId The id of the firemodeDefinition to retrieve.
+   *
+   * @param {number} firemodeId - The ID of the firemode definition to retrieve.
+   * @returns {FiremodeDefinition|undefined} The firemode definition or undefined.
    */
   getFiremodeDefinition(firemodeId: number) {
     return this._firemodeDefinitions[firemodeId]?.DATA.DATA;
@@ -4708,7 +4701,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Gets the ammoId for a given weapon.
-   * @param itemDefinitionId The itemDefinitionId of the weapon.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId of the weapon.
+   * @returns {number} The ammoId (0 if undefined).
    */
   getWeaponAmmoId(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
@@ -4724,8 +4719,10 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Gets the reload time in ms for a given weapon.
-   * @param itemDefinitionId The itemDefinitionId of the weapon.
+   * Gets the reload time in milliseconds for a given weapon.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId of the weapon.
+   * @returns {number} The reload time in milliseconds (0 if undefined).
    */
   getWeaponReloadTime(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
@@ -4742,7 +4739,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Gets the clip size for a given weapon.
-   * @param itemDefinitionId The itemDefinitionId of the weapon.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId of the weapon.
+   * @returns {number} The clip size (0 if undefined).
    */
   getWeaponClipSize(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
@@ -4753,7 +4752,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Gets the maximum amount of ammo a clip can hold for a given weapon.
-   * @param itemDefinitionId The itemDefinitionId of the weapon.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId of the weapon.
+   * @returns {number} The maximum ammo (0 if undefined).
    */
   getWeaponMaxAmmo(itemDefinitionId: number): number {
     const itemDefinition = this.getItemDefinition(itemDefinitionId),
@@ -4764,7 +4765,9 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Gets the container definition for a given containerDefinitionId.
-   * @param containerDefinitionId The id of the container definition to retrieve.
+   *
+   * @param {any} containerDefinitionId - The id of the container definition to retrieve.
+   * @returns {ContainerDefinition} The container definition.
    */
   getContainerDefinition(containerDefinitionId: any) {
     if (this._containerDefinitions[containerDefinitionId]) {
@@ -4777,6 +4780,12 @@ export class ZoneServer2016 extends EventEmitter {
     }
   }
 
+  /**
+   * Gets the maximum value for a given resource.
+   *
+   * @param {ResourceIds} resourceId - The ID of the resource.
+   * @returns {number} The maximum value of the resource (0 if undefined).
+   */
   getResourceMaxValue(resourceId: ResourceIds): number {
     if (!resourceDefinitions[resourceId]) return 0;
     return resourceDefinitions[resourceId].MAX_VALUE || 0;
@@ -4784,11 +4793,20 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Generates and returns an unused itemGuid.
+   *
+   * @returns {bigint} The generated itemGuid.
    */
   generateItemGuid(): bigint {
     return ++this.lastItemGuid;
   }
 
+  /**
+   * Generates a new item with the specified itemDefinitionId and count.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId of the item to generate.
+   * @param {number} [count=1] - The count of the item.
+   * @returns {BaseItem|undefined} The generated item, or undefined if the item definition is invalid.
+   */
   generateItem(
     itemDefinitionId: number,
     count: number = 1
@@ -4832,14 +4850,32 @@ export class ZoneServer2016 extends EventEmitter {
     return itemData;
   }
 
+  /**
+   * Checks if an item with the specified itemDefinitionId is a weapon.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a weapon, false otherwise.
+   */
   isWeapon(itemDefinitionId: number): boolean {
     return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 20;
   }
 
+  /**
+   * Checks if an item with the specified itemDefinitionId is a container.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a container, false otherwise.
+   */
   isContainer(itemDefinitionId: number): boolean {
     return this.getItemDefinition(itemDefinitionId)?.ITEM_TYPE == 34;
   }
 
+  /**
+   * Checks if an item with the specified itemDefinitionId is an armor.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is an armor, false otherwise.
+   */
   isArmor(itemDefinitionId: number): boolean {
     return (
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 12073 ||
@@ -4848,6 +4884,12 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  /**
+   * Checks if an item with the specified itemDefinitionId is a helmet.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is a helmet, false otherwise.
+   */
   isHelmet(itemDefinitionId: number): boolean {
     return (
       this.getItemDefinition(itemDefinitionId)?.DESCRIPTION_ID == 9945 ||
@@ -4857,12 +4899,25 @@ export class ZoneServer2016 extends EventEmitter {
     );
   }
 
+  /**
+   * Checks if an item with the specified itemDefinitionId is stackable.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId to check.
+   * @returns {boolean} True if the item is stackable, false otherwise.
+   */
   isStackable(itemDefinitionId: number): boolean {
     return this.getItemDefinition(itemDefinitionId)?.MAX_STACK_SIZE > 1
       ? true
       : false;
   }
 
+  /**
+   * Validates if an item can be equipped in the specified equipment slot.
+   *
+   * @param {number} itemDefinitionId - The itemDefinitionId of the item to validate.
+   * @param {number} equipmentSlotId - The equipment slot ID.
+   * @returns {boolean} True if the item can be equipped in the slot, false otherwise.
+   */
   validateEquipmentSlot(itemDefinitionId: number, equipmentSlotId: number) {
     // only for weapons at the moment
     if (!this.getItemDefinition(itemDefinitionId)?.FLAG_CAN_EQUIP) return false;
@@ -4876,9 +4931,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Validates that a given itemDefinitionId can be equipped in a given loadout slot.
-   * @param itemDefId The definition ID of an item to validate.
-   * @param loadoutSlotId The loadoutSlotId to have the item validated for.
-   * @returns Returns true/false if the item can go in a specified loadout slot.
+   *
+   * @param {number} itemDefinitionId - The definition ID of an item to validate.
+   * @param {number} loadoutSlotId - The loadoutSlotId to have the item validated for.
+   * @param {number} loadoutId - The loadoutId of the entity to get the slot for.
+   * @returns {boolean} Returns true/false if the item can go in a specified loadout slot.
    */
   validateLoadoutSlot(
     itemDefinitionId: number,
@@ -4898,9 +4955,10 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Gets the first loadout slot that a specified item is able to go into.
-   * @param itemDefId The definition ID of an item to check.
-   * @param loadoutId Optional: The loadoutId of the entity to get the slot for, default LoadoutIds.CHARACTER.
-   * @returns Returns the ID of the first loadout slot that an item can go into (occupied or not).
+   *
+   * @param {number} itemDefId - The definition ID of an item to check.
+   * @param {number} [loadoutId=LoadoutIds.CHARACTER] - Optional: The loadoutId of the entity to get the slot for, default LoadoutIds.CHARACTER.
+   * @returns {number} Returns the ID of the first loadout slot that an item can go into (occupied or not).
    */
   getLoadoutSlot(itemDefId: number, loadoutId: number = LoadoutIds.CHARACTER) {
     const itemDef = this.getItemDefinition(itemDefId),
@@ -4911,6 +4969,12 @@ export class ZoneServer2016 extends EventEmitter {
     return loadoutSlotItemClass?.SLOT || 0;
   }
 
+  /**
+   * Switches the loadout slot for a client.
+   *
+   * @param {Client} client - The client to switch the loadout slot for.
+   * @param {LoadoutItem} loadoutItem - The new loadout item.
+   */
   switchLoadoutSlot(client: Client, loadoutItem: LoadoutItem) {
     const oldLoadoutSlot = client.character.currentLoadoutSlot;
     this.reloadInterrupt(client, client.character._loadout[oldLoadoutSlot]);
@@ -4956,10 +5020,12 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Clears a client's equipmentSlot.
-   * @param client The client to have their equipment slot cleared.
-   * @param equipmentSlotId The equipment slot to clear.
-   * @returns Returns true if the slot was cleared, false if the slot is invalid.
+   * Clears a character's equipment slot.
+   *
+   * @param {BaseFullCharacter} character - The character to have their equipment slot cleared.
+   * @param {number} equipmentSlotId - The equipment slot to clear.
+   * @param {boolean} [sendPacket=true] - Optional: Specifies whether to send a packet to other clients, default is true.
+   * @returns {boolean} Returns true if the slot was cleared, false if the slot is invalid.
    */
   clearEquipmentSlot(
     character: BaseFullCharacter,
@@ -4997,9 +5063,11 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Removes an item from the loadout.
-   * @param client The client to have their items removed.
-   * @param loadoutSlotId The loadout slot containing the item to remove.
-   * @returns Returns true if the item was successfully removed, false if there was an error.
+   *
+   * @param {BaseFullCharacter} character - The character to have their items removed.
+   * @param {number} loadoutSlotId - The loadout slot containing the item to remove.
+   * @param {boolean} [updateEquipment=true] - Optional: Specifies whether to update the equipment, default is true.
+   * @returns {boolean} Returns true if the item was successfully removed, false if there was an error.
    */
   removeLoadoutItem(
     character: BaseFullCharacter,
@@ -5041,9 +5109,11 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Returns a client object by either the characterId of the passed character, or the mountedCharacterId if the passed character is a BaseLootableEntity.
-   * @param character Either a Character or BaseLootableEntity to retrieve it's accessing client.
-   * @returns Returns client or undefined.
+   * Returns a client object by either the characterId of the passed character,
+   * or the mountedCharacterId if the passed character is a BaseLootableEntity.
+   *
+   * @param {BaseFullCharacter | BaseLootableEntity} character - Either a Character or BaseLootableEntity to retrieve its accessing client.
+   * @returns {Client | undefined} Returns client or undefined.
    */
   getClientByContainerAccessor(character: BaseFullCharacter) {
     let client: Client | undefined = this.getClientByCharId(
@@ -5057,11 +5127,12 @@ export class ZoneServer2016 extends EventEmitter {
 
   /**
    * Removes items from a specific item stack in a container.
-   * @param client The client to have their items removed.
-   * @param item The item object.
-   * @param container The container that has the item stack in it.
-   * @param requiredCount Optional: The number of items to remove from the stack, default 1.
-   * @returns Returns true if the items were successfully removed, false if there was an error.
+   *
+   * @param {BaseFullCharacter} character - The character to have their items removed.
+   * @param {BaseItem} item - The item object.
+   * @param {LoadoutContainer} container - The container that has the item stack in it.
+   * @param {number} [count] - Optional: The number of items to remove from the stack, default 1.
+   * @returns {boolean} Returns true if the items were successfully removed, false if there was an error.
    */
   removeContainerItem(
     character: BaseFullCharacter,
@@ -5088,11 +5159,13 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   /**
-   * Removes items from an specific item stack in the inventory, including containers and loadout.
-   * @param client The client to have their items removed.
-   * @param item The item object.
-   * @param requiredCount Optional: The number of items to remove from the stack, default 1.
-   * @returns Returns true if the items were successfully removed, false if there was an error.
+   * Removes items from a specific item stack in the inventory, including containers and loadout.
+   *
+   * @param {BaseFullCharacter} character - The character to have their items removed.
+   * @param {BaseItem} item - The item object.
+   * @param {number} [count=1] - Optional: The number of items to remove from the stack, default 1.
+   * @param {boolean} [updateEquipment=true] - Optional: Specifies whether to update the equipment, default is true.
+   * @returns {boolean} Returns true if the items were successfully removed, false if there was an error.
    */
   removeInventoryItem(
     character: BaseFullCharacter,
@@ -5299,17 +5372,6 @@ export class ZoneServer2016 extends EventEmitter {
   deleteItem(character: BaseFullCharacter, itemGuid: string) {
     const client = this.getClientByContainerAccessor(character);
     if (!client || !client.character.initialized) return;
-
-    /*
-    if (
-      client.character != character &&
-      character instanceof BaseLootableEntity
-    ) {
-      // force remount since ItemDelete doesn't seem to work on external containers right now
-      client.character.mountContainer(this, character);
-      return;
-    }
-    */
 
     this.sendData(client, "ClientUpdate.ItemDelete", {
       characterId:
@@ -6117,6 +6179,46 @@ export class ZoneServer2016 extends EventEmitter {
       this,
       this.generateItem(Items.GUNPOWDER_REFINED, 1)
     );
+  }
+
+  repairOption(client: Client, item: BaseItem, repairItem: BaseItem) {
+    const durability = repairItem.currentDurability;
+    if(durability >= 2000) {
+      // todo: get max durability from somewhere, do not hard-code
+      this.sendChatText(client, "This weapon is already at max durability.");
+      return;
+    }
+    
+    const diff = 2000 - durability,
+    repairAmount = diff < 500 ? diff : 500;
+
+    if (!this.removeInventoryItem(client.character, item)) return;
+    repairItem.currentDurability += repairAmount;
+    
+
+    // TODO: move below logic to it's own updateItem function
+
+    // used to update the item's durability on-screen regardless of container / loadout
+
+    const loadoutItem = client.character.getLoadoutItem(repairItem.itemGuid);
+    if(loadoutItem) {
+      this.updateLoadoutItem(client, loadoutItem);
+      return;
+    }
+
+    const container = client.character.getItemContainer(repairItem.itemGuid);
+    if(container) {
+      this.updateContainerItem(client.character, repairItem, container);
+      return;
+    }
+
+    const mountedContainer = client.character.mountedContainer;
+
+    if(mountedContainer) {
+      const container = mountedContainer.getContainer();
+      if(!container) return;
+      this.updateContainerItem(mountedContainer, item, container);
+    }
   }
 
   pUtilizeHudTimer = promisify(this.utilizeHudTimer);

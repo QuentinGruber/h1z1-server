@@ -18,16 +18,16 @@ import {
   CharacterManagedObject,
   CharacterSeekTarget
 } from "types/zone2016packets";
-import { BaseLightweightCharacter } from "../entities/baselightweightcharacter";
-import { Npc } from "../entities/npc";
-import { ZoneClient2016 as Client } from "../classes/zoneclient";
-import { ZoneServer2016 } from "../zoneserver";
-import { Items } from "../models/enums";
-import { LootableConstructionEntity } from "../entities/lootableconstructionentity";
-import { ConstructionChildEntity } from "../entities/constructionchildentity";
-import { ConstructionDoor } from "../entities/constructiondoor";
-import { randomIntFromInterval } from "../../../utils/utils";
-import { Zombie } from "../entities/zombie";
+import { BaseLightweightCharacter } from "../../entities/baselightweightcharacter";
+import { Npc } from "../../entities/npc";
+import { ZoneClient2016 as Client } from "../../classes/zoneclient";
+import { ZoneServer2016 } from "../../zoneserver";
+import { Items } from "../../models/enums";
+import { LootableConstructionEntity } from "../../entities/lootableconstructionentity";
+import { ConstructionChildEntity } from "../../entities/constructionchildentity";
+import { ConstructionDoor } from "../../entities/constructiondoor";
+import { randomIntFromInterval } from "../../../../utils/utils";
+import { Zombie } from "../../entities/zombie";
 
 const debug = require("debug")("zonepacketHandlers");
 
