@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-duplicate-enum-values */
 // ======================================================================
 // ======================================================================
 //
@@ -768,4 +769,10 @@ export enum Effects {
   Smoke_Blue = 4539,
   Smoke_Teal = 4540,
   Smoke_Magenta = 4541
+}
+
+export enum HealTypes {
+  OTHER = 1,
+  BANDAGE = 2,
+  MEDKIT = 3
 }
