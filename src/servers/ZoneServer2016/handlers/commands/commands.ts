@@ -1268,6 +1268,26 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "lockveh",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      server.sendData(client, "Vehicle.AccessType", {
+        vehicleGuid: "0xef57380cf7259ed0",
+        accessType: 2
+      })
+    }
+  },
+  {
+    name: "unlockveh",
+    permissionLevel: PermissionLevels.MODERATOR,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      server.sendData(client, "Vehicle.AccessType", {
+        vehicleGuid: "0xef57380cf7259ed0",
+        accessType: 0
+      })
+    }
+  },
+  {
     name: "lootrespawntimer",
     permissionLevel: PermissionLevels.ADMIN,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {

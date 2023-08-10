@@ -1374,6 +1374,11 @@ export class ZonePacketHandlers {
       server.dismissVehicle(vehicleGuid);
     }
   }
+  VehicleAccessType(server: ZoneServer2016, client: Client, packet: any){
+    console.log(JSON.stringify(packet.data));
+    server._vehicles[packet.data.vehicleGuid]
+      .handleVehicleLock(server, packet.data.accessType);
+  }
   CommandInteractionString(
     server: ZoneServer2016,
     client: Client,
@@ -3203,6 +3208,9 @@ export class ZonePacketHandlers {
         break;
       case "Vehicle.Dismiss":
         this.VehicleDismiss(server, client, packet);
+        break;
+      case "Vehicle.AccessType":
+        this.VehicleAccessType(server, client, packet);
         break;
       case "Command.StartLogoutRequest":
         this.CommandStartLogoutRequest(server, client, packet);
