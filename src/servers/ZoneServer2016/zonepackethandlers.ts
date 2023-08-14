@@ -1377,8 +1377,8 @@ export class ZonePacketHandlers {
   VehicleAccessType(server: ZoneServer2016, client: Client, packet: any){
     const vehicleGuid = packet.data.vehicleGuid;
     const accessType = packet.data.accessType
-    server._vehicles[packet.data.vehicleGuid]
-      .handleVehicleLock(server, packet.data.accessType);
+    server._vehicles[vehicleGuid]
+      .handleVehicleLock(server, accessType);
   }
   CommandInteractionString(
     server: ZoneServer2016,
