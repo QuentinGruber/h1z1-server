@@ -25,5 +25,9 @@ export interface Command {
   name: string;
   permissionLevel: PermissionLevels;
   keepCase?: boolean;
-  execute: (server: ZoneServer2016, client: Client, args: Array<string>) => void;
+  execute: (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) => void;
 }

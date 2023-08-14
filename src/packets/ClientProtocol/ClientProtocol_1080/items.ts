@@ -35,7 +35,7 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
     offset += 1;
 
     // TODO: FIX THIS
-    if(obj["itemUseOption"] == 16) {
+    if (obj["itemUseOption"] == 16) {
       // this is the correct amount of bytes for this exact packet but
       // may be in a different order
       obj["unknownQword2"] = data.readUInt64String(offset);

@@ -1374,10 +1374,10 @@ export class ZonePacketHandlers {
       server.dismissVehicle(vehicleGuid);
     }
   }
-  VehicleAccessType(server: ZoneServer2016, client: Client, packet: any){
+  VehicleAccessType(server: ZoneServer2016, client: Client, packet: any) {
     const vehicleGuid = packet.data.vehicleGuid;
-    const accessType = packet.data.accessType
-    if(vehicleGuid){
+    const accessType = packet.data.accessType;
+    if (vehicleGuid) {
       server._vehicles[vehicleGuid].handleVehicleLock(server, accessType);
     }
   }
@@ -2260,7 +2260,7 @@ export class ZonePacketHandlers {
     }
 
     // check existing characters in foundation permissions
-    if(!characterId) {
+    if (!characterId) {
       for (const a in foundation.permissions) {
         const permissions = foundation.permissions[a];
         if (permissions.characterName === packet.data.characterName) {
@@ -2444,12 +2444,9 @@ export class ZonePacketHandlers {
                   );
                   server.damageItem(client, weaponItem, 50);
                 }
-                client.character.temporaryScrapTimeout = setTimeout(
-                  () => {
-                    delete client.character.temporaryScrapTimeout;
-                  },
-                  Math.floor(Math.random() * (6000 - 1000 + 1) + 1000)
-                );
+                client.character.temporaryScrapTimeout = setTimeout(() => {
+                  delete client.character.temporaryScrapTimeout;
+                }, Math.floor(Math.random() * (6000 - 1000 + 1) + 1000));
               }
             }
           }
@@ -3330,8 +3327,9 @@ export class ZonePacketHandlers {
   }
   async reloadCommandCache() {
     delete require.cache[require.resolve("./handlers/commands/commandhandler")];
-    const CommandHandler = (require("./handlers/commands/commandhandler") as any)
-      .CommandHandler;
+    const CommandHandler = (
+      require("./handlers/commands/commandhandler") as any
+    ).CommandHandler;
     this.commandHandler = new CommandHandler();
     this.commandHandler.reloadCommands();
   }
