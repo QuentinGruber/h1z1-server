@@ -414,7 +414,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   }
 
   handleVehicleLock(server: ZoneServer2016, accessType: boolean) {
-    if(!accessType){
+    if(!accessType) {
       this.unlockVehicle(server);
       return;
     }

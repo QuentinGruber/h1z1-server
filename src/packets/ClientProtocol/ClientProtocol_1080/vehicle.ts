@@ -195,7 +195,8 @@ export const vehiclePackets: PacketStructures = [
       ]
     }
   ],
-  ["Vehicle.AccessType", 
+  [
+  "Vehicle.AccessType", 
   0x891c,
   {
     fields: [
