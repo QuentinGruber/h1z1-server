@@ -1375,9 +1375,12 @@ export class ZonePacketHandlers {
     }
   }
   VehicleAccessType(server: ZoneServer2016, client: Client, packet: any){
-    console.log(JSON.stringify(packet.data));
-    server._vehicles[packet.data.vehicleGuid]
-      .handleVehicleLock(server, packet.data.accessType);
+    //console.log(JSON.stringify(packet.data));
+    const vehicleGuid = packet.data.vehicleGuid;
+    const accessType = packet.data.accessType
+    if(vehicleGuid){
+      server._vehicles[vehicleGuid].handleVehicleLock(server, accessType);
+    }
   }
   CommandInteractionString(
     server: ZoneServer2016,

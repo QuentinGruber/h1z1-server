@@ -4404,6 +4404,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.isInAir = false;
     if (seatId === "0" && vehicle.engineOn) {
       vehicle.stopEngine(this);
+      vehicle.isLocked = false;
     }
     client.vehicle.mountedVehicle = "";
     this.sendData(client, "Vehicle.Occupy", {
