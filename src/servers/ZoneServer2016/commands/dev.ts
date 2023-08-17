@@ -130,7 +130,7 @@ const dev: any = {
     server.logStats();
   },
   spam: function (server: ZoneServer2016, client: Client, args: Array<string>) {
-    const spamNb = args[1] || 1;
+    const spamNb = Number(args[1]) || 1;
     for (let i = 0; i < spamNb; i++) {
       server.sendChatText(client, `spam ${i}`);
     }
@@ -164,8 +164,11 @@ const dev: any = {
     const models = require("../../../../data/2016/dataSources/Models.json");
     const wordFilter = args[1];
     if (wordFilter) {
-      const result = models.filter((word: any) =>
-        word?.MODEL_FILE_NAME?.toLowerCase().includes(wordFilter.toLowerCase())
+      const result = models.filter(
+        (word: any) =>
+          word?.MODEL_FILE_NAME?.toLowerCase().includes(
+            wordFilter.toLowerCase()
+          )
       );
       server.sendChatText(client, `Found models for ${wordFilter}:`);
       for (let index = 0; index < result.length; index++) {
