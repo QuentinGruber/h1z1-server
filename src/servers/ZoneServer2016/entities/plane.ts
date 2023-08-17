@@ -40,7 +40,7 @@ export class Plane extends Vehicle2016 {
   criticalDamageEffect: number = 0;
   supercriticalDamageEffect: number = 0;
   engineOn: boolean = false;
-  isLocked: number = 0;
+  isLocked: boolean = false;
   positionUpdate: any /*positionUpdate*/;
   engineRPM: number = 0;
   fuelUpdater: any;

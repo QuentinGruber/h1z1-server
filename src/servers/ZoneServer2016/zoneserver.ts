@@ -4268,7 +4268,7 @@ export class ZoneServer2016 extends EventEmitter {
 
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
-    if (!vehicle || !vehicle.isMountable) return;
+    if (!vehicle || !vehicle.isMountable || vehicle.isLocked) return;
     for (const a in this._constructionFoundations) {
       const foundation = this._constructionFoundations[a];
       if (
@@ -4443,6 +4443,7 @@ export class ZoneServer2016 extends EventEmitter {
     client.isInAir = false;
     if (seatId === "0" && vehicle.engineOn) {
       vehicle.stopEngine(this);
+      vehicle.isLocked = false;
     }
     client.vehicle.mountedVehicle = "";
     this.sendData(client, "Vehicle.Occupy", {

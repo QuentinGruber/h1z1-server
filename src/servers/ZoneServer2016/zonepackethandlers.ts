@@ -1374,6 +1374,11 @@ export class ZonePacketHandlers {
       server.dismissVehicle(vehicleGuid);
     }
   }
+  VehicleAccessType(server: ZoneServer2016, client: Client, packet: any) {
+    const vehicleGuid = packet.data.vehicleGuid;
+    const accessType = packet.data.accessType;
+    server._vehicles[vehicleGuid].handleVehicleLock(server, accessType);
+  }
   CommandInteractionString(
     server: ZoneServer2016,
     client: Client,
@@ -3214,6 +3219,9 @@ export class ZonePacketHandlers {
         break;
       case "Vehicle.StateData":
         this.VehicleStateData(server, client, packet);
+        break;
+      case "Vehicle.AccessType":
+        this.VehicleAccessType(server, client, packet);
         break;
       case "PlayerUpdateUpdatePositionClientToZone":
         this.PlayerUpdateUpdatePositionClientToZone(server, client, packet);
