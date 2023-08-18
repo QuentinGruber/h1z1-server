@@ -27,7 +27,7 @@ export function parseItemRequestSubData(data: h1z1Buffer, offset: number) {
     offset += 4;
     obj["unknownDword3"] = data.readUInt32LE(offset);
     offset += 4;
-    obj["itemUseOption"] = data.readUInt32LE(offset);
+    obj["count"] = data.readUInt32LE(offset);
     offset += 4;
     obj["unknownQword1"] = data.readUInt64String(offset);
     offset += 8;
