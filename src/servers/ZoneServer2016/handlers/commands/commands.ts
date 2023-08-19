@@ -32,7 +32,12 @@ import {
   characterKitLoadout,
   characterVehicleKit
 } from "../../data/loadouts";
-import { EquipSlots, Items, ResourceIds, ResourceTypes } from "../../models/enums";
+import {
+  EquipSlots,
+  Items,
+  ResourceIds,
+  ResourceTypes
+} from "../../models/enums";
 import { ZoneServer2016 } from "../../zoneserver";
 import { Command, PermissionLevels } from "./types";
 import { ConstructionPermissions } from "types/zoneserver";
@@ -1349,13 +1354,11 @@ export const commands: Array<Command> = [
         client,
         `Players: ${Object.values(server._clients)
           .map((c) => {
-            return `${c.character.name}: ${c.loginSessionId} | ${server
-              .getSoeClient(c.soeClientId)
-              ?.getNetworkStats()[2]} | ${server
-              .getSoeClient(c.soeClientId)
-              ?.getNetworkStats()[0]} | ${server
-              .getSoeClient(c.soeClientId)
-              ?.getNetworkStats()[1]}`;
+            return `${c.character.name}: ${c.loginSessionId} | ${
+              server.getSoeClient(c.soeClientId)?.getNetworkStats()[2]
+            } | ${server.getSoeClient(c.soeClientId)?.getNetworkStats()[0]} | ${
+              server.getSoeClient(c.soeClientId)?.getNetworkStats()[1]
+            }`;
           })
           .join(",\n")}`
       );

@@ -84,11 +84,11 @@ export class customLodash {
   }
 
   /**
- * Iterates over each property in the given object and invokes the provided callback function.
- *
- * @param object - The object to iterate over.
- * @param callback - The function to be called for each property in the object.
- */
+   * Iterates over each property in the given object and invokes the provided callback function.
+   *
+   * @param object - The object to iterate over.
+   * @param callback - The function to be called for each property in the object.
+   */
   forEach(object: Record<string, unknown>, callback: (arg0: any) => void) {
     const objectLength = Object.keys(object).length;
     const objectValues = Object.values(object);
@@ -98,22 +98,22 @@ export class customLodash {
   }
 
   /**
- * Calculates and returns the number of properties in the given object.
- *
- * @param object - The object to get the size of.
- * @returns The number of properties in the object.
- */
+   * Calculates and returns the number of properties in the given object.
+   *
+   * @param object - The object to get the size of.
+   * @returns The number of properties in the object.
+   */
   size(object: Record<string, unknown>) {
     return Object.keys(object).length;
   }
 
   /**
- * Fills the provided array with the specified object.
- *
- * @param array - The array to fill.
- * @param object - The object to fill the array with.
- * @returns The modified array after filling.
- */
+   * Fills the provided array with the specified object.
+   *
+   * @param array - The array to fill.
+   * @param object - The object to fill the array with.
+   * @returns The modified array after filling.
+   */
   fill(array: any[], object: any) {
     for (let index = 0; index < array.length; index++) {
       array[index] = object;
@@ -122,11 +122,11 @@ export class customLodash {
   }
 
   /**
- * Deletes the specified entry from the given array.
- *
- * @param array - The array to delete the entry from.
- * @param entry - The entry to delete from the array.
- */
+   * Deletes the specified entry from the given array.
+   *
+   * @param array - The array to delete the entry from.
+   * @param entry - The entry to delete from the array.
+   */
   delete(array: any[], entry: any) {
     const index = array.indexOf(entry);
     if (index > -1) {
@@ -156,7 +156,7 @@ export function isQuat(rotation: Float32Array) {
  * @returns The quaternion representation of the Euler angles.
  */
 export function eul2quat(angle: Float32Array): Float32Array {
-  // Original code from GuinnessRules. 
+  // Original code from GuinnessRules.
   // Assuming the angles are in radians.
   const heading = angle[0],
     attitude = angle[1],
@@ -821,7 +821,7 @@ export class LZ4 {
    * @returns The size of the compressed block.
    */
   static encodeBlock: (src: any, dst: any, sIdx?: any, eIdx?: any) => number;
-   /**
+  /**
    * Calculates the size of the encoded block given the input size.
    *
    * @param isize - The input size.
@@ -995,7 +995,7 @@ export class wrappedUint16 {
     this.value = initValue;
   }
 
-   /**
+  /**
    * Wraps the given value to ensure it stays within the range of 0 to 65535.
    *
    * @param value - The value to wrap.

@@ -3493,8 +3493,9 @@ export class ZoneServer2016 extends EventEmitter {
   }
 
   async isClientBanned(client: Client): Promise<boolean> {
-    const address: string | undefined = this.getSoeClient(client.soeClientId)
-      ?.address;
+    const address: string | undefined = this.getSoeClient(
+      client.soeClientId
+    )?.address;
     const addressBanned = await this._db
       ?.collection(DB_COLLECTIONS.BANNED)
       .findOne({
@@ -4269,7 +4270,7 @@ export class ZoneServer2016 extends EventEmitter {
     const vehicle = this._vehicles[vehicleGuid];
     if (!vehicle || !vehicle.isMountable) return;
 
-    if(vehicle.isLocked) {
+    if (vehicle.isLocked) {
       this.sendChatText(client, "Vehicle is locked.");
       return;
     }
@@ -6189,40 +6190,39 @@ export class ZoneServer2016 extends EventEmitter {
 
   repairOption(client: Client, item: BaseItem, repairItem: BaseItem) {
     const durability = repairItem.currentDurability;
-    if(durability >= 2000) {
+    if (durability >= 2000) {
       // todo: get max durability from somewhere, do not hard-code
       this.sendChatText(client, "This weapon is already at max durability.");
       return;
     }
-    
+
     const diff = 2000 - durability,
-    repairAmount = diff < 500 ? diff : 500;
+      repairAmount = diff < 500 ? diff : 500;
 
     if (!this.removeInventoryItem(client.character, item)) return;
     repairItem.currentDurability += repairAmount;
-    
 
     // TODO: move below logic to it's own updateItem function
 
     // used to update the item's durability on-screen regardless of container / loadout
 
     const loadoutItem = client.character.getLoadoutItem(repairItem.itemGuid);
-    if(loadoutItem) {
+    if (loadoutItem) {
       this.updateLoadoutItem(client, loadoutItem);
       return;
     }
 
     const container = client.character.getItemContainer(repairItem.itemGuid);
-    if(container) {
+    if (container) {
       this.updateContainerItem(client.character, repairItem, container);
       return;
     }
 
     const mountedContainer = client.character.mountedContainer;
 
-    if(mountedContainer) {
+    if (mountedContainer) {
       const container = mountedContainer.getContainer();
-      if(!container) return;
+      if (!container) return;
       this.updateContainerItem(mountedContainer, item, container);
     }
   }

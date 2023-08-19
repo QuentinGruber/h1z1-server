@@ -510,7 +510,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     type: ItemUseOptions.USE,
     timeout: 1000
   },
-  
+
   //----------Repair------------//
   125: {
     itemDef: Items.WEAPON_REPAIR_KIT,
@@ -521,5 +521,5 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     itemDef: Items.GUN_REPAIR_KIT,
     type: ItemUseOptions.REPAIR,
     timeout: 10000
-  },
+  }
 };

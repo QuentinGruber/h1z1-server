@@ -2258,7 +2258,7 @@ export class ZonePacketHandlers {
     }
 
     // check existing characters in foundation permissions
-    if(!characterId) {
+    if (!characterId) {
       for (const a in foundation.permissions) {
         const permissions = foundation.permissions[a];
         if (permissions.characterName === packet.data.characterName) {
@@ -2442,12 +2442,9 @@ export class ZonePacketHandlers {
                   );
                   server.damageItem(client, weaponItem, 50);
                 }
-                client.character.temporaryScrapTimeout = setTimeout(
-                  () => {
-                    delete client.character.temporaryScrapTimeout;
-                  },
-                  Math.floor(Math.random() * (6000 - 1000 + 1) + 1000)
-                );
+                client.character.temporaryScrapTimeout = setTimeout(() => {
+                  delete client.character.temporaryScrapTimeout;
+                }, Math.floor(Math.random() * (6000 - 1000 + 1) + 1000));
               }
             }
           }

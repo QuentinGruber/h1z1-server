@@ -359,7 +359,8 @@ export class PluginManager {
     thisArg[methodName] = function (...args: any[]) {
       if (options.callBefore) originalFunction.call(thisArg, ...args);
       const ret = hook(...args);
-      if (ret !== false && options.callAfter) originalFunction.call(thisArg, ...args);
+      if (ret !== false && options.callAfter)
+        originalFunction.call(thisArg, ...args);
     };
   }
 
@@ -374,8 +375,12 @@ export class PluginManager {
     server: ZoneServer2016,
     command: Command
   ) {
-    server._packetHandlers.commandHandler.commands[flhash(command.name.toUpperCase())] = command;
-    console.log(`[PluginManager] Plugin ${plugin.name} registered a command: /${command.name}`)
+    server._packetHandlers.commandHandler.commands[
+      flhash(command.name.toUpperCase())
+    ] = command;
+    console.log(
+      `[PluginManager] Plugin ${plugin.name} registered a command: /${command.name}`
+    );
   }
 
   //#endregion
