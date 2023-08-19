@@ -195,7 +195,20 @@ export const vehiclePackets: PacketStructures = [
       ]
     }
   ],
-  ["Vehicle.AccessType", 0x891c, {}],
+  [
+    "Vehicle.AccessType",
+    0x891c,
+    {
+      fields: [
+        {
+          name: "vehicleGuid",
+          type: "uint64string",
+          defaultValue: "0x000000000000000000"
+        },
+        { name: "accessType", type: "uint16", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Vehicle.KickPlayer", 0x891d, {}],
   ["Vehicle.HealthUpdateOwner", 0x891e, {}],
   [

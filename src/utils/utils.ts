@@ -1284,9 +1284,9 @@ export async function resolveHostAddress(
       if (!err) {
         resolve(addresses);
       } else {
-        console.log(
-          `Failed to resolve ${hostName} as an host name, it will be used as an IP`
-        );
+        // console.log(
+        //   `Failed to resolve ${hostName} as an host name, it will be used as an IP`
+        // );
         resolve([hostName]); // if it can't resolve it, assume that's an IPV4 / IPV6 not an hostname
       }
     });
