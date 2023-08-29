@@ -46,7 +46,7 @@ import { BaseFullCharacter } from "./entities/basefullcharacter";
 import { BaseLightweightCharacter } from "./entities/baselightweightcharacter";
 import { ConstructionParentEntity } from "./entities/constructionparententity";
 import { ConstructionDoor } from "./entities/constructiondoor";
-import { CommandHandler } from "./commands/commandhandler";
+import { CommandHandler } from "./handlers/commands/commandhandler";
 import { ChatChat, Synchronization } from "types/zone2016packets";
 import { VehicleCurrentMoveMode } from "types/zone2015packets";
 import {
@@ -1839,6 +1839,15 @@ export class ZonePacketHandlers {
           "Parts may be required. Open vehicle loadout."
         );
         break;
+      case ItemUseOptions.REPAIR:
+        /*
+        const repairItem = character.getInventoryItem(packet.data.itemGuid);
+        if(!repairItem) {
+          server.sendChatText(client, "[ERROR] Invalid weapon");
+          return;
+        }
+        server.repairOption(client, item, repairItem);*/
+        break;
       default:
         server.sendChatText(
           client,
@@ -2245,6 +2254,16 @@ export class ZonePacketHandlers {
       const character = server._characters[a];
       if (character.name === packet.data.characterName) {
         characterId = character.characterId;
+      }
+    }
+
+    // check existing characters in foundation permissions
+    if (!characterId) {
+      for (const a in foundation.permissions) {
+        const permissions = foundation.permissions[a];
+        if (permissions.characterName === packet.data.characterName) {
+          characterId = permissions.characterId;
+        }
       }
     }
 

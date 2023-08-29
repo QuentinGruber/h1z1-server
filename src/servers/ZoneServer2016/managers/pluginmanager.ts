@@ -15,7 +15,8 @@ import * as fs from "fs";
 import * as path from "path";
 import { ZoneServer2016 } from "../zoneserver";
 import { execSync } from "child_process";
-import { copyFile, fileExists } from "../../../utils/utils";
+import { copyFile, fileExists, flhash } from "../../../utils/utils";
+import { Command } from "../handlers/commands/types";
 
 /**
  * Abstract class representing a base plugin.
@@ -328,8 +329,11 @@ export class PluginManager {
     }
   }
 
+  //#region PLUGIN HELPERS
+
   /**
    * Hooks a method by overriding its default behavior.
+   * @param plugin - The plugin instance ("this")
    * @param thisArg - The object on which the method is defined.
    * @param methodName - The name of the method to be hooked.
    * @param hook - A function that will be called during the hooking process.
@@ -337,24 +341,47 @@ export class PluginManager {
    * @returns
    */
   public hookMethod(
+    plugin: BasePlugin,
     thisArg: any,
     methodName: string,
-    hook: (...args: any[]) => any,
+    hook: (...args: any[]) => boolean | void,
     options: { callBefore: boolean; callAfter: boolean }
   ) {
     const originalFunction = thisArg[methodName];
 
     if (!originalFunction) {
       console.log(
-        "\n\n\n[PluginManager] A plugin tried to hook an invalid method!\n\n\n"
+        `\n\n\n[PluginManager] Plugin ${plugin.name} tried to hook an invalid method!\n\n\n`
       );
       return;
     }
 
     thisArg[methodName] = function (...args: any[]) {
-      if (options.callBefore) originalFunction.call(thisArg, args);
-      hook(args);
-      if (options.callAfter) originalFunction.call(thisArg, args);
+      if (options.callBefore) originalFunction.call(thisArg, ...args);
+      const ret = hook(...args);
+      if (ret !== false && options.callAfter)
+        originalFunction.call(thisArg, ...args);
     };
   }
+
+  /**
+   * Registers a custom command to be used in-game.
+   * @param plugin - The plugin instance ("this")
+   * @param server - The ZoneServer2016 instance.
+   * @param command - The command to register.
+   */
+  public registerCommand(
+    plugin: BasePlugin,
+    server: ZoneServer2016,
+    command: Command
+  ) {
+    server._packetHandlers.commandHandler.commands[
+      flhash(command.name.toUpperCase())
+    ] = command;
+    console.log(
+      `[PluginManager] Plugin ${plugin.name} registered a command: /${command.name}`
+    );
+  }
+
+  //#endregion
 }

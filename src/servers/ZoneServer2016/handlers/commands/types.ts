@@ -11,8 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
-import { ZoneClient2016 as Client } from "../classes/zoneclient";
-import { ZoneServer2016 } from "../zoneserver";
+import { ZoneClient2016 as Client } from "../../classes/zoneclient";
+import { ZoneServer2016 } from "../../zoneserver";
 
 export enum PermissionLevels {
   DEFAULT = 0,
@@ -25,5 +25,9 @@ export interface Command {
   name: string;
   permissionLevel: PermissionLevels;
   keepCase?: boolean;
-  execute: (server: ZoneServer2016, client: Client, packet: any) => void;
+  execute: (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) => void;
 }

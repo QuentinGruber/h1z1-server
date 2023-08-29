@@ -14,7 +14,7 @@
 import { EventEmitter } from "node:events";
 
 import { SOEServer } from "../SoeServer/soeserver";
-import { H1emuLoginServer } from "../H1emuServer/h1emuLoginServer";
+import { H1emuLoginServer as ZoneConnectionManager } from "../H1emuServer/h1emuLoginServer";
 import { H1emuClient } from "../H1emuServer/shared/h1emuclient";
 import { LoginProtocol } from "../../protocols/loginprotocol";
 import { MongoClient } from "mongodb";
@@ -82,7 +82,7 @@ export class LoginServer extends EventEmitter {
   private _httpServer!: Worker;
   _enableHttpServer: boolean;
   _httpServerPort: number = 80;
-  private _h1emuLoginServer!: H1emuLoginServer;
+  private _zoneConnectionManager!: ZoneConnectionManager;
   private _zoneConnections: { [h1emuClientId: string]: number } = {};
   private _internalReqCount: number = 0;
   private _pendingInternalReq: { [requestId: number]: any } = {};
@@ -166,9 +166,9 @@ export class LoginServer extends EventEmitter {
     });
 
     if (!this._soloMode) {
-      this._h1emuLoginServer = new H1emuLoginServer(1110);
+      this._zoneConnectionManager = new ZoneConnectionManager(1110);
 
-      this._h1emuLoginServer.on(
+      this._zoneConnectionManager.on(
         "data",
         async (err: string, client: H1emuClient, packet: any) => {
           if (err) {
@@ -212,7 +212,7 @@ export class LoginServer extends EventEmitter {
                     this.rejectH1emuConnection(serverId, client);
                     return;
                   }
-                  this._h1emuLoginServer.sendData(client, "SessionReply", {
+                  this._zoneConnectionManager.sendData(client, "SessionReply", {
                     status: status
                   });
                   break;
@@ -284,7 +284,7 @@ export class LoginServer extends EventEmitter {
           }
         }
       );
-      this._h1emuLoginServer.on(
+      this._zoneConnectionManager.on(
         "processInternalReq",
         (packet: any, keysToReturn: string[]) => {
           const { reqId } = packet.data;
@@ -309,7 +309,7 @@ export class LoginServer extends EventEmitter {
           }
         }
       );
-      this._h1emuLoginServer.on(
+      this._zoneConnectionManager.on(
         "disconnect",
         async (err: string, client: H1emuClient, reason: number) => {
           debug(
@@ -327,7 +327,7 @@ export class LoginServer extends EventEmitter {
         }
       );
 
-      this._h1emuLoginServer.start();
+      this._zoneConnectionManager.start();
     }
   }
 
@@ -359,7 +359,7 @@ export class LoginServer extends EventEmitter {
     debug(
       `rejected connection serverId : ${serverId} address: ${client.address} `
     );
-    delete this._h1emuLoginServer._clients[client.clientId];
+    delete this._zoneConnectionManager._clients[client.clientId];
   }
   private async _isServerOfficial(serverId: number): Promise<boolean> {
     const server = await this._db
@@ -994,6 +994,13 @@ export class LoginServer extends EventEmitter {
         showConsole: true,
         clearOutput: true
       });
+      if (reason == "UNVERIFIED") {
+        this.sendData(client, "H1emu.PrintToConsole", {
+          message: `Please follow the steps to verify your account using the #how-to-play channel in the discord. discord.gg/h1emu`,
+          showConsole: false,
+          clearOutput: false
+        });
+      }
     }
     this.sendData(client, "CharacterLoginReply", charactersLoginInfo);
     debug("CharacterLoginRequest");
@@ -1015,7 +1022,7 @@ export class LoginServer extends EventEmitter {
           zoneConnectionIndex
         ];
         const [address, port] = zoneConnectionString.split(":");
-        this._h1emuLoginServer.sendData(
+        this._zoneConnectionManager.sendData(
           {
             address: address,
             port: port,

@@ -15,18 +15,37 @@ import { ContainerErrors, FilterIds, Items } from "../models/enums";
 import { ZoneServer2016 } from "../zoneserver";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
 import { checkConstructionInRange } from "../../../utils/utils";
+import { Recipe } from "types/zoneserver";
+import { Character2016 } from "../entities/character";
+import { BaseItem } from "../classes/baseItem";
+import { BaseLootableEntity } from "../entities/baselootableentity";
 const debug = require("debug")("ZoneServer");
 
-interface craftComponentDSEntry {
+interface CraftComponentDSEntry {
   itemDefinitionId: number;
   stackCount: number;
 }
 
+type ItemDataSource = {
+  item: BaseItem;
+  character: BaseLootableEntity | Character2016;
+};
+type InventoryDataSource = {
+  [itemDefinitionId: number]: Array<ItemDataSource>;
+};
+
+/**
+ * Retrieves the craft components data source from the client's inventory and mounted container.
+ * @param client The client to get the craft components data source for.
+ * @returns The craft components data source object.
+ */
 function getCraftComponentsDataSource(client: Client): {
-  [itemDefinitionId: number]: craftComponentDSEntry;
+  [itemDefinitionId: number]: CraftComponentDSEntry;
 } {
+  // ignoring proximity container items for now
+
   // todo: include other datasources when they are available ex. proximity items, accessed container
-  const inventory: { [itemDefinitionId: number]: craftComponentDSEntry } = {};
+  const inventory: { [itemDefinitionId: number]: CraftComponentDSEntry } = {};
   Object.keys(client.character._containers).forEach((loadoutSlotId) => {
     const container = client.character._containers[Number(loadoutSlotId)];
     Object.keys(container.items).forEach((itemGuid) => {
@@ -35,21 +54,47 @@ function getCraftComponentsDataSource(client: Client): {
         inventory[item.itemDefinitionId].stackCount += item.stackCount;
       } else {
         inventory[item.itemDefinitionId] = {
-          ...item,
-          stackCount: item.stackCount
+          ...item
         }; // push new itemstack
       }
     });
   });
+
+  if (!client.character.mountedContainer) return inventory;
+
+  const container = client.character.mountedContainer.getContainer();
+  if (!container) return inventory; // should never trigger
+  Object.keys(container.items).forEach((itemGuid) => {
+    const item = container.items[itemGuid];
+    if (inventory[item.itemDefinitionId]) {
+      inventory[item.itemDefinitionId].stackCount += item.stackCount;
+    } else {
+      inventory[item.itemDefinitionId] = {
+        ...item
+      }; // push new itemstack
+    }
+  });
+
   return inventory;
 }
 
+/**
+ * CraftManager handles the crafting of a recipe by a client.
+ */
 export class CraftManager {
   private craftLoopCount: number = 0;
   private maxCraftLoopCount: number = 500;
   private componentsDataSource: {
-    [itemDefinitionId: number]: craftComponentDSEntry;
+    [itemDefinitionId: number]: CraftComponentDSEntry;
   } = {};
+
+  /**
+   * Constructs a new instance of the CraftManager class.
+   * @param client - The client object.
+   * @param server - The server object.
+   * @param recipeId - The ID of the recipe to craft.
+   * @param count - The number of times to craft the recipe.
+   */
   constructor(
     client: Client,
     server: ZoneServer2016,
@@ -60,8 +105,16 @@ export class CraftManager {
     this.start(client, server, recipeId, count);
   }
 
-  // used for removing items from internal recipe components data source (only for inventory rn)
-  removeCraftComponent(itemDefinitionId: number, count: number): boolean {
+  /**
+   * Removes simulated craft components from the internal recipe components data source.
+   * @param itemDefinitionId The item definition ID of the craft component to remove.
+   * @param count The number of craft components to remove.
+   * @returns A boolean indicating if the removal was successful.
+   */
+  removeSimulatedCraftComponent(
+    itemDefinitionId: number,
+    count: number
+  ): boolean {
     const removeItem = this.componentsDataSource[itemDefinitionId];
     if (!removeItem) return false;
     if (removeItem.stackCount == count) {
@@ -69,63 +122,46 @@ export class CraftManager {
     } else if (removeItem.stackCount > count) {
       this.componentsDataSource[itemDefinitionId].stackCount -= count;
     } else {
-      // if count > removeItem.stackCount
+      // if removeItem.stackCount < count
       return false;
     }
     return true;
   }
 
-  async craftItem(
+  /**
+   * Removes a craft component from the character and updates the remaining items.
+   * @param server The ZoneServer2016 instance.
+   * @param itemDS The item data source containing the craft component.
+   * @param count The number of craft components to remove.
+   * @returns A boolean indicating if the removal was successful.
+   */
+  removeCraftComponent(
+    server: ZoneServer2016,
+    itemDS: ItemDataSource,
+    count: number
+  ): boolean {
+    // todo: check items on ground and proximity containers
+    return server.removeInventoryItem(itemDS.character, itemDS.item, count);
+  }
+
+  /**
+   * Generates the craft queue based on the recipe and its components.
+   * @param server The ZoneServer2016 instance.
+   * @param client The client performing the craft.
+   * @param recipe The recipe object.
+   * @param recipeCount The number of times to repeat the recipe.
+   * @param recipeId The ID of the recipe being crafted.
+   * @param craftCount The total number of items to craft.
+   * @returns A promise resolving to a boolean indicating if the craft queue generation was successful.
+   */
+  async generateCraftQueue(
     server: ZoneServer2016,
     client: Client,
+    recipe: Recipe,
+    recipeCount: number,
     recipeId: number,
-    recipeCount: number
+    craftCount: number
   ): Promise<boolean> {
-    // if craftItem gets stuck in an infinite loop somehow, setImmediate will prevent the server from crashing
-    // Scheduler.yield(); well this is not a good idea, it will make the server being overloaded, while an infinite loop will be detected and the server will be restarted
-
-    //#region GENERATE CRAFT QUEUE
-    if (!recipeCount) return true;
-    this.craftLoopCount++;
-    if (this.craftLoopCount > this.maxCraftLoopCount) {
-      return false;
-    }
-    debug(`[CraftManager] Crafting ${recipeCount} of recipe ${recipeId}`);
-    const recipe = server._recipes[recipeId],
-      bundleCount = recipe?.bundleCount || 1, // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
-      craftCount = recipeCount * bundleCount; // the actual amount of items to craft
-    if (!recipe) return false;
-    switch (recipe.filterId) {
-      case FilterIds.COOKING:
-      case FilterIds.FURNACE:
-        server.sendAlert(
-          client,
-          "This recipe requires a furnace, barbeque, or campfire to craft"
-        );
-        return false;
-    }
-    if (recipe.requireWorkbench) {
-      if (
-        !checkConstructionInRange(
-          server._constructionSimple,
-          client.character.state.position,
-          3,
-          Items.WORKBENCH
-        ) &&
-        !checkConstructionInRange(
-          server._worldSimpleConstruction,
-          client.character.state.position,
-          3,
-          Items.WORKBENCH
-        )
-      ) {
-        server.sendAlert(
-          client,
-          "You must be near a workbench to complete this recipe"
-        );
-        return false;
-      }
-    }
     for (const component of recipe.components) {
       const remainingItems = component.requiredAmount * recipeCount;
       // if component isn't found at all
@@ -236,7 +272,10 @@ export class CraftManager {
       }
 
       if (
-        !this.removeCraftComponent(component.itemDefinitionId, remainingItems)
+        !this.removeSimulatedCraftComponent(
+          component.itemDefinitionId,
+          remainingItems
+        )
       ) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return false;
@@ -251,7 +290,116 @@ export class CraftManager {
         stackCount: craftCount
       };
     }
-    //#endregion
+
+    return true;
+  }
+
+  /**
+   * Retrieves the inventory data source for a character.
+   * @param character The Character2016 instance.
+   * @returns The inventory data source object.
+   */
+  getInventoryDataSource(character: Character2016): InventoryDataSource {
+    const inv: InventoryDataSource = {};
+
+    Object.values(character.getInventoryAsContainer()).forEach((items) => {
+      inv[items[0].itemDefinitionId] = items.map((item) => {
+        return {
+          item: item,
+          character: character
+        };
+      });
+    });
+
+    const mountedContainer = character.mountedContainer;
+    if (!mountedContainer) return inv;
+
+    const container = mountedContainer.getContainer();
+    if (!container) return inv; // should never trigger
+
+    for (const item of Object.values(container.items)) {
+      const itemDS = {
+        item,
+        character: mountedContainer
+      };
+
+      if (inv[item.itemDefinitionId]) {
+        inv[item.itemDefinitionId].push(itemDS);
+        continue;
+      }
+      inv[item.itemDefinitionId] = [itemDS];
+    }
+
+    return inv;
+  }
+
+  /**
+   * Crafts an item using the given recipe and adds it to the client's inventory.
+   * @param server The ZoneServer2016 instance.
+   * @param client The client performing the craft.
+   * @param recipeId The ID of the recipe being crafted.
+   * @param recipeCount The number of times to repeat the recipe.
+   * @returns A promise resolving to a boolean indicating if the crafting process was successful.
+   */
+  async craftItem(
+    server: ZoneServer2016,
+    client: Client,
+    recipeId: number,
+    recipeCount: number
+  ): Promise<boolean> {
+    if (!recipeCount) return false;
+    this.craftLoopCount++;
+    if (this.craftLoopCount > this.maxCraftLoopCount) {
+      return false;
+    }
+    const recipe = server._recipes[recipeId],
+      bundleCount = recipe?.bundleCount || 1, // the amount of an item crafted from 1 recipe (ex. crafting 1 stick recipe gives you 2)
+      craftCount = recipeCount * bundleCount; // the actual amount of items to craft
+    if (!recipe) return false;
+    switch (recipe.filterId) {
+      case FilterIds.COOKING:
+      case FilterIds.FURNACE:
+        server.sendAlert(
+          client,
+          "This recipe requires a furnace, barbeque, or campfire to craft"
+        );
+        return false;
+    }
+    if (recipe.requireWorkbench) {
+      if (
+        !checkConstructionInRange(
+          server._constructionSimple,
+          client.character.state.position,
+          3,
+          Items.WORKBENCH
+        ) &&
+        !checkConstructionInRange(
+          server._worldSimpleConstruction,
+          client.character.state.position,
+          3,
+          Items.WORKBENCH
+        )
+      ) {
+        server.sendAlert(
+          client,
+          "You must be near a workbench to complete this recipe"
+        );
+        return false;
+      }
+    }
+
+    if (
+      !(await this.generateCraftQueue(
+        server,
+        client,
+        recipe,
+        recipeCount,
+        recipeId,
+        craftCount
+      ))
+    ) {
+      return false;
+    }
 
     //#region CRAFTING
     await server.pUtilizeHudTimer(
@@ -261,34 +409,32 @@ export class CraftManager {
     );
     const r = server._recipes[recipeId];
     for (const component of r.components) {
-      const inventory = client.character.getInventoryAsContainer();
+      const inventory = this.getInventoryDataSource(client.character);
       let remainingItems = component.requiredAmount * recipeCount,
         stackCount = 0;
       if (!inventory[component.itemDefinitionId]) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return false;
       }
-      for (const item of inventory[component.itemDefinitionId]) {
-        stackCount += item.stackCount;
+      for (const itemDS of inventory[component.itemDefinitionId]) {
+        stackCount += itemDS.item.stackCount;
       }
       if (remainingItems > stackCount) {
         server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
         return false;
       }
-      for (const item of inventory[component.itemDefinitionId]) {
-        if (item.stackCount >= remainingItems) {
-          if (
-            !server.removeInventoryItem(client.character, item, remainingItems)
-          ) {
+      for (const itemDS of inventory[component.itemDefinitionId]) {
+        if (itemDS.item.stackCount >= remainingItems) {
+          if (!this.removeCraftComponent(server, itemDS, remainingItems)) {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return false; // return if not enough items
           }
           remainingItems = 0;
         } else {
           if (
-            server.removeInventoryItem(client.character, item, item.stackCount)
+            this.removeCraftComponent(server, itemDS, itemDS.item.stackCount)
           ) {
-            remainingItems -= item.stackCount;
+            remainingItems -= itemDS.item.stackCount;
           } else {
             server.containerError(client, ContainerErrors.NO_ITEM_IN_SLOT);
             return false; // return if not enough items

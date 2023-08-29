@@ -242,7 +242,7 @@ export class ConstructionDoor extends DoorEntity {
         const parent = this.getParent(server);
         if (parent) {
           parent.updateSecuredState(server);
-          // spawn hidden characters emmediately after door opens
+          // spawn hidden characters immediately after door opens
           const allowedConstruction = [
             Items.SHELTER,
             Items.SHELTER_LARGE,
@@ -319,5 +319,9 @@ export class ConstructionDoor extends DoorEntity {
         stringId: StringIds.OPEN
       });
     }
+  }
+
+  OnProjectileHit() {
+    // do nothing for now
   }
 }

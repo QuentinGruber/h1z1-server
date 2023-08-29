@@ -22,27 +22,32 @@ import {
   toHex,
   randomIntFromInterval,
   Scheduler
-} from "../../../utils/utils";
-import { ExplosiveEntity } from "../entities/explosiveentity";
-import { Npc } from "../entities/npc";
-import { ZoneClient2016 as Client } from "../classes/zoneclient";
+} from "../../../../utils/utils";
+import { ExplosiveEntity } from "../../entities/explosiveentity";
+import { Npc } from "../../entities/npc";
+import { ZoneClient2016 as Client } from "../../classes/zoneclient";
 import {
   characterBuildKitLoadout,
   characterSkinsLoadout,
   characterKitLoadout,
   characterVehicleKit
-} from "../data/loadouts";
-import { EquipSlots, Items, ResourceIds, ResourceTypes } from "../models/enums";
-import { ZoneServer2016 } from "../zoneserver";
+} from "../../data/loadouts";
+import {
+  EquipSlots,
+  Items,
+  ResourceIds,
+  ResourceTypes
+} from "../../models/enums";
+import { ZoneServer2016 } from "../../zoneserver";
 import { Command, PermissionLevels } from "./types";
 import { ConstructionPermissions } from "types/zoneserver";
-import { ConstructionParentEntity } from "../entities/constructionparententity";
-import { LoadoutItem } from "../classes/loadoutItem";
-import { LoadoutContainer } from "../classes/loadoutcontainer";
-import { BaseItem } from "../classes/baseItem";
-import { DB_COLLECTIONS } from "../../../utils/enums";
-import { WorldDataManager } from "../managers/worlddatamanager";
-const itemDefinitions = require("./../../../../data/2016/dataSources/ServerItemDefinitions.json");
+import { ConstructionParentEntity } from "../../entities/constructionparententity";
+import { LoadoutItem } from "../../classes/loadoutItem";
+import { LoadoutContainer } from "../../classes/loadoutcontainer";
+import { BaseItem } from "../../classes/baseItem";
+import { DB_COLLECTIONS } from "../../../../utils/enums";
+import { WorldDataManager } from "../../managers/worlddatamanager";
+const itemDefinitions = require("./../../../../../data/2016/dataSources/ServerItemDefinitions.json");
 
 export const commands: Array<Command> = [
   //#region DEFAULT PERMISSIONS
