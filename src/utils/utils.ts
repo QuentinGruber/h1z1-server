@@ -306,8 +306,8 @@ export async function zoneShutdown(
       timeLeft: 0,
       message: message
     });
-    Object.values(server._clients).forEach((client: ZoneClient2016) => {
-      server.sendData(client as any, "CharacterSelectSessionResponse", {
+    Object.values(server._clients).forEach((client: any) => {
+      server.sendData(client, "CharacterSelectSessionResponse", {
         status: 1,
         sessionId: client.loginSessionId
       });
