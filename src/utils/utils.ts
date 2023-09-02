@@ -307,6 +307,8 @@ export async function zoneShutdown(
       message: message
     });
     Object.values(server._clients).forEach((client: ZoneClient2016) => {
+      // weird issue with typescript union type system
+      //@ts-ignore
       server.sendData(client as any, "CharacterSelectSessionResponse", {
         status: 1,
         sessionId: client.loginSessionId
