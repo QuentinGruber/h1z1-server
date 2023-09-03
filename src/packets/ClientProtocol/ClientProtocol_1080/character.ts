@@ -170,8 +170,47 @@ export const characterPackets: PacketStructures = [
   ["Character.PreferredLanguages", 0x0f12, {}],
   ["Character.CustomizationChange", 0x0f13, {}],
   ["Character.PlayerTitle", 0x0f14, {}],
-  ["Character.AddEffectTagCompositeEffect", 0x0f15, {}],
-  ["Character.RemoveEffectTagCompositeEffect", 0x0f16, {}],
+  [
+    "Character.AddEffectTagCompositeEffect",
+    0x0f15,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "effectId", type: "uint32", defaultValue: 0 },
+        {
+          name: "unknownGuid",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        {
+          name: "unknownGuid2",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
+  [
+    "Character.RemoveEffectTagCompositeEffect",
+    0x0f16,
+    {
+      fields: [
+        {
+          name: "characterId",
+          type: "uint64string",
+          defaultValue: "0x0000000000000000"
+        },
+        { name: "effectId", type: "uint32", defaultValue: 0 },
+        { name: "newEffectId", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ],
   ["Character.SetSpawnAnimation", 0x0f17, {}],
   ["Character.CustomizeNpc", 0x0f18, {}],
   ["Character.SetSpawnerActivationEffect", 0x0f19, {}],
