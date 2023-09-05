@@ -33,6 +33,7 @@ import {
   characterVehicleKit
 } from "../../data/loadouts";
 import {
+  Effects,
   EquipSlots,
   Items,
   ResourceIds,
@@ -216,19 +217,19 @@ export const commands: Array<Command> = [
       let headlightType: number;
       switch (vehicle.vehicleId) {
         case VehicleIds.OFFROADER:
-          headlightType = 273;
+          headlightType = Effects.VEH_Headlight_OffRoader_wShadows;
           break;
         case VehicleIds.PICKUP:
-          headlightType = 321;
+          headlightType = Effects.VEH_Headlight_PickupTruck_wShadows;
           break;
         case VehicleIds.POLICECAR:
-          headlightType = 281;
+          headlightType = Effects.VEH_Headlight_PoliceCar_wShadows;
           break;
         case VehicleIds.ATV:
-          headlightType = 355;
+          headlightType = Effects.VEH_Headlight_ATV_wShadows;
           break;
         default:
-          headlightType = 273;
+          headlightType = Effects.VEH_Headlight_OffRoader_wShadows;
           break;
       }
       const index = vehicle.effectTags.indexOf(headlightType);
@@ -284,12 +285,12 @@ export const commands: Array<Command> = [
         return;
       }
 
-      if (vehicle.vehicleId != 3) {
+      if (vehicle.vehicleId != VehicleIds.POLICECAR) {
         server.sendChatText(client, "[ERROR] vehicle is not a police car");
         return;
       }
 
-      const effectId = 275;
+      const effectId = Effects.VEH_SirenLight_PoliceCar;
 
       const index = vehicle.effectTags.indexOf(effectId);
       if (index <= -1) {
