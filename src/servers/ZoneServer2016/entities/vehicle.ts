@@ -105,7 +105,7 @@ export class Vehicle2016 extends BaseLootableEntity {
   criticalDamageEffect: number = 0;
   supercriticalDamageEffect: number = 0;
   engineOn: boolean = false;
-  isLocked: number = 0;
+  isLocked: boolean = false;
   positionUpdate: any /*positionUpdate*/;
   engineRPM: number = 0;
   fuelUpdater: any;
@@ -413,6 +413,14 @@ export class Vehicle2016 extends BaseLootableEntity {
     }
   }
 
+  handleVehicleLock(server: ZoneServer2016, accessType: boolean) {
+    if (!accessType) {
+      this.unlockVehicle(server);
+      return;
+    }
+    this.lockVehicle(server);
+  }
+
   startDamageDelay(server: ZoneServer2016) {
     this.damageTimeout = setTimeout(() => {
       this.damage(server, { entity: "", damage: 1000 });
@@ -675,6 +683,30 @@ export class Vehicle2016 extends BaseLootableEntity {
       );
       this.resourcesUpdater.refresh();
     }, 3000);
+  }
+
+  lockVehicle(server: ZoneServer2016) {
+    const driver = this.getDriver(server),
+      client = server.getClientByCharId(driver?.characterId || "");
+    if (!client) return;
+
+    server.sendData(client, "Vehicle.AccessType", {
+      vehicleGuid: this.characterId,
+      accessType: 2
+    });
+    this.isLocked = true;
+  }
+
+  unlockVehicle(server: ZoneServer2016) {
+    const driver = this.getDriver(server),
+      client = server.getClientByCharId(driver?.characterId || "");
+    if (!client) return;
+
+    server.sendData(client, "Vehicle.AccessType", {
+      vehicleGuid: this.characterId,
+      accessType: 0
+    });
+    this.isLocked = false;
   }
 
   pGetLoadoutSlots() {

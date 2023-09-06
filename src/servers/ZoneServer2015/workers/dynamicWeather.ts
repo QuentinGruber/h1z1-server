@@ -303,9 +303,12 @@ export default function dynamicWeather(
             rainEnabled = 0;
             cloudsAccumulating = -1;
           }, rainDelay + rainTime);
-          setTimeout(function () {
-            rainIncoming = false;
-          }, rainDelay + rainTime + 187200 / timeMultiplier);
+          setTimeout(
+            function () {
+              rainIncoming = false;
+            },
+            rainDelay + rainTime + 187200 / timeMultiplier
+          );
         }
       }
       break;

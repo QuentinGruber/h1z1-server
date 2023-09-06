@@ -71,6 +71,7 @@ export abstract class BaseLightweightCharacter extends BaseEntity {
   health: number = 1000000;
   maxHealth: number = 1000000;
   useSimpleStruct: boolean = false;
+  effectTags: number[] = [];
   constructor(
     characterId: string,
     transientId: number,

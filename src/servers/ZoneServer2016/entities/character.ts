@@ -14,6 +14,7 @@
 import {
   ConstructionPermissionIds,
   ContainerErrors,
+  HealTypes,
   Items,
   LoadoutIds,
   LoadoutSlots,
@@ -100,10 +101,18 @@ export class Character2016 extends BaseFullCharacter {
   vehicleExitDate: number = new Date().getTime();
   currentLoadoutSlot = LoadoutSlots.FISTS;
   readonly loadoutId = LoadoutIds.CHARACTER;
-  healingInterval?: any;
+  healingIntervals: Record<HealTypes, NodeJS.Timeout | null> = {
+    1: null,
+    2: null,
+    3: null
+  };
   healingTicks: number;
   healingMaxTicks: number;
-  starthealingInterval: any;
+  starthealingInterval: (
+    client: ZoneClient2016,
+    server: ZoneServer2016,
+    healType: HealTypes
+  ) => void;
   timeouts: any;
   hasConveys: boolean = false;
   positionUpdate?: positionUpdate;
@@ -170,9 +179,10 @@ export class Character2016 extends BaseFullCharacter {
     this.timeouts = {};
     this.starthealingInterval = (
       client: ZoneClient2016,
-      server: ZoneServer2016
+      server: ZoneServer2016,
+      healType: HealTypes
     ) => {
-      client.character.healingInterval = setTimeout(() => {
+      client.character.healingIntervals[healType] = setTimeout(() => {
         if (!server._clients[client.sessionId]) {
           return;
         }
@@ -190,11 +200,14 @@ export class Character2016 extends BaseFullCharacter {
         if (
           client.character.healingTicks++ < client.character.healingMaxTicks
         ) {
-          client.character.healingInterval.refresh();
+          client.character.healingIntervals[healType]?.refresh();
         } else {
           client.character.healingMaxTicks = 0;
           client.character.healingTicks = 0;
-          delete client.character.healingInterval;
+          clearTimeout(
+            client.character.healingIntervals[healType] as NodeJS.Timeout
+          );
+          client.character.healingIntervals[healType] = null;
         }
       }, 1000);
     };

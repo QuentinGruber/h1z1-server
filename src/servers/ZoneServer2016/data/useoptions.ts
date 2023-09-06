@@ -1,4 +1,4 @@
-import { Items, ItemUseOptions } from "../models/enums";
+import { HealTypes, Items, ItemUseOptions } from "../models/enums";
 import { ItemUseOption } from "types/zoneserver";
 export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
   //----------Eat-------------//
@@ -347,6 +347,7 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     type: ItemUseOptions.USE_MEDICAL,
     timeout: 5000,
     healCount: 99,
+    healType: HealTypes.MEDKIT,
     bandagingCount: 120
   },
   6: {
@@ -354,40 +355,47 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     type: ItemUseOptions.USE_MEDICAL,
     timeout: 1000,
     healCount: 9,
-    bandagingCount: 40
+    bandagingCount: 40,
+    healType: HealTypes.BANDAGE
   },
   7: {
     itemDef: Items.GAUZE,
     type: ItemUseOptions.USE_MEDICAL,
     timeout: 1000,
     healCount: 9,
-    bandagingCount: 40
+    bandagingCount: 40,
+    healType: HealTypes.BANDAGE
   },
   8: {
     itemDef: Items.BANDAGE_DRESSED,
     type: ItemUseOptions.USE_MEDICAL,
     timeout: 1000,
     healCount: 30,
+    healType: HealTypes.BANDAGE,
     bandagingCount: 40
   },
   42: {
     itemDef: Items.COLD_MEDICINE,
     type: ItemUseOptions.USE_MEDICAL,
+    healType: HealTypes.OTHER,
     timeout: 300
   },
   43: {
     itemDef: Items.ANTIBIOTICS,
     type: ItemUseOptions.USE_MEDICAL,
+    healType: HealTypes.OTHER,
     timeout: 300
   },
   44: {
     itemDef: Items.VITAMINS,
     type: ItemUseOptions.USE_MEDICAL,
+    healType: HealTypes.OTHER,
     timeout: 300
   },
   45: {
     itemDef: Items.IMMUNITY_BOOSTERS,
     type: ItemUseOptions.USE_MEDICAL,
+    healType: HealTypes.OTHER,
     timeout: 300
   },
 
@@ -501,5 +509,17 @@ export const UseOptions: { [itemDefinitionIds: number]: ItemUseOption } = {
     itemDef: Items.SWIZZLE,
     type: ItemUseOptions.USE,
     timeout: 1000
+  },
+
+  //----------Repair------------//
+  125: {
+    itemDef: Items.WEAPON_REPAIR_KIT,
+    type: ItemUseOptions.REPAIR,
+    timeout: 10000
+  },
+  126: {
+    itemDef: Items.GUN_REPAIR_KIT,
+    type: ItemUseOptions.REPAIR,
+    timeout: 10000
   }
 };

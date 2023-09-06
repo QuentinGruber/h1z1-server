@@ -75,7 +75,8 @@ export interface ServerUpdate {
   descriptionId: number;
   reqFeatureId: number;
   serverInfo: string;
-  populationLevel: number;
+  populationNumber?: number;
+  maxPopulationNumber?: number;
   populationData: string;
   AccessExpression?: string;
   allowedAccess: boolean;
@@ -87,4 +88,15 @@ export interface TunnelAppPacketClientToServer {
 export interface TunnelAppPacketServerToClient {
   unknown1: boolean;
 }
-export type LoginUdp_11packets = LoginRequest | LoginReply | Logout | ForceDisconnect | CharacterCreateRequest | CharacterCreateReply | CharacterLoginRequest | CharacterLoginReply | CharacterDeleteRequest | CharacterDeleteReply | CharacterSelectInfoRequest | CharacterSelectInfoReply | ServerListRequest | ServerListReply | ServerUpdate | TunnelAppPacketClientToServer | TunnelAppPacketServerToClient;
+export interface H1emuPrintToConsole {
+  __opcode__?: number;
+  message?: string;
+  showConsole?: boolean;
+  clearOutput?: boolean;
+}
+export interface H1emuMessageBox {
+  __opcode__?: number;
+  title?: string;
+  message?: string;
+}
+export type LoginUdp_11packets = LoginRequest | LoginReply | Logout | ForceDisconnect | CharacterCreateRequest | CharacterCreateReply | CharacterLoginRequest | CharacterLoginReply | CharacterDeleteRequest | CharacterDeleteReply | CharacterSelectInfoRequest | CharacterSelectInfoReply | ServerListRequest | ServerListReply | ServerUpdate | TunnelAppPacketClientToServer | TunnelAppPacketServerToClient | H1emuPrintToConsole | H1emuMessageBox;

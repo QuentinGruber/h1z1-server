@@ -6,6 +6,7 @@ server:
   charactersRenderDistance: 350
   tickRate: 2000
   worldRoutineRate: 10000
+  enableLoginServerKickRequests: true
 
 # Fairplay / anticheat config
 fairplay:
