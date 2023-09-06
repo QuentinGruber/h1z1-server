@@ -2442,12 +2442,9 @@ export class ZonePacketHandlers {
                   );
                   server.damageItem(client, weaponItem, 50);
                 }
-                client.character.temporaryScrapTimeout = setTimeout(
-                  () => {
-                    delete client.character.temporaryScrapTimeout;
-                  },
-                  Math.floor(Math.random() * (6000 - 1000 + 1) + 1000)
-                );
+                client.character.temporaryScrapTimeout = setTimeout(() => {
+                  delete client.character.temporaryScrapTimeout;
+                }, Math.floor(Math.random() * (6000 - 1000 + 1) + 1000));
               }
             }
           }
@@ -3328,8 +3325,9 @@ export class ZonePacketHandlers {
   }
   async reloadCommandCache() {
     delete require.cache[require.resolve("./handlers/commands/commandhandler")];
-    const CommandHandler = (require("./handlers/commands/commandhandler") as any)
-      .CommandHandler;
+    const CommandHandler = (
+      require("./handlers/commands/commandhandler") as any
+    ).CommandHandler;
     this.commandHandler = new CommandHandler();
     this.commandHandler.reloadCommands();
   }
