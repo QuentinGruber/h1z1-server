@@ -33,10 +33,12 @@ import {
   characterVehicleKit
 } from "../../data/loadouts";
 import {
+  Effects,
   EquipSlots,
   Items,
   ResourceIds,
-  ResourceTypes
+  ResourceTypes,
+  VehicleIds
 } from "../../models/enums";
 import { ZoneServer2016 } from "../../zoneserver";
 import { Command, PermissionLevels } from "./types";
@@ -194,6 +196,136 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       server.combatLog(client);
+    }
+  },
+  {
+    name: "headlights",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!client.vehicle.mountedVehicle) {
+        server.sendChatText(client, "[ERROR] You are not in a vehicle");
+        return;
+      }
+      const vehicle = server._vehicles[client.vehicle.mountedVehicle];
+      if (!vehicle) {
+        server.sendChatText(
+          client,
+          "[ERROR] Vehicle doesnt exist? contact a dev"
+        );
+        return;
+      }
+      let headlightType: number;
+      switch (vehicle.vehicleId) {
+        case VehicleIds.OFFROADER:
+          headlightType = Effects.VEH_Headlight_OffRoader_wShadows;
+          break;
+        case VehicleIds.PICKUP:
+          headlightType = Effects.VEH_Headlight_PickupTruck_wShadows;
+          break;
+        case VehicleIds.POLICECAR:
+          headlightType = Effects.VEH_Headlight_PoliceCar_wShadows;
+          break;
+        case VehicleIds.ATV:
+          headlightType = Effects.VEH_Headlight_ATV_wShadows;
+          break;
+        default:
+          headlightType = Effects.VEH_Headlight_OffRoader_wShadows;
+          break;
+      }
+      const index = vehicle.effectTags.indexOf(headlightType);
+      if (index <= -1) {
+        if (!vehicle._loadout["33"]) {
+          server.sendChatText(
+            client,
+            "[ERROR] Vehicle does not have a battery"
+          );
+          return;
+        }
+        server.sendDataToAllWithSpawnedEntity(
+          server._vehicles,
+          vehicle.characterId,
+          "Character.AddEffectTagCompositeEffect",
+          {
+            characterId: client.vehicle.mountedVehicle,
+            effectId: headlightType,
+            unknownDword1: headlightType,
+            unknownDword2: headlightType
+          }
+        );
+        vehicle.effectTags.push(headlightType);
+      } else {
+        server.sendDataToAllWithSpawnedEntity(
+          server._vehicles,
+          vehicle.characterId,
+          "Character.RemoveEffectTagCompositeEffect",
+          {
+            characterId: client.vehicle.mountedVehicle,
+            effectId: headlightType,
+            newEffectId: 0
+          }
+        );
+        vehicle.effectTags.splice(index, 1);
+      }
+    }
+  },
+  {
+    name: "siren",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      if (!client.vehicle.mountedVehicle) {
+        server.sendChatText(client, "[ERROR] You are not in a vehicle");
+        return;
+      }
+      const vehicle = server._vehicles[client.vehicle.mountedVehicle];
+      if (!vehicle) {
+        server.sendChatText(
+          client,
+          "[ERROR] Vehicle doesnt exist? contact a dev"
+        );
+        return;
+      }
+
+      if (vehicle.vehicleId != VehicleIds.POLICECAR) {
+        server.sendChatText(client, "[ERROR] vehicle is not a police car");
+        return;
+      }
+
+      const effectId = Effects.VEH_SirenLight_PoliceCar;
+
+      const index = vehicle.effectTags.indexOf(effectId);
+      if (index <= -1) {
+        if (!vehicle._loadout["33"]) {
+          server.sendChatText(
+            client,
+            "[ERROR] Vehicle does not have a battery"
+          );
+          return;
+        }
+        server.sendDataToAllWithSpawnedEntity(
+          server._vehicles,
+          vehicle.characterId,
+          "Character.AddEffectTagCompositeEffect",
+          {
+            characterId: client.vehicle.mountedVehicle,
+            effectId: effectId,
+            unknownDword1: effectId,
+            unknownDword2: effectId
+          }
+        );
+        vehicle.effectTags.push(effectId);
+      } else {
+        server.sendDataToAllWithSpawnedEntity(
+          server._vehicles,
+          vehicle.characterId,
+          "Character.RemoveEffectTagCompositeEffect",
+          {
+            characterId: client.vehicle.mountedVehicle,
+            effectId: effectId,
+            newEffectId: 0
+          }
+        );
+        vehicle.effectTags.splice(index, 1);
+      }
     }
   },
   {

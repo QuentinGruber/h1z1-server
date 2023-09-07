@@ -1,6 +1,6 @@
 {
   "name": "h1z1-server",
-  "version": "0.27.3-3",
+  "version": "0.28.0",
   "description": "Library for emulating h1z1 servers",
   "author": "Quentin Gruber <quentingruber@gmail.com> (http://github.com/quentingruber)",
   "license": "GPL-3.0-only",
@@ -36,7 +36,7 @@
     "@typescript-eslint/parser": "^5.59.8",
     "eslint": "^8.41.0",
     "glob": "8.1.0",
-    "prettier": "^3.0.0",
+    "prettier": "3.0.2",
     "ts-node": "10.9.1",
     "typedoc": "^0.24.8"
   },

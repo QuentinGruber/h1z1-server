@@ -197,11 +197,7 @@ export class LoginServer extends EventEmitter {
                         this._resolver,
                         serverAddress
                       );
-                      if (
-                        resolvedServerAddress.includes(client.address) &&
-                        // To avoid impersonation
-                        !this._zoneConnections[client.clientId]
-                      ) {
+                      if (resolvedServerAddress.includes(client.address)) {
                         status = 1;
                       }
                     }
@@ -321,13 +317,11 @@ export class LoginServer extends EventEmitter {
               reason ? "Connection Lost" : "Unknown Error"
             }`
           );
-          if (client.serverId) {
-            for (const key in this._zoneConnections) {
-              if (this._zoneConnections[key] === client.serverId) {
-                delete this._h1emuLoginServer._clients[client.clientId];
-                delete this._zoneConnections[key];
-              }
-            }
+          delete this._zoneConnections[client.clientId];
+          if (
+            client.serverId &&
+            !Object.values(this._zoneConnections).includes(client.serverId)
+          ) {
             await this.updateServerStatus(client.serverId, false);
           }
         }

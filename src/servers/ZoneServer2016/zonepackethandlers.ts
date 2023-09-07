@@ -3241,6 +3241,9 @@ export class ZonePacketHandlers {
       case "Vehicle.StateData":
         this.VehicleStateData(server, client, packet);
         break;
+      case "Vehicle.AccessType":
+        this.VehicleAccessType(server, client, packet);
+        break;
       case "PlayerUpdateUpdatePositionClientToZone":
         this.PlayerUpdateUpdatePositionClientToZone(server, client, packet);
         break;

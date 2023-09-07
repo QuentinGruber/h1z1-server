@@ -608,4 +608,8 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       return;
     }
   }
+
+  OnProjectileHit() {
+    // do nothing for now
+  }
 }

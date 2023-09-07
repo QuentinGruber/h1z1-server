@@ -307,6 +307,8 @@ export async function zoneShutdown(
       message: message
     });
     Object.values(server._clients).forEach((client: ZoneClient2016) => {
+      // weird issue with typescript union type system
+      //@ts-ignore
       server.sendData(client as any, "CharacterSelectSessionResponse", {
         status: 1,
         sessionId: client.loginSessionId
@@ -1284,9 +1286,9 @@ export async function resolveHostAddress(
       if (!err) {
         resolve(addresses);
       } else {
-        console.log(
-          `Failed to resolve ${hostName} as an host name, it will be used as an IP`
-        );
+        // console.log(
+        //   `Failed to resolve ${hostName} as an host name, it will be used as an IP`
+        // );
         resolve([hostName]); // if it can't resolve it, assume that's an IPV4 / IPV6 not an hostname
       }
     });

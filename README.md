@@ -19,21 +19,21 @@ So we will see :)
 
 ## Thanks list
 
-- Thanks to UTIL_TRACELINE for his involvement in the project, the project would not be in this state today without him.
+- Thanks to <a href="https://github.com/colistro123">UTIL_TRACELINE</a> for his involvement in the project, the project would not be in this state today without him.
 
-- Thanks to Hax max for his determination and hacking skills :stuck_out_tongue:.
+- Thanks to <a href="https://github.com/thegrreat1">Hax max</a> for his determination and hacking skills :stuck_out_tongue:.
 
 - Thanks to LcplReaper for his interest in the project and the management of the community around the project.
 
-- Thanks to Meme for being an OG/active contributor :smile:.
+- Thanks to <a href="https://github.com/Z1Meme">Meme</a> for being an OG/active contributor :smile:.
 
-- Thanks to Avcio for his dedication on gameplay improvement.
+- Thanks to <a href="https://github.com/avcio9">Avcio</a> for his dedication on gameplay improvement.
 
-- Thanks to Rhett for his interest in the project and his research on the Forgelight engine in general.
+- Thanks to <a href="https://github.com/RhettVX">Rhett</a> for his interest in the project and his research on the Forgelight engine in general.
 
 - Thanks to Chriis who provided the basis for this project by being the first (as far as I know) to try to emulate servers for h1z1 and who inspired me.
 
-- Thanks to Jacob Seidelin without whom none of this would have been possible.
+- Thanks to <a href="https://github.com/jseidelin">Jacob Seidelin</a> without whom none of this would have been possible.
 
 - Thanks to all those who sent messages of help and support and perpetuated the hope of playing h1z1 again.
 

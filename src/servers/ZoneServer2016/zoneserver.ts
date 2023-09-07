@@ -4015,6 +4015,14 @@ export class ZoneServer2016 extends EventEmitter {
             ...vehicle.pGetLightweightVehicle(),
             unknownGuid1: this.generateGuid()
           });
+          vehicle.effectTags.forEach((effectTag: number) => {
+            this.sendData(client, "Character.AddEffectTagCompositeEffect", {
+              characterId: vehicle.characterId,
+              effectId: effectTag,
+              unknownDword1: effectTag,
+              unknownDword2: effectTag
+            });
+          });
           /*
           if (vehicle.engineOn) {
             this.sendData(client, "Vehicle.Engine", {
