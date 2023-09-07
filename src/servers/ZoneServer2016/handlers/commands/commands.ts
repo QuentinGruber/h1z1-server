@@ -97,7 +97,7 @@ export const commands: Array<Command> = [
           _spawnedItems: objects,
           _vehicles: vehicles
         } = server;
-        const serverVersion = require("../../../../package.json").version;
+        const serverVersion = require("../../../../../package.json").version;
         server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
         const uptimeMin = (Date.now() - server._startTime) / 60000;
         server.sendChatText(
@@ -1998,8 +1998,8 @@ export const commands: Array<Command> = [
         }
       }
 
-      delete require.cache[require.resolve("../data/lootspawns")];
-      const loottables = require("../data/lootspawns").lootTables;
+      delete require.cache[require.resolve("../../data/lootspawns")];
+      const loottables = require("../../data/lootspawns").lootTables;
       server.worldObjectManager.createLoot(server, loottables);
       server.sendChatText(client, `Respawned loot`);
     }
