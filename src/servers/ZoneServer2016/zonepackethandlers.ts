@@ -2442,9 +2442,12 @@ export class ZonePacketHandlers {
                   );
                   server.damageItem(client, weaponItem, 50);
                 }
-                client.character.temporaryScrapTimeout = setTimeout(() => {
-                  delete client.character.temporaryScrapTimeout;
-                }, Math.floor(Math.random() * (6000 - 1000 + 1) + 1000));
+                client.character.temporaryScrapTimeout = setTimeout(
+                  () => {
+                    delete client.character.temporaryScrapTimeout;
+                  },
+                  Math.floor(Math.random() * (6000 - 1000 + 1) + 1000)
+                );
               }
             }
           }
