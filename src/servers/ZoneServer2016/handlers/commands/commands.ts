@@ -120,6 +120,17 @@ export const commands: Array<Command> = [
     }
   },
   {
+    name: "pop",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const pop = _.size(server._clients);
+        server.sendChatText(
+          client,
+          `There ${pop > 1 ? "are":"is"} ${pop} player${pop > 1 ? "s":""} online.`
+        );
+    }
+  },
+  {
     name: "spawninfo",
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
@@ -169,6 +180,17 @@ export const commands: Array<Command> = [
           const stat = stats[index];
           server.sendChatText(client, stat, index == 0);
         }
+      }
+    }
+  },
+  {
+    name: "ping",
+    permissionLevel: PermissionLevels.DEFAULT,
+    execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
+      const soeClient = server.getSoeClient(client.soeClientId);
+      if (soeClient) {
+        const stats = soeClient.getNetworkStats();
+        server.sendChatText(client, stats[2], true);
       }
     }
   },
