@@ -4276,7 +4276,12 @@ export class ZoneServer2016 extends EventEmitter {
 
   mountVehicle(client: Client, vehicleGuid: string) {
     const vehicle = this._vehicles[vehicleGuid];
-    if (!vehicle || !vehicle.isMountable || vehicle.isLocked) return;
+    if (!vehicle || !vehicle.isMountable) return;
+
+    if (vehicle.isLocked) {
+      this.sendChatText(client, "Vehicle is locked.");
+      return;
+    }
     for (const a in this._constructionFoundations) {
       const foundation = this._constructionFoundations[a];
       if (
