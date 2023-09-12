@@ -224,6 +224,9 @@ export class WorldObjectManager {
           : this.lootDespawnTimer;
       if (Date.now() - itemObject.creationTime >= despawnTime) {
         server.deleteEntity(itemObject.characterId, server._spawnedItems);
+        if (itemObject.item.itemDefinitionId == Items.FUEL_BIOFUEL || itemObject.item.itemDefinitionId == Items.FUEL_ETHANOL) {
+            server.deleteEntity(itemObject.characterId, server._explosives);
+        }
         if (itemObject.spawnerId != -1)
           delete this.spawnedLootObjects[itemObject.spawnerId];
         server.sendCompositeEffectToAllWithSpawnedEntity(
