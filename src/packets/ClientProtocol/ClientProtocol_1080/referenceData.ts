@@ -13,11 +13,7 @@
 
 import DataSchema from "h1z1-dataschema";
 import { LZ4 } from "../../../utils/utils";
-import {
-  firemodesSchema,
-  packVehicleReferenceData,
-  parseVehicleReferenceData
-} from "./shared";
+import { firemodesSchema } from "./shared";
 import { PacketFields, PacketStructures } from "types/packetStructure";
 
 const weaponDefinitionSchema: PacketFields = [
@@ -1059,15 +1055,85 @@ export const referenceDataPackets: PacketStructures = [
     }
   ],
   [
-    "ReferenceData.VehicleDefinitions",
+    "ReferenceData.DynamicAppearance",
     0x1706,
     {
       fields: [
         {
-          name: "data",
-          type: "custom",
-          parser: parseVehicleReferenceData,
-          packer: packVehicleReferenceData
+          name: "ITEM_APPEARANCE_DEFINITIONS",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "ID", type: "uint32", defaultValue: 0 },
+            {
+              name: "ITEM_APPEARANCE_DATA",
+              type: "schema",
+              defaultValue: {},
+              fields: [
+                { name: "ID", type: "uint32", defaultValue: 0 },
+                { name: "ITEM_ID", type: "uint32", defaultValue: 0 },
+                { name: "MODEL_ID", type: "uint32", defaultValue: 0 },
+                { name: "GENDER_ID", type: "uint32", defaultValue: 0 },
+                {
+                  name: "SHADER_PARAMETER_GROUP_ID",
+                  type: "uint32",
+                  defaultValue: 0
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: "SHADER_SEMANTIC_DEFINITIONS",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            {
+              name: "SHADER_PARAMETER_GROUP_ID",
+              type: "uint32",
+              defaultValue: 0
+            },
+            {
+              name: "SHADER_PARAMETER_GROUP",
+              type: "array",
+              defaultValue: [],
+              fields: [
+                { name: "SHADER_SEMANTIC_ID", type: "uint32", defaultValue: 0 }
+              ]
+            }
+          ]
+        },
+        {
+          name: "SHADER_PARAMETER_DEFINITIONS",
+          type: "array",
+          defaultValue: [],
+          fields: [
+            { name: "ID", type: "uint32", defaultValue: 0 },
+            {
+              name: "SHADER_PARAMETER_DATA",
+              type: "schema",
+              defaultValue: {},
+              fields: [
+                { name: "SEMANTIC", type: "string", defaultValue: "" },
+                { name: "FLOAT1_DEFAULT", type: "float", defaultValue: 0 },
+                { name: "FLOAT2_DEFAULT", type: "float", defaultValue: 0 },
+                { name: "FLOAT3_DEFAULT", type: "float", defaultValue: 0 },
+                { name: "FLOAT4_DEFAULT", type: "float", defaultValue: 0 },
+                { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+                {
+                  name: "BOOLEAN_DEFAULT",
+                  type: "boolean",
+                  defaultValue: false
+                },
+                { name: "TEXTURE_DEFAULT", type: "string", defaultValue: "" },
+                {
+                  name: "SHADER_VALUE_TYPE_ID",
+                  type: "uint32",
+                  defaultValue: 0
+                }
+              ]
+            }
+          ]
         }
       ]
     }
