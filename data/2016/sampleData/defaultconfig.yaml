@@ -75,8 +75,9 @@ construction:
 
 decay:
   decayTickInterval: 1200000 # 20 minutes per decay tick
-  constructionDamageTicks: 36 # damage structures every 12 hours
-  baseConstructionDamage: 62500 # construction damage per 36 ticks
+  constructionDamageTicks: 72 # damage structures every 24 hours
+  baseConstructionDamage: 125000 # construction damage per required ticks
+  repairBoxHealValue: 1000000 # heals base to full condition
   vehicleDamageTicks: 3 # damage vehicles every hour
   vacantFoundationTicks: 3 # destroy empty foundations after 1 hour
   baseVehicleDamage: 6000 # 6% damage per 3 ticks

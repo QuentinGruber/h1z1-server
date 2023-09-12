@@ -31,6 +31,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
   damageRange: number = 1.5;
   interactionDistance = 3;
   subEntity?: SmeltingEntity | CollectingEntity;
+  isDecayProtected: boolean = false;
   constructor(
     characterId: string,
     transientId: number,

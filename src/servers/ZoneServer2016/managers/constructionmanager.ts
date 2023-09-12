@@ -2035,6 +2035,31 @@ export class ConstructionManager {
     return hammerHit;
   }
 
+  public fullyRepairChildEntity(
+    server: ZoneServer2016,
+    entity: ConstructionChildEntity | ConstructionDoor
+  ) {
+    if (entity instanceof ConstructionChildEntity) {
+      Object.values(entity.occupiedShelterSlots).forEach(
+        (slot: ConstructionChildEntity) => {
+          this.fullyRepairChildEntity(server, slot);
+        }
+      );
+      Object.values(entity.occupiedWallSlots).forEach(
+        (wall: ConstructionDoor | ConstructionChildEntity) => {
+          this.fullyRepairChildEntity(server, wall);
+        }
+      );
+      Object.values(entity.occupiedUpperWallSlots).forEach(
+        (slot: ConstructionDoor | ConstructionChildEntity) => {
+          this.fullyRepairChildEntity(server, slot);
+        }
+      );
+    }
+    entity.isDecayProtected = true;
+    this.fullyRepairConstruction(server, entity);
+  }
+
   public repairConstruction(
     server: ZoneServer2016,
     entity:
@@ -2048,6 +2073,32 @@ export class ConstructionManager {
       damage: (amount *= -1)
     };
     entity.damage(server, damageInfo);
+    if (entity.useSimpleStruct) {
+      server.sendDataToAllWithSpawnedEntity(
+        server.getConstructionDictionary(entity.characterId),
+        entity.characterId,
+        "Character.UpdateSimpleProxyHealth",
+        entity.pGetSimpleProxyHealth()
+      );
+    } else {
+      server.updateResourceToAllWithSpawnedEntity(
+        entity.characterId,
+        entity.health,
+        ResourceIds.CONSTRUCTION_CONDITION,
+        ResourceTypes.CONDITION,
+        server.getConstructionDictionary(entity.characterId)
+      );
+    }
+  }
+
+  public fullyRepairConstruction(
+    server: ZoneServer2016,
+    entity:
+      | ConstructionChildEntity
+      | ConstructionDoor
+      | LootableConstructionEntity
+  ) {
+    entity.health = 1000000;
     if (entity.useSimpleStruct) {
       server.sendDataToAllWithSpawnedEntity(
         server.getConstructionDictionary(entity.characterId),
@@ -2211,6 +2262,71 @@ export class ConstructionManager {
         delete client.character.temporaryScrapSoundTimeout;
       }, 1000);
     }
+  }
+  fullyRepairConstructionEntity(
+    server: ZoneServer2016,
+    entity: ConstructionParentEntity
+  ) {
+    if (!entity) return;
+    entity.isDecayProtected = true;
+    if (entity instanceof ConstructionParentEntity) {
+      Object.values(entity.occupiedExpansionSlots).forEach(
+        (expansion: ConstructionParentEntity) => {
+          // repair every object on each expansion
+          Object.values(expansion.occupiedShelterSlots).forEach(
+            (child: ConstructionChildEntity) => {
+              server.constructionManager.fullyRepairChildEntity(server, child);
+            }
+          );
+          Object.values(expansion.occupiedWallSlots).forEach(
+            (child: ConstructionChildEntity | ConstructionDoor) => {
+              server.constructionManager.fullyRepairChildEntity(server, child);
+            }
+          );
+          Object.values(expansion.freeplaceEntities).forEach(
+            (
+              child:
+                | ConstructionChildEntity
+                | ConstructionDoor
+                | LootableConstructionEntity
+            ) => {
+              child.isDecayProtected = true;
+              if (child.health >= 1000000) return;
+              server.constructionManager.fullyRepairConstruction(server, child);
+            }
+          );
+        }
+      );
+      // repair every object on main foundation
+      Object.values(entity.occupiedShelterSlots).forEach(
+        (child: ConstructionChildEntity) => {
+          server.constructionManager.fullyRepairChildEntity(server, child);
+        }
+      );
+      Object.values(entity.occupiedWallSlots).forEach(
+        (child: ConstructionChildEntity | ConstructionDoor) => {
+          server.constructionManager.fullyRepairChildEntity(server, child);
+        }
+      );
+      Object.values(entity.freeplaceEntities).forEach(
+        (
+          child:
+            | ConstructionChildEntity
+            | ConstructionDoor
+            | LootableConstructionEntity
+        ) => {
+          child.isDecayProtected = true;
+          if (child.health >= 1000000) return;
+          this.fullyRepairConstruction(server, child);
+        }
+      );
+      entity.isDecayProtected = true;
+      if (entity.health < 1000000) {
+        this.fullyRepairConstruction(server, entity);
+      }
+      return;
+    }
+    this.fullyRepairConstruction(server, entity);
   }
   isConstructionInSecuredArea(
     server: ZoneServer2016,

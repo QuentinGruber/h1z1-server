@@ -19,6 +19,7 @@ import { getDistance, Scheduler } from "../../../utils/utils";
 import { ConstructionParentEntity } from "../entities/constructionparententity";
 import { Vehicle2016 } from "../entities/vehicle";
 import { dailyRepairMaterial } from "types/zoneserver";
+import { BaseItem } from "../classes/baseItem";
 
 export class DecayManager {
   constructionDamageTickCount = 0; // used to run structure damaging once every x loops
@@ -28,6 +29,7 @@ export class DecayManager {
   decayTickInterval!: number;
   constructionDamageTicks!: number;
   baseConstructionDamage!: number;
+  repairBoxHealValue!: number;
   vehicleDamageTicks!: number;
   vacantFoundationTicks!: number;
   baseVehicleDamage!: number;
@@ -154,6 +156,68 @@ export class DecayManager {
   }
 
   private contructionDecayDamage(server: ZoneServer2016) {
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      for (const b in foundation.freeplaceEntities) {
+        const freePlace = foundation.freeplaceEntities[b];
+        if (
+          freePlace.itemDefinitionId == Items.REPAIR_BOX &&
+          freePlace instanceof LootableConstructionEntity
+        ) {
+          const container = freePlace.getContainer();
+          if (!container) continue;
+          let hasMaterials = true;
+          const itemsToRemove: { item: BaseItem; count: number }[] = [];
+          this.dailyRepairMaterials.forEach((material: dailyRepairMaterial) => {
+            let materialPresent = false;
+            for (const c in container.items) {
+              const item = container.items[c];
+              if (
+                item.itemDefinitionId == material.itemDefinitionId &&
+                item.stackCount >= material.requiredCount
+              ) {
+                materialPresent = true;
+                itemsToRemove.push({
+                  item: item,
+                  count: material.requiredCount
+                });
+              }
+            }
+            if (!materialPresent) hasMaterials = false;
+          });
+
+          if (hasMaterials) {
+            itemsToRemove.forEach(
+              (itemToRemove: { item: BaseItem; count: number }) => {
+                server.removeContainerItem(
+                  freePlace,
+                  itemToRemove.item,
+                  container,
+                  itemToRemove.count
+                );
+              }
+            );
+            server.constructionManager.fullyRepairConstructionEntity(
+              server,
+              foundation
+            );
+            break;
+          }
+        }
+      }
+      if (
+        foundation.itemDefinitionId != Items.FOUNDATION &&
+        foundation.itemDefinitionId != Items.GROUND_TAMPER &&
+        foundation.itemDefinitionId != Items.FOUNDATION_EXPANSION
+      ) {
+        if (foundation.isDecayProtected) {
+          foundation.isDecayProtected = false;
+          continue;
+        }
+        this.decayDamage(server, foundation);
+      }
+    }
+
     for (const a in server._worldLootableConstruction) {
       this.decayDamage(server, server._worldLootableConstruction[a]);
     }
@@ -167,23 +231,22 @@ export class DecayManager {
         simple.itemDefinitionId == Items.FOUNDATION_STAIRS
       )
         continue;
+      if (simple.isDecayProtected) {
+        simple.isDecayProtected = false;
+        continue;
+      }
       this.decayDamage(server, server._constructionSimple[a]);
     }
     /*for (const a in server._lootableConstruction) {
       this.decayDamage(server, server._lootableConstruction[a]);
     }*/
     for (const a in server._constructionDoors) {
-      this.decayDamage(server, server._constructionDoors[a]);
-    }
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
-      if (
-        foundation.itemDefinitionId != Items.FOUNDATION &&
-        foundation.itemDefinitionId != Items.GROUND_TAMPER &&
-        foundation.itemDefinitionId != Items.FOUNDATION_EXPANSION
-      ) {
-        this.decayDamage(server, foundation);
+      const door = server._constructionDoors[a];
+      if (door.isDecayProtected) {
+        door.isDecayProtected = false;
+        continue;
       }
+      this.decayDamage(server, door);
     }
   }
 

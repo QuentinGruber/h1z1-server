@@ -255,6 +255,7 @@ export class ConfigManager {
       decayTickInterval,
       constructionDamageTicks,
       baseConstructionDamage,
+      repairBoxHealValue,
       vehicleDamageTicks,
       vacantFoundationTicks,
       baseVehicleDamage,
@@ -265,7 +266,8 @@ export class ConfigManager {
     server.decayManager.decayTickInterval = decayTickInterval;
     server.decayManager.constructionDamageTicks = constructionDamageTicks;
     server.decayManager.baseConstructionDamage = baseConstructionDamage;
-    server.decayManager.vehicleDamageTicks = vehicleDamageTicks;
+    (server.decayManager.repairBoxHealValue = repairBoxHealValue),
+      (server.decayManager.vehicleDamageTicks = vehicleDamageTicks);
     server.decayManager.vacantFoundationTicks = vacantFoundationTicks;
     server.decayManager.baseVehicleDamage = baseVehicleDamage;
     server.decayManager.maxVehiclesPerArea = maxVehiclesPerArea;
