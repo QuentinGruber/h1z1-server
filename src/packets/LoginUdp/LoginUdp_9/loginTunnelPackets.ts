@@ -18,8 +18,8 @@ const packets: any[] = [
     "nameValidationRequest",
     0x01,
     {
-      fields: [{ name: "characterName", type: "string" }],
-    },
+      fields: [{ name: "characterName", type: "string" }]
+    }
   ],
   [
     "nameValidationReply",
@@ -28,16 +28,16 @@ const packets: any[] = [
       fields: [
         { name: "firstName", type: "string" },
         { name: "lastName", type: "string", defaultValue: " " },
-        { name: "status", type: "uint32" },
-      ],
-    },
-  ],
+        { name: "status", type: "uint32" }
+      ]
+    }
+  ]
 ];
 
 export const [packetTypes, packetDescriptors] = PacketTableBuild(packets);
 
 const loginTunnelPackets = {
   Packets: packetDescriptors,
-  PacketTypes: packetTypes,
+  PacketTypes: packetTypes
 };
 export default loginTunnelPackets;

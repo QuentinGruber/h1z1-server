@@ -18,6 +18,8 @@ import { ConstructionChildEntity } from "../entities/constructionchildentity";
 import { getDistance, Scheduler } from "../../../utils/utils";
 import { ConstructionParentEntity } from "../entities/constructionparententity";
 import { Vehicle2016 } from "../entities/vehicle";
+import { dailyRepairMaterial } from "types/zoneserver";
+import { BaseItem } from "../classes/baseItem";
 
 export class DecayManager {
   constructionDamageTickCount = 0; // used to run structure damaging once every x loops
@@ -27,10 +29,13 @@ export class DecayManager {
   decayTickInterval!: number;
   constructionDamageTicks!: number;
   baseConstructionDamage!: number;
+  repairBoxHealValue!: number;
   vehicleDamageTicks!: number;
+  vacantFoundationTicks!: number;
   baseVehicleDamage!: number;
   maxVehiclesPerArea!: number;
   vehicleDamageRange!: number;
+  dailyRepairMaterials!: dailyRepairMaterial[];
 
   public async run(server: ZoneServer2016) {
     this.contructionExpirationCheck(server);
@@ -56,9 +61,10 @@ export class DecayManager {
       if (
         foundation.itemDefinitionId != Items.FOUNDATION &&
         foundation.itemDefinitionId != Items.GROUND_TAMPER
-      )
+      ) {
         continue;
-      let expansionshaveChild = false;
+      }
+      let expansionsEmpty = true;
       Object.values(foundation.occupiedExpansionSlots).forEach(
         (exp: ConstructionParentEntity) => {
           if (
@@ -66,26 +72,34 @@ export class DecayManager {
             Object.keys(exp.occupiedShelterSlots).length != 0 ||
             Object.keys(exp.occupiedUpperWallSlots).length != 0
           ) {
-            expansionshaveChild = true;
+            expansionsEmpty = false;
           }
         }
       );
-      if (expansionshaveChild) continue;
+      if (!expansionsEmpty) continue;
       if (
         Object.keys(foundation.occupiedWallSlots).length == 0 &&
         Object.keys(foundation.occupiedShelterSlots).length == 0 &&
         Object.keys(foundation.occupiedUpperWallSlots).length == 0
       ) {
-        if (foundation.objectLessTicks >= foundation.objectLessMaxTicks) {
+        if (foundation.ticksWithoutObjects >= this.vacantFoundationTicks) {
           for (const a in foundation.occupiedExpansionSlots) {
             const expansion = foundation.occupiedExpansionSlots[a];
             for (const a in expansion.occupiedRampSlots) {
               expansion.occupiedRampSlots[a].destroy(server);
             }
+            // clear floating shelters / other entities on expansion
+            for (const a in expansion.freeplaceEntities) {
+              expansion.freeplaceEntities[a].destroy(server);
+            }
             expansion.destroy(server);
           }
           for (const a in foundation.occupiedRampSlots) {
             foundation.occupiedRampSlots[a].destroy(server);
+          }
+          // clear floating shelters / other entities
+          for (const a in foundation.freeplaceEntities) {
+            foundation.freeplaceEntities[a].destroy(server);
           }
           Object.values(foundation.freeplaceEntities).forEach(
             (
@@ -99,9 +113,9 @@ export class DecayManager {
           );
           foundation.destroy(server);
         }
-        foundation.objectLessTicks++;
+        foundation.ticksWithoutObjects++;
       } else {
-        foundation.objectLessTicks = 0;
+        foundation.ticksWithoutObjects = 0;
       }
     }
   }
@@ -120,14 +134,14 @@ export class DecayManager {
         server,
         {
           entity: "Server.DecayManager",
-          damage: this.baseConstructionDamage,
+          damage: this.baseConstructionDamage
         },
         dictionary
       );
     } else {
       entity.damage(server, {
         entity: "Server.DecayManager",
-        damage: this.baseConstructionDamage,
+        damage: this.baseConstructionDamage
       });
     }
     server.updateResourceToAllWithSpawnedEntity(
@@ -141,7 +155,70 @@ export class DecayManager {
     entity.destroy(server);
   }
 
-  private contructionDecayDamage(server: ZoneServer2016) {
+  contructionDecayDamage(server: ZoneServer2016) {
+    for (const a in server._constructionFoundations) {
+      const foundation = server._constructionFoundations[a];
+      // check for repair box, repair and set decay block for this tick
+      for (const b in foundation.freeplaceEntities) {
+        const freePlace = foundation.freeplaceEntities[b];
+        if (
+          freePlace.itemDefinitionId == Items.REPAIR_BOX &&
+          freePlace instanceof LootableConstructionEntity
+        ) {
+          const container = freePlace.getContainer();
+          if (!container) continue;
+          let hasMaterials = true;
+          const itemsToRemove: { item: BaseItem; count: number }[] = [];
+          this.dailyRepairMaterials.forEach((material: dailyRepairMaterial) => {
+            let materialPresent = false;
+            for (const c in container.items) {
+              const item = container.items[c];
+              if (
+                item.itemDefinitionId == material.itemDefinitionId &&
+                item.stackCount >= material.requiredCount
+              ) {
+                materialPresent = true;
+                itemsToRemove.push({
+                  item: item,
+                  count: material.requiredCount
+                });
+              }
+            }
+            if (!materialPresent) hasMaterials = false;
+          });
+
+          if (hasMaterials) {
+            itemsToRemove.forEach(
+              (itemToRemove: { item: BaseItem; count: number }) => {
+                server.removeContainerItem(
+                  freePlace,
+                  itemToRemove.item,
+                  container,
+                  itemToRemove.count
+                );
+              }
+            );
+            server.constructionManager.fullyRepairConstructionEntity(
+              server,
+              foundation
+            );
+            break;
+          }
+        }
+      }
+      if (
+        foundation.itemDefinitionId != Items.FOUNDATION &&
+        foundation.itemDefinitionId != Items.GROUND_TAMPER &&
+        foundation.itemDefinitionId != Items.FOUNDATION_EXPANSION
+      ) {
+        if (foundation.isDecayProtected) {
+          foundation.isDecayProtected = false;
+          continue;
+        }
+        this.decayDamage(server, foundation);
+      }
+    }
+
     for (const a in server._worldLootableConstruction) {
       this.decayDamage(server, server._worldLootableConstruction[a]);
     }
@@ -155,23 +232,22 @@ export class DecayManager {
         simple.itemDefinitionId == Items.FOUNDATION_STAIRS
       )
         continue;
+      if (simple.isDecayProtected) {
+        simple.isDecayProtected = false;
+        continue;
+      }
       this.decayDamage(server, server._constructionSimple[a]);
     }
     /*for (const a in server._lootableConstruction) {
       this.decayDamage(server, server._lootableConstruction[a]);
     }*/
     for (const a in server._constructionDoors) {
-      this.decayDamage(server, server._constructionDoors[a]);
-    }
-    for (const a in server._constructionFoundations) {
-      const foundation = server._constructionFoundations[a];
-      if (
-        foundation.itemDefinitionId != Items.FOUNDATION &&
-        foundation.itemDefinitionId != Items.GROUND_TAMPER &&
-        foundation.itemDefinitionId != Items.FOUNDATION_EXPANSION
-      ) {
-        this.decayDamage(server, foundation);
+      const door = server._constructionDoors[a];
+      if (door.isDecayProtected) {
+        door.isDecayProtected = false;
+        continue;
       }
+      this.decayDamage(server, door);
     }
   }
 
@@ -201,7 +277,7 @@ export class DecayManager {
       }
       vehicle.damage(server, {
         entity: "Server.DecayManager",
-        damage: damage,
+        damage: damage
       });
       server.updateResourceToAllWithSpawnedEntity(
         vehicle.characterId,

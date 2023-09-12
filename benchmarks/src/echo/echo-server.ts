@@ -1,4 +1,4 @@
-import { SOEServer } from "../../h1z1-server";
+import { SOEServer } from "../../../h1z1-server";
 
 export class EchoServer extends SOEServer {
   constructor(serverPort: number, cryptoKey: Uint8Array) {
@@ -6,7 +6,6 @@ export class EchoServer extends SOEServer {
     this._crcLength = 0;
     this.packetRatePerClient = Infinity;
     this.on("appdata", (client: any, data: Buffer) => {
-      // console.log(`Got data from ${client.sessionId} of size ${data.length}`)
       this.sendAppData(client, data);
     });
   }

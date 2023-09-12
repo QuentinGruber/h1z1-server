@@ -12,7 +12,7 @@
 // ======================================================================
 
 import { Collection } from "mongodb";
-import { FairPlayValues, fireHint } from "types/zoneserver";
+import { FairPlayValues, StanceFlags, fireHint } from "types/zoneserver";
 import { BAN_INFO, DB_COLLECTIONS } from "../../../utils/enums";
 import {
   decrypt,
@@ -20,7 +20,7 @@ import {
   getDistance1d,
   getDistance2d,
   isPosInRadiusWithY,
-  logClientActionToMongo,
+  logClientActionToMongo
 } from "../../../utils/utils";
 import { LoadoutItem } from "../classes/loadoutItem";
 import { ZoneClient2016 as Client } from "../classes/zoneclient";
@@ -42,7 +42,7 @@ export class FairPlayManager {
     BAN_INFO.LOCAL_BAN,
     BAN_INFO.VPN,
     BAN_INFO.HWID,
-    BAN_INFO.UNVERIFIED,
+    BAN_INFO.UNVERIFIED
   ];
 
   /* MANAGED BY CONFIGMANAGER */
@@ -69,32 +69,32 @@ export class FairPlayManager {
         WEAPON_308: {
           maxSpeed: Number(decryptedData[3]),
           minSpeed: Number(decryptedData[4]),
-          maxDistance: Number(decryptedData[5]),
+          maxDistance: Number(decryptedData[5])
         },
         WEAPON_CROSSBOW: {
           maxSpeed: Number(decryptedData[6]),
           minSpeed: Number(decryptedData[7]),
-          maxDistance: Number(decryptedData[8]),
+          maxDistance: Number(decryptedData[8])
         },
         WEAPON_BOW_MAKESHIFT: {
           maxSpeed: Number(decryptedData[9]),
           minSpeed: Number(decryptedData[10]),
-          maxDistance: Number(decryptedData[11]),
+          maxDistance: Number(decryptedData[11])
         },
         WEAPON_BOW_RECURVE: {
           maxSpeed: Number(decryptedData[12]),
           minSpeed: Number(decryptedData[13]),
-          maxDistance: Number(decryptedData[14]),
+          maxDistance: Number(decryptedData[14])
         },
         WEAPON_BOW_WOOD: {
           maxSpeed: Number(decryptedData[15]),
           minSpeed: Number(decryptedData[16]),
-          maxDistance: Number(decryptedData[17]),
+          maxDistance: Number(decryptedData[17])
         },
         WEAPON_SHOTGUN: {
           maxSpeed: Number(decryptedData[18]),
           minSpeed: Number(decryptedData[19]),
-          maxDistance: Number(decryptedData[20]),
+          maxDistance: Number(decryptedData[20])
         },
         lastLoginDateAddVal: Number(decryptedData[21]),
         maxTimeDrift: Number(decryptedData[22]),
@@ -113,7 +113,7 @@ export class FairPlayManager {
         respawnCheckIterations: Number(decryptedData[35]),
         maxFlying: Number(decryptedData[36]),
         maxPositionDesync: Number(decryptedData[37]),
-        maxFlaggedShots: Number(decryptedData[38]),
+        maxFlaggedShots: Number(decryptedData[38])
       };
     }
   }
@@ -365,7 +365,7 @@ export class FairPlayManager {
             {
               type: "exceeds hit/miss ratio",
               hitRatio,
-              totalShotsFired: client.pvpStats.shotsFired,
+              totalShotsFired: client.pvpStats.shotsFired
             }
           );
         }
@@ -401,7 +401,7 @@ export class FairPlayManager {
       Items.WEAPON_BOW_MAKESHIFT,
       Items.WEAPON_BOW_RECURVE,
       Items.WEAPON_BOW_WOOD,
-      Items.WEAPON_CROSSBOW,
+      Items.WEAPON_CROSSBOW
     ];
     if (checkWeapons.includes(weaponItem.itemDefinitionId)) {
       if (
@@ -552,5 +552,64 @@ export class FairPlayManager {
       }
     }
     return true;
+  }
+
+  detectJumpXSMovement(
+    server: ZoneServer2016,
+    client: Client,
+    stanceFlags: StanceFlags
+  ) {
+    if (stanceFlags.SITTING && stanceFlags.JUMPING) {
+      const pos = client.character.state.position;
+      if (!server._soloMode) {
+        logClientActionToMongo(
+          server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+          client,
+          server._worldId,
+          { type: "XS glitching", pos }
+        );
+      }
+      server.sendChatTextToAdmins(
+        `FairPlay: Possible XS glitching detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
+      );
+      server.sendData(client, "ClientUpdate.UpdateLocation", {
+        position: pos,
+        triggerLoadingScreen: true
+      });
+    }
+  }
+  detectDroneMovement(
+    server: ZoneServer2016,
+    client: Client,
+    stanceFlags: StanceFlags
+  ) {
+    if (stanceFlags.SITTING) {
+      if (Date.now() - client.character.lastSitTime <= 200) {
+        client.character.sitCount++;
+      } else {
+        client.character.sitCount = 0;
+        client.character.lastSitTime = 0;
+      }
+      client.character.lastSitTime = Date.now();
+      if (client.character.sitCount >= 10) {
+        const pos = client.character.state.position;
+        if (!server._soloMode) {
+          logClientActionToMongo(
+            server._db?.collection(DB_COLLECTIONS.FAIRPLAY) as Collection,
+            client,
+            server._worldId,
+            { type: "Drone exploit", pos }
+          );
+        }
+        server.sendChatTextToAdmins(
+          `FairPlay: Possible drone exploit detected by ${client.character.name} at position [${pos[0]} ${pos[1]} ${pos[2]}]`
+        );
+        server.sendData(client, "ClientUpdate.UpdateLocation", {
+          position: pos,
+          triggerLoadingScreen: true
+        });
+        client.character.sitCount = 0;
+      }
+    }
   }
 }

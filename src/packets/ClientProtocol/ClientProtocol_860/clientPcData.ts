@@ -22,9 +22,9 @@ export const clientPcDataPackets: any = [
           name: "speechPacks",
           type: "array",
           defaultValue: [],
-          fields: [{ name: "speechPackId", type: "uint32", defaultValue: 0 }],
-        },
-      ],
-    },
-  ],
+          fields: [{ name: "speechPackId", type: "uint32", defaultValue: 0 }]
+        }
+      ]
+    }
+  ]
 ];

@@ -19,8 +19,9 @@ import {
   clearFolderCache,
   eul2quat,
   getPacketTypeBytes,
-  lz4_decompress,
+  lz4_decompress
 } from "../utils/utils";
+import { GatewayChannels } from "h1emu-core";
 
 export interface UpdatePositionObject {
   raw: Buffer;
@@ -117,9 +118,9 @@ export class H1Z1Protocol {
               { name: "facilityTypeId", type: "uint8" },
               { name: "facilityString", type: "uint32" },
               { name: "facilityIconId", type: "uint32" },
-              { name: "unknown1", type: "uint32" },
-            ],
-          },
+              { name: "unknown1", type: "uint32" }
+            ]
+          }
         },
         {
           name: "facilityBenefits",
@@ -130,11 +131,11 @@ export class H1Z1Protocol {
               { name: "benefitIconId", type: "uint32" },
               { name: "benefitString", type: "uint32" },
               { name: "facilityIconId", type: "uint32" },
-              { name: "facilityString", type: "uint32" },
-            ],
-          },
-        },
-      ],
+              { name: "facilityString", type: "uint32" }
+            ]
+          }
+        }
+      ]
     };
     const result = DataSchema.parse(schema, data, 0).result;
     return result;
@@ -186,12 +187,12 @@ export class H1Z1Protocol {
               { name: "clipAttachmentSlot", type: "uint16" },
               { name: "clipModelName", type: "string" },
               { name: "reloadWeaponBone", type: "string" },
-              { name: "reloadCharacterBone", type: "string" },
-            ],
+              { name: "reloadCharacterBone", type: "string" }
+            ]
           },
           { name: "fireGroups", type: "array", elementType: "uint32" },
-          { name: "unknown", type: "uint16" },
-        ],
+          { name: "unknown", type: "uint16" }
+        ]
       },
       {
         name: "fireGroups",
@@ -207,8 +208,8 @@ export class H1Z1Protocol {
           { name: "deployableId", type: "uint8" },
           { name: "spinUpTime", type: "uint16" },
           { name: "spoolUpTime", type: "uint16" },
-          { name: "spoolUpInitialRefireTime", type: "uint16" },
-        ],
+          { name: "spoolUpInitialRefireTime", type: "uint16" }
+        ]
       },
       {
         name: "fireModes",
@@ -304,9 +305,9 @@ export class H1Z1Protocol {
           { name: "unknown53", type: "uint8" },
           { name: "unknown54", type: "uint8" },
           { name: "sequentialFireAnimCount", type: "uint8" },
-          { name: "unknown55", type: "uint32" },
-        ],
-      },
+          { name: "unknown55", type: "uint32" }
+        ]
+      }
     ];
     try {
       const result = DataSchema.parse(schema, data, 0).result;
@@ -318,7 +319,7 @@ export class H1Z1Protocol {
 
   parseUpdatePositionClientToZone(data: Buffer, offset: number) {
     return {
-      result: parseUpdatePositionData(data, offset),
+      result: parseUpdatePositionData(data, offset)
     };
   }
 
@@ -327,7 +328,7 @@ export class H1Z1Protocol {
     const obj = {} as UpdatePositionObject;
     obj.raw = data;
     return {
-      result: obj,
+      result: obj
     };
   }
 
@@ -341,7 +342,7 @@ export class H1Z1Protocol {
     obj["positionData"] = parseUpdatePositionData(data, offset);
 
     return {
-      result: obj,
+      result: obj
     };
   }
 
@@ -419,25 +420,25 @@ export class H1Z1Protocol {
       packet,
       result;
     switch (flag) {
-      case 1: // don't know the purpose of that flag, is used for some logs and exec command
-      case 0: {
+      case GatewayChannels.World:
+      case GatewayChannels.Zone: {
         {
           [packet, offset] = this.resolveOpcode(opCode, data);
           break;
         }
       }
-      case 2: {
+      case GatewayChannels.UpdatePosition: {
         try {
           packet = {
             name: "PlayerUpdateUpdatePositionClientToZone",
-            fn: this.parseUpdatePositionClientToZone,
+            fn: this.parseUpdatePositionClientToZone
           };
         } catch (e) {
           console.error(e);
         }
         break;
       }
-      case 3: {
+      case GatewayChannels.ShortCircuitZone: {
         switch (opCode) {
           case this.PlayerUpdateManagedPositionOpcode: {
             packet =
@@ -505,7 +506,7 @@ export class H1Z1Protocol {
 
       return {
         name: packet.name,
-        data: result,
+        data: result
       };
     } else {
       debug("Unhandled zone packet:", data[0], data[1], data[2]);
@@ -545,7 +546,7 @@ const readSignedIntWith2bitLengthValue = function (
   }
   return {
     value: value,
-    length: n + 1,
+    length: n + 1
   };
 };
 const readUnsignedIntWith2bitLengthValue = function (
@@ -560,7 +561,7 @@ const readUnsignedIntWith2bitLengthValue = function (
   value = value >>> 2;
   return {
     value: value,
-    length: n + 1,
+    length: n + 1
   };
 };
 

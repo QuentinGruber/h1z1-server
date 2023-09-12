@@ -303,9 +303,12 @@ export default function dynamicWeather(
             rainEnabled = 0;
             cloudsAccumulating = -1;
           }, rainDelay + rainTime);
-          setTimeout(function () {
-            rainIncoming = false;
-          }, rainDelay + rainTime + 187200 / timeMultiplier);
+          setTimeout(
+            function () {
+              rainIncoming = false;
+            },
+            rainDelay + rainTime + 187200 / timeMultiplier
+          );
         }
       }
       break;
@@ -399,8 +402,8 @@ export default function dynamicWeather(
       unknownDword4: 0,
       unknownDword5: 0,
       unknownDword6: 0,
-      unknownDword7: 0,
-    }),
+      unknownDword7: 0
+    })
   };
 
   const data = protocol.pack("SkyChanged", rnd_weather);

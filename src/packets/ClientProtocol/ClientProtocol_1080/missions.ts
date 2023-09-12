@@ -31,5 +31,5 @@ export const missionsPackets: PacketStructures = [
   ["Missions.SetMissionChangeList", 0x9e0f, {}],
   ["Missions.SetConqueredZone", 0x9e10, {}],
   ["Missions.UnsetConqueredZone", 0x9e11, {}],
-  ["Missions.SetConqueredZones", 0x9e12, {}],
+  ["Missions.SetConqueredZones", 0x9e12, {}]
 ];

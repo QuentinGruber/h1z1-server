@@ -16,8 +16,8 @@ export const facilityPackets: any = [
     "Facility.ReferenceData",
     0x8401,
     {
-      fields: [{ name: "data", type: "byteswithlength" }],
-    },
+      fields: [{ name: "data", type: "byteswithlength" }]
+    }
   ],
   [
     "Facility.FacilityData",
@@ -42,11 +42,11 @@ export const facilityPackets: any = [
             { name: "unknown5_uint32", type: "uint32", defaultValue: 0 },
             { name: "unknown6_uint8", type: "uint8", defaultValue: 0 },
             { name: "unknown7_uint8", type: "uint8", defaultValue: 0 },
-            { name: "unknown8_bytes", type: "bytes", length: 36 },
-          ],
-        },
-      ],
-    },
+            { name: "unknown8_bytes", type: "bytes", length: 36 }
+          ]
+        }
+      ]
+    }
   ],
   ["Facility.CurrentFacilityUpdate", 0x8403, {}],
   ["Facility.SpawnDataRequest", 0x8404, {}],
@@ -122,7 +122,7 @@ export const facilityPackets: any = [
         if ((flags >> 11) & 1) {
           result["unknown10"] = [
             data.readUInt32LE(offset),
-            data.readUInt32LE(offset + 4),
+            data.readUInt32LE(offset + 4)
           ];
           offset += 8;
         }
@@ -136,10 +136,10 @@ export const facilityPackets: any = [
         }
         return {
           result: result,
-          length: offset - startOffset,
+          length: offset - startOffset
         };
-      },
-    },
+      }
+    }
   ],
   ["Facility.FacilitySpawnStatus", 0x8407, {}],
   ["Facility.FacilitySpawnStatusTracked", 0x8408, {}],
@@ -160,9 +160,9 @@ export const facilityPackets: any = [
         { name: "unknownBoolean3", type: "boolean", defaultValue: false },
         { name: "unknownBoolean4", type: "boolean", defaultValue: false },
         { name: "unknownBoolean5", type: "boolean", defaultValue: false },
-        { name: "unknownBoolean6", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "unknownBoolean6", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   ["Facility.ClearProximitySpawn", 0x8410, {}],
   ["Facility.GridStabilizeTimerUpdated", 0x8411, {}],
@@ -173,13 +173,13 @@ export const facilityPackets: any = [
       fields: [
         { name: "unknown1", type: "uint32", defaultValue: 0 },
         { name: "unknown2", type: "boolean", defaultValue: false },
-        { name: "unknown3", type: "uint32", defaultValue: 0 },
-      ],
-    },
+        { name: "unknown3", type: "uint32", defaultValue: 0 }
+      ]
+    }
   ],
   ["Facility.NotificationFacilitySecondaryObjectiveEventPacket", 0x8413, {}],
   ["Facility.PenetrateShieldEffect", 0x8414, {}],
   ["Facility.SpawnUpdateGuid", 0x8415, {}],
   ["Facility.FacilityUpdateRequest", 0x8416, {}],
-  ["Facility.EmpireScoreValueUpdate", 0x8417, {}],
+  ["Facility.EmpireScoreValueUpdate", 0x8417, {}]
 ];

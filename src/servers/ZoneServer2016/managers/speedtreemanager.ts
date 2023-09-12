@@ -38,7 +38,7 @@ export class SpeedTreeManager {
       const DTO = this._speedTrees[object];
       const DTOinstance = {
         objectId: DTO.objectId,
-        unknownString1: DTO.modelName.concat(".Stump"),
+        unknownString1: DTO.modelName.concat(".Stump")
       };
       DTOArray.push(DTOinstance);
     }
@@ -89,7 +89,7 @@ export class SpeedTreeManager {
             hitPoints: randomIntFromInterval(
               this.minTreeHits - 1,
               this.maxTreeHits - 1
-            ),
+            )
           }; // add a new tree key with random level of hitpoints
         }
         if (this._speedTreesCounter[objectId].hitPoints-- == 0) {
@@ -122,11 +122,11 @@ export class SpeedTreeManager {
       modelName: name.concat(".Stump"),
       effectId: 0,
       unk3: 0,
-      unk4: true,
+      unk4: true
     });
     this._speedTrees[objectId] = {
       objectId: objectId,
-      modelName: name,
+      modelName: name
     };
     setTimeout(() => {
       server.sendDataToAll("DtoStateChange", {
@@ -134,7 +134,7 @@ export class SpeedTreeManager {
         modelName: this._speedTrees[objectId].modelName,
         effectId: 0,
         unk3: 0,
-        unk4: true,
+        unk4: true
       });
       delete this._speedTrees[objectId];
     }, this.treeRespawnTimeMS);

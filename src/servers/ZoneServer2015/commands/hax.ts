@@ -35,20 +35,20 @@ const hax: any = {
       return;
     }
     server.sendData(client, "Construction.PlacementResponse", {
-      model: modelChoosen,
+      model: modelChoosen
     });
   },
   siren: function (server: ZoneServer2015, client: Client, args: any[]) {
     switch (client.vehicle.mountedVehicleType) {
       case "policecar":
         server.sendData(client, "Mount.DismountResponse", {
-          characterId: client.character.characterId,
+          characterId: client.character.characterId
         });
         server.sendData(client, "Mount.MountResponse", {
           characterId: client.character.characterId,
           guid: client.vehicle.mountedVehicle,
           unknownDword4: 275,
-          characterData: {},
+          characterData: {}
         });
         break;
       default:
@@ -79,16 +79,16 @@ const hax: any = {
           // doing anything with vehicle before client gets fullvehicle packet breaks it
           server.sendData(client, "PlayerUpdate.ManagedObject", {
             guid: vehicleData.npcData.characterId,
-            characterId: client.character.characterId,
+            characterId: client.character.characterId
           });
           server.sendDataToAll("Mount.MountResponse", {
             characterId: client.character.characterId,
             guid: characterId,
-            characterData: [],
+            characterData: []
           });
           server.sendDataToAll("Vehicle.Engine", {
             guid2: characterId,
-            unknownBoolean: true,
+            unknownBoolean: true
           });
           client.vehicle.mountedVehicle = characterId;
           client.vehicle.mountedVehicleType = "spectate";
@@ -96,7 +96,7 @@ const hax: any = {
           return true;
         }
         return false;
-      },
+      }
     };
   },
   headlights: function (server: ZoneServer2015, client: Client, args: any[]) {
@@ -117,13 +117,13 @@ const hax: any = {
     }
     if (client.vehicle.mountedVehicleType != "0") {
       server.sendData(client, "Mount.DismountResponse", {
-        characterId: client.character.characterId,
+        characterId: client.character.characterId
       });
       server.sendData(client, "Mount.MountResponse", {
         characterId: client.character.characterId,
         guid: client.vehicle.mountedVehicle,
         unknownDword4: headlightType,
-        characterData: {},
+        characterData: {}
       });
     } else {
       server.sendChatText(client, "You are not in a vehicle");
@@ -171,7 +171,7 @@ const hax: any = {
           );
           server.sendDataToAll("Command.PlayDialogEffect", {
             characterId: vehicle.npcData.characterId,
-            effectId: 0,
+            effectId: 0
           });
           server.sendChatText(client, "Vehicle repaired");
           break;
@@ -236,7 +236,7 @@ const hax: any = {
           return true;
         }
         return false;
-      },
+      }
     };
     server.worldRoutine();
   },
@@ -265,7 +265,7 @@ const hax: any = {
     }
     server.sendDataToAll("PlayerUpdate.WeaponStance", {
       characterId: client.character.characterId,
-      stance: weaponStance,
+      stance: weaponStance
     });
   },
   state: function (server: ZoneServer2015, client: Client, args: any[]) {
@@ -372,7 +372,7 @@ const hax: any = {
           // doing anything with vehicle before client gets fullvehicle packet breaks it
           server.sendData(client, "PlayerUpdate.ManagedObject", {
             guid: vehicleData.npcData.characterId,
-            characterId: client.character.characterId,
+            characterId: client.character.characterId
           });
           setTimeout(() => {
             client.character.godMode = wasAlreadyGod;
@@ -380,7 +380,7 @@ const hax: any = {
           return true;
         }
         return false;
-      },
+      }
     };
     server.worldRoutine();
   },
@@ -393,7 +393,7 @@ const hax: any = {
         character.isBleeding = false;
         server.sendDataToAll("Command.PlayDialogEffect", {
           characterId: character.characterId,
-          effectId: noEffect,
+          effectId: noEffect
         });
       }
       server.updateResource(
@@ -410,7 +410,7 @@ const hax: any = {
       client.character.state.position[0],
       client.character.state.position[1] + 700,
       client.character.state.position[2],
-      client.character.state.position[3],
+      client.character.state.position[3]
     ]);
     server.dropPlayerInParachute(client, dropPosition);
   },
@@ -448,7 +448,7 @@ const hax: any = {
     for (const npcKey in server._npcs) {
       const npc = server._npcs[npcKey];
       server.sendData(client, "PlayerUpdate.StartMultiStateDeath", {
-        characterId: npc.characterId,
+        characterId: npc.characterId
       });
     }
   },
@@ -498,12 +498,12 @@ const hax: any = {
       const vehicle = server._vehicles[object];
       server.sendData(client, "PlayerUpdate.ManagedObjectResponseControl", {
         unk: 0,
-        characterId: vehicle.npcData.characterId,
+        characterId: vehicle.npcData.characterId
       });
     });
     client.character.state.position = locationPosition;
     server.sendData(client, "ClientUpdate.UpdateLocation", {
-      position: locationPosition,
+      position: locationPosition
     });
   },
   despawnobjects: function (
@@ -542,13 +542,13 @@ const hax: any = {
           unknownArray1: [],
           array5: [{ unknown1: 0 }],
           array17: [{ unknown1: 0 }],
-          array18: [{ unknown1: 0 }],
+          array18: [{ unknown1: 0 }]
         },
         unknownGuid1: server.generateGuid(),
         positionUpdate: server.createPositionUpdate(
           client.character.state.position,
           [0, 0, 0, 0]
-        ),
+        )
       };
 
       server.sendData(
@@ -575,13 +575,13 @@ const hax: any = {
           unknownArray1: [],
           array5: [{ unknown1: 0 }],
           array17: [{ unknown1: 0 }],
-          array18: [{ unknown1: 0 }],
+          array18: [{ unknown1: 0 }]
         },
         unknownGuid1: server.generateGuid(),
         positionUpdate: server.createPositionUpdate(
           client.character.state.position,
           [0, 0, 0, 0]
-        ),
+        )
       };
 
       server.sendData(
@@ -625,7 +625,7 @@ const hax: any = {
       color: {},
       array5: [{ unknown1: 0 }],
       array17: [{ unknown1: 0 }],
-      array18: [{ unknown1: 0 }],
+      array18: [{ unknown1: 0 }]
     };
     positionUpdateType = false;
     server.sendDataToAll("PlayerUpdate.AddLightweightNpc", npc);
@@ -644,10 +644,10 @@ const hax: any = {
       Unknown: 0,
       unknownFloat1: 1,
       unknownFloat2: 1,
-      velDamageMulti: 1.0,
+      velDamageMulti: 1.0
     });
     server.sendData(client, "Command.RunSpeed", {
-      runSpeed: character.isSonic ? -100 : 0,
+      runSpeed: character.isSonic ? -100 : 0
     });
     const messageToMrHedgehog = character.isSonic
       ? "Welcome MR.Hedgehog"
@@ -660,7 +660,7 @@ const hax: any = {
       "[Deprecated] You should use /hax spectate, this command will be removed soon!"
     );
     server.sendDataToAll("PlayerUpdate.RemovePlayer", {
-      characterId: client.character.characterId,
+      characterId: client.character.characterId
     });
     delete server._characters[client.character.characterId];
     debug(server._characters);
@@ -670,7 +670,7 @@ const hax: any = {
     const stats = require("../../../../data/2015/sampleData/stats.json");
     server.sendData(client, "PlayerUpdate.UpdateStat", {
       characterId: client.character.characterId,
-      stats: stats,
+      stats: stats
     });
     server.sendChatText(client, "change stat");
   },
@@ -679,7 +679,7 @@ const hax: any = {
     if (newModelId) {
       server.sendDataToAll("PlayerUpdate.ReplaceBaseModel", {
         characterId: client.character.characterId,
-        modelId: newModelId,
+        modelId: newModelId
       });
     } else {
       server.sendChatText(client, "Specify a model id !");
@@ -747,11 +747,11 @@ const hax: any = {
                 equipmentSlotId: equipment.slotId,
                 equipmentSlotData: {
                   equipmentSlotId: equipment.slotId,
-                  guid: generateRandomGuid(),
-                },
+                  guid: generateRandomGuid()
+                }
               };
             }),
-            attachmentData: client.character.equipment,
+            attachmentData: client.character.equipment
           });
           break;
         case "hatchet":
@@ -766,11 +766,11 @@ const hax: any = {
                 equipmentSlotId: equipment.slotId,
                 equipmentSlotData: {
                   equipmentSlotId: equipment.slotId,
-                  guid: generateRandomGuid(),
-                },
+                  guid: generateRandomGuid()
+                }
               };
             }),
-            attachmentData: client.character.equipment,
+            attachmentData: client.character.equipment
           });
           break;
         case "empty":
@@ -785,11 +785,11 @@ const hax: any = {
                 equipmentSlotId: equipment.slotId,
                 equipmentSlotData: {
                   equipmentSlotId: equipment.slotId,
-                  guid: generateRandomGuid(),
-                },
+                  guid: generateRandomGuid()
+                }
               };
             }),
-            attachmentData: client.character.equipment,
+            attachmentData: client.character.equipment
           });
           break;
         case "torch":
@@ -804,11 +804,11 @@ const hax: any = {
                 equipmentSlotId: equipment.slotId,
                 equipmentSlotData: {
                   equipmentSlotId: equipment.slotId,
-                  guid: generateRandomGuid(),
-                },
+                  guid: generateRandomGuid()
+                }
               };
             }),
-            attachmentData: client.character.equipment,
+            attachmentData: client.character.equipment
           });
           break;
         default:
@@ -856,11 +856,11 @@ const hax: any = {
                 equipmentSlotId: equipment.slotId,
                 equipmentSlotData: {
                   equipmentSlotId: equipment.slotId,
-                  guid: generateRandomGuid(),
-                },
+                  guid: generateRandomGuid()
+                }
               };
             }),
-            attachmentData: client.character.equipment,
+            attachmentData: client.character.equipment
           });
           break;
         case "jinx":
@@ -884,11 +884,11 @@ const hax: any = {
                 equipmentSlotId: equipment.slotId,
                 equipmentSlotData: {
                   equipmentSlotId: equipment.slotId,
-                  guid: generateRandomGuid(),
-                },
+                  guid: generateRandomGuid()
+                }
               };
             }),
-            attachmentData: client.character.equipment,
+            attachmentData: client.character.equipment
           });
           break;
         case "cowboy":
@@ -915,11 +915,11 @@ const hax: any = {
                 equipmentSlotId: equipment.slotId,
                 equipmentSlotData: {
                   equipmentSlotId: equipment.slotId,
-                  guid: generateRandomGuid(),
-                },
+                  guid: generateRandomGuid()
+                }
               };
             }),
-            attachmentData: client.character.equipment,
+            attachmentData: client.character.equipment
           });
           break;
         case "red":
@@ -946,11 +946,11 @@ const hax: any = {
                 equipmentSlotId: equipment.slotId,
                 equipmentSlotData: {
                   equipmentSlotId: equipment.slotId,
-                  guid: generateRandomGuid(),
-                },
+                  guid: generateRandomGuid()
+                }
               };
             }),
-            attachmentData: client.character.equipment,
+            attachmentData: client.character.equipment
           });
           break;
 
@@ -1007,7 +1007,7 @@ const hax: any = {
     }
     server.sendChatText(client, "Setting run speed: " + speed, true);
     server.sendData(client, "Command.RunSpeed", {
-      runSpeed: speed,
+      runSpeed: speed
     });
   },
   randomweather: function (
@@ -1065,48 +1065,48 @@ const hax: any = {
         unknownDword4: 0,
         unknownDword5: 0,
         unknownDword6: 0,
-        unknownDword7: 0,
-      }),
+        unknownDword7: 0
+      })
     };
     debug(JSON.stringify(rnd_weather));
     server.changeWeather(client, rnd_weather);
   },
   rick: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendDataToAll("ClientExitLaunchUrl", {
-      url: "www.youtube.com/watch?v=dQw4w9WgXcQ", // that's a very dangerous command, if it was working....
+      url: "www.youtube.com/watch?v=dQw4w9WgXcQ" // that's a very dangerous command, if it was working....
     });
   },
   titan: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendDataToAll("PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
-      scale: [20, 20, 20, 1],
+      scale: [20, 20, 20, 1]
     });
     server.sendChatText(client, "TITAN size");
   },
   poutine: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendDataToAll("PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
-      scale: [20, 5, 20, 1],
+      scale: [20, 5, 20, 1]
     });
     server.sendChatText(client, "The meme become a reality.....");
   },
   rat: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendDataToAll("PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
-      scale: [0.2, 0.2, 0.2, 1],
+      scale: [0.2, 0.2, 0.2, 1]
     });
     server.sendChatText(client, "Rat size");
   },
   normalsize: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.sendDataToAll("PlayerUpdate.UpdateScale", {
       characterId: client.character.characterId,
-      scale: [1, 1, 1, 1],
+      scale: [1, 1, 1, 1]
     });
     server.sendChatText(client, "Back to normal size");
   },
   godmode: function (server: ZoneServer2015, client: Client, args: any[]) {
     server.setGodMode(client, !client.character.godMode);
-  },
+  }
 };
 
 export default hax;

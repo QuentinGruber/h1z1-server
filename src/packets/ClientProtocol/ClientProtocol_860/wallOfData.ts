@@ -20,16 +20,16 @@ export const wallOfDataPackets: any = [
       fields: [
         { name: "object", type: "string", defaultValue: "" },
         { name: "function", type: "string", defaultValue: "" },
-        { name: "argument", type: "string", defaultValue: "" },
-      ],
-    },
+        { name: "argument", type: "string", defaultValue: "" }
+      ]
+    }
   ],
   [
     "WallOfData.ClientSystemInfo",
     0x9906,
     {
-      fields: [{ name: "ClientSystemInfo", type: "string", defaultValue: "" }],
-    },
+      fields: [{ name: "ClientSystemInfo", type: "string", defaultValue: "" }]
+    }
   ],
   ["WallOfData.VoiceChatEvent", 0x9907, {}],
   ["WallOfData.NudgeEvent", 0x9909, {}],
@@ -41,10 +41,10 @@ export const wallOfDataPackets: any = [
         {
           name: "LaunchPadFingerprint",
           type: "uint64string",
-          defaultValue: "0",
-        },
-      ],
-    },
+          defaultValue: "0"
+        }
+      ]
+    }
   ],
   ["WallOfData.VideoCapture", 0x990b, {}],
   [
@@ -54,8 +54,8 @@ export const wallOfDataPackets: any = [
       fields: [
         { name: "oldState", type: "uint32", defaultValue: 0 },
         { name: "newState", type: "uint32", defaultValue: 0 },
-        { name: "msElapsed", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  ],
+        { name: "msElapsed", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ]
 ];

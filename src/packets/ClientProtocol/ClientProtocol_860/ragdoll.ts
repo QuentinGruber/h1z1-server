@@ -22,10 +22,10 @@ export const ragdollPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
-        },
-      ],
-    },
+          defaultValue: "0x0000000000000000"
+        }
+      ]
+    }
   ],
   [
     "Ragdoll.UpdatePose",
@@ -35,16 +35,16 @@ export const ragdollPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "positionUpdate",
           type: "custom",
           parser: readPositionUpdateData,
-          packer: packPositionUpdateData,
-        },
-      ],
-    },
+          packer: packPositionUpdateData
+        }
+      ]
+    }
   ],
   [
     "Ragdoll.Unk",
@@ -54,7 +54,7 @@ export const ragdollPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unk1", type: "int32", defaultValue: 1 },
         {
@@ -66,17 +66,17 @@ export const ragdollPackets: any = [
             {
               name: "position",
               type: "floatvector3",
-              defaultValue: [0, 50, 0],
+              defaultValue: [0, 50, 0]
             },
             {
               name: "rotation",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 0],
-            },
-          ],
-        },
-      ],
-    },
+              defaultValue: [0, 0, 0, 0]
+            }
+          ]
+        }
+      ]
+    }
   ],
   [
     "Ragdoll.Unk2",
@@ -86,7 +86,7 @@ export const ragdollPackets: any = [
         {
           name: "characterId",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         { name: "unk1", type: "int32", defaultValue: 1 },
         {
@@ -98,23 +98,23 @@ export const ragdollPackets: any = [
             {
               name: "position",
               type: "floatvector3",
-              defaultValue: [0, 50, 0],
+              defaultValue: [0, 50, 0]
             },
             {
               name: "rotation",
               type: "floatvector4",
-              defaultValue: [0, 0, 0, 0],
-            },
-          ],
+              defaultValue: [0, 0, 0, 0]
+            }
+          ]
         },
         {
           name: "positionUpdate",
           type: "custom",
           parser: readPositionUpdateData,
-          packer: packPositionUpdateData,
-        },
-      ],
-    },
+          packer: packPositionUpdateData
+        }
+      ]
+    }
   ],
   [
     "Ragdoll.Stop",
@@ -125,22 +125,22 @@ export const ragdollPackets: any = [
         {
           name: "unknown4",
           type: "uint64string",
-          defaultValue: "0x0000000000000000",
+          defaultValue: "0x0000000000000000"
         },
         {
           name: "array1",
           type: "array",
           fields: [
             { name: "unknown5", type: "uint8", defaultValue: 0 },
-            { name: "unknown6", type: "uint32", defaultValue: 0 },
-          ],
+            { name: "unknown6", type: "uint32", defaultValue: 0 }
+          ]
         },
         {
           name: "array2",
           type: "array",
-          fields: [{ name: "unknown7", type: "uint32", defaultValue: 0 }],
-        },
-      ],
-    },
-  ],
+          fields: [{ name: "unknown7", type: "uint32", defaultValue: 0 }]
+        }
+      ]
+    }
+  ]
 ];

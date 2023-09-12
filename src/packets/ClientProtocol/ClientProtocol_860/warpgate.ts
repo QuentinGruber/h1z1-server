@@ -18,5 +18,5 @@ export const warpgatePackets: any = [
   ["Warpgate.QueueForZone", 0xa804, {}],
   ["Warpgate.CancelQueue", 0xa805, {}],
   ["Warpgate.WarpToQueuedZone", 0xa806, {}],
-  ["Warpgate.WarpToSocialZone", 0xa807, {}],
+  ["Warpgate.WarpToSocialZone", 0xa807, {}]
 ];

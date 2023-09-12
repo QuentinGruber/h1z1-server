@@ -43,14 +43,14 @@ import {
   DamageInfo,
   OccupiedSlotMap,
   SlottedConstructionEntity,
-  SquareBounds,
+  SquareBounds
 } from "types/zoneserver";
 import {
   getConstructionSlotId,
   getRectangleCorners,
   isInsideCube,
   movePoint,
-  registerConstructionSlots,
+  registerConstructionSlots
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import { ConstructionParentEntity } from "./constructionparententity";
@@ -58,7 +58,7 @@ import {
   ConstructionSlots,
   shelterSlotDefinitions,
   upperWallSlotDefinitions,
-  wallSlotDefinitions,
+  wallSlotDefinitions
 } from "../data/constructionslots";
 import { ConstructionDoor } from "./constructiondoor";
 import { LootableConstructionEntity } from "./lootableconstructionentity";
@@ -92,6 +92,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   undoPlacementTime = 600000;
   interactionDistance = 4;
   destroyedEffect: number = 242;
+  isDecayProtected: boolean = false;
 
   // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
   readonly wallSlots: ConstructionSlotPositionMap = {};
@@ -185,7 +186,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
     return [
       this.occupiedWallSlots,
       this.occupiedUpperWallSlots,
-      this.occupiedShelterSlots,
+      this.occupiedShelterSlots
     ];
   }
 
@@ -374,7 +375,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   pGetConstructionHealth() {
     return {
       characterId: this.characterId,
-      health: this.health / 10000,
+      health: this.health / 10000
     };
   }
   damage(server: ZoneServer2016, damageInfo: DamageInfo) {
@@ -607,5 +608,9 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       );
       return;
     }
+  }
+
+  OnProjectileHit() {
+    // do nothing for now
   }
 }

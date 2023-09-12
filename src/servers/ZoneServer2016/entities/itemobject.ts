@@ -47,7 +47,7 @@ export class ItemObject extends BaseLightweightCharacter {
     noCollide: 1,
     knockedOut: 0,
     bit22: 0,
-    bit23: 0,
+    bit23: 0
   };
   creationTime: number = 0;
   triggerExplosionShots = Math.floor(Math.random() * 3) + 2; // random number 2-4 neccesary shots
@@ -77,7 +77,7 @@ export class ItemObject extends BaseLightweightCharacter {
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016): void {
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: StringIds.TAKE_ITEM,
+      stringId: StringIds.TAKE_ITEM
     });
   }
 

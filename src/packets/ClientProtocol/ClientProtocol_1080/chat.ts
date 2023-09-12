@@ -33,9 +33,9 @@ export const chatPackets: PacketStructures = [
         { name: "color1", type: "uint32", defaultValue: 0 },
         { name: "color2", type: "uint32", defaultValue: 0 },
         { name: "unknownByte1", type: "uint8", defaultValue: 0 },
-        { name: "unknownBoolean1", type: "boolean", defaultValue: false },
-      ],
-    },
+        { name: "unknownBoolean1", type: "boolean", defaultValue: false }
+      ]
+    }
   ],
   ["Chat.EnterArea", 0x060200, {}],
   ["Chat.DebugChat", 0x060300, {}],
@@ -51,8 +51,8 @@ export const chatPackets: PacketStructures = [
         { name: "color", type: "bytes", length: 4 },
         { name: "unknownDword2", type: "uint32", defaultValue: 0 },
         { name: "unknownByte3", type: "uint8", defaultValue: 0 },
-        { name: "unknownByte4", type: "uint8", defaultValue: 0 },
-      ],
-    },
-  ],
+        { name: "unknownByte4", type: "uint8", defaultValue: 0 }
+      ]
+    }
+  ]
 ];

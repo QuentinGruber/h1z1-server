@@ -28,10 +28,10 @@ export const zoneSettingPackets: PacketStructures = [
             { name: "unknown1", type: "uint32", defaultValue: 0 },
             { name: "unknown2", type: "uint32", defaultValue: 0 },
             { name: "value", type: "uint32", defaultValue: 0 },
-            { name: "settingType", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
-  ],
+            { name: "settingType", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
+  ]
 ];

@@ -666,7 +666,7 @@
             "statValue": {
                 "type": 1,
                 "value": {
-                    "base": 20,
+                    "base": 15,
                     "modifier": 0
                 }
             }

@@ -18,25 +18,25 @@ export const spectatorPackets: PacketStructures = [
     "Spectator.Enable",
     0xe30100,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "Spectator.Unknown2",
     0xe30200,
     {
       fields: [
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
         // requires pack func
-      ],
-    },
+      ]
+    }
   ],
   [
     "Spectator.Unknown3",
     0xe30300,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "Spectator.Teleport",
@@ -44,9 +44,9 @@ export const spectatorPackets: PacketStructures = [
     {
       fields: [
         { name: "x", type: "float", defaultValue: 0 },
-        { name: "y", type: "float", defaultValue: 0 },
-      ],
-    },
+        { name: "y", type: "float", defaultValue: 0 }
+      ]
+    }
   ],
   [
     "Spectator.Unknown5",
@@ -71,25 +71,25 @@ export const spectatorPackets: PacketStructures = [
             { name: "unknownWord4", type: "uint16", defaultValue: 0 },
             { name: "unknownWord5", type: "uint16", defaultValue: 0 },
             { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-            { name: "unknownDword2", type: "uint32", defaultValue: 0 },
-          ],
-        },
-      ],
-    },
+            { name: "unknownDword2", type: "uint32", defaultValue: 0 }
+          ]
+        }
+      ]
+    }
   ],
   [
     "Spectator.SetUnknownFlag1",
     0xe30600,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "Spectator.SetUnknownFlag2",
     0xe30700,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "Spectator.MatchResults",
@@ -98,8 +98,8 @@ export const spectatorPackets: PacketStructures = [
       fields: [
         { name: "unknownQword1", type: "uint64string", defaultValue: "" },
         { name: "unknownString1", type: "string", defaultValue: "" },
-        { name: "unknownDword1", type: "uint32", defaultValue: 0 },
-      ],
-    },
-  ],
+        { name: "unknownDword1", type: "uint32", defaultValue: 0 }
+      ]
+    }
+  ]
 ];

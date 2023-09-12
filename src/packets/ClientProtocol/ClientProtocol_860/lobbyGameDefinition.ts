@@ -16,8 +16,8 @@ export const lobbyGameDefinitionPackets: any = [
     "LobbyGameDefinition.DefinitionsRequest",
     0x420100,
     {
-      fields: [],
-    },
+      fields: []
+    }
   ],
   [
     "LobbyGameDefinition.DefinitionsResponse",
@@ -27,9 +27,9 @@ export const lobbyGameDefinitionPackets: any = [
         {
           name: "definitionsData",
           type: "byteswithlength",
-          fields: [{ name: "data", type: "string", defaultValue: "" }],
-        },
-      ],
-    },
-  ],
+          fields: [{ name: "data", type: "string", defaultValue: "" }]
+        }
+      ]
+    }
+  ]
 ];

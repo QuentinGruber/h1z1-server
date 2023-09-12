@@ -28,7 +28,7 @@ export default function PacketTableBuild(packets: PacketStructures): any[] {
       schema: packetDesc.fields,
       fn: packetDesc.fn,
       parse: packetDesc.parse,
-      pack: packetDesc.pack,
+      pack: packetDesc.pack
     };
   }
   return [packetTypes, packetDescriptors];

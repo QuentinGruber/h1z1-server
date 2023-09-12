@@ -46,12 +46,12 @@ export class Lootbag extends BaseLootableEntity {
     if (client.searchedProps.includes(this)) {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
-        stringId: StringIds.OPEN,
+        stringId: StringIds.OPEN
       });
     } else {
       server.sendData(client, "Command.InteractionString", {
         guid: this.characterId,
-        stringId: StringIds.SEARCH,
+        stringId: StringIds.SEARCH
       });
     }
   }

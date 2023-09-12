@@ -14,5 +14,5 @@ import { PacketStructures } from "types/packetStructure";
 
 export const activityManagerPackets: PacketStructures = [
   ["ActivityManager.ProfileActivityList", 0x6301, {}],
-  ["ActivityManager.JoinErrorString", 0x6302, {}],
+  ["ActivityManager.JoinErrorString", 0x6302, {}]
 ];

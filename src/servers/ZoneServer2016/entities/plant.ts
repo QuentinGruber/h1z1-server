@@ -99,7 +99,7 @@ export class Plant extends ItemObject {
       "Character.ReplaceBaseModel",
       {
         characterId: this.characterId,
-        modelId: this.actorModelId,
+        modelId: this.actorModelId
       }
     );
     if (this.isFertilized) {
@@ -109,7 +109,7 @@ export class Plant extends ItemObject {
         "Command.PlayDialogEffect",
         {
           characterId: this.characterId,
-          effectId: 5056,
+          effectId: 5056
         }
       );
     }
@@ -178,7 +178,7 @@ export class Plant extends ItemObject {
     if (this.growState != 3) return;
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: StringIds.TAKE_ITEM,
+      stringId: StringIds.TAKE_ITEM
     });
   }
 
@@ -189,7 +189,7 @@ export class Plant extends ItemObject {
     if (!this.isFertilized) return;
     server.sendData(client, "Command.PlayDialogEffect", {
       characterId: this.characterId,
-      effectId: 5056,
+      effectId: 5056
     });
   }
 

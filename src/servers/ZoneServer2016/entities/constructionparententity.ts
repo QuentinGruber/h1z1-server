@@ -20,21 +20,20 @@ import {
   isInsideSquare,
   isInsideCube,
   registerConstructionSlots,
-  getRectangleCorners,
-  movePoint,
+  getRectangleCorners
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import {
   ConstructionPermissions,
   ConstructionSlotPositionMap,
   OccupiedSlotMap,
-  SquareBounds,
+  SquareBounds
 } from "types/zoneserver";
 import {
   foundationExpansionSlotDefinitions,
   foundationRampSlotDefinitions,
   shelterSlotDefinitions,
-  wallSlotDefinitions,
+  wallSlotDefinitions
 } from "../data/constructionslots";
 
 function getDamageRange(definitionId: number): number {
@@ -53,8 +52,7 @@ function getDamageRange(definitionId: number): number {
 export class ConstructionParentEntity extends ConstructionChildEntity {
   permissions: { [characterId: string]: ConstructionPermissions } = {};
   ownerCharacterId: string;
-  objectLessTicks: number = 0;
-  objectLessMaxTicks: number = 3;
+  ticksWithoutObjects: number = 0;
   readonly expansionSlots: ConstructionSlotPositionMap = {};
   occupiedExpansionSlots: { [slot: number]: ConstructionParentEntity } = {};
   readonly rampSlots: ConstructionSlotPositionMap = {};
@@ -102,7 +100,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         useContainers: true,
         build: true,
         demolish: true,
-        visit: true,
+        visit: true
       };
       this.permissions[ownerPermission.characterId] = ownerPermission;
     }
@@ -123,23 +121,12 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         const bounds = this.getSquareBounds([1, 2, 5, 0]),
           parent = this.getParentFoundation(server);
         if (parent) {
-          // get 3rd dependent foundation wall pos
           const dependentWallPos = parent.getSlotPosition(
-              this.getDependentWalls()[2],
-              parent.wallSlots
-            ),
-            dependentWallRot = parent.getSlotRotation(
-              this.getDependentWalls()[2],
-              parent.wallSlots
-            );
-
-          if (dependentWallPos && dependentWallRot) {
-            const point = movePoint(
-              dependentWallPos,
-              -dependentWallRot[0] + (270 * Math.PI) / 180,
-              5
-            );
-            bounds[3] = [point[0], point[2]];
+            this.getExpansion4thBoundWall(),
+            parent.wallSlots
+          );
+          if (dependentWallPos) {
+            bounds[3] = [dependentWallPos[0], dependentWallPos[2]];
             this.bounds = bounds;
           }
         }
@@ -188,7 +175,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
     return [
       ...super.getOccupiedSlotMaps(),
       this.occupiedExpansionSlots,
-      this.occupiedRampSlots,
+      this.occupiedRampSlots
     ];
   }
 
@@ -199,7 +186,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       [0, 0],
       [0, 0],
       [0, 0],
-      [0, 0],
+      [0, 0]
     ];
     slots.forEach((slot, idx) => {
       const pos = this.getSlotPosition(slot, this.wallSlots);
@@ -233,6 +220,23 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       }
     }
     return `Structure${slot > 9 ? slot.toString() : `0${slot.toString()}`}`;
+  }
+
+  /**
+   * [Expansions only] Returns the wall slot on the deck that is required to complete the expansion's square bounds
+   */
+  getExpansion4thBoundWall(): number {
+    switch (this.getSlotNumber()) {
+      case 1:
+        return 7;
+      case 2:
+        return 4;
+      case 3:
+        return 1;
+      case 4:
+        return 10;
+    }
+    return 1;
   }
 
   /**
@@ -649,22 +653,32 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   }
 
   isInside(position: Float32Array) {
-    if (!this.bounds) {
-      console.error(
-        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
-      );
-      return false; // this should never occur
+    switch (this.itemDefinitionId) {
+      case Items.FOUNDATION:
+      case Items.FOUNDATION_EXPANSION:
+      case Items.GROUND_TAMPER:
+      case Items.SHACK:
+      case Items.SHACK_BASIC:
+      case Items.SHACK_SMALL:
+        if (!this.bounds) {
+          console.error(
+            `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+          );
+          return false; // this should never occur
+        }
     }
+
+    const bounds = this.bounds as SquareBounds;
 
     switch (this.itemDefinitionId) {
       case Items.FOUNDATION:
       case Items.FOUNDATION_EXPANSION:
       case Items.GROUND_TAMPER:
-        return isInsideSquare([position[0], position[2]], this.bounds);
+        return isInsideSquare([position[0], position[2]], bounds);
       case Items.SHACK:
         return isInsideCube(
           [position[0], position[2]],
-          this.bounds,
+          bounds,
           position[1],
           this.state.position[1],
           2.1
@@ -672,7 +686,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.SHACK_BASIC:
         return isInsideCube(
           [position[0], position[2]],
-          this.bounds,
+          bounds,
           position[1],
           this.state.position[1],
           1.7
@@ -680,7 +694,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.SHACK_SMALL:
         return isInsideCube(
           [position[0], position[2]],
-          this.bounds,
+          bounds,
           position[1],
           this.state.position[1],
           2.1
@@ -714,6 +728,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       242,
       destructTime
     );
+
+    if (!deleted) return false;
+
     if (
       this.itemDefinitionId == Items.SHACK ||
       this.itemDefinitionId == Items.SHACK_SMALL ||
@@ -811,7 +828,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         permissions: Object.values(this.permissions).filter(
           (perm: ConstructionPermissions) =>
             perm.characterId != this.ownerCharacterId
-        ),
+        )
       }
     );
   }
@@ -833,7 +850,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       return; // debug mode give permission interact string
     server.sendData(client, "Command.InteractionString", {
       guid: this.characterId,
-      stringId: StringIds.PERMISSIONS_TARGET,
+      stringId: StringIds.PERMISSIONS_TARGET
     });
   }
 }

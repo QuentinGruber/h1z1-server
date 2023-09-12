@@ -32,7 +32,7 @@ import {
   _,
   generateRandomGuid,
   Int64String,
-  isPosInRadius,
+  isPosInRadius
 } from "../../utils/utils";
 
 import { UpdatePositionObject } from "../../protocols/h1z1protocol";
@@ -277,7 +277,7 @@ export class zonePacketHandlers {
       server.customizeDTO(client);
       server.sendData(client, "ClientUpdate.ActivateProfile", {
         profiles: server._profiles,
-        attachmentData: client.character.equipment,
+        attachmentData: client.character.equipment
       });
 
       server.sendData(client, "PlayerUpdate.CharacterStateDelta", {
@@ -285,16 +285,16 @@ export class zonePacketHandlers {
         guid2: "0x0000000000000000",
         guid3: "0x0000000040000000",
         guid4: "0x0000000000000000",
-        gameTime: (server.getSequenceTime() & 0xffffffff) >>> 0,
+        gameTime: (server.getSequenceTime() & 0xffffffff) >>> 0
       });
       server.sendData(client, "ReferenceData.ClientProfileData", {
-        profiles: server._profiles,
+        profiles: server._profiles
       });
 
       client.character.currentLoadoutId = 3;
       server.sendData(client, "Loadout.SetCurrentLoadout", {
         guid: client.character.guid,
-        loadoutId: client.character.currentLoadoutId,
+        loadoutId: client.character.currentLoadoutId
       });
 
       server.updateResource(
@@ -316,18 +316,18 @@ export class zonePacketHandlers {
         "serverinfo",
         "spawninfo",
         "help",
-        "netstats",
+        "netstats"
       ];
 
       commands.forEach((command) => {
         server.sendData(client, "Command.AddWorldCommand", {
-          command: command,
+          command: command
         });
       });
 
       server.sendDataToAll("PlayerUpdate.WeaponStance", {
         characterId: client.character.characterId,
-        stance: 1,
+        stance: 1
       });
       client.character.startRessourceUpdater(client, server);
       server.sendData(client, "ZoneDoneSendingInitialData", {});
@@ -338,7 +338,7 @@ export class zonePacketHandlers {
         false
       );
       server.sendData(client, "ClientUpdate.DoneSendingPreloadCharacters", {
-        unknownBoolean1: 1,
+        unknownBoolean1: 1
       });
     };
     this.ClientFinishedLoading = (
@@ -411,7 +411,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       server.sendData(client, "LobbyGameDefinition.DefinitionsResponse", {
-        definitionsData: { data: "" },
+        definitionsData: { data: "" }
       });
     };
     this.VehicleItemDefinitionRequest = function (
@@ -445,7 +445,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       server.sendData(client, "KeepAlive", {
-        gameTime: packet.data.gameTime,
+        gameTime: packet.data.gameTime
       });
     };
     this.ClientMetrics = function (
@@ -507,9 +507,9 @@ export class zonePacketHandlers {
             populationTargetPercent: [],
             name: "Z1", // could use this field to load a specific TileInfo
             hexSize: 100,
-            isProductionZone: 1,
-          },
-        ],
+            isProductionZone: 1
+          }
+        ]
       });
     };
     this.chatChat = function (
@@ -595,7 +595,7 @@ export class zonePacketHandlers {
         clientTime: serverTime,
         serverTime: serverTime,
         serverTime2: serverTime,
-        time3: serverTime,
+        time3: serverTime
       });
     };
     this.commandExecuteCommand = async function (
@@ -642,7 +642,7 @@ export class zonePacketHandlers {
               _objects: objects,
               _vehicles: vehicles,
               _doors: doors,
-              _props: props,
+              _props: props
             } = server;
             const delta = Date.now() - server._startTime;
             const datakur = new Date(
@@ -660,7 +660,7 @@ export class zonePacketHandlers {
               "September",
               "October",
               "November",
-              "December",
+              "December"
             ];
             const serverVersion = require("../../../package.json").version;
             server.sendChatText(client, `h1z1-server V${serverVersion}`, true);
@@ -720,7 +720,7 @@ export class zonePacketHandlers {
             "/spawninfo",
             "/serverinfo",
             "/player_air_control",
-            "/player_fall_through_world_test",
+            "/player_fall_through_world_test"
           ];
           server.sendChatText(client, `Commands list:`);
           commandList
@@ -823,7 +823,7 @@ export class zonePacketHandlers {
         unknown1: 0,
         loadoutId: 15,
         tabId: 256,
-        unknown2: 1,
+        unknown2: 1
       });
     };
     this.playerUpdateWeaponStance = function (
@@ -833,7 +833,7 @@ export class zonePacketHandlers {
     ) {
       server.sendDataToAll("PlayerUpdate.WeaponStance", {
         characterId: client.character.characterId,
-        stance: packet.data.stance,
+        stance: packet.data.stance
       });
     };
     this.mountSeatChangeRequest = function (
@@ -871,8 +871,8 @@ export class zonePacketHandlers {
             unknownDword4: 0,
             unknownDword5: 0,
             unknownDword6: 0,
-            unknownDword7: 0,
-          },
+            unknownDword7: 0
+          }
         ],
         unknownArray2: [
           {
@@ -883,9 +883,9 @@ export class zonePacketHandlers {
             unknownDword4: 0,
             unknownDword5: 0,
             unknownDword6: 0,
-            unknownDword7: 0,
-          },
-        ],
+            unknownDword7: 0
+          }
+        ]
       });
     };
     this.commandInteractionString = function (
@@ -923,7 +923,7 @@ export class zonePacketHandlers {
         case 1: // object
           server.sendData(client, "Command.InteractionString", {
             guid: guid,
-            stringId: 29,
+            stringId: 29
           });
           delete client.vehicle.mountedVehicle;
           break;
@@ -931,14 +931,14 @@ export class zonePacketHandlers {
           if (!client.vehicle.mountedVehicle) {
             server.sendData(client, "Command.InteractionString", {
               guid: guid,
-              stringId: 15,
+              stringId: 15
             });
           }
           break;
         case 3: // door
           server.sendData(client, "Command.InteractionString", {
             guid: guid,
-            stringId: 78,
+            stringId: 78
           });
           delete client.vehicle.mountedVehicle;
           break;
@@ -1007,7 +1007,7 @@ export class zonePacketHandlers {
           }
           server.sendData(client, "Command.InteractionString", {
             guid: guid,
-            stringId: stringId,
+            stringId: stringId
           });
           delete client.vehicle.mountedVehicle;
           break;
@@ -1062,7 +1062,7 @@ export class zonePacketHandlers {
       packet: any
     ) {
       server.sendData(client, "Vehicle.Expiration", {
-        expireTime: 300000,
+        expireTime: 300000
       });
       const guid = server.generateGuid();
       server.sendData(client, "Vehicle.Owner", {
@@ -1079,12 +1079,12 @@ export class zonePacketHandlers {
                 unknownDword2: 0,
                 unknownDword3: 0,
                 characterName: "",
-                unknownString1: "",
+                unknownString1: ""
               },
               unknownDword1: 0,
-              unknownString1: "",
+              unknownString1: ""
             },
-            unknownByte1: 0,
+            unknownByte1: 0
           },
           {
             passengerData: {
@@ -1094,26 +1094,26 @@ export class zonePacketHandlers {
                 unknownDword2: 0,
                 unknownDword3: 0,
                 characterName: "",
-                unknownString1: "",
+                unknownString1: ""
               },
               unknownDword1: 0,
-              unknownString1: "",
+              unknownString1: ""
             },
-            unknownByte1: 1,
-          },
-        ],
+            unknownByte1: 1
+          }
+        ]
       });
       server.sendData(client, "Loadout.SetCurrentLoadout", {
         type: 2,
         unknown1: 1,
         loadoutId: 10,
         tabId: 256,
-        unknown2: 1,
+        unknown2: 1
       });
       const position = new Float32Array([
         client.character.state.position[0],
         client.character.state.position[1] + 10,
-        client.character.state.position[2],
+        client.character.state.position[2]
       ]);
       const rotation = [-1.570796012878418, 0, 0, 0];
       server.sendData(client, "PlayerUpdate.AddLightweightVehicle", {
@@ -1160,14 +1160,14 @@ export class zonePacketHandlers {
         unknownDword15: 0,
         unknownDword16: 0,
         positionUpdate: server.createPositionUpdate(position, rotation),
-        unknownString6: "",
+        unknownString6: ""
       });
       server.sendData(client, "PlayerUpdate.SetFaction", {
         guid: guid,
-        factionId: 1,
+        factionId: 1
       });
       server.sendData(client, "Vehicle.SetAutoDrive", {
-        guid: guid,
+        guid: guid
       });
     };
     this.vehicleAutoMount = function (
@@ -1187,16 +1187,16 @@ export class zonePacketHandlers {
           unknownDword2: 0,
           unknownDword3: 0,
           characterName: client.character.name,
-          unknownString1: "",
+          unknownString1: ""
         },
         tagString: "",
-        unknownDword5: 19,
+        unknownDword5: 19
       });
 
       server.sendData(client, "PlayerUpdate.ManagedObject", {
         guid: packet.data.guid,
         guid2: "0x0000000000000000",
-        characterId: client.character.characterId,
+        characterId: client.character.characterId
       });
 
       server.sendData(client, "Vehicle.Occupy", {
@@ -1207,12 +1207,12 @@ export class zonePacketHandlers {
         unknownArray1: [
           {
             unknownDword1: 0,
-            unknownBoolean1: true,
+            unknownBoolean1: true
           },
           {
             unknownDword1: 1,
-            unknownBoolean1: true,
-          },
+            unknownBoolean1: true
+          }
         ],
         passengers: [
           {
@@ -1223,12 +1223,12 @@ export class zonePacketHandlers {
                 unknownDword2: 0,
                 unknownDword3: 0,
                 characterName: "LocalPlayer",
-                unknownString1: "",
+                unknownString1: ""
               },
               unknownDword1: 19,
-              unknownString1: "SCNC",
+              unknownString1: "SCNC"
             },
-            unknownByte1: 0,
+            unknownByte1: 0
           },
           {
             passengerData: {
@@ -1238,36 +1238,36 @@ export class zonePacketHandlers {
                 unknownDword2: 0,
                 unknownDword3: 0,
                 characterName: "",
-                unknownString1: "",
+                unknownString1: ""
               },
               unknownDword1: 0,
-              unknownString1: "",
+              unknownString1: ""
             },
-            unknownByte1: 1,
-          },
+            unknownByte1: 1
+          }
         ],
         unknownArray2: [
           {
-            unknownQword1: "0x29e5d0ef80000003",
+            unknownQword1: "0x29e5d0ef80000003"
           },
           {
-            unknownQword1: "0x29e5d0ef80000004",
+            unknownQword1: "0x29e5d0ef80000004"
           },
           {
-            unknownQword1: "0x29e5d0ef80000005",
+            unknownQword1: "0x29e5d0ef80000005"
           },
           {
-            unknownQword1: "0x29e5d0ef80000006",
+            unknownQword1: "0x29e5d0ef80000006"
           },
           {
-            unknownQword1: "0x29e5d0ef80000007",
-          },
+            unknownQword1: "0x29e5d0ef80000007"
+          }
         ],
         unknownData1: {
           unknownDword1: 10,
           unknownData1: {
             unknownDword1: 4,
-            unknownByte1: 1,
+            unknownByte1: 1
           },
           unknownString1: "",
           unknownDword2: 256,
@@ -1283,11 +1283,11 @@ export class zonePacketHandlers {
                   unknownDword1: 1401,
                   unknownByte1: 0,
                   unknownArray1: [],
-                  unknownArray2: [],
+                  unknownArray2: []
                 },
                 unknownDword2: 0,
-                unknownDword3: 0,
-              },
+                unknownDword3: 0
+              }
             },
             {
               unknownDword1: 2,
@@ -1297,11 +1297,11 @@ export class zonePacketHandlers {
                   unknownDword1: 3404,
                   unknownByte1: 0,
                   unknownArray1: [],
-                  unknownArray2: [],
+                  unknownArray2: []
                 },
                 unknownDword2: 0,
-                unknownDword3: 0,
-              },
+                unknownDword3: 0
+              }
             },
             {
               unknownDword1: 3,
@@ -1311,11 +1311,11 @@ export class zonePacketHandlers {
                   unknownDword1: 0,
                   unknownByte1: 0,
                   unknownArray1: [],
-                  unknownArray2: [],
+                  unknownArray2: []
                 },
                 unknownDword2: 0,
-                unknownDword3: 0,
-              },
+                unknownDword3: 0
+              }
             },
             {
               unknownDword1: 4,
@@ -1325,11 +1325,11 @@ export class zonePacketHandlers {
                   unknownDword1: 3409,
                   unknownByte1: 0,
                   unknownArray1: [],
-                  unknownArray2: [],
+                  unknownArray2: []
                 },
                 unknownDword2: 0,
-                unknownDword3: 0,
-              },
+                unknownDword3: 0
+              }
             },
             {
               unknownDword1: 5,
@@ -1339,11 +1339,11 @@ export class zonePacketHandlers {
                   unknownDword1: 0,
                   unknownByte1: 0,
                   unknownArray1: [],
-                  unknownArray2: [],
+                  unknownArray2: []
                 },
                 unknownDword2: 0,
-                unknownDword3: 0,
-              },
+                unknownDword3: 0
+              }
             },
             {
               unknownDword1: 6,
@@ -1353,11 +1353,11 @@ export class zonePacketHandlers {
                   unknownDword1: 75436,
                   unknownByte1: 0,
                   unknownArray1: [],
-                  unknownArray2: [],
+                  unknownArray2: []
                 },
                 unknownDword2: 0,
-                unknownDword3: 0,
-              },
+                unknownDword3: 0
+              }
             },
             {
               unknownDword1: 7,
@@ -1367,11 +1367,11 @@ export class zonePacketHandlers {
                   unknownDword1: 0,
                   unknownByte1: 0,
                   unknownArray1: [],
-                  unknownArray2: [],
+                  unknownArray2: []
                 },
                 unknownDword2: 0,
-                unknownDword3: 0,
-              },
+                unknownDword3: 0
+              }
             },
             {
               unknownDword1: 8,
@@ -1381,11 +1381,11 @@ export class zonePacketHandlers {
                   unknownDword1: 0,
                   unknownByte1: 0,
                   unknownArray1: [],
-                  unknownArray2: [],
+                  unknownArray2: []
                 },
                 unknownDword2: 0,
-                unknownDword3: 0,
-              },
+                unknownDword3: 0
+              }
             },
             {
               unknownDword1: 9,
@@ -1395,11 +1395,11 @@ export class zonePacketHandlers {
                   unknownDword1: 5780,
                   unknownByte1: 0,
                   unknownArray1: [],
-                  unknownArray2: [],
+                  unknownArray2: []
                 },
                 unknownDword2: 0,
-                unknownDword3: 0,
-              },
+                unknownDword3: 0
+              }
             },
             {
               unknownDword1: 14,
@@ -1409,11 +1409,11 @@ export class zonePacketHandlers {
                   unknownDword1: 1406,
                   unknownByte1: 0,
                   unknownArray1: [],
-                  unknownArray2: [],
+                  unknownArray2: []
                 },
                 unknownDword2: 0,
-                unknownDword3: 0,
-              },
+                unknownDword3: 0
+              }
             },
             {
               unknownDword1: 15,
@@ -1423,11 +1423,11 @@ export class zonePacketHandlers {
                   unknownDword1: 0,
                   unknownByte1: 0,
                   unknownArray1: [],
-                  unknownArray2: [],
+                  unknownArray2: []
                 },
                 unknownDword2: 0,
-                unknownDword3: 0,
-              },
+                unknownDword3: 0
+              }
             },
             {
               unknownDword1: 16,
@@ -1437,11 +1437,11 @@ export class zonePacketHandlers {
                   unknownDword1: 1428,
                   unknownByte1: 0,
                   unknownArray1: [],
-                  unknownArray2: [],
+                  unknownArray2: []
                 },
                 unknownDword2: 0,
-                unknownDword3: 0,
-              },
+                unknownDword3: 0
+              }
             },
             {
               unknownDword1: 17,
@@ -1451,13 +1451,13 @@ export class zonePacketHandlers {
                   unknownDword1: 0,
                   unknownByte1: 0,
                   unknownArray1: [],
-                  unknownArray2: [],
+                  unknownArray2: []
                 },
                 unknownDword2: 0,
-                unknownDword3: 0,
-              },
-            },
-          ],
+                unknownDword3: 0
+              }
+            }
+          ]
         },
         unknownBytes1: {
           itemData: {
@@ -1474,16 +1474,16 @@ export class zonePacketHandlers {
               unknownByte1: 0,
               unknownData: {
                 type: 0,
-                value: {},
-              },
+                value: {}
+              }
             },
             detail: {
               unknownBoolean1: false,
               unknownArray1: [
                 {
                   unknownDword1: 1,
-                  unknownDword2: 24,
-                },
+                  unknownDword2: 24
+                }
               ],
               unknownArray2: [
                 {
@@ -1493,16 +1493,16 @@ export class zonePacketHandlers {
                       unknownByte1: 0,
                       unknownDword1: 0,
                       unknownDword2: 1410,
-                      unknownDword3: 750,
+                      unknownDword3: 750
                     },
                     {
                       unknownByte1: 0,
                       unknownDword1: 0,
                       unknownDword2: 1410,
-                      unknownDword3: 750,
-                    },
-                  ],
-                },
+                      unknownDword3: 750
+                    }
+                  ]
+                }
               ],
               unknownByte1: 30,
               unknownByte2: 1,
@@ -1512,10 +1512,10 @@ export class zonePacketHandlers {
               unknownByte4: 0,
               unknownDword2: 0,
               unknownArray3: [],
-              unknownArray4: [],
-            },
-          },
-        },
+              unknownArray4: []
+            }
+          }
+        }
       });
     };
     this.commandRedeploy = function (
@@ -1526,7 +1526,7 @@ export class zonePacketHandlers {
       debug("Redeploy");
       server.sendData(client, "ClientUpdate.UpdateLocation", {
         position: new Float32Array([0, 50, 0, 1]),
-        triggerLoadingScreen: true,
+        triggerLoadingScreen: true
       });
     };
     this.commandInteractCancel = function (
@@ -1544,7 +1544,7 @@ export class zonePacketHandlers {
       const timerTime = client.character.isAlive ? 10000 : 0;
       server.sendData(client, "ClientUpdate.StartTimer", {
         stringId: 0,
-        time: timerTime,
+        time: timerTime
       });
       client.posAtLogoutStart = client.character.state.position;
       if (client.hudTimer != null) {
@@ -1561,7 +1561,7 @@ export class zonePacketHandlers {
     ) {
       server.sendData(client, "CharacterSelectSessionResponse", {
         status: 1,
-        sessionId: client.loginSessionId,
+        sessionId: client.loginSessionId
       });
     };
     this.profileStatsGetPlayerProfileStats = function (
@@ -1600,7 +1600,7 @@ export class zonePacketHandlers {
         unknownFloat9: 9,
         unknownFloat10: 10,
         unknownFloat11: 11,
-        unknownFloat12: 12,
+        unknownFloat12: 12
       });
     };
     this.vehicleStateData = function (
@@ -1612,7 +1612,7 @@ export class zonePacketHandlers {
         guid: packet.data.guid,
         unknown3: packet.data.unknown3,
         unknown4: packet.data.unknown4,
-        unknown5: packet.data.unknown5,
+        unknown5: packet.data.unknown5
       });
     };
     this.VehicleAccessType = function (
@@ -1624,7 +1624,7 @@ export class zonePacketHandlers {
       server._vehicles[vehicleGuid].isLocked = accessType;
       server.sendData(client, "Vehicle.AccessType", {
         vehicleGuid: vehicleGuid,
-        accessType: accessType,
+        accessType: accessType
       });
     };
     this.PlayerUpdateManagedPosition = function (
@@ -1648,12 +1648,12 @@ export class zonePacketHandlers {
           client.clearHudTimer();
           server.sendData(client, "ClientUpdate.StartTimer", {
             stringId: 0,
-            time: 0,
+            time: 0
           }); // don't know how it was done so
         }
         server.sendDataToAllOthers(client, "PlayerUpdate.UpdatePosition", {
           transientId: packet.data.transientId,
-          positionUpdate: packet.data.PositionUpdate,
+          positionUpdate: packet.data.PositionUpdate
         });
 
         if (server._vehicles[characterId]) {
@@ -1673,14 +1673,14 @@ export class zonePacketHandlers {
             packet.data.PositionUpdate.position[0],
             packet.data.PositionUpdate.position[1],
             packet.data.PositionUpdate.position[2],
-            0,
+            0
           ]);
           if (client.vehicle.mountedVehicle === characterId) {
             client.character.state.position = new Float32Array([
               packet.data.PositionUpdate.position[0],
               packet.data.PositionUpdate.position[1],
               packet.data.PositionUpdate.position[2],
-              0,
+              0
             ]);
             if (server._vehicles[characterId].passengers.passenger1) {
               const character =
@@ -1757,7 +1757,7 @@ export class zonePacketHandlers {
           packet.data.position[0],
           packet.data.position[1],
           packet.data.position[2],
-          0,
+          0
         ]);
         client.character.isRunning =
           packet.data.horizontalSpeed > (client.character.isExhausted ? 5 : 6);
@@ -1773,7 +1773,7 @@ export class zonePacketHandlers {
           client.clearHudTimer();
           server.sendData(client, "ClientUpdate.StartTimer", {
             stringId: 0,
-            time: 0,
+            time: 0
           }); // don't know how it was done so
         }
         if (
@@ -1793,14 +1793,14 @@ export class zonePacketHandlers {
           packet.data.rotation[0],
           packet.data.rotation[1],
           packet.data.rotation[2],
-          packet.data.rotation[3],
+          packet.data.rotation[3]
         ]);
 
         client.character.state.lookAt = new Float32Array([
           packet.data.lookAt[0],
           packet.data.lookAt[1],
           packet.data.lookAt[2],
-          packet.data.lookAt[3],
+          packet.data.lookAt[3]
         ]);
       }
     };
@@ -1844,7 +1844,7 @@ export class zonePacketHandlers {
           );
           const pickupMessage = modelToName[model_index]?.itemName;
           server.sendData(client, "ClientUpdate.TextAlert", {
-            message: pickupMessage,
+            message: pickupMessage
           });
           const { water, health, food } = client.character.resources;
           switch (entityData.modelId) {
@@ -1900,13 +1900,13 @@ export class zonePacketHandlers {
                 sequenceTime: server.getSequenceTime(),
                 unknown3_int8: 0,
                 position: entityData.position,
-                orientation: entityData.openAngle,
-              },
+                orientation: entityData.openAngle
+              }
             });
             server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
               soundId: 5048,
               position: entityData.position,
-              unk3: 0,
+              unk3: 0
             });
             entityData.isOpen = true;
           } else {
@@ -1921,13 +1921,13 @@ export class zonePacketHandlers {
                 unknown3_int8: 0,
                 stance: 1089,
                 position: entityData.position,
-                orientation: entityData.closedAngle,
-              },
+                orientation: entityData.closedAngle
+              }
             });
             server.sendDataToAll("PlayerUpdate.PlayWorldCompositeEffect", {
               soundId: 5049,
               position: entityData.position,
-              unk3: 0,
+              unk3: 0
             });
             entityData.isOpen = false;
           }
@@ -1998,7 +1998,7 @@ export class zonePacketHandlers {
                 unknown1: 242,
                 unknown2: 8015,
                 unknown3: 0,
-                disableWeirdPhysics: true,
+                disableWeirdPhysics: true
               });
               break;
             case "sleep":
@@ -2006,7 +2006,7 @@ export class zonePacketHandlers {
                 client.isInteracting = true;
                 server.sendData(client, "ClientUpdate.StartTimer", {
                   stringId: 9051,
-                  time: timerTime,
+                  time: timerTime
                 });
                 client.posAtLogoutStart = client.character.state.position;
                 if (client.hudTimer != null) {
@@ -2014,7 +2014,7 @@ export class zonePacketHandlers {
                 }
                 client.hudTimer = setTimeout(() => {
                   server.sendData(client, "ClientUpdate.TextAlert", {
-                    message: "You feel refreshed after sleeping well.",
+                    message: "You feel refreshed after sleeping well."
                   });
                   client.isInteracting = false;
                 }, timerTime);
@@ -2022,19 +2022,19 @@ export class zonePacketHandlers {
               break;
             case "use":
               server.sendData(client, "ClientUpdate.TextAlert", {
-                message: "Nothing in there... yet :P",
+                message: "Nothing in there... yet :P"
               });
               break;
             case "open":
               server.sendData(client, "PlayerUpdate.BeginCharacterAccess", {
                 characterId: entityData.characterId,
                 state: true,
-                unk1: 0,
+                unk1: 0
               });
               break;
             case "collectWater":
               server.sendData(client, "ClientUpdate.TextAlert", {
-                message: "You dont have an Empty Bottle",
+                message: "You dont have an Empty Bottle"
               });
               break;
             case "search":
@@ -2042,7 +2042,7 @@ export class zonePacketHandlers {
                 client.isInteracting = true;
                 server.sendData(client, "ClientUpdate.StartTimer", {
                   stringId: entityData.nameId,
-                  time: timerTime,
+                  time: timerTime
                 });
                 client.posAtLogoutStart = client.character.state.position;
                 if (client.hudTimer != null) {
@@ -2052,7 +2052,7 @@ export class zonePacketHandlers {
                   server.sendData(client, "PlayerUpdate.BeginCharacterAccess", {
                     characterId: entityData.characterId,
                     state: true,
-                    unk1: 0,
+                    unk1: 0
                   });
                   client.isInteracting = false;
                 }, timerTime);
@@ -2083,7 +2083,7 @@ export class zonePacketHandlers {
       debug(packet);
       debug("Construction.PlacementFinalizeRequest");
       server.sendData(client, "Construction.PlacementFinalizeResponse", {
-        status: true,
+        status: true
       });
     };
     this.playerUpdateRespawn = function (
@@ -2111,7 +2111,7 @@ export class zonePacketHandlers {
               unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
               unknownDword2: 13951728,
               unknownDword3: 1,
-              unknownDword6: 100,
+              unknownDword6: 100
             });
             if (entityData.onReadyCallback) {
               entityData.onReadyCallback();
@@ -2126,16 +2126,16 @@ export class zonePacketHandlers {
             if (entityData.npcData.vehicleId === 13) return;
             // ignore parachute
             const npcData = {
-              transientId: entityData.npcData.transientId,
+              transientId: entityData.npcData.transientId
             };
             server.sendData(client, "PlayerUpdate.LightweightToFullVehicle", {
               npcData: npcData,
-              characterId: characterId,
+              characterId: characterId
             });
             if (entityData.destroyedEffect != 0) {
               server.sendData(client, "Command.PlayDialogEffect", {
                 characterId: entityData.npcData.characterId,
-                effectId: entityData.destroyedEffect,
+                effectId: entityData.destroyedEffect
               });
             }
             if (
@@ -2156,7 +2156,7 @@ export class zonePacketHandlers {
               unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
               unknownDword2: 13951728,
               unknownDword3: 1,
-              unknownDword6: 100,
+              unknownDword6: 100
             });
             server.sendData(client, "Equipment.SetCharacterEquipment", {
               profileId: 3,
@@ -2166,11 +2166,11 @@ export class zonePacketHandlers {
                   equipmentSlotId: equipment.slotId,
                   equipmentSlotData: {
                     equipmentSlotId: equipment.slotId,
-                    guid: generateRandomGuid(),
-                  },
+                    guid: generateRandomGuid()
+                  }
                 };
               }),
-              attachmentData: entityData.equipment,
+              attachmentData: entityData.equipment
             });
           }
           break;
@@ -2184,7 +2184,7 @@ export class zonePacketHandlers {
               unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
               unknownDword2: 13951728,
               unknownDword3: 1,
-              unknownDword6: 100,
+              unknownDword6: 100
             });
             if (entityData.onReadyCallback) {
               entityData.onReadyCallback();
@@ -2201,7 +2201,7 @@ export class zonePacketHandlers {
               unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
               unknownDword2: 13951728,
               unknownDword3: 1,
-              unknownDword6: 100,
+              unknownDword6: 100
             });
             if (entityData.onReadyCallback) {
               entityData.onReadyCallback();
@@ -2218,7 +2218,7 @@ export class zonePacketHandlers {
               unknownDword1: 16777215, // Data from PS2 dump that fits into h1 packets (i believe these were used for vehicle)
               unknownDword2: 13951728,
               unknownDword3: 1,
-              unknownDword6: 100,
+              unknownDword6: 100
             });
             if (entityData.isOpen === true) {
               server.sendData(client, "PlayerUpdate.UpdatePosition", {
@@ -2227,13 +2227,13 @@ export class zonePacketHandlers {
                   sequenceTime: server.getSequenceTime(),
                   unknown3_int8: 0,
                   stance: 1025,
-                  orientation: entityData.openAngle,
-                },
+                  orientation: entityData.openAngle
+                }
               });
               server.sendData(client, "PlayerUpdate.PlayWorldCompositeEffect", {
                 soundId: 5048,
                 position: entityData.position,
-                unk3: 0,
+                unk3: 0
               });
             }
           }

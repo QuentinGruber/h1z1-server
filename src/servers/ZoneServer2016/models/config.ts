@@ -11,6 +11,8 @@
 //   Based on https://github.com/psemu/soe-network
 // ======================================================================
 
+import { dailyRepairMaterial } from ".../../types/zoneserver";
+
 interface ServerConfig {
   proximityItemsDistance: number;
   interactionDistance: number;
@@ -19,6 +21,7 @@ interface ServerConfig {
   worldRoutineRate: number;
   welcomeMessage: string;
   adminMessage: string;
+  enableLoginServerKickRequests: boolean;
 }
 
 interface FairplayConfig {
@@ -35,6 +38,8 @@ interface WeatherConfig {
 
 interface WorldObjectsConfig {
   vehicleSpawnCap: number;
+  minAirdropSurvivors: number;
+  hasCustomLootRespawnTime: boolean;
   lootRespawnTimer: number;
   vehicleRespawnTimer: number;
   npcRespawnTimer: number;
@@ -78,10 +83,13 @@ interface DecayConfig {
   decayTickInterval: number;
   constructionDamageTicks: number;
   baseConstructionDamage: number;
+  repairBoxHealValue: number;
   vehicleDamageTicks: number;
+  vacantFoundationTicks: number;
   baseVehicleDamage: number;
   maxVehiclesPerArea: number;
   vehicleDamageRange: number;
+  dailyRepairMaterials: dailyRepairMaterial[];
 }
 
 interface SmeltingConfig {

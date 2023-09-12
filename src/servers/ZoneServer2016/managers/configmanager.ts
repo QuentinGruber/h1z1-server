@@ -16,6 +16,7 @@ import * as yaml from "js-yaml";
 import { Config } from "../models/config";
 import { ZoneServer2016 } from "../zoneserver";
 import * as path from "node:path";
+import { copyFile } from "../../../utils/utils";
 
 process.env.isBin &&
   require("js-yaml") &&
@@ -28,24 +29,6 @@ function fileExists(filePath: string): boolean {
   } catch (error) {
     return false;
   }
-}
-
-function copyFile(originalFilePath: string, newFilePath: string) {
-  const readStream = fs.createReadStream(originalFilePath),
-    writeStream = fs.createWriteStream(newFilePath);
-
-  readStream.pipe(writeStream);
-  writeStream.on("finish", () => {
-    console.log("Config copied successfully!");
-    readStream.close();
-    writeStream.close();
-  });
-
-  writeStream.on("error", (err) => {
-    console.error("Error copying config file:", err);
-    readStream.close();
-    writeStream.close();
-  });
 }
 
 export class ConfigManager {
@@ -91,7 +74,7 @@ export class ConfigManager {
     this.applyConfig(server);
   }
 
-  private loadYaml(path: string, relative = true): Config | undefined {
+  public loadYaml(path: string, relative = true): Config | undefined {
     return yaml.load(
       fs.readFileSync(`${relative ? __dirname : ""}${path}`, "utf8")
     ) as unknown as Config;
@@ -107,39 +90,39 @@ export class ConfigManager {
       worldobjects,
       speedtree,
       construction,
-      decay,
+      decay
     } = this.defaultConfig;
     return {
       ...this.defaultConfig,
       ...config,
       server: {
         ...server,
-        ...config.server,
+        ...config.server
       },
       fairplay: {
         ...fairplay,
-        ...config.fairplay,
+        ...config.fairplay
       },
       weather: {
         ...weather,
-        ...config.weather,
+        ...config.weather
       },
       worldobjects: {
         ...worldobjects,
-        ...config.worldobjects,
+        ...config.worldobjects
       },
       speedtree: {
         ...speedtree,
-        ...config.speedtree,
+        ...config.speedtree
       },
       construction: {
         ...construction,
-        ...config.construction,
+        ...config.construction
       },
       decay: {
         ...decay,
-        ...config.decay,
-      },
+        ...config.decay
+      }
     };
   }
 
@@ -153,6 +136,7 @@ export class ConfigManager {
       worldRoutineRate,
       welcomeMessage,
       adminMessage,
+      enableLoginServerKickRequests
     } = this.config.server;
     server.proximityItemsDistance = proximityItemsDistance;
     server.interactionDistance = interactionDistance;
@@ -161,6 +145,7 @@ export class ConfigManager {
     server.worldRoutineRate = worldRoutineRate;
     server.welcomeMessage = welcomeMessage;
     server.adminMessage = adminMessage;
+    server.enableLoginServerKickRequests = enableLoginServerKickRequests;
     //#endregion
 
     //#region fairplay
@@ -181,6 +166,8 @@ export class ConfigManager {
     //#region worldobjects
     const {
       vehicleSpawnCap,
+      minAirdropSurvivors,
+      hasCustomLootRespawnTime,
       lootRespawnTimer,
       vehicleRespawnTimer,
       npcRespawnTimer,
@@ -191,9 +178,12 @@ export class ConfigManager {
       npcSpawnRadius,
       chanceNpc,
       chanceScreamer,
-      lootbagDespawnTimer,
+      lootbagDespawnTimer
     } = this.config.worldobjects;
     server.worldObjectManager.vehicleSpawnCap = vehicleSpawnCap;
+    server.worldObjectManager.minAirdropSurvivors = minAirdropSurvivors;
+    server.worldObjectManager.hasCustomLootRespawnTime =
+      hasCustomLootRespawnTime;
     server.worldObjectManager.lootRespawnTimer = lootRespawnTimer;
     server.worldObjectManager.vehicleRespawnTimer = vehicleRespawnTimer;
     server.worldObjectManager.npcRespawnTimer = npcRespawnTimer;
@@ -220,7 +210,7 @@ export class ConfigManager {
       minWoodLogHarvest,
       maxWoodLogHarvest,
       minTreeHits,
-      maxTreeHits,
+      maxTreeHits
     } = this.config.speedtree;
     server.speedtreeManager.minBlackberryHarvest = minBlackberryHarvest;
     server.speedtreeManager.maxBlackberryHarvest = maxBlackberryHarvest;
@@ -243,7 +233,7 @@ export class ConfigManager {
       spawnPointBlockedPlacementRange,
       vehicleSpawnPointBlockedPlacementRange,
       playerFoundationBlockedPlacementRange,
-      playerShackBlockedPlacementRange,
+      playerShackBlockedPlacementRange
     } = this.config.construction;
     server.constructionManager.allowPOIPlacement = allowPOIPlacement;
     server.constructionManager.allowStackedPlacement = allowStackedPlacement;
@@ -265,18 +255,24 @@ export class ConfigManager {
       decayTickInterval,
       constructionDamageTicks,
       baseConstructionDamage,
+      repairBoxHealValue,
       vehicleDamageTicks,
+      vacantFoundationTicks,
       baseVehicleDamage,
       maxVehiclesPerArea,
       vehicleDamageRange,
+      dailyRepairMaterials
     } = this.config.decay;
     server.decayManager.decayTickInterval = decayTickInterval;
     server.decayManager.constructionDamageTicks = constructionDamageTicks;
     server.decayManager.baseConstructionDamage = baseConstructionDamage;
-    server.decayManager.vehicleDamageTicks = vehicleDamageTicks;
+    (server.decayManager.repairBoxHealValue = repairBoxHealValue),
+      (server.decayManager.vehicleDamageTicks = vehicleDamageTicks);
+    server.decayManager.vacantFoundationTicks = vacantFoundationTicks;
     server.decayManager.baseVehicleDamage = baseVehicleDamage;
     server.decayManager.maxVehiclesPerArea = maxVehiclesPerArea;
     server.decayManager.vehicleDamageRange = vehicleDamageRange;
+    server.decayManager.dailyRepairMaterials = dailyRepairMaterials;
     //#endregion
 
     //#region smelting

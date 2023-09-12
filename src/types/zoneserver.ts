@@ -13,7 +13,7 @@
 
 import { ConstructionParentEntity } from "servers/ZoneServer2016/entities/constructionparententity";
 import { ConstructionChildEntity } from "servers/ZoneServer2016/entities/constructionchildentity";
-import { FilterIds, Items } from "servers/ZoneServer2016/models/enums";
+import { FilterIds, HealTypes, Items } from "servers/ZoneServer2016/models/enums";
 import { ConstructionDoor } from "servers/ZoneServer2016/entities/constructiondoor";
 import { LootableConstructionEntity } from "servers/ZoneServer2016/entities/lootableconstructionentity";
 import { LoadoutItem } from "servers/ZoneServer2016/classes/loadoutItem";
@@ -212,20 +212,20 @@ export interface DamageRecord {
 }
 
 export interface fireHint {
-    id: number;
-    position: Float32Array;
-    rotation: number;
-    hitNumber: number;
-    weaponItem: LoadoutItem
-    timeStamp: number,
-    marked?: {characterId:string, position: Float32Array, rotation: Float32Array, gameTime: number}
+  id: number;
+  position: Float32Array;
+  rotation: number;
+  hitNumber: number;
+  weaponItem: LoadoutItem
+  timeStamp: number,
+  marked?: { characterId: string, position: Float32Array, rotation: Float32Array, gameTime: number }
 }
 
 export interface characterEffect {
-    id: number;
-    duration: number;
-    callback?: any;
-    endCallback?: any;
+  id: number;
+  duration: number;
+  callback?: any;
+  endCallback?: any;
 }
 
 export interface SpawnLocation {
@@ -267,22 +267,28 @@ export interface Recipe {
 }
 
 export interface ItemUseOption {
-    itemDef: number,
-    type: number,
-    timeout: number,
-    eatCount?: number,
-    drinkCount?: number,
-    givetrash?: number,
-    healCount?: number,
-    staminaCount?: number,
-    bandagingCount?: number,
-    refuelCount?: number,
+  itemDef: number,
+  type: number,
+  timeout: number,
+  eatCount?: number,
+  drinkCount?: number,
+  givetrash?: number,
+  healCount?: number,
+  staminaCount?: number,
+  bandagingCount?: number,
+  refuelCount?: number,
+  healType?: HealTypes,
 }
 
 export interface smeltRecipe {
-    filterId: FilterIds;
-    rewardId: number;
-    components: Array<RecipeComponent>;
+  filterId: FilterIds;
+  rewardId: number;
+  components: Array<RecipeComponent>;
+}
+
+export interface dailyRepairMaterial {
+    itemDefinitionId: number;
+    requiredCount: number;
 }
 
 export type SlottedConstructionEntity = ConstructionChildEntity | ConstructionParentEntity | ConstructionDoor;
@@ -298,7 +304,7 @@ export interface ConstructionPermissions {
   visit: boolean;
 }
 
-export type ConstructionSlotPositionMap = { [slot: number]: {position: Float32Array, rotation: Float32Array} };
+export type ConstructionSlotPositionMap = { [slot: number]: { position: Float32Array, rotation: Float32Array } };
 
 export type OccupiedSlotMap = { [slot: string]: SlottedConstructionEntity };
 
@@ -307,8 +313,8 @@ type Point2D = [number, number];
 export type SquareBounds = [Point2D, Point2D, Point2D, Point2D];
 
 export interface ClientBan {
-  name:string;
-  banType:string;
+  name: string;
+  banType: string;
   banReason: string;
   loginSessionId: string;
   IP: string;
@@ -320,7 +326,7 @@ export interface ClientBan {
 }
 
 export interface ClientMute {
-  name:string;
+  name: string;
   muteReason: string;
   loginSessionId: string;
   adminName: string;
@@ -336,13 +342,13 @@ export interface Group {
 }
 
 export interface FairPlayWeaponStat {
-    maxSpeed: number;
-    minSpeed: number;
-    maxDistance: number;
+  maxSpeed: number;
+  minSpeed: number;
+  maxDistance: number;
 }
 
 export interface FairPlayValues {
-  lastLoginDateAddVal:number;
+  lastLoginDateAddVal: number;
   maxTimeDrift: number;
   maxSpeed: number;
   maxVerticalSpeed: number;
@@ -374,4 +380,29 @@ export interface FairPlayValues {
 export interface SpeedTree {
   objectId: number;
   modelName: string;
+}
+
+export interface StanceFlags {
+  FIRST_PERSON: boolean,
+  FLAG1: boolean,
+  SITTING: boolean,
+  STRAFE_RIGHT: boolean,
+  STRAFE_LEFT: boolean,
+  FORWARD: boolean,
+  BACKWARD: boolean,
+  FLAG7: boolean,
+  FLAG8: boolean,
+  PRONED: boolean,
+  FLAG10: boolean,
+  ON_GROUND: boolean,
+  FLAG12: boolean,
+  FLAG13: boolean,
+  FLAG14: boolean,
+  STATIONARY: boolean,
+  FLOATING: boolean,
+  JUMPING: boolean,
+  FLAG18: boolean,
+  SPRINTING: boolean,
+  CROUCHING: boolean,
+  FLAG21: boolean,
 }

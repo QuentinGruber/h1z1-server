@@ -2,12 +2,12 @@ import { expose } from "threads/worker";
 import {
   CharacterUpdateSaveData,
   FullCharacterSaveData,
-  ServerSaveData,
+  ServerSaveData
 } from "types/savedata";
 import {
   FetchedWorldData,
   WorldArg,
-  WorldDataManager,
+  WorldDataManager
 } from "./worlddatamanager";
 
 const worldDataManager = new WorldDataManager();
@@ -55,5 +55,5 @@ expose({
   },
   saveCharacterData(character: CharacterUpdateSaveData, lastItemGuid?: bigint) {
     return worldDataManager.saveCharacterData(character, lastItemGuid);
-  },
+  }
 });

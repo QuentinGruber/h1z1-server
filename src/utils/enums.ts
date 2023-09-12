@@ -14,7 +14,7 @@
 export enum GAME_VERSIONS {
   H1Z1_15janv_2015 = 1,
   H1Z1_6dec_2016 = 2,
-  H1Z1_KOTK_PS3 = 3,
+  H1Z1_KOTK_PS3 = 3
 }
 
 export enum BAN_INFO {
@@ -22,7 +22,7 @@ export enum BAN_INFO {
   GLOBAL_BAN = 2,
   VPN = 3,
   HWID = 4,
-  UNVERIFIED = 5,
+  UNVERIFIED = 5
 }
 
 export enum NAME_VALIDATION_STATUS {
@@ -30,7 +30,7 @@ export enum NAME_VALIDATION_STATUS {
   TAKEN = 2,
   INVALID = 3,
   PROFANE = 4,
-  RESERVED = 5,
+  RESERVED = 5
 }
 
 export enum DB_COLLECTIONS {
@@ -39,7 +39,7 @@ export enum DB_COLLECTIONS {
   BLACK_LIST_ENTRIES = "blackListEntries",
   CHARACTERS = "characters",
   CHARACTERS_LIGHT = "characters-light",
-  CHAT = "chat",
+  CHAT = "chats",
   CONSTRUCTION = "construction",
   CROPS = "crops",
   FINGERPRINTS = "fingerprints",
@@ -54,5 +54,11 @@ export enum DB_COLLECTIONS {
   FAIRPLAY = "fairplay-logs",
   KILLS = "kills",
   BANNED_LIGHT = "banned-light",
-  MUTED = "muted",
+  MUTED = "muted"
+}
+
+export enum LOGIN_KICK_REASON {
+  UNDEFINED = 0,
+  GLOBAL_BAN = 1,
+  ASSET_VALIDATION = 2
 }
