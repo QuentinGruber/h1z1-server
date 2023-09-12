@@ -155,7 +155,7 @@ export class DecayManager {
     entity.destroy(server);
   }
 
-  private contructionDecayDamage(server: ZoneServer2016) {
+  contructionDecayDamage(server: ZoneServer2016) {
     for (const a in server._constructionFoundations) {
       const foundation = server._constructionFoundations[a];
       // check for repair box, repair and set decay block for this tick

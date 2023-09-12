@@ -703,6 +703,15 @@ const dev: any = {
     server.decayManager.vehicleDecayDamage(server);
   },
 
+  basedecay: function (
+    server: ZoneServer2016,
+    client: Client,
+    args: Array<string>
+  ) {
+    server.sendChatText(client, "Decaying all bases");
+    server.decayManager.contructionDecayDamage(server);
+  },
+
   script: function (
     server: ZoneServer2016,
     client: Client,
