@@ -708,6 +708,13 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       return false; // this should never occur
     }
     const fixY = this.itemDefinitionId == Items.FOUNDATION ? 1 : 0;
+
+    /*
+      isInsideCubeOld is used since the normal bounds for the deck is calculated
+      using 2d positions of wall slots, so this'll need to be translated to 3d bounds
+      for usage with isInsideCube (new) -Meme
+    */
+    
     return isInsideCubeOld(
       [position[0], position[2]],
       this.bounds,

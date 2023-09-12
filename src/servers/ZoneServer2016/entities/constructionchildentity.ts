@@ -50,7 +50,6 @@ import {
   getConstructionSlotId,
   getCubeBounds,
   getRectangleCorners,
-  isInsideCubeOld,
   isInsideCube,
   movePoint,
   registerConstructionSlots
@@ -406,7 +405,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   isInside(position: Float32Array) {
-    if (/*!this.bounds ||*/ !this.cubebounds) {
+    if (!this.cubebounds) {
       switch (this.itemDefinitionId) {
         case Items.STRUCTURE_STAIRS:
         case Items.STRUCTURE_STAIRS_UPPER:
@@ -431,31 +430,26 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   isOn(position: Float32Array) {
-    if (!this.bounds) {
-      switch (this.itemDefinitionId) {
-        case Items.STRUCTURE_STAIRS:
-        case Items.STRUCTURE_STAIRS_UPPER:
-        case Items.LOOKOUT_TOWER:
-          return false;
-      }
-      console.error(
-        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
-      );
-      return false; // this should never occur
-    }
-
+    const angle = -this.state.rotation[1];
+    let bounds: CubeBounds;
     switch (this.itemDefinitionId) {
       case Items.SHELTER_LARGE:
       case Items.SHELTER_UPPER_LARGE:
+        const centerPoint = movePoint(
+          position,
+          angle + (90 * Math.PI) / 180,
+          2.5
+        );
+        
+        // get bounds for on top of shelter detection
+        bounds = getCubeBounds(centerPoint, 10, 5, angle, position[1] + 2.4, position[1]+1.8);
+
+        return isInsideCube([position[0], position[1], position[2]], bounds);
       case Items.SHELTER:
       case Items.SHELTER_UPPER:
-        return isInsideCubeOld(
-          [position[0], position[2]],
-          this.bounds,
-          position[1],
-          this.state.position[1] + 2.4,
-          1.8
-        );
+        // get bounds for on top of shelter detection
+        bounds = getCubeBounds(position, 5, 5, angle, position[1], position[1]+1.8);
+        return isInsideCube([position[0], position[1], position[2]], bounds);
       default:
         return false;
     }
