@@ -22,6 +22,37 @@ import { SmeltingEntity } from "../classes/smeltingentity";
 import { lootableContainerDefaultLoadouts } from "../data/loadouts";
 import { CollectingEntity } from "../classes/collectingentity";
 
+const repairMaterials = [
+    {
+        itemDefinitionId: Items.WOOD_LOG,
+        requiredCount: 5,
+    },
+    {
+        itemDefinitionId: Items.WOOD_PLANK,
+        requiredCount: 79,
+    },
+    {
+        itemDefinitionId: Items.NAIL,
+        requiredCount: 28,
+    },
+    {
+        itemDefinitionId: Items.METAL_BRACKET,
+        requiredCount: 16,
+    },
+    {
+        itemDefinitionId: Items.METAL_SHEET,
+        requiredCount: 20,
+    },
+    {
+        itemDefinitionId: Items.SHARD_METAL,
+        requiredCount: 44,
+    },
+    {
+        itemDefinitionId: Items.WOOD_STICK,
+        requiredCount: 2,
+    },
+]
+
 export class LootableConstructionEntity extends BaseLootableEntity {
   placementTime = Date.now();
   parentObjectCharacterId: string;
@@ -48,7 +79,7 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     if (itemDefinition) this.nameId = itemDefinition.NAME_ID;
     this.profileId = 999; /// mark as construction
     this.health = 1000000;
-    this.defaultLoadout = lootableContainerDefaultLoadouts.storage;
+    this.defaultLoadout = this.itemDefinitionId == Items.REPAIR_BOX? lootableContainerDefaultLoadouts.repair_box : lootableContainerDefaultLoadouts.storage;
     if (subEntityType === "SmeltingEntity") {
       this.subEntity = new SmeltingEntity(this, server);
       this.npcRenderDistance = 250;
@@ -185,6 +216,13 @@ export class LootableConstructionEntity extends BaseLootableEntity {
     }
 
     super.OnPlayerSelect(server, client);
+    if (this.itemDefinitionId == Items.REPAIR_BOX) {
+        server.sendData(client, 'Character.DailyRepairMaterials', {
+            characterId: this.characterId,
+            containerId: this.getContainer()?.containerGuid,
+            materials: repairMaterials
+            })
+    }
   }
 
   OnInteractionString(server: ZoneServer2016, client: ZoneClient2016) {

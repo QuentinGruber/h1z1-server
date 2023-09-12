@@ -181,5 +181,6 @@ export const lootableContainerDefaultLoadouts = {
   military_crate: [{ item: Items.CONTAINER_MILITARY_CRATE }],
   bee_box: [{ item: Items.CONTAINER_BEE_BOX }],
   dew_collector: [{ item: Items.CONTAINER_DEW_COLLECTOR }],
-  animal_trap: [{ item: Items.CONTAINER_ANIMAL_TRAP }]
+  animal_trap: [{ item: Items.CONTAINER_ANIMAL_TRAP }],
+  repair_box: [{ item: Items.CONTAINER_REPAIR_BOX }]
 };

@@ -709,13 +709,14 @@ export class ConstructionManager {
           BuildingSlot
         );
       case Items.STORAGE_BOX:
+      case Items.REPAIR_BOX:
         return this.placeLootableConstruction(
           server,
           itemDefinitionId,
           modelId,
           position,
           fixEulerOrder(rotation),
-          freeplaceParentCharacterId
+          parentObjectCharacterId || freeplaceParentCharacterId
         );
       case Items.FURNACE:
       case Items.BARBEQUE:
@@ -1365,7 +1366,8 @@ export class ConstructionManager {
     } else {
       server._worldLootableConstruction[characterId] = obj;
     }
-    obj.equipLoadout(server);
+      obj.equipLoadout(server);
+      console.log(parent)
 
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnLootableConstruction(server, client, obj);
@@ -1404,7 +1406,7 @@ export class ConstructionManager {
       server._worldLootableConstruction[characterId] = obj;
     }
 
-    obj.equipLoadout(server);
+      obj.equipLoadout(server);
 
     server.executeFuncForAllReadyClientsInRange((client) => {
       this.spawnLootableConstruction(server, client, obj);
