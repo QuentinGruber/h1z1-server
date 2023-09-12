@@ -1630,7 +1630,7 @@ export interface EffectTargetBlockedEffect {
 }
 }
 export interface AbilitiesSetActivatableAbilityManager {
-  unknownArray1?: any[];
+  abilities?: any[];
 }
 export interface AbilitiesSetLoadoutAbilities {
   abilities?: any[];
