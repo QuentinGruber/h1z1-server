@@ -124,10 +124,12 @@ export const commands: Array<Command> = [
     permissionLevel: PermissionLevels.DEFAULT,
     execute: (server: ZoneServer2016, client: Client, args: Array<string>) => {
       const pop = _.size(server._clients);
-        server.sendChatText(
-          client,
-          `There ${pop > 1 ? "are":"is"} ${pop} player${pop > 1 ? "s":""} online.`
-        );
+      server.sendChatText(
+        client,
+        `There ${pop > 1 ? "are" : "is"} ${pop} player${
+          pop > 1 ? "s" : ""
+        } online.`
+      );
     }
   },
   {
