@@ -92,6 +92,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   undoPlacementTime = 600000;
   interactionDistance = 4;
   destroyedEffect: number = 242;
+  isDecayProtected: boolean = false;
 
   // FOR DOORS ON SHELTERS / DOORWAYS / LOOKOUT
   readonly wallSlots: ConstructionSlotPositionMap = {};
