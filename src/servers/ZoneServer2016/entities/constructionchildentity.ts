@@ -43,11 +43,14 @@ import {
   DamageInfo,
   OccupiedSlotMap,
   SlottedConstructionEntity,
-  SquareBounds
+  SquareBounds,
+  CubeBounds
 } from "types/zoneserver";
 import {
   getConstructionSlotId,
+  getCubeBounds,
   getRectangleCorners,
+  isInsideCubeOld,
   isInsideCube,
   movePoint,
   registerConstructionSlots
@@ -89,6 +92,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   readonly fixedPosition?: Float32Array;
   placementTime = Date.now();
   readonly bounds?: SquareBounds;
+  readonly cubebounds?: CubeBounds;
   undoPlacementTime = 600000;
   interactionDistance = 4;
   destroyedEffect: number = 242;
@@ -171,10 +175,13 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
         );
         this.fixedPosition = centerPoint;
         this.bounds = getRectangleCorners(centerPoint, 10, 5, angle);
+        
+        this.cubebounds = getCubeBounds(centerPoint, 10, 5, angle, position[1], position[1]+1.8);
         break;
       case Items.SHELTER:
       case Items.SHELTER_UPPER:
         this.bounds = getRectangleCorners(position, 5, 5, angle);
+        this.cubebounds = getCubeBounds(position, 5, 5, angle, position[1], position[1]+1.8);
         break;
     }
 
@@ -399,7 +406,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
   }
 
   isInside(position: Float32Array) {
-    if (!this.bounds) {
+    if (/*!this.bounds ||*/ !this.cubebounds) {
       switch (this.itemDefinitionId) {
         case Items.STRUCTURE_STAIRS:
         case Items.STRUCTURE_STAIRS_UPPER:
@@ -407,7 +414,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
           return false;
       }
       console.error(
-        `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+        `ERROR: CONSTRUCTION CUBE BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
       );
       return false; // this should never occur
     }
@@ -417,13 +424,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.SHELTER_UPPER_LARGE:
       case Items.SHELTER:
       case Items.SHELTER_UPPER:
-        return isInsideCube(
-          [position[0], position[2]],
-          this.bounds,
-          position[1],
-          this.state.position[1],
-          1.8
-        );
+       return isInsideCube([position[0], position[1], position[2]], this.cubebounds)
       default:
         return false;
     }
@@ -448,7 +449,7 @@ export class ConstructionChildEntity extends BaseLightweightCharacter {
       case Items.SHELTER_UPPER_LARGE:
       case Items.SHELTER:
       case Items.SHELTER_UPPER:
-        return isInsideCube(
+        return isInsideCubeOld(
           [position[0], position[2]],
           this.bounds,
           position[1],

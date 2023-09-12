@@ -819,6 +819,25 @@ const dev: any = {
       return;
     }
 
+    if(entity.cubebounds) {
+      for (const point of entity.cubebounds) {
+        server.constructionManager.placeTemporaryEntity(
+          server,
+          1,
+          new Float32Array([
+            point[0],
+            point[1],
+            point[2]
+          ]),
+          new Float32Array([0, 0, 0, 1]),
+          30000
+        );
+      }
+
+      server.sendChatText(client, "Displaying 3d bounds");
+      return;
+    }
+
     for (const point of bounds) {
       server.constructionManager.placeTemporaryEntity(
         server,
@@ -832,6 +851,7 @@ const dev: any = {
         30000
       );
     }
+    server.sendChatText(client, "Displaying 2d bounds");
   }
 };
 export default dev;

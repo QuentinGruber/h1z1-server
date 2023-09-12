@@ -312,6 +312,10 @@ type Point2D = [number, number];
 
 export type SquareBounds = [Point2D, Point2D, Point2D, Point2D];
 
+export type Point3D = [...Point2D, number];
+
+export type CubeBounds = [Point3D, Point3D, Point3D, Point3D, Point3D, Point3D, Point3D, Point3D];
+
 export interface ClientBan {
   name: string;
   banType: string;

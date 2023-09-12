@@ -18,14 +18,17 @@ import { ZoneServer2016 } from "../zoneserver";
 import {
   getConstructionSlotId,
   isInsideSquare,
-  isInsideCube,
+  isInsideCubeOld,
   registerConstructionSlots,
-  getRectangleCorners
+  getRectangleCorners,
+  getCubeBounds,
+  isInsideCube
 } from "../../../utils/utils";
 import { ZoneClient2016 } from "../classes/zoneclient";
 import {
   ConstructionPermissions,
   ConstructionSlotPositionMap,
+  CubeBounds,
   OccupiedSlotMap,
   SquareBounds
 } from "types/zoneserver";
@@ -63,6 +66,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
   readonly slot: string;
   readonly damageRange: number;
   readonly bounds?: SquareBounds;
+  readonly cubebounds?: CubeBounds;
 
   constructor(
     characterId: string,
@@ -134,6 +138,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
         break;
       case Items.SHACK:
         this.bounds = getRectangleCorners(position, 4.7, 5, -this.eulerAngle);
+        this.cubebounds = getCubeBounds(position, 4.7, 5, -this.eulerAngle, position[1]+.7, position[1]+2.8);
         this.interactionDistance = 4;
         break;
       case Items.SHACK_SMALL:
@@ -143,10 +148,12 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
           2.5,
           -this.eulerAngle
         );
+        this.cubebounds = getCubeBounds(position, 3.5, 2.5, -this.eulerAngle, position[1]+.7, position[1]+2.8);
         this.interactionDistance = 4;
         break;
       case Items.SHACK_BASIC:
         this.bounds = getRectangleCorners(position, 1.6, 1.6, -this.eulerAngle);
+        this.cubebounds = getCubeBounds(position, 1.6, 1.6, -this.eulerAngle, position[1], position[1]+1.7);
         this.interactionDistance = 4;
         break;
     }
@@ -657,18 +664,27 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.FOUNDATION:
       case Items.FOUNDATION_EXPANSION:
       case Items.GROUND_TAMPER:
-      case Items.SHACK:
-      case Items.SHACK_BASIC:
-      case Items.SHACK_SMALL:
         if (!this.bounds) {
           console.error(
             `ERROR: CONSTRUCTION BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
           );
           return false; // this should never occur
         }
+        break;
+      case Items.SHACK:
+      case Items.SHACK_BASIC:
+      case Items.SHACK_SMALL:
+        if (!this.cubebounds) {
+          console.error(
+            `ERROR: CONSTRUCTION 3D BOUNDS IS NOT DEFINED FOR ${this.itemDefinitionId} ${this.characterId}`
+          );
+          return false; // this should never occur
+        }
+      break;
     }
 
-    const bounds = this.bounds as SquareBounds;
+    const bounds = this.bounds as SquareBounds,
+    cubebounds = this.cubebounds as CubeBounds;
 
     switch (this.itemDefinitionId) {
       case Items.FOUNDATION:
@@ -676,29 +692,9 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       case Items.GROUND_TAMPER:
         return isInsideSquare([position[0], position[2]], bounds);
       case Items.SHACK:
-        return isInsideCube(
-          [position[0], position[2]],
-          bounds,
-          position[1],
-          this.state.position[1],
-          2.1
-        );
       case Items.SHACK_BASIC:
-        return isInsideCube(
-          [position[0], position[2]],
-          bounds,
-          position[1],
-          this.state.position[1],
-          1.7
-        );
       case Items.SHACK_SMALL:
-        return isInsideCube(
-          [position[0], position[2]],
-          bounds,
-          position[1],
-          this.state.position[1],
-          2.1
-        );
+        return isInsideCube([position[0], position[1], position[2]], cubebounds);
       default:
         return false;
     }
@@ -712,7 +708,7 @@ export class ConstructionParentEntity extends ConstructionChildEntity {
       return false; // this should never occur
     }
     const fixY = this.itemDefinitionId == Items.FOUNDATION ? 1 : 0;
-    return isInsideCube(
+    return isInsideCubeOld(
       [position[0], position[2]],
       this.bounds,
       position[1],
